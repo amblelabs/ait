@@ -293,6 +293,12 @@ public class AITMod implements ModInitializer {
     public static final Identifier OPEN_SCREEN_TARDIS = AITMod.id("open_screen_tardis");
     public static final Identifier OPEN_SCREEN_CONSOLE = AITMod.id("open_screen_console");
 
+    public static void openScreen(ServerPlayerEntity player, int id) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeInt(id);
+        ServerPlayNetworking.send(player, OPEN_SCREEN, buf);
+    }
+
     public static void openScreen(ServerPlayerEntity player, int id, UUID tardis) {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeInt(id);

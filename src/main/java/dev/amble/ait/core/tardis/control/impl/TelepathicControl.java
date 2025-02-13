@@ -49,7 +49,7 @@ import dev.amble.ait.data.Loyalty;
 
 public class TelepathicControl extends Control {
 
-    private static final int RADIUS = 256;
+    public static final int RADIUS = 256;
 
     public TelepathicControl() {
         super("telepathic_circuit");
