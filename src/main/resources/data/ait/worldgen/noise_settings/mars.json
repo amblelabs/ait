@@ -8,10 +8,7 @@
     "Name": "ait:martian_stone"
   },
   "default_fluid": {
-    "Name": "minecraft:lava",
-    "Properties": {
-      "level": "2"
-    }
+    "Name": "minecraft:lava"
   },
   "noise": {
     "min_y": -64,
@@ -301,7 +298,7 @@
         "if_true": {
           "type": "minecraft:y_above",
           "anchor": {
-            "absolute": 0
+            "absolute": 10
           },
           "surface_depth_multiplier": 0,
           "add_stone_depth": false
@@ -324,11 +321,21 @@
           "add_stone_depth": false
         },
         "then_run": {
-          "type": "minecraft:block",
-          "result_state": {
-            "Name": "minecraft:deepslate",
-            "Properties": {
-              "axis": "y"
+          "type": "minecraft:condition",
+          "if_true": {
+            "type": "minecraft:vertical_gradient",
+            "random_name": "ait:martian_deepslate",
+            "true_at_and_below": {
+              "above_bottom": 64
+            },
+            "false_at_and_above": {
+              "below_top": 72
+            }
+          },
+          "then_run": {
+            "type": "minecraft:block",
+            "result_state": {
+              "Name": "minecraft:deepslate"
             }
           }
         }
@@ -346,10 +353,7 @@
         "then_run": {
           "type": "minecraft:block",
           "result_state": {
-            "Name": "minecraft:lava",
-            "Properties": {
-              "level": "1"
-            }
+            "Name": "minecraft:lava"
           }
         }
       },

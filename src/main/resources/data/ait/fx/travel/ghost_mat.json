@@ -1,0 +1,11 @@
+{
+  "target": "mat",
+  "id": "ait:ghost_mat",
+  "sound": "ait:tardis/ghost_mat",
+  "timeLeft": 490,
+  "maxTime": 490,
+  "startTime": 340,
+  "length": 490,
+  "frequency": 0.2,
+  "intensity": 0.3
+}

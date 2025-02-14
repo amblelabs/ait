@@ -169,6 +169,10 @@
 			"scale": [2, 2, 2]
 		}
 	},
+	"overrides": [
+		{"predicate": {"advent": 0}, "model": "ait:item/hypercube"},
+		{"predicate": {"advent": 1}, "model": "ait:item/advent/present"}
+	],
 	"groups": [
 		{
 			"name": "group",

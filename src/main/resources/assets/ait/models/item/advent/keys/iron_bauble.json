@@ -1,0 +1,6 @@
+{
+  "parent": "ait:item/advent/bauble_key",
+  "textures": {
+    "0": "ait:item/advent/keys/iron"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "north": "ait:block/decoration/roundels/crystalline_block",
+    "south": "ait:block/decoration/roundels/crystalline_block",
+    "east": "ait:block/decoration/roundels/crystalline_block",
+    "west": "ait:block/decoration/roundels/crystalline_block",
+    "up": "ait:block/decoration/roundels/crystalline_block",
+    "down": "ait:block/decoration/roundels/crystalline_block",
+    "particle": "ait:block/decoration/roundels/crystalline_block"
+  }
+}

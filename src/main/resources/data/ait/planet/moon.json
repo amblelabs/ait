@@ -2,5 +2,6 @@
   "dimension": "ait:moon",
   "gravity": 0.075,
   "has_oxygen": false,
-  "temperature": 90
+  "temperature": 90,
+  "has_clouds": false
 }

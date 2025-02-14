@@ -1,0 +1,21 @@
+{
+  "temperature": 1,
+  "downfall": 0.4,
+  "has_precipitation": false,
+  "effects": {
+    "sky_color": 0,
+    "fog_color": 5197647,
+    "water_color": 4159204,
+    "water_fog_color": 329011,
+    "music": {
+      "sound": "ait:music/wonderful_time_in_space",
+      "min_delay": 12000,
+      "max_delay": 24000,
+      "replace_current_music": true
+    }
+  },
+  "spawners": {},
+  "spawn_costs": {},
+  "carvers": {},
+  "features": []
+}

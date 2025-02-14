@@ -1,0 +1,78 @@
+{
+  "name": "ait:cult_mars_peices",
+  "fallback": "ait:cult_mars_corridor_end",
+  "elements": [
+    {
+      "weight": 13,
+      "element": {
+        "location": "ait:cultist/mars/cultist_long_straight",
+        "processors": "minecraft:mossify_10_percent",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 13,
+      "element": {
+        "location": "ait:cultist/mars/cultist_short_straight",
+        "processors": "minecraft:mossify_10_percent",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 24,
+      "element": {
+        "location": "ait:cultist/mars/cultist_fourway",
+        "processors": "minecraft:mossify_10_percent",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 20,
+      "element": {
+        "location": "ait:cultist/mars/cultist_threeway",
+        "processors": "minecraft:mossify_10_percent",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 20,
+      "element": {
+        "location": "ait:cultist/mars/cultist_bend",
+        "processors": "minecraft:mossify_10_percent",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 21,
+      "element": {
+        "location": "ait:cultist/mars/cultist_stairs",
+        "processors": "minecraft:mossify_10_percent",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 14,
+      "element": {
+        "location": "ait:cultist/mars/cultist_trapped_short_straight",
+        "processors": "minecraft:mossify_10_percent",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+    {
+      "weight": 15,
+      "element": {
+        "location": "ait:cultist/mars/cultist_treasure_room_one",
+        "processors": "minecraft:mossify_10_percent",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    }
+  ]
+}

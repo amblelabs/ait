@@ -1,0 +1,11 @@
+{
+  "target": "demat",
+  "id": "ait:gb_demat",
+  "sound": "ait:tardis/gb_demat",
+  "timeLeft": 160,
+  "maxTime": 160,
+  "startTime": 140,
+  "length": 500,
+  "frequency": 0.2,
+  "intensity": 0.4
+}

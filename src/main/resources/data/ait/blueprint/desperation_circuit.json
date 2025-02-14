@@ -1,0 +1,38 @@
+{
+  "output": {
+    "id": "ait:desperation_circuit",
+    "Count": 1
+  },
+  "inputs": [
+    {
+      "item": "minecraft:obsidian",
+      "maxCount": 3,
+      "minCount": 1
+    },
+    {
+      "item": "minecraft:glass",
+      "maxCount": 2,
+      "minCount": 1
+    },
+    {
+      "item": "ait:data_mercurial_link",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:condenser",
+      "maxCount": 5,
+      "minCount": 3
+    },
+    {
+      "item": "ait:inductor",
+      "maxCount": 5,
+      "minCount": 4
+    },
+    {
+      "item": "minecraft:iron_ingot",
+      "maxCount": 14,
+      "minCount": 11
+    }
+  ]
+}

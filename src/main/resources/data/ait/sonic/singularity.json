@@ -1,0 +1,13 @@
+{
+  "id": "ait:singularity",
+  "models": {
+    "inactive": "ait:item/sonic/singularity/inactive",
+    "interaction": "ait:item/sonic/singularity/interaction",
+    "overload": "ait:item/sonic/singularity/overload",
+    "scanning": "ait:item/sonic/singularity/scanning",
+    "tardis": "ait:item/sonic/singularity/tardis"
+  },
+  "loyalty": {
+    "type": "PILOT"
+  }
+}

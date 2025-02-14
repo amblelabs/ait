@@ -1,0 +1,23 @@
+{
+  "output": {
+    "id": "ait:artron_fluid_link",
+    "Count": 1
+  },
+  "inputs": [
+    {
+      "item": "ait:cable_block",
+      "maxCount": 2,
+      "minCount": 1
+    },
+    {
+      "item": "minecraft:copper_ingot",
+      "maxCount": 4,
+      "minCount": 3
+    },
+    {
+      "item": "ait:artron_collector",
+      "maxCount": 3,
+      "minCount": 1
+    }
+  ]
+}

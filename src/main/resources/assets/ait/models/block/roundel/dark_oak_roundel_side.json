@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "north": "ait:block/decoration/roundels/dark_oak_sides",
+    "south": "ait:block/decoration/roundels/dark_oak_sides",
+    "east": "ait:block/decoration/roundels/dark_oak_sides",
+    "west": "ait:block/decoration/roundels/dark_oak_sides",
+    "up": "ait:block/decoration/roundels/dark_oak_sides",
+    "down": "ait:block/decoration/roundels/dark_oak_sides",
+    "particle": "ait:block/decoration/roundels/dark_oak_sides"
+  }
+}

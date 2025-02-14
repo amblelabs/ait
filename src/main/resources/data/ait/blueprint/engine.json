@@ -1,0 +1,43 @@
+{
+  "output": {
+    "id": "ait:engine_block",
+    "Count": 1
+  },
+  "inputs": [
+    {
+      "item": "ait:artron_fluid_link",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:data_fluid_link",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:vortex_fluid_link",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:cable_block",
+      "maxCount": 8,
+      "minCount": 6
+    },
+    {
+      "item": "minecraft:iron_block",
+      "maxCount": 6,
+      "minCount": 4
+    },
+    {
+      "item": "ait:zeiton_shard",
+      "maxCount": 6,
+      "minCount": 3
+    },
+    {
+      "item": "minecraft:glass",
+      "maxCount": 12,
+      "minCount": 8
+    }
+  ]
+}

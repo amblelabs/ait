@@ -1,0 +1,5 @@
+{
+  "id": "ait:exile",
+  "parent": "ait:console/hartnell",
+  "texture": "ait:textures/blockentities/consoles/exile.png"
+}

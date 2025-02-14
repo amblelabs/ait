@@ -1,6 +1,16 @@
 ext.getCurrentVersion = {
     var patch = System.getenv("GITHUB_RUN_NUMBER")
+    var branch = System.getenv("GITHUB_REF")
 
-    return project.mod_version + (patch != null ? ("." + System.getenv("GITHUB_RUN_NUMBER")) : "")\
-        + "-" + project.minecraft_version + "-" + project.mod_version_qualifier
+    if (branch != null && branch.startsWith("refs/heads/")) {
+        branch = branch.substring("refs/heads/".length())
+        // replace / with _
+        branch = branch.replaceAll("/", "_")
+        if (branch == "main" || branch == "release") {
+            branch = null
+        }
+    }
+
+    return project.mod_version + (patch != null ? ("." + patch) : "")\
+        + "-" + project.minecraft_version + "-" + project.mod_version_qualifier + (branch != null ? ("-" + branch) : "")
 }
