@@ -28,6 +28,8 @@ bin/
 
 *.DS_Store
 
+*.bbmodel
+
 # fabric
 
 run/

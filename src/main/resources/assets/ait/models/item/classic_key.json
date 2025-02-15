@@ -178,5 +178,9 @@
 			"color": 0,
 			"children": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 		}
+	],
+	"overrides": [
+		{"predicate": {"advent": 0}, "model": "ait:item/classic_key"},
+		{"predicate": {"advent": 1}, "model": "ait:item/advent/bauble_key"}
 	]
 }

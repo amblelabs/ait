@@ -1,0 +1,15 @@
+{
+  "name": "ait:mars_rover",
+  "fallback": "ait:mars_rover",
+  "elements": [
+    {
+      "weight": 100,
+      "element": {
+        "location": "ait:mars_rover",
+        "processors": "minecraft:mossify_10_percent",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "ait:cult_nether_corridor_end",
+  "fallback": "ait:cult_nether_corridor_end",
+  "elements": [
+    {
+      "weight": 100,
+      "element": {
+        "location": "ait:cultist/nether/cultist_corridor_end",
+        "processors": "ait:cult_nether",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    }
+  ]
+}

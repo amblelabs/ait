@@ -2,5 +2,9 @@
 	"parent": "item/generated",
 	"textures": {
 		"layer0": "ait:item/hazandra"
-	}
+	},
+	"overrides": [
+		{"predicate": {"advent": 0}, "model": "ait:item/hazandra"},
+		{"predicate": {"advent": 1}, "model": "ait:item/advent/christmas_card"}
+	]
 }

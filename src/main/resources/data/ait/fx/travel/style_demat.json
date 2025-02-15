@@ -1,0 +1,11 @@
+{
+  "target": "demat",
+  "id": "ait:style_demat",
+  "sound": "ait:tardis/style_demat",
+  "timeLeft": 300,
+  "maxTime": 160,
+  "startTime": 140,
+  "length": 400,
+  "frequency": 0.2,
+  "intensity": 0.4
+}

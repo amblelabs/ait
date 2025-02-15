@@ -5,12 +5,12 @@
     "texture": "ait:textures/blockentities/exteriors/police_box/frooploof/police_box_coral_bad_wolf.png",
     "emission": "ait:textures/blockentities/exteriors/police_box/frooploof/police_box_coral_bad_wolf_emission.png",
     "overrides": {
-        "snowy": "ait:textures/blockentities/exteriors/police_box/frooploof/police_box_coral_bad_wolf_snowy.png",
-        "sculk": "ait:textures/blockentities/exteriors/police_box/police_box_sculk.png",
-        "sandy": "ait:textures/blockentities/exteriors/police_box/police_box_coral_sand.png",
-        "red_sandy": "ait:textures/blockentities/exteriors/police_box/police_box_coral_red_sand.png",
-        "muddy": "ait:textures/blockentities/exteriors/police_box/police_box_mud.png",
-        "chorus": "ait:textures/blockentities/exteriors/police_box/police_box_chorus.png",
-        "cherry": "ait:textures/blockentities/exteriors/police_box/police_box_cherry.png"
+        "snowy": "ait:textures/blockentities/exteriors/police_box/frooploof/biome/police_box_coral_bad_wolf_snowy.png",
+        "sculk": "ait:textures/blockentities/exteriors/police_box/biome/police_box_sculk.png",
+        "sandy": "ait:textures/blockentities/exteriors/police_box/biome/police_box_coral_sand.png",
+        "red_sandy": "ait:textures/blockentities/exteriors/police_box/biome/police_box_coral_red_sand.png",
+        "muddy": "ait:textures/blockentities/exteriors/police_box/biome/police_box_mud.png",
+        "chorus": "ait:textures/blockentities/exteriors/police_box/biome/police_box_chorus.png",
+        "cherry": "ait:textures/blockentities/exteriors/police_box/biome/police_box_cherry.png"
     }
 }

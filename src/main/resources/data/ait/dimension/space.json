@@ -1,0 +1,15 @@
+{
+  "type": "ait:space_dimension_type",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "ait:space",
+      "lakes": false,
+      "features": false,
+      "layers": [],
+      "structures": {
+        "structures": {}
+      }
+    }
+  }
+}

@@ -1,12 +1,15 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "loqor.ait.mixin",
+  "package": "dev.amble.ait.mixin",
   "compatibilityLevel": "JAVA_17",
-  "plugin": "loqor.ait.compat.AITMixinPlugin",
+  "plugin": "dev.amble.ait.compat.AITMixinPlugin",
   "mixins": [
+    "LivingEntityMixin",
+    "UseActionMixin",
     "artron.ServerWorldMixin",
     "client.experimental_screen.LevelSummaryMixin",
+    "client.rendering.EntityMixin",
     "compat.gravity.EntityTagsMixin",
     "lookup.EntityTrackingSectionAccessor",
     "lookup.SectionedEntityCacheAccessor",
@@ -15,24 +18,21 @@
     "networking.ServerPlayerEntityMixin",
     "networking.ServerWorldMixin",
     "networking.ThreadedAnvilChunkStorageMixin",
+    "rwf.DismountEntityMixin",
+    "rwf.LivingEntityAccessor",
     "server.BedInTardisMixin",
     "server.EnderDragonFightAccessor",
     "server.ItemEntityMixin",
     "server.MinecraftServerMixin",
-    "server.ServerPlayerInteractionManagerMixin",
     "server.ServerPlayerMixin",
     "server.ServerWorldMixin",
     "server.StructureTemplateMixin",
-    "server.gravity.AssortedEntityMixin",
-    "server.gravity.BoatEntityMixin",
-    "server.gravity.LivingEntityMixin",
-    "server.structure.StructureTemplateAccessor",
-    "server.structure.StructureTemplateMixin"
+    "server.structure.StructureTemplateAccessor"
   ],
   "client": [
-    "client.ClientPlayerInteractionManagerMixin",
     "client.DefaultLogoMixin",
     "client.ItemRendererMixin",
+    "client.MinecraftClientMixin",
     "client.TitleScreenMixin",
     "client.experimental_screen.CreateWorldScreenMixin",
     "client.experimental_screen.WorldOpenFlowsMixin",
@@ -40,11 +40,13 @@
     "client.rendering.BakedModelManagerMixin",
     "client.rendering.BGRendererMixin",
     "client.rendering.DebugRendererMixin",
-    "client.rendering.GameRendererMixin",
     "client.rendering.HeadFeatureRendererMixin",
     "client.rendering.HeldItemRendererMixin",
     "client.rendering.PlayerEntityRendererMixin",
-    "client.rendering.SkyboxMixin"
+    "client.rendering.SkyboxMixin",
+    "client.rendering.framebuffer.MixinMainFramebufferTarget",
+    "client.rendering.framebuffer.MixinRenderFramebufferTarget",
+    "client.sonic.SonicItemRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

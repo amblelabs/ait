@@ -1,0 +1,15 @@
+{
+  "name": "ait:moon_lander",
+  "fallback": "ait:moon_lander",
+  "elements": [
+    {
+      "weight": 100,
+      "element": {
+        "location": "ait:moon_lander",
+        "processors": "minecraft:mossify_10_percent",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    }
+  ]
+}

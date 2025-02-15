@@ -1,0 +1,11 @@
+{
+  "target": "mat",
+  "id": "ait:style_mat",
+  "sound": "ait:tardis/style_mat",
+  "timeLeft": 300,
+  "maxTime": 160,
+  "startTime": 140,
+  "length": 300,
+  "frequency": 0.2,
+  "intensity": 0.4
+}

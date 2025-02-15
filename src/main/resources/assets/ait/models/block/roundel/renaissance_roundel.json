@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "north": "ait:block/decoration/roundels/renaissance",
+    "south": "ait:block/decoration/roundels/renaissance",
+    "east": "ait:block/decoration/roundels/renaissance",
+    "west": "ait:block/decoration/roundels/renaissance",
+    "up": "ait:block/decoration/roundels/renaissance",
+    "down": "ait:block/decoration/roundels/renaissance",
+    "particle": "ait:block/decoration/roundels/renaissance"
+  }
+}

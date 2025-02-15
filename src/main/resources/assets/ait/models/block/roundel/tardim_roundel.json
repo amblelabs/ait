@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "north": "ait:block/decoration/roundels/tardim",
+    "south": "ait:block/decoration/roundels/tardim",
+    "east": "ait:block/decoration/roundels/tardim",
+    "west": "ait:block/decoration/roundels/tardim",
+    "up": "ait:block/decoration/roundels/tardim",
+    "down": "ait:block/decoration/roundels/tardim",
+    "particle": "ait:block/decoration/roundels/tardim"
+  }
+}
