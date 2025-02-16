@@ -234,7 +234,7 @@ AITModDataGenerator implements DataGeneratorEntrypoint {
                     .pattern("IBI")
                     .pattern("BSB")
                     .pattern("IBI")
-                    .input('I', Items.IRON_BLOCK)
+                    .input('I', Items.IRON_INGOT)
                     .input('B', Items.IRON_BARS)
                     .input('S', Items.GHAST_TEAR)
                     .criterion(hasItem(Items.IRON_BLOCK), conditionsFromItem(Items.IRON_BLOCK))

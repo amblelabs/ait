@@ -177,6 +177,10 @@ public class AITBlocks extends BlockContainer {
             .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).nonOpaque()
             .requiresTool().instrument(Instrument.COW_BELL).strength(1.5F, 6.0F));
 
+    @AutomaticModel(justItem = true)
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
+    public static final Block ASTRAL_MAP = new AstralMapBlock(FabricBlockSettings.create().nonOpaque().strength(1.5F, 6.0F));
+
     // Control Blocks
     @NoBlockItem
     @NoEnglish

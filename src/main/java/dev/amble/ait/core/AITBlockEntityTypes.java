@@ -69,6 +69,8 @@ public class AITBlockEntityTypes implements BlockEntityContainer {
             .create(PowerConverterBlock.BlockEntity::new, AITBlocks.POWER_CONVERTER).build();
     public static BlockEntityType<GenericStructureSystemBlockEntity> GENERIC_SUBSYSTEM_BLOCK_TYPE = FabricBlockEntityTypeBuilder
             .create(GenericStructureSystemBlockEntity::new, AITBlocks.GENERIC_SUBSYSTEM).build();
+    public static BlockEntityType<AstralMapBlockEntity> ASTRAL_MAP = FabricBlockEntityTypeBuilder
+            .create(AstralMapBlockEntity::new, AITBlocks.ASTRAL_MAP).build();
 
     // TODO ADVENT might have to make this work like the block as well
     static {
