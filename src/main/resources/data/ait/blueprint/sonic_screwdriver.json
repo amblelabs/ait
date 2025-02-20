@@ -1,0 +1,33 @@
+{
+  "output": {
+    "id": "ait:sonic_screwdriver",
+    "Count": 1
+  },
+  "inputs": [
+    {
+      "item": "redstone",
+      "maxCount": 6,
+      "minCount": 5
+    },
+    {
+      "item": "repeater",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "iron_ingot",
+      "maxCount": 5,
+      "minCount": 3
+    },
+    {
+      "item": "ait:zeiton_shard",
+      "maxCount": 8,
+      "minCount": 5
+    },
+    {
+      "item": "ait:artron_collector",
+      "maxCount": 1,
+      "minCount": 1
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "output": {
+    "id": "ait:coral_plant",
+    "Count": 1
+  },
+  "inputs": [
+    {
+      "item": "dead_brain_coral",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "netherite_scrap",
+      "maxCount": 4,
+      "minCount": 1
+    },
+    {
+      "item": "end_crystal",
+      "maxCount": 3,
+      "minCount": 2
+    },
+    {
+      "item": "redstone_block",
+      "maxCount": 5,
+      "minCount": 3
+    },
+    {
+      "item": "blaze_powder",
+      "maxCount": 3,
+      "minCount": 2
+    },
+    {
+      "item": "minecraft:ender_pearl",
+      "maxCount": 4,
+      "minCount": 2
+    },
+    {
+      "item": "ait:charged_zeiton_crystal",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:console_generator",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ender_eye",
+      "maxCount": 4,
+      "minCount": 1
+    },
+    {
+      "item": "ait:artron_collector_block",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:budding_zeiton",
+      "maxCount": 5,
+      "minCount": 1
+    }
+  ]
+}

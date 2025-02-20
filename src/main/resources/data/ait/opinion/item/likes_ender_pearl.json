@@ -1,0 +1,8 @@
+{
+  "id": "ait:likes_ender_pearl",
+  "stack": {
+    "id": "minecraft:ender_pearl",
+    "Count": 1
+  },
+  "loyalty": 10
+}

@@ -1,0 +1,8 @@
+{
+	"credit": "Made by Loqor",
+	"parent": "item/generated",
+	"textures": {
+		"0": "ait:item/mug",
+		"particle": "ait:item/mug"
+	}
+}

@@ -1,0 +1,38 @@
+package dev.amble.ait.data.schema.exterior.variant.easter_head;
+
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
+import dev.amble.ait.core.tardis.animation.PulsatingAnimation;
+import dev.amble.ait.data.Loyalty;
+import dev.amble.ait.data.schema.door.DoorSchema;
+import dev.amble.ait.data.schema.door.impl.EasterHeadDoorVariant;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.data.schema.exterior.category.EasterHeadCategory;
+import dev.amble.ait.registry.impl.door.DoorRegistry;
+
+// a useful class for creating easter_head variants as they all have the same filepath you know
+public abstract class EasterHeadVariant extends ExteriorVariantSchema {
+    protected static final String TEXTURE_PATH = "textures/blockentities/exteriors/easter_head/easter_head_";
+
+    protected EasterHeadVariant(String name) {
+        super(EasterHeadCategory.REFERENCE, AITMod.id("exterior/easter_head/" + name),
+                new Loyalty(Loyalty.Type.COMPANION));
+    }
+
+    @Override
+    public ExteriorAnimation animation(ExteriorBlockEntity exterior) {
+        return new PulsatingAnimation(exterior);
+    }
+
+    @Override
+    public DoorSchema door() {
+        return DoorRegistry.REGISTRY.get(EasterHeadDoorVariant.REFERENCE);
+    }
+
+    @Override
+    public boolean hasPortals() {
+        return false;
+    }
+}

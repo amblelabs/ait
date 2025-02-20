@@ -1,0 +1,11 @@
+{
+  "target": "mat",
+  "id": "ait:classic_mat",
+  "sound": "ait:tardis/classic_mat",
+  "timeLeft": 460,
+  "maxTime": 220,
+  "startTime": 180,
+  "length": 440,
+  "frequency": 0.2,
+  "intensity": 0.4
+}

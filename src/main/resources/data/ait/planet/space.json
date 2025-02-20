@@ -1,0 +1,8 @@
+{
+  "dimension": "ait:space",
+  "gravity": 0.08,
+  "has_oxygen": false,
+  "has_landable_surface": false,
+  "temperature": 2,
+  "has_clouds": false
+}

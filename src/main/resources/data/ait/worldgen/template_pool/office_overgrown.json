@@ -1,0 +1,15 @@
+{
+  "name": "ait:office_overgrown",
+  "fallback": "ait:office_overgrown",
+  "elements": [
+    {
+      "weight": 100,
+      "element": {
+        "location": "ait:office_overgrown",
+        "processors": "minecraft:mossify_10_percent",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    }
+  ]
+}

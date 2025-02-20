@@ -1,0 +1,11 @@
+{
+  "target": "demat",
+  "id": "ait:proton_demat",
+  "sound": "ait:tardis/proton_demat",
+  "timeLeft": 160,
+  "maxTime": 160,
+  "startTime": 140,
+  "length": 400,
+  "frequency": 0.2,
+  "intensity": 0.4
+}
