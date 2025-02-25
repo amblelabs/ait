@@ -1,0 +1,18 @@
+{
+  "id": "ait:tokamak",
+  "category": "ait:exterior/police_box",
+  "parent": "ait:exterior/police_box/renaissance",
+  "texture": "ait:textures/blockentities/exteriors/police_box/tokamak.png",
+  "emission": "ait:textures/blockentities/exteriors/police_box/tokamak_emission.png",
+  "overrides": {
+    "snowy": "ait:textures/blockentities/exteriors/police_box/biome/police_box_tokamak_snowy.png",
+    "sculk": "ait:textures/blockentities/exteriors/police_box/biome/police_box_sculk.png",
+    "sandy": "ait:textures/blockentities/exteriors/police_box/biome/police_box_sand.png",
+    "red_sandy": "ait:textures/blockentities/exteriors/police_box/biome/police_box_red_sand.png",
+    "muddy": "ait:textures/blockentities/exteriors/police_box/biome/police_box_mud.png",
+    "chorus": "ait:textures/blockentities/exteriors/police_box/biome/police_box_tokamak_chorus.png",
+    "cherry": "ait:textures/blockentities/exteriors/police_box/biome/police_box_cherry.png"
+  },
+  "vortex": "ait:storm",
+  "loyalty": "PILOT"
+}

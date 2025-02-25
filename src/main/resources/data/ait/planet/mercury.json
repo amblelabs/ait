@@ -1,0 +1,23 @@
+{
+  "dimension": "ait:mercury",
+  "gravity": 0.38,
+  "has_oxygen": false,
+  "has_landable_surface": false,
+  "temperature": 430,
+  "render": {
+    "texture": "ait:textures/environment/mercury.png",
+    "position": [1650, 300, -1000],
+    "scale": [400, 400, 400],
+    "rotation": [0, 10, 0],
+    "clouds": false,
+    "atmosphere": false,
+    "color": [0.5, 0.5, 0.5],
+    "radius": 600,
+    "suction_radius": 500,
+    "has_rings": false
+  },
+  "transition": {
+    "target": "ait:space",
+    "height": 300
+  }
+}

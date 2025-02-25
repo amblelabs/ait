@@ -1,0 +1,6 @@
+{
+  "type": "ait:crater",
+  "config": {
+    "probability": 0.1
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "output": {
+    "id": "ait:backup_circuit",
+    "Count": 1
+  },
+  "inputs": [
+    {
+      "item": "ait:charged_zeiton_crystal",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:inductor",
+      "maxCount": 3,
+      "minCount": 2
+    },
+    {
+      "item": "ait:condensor",
+      "maxCount": 5,
+      "minCount": 4
+    },
+    {
+      "item": "minecraft:iron_ingot",
+      "maxCount": 6,
+      "minCount": 4
+    },
+    {
+      "item": "ait:artron_mercurial_link",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:zeiton_dust",
+      "maxCount": 5,
+      "minCount": 2
+    },
+    {
+      "item": "ait:data_fluid_link",
+      "maxCount": 1,
+      "minCount": 1
+    }
+  ]
+}

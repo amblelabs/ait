@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/template_music_disc",
+  "textures": {
+    "layer0": "ait:item/wonderful_time_in_space_music_disc"
+  }
+}

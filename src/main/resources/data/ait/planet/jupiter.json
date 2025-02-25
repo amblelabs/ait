@@ -1,0 +1,23 @@
+{
+  "dimension": "ait:jupiter",
+  "gravity": 2.5,
+  "has_oxygen": false,
+  "has_landable_surface": false,
+  "temperature": -145,
+  "render": {
+    "texture": "ait:textures/environment/jupiter.png",
+    "position": [22000, 150, 18000],
+    "scale": [1600, 1600, 1600],
+    "rotation": [5, 20, 0],
+    "clouds": false,
+    "atmosphere": true,
+    "color": [0.9, 0.7, 0.5],
+    "radius": 1600,
+    "suction_radius": 1300,
+    "has_rings": false
+  },
+  "transition": {
+    "target": "ait:space",
+    "height": 800
+  }
+}

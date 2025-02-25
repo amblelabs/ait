@@ -2,5 +2,9 @@
 	"parent": "ait:item/tardis_key",
 	"textures": {
 		"texture": "ait:item/keys/iron_key"
-	}
+	},
+	"overrides": [
+		{"predicate": {"advent": 0}, "model": "ait:item/iron_key"},
+		{"predicate": {"advent": 1}, "model": "ait:item/advent/keys/iron_bauble"}
+	]
 }

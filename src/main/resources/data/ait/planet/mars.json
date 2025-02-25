@@ -2,5 +2,22 @@
   "dimension": "ait:mars",
   "gravity": 0.05,
   "has_oxygen": false,
-  "temperature": 210
+  "has_landable_surface": true,
+  "temperature": 210,
+  "render": {
+    "texture": "ait:textures/environment/mars.png",
+    "position": [-12000, 100, -10000],
+    "scale": [700, 700, 700],
+    "rotation": [55, 12, 0],
+    "clouds": false,
+    "atmosphere": true,
+    "color": [0.8, 0.3, 0.1],
+    "radius": 800,
+    "suction_radius": 600,
+    "has_rings": false
+  },
+  "transition": {
+    "target": "ait:space",
+    "height": 500
+  }
 }

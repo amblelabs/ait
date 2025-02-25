@@ -1,0 +1,14 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 1723456789,
+    "separation": 10,
+    "spacing": 40
+  },
+  "structures": [
+    {
+      "structure": "ait:cyber_wreck",
+      "weight": 1
+    }
+  ]
+}

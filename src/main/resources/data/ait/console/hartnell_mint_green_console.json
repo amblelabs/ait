@@ -1,0 +1,5 @@
+{
+  "id": "ait:hartnell_mint_green_console",
+  "parent": "ait:console/hartnell",
+  "texture": "ait:textures/blockentities/consoles/hartnell_mint_green_console.png"
+}
