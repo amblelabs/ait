@@ -1,0 +1,8 @@
+{
+  "id": "ait:likes_end_crystal",
+  "stack": {
+    "id": "minecraft:end_crystal",
+    "Count": 1
+  },
+  "loyalty": 15
+}

@@ -1,66 +1,69 @@
-// Andrij Glyko <nitrogenesis.developer@gmail.com>
-// v0.1, 2024-04-25
+= Adventures in Time
+:Author: Andrij Glyko
+:Email: <nitrogenez.dev@tuta.io>
+:Revision: v0.2
+:Date: 2024-12-27
 
-image::https://github.com/M-D-Team/ait-fabric-1.20.1/blob/main/src/main/resources/assets/ait/textures/gui/title/aitlogo.png?raw=true[AIT Logo]
+image::https://github.com/M-D-Team/ait-fabric-1.20.1/blob/main/src/main/resources/assets/ait/textures/gui/title/main_ait_logo.png?raw=true[Логотип]
+image::https://img.shields.io/github/v/release/M-D-Team/ait-fabric-1.20.1?include_prereleases[Реліз GitHub]
+image::https://img.shields.io/modrinth/game-versions/ait?link=https%3A%2F%2Fmodrinth.com%2Fmod%2Fait%2Fversions[Версії Modrinth]
+image::https://img.shields.io/modrinth/dt/ait?logo=modrinth&link=https%3A%2F%2Fmodrinth.com%2Fmod%2Fait[Завантаження Modrinth]
+image::https://img.shields.io/curseforge/dt/856138?logo=curseforge&color=red&link=https%3A%2F%2Fwww.curseforge.com%2Fminecraft%2Fmc-mods%2Fadventures-in-time[Завантаження CurseForge]
+image::https://img.shields.io/badge/wiki-grey?logo=gitbook&logoColor=white&link=https%3A%2F%2Floqor.dev%2Fait%2F[Вікі]
 
-image::https://img.shields.io/github/v/release/M-D-Team/ait-fabric-1.20.1?include_prereleases[Github Release]
-image::https://img.shields.io/modrinth/game-versions/ait?link=https%3A%2F%2Fmodrinth.com%2Fmod%2Fait%2Fversions[Modrinth Game Versions]
-image::https://img.shields.io/modrinth/dt/ait?logo=modrinth&link=https%3A%2F%2Fmodrinth.com%2Fmod%2Fait[Modrinth Downloads]
-image::https://img.shields.io/curseforge/dt/856138?logo=curseforge&color=red&link=https%3A%2F%2Fwww.curseforge.com%2Fminecraft%2Fmc-mods%2Fadventures-in-time[CurseForge Downloads]
-image::https://img.shields.io/badge/wiki-grey?logo=gitbook&logoColor=white&link=https%3A%2F%2Floqor.dev%2Fait%2F[Wiki]
-
-- AIT створено https://github.com/loqor/ait[*Loqor*]
-- AIT потребує https://modrinth.com/mod/owo-lib[*owolib*]
-
-:toc:
+- Створено https://amble.github.io[*amble*]
+- Залежить від https://modrinth.com/mod/owo-lib[*owolib*]
 
 == Підсумки
 
-_Apparatus Vivi_. Жива машина. ТАРДІС з серіалу "Доктор Хто". Неважливо, як Ви її називаєте.
-Вона росте разом з тобою, літає так, як літаєш ти. Звісно, ти пілот, але врешті решт ТАРДІС є
-жива.
+**Apparatus Vivi. Жива машина. TARDIS з серіалу "Доктор Хто". Неважливо, як Ви її називаєте.
+Вона росте разом з тобою, літає так, як літаєш ти. Звісно, ти пілот, але вона все одно робить те,
+що сама захоче.**
 
-== Що цей мод робить?
+== Про що цей мод?
 
-Adventures in Time додає ТАРДІС з серіалу "Доктор Хто". Ви можете взаємодіяти із нею багатьма
+Adventures in Time додає TARDIS з серіалу "Доктор Хто". Ви можете взаємодіяти із нею багатьма
 спосібами, включно переміщення до інших вимірів, ховання від друзів із режимом клоаки, та інші
 кумедності та функції що тобі ще треба знайти.
 
-Нещодавно оновлено до Minecraft 1.20.1 (Fabric).
+Нещодавно оновлено до Minecraft 1.20.1 (Fabric й Forge).
 
-Рекомендовано грати із 8 ҐБ RAM у режимі одиночної гри, та 8 ҐБ RAM виділено
+Рекомендовано грати із 8 ҐБ RAM у режимі гри наодинці, та 8 ҐБ RAM виділено
 для серверу.
 
 == Сумісність
-=== https://modrinth.com/mod/immersiveportals[Immersive Portals]
-- Твоя ТАРДІС справді буде _БільшеВсередині^TM_
-- Якщо відкрити двери з інтер'єру ти побачиш те, що ззовні, й навпаки
+=== Якщо в Вас є https://modrinth.com/mod/gravity-api-fork/version[Gravity Changer (qouteall)]
+- Ви зможете контролювати ґравітацію інтер'єра TARDIS через https://loqor.dev/ait/Monitor/[Монітор].
+
+== Аддони сумісності AIT
+=== Якщо в Вас є https://github.com/DrTheodor/adventures-in-space[Adventures in Space] й https://modrinth.com/mod/ad-astra[Ad Astra]
+- Спеціальна сумісність для пригод по планетах з TARDIS.
+
+=== Якщо в Вас є https://github.com/Duzos/aitcompute/tree/0.1.0.24-1.20.1-dev[AIT: Computed] й https://modrinth.com/mod/cc-tweaked[Computer Craft]
+- Ваша TARDIS зможе контролювати черепашку через вихор
 
 == Розробники
-- Loqor
-- Duzo
-- Dr. Theo
-- nitrogenez
+- https://loqor.dev[Loqor]
+- https://duzo.is-a.dev[Duzo]
+- https://theo.is-a.dev[Dr. Theo]
+- Maketendo
 
 == Митеці
-- Tright (Моделіст)
-- b2bmrww2 (Моделіст)
-- classic_account (Будівник)
-- Monsterwaill (Аніматор)
+- Westankrang
+- Tright
+- b2
+- Ouro
 
 == Звуковий дизайн
-- Radio
+- Dian
+- https://im-radio.bandcamp.com/album/ait-mod-music-disc-drifting[Radio]
 - TARDISSFX (канал на YouTube)
 
 == Подяки
-- MagicMan(?) (Допомога із моделями)
-- Bug1312 (Допомога із кодом)
-- DocArcane (Подяка за дизайн консолі "Стімпанк")
-- Creativious (Допомога із кодом)
-- Jeryn (Suff) (Допомога із кодом)
+- DocArcane (Credit for the Steampunk console design)
 
 == Посилання
-- https://loqor.dev/ait/[Довідка]
-- https://github.com/loqor/ait/[GitHub Репозиторій]
+- https://amble.github.io/ait-wiki/[Вікі]
+- https://github.com/amble/ait/[GitHub Репозиторій]
 - https://www.curseforge.com/minecraft/mc-mods/adventures-in-time[CurseForge Сторінка]
 - https://modrinth.com/mod/ait[Modrinth Сторінка]

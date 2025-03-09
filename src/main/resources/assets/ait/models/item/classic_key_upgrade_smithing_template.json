@@ -1,5 +1,5 @@
 {
-  "parent": "item/handheld",
+  "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "ait:item/key_smithing_templates/classic_key_upgrade_smithing_template"
   }

@@ -1,0 +1,8 @@
+{
+  "id": "ait:likes_elytra",
+  "stack": {
+    "id": "minecraft:elytra",
+    "Count": 1
+  },
+  "loyalty": 20
+}

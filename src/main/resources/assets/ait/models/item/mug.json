@@ -1,0 +1,7 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "ait:item/mug_overlay",
+		"layer1": "ait:item/mug"
+	}
+}

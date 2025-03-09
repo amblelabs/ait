@@ -1,35 +1,34 @@
-![Title](https://github.com/M-D-Team/ait-fabric-1.20.1/blob/main/src/main/resources/assets/ait/textures/gui/title/main_ait_logo.png?raw=true)
+![ait_logo](https://github.com/amblelabs/ait/blob/main/src/main/resources/assets/ait_logo.png)
 
-![GitHub Release](https://img.shields.io/github/v/release/M-D-Team/ait-fabric-1.20.1?include_prereleases)
+![GitHub Release](https://img.shields.io/github/v/release/amblelabs/ait?include_prereleases)
 ![Modrinth Game Versions](https://img.shields.io/modrinth/game-versions/ait?link=https%3A%2F%2Fmodrinth.com%2Fmod%2Fait%2Fversions)
 
 ![Modrinth Downloads](https://img.shields.io/modrinth/dt/ait?logo=modrinth&link=https%3A%2F%2Fmodrinth.com%2Fmod%2Fait)
 ![CurseForge Downloads](https://img.shields.io/curseforge/dt/856138?logo=curseforge&color=red&link=https%3A%2F%2Fwww.curseforge.com%2Fminecraft%2Fmc-mods%2Fadventures-in-time)
 
-![Wiki](https://img.shields.io/badge/wiki-grey?logo=gitbook&logoColor=white&link=https%3A%2F%2Floqor.dev%2Fait%2F)
 
+**by [Amble Labs](https://amblelabs.github.io)**
 
-**by [pavatus](https://pavatus.github.io)**
+**Requires [Cloth Config](https://modrinth.com/mod/cloth-config)**
 
-**Requires [OwoLib](https://modrinth.com/mod/owo-lib)**
+**Requires [Amble Kit](https://modrinth.com/mod/amblekit)**
 
 ## Summary
-**Apparatus Vivi. Living machine. TARDIS from Doctor Who. Whatever you call it, it grows with you. It learns with you, and flies the way you fly. Sure, you might be the pilot, but despite that, it does with that what it may.**
+**Apparatus Vivi. Living machine. The TARDIS. Whatever you call it, it grows with you. It learns with you, and flies the way you fly. Sure, you might be the pilot, but despite that, it does with that what it may.**
 
 ## What does this mod do?
-Adventures In Time add the TARDIS from Doctor Who that you can interact with in a new plethora of ways, these include flying to different dimensions, hiding from friends using the cloak mode and a variety of other fun features for you to explore! 
+Adventures In Time adds the TARDIS from Doctor Who that you can interact with in a new plethora of ways, these include flying to different dimensions, hiding from friends using the cloak mode and a variety of other fun features for you to explore! 
 
-Recently updated for Fabric & Forge 1.20.1. 
+- Recommended to play with 8GB of RAM **minimum** singleplayer.
 
-Recommended to play with 8GB of RAM **minimum** singleplayer.
+- Recommended to have 8GB of RAM **allocated** to the multiplayer servers.
 
-Recommended to have 8GB of RAM **allocated** to the multiplayer servers.
+## Need help? We have a wiki
+
+[CLICK ME TO GO THERE](https://amblelabs.github.io/ait-wiki/)
+
 
 ## Compatibility
-
-### If you have [Immersive Portals](https://modrinth.com/mod/immersiveportals)
-- Your TARDIS will be Bigger on the Inside (BOTI)
-- When you open the doors from the exterior you will be able to see the interior and vice versa
 
 ### If you have [Gravity Changer (qouteall fork)](https://modrinth.com/mod/gravity-api-fork/versions)
 - You will be able to control your TARDIS interior gravity from the [TARDIS Monitor](https://loqor.dev/ait/Monitor/)
@@ -42,6 +41,9 @@ Recommended to have 8GB of RAM **allocated** to the multiplayer servers.
 ### If you have [AIT: Computed](https://github.com/Duzos/aitcompute/tree/0.1.0.24-1.20.1-dev) and [Computer Craft](https://modrinth.com/mod/cc-tweaked)
 - Your TARDIS will be able to communicate with a turtle through the vortex
 
+### Here is the official collection of [AIT addon mods](https://modrinth.com/collection/eP9vTYE5)
+- You can also find them in the official [AIT addon discord server](https://discord.gg/jz3mPsDEdT)
+
 ## Credits
 
 ### Developers:
@@ -49,6 +51,9 @@ Recommended to have 8GB of RAM **allocated** to the multiplayer servers.
 - [duzo](https://duzo.is-a.dev/)
 - [Dr. Theo](https://theo.is-a.dev/)
 - Nitrogenesis
+- Maketendo
+- [AddieDaBaddie](https://github.com/Addi3/addie.info.io/wiki)
+- Saturn
 
 ---
 
@@ -57,12 +62,15 @@ Recommended to have 8GB of RAM **allocated** to the multiplayer servers.
 - b2bmrww2 (Modeler)
 - classic_account (Builder)
 - Monsterwaill (Animator)
+- Westankrang (Modeler)
+- Ouro (Modeler)
 
 ---
 
 ### Sound Design:
-- Radio
+- [Radio](https://im-radio.bandcamp.com/album/ait-mod-music-disc-drifting)
 - TARDISSFX (the YouTube channel)
+- Dian
 
 ---
 
@@ -73,12 +81,16 @@ Recommended to have 8GB of RAM **allocated** to the multiplayer servers.
 - Creativious (Help with code)
 - [Jeryn](https://craig.software) (Suff) (Help with code)
 - Maggie (Help with texturing)
+- lavachefrancaise (French Translations)
+- hoooiii (German Translations)
+- Nitrogenesis (Ukrainian Translations)
+- Codiak (Help with code)
 
 
 ## Links
-[Wiki](https://pavatus.github.io/ait-wiki/)
+[Wiki](https://amblelabs.github.io/ait-wiki/)
 
-[Github](https://github.com/loqor/ait/)
+[Github](https://github.com/amblelabs/ait/)
 
 [Curseforge](https://www.curseforge.com/minecraft/mc-mods/adventures-in-time)
 

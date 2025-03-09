@@ -3,71 +3,94 @@
 	"id": "ait",
 	"version": "${version}",
 	"name": "Adventures In Time",
-	"description": "Adventures In Time - the mod with the longest development cycle since Minecraft itself.",
+	"description": "Adventures In Time - Apparatus Vivi. Living machine. TARDIS from Doctor Who. Whatever you call it, it grows with you. It learns with you, and flies the way you fly. Sure, you might be the pilot, but despite that, it does with that what it may.",
 	"authors": [
-		"Developers: \n",
-		"Loqor",
-		"DrTheo",
-		"Duzo",
-		"Artists: \n",
-		"Tright",
-		"b2bmrww2",
-		"panda_red (classic_account)",
-		"Ouroboros",
-		"Maggie",
-		"Monsterwaill",
-		"Special Thanks To: \n",
-		"Tryzo (Ben)",
-		"Nitrogenesis",
-		"DocArcane (Designed the original steam console)",
-		"Bug1312",
-		"Jayson",
-		"Creativious",
-		"TheVale",
-		"TARDIS SFX for some TARDIS Sounds"
+		"Amble Labs:",
+		"Developers:",
+		" - Loqor",
+		" - DrTheo",
+		" - Duzo",
+		" - Maketendo",
+		" - AddieDaBaddie",
+		" - Saturn",
+		"\nArtists:",
+		" - Tright",
+		" - b2bmrww2",
+		" - panda_red (classic_account)",
+		" - Ouroboros",
+		" - Maggie",
+		" - Monsterwaill",
+		" - Westankrang",
+		" - Dian"
 	],
 	"contributors": [
-		"Pastelb96 (translations)",
-		"Saturn & Maketendo (wiki)"
+		"\nContributors:",
+		" - Tryzo (Ben)",
+		" - Nitrogenesis",
+		" - DocArcane (Designed the original steam console)",
+		" - Bug1312",
+		" - Jayson",
+		" - Creativious",
+		" - TARDIS SFX for some TARDIS Sounds",
+		" - Pastelb96 (translations)",
+		" - Codiak"
 	],
 	"contact": {
-		"homepage": "https://loqor.dev",
-		"sources": "https://github.com/Loqor/ait/",
-		"issues": "https://github.com/Loqor/ait/issues"
+		"homepage": "https://amblelabs.github.io",
+		"sources": "https://github.com/amblelabs/ait/",
+		"issues": "https://github.com/amblelabs/ait/issues"
 	},
 	"license": "Apache-2.0",
 	"icon": "assets/ait/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"loqor.ait.AITMod",
-			"loqor.ait.datagen.datagen_providers.loot.LootTableModification"
+			"dev.amble.ait.AITMod"
 		],
 		"client": [
-			"loqor.ait.client.AITModClient",
-			"loqor.ait.compat.Compat"
+			"dev.amble.ait.client.AITModClient",
+			"dev.amble.ait.compat.Compat"
 		],
 		"fabric-datagen": [
-			"loqor.ait.datagen.AITModDataGenerator"
+			"dev.amble.ait.datagen.AITModDataGenerator"
 		],
 		"ait-main": [
-			"loqor.ait.compat.Compat"
+			"dev.amble.ait.compat.Compat"
+		],
+		"modmenu": [
+			"dev.amble.ait.config.AITModMenu"
+		],
+		"amblekit-main": [
+			"dev.amble.ait.init.AmbleInitializer"
+		],
+		"amblekit-client": [
+			"dev.amble.ait.init.client.AmbleClientInitializer"
 		]
 	},
 	"mixins": [
 		"ait.mixins.json",
 		"gaslighter.mixins.json",
-		"multidim.mixins.json"
+		"planet.mixins.json",
+		"gun.mixins.json"
 	],
+	"accessWidener": "ait.accesswidener",
 	"depends": {
 		"fabricloader": ">=${loader_version}",
 		"minecraft": "${minecraft_version}",
 		"java": ">=17",
 		"fabric-api": "*",
-		"owo-lib": "*"
+		"cloth-config": "*",
+		"amblekit": ">=1.1.3-1.20.1-beta"
 	},
 	"suggests": {
-		"immersiveportals": "*",
 		"k9-mod": "*"
+	},
+	"custom": {
+		"modmenu": {
+			"links": {
+				"modmenu.discord": "https://discord.gg/WjKhRjavCj"
+			},
+			"update_checker": true
+		}
 	}
 }

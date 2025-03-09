@@ -1,0 +1,23 @@
+{
+  "output": {
+    "id": "ait:vortex_fluid_link",
+    "Count": 1
+  },
+  "inputs": [
+    {
+      "item": "ait:cable_block",
+      "maxCount": 3,
+      "minCount": 1
+    },
+    {
+      "item": "minecraft:ender_pearl",
+      "maxCount": 2,
+      "minCount": 1
+    },
+    {
+      "item": "ait:zeiton_shard",
+      "maxCount": 7,
+      "minCount": 5
+    }
+  ]
+}

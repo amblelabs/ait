@@ -1,0 +1,15 @@
+{
+  "name": "ait:type_40_overgrown",
+  "fallback": "ait:type_40_overgrown",
+  "elements": [
+    {
+      "weight": 100,
+      "element": {
+        "location": "ait:type_40_overgrown",
+        "processors": "minecraft:mossify_10_percent",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    }
+  ]
+}

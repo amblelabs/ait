@@ -1,0 +1,15 @@
+{
+  "id": "ait:chocolate_milk",
+  "has_custom_color": true,
+  "custom_color": [0.49, 0.337, 0.337],
+  "potion_instances": [
+    {
+    "id": "minecraft:speed",
+    "duration": 340,
+    "amplifier": 2,
+    "ambient": false,
+    "show_particles": true,
+    "show_icon": true
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 name: Publish on GitHub, Modrinth, and CurseForge
 
-on: [ workflow_dispatch ]
+on: [ workflow_dispatch, push ]
 
 env:
   JAVA_VERSION: 17

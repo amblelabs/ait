@@ -1,6 +1,6 @@
 {
-  "selectWorld.warning.experimental.question": "The TARDISes are experimental and could one day stop working. Do you wish to proceed with Gallifreyan technology?",
+  "selectWorld.warning.experimental.question": "The TARDIS' are experimental and could one day stop working. Do you wish to proceed with Gallifreyan technology?",
   "selectWorld.backupQuestion.experimental": "Trans-dimensional Engineering Detected!",
-  "selectWorld.backupWarning.experimental": "The TARDISes are experimental and could one day stop working. Do you wish to proceed with messing around with Gallifreyan technology? Here be dragons!",
-  "selectWorld.warning.experimental.question": "The TARDISes are experimental and could one day stop working. Do you wish to proceed with playing around with Gallifreyan technology?"
+  "selectWorld.backupWarning.experimental": "The TARDIS' are experimental and could one day stop working. Do you wish to proceed with messing around with Gallifreyan technology? GERONIMO!",
+  "selectWorld.warning.experimental.question": "The TARDIS' are experimental and could one day stop working. Do you wish to proceed with playing around with Gallifreyan technology?"
 }

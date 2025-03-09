@@ -1,0 +1,12 @@
+{
+  "values": [
+    "minecraft:desert",
+    "minecraft:badlands",
+    "minecraft:snowy_slopes",
+    "minecraft:swamp",
+    "minecraft:mangrove_swamp",
+    "minecraft:snowy_plains",
+    "minecraft:snowy_taiga",
+    "minecraft:windswept_forest"
+  ]
+}

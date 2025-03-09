@@ -1,0 +1,15 @@
+{
+  "id": "ait:milk",
+  "has_custom_color": true,
+  "custom_color": [1, 0.988, 0.98],
+  "potion_instances": [
+    {
+    "id": "minecraft:regeneration",
+    "duration": 340,
+    "amplifier": 2,
+    "ambient": false,
+    "show_particles": true,
+    "show_icon": true
+    }
+  ]
+}

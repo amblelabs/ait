@@ -1,0 +1,43 @@
+{
+  "output": {
+    "id": "ait:shields_circuit",
+    "Count": 1
+  },
+  "inputs": [
+    {
+      "item": "ait:cable_block",
+      "maxCount": 7,
+      "minCount": 4
+    },
+    {
+      "item": "ait:artron_fluid_link",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:zeiton_block",
+      "maxCount": 6,
+      "minCount": 4
+    },
+    {
+      "item": "minecraft:iron_ingot",
+      "maxCount": 13,
+      "minCount": 9
+    },
+    {
+      "item": "minecraft:crying_obsidian",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:manipulator",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "minecraft:amethyst_shard",
+      "maxCount": 2,
+      "minCount": 1
+    }
+  ]
+}

@@ -8,8 +8,12 @@
 name: Automated donator builds
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches:
+      - 'feat/**'
+      - 'main'
+      - 'DrTheodor/rwf'
 
 jobs:
   build:
