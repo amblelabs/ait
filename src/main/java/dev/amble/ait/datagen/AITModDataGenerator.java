@@ -37,8 +37,7 @@ import dev.amble.ait.module.planet.core.PlanetItems;
 import dev.amble.ait.module.planet.core.world.PlanetConfiguredFeatures;
 import dev.amble.ait.module.planet.core.world.PlanetPlacedFeatures;
 
-public class
-AITModDataGenerator implements DataGeneratorEntrypoint {
+public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
@@ -895,6 +894,34 @@ AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("sonic.ait.candy_cane", "Candy Cane");
         provider.addTranslation("sonic.ait.type_100", "Type 100");
 
+        // Consoles
+        provider.addTranslation("console.ait.alnico", "Alnico");
+        provider.addTranslation("console.ait.steam_steel", "Steel Steam");
+        provider.addTranslation("console.ait.toyota", "Toyota");
+        provider.addTranslation("console.ait.hartnell_wooden", "Wooden Hartnell");
+        provider.addTranslation("console.ait.coral_blue", "Blue Coral");
+        provider.addTranslation("console.ait.coral_decayed", "Decayed Coral");
+        provider.addTranslation("console.ait.steam", "Steam");
+        provider.addTranslation("console.ait.hartnell_kelt", "Kelt Hartnell");
+        provider.addTranslation("console.ait.alnico_blue", "Blue Alnico");
+        provider.addTranslation("console.ait.renaissance_fire", "Fire Renaissance");
+        provider.addTranslation("console.ait.steam_gilded", "Gilded Steam");
+        provider.addTranslation("console.ait.coral_sith", "Sith Coral");
+        provider.addTranslation("console.ait.crystalline", "Crystalline");
+        provider.addTranslation("console.ait.steam_playpal", "Playpal Steam");
+        provider.addTranslation("console.ait.renaissance_tokamak", "Tokamak Renaissance");
+        provider.addTranslation("console.ait.copper", "Copper");
+        provider.addTranslation("console.ait.renaissance_identity", "Identity Renaissance");
+        provider.addTranslation("console.ait.steam_cherry", "Cherry Steam");
+        provider.addTranslation("console.ait.renaissance_industrious", "Industrious Renaissance");
+        provider.addTranslation("console.ait.hartnell_mint", "Mint Hartnell");
+        provider.addTranslation("console.ait.crystalline_zeiton", "Zeiton Crystalline");
+        provider.addTranslation("console.ait.steam_copper", "Copper Steam");
+        provider.addTranslation("console.ait.toyota_blue", "Blue Toyota");
+        provider.addTranslation("console.ait.toyota_legacy", "Legacy Toyota");
+        provider.addTranslation("console.ait.renaissance", "Renaissance");
+        provider.addTranslation("console.ait.coral_white", "White Coral");
+
         // Blocks
         provider.addTranslation(AITBlocks.LANDING_PAD, "Landing Marker");
         provider.addTranslation(AITBlocks.DETECTOR_BLOCK, "Interior Detector Block");
@@ -982,12 +1009,13 @@ AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.landing_code", "Landing Code...");
         provider.addTranslation("message.ait.enter_landing_code", "Enter Landing Code...");
         provider.addTranslation("message.ait.date_created", "Date Created:");
-        provider.addTranslation("message.ait.unlocked", "Congratulations! You unlocked a TARDIS Exterior Shell: ");
-        provider.addTranslation("message.ait.unlocked_sonic", "Congratulations! You unlocked a Sonic Screwdriver Casing Option: ");
-        provider.addTranslation("message.ait.unlocked_console", "Congratulations! You unlocked a TARDIS Console Interface: ");
-        provider.addTranslation("message.ait.unlocked_interior", "Congratulations! You unlocked a TARDIS Desktop Option: ");
-        provider.addTranslation("message.ait.unlocked_all", "Unlocked all: ");
-        provider.addTranslation("message.ait.all_types", "TARDIS Consoles, TARDIS Exteriors & Sonic Casings");
+        provider.addTranslation("message.ait.unlocked", "'%s' unlocked!");
+        provider.addTranslation("message.ait.unlocked_exterior", "Exterior Shell '%s' unlocked!");
+        provider.addTranslation("message.ait.unlocked_sonic", "Sonic Screwdriver Casing '%s' unlocked!");
+        provider.addTranslation("message.ait.unlocked_console", "Console Interface '%s' unlocked!");
+        provider.addTranslation("message.ait.unlocked_interior", "Desktop Theme '%s' unlocked!");
+        provider.addTranslation("message.ait.unlocked_all", "Unlocked all %s");
+        provider.addTranslation("message.ait.all_types", "Consoles, Exteriors, Desktops & Sonic Casings");
         provider.addTranslation("screen.ait.sonic_casing", "Sonic Casing");
         provider.addTranslation("screen.ait.current_au", "Current AU");
         provider.addTranslation("screen.ait.linked_tardis", "Linked TARDIS");

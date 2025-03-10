@@ -119,11 +119,7 @@ public class TardisItemBuilder extends Item {
         ServerTardis created = ServerTardisManager.getInstance()
                 .create(builder);
 
-        player.sendMessage(
-                Text.empty()
-                        .append(Text.translatable("message.ait.unlocked_all").formatted(Formatting.WHITE))
-                        .append(Text.translatable("message.ait.all_types").formatted(Formatting.GREEN))
-                        .append(Text.literal("!").formatted(Formatting.WHITE)), false);
+        player.sendMessage(Text.translatable("message.ait.unlocked_all", Text.translatable("message.ait.all_types").formatted(Formatting.GREEN)).formatted(Formatting.WHITE), false);
 
 
         if ( created == null ) {
