@@ -1,0 +1,15 @@
+{
+  "id": "ait:water",
+  "has_custom_color": true,
+  "custom_color": [0.349, 0.596, 0.98],
+  "potion_instances": [
+    {
+    "id": "minecraft:regeneration",
+    "duration": 340,
+    "amplifier": 2,
+    "ambient": false,
+    "show_particles": true,
+    "show_icon": true
+    }
+  ]
+}

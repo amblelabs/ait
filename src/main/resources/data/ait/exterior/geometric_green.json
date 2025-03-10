@@ -1,0 +1,16 @@
+{
+    "id": "ait:geometric_green",
+    "category":"ait:exterior/geometric",
+    "parent": "ait:exterior/geometric/default",
+    "texture": "ait:textures/blockentities/exteriors/geometric/geometric_green.png",
+    "emission": "ait:textures/blockentities/exteriors/geometric/geometric_green_emission.png",
+    "overrides": 
+    {"snowy": "ait:textures/blockentities/exteriors/geometric/biome/geometric_snowy.png",
+    "chorus": "ait:textures/blockentities/exteriors/geometric/biome/geometric_chorus.png",
+    "cherry": "ait:textures/blockentities/exteriors/geometric/biome/geometric_cherry.png",
+    "sculk": "ait:textures/blockentities/exteriors/geometric/biome/geometric_sculk.png",
+    "sandy": "ait:textures/blockentities/exteriors/geometric/biome/geometric_sand.png",
+    "muddy": "ait:textures/blockentities/exteriors/geometric/biome/geometric_mud.png",
+    "red_sandy": "ait:textures/blockentities/exteriors/geometric/biome/geometric_red_sand.png"
+}
+  }

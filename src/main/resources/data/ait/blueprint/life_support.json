@@ -1,0 +1,38 @@
+{
+  "output": {
+    "id": "ait:life_support",
+    "Count": 1
+  },
+  "inputs": [
+    {
+      "item": "ait:data_fluid_link",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:artron_mercurial_link",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:charged_zeiton_crystal",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:cable_block",
+      "maxCount": 11,
+      "minCount": 7
+    },
+    {
+      "item": "minecraft:iron_ingot",
+      "maxCount": 9,
+      "minCount": 5
+    },
+    {
+      "item": "ait:inductor",
+      "maxCount": 1,
+      "minCount": 1
+    }
+  ]
+}

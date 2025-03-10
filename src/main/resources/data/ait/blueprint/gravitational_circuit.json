@@ -1,0 +1,33 @@
+{
+  "output": {
+    "id": "ait:gravitational_circuit",
+    "Count": 1
+  },
+  "inputs": [
+    {
+      "item": "ait:artron_fluid_link",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:data_fluid_link",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:cable_block",
+      "maxCount": 7,
+      "minCount": 5
+    },
+    {
+      "item": "minecraft:iron_ingot",
+      "maxCount": 9,
+      "minCount": 4
+    },
+    {
+      "item": "ait:zeiton_shard",
+      "maxCount": 3,
+      "minCount": 2
+    }
+  ]
+}

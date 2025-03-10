@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=up": { "model": "ait:block/tardis_coral_fan" },
+    "facing=down": { "model": "ait:block/tardis_coral_fan", "x": 180 },
+    "facing=north": { "model": "ait:block/tardis_coral_fan", "x": 90 },
+    "facing=south": { "model": "ait:block/tardis_coral_fan", "x": 90, "y": 180 },
+    "facing=east": { "model": "ait:block/tardis_coral_fan", "x": 90, "y": 90 },
+    "facing=west": { "model": "ait:block/tardis_coral_fan", "x": 90, "y": 270 }
+  }
+}

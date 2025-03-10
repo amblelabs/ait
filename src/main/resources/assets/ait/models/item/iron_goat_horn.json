@@ -1,0 +1,14 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "ait:item/goat_horns/iron_goat_horn"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "tooting": 1
+      },
+      "model": "item/tooting_goat_horn"
+    }
+  ]
+}

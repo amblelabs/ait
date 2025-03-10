@@ -1,0 +1,8 @@
+{
+  "id": "ait:likes_book",
+  "stack": {
+    "id": "minecraft:book",
+    "Count": 1
+  },
+  "loyalty": 5
+}

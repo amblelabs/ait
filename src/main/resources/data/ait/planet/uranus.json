@@ -1,0 +1,23 @@
+{
+  "dimension": "ait:uranus",
+  "gravity": 0.89,
+  "has_oxygen": false,
+  "has_landable_surface": false,
+  "temperature": 76,
+  "render": {
+    "texture": "ait:textures/environment/uranus.png",
+    "position": [-15000, 900, -7000],
+    "scale": [900, 900, 900],
+    "rotation": [0, 0, 90],
+    "clouds": false,
+    "atmosphere": true,
+    "color": [0.6, 0.7, 0.8],
+    "radius": 1300,
+    "suction_radius": 1100,
+    "has_rings": false
+  },
+  "transition": {
+    "target": "ait:space",
+    "height": 700
+  }
+}

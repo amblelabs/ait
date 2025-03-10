@@ -1,0 +1,28 @@
+{
+  "output": {
+    "id": "ait:data_fluid_link",
+    "Count": 1
+  },
+  "inputs": [
+    {
+      "item": "ait:inductor",
+      "maxCount": 3,
+      "minCount": 1
+    },
+    {
+      "item": "ait:cable_block",
+      "maxCount": 2,
+      "minCount": 1
+    },
+    {
+      "item": "ait:zeiton_dust",
+      "maxCount": 3,
+      "minCount": 3
+    },
+    {
+      "item": "minecraft:copper_ingot",
+      "maxCount": 5,
+      "minCount": 4
+    }
+  ]
+}

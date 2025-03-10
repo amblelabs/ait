@@ -3,7 +3,7 @@ name: Bug report
 about: Create a report to help us improve
 title: ''
 labels: bug
-assignees: Loqor
+assignees: ''
 
 ---
 
@@ -14,7 +14,7 @@ A clear and concise description of what the bug is.
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
-3. Scroll down to '....'
+3. Place down '...'
 4. See error
 
 **Expected behavior**
@@ -23,8 +23,10 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**AIT Version:**
-Provide the version of AIT this is on
+**Details (please complete the following information):**
+ - Mod version: [e.g. 1.2.0]
+ - OS: [e.g. MacOS]
+ - Video card: [e.g. Nvidia]
 
 **Additional context**
-Add any other context about the problem here -  eg other mods you were playing with.
+Add any other context about the problem here.

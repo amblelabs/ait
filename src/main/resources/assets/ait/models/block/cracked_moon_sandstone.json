@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "ait:block/cracked_moon_sandstone"
+  }
+}

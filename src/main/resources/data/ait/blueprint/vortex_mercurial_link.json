@@ -1,0 +1,28 @@
+{
+  "output": {
+    "id": "ait:vortex_mercurial_link",
+    "Count": 1
+  },
+  "inputs": [
+    {
+      "item": "ait:cable_block",
+      "maxCount": 2,
+      "minCount": 1
+    },
+    {
+      "item": "ait:zeiton_shard",
+      "maxCount": 9,
+      "minCount": 5
+    },
+    {
+      "item": "minecraft:redstone",
+      "maxCount": 19,
+      "minCount": 9
+    },
+    {
+      "item": "ait:manipulator",
+      "maxCount": 1,
+      "minCount": 1
+    }
+  ]
+}

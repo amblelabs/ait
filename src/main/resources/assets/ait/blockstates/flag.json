@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "ait:block/flag",
+      "y": 180
+    },
+    "facing=north": {
+      "model": "ait:block/flag",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "ait:block/flag",
+      "y": 270
+    },
+    "facing=west": {
+      "model": "ait:block/flag",
+      "y": 0
+    }
+  }
+}
