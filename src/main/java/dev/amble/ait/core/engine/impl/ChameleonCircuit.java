@@ -5,17 +5,20 @@ import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.StructureHolder;
 import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
 import dev.amble.ait.core.tardis.TardisExterior;
-import dev.amble.ait.registry.CategoryRegistry;
+import dev.amble.ait.registry.v2.AITRegistries;
+import dev.amble.ait.registry.v2.ExteriorCategoryRegistry;
 
 public class ChameleonCircuit extends DurableSubSystem implements StructureHolder {
     static {
         TardisEvents.EXTERIOR_CHANGE.register(tardis -> {
-            if (tardis.subsystems().chameleon().isUsable()) return;
+            if (tardis.subsystems().chameleon().isUsable())
+                return;
 
             TardisExterior exterior = tardis.getExterior();
-            if (exterior.getCategory().equals(CategoryRegistry.CAPSULE)) return;
+            if (exterior.getCategory().id().equals(ExteriorCategoryRegistry.CAPSULE))
+                return;
 
-            exterior.setType(CategoryRegistry.CAPSULE);
+            exterior.setType(AITRegistries.EXTERIOR_CATEGORY.get(ExteriorCategoryRegistry.CAPSULE));
         });
     }
 

@@ -4,6 +4,13 @@ import java.lang.reflect.Type;
 
 import com.google.gson.*;
 
+import dev.amble.ait.client.models.doors.DoorModel;
+import dev.amble.ait.registry.v2.AITClientRegistries;
+import dev.amble.ait.registry.v2.AITRegistries;
+import dev.amble.ait.registry.v2.DoorRegistry;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
@@ -11,9 +18,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.data.schema.door.impl.CapsuleDoorVariant;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
-import dev.amble.ait.registry.door.DoorRegistry;
 
 /**
  * This class provides information about a door for an exterior <br>
@@ -49,6 +54,8 @@ public abstract class DoorSchema {
 
     public abstract boolean isDouble();
 
+    public abstract DoorModel model();
+
     // fixme should this be in a "DoorSounds" type thing, also i dont like these
     // method names.
     public SoundEvent openSound() {
@@ -77,10 +84,10 @@ public abstract class DoorSchema {
             try {
                 id = new Identifier(json.getAsJsonPrimitive().getAsString());
             } catch (InvalidIdentifierException e) {
-                id = CapsuleDoorVariant.REFERENCE;
+                id = DoorRegistry.FALLBACK;
             }
 
-            return DoorRegistry.REGISTRY.get(id);
+            return AITClientRegistries.DOOR.tryGetOr(id, DoorRegistry.FALLBACK);
         }
 
         @Override

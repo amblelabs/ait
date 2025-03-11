@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.registry.v2.AITRegistries;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -21,7 +23,6 @@ import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.DesktopRegistry;
-import dev.amble.ait.registry.exterior.ExteriorVariantRegistry;
 
 public class TardisBuilder {
 
@@ -83,7 +84,7 @@ public class TardisBuilder {
 
         if (this.exterior == null) {
             AITMod.LOGGER.warn("No exterior variant schema supplied for TardisBuilder, choosing a random one!");
-            this.exterior = ExteriorVariantRegistry.getInstance().getRandom();
+            this.exterior = AITRegistries.EXTERIOR_VARIANT.getRandom(TardisUtil.random()).orElseThrow().value();
         }
     }
 

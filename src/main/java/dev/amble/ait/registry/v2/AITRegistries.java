@@ -9,11 +9,11 @@ import net.minecraft.registry.Registry;
 public class AITRegistries {
 
     public static ExteriorCategoryRegistry EXTERIOR_CATEGORY = new ExteriorCategoryRegistry();
+    public static ExteriorAnimationRegistry EXTERIOR_ANIMATION = new ExteriorAnimationRegistry();
     public static ExteriorVariantRegistry EXTERIOR_VARIANT = new ExteriorVariantRegistry();
-    public static SimpleAmbleRegistry<String> SIMPLE = new SimpleAmbleRegistry<>(AITMod.id("simple"));
 
     public static void init() {
-        Registry.register(SIMPLE.get(), AITMod.id("item1"), "item 1 value");
-        Registry.register(SIMPLE.get(), AITMod.id("item2"), "item 2 value");
+        EXTERIOR_CATEGORY.init();
+        EXTERIOR_VARIANT.init();
     }
 }

@@ -2,6 +2,8 @@ package dev.amble.ait.client.boti;
 
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.registry.v2.ExteriorVariantRegistry;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.MinecraftClient;
@@ -21,12 +23,9 @@ import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
-import dev.amble.ait.registry.exterior.ClientExteriorVariantRegistry;
-
 
 public class TardisExteriorBOTI extends BOTI {
-    public void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, SinglePartEntityModel frame, ModelPart mask, int light) {
+    public void renderExteriorBoti(ExteriorBlockEntity exterior, ExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, SinglePartEntityModel frame, ModelPart mask, int light) {
         if (!AITMod.CONFIG.CLIENT.ENABLE_TARDIS_BOTI)
             return;
 
@@ -58,10 +57,10 @@ public class TardisExteriorBOTI extends BOTI {
 
         RenderSystem.depthMask(true);
         stack.push();
-        Vec3d vec = variant.parent().adjustPortalPos(new Vec3d(0, -1.1725f, 0), (byte) 0);
+        Vec3d vec = variant.adjustPortalPos(new Vec3d(0, -1.1725f, 0), (byte) 0);
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
         stack.translate(vec.x, vec.y, vec.z);
-        stack.scale((float) variant.parent().portalWidth(), (float) variant.parent().portalHeight(), 1f);
+        stack.scale((float) variant.portalSize().x, (float) variant.portalSize().y, 1f);
         mask.render(stack, botiProvider.getBuffer(AITMod.CONFIG.CLIENT.SHOULD_RENDER_BOTI_INTERIOR ? RenderLayer.getDebugFilledBox() : RenderLayer.getEndGateway()), light, OverlayTexture.DEFAULT_UV, (float) skyColor.x, (float) skyColor.y, (float) skyColor.z, 1);
         botiProvider.draw();
         stack.pop();
@@ -84,7 +83,7 @@ public class TardisExteriorBOTI extends BOTI {
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
 
-        if (variant != ClientExteriorVariantRegistry.CORAL_GROWTH) {
+        if (!variant.id().equals(ExteriorVariantRegistry.CORAL_GROWTH)) {
             BiomeHandler handler = exterior.tardis().get().handler(TardisComponent.Id.BIOME);
             Identifier biomeTexture = handler.getBiomeKey().get(variant.overrides());
             if (biomeTexture != null)

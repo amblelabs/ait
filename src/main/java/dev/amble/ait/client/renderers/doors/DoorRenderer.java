@@ -1,6 +1,7 @@
 package dev.amble.ait.client.renderers.doors;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.registry.v2.ExteriorVariantRegistry;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -8,10 +9,8 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.profiler.Profiler;
-import net.minecraft.world.World;
 
 import dev.amble.ait.api.TardisComponent;
 import dev.amble.ait.client.boti.BOTI;
@@ -19,20 +18,15 @@ import dev.amble.ait.client.models.doors.DoomDoorModel;
 import dev.amble.ait.client.models.doors.DoorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.util.ClientLightUtil;
-import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blocks.DoorBlock;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
-import dev.amble.ait.core.tardis.handler.DoorHandler;
 import dev.amble.ait.core.tardis.handler.OvergrownHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
-import dev.amble.ait.registry.exterior.ClientExteriorVariantRegistry;
 
 public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRenderer<T> {
 
-    private ClientExteriorVariantSchema variant;
+    private ExteriorVariantSchema variant;
     private DoorModel model;
 
     public DoorRenderer(BlockEntityRendererFactory.Context ctx) {
@@ -83,29 +77,8 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
 
         Identifier texture = this.variant.texture();
 
-        if (this.variant.equals(ClientExteriorVariantRegistry.DOOM))
+        if (this.variant.equals(ExteriorVariantRegistry.DOOM))
             texture = tardis.door().isOpen() ? DoomDoorModel.DOOM_DOOR_OPEN : DoomDoorModel.DOOM_DOOR;
-
-        if (DependencyChecker.hasPortals() && tardis.travel().getState() == TravelHandlerBase.State.LANDED
-                && tardis.door().getDoorState() != DoorHandler.DoorState.CLOSED) {
-            CachedDirectedGlobalPos globalPos = tardis.travel().position();
-
-            BlockPos pos = globalPos.getPos();
-            World world = globalPos.getWorld();
-
-            /*if (world != null) {
-                int lightConst = 524296;
-                int i = world.getLightLevel(LightType.SKY, pos);
-                int j = world.getLightLevel(LightType.BLOCK, pos);
-
-                light = (i + j > 15
-                        ? (15 * 2) + (j > 0 ? 0 : -5)
-                        : world.isNight()
-                                ? (i / 15) + j > 0 ? j + 13 : j
-                                : i + (world.getRegistryKey().equals(World.NETHER) ? j * 2 : j))
-                        * lightConst;
-            }*/
-        }
 
         matrices.push();
         matrices.translate(0.5, 0, 0.5);
@@ -127,14 +100,14 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
 
         boolean alarms = tardis.alarm().enabled().get();
 
-        if (!variant.equals(ClientExteriorVariantRegistry.DOOM))
+        if (!variant.id().equals(ExteriorVariantRegistry.DOOM))
             ClientLightUtil.renderEmissivable(tardis.fuel().hasPower(), model::renderWithAnimations,
                 this.variant.emission(), entity, model.getPart(), matrices, vertexConsumers, 0xf000f0, overlay, alarms ? !tardis.fuel().hasPower() ? 0.25f : 1f : 1f, alarms ? !tardis.fuel().hasPower() ? 0.01f : 0.3f : 1f,
                     alarms ? !tardis.fuel().hasPower() ? 0.01f : 0.3f : 1f, 1f);
 
         profiler.swap("biome");
 
-        if (this.variant != ClientExteriorVariantRegistry.CORAL_GROWTH) {
+        if (!this.variant.id().equals(ExteriorVariantRegistry.CORAL_GROWTH)) {
             BiomeHandler biome = tardis.handler(TardisComponent.Id.BIOME);
             Identifier biomeTexture = biome.getBiomeKey().get(this.variant.overrides());
 
@@ -156,11 +129,11 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
     }
 
     private void updateModel(Tardis tardis) {
-        ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
+        ExteriorVariantSchema variant = tardis.getExterior().getVariant();
 
         if (this.variant != variant) {
             this.variant = variant;
-            this.model = variant.getDoor().model();
+            this.model = variant.doorId().value().model();
         }
     }
 }

@@ -8,7 +8,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.data.codec.MoreCodec;
+import dev.amble.lib.data.MoreCodec;
 
 public record PlanetRenderInfo(Identifier texture, Vec3d position, Vector3f scale, Vector3f rotation, boolean clouds,
                                boolean atmosphere, Vector3f color, double radius, double suctionRadius, boolean hasRings) {

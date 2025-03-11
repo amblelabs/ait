@@ -11,6 +11,7 @@ import net.minecraft.util.Identifier;
 
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.BasicSchema;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class SonicSchema extends BasicSchema implements Unlockable {
 
@@ -19,17 +20,17 @@ public abstract class SonicSchema extends BasicSchema implements Unlockable {
     private final Rendering rendering;
     private final Loyalty loyalty;
 
-    protected SonicSchema(Identifier id, Models models, Rendering rendering, Optional<Loyalty> loyalty) {
+    protected SonicSchema(Identifier id, Models models, Rendering rendering, @Nullable Loyalty loyalty) {
         super("sonic");
 
         this.id = id;
         this.models = models;
         this.rendering = rendering;
-        this.loyalty = loyalty.orElse(null);
+        this.loyalty = loyalty;
     }
 
     protected SonicSchema(Identifier id, Models models, Rendering rendering) {
-        this(id, models, rendering, Optional.empty());
+        this(id, models, rendering, null);
     }
 
     @Override
@@ -38,8 +39,8 @@ public abstract class SonicSchema extends BasicSchema implements Unlockable {
     }
 
     @Override
-    public Optional<Loyalty> requirement() {
-        return Optional.ofNullable(loyalty);
+    public Loyalty requirement() {
+        return loyalty;
     }
 
     @Override

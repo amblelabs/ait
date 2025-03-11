@@ -1,0 +1,19 @@
+{
+  "id": "ait:tardim",
+  "category": "ait:tardim",
+  "model": "ait:tardim",
+  "door": "ait:tardim",
+  "texture": "ait:textures/blockentities/exteriors/tardim/tardim_default.png",
+  "emission": "ait:textures/blockentities/exteriors/tardim/tardim_default_emission.png",
+  "loyalty": {
+    "type": "OWNER"
+  },
+  "sonic": {
+    "pos": [0.53, 0.94, 1.2],
+    "rot": [0, 45]
+  },
+  "has_portal": true,
+  "portal_size": [1, 2.79],
+  "straight_portal_offset": [0, 0.5, -0.499],
+  "diagonal_portal_offset": [0.349, 0.5, 0.349]
+}

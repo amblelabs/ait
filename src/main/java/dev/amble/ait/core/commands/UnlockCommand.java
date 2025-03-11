@@ -23,7 +23,6 @@ import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.data.Wildcard;
 import dev.amble.ait.registry.DesktopRegistry;
 import dev.amble.ait.registry.console.variant.ConsoleVariantRegistry;
-import dev.amble.ait.registry.exterior.ExteriorVariantRegistry;
 
 public class UnlockCommand {
 
@@ -32,9 +31,9 @@ public class UnlockCommand {
                     ConsoleVariantRegistry.getInstance());
     public static final SuggestionProvider<ServerCommandSource> DESKTOP_SUGGESTION = (context,
             builder) -> IdentifierWildcardArgumentType.suggestWildcardIds(builder, DesktopRegistry.getInstance());
-    public static final SuggestionProvider<ServerCommandSource> EXTERIOR_SUGGESTION = (context,
-            builder) -> IdentifierWildcardArgumentType.suggestWildcardIds(builder,
-                    ExteriorVariantRegistry.getInstance());
+//    public static final SuggestionProvider<ServerCommandSource> EXTERIOR_SUGGESTION = (context,
+//            builder) -> IdentifierWildcardArgumentType.suggestWildcardIds(builder,
+//                    ExteriorVariantRegistry.getInstance());
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(literal(AITMod.MOD_ID).then(literal("unlock")
@@ -44,8 +43,9 @@ public class UnlockCommand {
                                 .suggests(CONSOLE_SUGGESTION).executes(UnlockCommand::unlockConsole)))
                         .then(literal("desktop").then(argument("desktop", IdentifierWildcardArgumentType.wildcard())
                                 .suggests(DESKTOP_SUGGESTION).executes(UnlockCommand::unlockDesktop)))
-                        .then(literal("exterior").then(argument("exterior", IdentifierWildcardArgumentType.wildcard())
-                                .suggests(EXTERIOR_SUGGESTION).executes(UnlockCommand::unlockExterior))))));
+//                        .then(literal("exterior").then(argument("exterior", IdentifierWildcardArgumentType.wildcard())
+//                                .suggests(EXTERIOR_SUGGESTION).executes(UnlockCommand::unlockExterior)))
+                )));
     }
 
     private static <T extends Identifiable & Unlockable & Nameable> int unlock(
@@ -81,9 +81,9 @@ public class UnlockCommand {
                 DesktopRegistry.getInstance());
     }
 
-    private static int unlockExterior(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        return unlock(context, "exterior variant",
-                IdentifierWildcardArgumentType.getExteriorVariantArgument(context, "exterior"),
-                ExteriorVariantRegistry.getInstance());
-    }
+//    private static int unlockExterior(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+//        return unlock(context, "exterior variant",
+//                IdentifierWildcardArgumentType.getExteriorVariantArgument(context, "exterior"),
+//                ExteriorVariantRegistry.getInstance());
+//    }
 }

@@ -56,8 +56,8 @@ public record LockedDimension(Identifier dimension, ItemStack stack) implements 
     }
 
     @Override
-    public Optional<Loyalty> requirement() {
-        return Optional.of(Loyalty.fromLevel(100));
+    public Loyalty requirement() {
+        return Loyalty.fromLevel(100);
     }
 
     @Override

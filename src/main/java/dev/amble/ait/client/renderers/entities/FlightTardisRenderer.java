@@ -1,5 +1,8 @@
 package dev.amble.ait.client.renderers.entities;
 
+import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.registry.v2.AITClientRegistries;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.*;
@@ -21,12 +24,11 @@ import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 
 public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
     private ExteriorModel model;
-    private ClientExteriorVariantSchema variant;
+    private ExteriorVariantSchema variant;
 
     public FlightTardisRenderer(EntityRendererFactory.Context context) {
         super(context);
@@ -121,23 +123,16 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
         }
     }
 
-    private ExteriorModel getModel(Tardis tardis) {
-        if (model == null)
-            model = tardis.getExterior().getVariant().getClient().model();
-
-        return model;
-    }
-
     @Override
     public Identifier getTexture(FlightTardisEntity entity) {
         if (entity.tardis() == null || entity.tardis().isEmpty())
             return SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE; // random texture just so i dont crash
 
-        return entity.tardis().get().getExterior().getVariant().getClient().texture();
+        return entity.tardis().get().getExterior().getVariant().texture();
     }
 
     private void updateModel(Tardis tardis) {
-        ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
+        ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().asClient();
 
         if (this.variant != variant) {
             this.variant = variant;

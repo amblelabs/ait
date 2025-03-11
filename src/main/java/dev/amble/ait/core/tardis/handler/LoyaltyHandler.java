@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
+import dev.amble.ait.registry.v2.AITRegistries;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -27,7 +28,6 @@ import dev.amble.ait.data.schema.sonic.SonicSchema;
 import dev.amble.ait.registry.DesktopRegistry;
 import dev.amble.ait.registry.SonicRegistry;
 import dev.amble.ait.registry.console.variant.ConsoleVariantRegistry;
-import dev.amble.ait.registry.exterior.ExteriorVariantRegistry;
 
 public class LoyaltyHandler extends TardisComponent implements TardisTickable {
     private final Map<UUID, Loyalty> data;
@@ -103,8 +103,8 @@ public class LoyaltyHandler extends TardisComponent implements TardisTickable {
                 schema -> this.playUnlockEffects(player, schema));
         playSound = DesktopRegistry.getInstance().tryUnlock(tardis, loyalty,
                 schema -> this.playUnlockEffects(player, schema)) || playSound;
-        playSound = ExteriorVariantRegistry.getInstance().tryUnlock(tardis, loyalty,
-                schema -> this.playUnlockEffects(player, schema)) || playSound;
+        //playSound = AITRegistries.EXTERIOR_VARIANT.().tryUnlock(tardis, loyalty,
+        //        schema -> this.playUnlockEffects(player, schema)) || playSound;
         playSound = SonicRegistry.getInstance().tryUnlock(tardis, loyalty,
                 schema -> this.playUnlockEffects(player, schema)) || playSound;
 

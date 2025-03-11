@@ -1,5 +1,9 @@
 package dev.amble.ait.client.renderers.exteriors;
 
+import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.registry.v2.AITClientRegistries;
+import dev.amble.ait.registry.v2.ExteriorVariantRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.block.BlockState;
@@ -34,8 +38,6 @@ import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.core.tardis.handler.CloakHandler;
 import dev.amble.ait.core.tardis.handler.OvergrownHandler;
 import dev.amble.ait.data.datapack.DatapackConsole;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
-import dev.amble.ait.registry.exterior.ClientExteriorVariantRegistry;
 
 public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEntityRenderer<T> {
 
@@ -46,7 +48,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
     private static final ShieldsModel SHIELDS_MODEL = new ShieldsModel(
             ShieldsModel.getTexturedModelData().createModel());
 
-    private ClientExteriorVariantSchema variant;
+    private ExteriorVariantSchema variant;
     private ExteriorModel model;
 
     public ExteriorRenderer(BlockEntityRendererFactory.Context ctx) {
@@ -136,14 +138,14 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
         float wrappedDegrees = MathHelper.wrapDegrees(MinecraftClient.getInstance().player.getHeadYaw() + h);
 
-        if (this.variant.equals(ClientExteriorVariantRegistry.DOOM)) {
+        if (this.variant.id().equals(ExteriorVariantRegistry.DOOM)) {
             texture = DoomConstants.getTextureForRotation(wrappedDegrees, tardis);
             emission = DoomConstants.getEmissionForRotation(DoomConstants.getTextureForRotation(wrappedDegrees, tardis),
                     tardis);
         }
 
         matrices.multiply(
-                RotationAxis.NEGATIVE_Y.rotationDegrees(!this.variant.equals(ClientExteriorVariantRegistry.DOOM)
+                RotationAxis.NEGATIVE_Y.rotationDegrees(!this.variant.id().equals(ExteriorVariantRegistry.DOOM)
                         ? h + 180f
                         : MinecraftClient.getInstance().player.getHeadYaw() + 180f
                                 + ((wrappedDegrees > -135 && wrappedDegrees < 135) ? 180f : 0f)));
@@ -214,16 +216,13 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
         profiler.swap("biome");
 
-        if (this.variant != ClientExteriorVariantRegistry.CORAL_GROWTH) {
-            BiomeHandler handler = tardis.handler(TardisComponent.Id.BIOME);
-            Identifier biomeTexture = handler.getBiomeKey().get(this.variant.overrides());
+        BiomeHandler handler = tardis.handler(TardisComponent.Id.BIOME);
+        Identifier biomeTexture = handler.getBiomeKey().get(this.variant.overrides());
 
-            if (alpha > 0.105f && (biomeTexture != null && !texture.equals(biomeTexture))) {
-                model.renderWithAnimations(entity, this.model.getPart(), matrices,
-                        vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(biomeTexture, false)),
-                        light, overlay, 1, 1, 1, alpha);
-            }
-
+        if (alpha > 0.105f && (biomeTexture != null && !texture.equals(biomeTexture))) {
+            model.renderWithAnimations(entity, this.model.getPart(), matrices,
+                    vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(biomeTexture, false)),
+                    light, overlay, 1, 1, 1, alpha);
         }
 
         profiler.pop();
@@ -238,13 +237,13 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         }
 
         matrices.push();
-        matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f + h + this.variant.sonicItemRotations()[0]),
+        matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f + h + this.variant.sonicTransform().rot().x),
                 (float) entity.getPos().toCenterPos().x - entity.getPos().getX(),
                 (float) entity.getPos().toCenterPos().y - entity.getPos().getY(),
                 (float) entity.getPos().toCenterPos().z - entity.getPos().getZ());
-        matrices.translate(this.variant.sonicItemTranslations().x(), this.variant.sonicItemTranslations().y(),
-                this.variant.sonicItemTranslations().z());
-        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(this.variant.sonicItemRotations()[1]));
+        matrices.translate(this.variant.sonicTransform().pos().x, this.variant.sonicTransform().pos().y,
+                this.variant.sonicTransform().pos().z);
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(this.variant.sonicTransform().rot().y));
         matrices.scale(0.9f, 0.9f, 0.9f);
 
         int lightAbove = WorldRenderer.getLightmapCoordinates(entity.getWorld(), entity.getPos().up());
@@ -258,7 +257,8 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
     private void updateModel(Tardis tardis) {
         if (tardis.getExterior() == null)
             return;
-        ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
+
+        ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().asClient();
 
         if (this.variant != variant) {
             this.variant = variant;

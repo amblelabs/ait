@@ -20,7 +20,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.dynamic.Codecs;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.data.codec.MoreCodec;
+import dev.amble.lib.data.MoreCodec;
 
 public record Drink(Identifier id, Optional<Boolean> hasCustomColor, Optional<Vector3f> custom_color, List<DatapackPotion> potionInstances) implements Identifiable {
     public static final Codec<Drink> CODEC = Codecs.exceptionCatching(RecordCodecBuilder.create(instance -> instance.group(

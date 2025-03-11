@@ -1,5 +1,9 @@
 package dev.amble.ait.client.renderers.entities;
 
+import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.registry.v2.AITClientRegistries;
+import dev.amble.ait.registry.v2.ExteriorVariantRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -20,10 +24,10 @@ import dev.amble.ait.core.entities.FallingTardisEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisExterior;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
-import dev.amble.ait.registry.exterior.ClientExteriorVariantRegistry;
 
 public class FallingTardisRenderer extends EntityRenderer<FallingTardisEntity> {
+
+    private ExteriorModel model;
 
     public FallingTardisRenderer(EntityRendererFactory.Context context) {
         super(context);
@@ -38,7 +42,7 @@ public class FallingTardisRenderer extends EntityRenderer<FallingTardisEntity> {
             return;
 
         TardisExterior tardisExterior = tardis.getExterior();
-        ClientExteriorVariantSchema exteriorVariant = tardisExterior.getVariant().getClient();
+        ClientExteriorVariantSchema exteriorVariant = (ClientExteriorVariantSchema) tardisExterior.getVariant();
 
         if (exteriorVariant == null)
             return;
@@ -50,7 +54,7 @@ public class FallingTardisRenderer extends EntityRenderer<FallingTardisEntity> {
         Identifier emission = exteriorVariant.emission();
         ExteriorModel model = exteriorVariant.model();
 
-        if (model == null)
+        if (this.model == null)
             return;
 
         matrices.push();
@@ -58,7 +62,7 @@ public class FallingTardisRenderer extends EntityRenderer<FallingTardisEntity> {
         float h = RotationPropertyHelper.toDegrees(k);
 
         matrices.multiply(
-                RotationAxis.NEGATIVE_Y.rotationDegrees(!exteriorVariant.equals(ClientExteriorVariantRegistry.DOOM)
+                RotationAxis.NEGATIVE_Y.rotationDegrees(!exteriorVariant.id().equals(ExteriorVariantRegistry.DOOM)
                         ? 180f + h
                         : MinecraftClient.getInstance().player.getHeadYaw() + 180f));
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
@@ -84,7 +88,7 @@ public class FallingTardisRenderer extends EntityRenderer<FallingTardisEntity> {
                     vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(emission, true)),
                     0xf000f0, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 
-        if (!exteriorVariant.equals(ClientExteriorVariantRegistry.CORAL_GROWTH)) {
+        if (!exteriorVariant.id().equals(ExteriorVariantRegistry.CORAL_GROWTH)) {
             BiomeHandler handler = tardis.handler(TardisComponent.Id.BIOME);
             Identifier biomeTexture = handler.getBiomeKey().get(exteriorVariant.overrides());
 
@@ -103,6 +107,6 @@ public class FallingTardisRenderer extends EntityRenderer<FallingTardisEntity> {
         if (entity.tardis().get() == null)
             return SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE; // random texture just so i dont crash
 
-        return entity.tardis().get().getExterior().getVariant().getClient().texture();
+        return entity.tardis().get().getExterior().getVariant().texture();
     }
 }

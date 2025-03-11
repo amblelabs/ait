@@ -21,7 +21,6 @@ import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.schema.exterior.variant.adaptive.AdaptiveVariant;
 
 public class ChameleonHandler extends TardisComponent {
 
@@ -108,7 +107,8 @@ public class ChameleonHandler extends TardisComponent {
     }
 
     private static boolean isDisguised(Tardis tardis) {
-        return tardis.getExterior().getVariant() instanceof AdaptiveVariant;
+        //return tardis.getExterior().getVariant() instanceof AdaptiveVariant;
+        return false;
     }
 
     public void clearDisguise() {

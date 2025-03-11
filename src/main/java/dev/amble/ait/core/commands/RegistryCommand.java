@@ -20,7 +20,6 @@ public class RegistryCommand {
 
     private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         AITRegistries.EXTERIOR_VARIANT.get(context.getSource().getWorld()).forEach(System.out::println);
-        AITRegistries.SIMPLE.get().forEach(System.out::println);
         return Command.SINGLE_SUCCESS;
     }
 }

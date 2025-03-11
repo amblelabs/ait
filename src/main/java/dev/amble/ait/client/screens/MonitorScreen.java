@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Objects;
 
 import com.google.common.collect.Lists;
+import dev.amble.ait.registry.v2.AITClientRegistries;
+import dev.amble.ait.registry.v2.AITRegistries;
+import dev.amble.ait.registry.v2.ExteriorCategoryRegistry;
+import dev.amble.ait.registry.v2.ExteriorVariantRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedGlobalPos;
 
@@ -37,21 +41,15 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.data.datapack.DatapackConsole;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
-import dev.amble.ait.data.schema.exterior.category.ClassicCategory;
-import dev.amble.ait.data.schema.exterior.category.PoliceBoxCategory;
-import dev.amble.ait.registry.CategoryRegistry;
-import dev.amble.ait.registry.exterior.ClientExteriorVariantRegistry;
-import dev.amble.ait.registry.exterior.ExteriorVariantRegistry;
 
 public class MonitorScreen extends ConsoleScreen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
             "textures/gui/tardis/monitor/monitor_gui.png");
     private final List<ButtonWidget> buttons = Lists.newArrayList();
     private ExteriorCategorySchema category;
-    private ClientExteriorVariantSchema currentVariant;
+    private ExteriorVariantSchema currentVariant;
     int backgroundHeight = 166;
     int backgroundWidth = 256;
     private int tickForSpin = 0;
@@ -86,12 +84,12 @@ public class MonitorScreen extends ConsoleScreen {
         if (currentVariant == null)
             return;
 
-        if (this.currentVariant.parent().category() != category)
+        if (this.currentVariant.category().value() != category)
             currentVariant = null;
     }
 
-    public ClientExteriorVariantSchema getCurrentVariant() {
-        if (Objects.equals(currentVariant, ClientExteriorVariantRegistry.CORAL_GROWTH))
+    public ExteriorVariantSchema getCurrentVariant() {
+        if (Objects.equals(currentVariant.id(), ExteriorVariantRegistry.CORAL_GROWTH))
             changeCategory(true);
 
         if (currentVariant == null)
@@ -104,11 +102,7 @@ public class MonitorScreen extends ConsoleScreen {
         return currentVariant;
     }
 
-    public void setCurrentVariant(ExteriorVariantSchema var) {
-        setCurrentVariant(ClientExteriorVariantRegistry.withParent(var));
-    }
-
-    public void setCurrentVariant(ClientExteriorVariantSchema currentVariant) {
+    public void setCurrentVariant(ExteriorVariantSchema currentVariant) {
         this.currentVariant = currentVariant;
     }
 
@@ -148,11 +142,8 @@ public class MonitorScreen extends ConsoleScreen {
     }
 
     public static void sendExteriorPacket(ClientTardis tardis, ExteriorCategorySchema category,
-            ClientExteriorVariantSchema variant) {
-        if (category != tardis.getExterior().getCategory() || variant.parent() != tardis.getExterior().getVariant()) {
-            ClientTardisUtil.changeExteriorWithScreen(tardis, variant.id(),
-                    variant.parent() != tardis.getExterior().getVariant());
-        }
+            ExteriorVariantSchema variant) {
+        ClientTardisUtil.changeExteriorWithScreen(tardis, variant.id(), true);
     }
 
     public void toInteriorSettingsScreen() {
@@ -173,27 +164,28 @@ public class MonitorScreen extends ConsoleScreen {
         else
             setCategory(previousCategory());
 
-        if (CategoryRegistry.CORAL_GROWTH.equals(this.category)
+        // TODO: use tags in future
+        if (this.category.id().equals(ExteriorCategoryRegistry.CORAL_GROWTH)
                 || (!("ad504e7c-22a0-4b3f-94e3-5b6ad5514cb6".equalsIgnoreCase(player.getUuidAsString()))
-                        && CategoryRegistry.DOOM.equals(this.category))) {
+                        && this.category.id().equals(ExteriorCategoryRegistry.DOOM))) {
             changeCategory(direction);
         }
     }
 
     public ExteriorCategorySchema nextCategory() {
-        List<ExteriorCategorySchema> list = CategoryRegistry.getInstance().toList();
+        int idx = AITRegistries.EXTERIOR_CATEGORY.getRawId(this.getCategory());
+        int size = AITRegistries.EXTERIOR_CATEGORY.size();
 
-        int idx = list.indexOf(getCategory());
-        idx = (idx + 1) % list.size();
-        return list.get(idx);
+        idx = (idx + 1) % size;
+        return AITRegistries.EXTERIOR_CATEGORY.get(idx);
     }
 
     public ExteriorCategorySchema previousCategory() {
-        List<ExteriorCategorySchema> list = CategoryRegistry.getInstance().toList();
+        int idx = AITRegistries.EXTERIOR_CATEGORY.getRawId(this.getCategory());
+        int size = AITRegistries.EXTERIOR_CATEGORY.size();
 
-        int idx = list.indexOf(getCategory());
-        idx = (idx - 1 + list.size()) % list.size();
-        return list.get(idx);
+        idx = (idx - 1 + size) % size;
+        return AITRegistries.EXTERIOR_CATEGORY.get(idx);
     }
 
     public void whichDirectionVariant(boolean direction) {
@@ -204,19 +196,19 @@ public class MonitorScreen extends ConsoleScreen {
     }
 
     public ExteriorVariantSchema nextVariant() {
-        List<ExteriorVariantSchema> list = ExteriorVariantRegistry.withParent(getCurrentVariant().parent().category())
+        List<ExteriorVariantSchema> list = AITRegistries.EXTERIOR_VARIANT.withParent(getCurrentVariant().category().value())
                 .stream().toList();
 
-        int idx = list.indexOf(getCurrentVariant().parent());
+        int idx = list.indexOf(getCurrentVariant());
         idx = (idx + 1) % list.size();
         return list.get(idx);
     }
 
     public ExteriorVariantSchema previousVariant() {
-        List<ExteriorVariantSchema> list = ExteriorVariantRegistry.withParent(getCurrentVariant().parent().category())
+        List<ExteriorVariantSchema> list = AITRegistries.EXTERIOR_VARIANT.withParent(getCurrentVariant().category().value())
                 .stream().toList();
 
-        int idx = list.indexOf(getCurrentVariant().parent());
+        int idx = list.indexOf(getCurrentVariant());
         idx = (idx - 1 + list.size()) % list.size();
         return list.get(idx);
     }
@@ -318,15 +310,16 @@ public class MonitorScreen extends ConsoleScreen {
         int centerHeight = height / 2;
 
         ExteriorCategorySchema category = this.getCategory();
-        ClientExteriorVariantSchema variant = this.getCurrentVariant();
+        ExteriorVariantSchema variant = this.getCurrentVariant();
 
         if (category == null || variant == null)
             return;
 
-        boolean isPoliceBox = category.equals(CategoryRegistry.getInstance().get(PoliceBoxCategory.REFERENCE))
-                || category.equals(CategoryRegistry.getInstance().get(ClassicCategory.REFERENCE));
+        // TODO: use tags in future
+        boolean isPoliceBox = category.id().equals(ExteriorCategoryRegistry.POLICE_BOX)
+                || category.id().equals(ExteriorCategoryRegistry.CLASSIC);
 
-        boolean isExtUnlocked = tardis.isUnlocked(variant.parent());
+        boolean isExtUnlocked = tardis.isUnlocked(variant);
         boolean hasPower = tardis.fuel().hasPower();
         boolean alarms = tardis.alarm().enabled().get();
 
@@ -336,26 +329,18 @@ public class MonitorScreen extends ConsoleScreen {
         context.drawCenteredTextWithShadow(this.textRenderer, category.text(), (centerWidth + 70), (centerHeight - 68),
                 5636095);
 
-        List<ExteriorVariantSchema> list = ExteriorVariantRegistry.withParent(category);
+        List<ExteriorVariantSchema> list = AITRegistries.EXTERIOR_VARIANT.withParent(category);
 
-        context.drawCenteredTextWithShadow(this.textRenderer, Text.literal((list.indexOf(variant.parent()) + 1) + "/" + list.size()).formatted(Formatting.BOLD),
+        context.drawCenteredTextWithShadow(this.textRenderer, Text.literal((list.indexOf(variant) + 1) + "/" + list.size()).formatted(Formatting.BOLD),
                 (centerWidth + 70), (centerHeight + 64), 0xffffff);
 
-        context.drawCenteredTextWithShadow(this.textRenderer, variant.parent().text(), (centerWidth + 70),
+        context.drawCenteredTextWithShadow(this.textRenderer, variant.text(), (centerWidth + 70),
                 (centerHeight + 44), 5636095);
 
-        context.drawCenteredTextWithShadow(this.textRenderer, variant.parent().id().getNamespace().toUpperCase(),
+        context.drawCenteredTextWithShadow(this.textRenderer, variant.id().getNamespace().toUpperCase(),
                 (centerWidth + 70), (centerHeight + 34), 5636095);
 
         stack.pop();
-        ExteriorModel model = variant.model();
-
-        /*
-         * stack.push(); stack.translate(0, 0, -50f);
-         * stack.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(((float) tickForSpin /
-         * 1400L) * 360.0f), x, y, 0); context.drawTexture(TEXTURE, x - 41, y - 41, 173,
-         * 173, 83, 83); stack.pop();
-         */
 
         stack.push();
         stack.translate(x, isPoliceBox ? y + 11 : y, 100f);
@@ -370,6 +355,7 @@ public class MonitorScreen extends ConsoleScreen {
 
         Identifier texture = variant.texture();
         Identifier emissive = variant.emission();
+        ExteriorModel model = variant.asClient().model();
 
         float base = isExtUnlocked ? 1f : 0.1f;
         float tinted = alarms && isExtUnlocked ? 0.3f : base;

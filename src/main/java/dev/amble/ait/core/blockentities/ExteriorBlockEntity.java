@@ -257,7 +257,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
             TardisUtil.teleportInside(tardis, entity);
 
         if (!tardis.door().isClosed()
-                && (!DependencyChecker.hasPortals() || !tardis.getExterior().getVariant().hasPortals()))
+                && (!DependencyChecker.hasPortals() || !tardis.getExterior().getVariant().hasPortal()))
             TardisUtil.teleportInside(tardis, entity);
     }
 
@@ -318,7 +318,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
 
         Tardis tardis = ref.get();
 
-        this.animation = tardis.getExterior().getVariant().animation(this);
+        this.animation = tardis.getExterior().getVariant().animation().value().createAnimation(this);
         this.animation.setupAnimation(tardis.travel().getState());
 
         if (this.getWorld() != null && !this.getWorld().isClient()) {

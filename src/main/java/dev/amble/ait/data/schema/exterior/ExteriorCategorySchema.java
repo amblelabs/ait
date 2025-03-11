@@ -4,23 +4,38 @@ import java.lang.reflect.Type;
 
 import com.google.gson.*;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.amble.ait.registry.v2.AITRegistries;
+import dev.amble.ait.registry.v2.ExteriorCategoryRegistry;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 
 import dev.amble.ait.data.schema.BasicSchema;
-import dev.amble.ait.data.schema.exterior.category.CapsuleCategory;
-import dev.amble.ait.registry.CategoryRegistry;
-import dev.amble.ait.registry.exterior.ExteriorVariantRegistry;
 
 /**
  * @author duzo
  */
-public abstract class ExteriorCategorySchema extends BasicSchema {
+public class ExteriorCategorySchema extends BasicSchema {
+
+    public static final Codec<ExteriorCategorySchema> CODEC = RecordCodecBuilder.create(instance -> instance
+            .group(Identifier.CODEC.fieldOf("id").forGetter(ExteriorCategorySchema::id))
+            .apply(instance, ExteriorCategorySchema::new));
+
     private final Identifier id;
 
-    protected ExteriorCategorySchema(Identifier id, String name) {
+    protected ExteriorCategorySchema(Identifier id) {
         super("exterior");
         this.id = id;
+    }
+
+    @Override
+    public Text text() {
+        if (this.text == null)
+            this.text = Text.translatable(this.id().toTranslationKey("exterior"));
+
+        return text;
     }
 
     @Override
@@ -40,12 +55,7 @@ public abstract class ExteriorCategorySchema extends BasicSchema {
      * The default exterior for this category
      */
     public ExteriorVariantSchema getDefaultVariant() {
-        return ExteriorVariantRegistry.withParent(this).get(0);
-    }
-
-    @Deprecated // Replace with the exteriors own hasPortals method, they need to override it
-    public boolean hasPortals() {
-        return false;
+        return AITRegistries.EXTERIOR_VARIANT.withParent(this).get(0);
     }
 
     @Override
@@ -70,10 +80,10 @@ public abstract class ExteriorCategorySchema extends BasicSchema {
             try {
                 id = new Identifier(json.getAsJsonPrimitive().getAsString());
             } catch (InvalidIdentifierException e) {
-                id = CapsuleCategory.REFERENCE;
+                id = ExteriorCategoryRegistry.FALLBACK;
             }
 
-            return CategoryRegistry.getInstance().get(id);
+            return AITRegistries.EXTERIOR_CATEGORY.tryGetOr(id, ExteriorCategoryRegistry.FALLBACK);
         }
 
         @Override

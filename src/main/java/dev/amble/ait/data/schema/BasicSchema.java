@@ -10,7 +10,7 @@ import dev.amble.ait.api.Nameable;
 public abstract class BasicSchema implements Identifiable, Nameable {
 
     private final String prefix;
-    private Text text;
+    protected Text text;
 
     protected BasicSchema(String prefix) {
         this.prefix = prefix;

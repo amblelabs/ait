@@ -1,5 +1,6 @@
 package dev.amble.ait.core.item;
 
+import dev.amble.ait.registry.v2.AITRegistries;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.block.entity.BlockEntity;
@@ -30,7 +31,6 @@ import dev.amble.ait.core.tardis.manager.TardisBuilder;
 import dev.amble.ait.core.tardis.util.DefaultThemes;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.registry.DesktopRegistry;
-import dev.amble.ait.registry.exterior.ExteriorVariantRegistry;
 
 public class TardisItemBuilder extends Item {
     private final Identifier exterior;
@@ -118,7 +118,7 @@ public class TardisItemBuilder extends Item {
         if (this.exterior == null || this.desktop == null) {
             DefaultThemes.getRandom().apply(builder);
         } else {
-            builder.exterior(ExteriorVariantRegistry.getInstance().get(this.exterior));
+            builder.exterior(AITRegistries.EXTERIOR_VARIANT.get(this.exterior));
             builder.desktop(DesktopRegistry.getInstance().get(this.desktop));
         }
 

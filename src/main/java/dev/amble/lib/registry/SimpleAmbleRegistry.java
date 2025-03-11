@@ -20,6 +20,7 @@ public class SimpleAmbleRegistry<T> extends AmbleRegistry<T> {
         this.registry = FabricRegistryBuilder.createDefaulted(this.getKey(), def).buildAndRegister();
     }
 
+    @Override
     public Registry<T> get() {
         return this.registry;
     }

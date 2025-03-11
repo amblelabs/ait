@@ -11,6 +11,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import dev.amble.lib.register.unlockable.Unlockable;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
@@ -21,10 +22,10 @@ import dev.amble.ait.data.schema.desktop.textures.DesktopPreviewTexture;
 public class DatapackDesktop extends TardisDesktopSchema {
     public static final Codec<TardisDesktopSchema> CODEC = RecordCodecBuilder.create(instance -> instance
             .group(Identifier.CODEC.fieldOf("id").forGetter(TardisDesktopSchema::id),
-                    Loyalty.CODEC.optionalFieldOf("loyalty").forGetter(TardisDesktopSchema::requirement))
+                    Unlockable.optionalRequirement("loyalty"))
             .apply(instance, DatapackDesktop::new));
 
-    public DatapackDesktop(Identifier id, Optional<Loyalty> loyalty) {
+    public DatapackDesktop(Identifier id, Loyalty loyalty) {
         super(id, new DesktopPreviewTexture(DesktopPreviewTexture.pathFromDesktopId(id)), loyalty);
     }
 

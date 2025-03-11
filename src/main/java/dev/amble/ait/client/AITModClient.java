@@ -9,6 +9,9 @@ import java.util.Calendar;
 import java.util.UUID;
 
 import dev.amble.ait.client.commands.ClientRegistryCommand;
+import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.registry.v2.AITClientRegistries;
 import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -37,7 +40,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import net.minecraft.world.LightType;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.client.boti.*;
 import dev.amble.ait.client.commands.ConfigCommand;
 import dev.amble.ait.client.data.ClientLandingManager;
@@ -90,14 +92,11 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.module.ModuleRegistry;
 import dev.amble.ait.module.gun.core.item.BaseGunItem;
 import dev.amble.ait.registry.SonicRegistry;
 import dev.amble.ait.registry.console.ConsoleRegistry;
 import dev.amble.ait.registry.console.variant.ClientConsoleVariantRegistry;
-import dev.amble.ait.registry.door.ClientDoorRegistry;
-import dev.amble.ait.registry.exterior.ClientExteriorVariantRegistry;
 
 @Environment(value = EnvType.CLIENT)
 public class AITModClient implements ClientModInitializer {
@@ -109,11 +108,11 @@ public class AITModClient implements ClientModInitializer {
         AmbleRegistries.getInstance().registerAll(
                 SonicRegistry.getInstance(),
                 DrinkRegistry.getInstance(),
-                ClientExteriorVariantRegistry.getInstance(),
                 ClientConsoleVariantRegistry.getInstance()
         );
 
-        ClientDoorRegistry.init();
+        AITClientRegistries.init();
+
         ClientTardisManager.init();
 
         ModuleRegistry.instance().onClientInit();
@@ -488,11 +487,12 @@ public class AITModClient implements ClientModInitializer {
         MatrixStack stack = context.matrixStack();
         var exteriorQueue = new ArrayList<>(BOTI.EXTERIOR_RENDER_QUEUE);
         for (ExteriorBlockEntity exterior : exteriorQueue) {
-            if (exterior == null || exterior.tardis() == null || exterior.tardis().isEmpty()) continue;
+            if (exterior == null || !exterior.isLinked()) continue;
             Tardis tardis = exterior.tardis().get();
-            if (tardis == null) return;
-            ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
+
+            ClientExteriorVariantSchema variant = (ClientExteriorVariantSchema) tardis.getExterior().getVariant();
             ExteriorModel model = variant.model();
+
             BlockPos pos = exterior.getPos();
             stack.push();
             stack.translate(0.5, 0, 0.5);
@@ -504,7 +504,7 @@ public class AITModClient implements ClientModInitializer {
                 light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
                 TardisExteriorBOTI boti = new TardisExteriorBOTI();
                 boti.renderExteriorBoti(exterior, variant, stack,
-                        AITMod.id("textures/environment/tardis_sky.png"), model,
+                        id("textures/environment/tardis_sky.png"), model,
                         BotiPortalModel.getTexturedModelData().createModel(), light);
             }
             stack.pop();
@@ -521,8 +521,8 @@ public class AITModClient implements ClientModInitializer {
         if (bl) {
             Tardis tardis = ClientTardisUtil.getCurrentTardis();
             if (tardis == null || tardis.getDesktop() == null) return;
-            ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
-            DoorModel model = variant.getDoor().model();
+            ExteriorVariantSchema variant = tardis.getExterior().getVariant();
+            DoorModel model = variant.doorId().value().model();
             for (DoorBlockEntity door : BOTI.DOOR_RENDER_QUEUE) {
                 if (door == null) continue;
                 BlockPos pos = door.getPos();
@@ -535,7 +535,7 @@ public class AITModClient implements ClientModInitializer {
                 if (tardis.door().getLeftRot() > 0 && !tardis.isGrowth()) {
                     light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
                     TardisDoorBOTI.renderInteriorDoorBoti(tardis, door, variant, stack,
-                            AITMod.id("textures/environment/tardis_sky.png"), model,
+                            id("textures/environment/tardis_sky.png"), model,
                             BotiPortalModel.getTexturedModelData().createModel(), light);
                 }
                 stack.pop();

@@ -3,6 +3,8 @@ package dev.amble.ait.core.tardis.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.registry.v2.AITRegistries;
+import dev.amble.ait.registry.v2.ExteriorCategoryRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import dev.amble.lib.data.DirectedGlobalPos;
@@ -45,7 +47,6 @@ import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.ait.data.properties.integer.IntProperty;
 import dev.amble.ait.data.properties.integer.IntValue;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
-import dev.amble.ait.registry.CategoryRegistry;
 import dev.amble.ait.registry.DesktopRegistry;
 
 public class InteriorChangingHandler extends KeyedTardisComponent implements TardisTickable {
@@ -91,7 +92,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
             if (!tardis.isGrowth())
                 return TardisEvents.Interaction.PASS;
 
-            tardis.getExterior().setType(CategoryRegistry.CAPSULE);
+            tardis.getExterior().setType(AITRegistries.EXTERIOR_CATEGORY.get(ExteriorCategoryRegistry.FALLBACK));
             return TardisEvents.Interaction.SUCCESS; // force mat even if checks fail
         });
 

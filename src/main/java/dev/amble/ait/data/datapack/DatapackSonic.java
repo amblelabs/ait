@@ -11,6 +11,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import dev.amble.lib.register.unlockable.Unlockable;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
@@ -25,13 +26,13 @@ public class DatapackSonic extends SonicSchema {
                             Models.CODEC.fieldOf("models").forGetter(SonicSchema::models),
 
                             // TODO move this to an item model display type thing
-                            Rendering.CODEC.optionalFieldOf("rendering")
-                                    .forGetter(schema -> Optional.of(schema.rendering())),
-                            Loyalty.CODEC.optionalFieldOf("loyalty").forGetter(SonicSchema::requirement))
+                            Rendering.CODEC.optionalFieldOf("rendering", new Rendering())
+                                    .forGetter(SonicSchema::rendering),
+                            Unlockable.optionalRequirement("loyalty"))
                     .apply(instance, DatapackSonic::new));
 
-    public DatapackSonic(Identifier id, Models models, Optional<Rendering> rendering, Optional<Loyalty> loyalty) {
-        super(id, models, rendering.orElse(new Rendering()), loyalty);
+    public DatapackSonic(Identifier id, Models models, Rendering rendering, Loyalty loyalty) {
+        super(id, models, rendering, loyalty);
     }
 
     public static SonicSchema fromInputStream(InputStream stream) {

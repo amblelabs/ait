@@ -2,6 +2,7 @@ package dev.amble.ait.core.blocks;
 
 import java.util.function.ToIntFunction;
 
+import dev.amble.ait.registry.v2.ExteriorVariantRegistry;
 import dev.amble.lib.api.ICantBreak;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,10 +49,8 @@ import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.ShapeUtil;
-import dev.amble.ait.data.schema.exterior.variant.adaptive.AdaptiveVariant;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
-import dev.amble.ait.registry.exterior.ExteriorVariantRegistry;
 
 @SuppressWarnings("deprecation")
 public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBreak, Waterloggable {
@@ -210,14 +209,15 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         if (tardis.siege().isActive())
             return SIEGE_SHAPE;
 
-        if (tardis.getExterior().getVariant().equals(ExteriorVariantRegistry.DOOM))
+        // TODO use "special" tag in the future
+        if (tardis.getExterior().getVariant().id().equals(ExteriorVariantRegistry.DOOM))
             return LEDGE_DOOM;
 
-        if (DependencyChecker.hasPortals() && !tardis.door().isOpen() && tardis.getExterior().getVariant().hasPortals())
+        if (DependencyChecker.hasPortals() && !tardis.door().isOpen() && tardis.getExterior().getVariant().hasPortal())
             return getNormalShape(state, true);
 
-        if (tardis.getExterior().getVariant() instanceof AdaptiveVariant)
-            return VoxelShapes.empty();
+        //if (tardis.getExterior().getVariant() instanceof AdaptiveVariant)
+        //    return VoxelShapes.empty();
 
         TravelHandler travel = tardis.travel();
 

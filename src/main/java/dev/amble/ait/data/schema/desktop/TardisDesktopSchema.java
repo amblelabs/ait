@@ -44,8 +44,8 @@ public abstract class TardisDesktopSchema extends BasicSchema implements Unlocka
     }
 
     @Override
-    public Optional<Loyalty> requirement() {
-        return Optional.ofNullable(loyalty);
+    public Loyalty requirement() {
+        return loyalty;
     }
 
     @Override

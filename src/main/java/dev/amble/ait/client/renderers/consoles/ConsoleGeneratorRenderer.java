@@ -63,8 +63,8 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
 
             Text text = Text.literal("\uD83D\uDD12");
             Text type = Text.literal("Console Type: " + entity.getConsoleVariant().id().getPath().replace("console/", "").replace("_", " ").toUpperCase());
-            Text requirement = Text.literal("Requires Loyalty Level: " + (entity.getConsoleVariant().requirement().isPresent() ?
-                            entity.getConsoleVariant().requirement().get().type() : "None"));
+            Text requirement = Text.literal("Requires Loyalty Level: " + (entity.getConsoleVariant().requirement() != null ?
+                            entity.getConsoleVariant().requirement().type() : "None"));
             TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
             float h = (float) (-textRenderer.getWidth(text) / 2);
             float p = (float) (-textRenderer.getWidth(requirement) / 2);

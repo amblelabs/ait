@@ -15,7 +15,7 @@ import org.joml.Vector3f;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.data.codec.MoreCodec;
+import dev.amble.lib.data.MoreCodec;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 
 // Example usage

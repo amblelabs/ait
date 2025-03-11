@@ -7,6 +7,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import dev.amble.ait.registry.*;
+import dev.amble.ait.registry.v2.AITClientRegistries;
 import dev.amble.ait.registry.v2.AITRegistries;
 import dev.amble.lib.container.RegistryContainer;
 import dev.amble.lib.register.AmbleRegistries;
@@ -86,8 +87,6 @@ import dev.amble.ait.module.ModuleRegistry;
 import dev.amble.ait.module.planet.core.space.planet.Crater;
 import dev.amble.ait.registry.console.ConsoleRegistry;
 import dev.amble.ait.registry.console.variant.ConsoleVariantRegistry;
-import dev.amble.ait.registry.door.DoorRegistry;
-import dev.amble.ait.registry.exterior.ExteriorVariantRegistry;
 
 public class AITMod implements ModInitializer {
 
@@ -101,7 +100,6 @@ public class AITMod implements ModInitializer {
 
     public static final GameRules.Key<GameRules.BooleanRule> TARDIS_FIRE_GRIEFING = GameRuleRegistry.register("tardisFireGriefing",
             GameRules.Category.MISC, GameRuleFactory.createBooleanRule(false));
-
 
     public static final RegistryKey<PlacedFeature> CUSTOM_GEODE_PLACED_KEY = RegistryKey.of(RegistryKeys.PLACED_FEATURE,
             new Identifier(MOD_ID, "zeiton_geode"));
@@ -156,8 +154,6 @@ public class AITMod implements ModInitializer {
                 FlightSoundRegistry.getInstance(),
                 VortexReferenceRegistry.getInstance(),
                 BlueprintRegistry.getInstance(),
-                ExteriorVariantRegistry.getInstance(),
-                CategoryRegistry.getInstance(),
                 TardisComponentRegistry.getInstance(),
                 LockedDimensionRegistry.getInstance(),
                 HumRegistry.getInstance(),
@@ -166,13 +162,14 @@ public class AITMod implements ModInitializer {
                 DrinkRegistry.getInstance()
         );
 
+
+
         registerParticles();
 
         // For all the addon devs
         FabricLoader.getInstance().invokeEntrypoints("ait-main", AITModInitializer.class,
                 AITModInitializer::onInitializeAIT);
 
-        DoorRegistry.init();
         HandlesResponseRegistry.init();
 
         AITStatusEffects.init();

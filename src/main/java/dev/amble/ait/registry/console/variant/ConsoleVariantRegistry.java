@@ -15,7 +15,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.datapack.DatapackConsole;
-import dev.amble.ait.data.datapack.DatapackExterior;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.data.schema.console.variant.alnico.AlnicoVariant;
@@ -62,7 +61,7 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
             }
 
             buf.encodeAsJson(DatapackConsole.CODEC, new DatapackConsole(schema.id(), schema.parent().id(),
-                    DatapackExterior.DEFAULT_TEXTURE, DatapackExterior.DEFAULT_TEXTURE, List.of(), new Vector3f(), List.of(), new Vector3f(),
+                    AITMod.id("empty"), AITMod.id("empty"), List.of(), new Vector3f(), List.of(), new Vector3f(),
                     false));
         }
 

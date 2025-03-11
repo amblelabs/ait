@@ -3,6 +3,8 @@ package dev.amble.ait.core.blocks;
 import java.util.List;
 import java.util.UUID;
 
+import dev.amble.ait.registry.v2.AITRegistries;
+import dev.amble.ait.registry.v2.ExteriorVariantRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,9 +45,7 @@ import dev.amble.ait.core.tardis.manager.TardisBuilder;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Loyalty;
-import dev.amble.ait.data.schema.exterior.variant.growth.CoralGrowthVariant;
 import dev.amble.ait.registry.DesktopRegistry;
-import dev.amble.ait.registry.exterior.ExteriorVariantRegistry;
 
 @SuppressWarnings("deprecation")
 public class CoralPlantBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
@@ -140,7 +140,7 @@ public class CoralPlantBlock extends HorizontalDirectionalBlock implements Block
                 .<FuelHandler>with(TardisComponent.Id.FUEL, fuel -> fuel.setCurrentFuel(5000))
                 .<LoyaltyHandler>with(TardisComponent.Id.LOYALTY, loyaltyHandler -> loyaltyHandler.set(player, new Loyalty(Loyalty.Type.NEUTRAL)))
                 .with(TardisComponent.Id.TRAVEL, travel -> travel.tardis().travel().autopilot(false))
-                .exterior(ExteriorVariantRegistry.getInstance().get(CoralGrowthVariant.REFERENCE))
+                .exterior(AITRegistries.EXTERIOR_VARIANT.get(ExteriorVariantRegistry.CORAL_GROWTH))
                 .desktop(DesktopRegistry.DEFAULT_CAVE);
 
         ServerTardis created = ServerTardisManager.getInstance()
@@ -171,9 +171,11 @@ public class CoralPlantBlock extends HorizontalDirectionalBlock implements Block
         }
 
         if (world.getBlockEntity(pos) instanceof CoralBlockEntity coral) {
-            if (player.getUuid() != null)
+            if (player.getUuid() != null) {
                 coral.creator = player.getUuid();
                 coral.markDirty();
+            }
+
             TardisCriterions.PLACE_CORAL.trigger(player);
         }
     }

@@ -74,8 +74,8 @@ public abstract class ConsoleVariantSchema extends BasicSchema implements Unlock
     }
 
     @Override
-    public Optional<Loyalty> requirement() {
-        return Optional.ofNullable(loyalty);
+    public Loyalty requirement() {
+        return loyalty;
     }
 
     @Override

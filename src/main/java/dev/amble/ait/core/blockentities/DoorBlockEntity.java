@@ -147,7 +147,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
         if (tardis.door().isClosed())
             return;
 
-        if (DependencyChecker.hasPortals() && tardis.getExterior().getVariant().hasPortals())
+        if (DependencyChecker.hasPortals() && tardis.getExterior().getVariant().hasPortal())
             return;
 
         TravelHandler travel = tardis.travel();

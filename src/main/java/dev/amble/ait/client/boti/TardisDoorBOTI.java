@@ -1,6 +1,7 @@
 package dev.amble.ait.client.boti;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.MinecraftClient;
@@ -23,11 +24,10 @@ import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 
 public class TardisDoorBOTI extends BOTI {
-    public static void renderInteriorDoorBoti(Tardis tardis, DoorBlockEntity door, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, SinglePartEntityModel frame, ModelPart mask, int light) {
-        if (!variant.parent().hasPortals()) return;
+    public static void renderInteriorDoorBoti(Tardis tardis, DoorBlockEntity door, ExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, SinglePartEntityModel frame, ModelPart mask, int light) {
+        if (!variant.hasPortal()) return;
 
         if (!AITMod.CONFIG.CLIENT.ENABLE_TARDIS_BOTI)
             return;
@@ -54,9 +54,9 @@ public class TardisDoorBOTI extends BOTI {
 
         RenderSystem.depthMask(true);
         stack.push();
-        Vec3d vec = variant.parent().door().adjustPortalPos(new Vec3d(0, -1.1725f, 0), Direction.NORTH);
+        Vec3d vec = variant.doorId().value().adjustPortalPos(new Vec3d(0, -1.1725f, 0), Direction.NORTH);
         stack.translate(vec.x, vec.y, vec.z);
-        stack.scale((float) variant.parent().portalWidth(), (float) variant.parent().portalHeight(), 1f);
+        stack.scale((float) variant.portalSize().x, (float) variant.portalSize().y, 1f);
         if (tardis.travel().getState() == TravelHandlerBase.State.LANDED)
             mask.render(stack, botiProvider.getBuffer(RenderLayer.getEndGateway()), 0xf000f0, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
         else {

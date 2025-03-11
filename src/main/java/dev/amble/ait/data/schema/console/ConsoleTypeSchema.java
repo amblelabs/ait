@@ -10,7 +10,6 @@ import net.minecraft.util.InvalidIdentifierException;
 
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.core.tardis.control.ControlTypes;
-import dev.amble.ait.data.schema.exterior.category.CapsuleCategory;
 import dev.amble.ait.registry.console.ConsoleRegistry;
 import dev.amble.ait.registry.console.variant.ConsoleVariantRegistry;
 
@@ -71,7 +70,7 @@ public abstract class ConsoleTypeSchema implements Identifiable, Nameable {
             try {
                 id = new Identifier(json.getAsJsonPrimitive().getAsString());
             } catch (InvalidIdentifierException e) {
-                id = CapsuleCategory.REFERENCE;
+                id = ConsoleRegistry.HARTNELL.id();
             }
 
             return ConsoleRegistry.REGISTRY.get(id);

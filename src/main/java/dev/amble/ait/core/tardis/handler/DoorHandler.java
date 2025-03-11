@@ -184,7 +184,7 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
     }
 
     public boolean hasDoubleDoor() {
-        return this.tardis.getExterior().getVariant().door().isDouble();
+        return this.tardis.getExterior().getVariant().doorId().value().isDouble();
     }
 
     public boolean isOpen() {
@@ -276,7 +276,7 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
             return false;
         }
 
-        DoorSchema doorSchema = tardis.getExterior().getVariant().door();
+        DoorSchema doorSchema = tardis.getExterior().getVariant().doorId().value();
         SoundEvent sound = this.getDoorState().next(doorSchema.isDouble()) == DoorState.CLOSED
                 ? doorSchema.closeSound()
                 : doorSchema.openSound();

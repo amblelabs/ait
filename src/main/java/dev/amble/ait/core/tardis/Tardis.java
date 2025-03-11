@@ -3,6 +3,7 @@ package dev.amble.ait.core.tardis;
 import java.util.Objects;
 import java.util.UUID;
 
+import dev.amble.ait.registry.v2.ExteriorVariantRegistry;
 import dev.amble.lib.register.unlockable.Unlockable;
 
 import dev.amble.ait.api.Initializable;
@@ -13,7 +14,6 @@ import dev.amble.ait.core.tardis.handler.*;
 import dev.amble.ait.core.tardis.handler.permissions.PermissionHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.registry.DesktopRegistry;
-import dev.amble.ait.registry.exterior.ExteriorVariantRegistry;
 
 public abstract class Tardis extends Initializable<TardisComponent.InitContext> {
 
@@ -186,7 +186,7 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
     }
 
     public boolean hasGrowthExterior() {
-        return Objects.equals(getExterior().getVariant(), ExteriorVariantRegistry.CORAL_GROWTH);
+        return Objects.equals(getExterior().getVariant().id(), ExteriorVariantRegistry.CORAL_GROWTH);
     }
 
     public boolean hasGrowthDesktop() {

@@ -23,10 +23,8 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.data.Wildcard;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
-import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.DesktopRegistry;
 import dev.amble.ait.registry.console.variant.ConsoleVariantRegistry;
-import dev.amble.ait.registry.exterior.ExteriorVariantRegistry;
 
 public class IdentifierWildcardArgumentType implements ArgumentType<Wildcard<Identifier>> {
 
@@ -72,11 +70,11 @@ public class IdentifierWildcardArgumentType implements ArgumentType<Wildcard<Ide
                 DesktopRegistry.getInstance());
     }
 
-    public static Wildcard<ExteriorVariantSchema> getExteriorVariantArgument(
-            CommandContext<ServerCommandSource> context, String argumentName) throws CommandSyntaxException {
-        return IdentifierWildcardArgumentType.getRegistryArgument(context, argumentName,
-                UNKNOWN_EXTERIOR_VARIANT_EXCEPTION, ExteriorVariantRegistry.getInstance());
-    }
+//    public static Wildcard<ExteriorVariantSchema> getExteriorVariantArgument(
+//            CommandContext<ServerCommandSource> context, String argumentName) throws CommandSyntaxException {
+//        return IdentifierWildcardArgumentType.getRegistryArgument(context, argumentName,
+//                UNKNOWN_EXTERIOR_VARIANT_EXCEPTION, AITRegistries.EXTERIOR_VARIANT.get());
+//    }
 
     public static Wildcard<Identifier> getIdentifier(CommandContext<ServerCommandSource> context, String name) {
         return context.getArgument(name, Wildcard.class);

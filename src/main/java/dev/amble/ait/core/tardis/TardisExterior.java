@@ -2,6 +2,10 @@ package dev.amble.ait.core.tardis;
 
 import java.util.Optional;
 
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.registry.v2.AITRegistries;
+import dev.amble.ait.registry.v2.ExteriorCategoryRegistry;
+import dev.amble.ait.registry.v2.ExteriorVariantRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
@@ -20,15 +24,13 @@ import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.util.StackUtil;
 import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
-import dev.amble.ait.registry.CategoryRegistry;
-import dev.amble.ait.registry.exterior.ExteriorVariantRegistry;
 
 public class TardisExterior extends TardisComponent {
 
     public static final Identifier CHANGE_EXTERIOR = AITMod.id("change_exterior");
 
-    private static final ExteriorCategorySchema MISSING_CATEGORY = CategoryRegistry.getInstance().fallback();
-    private static final ExteriorVariantSchema MISSING_VARIANT = ExteriorVariantRegistry.getInstance().fallback();
+    private final ExteriorCategorySchema MISSING_CATEGORY = AITRegistries.EXTERIOR_CATEGORY.get(ExteriorCategoryRegistry.FALLBACK);
+    private final ExteriorVariantSchema MISSING_VARIANT = AITRegistries.EXTERIOR_VARIANT.get(ExteriorVariantRegistry.FALLBACK);
 
     private ExteriorCategorySchema category;
     private ExteriorVariantSchema variant;
@@ -38,8 +40,7 @@ public class TardisExterior extends TardisComponent {
             boolean variantChange = buf.readBoolean();
             Identifier variantValue = buf.readIdentifier();
 
-            ExteriorVariantSchema schema = ExteriorVariantRegistry.getInstance()
-                    .get(variantValue);
+            ExteriorVariantSchema schema = AITRegistries.EXTERIOR_VARIANT.get(variantValue);
 
             if (!tardis.getExterior().update(schema, variantChange))
                 return;
@@ -52,7 +53,7 @@ public class TardisExterior extends TardisComponent {
         if (!tardis.isUnlocked(variant))
             return false;
 
-        tardis.getExterior().setType(variant.category());
+        tardis.getExterior().setType(variant.category().value());
 
         if (variantChange)
             tardis.getExterior().setVariant(variant);
@@ -67,7 +68,7 @@ public class TardisExterior extends TardisComponent {
     public TardisExterior(ExteriorVariantSchema variant) {
         super(Id.EXTERIOR);
 
-        this.category = variant.category();
+        this.category = variant.category().value();
         this.variant = variant;
     }
 
@@ -96,9 +97,9 @@ public class TardisExterior extends TardisComponent {
     public void setType(ExteriorCategorySchema exterior) {
         this.category = exterior;
 
-        if (exterior != this.getVariant().category()) {
+        if (exterior != this.getVariant().category().value()) {
             AITMod.LOGGER.error("Force changing exterior variant to a random one to ensure it matches!");
-            this.setVariant(ExteriorVariantRegistry.getInstance().pickRandomWithParent(exterior));
+            this.setVariant(AITRegistries.EXTERIOR_VARIANT.getRandom(exterior, TardisUtil.random()));
         }
 
         this.sync();

@@ -9,27 +9,31 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
-public class DatapackAmbleRegistry<T> extends DynamicAmbleRegistry<T> {
+public abstract class DatapackAmbleRegistry<T> extends DynamicAmbleRegistry<T> {
 
-    public DatapackAmbleRegistry(Identifier id, Codec<T> codec, boolean sync) {
-        this(id, codec, codec, sync);
+    private final boolean shouldSync;
+
+    public DatapackAmbleRegistry(Identifier id) {
+        this(id, true);
     }
 
-    public DatapackAmbleRegistry(Identifier id, Codec<T> codec) {
-        this(id, codec, codec, true);
-    }
-
-    public DatapackAmbleRegistry(Identifier id, Codec<T> codec, Codec<T> networkCodec, boolean shouldSync) {
+    public DatapackAmbleRegistry(Identifier id, boolean shouldSync) {
         super(id);
 
+        this.shouldSync = shouldSync;
+    }
+
+    public void init() {
         if (shouldSync) {
-            DynamicRegistries.registerSynced(this.getKey(), codec, networkCodec, DynamicRegistries.SyncOption.SKIP_WHEN_EMPTY);
+            DynamicRegistries.registerSynced(this.getKey(), this.codec(), this.networkCodec(), DynamicRegistries.SyncOption.SKIP_WHEN_EMPTY);
         } else {
-            DynamicRegistries.register(this.getKey(), codec);
+            DynamicRegistries.register(this.getKey(), this.codec());
         }
     }
 
-    public DatapackAmbleRegistry(Identifier id, Codec<T> codec, Codec<T> networkCodec) {
-        this(id, codec, networkCodec, true);
+    protected abstract Codec<T> codec();
+
+    protected Codec<T> networkCodec() {
+        return codec();
     }
 }

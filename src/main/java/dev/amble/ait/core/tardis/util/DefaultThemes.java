@@ -2,6 +2,7 @@ package dev.amble.ait.core.tardis.util;
 
 import java.util.Objects;
 
+import dev.amble.ait.registry.v2.AITRegistries;
 import org.apache.commons.lang3.NotImplementedException;
 
 import net.minecraft.util.Identifier;
@@ -17,7 +18,6 @@ import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.DesktopRegistry;
 import dev.amble.ait.registry.HumRegistry;
 import dev.amble.ait.registry.console.variant.ConsoleVariantRegistry;
-import dev.amble.ait.registry.exterior.ExteriorVariantRegistry;
 
 public enum DefaultThemes {
     CORAL("coral", "exterior/police_box/coral", "coral", "console/coral"),
@@ -45,17 +45,21 @@ public enum DefaultThemes {
     public TardisDesktopSchema desktop() {
         return DesktopRegistry.getInstance().get(desktop);
     }
+
     public ExteriorVariantSchema exterior() {
-        return ExteriorVariantRegistry.getInstance().get(exterior);
+        return AITRegistries.EXTERIOR_VARIANT.get(exterior);
     }
+
     public Hum hum() {
         return HumRegistry.getInstance().get(hum);
     }
+
     public ConsoleVariantSchema console() { // todo
         if (Objects.equals(console.getPath(), "todo")) throw new NotImplementedException("DefaultThemes.console() is not implemented for " + this);
 
         return ConsoleVariantRegistry.getInstance().get(console);
     }
+
     public TardisBuilder apply(TardisBuilder builder) {
         builder.exterior(exterior());
         builder.desktop(desktop());

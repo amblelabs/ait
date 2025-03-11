@@ -1,5 +1,7 @@
 package dev.amble.ait.data.schema.door.impl;
 
+import dev.amble.ait.client.models.doors.DoorModel;
+import dev.amble.ait.client.models.doors.TardimDoorModel;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -28,5 +30,10 @@ public class TardimDoorVariant extends DoorSchema {
             case WEST -> pos.add(-0.499f, 0, 0);
             case EAST -> pos.add(0.499f, 0, 0);
         };
+    }
+
+    @Override
+    public DoorModel model() {
+        return new TardimDoorModel(TardimDoorModel.getTexturedModelData().createModel());
     }
 }

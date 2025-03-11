@@ -1,6 +1,7 @@
 package dev.amble.ait.core.tardis.handler;
 
 
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -23,7 +24,6 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 
 public class OvergrownHandler extends KeyedTardisComponent implements TardisTickable {
     private static final BoolProperty IS_OVERGROWN_PROPERTY = new BoolProperty("is_overgrown", false);
@@ -76,7 +76,7 @@ public class OvergrownHandler extends KeyedTardisComponent implements TardisTick
 
     @Environment(EnvType.CLIENT)
     public Identifier getOvergrownTexture() {
-        ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
+        ExteriorVariantSchema variant = tardis.getExterior().getVariant();
         Identifier baseTexture = variant.texture();
 
         // FIXME what the fuck
