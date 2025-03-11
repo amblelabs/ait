@@ -1,11 +1,15 @@
 package dev.amble.ait.core.blocks;
 
 import org.jetbrains.annotations.Nullable;
+import whocraft.tardis_refined.common.capability.tardis.TardisLevelOperator;
+import whocraft.tardis_refined.common.network.messages.screens.S2COpenMonitor;
 
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
@@ -21,7 +25,10 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
+import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.compat.tardisrefined.TardisRefinedHandler;
 import dev.amble.ait.core.blockentities.MonitorBlockEntity;
+
 
 public class MonitorBlock extends BlockWithEntity implements BlockEntityProvider {
     public static final int MAX_ROTATION_INDEX = RotationPropertyHelper.getMax();
@@ -57,13 +64,46 @@ public class MonitorBlock extends BlockWithEntity implements BlockEntityProvider
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
             BlockHitResult hit) {
-        BlockEntity blockEntity = world.getBlockEntity(pos);
 
-        if (blockEntity instanceof MonitorBlockEntity monitorBlockEntity)
-            monitorBlockEntity.useOn(world, player.isSneaking(), player);
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (!DependencyChecker.hasTardisRefined()) {
+            if (blockEntity instanceof MonitorBlockEntity monitorBlockEntity)
+                monitorBlockEntity.useOn(world, player.isSneaking(), player);
+        } else {
+            onUseWithTARDISRefined(state, world, pos, player,hand, hit);
+        }
 
         return ActionResult.SUCCESS;
     }
+
+    public void onUseWithTARDISRefined(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
+                              BlockHitResult hit) {
+
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (world instanceof ServerWorld serverLevel) {
+
+            if (player instanceof ServerPlayerEntity ServerPlayer) {
+
+                if (player.getServer() == null) {return;}
+
+                if (!TardisRefinedHandler.isPlayerInTardis(ServerPlayer)) {
+
+                    if (blockEntity instanceof MonitorBlockEntity monitorBlockEntity) {
+                        monitorBlockEntity.useOn(world, player.isSneaking(), player);
+                    }
+
+                } else {
+                    TardisLevelOperator.get(serverLevel).ifPresent(tardisLevelOperator -> {
+                        (new S2COpenMonitor(tardisLevelOperator.getInteriorManager().isWaitingToGenerate(), tardisLevelOperator.getPilotingManager().getCurrentLocation(), tardisLevelOperator.getPilotingManager().getTargetLocation(), tardisLevelOperator.getUpgradeHandler(), tardisLevelOperator.getAestheticHandler().getShellTheme())).send((ServerPlayerEntity) player);
+                    });
+
+                }
+            }
+        }
+
+
+    }
+
 
     @Override
     public VoxelShape getCullingShape(BlockState state, BlockView world, BlockPos pos) {

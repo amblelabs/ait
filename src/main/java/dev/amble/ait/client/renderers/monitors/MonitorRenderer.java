@@ -1,6 +1,9 @@
 package dev.amble.ait.client.renderers.monitors;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import whocraft.tardis_refined.common.capability.tardis.TardisLevelOperator;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SkullBlock;
@@ -11,14 +14,17 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.RotationPropertyHelper;
+import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.monitors.CRTMonitorModel;
+import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.MonitorBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
@@ -48,7 +54,7 @@ public class MonitorRenderer<T extends MonitorBlockEntity> implements BlockEntit
 
     @Override
     public void render(MonitorBlockEntity entity, float tickDelta, MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers, int light, int overlay) {
+                       VertexConsumerProvider vertexConsumers, int light, int overlay) {
         BlockState blockState = entity.getCachedState();
 
         int k = blockState.get(SkullBlock.ROTATION);
@@ -83,10 +89,39 @@ public class MonitorRenderer<T extends MonitorBlockEntity> implements BlockEntit
         matrices.scale(0.005f, 0.005f, 0.005f);
         matrices.translate(-50f, 0, -80);
 
+        if (DependencyChecker.hasTardisRefined()) {
+            // Use an AtomicReference or similar to store the text
+            AtomicReference<String> positionPosText = new AtomicReference<>("");
+            World world = entity.getWorld();
+
+            if (world instanceof ServerWorld world1) {
+                TardisLevelOperator.get(world1).ifPresent(tardisLevelOperator -> {
+                    // Update the position string
+                    double x = tardisLevelOperator.getPilotingManager().getCurrentLocation().getPosition().getX();
+                    double y = tardisLevelOperator.getPilotingManager().getCurrentLocation().getPosition().getY();
+                    double z = tardisLevelOperator.getPilotingManager().getCurrentLocation().getPosition().getZ();
+                    positionPosText.set(" " + x + ", " + y + ", " + z);
+                });
+                matrices.pop();
+            }
+
+            if (!positionPosText.get().isEmpty()) {
+                this.textRenderer.drawWithOutline(Text.of(positionPosText.get()).asOrderedText(), 0, 8, 0xFFFFFF, 0x000000,
+                        matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+            } else {
+                // Optionally, add some fallback or debug output
+                this.textRenderer.drawWithOutline(Text.of("No Position Data").asOrderedText(), 0, 8, 0xFF0000, 0x000000,
+                        matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+            }
+
+            return;
+        }
+
+
         TravelHandler travel = tardis.travel();
-        CachedDirectedGlobalPos abpp = travel.isLanded() || travel.getState() == TravelHandlerBase.State.MAT
-                ? travel.position()
-                : travel.getProgress();
+            CachedDirectedGlobalPos abpp = travel.isLanded() || travel.getState() == TravelHandlerBase.State.MAT
+                    ? travel.position()
+                    : travel.getProgress();
 
         BlockPos abppPos = abpp.getPos();
 

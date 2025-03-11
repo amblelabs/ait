@@ -5,6 +5,7 @@ import java.util.Random;
 import dev.amble.lib.api.ICantBreak;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import whocraft.tardis_refined.registry.TRDimensionTypes;
 
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -82,6 +83,7 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof ConsoleBlockEntity consoleBlockEntity) {
             if (world.getRegistryKey().equals(World.OVERWORLD)) return ActionResult.FAIL;
+            if (world.getRegistryKey().equals(TRDimensionTypes.TARDIS.getRegistry())) return ActionResult.FAIL;
             consoleBlockEntity.useOn(world, player.isSneaking(), player);
             ItemStack itemStack = player.getStackInHand(hand);
             if (itemStack.getItem() instanceof HammerItem) {

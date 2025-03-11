@@ -1,5 +1,9 @@
 package dev.amble.ait.client.renderers.consoles;
 
+import java.util.Set;
+
+import whocraft.tardis_refined.common.util.DimensionUtil;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -10,12 +14,18 @@ import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.profiler.Profiler;
+import net.minecraft.world.World;
 
 import dev.amble.ait.client.models.consoles.ConsoleModel;
 import dev.amble.ait.client.models.items.HandlesModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.util.ClientLightUtil;
+import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.item.HandlesItem;
 import dev.amble.ait.core.tardis.Tardis;
@@ -36,23 +46,44 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
             int light, int overlay) {
 
+
         if (entity.tardis() == null && entity.getWorld() == null) return;
 
-        /*if (entity.getWorld().getRegistryKey().equals(World.OVERWORLD)) {
-            matrices.push();
-            matrices.translate(0.5, 1.5, 0.5);
-            matrices.multiply(RotationAxis.NEGATIVE_X.rotationDegrees(180f));
-            ClientConsoleVariantRegistry.HARTNELL.model().render(matrices,
-                    vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucent(
-                            ClientConsoleVariantRegistry.HARTNELL.texture())),
-                    light, overlay, 1, 1, 1, 1);
+        if (entity.getWorld() != null) {
+            RegistryKey<World> worldKey = entity.getWorld().getRegistryKey();
 
-            ClientLightUtil.renderEmissive(ClientConsoleVariantRegistry.HARTNELL.model()::renderWithAnimations, ClientConsoleVariantRegistry.HARTNELL.emission(),
-                    entity, ClientConsoleVariantRegistry.HARTNELL.model().getPart(),
-                    matrices, vertexConsumers, 0xf000f0, overlay, 1, 1, 1, 1);
-            matrices.pop();
-            return;
-        }*/
+            if (entity.getWorld() == null) return;
+
+            if (DependencyChecker.hasTardisRefined()) {
+                MinecraftServer server = entity.getWorld().getServer();
+                if (server != null) {
+                    // Get all TARDIS dimensions using DimensionUtil
+                    Set<RegistryKey<World>> tardisLevels = DimensionUtil.getTardisLevels(server);
+
+                    // Check if the entity's world is in a TARDIS dimension
+                    if (entity.getWorld() instanceof ServerWorld serverWorld && tardisLevels.contains(serverWorld.getRegistryKey())) {
+                        matrices.push();
+                        matrices.translate(0.5, 1.5, 0.5);
+                        matrices.multiply(RotationAxis.NEGATIVE_X.rotationDegrees(180f));
+
+                        ClientConsoleVariantRegistry.HARTNELL.model().render(matrices,
+                                vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucent(
+                                        ClientConsoleVariantRegistry.HARTNELL.texture())),
+                                light, overlay, 1, 1, 1, 1);
+
+                        ClientLightUtil.renderEmissive(ClientConsoleVariantRegistry.HARTNELL.model()::renderWithAnimations,
+                                ClientConsoleVariantRegistry.HARTNELL.emission(),
+                                entity, ClientConsoleVariantRegistry.HARTNELL.model().getPart(),
+                                matrices, vertexConsumers, 0xf000f0, overlay, 1, 1, 1, 1);
+
+                        matrices.pop();
+                        return;
+                    }
+                }
+
+            }
+        }
+
 
         if (!entity.isLinked())
             return;
