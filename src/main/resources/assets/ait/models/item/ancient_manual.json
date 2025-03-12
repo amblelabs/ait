@@ -2,5 +2,9 @@
   "parent": "item/generated",
   "textures": {
     "layer0": "ait:item/ancient_manual"
-  }
+  },
+  "overrides": [
+    {"predicate": {"full": 0}, "model": "ait:item/ancient_manual"},
+    {"predicate": {"full": 1}, "model": "ait:item/ancient_manual_full"}
+  ]
 }
