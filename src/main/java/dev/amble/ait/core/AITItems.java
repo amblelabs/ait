@@ -175,6 +175,12 @@ public class AITItems extends ItemContainer {
     public static final Item WAYPOINT_CARTRIDGE = new WaypointItem(
             new AItemSettings().group(AITItemGroups.MAIN).maxCount(1));
 
+    public static final Item ANCIENT_MANUAL = new AncientManualItem(
+            new AItemSettings().group(AITItemGroups.MAIN).maxCount(1));
+
+    public static final Item BURNT_PAGE = new BurntPagesItem(
+            new AItemSettings().group(AITItemGroups.MAIN).maxCount(1));
+
     // Music discs
     @NoEnglish
     public static final Item DRIFTING_MUSIC_DISC = new MusicDiscItem(1, AITSounds.DRIFTING_MUSIC,
