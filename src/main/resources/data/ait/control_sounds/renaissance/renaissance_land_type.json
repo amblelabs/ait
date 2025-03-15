@@ -1,0 +1,5 @@
+{
+  "control": "ait:land_type",
+  "console": "ait:console/renaissance",
+  "success_sound": "ait:controls/renaissance_land_type_alt"
+}

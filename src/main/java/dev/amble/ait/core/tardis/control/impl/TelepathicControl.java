@@ -58,48 +58,48 @@ public class TelepathicControl extends Control {
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
         super.runServer(tardis, player, world, console, leftClick);
 
         if (tardis.stats().security().get() && !KeyItem.hasMatchingKeyInInventory(player, tardis))
-            return false;
+            return Result.FAILURE;
 
         ItemStack held = player.getMainHandStack();
         Item type = held.getItem();
 
         if (type == Items.BRICK) {
             tardis.siege().texture().set(SiegeHandler.BRICK_TEXTURE);
-            return false;
+            return Result.FAILURE;
         }
 
         if (type == Items.STONE) {
             tardis.siege().texture().set(SiegeHandler.DEFAULT_TEXTURRE);
-            return false;
+            return Result.FAILURE;
         }
 
         if (type == Items.OBSERVER) {
             tardis.siege().texture().set(SiegeHandler.APERTURE_TEXTURE);
-            return false;
+            return Result.FAILURE;
         }
 
         if (type == Items.QUARTZ_BLOCK) {
             tardis.siege().texture().set(SiegeHandler.COMPANION_TEXTURE);
-            return false;
+            return Result.FAILURE;
         }
 
         if (type instanceof LinkableItem linker) {
             if (linker instanceof SonicItem || linker instanceof HandlesItem)
-                return false;
+                return Result.FAILURE;
 
             linker.link(held, tardis);
             world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_AMETHYST_BLOCK_RESONATE, SoundCategory.BLOCKS,
                     1.0F, 1.0F);
-            return true;
+            return Result.SUCCESS_ALT;
         }
 
         if (type instanceof NameTagItem) {
             if (!held.hasCustomName())
-                return false;
+                return Result.FAILURE;
 
             tardis.stats().setName(held.getName().getString());
             world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_PLACE, SoundCategory.BLOCKS, 1F, 1.0F);
@@ -107,7 +107,7 @@ public class TelepathicControl extends Control {
             if (!player.isCreative())
                 held.decrement(1);
 
-            return true;
+            return Result.SUCCESS;
         }
 
         if (type instanceof HypercubeItem) {
@@ -125,27 +125,27 @@ public class TelepathicControl extends Control {
 
             // receive and process call
             call.summon(tardis, held);
-            return true;
+            return Result.SUCCESS;
         }
 
         if (held.isOf(Items.NETHER_STAR) && tardis.loyalty().get(player).isOf(Loyalty.Type.PILOT)) {
             tardis.selfDestruct().boom();
 
             if (!(tardis.selfDestruct().isQueued()))
-                return false;
+                return Result.FAILURE;
 
             if (!player.isCreative())
                 held.decrement(1);
 
-            return true;
+            return Result.SUCCESS;
         }
 
         if ((held.isOf(AITItems.MUG) && DrinkUtil.getDrink(held) != DrinkUtil.EMPTY)
                 || held.isOf(Items.LAVA_BUCKET) || held.isOf(Items.WATER_BUCKET) || held.isOf(Items.MILK_BUCKET))
-            return spillLiquid(tardis, world, console);
+            return spillLiquid(tardis, world, console) ? Result.SUCCESS : Result.FAILURE;
 
         if (LockedDimensionRegistry.tryUnlockDimension(player, held, tardis.asServer()))
-            return true;
+            return Result.SUCCESS;
 
         ItemOpinion opinion = ItemOpinionRegistry.getInstance().get(held.getItem()).orElse(null);
         if (opinion != null && tardis.opinions().contains(opinion) && (player.experienceLevel >= opinion.cost() || player.isCreative())) {
@@ -155,7 +155,7 @@ public class TelepathicControl extends Control {
             player.getServerWorld().spawnParticles((opinion.likes()) ? ParticleTypes.HEART : ParticleTypes.ANGRY_VILLAGER, console.toCenterPos().getX(),
                     console.toCenterPos().getY() + 1, console.toCenterPos().getZ(), 1, 0f, 1F, 0f, 5.0F);
 
-            return true;
+            return Result.SUCCESS;
         }
 
         Text text = Text.translatable("tardis.message.control.telepathic.choosing");
@@ -164,7 +164,7 @@ public class TelepathicControl extends Control {
         CachedDirectedGlobalPos globalPos = tardis.travel().position();
 
         locateStructureOfInterest(player, tardis, globalPos.getWorld(), globalPos.getPos());
-        return true;
+        return Result.SUCCESS;
     }
 
     private static boolean spillLiquid(Tardis tardis, ServerWorld world, BlockPos console) {
@@ -234,7 +234,7 @@ public class TelepathicControl extends Control {
     }
 
     @Override
-    public SoundEvent getSound() {
+    public SoundEvent getFallbackSound() {
         return AITSounds.TELEPATHIC_CIRCUITS;
     }
 

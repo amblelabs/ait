@@ -18,13 +18,13 @@ public class MarkWaypointControl extends Control {
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
         tardis.waypoint().set(Waypoint.fromPos(tardis.travel().position()), console, true);
-        return true;
+        return Result.SUCCESS;
     }
 
     @Override
-    public SoundEvent getSound() {
+    public SoundEvent getFallbackSound() {
         return AITSounds.MARK_WAYPOINT;
     }
 }

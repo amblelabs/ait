@@ -27,15 +27,15 @@ public class SecurityControl extends Control {
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
         super.runServer(tardis, player, world, console, leftClick);
 
         if (!hasMatchingKey(player, tardis))
-            return false;
+            return Result.FAILURE;
 
         boolean security = tardis.stats().security().get();
         tardis.stats().security().set(!security);
-        return true;
+        return security ? Result.SUCCESS : Result.SUCCESS_ALT;
     }
 
     public static void runSecurityProtocols(Tardis tardis) {
@@ -86,7 +86,7 @@ public class SecurityControl extends Control {
     }
 
     @Override
-    public SoundEvent getSound() {
+    public SoundEvent getFallbackSound() {
         return AITSounds.PROTOCOL_19;
     }
 

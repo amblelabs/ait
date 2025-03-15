@@ -1,6 +1,7 @@
 package dev.amble.ait.core.entities;
 
 import java.util.List;
+import java.util.Optional;
 
 import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
@@ -322,11 +323,25 @@ public class ConsoleControlEntity extends LinkableDummyLivingEntity {
             Scheduler.get().runTaskLater(() -> this.dataTracker.set(ON_DELAY, false), TimeUnit.TICKS, this.control.getDelayLength());
         }
 
-        if (this.consoleBlockPos != null)
-            this.getWorld().playSound(null, this.getBlockPos(), this.control.getSound(), SoundCategory.BLOCKS, 0.7f,
-                    1f);
+        Control.Result result = this.control.handleRun(tardis, (ServerPlayerEntity) player, (ServerWorld) world, this.consoleBlockPos, leftClick);
 
-        return this.control.handleRun(tardis, (ServerPlayerEntity) player, (ServerWorld) world, this.consoleBlockPos, leftClick);
+        this.getConsole().ifPresent(console -> this.getWorld().playSound(null, this.getBlockPos(), this.control.getSound(console.getTypeSchema(), result), SoundCategory.BLOCKS, 0.7f,
+                1f));
+
+        return result.isSuccess();
+    }
+
+    /**
+     * Get the console block entity this control is linked to
+     * @return The console block entity
+     */
+    public Optional<ConsoleBlockEntity> getConsole() {
+        if (this.consoleBlockPos == null)
+            return Optional.empty();
+
+        if (!(this.getWorld().getBlockEntity(this.consoleBlockPos) instanceof ConsoleBlockEntity be)) return Optional.empty();
+
+        return Optional.of(be);
     }
 
     public void setScaleAndCalculate(float width, float height) {
@@ -339,7 +354,7 @@ public class ConsoleControlEntity extends LinkableDummyLivingEntity {
         this.consoleBlockPos = consoleBlockPosition;
         this.control = type.getControl();
 
-        super.setCustomName(Text.translatable(this.control.getId().toTranslationKey("control")));
+        super.setCustomName(Text.translatable(this.control.id().toTranslationKey("control")));
 
         if (consoleType != null) {
             this.setControlWidth(type.getScale().width);

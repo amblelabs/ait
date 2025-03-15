@@ -1,0 +1,6 @@
+{
+  "control": "ait:throttle",
+  "console": "ait:console/coral",
+  "success_sound": "ait:controls/coral_throttle_alt",
+  "alt_sound": "ait:controls/coral_throttle_alt"
+}

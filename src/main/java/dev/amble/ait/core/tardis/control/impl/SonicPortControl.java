@@ -4,6 +4,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -15,7 +16,6 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.item.HandlesItem;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.control.sequences.SequenceHandler;
 import dev.amble.ait.core.tardis.handler.ButlerHandler;
@@ -28,7 +28,7 @@ public class SonicPortControl extends Control {
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
         super.runServer(tardis, player, world, console, leftClick);
 
         SonicHandler handler = tardis.sonic();
@@ -44,13 +44,13 @@ public class SonicPortControl extends Control {
             }
 
             player.getInventory().offerOrDrop(item);
-            return true;
+            return Result.SUCCESS;
         }
 
         ItemStack stack = player.getMainHandStack();
 
         if (!((stack.getItem() instanceof SonicItem) || (stack.getItem() instanceof HandlesItem)))
-            return false;
+            return Result.FAILURE;
 
         LinkableItem linker = (LinkableItem) stack.getItem();
 
@@ -70,9 +70,14 @@ public class SonicPortControl extends Control {
             player.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
         }
 
-        TardisDesktop.playSoundAtConsole(tardis.asServer().getInteriorWorld(), console, AITSounds.SONIC_PORT, SoundCategory.PLAYERS, 6f, 1);
+        boolean hasSonic = handler.getConsoleSonic() != null || butler.getHandles() != null;
 
-        return true;
+        return hasSonic ? Result.SUCCESS : Result.SUCCESS_ALT;
+    }
+
+    @Override
+    public SoundEvent getFallbackSound() {
+        return AITSounds.SONIC_PORT;
     }
 
     @Override

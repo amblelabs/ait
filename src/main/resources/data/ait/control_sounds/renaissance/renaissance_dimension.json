@@ -1,0 +1,5 @@
+{
+  "control": "ait:dimension",
+  "console": "ait:console/renaissance",
+  "success_sound": "ait:controls/renaissance_dimension_alt"
+}

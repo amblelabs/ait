@@ -1,0 +1,6 @@
+{
+  "control": "ait:x",
+  "console": "ait:console/coral",
+  "success_sound": "ait:controls/coral_xyz_alt",
+  "alt_sound": "ait:controls/coral_xyz_alt"
+}

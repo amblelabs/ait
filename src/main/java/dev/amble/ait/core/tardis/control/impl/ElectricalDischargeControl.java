@@ -34,12 +34,12 @@ public class ElectricalDischargeControl extends Control {
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
         super.runServer(tardis, player, world, console, leftClick);
 
         if (tardis.fuel().getCurrentFuel() < ARTRON_COST) {
             player.sendMessage(Text.literal("ERROR: Insufficient Artron Energy! Required: " + ARTRON_COST + " AU").formatted(Formatting.RED), true);
-            return false;
+            return Result.FAILURE;
         }
 
         tardis.fuel().removeFuel(ARTRON_COST);
@@ -52,10 +52,10 @@ public class ElectricalDischargeControl extends Control {
         }, TimeUnit.TICKS, INITIAL_DELAY);
 
         Scheduler.get().runTaskLater(() -> {
-            world.playSound(null, console, AITSounds.ZAP, SoundCategory.BLOCKS, 1.0F, 1.0F);
+            world.playSound(null, console, AITSounds.DING, SoundCategory.BLOCKS, 1.0F, 1.0F);
         }, TimeUnit.TICKS, TOTAL_DURATION);
 
-        return true;
+        return Result.SUCCESS;
     }
 
 
@@ -88,7 +88,7 @@ public class ElectricalDischargeControl extends Control {
     }
 
     @Override
-    public SoundEvent getSound() {
+    public SoundEvent getFallbackSound() {
         return AITSounds.BWEEP;
     }
 }

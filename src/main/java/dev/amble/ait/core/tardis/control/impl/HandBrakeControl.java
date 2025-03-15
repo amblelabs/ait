@@ -3,6 +3,7 @@ package dev.amble.ait.core.tardis.control.impl;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
@@ -17,25 +18,24 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.schema.console.variant.renaissance.*;
 
 public class HandBrakeControl extends Control {
-
-    private SoundEvent soundEvent = AITSounds.HANDBRAKE_UP;
+    public static final Identifier ID = AITMod.id("handbrake");
 
     public HandBrakeControl() {
-        super(AITMod.id("handbrake"));
+        super(ID);
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
         super.runServer(tardis, player, world, console, leftClick);
 
         if (tardis.isInDanger())
-            return false;
+            return Result.FAILURE;
 
         EngineSystem.Phaser phaser = tardis.subsystems().engine().phaser();
 
         if (phaser.isPhasing()) {
             phaser.cancel();
-            return true;
+            return Result.SUCCESS;
         }
 
         boolean handbrake = !tardis.travel().handbrake();
@@ -43,14 +43,6 @@ public class HandBrakeControl extends Control {
 
         if (tardis.isRefueling()) {
             tardis.setRefueling(false);
-        }
-
-        if (world.getBlockEntity(console) instanceof ConsoleBlockEntity consoleBlockEntity) {
-            if (isRenaissanceVariant(consoleBlockEntity)) {
-                this.soundEvent = handbrake ? AITSounds.RENAISSANCE_HANDBRAKE_ALT : AITSounds.RENAISSANCE_HANDBRAKE_ALTALT;
-            } else {
-                this.soundEvent = handbrake ? AITSounds.HANDBRAKE_DOWN : AITSounds.HANDBRAKE_UP;
-            }
         }
 
         TravelHandler travel = tardis.travel();
@@ -64,12 +56,12 @@ public class HandBrakeControl extends Control {
             }
         }
 
-        return true;
+        return handbrake ? Result.SUCCESS_ALT : Result.SUCCESS;
     }
 
     @Override
-    public SoundEvent getSound() {
-        return this.soundEvent;
+    public SoundEvent getFallbackSound() {
+        return AITSounds.HANDBRAKE_UP;
     }
 
     @Override

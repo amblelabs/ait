@@ -88,6 +88,6 @@ public abstract class ControlBlock extends HorizontalDirectionalBlock implements
     }
 
     protected static void sendSonicMessage(ServerPlayerEntity player, ControlBlockEntity entity) {
-        player.sendMessage(Text.translatable(entity.getControl().getId().toTranslationKey("control")).formatted(Formatting.AQUA));
+        player.sendMessage(Text.translatable(entity.getControl().id().toTranslationKey("control")).formatted(Formatting.AQUA));
     }
 }

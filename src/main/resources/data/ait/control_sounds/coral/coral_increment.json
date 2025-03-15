@@ -1,0 +1,5 @@
+{
+  "control": "ait:increment",
+  "console": "ait:console/coral",
+  "success_sound": "ait:controls/coral_increment_alt"
+}

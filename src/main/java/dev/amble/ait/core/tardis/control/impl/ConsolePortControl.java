@@ -1,4 +1,4 @@
-package dev.amble.ait.core.tardis.control.impl.waypoint;
+package dev.amble.ait.core.tardis.control.impl;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MusicDiscItem;
@@ -8,6 +8,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 
@@ -29,22 +30,22 @@ public class ConsolePortControl extends Control {
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
                              boolean leftClick) {
         if (leftClick) {
             if (!tardis.extra().getInsertedDisc().isEmpty()) {
                 ejectDisc(tardis, player, world, console);
-                return true;
+                return Result.SUCCESS;
             }
 
             tardis.waypoint().spawnItem(console);
-            return true;
+            return Result.SUCCESS;
         }
 
         ItemStack itemStack = player.getMainHandStack();
 
         if (itemStack.getItem() instanceof MusicDiscItem musicDisc) {
-            if (!tardis.extra().getInsertedDisc().isEmpty()) return false;
+            if (!tardis.extra().getInsertedDisc().isEmpty()) return Result.FAILURE;
 
             tardis.extra().setInsertedDisc(itemStack.copy());
             currentMusic = musicDisc.getSound();
@@ -52,7 +53,7 @@ public class ConsolePortControl extends Control {
             world.playSound(null, console, currentMusic, SoundCategory.RECORDS, 6f, 1);
             player.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
 
-            return true;
+            return Result.SUCCESS;
         }
 
         if (itemStack.getItem() instanceof StaserBoltMagazine) {
@@ -66,7 +67,7 @@ public class ConsolePortControl extends Control {
                 tardis.removeFuel(500);
 
                 TardisDesktop.playSoundAtConsole(world, console, AITSounds.SLOT_IN, SoundCategory.PLAYERS, 6f, 1);
-                return true;
+                return Result.SUCCESS_ALT;
             }
         }
 
@@ -80,10 +81,10 @@ public class ConsolePortControl extends Control {
             player.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
 
             TardisDesktop.playSoundAtConsole(world, console, AITSounds.SLOT_IN, SoundCategory.PLAYERS, 6f, 1);
-            return true;
+            return Result.SUCCESS_ALT;
         }
 
-        return false;
+        return Result.FAILURE;
     }
 
 
@@ -97,5 +98,10 @@ public class ConsolePortControl extends Control {
         player.giveItemStack(tardis.extra().getInsertedDisc());
         tardis.extra().setInsertedDisc(ItemStack.EMPTY);
         currentMusic = null;
+    }
+
+    @Override
+    public SoundEvent getFallbackSound() {
+        return SoundEvents.INTENTIONALLY_EMPTY;
     }
 }

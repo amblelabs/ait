@@ -86,7 +86,7 @@ public class AITSounds {
     public static final SoundEvent TARDIS_REJECTION_SFX = register("tardis/tardis_rejection_sfx");
 
     // Controls
-    public static final SoundEvent DEMAT_LEVER_PULL = register("controls/demat_lever_pull");
+    public static final SoundEvent THROTTLE_PULL = register("controls/demat_lever_pull");
     public static final SoundEvent HANDBRAKE_LEVER_PULL = register("controls/handbrake_lever_pull");
     public static final SoundEvent HANDBRAKE_UP = register("controls/handbrake_up");
     public static final SoundEvent HANDBRAKE_DOWN = register("controls/handbrake_down");
@@ -140,13 +140,21 @@ public class AITSounds {
     public static final SoundEvent RENAISSANCE_DIMENSION_ALT = register("controls/renaissance_dimension_alt");
 
     //Alt console sounds for coral
-    //Todo: make the telepathic circuits alt varient work cuz i cant get it to work lol
     public static final SoundEvent CORAL_INCREMENT_ALT = register("controls/coral_increment_alt");
     public static final SoundEvent CORAL_SHIELDS_ALT = register("controls/coral_shieldsalt");
     public static final SoundEvent CORAL_SHIELDS_ALTALT = register("controls/coral_shieldsaltalt");
     public static final SoundEvent CORAL_MONITOR_ALT = register("controls/coral_monitor_alt");
     public static final SoundEvent CORAL_LAND_TYPE_ALT = register("controls/coral_land_type_alt");
     public static final SoundEvent CORAL_TELEPATHIC_CIRCUITS_ALT = register("controls/coral_telepathic_circuits_alt");
+    public static final SoundEvent CORAL_THROTTLE_ALT = register("controls/coral_throttle_alt");
+    public static final SoundEvent CORAL_DIMENSION_ALT = register("controls/coral_dimension_alt");
+    public static final SoundEvent CORAL_XYZ_ALT = register("controls/coral_xyz_alt");
+
+    //Alt console sounds for the copper
+    public static final SoundEvent COPPER_TELEPATHIC_CIRCUITS_ALT = register("controls/copper_telepathic_circuit_alt");
+    public static final SoundEvent COPPER_ALARM_ALT = register("controls/copper_alarm_alt");
+    public static final SoundEvent COPPER_ALARM_ALTALT = register("controls/copper_alarm_altalt");
+    public static final SoundEvent COPPER_HAIL_MARY_ALT = register("controls/copper_hail_mary_alt");
 
     // Console
     public static final SoundEvent CONSOLE_AMBIENT = register("tardis/console_ambient");

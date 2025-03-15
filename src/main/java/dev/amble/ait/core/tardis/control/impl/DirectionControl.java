@@ -23,7 +23,7 @@ public class DirectionControl extends Control {
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
             boolean leftClick) {
         super.runServer(tardis, player, world, console, leftClick);
 
@@ -37,7 +37,7 @@ public class DirectionControl extends Control {
 
         travel.forceDestination(dest.rotation(rotation));
         messagePlayer(player, rotation);
-        return true;
+        return Result.SUCCESS;
     }
 
     // ↖ ↑ ↗
@@ -92,7 +92,7 @@ public class DirectionControl extends Control {
     }
 
     @Override
-    public SoundEvent getSound() {
+    public SoundEvent getFallbackSound() {
         return AITSounds.DIRECTION;
     }
 }

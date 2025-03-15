@@ -1,0 +1,6 @@
+{
+  "control": "ait:door_control",
+  "console": "ait:console/renaissance",
+  "success_sound": "ait:controls/renaissance_dooralt",
+  "alt_sound": "ait:controls/controls/renaissance_shieldsaltalt"
+}

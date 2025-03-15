@@ -7,7 +7,7 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
@@ -23,13 +23,11 @@ public class FoodCreationControl extends Control {
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
                              boolean leftClick) {
         super.runServer(tardis, player, world, console, leftClick);
         if (tardis.fuel().getCurrentFuel() < 500)
-            return false;
-
-        world.playSound(null, console, AITSounds.COFFEE_MACHINE, SoundCategory.BLOCKS, 1.0f, 1.0f);
+            return Result.FAILURE;
 
         Scheduler.get().runTaskLater(() -> {
             if (world.getBlockState(console).isAir())
@@ -44,6 +42,11 @@ public class FoodCreationControl extends Control {
             world.spawnEntity(coffeeEntity);
         }, TimeUnit.TICKS, 45);
 
-        return true;
+        return Result.SUCCESS;
+    }
+
+    @Override
+    public SoundEvent getFallbackSound() {
+        return AITSounds.COFFEE_MACHINE;
     }
 }

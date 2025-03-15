@@ -23,7 +23,7 @@ public class RandomiserControl extends Control {
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
         super.runServer(tardis, player, world, console, leftClick);
 
         TravelHandler travel = tardis.travel();
@@ -35,7 +35,7 @@ public class RandomiserControl extends Control {
             messagePlayer(player, travel);
         });
 
-        return true;
+        return Result.SUCCESS;
     }
 
     @Override
@@ -49,10 +49,11 @@ public class RandomiserControl extends Control {
 
         Text text = Text.translatable("tardis.message.control.randomiser.destination")
                 .append(Text.literal(pos.getX() + " | " + pos.getY() + " | " + pos.getZ()));
+
         player.sendMessage(text, true);
     }
     @Override
-    public SoundEvent getSound() {
+    public SoundEvent getFallbackSound() {
         return AITSounds.RANDOMIZE;
     }
 }

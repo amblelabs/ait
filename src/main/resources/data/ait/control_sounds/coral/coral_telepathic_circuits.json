@@ -1,0 +1,5 @@
+{
+  "control": "ait:telepathic_circuit",
+  "console": "ait:console/coral",
+  "success_sound": "ait:controls/coral_telepathic_circuits_alt"
+}

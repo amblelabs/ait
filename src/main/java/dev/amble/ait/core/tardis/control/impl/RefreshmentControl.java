@@ -1,7 +1,5 @@
-package dev.amble.ait.core.tardis.control;
+package dev.amble.ait.core.tardis.control.impl;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -16,9 +14,9 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.drinks.DrinkUtil;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.Control;
 
 public class RefreshmentControl extends Control {
-    private final List<ItemStack> itemList = new ArrayList<>();
     private int currentIndex = 0;
 
     public RefreshmentControl() {
@@ -26,13 +24,14 @@ public class RefreshmentControl extends Control {
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
         currentIndex = (currentIndex + 1) % DrinkRegistry.getInstance().size();
         ItemStack selectedItem = DrinkUtil.setDrink(new ItemStack(AITItems.MUG), DrinkRegistry.getInstance().toList().get(currentIndex));
 
         tardis.extra().setRefreshmentItem(selectedItem);
         player.sendMessage(Text.literal("Refreshment set to: " + selectedItem.getName().getString() + "!"), true);
-        return true;
+
+        return Result.SUCCESS;
     }
 
     @Override
@@ -41,7 +40,7 @@ public class RefreshmentControl extends Control {
     }
 
     @Override
-    public SoundEvent getSound() {
+    public SoundEvent getFallbackSound() {
         return AITSounds.ALARM;
     }
 }

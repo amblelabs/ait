@@ -22,9 +22,10 @@ public class HammerHangerControl extends Control {
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
                              boolean leftClick) {
         super.runServer(tardis, player, world, console, leftClick);
+
         ExtraHandler handler = tardis.extra();
 
         if ((leftClick || player.isSneaking()) && (handler.getConsoleHammer() != null)) {
@@ -33,7 +34,7 @@ public class HammerHangerControl extends Control {
             item = handler.takeConsoleHammer();
 
             player.getInventory().offerOrDrop(item);
-            return true;
+            return Result.SUCCESS_ALT;
         }
 
         ItemStack stack = player.getMainHandStack();
@@ -45,7 +46,6 @@ public class HammerHangerControl extends Control {
 
         TardisDesktop.playSoundAtConsole(tardis.asServer().getInteriorWorld(), console, SoundEvents.BLOCK_CHAIN_STEP, SoundCategory.PLAYERS, 6f, 1);
 
-        return true;
-
+        return Result.SUCCESS;
     }
 }

@@ -19,7 +19,7 @@ public class FastReturnControl extends Control {
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
         super.runServer(tardis, player, world, console, leftClick);
 
         TravelHandler travel = tardis.travel();
@@ -29,12 +29,12 @@ public class FastReturnControl extends Control {
             travel.forceDestination(same ? travel.position() : travel.previousPosition());
 
             this.messagePlayer(player, same);
-            return true;
+            return Result.SUCCESS;
         }
 
         Text text = Text.translatable("tardis.message.control.fast_return.destination_nonexistent");
         player.sendMessage(text, true);
-        return true;
+        return Result.FAILURE;
     }
 
     public void messagePlayer(ServerPlayerEntity player, boolean isLastPosition) {
@@ -44,7 +44,7 @@ public class FastReturnControl extends Control {
     }
 
     @Override
-    public SoundEvent getSound() {
+    public SoundEvent getFallbackSound() {
         return AITSounds.FAST_RETURN;
     }
 }

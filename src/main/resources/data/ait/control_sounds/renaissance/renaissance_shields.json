@@ -1,0 +1,6 @@
+{
+  "control": "ait:shields",
+  "console": "ait:console/renaissance",
+  "success_sound": "ait:controls/renaissance_shieldsalt",
+  "alt_sound": "ait:controls/renaissance_shieldsaltalt"
+}
