@@ -1,0 +1,8 @@
+{
+  "id": "ait:recovery_compass",
+  "stack": {
+    "id": "minecraft:recovery_compass",
+    "Count": 1
+  },
+  "loyalty": 5
+}

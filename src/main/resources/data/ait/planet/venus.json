@@ -1,0 +1,23 @@
+{
+  "dimension": "ait:venus",
+  "gravity": 0.91,
+  "has_oxygen": false,
+  "has_landable_surface": false,
+  "temperature": 467,
+  "render": {
+    "texture": "ait:textures/environment/venus.png",
+    "position": [-3000, 250, 2500],
+    "scale": [600, 600, 600],
+    "rotation": [177, 0, 0],
+    "clouds": false,
+    "atmosphere": true,
+    "color": [0.85, 0.8, 0.6],
+    "radius": 900,
+    "suction_radius": 700,
+    "has_rings": false
+  },
+  "transition": {
+    "target": "ait:space",
+    "height": 500
+  }
+}

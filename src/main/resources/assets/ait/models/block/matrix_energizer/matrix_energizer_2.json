@@ -1,0 +1,8 @@
+{
+  "parent": "ait:block/matrix_energizer",
+  "textures": {
+    "1": "ait:block/matrix_energizer_2",
+    "6": "ait:block/matrix_energizer_top",
+    "particle": "ait:block/matrix_energizer_2"
+  }
+}

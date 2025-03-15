@@ -1,0 +1,48 @@
+{
+  "output": {
+    "id": "ait:astral_map",
+    "Count": 1
+  },
+  "inputs": [
+    {
+      "item": "quartz",
+      "maxCount": 5,
+      "minCount": 3
+    },
+    {
+      "item": "ait:data_fluid_link",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "compass",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "map",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "diamond",
+      "maxCount": 4,
+      "minCount": 2
+    },
+    {
+      "item": "iron_ingot",
+      "maxCount": 7,
+      "minCount": 3
+    },
+    {
+      "item": "blaze_powder",
+      "maxCount": 5,
+      "minCount": 3
+    },
+    {
+      "item": "minecraft:glass_pane",
+      "maxCount": 7,
+      "minCount": 7
+    }
+  ]
+}

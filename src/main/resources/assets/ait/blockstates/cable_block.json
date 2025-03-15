@@ -2,7 +2,47 @@
   "multipart": [
     {
       "apply": {
-        "model": "ait:block/cable_block_piping_center"
+        "model": "ait:block/cable_block_piping_side"
+      },
+      "when": {
+        "north": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "ait:block/cable_block_piping_side",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "ait:block/cable_block_piping_side",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "south": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "ait:block/cable_block_piping_side",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "west": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "ait:block/cable_block_piping_side",
+        "uvlock": true,
+        "x": 270
       },
       "when": {
         "up": "true"
@@ -11,79 +51,161 @@
     {
       "apply": {
         "model": "ait:block/cable_block_piping_side",
-        "uvlock": true
-      },
-      "when": {
-        "north": "low"
-      }
-    },
-    {
-      "apply": {
-        "model": "ait:block/cable_block_piping_side",
         "uvlock": true,
-        "y": 90
+        "x": 90
       },
       "when": {
-        "east": "low"
+        "down": "true"
       }
     },
     {
-      "apply": {
-        "model": "ait:block/cable_block_piping_side",
-        "uvlock": true,
-        "y": 180
-      },
+      "apply": [
+        {
+          "model": "ait:block/cable_block_piping_center"
+        },
+        {
+          "model": "ait:block/cable_block_piping_center"
+        },
+        {
+          "model": "ait:block/cable_block_piping_center"
+        },
+        {
+          "model": "ait:block/cable_block_piping_center"
+        }
+      ],
       "when": {
-        "south": "low"
+        "north": "false"
       }
     },
     {
-      "apply": {
-        "model": "ait:block/cable_block_piping_side",
-        "uvlock": true,
-        "y": 270
-      },
+      "apply": [
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "uvlock": true,
+          "y": 90
+        },
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "uvlock": true,
+          "y": 90
+        },
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "uvlock": true,
+          "y": 90
+        },
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "uvlock": true,
+          "y": 90
+        }
+      ],
       "when": {
-        "west": "low"
+        "east": "false"
       }
     },
     {
-      "apply": {
-        "model": "ait:block/cable_block_piping_side_tall",
-        "uvlock": true
-      },
+      "apply": [
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "uvlock": true,
+          "y": 180
+        },
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "uvlock": true,
+          "y": 180
+        },
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "uvlock": true,
+          "y": 180
+        },
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "uvlock": true,
+          "y": 180
+        }
+      ],
       "when": {
-        "north": "tall"
+        "south": "false"
       }
     },
     {
-      "apply": {
-        "model": "ait:block/cable_block_piping_side_tall",
-        "uvlock": true,
-        "y": 90
-      },
+      "apply": [
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "uvlock": true,
+          "y": 270
+        },
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "uvlock": true,
+          "y": 270
+        },
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "uvlock": true,
+          "y": 270
+        },
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "uvlock": true,
+          "y": 270
+        }
+      ],
       "when": {
-        "east": "tall"
+        "west": "false"
       }
     },
     {
-      "apply": {
-        "model": "ait:block/cable_block_piping_side_tall",
-        "uvlock": true,
-        "y": 180
-      },
+      "apply": [
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "uvlock": true,
+          "x": 270
+        },
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "uvlock": true,
+          "x": 270
+        },
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "uvlock": true,
+          "x": 270
+        },
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "uvlock": true,
+          "x": 270
+        }
+      ],
       "when": {
-        "south": "tall"
+        "up": "false"
       }
     },
     {
-      "apply": {
-        "model": "ait:block/cable_block_piping_side_tall",
-        "uvlock": true,
-        "y": 270
-      },
+      "apply": [
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "x": 90
+        },
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "x": 90
+        },
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "x": 90
+        },
+        {
+          "model": "ait:block/cable_block_piping_center",
+          "x": 90
+        }
+      ],
       "when": {
-        "west": "tall"
+        "down": "false"
       }
     }
   ]

@@ -1,0 +1,13 @@
+{
+  "id": "ait:type_100",
+  "models": {
+    "inactive": "ait:item/sonic/type_100/inactive",
+    "interaction": "ait:item/sonic/type_100/interaction",
+    "overload": "ait:item/sonic/type_100/overload",
+    "scanning": "ait:item/sonic/type_100/scanning",
+    "tardis": "ait:item/sonic/type_100/tardis"
+  },
+  "loyalty": {
+    "type": "OWNER"
+  }
+}

@@ -1,0 +1,6 @@
+{
+	"parent": "ait:item/sonic/singularity",
+	"textures": {
+		"0": "ait:item/sonic_tools/singularity_interaction"
+	}
+}

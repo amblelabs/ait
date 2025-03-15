@@ -1,0 +1,15 @@
+name: Close PRs on master
+
+on:
+  pull_request_target:
+    types: [ opened, ready_for_review ]
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    if: ${{github.head_ref == 'master' || github.head_ref == 'main' || github.head_ref == 'develop'}}
+
+    steps:
+      - uses: superbrothers/close-pull-request@v3
+        with:
+          comment: "Thank you for contributing to AIT. Unfortunately, it looks like you submitted your pull request from the main branch. \n\n You can move your current work from the main branch to another branch by doing `git branch <branch_name>` and resetting the main branch."

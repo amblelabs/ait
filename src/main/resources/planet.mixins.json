@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.amble.ait.module.planet.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "WorldMixin",
+    "gravity.AssortedEntityMixin",
+    "gravity.BoatEntityMixin",
+    "gravity.LivingEntityMixin"
+  ],
+  "client": [
+    "client.BipedEntityModelMixin",
+    "client.CloudMixin",
+    "client.GameRendererMixin",
+    "client.PlayerEntityModelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

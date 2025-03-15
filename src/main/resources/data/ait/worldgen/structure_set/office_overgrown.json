@@ -1,0 +1,14 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 1696556874,
+    "separation": 5,
+    "spacing": 16
+  },
+  "structures": [
+    {
+      "structure": "ait:office_overgrown",
+      "weight": 1
+    }
+  ]
+}

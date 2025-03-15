@@ -1,0 +1,10 @@
+{
+  "id": "ait:exterior/classic/hudolin",
+  "category": "ait:exterior/classic",
+  "parent": "ait:exterior/classic/shalka",
+  "texture": "ait:textures/blockentities/exteriors/classic/classic_hudolin.png",
+  "emission": "ait:textures/blockentities/exteriors/classic/classic_hudolin_emission.png",
+  "effects": ["ait:eight_mat", "ait:eight_demat"],
+  "flight": "ait:eight",
+  "vortex": "ait:cream"
+}

@@ -1,0 +1,16 @@
+name: "Labels: Approved"
+on:
+  pull_request:
+    types: [opened]
+jobs:
+  add_label:
+    # Change the repository name after you've made sure the team name is correct for your fork!
+    if: ${{ (github.repository == 'amblelabs/ait') && (github.event.review.state == 'APPROVED') }}
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions-ecosystem/action-add-labels@v1
+        with:
+            labels: "S: Awaiting Changes"

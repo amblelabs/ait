@@ -1,0 +1,16 @@
+{
+  "id": "ait:rotestor",
+  "category": "ait:exterior/renegade",
+  "parent": "ait:exterior/renegade/default",
+  "texture": "ait:textures/blockentities/exteriors/renegade/rotestor.png",
+  "emission": "ait:textures/blockentities/exteriors/renegade/rotestor_emission.png",
+  "overrides": {
+    "snowy": "ait:textures/blockentities/exteriors/renegade/biome/renegade_snowy.png",
+    "sculk": "ait:textures/blockentities/exteriors/renegade/biome/renegade_sculk.png",
+    "sandy": "ait:textures/blockentities/exteriors/renegade/biome/renegade_sand.png",
+    "red_sandy": "ait:textures/blockentities/exteriors/renegade/biome/renegade_red_sand.png",
+    "muddy": "ait:textures/blockentities/exteriors/renegade/biome/renegade_mud.png",
+    "chorus": "ait:textures/blockentities/exteriors/renegade/biome/renegade_chorus.png",
+    "cherry": "ait:textures/blockentities/exteriors/renegade/biome/renegade_cherry.png"
+  }
+}

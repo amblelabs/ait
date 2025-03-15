@@ -1,0 +1,15 @@
+{
+  "name": "ait:cult_structure_moon",
+  "fallback": "ait:cult_structure_moon",
+  "elements": [
+    {
+      "weight": 100,
+      "element": {
+        "location": "ait:cultist/moon/cultist_fourway",
+        "processors": "minecraft:mossify_10_percent",
+        "projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    }
+  ]
+}
