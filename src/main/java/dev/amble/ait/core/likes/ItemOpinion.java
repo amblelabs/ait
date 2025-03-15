@@ -2,6 +2,8 @@ package dev.amble.ait.core.likes;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.gson.*;
@@ -11,7 +13,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.amble.lib.api.Identifiable;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.dynamic.Codecs;
 
@@ -19,13 +24,23 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.ServerTardis;
 
 public record ItemOpinion(Identifier id, ItemStack stack, int cost, int loyalty) implements Identifiable, Opinion {
+    private static final List<ItemStack> REWARD_POOL = List.of(
+            new ItemStack(Items.CAKE),
+            new ItemStack(Items.APPLE, 3),
+            new ItemStack(Items.BOOK),
+            new ItemStack(Items.CHORUS_FRUIT),
+            new ItemStack(Items.COOKIE, 5),
+            new ItemStack(Items.GLOWSTONE_DUST, 2)
+    );
+
+    private static final Random RANDOM = new Random();
+
     public static final Codec<ItemOpinion> CODEC = Codecs.exceptionCatching(RecordCodecBuilder.create(instance -> instance.group(
                     Identifier.CODEC.fieldOf("id").forGetter(ItemOpinion::id),
                     ItemStack.CODEC.fieldOf("stack").forGetter(ItemOpinion::stack),
                     Codec.INT.optionalFieldOf("cost", -1).forGetter(ItemOpinion::cost),
                     Codec.INT.fieldOf("loyalty").forGetter(ItemOpinion::loyalty))
             .apply(instance, ItemOpinion::new)));
-
 
     public ItemOpinion {
         if (cost < 0) {
@@ -45,9 +60,16 @@ public record ItemOpinion(Identifier id, ItemStack stack, int cost, int loyalty)
     @Override
     public void apply(ServerTardis tardis, ServerPlayerEntity target) {
         Opinion.super.apply(tardis, target);
-
-        target.getInventory().getMainHandStack().decrement(this.stack().getCount()); // assume its in the main hand
+        target.getInventory().getMainHandStack().decrement(this.stack().getCount());
         target.addExperience(-this.cost);
+
+        if (AITMod.RANDOM.nextDouble() < 0.15) {
+            ItemStack reward = ItemRewardRegistry.getInstance().getRandomReward();
+            if (!reward.isEmpty()) {
+                target.giveItemStack(reward);
+                target.sendMessage(Text.translatable("ait.tardis.reward").formatted(Formatting.GOLD), true);
+            }
+        }
     }
 
     @Override
@@ -69,14 +91,14 @@ public record ItemOpinion(Identifier id, ItemStack stack, int cost, int loyalty)
         return fromJson(JsonParser.parseReader(new InputStreamReader(stream)).getAsJsonObject());
     }
 
+
     public static ItemOpinion fromJson(JsonObject json) {
         AtomicReference<ItemOpinion> created = new AtomicReference<>();
-
         CODEC.decode(JsonOps.INSTANCE, json).get().ifLeft(var -> created.set(var.getFirst())).ifRight(err -> {
             created.set(null);
             AITMod.LOGGER.error("Error decoding datapack item opinion: {}", err);
         });
-
         return created.get();
     }
+
 }

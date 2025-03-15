@@ -92,7 +92,6 @@ public class LoyaltyHandler extends TardisComponent implements TardisTickable {
             this.addLevel(player, 1);
         }
     }
-
     public void update(ServerPlayerEntity player, Function<Loyalty, Loyalty> consumer) {
         Loyalty current = this.get(player);
         current = consumer.apply(current);

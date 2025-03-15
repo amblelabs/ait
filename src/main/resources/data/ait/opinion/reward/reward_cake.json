@@ -1,0 +1,8 @@
+{
+  "id": "ait:reward_cake",
+  "stack": {
+    "id": "minecraft:cake",
+    "Count": 1
+  },
+  "weight": 10
+}
