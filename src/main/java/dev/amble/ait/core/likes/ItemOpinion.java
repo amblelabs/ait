@@ -2,7 +2,6 @@ package dev.amble.ait.core.likes;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -13,7 +12,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.amble.lib.api.Identifiable;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -23,15 +21,7 @@ import net.minecraft.util.dynamic.Codecs;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.ServerTardis;
 
-public record ItemOpinion(Identifier id, ItemStack stack, int cost, int loyalty) implements Identifiable, Opinion {
-    private static final List<ItemStack> REWARD_POOL = List.of(
-            new ItemStack(Items.CAKE),
-            new ItemStack(Items.APPLE, 3),
-            new ItemStack(Items.BOOK),
-            new ItemStack(Items.CHORUS_FRUIT),
-            new ItemStack(Items.COOKIE, 5),
-            new ItemStack(Items.GLOWSTONE_DUST, 2)
-    );
+public record ItemOpinion(Identifier id, ItemStack stack, int cost, int loyalty) implements Identifiable, Opinion { ;
 
     private static final Random RANDOM = new Random();
 
