@@ -19,11 +19,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.KeyedTardisComponent;
@@ -31,6 +33,7 @@ import dev.amble.ait.api.TardisEvents;
 import dev.amble.ait.api.TardisTickable;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
@@ -198,6 +201,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
                         travel.autopilot(true);
                         travel.forceDemat();
+                        this.replaceAllConsolesWithGrowth();
                     } else {
                         tardis.removeFuel(5000 * tardis.travel().instability());
                     }
@@ -205,6 +209,32 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                     TardisUtil.sendMessageToLinked(tardis.asServer(), Text.translatable("tardis.message.interiorchange.success", tardis.stats().getName(), tardis.getDesktop().getSchema().name()));
                     createChestAtInteriorDoor(restorationChestContents);
                 }).execute();
+    }
+
+    /**
+     * Replaces the console with air, and places soul sand beneath it.
+     * @param cPos The position of the console to replace.
+     */
+    private void replaceConsoleWithGrowth(BlockPos cPos) {
+        ServerWorld world = tardis.asServer().getInteriorWorld();
+
+        if (!(world.getBlockEntity(cPos) instanceof ConsoleBlockEntity console))
+            return;
+
+        world.setBlockState(cPos, Blocks.AIR.getDefaultState());
+        world.setBlockState(cPos.down(), Blocks.SOUL_SAND.getDefaultState());
+
+        console.onBroken();
+    }
+
+    /**
+     * Replaces all consoles with growth.
+     * @see #replaceConsoleWithGrowth(BlockPos)
+     */
+    private void replaceAllConsolesWithGrowth() {
+        for (BlockPos cPos : tardis.getDesktop().getConsolePos()) {
+            replaceConsoleWithGrowth(cPos);
+        }
     }
 
     private void warnPlayers() {

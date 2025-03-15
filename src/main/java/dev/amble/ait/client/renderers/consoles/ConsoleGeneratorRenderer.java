@@ -54,8 +54,10 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
                 .texture();
         Identifier consoleEmission = ClientConsoleVariantRegistry.getInstance().get(entity.getConsoleVariant().id()).emission();
 
+        boolean powered = entity.isPowered();
+
         Tardis tardis = entity.tardis().get();
-        if (!tardis.isUnlocked(entity.getConsoleVariant())) {
+        if (powered && !tardis.isUnlocked(entity.getConsoleVariant())) {
             matrices.push();
 
             matrices.translate(0.5F, 2.75F, 0.5F);
@@ -106,21 +108,23 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
         matrices.translate(0.5f, -1.5f + entity.getWorld().random.nextFloat() * 0.02, -0.5f);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(MinecraftClient.getInstance().getTickDelta() % 180));
 
-        if (tardis.isUnlocked(entity.getConsoleVariant())) {
-            console.render(matrices,
-                    vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleTexture) :
-                            RenderLayer.getEntityTranslucentCull(consoleTexture)), 0xf000f0, overlay, 0.3607843137f,
-                    0.9450980392f, 1, entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
-            console.render(matrices,
-                    vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleTexture) :
-                            RenderLayer.getEntityTranslucentCull(consoleEmission)), 0xf000f0, overlay, 0.3607843137f,
-                    0.9450980392f, 1, entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
-        } else {
-            console.render(matrices,
-                    vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleTexture) :
-                            RenderLayer.getEntityTranslucentCull(consoleTexture)), light,
-                    OverlayTexture.DEFAULT_UV, 0.2f, 0.2f, 0.2f,
-                    entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
+        if (powered) {
+            if (tardis.isUnlocked(entity.getConsoleVariant())) {
+                console.render(matrices,
+                        vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleTexture) :
+                                RenderLayer.getEntityTranslucentCull(consoleTexture)), 0xf000f0, overlay, 0.3607843137f,
+                        0.9450980392f, 1, entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
+                console.render(matrices,
+                        vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleTexture) :
+                                RenderLayer.getEntityTranslucentCull(consoleEmission)), 0xf000f0, overlay, 0.3607843137f,
+                        0.9450980392f, 1, entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
+            } else {
+                console.render(matrices,
+                        vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleTexture) :
+                                RenderLayer.getEntityTranslucentCull(consoleTexture)), light,
+                        OverlayTexture.DEFAULT_UV, 0.2f, 0.2f, 0.2f,
+                        entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
+            }
         }
         matrices.pop();
     }

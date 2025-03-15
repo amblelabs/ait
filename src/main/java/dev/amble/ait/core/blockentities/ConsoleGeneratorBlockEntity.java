@@ -5,7 +5,6 @@ import static dev.amble.ait.core.blockentities.ConsoleBlockEntity.nextVariant;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -13,9 +12,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -27,17 +23,17 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.link.v2.block.InteriorLinkableBlockEntity;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 
-public class ConsoleGeneratorBlockEntity extends InteriorLinkableBlockEntity {
+public class ConsoleGeneratorBlockEntity extends FluidLinkBlockEntity {
     public static final Identifier SYNC_TYPE = AITMod.id("sync_gen_type");
     public static final Identifier SYNC_VARIANT = AITMod.id("sync_gen_variant");
     private Identifier type;
@@ -45,11 +41,13 @@ public class ConsoleGeneratorBlockEntity extends InteriorLinkableBlockEntity {
 
     public ConsoleGeneratorBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.CONSOLE_GENERATOR_ENTITY_TYPE, pos, state);
+
         this.type = ConsoleRegistry.HARTNELL.id();
     }
 
     public ConsoleGeneratorBlockEntity(BlockPos pos, BlockState state, Identifier type, Identifier variant) {
         super(AITBlockEntityTypes.CONSOLE_GENERATOR_ENTITY_TYPE, pos, state);
+
         this.type = type;
         this.variant = variant;
     }
@@ -58,18 +56,18 @@ public class ConsoleGeneratorBlockEntity extends InteriorLinkableBlockEntity {
         if (!TardisServerWorld.isTardisDimension(world))
             return;
 
-        if (tardis() == null)
+        if (!this.isLinked() || !this.isPowered())
             return;
 
         ItemStack stack = player.getMainHandStack();
 
-        if (stack.getItem() == AITItems.SONIC_SCREWDRIVER && tardis().get().isUnlocked(this.getConsoleVariant())) {
-            this.createConsole(player);
-            return;
-        }
+        boolean validItem = stack.isOf(AITItems.SONIC_SCREWDRIVER) || stack.isOf(Items.BLAZE_POWDER);
+        boolean decrement = stack.isOf(Items.BLAZE_POWDER);
 
-        if (stack.isOf(Items.BLAZE_POWDER) && tardis().get().isUnlocked(this.getConsoleVariant())) {
-            stack.decrement(1);
+        if (validItem && tardis().get().isUnlocked(this.getConsoleVariant())) {
+            if (decrement) {
+                stack.decrement(1);
+            }
 
             this.createConsole(player);
             return;
@@ -87,18 +85,21 @@ public class ConsoleGeneratorBlockEntity extends InteriorLinkableBlockEntity {
     @Override
     public void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
+
         if (this.type != null)
             nbt.putString("console", this.type.toString());
+
         if (this.variant != null)
             nbt.putString("variant", this.variant.toString());
     }
 
     private void createConsole(PlayerEntity player) {
         if (this.getWorld() != null && this.getWorld().isClient()) return;
-        ConsoleBlockEntity consoleBlockEntity = new ConsoleBlockEntity(pos, AITBlocks.CONSOLE.getDefaultState());
 
-        consoleBlockEntity.setType(this.getConsoleSchema());
-        consoleBlockEntity.setVariant(this.getConsoleVariant());
+        ConsoleBlockEntity be = new ConsoleBlockEntity(pos, AITBlocks.CONSOLE.getDefaultState());
+
+        be.setType(this.getConsoleSchema());
+        be.setVariant(this.getConsoleVariant());
 
         if (world == null)
             return;
@@ -111,7 +112,7 @@ public class ConsoleGeneratorBlockEntity extends InteriorLinkableBlockEntity {
 
         // ConsoleBlockEntity marks for controls when it gets linked
         world.setBlockState(this.pos, AITBlocks.CONSOLE.getDefaultState());
-        world.addBlockEntity(consoleBlockEntity);
+        world.addBlockEntity(be);
 
         world.playSound(null, this.pos, SoundEvents.BLOCK_BEACON_POWER_SELECT, SoundCategory.BLOCKS, 0.5f, 1.0f);
     }
@@ -171,7 +172,7 @@ public class ConsoleGeneratorBlockEntity extends InteriorLinkableBlockEntity {
         buf.writeBlockPos(getPos());
 
         for (PlayerEntity player : world.getPlayers()) {
-            ServerPlayNetworking.send((ServerPlayerEntity) player, SYNC_TYPE, buf); // safe cast as we know its server
+            ServerPlayNetworking.send((ServerPlayerEntity) player, SYNC_TYPE, buf);
         }
     }
 
@@ -185,8 +186,7 @@ public class ConsoleGeneratorBlockEntity extends InteriorLinkableBlockEntity {
         buf.writeBlockPos(getPos());
 
         for (PlayerEntity player : world.getPlayers()) {
-            ServerPlayNetworking.send((ServerPlayerEntity) player, SYNC_VARIANT, buf); // safe cast as we know its
-                                                                                        // server
+            ServerPlayNetworking.send((ServerPlayerEntity) player, SYNC_VARIANT, buf);
         }
     }
 
@@ -203,10 +203,5 @@ public class ConsoleGeneratorBlockEntity extends InteriorLinkableBlockEntity {
         }
 
         super.readNbt(nbt);
-    }
-
-    @Nullable @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
     }
 }

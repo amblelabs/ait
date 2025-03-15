@@ -15,6 +15,7 @@ import net.minecraft.entity.mob.RavagerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
@@ -32,6 +33,7 @@ import net.minecraft.world.WorldView;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.TardisComponent;
 import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.blockentities.CoralBlockEntity;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
@@ -127,6 +129,8 @@ public class CoralPlantBlock extends HorizontalDirectionalBlock implements Block
     }
 
     private void createConsole(ServerWorld world, BlockPos pos) {
+        world.playSound(null, pos, AITSounds.FABRICATOR_END, SoundCategory.BLOCKS);
+
         world.setBlockState(pos, AITBlocks.CONSOLE.getDefaultState());
     }
 
@@ -155,12 +159,7 @@ public class CoralPlantBlock extends HorizontalDirectionalBlock implements Block
         if (!(placer instanceof ServerPlayerEntity player))
             return;
 
-        if (!RiftChunkManager.isRiftChunk((ServerWorld) world, pos)) {
-            world.breakBlock(pos, !placer.isPlayer() || !player.isCreative());
-            return;
-        }
-
-        if (TardisServerWorld.isTardisDimension((ServerWorld) world)) {
+        if (!RiftChunkManager.isRiftChunk((ServerWorld) world, pos) && !TardisServerWorld.isTardisDimension((ServerWorld) world)) {
             world.breakBlock(pos, !placer.isPlayer() || !player.isCreative());
             return;
         }

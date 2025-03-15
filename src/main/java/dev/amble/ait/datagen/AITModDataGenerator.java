@@ -937,7 +937,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITBlocks.LANDING_PAD, "Landing Marker");
         provider.addTranslation(AITBlocks.DETECTOR_BLOCK, "Interior Detector Block");
         provider.addTranslation(AITBlocks.EXTERIOR_BLOCK, "Exterior");
-        provider.addTranslation(AITBlocks.CORAL_PLANT, "TARDIS Coral");
+        provider.addTranslation(AITBlocks.CORAL_PLANT, "Coral Growth");
         provider.addTranslation(AITBlocks.MONITOR_BLOCK, "Monitor");
         provider.addTranslation(AITBlocks.ARTRON_COLLECTOR_BLOCK, "Artron Collector");
         provider.addTranslation(AITBlocks.ZEITON_BLOCK, "Block of Zeiton");
