@@ -5,9 +5,7 @@ import static dev.amble.ait.core.AITItems.isInAdvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -56,7 +54,7 @@ public class DefaultLogoMixin {
             context.drawTexture(texture, x, y, u, v, width, height, textureWidth, textureHeight);
     }
 
-    @Inject(method = "draw(Lnet/minecraft/client/gui/DrawContext;IFI)V", at = @At("TAIL"))
+    /*@Inject(method = "draw(Lnet/minecraft/client/gui/DrawContext;IFI)V", at = @At("TAIL"))
     private void renderWarningMessage(DrawContext context, int screenWidth, float alpha, int y, CallbackInfo ci) {
         if (AITMod.isUnsafeBranch()) {
 
@@ -80,5 +78,5 @@ public class DefaultLogoMixin {
 
             context.drawText(this.client.textRenderer, warningMessage, x, y, 0xFFFF0000, true);
         }
-    }
+    }*/
 }
