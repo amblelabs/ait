@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.UUID;
 
+import dev.amble.ait.client.renderers.sky.SkyBlockEntityRenderer;
+import dev.amble.ait.core.blockentities.SkyBlockEntity;
 import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -431,6 +433,7 @@ public class AITModClient implements ClientModInitializer {
         BlockEntityRendererFactories.register(AITBlockEntityTypes.POWER_CONVERTER_BLOCK_TYPE,
                 PowerConverterRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ASTRAL_MAP, AstralMapRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.SKY_BLOCK, SkyBlockEntityRenderer::new);
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             BlockEntityRendererFactories.register(AITBlockEntityTypes.SNOW_GLOBE_BLOCK_ENTITY_TYPE,
                     SnowGlobeRenderer::new);

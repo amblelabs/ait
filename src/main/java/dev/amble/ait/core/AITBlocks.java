@@ -179,6 +179,10 @@ public class AITBlocks extends BlockContainer {
     @NoBlockItem
     public static final Block RADIO = new RadioBlock(FabricBlockSettings.create().nonOpaque());
 
+    @PickaxeMineable(tool = PickaxeMineable.Tool.STONE)
+    @AutomaticModel
+    public static final Block SKY_BLOCK = new SkyBlock(FabricBlockSettings.copyOf(Blocks.GLASS));
+
     // Machines
     @NoBlockItem
     public static final Block MACHINE_CASING = new MachineCasingBlock(FabricBlockSettings.create().nonOpaque()

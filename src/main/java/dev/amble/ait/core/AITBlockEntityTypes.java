@@ -66,6 +66,8 @@ public class AITBlockEntityTypes implements BlockEntityContainer {
             .create(GenericStructureSystemBlockEntity::new, AITBlocks.GENERIC_SUBSYSTEM).build();
     public static BlockEntityType<AstralMapBlockEntity> ASTRAL_MAP = FabricBlockEntityTypeBuilder
             .create(AstralMapBlockEntity::new, AITBlocks.ASTRAL_MAP).build();
+    public static BlockEntityType<SkyBlockEntity> SKY_BLOCK = FabricBlockEntityTypeBuilder
+            .create(SkyBlockEntity::new, AITBlocks.SKY_BLOCK).build();
     // TODO ADVENT might have to make this work like the block as well
     static {
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
