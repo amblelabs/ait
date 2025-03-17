@@ -2,11 +2,12 @@ name: Publish on GitHub, Modrinth, and CurseForge
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows:
-      - Generate Changelog
-    types:
-      - completed
+  push:
+    branches:
+      - release
+      - release/*
+    paths-ignore:
+      - 'CHANGELOG.md'
 
 env:
   JAVA_VERSION: 17
