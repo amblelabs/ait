@@ -22,9 +22,12 @@ import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
 public class EngineOverloadControl extends Control {
-
     private static final Random RANDOM = new Random();
     private static final String[] SPINNER = {"/", "-", "\\", "|"};
+    private static final int MIN_FUEL = 25000;
+    private static final int OVERLOAD_SPEED = 5000;
+    private static final int CIRCUIT_DAMAGE = 1000;
+    private static final int CRASH_REPAIR_TIME = 999999;
 
     public EngineOverloadControl() {
         super(AITMod.id("engine_overload"));
@@ -32,58 +35,42 @@ public class EngineOverloadControl extends Control {
 
     @Override
     public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
-        super.runServer(tardis, player, world, console, leftClick);
-
-        if (tardis.fuel().getCurrentFuel() < 25000) {
-            player.sendMessage(Text.literal("§cERROR, TARDIS REQUIRES AT LEAST 25K ARTRON TO EXECUTE THIS ACTION."), true);
-            world.playSound(null, player.getBlockPos(), AITSounds.CLOISTER, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        if (tardis.fuel().getCurrentFuel() < MIN_FUEL) {
+            sendErrorMessage(player, world);
             return Result.FAILURE;
         }
 
-        boolean isInFlight = tardis.travel().getState() == TravelHandlerBase.State.FLIGHT;
-
-        if (!isInFlight) {
-            tardis.travel().finishDemat();
+        if (tardis.travel().getState() != TravelHandlerBase.State.FLIGHT) {
+            player.sendMessage(Text.literal("§cERROR: ENGINE OVERLOAD CAN ONLY BE INITIATED WHILE IN FLIGHT."), true);
+            return Result.FAILURE;
         }
 
-        runDumpingArtronSequence(player, () -> {
-            world.playSound(null, player.getBlockPos(), AITSounds.ENGINE_OVERLOAD, SoundCategory.BLOCKS, 1.0F, 1.0F);
-            world.getServer().execute(() -> {
-                tardis.travel().decreaseFlightTime(999999999);
-                tardis.travel().handbrake(false);
-                tardis.setRefueling(false);
-                tardis.setFuelCount(0);
-
-                if (!isInFlight) {
-                    tardis.travel().finishDemat();
-                    tardis.setFuelCount(0);
-                    tardis.travel().decreaseFlightTime(999999999);
-                    tardis.setRefueling(false);
-                } else {
-                    tardis.travel().decreaseFlightTime(999999999);
-                    tardis.setFuelCount(0);
-                    tardis.setRefueling(false);
-                }
-
-                Scheduler.get().runTaskLater(() -> triggerExplosion(world, console, tardis, 4), TimeUnit.SECONDS, 0);
-            });
-        });
-
+        runDumpingArtronSequence(player, () -> executeOverloadSequence(tardis, player, world, console));
         return Result.SUCCESS;
+    }
+
+    private void sendErrorMessage(ServerPlayerEntity player, ServerWorld world) {
+        player.sendMessage(Text.literal("§cERROR, TARDIS REQUIRES AT LEAST 25K ARTRON TO EXECUTE THIS ACTION."), true);
+        world.playSound(null, player.getBlockPos(), AITSounds.CLOISTER, SoundCategory.BLOCKS, 1.0F, 1.0F);
+    }
+
+    private void executeOverloadSequence(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console) {
+        world.getServer().execute(() -> {
+            tardis.travel().handbrake(false);
+            tardis.setRefueling(false);
+            tardis.setFuelCount(0);
+            tardis.travel().speed(OVERLOAD_SPEED);
+
+            world.playSound(null, player.getBlockPos(), AITSounds.ENGINE_OVERLOAD, SoundCategory.BLOCKS, 1.0F, 1.0F);
+            Scheduler.get().runTaskLater(() -> triggerExplosion(world, console, tardis, 4), TimeUnit.SECONDS, 0);
+        });
     }
 
     private void triggerExplosion(ServerWorld world, BlockPos console, Tardis tardis, int stage) {
         if (stage <= 0) return;
 
-        //DONT BUFF THE DAMAGE, THIS HAPPENS EACH TIME THE CONSOLE EXPLODES SO 4x IT
         tardis.alarm().enable();
-        tardis.subsystems().demat().removeDurability(250);
-        tardis.subsystems().chameleon().removeDurability(250);
-        tardis.subsystems().shields().removeDurability(250);
-        tardis.subsystems().lifeSupport().removeDurability(250);
-        tardis.subsystems().engine().removeDurability(250);
-        tardis.crash().addRepairTicks(999999999);
-
+        applyCircuitDamage(tardis);
         spawnParticles(world, console);
         Scheduler.get().runTaskLater(() -> spawnExteriorParticles(tardis), TimeUnit.SECONDS, 3);
 
@@ -91,13 +78,20 @@ public class EngineOverloadControl extends Control {
         Scheduler.get().runTaskLater(() -> triggerExplosion(world, console, tardis, stage - 1), TimeUnit.SECONDS, nextDelay);
     }
 
+    private void applyCircuitDamage(Tardis tardis) {
+        tardis.subsystems().demat().removeDurability(CIRCUIT_DAMAGE);
+        tardis.subsystems().chameleon().removeDurability(CIRCUIT_DAMAGE);
+        tardis.subsystems().shields().removeDurability(CIRCUIT_DAMAGE);
+        tardis.subsystems().lifeSupport().removeDurability(CIRCUIT_DAMAGE);
+        tardis.subsystems().engine().removeDurability(CIRCUIT_DAMAGE);
+        tardis.crash().addRepairTicks(CRASH_REPAIR_TIME);
+    }
+
     private void runDumpingArtronSequence(ServerPlayerEntity player, Runnable onFinish) {
         for (int i = 0; i < 6; i++) {
             int delay = i + 1;
             Scheduler.get().runTaskLater(() -> {
                 String frame = SPINNER[delay % SPINNER.length];
-
-                // FIXME: use translations
                 player.sendMessage(Text.literal("§6DUMPING ARTRON " + frame), true);
             }, TimeUnit.SECONDS, delay);
         }
@@ -123,23 +117,23 @@ public class EngineOverloadControl extends Control {
             double offsetY = RANDOM.nextDouble() * 1.5;
             double offsetZ = (RANDOM.nextDouble() - 0.5) * 2.0;
 
-            world.spawnParticles(ParticleTypes.SNEEZE, position.getX() + 0.5 + offsetX, position.getY() + 1.5 + offsetY, position.getZ() + 0.5 + offsetZ, 2, 0, 0.05, 0, 0.1);
-            world.spawnParticles(ParticleTypes.ASH, position.getX() + 0.5 + offsetX, position.getY() + 1.5 + offsetY, position.getZ() + 0.5 + offsetZ, 2, 0, 0.05, 0, 0.1);
-            world.spawnParticles(ParticleTypes.EXPLOSION, position.getX() + 0.5 + offsetX, position.getY() + 1.5 + offsetY, position.getZ() + 0.5 + offsetZ, 2, 0, 0.05, 0, 0.1);
-            world.spawnParticles(ParticleTypes.LAVA, position.getX() + 0.5 + offsetX, position.getY() + 1.5 + offsetY, position.getZ() + 0.5 + offsetZ, 2, 0, 0.05, 0, 0.1);
-            world.spawnParticles(ParticleTypes.SMALL_FLAME, position.getX() + 0.5 + offsetX, position.getY() + 1.5 + offsetY, position.getZ() + 0.5 + offsetZ, 2, 0, 0.05, 0, 0.1);
-            world.spawnParticles(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, position.getX() + 0.5 + offsetX, position.getY() + 1.5 + offsetY, position.getZ() + 0.5 + offsetZ, 2, 0, 0.05, 0, 0.1);
+            spawnParticle(world, position, ParticleTypes.SNEEZE, offsetX, offsetY, offsetZ);
+            spawnParticle(world, position, ParticleTypes.ASH, offsetX, offsetY, offsetZ);
+            spawnParticle(world, position, ParticleTypes.EXPLOSION, offsetX, offsetY, offsetZ);
+            spawnParticle(world, position, ParticleTypes.LAVA, offsetX, offsetY, offsetZ);
+            spawnParticle(world, position, ParticleTypes.SMALL_FLAME, offsetX, offsetY, offsetZ);
+            spawnParticle(world, position, ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, offsetX, offsetY, offsetZ);
         }
+    }
+
+    private void spawnParticle(ServerWorld world, BlockPos position, net.minecraft.particle.ParticleEffect type, double offsetX, double offsetY, double offsetZ) {
+        world.spawnParticles(type, position.getX() + 0.5 + offsetX, position.getY() + 1.5 + offsetY, position.getZ() + 0.5 + offsetZ, 2, 0, 0.05, 0, 0.1);
     }
 
     private void spawnExteriorParticles(Tardis tardis) {
         CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
-
         if (exteriorPos == null) return;
-        ServerWorld exteriorWorld = exteriorPos.getWorld();
-        BlockPos exteriorBlockPos = exteriorPos.getPos();
-
-        spawnParticles(exteriorWorld, exteriorBlockPos);
+        spawnParticles(exteriorPos.getWorld(), exteriorPos.getPos());
     }
 
     @Override
