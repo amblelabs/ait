@@ -21,6 +21,8 @@ import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.sounds.travel.TravelSoundRegistry;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisDesktop;
+import dev.amble.ait.core.tardis.TardisExterior;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -164,6 +166,8 @@ public class EngineSystem extends DurableSubSystem {
         public static Phaser create(EngineSystem system) {
             Tardis sTardis = system.tardis();
             TravelHandler travel = sTardis.travel();
+            TardisDesktop desktop = sTardis.getDesktop();
+            TardisExterior exterior = sTardis.getExterior();
 
             return new Phaser(
                     (phaser) -> {
@@ -171,8 +175,8 @@ public class EngineSystem extends DurableSubSystem {
                         TardisUtil.sendMessageToInterior(tdis, Text.translatable("tardis.message.engine.phasing").formatted(Formatting.RED));
                         TardisUtil.sendMessageToLinked(tdis, Text.translatable("tardis.message.engine.phasing").formatted(Formatting.RED));
                         tdis.alarm().enabled().set(true);
-                        tdis.getDesktop().playSoundAtEveryConsole(AITSounds.HOP_DEMAT);
-                        tdis.getExterior().playSound(AITSounds.HOP_DEMAT);
+                        desktop.playSoundAtEveryConsole(AITSounds.HOP_DEMAT);
+                        exterior.playSound(AITSounds.HOP_DEMAT);
                         sTardis.subsystems().demat().removeDurability(5);
                     },
                     (phaser) -> {
@@ -180,19 +184,19 @@ public class EngineSystem extends DurableSubSystem {
                             travel.forceDestination(cached);
                             if (travel.isLanded()) {
                                 sTardis.subsystems().demat().removeDurability(15);
-                                sTardis.travel().speed(500);
-                                sTardis.getDesktop().playSoundAtEveryConsole(AITSounds.UNSTABLE_FLIGHT_LOOP);
-                                sTardis.getExterior().playSound(AITSounds.UNSTABLE_FLIGHT_LOOP);
-                                sTardis.travel().forceDemat(TravelSoundRegistry.PHASING_DEMAT);
-                                sTardis.travel().autopilot(false);
+                                travel.speed(500);
+                                desktop.playSoundAtEveryConsole(AITSounds.UNSTABLE_FLIGHT_LOOP);
+                                exterior.playSound(AITSounds.UNSTABLE_FLIGHT_LOOP);
+                                travel.forceDemat(TravelSoundRegistry.PHASING_DEMAT);
+                                travel.autopilot(false);
                             }
                             TardisEvents.ENGINES_PHASE.invoker().onPhase(system);
                         });
                     },
                     (phaser) -> {
                         SoundEvent sound = (phaser.countdown < (phaser.initial - 300)) ? AITSounds.HOP_MAT : AITSounds.LAND_THUD;
-                        sTardis.getDesktop().playSoundAtEveryConsole(sound);
-                        sTardis.getExterior().playSound(sound);
+                        desktop.playSoundAtEveryConsole(sound);
+                        exterior.playSound(sound);
                         sTardis.alarm().enabled().set(false);
                     },
                     (phaser) -> travel.isLanded() &&
