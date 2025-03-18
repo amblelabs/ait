@@ -13,7 +13,6 @@ headers = {
     'X-GitHub-Api-Version': '2022-11-28'
 }
 
-
 changelog: str | None = '\n\n'
 last_update = 0
 
@@ -28,7 +27,9 @@ clines = changelog_lines[len(SEP):]
 if len(clines) != 0 and changelog_lines[0].startswith(PREFIX):
     last_update = int(changelog_lines[0][len(PREFIX):])
 
-r = requests.get('https://api.github.com/repos/amblelabs/ait/pulls?state=all', headers=headers)
+clines = []
+
+r = requests.get('https://api.github.com/repos/amblelabs/ait/pulls?state=closed', headers=headers)
 j = r.json()
 
 if r.status_code in [403, 429]:
@@ -43,6 +44,12 @@ for e in j:
     body = e['body']
 
     if not body:
+        continue
+
+    if not e['merged_at']:
+        continue
+
+    if e['base']['ref'] != 'main':
         continue
 
     body = COMMENTS.sub('', body)
@@ -71,8 +78,6 @@ for e in j:
             break
 
         clines.append(ls[n] + f' (#{num})')
-
-last_update = max(last_update, max_pr)
 
 with open('CHANGELOG.md', 'w') as f:
     f.write(PREFIX + str(last_update))

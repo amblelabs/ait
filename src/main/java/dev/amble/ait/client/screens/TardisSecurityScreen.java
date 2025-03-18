@@ -49,6 +49,11 @@ public class TardisSecurityScreen extends ConsoleScreen {
         super.init();
     }
 
+    @Override
+    public boolean canCloseWithKey() {
+        return !this.landingCodeInput.isActive();
+    }
+
     private void createButtons() {
         choicesCount = 0;
 

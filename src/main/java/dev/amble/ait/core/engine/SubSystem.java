@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import com.google.gson.*;
-import dev.amble.ait.AITMod;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.Disposable;
 import dev.amble.ait.api.tardis.Initializable;
 import dev.amble.ait.api.tardis.TardisComponent;

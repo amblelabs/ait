@@ -148,6 +148,11 @@
           "type": "minecraft:item",
           "name": "ait:drifting_music_disc",
           "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "ait:staser_bolt_magazine",
+          "weight": 1
         }
       ],
       "rolls": 15

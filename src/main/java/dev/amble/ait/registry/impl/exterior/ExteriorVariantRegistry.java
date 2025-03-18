@@ -191,11 +191,11 @@ public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantS
     public static ExteriorVariantSchema STALLION_SOUL;
     public static ExteriorVariantSchema STALLION_STEEL;
     public static ExteriorVariantSchema ADAPTIVE;
-//    public static ExteriorVariantSchema DALEK_MOD_1963;
-//    public static ExteriorVariantSchema DALEK_MOD_1967;
-//    public static ExteriorVariantSchema DALEK_MOD_1970;
-//    public static ExteriorVariantSchema DALEK_MOD_1976;
-//    public static ExteriorVariantSchema DALEK_MOD_1980;
+    public static ExteriorVariantSchema DALEK_MOD_1963;
+    public static ExteriorVariantSchema DALEK_MOD_1967;
+    public static ExteriorVariantSchema DALEK_MOD_1970;
+    public static ExteriorVariantSchema DALEK_MOD_1976;
+    public static ExteriorVariantSchema DALEK_MOD_1980;
 //    public static ExteriorVariantSchema JAKE_DEFAULT;
 //    public static ExteriorVariantSchema PRESENT_DEFAULT;
 //    public static ExteriorVariantSchema PRESENT_GREEN;
@@ -286,11 +286,11 @@ public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantS
 //        ADAPTIVE = register(new AdaptiveVariant());
 
         // Dalek Mod
-//        DALEK_MOD_1963 = register(new DalekMod1963Variant());
-//        DALEK_MOD_1967 = register(new DalekMod1967Variant());
-//        DALEK_MOD_1970 = register(new DalekMod1970Variant());
-//        DALEK_MOD_1976 = register(new DalekMod1976Variant());
-//        DALEK_MOD_1980 = register(new DalekMod1980Variant());
+        DALEK_MOD_1963 = register(new DalekMod1963Variant());
+        DALEK_MOD_1967 = register(new DalekMod1967Variant());
+        DALEK_MOD_1970 = register(new DalekMod1970Variant());
+        DALEK_MOD_1976 = register(new DalekMod1976Variant());
+        DALEK_MOD_1980 = register(new DalekMod1980Variant());
 
         // Jake
         //JAKE_DEFAULT = init(new JakeDefaultVariant());

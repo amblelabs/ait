@@ -197,11 +197,11 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
     public static ClientExteriorVariantSchema STALLION_SOUL;
     public static ClientExteriorVariantSchema STALLION_STEEL;
     //public static ClientExteriorVariantSchema ADAPTIVE;
-    //public static ClientExteriorVariantSchema DALEK_MOD_1963;
-    //public static ClientExteriorVariantSchema DALEK_MOD_1967;
-    //public static ClientExteriorVariantSchema DALEK_MOD_1970;
-    //public static ClientExteriorVariantSchema DALEK_MOD_1976;
-    //public static ClientExteriorVariantSchema DALEK_MOD_1980;
+    public static ClientExteriorVariantSchema DALEK_MOD_1963;
+    public static ClientExteriorVariantSchema DALEK_MOD_1967;
+    public static ClientExteriorVariantSchema DALEK_MOD_1970;
+    public static ClientExteriorVariantSchema DALEK_MOD_1976;
+    public static ClientExteriorVariantSchema DALEK_MOD_1980;
     //public static ClientExteriorVariantSchema JAKE_DEFAULT;
     //public static ClientExteriorVariantSchema PRESENT_DEFAULT;
     //public static ClientExteriorVariantSchema PRESENT_GREEN;
@@ -289,11 +289,11 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
         //ADAPTIVE = register(new ClientAdaptiveVariant());
 
         // Dalek Mod
-        //DALEK_MOD_1963 = register(new ClientDalekMod1963Variant());
-        //DALEK_MOD_1967 = register(new ClientDalekMod1967Variant());
-        //DALEK_MOD_1970 = register(new ClientDalekMod1970Variant());
-        //DALEK_MOD_1976 = register(new ClientDalekMod1976Variant());
-        //DALEK_MOD_1980 = register(new ClientDalekMod1980Variant());
+        DALEK_MOD_1963 = register(new ClientDalekMod1963Variant());
+        DALEK_MOD_1967 = register(new ClientDalekMod1967Variant());
+        DALEK_MOD_1970 = register(new ClientDalekMod1970Variant());
+        DALEK_MOD_1976 = register(new ClientDalekMod1976Variant());
+        DALEK_MOD_1980 = register(new ClientDalekMod1980Variant());
 
         // Jake
         //JAKE_DEFAULT = register(new ClientJakeDefaultVariant());

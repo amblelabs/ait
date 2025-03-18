@@ -60,9 +60,9 @@ public class StatsHandler extends KeyedTardisComponent {
     private static final BoolProperty SECURITY = new BoolProperty("security", false);
     private static final BoolProperty HAIL_MARY = new BoolProperty("hail_mary", false);
     private static final BoolProperty RECEIVE_CALLS = new BoolProperty("receive_calls", true);
-    private static final DoubleProperty TARDIS_X_SCALE = new DoubleProperty("tardis_x_scale");
-    private static final DoubleProperty TARDIS_Y_SCALE = new DoubleProperty("tardis_y_scale");
-    private static final DoubleProperty TARDIS_Z_SCALE = new DoubleProperty("tardis_z_scale");
+    private static final DoubleProperty TARDIS_X_SCALE = new DoubleProperty("tardis_x_scale", 1);
+    private static final DoubleProperty TARDIS_Y_SCALE = new DoubleProperty("tardis_y_scale", 1);
+    private static final DoubleProperty TARDIS_Z_SCALE = new DoubleProperty("tardis_z_scale", 1);
 
 
     private final Value<String> tardisName = NAME.create(this);

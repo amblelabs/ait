@@ -102,7 +102,7 @@ public abstract class LivingEntityMixin extends Entity {
                 entity.setFrozenTicks(entity.getMinFreezeDamageTicks() + 20);
         }
 
-        if (!planet.hasOxygen() && !Planet.hasOxygenInTank(entity)) {
+        if (!planet.hasOxygen() && !Planet.hasFullSuit(entity) && !Planet.hasOxygenInTank(entity)) {
             entity.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA,
                     200, 1, false, false));
             entity.addStatusEffect(new StatusEffectInstance(StatusEffects.WITHER, 1,

@@ -64,7 +64,7 @@ public class CategoryRegistry extends SimpleDatapackRegistry<ExteriorCategorySch
     public static ExteriorCategorySchema GEOMETRIC;
     public static ExteriorCategorySchema STALLION;
     //public static ExteriorCategorySchema ADAPTIVE;
-    //public static ExteriorCategorySchema DALEK_MOD;
+    public static ExteriorCategorySchema DALEK_MOD;
     //public static ExteriorCategorySchema JAKE;
     //public static ExteriorCategorySchema PRESENT;
     public static ExteriorCategorySchema PIPE;
@@ -85,7 +85,7 @@ public class CategoryRegistry extends SimpleDatapackRegistry<ExteriorCategorySch
         GEOMETRIC = register(new GeometricCategory());
         STALLION = register(new StallionCategory());
         //ADAPTIVE = register(new AdaptiveCategory());
-        //DALEK_MOD = register(new DalekModCategory());
+        DALEK_MOD = register(new DalekModCategory());
         //JAKE = init(new JakeCategory());
         //PRESENT = register(new PresentCategory());
         PIPE = register(new PipeCategory());

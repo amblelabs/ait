@@ -96,7 +96,7 @@ public class DataCommand {
         Value<T> value = keyed.getPropertyData().getExact(valueName);
         Class<?> classOfT = value.getProperty().getType().getClazz();
 
-        T obj = (T) ServerTardisManager.getInstance().getFileGson().fromJson(data.toString(), classOfT);
+        T obj = (T) ServerTardisManager.getInstance().getFileGson().fromJson(data, classOfT);
 
         value.set(obj);
         source.sendMessage(Text.translatable("command.ait.data.set", valueName, obj.toString()));

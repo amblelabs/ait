@@ -51,7 +51,7 @@ public class DatapackExterior extends ExteriorVariantSchema {
                     BiomeOverrides.CODEC.fieldOf("overrides").orElse(BiomeOverrides.EMPTY)
                             .forGetter(DatapackExterior::overrides),
                     Vec3d.CODEC.optionalFieldOf("seat_translations", new Vec3d(0.5, 1, 0.5)).forGetter(DatapackExterior::seatTranslations),
-                    Codec.BOOL.optionalFieldOf("has_transparent_doors", true).forGetter(DatapackExterior::hasTransparentDoors),
+                    Codec.BOOL.optionalFieldOf("has_transparent_doors", false).forGetter(DatapackExterior::hasTransparentDoors),
                     Codec.BOOL.optionalFieldOf("isDatapack", true).forGetter(DatapackExterior::wasDatapack))
             .apply(instance, DatapackExterior::new));
 

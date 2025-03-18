@@ -23,6 +23,7 @@ import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
+import dev.amble.ait.core.tardis.handler.StatsHandler;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 
@@ -67,7 +68,9 @@ public class TardisExteriorBOTI extends BOTI {
         Vec3d vec = variant.parent().adjustPortalPos(new Vec3d(0, -1.1725f, 0), (byte) 0);
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
         stack.translate(vec.x, vec.y, vec.z);
-        stack.scale((float) variant.parent().portalWidth(), (float) variant.parent().portalHeight(), 1f);
+        StatsHandler stats = tardis.stats();
+        stack.scale((float) variant.parent().portalWidth() * stats.getXScale(),
+                (float) variant.parent().portalHeight() * stats.getYScale(), stats.getZScale());
         RenderLayer whichOne = AITMod.CONFIG.CLIENT.SHOULD_RENDER_BOTI_INTERIOR || AITMod.CONFIG.CLIENT.GREEN_SCREEN_BOTI ?
                 RenderLayer.getDebugFilledBox() : RenderLayer.getEndGateway();
         float[] colorsForGreenScreen = AITMod.CONFIG.CLIENT.GREEN_SCREEN_BOTI ? new float[]{0, 1, 0, 1} : new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
@@ -111,7 +114,7 @@ public class TardisExteriorBOTI extends BOTI {
             float t;
             float s;
 
-            if ((exterior.tardis().get().stats().getName() != null && "partytardis".equals(exterior.tardis().get().stats().getName().toLowerCase()) || (!exterior.tardis().get().extra().getInsertedDisc().isEmpty()))) {
+            if ((stats.getName() != null && "partytardis".equals(stats.getName().toLowerCase()) || (!exterior.tardis().get().extra().getInsertedDisc().isEmpty()))) {
                 int m = 25;
                 int n = MinecraftClient.getInstance().player.age / m + MinecraftClient.getInstance().player.getId();
                 int o = DyeColor.values().length;

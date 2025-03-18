@@ -2,22 +2,22 @@ package dev.amble.ait.core.blockentities;
 
 
 
-import dev.amble.ait.core.AITBlocks;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.math.Direction;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
 import dev.amble.ait.core.engine.link.IFluidLink;
@@ -121,21 +121,21 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
         // place cable blocks adjacent
         for (Direction dir : Direction.values()) {
             BlockPos offset = centre.offset(dir);
-            success = success && tryRemoveIfMatches(world, offset, AITBlocks.CABLE_BLOCK);
+            success = tryRemoveIfMatches(world, offset, AITBlocks.CABLE_BLOCK) && success;
         }
 
         // place barrier blocks in corners
         BlockPos corner = centre.add(1, 0, 1);
-        success = success && tryRemoveIfMatches(world, corner, Blocks.BARRIER);
+        success = tryRemoveIfMatches(world, corner, Blocks.BARRIER) && success;
 
         corner = centre.add(-1, 0, 1);
-        success = success && tryRemoveIfMatches(world, corner, Blocks.BARRIER);
+        success = tryRemoveIfMatches(world, corner, Blocks.BARRIER) && success;
 
         corner = centre.add(1, 0, -1);
-        success = success && tryRemoveIfMatches(world, corner, Blocks.BARRIER);
+        success = tryRemoveIfMatches(world, corner, Blocks.BARRIER) && success;
 
         corner = centre.add(-1, 0, -1);
-        success = success && tryRemoveIfMatches(world, corner, Blocks.BARRIER);
+        success = tryRemoveIfMatches(world, corner, Blocks.BARRIER) && success;
 
         return success;
     }

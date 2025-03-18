@@ -12,6 +12,7 @@ import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.util.ParticleUtil;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -394,6 +395,28 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
             return false;
 
         return canFallThrough(state);
+    }
+
+    @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        super.onPlaced(world, pos, state, placer, itemStack);
+
+        if (world.isClient())
+            return;
+
+        if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior)
+            exterior.validateExteriorPosition();
+    }
+
+    @Override
+    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        super.onStateReplaced(state, world, pos, newState, moved);
+
+        if (world.isClient())
+            return;
+
+        if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior)
+            exterior.validateExteriorPosition();
     }
 
     private static boolean canFallThrough(BlockState state) {

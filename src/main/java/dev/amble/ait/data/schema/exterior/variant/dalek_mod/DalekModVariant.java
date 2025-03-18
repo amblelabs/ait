@@ -18,7 +18,7 @@ import dev.amble.ait.registry.impl.door.DoorRegistry;
 public abstract class DalekModVariant extends ExteriorVariantSchema {
     protected static final String TEXTURE_PATH = "textures/blockentities/exteriors/dalek_mod/dalek_mod_";
 
-    protected DalekModVariant(Integer number) {
+    protected DalekModVariant(int number) {
         super(DalekModCategory.REFERENCE, AITMod.id("exterior/dalek_mod/" + number),
                 new Loyalty(Loyalty.Type.OWNER));
     }

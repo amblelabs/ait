@@ -7,17 +7,17 @@ import java.util.Queue;
 import com.mojang.blaze3d.platform.GlConst;
 import com.mojang.blaze3d.platform.GlStateManager;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.compat.DependencyChecker;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.entities.GallifreyFallsPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
 
 public class BOTI {
@@ -69,7 +69,7 @@ public class BOTI {
 
         return invalid;
     }
-    
+
     private static boolean isInvalidSetup() {
         return !DependencyChecker.hasNvidiaCard() && !DependencyChecker.hasIndium();
     }

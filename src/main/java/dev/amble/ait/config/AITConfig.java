@@ -1,70 +1,25 @@
 package dev.amble.ait.config;
 
-import java.util.List;
-
 import me.shedaniel.autoconfig.AutoConfig;
-import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
-
-import dev.amble.ait.core.AITDimensions;
+import me.shedaniel.autoconfig.serializer.PartitioningSerializer;
 
 @Config(name = "aitconfig")
-public class AITConfig implements ConfigData {
+public class AITConfig extends PartitioningSerializer.GlobalData {
 
     @ConfigEntry.Category("server")
     @ConfigEntry.Gui.TransitiveObject
-    public Server SERVER = new Server();
+    public AITServerConfig SERVER = new AITServerConfig();
 
     @ConfigEntry.Category("client")
     @ConfigEntry.Gui.TransitiveObject
-    public Client CLIENT = new Client();
+    public AITClientConfig CLIENT = new AITClientConfig();
 
     public static AITConfig createAndLoad() {
-        AutoConfig.register(AITConfig.class, JanksonConfigSerializer::new);
+        AutoConfig.register(AITConfig.class, PartitioningSerializer.wrap(JanksonConfigSerializer::new));
         return AutoConfig.getConfigHolder(AITConfig.class).getConfig();
-    }
-
-    public static class Server {
-        public boolean MINIFY_JSON = false;
-        public boolean GHOST_MONUMENT = true;
-        public boolean LOCK_DIMENSIONS = true;
-        public boolean RWF_ENABLED = true;
-        public boolean TNT_CAN_TELEPORT_THROUGH_DOOR = true;
-
-        @ConfigEntry.Gui.RequiresRestart
-        public List<String> WORLDS_BLACKLIST = List.of();
-
-        @ConfigEntry.Gui.RequiresRestart
-        public List<String> TRAVEL_BLACKLIST = List.of(
-                AITDimensions.TIME_VORTEX_WORLD.getValue().toString());
-
-        public int TRAVEL_PER_TICK = 2;
-
-        public boolean SEND_BULK = true;
-        public int MAX_TARDISES = -1;
-    }
-
-    public static class Client {
-        public float INTERIOR_HUM_VOLUME = 0.5f;
-
-        public boolean CUSTOM_MENU = true;
-        public boolean SHOW_EXPERIMENTAL_WARNING = false;
-        public boolean ENVIRONMENT_PROJECTOR = true;
-        public boolean DISABLE_LOYALTY_FOG = false;
-        public boolean DISABLE_LOYALTY_BED_MESSAGE = false;
-        public boolean ENABLE_TARDIS_BOTI = true;
-        public boolean SHOULD_RENDER_BOTI_INTERIOR = false;
-        public boolean GREEN_SCREEN_BOTI = false;
-        public boolean SHOW_CONTROL_HITBOXES = false;
-        public boolean RENDER_DEMAT_PARTICLES = true;
-        public boolean ANIMATE_CONSOLE = true;
-        public boolean ANIMATE_DOORS = true;
-        /*public int DOOR_ANIMATION_SPEED = 2;*/
-
-        @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-        public TemperatureType TEMPERATURE_TYPE = TemperatureType.CELCIUS;
     }
 
     public enum TemperatureType {

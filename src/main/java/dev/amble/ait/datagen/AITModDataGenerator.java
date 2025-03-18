@@ -6,7 +6,6 @@ import static net.minecraft.data.server.recipe.RecipeProvider.*;
 import java.util.Calendar;
 import java.util.concurrent.CompletableFuture;
 
-import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
 import dev.amble.lib.datagen.lang.LanguageType;
 import dev.amble.lib.datagen.sound.AmbleSoundProvider;
@@ -31,6 +30,7 @@ import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITEntityTypes;
 import dev.amble.ait.core.AITItemGroups;
 import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.datagen.datagen_providers.*;
 import dev.amble.ait.datagen.datagen_providers.loot.AITBlockLootTables;
 import dev.amble.ait.module.ModuleRegistry;

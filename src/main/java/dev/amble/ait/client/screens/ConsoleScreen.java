@@ -1,5 +1,6 @@
 package dev.amble.ait.client.screens;
 
+
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.MinecraftClient;
@@ -24,6 +25,7 @@ public abstract class ConsoleScreen extends TardisScreen {
     protected ConsoleScreen(Text title, ClientTardis tardis, BlockPos console) {
         super(title, tardis);
 
+        this.client = MinecraftClient.getInstance();
         this.console = console;
 
         boolean hasChanged = idleSound == null || idleSound.getId() != this.getIdleSound().getId();
@@ -32,9 +34,21 @@ public abstract class ConsoleScreen extends TardisScreen {
             idleSound = (shouldPlayIdleSfx()) ? new PlayerFollowingLoopingSound(this.getIdleSound(), SoundCategory.AMBIENT, 0.25F) : null;
         }
 
-        if (!shouldPlayIdleSfx() || hasChanged) {
-            MinecraftClient.getInstance().getSoundManager().stop(idleSound);
+        if (!shouldPlayIdleSfx() || hasChanged)
+            this.client.getSoundManager().stop(idleSound);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (super.keyPressed(keyCode, scanCode, modifiers))
+            return true;
+
+        if (this.canCloseWithKey() && this.client.options.inventoryKey.matchesKey(keyCode, scanCode)) {
+            this.close();
+            return true;
         }
+
+        return false;
     }
 
     public BlockPos getConsole() {
@@ -53,15 +67,18 @@ public abstract class ConsoleScreen extends TardisScreen {
     protected void init() {
         super.init();
 
-        if (idleSound != null && !MinecraftClient.getInstance().getSoundManager().isPlaying(idleSound)) {
-            MinecraftClient.getInstance().getSoundManager().play(idleSound);
-        }
+        if (idleSound != null && !this.client.getSoundManager().isPlaying(idleSound))
+            this.client.getSoundManager().play(idleSound);
     }
 
     @Override
     public void close() {
-        MinecraftClient.getInstance().getSoundManager().stop(idleSound);
+        this.client.getSoundManager().stop(idleSound);
 
         super.close();
+    }
+
+    public boolean canCloseWithKey() {
+        return true;
     }
 }

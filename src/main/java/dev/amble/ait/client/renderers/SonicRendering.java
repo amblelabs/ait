@@ -29,7 +29,6 @@ import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
 import dev.amble.ait.core.engine.impl.EngineSystem;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.item.sonic.SonicMode;
-import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 
 public class SonicRendering {

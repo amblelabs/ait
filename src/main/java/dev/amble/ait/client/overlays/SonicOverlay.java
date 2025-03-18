@@ -83,7 +83,7 @@ public class SonicOverlay implements HudRenderCallback {
                 GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SrcFactor.ONE,
                 GlStateManager.DstFactor.ZERO);
         context.drawTexture(texture, (context.getScaledWindowWidth() / 2) - 8,
-                (context.getScaledWindowHeight() / 2) - 8, 0, 0.0F, 0.0F, 16, 16, 16, 16);
+                (context.getScaledWindowHeight() / 2) - 24, 0, 0.0F, 0.0F, 16, 16, 16, 16);
         RenderSystem.defaultBlendFunc();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();

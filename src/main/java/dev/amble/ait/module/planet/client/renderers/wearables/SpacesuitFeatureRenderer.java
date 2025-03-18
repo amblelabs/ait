@@ -15,6 +15,7 @@ import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 
@@ -40,7 +41,7 @@ public class SpacesuitFeatureRenderer<T extends LivingEntity, M extends PlayerEn
     public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, T livingEntity,
                        float f, float g, float h, float j, float k, float l) {
 
-        if (!(livingEntity instanceof AbstractClientPlayerEntity))
+        if (!(livingEntity instanceof AbstractClientPlayerEntity && livingEntity instanceof ArmorStandEntity))
             return;
 
         matrixStack.push();

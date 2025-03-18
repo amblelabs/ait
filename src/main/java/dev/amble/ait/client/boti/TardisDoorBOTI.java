@@ -24,6 +24,7 @@ import dev.amble.ait.client.renderers.VortexUtil;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
+import dev.amble.ait.core.tardis.handler.StatsHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 
@@ -64,7 +65,9 @@ public class TardisDoorBOTI extends BOTI {
         stack.push();
         Vec3d vec = variant.parent().door().adjustPortalPos(new Vec3d(0, -1.1725f, 0), Direction.NORTH);
         stack.translate(vec.x, vec.y, vec.z);
-        stack.scale((float) variant.parent().portalWidth(), (float) variant.parent().portalHeight(), 1f);
+        StatsHandler stats = tardis.stats();
+        stack.scale((float) variant.parent().portalWidth() * stats.getXScale(),
+                (float) variant.parent().portalHeight() * stats.getYScale(), stats.getZScale());
         if (tardis.travel().getState() == TravelHandlerBase.State.LANDED) {
             RenderLayer whichOne = AITMod.CONFIG.CLIENT.SHOULD_RENDER_BOTI_INTERIOR || AITMod.CONFIG.CLIENT.GREEN_SCREEN_BOTI ?
                     RenderLayer.getDebugFilledBox() : RenderLayer.getEndGateway();
@@ -92,7 +95,7 @@ public class TardisDoorBOTI extends BOTI {
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
         stack.translate(0, 0, 500);
         stack.scale(1.5f, 1.5f, 1.5f);
-        VortexUtil util = tardis.stats().getVortexEffects().toUtil();
+        VortexUtil util = stats.getVortexEffects().toUtil();
         if (!tardis.travel().isLanded() /*&& !tardis.flight().isFlying()*/) {
             util.renderVortex(stack);
             /*// TODO not a clue if this will work but oh well - Loqor
@@ -120,7 +123,7 @@ public class TardisDoorBOTI extends BOTI {
             float t;
             float s;
 
-            if ((tardis.stats().getName() != null && "partytardis".equals(tardis.stats().getName().toLowerCase()) || (!tardis.extra().getInsertedDisc().isEmpty()))) {
+            if ((stats.getName() != null && "partytardis".equals(stats.getName().toLowerCase()) || (!tardis.extra().getInsertedDisc().isEmpty()))) {
                 int m = 25;
                 int n = MinecraftClient.getInstance().player.age / m + MinecraftClient.getInstance().player.getId();
                 int o = DyeColor.values().length;
