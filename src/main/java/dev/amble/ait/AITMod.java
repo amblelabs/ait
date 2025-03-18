@@ -221,6 +221,7 @@ public class AITMod implements ModInitializer {
         Registry.register(net.minecraft.registry.Registries.FEATURE, CRATER_ID, CRATER);
 
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
+            // Normal commands that require a TARDIS ID
             TeleportInteriorCommand.register(dispatcher);
             SummonTardisCommand.register(dispatcher);
             SetLockedCommand.register(dispatcher);
@@ -248,6 +249,21 @@ public class AITMod implements ModInitializer {
             DebugCommand.register(dispatcher);
             EraseChunksCommand.register(dispatcher);
             FlightCommand.register(dispatcher);
+
+            // Commands that can only be executed from the interior
+            DataInteriorCommand.register(dispatcher);
+            FlightInteriorCommand.register(dispatcher);
+            FuelInteriorCommand.register(dispatcher);
+            GetCreatorInteriorCommand.register(dispatcher);
+            GetNameInteriorCommand.register(dispatcher);
+            LinkInteriorCommand.register(dispatcher);
+            SetLockedInteriorCommand.register(dispatcher);
+            SetMaxSpeedInteriorCommand.register(dispatcher);
+            SetNameInteriorCommand.register(dispatcher);
+            SetRepairTicksInteriorCommand.register(dispatcher);
+            SetSiegeInteriorCommand.register(dispatcher);
+            TriggerMoodRollInteriorCommand.register(dispatcher);
+            UnlockInteriorCommand.register(dispatcher);
         }));
 
         ServerPlayNetworking.registerGlobalReceiver(TardisUtil.REGION_LANDING_CODE,
