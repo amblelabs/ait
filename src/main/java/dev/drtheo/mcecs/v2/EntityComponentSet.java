@@ -2,9 +2,10 @@ package dev.drtheo.mcecs.v2;
 
 import dev.drtheo.mcecs.MComponent;
 
+// map<entity id, component>
 public class EntityComponentSet extends SparseSet {
 
-    private final MComponent<?>[] components;
+    protected final MComponent<?>[] components;
 
     public EntityComponentSet(int maxEntities) {
         super(maxEntities);

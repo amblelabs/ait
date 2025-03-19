@@ -1,12 +1,8 @@
 package dev.drtheo.mcecs;
 
-import dev.drtheo.mcecs.event.EventUid;
 import dev.drtheo.mcecs.event.MEvent;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.util.Identifier;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -154,11 +150,5 @@ public class EventBenchmark {
 
     record BenchmarkEvent(int iter) implements MEvent<BenchmarkEvent> {
 
-        public static final EventUid<BenchmarkEvent> ID = new EventUid<>(BenchmarkEvent.class);
-
-        @Override
-        public EventUid<BenchmarkEvent> getUid() {
-            return ID;
-        }
     }
 }

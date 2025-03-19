@@ -3,14 +3,7 @@ package dev.drtheo.mcecs.event;
 import dev.amble.ait.data.enummap.Ordered;
 import dev.drtheo.mcecs.MComponent;
 
-public interface MEvent<E extends MEvent<E>> extends Ordered {
-
-    EventUid<E> getUid();
-
-    @Override
-    default int index() {
-        return getUid().getCached();
-    }
+public interface MEvent<E extends MEvent<E>> {
 
     default <C extends MComponent<C>, T extends MEvent.Type<C, E>> void accept(C component, T t) {
         t.handle(component, (E) this);
