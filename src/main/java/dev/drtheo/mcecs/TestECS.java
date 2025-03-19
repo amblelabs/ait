@@ -1,9 +1,5 @@
-package dev.drtheo.mcecs.v2;
+package dev.drtheo.mcecs;
 
-import dev.drtheo.mcecs.*;
-import dev.drtheo.mcecs.event.MEvent;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
@@ -41,10 +37,16 @@ public class TestECS {
         public CompUid<TestComp> getUid() {
             return new CompUid<>(iter);
         }
+
+        @Override
+        public String toString() {
+            return String.valueOf(iter);
+        }
     }
 
     public static void main(String[] args) {
-        Identifier id = new Identifier("e", "e");
+        BenchmarkSystem system = new BenchmarkSystem();
+        EventBus bus = EventBus.INSTANCE;
 
         CompUid<TestComp>[] compIds = new CompUid[COMP_MAX];
         TestComp[] comps = new TestComp[COMP_MAX];
@@ -80,17 +82,15 @@ public class TestECS {
         }
 
         System.out.println("getComp: avg " + (System.nanoTime() - start) / (ENTITIES_MAX * COMP_MAX) + "ns/op");
-
-        EventBus bus = EventBus.INSTANCE;
         start = System.nanoTime();
 
-        BenchmarkSystem system = new BenchmarkSystem();
+        EventBus.INSTANCE.subscribe(BenchmarkEvent.class, compIds[0], system::onEvent);
 
         System.out.println("subscribe: " + (System.nanoTime() - start) + "ns/op");
         start = System.nanoTime();
 
         for (int i = 0; i < ENTITIES_MAX; i++) {
-            bus.raise(TestECS.comps, new BenchmarkEvent());
+            bus.raise(TestECS.comps, i, new BenchmarkEvent());
         }
 
         System.out.println("raise: avg " + (System.nanoTime() - start) / ENTITIES_MAX + "ns/op");
@@ -129,12 +129,10 @@ public class TestECS {
 
         protected BenchmarkSystem() {
             super(Identifier.of("benchmark", "benchmark"));
-
-            EventBus.INSTANCE.subscribe(BenchmarkEvent.class, new CompUid<TestComp>(0), this::onEvent);
         }
 
         public void onEvent(TestComp comp, BenchmarkEvent event) {
-            System.out.print(1);
+
         }
 
         @Override
@@ -152,16 +150,5 @@ public class TestECS {
 
     static void addComp(MEntity entity, MComponent<?> comp) {
         comps.addComp(registry, entity, comp);
-    }
-
-    static final Int2ObjectMap<Int2ObjectMap<MComponent<?>>> compsMap = new Int2ObjectOpenHashMap<>();
-
-    static <C extends MComponent<C>> C getComp1(MEntity entity, CompUid<C> compUid) {
-        return (C) compsMap.get(compUid.get(registry)).get(entity.index());
-    }
-
-    static void addComp1(MEntity entity, MComponent<?> comp) {
-        compsMap.computeIfAbsent(comp.getUid().get(registry), integer -> new Int2ObjectOpenHashMap<>())
-                        .put(entity.index(), comp);
     }
 }

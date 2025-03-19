@@ -1,6 +1,4 @@
-package dev.drtheo.mcecs.v2;
-
-import dev.drtheo.mcecs.MComponent;
+package dev.drtheo.mcecs;
 
 // map<entity id, component>
 public class EntityComponentSet extends SparseSet {
@@ -10,7 +8,7 @@ public class EntityComponentSet extends SparseSet {
     public EntityComponentSet(int maxEntities) {
         super(maxEntities);
 
-        this.components = new MComponent<?>[maxEntities];
+        this.components = new MComponent[maxEntities];
     }
 
     public void add(int entityId, MComponent<?> component) {
@@ -26,7 +24,7 @@ public class EntityComponentSet extends SparseSet {
         return i == -1 ? null : components[i];
     }
 
-    public void remove(int entityId, MComponent<?> obj) {
+    public void remove(int entityId) {
         int dense = canRemove(entityId);
 
         if (dense == -1)

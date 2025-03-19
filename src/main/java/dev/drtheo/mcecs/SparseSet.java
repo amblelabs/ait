@@ -1,87 +1,69 @@
 package dev.drtheo.mcecs;
 
-import dev.amble.ait.data.enummap.Ordered;
+public class SparseSet {
+    protected final int[] sparse;
+    protected final int[] dense;
+    protected int size;
 
-import java.util.function.Function;
+    protected final int max;
 
-// for future, read: https://skypjack.github.io/2020-08-02-ecs-baf-part-9/
-public class SparseSet<T extends Ordered> {
+    public SparseSet(int maxEntities) {
+        this.max = maxEntities;
 
-    private final int[] sparse; // array to store the index of elements in dense array
-    private final T[] dense; // array to store the actual elements
-    private final int capacity; // maximum capacity of the set
-    private final int maxValue; // maximum value that can be stored in the set
-    private int n; // number of elements in the set
+        sparse = new int[maxEntities];
+        dense = new int[maxEntities];
+        size = 0;
 
-    // Constructor to create an SSet object with given max value and capacity
-    public SparseSet(int maxV, int cap, Function<Integer, T[]> f) {
-        sparse = new int[maxV + 1]; // create a sparse array with max value + 1
-        dense = f.apply(cap); // create a dense array with the given capacity
-        capacity = cap;
-        maxValue = maxV;
-        n = 0; // initially the set is empty
-
-        System.out.println(sparse[0]);
-    }
-
-    public boolean contains(T x) {
-        return x.index() < maxValue && sparse[x.index()] < n && dense[sparse[x.index()]] == x;
-    }
-
-    public T get(int x) {
-        return dense[sparse[x]];
-    }
-
-    // Search for an element in the set and return its index
-    public int indexOf(T x) {
-        return contains(x) ? sparse[x.index()] : -1;
-    }
-
-    // Insert an element into the set
-    public void add(T x) {
-        // check if the element is out of range or the set is full or
-        // the element already exists in the set
-        if (n >= capacity)
-            throw new IllegalStateException("n >= capacity");
-
-        if (x.index() > maxValue - 1 || indexOf(x) != -1)
-            return;
-
-        // add the element to the end of the dense array
-        dense[n] = x;
-
-        // update the index of the element in the sparse array
-        sparse[x.index()] = n;
-
-        n++; // increment the size of the set
-    }
-
-    // Delete an element from the set
-    public void remove(T x) {
-        int index = indexOf(x); // find the index of the element
-
-        // check if the element exists in the set
-        if (index == -1) {
-            return; // if not, do nothing and return
+        for (int i = 0; i < maxEntities; i++) {
+            sparse[i] = maxEntities - 1;
         }
-
-        // swap the element with the last element in the dense array
-        T temp = dense[n - 1];
-        dense[index] = temp;
-        sparse[temp.index()] = index;
-        n--; // decrement the size of the set
     }
 
-    // Print the elements in the set
-    public void printSet() {
-        // print the elements in the dense array
-        for (int i = 0; i < n; i++) {
-            System.out.print(dense[i] + " "); // print the elements in the dense array
-        }
-        System.out.println();
+    protected int canGet(int entityId) {
+        int i = sparse[entityId];
+        return i < size && i != max - 1 ? i : -1;
     }
 
-    public T[] values() {
-        return dense;
+    public int getDense(int entityId) {
+        int i = canGet(entityId);
+        return i == -1 ? i : dense[i];
+    }
+
+    protected boolean canAdd(int entityId) {
+        // FIXME: add missing bound check :/
+        int i = sparse[entityId];
+        return i == max - 1;
+    }
+
+    public void add(int entityId) {
+        // Add to dense array
+        this.dense[size] = entityId;
+        sparse[entityId] = size;
+
+        size++;
+    }
+
+    protected int canRemove(int entityId) {
+        if (entityId > size)
+            return -1;
+
+        int denseIndex = sparse[entityId];
+        return denseIndex != max - 1 ? denseIndex : -1; // no component
+    }
+
+    public void remove(int entityId, int denseIndex) {
+        // Swap with the last element in the dense array
+        int lastEntityId = dense[size - 1];
+        dense[denseIndex] = lastEntityId;
+        sparse[lastEntityId] = denseIndex;
+
+        // Clear the last element
+        dense[size - 1] = -1;
+        sparse[entityId] = max - 1; // Reset to the reserved index
+        size--;
+    }
+
+    public int size() {
+        return size;
     }
 }

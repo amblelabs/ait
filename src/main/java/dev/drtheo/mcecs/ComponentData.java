@@ -1,9 +1,4 @@
-package dev.drtheo.mcecs.v2;
-
-import dev.drtheo.mcecs.CompUid;
-import dev.drtheo.mcecs.ComponentRegistry;
-import dev.drtheo.mcecs.MComponent;
-import dev.drtheo.mcecs.MEntity;
+package dev.drtheo.mcecs;
 
 import java.util.ArrayList;
 

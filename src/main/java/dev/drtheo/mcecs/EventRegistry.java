@@ -1,7 +1,5 @@
 package dev.drtheo.mcecs;
 
-import dev.drtheo.mcecs.event.MEvent;
-
 public interface EventRegistry {
 
     int getIdOrRegister(Class<? extends MEvent<?>> event);

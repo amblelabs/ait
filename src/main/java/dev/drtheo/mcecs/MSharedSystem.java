@@ -1,6 +1,5 @@
 package dev.drtheo.mcecs;
 
-import dev.drtheo.mcecs.event.MEvent;
 import net.minecraft.util.Identifier;
 
 public abstract class MSharedSystem extends MSystem {

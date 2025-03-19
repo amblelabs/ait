@@ -1,7 +1,4 @@
-package dev.drtheo.mcecs.event;
-
-import dev.amble.ait.data.enummap.Ordered;
-import dev.drtheo.mcecs.MComponent;
+package dev.drtheo.mcecs;
 
 public interface MEvent<E extends MEvent<E>> {
 
@@ -11,5 +8,13 @@ public interface MEvent<E extends MEvent<E>> {
 
     interface Type<C extends MComponent<C>, E extends MEvent<E>> {
         void handle(C component, E event);
+
+        default C conformComp(MComponent<?> comp) {
+            return (C) comp;
+        }
+
+        default E conformEvent(MEvent<?> event) {
+            return (E) event;
+        }
     }
 }
