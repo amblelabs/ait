@@ -45,11 +45,13 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"dev.amble.ait.AITMod"
+			"dev.amble.ait.AITMod",
+			"dev.drtheo.mcecs.MCECS"
 		],
 		"client": [
 			"dev.amble.ait.client.AITModClient",
-			"dev.amble.ait.compat.Compat"
+			"dev.amble.ait.compat.Compat",
+			"dev.drtheo.mcecs.MCECSClient"
 		],
 		"fabric-datagen": [
 			"dev.amble.ait.datagen.AITModDataGenerator"
@@ -91,6 +93,10 @@
 				"modmenu.discord": "https://discord.gg/WjKhRjavCj"
 			},
 			"update_checker": true
+		},
+		"ecs": {
+			"client": [],
+			"server": []
 		}
 	}
 }
