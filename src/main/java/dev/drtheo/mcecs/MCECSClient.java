@@ -1,12 +1,8 @@
 package dev.drtheo.mcecs;
 
+import dev.drtheo.mcecs.base.system.MSystem;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
-import net.fabricmc.loader.api.FabricLoader;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MCECSClient implements ClientModInitializer {
 

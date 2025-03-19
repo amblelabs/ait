@@ -1,4 +1,9 @@
-package dev.drtheo.mcecs;
+package dev.drtheo.mcecs.base.data;
+
+import dev.drtheo.mcecs.base.comp.CompUid;
+import dev.drtheo.mcecs.base.comp.ComponentRegistry;
+import dev.drtheo.mcecs.base.comp.MComponent;
+import dev.drtheo.mcecs.base.MEntity;
 
 import java.util.ArrayList;
 

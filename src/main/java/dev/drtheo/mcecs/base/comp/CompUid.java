@@ -1,4 +1,4 @@
-package dev.drtheo.mcecs;
+package dev.drtheo.mcecs.base.comp;
 
 import dev.amble.ait.data.enummap.Ordered;
 

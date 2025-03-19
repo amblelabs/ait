@@ -1,4 +1,6 @@
-package dev.drtheo.mcecs;
+package dev.drtheo.mcecs.base.data;
+
+import dev.drtheo.mcecs.base.comp.MComponent;
 
 // map<entity id, component>
 public class EntityComponentSet extends SparseSet {

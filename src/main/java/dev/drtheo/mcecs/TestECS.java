@@ -1,5 +1,13 @@
 package dev.drtheo.mcecs;
 
+import dev.drtheo.mcecs.base.*;
+import dev.drtheo.mcecs.base.comp.CompUid;
+import dev.drtheo.mcecs.base.comp.ComponentRegistry;
+import dev.drtheo.mcecs.base.comp.MComponent;
+import dev.drtheo.mcecs.base.data.ComponentData;
+import dev.drtheo.mcecs.base.event.EventBus;
+import dev.drtheo.mcecs.base.event.MEvent;
+import dev.drtheo.mcecs.base.system.MSystem;
 import net.minecraft.util.Identifier;
 
 import java.util.HashMap;

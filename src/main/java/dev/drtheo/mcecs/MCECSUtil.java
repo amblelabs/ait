@@ -1,5 +1,7 @@
 package dev.drtheo.mcecs;
 
+import dev.drtheo.mcecs.base.system.MSystem;
+import dev.drtheo.mcecs.base.system.SystemRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;

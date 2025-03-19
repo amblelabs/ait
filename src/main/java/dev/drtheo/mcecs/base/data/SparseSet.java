@@ -1,4 +1,4 @@
-package dev.drtheo.mcecs;
+package dev.drtheo.mcecs.base.data;
 
 public class SparseSet {
     protected final int[] sparse;

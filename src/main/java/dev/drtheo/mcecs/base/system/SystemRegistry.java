@@ -1,4 +1,4 @@
-package dev.drtheo.mcecs;
+package dev.drtheo.mcecs.base.system;
 
 import dev.amble.ait.AITMod;
 import net.fabricmc.api.EnvType;
@@ -6,9 +6,6 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
-
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class SystemRegistry {
 

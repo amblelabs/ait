@@ -1,4 +1,6 @@
-package dev.drtheo.mcecs;
+package dev.drtheo.mcecs.base.event;
+
+import dev.drtheo.mcecs.base.comp.MComponent;
 
 public interface MEvent<E extends MEvent<E>> {
 

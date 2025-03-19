@@ -1,4 +1,4 @@
-package dev.drtheo.mcecs;
+package dev.drtheo.mcecs.base.system;
 
 import net.minecraft.util.Identifier;
 

@@ -1,4 +1,9 @@
-package dev.drtheo.mcecs;
+package dev.drtheo.mcecs.base.event;
+
+import dev.drtheo.mcecs.base.comp.CompUid;
+import dev.drtheo.mcecs.base.comp.MComponent;
+import dev.drtheo.mcecs.base.data.ComponentData;
+import dev.drtheo.mcecs.base.data.EntityComponentSet;
 
 import java.util.ArrayList;
 import java.util.HashMap;

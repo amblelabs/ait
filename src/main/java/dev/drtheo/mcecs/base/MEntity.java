@@ -1,6 +1,8 @@
-package dev.drtheo.mcecs;
+package dev.drtheo.mcecs.base;
 
 import dev.amble.ait.data.enummap.Ordered;
+import dev.drtheo.mcecs.base.comp.CompUid;
+import dev.drtheo.mcecs.base.comp.MComponent;
 
 import java.util.Optional;
 
