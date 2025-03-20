@@ -95,8 +95,15 @@
 			"update_checker": true
 		},
 		"ecs": {
-			"client": [],
-			"server": []
+			"systems": {
+				"client": [
+					"dev.drtheo.mcecs.ex.ClientExampleSystem"
+				],
+				"server": []
+			},
+			"components": [
+
+			]
 		}
 	}
 }

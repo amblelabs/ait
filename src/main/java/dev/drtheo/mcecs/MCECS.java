@@ -1,8 +1,9 @@
 package dev.drtheo.mcecs;
 
-import dev.drtheo.mcecs.base.system.MSystem;
+import dev.drtheo.mcecs.impl.MSystem;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,12 +15,14 @@ public class MCECS implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-            if (initialized)
-                return;
+        if (initialized)
+            return;
 
-            MCECSUtil.collectAndRegister(MSystem.Type.SERVER);
-            initialized = true;
-        });
+        MCECSUtil.collectAndRegister(MSystem.Type.SERVER);
+        initialized = true;
+    }
+
+    public static Identifier id(String path) {
+        return new Identifier(path);
     }
 }

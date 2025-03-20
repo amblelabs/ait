@@ -1,4 +1,4 @@
-package dev.drtheo.mcecs.base.system;
+package dev.drtheo.mcecs.impl;
 
 import dev.amble.ait.AITMod;
 import net.fabricmc.api.EnvType;
@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 
-public class SystemRegistry {
+public class MSystemRegistry {
 
     private static final RegistryKey<Registry<MSystem>> SERVER_KEY = RegistryKey.ofRegistry(AITMod.id("system/server"));
 
@@ -26,7 +26,7 @@ public class SystemRegistry {
         register(MSystem.Type.SERVER, system);
     }
 
-    static void register(MSystem.Type type, MSystem system) {
+    public static void register(MSystem.Type type, MSystem system) {
         if (system.type() != type)
             throw new IllegalArgumentException("Tried to register " + system.id()
                     + " as " + type + " system, but got " + system.type() + " system");

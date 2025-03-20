@@ -2,7 +2,7 @@ package dev.drtheo.mcecs.base.comp;
 
 import dev.amble.ait.data.enummap.Ordered;
 
-public class CompUid<C extends MComponent<C>> implements Ordered {
+public class CompUid<C extends Component<C>> implements Ordered {
 
     private final Class<C> comp;
     private int id = -1;

@@ -1,19 +1,19 @@
 package dev.drtheo.mcecs.base.data;
 
-import dev.drtheo.mcecs.base.comp.MComponent;
+import dev.drtheo.mcecs.base.comp.Component;
 
 // map<entity id, component>
 public class EntityComponentSet extends SparseSet {
 
-    protected final MComponent<?>[] components;
+    protected final Component<?>[] components;
 
     public EntityComponentSet(int maxEntities) {
         super(maxEntities);
 
-        this.components = new MComponent[maxEntities];
+        this.components = new Component[maxEntities];
     }
 
-    public void add(int entityId, MComponent<?> component) {
+    public void add(int entityId, Component<?> component) {
         if (!canAdd(entityId))
             return;
 
@@ -21,7 +21,7 @@ public class EntityComponentSet extends SparseSet {
         super.add(entityId);
     }
 
-    public MComponent<?> get(int entityId) {
+    public Component<?> get(int entityId) {
         int i = canGet(entityId);
         return i == -1 ? null : components[i];
     }

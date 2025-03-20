@@ -1,7 +1,7 @@
 package dev.drtheo.mcecs.ex;
 
 import dev.amble.ait.AITMod;
-import dev.drtheo.mcecs.base.system.MSharedSystem;
+import dev.drtheo.mcecs.impl.MSharedSystem;
 import net.minecraft.util.Identifier;
 
 public abstract class SharedExampleSystem extends MSharedSystem {

@@ -3,38 +3,24 @@ package dev.drtheo.mcecs;
 import dev.drtheo.mcecs.base.*;
 import dev.drtheo.mcecs.base.comp.CompUid;
 import dev.drtheo.mcecs.base.comp.ComponentRegistry;
-import dev.drtheo.mcecs.base.comp.MComponent;
+import dev.drtheo.mcecs.base.comp.DynamicComponentRegistry;
+import dev.drtheo.mcecs.base.comp.Component;
 import dev.drtheo.mcecs.base.data.ComponentData;
 import dev.drtheo.mcecs.base.event.EventBus;
-import dev.drtheo.mcecs.base.event.MEvent;
-import dev.drtheo.mcecs.base.system.MSystem;
+import dev.drtheo.mcecs.base.event.LocalEvent;
+import dev.drtheo.mcecs.impl.MSystem;
 import net.minecraft.util.Identifier;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class TestECS {
 
-    static final int ENTITIES_MAX = 100_000;
-    static final int COMP_MAX = 1_000;
+    static final int ENTITIES_MAX = 1_000_000;
+    static final int COMP_MAX = 8;
 
-    static final ComponentRegistry registry = new ComponentRegistry() {
-        final Map<Class<? extends MComponent<?>>, Integer> map = new HashMap<>();
-
-        @Override
-        public int getId(Class<? extends MComponent<?>> clazz) {
-            return map.computeIfAbsent(clazz, c -> map.size());
-        }
-
-        @Override
-        public void register(Class<? extends MComponent<?>> component) {
-
-        }
-    };
+    static final ComponentRegistry registry = new DynamicComponentRegistry();
 
     static final ComponentData comps = new ComponentData(ENTITIES_MAX, COMP_MAX);
 
-    static class TestComp extends MComponent<TestComp> {
+    static class TestComp extends Component<TestComp> {
 
         private final int iter;
 
@@ -54,7 +40,7 @@ public class TestECS {
 
     public static void main(String[] args) {
         BenchmarkSystem system = new BenchmarkSystem();
-        EventBus bus = EventBus.INSTANCE;
+        EventBus bus = new EventBus();
 
         CompUid<TestComp>[] compIds = new CompUid[COMP_MAX];
         TestComp[] comps = new TestComp[COMP_MAX];
@@ -92,19 +78,26 @@ public class TestECS {
         System.out.println("getComp: avg " + (System.nanoTime() - start) / (ENTITIES_MAX * COMP_MAX) + "ns/op");
         start = System.nanoTime();
 
-        EventBus.INSTANCE.subscribe(BenchmarkEvent.class, compIds[0], system::onEvent);
+        bus.subscribeLocal(BenchmarkEvent.class, compIds[0], system::onEvent);
 
         System.out.println("subscribe: " + (System.nanoTime() - start) + "ns/op");
         start = System.nanoTime();
 
         for (int i = 0; i < ENTITIES_MAX; i++) {
-            bus.raise(TestECS.comps, i, new BenchmarkEvent());
+            bus.raiseLocal(TestECS.comps, i, new BenchmarkEvent());
         }
 
         System.out.println("raise: avg " + (System.nanoTime() - start) / ENTITIES_MAX + "ns/op");
+        start = System.nanoTime();
+
+        for (int i = 0; i < ENTITIES_MAX; i++) {
+            TestECS.comps.fetchComps(registry, entitys[i], compIds[0], compIds[1], compIds[2], (c1, c2, c3) -> { });
+        }
+
+        System.out.println("fetch(3): avg " + (System.nanoTime() - start) / ENTITIES_MAX + "ns/op");
     }
 
-    static class BenchmarkEntity implements MEntity {
+    static class BenchmarkEntity implements EEntity {
 
         private final int index;
 
@@ -113,17 +106,17 @@ public class TestECS {
         }
 
         @Override
-        public Iterable<MComponent<?>> getComponents() {
+        public Iterable<Component<?>> getComponents() {
             return null;
         }
 
         @Override
-        public <C extends MComponent<C>> C getComponent(CompUid<C> component) {
+        public <C extends Component<C>> C getComponent(CompUid<C> component) {
             return null;
         }
 
         @Override
-        public void addComponent(MComponent<?> component) {
+        public void addComponent(Component<?> component) {
 
         }
 
@@ -149,14 +142,14 @@ public class TestECS {
         }
     }
 
-    static class BenchmarkEvent implements MEvent<BenchmarkEvent> {
+    static class BenchmarkEvent implements LocalEvent<BenchmarkEvent> {
     }
 
-    static <C extends MComponent<C>> C getComp(MEntity entity, CompUid<C> compUid) {
+    static <C extends Component<C>> C getComp(EEntity entity, CompUid<C> compUid) {
         return comps.getComp(registry, entity, compUid);
     }
 
-    static void addComp(MEntity entity, MComponent<?> comp) {
+    static void addComp(EEntity entity, Component<?> comp) {
         comps.addComp(registry, entity, comp);
     }
 }
