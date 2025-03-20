@@ -76,6 +76,10 @@ public abstract class LinkableItem extends Item {
         stack.getOrCreateNbt().putUuid(this.path, uuid);
     }
 
+    public void unlink(ItemStack stack) {
+        stack.getOrCreateNbt().putUuid(this.path, null);
+    }
+
     public boolean isLinked(ItemStack stack) {
         return stack.getOrCreateNbt().contains(this.path);
     }
