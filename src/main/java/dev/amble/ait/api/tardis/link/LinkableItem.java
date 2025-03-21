@@ -87,6 +87,10 @@ public abstract class LinkableItem extends Item {
         return tardis.getUuid().equals(this.getTardisId(stack));
     }
 
+    public void unlink(ItemStack stack) {
+        stack.getOrCreateNbt().remove(this.path);
+    }
+
     public UUID getTardisId(ItemStack stack) {
         NbtCompound nbt = stack.getOrCreateNbt();
         NbtElement element = nbt.get(path);
@@ -110,9 +114,15 @@ public abstract class LinkableItem extends Item {
         if (world == null)
             return null;
 
-        return TardisManager.with(world, (o, manager) ->
-                manager.demandTardis(o, this.getTardisId(stack)));
+        Tardis tardis = TardisManager.with(world, (o, manager) -> manager.demandTardis(o, this.getTardisId(stack)));
+
+        if (tardis == null) {
+            this.unlink(stack);
+        }
+
+        return tardis;
     }
+
 
     public static <T> T apply(ItemStack stack, BiFunction<LinkableItem, ItemStack, T> f) {
         if (!(stack.getItem() instanceof LinkableItem linkable))
