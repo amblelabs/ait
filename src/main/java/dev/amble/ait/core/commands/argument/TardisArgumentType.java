@@ -21,7 +21,6 @@ import net.minecraft.text.Text;
 
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.TardisManager;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 
 public class TardisArgumentType implements ArgumentType<TardisArgumentType.ServerTardisAccessor> {
 
@@ -52,13 +51,13 @@ public class TardisArgumentType implements ArgumentType<TardisArgumentType.Serve
         UUID uuid = UUID.fromString(raw);
         reader.setCursor(reader.getCursor() + raw.length());
 
-        return context -> ServerTardisManager.getInstance().demandTardis(context.getSource().getServer(), uuid);
+        return context -> TardisManager.server().getTardis(uuid);
     }
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
         boolean isServer = context.getSource() instanceof ServerCommandSource;
-        TardisManager<?, ?> manager = TardisManager.getInstance(isServer);
+        TardisManager<?> manager = isServer ? TardisManager.server() : TardisManager.client();
 
         return CommandSource.suggestMatching(manager.ids().stream().map(UUID::toString), builder);
     }

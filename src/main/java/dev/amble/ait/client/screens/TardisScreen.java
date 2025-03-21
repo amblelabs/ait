@@ -5,7 +5,6 @@ import net.minecraft.text.Text;
 
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 
 public abstract class TardisScreen extends Screen {
 
@@ -14,7 +13,8 @@ public abstract class TardisScreen extends Screen {
     protected TardisScreen(Text title, ClientTardis tardis) {
         super(title);
 
-        this.ref = new TardisRef(tardis, uuid -> ClientTardisManager.getInstance().demandTardis(uuid));
+
+        this.ref = TardisRef.client(tardis);
     }
 
     public ClientTardis tardis() {

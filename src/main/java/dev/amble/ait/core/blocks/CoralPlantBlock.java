@@ -37,10 +37,9 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.blockentities.CoralBlockEntity;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
-import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.tardis.handler.LoyaltyHandler;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.manager.TardisBuilder;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.core.world.TardisServerWorld;
@@ -147,8 +146,7 @@ public class CoralPlantBlock extends HorizontalDirectionalBlock implements Block
                 .exterior(ExteriorVariantRegistry.getInstance().get(CoralGrowthVariant.REFERENCE))
                 .desktop(DesktopRegistry.DEFAULT_CAVE);
 
-        ServerTardis created = ServerTardisManager.getInstance()
-                .create(builder);
+        TardisManager.server().create(builder);
     }
 
     @Override

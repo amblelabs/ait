@@ -34,7 +34,6 @@ import net.minecraft.world.entity.EntityTrackingSection;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.ExtraPushableEntity;
-import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.AITTags;
@@ -43,6 +42,7 @@ import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisDesktop;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.handler.permissions.PermissionHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.util.WorldUtil;
@@ -65,99 +65,106 @@ public class TardisUtil {
     public static void init() {
         ServerPlayNetworking.registerGlobalReceiver(SNAP, (server, player, handler, buf, responseSender) -> {
             UUID uuid = buf.readUuid();
-            ServerTardisManager.getInstance().getTardis(server, uuid, tardis -> {
-                PermissionHandler permissions = tardis.handler(TardisComponent.Id.PERMISSIONS);
+            ServerTardis tardis = TardisManager.server().getTardis(uuid);
 
-                if (tardis.flight().isFlying()) {
-                    if (!player.isSneaking()) {
-                        tardis.door().interactAllDoors(player.getServerWorld(), null, player, true);
-                    } else {
-                        tardis.door().interactToggleLock(player);
-                    }
-                    return;
+            if (tardis == null)
+                return;
+
+            PermissionHandler permissions = tardis.permissions();
+
+            if (tardis.flight().isFlying()) {
+                if (!player.isSneaking()) {
+                    tardis.door().interactAllDoors(player.getServerWorld(), null, player, true);
+                } else {
+                    tardis.door().interactToggleLock(player);
                 }
+                return;
+            }
 
-                if (!tardis.loyalty().get(player).isOf(Loyalty.Type.PILOT))
-                    return;
+            if (!tardis.loyalty().get(player).isOf(Loyalty.Type.PILOT))
+                return;
                 /*if (tardis.<OvergrownHandler>handler(TardisComponent.Id.OVERGROWN).overgrown().get())
                     return;*/
 
-                player.getWorld().playSound(null, player.getBlockPos(), AITSounds.SNAP, SoundCategory.PLAYERS, 4f, 1f);
+            player.getWorld().playSound(null, player.getBlockPos(), AITSounds.SNAP, SoundCategory.PLAYERS, 4f, 1f);
 
-                BlockPos exteriorPos = tardis.travel().position().getPos();
+            BlockPos exteriorPos = tardis.travel().position().getPos();
 
-                BlockPos pos = TardisServerWorld.isTardisDimension(player.getServerWorld())
-                        ? tardis.getDesktop().getDoorPos().getPos()
-                        : exteriorPos;
+            BlockPos pos = TardisServerWorld.isTardisDimension(player.getServerWorld())
+                    ? tardis.getDesktop().getDoorPos().getPos()
+                    : exteriorPos;
 
-                if ((player.squaredDistanceTo(exteriorPos.getX(), exteriorPos.getY(), exteriorPos.getZ())) > 200
-                        && !player.getWorld().equals(tardis.getInteriorWorld()))
-                    return;
+            if ((player.squaredDistanceTo(exteriorPos.getX(), exteriorPos.getY(), exteriorPos.getZ())) > 200
+                    && !player.getWorld().equals(tardis.getInteriorWorld()))
+                return;
 
-                if (!player.isSneaking()) {
-                    tardis.door().interact(player.getServerWorld(), null, player);
-                } else {
-                    boolean isLocked = tardis.door().locked();
-                    tardis.door().interactToggleLock(player);
-                    player.getWorld().playSound(
-                            null,
-                            pos,
-                            isLocked ? AITSounds.REMOTE_UNLOCK : AITSounds.REMOTE_LOCK,
-                            SoundCategory.BLOCKS,
-                            1.0F,
-                            1.0F
-                    );
-                }
-
-
-            });
+            if (!player.isSneaking()) {
+                tardis.door().interact(player.getServerWorld(), null, player);
+            } else {
+                boolean isLocked = tardis.door().locked();
+                tardis.door().interactToggleLock(player);
+                player.getWorld().playSound(
+                        null,
+                        pos,
+                        isLocked ? AITSounds.REMOTE_UNLOCK : AITSounds.REMOTE_LOCK,
+                        SoundCategory.BLOCKS,
+                        1.0F,
+                        1.0F
+                );
+            }
         });
 
         ServerPlayNetworking.registerGlobalReceiver(FLYING_SPEED, (server, player, handler, buf, responseSender) -> {
             UUID uuid = buf.readUuid();
             String direction = buf.readString();
-            ServerTardisManager.getInstance().getTardis(server, uuid, tardis -> {
-                if (!tardis.flight().isFlying()) return;
-                switch (direction) {
-                    case "up":
-                        tardis.travel().increaseSpeed();
-                        break;
-                    case "down":
-                        tardis.travel().decreaseSpeed();
-                        break;
-                }
-            });
+
+            Tardis tardis = TardisManager.server().getTardis(uuid);
+
+            if (tardis == null)
+                return;
+
+            if (!tardis.flight().isFlying())
+                return;
+
+            switch (direction) {
+                case "up" -> tardis.travel().increaseSpeed();
+                case "down" -> tardis.travel().decreaseSpeed();
+            }
         });
-        ServerPlayNetworking.registerGlobalReceiver(TOGGLE_ANTIGRAVS, (server, player, handler, buf, responseSender) -> {
-            UUID uuid = buf.readUuid();
-            ServerTardisManager.getInstance().getTardis(server, uuid, tardis -> {
-                if (!tardis.flight().isFlying()) return;
-                tardis.travel().antigravs().toggle();
-            });
-        });
+
+        ServerPlayNetworking.registerGlobalReceiver(TOGGLE_ANTIGRAVS,
+                ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+                    if (!tardis.flight().isFlying())
+                        return;
+
+                    tardis.travel().antigravs().toggle();
+        }));
 
         ServerPlayNetworking.registerGlobalReceiver(FIND_PLAYER,
                 (server, currentPlayer, handler, buf, responseSender) -> {
                     UUID tardisId = buf.readUuid();
                     UUID playerUuid = buf.readUuid();
 
-                    ServerTardisManager.getInstance().getTardis(server, tardisId, tardis -> {
-                        ServerPlayerEntity serverPlayer = server.getPlayerManager().getPlayer(playerUuid);
+                    Tardis tardis = TardisManager.server().getTardis(tardisId);
 
-                        if (serverPlayer == null) {
-                            tardis.getDesktop().playSoundAtEveryConsole(SoundEvents.BLOCK_SCULK_SHRIEKER_BREAK,
-                                    SoundCategory.BLOCKS, 3f, 1f);
-                            return;
-                        }
+                    if (tardis == null)
+                        return;
 
-                        tardis.travel()
-                                .forceDestination(CachedDirectedGlobalPos.create((ServerWorld) serverPlayer.getWorld(),
-                                        serverPlayer.getBlockPos(),
-                                        (byte) RotationPropertyHelper.fromYaw(serverPlayer.getBodyYaw())));
+                    ServerPlayerEntity serverPlayer = server.getPlayerManager().getPlayer(playerUuid);
 
-                        tardis.getDesktop().playSoundAtEveryConsole(SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME,
+                    if (serverPlayer == null) {
+                        tardis.getDesktop().playSoundAtEveryConsole(SoundEvents.BLOCK_SCULK_SHRIEKER_BREAK,
                                 SoundCategory.BLOCKS, 3f, 1f);
-                    });
+                        return;
+                    }
+
+                    tardis.travel()
+                            .forceDestination(CachedDirectedGlobalPos.create((ServerWorld) serverPlayer.getWorld(),
+                                    serverPlayer.getBlockPos(),
+                                    (byte) RotationPropertyHelper.fromYaw(serverPlayer.getBodyYaw())));
+
+                    tardis.getDesktop().playSoundAtEveryConsole(SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME,
+                            SoundCategory.BLOCKS, 3f, 1f);
                 });
     }
 

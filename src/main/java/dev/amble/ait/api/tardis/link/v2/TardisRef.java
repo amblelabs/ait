@@ -5,15 +5,19 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 
 import dev.amble.ait.api.tardis.Disposable;
+import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisManager;
 
-@SuppressWarnings({"deprecation", "unused"})
+@SuppressWarnings({"unused"})
 public class TardisRef implements Disposable {
 
     private final LoadFunc load;
@@ -34,30 +38,38 @@ public class TardisRef implements Disposable {
         this.cached = tardis;
     }
 
+    @Environment(EnvType.CLIENT)
+    public static TardisRef client(ClientTardis tardis) {
+        return new TardisRef(tardis.getUuid(), uuid -> TardisManager.client().getTardis(uuid));
+    }
+
+    @Environment(EnvType.CLIENT)
+    public static TardisRef client(UUID id) {
+        return new TardisRef(id, uuid -> TardisManager.client().getTardis(uuid));
+    }
+
     public static TardisRef createAs(Entity entity, Tardis tardis) {
-        return new TardisRef(tardis, real -> TardisManager.with(entity, (o, manager) -> manager.demandTardis(o, real)));
+        return new TardisRef(tardis, real -> TardisManager.where(entity).getTardis(real));
     }
 
     public static TardisRef createAs(Entity entity, UUID uuid) {
-        return new TardisRef(uuid, real -> TardisManager.with(entity, (o, manager) -> manager.demandTardis(o, real)));
+        return new TardisRef(uuid, real -> TardisManager.where(entity).getTardis(real));
     }
 
     public static TardisRef createAs(BlockEntity blockEntity, Tardis tardis) {
-        return new TardisRef(tardis,
-                real -> TardisManager.with(blockEntity, (o, manager) -> manager.demandTardis(o, real)));
+        return new TardisRef(tardis, real -> TardisManager.where(blockEntity).getTardis(real));
     }
 
     public static TardisRef createAs(BlockEntity blockEntity, UUID uuid) {
-        return new TardisRef(uuid,
-                real -> TardisManager.with(blockEntity, (o, manager) -> manager.demandTardis(o, real)));
+        return new TardisRef(uuid, real -> TardisManager.where(blockEntity).getTardis(real));
     }
 
     public static TardisRef createAs(World world, Tardis tardis) {
-        return new TardisRef(tardis, real -> TardisManager.with(world, (o, manager) -> manager.demandTardis(o, real)));
+        return new TardisRef(tardis, real -> TardisManager.in(world).getTardis(real));
     }
 
     public static TardisRef createAs(World world, UUID uuid) {
-        return new TardisRef(uuid, real -> TardisManager.with(world, (o, manager) -> manager.demandTardis(o, real)));
+        return new TardisRef(uuid, real -> TardisManager.in(world).getTardis(real));
     }
 
     public Tardis get() {

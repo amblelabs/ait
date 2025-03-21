@@ -41,8 +41,9 @@ import net.minecraft.world.WorldEvents;
 import net.minecraft.world.chunk.Chunk;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.mixin.server.EnderDragonFightAccessor;
@@ -347,13 +348,13 @@ public class WorldUtil {
 
     @Environment(EnvType.CLIENT)
     private static Text hackWorldText(Text existing) {
-        if (ClientTardisUtil.getCurrentTardis() != null &&
-                !ClientTardisUtil.getCurrentTardis().flight().isFlying() && ClientTardisUtil.getCurrentTardis().travel().inFlight()) {
+        Tardis current = TardisManager.client().getCurrent();
+
+        if (current != null && !current.flight().isFlying() && current.travel().inFlight()) {
             RegistryKey<World> timeVortex = AITDimensions.TIME_VORTEX_WORLD;
-            return
-                    Text.translatableWithFallback(
-                            timeVortex.getValue().toTranslationKey("dimension"),
-                            fakeTranslate(timeVortex)).append(" [").append(existing).append( "]");
+            return Text.translatableWithFallback(
+                    timeVortex.getValue().toTranslationKey("dimension"),
+                    fakeTranslate(timeVortex)).append(" [").append(existing).append( "]");
         }
 
         return existing;

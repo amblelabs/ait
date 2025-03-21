@@ -5,13 +5,13 @@ import java.util.*;
 import com.google.common.collect.ImmutableCollection;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.amble.lib.util.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.TardisManager;
+
 
 public class LandingPadRegion {
 
@@ -162,7 +162,7 @@ public class LandingPadRegion {
         if (!spot.isOccupied()) return;
 
         // should the tardis take off and find a new spot?
-        ServerTardisManager.getInstance().getTardis(ServerLifecycleHooks.get(), spot.getReference().getId(), tardis -> tardis.landingPad().release());
+        TardisManager.server().tardis(spot.getReference().getId(), tardis -> tardis.landingPad().release());
     }
 
     @Override

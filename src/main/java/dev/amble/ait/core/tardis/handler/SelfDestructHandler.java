@@ -18,7 +18,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
@@ -55,7 +55,7 @@ public class SelfDestructHandler extends KeyedTardisComponent implements TardisT
         this.queued.set(false);
 
         AITMod.LOGGER.warn("Tardis {} has self destructed, expect lag.", tardis.getUuid());
-        world.getServer().executeSync(() -> ServerTardisManager.getInstance().remove(world.getServer(), tardis.asServer()));
+        world.getServer().executeSync(() -> TardisManager.server().remove(world.getServer(), tardis.asServer()));
 
         world.createExplosion(null, pos.getX(), pos.getY(), pos.getZ(), 50, true,
                 World.ExplosionSourceType.MOB);
@@ -68,7 +68,7 @@ public class SelfDestructHandler extends KeyedTardisComponent implements TardisT
         world.spawnParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, pos.getX(), pos.getY(), pos.getZ(), 500, 1, 1, 1, 1);
         world.playSound(null, pos, AITSounds.GROAN, SoundCategory.BLOCKS, 10f, 0.7f);
 
-        ServerTardisManager.getInstance().remove(world.getServer(), tardis.asServer());
+        TardisManager.server().remove(world.getServer(), tardis.asServer());
     }
 
     public boolean isQueued() {

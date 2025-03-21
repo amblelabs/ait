@@ -22,7 +22,7 @@ import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.engine.impl.*;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.enummap.Ordered;
 
@@ -102,7 +102,7 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
     }
 
     protected void sync() {
-        ServerTardisManager.getInstance().markComponentDirty(this.tardis.subsystems());
+        TardisManager.server().markComponentDirty(this.tardis.subsystems());
     }
 
     @Override

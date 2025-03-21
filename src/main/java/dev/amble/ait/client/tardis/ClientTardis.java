@@ -4,6 +4,8 @@ import java.lang.reflect.Type;
 import java.util.UUID;
 
 import com.google.gson.InstanceCreator;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 import net.minecraft.client.MinecraftClient;
 
@@ -15,8 +17,10 @@ import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.TardisExterior;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.data.Exclude;
 
+@Environment(EnvType.CLIENT)
 public class ClientTardis extends Tardis implements Disposable {
 
     @Exclude
@@ -43,7 +47,7 @@ public class ClientTardis extends Tardis implements Disposable {
     public void tick(MinecraftClient client) {
         this.getHandlers().tick(client);
 
-        if (ClientTardisUtil.getCurrentTardis() != this)
+        if (TardisManager.client().getCurrent() != this)
             return;
 
         ClientTardisUtil.tickPowerDelta();

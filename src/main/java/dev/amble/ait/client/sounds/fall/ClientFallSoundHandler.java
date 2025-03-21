@@ -8,7 +8,7 @@ import dev.amble.ait.client.sounds.LoopingSound;
 import dev.amble.ait.client.sounds.PlayerFollowingLoopingSound;
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.tardis.TardisManager;
 
 public class ClientFallSoundHandler extends SoundHandler {
 
@@ -44,7 +44,7 @@ public class ClientFallSoundHandler extends SoundHandler {
     }
 
     public void tick(MinecraftClient client) {
-        ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
+        ClientTardis tardis = TardisManager.client().getCurrent();
 
         if (this.sounds == null)
             this.generate();

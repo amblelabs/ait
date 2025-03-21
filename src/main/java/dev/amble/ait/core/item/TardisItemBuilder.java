@@ -20,12 +20,12 @@ import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.control.impl.DirectionControl;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.tardis.handler.LoyaltyHandler;
 import dev.amble.ait.core.tardis.handler.SubSystemHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.manager.TardisBuilder;
 import dev.amble.ait.core.tardis.util.DefaultThemes;
 import dev.amble.ait.data.Loyalty;
@@ -116,7 +116,7 @@ public class TardisItemBuilder extends Item {
             builder.desktop(DesktopRegistry.getInstance().get(this.desktop));
         }
 
-        ServerTardis created = ServerTardisManager.getInstance()
+        ServerTardis created = TardisManager.server()
                 .create(builder);
 
         player.sendMessage(Text.translatable("message.ait.unlocked_all", Text.translatable("message.ait.all_types").formatted(Formatting.GREEN)).formatted(Formatting.WHITE), false);

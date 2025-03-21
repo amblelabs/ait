@@ -29,6 +29,7 @@ import dev.amble.ait.core.item.ChargedZeitonCrystalItem;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisDesktop;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.core.tardis.control.sequences.SequenceHandler;
@@ -68,7 +69,8 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
             return;
 
         tardis.getDesktop().getConsolePos().add(this.pos);
-        tardis.asServer().markDirty(tardis.getDesktop());
+        TardisManager.server().markComponentDirty(tardis.getDesktop());
+
         this.markNeedsControl();
     }
 
@@ -169,7 +171,7 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
         TardisDesktop desktop = tardis.getDesktop();
 
         desktop.getConsolePos().remove(this.pos);
-        tardis.asServer().markDirty(desktop);
+        TardisManager.server().markComponentDirty(desktop);
     }
 
     public void killControls() {

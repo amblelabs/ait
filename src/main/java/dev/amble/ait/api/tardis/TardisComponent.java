@@ -14,7 +14,6 @@ import dev.amble.ait.core.tardis.handler.*;
 import dev.amble.ait.core.tardis.handler.mood.MoodHandler;
 import dev.amble.ait.core.tardis.handler.permissions.PermissionHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.enummap.Ordered;
 
@@ -28,7 +27,7 @@ public abstract class TardisComponent extends Initializable<TardisComponent.Init
 
     @Exclude protected Tardis tardis;
 
-    @Exclude(strategy = Exclude.Strategy.NETWORK) private final IdLike id;
+    @Exclude private final IdLike id;
 
     /**
      * Do NOT under any circumstances run logic in this constructor. Default field
@@ -55,7 +54,7 @@ public abstract class TardisComponent extends Initializable<TardisComponent.Init
             return;
         }
 
-        ServerTardisManager.getInstance().markComponentDirty(this);
+        TardisManager.server().markComponentDirty(this);
     }
 
     public Tardis tardis() {
@@ -76,10 +75,6 @@ public abstract class TardisComponent extends Initializable<TardisComponent.Init
 
     public boolean isServer() {
         return this.tardis() instanceof ServerTardis;
-    }
-
-    public TardisManager<?, ?> parentManager() {
-        return TardisManager.getInstance(this.tardis);
     }
 
     @Override

@@ -5,9 +5,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jetbrains.annotations.Nullable;
 
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.client.tardis.ClientTardis;
 
-public class TardisMap<T extends Tardis> extends ConcurrentHashMap<UUID, T> {
+public class DirectTardisMap<T extends ClientTardis> extends ConcurrentHashMap<UUID, T> {
 
     @Nullable public T get(UUID id) {
         if (id == null)
@@ -17,6 +17,9 @@ public class TardisMap<T extends Tardis> extends ConcurrentHashMap<UUID, T> {
     }
 
     public T put(T t) {
+        if (t == null)
+            return null;
+
         return this.put(t.getUuid(), t);
     }
 }
