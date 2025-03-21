@@ -14,7 +14,7 @@ public class AITClientConfig implements ConfigData {
     public boolean ENVIRONMENT_PROJECTOR = true;
     public boolean DISABLE_LOYALTY_FOG = false;
     public boolean DISABLE_LOYALTY_BED_MESSAGE = false;
-    public boolean ENABLE_TARDIS_BOTI = true;
+    public boolean ENABLE_TARDIS_BOTI = false;
     public boolean SHOULD_RENDER_BOTI_INTERIOR = false;
     public boolean GREEN_SCREEN_BOTI = false;
     public boolean SHOW_CONTROL_HITBOXES = false;
