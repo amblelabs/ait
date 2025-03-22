@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import com.google.gson.*;
+import dev.amble.ait.core.AITBlocks;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -103,6 +104,7 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
             stacks.addAll(holder.getStructure().toStacks());
 
         stacks.add(this.asItem().getDefaultStack());
+        stacks.add(AITBlocks.GENERIC_SUBSYSTEM.asItem().getDefaultStack());
         return stacks;
     }
 
