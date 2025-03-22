@@ -4,6 +4,8 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
+import dev.amble.ait.compat.DependencyChecker;
+
 @Config(name = "ait-client")
 public class AITClientConfig implements ConfigData {
 
@@ -14,7 +16,8 @@ public class AITClientConfig implements ConfigData {
     public boolean ENVIRONMENT_PROJECTOR = true;
     public boolean DISABLE_LOYALTY_FOG = false;
     public boolean DISABLE_LOYALTY_BED_MESSAGE = false;
-    public boolean ENABLE_TARDIS_BOTI = false;
+    public boolean ENABLE_TARDIS_BOTI =
+            !DependencyChecker.isMacOS() && (!DependencyChecker.hasAmdCard() || DependencyChecker.hasIndium());
     public boolean SHOULD_RENDER_BOTI_INTERIOR = false;
     public boolean GREEN_SCREEN_BOTI = false;
     public boolean SHOW_CONTROL_HITBOXES = false;

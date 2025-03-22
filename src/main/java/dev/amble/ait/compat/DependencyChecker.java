@@ -14,6 +14,8 @@ public class DependencyChecker {
     private static final boolean HAS_INDIUM = doesModExist("indium");
 
     private static Boolean NVIDIA_CARD;
+    private static Boolean AMD_CARD;
+    private static Boolean IS_MAC;
 
     public static boolean doesModExist(String modid) {
         return FabricLoader.getInstance().isModLoaded(modid);
@@ -45,5 +47,21 @@ public class DependencyChecker {
             NVIDIA_CARD = GlDebugInfo.getVendor().toLowerCase().contains("nvidia");
 
         return NVIDIA_CARD;
+    }
+
+    @Environment(EnvType.CLIENT)
+    public static boolean hasAmdCard() {
+        if (AMD_CARD == null)
+            AMD_CARD = GlDebugInfo.getVendor().toLowerCase().contains("amd");
+
+        return AMD_CARD;
+    }
+
+    @Environment(EnvType.CLIENT)
+    public static boolean isMacOS() {
+        if (IS_MAC == null)
+            IS_MAC = GlDebugInfo.getRenderer().toLowerCase().contains("apple");
+
+        return IS_MAC;
     }
 }
