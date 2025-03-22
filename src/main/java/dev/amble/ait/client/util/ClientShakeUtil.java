@@ -5,6 +5,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.MathHelper;
 
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
 public class ClientShakeUtil {
@@ -13,7 +14,7 @@ public class ClientShakeUtil {
     private static final int MAX_DISTANCE = 16; // The radius from the console where the player will feel the shake
 
     public static boolean shouldShake(Tardis tardis) {
-        if (ClientTardisUtil.getCurrentTardis() != tardis)
+        if (TardisManager.client().getCurrent() != tardis)
             return false;
 
         if (tardis.flight().falling().get())

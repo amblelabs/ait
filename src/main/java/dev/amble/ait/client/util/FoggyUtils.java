@@ -15,6 +15,7 @@ import net.minecraft.util.math.MathHelper;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITTags;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import dev.amble.ait.module.planet.core.space.system.Space;
@@ -22,7 +23,7 @@ import dev.amble.ait.module.planet.core.space.system.Space;
 public class FoggyUtils {
     public static void overrideFog() {
         MinecraftClient mc = MinecraftClient.getInstance();
-        Tardis tardis = ClientTardisUtil.getCurrentTardis();
+        Tardis tardis = TardisManager.client().getCurrent();
 
         if (mc.player != null && !mc.player.isSpectator() && mc.world != null && mc.world.getRegistryKey().equals(AITDimensions.SPACE)) {
             for (Planet planet : Space.getInstance().getPlanets()) {
@@ -52,7 +53,7 @@ public class FoggyUtils {
         if (tardis == null || tardis.getExterior() == null)
             return;
 
-        if (ClientTardisUtil.isPlayerInATardis() && !tardis.isGrowth()
+        if (!tardis.isGrowth()
                 && ClientTardisUtil.getAlarmDelta() != ClientTardisUtil.MAX_ALARM_DELTA_TICKS) {
             RenderSystem.setShaderFogStart(MathHelper.lerp(ClientTardisUtil.getAlarmDeltaForLerp(), -8, 10));
             RenderSystem.setShaderFogEnd(MathHelper.lerp(ClientTardisUtil.getAlarmDeltaForLerp(), 11, 32));
@@ -61,7 +62,7 @@ public class FoggyUtils {
             MinecraftClient.getInstance().gameRenderer.getCamera().getSubmersionType();
         }
 
-        if (ClientTardisUtil.isPlayerInATardis() && !tardis.isGrowth()
+        if (!tardis.isGrowth()
                 && ClientTardisUtil.getPowerDelta() != ClientTardisUtil.MAX_POWER_DELTA_TICKS) {
             RenderSystem.setShaderFogStart(MathHelper.lerp(ClientTardisUtil.getPowerDeltaForLerp(), -8, 24));
             RenderSystem.setShaderFogEnd(MathHelper.lerp(ClientTardisUtil.getPowerDeltaForLerp(), 11, 32));
@@ -69,7 +70,7 @@ public class FoggyUtils {
             RenderSystem.setShaderFogColor(0, 0, 0, tardis.siege().isActive() ? 0.85f : 1f);
         }
 
-        if (ClientTardisUtil.isPlayerInATardis() && tardis.crash().isToxic() && tardis.fuel().hasPower()) {
+        if (tardis.crash().isToxic() && tardis.fuel().hasPower()) {
             RenderSystem
                     .setShaderFogStart(MathHelper.lerp(MinecraftClient.getInstance().getTickDelta() / 100f, -8, 24));
             RenderSystem.setShaderFogEnd(MathHelper.lerp(MinecraftClient.getInstance().getTickDelta() / 100f, 11, 32));

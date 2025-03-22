@@ -1,9 +1,7 @@
 package dev.amble.ait.registry.impl;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 import com.google.gson.*;
@@ -85,6 +83,10 @@ public class TardisComponentRegistry implements Registry {
 
     public static TardisComponent.IdLike[] values() {
         return instance.LOOKUP;
+    }
+
+    public static Set<TardisComponent> createDelta() {
+        return new HashSet<>(instance.LOOKUP.length);
     }
 
     public Collection<TardisComponent.IdLike> getValues() {

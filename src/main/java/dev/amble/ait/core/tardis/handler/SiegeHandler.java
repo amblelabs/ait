@@ -24,7 +24,7 @@ import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.item.SiegeTardisItem;
 import dev.amble.ait.core.tardis.TardisDesktop;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
@@ -65,7 +65,7 @@ public class SiegeHandler extends KeyedTardisComponent implements TardisTickable
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             ServerPlayerEntity player = handler.getPlayer();
 
-            ServerTardisManager.getInstance().forEach(tardis -> {
+            TardisManager.server().forEach(tardis -> {
                 if (!tardis.siege().isActive())
                     return;
 

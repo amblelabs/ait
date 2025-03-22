@@ -13,7 +13,7 @@ import net.minecraft.text.Text;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.TardisManager;
 
 public class RemoveCommand {
 
@@ -31,7 +31,7 @@ public class RemoveCommand {
                 "Removing TARDIS with id [%s]...", tardis.getUuid()), true);
 
         // Delete the file. File system operations are costly!
-        ServerTardisManager.getInstance().remove(context.getSource().getServer(), tardis);
+        TardisManager.server().remove(context.getSource().getServer(), tardis);
 
         source.sendFeedback(
                 () -> Text.translatableWithFallback("tardis.remove.done", "TARDIS [%s] removed", tardis.getUuid()),

@@ -9,8 +9,8 @@ import dev.amble.ait.client.sounds.LoopingSound;
 import dev.amble.ait.client.sounds.PositionedLoopingSound;
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
@@ -47,7 +47,7 @@ public class ClientVortexSoundsHandler extends SoundHandler {
     public static ClientVortexSoundsHandler create() {
         ClientVortexSoundsHandler handler = new ClientVortexSoundsHandler();
 
-        handler.generate(ClientTardisUtil.getCurrentTardis());
+        handler.generate(TardisManager.client().getCurrent());
         return handler;
     }
 
@@ -74,7 +74,7 @@ public class ClientVortexSoundsHandler extends SoundHandler {
     }
 
     public void tick(MinecraftClient client) {
-        ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
+        ClientTardis tardis = TardisManager.client().getCurrent();
 
         if (this.sounds == null)
             this.generate(tardis);
@@ -82,7 +82,7 @@ public class ClientVortexSoundsHandler extends SoundHandler {
         if (this.shouldPlaySound(tardis)) {
             if (this.isPlaying(VORTEX_SOUND)) {
                 float newVolume = calculateVolume(tardis);
-                ((PositionedLoopingSound) VORTEX_SOUND).setVolume(newVolume);
+                VORTEX_SOUND.setVolume(newVolume);
                 return;
             }
 

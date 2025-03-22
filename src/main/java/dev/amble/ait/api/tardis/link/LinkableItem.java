@@ -17,7 +17,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 
-import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisManager;
 
@@ -58,14 +57,14 @@ public abstract class LinkableItem extends Item {
             return;
         }
 
-        ClientTardisManager.getInstance().getTardis(id, tardis -> {
-            if (tardis != null) {
-                tooltip.add(Text.literal("TARDIS: ").formatted(Formatting.BLUE));
-                tooltip.add(Text.literal("> " + tardis.stats().getName()));
-                tooltip.add(Text.literal("> " + tardis.getUuid().toString().substring(0, 8))
-                        .formatted(Formatting.DARK_GRAY));
-            }
-        });
+        Tardis tardis = TardisManager.client().getTardis(id);
+
+        if (tardis != null) {
+            tooltip.add(Text.literal("TARDIS: ").formatted(Formatting.BLUE));
+            tooltip.add(Text.literal("> " + tardis.stats().getName()));
+            tooltip.add(Text.literal("> " + tardis.getUuid().toString().substring(0, 8))
+                    .formatted(Formatting.DARK_GRAY));
+        }
     }
 
     public void link(ItemStack stack, Tardis tardis) {
@@ -110,8 +109,7 @@ public abstract class LinkableItem extends Item {
         if (world == null)
             return null;
 
-        return TardisManager.with(world, (o, manager) ->
-                manager.demandTardis(o, this.getTardisId(stack)));
+        return TardisManager.in(world).getTardis(this.getTardisId(stack));
     }
 
     public static <T> T apply(ItemStack stack, BiFunction<LinkableItem, ItemStack, T> f) {

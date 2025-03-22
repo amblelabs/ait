@@ -5,23 +5,34 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mojang.datafixers.util.Either;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.WorldSavePath;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisManager;
 
-public class TardisFileManager<T extends Tardis> {
+public class TardisFileManager {
 
-    private boolean locked = false;
+    private boolean locked = true;
+
+    public TardisFileManager() {
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+            this.locked = false;
+
+            try {
+                Files.createDirectories(getRootSavePath(server));
+            } catch (IOException ignored) { }
+        });
+    }
 
     public void delete(MinecraftServer server, UUID uuid) {
         try {
@@ -31,23 +42,15 @@ public class TardisFileManager<T extends Tardis> {
         }
     }
 
-    private static Path getRootSavePath(Path root) {
-        return root.resolve(".ait");
-    }
-
     public static Path getRootSavePath(MinecraftServer server) {
-        return TardisFileManager.getRootSavePath(server.getSavePath(WorldSavePath.ROOT));
+        return server.getSavePath(WorldSavePath.ROOT).resolve(".ait");
     }
 
     private static Path getSavePath(MinecraftServer server, UUID uuid, String suffix) throws IOException {
-        Path result = TardisFileManager.getRootSavePath(server).resolve(uuid.toString() + "." + suffix);
-        Files.createDirectories(result.getParent());
-
-        return result;
+        return TardisFileManager.getRootSavePath(server).resolve(uuid.toString() + "." + suffix);
     }
 
-    public T loadTardis(MinecraftServer server, TardisManager<T, ?> manager, UUID uuid, TardisLoader<T> function,
-            Consumer<T> consumer) {
+    public Either<ServerTardis, Exception> loadTardis(MinecraftServer server, ServerTardisManager manager, UUID uuid) {
         if (this.locked)
             return null;
 
@@ -59,21 +62,6 @@ public class TardisFileManager<T extends Tardis> {
 
             JsonObject object = JsonParser.parseString(raw).getAsJsonObject();
 
-            // TODO letting the autistic do it because im not taking my fucking ritalin at 1
-            // in the
-            // morning to do a
-            // dumbass menial task of replacing a bunch of json info
-            // this is a dumb way of doing it. do it fucking better.
-            // i thought programming was supposed to be simplifying processes not making me
-            // do more
-            // <3333
-            // - Loqor
-
-            // i am not autistic
-            // also this is life, should've made it better from the start
-            // not your fault tho, i blame duzo
-            // - Theo
-
             /*
              * JsonElement element = JsonParser.parseString(json); JsonObject object =
              * element.getAsJsonObject();
@@ -82,21 +70,20 @@ public class TardisFileManager<T extends Tardis> {
              *
              * if (version == 0) new JsonObjectTransform(object).transform();
              */
-
-            T tardis = function.apply(manager.getFileGson(), object);
-            consumer.accept(tardis);
+            ServerTardis tardis = manager.getFileGson().fromJson(object, ServerTardis.class);
+            Tardis.init(tardis, TardisComponent.InitContext.deserialize());
 
             AITMod.LOGGER.info("Deserialized {} in {}ms", tardis, System.currentTimeMillis() - start);
-            return tardis;
+            return Either.left(tardis);
         } catch (IOException e) {
             AITMod.LOGGER.warn("Failed to load {}!", uuid);
-            AITMod.LOGGER.warn(e.getMessage());
-        }
+            e.printStackTrace();
 
-        return null;
+            return Either.right(e);
+        }
     }
 
-    public void saveTardis(MinecraftServer server, TardisManager<T, ?> manager, T tardis) {
+    public void saveTardis(MinecraftServer server, ServerTardisManager manager, ServerTardis tardis) {
         try {
             Path savePath = TardisFileManager.getSavePath(server, tardis.getUuid(), "json");
             Files.writeString(savePath, manager.getFileGson().toJson(tardis, ServerTardis.class));
@@ -127,7 +114,7 @@ public class TardisFileManager<T extends Tardis> {
     }
 
     @FunctionalInterface
-    public interface TardisLoader<T> {
-        T apply(Gson gson, JsonObject object);
+    public interface Loader {
+        ServerTardis apply(Gson gson, JsonObject object);
     }
 }

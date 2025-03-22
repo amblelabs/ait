@@ -20,7 +20,7 @@ import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.core.commands.argument.JsonElementArgumentType;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.data.properties.Value;
 import dev.amble.ait.registry.impl.TardisComponentRegistry;
 
@@ -72,7 +72,7 @@ public class DataCommand {
         Value<T> value = keyed.getPropertyData().getExact(valueName);
         T obj = value.get();
 
-        String json = ServerTardisManager.getInstance().getFileGson().toJson(obj);
+        String json = TardisManager.server().getFileGson().toJson(obj);
 
         source.sendMessage(Text.translatable("command.ait.data.get", valueName, json));
         return Command.SINGLE_SUCCESS;
@@ -96,7 +96,7 @@ public class DataCommand {
         Value<T> value = keyed.getPropertyData().getExact(valueName);
         Class<?> classOfT = value.getProperty().getType().getClazz();
 
-        T obj = (T) ServerTardisManager.getInstance().getFileGson().fromJson(data, classOfT);
+        T obj = (T) TardisManager.server().getFileGson().fromJson(data, classOfT);
 
         value.set(obj);
         source.sendMessage(Text.translatable("command.ait.data.set", valueName, obj.toString()));

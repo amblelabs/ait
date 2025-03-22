@@ -1,12 +1,12 @@
 package dev.amble.ait.core.tardis;
 
 import java.lang.reflect.Type;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 import com.google.gson.InstanceCreator;
+import org.jetbrains.annotations.ApiStatus;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
@@ -18,17 +18,19 @@ import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.registry.impl.TardisComponentRegistry;
 
 public class ServerTardis extends Tardis {
 
     @Exclude(strategy = Exclude.Strategy.NETWORK)
-    protected int version = 2;
+    protected int version = 3;
 
     @Exclude
     private boolean removed;
 
+    // maybe use sparseset?
     @Exclude
-    private final Set<TardisComponent> delta = new HashSet<>(32);
+    private final Set<TardisComponent> delta = TardisComponentRegistry.createDelta();
 
     @Exclude
     private ServerWorld world;
@@ -59,6 +61,7 @@ public class ServerTardis extends Tardis {
         }
     }
 
+    @ApiStatus.Internal
     public void markDirty(TardisComponent component) {
         if (component == null)
             return;
@@ -69,6 +72,7 @@ public class ServerTardis extends Tardis {
         this.delta.add(component);
     }
 
+    @ApiStatus.Internal
     public void consumeDelta(Consumer<TardisComponent> consumer) {
         if (this.delta.isEmpty())
             return;
@@ -92,10 +96,8 @@ public class ServerTardis extends Tardis {
         if (this.world == null)
             this.world = TardisServerWorld.get(this);
 
-        // If its still null, its likely to be pre-1.2.0, meaning we should create a new one.
-        if (this.world == null) {
+        if (this.world == null)
             this.world = TardisServerWorld.create(this);
-        }
 
         return this.world;
     }

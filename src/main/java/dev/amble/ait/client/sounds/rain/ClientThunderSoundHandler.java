@@ -8,8 +8,8 @@ import dev.amble.ait.client.sounds.LoopingSound;
 import dev.amble.ait.client.sounds.PositionedLoopingSound;
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.handler.ExteriorEnvironmentHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
@@ -35,7 +35,7 @@ public class ClientThunderSoundHandler extends SoundHandler {
     public static ClientThunderSoundHandler create() {
         ClientThunderSoundHandler handler = new ClientThunderSoundHandler();
 
-        handler.generate(ClientTardisUtil.getCurrentTardis());
+        handler.generate(TardisManager.client().getCurrent());
         return handler;
     }
 
@@ -56,7 +56,7 @@ public class ClientThunderSoundHandler extends SoundHandler {
     }
 
     public void tick(MinecraftClient client) {
-        ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
+        ClientTardis tardis = TardisManager.client().getCurrent();
 
         if (this.sounds == null)
             this.generate(tardis);

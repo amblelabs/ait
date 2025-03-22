@@ -5,7 +5,7 @@ import net.minecraft.sound.SoundCategory;
 
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.tardis.TardisManager;
 
 public class ClientFlightHandler extends SoundHandler {
 
@@ -65,7 +65,7 @@ public class ClientFlightHandler extends SoundHandler {
     }
 
     public void tick(MinecraftClient client) {
-        ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
+        ClientTardis tardis = TardisManager.client().getCurrent();
 
         if (tardis == null) {
             this.stopSounds();

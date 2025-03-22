@@ -13,7 +13,7 @@ import net.minecraft.text.Text;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.util.TextUtil;
 
 public class LoadCommand {
@@ -27,7 +27,7 @@ public class LoadCommand {
     }
 
     public static int load(CommandContext<ServerCommandSource> context) {
-        ServerTardisManager.getInstance().loadAll(context.getSource().getServer(), (tardis -> sendTardis(context.getSource(), tardis)));
+        TardisManager.server().loadAll(context.getSource().getServer(), (tardis -> sendTardis(context.getSource(), tardis)));
 
         return Command.SINGLE_SUCCESS;
     }

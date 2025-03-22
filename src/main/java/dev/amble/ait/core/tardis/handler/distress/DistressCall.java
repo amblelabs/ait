@@ -1,7 +1,6 @@
 package dev.amble.ait.core.tardis.handler.distress;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.util.ServerLifecycleHooks;
@@ -30,7 +29,7 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.item.HypercubeItem;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.util.TextUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
@@ -129,12 +128,9 @@ public record DistressCall(Sender sender, String message, int lifetime, int crea
      * sends this distress call to all tardises
      */
     private void send() {
-        CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
-            ServerTardisManager.getInstance().forEach(this::send);
-
-            return null;
-        });
+        TardisManager.server().forEach(this::send);
     }
+
     private void send(ServerTardis target) {
         if (this.isSource(target.getUuid())) return; // dont send to self
         if (!target.stats().receiveCalls().get()) return; // ignore if doesnt want to receive

@@ -20,7 +20,7 @@ import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.TardisManager;
 
 public abstract class AbstractLinkableBlockEntity extends BlockEntity implements Linkable {
 
@@ -70,7 +70,7 @@ public abstract class AbstractLinkableBlockEntity extends BlockEntity implements
         if (!(this.world instanceof ServerWorld serverWorld))
             return;
 
-        ServerTardisManager.getInstance().unmark(serverWorld, (ServerTardis) this.ref.get(), new ChunkPos(this.pos));
+        TardisManager.server().unmark(serverWorld, (ServerTardis) this.ref.get(), new ChunkPos(this.pos));
     }
 
     @Override
@@ -87,7 +87,7 @@ public abstract class AbstractLinkableBlockEntity extends BlockEntity implements
 
     private void mark() {
         if (this.world instanceof ServerWorld serverWorld)
-            ServerTardisManager.getInstance().mark(serverWorld, (ServerTardis) this.tardis().get(),
+            TardisManager.server().mark(serverWorld, (ServerTardis) this.tardis().get(),
                     new ChunkPos(this.pos));
     }
 

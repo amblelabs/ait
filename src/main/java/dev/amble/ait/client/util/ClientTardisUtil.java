@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 
@@ -20,14 +19,11 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import dev.amble.ait.api.ClientWorldEvents;
-import dev.amble.ait.api.tardis.link.v2.TardisRef;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisExterior;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.handler.SonicHandler;
-import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.sonic.SonicSchema;
 
 @Environment(EnvType.CLIENT)
@@ -39,23 +35,6 @@ public class ClientTardisUtil {
     private static int alarmDeltaTick;
     private static boolean alarmDeltaDirection; // true for increasing false for decreasing
     private static int powerDeltaTick;
-
-    private static TardisRef currentTardis;
-
-    static {
-        ClientWorldEvents.CHANGE_WORLD.register((client, world) -> {
-            UUID id = TardisServerWorld.getClientTardisId(world);
-            currentTardis = new TardisRef(id, uuid -> ClientTardisManager.getInstance().demandTardis(uuid));
-        });
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            UUID id = TardisServerWorld.getClientTardisId(client.world);
-            currentTardis = new TardisRef(id, uuid -> ClientTardisManager.getInstance().demandTardis(uuid));
-        });
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            if (currentTardis != null)
-                currentTardis = null;
-        });
-    }
 
     public static void changeExteriorWithScreen(UUID uuid, Identifier variant, boolean variantchange) {
         PacketByteBuf buf = PacketByteBufs.create();
@@ -110,20 +89,6 @@ public class ClientTardisUtil {
         ClientPlayNetworking.send(TOGGLE_ANTIGRAVS, buf);
     }
 
-    public static boolean isPlayerInATardis() {
-        return currentTardis != null;
-    }
-
-    /**
-     * Gets the tardis the player is currently inside
-     */
-    public static ClientTardis getCurrentTardis() {
-        if (currentTardis == null)
-            return null;
-
-        return (ClientTardis) currentTardis.get();
-    }
-
     public static Optional<ClientTardis> getNearestTardis(double radius) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
 
@@ -133,24 +98,10 @@ public class ClientTardisUtil {
         BlockPos pos = player.getBlockPos();
         RegistryKey<World> dimension = player.getWorld().getRegistryKey();
 
-        // doesnt find nearest, only finds if within radius.
-        // could be more performant though
-        /*
-        return ClientTardisManager.getInstance().find(tardis -> {
-            if (!tardis.travel().position().getDimension().equals(dimension))
-                return false;
-
-            BlockPos tPos = tardis.travel().position().getPos();
-            double distance = Math.sqrt(pos.getSquaredDistance(tPos));
-
-            return distance < radius;
-        });
-        */
-
         AtomicReference<ClientTardis> nearestTardis = new AtomicReference<>();
         AtomicReference<Double> nearestDistance = new AtomicReference<>(Double.MAX_VALUE);
 
-        ClientTardisManager.getInstance().forEach(tardis -> {
+        TardisManager.client().forEach(tardis -> {
             if (!tardis.travel().position().getDimension().equals(dimension))
                 return;
 
@@ -167,17 +118,17 @@ public class ClientTardisUtil {
     }
 
     public static double distanceFromConsole() {
-        if (!isPlayerInATardis())
+        Tardis tardis = TardisManager.client().getCurrent();
+
+        if (tardis == null)
+            return 0;
+
+        if (!TardisManager.client().inTardis())
             return 0;
 
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
 
         if (player == null)
-            return 0;
-
-        Tardis tardis = getCurrentTardis();
-
-        if (tardis == null)
             return 0;
 
         BlockPos pos = player.getBlockPos();
@@ -194,17 +145,14 @@ public class ClientTardisUtil {
     }
 
     public static BlockPos getNearestConsole() {
-        if (!isPlayerInATardis())
+        Tardis tardis = TardisManager.client().getCurrent();
+
+        if (tardis == null)
             return BlockPos.ORIGIN;
 
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
 
         if (player == null)
-            return BlockPos.ORIGIN;
-
-        Tardis tardis = getCurrentTardis();
-
-        if (tardis == null)
             return BlockPos.ORIGIN;
 
         BlockPos pos = player.getBlockPos();
@@ -224,7 +172,7 @@ public class ClientTardisUtil {
     }
 
     public static void tickPowerDelta() {
-        Tardis tardis = getCurrentTardis();
+        Tardis tardis = TardisManager.client().getCurrent();
 
         if (tardis == null) {
             powerDeltaTick = MAX_POWER_DELTA_TICKS;
@@ -239,7 +187,7 @@ public class ClientTardisUtil {
     }
 
     public static int getPowerDelta() {
-        return currentTardis != null ? powerDeltaTick : 0;
+        return TardisManager.client().inTardis() ? powerDeltaTick : 0;
     }
 
     public static float getPowerDeltaForLerp() {
@@ -247,7 +195,7 @@ public class ClientTardisUtil {
     }
 
     public static void tickAlarmDelta() {
-        Tardis tardis = getCurrentTardis();
+        Tardis tardis = TardisManager.client().getCurrent();
 
         if (tardis == null || !tardis.alarm().enabled().get()) {
             alarmDeltaTick = MAX_ALARM_DELTA_TICKS;
@@ -268,10 +216,7 @@ public class ClientTardisUtil {
     }
 
     public static int getAlarmDelta() {
-        if (!isPlayerInATardis())
-            return 0;
-
-        return alarmDeltaTick;
+        return TardisManager.client().inTardis() ? alarmDeltaTick : 0;
     }
 
     public static float getAlarmDeltaForLerp() {

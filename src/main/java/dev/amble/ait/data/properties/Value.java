@@ -8,9 +8,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.google.gson.*;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import net.minecraft.network.PacketByteBuf;
 
@@ -18,8 +15,7 @@ import dev.amble.ait.api.tardis.Disposable;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.tardis.util.network.c2s.SyncPropertyC2SPacket;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.data.Exclude;
 
 public class Value<T> implements Disposable {
@@ -94,16 +90,11 @@ public class Value<T> implements Disposable {
     }
 
     protected void sync() {
-        if (this.holder == null || !(this.holder.tardis() instanceof ServerTardis tardis)) {
-            this.syncToServer();
-            return;
+        if (this.holder.tardis() instanceof ServerTardis) {
+            TardisManager.server().markPropertyDirty(this);
+        } else {
+            TardisManager.client().syncValue(this);
         }
-
-        ServerTardisManager.getInstance().markPropertyDirty(tardis, this);
-    }
-    @Environment(EnvType.CLIENT)
-    protected void syncToServer() { // todo - flags
-        ClientPlayNetworking.send(new SyncPropertyC2SPacket(this.holder.tardis().getUuid(), this));
     }
 
     public void flatMap(Function<T, T> func) {

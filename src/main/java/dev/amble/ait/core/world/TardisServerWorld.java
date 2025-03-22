@@ -29,7 +29,7 @@ import net.minecraft.world.spawner.Spawner;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.TardisManager;
 
 public class TardisServerWorld extends MultiDimServerWorld {
 
@@ -47,8 +47,7 @@ public class TardisServerWorld extends MultiDimServerWorld {
 
     public ServerTardis getTardis() {
         if (this.tardis == null)
-            this.tardis = ServerTardisManager.getInstance().demandTardis(this.getServer(),
-                    UUID.fromString(this.getRegistryKey().getValue().getPath()));
+            this.tardis = TardisManager.server().getTardis(getTardisId(this));
 
         return tardis;
     }
@@ -86,8 +85,7 @@ public class TardisServerWorld extends MultiDimServerWorld {
         return world instanceof TardisServerWorld;
     }
 
-    @Nullable @Environment(EnvType.CLIENT)
-    public static UUID getClientTardisId(@Nullable ClientWorld world) {
+    public static UUID getTardisId(World world) {
         if (world == null || !isTardisDimension(world))
             return null;
 

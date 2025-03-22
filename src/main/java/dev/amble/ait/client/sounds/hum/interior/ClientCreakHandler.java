@@ -17,7 +17,7 @@ import dev.amble.ait.client.sounds.PlayerFollowingLoopingSound;
 import dev.amble.ait.client.sounds.PlayerFollowingSound;
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.CreakSound;
 import dev.amble.ait.registry.impl.CreakRegistry;
@@ -81,7 +81,7 @@ public class ClientCreakHandler extends SoundHandler {
         if (this.sounds == null)
             this.generateCreaks();
 
-        ClientTardis current = ClientTardisUtil.getCurrentTardis();
+        ClientTardis current = TardisManager.client().getCurrent();
 
         if (current == null) {
             this.stopSounds();

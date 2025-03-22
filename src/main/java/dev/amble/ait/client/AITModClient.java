@@ -71,7 +71,6 @@ import dev.amble.ait.client.screens.MonitorScreen;
 import dev.amble.ait.client.sonic.SonicModelLoader;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
-import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.*;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
@@ -85,6 +84,7 @@ import dev.amble.ait.core.entities.GallifreyFallsPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.*;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
@@ -160,7 +160,7 @@ public class AITModClient implements ClientModInitializer {
         DimensionRenderingRegistry.registerDimensionEffects(AITDimensions.MARS.getValue(), new MarsSkyProperties());
 
         WorldRenderEvents.BEFORE_ENTITIES.register(context -> {
-            Tardis tardis = ClientTardisUtil.getCurrentTardis();
+            Tardis tardis = TardisManager.client().getCurrent();
 
             if (tardis == null)
                 return;
@@ -182,7 +182,7 @@ public class AITModClient implements ClientModInitializer {
             int id = buf.readInt();
             UUID uuid = buf.readUuid();
 
-            ClientTardisManager.getInstance().getTardis(uuid, tardis -> {
+            TardisManager.client().tardis(uuid, tardis -> {
                 Screen screen = screenFromId(id, tardis);
 
                 if (screen == null)
@@ -197,7 +197,7 @@ public class AITModClient implements ClientModInitializer {
             UUID uuid = buf.readUuid();
             BlockPos console = buf.readBlockPos();
 
-            ClientTardisManager.getInstance().getTardis(uuid, tardis -> {
+            TardisManager.client().tardis(uuid, tardis -> {
                 Screen screen = screenFromId(id, tardis, console);
 
                 if (screen == null)
@@ -237,7 +237,7 @@ public class AITModClient implements ClientModInitializer {
                     int p = buf.readInt();
                     UUID tardisId = buf.readUuid();
 
-                    ClientTardisManager.getInstance().getTardis(client, tardisId, tardis -> {
+                    TardisManager.client().tardis(tardisId, tardis -> {
                         if (tardis == null)
                             return;
 
@@ -257,7 +257,7 @@ public class AITModClient implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(TravelHandler.CANCEL_DEMAT_SOUND, (client, handler, buf,
                 responseSender) -> {
-            ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
+            ClientTardis tardis = TardisManager.client().getCurrent();
 
             if (tardis == null)
                 return;
@@ -520,7 +520,7 @@ public class AITModClient implements ClientModInitializer {
         MatrixStack stack = context.matrixStack();
         boolean bl = TardisServerWorld.isTardisDimension(world);
         if (bl) {
-            ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
+            ClientTardis tardis = TardisManager.client().getCurrent();
             if (tardis == null || tardis.getDesktop() == null) return;
             ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
             DoorModel model = variant.getDoor().model();

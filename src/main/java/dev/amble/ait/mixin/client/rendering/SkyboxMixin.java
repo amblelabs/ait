@@ -29,10 +29,10 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.client.util.SkyboxUtil;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.world.TardisServerWorld;
 
 @Mixin(WorldRenderer.class)
@@ -122,7 +122,7 @@ public abstract class SkyboxMixin {
         if (this.world == null)
             return;
 
-        Tardis tardis = ClientTardisUtil.getCurrentTardis();
+        Tardis tardis = TardisManager.client().getCurrent();
 
         if (tardis == null || tardis.stats() == null || tardis.stats().skybox() == null)
             return;

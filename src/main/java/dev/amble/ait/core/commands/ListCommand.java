@@ -13,7 +13,7 @@ import net.minecraft.text.Text;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.util.TextUtil;
 
 public class ListCommand {
@@ -30,7 +30,7 @@ public class ListCommand {
         ServerCommandSource source = context.getSource();
         source.sendMessage(Text.literal("TARDIS':"));
 
-        ServerTardisManager.getInstance().forEach(tardis -> sendTardis(source, tardis));
+        TardisManager.server().forEach(tardis -> sendTardis(source, null, tardis));
         return Command.SINGLE_SUCCESS;
     }
 
@@ -40,11 +40,12 @@ public class ListCommand {
         ServerCommandSource source = context.getSource();
         source.sendMessage(Text.literal("TARDIS':"));
 
-        ServerTardisManager.getInstance().forEach(tardis -> sendTardis(source, tardis));
+        TardisManager.server().forEach(tardis -> sendTardis(source, args, tardis));
         return Command.SINGLE_SUCCESS;
     }
 
-    private static void sendTardis(ServerCommandSource source, ServerTardis tardis) {
-        source.sendMessage(Text.literal("  - ").append(TextUtil.forTardis(tardis)));
+    private static void sendTardis(ServerCommandSource source, String filter, ServerTardis tardis) {
+        if (filter == null || tardis.getUuid().toString().contains(filter))
+            source.sendMessage(Text.literal("  - ").append(TextUtil.forTardis(tardis)));
     }
 }

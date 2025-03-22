@@ -11,6 +11,7 @@ import dev.amble.ait.client.sounds.PositionedLoopingSound;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.sounds.flight.FlightSound;
+import dev.amble.ait.core.tardis.TardisManager;
 
 public class InteriorFlightSound extends PositionedLoopingSound {
     private static final Random rnd = new Random();
@@ -46,8 +47,8 @@ public class InteriorFlightSound extends PositionedLoopingSound {
         this.dirty = true;
     }
     public FlightSound getData() {
-        if (this.data == null && ClientTardisUtil.getCurrentTardis() != null)
-            this.data = ClientTardisUtil.getCurrentTardis().stats().getFlightEffects();
+        if (this.data == null && TardisManager.client().getCurrent() != null)
+            this.data = TardisManager.client().getCurrent().stats().getFlightEffects();
 
         return this.data;
     }
@@ -59,7 +60,7 @@ public class InteriorFlightSound extends PositionedLoopingSound {
     }
 
     private static float getRandomPitch() {
-        ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
+        ClientTardis tardis = TardisManager.client().getCurrent();
 
         if (tardis == null)
             return 1f;

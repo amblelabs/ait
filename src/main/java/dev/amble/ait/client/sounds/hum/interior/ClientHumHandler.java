@@ -22,7 +22,7 @@ import dev.amble.ait.client.sounds.LoopingSound;
 import dev.amble.ait.client.sounds.PlayerFollowingLoopingSound;
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.handler.ServerHumHandler;
 import dev.amble.ait.data.hum.Hum;
 import dev.amble.ait.registry.impl.HumRegistry;
@@ -40,7 +40,7 @@ public class ClientHumHandler extends SoundHandler {
             handler.stopSounds();
             handler.current = null;
 
-            ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
+            ClientTardis tardis = TardisManager.client().getCurrent();
 
             if (tardis == null)
                 return;
@@ -60,7 +60,7 @@ public class ClientHumHandler extends SoundHandler {
             if (!(sound instanceof LoopingSound hum))
                 return; // it aint a hum.
 
-            this.setHum(ClientTardisUtil.getCurrentTardis(), hum);
+            this.setHum(TardisManager.client().getCurrent(), hum);
         });
     }
 
@@ -118,7 +118,7 @@ public class ClientHumHandler extends SoundHandler {
     }
 
     public void tick(MinecraftClient client) {
-        ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
+        ClientTardis tardis = TardisManager.client().getCurrent();
 
         if (this.sounds == null)
             this.generateHums();

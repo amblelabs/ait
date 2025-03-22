@@ -26,6 +26,6 @@ public class AITServerConfig implements ConfigData {
 
     public int TRAVEL_PER_TICK = 2;
 
-    public boolean SEND_BULK = true;
+    public int BULK_SIZE = 8;
     public int MAX_TARDISES = -1;
 }

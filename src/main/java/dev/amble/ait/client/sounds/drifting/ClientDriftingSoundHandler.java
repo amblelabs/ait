@@ -8,8 +8,8 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.client.sounds.PlayerFollowingSound;
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.tardis.TardisManager;
 
 // Client only class. One of the last surviving remnants of Duzocode.
 public class ClientDriftingSoundHandler extends SoundHandler {
@@ -48,7 +48,7 @@ public class ClientDriftingSoundHandler extends SoundHandler {
 
     public void tick(MinecraftClient client) {
         this.counter++;
-        ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
+        ClientTardis tardis = TardisManager.client().getCurrent();
 
         // check the ticks every 2 minutes
         if (client.player == null && this.counter % (120 * 20) != 0)
