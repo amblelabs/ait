@@ -102,7 +102,6 @@ public class PowerConverterBlock extends DirectionalFluidLinkBlock {
     public static class BlockEntity extends FluidLinkBlockEntity {
         public BlockEntity(BlockPos pos, BlockState state) {
             super(AITBlockEntityTypes.POWER_CONVERTER_BLOCK_TYPE, pos, state);
-
         }
     }
 

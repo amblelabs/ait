@@ -1,5 +1,6 @@
 package dev.amble.ait.core.blocks;
 
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -57,7 +58,7 @@ public class EngineBlock extends SubSystemBlock implements BlockEntityProvider {
     }
 
     @Nullable @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public FluidLinkBlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new EngineBlockEntity(pos, state);
     }
 

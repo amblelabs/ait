@@ -6,6 +6,8 @@ import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
 
 import java.util.Calendar;
 
+import dev.amble.ait.core.engine.link.block.CableBlockEntity;
+import dev.amble.ait.core.engine.link.block.FullCableBlockEntity;
 import dev.amble.lib.container.impl.BlockEntityContainer;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 
@@ -58,8 +60,10 @@ public class AITBlockEntityTypes implements BlockEntityContainer {
             .create(RedstoneControlBlockEntity::new, AITBlocks.REDSTONE_CONTROL_BLOCK).build();
     public static final BlockEntityType<FlagBlockEntity> FLAG_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
             .create(FlagBlockEntity::new, PlanetBlocks.FLAG).build();
-    public static BlockEntityType<FluidLinkBlockEntity> FLUID_LINK_BLOCK_ENTITY = FabricBlockEntityTypeBuilder
-            .create(FluidLinkBlockEntity::new, AITBlocks.CABLE_BLOCK).build();
+    public static BlockEntityType<CableBlockEntity> CABLE_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
+            .create(CableBlockEntity::new, AITBlocks.CABLE_BLOCK).build();
+    public static BlockEntityType<FullCableBlockEntity> FULL_CABLE_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
+            .create(FullCableBlockEntity::new, AITBlocks.FULL_CABLE_BLOCK).build();
     public static BlockEntityType<PowerConverterBlock.BlockEntity> POWER_CONVERTER_BLOCK_TYPE = FabricBlockEntityTypeBuilder
             .create(PowerConverterBlock.BlockEntity::new, AITBlocks.POWER_CONVERTER).build();
     public static BlockEntityType<GenericStructureSystemBlockEntity> GENERIC_SUBSYSTEM_BLOCK_TYPE = FabricBlockEntityTypeBuilder

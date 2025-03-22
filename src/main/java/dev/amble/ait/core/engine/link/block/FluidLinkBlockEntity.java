@@ -27,7 +27,7 @@ import dev.amble.ait.core.engine.link.IFluidSource;
 import dev.amble.ait.core.engine.link.tracker.WorldFluidTracker;
 import dev.amble.ait.core.util.SoundData;
 
-public class FluidLinkBlockEntity extends InteriorLinkableBlockEntity implements IFluidLink {
+public abstract class FluidLinkBlockEntity extends InteriorLinkableBlockEntity implements IFluidLink {
     private boolean powered = false;
     private IFluidLink last;
     private IFluidSource source;
@@ -35,9 +35,6 @@ public class FluidLinkBlockEntity extends InteriorLinkableBlockEntity implements
 
     protected FluidLinkBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-    }
-    public FluidLinkBlockEntity(BlockPos pos, BlockState state) {
-        this(AITBlockEntityTypes.FLUID_LINK_BLOCK_ENTITY, pos, state);
     }
 
     @Override

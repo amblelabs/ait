@@ -5,6 +5,8 @@ import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
+import dev.amble.ait.core.engine.link.block.CableBlockEntity;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 import net.minecraft.block.*;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -137,5 +139,10 @@ public class CableBlock extends FluidLinkBlock implements Waterloggable {
 
     public FluidState getFluidState(BlockState state) {
         return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
+    }
+
+    @Override
+    public FluidLinkBlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+        return new CableBlockEntity(pos, state);
     }
 }

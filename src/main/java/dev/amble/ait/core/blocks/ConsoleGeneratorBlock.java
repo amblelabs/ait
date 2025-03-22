@@ -1,5 +1,6 @@
 package dev.amble.ait.core.blocks;
 
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockEntityProvider;
@@ -23,7 +24,7 @@ public class ConsoleGeneratorBlock extends FluidLinkBlock implements BlockEntity
     }
 
     @Nullable @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public FluidLinkBlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new ConsoleGeneratorBlockEntity(pos, state);
     }
 
