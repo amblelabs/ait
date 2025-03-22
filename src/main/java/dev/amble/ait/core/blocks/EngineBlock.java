@@ -1,9 +1,9 @@
 package dev.amble.ait.core.blocks;
 
+import net.minecraft.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.particle.ParticleTypes;

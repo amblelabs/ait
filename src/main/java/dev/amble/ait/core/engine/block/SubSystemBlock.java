@@ -35,12 +35,11 @@ public abstract class SubSystemBlock extends FluidLinkBlock {
 
     @Override
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (state.getBlock() != newState.getBlock() && !(world.isClient())) { // on break
+        if (state.getBlock() != newState.getBlock() && !(world.isClient())) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof SubSystemBlockEntity be) {
+
+            if (blockEntity instanceof SubSystemBlockEntity be)
                 world.updateComparators(pos, this);
-                be.onBroken(world, pos);
-            }
         }
 
         super.onStateReplaced(state, world, pos, newState, moved);
