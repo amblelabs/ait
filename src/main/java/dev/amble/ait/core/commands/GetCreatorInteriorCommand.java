@@ -6,29 +6,26 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.util.TextUtil;
+import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.world.TardisServerWorld;
 
-public class GetInsideTardisCommand {
+public class GetCreatorInteriorCommand {
 
-    // TODO: add BlockPosition argument type
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher.register(literal(AITMod.MOD_ID).then(literal("this")
-                .executes(GetInsideTardisCommand::runCommand)));
+        dispatcher.register(literal(AITMod.MOD_ID)
+                .then(literal("creator-name").requires(source -> source.hasPermissionLevel(2))
+                        .then(literal("get").executes(GetCreatorInteriorCommand::runCommand))));
     }
 
     private static int runCommand(CommandContext<ServerCommandSource> context) {
-        Entity source = context.getSource().getEntity();
+        ServerCommandSource source = context.getSource();
+        ServerTardis tardis = ((TardisServerWorld) source.getWorld()).getTardis();
 
-        if (source.getWorld() instanceof TardisServerWorld tardisWorld)
-            source.sendMessage(Text.translatable("message.ait.id")
-                    .append(TextUtil.forTardis(tardisWorld.getTardis())));
-
+        source.sendMessage(Text.literal(tardis.stats().getPlayerCreatorName()));
         return Command.SINGLE_SUCCESS;
     }
 }
