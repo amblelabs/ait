@@ -4,6 +4,11 @@ import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.MAX_PLAS
 
 import java.util.UUID;
 
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.tardis.animation.v2.AnimationHolder;
+import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
+import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
@@ -13,6 +18,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.ArmorStandEntity;
@@ -58,7 +64,7 @@ import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 
 public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements BlockEntityTicker<ExteriorBlockEntity> {
-
+    private AnimationHolder animations; // todo replace \/ that one
     private ExteriorAnimation animation;
     private UUID seatEntityUUID = null;
 
@@ -310,6 +316,14 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         TravelHandlerBase travel = tardis.travel();
         TravelHandlerBase.State state = travel.getState();
 
+        if (this.tardis().get().travel().getState().animated()) {
+            if (world.isClient()) {
+                this.getAnimations().tick(MinecraftClient.getInstance());
+            } else {
+                this.getAnimations().tick(world.getServer());
+            }
+        }
+
         if (!world.isClient()) {
             if (tardis.travel().isLanded())
                 world.scheduleBlockTick(this.getPos(), AITBlocks.EXTERIOR_BLOCK, 2);
@@ -339,14 +353,10 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
             }
         }
 
-        if (state.animated())
-            this.getAnimation().tick(tardis);
-        else
-            this.getAnimation().reset();
-
         this.exteriorLightBlockState(blockState, pos, state);
     }
 
+    @Deprecated()
     public void verifyAnimation() {
         TardisRef ref = this.tardis();
 
@@ -363,6 +373,22 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         }
     }
 
+    public AnimationHolder getAnimations() {
+        if (this.animations == null) {
+            if (!this.isLinked()) throw new IllegalStateException("Tardis is not linked!");
+
+            this.animations = new AnimationHolder(tardis().get());
+        }
+
+        return this.animations;
+    }
+
+    public AnimationHolder clearAnimations() {
+        AnimationHolder previous = this.animations;
+        this.animations = null;
+        return previous;
+    }
+
     public ExteriorAnimation getAnimation() {
         this.verifyAnimation();
         return this.animation;
@@ -370,7 +396,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
 
     @Environment(EnvType.CLIENT)
     public float getAlpha() {
-        return this.getAnimation().getAlpha();
+        return this.getAnimations().getAlpha();
     }
 
     private void exteriorLightBlockState(BlockState blockState, BlockPos pos, TravelHandlerBase.State state) {
@@ -380,6 +406,6 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         if (!blockState.isOf(AITBlocks.EXTERIOR_BLOCK))
             return;
 
-        this.getWorld().setBlockState(pos, blockState.with(ExteriorBlock.LEVEL_4, Math.round(this.getAlpha() * 4)));
+        this.getWorld().setBlockState(pos, blockState.with(ExteriorBlock.LEVEL_4, MathHelper.clamp(Math.round(this.getAlpha() * 4), 0, 15)));
     }
 }

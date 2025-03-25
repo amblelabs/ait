@@ -10,6 +10,9 @@ import java.util.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.tardis.animation.v2.TardisAnimationMap;
+import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.lib.register.unlockable.Unlockable;
 import dev.amble.lib.util.ServerLifecycleHooks;
 
@@ -85,6 +88,8 @@ public class StatsHandler extends KeyedTardisComponent {
     @Exclude
     private Lazy<TravelSoundMap> travelFxCache;
     @Exclude
+    private Lazy<TardisAnimationMap> animFxCache;
+    @Exclude
     private Lazy<FlightSound> flightFxCache;
     @Exclude
     private Lazy<VortexReference> vortexFxCache;
@@ -131,14 +136,14 @@ public class StatsHandler extends KeyedTardisComponent {
             else this.getFlightEffects();
         });
         dematId.addListener((id) -> {
-            if (this.travelFxCache != null)
-                this.travelFxCache.invalidate();
-            else this.getTravelEffects();
+            if (this.animFxCache != null)
+                this.animFxCache.invalidate();
+            else this.getTravelAnimations();
         });
         matId.addListener((id) -> {
-            if (this.travelFxCache != null)
-                this.travelFxCache.invalidate();
-            else this.getTravelEffects();
+            if (this.animFxCache != null)
+                this.animFxCache.invalidate();
+            else this.getTravelAnimations();
         });
 
         for (Iterator<TardisDesktopSchema> it = DesktopRegistry.getInstance().iterator(); it.hasNext();) {
@@ -305,6 +310,28 @@ public class StatsHandler extends KeyedTardisComponent {
 
     public void markPlayerCreatorName() {
         playerCreatorName.set(this.getPlayerCreatorName());
+    }
+
+    public TardisAnimationMap getTravelAnimations() {
+        if (this.animFxCache == null) {
+            this.animFxCache = new Lazy<>(this::createTravelAnimationsCache);
+        }
+
+        return this.animFxCache.get();
+    }
+
+    private TardisAnimationMap createTravelAnimationsCache() {
+        TardisAnimationMap map = new TardisAnimationMap();
+
+        TardisAnimationRegistry registry = TardisAnimationRegistry.getInstance();
+
+        map.put(TravelHandlerBase.State.DEMAT, registry.getOrElse(this.dematId.get(), registry.getOrFallback(AITMod.id("classic_demat"))));
+        map.put(TravelHandlerBase.State.MAT, registry.getOrElse(this.matId.get(), registry.getOrFallback(AITMod.id("classic_mat"))));
+
+        // update exterior
+	    this.tardis().getExterior().findExteriorBlock().ifPresent(ExteriorBlockEntity::clearAnimations);
+
+	    return map;
     }
 
     public TravelSoundMap getTravelEffects() {

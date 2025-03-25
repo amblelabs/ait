@@ -6,6 +6,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
+@Deprecated(forRemoval = true, since = "1.3.0")
 public class PulsatingAnimation extends ExteriorAnimation {
 
     private static final int PULSE_LENGTH = 20;

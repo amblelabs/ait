@@ -1,0 +1,12 @@
+{
+  "id": "ait:classic_demat",
+  "tracker": {
+    "sound": "ait:error",
+    "keyframes": [
+      {
+        "duration": 60,
+        "alpha": 0
+      }
+    ]
+  }
+}

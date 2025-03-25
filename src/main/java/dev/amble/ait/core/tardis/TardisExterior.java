@@ -110,7 +110,9 @@ public class TardisExterior extends TardisComponent {
     }
 
     public Optional<ExteriorBlockEntity> findExteriorBlock() {
-        if (tardis.travel().position().getWorld().isClient()) return Optional.empty();
+        CachedDirectedGlobalPos pos = tardis.travel().position();
+
+        if (pos.getWorld() == null || pos.getWorld().isClient()) return Optional.empty();
 
         BlockEntity found = tardis.travel().position().getWorld().getBlockEntity(tardis.travel().position().getPos());
 

@@ -23,6 +23,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
 
+@Deprecated(forRemoval = true, since = "1.3.0")
 public abstract class ExteriorAnimation {
 
     public static final Identifier UPDATE = AITMod.id("update_setup_anim");

@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
+import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.lib.container.RegistryContainer;
 import dev.amble.lib.register.AmbleRegistries;
 import dev.amble.lib.util.ServerLifecycleHooks;
@@ -163,7 +164,8 @@ public class AITMod implements ModInitializer {
                 HumRegistry.getInstance(),
                 SubSystemRegistry.getInstance(),
                 ItemOpinionRegistry.getInstance(),
-                DrinkRegistry.getInstance()
+                DrinkRegistry.getInstance(),
+                TardisAnimationRegistry.getInstance()
         );
         ControlSoundRegistry.init();
 

@@ -12,6 +12,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -204,14 +205,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
     private void runAnimations(ExteriorBlockEntity exterior) {
         State state = this.getState();
-        ExteriorAnimation animation = exterior.getAnimation();
-
-        if (animation == null) {
-            AITMod.LOGGER.info("Null animation for exterior at {}", exterior.getPos());
-            return;
-        }
-
-        animation.setupAnimation(state);
+        exterior.getAnimations().onStateChange(state);
     }
 
     public void runAnimations() {
@@ -293,10 +287,10 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     public void forceDemat(TravelSound replacementSound) {
         this.state.set(State.DEMAT);
 
-        SoundEvent sound = tardis.stats().getTravelEffects().get(this.getState()).sound();
+        SoundEvent sound = tardis.stats().getTravelAnimations().get(this.getState()).tracker().getSound();
 
         // Play dematerialize sound at the position
-        this.position().getWorld().playSound(null, this.position().getPos(), sound, SoundCategory.BLOCKS);
+        // this.position().getWorld().playSound(null, this.position().getPos(), sound, SoundCategory.BLOCKS);
 
         //System.out.println(tardis.stats().getTravelEffects().get(this.getState()).soundId());
         this.tardis.getDesktop().playSoundAtEveryConsole(sound, SoundCategory.BLOCKS, 2f, 1f);
@@ -371,7 +365,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
             this.waiting = false;
             this.tardis.door().closeDoors();
 
-            SoundEvent sound = tardis.stats().getTravelEffects().get(this.getState()).sound();
+            SoundEvent sound = tardis.stats().getTravelAnimations().get(this.getState()).tracker().getSound();
 
             if (this.isCrashing())
                 sound = AITSounds.EMERG_MAT;
@@ -380,7 +374,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
             this.forcePosition(this.destination());
 
             // Play materialize sound at the destination
-            this.position().getWorld().playSound(null, this.position().getPos(), sound, SoundCategory.BLOCKS);
+            // this.position().getWorld().playSound(null, this.position().getPos(), sound, SoundCategory.BLOCKS);
 
             this.tardis.getDesktop().playSoundAtEveryConsole(sound, SoundCategory.BLOCKS, 2f, 1f);
             //System.out.println(sound.getId());
