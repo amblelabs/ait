@@ -190,8 +190,10 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         if (animate)
             this.runAnimations(exterior);
 
-        if (schedule && !this.antigravs.get())
+        if (schedule && !this.antigravs.get()) {
+            world.getChunk(pos);
             world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, 2);
+        }
 
         return exterior;
     }
