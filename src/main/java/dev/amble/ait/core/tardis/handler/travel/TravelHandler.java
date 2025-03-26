@@ -204,7 +204,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
         ChunkPos chunkPos = new ChunkPos(pos);
 
-        Scheduler.get().runTaskLater(() -> world.setChunkForced(chunkPos.x, chunkPos.z, false), TimeUnit.TICKS, 10);
+        Scheduler.get().runTaskLater(() -> world.setChunkForced(chunkPos.x, chunkPos.z, false), TimeUnit.TICKS, 20);
 
         world.setChunkForced(chunkPos.x, chunkPos.z, true);
         //world.getChunkManager().setChunkForced(chunkPos, true);
