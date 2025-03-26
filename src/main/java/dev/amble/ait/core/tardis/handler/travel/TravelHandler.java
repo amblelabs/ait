@@ -210,7 +210,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         //world.getChunkManager().setChunkForced(chunkPos, true);
         world.getChunkManager().markForUpdate(pos);
 
-        world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, 2);
+        Scheduler.get().runTaskLater(() -> world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, 2), TimeUnit.TICKS, 10);
     }
 
     private void runAnimations(ExteriorBlockEntity exterior) {
