@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -198,6 +199,8 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
                     .setChunkForced(chunkPos, false), TimeUnit.TICKS, 10);
 
             world.getChunkManager().setChunkForced(chunkPos, true);
+            world.getChunkManager().addTicket(ChunkTicketType.FORCED, chunkPos, 1, chunkPos);
+            world.getChunkManager().markForUpdate(pos);
             world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, 2);
         }
 
