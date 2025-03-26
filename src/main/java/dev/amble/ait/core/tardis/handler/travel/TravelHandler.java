@@ -192,19 +192,25 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         if (animate)
             this.runAnimations(exterior);
 
-        if (schedule && !this.antigravs.get()) {
-            ChunkPos chunkPos = new ChunkPos(pos);
-
-            Scheduler.get().runTaskLater(() -> world.getChunkManager()
-                    .setChunkForced(chunkPos, false), TimeUnit.TICKS, 10);
-
-            world.getChunkManager().setChunkForced(chunkPos, true);
-            world.getChunkManager().addTicket(ChunkTicketType.FORCED, chunkPos, 1, chunkPos);
-            world.getChunkManager().markForUpdate(pos);
-            world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, 2);
-        }
+        if (schedule && !this.antigravs.get())
+            this.scheduleExteriorUpdate();
 
         return exterior;
+    }
+
+    public void scheduleExteriorUpdate() {
+        ServerWorld world = this.position.get().getWorld();
+        BlockPos pos = this.position.get().getPos();
+
+        ChunkPos chunkPos = new ChunkPos(pos);
+
+        Scheduler.get().runTaskLater(() -> world.setChunkForced(chunkPos.x, chunkPos.z, false), TimeUnit.TICKS, 10);
+
+        world.setChunkForced(chunkPos.x, chunkPos.z, true);
+        //world.getChunkManager().setChunkForced(chunkPos, true);
+        world.getChunkManager().markForUpdate(pos);
+
+        world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, 2);
     }
 
     private void runAnimations(ExteriorBlockEntity exterior) {
@@ -391,7 +397,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
         this.tardis.getDesktop().playSoundAtEveryConsole(sound, SoundCategory.BLOCKS, 2f, 1f);
         //System.out.println(sound.getId());
-        this.placeExterior(true); // we schedule block update in #finishRemat
+        this.placeExterior(true);
     }
 
     public void finishRemat() {
