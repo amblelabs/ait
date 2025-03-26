@@ -14,6 +14,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
@@ -191,7 +192,12 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
             this.runAnimations(exterior);
 
         if (schedule && !this.antigravs.get()) {
-            world.getChunk(pos);
+            ChunkPos chunkPos = new ChunkPos(pos);
+
+            Scheduler.get().runTaskLater(() -> world.getChunkManager()
+                    .setChunkForced(chunkPos, false), TimeUnit.TICKS, 10);
+
+            world.getChunkManager().setChunkForced(chunkPos, true);
             world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, 2);
         }
 
