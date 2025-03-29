@@ -1,5 +1,7 @@
 package dev.amble.ait.core.tardis.control.impl;
 
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.drtheo.queue.api.ActionQueue;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -27,12 +29,42 @@ public class ThrottleControl extends Control {
             return Result.FAILURE;
 
         TravelHandler travel = tardis.travel();
+        TravelHandlerBase.State state = travel.getState();
 
         if (player.getMainHandStack().isOf(AITItems.MUG)) {
-            travel.forceDemat();
-            travel.crash();
+            /*
+            This is an example of how to use the travel queue.
+            This code enqueues a crash to be performed after dematerialization.
+             */
 
-            TardisCriterions.BRAND_NEW.trigger(player);
+            ActionQueue drinkAction = new ActionQueue();
+
+            drinkAction.thenRun(() -> {
+                travel.speed(travel.maxSpeed().get());
+                travel.crash();
+                TardisCriterions.BRAND_NEW.trigger(player);
+            });
+
+            if (state == TravelHandlerBase.State.LANDED) {
+                boolean hadAutopilot = travel.autopilot();
+
+                travel.autopilot(true);
+
+                travel.dematerialize().ifPresent(tr -> {
+                    tr.thenRun(drinkAction);
+                    tardis.alarm().enable();
+                });
+
+                travel.autopilot(hadAutopilot);
+
+                return Result.SUCCESS;
+            }
+
+            if (state == TravelHandlerBase.State.FLIGHT) {
+                drinkAction.execute();
+
+                return Result.SUCCESS;
+            }
         }
 
         if (!leftClick) {

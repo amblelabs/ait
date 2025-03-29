@@ -2,11 +2,13 @@ package dev.amble.ait.core.tardis.handler.travel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.util.ServerLifecycleHooks;
 
+import dev.drtheo.queue.api.ActionQueue;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.server.MinecraftServer;
@@ -45,7 +47,7 @@ public sealed interface CrashableTardisTravel permits TravelHandler {
 
     BoolValue antigravs();
 
-    void forceRemat();
+    Optional<ActionQueue> forceRemat();
 
     CachedDirectedGlobalPos position();
 
