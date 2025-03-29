@@ -1,12 +1,11 @@
 name: Generate Changelog
 on:
   workflow_dispatch:
-  push:
+  pull_request_target:
+    types:
+      - opened
     branches:
-      - release
-      - release/*
-    paths-ignore:
-      - 'CHANGELOG.md'
+      - 'release'
 
 jobs:
   generate_changelog:
