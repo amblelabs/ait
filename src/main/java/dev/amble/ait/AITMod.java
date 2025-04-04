@@ -56,6 +56,7 @@ import dev.amble.ait.core.commands.*;
 import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.engine.registry.SubSystemRegistry;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
+import dev.amble.ait.core.entities.DalekEntity;
 import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.blueprint.BlueprintRegistry;
@@ -333,6 +334,9 @@ public class AITMod implements ModInitializer {
 
         FabricDefaultAttributeRegistry.register(AITEntityTypes.FLIGHT_TARDIS_TYPE,
                 FlightTardisEntity.createDummyAttributes());
+
+        FabricDefaultAttributeRegistry.register(AITEntityTypes.DALEK_ENTITY,
+                DalekEntity.createDalekAttributes());
     }
 
     public static final Identifier OPEN_SCREEN = AITMod.id("open_screen");

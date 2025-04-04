@@ -43,4 +43,9 @@ public class AITEntityTypes implements EntityContainer {
             .spawnGroup(SpawnGroup.AMBIENT).entityFactory(RiftEntity::new)
             .dimensions(EntityDimensions.fixed(1f, 1f)).spawnRestriction(SpawnRestriction.Location.NO_RESTRICTIONS,
                     Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, RiftEntity::canSpawn).spawnableFarFromPlayer().build();
+
+    // Daleks
+    public static EntityType<DalekEntity> DALEK_ENTITY = FabricEntityTypeBuilder.Mob.createMob()
+            .spawnGroup(SpawnGroup.AMBIENT).entityFactory(DalekEntity::new)
+            .dimensions(EntityDimensions.fixed(1f, 2f)).build();
 }

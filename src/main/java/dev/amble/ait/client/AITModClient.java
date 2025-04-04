@@ -454,6 +454,7 @@ public class AITModClient implements ClientModInitializer {
 //            EntityRendererRegistry.register(AITEntityTypes.COBBLED_SNOWBALL_TYPE, FlyingItemEntityRenderer::new);
 //        }
         EntityRendererRegistry.register(AITEntityTypes.RIFT_ENTITY, RiftEntityRenderer::new);
+        EntityRendererRegistry.register(AITEntityTypes.DALEK_ENTITY, DalekEntityRenderer::new);
     }
 
     public static void setupBlockRendering() {
