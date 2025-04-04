@@ -30,6 +30,8 @@ import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.registry.SubSystemRegistry;
+import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
+import dev.amble.ait.core.tardis.animation.v2.TardisAnimationMap;
 import dev.amble.ait.core.tardis.handler.SubSystemHandler;
 import dev.amble.ait.core.tardis.handler.permissions.Permission;
 import dev.amble.ait.core.tardis.handler.permissions.PermissionLike;
@@ -109,7 +111,9 @@ public abstract class TardisManager<T extends Tardis, C> {
                 .registerTypeAdapter(TardisComponent.IdLike.class, TardisComponentRegistry.idSerializer())
                 .registerTypeAdapter(SubSystemHandler.class, SubSystemHandler.serializer())
                 .registerTypeAdapter(SubSystem.IdLike.class, SubSystemRegistry.idSerializer())
-                .registerTypeAdapter(SubSystem.class, SubSystem.serializer());
+                .registerTypeAdapter(SubSystem.class, SubSystem.serializer())
+                .registerTypeAdapter(TardisAnimationMap.class, TardisAnimationMap.serializer())
+                .registerTypeAdapter(TardisAnimation.class, TardisAnimation.serializer());
     }
 
     protected GsonBuilder getNetworkGson(GsonBuilder builder) {

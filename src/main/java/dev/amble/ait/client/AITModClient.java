@@ -22,7 +22,6 @@ import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.DoorBlock;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
@@ -30,7 +29,6 @@ import net.minecraft.client.particle.EndRodParticle;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
-import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.sound.SoundCategory;
@@ -43,10 +41,8 @@ import dev.amble.ait.client.boti.*;
 import dev.amble.ait.client.commands.ConfigCommand;
 import dev.amble.ait.client.data.ClientLandingManager;
 import dev.amble.ait.client.models.boti.BotiPortalModel;
-import dev.amble.ait.client.models.decoration.GallifreyFallsModel;
-import dev.amble.ait.client.models.decoration.PaintingFrameModel;
+import dev.amble.ait.client.models.decoration.GallifreyFallsFrameModel;
 import dev.amble.ait.client.models.decoration.RiftModel;
-import dev.amble.ait.client.models.decoration.TrenzalorePaintingModel;
 import dev.amble.ait.client.models.doors.DoorModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.overlays.ExteriorAxeOverlay;
@@ -84,12 +80,11 @@ import dev.amble.ait.core.blocks.AstralMapBlock;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.drinks.DrinkUtil;
-import dev.amble.ait.core.entities.BOTIPaintingEntity;
+import dev.amble.ait.core.entities.GallifreyFallsPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
-import dev.amble.ait.core.entities.TrenzalorePaintingEntity;
 import dev.amble.ait.core.item.*;
 import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
+import dev.amble.ait.core.tardis.handler.travel.AnimatedTravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.world.TardisServerWorld;
@@ -236,29 +231,6 @@ public class AITModClient implements ClientModInitializer {
                         console.setVariant(id);
                 });
 
-        ClientPlayNetworking.registerGlobalReceiver(ExteriorAnimation.UPDATE,
-                (client, handler, buf, responseSender) -> {
-                    int p = buf.readInt();
-                    UUID tardisId = buf.readUuid();
-
-                    ClientTardisManager.getInstance().getTardis(client, tardisId, tardis -> {
-                        if (tardis == null)
-                            return;
-
-                        // todo remember to use the right world in future !!
-                        BlockEntity block = MinecraftClient.getInstance().world
-                                .getBlockEntity(tardis.travel().position().getPos());
-
-                        if (!(block instanceof ExteriorBlockEntity exterior))
-                            return;
-
-                        if (exterior.getAnimation() == null)
-                            return;
-
-                        exterior.getAnimation().setupAnimation(TravelHandlerBase.State.values()[p]);
-                    });
-                });
-
         ClientPlayNetworking.registerGlobalReceiver(TravelHandler.CANCEL_DEMAT_SOUND, (client, handler, buf,
                 responseSender) -> {
             ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
@@ -266,7 +238,7 @@ public class AITModClient implements ClientModInitializer {
             if (tardis == null)
                 return;
 
-            client.getSoundManager().stopSounds(tardis.stats().getTravelEffects().get(TravelHandlerBase.State.DEMAT).soundId(), SoundCategory.BLOCKS);
+            client.getSoundManager().stopSounds(tardis.travel().getAnimationIdFor(TravelHandlerBase.State.DEMAT), SoundCategory.BLOCKS);
         });
 
         WorldRenderEvents.END.register((context) -> SonicRendering.getInstance().renderWorld(context));
@@ -277,6 +249,8 @@ public class AITModClient implements ClientModInitializer {
         AstralMapBlock.registerSyncListener();
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn());
+
+        AnimatedTravelHandler.initClient();
     }
     public static Screen screenFromId(int id) {
         return screenFromId(id, null, null);
@@ -448,8 +422,7 @@ public class AITModClient implements ClientModInitializer {
         EntityRendererRegistry.register(AITEntityTypes.CONTROL_ENTITY_TYPE, ControlEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.FALLING_TARDIS_TYPE, FallingTardisRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.FLIGHT_TARDIS_TYPE, FlightTardisRenderer::new);
-        EntityRendererRegistry.register(AITEntityTypes.GALLIFREY_FALLS_PAINTING_ENTITY_TYPE, BOTIPaintingEntityRenderer::new);
-        EntityRendererRegistry.register(AITEntityTypes.TRENZALORE_PAINTING_ENTITY_TYPE, BOTIPaintingEntityRenderer::new);
+        EntityRendererRegistry.register(AITEntityTypes.GALLIFREY_FALLS_PAINTING_TYPE, GallifreyFallsPaintingEntityRenderer::new);
 //        if (isUnlockedOnThisDay(Calendar.DECEMBER, 26)) {
 //            EntityRendererRegistry.register(AITEntityTypes.COBBLED_SNOWBALL_TYPE, FlyingItemEntityRenderer::new);
 //        }
@@ -552,35 +525,22 @@ public class AITModClient implements ClientModInitializer {
 
     public void paintingBOTI(WorldRenderContext context) {
         MinecraftClient client = MinecraftClient.getInstance();
-        SinglePartEntityModel contents;
-        Identifier frameTex;
-        Identifier contentsTex;
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
-        for (BOTIPaintingEntity painting : BOTI.PAINTING_RENDER_QUEUE) {
+        for (GallifreyFallsPaintingEntity painting : BOTI.PAINTING_RENDER_QUEUE) {
             if (painting == null) continue;
             Vec3d pos = painting.getPos();
             stack.push();
+            //0, -0.5, 0.5
             stack.translate(pos.getX() - context.camera().getPos().getX(),
                     pos.getY() - context.camera().getPos().getY(), pos.getZ() - context.camera().getPos().getZ());
             stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(painting.getBodyYaw()));
             stack.translate(0, -0.5f, 0.5);
-            PaintingFrameModel frame = new PaintingFrameModel(PaintingFrameModel.getTexturedModelData().createModel());
+            GallifreyFallsFrameModel frame = new GallifreyFallsFrameModel(GallifreyFallsFrameModel.getTexturedModelData().createModel());
             BlockPos blockPos = BlockPos.ofFloored(painting.getClientCameraPosVec(client.getTickDelta()));
-            if (painting instanceof TrenzalorePaintingEntity) {
-                contents = new TrenzalorePaintingModel(TrenzalorePaintingModel.getTexturedModelData().createModel());
-                frameTex = BOTIPaintingEntityRenderer.TRENZALORE_FRAME_TEXTURE;
-                contentsTex = BOTIPaintingEntityRenderer.TRENZALORE_PAINTING_TEXTURE;
-            } else {
-                contents = new GallifreyFallsModel(GallifreyFallsModel.getTexturedModelData().createModel());
-                frameTex = BOTIPaintingEntityRenderer.GALLIFREY_FRAME_TEXTURE;
-                contentsTex = BOTIPaintingEntityRenderer.GALLIFREY_PAINTING_TEXTURE;
-            }
-            PaintingBOTI.renderBOTIPainting(stack, frame,
-                    LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, blockPos),
-                            world.getLightLevel(LightType.SKY, blockPos)), contents, frameTex, contentsTex);
+            GallifreyFallsBOTI.renderGallifreyFallsPainting(stack, frame, LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, blockPos), world.getLightLevel(LightType.SKY, blockPos)));
             stack.pop();
         }
         BOTI.PAINTING_RENDER_QUEUE.clear();

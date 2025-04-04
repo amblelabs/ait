@@ -1,0 +1,6 @@
+{
+  "id": "ait:crumple",
+  "name": "crumple",
+  "expected_state": "demat",
+  "blockbench_file": "ait:self_destruct"
+}

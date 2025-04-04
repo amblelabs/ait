@@ -1,0 +1,6 @@
+{
+  "id": "ait:drill_mat",
+  "name": "drill",
+  "expected_state": "mat",
+  "sound": "ait:tardis/drill/mat"
+}

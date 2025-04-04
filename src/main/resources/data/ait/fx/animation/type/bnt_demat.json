@@ -1,0 +1,6 @@
+{
+  "id": "ait:bnt_demat",
+  "name": "bill and ted",
+  "expected_state": "demat",
+  "sound": "ait:tardis/bnt/demat"
+}

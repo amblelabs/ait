@@ -1,0 +1,6 @@
+{
+  "id": "ait:zwip_demat",
+  "name": "zwip",
+  "expected_state": "demat",
+  "sound": "ait:tardis/eighth_flight"
+}

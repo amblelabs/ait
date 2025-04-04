@@ -1,0 +1,6 @@
+{
+  "id": "ait:pulsating_mat",
+  "name": "pulsating",
+  "expected_state": "mat",
+  "sound": "ait:tardis/mat"
+}

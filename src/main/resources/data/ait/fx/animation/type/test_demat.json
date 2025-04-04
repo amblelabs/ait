@@ -1,0 +1,6 @@
+{
+  "id": "ait:test_demat",
+  "name": "test",
+  "expected_state": "demat",
+  "blockbench_file": "ait:test"
+}

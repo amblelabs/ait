@@ -177,7 +177,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
 
         TravelHandlerBase.State travelState = tardis.travel().getState();
 
-        if (travelState == TravelHandlerBase.State.LANDED || exterior.getAlpha() > 0.75)
+        if (travelState == TravelHandlerBase.State.LANDED || tardis.travel().getAlpha() > 0.75)
             return normal;
 
         if (DependencyChecker.hasPortals())
@@ -225,7 +225,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         TravelHandler travel = tardis.travel();
 
         if (travel.getState() == TravelHandlerBase.State.LANDED
-                || travel.getAnimTicks() >= 0.75 * travel.getMaxAnimTicks())
+                || travel.isHitboxShown())
             return getNormalShape(state, false);
 
         if (DependencyChecker.hasPortals())
@@ -272,12 +272,14 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         if (!(blockEntity instanceof ExteriorBlockEntity exterior) || !exterior.isLinked())
             return getNormalShape(state, false);
 
-        TravelHandlerBase.State travelState = exterior.tardis().get().travel().getState();
+        Tardis tardis = exterior.tardis().get();
 
-        if (travelState == TravelHandlerBase.State.LANDED || exterior.getAlpha() > 0.75)
+        TravelHandlerBase.State travelState = tardis.travel().getState();
+
+        if (travelState == TravelHandlerBase.State.LANDED || tardis.travel().getAlpha() > 0.75)
             return getNormalShape(state, false);
 
-        if (exterior.tardis().get().getExterior().getVariant().equals(ExteriorVariantRegistry.DOOM))
+        if (tardis.getExterior().getVariant().equals(ExteriorVariantRegistry.DOOM))
             return LEDGE_DOOM;
 
         if (DependencyChecker.hasPortals())

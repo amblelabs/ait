@@ -1,0 +1,6 @@
+{
+  "id": "ait:classic_mat",
+  "name": "classic",
+  "expected_state": "mat",
+  "sound": "ait:tardis/mat"
+}
