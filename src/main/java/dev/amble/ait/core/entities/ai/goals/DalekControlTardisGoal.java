@@ -90,7 +90,8 @@ public class DalekControlTardisGoal
         if (!(be instanceof ConsoleBlockEntity console)) return;
         if (console.tardis() == null) return;
         Tardis tardis = console.tardis().get();
-        if (!tardis.travel().hasFinishedFlight() && !tardis.travel().isLanded() || !tardis.fuel().hasPower()) return;
+        if (!tardis.travel().hasFinishedFlight() && !tardis.travel().isLanded() ||
+                !tardis.fuel().hasPower() || tardis.stats().security().get()) return;
         if (this.hasReached()) {
             Vec3d vec3d;
             if (this.counter > 0) {

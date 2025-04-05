@@ -59,6 +59,7 @@ import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.entities.DalekEntity;
 import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.entities.RiftEntity;
+import dev.amble.ait.core.entities.daleks.DalekRegistry;
 import dev.amble.ait.core.item.blueprint.BlueprintRegistry;
 import dev.amble.ait.core.item.component.AbstractTardisPart;
 import dev.amble.ait.core.item.part.MachineItem;
@@ -164,7 +165,8 @@ public class AITMod implements ModInitializer {
                 HumRegistry.getInstance(),
                 SubSystemRegistry.getInstance(),
                 ItemOpinionRegistry.getInstance(),
-                DrinkRegistry.getInstance()
+                DrinkRegistry.getInstance(),
+                DalekRegistry.getInstance()
         );
         ControlSoundRegistry.init();
 

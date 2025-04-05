@@ -34,7 +34,7 @@ public class DalekModel<T extends Entity> extends SinglePartEntityModel<T> {
                 .uv(62, 83).cuboid(-5.75F, -9.2071F, -9.375F, -1.0F, 14.0F, 18.0F, new Dilation(0.5F))
                 .uv(0, 80).cuboid(-6.0F, -7.9571F, -10.825F, 12.0F, 14.0F, 19.0F, new Dilation(0.0F))
                 .uv(50, 37).cuboid(-7.0F, 7.0429F, -8.325F, 14.0F, 1.0F, 19.0F, new Dilation(0.0F))
-                .uv(58, 43).cuboid(-6.0F, -8.9571F, -4.075F, 12.0F, 1.0F, 13.0F, new Dilation(0.1F))
+                .uv(121, 53).cuboid(-6.0F, -8.9571F, -4.075F, 12.0F, 1.0F, 13.0F, new Dilation(0.1F))
                 .uv(50, 37).cuboid(-7.0F, 6.0429F, -8.325F, 14.0F, 1.0F, 19.0F, new Dilation(0.1F))
                 .uv(87, 17).cuboid(-7.0F, 7.6429F, -8.325F, 14.0F, 0.0F, 19.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 15.9571F, -1.125F));
 
@@ -86,7 +86,7 @@ public class DalekModel<T extends Entity> extends SinglePartEntityModel<T> {
                 .uv(8, 8).cuboid(-3.0F, -2.7114F, 5.1227F, 1.0F, 5.0F, 0.0F, new Dilation(0.0F))
                 .uv(8, 8).cuboid(2.0F, -2.7114F, 5.1227F, 1.0F, 5.0F, 0.0F, new Dilation(0.0F))
                 .uv(43, 0).cuboid(-5.5F, -3.3364F, -5.5773F, 11.0F, 6.0F, 11.0F, new Dilation(-0.7F))
-                .uv(59, 44).cuboid(-6.0F, 1.8886F, -6.0273F, 12.0F, 1.0F, 12.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, -16.8458F, 2.6523F));
+                .uv(122, 69).cuboid(-6.0F, 1.8886F, -6.0273F, 12.0F, 1.0F, 12.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, -16.8458F, 2.6523F));
 
         ModelPartData cube_r12 = neck.addChild("cube_r12", ModelPartBuilder.create().uv(8, 8).cuboid(2.0F, -2.5F, 0.0F, 1.0F, 5.0F, 0.0F, new Dilation(0.0F))
                 .uv(8, 8).cuboid(-3.0F, -2.5F, 0.0F, 1.0F, 5.0F, 0.0F, new Dilation(0.0F)), ModelTransform.of(-5.2F, -0.2114F, 0.1227F, 0.0F, -1.5708F, 0.0F));
@@ -95,6 +95,7 @@ public class DalekModel<T extends Entity> extends SinglePartEntityModel<T> {
                 .uv(8, 8).cuboid(-3.0F, -2.5F, 0.0F, 1.0F, 5.0F, 0.0F, new Dilation(0.0F)), ModelTransform.of(5.2F, -0.2114F, 0.1227F, 0.0F, -1.5708F, 0.0F));
 
         ModelPartData torso = body.addChild("torso", ModelPartBuilder.create().uv(36, 58).cuboid(-6.02F, 9.9697F, -6.05F, 12.0F, 5.0F, 12.0F, new Dilation(0.002F))
+                .uv(36, 75).cuboid(-6.02F, 9.9697F, -6.05F, 12.0F, 5.0F, 12.0F, new Dilation(0.102F))
                 .uv(0, 0).mirrored().cuboid(-5.02F, 10.9697F, -7.35F, 3.0F, 3.0F, 3.0F, new Dilation(0.002F)).mirrored(false)
                 .uv(0, 0).cuboid(1.98F, 10.9697F, -7.35F, 3.0F, 3.0F, 3.0F, new Dilation(0.002F)), ModelTransform.pivot(0.02F, -23.9268F, 2.625F));
 
@@ -126,13 +127,13 @@ public class DalekModel<T extends Entity> extends SinglePartEntityModel<T> {
 
         ModelPartData cube_r20 = torsopipes.addChild("cube_r20", ModelPartBuilder.create().uv(155, 40).mirrored().cuboid(-6.5F, -22.0F, 1.55F, 1.0F, 4.0F, 2.0F, new Dilation(-0.002F)).mirrored(false), ModelTransform.of(-7.5F, 17.0F, 3.8F, 0.0F, 1.5708F, 0.0F));
 
-        ModelPartData cube_r21 = torsopipes.addChild("cube_r21", ModelPartBuilder.create().uv(155, 40).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(-0.002F)).mirrored(false), ModelTransform.of(1.5F, 17.0F, 4.3F, 0.0F, -1.5708F, 0.0F));
+        ModelPartData cube_r21 = torsopipes.addChild("cube_r21", ModelPartBuilder.create().uv(155, 47).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(-0.002F)).mirrored(false), ModelTransform.of(1.5F, 17.0F, 4.3F, 0.0F, -1.5708F, 0.0F));
 
-        ModelPartData cube_r22 = torsopipes.addChild("cube_r22", ModelPartBuilder.create().uv(155, 40).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(-0.002F)).mirrored(false), ModelTransform.of(-1.5F, 17.0F, 4.3F, 0.0F, -1.5708F, 0.0F));
+        ModelPartData cube_r22 = torsopipes.addChild("cube_r22", ModelPartBuilder.create().uv(155, 47).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(-0.002F)).mirrored(false), ModelTransform.of(-1.5F, 17.0F, 4.3F, 0.0F, -1.5708F, 0.0F));
 
-        ModelPartData cube_r23 = torsopipes.addChild("cube_r23", ModelPartBuilder.create().uv(155, 40).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(-0.002F)).mirrored(false), ModelTransform.of(-4.5F, 17.0F, 4.3F, 0.0F, -1.5708F, 0.0F));
+        ModelPartData cube_r23 = torsopipes.addChild("cube_r23", ModelPartBuilder.create().uv(155, 47).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(-0.002F)).mirrored(false), ModelTransform.of(-4.5F, 17.0F, 4.3F, 0.0F, -1.5708F, 0.0F));
 
-        ModelPartData cube_r24 = torsopipes.addChild("cube_r24", ModelPartBuilder.create().uv(155, 40).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(-0.002F)).mirrored(false), ModelTransform.of(-7.5F, 17.0F, 4.3F, 0.0F, -1.5708F, 0.0F));
+        ModelPartData cube_r24 = torsopipes.addChild("cube_r24", ModelPartBuilder.create().uv(155, 47).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(-0.002F)).mirrored(false), ModelTransform.of(-7.5F, 17.0F, 4.3F, 0.0F, -1.5708F, 0.0F));
         return TexturedModelData.of(modelData, 256, 256);
     }
     @Override

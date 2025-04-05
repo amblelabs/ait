@@ -29,9 +29,11 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.raid.RaiderEntity;
 import net.minecraft.item.RangedWeaponItem;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
@@ -40,6 +42,8 @@ import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.entities.ai.goals.DalekAttackGoal;
 import dev.amble.ait.core.entities.ai.goals.DalekControlTardisGoal;
+import dev.amble.ait.core.entities.daleks.Dalek;
+import dev.amble.ait.core.entities.daleks.DalekRegistry;
 import dev.amble.ait.mixin.server.RaidAccessor;
 import dev.amble.ait.module.gun.core.entity.GunEntityTypes;
 import dev.amble.ait.module.gun.core.entity.StaserBoltEntity;
@@ -54,8 +58,10 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
     public final AnimationState yellDoNotMoveAnimationState = new AnimationState();
     public static final TrackedDataHandler<DalekEntity.DalekState> DALEK_STATE = TrackedDataHandler.ofEnum(DalekEntity.DalekState.class);
     private static final TrackedData<DalekEntity.DalekState> STATE = DataTracker.registerData(DalekEntity.class, DALEK_STATE);
+    private static final TrackedData<String> DALEK = DataTracker.registerData(DalekEntity.class, TrackedDataHandlerRegistry.STRING);
     public DalekEntity(EntityType<? extends RaiderEntity> entityType, World world) {
         super(entityType, world);
+        this.setDalek(DalekRegistry.getInstance().getRandom());
     }
 
     static {
@@ -66,7 +72,7 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
     protected void initGoals() {
         this.goalSelector.add(1, new SwimGoal(this));
         this.goalSelector.add(4, new DalekAttackGoal<>(this, 1.0, 80, 30.0f));
-        this.goalSelector.add(1, new ControlTardisGoal(this, 1.0, 100));
+        this.goalSelector.add(5, new ControlTardisGoal(this, 1.0, 100));
         this.goalSelector.add(3, new MoveToRaidCenterGoal<>(this));
         this.goalSelector.add(2, new DalekEntity.PatrolApproachGoal(this, 10.0f));
         this.goalSelector.add(3, new FleeEntityGoal<>(this, OcelotEntity.class, 6.0f, 1.0, 1.2));
@@ -91,10 +97,39 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
     }
 
     @Override
+    public void writeCustomDataToNbt(NbtCompound nbt) {
+        super.writeCustomDataToNbt(nbt);
+
+        nbt.putString("dalek", this.getDalekData());
+    }
+
+    @Override
+    public void readCustomDataFromNbt(NbtCompound nbt) {
+        super.readCustomDataFromNbt(nbt);
+
+        if (nbt.contains("dalek")) {
+            this.setDalek(DalekRegistry.getInstance().get(Identifier.tryParse(nbt.getString("dalek"))));
+        }
+    }
+
+    @Override
     protected void initDataTracker() {
         super.initDataTracker();
 
         this.dataTracker.startTracking(STATE, DalekState.DEFAULT);
+        this.dataTracker.startTracking(DALEK, DalekRegistry.IMPERIAL.id().toString());
+    }
+
+    public void setDalek(Dalek dalek) {
+        this.dataTracker.set(DALEK, dalek.id().toString());
+    }
+
+    public String getDalekData() {
+        return this.dataTracker.get(DALEK);
+    }
+
+    public Dalek getDalek() {
+        return DalekRegistry.getInstance().get(Identifier.tryParse(this.getDalekData()));
     }
 
     @Override
