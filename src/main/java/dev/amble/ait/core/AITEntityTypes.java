@@ -47,5 +47,5 @@ public class AITEntityTypes implements EntityContainer {
     // Daleks
     public static EntityType<DalekEntity> DALEK_ENTITY = FabricEntityTypeBuilder.Mob.createMob()
             .spawnGroup(SpawnGroup.MONSTER).entityFactory(DalekEntity::new).spawnableFarFromPlayer()
-            .dimensions(EntityDimensions.fixed(0.8f, 1.8f)).build();
+            .dimensions(EntityDimensions.fixed(0.8f, 2.1f)).build();
 }

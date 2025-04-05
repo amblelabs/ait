@@ -42,6 +42,7 @@ import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.entities.ai.goals.DalekAttackGoal;
 import dev.amble.ait.core.entities.ai.goals.DalekControlTardisGoal;
+import dev.amble.ait.core.entities.ai.goals.DalekNavTardisGoal;
 import dev.amble.ait.core.entities.daleks.Dalek;
 import dev.amble.ait.core.entities.daleks.DalekRegistry;
 import dev.amble.ait.mixin.server.RaidAccessor;
@@ -73,6 +74,7 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
         this.goalSelector.add(1, new SwimGoal(this));
         this.goalSelector.add(4, new DalekAttackGoal<>(this, 1.0, 80, 30.0f));
         this.goalSelector.add(5, new ControlTardisGoal(this, 1.0, 100));
+        this.goalSelector.add(5, new NavTardisGoal(this, 1.0, 100));
         this.goalSelector.add(3, new MoveToRaidCenterGoal<>(this));
         this.goalSelector.add(2, new DalekEntity.PatrolApproachGoal(this, 10.0f));
         this.goalSelector.add(3, new FleeEntityGoal<>(this, OcelotEntity.class, 6.0f, 1.0, 1.2));
@@ -170,14 +172,6 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
     public boolean canUseRangedWeapon(RangedWeaponItem weapon) {
         return true;
     }
-    @Override
-    protected float getActiveEyeHeight(EntityPose pose, EntityDimensions dimensions) {
-        return 1f;
-    }
-    @Override
-    public double getHeightOffset() {
-        return -0.5;
-    }
 
     public DalekState getDalekState() {
         return this.dataTracker.get(STATE);
@@ -224,6 +218,10 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
                 default:
                     break;
             }
+        }
+        if (DALEK.equals(data)) {
+            this.setDalek(DalekRegistry.getInstance()
+                    .get(Identifier.tryParse(this.getDalekData())));
         }
         super.onTrackedDataSet(data);
     }
@@ -386,6 +384,18 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
         @Override
         public void tickStepping(WorldAccess world, BlockPos pos) {
             world.playSound(null, pos, AITSounds.HAMMER_STRIKE, SoundCategory.HOSTILE, 0.5f, 0.9f + DalekEntity.this.random.nextFloat() * 0.2f);
+        }
+
+        @Override
+        public double getDesiredDistanceToTarget() {
+            return 2;
+        }
+    }
+
+    class NavTardisGoal
+            extends DalekNavTardisGoal {
+        NavTardisGoal(PathAwareEntity mob, double speed, int maxYDifference) {
+            super(AITBlocks.EXTERIOR_BLOCK, mob, speed, maxYDifference);
         }
 
         @Override

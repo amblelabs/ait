@@ -138,7 +138,11 @@ public class DalekModel<T extends Entity> extends SinglePartEntityModel<T> {
     }
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
+        matrices.push();
+        matrices.translate(0, 0.1,0);
+        matrices.scale(0.9f, 0.9f, 0.9f);
         this.getPart().render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
+        matrices.pop();
     }
 
     @Override
