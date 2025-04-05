@@ -107,16 +107,23 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
     @Override
     public void tick() {
         super.tick();
-        if(!this.getWorld().isClient()) return;
+        if (this.getWorld().isClient()) return;
         if (!this.getWorld().isChunkLoaded(this.getBlockPos())) return;
-        if (!this.isRemoved()) return;
-        if (!this.isAlive()) return;
+        if (this.isRemoved() || !this.isAlive()) return;
+
         if (this.ambianceTimer-- <= 0) {
-            this.getWorld().playSound(null, this.getX(), this.getY(), this.getZ(),
-                    AITSounds.DALEK_AMBIANCE, SoundCategory.HOSTILE, 0.6f, 1.0f);
+            this.getWorld().playSound(
+                    null,
+                    this.getX(), this.getY(), this.getZ(),
+                    AITSounds.DALEK_AMBIANCE,
+                    SoundCategory.HOSTILE,
+                    0.6f,
+                    1.0f
+            );
             this.ambianceTimer = 40;
         }
     }
+
 
     @Override
     public boolean isTeammate(Entity other) {
