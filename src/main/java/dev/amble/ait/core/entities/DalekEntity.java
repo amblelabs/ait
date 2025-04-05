@@ -64,6 +64,10 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
 
     public DalekEntity(EntityType<? extends RaiderEntity> entityType, World world) {
         super(entityType, world);
+        randomizeDalekType();
+    }
+
+    public void randomizeDalekType() {
         Identifier commander = AITMod.id("dalek/commander");
         List<Dalek> dalekList = new ArrayList<>(DalekRegistry.getInstance().toList());
         Dalek commanderDalek = DalekRegistry.getInstance().get(commander);
@@ -289,9 +293,10 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
 
     private void setProjectileVelocity(LivingEntity target, PersistentProjectileEntity projectile) {
         double d = target.getX() - this.getX();
-        double e = target.getBodyY(0.3333333333333333) - projectile.getY();
+        double e = target.getBodyY(0.1) - projectile.getY();
         double f = target.getZ() - this.getZ();
         double g = Math.sqrt(d * d + f * f);
+        projectile.setPosition(this.getPos().add(0, 0.75, 0));
         projectile.setVelocity(d, e + g * 0.2f, f, 1.6f, 14 - this.getWorld().getDifficulty().getId() * 4);
     }
 

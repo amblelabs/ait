@@ -42,6 +42,12 @@ public class DalekNavTardisGoal
             return false;
         }
         if (this.findTargetPos()) {
+            if (this.stepAndDestroyMob.getWorld().getBlockEntity(targetPos) instanceof ExteriorBlockEntity exterior) {
+                if (exterior.tardis() == null) return false;
+                Tardis tardis = exterior.tardis().get();
+                if (tardis == null) return false;
+                if (tardis.cloak().cloaked().get()) return false;
+            }
             this.cooldown = StepAndDestroyBlockGoal.toGoalTicks(20);
             return true;
         }
