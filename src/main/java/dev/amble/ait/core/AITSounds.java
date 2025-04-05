@@ -262,6 +262,8 @@ public class AITSounds {
     // Daleks
     public static final SoundEvent DALEK_MOVE = register("mobs/daleks/dalek_move");
     public static final SoundEvent DALEK_PLUNGER = register("mobs/daleks/plunger");
+    public static final SoundEvent DALEK_AMBIANCE = register("mobs/daleks/dalek_ambiance");
+    public static final SoundEvent DALEK_DEATH = register("mobs/daleks/dalek_death");
 
     // Imperial
     public static final SoundEvent IMPERIAL_DO_NOT_MOVE = register("mobs/daleks/imperial/imperial_do_not_move");

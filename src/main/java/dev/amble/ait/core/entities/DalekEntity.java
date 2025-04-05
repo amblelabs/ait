@@ -60,6 +60,8 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
     public static final TrackedDataHandler<DalekEntity.DalekState> DALEK_STATE = TrackedDataHandler.ofEnum(DalekEntity.DalekState.class);
     private static final TrackedData<DalekEntity.DalekState> STATE = DataTracker.registerData(DalekEntity.class, DALEK_STATE);
     private static final TrackedData<String> DALEK = DataTracker.registerData(DalekEntity.class, TrackedDataHandlerRegistry.STRING);
+    private int ambianceTimer = 0;
+
     public DalekEntity(EntityType<? extends RaiderEntity> entityType, World world) {
         super(entityType, world);
         this.setDalek(DalekRegistry.getInstance().getRandom());
@@ -88,6 +90,17 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
     }
 
     @Override
+    public void tick() {
+        super.tick();
+        if (!this.isRemoved() && this.isAlive() && !this.getWorld().isClient && this.getWorld().isChunkLoaded(this.getBlockPos())) {
+            if (this.ambianceTimer-- <= 0) {
+                this.getWorld().playSound(null, this.getX(), this.getY(), this.getZ(), AITSounds.DALEK_AMBIANCE, SoundCategory.HOSTILE, 0.6f, 1.0f);
+                this.ambianceTimer = 40;
+            }
+        }
+    }
+
+    @Override
     public boolean isTeammate(Entity other) {
         if (super.isTeammate(other)) {
             return true;
@@ -101,14 +114,12 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
-
         nbt.putString("dalek", this.getDalekData());
     }
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
-
         if (nbt.contains("dalek")) {
             this.setDalek(DalekRegistry.getInstance().get(Identifier.tryParse(nbt.getString("dalek"))));
         }
@@ -117,7 +128,6 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
     @Override
     protected void initDataTracker() {
         super.initDataTracker();
-
         this.dataTracker.startTracking(STATE, DalekState.DEFAULT);
         this.dataTracker.startTracking(DALEK, DalekRegistry.IMPERIAL.id().toString());
     }
@@ -149,18 +159,22 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
     public void setAttacking(boolean attacking) {
         super.setAttacking(attacking);
     }
+
     public static DefaultAttributeContainer.Builder createDalekAttributes() {
         return HostileEntity.createHostileAttributes().add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.225)
                 .add(EntityAttributes.GENERIC_MAX_HEALTH, 1250.0);
     }
+
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
         return SoundEvents.BLOCK_CHAIN_HIT;
     }
+
     @Override
     protected SoundEvent getDeathSound() {
-        return SoundEvents.ENTITY_IRON_GOLEM_DEATH;
+        return AITSounds.DALEK_DEATH;
     }
+
     @Environment(value = EnvType.CLIENT)
     public boolean isSpeaking() {
         return this.exterminateAltAnimationState.isRunning() ||
@@ -168,6 +182,7 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
                 this.yellStayAnimationState.isRunning() ||
                 this.yellDoNotMoveAnimationState.isRunning();
     }
+
     @Override
     public boolean canUseRangedWeapon(RangedWeaponItem weapon) {
         return true;
@@ -245,6 +260,7 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
         this.getWorld().spawnEntity(projectile);
         schedulePostAttackActions();
     }
+
     private void setProjectileVelocity(LivingEntity target, PersistentProjectileEntity projectile) {
         double d = target.getX() - this.getX();
         double e = target.getBodyY(0.3333333333333333) - projectile.getY();
@@ -252,9 +268,11 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
         double g = Math.sqrt(d * d + f * f);
         projectile.setVelocity(d, e + g * 0.2f, f, 1.6f, 14 - this.getWorld().getDifficulty().getId() * 4);
     }
+
     private void playFireSound() {
         this.playSound(AITSounds.IMPERIAL_FIRE, 0.23f, 1.0f / (this.getRandom().nextFloat() * 0.4f + 0.8f));
     }
+
     private void schedulePostAttackActions() {
         Scheduler.get().runTaskLater(() -> {
             if (this.getWorld().getRandom().nextBoolean()) {
@@ -264,6 +282,7 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
             }
         }, TimeUnit.TICKS, 20);
     }
+
     private void handleRandomTrue() {
         if (this.getWorld().getRandom().nextBetween(0, 1) == 0) {
             playSoundAndSendStatus(AITSounds.IMPERIAL_EXTERMINATE_ALT, DalekState.EXTERMINATE);
@@ -271,6 +290,7 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
             playSoundAndSendStatus(AITSounds.IMPERIAL_STAY, DalekState.YELL_STAY);
         }
     }
+
     private void handleRandomFalse() {
         if (this.getWorld().getRandom().nextBetween(0, 1) == 0) {
             playSoundAndSendStatus(AITSounds.IMPERIAL_EXTERMINATE, DalekState.EXTERMINATE_ALT);
@@ -278,11 +298,13 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
             playSoundAndSendStatus(AITSounds.IMPERIAL_DO_NOT_MOVE, DalekState.YELL_DONT_MOVE);
         }
     }
+
     private void playSoundAndSendStatus(SoundEvent sound, DalekState state) {
         this.getWorld().playSound(null, this.getPos().getX(), this.getPos().getY(),
                 this.getPos().getZ(), sound, SoundCategory.HOSTILE, 2.0F, 1.0F);
         this.setState(state);
     }
+
     public PersistentProjectileEntity createStaserbolt(World world, LivingEntity shooter) {
         StaserBoltEntity staserBoltEntity = new StaserBoltEntity(GunEntityTypes.STASER_BOLT_ENTITY_TYPE, world);
         return staserBoltEntity.createFromConstructor(world, shooter);
@@ -306,11 +328,9 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
         EXTERMINATE_ALT,
         YELL_STAY,
         YELL_DONT_MOVE;
-
     }
 
-    protected class PatrolApproachGoal
-            extends Goal {
+    protected class PatrolApproachGoal extends Goal {
         private final RaiderEntity raider;
         private final float squaredDistance;
         public final TargetPredicate closeRaiderPredicate = TargetPredicate.createNonAttackable().setBaseMaxDistance(8.0).ignoreVisibility().ignoreDistanceScalingFactor();
@@ -376,8 +396,7 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
         }
     }
 
-    class ControlTardisGoal
-            extends DalekControlTardisGoal {
+    class ControlTardisGoal extends DalekControlTardisGoal {
         ControlTardisGoal(PathAwareEntity mob, double speed, int maxYDifference) {
             super(AITBlocks.CONSOLE, mob, speed, maxYDifference);
         }
@@ -393,8 +412,7 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
         }
     }
 
-    class NavTardisGoal
-            extends DalekNavTardisGoal {
+    class NavTardisGoal extends DalekNavTardisGoal {
         NavTardisGoal(PathAwareEntity mob, double speed, int maxYDifference) {
             super(AITBlocks.EXTERIOR_BLOCK, mob, speed, maxYDifference);
         }
