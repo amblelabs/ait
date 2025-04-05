@@ -1,5 +1,6 @@
 package dev.amble.ait.core.entities;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -38,6 +39,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.entities.ai.goals.DalekAttackGoal;
@@ -64,11 +66,26 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
 
     public DalekEntity(EntityType<? extends RaiderEntity> entityType, World world) {
         super(entityType, world);
-        this.setDalek(DalekRegistry.getInstance().getRandom());
+        Identifier commander = AITMod.id("dalek/commander");
+        List<Dalek> dalekList = new ArrayList<>(DalekRegistry.getInstance().toList());
+        Dalek commanderDalek = DalekRegistry.getInstance().get(commander);
+        dalekList.remove(commanderDalek);
+        Dalek dalek = dalekList.get(this.getRandom().nextBetween(0, dalekList.size() - 1));
+        if (!this.isPatrolLeader()) {
+            this.setDalek(dalek);
+        } else {
+            this.setDalek(commanderDalek);
+        }
     }
 
     static {
         TrackedDataHandlerRegistry.register(DALEK_STATE);
+    }
+
+    @Override
+    public void setPatrolLeader(boolean patrolLeader) {
+        super.setPatrolLeader(patrolLeader);
+        this.setDalek(DalekRegistry.getInstance().get(AITMod.id("dalek/commander")));
     }
 
     @Override
@@ -234,10 +251,10 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
                     break;
             }
         }
-        if (DALEK.equals(data)) {
+        /*if (DALEK.equals(data)) {
             this.setDalek(DalekRegistry.getInstance()
                     .get(Identifier.tryParse(this.getDalekData())));
-        }
+        }*/
         super.onTrackedDataSet(data);
     }
 

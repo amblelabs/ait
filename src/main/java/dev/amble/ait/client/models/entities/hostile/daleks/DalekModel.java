@@ -5,7 +5,6 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.MathHelper;
 
 import dev.amble.ait.client.animation.entities.daleks.imperial.ImperialDalekAnimations;
 import dev.amble.ait.core.entities.DalekEntity;
@@ -51,11 +50,13 @@ public class DalekModel<T extends Entity> extends SinglePartEntityModel<T> {
         ModelPartData cube_r6 = body.addChild("cube_r6", ModelPartBuilder.create().uv(43, 116).cuboid(-6.0F, -8.5F, -1.0F, 12.0F, 15.0F, 2.0F, new Dilation(0.001F)), ModelTransform.of(0.0F, -0.3981F, 8.5698F, 0.0873F, 0.0F, 0.0F));
 
         ModelPartData dome = body.addChild("dome", ModelPartBuilder.create().uv(124, 83).cuboid(-5.5F, 0.4947F, -5.5F, 11.0F, 4.0F, 11.0F, new Dilation(-0.1F))
+                .uv(0, 16).cuboid(-1.0F, 2.4947F, -5.5F, 2.0F, 1.0F, 0.0F, new Dilation(0.001F))
                 .uv(47, 17).cuboid(-5.0F, -1.7053F, -5.0F, 10.0F, 3.0F, 10.0F, new Dilation(-0.2F)), ModelTransform.pivot(0.0F, -23.9268F, 2.575F));
 
         ModelPartData bulbleft = dome.addChild("bulbleft", ModelPartBuilder.create(), ModelTransform.pivot(4.6464F, -1.1447F, 0.0F));
 
-        ModelPartData cube_r7 = bulbleft.addChild("cube_r7", ModelPartBuilder.create().uv(0, 11).mirrored().cuboid(-1.0F, -1.0F, -1.0F, 2.0F, 2.0F, 2.0F, new Dilation(0.0F)).mirrored(false), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.7854F));
+        ModelPartData cube_r7 = bulbleft.addChild("cube_r7", ModelPartBuilder.create().uv(0, 43).mirrored().cuboid(-1.0F, -1.75F, -1.0F, 2.0F, 1.0F, 2.0F, new Dilation(-0.25F)).mirrored(false)
+                .uv(0, 11).mirrored().cuboid(-1.0F, -1.0F, -1.0F, 2.0F, 2.0F, 2.0F, new Dilation(0.0F)).mirrored(false), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.7854F));
 
         ModelPartData leftlight = bulbleft.addChild("leftlight", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
@@ -63,7 +64,8 @@ public class DalekModel<T extends Entity> extends SinglePartEntityModel<T> {
 
         ModelPartData bulbright = dome.addChild("bulbright", ModelPartBuilder.create(), ModelTransform.pivot(-4.6464F, -1.1447F, 0.0F));
 
-        ModelPartData cube_r9 = bulbright.addChild("cube_r9", ModelPartBuilder.create().uv(0, 11).cuboid(-1.0F, -1.0F, -1.0F, 2.0F, 2.0F, 2.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -0.7854F));
+        ModelPartData cube_r9 = bulbright.addChild("cube_r9", ModelPartBuilder.create().uv(0, 43).cuboid(-1.0F, -1.75F, -1.0F, 2.0F, 1.0F, 2.0F, new Dilation(-0.25F))
+                .uv(0, 11).cuboid(-1.0F, -1.0F, -1.0F, 2.0F, 2.0F, 2.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -0.7854F));
 
         ModelPartData rightlight = bulbright.addChild("rightlight", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
@@ -99,9 +101,9 @@ public class DalekModel<T extends Entity> extends SinglePartEntityModel<T> {
                 .uv(0, 0).mirrored().cuboid(-5.02F, 10.9697F, -7.35F, 3.0F, 3.0F, 3.0F, new Dilation(0.002F)).mirrored(false)
                 .uv(0, 0).cuboid(1.98F, 10.9697F, -7.35F, 3.0F, 3.0F, 3.0F, new Dilation(0.002F)), ModelTransform.pivot(0.02F, -23.9268F, 2.625F));
 
-        ModelPartData cube_r14 = torso.addChild("cube_r14", ModelPartBuilder.create().uv(155, 40).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(0.002F)).mirrored(false), ModelTransform.of(0.98F, 33.4697F, -1.05F, 0.0F, -1.5708F, 0.0F));
+        ModelPartData cube_r14 = torso.addChild("cube_r14", ModelPartBuilder.create().uv(155, 35).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(0.002F)).mirrored(false), ModelTransform.of(0.98F, 33.4697F, -1.05F, 0.0F, -1.5708F, 0.0F));
 
-        ModelPartData cube_r15 = torso.addChild("cube_r15", ModelPartBuilder.create().uv(155, 40).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(0.002F)).mirrored(false), ModelTransform.of(-6.02F, 33.4697F, -1.05F, 0.0F, -1.5708F, 0.0F));
+        ModelPartData cube_r15 = torso.addChild("cube_r15", ModelPartBuilder.create().uv(155, 35).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(0.002F)).mirrored(false), ModelTransform.of(-6.02F, 33.4697F, -1.05F, 0.0F, -1.5708F, 0.0F));
 
         ModelPartData plunger = torso.addChild("plunger", ModelPartBuilder.create().uv(83, 58).cuboid(-0.5F, -0.5009F, -10.3936F, 1.0F, 1.0F, 11.0F, new Dilation(0.0F))
                 .uv(26, 23).cuboid(-1.5F, -1.5009F, -11.3936F, 3.0F, 3.0F, 1.0F, new Dilation(0.0F)), ModelTransform.pivot(-3.52F, 12.4697F, -7.0F));
@@ -129,9 +131,10 @@ public class DalekModel<T extends Entity> extends SinglePartEntityModel<T> {
 
         ModelPartData cube_r21 = torsopipes.addChild("cube_r21", ModelPartBuilder.create().uv(155, 47).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(-0.002F)).mirrored(false), ModelTransform.of(1.5F, 17.0F, 4.3F, 0.0F, -1.5708F, 0.0F));
 
-        ModelPartData cube_r22 = torsopipes.addChild("cube_r22", ModelPartBuilder.create().uv(155, 47).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(-0.002F)).mirrored(false), ModelTransform.of(-1.5F, 17.0F, 4.3F, 0.0F, -1.5708F, 0.0F));
+        ModelPartData cube_r22 = torsopipes.addChild("cube_r22", ModelPartBuilder.create().uv(152, 52).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 5.0F, new Dilation(-0.002F)).mirrored(false)
+                .uv(162, 47).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(-0.002F)).mirrored(false), ModelTransform.of(-1.5F, 17.0F, 4.3F, 0.0F, -1.5708F, 0.0F));
 
-        ModelPartData cube_r23 = torsopipes.addChild("cube_r23", ModelPartBuilder.create().uv(155, 47).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(-0.002F)).mirrored(false), ModelTransform.of(-4.5F, 17.0F, 4.3F, 0.0F, -1.5708F, 0.0F));
+        ModelPartData cube_r23 = torsopipes.addChild("cube_r23", ModelPartBuilder.create().uv(162, 47).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(-0.002F)).mirrored(false), ModelTransform.of(-4.5F, 17.0F, 4.3F, 0.0F, -1.5708F, 0.0F));
 
         ModelPartData cube_r24 = torsopipes.addChild("cube_r24", ModelPartBuilder.create().uv(155, 47).mirrored().cuboid(-6.5F, -22.0F, -3.55F, 1.0F, 2.0F, 2.0F, new Dilation(-0.002F)).mirrored(false), ModelTransform.of(-7.5F, 17.0F, 4.3F, 0.0F, -1.5708F, 0.0F));
         return TexturedModelData.of(modelData, 256, 256);
@@ -155,7 +158,7 @@ public class DalekModel<T extends Entity> extends SinglePartEntityModel<T> {
         this.getPart().traverse().forEach(ModelPart::resetTransform);
         this.setHeadAndArmsAngles(headYaw, headPitch, limbAngle, limbDistance);
         this.lightInfo(dalekEntity);
-        torso.yaw = MathHelper.cos(limbAngle * 0.6662f) * 0.4f * limbDistance;
+        //torso.yaw = MathHelper.cos(limbAngle * 0.6662f) * 0.4f * limbDistance;
         this.animateMovement(ImperialDalekAnimations.MOVING, limbAngle, limbDistance, ImperialDalekAnimations.MOVING.lengthInSeconds(), 1);
         this.updateAnimation(((DalekEntity)dalekEntity).startMovingTransitionState, ImperialDalekAnimations.START_MOVING_TRANSITION, animationProgress, 1.0f);
         this.updateAnimation(((DalekEntity)dalekEntity).stopMovingTransitionState, ImperialDalekAnimations.STOP_MOVING_TRANSITION, animationProgress, 1.0f);
@@ -169,8 +172,8 @@ public class DalekModel<T extends Entity> extends SinglePartEntityModel<T> {
     private void setHeadAndArmsAngles(float headYaw, float headPitch, float limbAngle, float limbDistance) {
         dome.yaw = headYaw * (float) (Math.PI / 180);
         eyestalk.pitch = headPitch * (float) (Math.PI / 180);
-        gun.pitch = MathHelper.cos(limbAngle * 0.6662f) * 0.4f * limbDistance;
-        plunger.pitch = MathHelper.cos(limbAngle * 0.6662f + (float)Math.PI) * 0.4f * limbDistance;
+        //gun.pitch = MathHelper.cos(limbAngle * 0.6662f) * 0.4f * limbDistance;
+        //plunger.pitch = MathHelper.cos(limbAngle * 0.6662f + (float)Math.PI) * 0.4f * limbDistance;
     }
 
     private void lightInfo(T dalekEntity) {

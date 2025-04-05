@@ -76,7 +76,7 @@ public class DalekNavTardisGoal
         if (!(be instanceof ExteriorBlockEntity exteriorBlockEntity)) return;
         if (exteriorBlockEntity.tardis() == null) return;
         Tardis tardis = exteriorBlockEntity.tardis().get();
-        if (!tardis.travel().isLanded()) return;
+        if (!tardis.travel().isLanded() || tardis.cloak().cloaked().get()) return;
         if (this.hasReached()) {
             Vec3d vec3d;
             if (this.counter > 0) {

@@ -251,6 +251,7 @@ public class AITMod implements ModInitializer {
             DebugCommand.register(dispatcher);
             EraseChunksCommand.register(dispatcher);
             FlightCommand.register(dispatcher);
+            DalekRaidCommand.register(dispatcher);
         }));
 
         ServerPlayNetworking.registerGlobalReceiver(TardisUtil.REGION_LANDING_CODE,
