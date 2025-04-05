@@ -4,10 +4,6 @@ import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
@@ -16,6 +12,10 @@ import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandler;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.passive.CatEntity;
 import net.minecraft.entity.passive.OcelotEntity;
@@ -23,16 +23,12 @@ import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.RangedWeaponItem;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.entities.ai.goals.DalekAttackGoal;
 import dev.amble.ait.module.gun.core.entity.GunEntityTypes;
@@ -46,15 +42,16 @@ public class DalekEntity extends HostileEntity implements RangedAttackMob {
     public final AnimationState aimAnimationState = new AnimationState();
     public final AnimationState yellStayAnimationState = new AnimationState();
     public final AnimationState yellDoNotMoveAnimationState = new AnimationState();
-    private static final byte ATTACK = EntityStatuses.PLAY_ATTACK_SOUND;
-    private static final byte EXTERMINATE = EntityStatuses.TAME_OCELOT_FAILED;
-    private static final byte EXTERMINATE_ALT = EntityStatuses.TAME_OCELOT_SUCCESS;
-    private static final byte YELL_STAY = EntityStatuses.LOOK_AT_VILLAGER;
-    private static final byte YELL_DONT_MOVE = EntityStatuses.STOP_LOOKING_AT_VILLAGER;
-    private static final Identifier DALEK_UPDATE = AITMod.id("update_dalek_status");
+    public static final TrackedDataHandler<DalekEntity.DalekState> DALEK_STATE = TrackedDataHandler.ofEnum(DalekEntity.DalekState.class);
+    private static final TrackedData<DalekEntity.DalekState> STATE = DataTracker.registerData(DalekEntity.class, DALEK_STATE);
     public DalekEntity(EntityType<? extends HostileEntity> entityType, World world) {
         super(entityType, world);
     }
+
+    static {
+        TrackedDataHandlerRegistry.register(DALEK_STATE);
+    }
+
     @Override
     protected void initGoals() {
         this.goalSelector.add(1, new SwimGoal(this));
@@ -70,54 +67,19 @@ public class DalekEntity extends HostileEntity implements RangedAttackMob {
     }
 
     @Override
+    protected void initDataTracker() {
+        super.initDataTracker();
+
+        this.dataTracker.startTracking(STATE, DalekState.DEFAULT);
+    }
+
+    @Override
     protected void playStepSound(BlockPos pos, BlockState state) {
         this.playSound(AITSounds.DALEK_MOVE, 0.5f, 1.0f);
     }
 
-    static {
-        ClientPlayNetworking.registerReceiver(DALEK_UPDATE, (client, handler, buf, responseSender) -> {
-            int id = buf.readInt();
-            byte status = buf.readByte();
-            if (client.world == null) return;
-            DalekEntity dalek = (DalekEntity) client.world.getEntityById(id);
-            if (dalek == null) return;
-            client.execute(() -> {
-                switch (status) {
-                    case EXTERMINATE:
-                        dalek.exterminateAltAnimationState.stop();
-                        dalek.yellStayAnimationState.stop();
-                        dalek.yellDoNotMoveAnimationState.stop();
-                        dalek.exterminateAnimationState.start(dalek.age);
-                        break;
-                    case EXTERMINATE_ALT:
-                        dalek.exterminateAnimationState.stop();
-                        dalek.yellStayAnimationState.stop();
-                        dalek.yellDoNotMoveAnimationState.stop();
-                        dalek.exterminateAltAnimationState.start(dalek.age);
-                        break;
-                    case YELL_STAY:
-                        dalek.exterminateAnimationState.stop();
-                        dalek.exterminateAltAnimationState.stop();
-                        dalek.yellDoNotMoveAnimationState.stop();
-                        dalek.yellStayAnimationState.start(dalek.age);
-                        break;
-                    case YELL_DONT_MOVE:
-                        dalek.exterminateAnimationState.stop();
-                        dalek.exterminateAltAnimationState.stop();
-                        dalek.yellStayAnimationState.stop();
-                        dalek.yellDoNotMoveAnimationState.start(dalek.age);
-                        break;
-                    default:
-                        dalek.aimAnimationState.start(dalek.age);
-                        break;
-                }
-            });
-        });
-    }
-
     @Override
     public void setAttacking(boolean attacking) {
-        this.getWorld().sendEntityStatus(this, ATTACK);
         super.setAttacking(attacking);
     }
     public static DefaultAttributeContainer.Builder createDalekAttributes() {
@@ -145,12 +107,72 @@ public class DalekEntity extends HostileEntity implements RangedAttackMob {
     }
     @Override
     protected float getActiveEyeHeight(EntityPose pose, EntityDimensions dimensions) {
-        return 1.44f;
+        return 1f;
     }
     @Override
     public double getHeightOffset() {
         return -0.5;
     }
+
+    public DalekState getDalekState() {
+        return this.dataTracker.get(STATE);
+    }
+
+    private DalekEntity setState(DalekEntity.DalekState state) {
+        this.dataTracker.set(STATE, state);
+        return this;
+    }
+
+    @Override
+    public void onTrackedDataSet(TrackedData<?> data) {
+        if (STATE.equals(data)) {
+            DalekState state = this.getDalekState();
+            this.stopAnimations();
+            switch (state) {
+                case EXTERMINATE:
+                    this.exterminateAltAnimationState.stop();
+                    this.yellStayAnimationState.stop();
+                    this.yellDoNotMoveAnimationState.stop();
+                    this.exterminateAnimationState.start(this.age);
+                    break;
+                case EXTERMINATE_ALT:
+                    this.exterminateAnimationState.stop();
+                    this.yellStayAnimationState.stop();
+                    this.yellDoNotMoveAnimationState.stop();
+                    this.exterminateAltAnimationState.start(this.age);
+                    break;
+                case YELL_STAY:
+                    this.exterminateAnimationState.stop();
+                    this.exterminateAltAnimationState.stop();
+                    this.yellDoNotMoveAnimationState.stop();
+                    this.yellStayAnimationState.start(this.age);
+                    break;
+                case YELL_DONT_MOVE:
+                    this.exterminateAnimationState.stop();
+                    this.exterminateAltAnimationState.stop();
+                    this.yellStayAnimationState.stop();
+                    this.yellDoNotMoveAnimationState.start(this.age);
+                    break;
+                case ATTACK:
+                    this.aimAnimationState.start(this.age);
+                    break;
+                default:
+                    break;
+            }
+        }
+        super.onTrackedDataSet(data);
+    }
+
+    public void stopAnimations() {
+        this.aimAnimationState.stop();
+        this.exterminateAltAnimationState.stop();
+        this.exterminateAnimationState.stop();
+        this.yellStayAnimationState.stop();
+        this.yellDoNotMoveAnimationState.stop();
+        this.startMovingTransitionState.stop();
+        this.stopMovingTransitionState.stop();
+    }
+
     @Override
     public void attack(LivingEntity target, float pullProgress) {
         PersistentProjectileEntity projectile = createStaserbolt(this.getWorld(), this);
@@ -180,30 +202,41 @@ public class DalekEntity extends HostileEntity implements RangedAttackMob {
     }
     private void handleRandomTrue() {
         if (this.getWorld().getRandom().nextBetween(0, 1) == 0) {
-            playSoundAndSendStatus(AITSounds.IMPERIAL_EXTERMINATE_ALT, EXTERMINATE);
+            playSoundAndSendStatus(AITSounds.IMPERIAL_EXTERMINATE_ALT, DalekState.EXTERMINATE);
         } else {
-            playSoundAndSendStatus(AITSounds.IMPERIAL_STAY, YELL_STAY);
+            playSoundAndSendStatus(AITSounds.IMPERIAL_STAY, DalekState.YELL_STAY);
         }
     }
     private void handleRandomFalse() {
         if (this.getWorld().getRandom().nextBetween(0, 1) == 0) {
-            playSoundAndSendStatus(AITSounds.IMPERIAL_EXTERMINATE, EXTERMINATE_ALT);
+            playSoundAndSendStatus(AITSounds.IMPERIAL_EXTERMINATE, DalekState.EXTERMINATE_ALT);
         } else {
-            playSoundAndSendStatus(AITSounds.IMPERIAL_DO_NOT_MOVE, YELL_DONT_MOVE);
+            playSoundAndSendStatus(AITSounds.IMPERIAL_DO_NOT_MOVE, DalekState.YELL_DONT_MOVE);
         }
     }
-    private void playSoundAndSendStatus(SoundEvent sound, byte status) {
+    private void playSoundAndSendStatus(SoundEvent sound, DalekState state) {
         this.getWorld().playSound(null, this.getPos().getX(), this.getPos().getY(),
                 this.getPos().getZ(), sound, SoundCategory.HOSTILE, 2.0F, 1.0F);
-        for (ServerPlayerEntity player : PlayerLookup.tracking(this)) {
-            PacketByteBuf buf = PacketByteBufs.create();
-            buf.writeUuid(this.getUuid());
-            buf.writeByte(status);
-            ServerPlayNetworking.send(player, DALEK_UPDATE, buf);
-        }
+        this.setState(state);
     }
     public PersistentProjectileEntity createStaserbolt(World world, LivingEntity shooter) {
         StaserBoltEntity staserBoltEntity = new StaserBoltEntity(GunEntityTypes.STASER_BOLT_ENTITY_TYPE, world);
         return staserBoltEntity.createFromConstructor(world, shooter);
+    }
+
+    @Override
+    public void onDeath(DamageSource damageSource) {
+        this.setState(DalekState.DEFAULT);
+        super.onDeath(damageSource);
+    }
+
+    public enum DalekState {
+        DEFAULT,
+        ATTACK,
+        EXTERMINATE,
+        EXTERMINATE_ALT,
+        YELL_STAY,
+        YELL_DONT_MOVE;
+
     }
 }
