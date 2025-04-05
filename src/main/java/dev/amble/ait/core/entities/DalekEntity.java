@@ -1,5 +1,8 @@
 package dev.amble.ait.core.entities;
 
+import java.util.EnumSet;
+import java.util.List;
+
 import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
 import net.fabricmc.api.EnvType;
@@ -8,6 +11,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
+import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -17,24 +21,30 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandler;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.passive.CatEntity;
 import net.minecraft.entity.passive.OcelotEntity;
 import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
+import net.minecraft.entity.raid.RaiderEntity;
 import net.minecraft.item.RangedWeaponItem;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 
+import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.entities.ai.goals.DalekAttackGoal;
+import dev.amble.ait.core.entities.ai.goals.DalekControlTardisGoal;
+import dev.amble.ait.mixin.server.RaidAccessor;
 import dev.amble.ait.module.gun.core.entity.GunEntityTypes;
 import dev.amble.ait.module.gun.core.entity.StaserBoltEntity;
 
-public class DalekEntity extends HostileEntity implements RangedAttackMob {
+public class DalekEntity extends RaiderEntity implements RangedAttackMob {
     public final AnimationState startMovingTransitionState = new AnimationState();
     public final AnimationState stopMovingTransitionState = new AnimationState();
     public final AnimationState exterminateAnimationState = new AnimationState();
@@ -44,7 +54,7 @@ public class DalekEntity extends HostileEntity implements RangedAttackMob {
     public final AnimationState yellDoNotMoveAnimationState = new AnimationState();
     public static final TrackedDataHandler<DalekEntity.DalekState> DALEK_STATE = TrackedDataHandler.ofEnum(DalekEntity.DalekState.class);
     private static final TrackedData<DalekEntity.DalekState> STATE = DataTracker.registerData(DalekEntity.class, DALEK_STATE);
-    public DalekEntity(EntityType<? extends HostileEntity> entityType, World world) {
+    public DalekEntity(EntityType<? extends RaiderEntity> entityType, World world) {
         super(entityType, world);
     }
 
@@ -56,6 +66,9 @@ public class DalekEntity extends HostileEntity implements RangedAttackMob {
     protected void initGoals() {
         this.goalSelector.add(1, new SwimGoal(this));
         this.goalSelector.add(4, new DalekAttackGoal<>(this, 1.0, 80, 30.0f));
+        this.goalSelector.add(1, new ControlTardisGoal(this, 1.0, 100));
+        this.goalSelector.add(3, new MoveToRaidCenterGoal<>(this));
+        this.goalSelector.add(2, new DalekEntity.PatrolApproachGoal(this, 10.0f));
         this.goalSelector.add(3, new FleeEntityGoal<>(this, OcelotEntity.class, 6.0f, 1.0, 1.2));
         this.goalSelector.add(3, new FleeEntityGoal<>(this, CatEntity.class, 6.0f, 1.0, 1.2));
         this.goalSelector.add(5, new WanderAroundFarGoal(this, 1));
@@ -67,10 +80,27 @@ public class DalekEntity extends HostileEntity implements RangedAttackMob {
     }
 
     @Override
+    public boolean isTeammate(Entity other) {
+        if (super.isTeammate(other)) {
+            return true;
+        }
+        if (other instanceof DalekEntity) {
+            return this.getScoreboardTeam() == null && other.getScoreboardTeam() == null;
+        }
+        return false;
+    }
+
+    @Override
     protected void initDataTracker() {
         super.initDataTracker();
 
         this.dataTracker.startTracking(STATE, DalekState.DEFAULT);
+    }
+
+    @Override
+    public void addBonusForWave(int wave, boolean unused) {
+        this.setHealth(this.getMaxHealth());
+        this.setState(DalekState.DEFAULT);
     }
 
     @Override
@@ -230,6 +260,11 @@ public class DalekEntity extends HostileEntity implements RangedAttackMob {
         super.onDeath(damageSource);
     }
 
+    @Override
+    public SoundEvent getCelebratingSound() {
+        return null;
+    }
+
     public enum DalekState {
         DEFAULT,
         ATTACK,
@@ -238,5 +273,89 @@ public class DalekEntity extends HostileEntity implements RangedAttackMob {
         YELL_STAY,
         YELL_DONT_MOVE;
 
+    }
+
+    protected class PatrolApproachGoal
+            extends Goal {
+        private final RaiderEntity raider;
+        private final float squaredDistance;
+        public final TargetPredicate closeRaiderPredicate = TargetPredicate.createNonAttackable().setBaseMaxDistance(8.0).ignoreVisibility().ignoreDistanceScalingFactor();
+
+        public PatrolApproachGoal(RaiderEntity dalek, float distance) {
+            this.raider = dalek;
+            this.squaredDistance = distance * distance;
+            this.setControls(EnumSet.of(Goal.Control.MOVE, Goal.Control.LOOK));
+        }
+
+        @Override
+        public boolean canStart() {
+            LivingEntity livingEntity = this.raider.getAttacker();
+            return this.raider.getRaid() == null && ((RaidAccessor) this.raider).getPatrolling() && this.raider.getTarget() !=
+                    null && !this.raider.isAttacking() && (livingEntity == null || livingEntity.getType() != EntityType.PLAYER);
+        }
+
+        @Override
+        public void start() {
+            super.start();
+            this.raider.getNavigation().stop();
+            List<RaiderEntity> list = this.raider.getWorld().getTargets(RaiderEntity.class, this.closeRaiderPredicate, this.raider, this.raider.getBoundingBox().expand(8.0, 8.0, 8.0));
+            for (RaiderEntity raiderEntity : list) {
+                raiderEntity.setTarget(this.raider.getTarget());
+            }
+        }
+
+        @Override
+        public void stop() {
+            super.stop();
+            LivingEntity livingEntity = this.raider.getTarget();
+            if (livingEntity != null) {
+                List<RaiderEntity> list = this.raider.getWorld().getTargets(RaiderEntity.class, this.closeRaiderPredicate,
+                        this.raider, this.raider.getBoundingBox().expand(8.0, 8.0, 8.0));
+                for (RaiderEntity raiderEntity : list) {
+                    raiderEntity.setTarget(livingEntity);
+                    raiderEntity.setAttacking(true);
+                }
+                this.raider.setAttacking(true);
+            }
+        }
+
+        @Override
+        public boolean shouldRunEveryTick() {
+            return true;
+        }
+
+        @Override
+        public void tick() {
+            LivingEntity livingEntity = this.raider.getTarget();
+            if (livingEntity == null) {
+                return;
+            }
+            if (this.raider.squaredDistanceTo(livingEntity) > (double)this.squaredDistance) {
+                this.raider.getLookControl().lookAt(livingEntity, 30.0f, 30.0f);
+                if (this.raider.getRandom().nextInt(50) == 0) {
+                    this.raider.playAmbientSound();
+                }
+            } else {
+                this.raider.setAttacking(true);
+            }
+            super.tick();
+        }
+    }
+
+    class ControlTardisGoal
+            extends DalekControlTardisGoal {
+        ControlTardisGoal(PathAwareEntity mob, double speed, int maxYDifference) {
+            super(AITBlocks.CONSOLE, mob, speed, maxYDifference);
+        }
+
+        @Override
+        public void tickStepping(WorldAccess world, BlockPos pos) {
+            world.playSound(null, pos, AITSounds.HAMMER_STRIKE, SoundCategory.HOSTILE, 0.5f, 0.9f + DalekEntity.this.random.nextFloat() * 0.2f);
+        }
+
+        @Override
+        public double getDesiredDistanceToTarget() {
+            return 2;
+        }
     }
 }
