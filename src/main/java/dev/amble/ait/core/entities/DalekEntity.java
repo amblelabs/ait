@@ -384,7 +384,7 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
 
         @Override
         public void tickStepping(WorldAccess world, BlockPos pos) {
-            world.playSound(null, pos, AITSounds.HAMMER_STRIKE, SoundCategory.HOSTILE, 0.5f, 0.9f + DalekEntity.this.random.nextFloat() * 0.2f);
+            world.playSound(null, pos, AITSounds.DALEK_PLUNGER, SoundCategory.HOSTILE, 0.5f, 0.9f + DalekEntity.this.random.nextFloat() * 0.2f);
         }
 
         @Override
