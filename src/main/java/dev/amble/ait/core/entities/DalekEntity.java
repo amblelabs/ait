@@ -239,7 +239,7 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
     @Override
     public void attack(LivingEntity target, float pullProgress) {
         PersistentProjectileEntity projectile = createStaserbolt(this.getWorld(), this);
-        projectile.setDamage(24d);
+        projectile.setDamage(50d);
         setProjectileVelocity(target, projectile);
         playFireSound();
         this.getWorld().spawnEntity(projectile);
