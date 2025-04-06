@@ -98,8 +98,6 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
         this.goalSelector.add(5, new NavTardisGoal(this, 1.0, 100));
         this.goalSelector.add(3, new MoveToRaidCenterGoal<>(this));
         this.goalSelector.add(2, new DalekEntity.PatrolApproachGoal(this, 10.0f));
-        this.goalSelector.add(3, new FleeEntityGoal<>(this, OcelotEntity.class, 6.0f, 1.0, 1.2));
-        this.goalSelector.add(3, new FleeEntityGoal<>(this, CatEntity.class, 6.0f, 1.0, 1.2));
         this.goalSelector.add(5, new WanderAroundFarGoal(this, 1));
         this.goalSelector.add(6, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(6, new LookAroundGoal(this));
