@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+import dev.amble.ait.core.tardis.handler.ServerAlarmHandler;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.drtheo.queue.api.ActionQueue;
@@ -16,6 +17,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
@@ -101,7 +103,7 @@ public sealed interface CrashableTardisTravel permits TravelHandler {
         }
 
         tardis.door().setLocked(true);
-        tardis.alarm().enabled().set(true);
+        tardis.alarm().enable(ServerAlarmHandler.AlarmType.CRASHING);
         this.antigravs().set(false);
         this.speed(0);
         tardis.removeFuel(700 * power);
