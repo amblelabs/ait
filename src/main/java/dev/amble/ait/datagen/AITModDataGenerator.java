@@ -820,6 +820,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITEntityTypes.GALLIFREY_FALLS_PAINTING_ENTITY_TYPE.getTranslationKey(), "Gallifrey Falls Painting");
         provider.addTranslation(AITEntityTypes.TRENZALORE_PAINTING_ENTITY_TYPE.getTranslationKey(), "Trenzalore Painting");
         provider.addTranslation(GunEntityTypes.STASER_BOLT_ENTITY_TYPE.getTranslationKey(), "Stazer Bolt Projectile");
+        provider.addTranslation(AITEntityTypes.DALEK_ENTITY.getTranslationKey(), "Dalek");
+
 
         // Items
         provider.addTranslation(AITItems.TARDIS_ITEM, "TARDIS");
