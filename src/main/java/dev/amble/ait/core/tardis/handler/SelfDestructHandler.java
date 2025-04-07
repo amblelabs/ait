@@ -1,5 +1,6 @@
 package dev.amble.ait.core.tardis.handler;
 
+import dev.amble.ait.data.Exclude;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
@@ -28,6 +29,7 @@ public class SelfDestructHandler extends KeyedTardisComponent implements TardisT
     private static final BoolProperty QUEUED = new BoolProperty("queued");
     private final BoolValue queued = QUEUED.create(this);
 
+    @Exclude
     private boolean destructing;
 
     public SelfDestructHandler() {
@@ -37,6 +39,7 @@ public class SelfDestructHandler extends KeyedTardisComponent implements TardisT
     @Override
     public void onLoaded() {
         queued.of(this, QUEUED);
+        this.destructing = false;
     }
 
     public void boom() {
@@ -105,7 +108,9 @@ public class SelfDestructHandler extends KeyedTardisComponent implements TardisT
 
         if (!this.destructing) {
             tardis.getDesktop().startQueue(true);
-            Scheduler.get().runTaskLater(this::complete, TimeUnit.SECONDS, 5);
+
+            tardis.travel().setTemporaryAnimation(AITMod.id("self_destruct"));
+            tardis.travel().onAnimationComplete(this::complete);
 
             this.destructing = true;
         }

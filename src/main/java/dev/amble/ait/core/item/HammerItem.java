@@ -25,7 +25,6 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.blocks.PeanutBlock;
 import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
@@ -70,9 +69,6 @@ public class HammerItem extends SwordItem {
         TravelHandler travel = tardis.travel();
 
         if (player.getItemCooldownManager().isCoolingDown(stack.getItem()))
-            return ActionResult.PASS;
-
-        if (tardis.stats().security().get() && !SecurityControl.hasMatchingKey(((ServerPlayerEntity) player), tardis))
             return ActionResult.PASS;
 
         if (!(tardis.travel().getState() == TravelHandlerBase.State.FLIGHT)) {

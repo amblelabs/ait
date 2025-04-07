@@ -10,9 +10,9 @@ import dev.amble.ait.client.sounds.ClientSoundManager;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.sounds.flight.FlightSound;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
-import dev.amble.ait.core.sounds.travel.TravelSound;
-import dev.amble.ait.core.sounds.travel.TravelSoundRegistry;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
+import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.handler.ServerHumHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
@@ -119,55 +119,55 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
         }
     }
 
-    public static class TravelSoundSwitcher extends SwitcherManager<TravelSound, ClientTardis> {
+    public static class AnimationSwitcher extends SwitcherManager<TardisAnimation, ClientTardis> {
         public final TravelHandlerBase.State target;
 
-        protected TravelSoundSwitcher(TravelSound current, TravelHandlerBase.State target) {
-            super((var) -> next(var, target), (var) -> previous(var, target), TravelSoundSwitcher::sync, current, target.name());
+        protected AnimationSwitcher(TardisAnimation current, TravelHandlerBase.State target) {
+            super((var) -> next(var, target), (var) -> previous(var, target), AnimationSwitcher::sync, current, target.name());
 
             this.target = target;
         }
 
-        public TravelSoundSwitcher(Tardis tardis, TravelHandlerBase.State target) {
-            this(tardis.stats().getTravelEffects().get(target), target);
+        public AnimationSwitcher(Tardis tardis, TravelHandlerBase.State target) {
+            this(TardisAnimationRegistry.getInstance().getOrFallback(tardis.travel().getAnimationIdFor(target)), target);
         }
 
-        private static TravelSound next(TravelSound current, TravelHandlerBase.State target) {
-            TravelSound found = current;
+        private static TardisAnimation next(TardisAnimation current, TravelHandlerBase.State target) {
+            TardisAnimation found = current;
 
-            while (found == null || found.target() != target || found == current) {
+            while (found == null || found.getExpectedState() != target || found == current) {
                 found = nextOfAnyState(found);
             }
 
             return found;
         }
-        private static TravelSound nextOfAnyState(TravelSound current) {
-            List<TravelSound> list = TravelSoundRegistry.getInstance().toList();
+        private static TardisAnimation nextOfAnyState(TardisAnimation current) {
+            List<TardisAnimation> list = TardisAnimationRegistry.getInstance().toList();
 
             int idx = list.indexOf(current);
             idx = (idx + 1) % list.size();
             return list.get(idx);
         }
 
-        private static TravelSound previous(TravelSound current, TravelHandlerBase.State target) {
-            TravelSound found = current;
+        private static TardisAnimation previous(TardisAnimation current, TravelHandlerBase.State target) {
+            TardisAnimation found = current;
 
-            while (found == null || found.target() != target || found == current) {
+            while (found == null || found.getExpectedState() != target || found == current) {
                 found = previousOfAnyState(found);
             }
 
             return found;
         }
-        private static TravelSound previousOfAnyState(TravelSound current) {
-            List<TravelSound> list = TravelSoundRegistry.getInstance().toList();
+        private static TardisAnimation previousOfAnyState(TardisAnimation current) {
+            List<TardisAnimation> list = TardisAnimationRegistry.getInstance().toList();
 
             int idx = list.indexOf(current);
             idx = (idx - 1 + list.size()) % list.size();
             return list.get(idx);
         }
 
-        private static void sync(TravelSound current, ClientTardis tardis) {
-            tardis.stats().setTravelEffects(current);
+        private static void sync(TardisAnimation current, ClientTardis tardis) {
+            tardis.travel().setAnimationFor(current.getExpectedState(), current.id());
         }
     }
 
@@ -210,18 +210,18 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
             return switch (current.id) {
                 case "hum" -> new VortexSwitcher(tardis);
                 case "vortex" -> new FlightSoundSwitcher(tardis);
-                case "flight" -> new TravelSoundSwitcher(tardis, TravelHandlerBase.State.DEMAT);
-                case "demat" -> new TravelSoundSwitcher(tardis, TravelHandlerBase.State.MAT);
+                case "flight" -> new AnimationSwitcher(tardis, TravelHandlerBase.State.DEMAT);
+                case "demat" -> new AnimationSwitcher(tardis, TravelHandlerBase.State.MAT);
                 default -> new HumSwitcher(tardis);
             };
         }
         private static SwitcherManager<?, ClientTardis> previous(SwitcherManager<?, ClientTardis> current, Tardis tardis) {
             return switch (current.id) {
-                case "hum" -> new TravelSoundSwitcher(tardis, TravelHandlerBase.State.MAT);
+                case "hum" -> new AnimationSwitcher(tardis, TravelHandlerBase.State.MAT);
                 case "vortex" -> new HumSwitcher(tardis);
                 case "flight" -> new VortexSwitcher(tardis);
                 case "demat" -> new FlightSoundSwitcher(tardis);
-                default -> new TravelSoundSwitcher(tardis, TravelHandlerBase.State.DEMAT);
+                default -> new AnimationSwitcher(tardis, TravelHandlerBase.State.DEMAT);
             };
         }
 

@@ -509,19 +509,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .input('B', Blocks.BLACK_WOOL)
                     .criterion(hasItem(Blocks.BLACK_WOOL), conditionsFromItem(Blocks.BLACK_WOOL)));
 
-            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITItems.TRENZALORE_PAINTING)
-                    .pattern("OBO")
-                    .pattern("BSB")
-                    .pattern("OPO")
-                    .input('O', Blocks.PURPLE_WOOL)
-                    .criterion(hasItem(Blocks.PURPLE_WOOL), conditionsFromItem(Blocks.PURPLE_WOOL))
-                    .input('S', Items.NETHER_STAR)
-                    .criterion(hasItem(Items.NETHER_STAR), conditionsFromItem(Items.NETHER_STAR))
-                    .input('P', Items.PAINTING)
-                    .criterion(hasItem(Items.PAINTING), conditionsFromItem(Items.PAINTING))
-                    .input('B', Blocks.BLACK_WOOL)
-                    .criterion(hasItem(Blocks.BLACK_WOOL), conditionsFromItem(Blocks.BLACK_WOOL)));
-
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, AITItems.PSYCHPAPER)
                     .pattern("SOS")
                     .pattern("BPB")
@@ -817,8 +804,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITEntityTypes.CONTROL_ENTITY_TYPE.getTranslationKey(), "Control Entity");
         provider.addTranslation(AITEntityTypes.FALLING_TARDIS_TYPE.getTranslationKey(), "Falling TARDIS");
         provider.addTranslation(AITEntityTypes.FLIGHT_TARDIS_TYPE.getTranslationKey(), "RWF TARDIS");
-        provider.addTranslation(AITEntityTypes.GALLIFREY_FALLS_PAINTING_ENTITY_TYPE.getTranslationKey(), "Gallifrey Falls Painting");
-        provider.addTranslation(AITEntityTypes.TRENZALORE_PAINTING_ENTITY_TYPE.getTranslationKey(), "Trenzalore Painting");
+        provider.addTranslation(AITEntityTypes.GALLIFREY_FALLS_PAINTING_TYPE.getTranslationKey(), "Galifray Falls Painting");
         provider.addTranslation(GunEntityTypes.STASER_BOLT_ENTITY_TYPE.getTranslationKey(), "Stazer Bolt Projectile");
 
         // Items
@@ -841,7 +827,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItems.CLASSIC_KEY_UPGRADE_SMITHING_TEMPLATE, "Smithing Template");
         provider.addTranslation(AITItems.PSYCHPAPER, "Psychic Paper");
         provider.addTranslation(AITItems.GALLIFREY_FALLS_PAINTING, "Painting");
-        provider.addTranslation(AITItems.TRENZALORE_PAINTING, "Painting");
         provider.addTranslation("ait.item.drink.mug_empty", "Empty Mug");
         provider.addTranslation("ait.item.drink.hot_cocoa", "Hot Cocoa");
         provider.addTranslation("ait.item.drink.tea", "Tea");
@@ -993,9 +978,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         provider.addTranslation("painting.ait.gallifrey_falls.title", "Gallifrey Falls");
         provider.addTranslation("painting.ait.gallifrey_falls.author", "???");
-
-        provider.addTranslation("painting.ait.trenzalore.title", "Trenzalore");
-        provider.addTranslation("painting.ait.trenzalore.author", "???");
 
         provider.addTranslation("painting.ait.peanut.title", "Peanut");
         provider.addTranslation("painting.ait.peanut.author", "???");
@@ -1442,6 +1424,22 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(SubSystem.Id.ENGINE.toTranslationKey(), "Engine");
         provider.addTranslation(SubSystem.Id.STABILISERS.toTranslationKey(), "Blue Stabilisers");
         provider.addTranslation(SubSystem.Id.EMERGENCY_POWER.toTranslationKey(), "Emergency Backup Power");
+
+        // Exterior Animations
+        provider.addTranslation(AITMod.MOD_ID + ".animation.bnt_demat", "Bill & Ted");
+        provider.addTranslation(AITMod.MOD_ID + ".animation.bnt_mat", "Bill & Ted");
+        provider.addTranslation(AITMod.MOD_ID + ".animation.classic_demat", "Classic");
+        provider.addTranslation(AITMod.MOD_ID + ".animation.classic_mat", "Classic");
+        provider.addTranslation(AITMod.MOD_ID + ".animation.crumple", "Crumple");
+        provider.addTranslation(AITMod.MOD_ID + ".animation.drill_demat", "Drill");
+        provider.addTranslation(AITMod.MOD_ID + ".animation.drill_mat", "Drill");
+        provider.addTranslation(AITMod.MOD_ID + ".animation.ghost_mat", "Ghosting");
+        provider.addTranslation(AITMod.MOD_ID + ".animation.pulsating_demat", "Pulsating");
+        provider.addTranslation(AITMod.MOD_ID + ".animation.pulsating_mat", "Pulsating");
+        provider.addTranslation(AITMod.MOD_ID + ".animation.self_destruct", "Self Destruct");
+        provider.addTranslation(AITMod.MOD_ID + ".animation.zwip_demat", "Zwip");
+        provider.addTranslation(AITMod.MOD_ID + ".animation.zwip_mat", "Zwip");
+
 
         return provider;
     }
