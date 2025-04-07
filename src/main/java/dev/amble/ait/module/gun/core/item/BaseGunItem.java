@@ -189,9 +189,9 @@ public class BaseGunItem extends RangedWeaponItem {
         world.playSound(null, shooter.getX(), shooter.getY(), shooter.getZ(), AITSounds.STASER, SoundCategory.PLAYERS, 1.0f, soundPitch);
     }
 
-    private static PersistentProjectileEntity createBolt(World world, LivingEntity entity, ItemStack gun, ItemStack bolt) {
+    public static PersistentProjectileEntity createBolt(World world, LivingEntity entity, ItemStack gun, ItemStack bolt) {
         StaserBoltMagazine boltItem = (StaserBoltMagazine)(bolt.getItem() instanceof StaserBoltMagazine ? bolt.getItem() : GunItems.STASER_BOLT_MAGAZINE);
-        PersistentProjectileEntity persistentProjectileEntity = boltItem.createStaserbolt(world, bolt, entity);
+        PersistentProjectileEntity persistentProjectileEntity = boltItem.createStaserbolt(world, entity);
         if (entity instanceof PlayerEntity) {
             persistentProjectileEntity.setCritical(true);
         }
@@ -201,6 +201,17 @@ public class BaseGunItem extends RangedWeaponItem {
         if (i > 0) {
             persistentProjectileEntity.setPierceLevel((byte)i);
         }
+        return persistentProjectileEntity;
+    }
+
+    public static PersistentProjectileEntity createAbstractBolt(World world, LivingEntity entity) {
+        StaserBoltMagazine boltItem = (StaserBoltMagazine) GunItems.STASER_BOLT_MAGAZINE;
+        PersistentProjectileEntity persistentProjectileEntity = boltItem.createStaserbolt(world, entity);
+        if (entity instanceof PlayerEntity) {
+            persistentProjectileEntity.setCritical(true);
+        }
+        persistentProjectileEntity.setSound(AITSounds.STASER);
+        persistentProjectileEntity.setShotFromCrossbow(true);
         return persistentProjectileEntity;
     }
 

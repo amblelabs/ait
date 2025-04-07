@@ -35,7 +35,10 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.RotationPropertyHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
 
 import dev.amble.ait.AITMod;
@@ -48,11 +51,13 @@ import dev.amble.ait.client.models.decoration.PaintingFrameModel;
 import dev.amble.ait.client.models.decoration.RiftModel;
 import dev.amble.ait.client.models.decoration.TrenzalorePaintingModel;
 import dev.amble.ait.client.models.doors.DoorModel;
+import dev.amble.ait.client.models.entities.mobs.NightmareCybermanModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.overlays.ExteriorAxeOverlay;
 import dev.amble.ait.client.overlays.FabricatorOverlay;
 import dev.amble.ait.client.overlays.RWFOverlay;
 import dev.amble.ait.client.overlays.SonicOverlay;
+import dev.amble.ait.client.renderers.AITModelLayers;
 import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.client.renderers.TardisStar;
 import dev.amble.ait.client.renderers.consoles.ConsoleGeneratorRenderer;
@@ -63,6 +68,7 @@ import dev.amble.ait.client.renderers.decoration.PlaqueRenderer;
 import dev.amble.ait.client.renderers.decoration.SnowGlobeRenderer;
 import dev.amble.ait.client.renderers.doors.DoorRenderer;
 import dev.amble.ait.client.renderers.entities.*;
+import dev.amble.ait.client.renderers.entities.mobs.NightmareCybermanRenderer;
 import dev.amble.ait.client.renderers.exteriors.ExteriorRenderer;
 import dev.amble.ait.client.renderers.machines.*;
 import dev.amble.ait.client.renderers.monitors.MonitorRenderer;
@@ -133,6 +139,10 @@ public class AITModClient implements ClientModInitializer {
         adventItemPredicates();
         registerItemColors();
         registerParticles();
+
+        // Model Rendering
+        EntityModelLayerRegistry.registerModelLayer(AITModelLayers.NIGHTMARE_CYBERMAN, NightmareCybermanModel::getTexturedModelData);
+        EntityRendererRegistry.register(AITEntityTypes.NIGHTMARE_CYBERMAN, NightmareCybermanRenderer::new);
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             ConfigCommand.register(dispatcher);

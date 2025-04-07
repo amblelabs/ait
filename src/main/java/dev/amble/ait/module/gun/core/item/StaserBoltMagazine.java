@@ -26,7 +26,7 @@ public class StaserBoltMagazine extends Item implements ArtronHolderItem {
 
     public static final double MAX_FUEL = 2000;
 
-    public PersistentProjectileEntity createStaserbolt(World world, ItemStack stack, LivingEntity shooter) {
+    public PersistentProjectileEntity createStaserbolt(World world, LivingEntity shooter) {
         StaserBoltEntity staserBoltEntity = new StaserBoltEntity(GunEntityTypes.STASER_BOLT_ENTITY_TYPE, world);
         return staserBoltEntity.createFromConstructor(world, shooter);
     }
@@ -46,6 +46,7 @@ public class StaserBoltMagazine extends Item implements ArtronHolderItem {
         NbtCompound nbt = stack.getOrCreateNbt();
         nbt.putDouble(FUEL_KEY, 0);
     }
+
 
     @Override
     public double getMaxFuel(ItemStack stack) {
