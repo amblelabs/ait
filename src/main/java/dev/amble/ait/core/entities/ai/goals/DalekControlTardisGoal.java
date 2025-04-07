@@ -118,6 +118,7 @@ public class DalekControlTardisGoal
                 }
                 tardis.travel().handbrake(false);
                 tardis.travel().autopilot(false);
+                tardis.door().closeDoors();
                 tardis.travel().speed(tardis.travel().maxSpeed().get());
                 tardis.alarm().enable();
                 TravelUtil.randomPos(tardis, 10, 1000, cached -> {
