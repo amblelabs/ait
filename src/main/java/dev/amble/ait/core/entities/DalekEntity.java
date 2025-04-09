@@ -23,6 +23,7 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandler;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.passive.*;
 import net.minecraft.entity.player.PlayerEntity;
@@ -106,14 +107,11 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
         this.goalSelector.add(5, new NavTardisGoal(this, 1.0, 100));
         this.goalSelector.add(3, new MoveToRaidCenterGoal<>(this));
         this.goalSelector.add(2, new DalekEntity.PatrolApproachGoal(this, 10.0f));
-        this.goalSelector.add(3, new FleeEntityGoal<>(this, OcelotEntity.class, 6.0f, 1.0, 1.2));
-        this.goalSelector.add(3, new FleeEntityGoal<>(this, CatEntity.class, 6.0f, 1.0, 1.2));
         this.goalSelector.add(5, new WanderAroundFarGoal(this, 1));
         this.goalSelector.add(6, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
         this.goalSelector.add(6, new LookAroundGoal(this));
         this.targetSelector.add(1, new ActiveTargetGoal<>(this, PlayerEntity.class, true));
-        this.targetSelector.add(1, new ActiveTargetGoal<>(this, PassiveEntity.class, true));
-        this.targetSelector.add(1, new ActiveTargetGoal<>(this, HostileEntity.class, true));
+        this.targetSelector.add(1, new ActiveTargetGoal<>(this, MobEntity.class, true));
         this.targetSelector.add(2, new RevengeGoal(this));
     }
 
