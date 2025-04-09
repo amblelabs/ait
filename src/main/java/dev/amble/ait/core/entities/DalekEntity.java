@@ -8,6 +8,7 @@ import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
@@ -34,6 +35,8 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.LocalDifficulty;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
@@ -64,7 +67,12 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
 
     public DalekEntity(EntityType<? extends RaiderEntity> entityType, World world) {
         super(entityType, world);
+    }
+
+    @Nullable @Override
+    public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData, @Nullable NbtCompound entityNbt) {
         randomizeDalekType();
+        return super.initialize(world, difficulty, spawnReason, entityData, entityNbt);
     }
 
     public void randomizeDalekType() {
