@@ -1,7 +1,7 @@
 package dev.drtheo.autojson;
 
 import com.google.gson.Gson;
-import dev.drtheo.autojson.adapter.JsonStringAdapter;
+import dev.drtheo.autojson.adapter.string.JsonStringAdapter;
 import dev.drtheo.autojson.bake.UnsafeUtil;
 
 public class Bean {
@@ -84,7 +84,8 @@ public class Bean {
             adapter.toJson(bean);
         }
 
-        System.out.println("autojson: " + (System.currentTimeMillis() - start));
+        long autoObj2Str = System.currentTimeMillis() - start;
+        System.out.println("autojson (obj->str): " + autoObj2Str);
 
         start = System.currentTimeMillis();
 
@@ -92,6 +93,35 @@ public class Bean {
             gson.toJson(bean);
         }
 
-        System.out.println("gson: " + (System.currentTimeMillis() - start));
+        long gsonObj2Str = System.currentTimeMillis() - start;
+        System.out.println("gson (obj->str): " + gsonObj2Str);
+
+        System.out.println("RESULT: autojson vs gson: " + -(1-((float) autoObj2Str/gsonObj2Str))*100f + "%");
+
+        //
+
+        String raw = """
+                {"primInt":2147483647,"primBool":true,"primByte":127,"primChar":"￿","primShort":32767,"primDouble":1.7976931348623157E308,"primFloat":3.4028235E38,"primLong":9223372036854775807, "intObj":2147483647,"boolObj":true,"byteObj":127,"charObj":"￿","shortObj":32767,"doubleObj":1.7976931348623157E308,"floatObj":3.4028235E38,"longObj":9223372036854775807,"hello":"HELLO MATE","id":{"namespace":"ait","path":"whatever"}}""";
+
+
+        start = System.currentTimeMillis();
+
+        for (int i = 0; i < iters; i++) {
+            adapter.fromJson(raw, Bean.class);
+        }
+
+        long autoStr2Obj = System.currentTimeMillis() - start;
+        System.out.println("autojson (str->obj): " + autoStr2Obj);
+
+        start = System.currentTimeMillis();
+
+        for (int i = 0; i < iters; i++) {
+            gson.fromJson(raw, Bean.class);
+        }
+
+        long gsonStr2Obj = System.currentTimeMillis() - start;
+        System.out.println("gson (str->obj): " + gsonStr2Obj);
+
+        System.out.println("RESULT: autojson vs gson: " + -(1-((float) autoStr2Obj/gsonStr2Obj))*100f + "%");
     }
 }

@@ -3,6 +3,8 @@ package dev.drtheo.autojson;
 import dev.drtheo.autojson.adapter.JsonAdapter;
 import dev.drtheo.autojson.adapter.JsonSerializationContext;
 import dev.drtheo.autojson.ast.JsonElement;
+import dev.drtheo.autojson.ast.JsonObject;
+import dev.drtheo.autojson.ast.JsonPrimitive;
 import dev.drtheo.autojson.bake.ClassAdapter;
 import dev.drtheo.autojson.bake.UnsafeUtil;
 
@@ -22,13 +24,13 @@ public class BakedAutoSchema<T> implements Schema<T> {
         return new BakedAutoSchema<>(clazz, types);
     }
 
-    record FieldType<T, E>(ClassAdapter<E> adapter, String name, long offset) {
+    record FieldType<T, E>(Class<E> type, ClassAdapter<E> adapter, String name, long offset) {
 
         public static <T, E> FieldType<T, E> from(Field field) {
-            Class<?> type = field.getType();
+            Class<E> type = (Class<E>) field.getType();
             ClassAdapter<E> adapter = (ClassAdapter<E>) ClassAdapter.match(type);
 
-            return new FieldType<>(adapter, field.getName(),
+            return new FieldType<>(type, adapter, field.getName(),
                     UnsafeUtil.UNSAFE.objectFieldOffset(field));
         }
 
@@ -50,7 +52,7 @@ public class BakedAutoSchema<T> implements Schema<T> {
     }
 
     @Override
-    public <To> void serialize(JsonAdapter<? super T, To> auto, JsonSerializationContext c, T t) {
+    public <To> void serialize(JsonAdapter<Object, To> auto, JsonSerializationContext c, T t) {
         if (!this.clazz.isInstance(t))
             throw new IllegalArgumentException();
 
@@ -60,11 +62,53 @@ public class BakedAutoSchema<T> implements Schema<T> {
     }
 
     @Override
-    public <To> T deserialize(JsonAdapter<T, To> auto, JsonElement element) {
-        return null;
+    public <To> T deserialize(JsonAdapter<Object, To> auto, JsonElement element) {
+        JsonObject object = element.getAsJsonObject();
+
+        try {
+            T t = (T) UnsafeUtil.UNSAFE.allocateInstance(this.clazz);
+
+            for (FieldType<T, ?> field : this.fields) {
+                deserialize(auto, field, t, object);
+            }
+
+            return t;
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    /*private static <T, E, To extends JsonObject> void deserialize(JsonAdapter<E, To> auto, FieldType<T, E> field, T o, To obj) {
-        field.set(o, field.adapter().fromJson(auto, obj.get(field.name())));
-    }*/
+
+
+    private static <T, E, To> void deserialize(JsonAdapter<Object, To> auto, FieldType<T, E> field, T t, JsonObject object) {
+        JsonElement element = object.get(field.name());
+
+        Class<E> clazz = field.type();
+
+        /*if (UnsafeUtil.isChar(clazz)) {
+            element = new JsonPrimitive(element.getAsJsonPrimitive().getAsCharacter());
+        } else if(UnsafeUtil.isNumber(clazz)) {
+            Number wrapped = element.getAsJsonPrimitive().getAsNumber();
+
+            if (clazz == double.class || clazz == Double.class)
+                element = new JsonPrimitive(wrapped.doubleValue());
+
+            if (clazz == float.class || clazz == Float.class)
+                element = new JsonPrimitive(wrapped.floatValue());
+
+            if (clazz == long.class || clazz == Long.class)
+                element = new JsonPrimitive(wrapped.longValue());
+
+            if (clazz == short.class || clazz == Short.class)
+                element = new JsonPrimitive(wrapped.shortValue());
+
+            if (clazz == byte.class || clazz == Byte.class)
+                element = new JsonPrimitive(wrapped.byteValue());
+
+            if (clazz == int.class || clazz == Integer.class)
+                element = new JsonPrimitive(wrapped.intValue());
+        }*/
+
+        field.set(t, auto.fromJson(element, field.type()));
+    }
 }
