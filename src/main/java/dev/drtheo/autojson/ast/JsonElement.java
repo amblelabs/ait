@@ -9,4 +9,12 @@ public interface JsonElement {
     default JsonPrimitive getAsJsonPrimitive() {
         return (JsonPrimitive) this;
     }
+
+    default boolean isJsonPrimitive() {
+        return this instanceof JsonPrimitive;
+    }
+
+    default boolean isJsonObject() {
+        return this instanceof JsonObject;
+    }
 }

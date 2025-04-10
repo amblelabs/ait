@@ -1,7 +1,5 @@
 package dev.drtheo.autojson.bake;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
 
@@ -43,10 +41,38 @@ public interface ClassAdapter<T> {
         return OBJECT;
     }
 
-    record Primitive<T>(ClassAdapter<T> child, T def) implements ClassAdapter<T> {
+    final class Simple<T> implements ClassAdapter<T> {
 
-        public static <T> Primitive<T> simple(UnsafeGetter<T> getter, UnsafeSetter<T> setter, T def) {
-            return new Primitive<>(new Simple<>(getter, setter), def);
+        private final UnsafeGetter<T> getter;
+        private final UnsafeSetter<T> setter;
+        
+        public Simple(UnsafeGetter<T> getter, UnsafeSetter<T> setter) {
+            this.getter = getter;
+            this.setter = setter;
+        }
+
+        @Override
+        public T get(Unsafe unsafe, Object obj, long address) {
+            return getter.get(unsafe, obj, address);
+        }
+
+        @Override
+        public void set(Unsafe unsafe, Object obj, long address, T value) {
+            setter.set(unsafe, obj, address, value);
+        }
+    }
+
+    final class Primitive<T> implements ClassAdapter<T> {
+        private final ClassAdapter<T> child;
+        private final T def;
+        
+        public Primitive(UnsafeGetter<T> getter, UnsafeSetter<T> setter, T def) {
+            this(new Simple<>(getter, setter), def);
+        }
+
+        public Primitive(ClassAdapter<T> child, T def) {
+            this.child = child;
+            this.def = def;
         }
 
         @NotNull
@@ -64,57 +90,65 @@ public interface ClassAdapter<T> {
         }
     }
 
-    record Simple<T>(UnsafeGetter<T> getter, UnsafeSetter<T> setter) implements ClassAdapter<T> {
+    class Wrapped<T, B> implements ClassAdapter<T> {
+
+        private final Class<T> clazz;
+        private final Class<B> base;
+        private final Function<B, T> f;
+        private final ClassAdapter<T> child;
+
+        public Wrapped(Class<T> clazz, Class<B> base, Function<B, T> f, ClassAdapter<T> child) {
+            this.clazz = clazz;
+            this.base = base;
+            this.f = f;
+            this.child = child;
+        }
 
         @Override
         public T get(Unsafe unsafe, Object obj, long address) {
-            return getter.get(unsafe, obj, address);
+            return child.get(unsafe, obj, address);
         }
 
         @Override
         public void set(Unsafe unsafe, Object obj, long address, T value) {
-            setter.set(unsafe, obj, address, value);
+            if (value.getClass() != clazz && base.isInstance(value))
+                value = f.apply(base.cast(value));
+
+            child.set(unsafe, obj, address, value);
         }
     }
 
-    Primitive<Boolean> BOOL = Primitive.simple(
+    final class Num<T extends Number> extends Wrapped<T, Number> {
+
+        public Num(Class<T> clazz, Function<Number, T> f, ClassAdapter<T> child) {
+            super(clazz, Number.class, f, child);
+        }
+    }
+
+    ClassAdapter<Boolean> BOOL = new Primitive<>(
             Unsafe::getBoolean, Unsafe::putBoolean, false);
 
-    Primitive<Byte> BYTE = Primitive.simple(
-            Unsafe::getByte, Unsafe::putByte, (byte) 0);
+    ClassAdapter<Character> CHAR = new Wrapped<>(Character.class,
+            CharSequence.class, s -> s.charAt(0),
+            new Primitive<>(Unsafe::getChar, Unsafe::putChar, (char) 0));
 
-    Primitive<Character> CHAR = Primitive.simple(
-            Unsafe::getChar, Unsafe::putChar, (char) 0);
+    ClassAdapter<Byte> BYTE = new Num<>(Byte.class, Number::byteValue,
+            new Primitive<>(Unsafe::getByte, Unsafe::putByte, (byte) 0));
 
-    Primitive<Short> SHORT = Primitive.simple(
-            Unsafe::getShort, Unsafe::putShort, (short) 0);
+    ClassAdapter<Short> SHORT = new Num<>(Short.class, Number::shortValue,
+            new Primitive<>(Unsafe::getShort, Unsafe::putShort, (short) 0));
 
-    Primitive<Integer> INT = Primitive.simple(
-            Unsafe::getInt, Unsafe::putInt, 0);
+    ClassAdapter<Integer> INT = new Num<>(Integer.class, Number::intValue,
+            new Primitive<>(Unsafe::getInt, Unsafe::putInt, 0));
 
-    Primitive<Float> FLOAT = Primitive.simple(
-            Unsafe::getFloat, Unsafe::putFloat, 0f);
+    ClassAdapter<Float> FLOAT = new Num<>(Float.class, Number::floatValue,
+            new Primitive<>(Unsafe::getFloat, Unsafe::putFloat, 0f));
 
-    Primitive<Double> DOUBLE = Primitive.simple(
-            Unsafe::getDouble, Unsafe::putDouble, 0d);
+    ClassAdapter<Double> DOUBLE = new Num<>(Double.class, Number::doubleValue,
+            new Primitive<>(Unsafe::getDouble, Unsafe::putDouble, 0d));
 
-    Primitive<Long> LONG = Primitive.simple(
-            Unsafe::getLong, Unsafe::putLong, 0L);
+    ClassAdapter<Long> LONG = new Num<>(Long.class, Number::longValue,
+            new Primitive<>(Unsafe::getLong, Unsafe::putLong, 0L));
 
-    Simple<Object> OBJECT = new Simple<>(
-            Unsafe::getObject, Unsafe::putObject);
-
-    static <T, O> ClassAdapter<T> conform(ClassAdapter<O> adapter) {
-        return new ClassAdapter<>() {
-            @Override
-            public T get(Unsafe unsafe, Object obj, long address) {
-                return (T) adapter.get(unsafe, obj, address);
-            }
-
-            @Override
-            public void set(Unsafe unsafe, Object obj, long address, T value) {
-                adapter.set(unsafe, obj, address, (O) value);
-            }
-        };
-    }
+    ClassAdapter<Object> OBJECT = new Simple<>(Unsafe::getObject, Unsafe::putObject);
 }

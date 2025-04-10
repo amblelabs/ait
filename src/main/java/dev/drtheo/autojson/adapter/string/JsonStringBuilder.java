@@ -1,5 +1,6 @@
-package dev.drtheo.autojson.adapter;
+package dev.drtheo.autojson.adapter.string;
 
+import dev.drtheo.autojson.adapter.JsonSerializationContext;
 import dev.drtheo.autojson.bake.UnsafeUtil;
 
 public class JsonStringBuilder implements JsonSerializationContext {
