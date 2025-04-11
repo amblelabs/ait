@@ -161,7 +161,7 @@ public class SiegeHandler extends KeyedTardisComponent implements TardisTickable
         if (server.getTicks() % 10 == 0)
             return;
 
-        boolean freeze = this.siegeTime > 3 * 20
+        boolean freeze = this.siegeTime > 60 * 20 && !this.isSiegeBeingHeld()
                 && !this.tardis.subsystems().lifeSupport().isEnabled();
 
         for (ServerPlayerEntity player : TardisUtil.getPlayersInsideInterior(this.tardis.asServer())) {
@@ -177,14 +177,15 @@ public class SiegeHandler extends KeyedTardisComponent implements TardisTickable
     }
 
     private void freeze(ServerPlayerEntity player) {
-        int m = player.getFrozenTicks();
-        if (m < 0) player.setFrozenTicks(5);
-        player.setFrozenTicks(Math.min(player.getMinFreezeDamageTicks(), m + 5));
+        if (player.getFrozenTicks() < player.getMinFreezeDamageTicks())
+            player.setFrozenTicks(player.getMinFreezeDamageTicks());
+
+        player.setFrozenTicks(player.getFrozenTicks() + 2);
     }
 
     private void unfreeze(ServerPlayerEntity player) {
-        int m = player.getFrozenTicks();
-        player.setFrozenTicks(Math.max(0, m - 2));
+        if (player.getFrozenTicks() > player.getMinFreezeDamageTicks())
+            player.setFrozenTicks(0);
     }
 
     public Value<Identifier> texture() {

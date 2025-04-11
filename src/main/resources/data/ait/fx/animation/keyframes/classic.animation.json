@@ -1,0 +1,45 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"classic_demat": {
+			"animation_length": 43.5833,
+			"bones": {
+				"tardis": {
+					"rotation": [0, 0, 0],
+					"position": [0, 0, 0],
+					"scale": 1
+				}
+			},
+			"sound_effects": {
+				"0.0": {
+					"effect": "demat"
+				}
+			},
+			"timeline": {
+				"0.0": "1;",
+				"1.25": "1;",
+				"8.5": "0;"
+			}
+		},
+		"classic_mat": {
+			"animation_length": 25.0833,
+			"bones": {
+				"tardis": {
+					"rotation": [0, 0, 0],
+					"position": [0, 0, 0],
+					"scale": 1
+				}
+			},
+			"sound_effects": {
+				"0.0": {
+					"effect": "mat"
+				}
+			},
+			"timeline": {
+				"0.0": "0;",
+				"10.65": "0;",
+				"19.4167": "1;"
+			}
+		}
+	}
+}

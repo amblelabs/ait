@@ -1,0 +1,5 @@
+{
+  "id": "ait:ghost_mat",
+  "expected_state": "mat",
+  "sound": "ait:tardis/ghost_mat"
+}

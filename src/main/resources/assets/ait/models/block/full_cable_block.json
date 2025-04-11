@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "ait:block/console_room_port_block"
+    "all": "ait:block/piping_full"
   }
 }

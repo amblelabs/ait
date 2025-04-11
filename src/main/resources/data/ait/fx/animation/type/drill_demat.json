@@ -1,0 +1,5 @@
+{
+  "id": "ait:drill_demat",
+  "expected_state": "demat",
+  "sound": "ait:tardis/drill/demat"
+}

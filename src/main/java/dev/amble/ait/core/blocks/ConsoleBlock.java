@@ -37,7 +37,6 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 import dev.amble.ait.core.item.HammerItem;
-import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.console.type.CopperType;
 import dev.amble.ait.data.schema.console.type.CrystallineType;
 
@@ -234,8 +233,5 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
 
     @Override
     public void onTryBreak(World world, BlockPos pos, BlockState state) {
-        if (TardisServerWorld.isTardisDimension(world)) return;
-
-        world.breakBlock(pos, true);
     }
 }
