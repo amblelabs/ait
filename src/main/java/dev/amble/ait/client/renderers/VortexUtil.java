@@ -68,7 +68,7 @@ public class VortexUtil {
 
     public void renderVortexLayer(MatrixStack matrixStack, float scaleFactor) {
         Identifier currentTexture = scaleFactor == 1.5f ? SECOND_LAYER_LOCATION : THIRD_LAYER_LOCATION;
-        if (currentTexture == null) return;
+        if (MinecraftClient.getInstance().getResourceManager().getResource(currentTexture).isEmpty()) return;
         this.renderVortexLayer(matrixStack, scaleFactor, currentTexture);
     }
 
