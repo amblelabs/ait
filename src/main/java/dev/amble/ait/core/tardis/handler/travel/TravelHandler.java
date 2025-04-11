@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -18,6 +19,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
@@ -198,9 +200,24 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
             this.runAnimations(exterior);
 
         if (schedule && !this.antigravs.get())
-            world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, 2);
+            this.scheduleExteriorUpdate();
 
         return exterior;
+    }
+
+    public void scheduleExteriorUpdate() {
+        ServerWorld world = this.position.get().getWorld();
+        BlockPos pos = this.position.get().getPos();
+
+        ChunkPos chunkPos = new ChunkPos(pos);
+
+        Scheduler.get().runTaskLater(() -> world.setChunkForced(chunkPos.x, chunkPos.z, false), TimeUnit.TICKS, 20);
+
+        world.setChunkForced(chunkPos.x, chunkPos.z, true);
+        //world.getChunkManager().setChunkForced(chunkPos, true);
+        world.getChunkManager().markForUpdate(pos);
+
+        Scheduler.get().runTaskLater(() -> world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, 2), TimeUnit.TICKS, 10);
     }
 
     private void runAnimations(ExteriorBlockEntity exterior) {
@@ -391,7 +408,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
         this.tardis.getDesktop().playSoundAtEveryConsole(sound, SoundCategory.BLOCKS, 2f, 1f);
         //System.out.println(sound.getId());
-        this.placeExterior(true); // we schedule block update in #finishRemat
+        this.placeExterior(true);
     }
 
     public void finishRemat() {
