@@ -49,6 +49,9 @@ public class AITBlockEntityTypes implements BlockEntityContainer {
             .create(MachineCasingBlockEntity::new, AITBlocks.MACHINE_CASING).build();
     public static BlockEntityType<FabricatorBlockEntity> FABRICATOR_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
             .create(FabricatorBlockEntity::new, AITBlocks.FABRICATOR).build();
+
+    public static BlockEntityType<RoundelFabricatorBlockEntity> ROUNDEL_FABRICATOR_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
+            .create(RoundelFabricatorBlockEntity::new, AITBlocks.ROUNDEL_FABRICATOR).build();
     public static BlockEntityType<EnvironmentProjectorBlockEntity> ENVIRONMENT_PROJECTOR_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
             .create(EnvironmentProjectorBlockEntity::new, AITBlocks.ENVIRONMENT_PROJECTOR).build();
     public static BlockEntityType<WaypointBankBlockEntity> WAYPOINT_BANK_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
