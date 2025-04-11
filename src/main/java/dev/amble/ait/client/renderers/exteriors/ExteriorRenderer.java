@@ -185,7 +185,8 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             float t;
             float s;
 
-            if ((tardis.stats().getName() != null && "partytardis".equals(tardis.stats().getName().toLowerCase()) ||(!tardis.extra().getInsertedDisc().isEmpty()))) {
+            if ((tardis.stats().getName() != null && "partytardis".equals(tardis.stats().getName().toLowerCase())) ||
+                    (!tardis.extra().getInsertedDisc().isEmpty())) {
                 int m = 25;
                 int n = MinecraftClient.getInstance().player.age / m + MinecraftClient.getInstance().player.getId();
                 int o = DyeColor.values().length;
@@ -197,6 +198,16 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
                 s = fs[0] * (1f - r) + gs[0] * r;
                 t = fs[1] * (1f - r) + gs[1] * r;
                 u = fs[2] * (1f - r) + gs[2] * r;
+            } else if (tardis.sonic().getExteriorSonic() != null) {
+                float time = MinecraftClient.getInstance().player.age + MinecraftClient.getInstance().getTickDelta();
+                float progress = (float)((Math.sin(time * 0.03) + 1) / 2.0);
+
+                float[] from = new float[]{ 1.0f, 1.0f, 1.0f };
+                float[] to = new float[]{ 0.3f, 0.3f, 1.0f };
+
+                s = from[0] * (1f - progress) + to[0] * progress;
+                t = from[1] * (1f - progress) + to[1] * progress;
+                u = from[2] * (1f - progress) + to[2] * progress;
             } else {
                 float[] hs = new float[]{ 1.0f, 1.0f, 1.0f };
                 s = hs[0];
@@ -205,7 +216,6 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             }
 
             float colorAlpha = 1 - alpha;
-
             boolean power = tardis.fuel().hasPower();
 
             float red = alarms ? !power ? 0.25f : s - colorAlpha : s - colorAlpha;
@@ -216,6 +226,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
                     tardis, entity, this.model.getPart(), matrices, v, l, overlay, red, green, blue, alpha
             ), emission, vertexConsumers);
         }
+
 
         profiler.swap("biome");
 
