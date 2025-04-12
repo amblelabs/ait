@@ -1,6 +1,5 @@
 package dev.amble.ait.client.renderers.machines;
 
-import org.joml.Vector3f;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -8,9 +7,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
@@ -23,7 +20,6 @@ import dev.amble.ait.client.util.ClientLightUtil;
 import dev.amble.ait.core.blockentities.RoundelFabricatorBlockEntity;
 import dev.amble.ait.core.blocks.FabricatorBlock;
 import dev.amble.ait.core.blocks.RoundelFabricatorBlock;
-import dev.amble.ait.core.item.blueprint.Blueprint;
 
 public class RoundelFabricatorRenderer<T extends RoundelFabricatorBlockEntity> implements BlockEntityRenderer<T> {
 
@@ -62,7 +58,7 @@ public class RoundelFabricatorRenderer<T extends RoundelFabricatorBlockEntity> i
         matrices.pop();
         matrices.push();
 
-        ItemStack stack = entity.getShowcaseStack();
+        //ItemStack stack = entity.getShowcaseStack();
 
         // Apply the same rotation as the block
         matrices.translate(0.5, 1.5, 0.5);
@@ -74,7 +70,7 @@ public class RoundelFabricatorRenderer<T extends RoundelFabricatorBlockEntity> i
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rotation));
         matrices.translate(-0.5, -1.5, -0.5);
 
-        if (!stack.isEmpty()) {
+        /*if (!stack.isEmpty()) {
             matrices.push();
             double offset = Math.sin((entity.getWorld().getTime() + tickDelta) / 8.0) / 18.0;
 
@@ -87,7 +83,7 @@ public class RoundelFabricatorRenderer<T extends RoundelFabricatorBlockEntity> i
             MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformationMode.GROUND, 0xf000f0,
                     overlay, matrices, vertexConsumers, entity.getWorld(), 0);
             matrices.pop();
-        }
+        }*/
         renderText(entity, tickDelta, matrices, vertexConsumers, light, overlay);
 
         matrices.pop();
@@ -108,7 +104,7 @@ public class RoundelFabricatorRenderer<T extends RoundelFabricatorBlockEntity> i
         Text text = Text.literal("COLLECT OUTPUT");
 
         // if does not have blueprint, text is "INSERT BLUEPRINT"
-        if (!entity.hasBlueprint()) {
+        /*if (!entity.hasBlueprint()) {
             text = Text.literal("INSERT BLUEPRINT");
         }
 
@@ -120,7 +116,7 @@ public class RoundelFabricatorRenderer<T extends RoundelFabricatorBlockEntity> i
         }
 
         renderer.drawWithOutline(text.asOrderedText(), 0, 40, 0x60eaf0, 0x108fb3,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);*/
         matrices.pop();
     }
 }

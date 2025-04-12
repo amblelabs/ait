@@ -25,6 +25,7 @@ import net.minecraft.block.DoorBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.particle.EndRodParticle;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -88,6 +89,7 @@ import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.entities.TrenzalorePaintingEntity;
 import dev.amble.ait.core.item.*;
+import dev.amble.ait.core.screens.RoundelFabricatorScreen;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
@@ -122,6 +124,7 @@ public class AITModClient implements ClientModInitializer {
 
         ModuleRegistry.instance().onClientInit();
 
+        registerScreens();
         setupBlockRendering();
         blockEntityRendererRegister();
         entityRenderRegister();
@@ -478,6 +481,10 @@ public class AITModClient implements ClientModInitializer {
         map.putBlock(AITBlocks.TARDIS_CORAL_FAN, RenderLayer.getCutout());
         map.putBlock(AITBlocks.TARDIS_CORAL_WALL_FAN, RenderLayer.getCutout());
         map.putBlock(AITBlocks.MATRIX_ENERGIZER, RenderLayer.getCutout());
+    }
+
+    public void registerScreens() {
+        HandledScreens.register(ROUNDEL_FABRICATOR_HANDLER, RoundelFabricatorScreen::new);
     }
 
     public void registerItemColors() {

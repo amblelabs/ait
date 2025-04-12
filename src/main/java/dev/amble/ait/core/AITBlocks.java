@@ -26,6 +26,7 @@ import net.minecraft.item.ItemGroups;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.util.DyeColor;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blocks.*;
@@ -169,6 +170,10 @@ public class AITBlocks extends BlockContainer {
     public static final Block POWER_CONVERTER = new PowerConverterBlock(ABlockSettings.create()
             .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).nonOpaque()
             .requiresTool().instrument(Instrument.COW_BELL).strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
+
+    @NoBlockItem
+    public static final Block ROUNDEL = new RoundelBlock(DyeColor.WHITE, FabricBlockSettings.create().nonOpaque().burnable().dropsLike(Blocks.BLACK_BANNER)
+            .requiresTool().strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
 
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     @NoEnglish

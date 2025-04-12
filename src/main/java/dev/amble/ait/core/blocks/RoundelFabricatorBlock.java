@@ -13,6 +13,9 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.StateManager;
 import net.minecraft.text.Text;
@@ -27,12 +30,11 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.explosion.Explosion;
 
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.RoundelFabricatorBlockEntity;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
+import dev.amble.ait.core.screens.RoundelFabricatorScreenHandler;
 
 public class RoundelFabricatorBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
 
@@ -52,31 +54,18 @@ public class RoundelFabricatorBlock extends HorizontalDirectionalBlock implement
     }
 
     @Override
-    public void onDestroyedByExplosion(World world, BlockPos pos, Explosion explosion) {
-        if (world.getBlockEntity(pos) instanceof RoundelFabricatorBlockEntity be) {
-            be.onBroken();
-        }
-
-        super.onDestroyedByExplosion(world, pos, explosion);
-    }
-
-    @Override
-    public void onBroken(WorldAccess world, BlockPos pos, BlockState state) {
-        if (world.getBlockEntity(pos) instanceof RoundelFabricatorBlockEntity be) {
-            be.onBroken();
-        }
-
-        super.onBroken(world, pos, state);
-    }
-
-    @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (world.getBlockEntity(pos) instanceof RoundelFabricatorBlockEntity be) {
-            be.useOn(state, world, player.isSneaking(), player);
+        if (world.isClient) {
             return ActionResult.SUCCESS;
         }
+        player.openHandledScreen(state.createScreenHandlerFactory(world, pos));
+        return ActionResult.CONSUME;
+    }
 
-        return super.onUse(state, world, pos, player, hand, hit);
+    @Override
+    public NamedScreenHandlerFactory createScreenHandlerFactory(BlockState state, World world, BlockPos pos) {
+        return new SimpleNamedScreenHandlerFactory((syncId, inventory, player) -> new RoundelFabricatorScreenHandler(syncId, inventory,
+                ScreenHandlerContext.create(world, pos)), Text.literal("Roundel Fabricator"));
     }
 
     @Override
@@ -98,8 +87,6 @@ public class RoundelFabricatorBlock extends HorizontalDirectionalBlock implement
     public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
         if (!(world.getBlockEntity(pos) instanceof RoundelFabricatorBlockEntity be)) return;
         if (!be.isValid()) return;
-        if (!be.hasBlueprint()) return;
-        if (be.getBlueprint().orElseThrow().isComplete()) return;
 
         Direction direction = state.get(FACING);
         double d = (double) pos.getX() + 0.55 - (double) (random.nextFloat() * 0.1f);
@@ -140,7 +127,7 @@ public class RoundelFabricatorBlock extends HorizontalDirectionalBlock implement
         super.appendTooltip(stack, world, tooltip, options);
 
         addShiftHiddenTooltip(stack, tooltip, tooltips -> {
-            tooltip.add(Text.translatable("block.ait.fabricator.tooltip.use").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
+            tooltip.add(Text.translatable("block.ait.roundel_fabricator.tooltip.use").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
         });
     }
 }
