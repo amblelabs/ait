@@ -2,23 +2,20 @@ package dev.amble.ait.core.screens;
 
 import java.util.List;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.entity.BannerPattern;
-import net.minecraft.block.entity.BannerPatterns;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.block.entity.BannerBlockEntityRenderer;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.model.EntityModelLayers;
-import net.minecraft.client.render.model.ModelLoader;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
@@ -33,12 +30,15 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.blockentities.RoundelBlockEntity;
 import dev.amble.ait.core.item.RoundelItem;
 import dev.amble.ait.core.roundels.RoundelPattern;
+import dev.amble.ait.core.roundels.RoundelPatterns;
 
 @Environment(value=EnvType.CLIENT)
 public class RoundelFabricatorScreen
@@ -116,7 +116,17 @@ public class RoundelFabricatorScreen
             context.getMatrices().scale(0.6666667f, -0.6666667f, -0.6666667f);
             this.bannerField.pitch = 0.0f;
             this.bannerField.pivotY = -32.0f;
-            BannerBlockEntityRenderer.renderCanvas(context.getMatrices(), context.getVertexConsumers(), 0xF000F0, OverlayTexture.DEFAULT_UV, this.bannerField, ModelLoader.BANNER_BASE, true, this.bannerPatterns);
+            BlockState state = AITBlocks.ROUNDEL.getDefaultState();
+            for (int p = 0; p < 17 && p < this.bannerPatterns.size(); ++p) {
+                Pair<RoundelPattern, DyeColor> pair = this.bannerPatterns.get(p);
+                float[] fs = pair.getSecond().getColorComponents();
+                RenderSystem.setShaderColor(fs[0], fs[1], fs[2], 1.0f);
+                this.client.getBlockRenderManager().renderBlock(state, new BlockPos(0, 0, 0), this.client.world,
+                        context.getMatrices(), context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutout(pair.getFirst().id())),
+                        false, this.client.world.getRandom());
+                RenderSystem.setShaderColor(1,1, 1, 1);
+            }
+
             context.getMatrices().pop();
             context.draw();
         } else if (this.hasTooManyPatterns) {
@@ -146,7 +156,7 @@ public class RoundelFabricatorScreen
 
     private void drawBanner(DrawContext context, RoundelPattern pattern, int x, int y) {
         NbtCompound nbtCompound = new NbtCompound();
-        NbtList nbtList = new BannerPattern.Patterns().add(BannerPatterns.BASE, DyeColor.GRAY).add(pattern, DyeColor.WHITE).toNbt();
+        NbtList nbtList = new RoundelPattern.Patterns().add(RoundelPatterns.EMPTY, DyeColor.GRAY).add(pattern, DyeColor.WHITE).toNbt();
         nbtCompound.put("Patterns", nbtList);
         ItemStack itemStack = new ItemStack(Items.GRAY_BANNER);
         BlockItem.setBlockEntityNbt(itemStack, BlockEntityType.BANNER, nbtCompound);
@@ -161,7 +171,16 @@ public class RoundelFabricatorScreen
         this.bannerField.pitch = 0.0f;
         this.bannerField.pivotY = -32.0f;
         List<Pair<RoundelPattern, DyeColor>> list = RoundelBlockEntity.getPatternsFromNbt(DyeColor.GRAY, RoundelBlockEntity.getPatternListNbt(itemStack));
-        BannerBlockEntityRenderer.renderCanvas(matrixStack, context.getVertexConsumers(), 0xF000F0, OverlayTexture.DEFAULT_UV, this.bannerField, ModelLoader.BANNER_BASE, true, list);
+        BlockState state = AITBlocks.ROUNDEL.getDefaultState();
+        for (int p = 0; p < 17 && p < list.size(); ++p) {
+            Pair<RoundelPattern, DyeColor> pair = list.get(p);
+            float[] fs = pair.getSecond().getColorComponents();
+            RenderSystem.setShaderColor(fs[0], fs[1], fs[2], 1.0f);
+            this.client.getBlockRenderManager().renderBlock(state, new BlockPos(0, 0, 0), this.client.world,
+                    context.getMatrices(), context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutout(pair.getFirst().id())),
+                    false, this.client.world.getRandom());
+            RenderSystem.setShaderColor(1,1, 1, 1);
+        }
         matrixStack.pop();
         context.draw();
     }
