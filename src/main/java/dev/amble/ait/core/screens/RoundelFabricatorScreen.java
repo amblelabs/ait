@@ -1,5 +1,7 @@
 package dev.amble.ait.core.screens;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.mojang.datafixers.util.Pair;
@@ -7,7 +9,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -26,8 +27,10 @@ import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.client.renderers.decoration.RoundelBlockEntityRenderer;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.blockentities.RoundelBlockEntity;
@@ -102,23 +105,17 @@ public class RoundelFabricatorScreen
         DiffuseLighting.disableGuiDepthLighting();
         if (this.roundelPatterns != null && !this.hasTooManyPatterns) {
             context.getMatrices().push();
-            context.getMatrices().translate(i + 139, j + 52, 0.0f);
-            context.getMatrices().scale(24.0f, -24.0f, 1.0f);
+            context.getMatrices().translate(i + 127, j - 8, 0);
+            context.getMatrices().scale(24.0f, -24.0f, 1);
             context.getMatrices().translate(0.5f, 0.5f, 0.5f);
-            float f = 0.6666667f;
-            context.getMatrices().scale(0.6666667f, -0.6666667f, -0.6666667f);
-            BlockState state = AITBlocks.ROUNDEL.getDefaultState();
-            /*for (int loser = 0; loser < 17 && loser < this.roundelPatterns.size(); ++loser) {
-                Pair<RoundelPattern, DyeColor> pair = this.roundelPatterns.get(loser);
-                float[] fs = pair.getSecond().getColorComponents();
-                MinecraftClient.getInstance().getBlockRenderManager().getModelRenderer().render(
-                        context.getMatrices().peek(),
-                        context.getVertexConsumers().getBuffer(RenderLayer.getEntityNoOutline(pair.getFirst().texture())),
-                        state,
-                        MinecraftClient.getInstance().getBlockRenderManager().getModel(state),
-                        fs[0], fs[1], fs[2], 0xf000f0, OverlayTexture.DEFAULT_UV
-                );
-            }*/
+            context.getMatrices().multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(0));
+            context.getMatrices().multiply(RotationAxis.POSITIVE_X.rotationDegrees(0));
+            float f = 1f;
+            context.getMatrices().scale(f, -f, -f);
+            List<Pair<RoundelPattern, DyeColor>> reversedPatterns = new ArrayList<>(this.roundelPatterns);
+            Collections.reverse(reversedPatterns);
+            RoundelBlockEntityRenderer.renderBlock(RoundelBlockEntityRenderer.getTexturedModelData().createModel(), context.getMatrices(),
+                    context.getVertexConsumers(), 0xF000F0, OverlayTexture.DEFAULT_UV, reversedPatterns, false);
 
             context.getMatrices().pop();
             context.draw();
@@ -155,25 +152,15 @@ public class RoundelFabricatorScreen
         BlockItem.setBlockEntityNbt(itemStack, AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE, nbtCompound);
         MatrixStack matrixStack = new MatrixStack();
         matrixStack.push();
-        matrixStack.translate((float)x + 0.5f, y + 16, 0.0f);
+        matrixStack.translate((float)x - 2.35f, y + 1, 0.0f);
         matrixStack.scale(6.0f, -6.0f, 1.0f);
         matrixStack.translate(0.5f, 0.5f, 0.0f);
         matrixStack.translate(0.5f, 0.5f, 0.5f);
-        float f = 0.6666667f;
-        matrixStack.scale(0.6666667f, -0.6666667f, -0.6666667f);
+        float f = 1f;
+        matrixStack.scale(f, -f, -f);
         List<Pair<RoundelPattern, DyeColor>> list = RoundelBlockEntity.getPatternsFromNbt(DyeColor.GRAY, RoundelBlockEntity.getPatternListNbt(itemStack));
-        BlockState state = AITBlocks.ROUNDEL.getDefaultState();
-        /*for (int loser = 0; loser < 17 && loser < list.size(); ++loser) {
-            Pair<RoundelPattern, DyeColor> pair = list.get(loser);
-            float[] fs = pair.getSecond().getColorComponents();
-            MinecraftClient.getInstance().getBlockRenderManager().getModelRenderer().render(
-                    context.getMatrices().peek(),
-                    context.getVertexConsumers().getBuffer(RenderLayer.getEntityNoOutline(pair.getFirst().texture())),
-                    state,
-                    MinecraftClient.getInstance().getBlockRenderManager().getModel(state),
-                    fs[0], fs[1], fs[2], 0xf000f0, OverlayTexture.DEFAULT_UV
-            );
-        }*/
+        RoundelBlockEntityRenderer.renderBlock(RoundelBlockEntityRenderer.getTexturedModelData().createModel(), matrixStack,
+                context.getVertexConsumers(), 0xF000F0, OverlayTexture.DEFAULT_UV, list, false);
         matrixStack.pop();
         context.draw();
     }

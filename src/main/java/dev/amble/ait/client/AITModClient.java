@@ -127,7 +127,7 @@ public class AITModClient implements ClientModInitializer {
 
         ModuleRegistry.instance().onClientInit();
 
-        //registerScreens();
+        registerScreens();
         setupBlockRendering();
         blockEntityRendererRegister();
         entityRenderRegister();

@@ -3,6 +3,7 @@ package dev.amble.ait.core.blocks;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
@@ -33,6 +34,11 @@ public abstract class AbstractRoundelBlock
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new RoundelBlockEntity(pos, state, this.color);
+    }
+
+    @Override
+    public BlockRenderType getRenderType(BlockState state) {
+        return BlockRenderType.INVISIBLE;
     }
 
     @Override

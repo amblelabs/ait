@@ -27,6 +27,7 @@ import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.item.RoundelItem;
 import dev.amble.ait.core.roundels.RoundelPattern;
+import dev.amble.ait.core.roundels.RoundelPatterns;
 
 public class RoundelFabricatorScreenHandler
         extends ScreenHandler {
@@ -143,7 +144,7 @@ public class RoundelFabricatorScreenHandler
 
     private List<RoundelPattern> getPatternsFor(ItemStack stack) {
         if (stack.isEmpty()) {
-            return new ArrayList<>();
+            return RoundelPatterns.getInstance().toList();
         }
         Item item = stack.getItem();
         if (item instanceof BannerPatternItem) {
@@ -221,7 +222,7 @@ public class RoundelFabricatorScreenHandler
     @Override
     public ItemStack quickMove(PlayerEntity player, int slot) {
         ItemStack itemStack = ItemStack.EMPTY;
-        Slot slot2 = (Slot)this.slots.get(slot);
+        Slot slot2 = this.slots.get(slot);
         if (slot2 != null && slot2.hasStack()) {
             ItemStack itemStack2 = slot2.getStack();
             itemStack = itemStack2.copy();

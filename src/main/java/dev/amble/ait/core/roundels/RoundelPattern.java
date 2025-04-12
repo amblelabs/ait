@@ -25,10 +25,11 @@ import net.minecraft.util.dynamic.Codecs;
 
 import dev.amble.ait.AITMod;
 
-public record RoundelPattern(Identifier id, Identifier texture) implements Identifiable {
+public record RoundelPattern(Identifier id, Identifier texture, boolean emissive) implements Identifiable {
     public static final Codec<RoundelPattern> CODEC = Codecs.exceptionCatching(RecordCodecBuilder.create(instance -> instance.group(
                     Identifier.CODEC.fieldOf("id").forGetter(RoundelPattern::id),
-                    Identifier.CODEC.fieldOf("texture").forGetter(RoundelPattern::texture))
+                    Identifier.CODEC.fieldOf("texture").forGetter(RoundelPattern::texture),
+                    Codec.BOOL.optionalFieldOf("emissive", false).forGetter(RoundelPattern::emissive))
             .apply(instance, RoundelPattern::new)));
 
     public static RoundelPattern fromInputStream(InputStream stream) {
@@ -54,6 +55,11 @@ public record RoundelPattern(Identifier id, Identifier texture) implements Ident
     @Override
     public Identifier texture() {
         return texture;
+    }
+
+    @Override
+    public boolean emissive() {
+        return emissive;
     }
 
     public static class Patterns {
