@@ -61,6 +61,7 @@ import dev.amble.ait.client.renderers.consoles.ConsoleRenderer;
 import dev.amble.ait.client.renderers.coral.CoralRenderer;
 import dev.amble.ait.client.renderers.decoration.FlagBlockEntityRenderer;
 import dev.amble.ait.client.renderers.decoration.PlaqueRenderer;
+import dev.amble.ait.client.renderers.decoration.RoundelBlockEntityRenderer;
 import dev.amble.ait.client.renderers.decoration.SnowGlobeRenderer;
 import dev.amble.ait.client.renderers.doors.DoorRenderer;
 import dev.amble.ait.client.renderers.entities.*;
@@ -89,6 +90,7 @@ import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.entities.TrenzalorePaintingEntity;
 import dev.amble.ait.core.item.*;
+import dev.amble.ait.core.roundels.RoundelPatterns;
 import dev.amble.ait.core.screens.RoundelFabricatorScreen;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
@@ -115,6 +117,7 @@ public class AITModClient implements ClientModInitializer {
         AmbleRegistries.getInstance().registerAll(
                 SonicRegistry.getInstance(),
                 DrinkRegistry.getInstance(),
+                RoundelPatterns.getInstance(),
                 ClientExteriorVariantRegistry.getInstance(),
                 ClientConsoleVariantRegistry.getInstance()
         );
@@ -124,7 +127,7 @@ public class AITModClient implements ClientModInitializer {
 
         ModuleRegistry.instance().onClientInit();
 
-        registerScreens();
+        //registerScreens();
         setupBlockRendering();
         blockEntityRendererRegister();
         entityRenderRegister();
@@ -435,6 +438,8 @@ public class AITModClient implements ClientModInitializer {
                 FabricatorRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ROUNDEL_FABRICATOR_BLOCK_ENTITY_TYPE,
                 RoundelFabricatorRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE,
+                RoundelBlockEntityRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.WAYPOINT_BANK_BLOCK_ENTITY_TYPE,
                 WaypointBankBlockEntityRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.FLAG_BLOCK_ENTITY_TYPE, FlagBlockEntityRenderer::new);

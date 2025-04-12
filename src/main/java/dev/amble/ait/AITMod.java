@@ -66,6 +66,7 @@ import dev.amble.ait.core.item.part.MachineItem;
 import dev.amble.ait.core.likes.ItemOpinionRegistry;
 import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.ait.core.loot.SetBlueprintLootFunction;
+import dev.amble.ait.core.roundels.RoundelPatterns;
 import dev.amble.ait.core.screens.RoundelFabricatorScreenHandler;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
 import dev.amble.ait.core.sounds.travel.TravelSoundRegistry;
@@ -170,7 +171,8 @@ public class AITMod implements ModInitializer {
                 HumRegistry.getInstance(),
                 SubSystemRegistry.getInstance(),
                 ItemOpinionRegistry.getInstance(),
-                DrinkRegistry.getInstance()
+                DrinkRegistry.getInstance(),
+                RoundelPatterns.getInstance()
         );
         ControlSoundRegistry.init();
 

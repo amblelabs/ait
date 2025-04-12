@@ -2,26 +2,21 @@ package dev.amble.ait.core.screens;
 
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.*;
-import net.minecraft.client.render.entity.model.EntityModelLayers;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -30,10 +25,10 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.blockentities.RoundelBlockEntity;
 import dev.amble.ait.core.item.RoundelItem;
@@ -52,9 +47,8 @@ public class RoundelFabricatorScreen
     private static final int SCROLLBAR_AREA_HEIGHT = 56;
     private static final int PATTERN_LIST_OFFSET_X = 60;
     private static final int PATTERN_LIST_OFFSET_Y = 13;
-    private ModelPart bannerField;
-    @Nullable private List<Pair<RoundelPattern, DyeColor>> bannerPatterns;
-    private ItemStack banner = ItemStack.EMPTY;
+    @Nullable private List<Pair<RoundelPattern, DyeColor>> roundelPatterns;
+    private ItemStack roundel = ItemStack.EMPTY;
     private ItemStack dye = ItemStack.EMPTY;
     private ItemStack pattern = ItemStack.EMPTY;
     private boolean canApplyDyePattern;
@@ -72,7 +66,6 @@ public class RoundelFabricatorScreen
     @Override
     protected void init() {
         super.init();
-        this.bannerField = this.client.getEntityModelLoader().getModelPart(EntityModelLayers.BANNER).getChild("flag");
     }
 
     @Override
@@ -107,25 +100,25 @@ public class RoundelFabricatorScreen
         int k = (int)(41.0f * this.scrollPosition);
         context.drawTexture(TEXTURE, i + 119, j + 13 + k, 232 + (this.canApplyDyePattern ? 0 : 12), 0, 12, 15);
         DiffuseLighting.disableGuiDepthLighting();
-        if (this.bannerPatterns != null && !this.hasTooManyPatterns) {
+        if (this.roundelPatterns != null && !this.hasTooManyPatterns) {
             context.getMatrices().push();
             context.getMatrices().translate(i + 139, j + 52, 0.0f);
             context.getMatrices().scale(24.0f, -24.0f, 1.0f);
             context.getMatrices().translate(0.5f, 0.5f, 0.5f);
             float f = 0.6666667f;
             context.getMatrices().scale(0.6666667f, -0.6666667f, -0.6666667f);
-            this.bannerField.pitch = 0.0f;
-            this.bannerField.pivotY = -32.0f;
             BlockState state = AITBlocks.ROUNDEL.getDefaultState();
-            for (int p = 0; p < 17 && p < this.bannerPatterns.size(); ++p) {
-                Pair<RoundelPattern, DyeColor> pair = this.bannerPatterns.get(p);
+            /*for (int loser = 0; loser < 17 && loser < this.roundelPatterns.size(); ++loser) {
+                Pair<RoundelPattern, DyeColor> pair = this.roundelPatterns.get(loser);
                 float[] fs = pair.getSecond().getColorComponents();
-                RenderSystem.setShaderColor(fs[0], fs[1], fs[2], 1.0f);
-                this.client.getBlockRenderManager().renderBlock(state, new BlockPos(0, 0, 0), this.client.world,
-                        context.getMatrices(), context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutout(pair.getFirst().id())),
-                        false, this.client.world.getRandom());
-                RenderSystem.setShaderColor(1,1, 1, 1);
-            }
+                MinecraftClient.getInstance().getBlockRenderManager().getModelRenderer().render(
+                        context.getMatrices().peek(),
+                        context.getVertexConsumers().getBuffer(RenderLayer.getEntityNoOutline(pair.getFirst().texture())),
+                        state,
+                        MinecraftClient.getInstance().getBlockRenderManager().getModel(state),
+                        fs[0], fs[1], fs[2], 0xf000f0, OverlayTexture.DEFAULT_UV
+                );
+            }*/
 
             context.getMatrices().pop();
             context.draw();
@@ -147,19 +140,19 @@ public class RoundelFabricatorScreen
                     boolean bl2 = bl = mouseX >= r && mouseY >= s && mouseX < r + 14 && mouseY < s + 14;
                     int t = q == this.handler.getSelectedPattern() ? this.backgroundHeight + 14 : (bl ? this.backgroundHeight + 28 : this.backgroundHeight);
                     context.drawTexture(TEXTURE, r, s, 0, t, 14, 14);
-                    this.drawBanner(context, list.get(q), r, s);
+                    this.drawRoundel(context, list.get(q), r, s);
                 }
             }
         }
         DiffuseLighting.enableGuiDepthLighting();
     }
 
-    private void drawBanner(DrawContext context, RoundelPattern pattern, int x, int y) {
+    private void drawRoundel(DrawContext context, RoundelPattern pattern, int x, int y) {
         NbtCompound nbtCompound = new NbtCompound();
-        NbtList nbtList = new RoundelPattern.Patterns().add(RoundelPatterns.EMPTY, DyeColor.GRAY).add(pattern, DyeColor.WHITE).toNbt();
+        NbtList nbtList = new RoundelPattern.Patterns().add(RoundelPatterns.BASE, DyeColor.GRAY).add(pattern, DyeColor.WHITE).toNbt();
         nbtCompound.put("Patterns", nbtList);
-        ItemStack itemStack = new ItemStack(Items.GRAY_BANNER);
-        BlockItem.setBlockEntityNbt(itemStack, BlockEntityType.BANNER, nbtCompound);
+        ItemStack itemStack = new ItemStack(AITBlocks.ROUNDEL.asItem());
+        BlockItem.setBlockEntityNbt(itemStack, AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE, nbtCompound);
         MatrixStack matrixStack = new MatrixStack();
         matrixStack.push();
         matrixStack.translate((float)x + 0.5f, y + 16, 0.0f);
@@ -168,19 +161,19 @@ public class RoundelFabricatorScreen
         matrixStack.translate(0.5f, 0.5f, 0.5f);
         float f = 0.6666667f;
         matrixStack.scale(0.6666667f, -0.6666667f, -0.6666667f);
-        this.bannerField.pitch = 0.0f;
-        this.bannerField.pivotY = -32.0f;
         List<Pair<RoundelPattern, DyeColor>> list = RoundelBlockEntity.getPatternsFromNbt(DyeColor.GRAY, RoundelBlockEntity.getPatternListNbt(itemStack));
         BlockState state = AITBlocks.ROUNDEL.getDefaultState();
-        for (int p = 0; p < 17 && p < list.size(); ++p) {
-            Pair<RoundelPattern, DyeColor> pair = list.get(p);
+        /*for (int loser = 0; loser < 17 && loser < list.size(); ++loser) {
+            Pair<RoundelPattern, DyeColor> pair = list.get(loser);
             float[] fs = pair.getSecond().getColorComponents();
-            RenderSystem.setShaderColor(fs[0], fs[1], fs[2], 1.0f);
-            this.client.getBlockRenderManager().renderBlock(state, new BlockPos(0, 0, 0), this.client.world,
-                    context.getMatrices(), context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutout(pair.getFirst().id())),
-                    false, this.client.world.getRandom());
-            RenderSystem.setShaderColor(1,1, 1, 1);
-        }
+            MinecraftClient.getInstance().getBlockRenderManager().getModelRenderer().render(
+                    context.getMatrices().peek(),
+                    context.getVertexConsumers().getBuffer(RenderLayer.getEntityNoOutline(pair.getFirst().texture())),
+                    state,
+                    MinecraftClient.getInstance().getBlockRenderManager().getModel(state),
+                    fs[0], fs[1], fs[2], 0xf000f0, OverlayTexture.DEFAULT_UV
+            );
+        }*/
         matrixStack.pop();
         context.draw();
     }
@@ -244,23 +237,23 @@ public class RoundelFabricatorScreen
 
     private void onInventoryChanged() {
         ItemStack itemStack = this.handler.getOutputSlot().getStack();
-        this.bannerPatterns = itemStack.isEmpty() ? null : RoundelBlockEntity.getPatternsFromNbt(((RoundelItem)itemStack.getItem()).getColor(), RoundelBlockEntity.getPatternListNbt(itemStack));
+        this.roundelPatterns = itemStack.isEmpty() ? null : RoundelBlockEntity.getPatternsFromNbt(((RoundelItem)itemStack.getItem()).getColor(), RoundelBlockEntity.getPatternListNbt(itemStack));
         ItemStack itemStack2 = this.handler.getRoundelSlot().getStack();
         ItemStack itemStack3 = this.handler.getDyeSlot().getStack();
         ItemStack itemStack4 = this.handler.getPatternSlot().getStack();
         NbtCompound nbtCompound = BlockItem.getBlockEntityNbt(itemStack2);
         boolean bl = this.hasTooManyPatterns = nbtCompound != null && nbtCompound.contains("Patterns", NbtElement.LIST_TYPE) && !itemStack2.isEmpty() && nbtCompound.getList("Patterns", NbtElement.COMPOUND_TYPE).size() >= 6;
         if (this.hasTooManyPatterns) {
-            this.bannerPatterns = null;
+            this.roundelPatterns = null;
         }
-        if (!(ItemStack.areEqual(itemStack2, this.banner) && ItemStack.areEqual(itemStack3, this.dye) && ItemStack.areEqual(itemStack4, this.pattern))) {
+        if (!(ItemStack.areEqual(itemStack2, this.roundel) && ItemStack.areEqual(itemStack3, this.dye) && ItemStack.areEqual(itemStack4, this.pattern))) {
             boolean bl2 = this.canApplyDyePattern = !itemStack2.isEmpty() && !itemStack3.isEmpty() && !this.hasTooManyPatterns && !this.handler.getRoundelPatterns().isEmpty();
         }
         if (this.visibleTopRow >= this.getRows()) {
             this.visibleTopRow = 0;
             this.scrollPosition = 0.0f;
         }
-        this.banner = itemStack2.copy();
+        this.roundel = itemStack2.copy();
         this.dye = itemStack3.copy();
         this.pattern = itemStack4.copy();
     }

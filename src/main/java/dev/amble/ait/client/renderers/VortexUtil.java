@@ -98,6 +98,9 @@ public class VortexUtil {
 
         tessellator.draw();
         matrixStack.pop();
+
+        RenderSystem.disableBlend();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     public void renderSection(VertexConsumer builder, int zOffset, float textureDistanceOffset, float startScale,

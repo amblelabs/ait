@@ -1,6 +1,9 @@
 package dev.amble.ait.core.roundels;
 
 import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+
+import net.minecraft.resource.ResourceType;
 
 import dev.amble.ait.AITMod;
 
@@ -12,19 +15,26 @@ public class RoundelPatterns extends SimpleDatapackRegistry<RoundelPattern> {
         super(RoundelPattern::fromInputStream, RoundelPattern.CODEC, "roundel/pattern", "roundel/pattern", true, AITMod.MOD_ID);
     }
 
-    public static RoundelPatterns getInstance() {
-        return instance;
-    }
-
-    public static RoundelPattern EMPTY;
+    public static RoundelPattern BASE;
 
     @Override
     protected void defaults() {
-        EMPTY = register(new RoundelPattern(AITMod.id("empty")));
+        BASE = register(new RoundelPattern(AITMod.id("roundel/base"), AITMod.id("textures/block/roundel/base.png")));
+    }
+
+    @Override
+    public void onCommonInit() {
+        super.onCommonInit();
+        this.defaults();
+        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(this);
     }
 
     @Override
     public RoundelPattern fallback() {
-        return null;
+        return BASE;
+    }
+
+    public static RoundelPatterns getInstance() {
+        return instance;
     }
 }

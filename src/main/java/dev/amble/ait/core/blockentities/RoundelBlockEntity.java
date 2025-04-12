@@ -131,7 +131,7 @@ public class RoundelBlockEntity
 
     public static List<Pair<RoundelPattern, DyeColor>> getPatternsFromNbt(DyeColor baseColor, @Nullable NbtList patternListNbt) {
         ArrayList<Pair<RoundelPattern, DyeColor>> list = Lists.newArrayList();
-        list.add(Pair.of(RoundelPatterns.EMPTY, baseColor));
+        list.add(Pair.of(RoundelPatterns.BASE, baseColor));
         if (patternListNbt != null) {
             for (int i = 0; i < patternListNbt.size(); ++i) {
                 NbtCompound nbtCompound = patternListNbt.getCompound(i);
