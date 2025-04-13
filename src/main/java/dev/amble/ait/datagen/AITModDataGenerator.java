@@ -987,6 +987,14 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("item.sonic.scanning.no_tool", "Hand (No Tool)");
         provider.addTranslation("item.sonic.scanning.cant_break", "Can't Break Block!");
 
+        // Engine overload
+        provider.addTranslation("tardis.message.overload_in_progress", "Overload already in progress.");
+        provider.addTranslation("tardis.message.overload.invalid_state", "Error: Can only overload while in flight.");
+        provider.addTranslation("tardis.message.overload.not_enough_fuel", "Error: At least 25,000 Artron required.");
+        provider.addTranslation("tardis.message.overload.dumping", "Dumping Artron %s");
+        provider.addTranslation("tardis.message.overload.triggering", "ARTRON DUMPED. ENGINES OVERLOADED. TRIGGERING EMERGENCY ARTRON RELEASE");
+
+
 
         // Loyalty Messages In Bed
         provider.addTranslation("tardis.loyalty.message.reject","You hear whispers all around you, you are not welcome. [REJECT]");
