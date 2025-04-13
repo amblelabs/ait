@@ -3,8 +3,8 @@ package dev.amble.ait.core.blocks;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
@@ -15,9 +15,10 @@ import net.minecraft.world.World;
 
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.blockentities.RoundelBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 
 public abstract class AbstractRoundelBlock
-        extends BlockWithEntity {
+        extends HorizontalDirectionalBlock implements BlockEntityProvider {
     private final DyeColor color;
 
     protected AbstractRoundelBlock(DyeColor color, AbstractBlock.Settings settings) {

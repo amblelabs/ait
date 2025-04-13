@@ -20,6 +20,7 @@ import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.core.blockentities.RoundelBlockEntity;
+import dev.amble.ait.core.blocks.RoundelBlock;
 import dev.amble.ait.core.roundels.RoundelPattern;
 import dev.amble.ait.core.roundels.RoundelPatterns;
 
@@ -44,6 +45,7 @@ public class RoundelBlockEntityRenderer
         matrixStack.push();
         matrixStack.translate(0.5, 1f, 0.5);
         matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
+        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(roundelBlockEntity.getCachedState().get(RoundelBlock.FACING).asRotation()));
         RoundelBlockEntityRenderer.renderBlock(roundelBlockEntity, this.cube, matrixStack, vertexConsumerProvider, i, j, list);
         matrixStack.pop();
     }
