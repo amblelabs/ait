@@ -58,8 +58,11 @@ public class RoundelFabricatorBlock extends HorizontalDirectionalBlock implement
         if (world.isClient) {
             return ActionResult.SUCCESS;
         }
-        player.openHandledScreen(state.createScreenHandlerFactory(world, pos));
-        return ActionResult.CONSUME;
+        if (world.getBlockState(pos.down()).getBlock() instanceof LoomBlock) {
+            player.openHandledScreen(state.createScreenHandlerFactory(world, pos));
+            return ActionResult.CONSUME;
+        }
+        return ActionResult.FAIL;
     }
 
     @Override
