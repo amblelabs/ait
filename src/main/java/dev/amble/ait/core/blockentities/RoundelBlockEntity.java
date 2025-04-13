@@ -47,11 +47,13 @@ public class RoundelBlockEntity
     public RoundelBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE, pos, state);
         this.baseColor = ((AbstractRoundelBlock)state.getBlock()).getColor();
+        this.setDynamicTex(null);
     }
 
     public RoundelBlockEntity(BlockPos pos, BlockState state, DyeColor baseColor) {
         this(pos, state);
         this.baseColor = baseColor;
+        this.setDynamicTex(null);
     }
 
     @Nullable public static NbtList getPatternListNbt(ItemStack stack) {
@@ -101,7 +103,7 @@ public class RoundelBlockEntity
             nbt.putString("CustomName", Text.Serializer.toJson(this.customName));
         }
         if (this.dynamicTex != null) {
-            nbt.put("DynamicTex", NbtHelper.fromBlockState(this.dynamicTex));
+            nbt.put("DynamicTex", NbtHelper.fromBlockState(this.getDynamicTextureBlockState()));
         }
     }
 
@@ -117,8 +119,8 @@ public class RoundelBlockEntity
         if (this.getWorld() == null) return;
 
         if (nbt.contains("DynamicTex", NbtElement.COMPOUND_TYPE)) {
-            this.dynamicTex = NbtHelper.toBlockState(this.getWorld()
-                    .createCommandRegistryWrapper(RegistryKeys.BLOCK), nbt.getCompound("DynamicTex"));
+            this.setDynamicTex(NbtHelper.toBlockState(this.getWorld()
+                    .createCommandRegistryWrapper(RegistryKeys.BLOCK), nbt.getCompound("DynamicTex")));
         }
     }
 
@@ -193,6 +195,11 @@ public class RoundelBlockEntity
     @Nullable @Override
     public Packet<ClientPlayPacketListener> toUpdatePacket() {
         return BlockEntityUpdateS2CPacket.create(this);
+    }
+
+    public void setDynamicTex(BlockState state) {
+        this.dynamicTex = state;
+        this.markDirty();
     }
 
     public BlockState getDynamicTextureBlockState() {
