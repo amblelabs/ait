@@ -3,9 +3,9 @@
  */
 package dev.amble.ait.core.screens;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -13,7 +13,9 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.screen.Property;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
@@ -89,7 +91,7 @@ public class RoundelFabricatorScreenHandler
 
             @Override
             public boolean canInsert(ItemStack stack) {
-                return stack.getItem() instanceof BannerPatternItem;
+                return stack.isIn(ItemTags.PLANKS);
             }
         });
         this.outputSlot = this.addSlot(new Slot(this.output, 0, 143, 58){
@@ -103,6 +105,7 @@ public class RoundelFabricatorScreenHandler
             public void onTakeItem(PlayerEntity player, ItemStack stack) {
                 RoundelFabricatorScreenHandler.this.roundelSlot.takeStack(1);
                 RoundelFabricatorScreenHandler.this.dyeSlot.takeStack(1);
+                RoundelFabricatorScreenHandler.this.patternSlot.takeStack(1);
                 if (!RoundelFabricatorScreenHandler.this.roundelSlot.hasStack() || !RoundelFabricatorScreenHandler.this.dyeSlot.hasStack()) {
                     RoundelFabricatorScreenHandler.this.selectedPattern.set(-1);
                 }
@@ -146,10 +149,8 @@ public class RoundelFabricatorScreenHandler
         if (stack.isEmpty()) {
             return RoundelPatterns.getInstance().toList();
         }
-        Item item = stack.getItem();
-        if (item instanceof BannerPatternItem) {
-            BannerPatternItem bannerPatternItem = (BannerPatternItem)item;
-            return new ArrayList<>();
+        if (stack.isIn(ItemTags.PLANKS)) {
+            return List.of();
         }
         return List.of();
     }
@@ -231,7 +232,7 @@ public class RoundelFabricatorScreenHandler
                     return ItemStack.EMPTY;
                 }
                 slot2.onQuickTransfer(itemStack2, itemStack);
-            } else if (slot == this.dyeSlot.id || slot == this.roundelSlot.id || slot == this.patternSlot.id ? !this.insertItem(itemStack2, 4, 40, false) : (itemStack2.getItem() instanceof RoundelItem ? !this.insertItem(itemStack2, this.roundelSlot.id, this.roundelSlot.id + 1, false) : (itemStack2.getItem() instanceof DyeItem ? !this.insertItem(itemStack2, this.dyeSlot.id, this.dyeSlot.id + 1, false) : (itemStack2.getItem() instanceof BannerPatternItem ? !this.insertItem(itemStack2, this.patternSlot.id, this.patternSlot.id + 1, false) : (slot >= 4 && slot < 31 ? !this.insertItem(itemStack2, 31, 40, false) : slot >= 31 && slot < 40 && !this.insertItem(itemStack2, 4, 31, false)))))) {
+            } else if (slot == this.dyeSlot.id || slot == this.roundelSlot.id || slot == this.patternSlot.id ? !this.insertItem(itemStack2, 4, 40, false) : (itemStack2.getItem() instanceof RoundelItem ? !this.insertItem(itemStack2, this.roundelSlot.id, this.roundelSlot.id + 1, false) : (itemStack2.getItem() instanceof DyeItem ? !this.insertItem(itemStack2, this.dyeSlot.id, this.dyeSlot.id + 1, false) : (itemStack2.isIn(ItemTags.PLANKS) ? !this.insertItem(itemStack2, this.patternSlot.id, this.patternSlot.id + 1, false) : (slot >= 4 && slot < 31 ? !this.insertItem(itemStack2, 31, 40, false) : slot >= 31 && slot < 40 && !this.insertItem(itemStack2, 4, 31, false)))))) {
                 return ItemStack.EMPTY;
             }
             if (itemStack2.isEmpty()) {
@@ -274,7 +275,11 @@ public class RoundelFabricatorScreenHandler
             NbtCompound nbtCompound2 = new NbtCompound();
             nbtCompound2.putString("Pattern", pattern.id().toString());
             nbtCompound2.putInt("Color", dyeColor.getId());
-            nbtList.add(0, nbtCompound2);
+            nbtCompound2.put("DynamicTex", NbtHelper.fromBlockState(Blocks.DARK_OAK_PLANKS.getDefaultState()));
+            if (pattern.equals(RoundelPatterns.BASE))
+                nbtList.add(0, nbtCompound2);
+            else
+                nbtList.add(nbtCompound2);
             BlockItem.setBlockEntityNbt(itemStack3, AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE, nbtCompound);
         }
         if (!ItemStack.areEqual(itemStack3, this.outputSlot.getStack())) {

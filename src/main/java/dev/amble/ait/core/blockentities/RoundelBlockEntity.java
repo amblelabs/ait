@@ -13,10 +13,12 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
@@ -38,6 +40,7 @@ public class RoundelBlockEntity
     public static final String COLOR_KEY = "Color";
     @Nullable private Text customName;
     private DyeColor baseColor;
+    private BlockState dynamicTex;
     @Nullable private NbtList patternListNbt;
     @Nullable private List<Pair<RoundelPattern, DyeColor>> patterns;
 
@@ -97,6 +100,9 @@ public class RoundelBlockEntity
         if (this.customName != null) {
             nbt.putString("CustomName", Text.Serializer.toJson(this.customName));
         }
+        if (this.dynamicTex != null) {
+            nbt.put("DynamicTex", NbtHelper.fromBlockState(this.dynamicTex));
+        }
     }
 
     @Override
@@ -107,6 +113,13 @@ public class RoundelBlockEntity
         }
         this.patternListNbt = nbt.getList(PATTERNS_KEY, NbtElement.COMPOUND_TYPE);
         this.patterns = null;
+
+        if (this.getWorld() == null) return;
+
+        if (nbt.contains("DynamicTex", NbtElement.COMPOUND_TYPE)) {
+            this.dynamicTex = NbtHelper.toBlockState(this.getWorld()
+                    .createCommandRegistryWrapper(RegistryKeys.BLOCK), nbt.getCompound("DynamicTex"));
+        }
     }
 
     @Override
@@ -180,5 +193,9 @@ public class RoundelBlockEntity
     @Nullable @Override
     public Packet<ClientPlayPacketListener> toUpdatePacket() {
         return BlockEntityUpdateS2CPacket.create(this);
+    }
+
+    public BlockState getDynamicTextureBlockState() {
+        return this.dynamicTex;
     }
 }

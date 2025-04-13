@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -14,6 +15,7 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.client.renderers.AITRenderLayers;
@@ -42,21 +44,21 @@ public class RoundelBlockEntityRenderer
         matrixStack.push();
         matrixStack.translate(0.5, 1f, 0.5);
         matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
-        RoundelBlockEntityRenderer.renderBlock(this.cube, matrixStack, vertexConsumerProvider, i, j, list);
+        RoundelBlockEntityRenderer.renderBlock(roundelBlockEntity, this.cube, matrixStack, vertexConsumerProvider, i, j, list);
         matrixStack.pop();
     }
 
-    public static void renderBlock(ModelPart modelPart, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, List<Pair<RoundelPattern, DyeColor>> patterns) {
-        RoundelBlockEntityRenderer.renderBlock(modelPart, matrices, vertexConsumers, light, overlay, patterns, false);
-    }
-
-    public static void renderBlock(ModelPart modelPart, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, List<Pair<RoundelPattern, DyeColor>> patterns, boolean glint) {
+    public static void renderBlock(RoundelBlockEntity roundelBlockEntity, ModelPart modelPart, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, List<Pair<RoundelPattern, DyeColor>> patterns) {
         //modelPart.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutout(patterns.get(0).getFirst().texture())), light, overlay, 1f, 1f, 1f, 1.0f);
         for (int i = 0; i < 17 && i < patterns.size(); ++i) {
             Pair<RoundelPattern, DyeColor> pair = patterns.get(i);
             float[] fs = pair.getSecond().getColorComponents();
             if (pair.getFirst().equals(RoundelPatterns.BASE)) {
-                modelPart.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutout(pair.getFirst().texture())),
+                Identifier dynamicTex = pair.getFirst().usesDynamicTexture() && roundelBlockEntity.getDynamicTextureBlockState() != null ?
+                        MinecraftClient.getInstance().getBlockRenderManager()
+                                .getModel(roundelBlockEntity.getDynamicTextureBlockState()).getParticleSprite().getAtlasId() :
+                        pair.getFirst().texture();
+                modelPart.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutout(dynamicTex)),
                         pair.getFirst().emissive() ? 0xf000f0 : light, overlay, fs[0], fs[1], fs[2], 1.0f);
                 continue;
             }

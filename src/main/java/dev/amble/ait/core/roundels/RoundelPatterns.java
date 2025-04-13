@@ -19,7 +19,7 @@ public class RoundelPatterns extends SimpleDatapackRegistry<RoundelPattern> {
 
     @Override
     protected void defaults() {
-        BASE = register(new RoundelPattern(AITMod.id("roundel/base"), AITMod.id("textures/block/roundel/base.png"), false));
+        BASE = register(new RoundelPattern(AITMod.id("roundel/base"), AITMod.id("textures/block/roundel/base.png"), true, false));
     }
 
     @Override
