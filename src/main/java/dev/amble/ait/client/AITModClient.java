@@ -36,7 +36,10 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.RotationPropertyHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
 
 import dev.amble.ait.AITMod;
@@ -66,6 +69,7 @@ import dev.amble.ait.client.renderers.decoration.SnowGlobeRenderer;
 import dev.amble.ait.client.renderers.doors.DoorRenderer;
 import dev.amble.ait.client.renderers.entities.*;
 import dev.amble.ait.client.renderers.exteriors.ExteriorRenderer;
+import dev.amble.ait.client.renderers.items.DynamicRoundelItemRenderer;
 import dev.amble.ait.client.renderers.machines.*;
 import dev.amble.ait.client.renderers.monitors.MonitorRenderer;
 import dev.amble.ait.client.renderers.monitors.WallMonitorRenderer;
@@ -138,6 +142,7 @@ public class AITModClient implements ClientModInitializer {
         siegeItemPredicate();
         adventItemPredicates();
         registerItemColors();
+        registerBuiltInItems();
         registerParticles();
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
@@ -495,6 +500,10 @@ public class AITModClient implements ClientModInitializer {
     public void registerItemColors() {
         ColorProviderRegistry.ITEM.register((stack, tintIndex) ->tintIndex > 0 ? -1 :
                 DrinkUtil.getColor(stack), AITItems.MUG);
+    }
+
+    public void registerBuiltInItems() {
+        BuiltinItemRendererRegistry.INSTANCE.register(AITItems.ROUNDEL, new DynamicRoundelItemRenderer());
     }
 
     public void registerParticles() {

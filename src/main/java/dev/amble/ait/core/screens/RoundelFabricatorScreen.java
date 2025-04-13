@@ -1,7 +1,5 @@
 package dev.amble.ait.core.screens;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.mojang.datafixers.util.Pair;
@@ -12,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.*;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.math.MatrixStack;
@@ -104,18 +103,32 @@ public class RoundelFabricatorScreen
         context.drawTexture(TEXTURE, i + 119, j + 13 + k, 232 + (this.canApplyDyePattern ? 0 : 12), 0, 12, 15);
         DiffuseLighting.disableGuiDepthLighting();
         if (this.roundelPatterns != null && !this.hasTooManyPatterns) {
-            context.getMatrices().push();
-            context.getMatrices().translate(i + 127, j - 8, 0);
-            context.getMatrices().scale(24.0f, -24.0f, 1);
-            context.getMatrices().translate(0.5f, 0.5f, 0.5f);
-            context.getMatrices().multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(0));
-            context.getMatrices().multiply(RotationAxis.POSITIVE_X.rotationDegrees(0));
+            MatrixStack matrixOfTheStack = context.getMatrices();
+            matrixOfTheStack.push();
+            matrixOfTheStack.translate(i + 139, j + 4, 0);
+            matrixOfTheStack.scale(24, 24, 24);
+            matrixOfTheStack.translate(0.5f, 0.5f, 0.5f);
+            matrixOfTheStack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(0));
+            matrixOfTheStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(0));
             float f = 1f;
-            context.getMatrices().scale(f, -f, -f);
-            List<Pair<RoundelPattern, DyeColor>> reversedPatterns = new ArrayList<>(this.roundelPatterns);
-            Collections.reverse(reversedPatterns);
-            RoundelBlockEntityRenderer.renderBlock(RoundelBlockEntityRenderer.getTexturedModelData().createModel(), context.getMatrices(),
-                    context.getVertexConsumers(), 0xF000F0, OverlayTexture.DEFAULT_UV, reversedPatterns, false);
+            matrixOfTheStack.scale(f, f, f);
+            ModelPart modelPart = RoundelBlockEntityRenderer.getTexturedModelData().createModel();
+            for (int p = 0; p < 17 && p < this.roundelPatterns.size(); ++p) {
+                Pair<RoundelPattern, DyeColor> pair = this.roundelPatterns.get(p);
+                float[] fs = pair.getSecond().getColorComponents();
+                if (pair.getFirst().equals(RoundelPatterns.BASE)) {
+                    matrixOfTheStack.push();
+                    matrixOfTheStack.translate(0, 0, -0.01f);
+                    modelPart.render(matrixOfTheStack, context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutoutNoCull(pair.getFirst().texture())),
+                            0xf000f0, OverlayTexture.DEFAULT_UV, fs[0], fs[1], fs[2], 1.0f);
+                    matrixOfTheStack.pop();
+                    continue;
+                }
+
+                VertexConsumer vertexConsumer = context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutoutNoCullZOffset(pair.getFirst().texture()));
+
+                modelPart.render(matrixOfTheStack, vertexConsumer, 0xf000f0, OverlayTexture.DEFAULT_UV, fs[0], fs[1], fs[2], 1.0f);
+            }
 
             context.getMatrices().pop();
             context.draw();
@@ -146,21 +159,34 @@ public class RoundelFabricatorScreen
 
     private void drawRoundel(DrawContext context, RoundelPattern pattern, int x, int y) {
         NbtCompound nbtCompound = new NbtCompound();
-        NbtList nbtList = new RoundelPattern.Patterns().add(RoundelPatterns.BASE, DyeColor.GRAY).add(pattern, DyeColor.WHITE).toNbt();
+        NbtList nbtList = new RoundelPattern.Patterns().add(RoundelPatterns.BASE, DyeColor.BLACK).add(pattern, DyeColor.WHITE).toNbt();
         nbtCompound.put("Patterns", nbtList);
         ItemStack itemStack = new ItemStack(AITBlocks.ROUNDEL.asItem());
         BlockItem.setBlockEntityNbt(itemStack, AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE, nbtCompound);
         MatrixStack matrixStack = new MatrixStack();
         matrixStack.push();
-        matrixStack.translate((float)x - 2.35f, y + 1, 0.0f);
+        matrixStack.translate((float)x + 0.75f, y + 10, 0.0f);
         matrixStack.scale(6.0f, -6.0f, 1.0f);
         matrixStack.translate(0.5f, 0.5f, 0.0f);
         matrixStack.translate(0.5f, 0.5f, 0.5f);
         float f = 1f;
         matrixStack.scale(f, -f, -f);
         List<Pair<RoundelPattern, DyeColor>> list = RoundelBlockEntity.getPatternsFromNbt(DyeColor.GRAY, RoundelBlockEntity.getPatternListNbt(itemStack));
-        RoundelBlockEntityRenderer.renderBlock(RoundelBlockEntityRenderer.getTexturedModelData().createModel(), matrixStack,
-                context.getVertexConsumers(), 0xF000F0, OverlayTexture.DEFAULT_UV, list, false);
+        ModelPart modelPart = RoundelBlockEntityRenderer.getTexturedModelData().createModel();
+        RoundelBlockEntityRenderer.getTexturedModelData().createModel().render(matrixStack, context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutoutNoCull(list.get(0).getFirst().texture())), 0xf000f0, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1.0f);
+        for (int i = 0; i < 17 && i < list.size(); ++i) {
+            Pair<RoundelPattern, DyeColor> pair = list.get(i);
+            float[] fs = pair.getSecond().getColorComponents();
+            if (pair.getFirst().equals(RoundelPatterns.BASE)) {
+                modelPart.render(matrixStack, context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutoutNoCull(pair.getFirst().texture())),
+                        0xf000f0, OverlayTexture.DEFAULT_UV, fs[0], fs[1], fs[2], 1.0f);
+                continue;
+            }
+
+            VertexConsumer vertexConsumer = context.getVertexConsumers().getBuffer(RenderLayer.getEntityNoOutline(pair.getFirst().texture()));
+
+            modelPart.render(matrixStack, vertexConsumer, 0xf000f0, OverlayTexture.DEFAULT_UV, fs[0], fs[1], fs[2], 1.0f);
+        }
         matrixStack.pop();
         context.draw();
     }

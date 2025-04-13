@@ -274,7 +274,7 @@ public class RoundelFabricatorScreenHandler
             NbtCompound nbtCompound2 = new NbtCompound();
             nbtCompound2.putString("Pattern", pattern.id().toString());
             nbtCompound2.putInt("Color", dyeColor.getId());
-            nbtList.add(nbtCompound2);
+            nbtList.add(0, nbtCompound2);
             BlockItem.setBlockEntityNbt(itemStack3, AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE, nbtCompound);
         }
         if (!ItemStack.areEqual(itemStack3, this.outputSlot.getStack())) {

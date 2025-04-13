@@ -1,7 +1,5 @@
 {
-  "parent": "minecraft:block/cube_all",
-  "texture_size": [16, 16],
   "textures": {
-    "particles": "ait:block/roundel/base"
+    "particle": "minecraft:block/white_concrete"
   }
 }
