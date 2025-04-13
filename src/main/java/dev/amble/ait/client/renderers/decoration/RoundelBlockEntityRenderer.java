@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
+import net.minecraft.block.Blocks;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -56,12 +57,9 @@ public class RoundelBlockEntityRenderer
             Pair<RoundelPattern, DyeColor> pair = patterns.get(i);
             float[] fs = pair.getSecond().getColorComponents();
             if (pair.getFirst().equals(RoundelPatterns.BASE)) {
-                Identifier dynamicTex = pair.getFirst().usesDynamicTexture() && roundelBlockEntity.getDynamicTextureBlockState() != null ?
-                        Registries.BLOCK.getId(roundelBlockEntity.getDynamicTextureBlockState().getBlock()).withPrefixedPath("textures/").withSuffixedPath(".png") : pair.getFirst().texture();
+                Identifier dynamicTex = pair.getFirst().usesDynamicTexture() ?
+                        Registries.BLOCK.getId(Blocks.ACACIA_PLANKS).withPrefixedPath("textures/block/").withSuffixedPath(".png") :
                         pair.getFirst().texture();
-                if (roundelBlockEntity.getDynamicTextureBlockState() != null)
-                    System.out.println(Registries.BLOCK.getId(roundelBlockEntity.getDynamicTextureBlockState()
-                            .getBlock()).withPrefixedPath("textures/").withSuffixedPath(".png"));
                 modelPart.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutout(dynamicTex)),
                         pair.getFirst().emissive() ? 0xf000f0 : light, overlay, fs[0], fs[1], fs[2], 1.0f);
                 continue;
