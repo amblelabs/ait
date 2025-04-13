@@ -5,6 +5,7 @@ import java.util.List;
 import com.mojang.datafixers.util.Pair;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.*;
@@ -58,7 +59,7 @@ public class RoundelBlockEntityRenderer
             if (pair.getFirst().equals(RoundelPatterns.BASE)) {
                 Identifier dynamicTex = pair.getFirst().usesDynamicTexture() && roundelBlockEntity.getDynamicTextureBlockState() != null ?
                         MinecraftClient.getInstance().getBlockRenderManager()
-                                .getModel(roundelBlockEntity.getDynamicTextureBlockState()).getParticleSprite().getAtlasId() :
+                                .getModel(roundelBlockEntity.getDynamicTextureBlockState()).getQuads(roundelBlockEntity.getDynamicTextureBlockState(), ModelHelper.faceFromIndex(0), null).get(0).getSprite().getAtlasId() :
                         pair.getFirst().texture();
                 modelPart.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutout(dynamicTex)),
                         pair.getFirst().emissive() ? 0xf000f0 : light, overlay, fs[0], fs[1], fs[2], 1.0f);
