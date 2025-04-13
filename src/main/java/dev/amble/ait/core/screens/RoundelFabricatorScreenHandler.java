@@ -5,7 +5,6 @@ package dev.amble.ait.core.screens;
 
 import java.util.List;
 
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -150,7 +149,7 @@ public class RoundelFabricatorScreenHandler
             return RoundelPatterns.getInstance().toList();
         }
         if (stack.isIn(ItemTags.PLANKS)) {
-            return List.of();
+            return List.of(RoundelPatterns.BASE);
         }
         return List.of();
     }
@@ -275,7 +274,9 @@ public class RoundelFabricatorScreenHandler
             NbtCompound nbtCompound2 = new NbtCompound();
             nbtCompound2.putString("Pattern", pattern.id().toString());
             nbtCompound2.putInt("Color", dyeColor.getId());
-            nbtCompound2.put("DynamicTex", NbtHelper.fromBlockState(Blocks.DARK_OAK_PLANKS.getDefaultState()));
+            if (this.patternSlot.getStack().getItem() instanceof BlockItem blockItem) {
+                nbtCompound.put("DynamicTex", NbtHelper.fromBlockState(blockItem.getBlock().getDefaultState()));
+            }
             if (pattern.equals(RoundelPatterns.BASE))
                 nbtList.add(0, nbtCompound2);
             else

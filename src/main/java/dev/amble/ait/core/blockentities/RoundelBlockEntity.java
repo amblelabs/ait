@@ -8,6 +8,7 @@ import com.mojang.datafixers.util.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
@@ -47,13 +48,13 @@ public class RoundelBlockEntity
     public RoundelBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE, pos, state);
         this.baseColor = ((AbstractRoundelBlock)state.getBlock()).getColor();
-        this.setDynamicTex(null);
+        this.setDynamicTex(Blocks.WHITE_CONCRETE.getDefaultState());
     }
 
     public RoundelBlockEntity(BlockPos pos, BlockState state, DyeColor baseColor) {
         this(pos, state);
         this.baseColor = baseColor;
-        this.setDynamicTex(null);
+        this.setDynamicTex(Blocks.WHITE_CONCRETE.getDefaultState());
     }
 
     @Nullable public static NbtList getPatternListNbt(ItemStack stack) {
