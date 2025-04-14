@@ -1,7 +1,20 @@
 {
   "variants": {
-    "": {
-      "model": "ait:block/roundel"
+    "facing=east": {
+      "model": "ait:block/roundel",
+      "y": 180
+    },
+    "facing=north": {
+      "model": "ait:block/roundel",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "ait:block/roundel",
+      "y": 270
+    },
+    "facing=west": {
+      "model": "ait:block/roundel",
+      "y": 0
     }
   }
 }

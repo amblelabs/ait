@@ -173,7 +173,7 @@ public class AITBlocks extends BlockContainer {
 
     @NoBlockItem
     public static final Block ROUNDEL = new RoundelBlock(DyeColor.WHITE, ABlockSettings.create().itemSettings(new AItemSettings()
-                    .group(AITItemGroups.FABRICATOR)).burnable().dropsLike(Blocks.BLACK_BANNER)
+                    .group(AITItemGroups.FABRICATOR)).burnable().dropsLike(Blocks.BLACK_BANNER).nonOpaque()
             .requiresTool().strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
 
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)

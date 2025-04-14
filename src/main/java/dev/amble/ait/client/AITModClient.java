@@ -14,6 +14,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
@@ -64,12 +65,10 @@ import dev.amble.ait.client.renderers.consoles.ConsoleRenderer;
 import dev.amble.ait.client.renderers.coral.CoralRenderer;
 import dev.amble.ait.client.renderers.decoration.FlagBlockEntityRenderer;
 import dev.amble.ait.client.renderers.decoration.PlaqueRenderer;
-import dev.amble.ait.client.renderers.decoration.RoundelBlockEntityRenderer;
 import dev.amble.ait.client.renderers.decoration.SnowGlobeRenderer;
 import dev.amble.ait.client.renderers.doors.DoorRenderer;
 import dev.amble.ait.client.renderers.entities.*;
 import dev.amble.ait.client.renderers.exteriors.ExteriorRenderer;
-import dev.amble.ait.client.renderers.items.DynamicRoundelItemRenderer;
 import dev.amble.ait.client.renderers.machines.*;
 import dev.amble.ait.client.renderers.monitors.MonitorRenderer;
 import dev.amble.ait.client.renderers.monitors.WallMonitorRenderer;
@@ -125,6 +124,8 @@ public class AITModClient implements ClientModInitializer {
                 ClientExteriorVariantRegistry.getInstance(),
                 ClientConsoleVariantRegistry.getInstance()
         );
+
+        ModelLoadingPlugin.register(new AITModelPlugin());
 
         ClientDoorRegistry.init();
         ClientTardisManager.init();
@@ -443,8 +444,8 @@ public class AITModClient implements ClientModInitializer {
                 FabricatorRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ROUNDEL_FABRICATOR_BLOCK_ENTITY_TYPE,
                 RoundelFabricatorRenderer::new);
-        BlockEntityRendererFactories.register(AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE,
-                RoundelBlockEntityRenderer::new);
+        /*BlockEntityRendererFactories.register(AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE,
+                RoundelBlockEntityRenderer::new);*/
         BlockEntityRendererFactories.register(AITBlockEntityTypes.WAYPOINT_BANK_BLOCK_ENTITY_TYPE,
                 WaypointBankBlockEntityRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.FLAG_BLOCK_ENTITY_TYPE, FlagBlockEntityRenderer::new);
@@ -503,7 +504,7 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void registerBuiltInItems() {
-        BuiltinItemRendererRegistry.INSTANCE.register(AITItems.ROUNDEL, new DynamicRoundelItemRenderer());
+        //BuiltinItemRendererRegistry.INSTANCE.register(AITItems.ROUNDEL, new DynamicRoundelItemRenderer());
     }
 
     public void registerParticles() {

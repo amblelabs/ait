@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
@@ -27,6 +28,11 @@ public abstract class AbstractRoundelBlock
     }
 
     @Override
+    public BlockRenderType getRenderType(BlockState state) {
+        return BlockRenderType.MODEL;
+    }
+
+    @Override
     public boolean canMobSpawnInside(BlockState state) {
         return false;
     }
@@ -42,6 +48,11 @@ public abstract class AbstractRoundelBlock
             world.getBlockEntity(pos, AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE).ifPresent(blockEntity -> blockEntity.readFrom(itemStack));
         } else if (itemStack.hasCustomName()) {
             world.getBlockEntity(pos, AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE).ifPresent(blockEntity -> blockEntity.setCustomName(itemStack.getName()));
+        }
+        if (world.isClient) return;
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof RoundelBlockEntity roundelBlockEntity) {
+            roundelBlockEntity.markDirty();
         }
     }
 

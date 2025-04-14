@@ -51,6 +51,11 @@ public class RoundelBlockEntity
         this.setDynamicTex(Blocks.WHITE_CONCRETE.getDefaultState());
     }
 
+    @Override
+    public @Nullable Object getRenderData() {
+        return this;
+    }
+
     public RoundelBlockEntity(BlockPos pos, BlockState state, DyeColor baseColor) {
         this(pos, state);
         this.baseColor = baseColor;
