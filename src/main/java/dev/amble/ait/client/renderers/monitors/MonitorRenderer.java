@@ -1,5 +1,7 @@
 package dev.amble.ait.client.renderers.monitors;
 
+import java.util.Random;
+
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.block.BlockState;
@@ -29,21 +31,19 @@ import dev.amble.ait.core.util.WorldUtil;
 
 public class MonitorRenderer<T extends MonitorBlockEntity> implements BlockEntityRenderer<T> {
 
-    public static final Identifier MONITOR_TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/monitors/crt_monitor.png"));
-    public static final Identifier EMISSIVE_MONITOR_TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/monitors/crt_monitor_emission.png"));
+    public static final Identifier MONITOR_TEXTURE = new Identifier(AITMod.MOD_ID, "textures/blockentities/monitors/crt_monitor.png");
+    public static final Identifier EMISSIVE_MONITOR_TEXTURE = new Identifier(AITMod.MOD_ID, "textures/blockentities/monitors/crt_monitor_emission.png");
     private final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
     private final CRTMonitorModel crtMonitorModel;
+    private final Random random = new Random();
 
     public MonitorRenderer(BlockEntityRendererFactory.Context ctx) {
         this.crtMonitorModel = new CRTMonitorModel(CRTMonitorModel.getTexturedModelData().createModel());
     }
 
-
     @Override
     public void render(MonitorBlockEntity entity, float tickDelta, MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers, int light, int overlay) {
+                       VertexConsumerProvider vertexConsumers, int light, int overlay) {
         BlockState blockState = entity.getCachedState();
 
         int k = blockState.get(SkullBlock.ROTATION);
@@ -71,6 +71,8 @@ public class MonitorRenderer<T extends MonitorBlockEntity> implements BlockEntit
         if (!tardis.fuel().hasPower())
             return;
 
+        boolean scramble = shouldScramble(tardis);
+
         matrices.push();
         matrices.translate(0.5, 0.75, 0.5);
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
@@ -84,57 +86,59 @@ public class MonitorRenderer<T extends MonitorBlockEntity> implements BlockEntit
                 : travel.getProgress();
 
         BlockPos abppPos = abpp.getPos();
-
-        CachedDirectedGlobalPos abpd = tardis.travel().destination();
+        CachedDirectedGlobalPos abpd = travel.destination();
         BlockPos abpdPos = abpd.getPos();
 
         String positionPosText = " " + abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
-        Text positionDimensionText = Text.of(MonitorUtil.truncateDimensionName(WorldUtil.worldText(abpp.getDimension()).getString(), 20));
+        Text positionDimensionText = Text.of(scramble ? scramble(WorldUtil.worldText(abpp.getDimension()).getString()) :
+                MonitorUtil.truncateDimensionName(WorldUtil.worldText(abpp.getDimension()).getString(), 20));
 
-        this.textRenderer.drawWithOutline(Text.of("❌").asOrderedText(), 0, 0, 0xF00F00, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 0, 8, 0xFFFFFF, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(positionDimensionText.asOrderedText(), 0, 16, 0xFFFFFF, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(WorldUtil.rot2Text(abpp.getRotation()).asOrderedText(), 0, 24, 0xFFFFFF, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+        this.textRenderer.drawWithOutline(Text.of(scramble ? scramble("❌") : "❌").asOrderedText(), 0, 0, 0xF00F00, 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+        this.textRenderer.drawWithOutline(Text.of(scramble ? scramble(positionPosText) : positionPosText).asOrderedText(), 0, 8, 0xFFFFFF, 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+        this.textRenderer.drawWithOutline(positionDimensionText.asOrderedText(), 0, 16, 0xFFFFFF, 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+        this.textRenderer.drawWithOutline(Text.of(scramble ? scramble(WorldUtil.rot2Text(abpp.getRotation()).getString()) : WorldUtil.rot2Text(abpp.getRotation()).getString()).asOrderedText(), 0, 24, 0xFFFFFF, 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
 
         String destinationPosText = " " + abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
-        Text destinationDimensionText = Text.of(MonitorUtil.truncateDimensionName(WorldUtil.worldText(abpd.getDimension(), false).getString(), 20));
+        Text destinationDimensionText = Text.of(scramble ? scramble(WorldUtil.worldText(abpd.getDimension(), false).getString()) :
+                MonitorUtil.truncateDimensionName(WorldUtil.worldText(abpd.getDimension(), false).getString(), 20));
 
-
-        this.textRenderer.drawWithOutline(Text.of("✛").asOrderedText(), 0, 40, 0x00F0FF, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(Text.of(destinationPosText).asOrderedText(), 0, 48, 0xFFFFFF, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(destinationDimensionText.asOrderedText(), 0, 56, 0xFFFFFF, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(WorldUtil.rot2Text(abpd.getRotation()).asOrderedText(), 0, 64, 0xFFFFFF, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+        this.textRenderer.drawWithOutline(Text.of(scramble ? scramble("✛") : "✛").asOrderedText(), 0, 40, 0x00F0FF, 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+        this.textRenderer.drawWithOutline(Text.of(scramble ? scramble(destinationPosText) : destinationPosText).asOrderedText(), 0, 48, 0xFFFFFF, 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+        this.textRenderer.drawWithOutline(destinationDimensionText.asOrderedText(), 0, 56, 0xFFFFFF, 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+        this.textRenderer.drawWithOutline(Text.of(scramble ? scramble(WorldUtil.rot2Text(abpd.getRotation()).getString()) : WorldUtil.rot2Text(abpd.getRotation()).getString()).asOrderedText(), 0, 64, 0xFFFFFF, 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
 
         String fuelText = Math.round((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 100) + "%";
-        this.textRenderer.drawWithOutline(Text.of("⛽").asOrderedText(), 0, 78, 0xFAF000, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(Text.of(fuelText).asOrderedText(), 8, 78, 0xFFFFFF, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+        this.textRenderer.drawWithOutline(Text.of(scramble ? scramble("⛽") : "⛽").asOrderedText(), 0, 78, 0xFAF000, 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+        this.textRenderer.drawWithOutline(Text.of(scramble ? scramble(fuelText) : fuelText).asOrderedText(), 8, 78, 0xFFFFFF, 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
 
-        String flightTimeText = tardis.travel().getState() == TravelHandlerBase.State.LANDED
+        String flightTimeText = travel.getState() == TravelHandlerBase.State.LANDED
                 ? "0%"
-                : tardis.travel().getDurationAsPercentage() + "%";
-        this.textRenderer.drawWithOutline(Text.of("⏳").asOrderedText(), 0, 92, 0x00FF0F, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(Text.of(flightTimeText).asOrderedText(), 8, 92, 0xFFFFFF, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+                : travel.getDurationAsPercentage() + "%";
+        this.textRenderer.drawWithOutline(Text.of(scramble ? scramble("⏳") : "⏳").asOrderedText(), 0, 92, 0x00FF0F, 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+        this.textRenderer.drawWithOutline(Text.of(scramble ? scramble(flightTimeText) : flightTimeText).asOrderedText(), 8, 92, 0xFFFFFF, 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
 
-        String name = tardis.stats().getName();
-        this.textRenderer.drawWithOutline(Text.of(name).asOrderedText(), 98 - (this.textRenderer.getWidth(name)), 90,
-                0xFFFFFF, 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+        String name = scramble ? scramble(tardis.stats().getName()) : tardis.stats().getName();
+        this.textRenderer.drawWithOutline(Text.of(name).asOrderedText(), 98 - (this.textRenderer.getWidth(name)), 90, 0xFFFFFF, 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
 
         if (tardis.alarm().enabled().get())
-            this.textRenderer.drawWithOutline(Text.of("⚠").asOrderedText(), 84, 0, 0xFE0000, 0x000000,
-                    matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+            this.textRenderer.drawWithOutline(Text.of(scramble ? scramble("⚠") : "⚠").asOrderedText(), 84, 0, 0xFE0000, 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
 
         matrices.pop();
+    }
+
+    private boolean shouldScramble(Tardis tardis) {
+        return tardis.crash().getRepairTicks() > 2500;
+    }
+
+    private String scramble(String original) {
+        StringBuilder scrambled = new StringBuilder();
+        for (int i = 0; i < original.length(); i++) {
+            if (random.nextFloat() < 0.6f) {
+                scrambled.append((char) (33 + random.nextInt(94))); // random printable ASCII
+            } else {
+                scrambled.append(original.charAt(i));
+            }
+        }
+        return scrambled.toString();
     }
 }

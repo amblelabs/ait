@@ -1,5 +1,7 @@
 package dev.amble.ait.client.renderers.monitors;
 
+import java.util.Random;
+
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.block.BlockState;
@@ -45,11 +47,23 @@ public class WallMonitorRenderer<T extends WallMonitorBlockEntity> implements Bl
         return name;
     }
 
+    private String scramble(String text) {
+        Random rand = new Random(text.hashCode());
+        StringBuilder scrambled = new StringBuilder();
+        for (char c : text.toCharArray()) {
+            if (Character.isWhitespace(c) || c == ',') {
+                scrambled.append(c);
+            } else {
+                scrambled.append((char) ('!' + rand.nextInt(94)));
+            }
+        }
+        return scrambled.toString();
+    }
+
     @Override
     public void render(WallMonitorBlockEntity entity, float tickDelta, MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers, int light, int overlay) {
+                       VertexConsumerProvider vertexConsumers, int light, int overlay) {
         BlockState blockState = entity.getCachedState();
-
         Direction k = blockState.get(PlaqueBlock.FACING);
 
         matrices.push();
@@ -69,6 +83,8 @@ public class WallMonitorRenderer<T extends WallMonitorBlockEntity> implements Bl
         if (!tardis.fuel().hasPower())
             return;
 
+        boolean scramble = tardis.crash().getRepairTicks() > 2500;
+
         matrices.push();
         matrices.translate(0.5, 0.75, 0.5);
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
@@ -83,23 +99,23 @@ public class WallMonitorRenderer<T extends WallMonitorBlockEntity> implements Bl
                 : travel.getProgress();
 
         BlockPos abppPos = abpp.getPos();
-
         CachedDirectedGlobalPos abpd = tardis.travel().destination();
         BlockPos abpdPos = abpd.getPos();
 
         String positionPosText = abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
         Text positionDimensionText = Text.of(truncateDimensionName(WorldUtil.worldText(abpp.getDimension()).getString(), 16));
-
         String fuelText = Math.round((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 100) + "%";
-
         String destinationPosText = abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
         Text destinationDimensionText = Text.of(truncateDimensionName(WorldUtil.worldText(abpd.getDimension(), false).getString(), 16));
 
-
         float v = -20f;
-
         String arrow = DirectionControl.rotationForArrow(abpp.getRotation());
         String arrow2 = DirectionControl.rotationForArrow(abpd.getRotation());
+
+        if (scramble) {
+            positionPosText = scramble(positionPosText);
+            destinationPosText = scramble(destinationPosText);
+        }
 
         this.textRenderer.drawWithOutline(Text.of(positionPosText).asOrderedText(),
                 (v - xVal) - ((float) this.textRenderer.getWidth(positionPosText) / 2), 35, 0xFFFFFF, 0x000000,
@@ -117,7 +133,7 @@ public class WallMonitorRenderer<T extends WallMonitorBlockEntity> implements Bl
                 (v - xVal) - ((float) this.textRenderer.getWidth(destinationPosText) / 2), 67, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         this.textRenderer.drawWithOutline(destinationDimensionText.asOrderedText(),
-                (v - xVal) - ((float) this.textRenderer.getWidth(positionDimensionText) / 2), 78, 0xFFFFFF, 0x000000,
+                (v - xVal) - ((float) this.textRenderer.getWidth(destinationDimensionText) / 2), 78, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         this.textRenderer.drawWithOutline(Text.of(arrow2).asOrderedText(),
                 (18 - xVal) - ((float) this.textRenderer.getWidth(arrow2) / 2), 75, 0xFFFFFF, 0x000000,
