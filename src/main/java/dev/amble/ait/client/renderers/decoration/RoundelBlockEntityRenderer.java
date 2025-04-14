@@ -74,7 +74,7 @@ public class RoundelBlockEntityRenderer
         for (int i = 0; i < 17 && i < patterns.size(); ++i) {
             Pair<RoundelPattern, DyeColor> pair = patterns.get(i);
             float[] fs = pair.getSecond().getColorComponents();
-            VertexConsumer vertexConsumer = vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(pair.getFirst().texture()));
+            VertexConsumer vertexConsumer = vertexConsumers.getBuffer(AITRenderLayers.getBlockBreaking(pair.getFirst().texture()));
             if (pair.getFirst().equals(RoundelPatterns.BASE)) {
                 /*Identifier dynamicTex = pair.getFirst().usesDynamicTexture() ?
                         Registries.BLOCK.getId(Blocks.BLACK_STAINED_GLASS).withPrefixedPath("textures/block/").withSuffixedPath(".png") :
