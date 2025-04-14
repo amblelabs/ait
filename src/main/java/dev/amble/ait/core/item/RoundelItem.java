@@ -44,8 +44,10 @@ public class RoundelItem
             if (roundel == null) continue;
             tooltip.add(Text.literal(roundel.id().getPath() + " | Color: " + dyeColor.getName()).formatted(Formatting.GRAY, Formatting.ITALIC));
         }
-        if (nbtCompound.contains("DynamicTex", NbtElement.STRING_TYPE))
+        if (nbtCompound.contains("DynamicTex", NbtElement.COMPOUND_TYPE)) {
+
             tooltip.add(Text.literal(String.valueOf(nbtCompound.get("DynamicTex"))).formatted(Formatting.GRAY, Formatting.ITALIC));
+        }
     }
 
     public DyeColor getColor() {

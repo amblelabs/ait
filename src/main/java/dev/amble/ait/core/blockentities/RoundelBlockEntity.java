@@ -181,6 +181,7 @@ public class RoundelBlockEntity
         if (this.patternListNbt != null && !this.patternListNbt.isEmpty()) {
             NbtCompound nbtCompound = new NbtCompound();
             nbtCompound.put(PATTERNS_KEY, this.patternListNbt.copy());
+            nbtCompound.put("DynamicTex", NbtHelper.fromBlockState(this.getDynamicTextureBlockState()));
             BlockItem.setBlockEntityNbt(itemStack, this.getType(), nbtCompound);
         }
         if (this.customName != null) {

@@ -18,6 +18,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.core.blockentities.RoundelBlockEntity;
@@ -45,13 +46,19 @@ public class RoundelBlockEntityRenderer
 
     @Override
     public void render(RoundelBlockEntity roundelBlockEntity, float f, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, int j) {
+        Profiler profiler = roundelBlockEntity.getWorld().getProfiler();
+        profiler.push("roundel");
+
         List<Pair<RoundelPattern, DyeColor>> list = roundelBlockEntity.getPatterns();
         matrixStack.push();
         matrixStack.translate(0.5f, 1, 0.5f);
 
         matrixStack.translate(0, 0, 0.5f);
+
+        profiler.swap("render");
         this.renderBlock(roundelBlockEntity, this.cube, matrixStack, vertexConsumerProvider, i, j, list);
         matrixStack.pop();
+        profiler.pop();
     }
 
     public void renderBlock(RoundelBlockEntity roundelBlockEntity, ModelPart modelPart, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, List<Pair<RoundelPattern, DyeColor>> patterns) {
