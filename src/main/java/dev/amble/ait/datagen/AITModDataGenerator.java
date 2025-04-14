@@ -980,6 +980,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         // Block Tooltips
         provider.addTranslation("block.ait.fabricator.tooltip.use", "(Place on top of a Smithing Table)");
+        provider.addTranslation("block.ait.roundel", "Roundel");
         provider.addTranslation("block.ait.roundel_fabricator.tooltip.use", "(Place on top of a Loom)");
         provider.addTranslation("tooltip.ait.use_in_tardis", "(Place inside a TARDIS)");
         provider.addTranslation("block.ait.artron_collector_block.tooltip.use", "(Charges inside of Rift Chunks)");
