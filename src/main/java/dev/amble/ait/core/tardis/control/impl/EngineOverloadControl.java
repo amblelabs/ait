@@ -75,7 +75,8 @@ public class EngineOverloadControl extends Control {
         }
 
         tardis.alarm().enable();
-        //I cant figure out how to use damage each circuit thing :(
+        tardis.subsystems().demat().removeDurability(CIRCUIT_DAMAGE);
+        tardis.subsystems().engine().removeDurability(CIRCUIT_DAMAGE);
         tardis.crash().addRepairTicks(CRASH_REPAIR_TIME);
 
         spawnParticles(world, console);
