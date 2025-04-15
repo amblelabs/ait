@@ -1,7 +1,6 @@
 package dev.amble.ait.core;
 
 
-
 import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
 
 import java.util.Calendar;
