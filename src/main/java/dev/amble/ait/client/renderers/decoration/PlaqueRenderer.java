@@ -31,8 +31,7 @@ public class PlaqueRenderer<T extends PlaqueBlockEntity> implements BlockEntityR
     }
 
     @Override
-    public void render(PlaqueBlockEntity entity, float tickDelta, MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers, int light, int overlay) {
+    public void render(PlaqueBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
 
         BlockState blockState = entity.getCachedState();
 
@@ -67,8 +66,8 @@ public class PlaqueRenderer<T extends PlaqueBlockEntity> implements BlockEntityR
         this.textRenderer.drawWithOutline(Text.of(tardis.stats().getCreationString()).asOrderedText(),
                 xVal - ((float) this.textRenderer.getWidth(tardis.stats().getCreationString()) / 2), 35, 0xFFFFFF,
                 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(Text.of("Type 50 TT Capsule").asOrderedText(),
-                xVal - ((float) this.textRenderer.getWidth("Type 50 TT Capsule") / 2), 55, 0xFFFFFF, 0x000000,
+        this.textRenderer.drawWithOutline(Text.of(entity.getPlaqueText()).asOrderedText(),
+                xVal - ((float) this.textRenderer.getWidth(entity.getPlaqueText()) / 2), 55, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         this.textRenderer.drawWithOutline(Text.of(tardis.stats().getName()).asOrderedText(),
                 xVal - ((float) this.textRenderer.getWidth(tardis.stats().getName()) / 2), 75, 0xFFFFFF, 0x000000,

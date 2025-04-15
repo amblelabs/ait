@@ -11,7 +11,6 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 
-
 public class PowerControl extends Control {
 
     public PowerControl() {
@@ -21,17 +20,17 @@ public class PowerControl extends Control {
     @Override
     public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
         super.runServer(tardis, player, world, console, leftClick);
-
         tardis.fuel().togglePower();
 
-
         if (tardis.fuel().hasPower()) {
-            boolean doorLocked = tardis.door().locked();
-            boolean doorClosed = !tardis.door().isOpen();
             int power = (int) tardis.fuel().getCurrentFuel();
+            boolean inRange = power >= 1500 && power <= 2017;
+            boolean doorLocked = tardis.door().locked();
+            boolean refueling = !tardis.isRefueling();
 
-            if (doorLocked && doorClosed && power >= 1000 && power <= 2017) {
-                world.playSound(null, console, AITSounds.GOOD_MAN_MUSIC, SoundCategory.BLOCKS, 3.0f, 1.0f);
+            if (inRange && doorLocked && refueling) {
+                SoundEvent track = world.getRandom().nextBoolean() ? AITSounds.MAD_MAN : AITSounds.MAD_MAN_SAD;
+                world.playSound(null, console, track, SoundCategory.BLOCKS, 3.0f, 1.0f);
             }
         }
 

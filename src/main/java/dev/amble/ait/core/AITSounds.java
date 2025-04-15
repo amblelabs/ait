@@ -17,6 +17,8 @@ public class AITSounds {
     public static final SoundEvent EARTH_MUSIC = register("music/earth_nitrogenez");
     public static final SoundEvent VENUS_MUSIC = register("music/venus_nitrogenez");
     public static final SoundEvent GOOD_MAN_MUSIC = register("music/good_man_dian");
+    public static final SoundEvent MAD_MAN = register("music/mad_man");
+    public static final SoundEvent MAD_MAN_SAD = register("music/mad_man_sad");
     public static final SoundEvent SPACE = register("music/space");
 
     // TARDIS
@@ -174,6 +176,7 @@ public class AITSounds {
     public static final SoundEvent RENAISSANCE_HUM = register("tardis/hums/renaissance_hum");
 
     public static final SoundEvent CLOISTER = register("tardis/cloister");
+
 
 
     // Creaks
