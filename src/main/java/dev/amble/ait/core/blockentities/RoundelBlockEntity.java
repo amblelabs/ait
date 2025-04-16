@@ -5,14 +5,10 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.ChunkPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -23,12 +19,17 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Nameable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.blocks.AbstractRoundelBlock;
 import dev.amble.ait.core.blocks.RoundelBlock;
@@ -36,7 +37,7 @@ import dev.amble.ait.core.roundels.RoundelPattern;
 import dev.amble.ait.core.roundels.RoundelPatterns;
 
 public class RoundelBlockEntity
-        extends BlockEntity
+        extends InteriorLinkableBlockEntity
         implements Nameable {
     public static final int MAX_PATTERN_COUNT = 6;
     public static final String PATTERNS_KEY = "Patterns";
@@ -47,6 +48,21 @@ public class RoundelBlockEntity
     private BlockState dynamicTex;
     @Nullable private NbtList patternListNbt;
     @Nullable private List<Pair<RoundelPattern, DyeColor>> patterns;
+
+    {
+        TardisEvents.LOSE_POWER.register(tardis -> {
+            ServerWorld world = tardis.asServer().getInteriorWorld();
+            if (world == null) return;
+            if (world.getBlockState(this.getPos()).getBlock() instanceof AbstractRoundelBlock)
+                world.setBlockState(this.getPos(), world.getBlockState(this.getPos()).with(AbstractRoundelBlock.LEVEL_15, 0));
+        });
+        TardisEvents.REGAIN_POWER.register(tardis -> {
+            ServerWorld world = tardis.asServer().getInteriorWorld();
+            if (world == null) return;
+            if (world.getBlockState(this.getPos()).getBlock() instanceof AbstractRoundelBlock)
+                world.setBlockState(this.getPos(), world.getBlockState(this.getPos()).with(AbstractRoundelBlock.LEVEL_15, 11));
+        });
+    }
 
     public RoundelBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE, pos, state);
@@ -103,7 +119,7 @@ public class RoundelBlockEntity
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt) {
+    public void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
         if (this.patternListNbt != null) {
             nbt.put(PATTERNS_KEY, this.patternListNbt);

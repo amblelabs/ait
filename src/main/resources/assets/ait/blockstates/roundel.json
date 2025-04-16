@@ -1,17 +1,6 @@
 {
   "variants": {
-    "facing=north": {
-    },
-    "facing=east": {
-      "y": 90
-    },
-    "facing=south": {
-      "y": 180
-    },
-    "facing=west": {
-      "y": 270
-    },
-    "inventory": {
+    "": {
       "model": "ait:block/roundel"
     }
   }

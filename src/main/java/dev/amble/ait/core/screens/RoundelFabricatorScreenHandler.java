@@ -25,6 +25,7 @@ import net.minecraft.util.DyeColor;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.blocks.AbstractRoundelBlock;
 import dev.amble.ait.core.item.RoundelItem;
 import dev.amble.ait.core.roundels.RoundelPattern;
 import dev.amble.ait.core.roundels.RoundelPatterns;
@@ -89,7 +90,7 @@ public class RoundelFabricatorScreenHandler
 
             @Override
             public boolean canInsert(ItemStack stack) {
-                return stack.getItem() instanceof BlockItem;
+                return stack.getItem() instanceof BlockItem blockItem && !(blockItem.getBlock() instanceof AbstractRoundelBlock);
             }
         });
         this.outputSlot = this.addSlot(new Slot(this.output, 0, 143, 58){
@@ -147,7 +148,7 @@ public class RoundelFabricatorScreenHandler
         if (stack.isEmpty()) {
             return RoundelPatterns.getInstance().toList();
         }
-        if (stack.getItem() instanceof BlockItem) {
+        if (stack.getItem() instanceof BlockItem blockItem && !(blockItem.getBlock() instanceof AbstractRoundelBlock)) {
             return List.of(RoundelPatterns.BASE);
         }
         return List.of();
@@ -193,7 +194,8 @@ public class RoundelFabricatorScreenHandler
         if (registryEntry != null) {
             boolean bl2;
             NbtCompound nbtCompound = BlockItem.getBlockEntityNbt(itemStack);
-            boolean bl3 = bl2 = nbtCompound != null && nbtCompound.contains("Patterns", NbtElement.LIST_TYPE) && !itemStack.isEmpty() && nbtCompound.getList("Patterns", NbtElement.COMPOUND_TYPE).size() >= 6;
+            boolean bl3 = bl2 = nbtCompound != null && nbtCompound.contains("Patterns", NbtElement.LIST_TYPE) &&
+                    !itemStack.isEmpty() && nbtCompound.getList("Patterns", NbtElement.COMPOUND_TYPE).size() >= 6;
             if (bl2) {
                 this.selectedPattern.set(-1);
                 this.outputSlot.setStackNoCallbacks(ItemStack.EMPTY);
@@ -230,7 +232,7 @@ public class RoundelFabricatorScreenHandler
                     return ItemStack.EMPTY;
                 }
                 slot2.onQuickTransfer(itemStack2, itemStack);
-            } else if (slot == this.dyeSlot.id || slot == this.roundelSlot.id || slot == this.patternSlot.id ? !this.insertItem(itemStack2, 4, 40, false) : (itemStack2.getItem() instanceof RoundelItem ? !this.insertItem(itemStack2, this.roundelSlot.id, this.roundelSlot.id + 1, false) : (itemStack2.getItem() instanceof DyeItem ? !this.insertItem(itemStack2, this.dyeSlot.id, this.dyeSlot.id + 1, false) : (itemStack2.getItem() instanceof BlockItem ? !this.insertItem(itemStack2, this.patternSlot.id, this.patternSlot.id + 1, false) : (slot >= 4 && slot < 31 ? !this.insertItem(itemStack2, 31, 40, false) : slot >= 31 && slot < 40 && !this.insertItem(itemStack2, 4, 31, false)))))) {
+            } else if (slot == this.dyeSlot.id || slot == this.roundelSlot.id || slot == this.patternSlot.id ? !this.insertItem(itemStack2, 4, 40, false) : (itemStack2.getItem() instanceof RoundelItem ? !this.insertItem(itemStack2, this.roundelSlot.id, this.roundelSlot.id + 1, false) : (itemStack2.getItem() instanceof DyeItem ? !this.insertItem(itemStack2, this.dyeSlot.id, this.dyeSlot.id + 1, false) : (itemStack2.getItem() instanceof BlockItem blockItem && !(blockItem.getBlock() instanceof AbstractRoundelBlock) ? !this.insertItem(itemStack2, this.patternSlot.id, this.patternSlot.id + 1, false) : (slot >= 4 && slot < 31 ? !this.insertItem(itemStack2, 31, 40, false) : slot >= 31 && slot < 40 && !this.insertItem(itemStack2, 4, 31, false)))))) {
                 return ItemStack.EMPTY;
             }
             if (itemStack2.isEmpty()) {
@@ -255,6 +257,7 @@ public class RoundelFabricatorScreenHandler
     private void updateOutputSlot(RoundelPattern pattern) {
         ItemStack itemStack = this.roundelSlot.getStack();
         ItemStack itemStack2 = this.dyeSlot.getStack();
+        ItemStack patternStack = this.patternSlot.getStack();
         ItemStack itemStack3 = ItemStack.EMPTY;
         if (!itemStack.isEmpty() && !itemStack2.isEmpty()) {
             NbtList nbtList;
@@ -273,7 +276,7 @@ public class RoundelFabricatorScreenHandler
             NbtCompound nbtCompound2 = new NbtCompound();
             nbtCompound2.putString("Pattern", pattern.id().toString());
             nbtCompound2.putInt("Color", dyeColor.getId());
-            if (this.patternSlot.getStack().getItem() instanceof BlockItem blockItem) {
+            if (this.patternSlot.getStack().getItem() instanceof BlockItem blockItem && !(blockItem.getBlock() instanceof AbstractRoundelBlock)) {
                 nbtCompound.put("DynamicTex", NbtHelper.fromBlockState(blockItem.getBlock().getDefaultState()));
             }
             if (pattern.equals(RoundelPatterns.BASE))

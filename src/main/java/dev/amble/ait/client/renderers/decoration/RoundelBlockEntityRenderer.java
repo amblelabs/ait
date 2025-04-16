@@ -34,7 +34,6 @@ import net.minecraft.world.BlockView;
 
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.core.blockentities.RoundelBlockEntity;
-import dev.amble.ait.core.blocks.RoundelBlock;
 import dev.amble.ait.core.roundels.RoundelPattern;
 import dev.amble.ait.core.roundels.RoundelPatterns;
 @Environment(value=EnvType.CLIENT)
@@ -96,8 +95,6 @@ public class RoundelBlockEntityRenderer
                 matrices.scale(1.004f, 1.005f, 1.005f);
                 matrices.translate(0, 0, -0.5f);
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
-                        roundelBlockEntity.getCachedState().get(RoundelBlock.FACING).asRotation()));
                 matrices.pop();
                 RoundelBlockEntityRenderer.renderBakedModel(fs[0], fs[1], fs[2], roundelBlockEntity,
                         RenderLayers.getBlockLayer(stateOf), stateOf,
@@ -110,8 +107,6 @@ public class RoundelBlockEntityRenderer
             matrices.scale(1.001f, 1.002f, 1.002f);
             matrices.translate(0, 0, -0.5f);
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
-                    roundelBlockEntity.getCachedState().get(RoundelBlock.FACING).asRotation()));
 
             modelPart.render(matrices, vertexConsumer, pair.getFirst().emissive() ? 0xf000f0 : light,
                     overlay, fs[0], fs[1], fs[2], 1.0f);

@@ -485,6 +485,7 @@ public class AITModClient implements ClientModInitializer {
         map.putBlock(AITBlocks.FABRICATOR, RenderLayer.getTranslucent());
         map.putBlock(AITBlocks.ENVIRONMENT_PROJECTOR, RenderLayer.getTranslucent());
         map.putBlock(AITBlocks.WAYPOINT_BANK, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.ROUNDEL, RenderLayer.getCutout());
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             map.putBlock(AITBlocks.SNOW_GLOBE, RenderLayer.getCutout());
         }
