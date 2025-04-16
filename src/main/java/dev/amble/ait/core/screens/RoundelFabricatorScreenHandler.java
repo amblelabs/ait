@@ -276,6 +276,7 @@ public class RoundelFabricatorScreenHandler
             NbtCompound nbtCompound2 = new NbtCompound();
             nbtCompound2.putString("Pattern", pattern.id().toString());
             nbtCompound2.putInt("Color", dyeColor.getId());
+            nbtCompound2.putBoolean("Emissive", true);
             if (this.patternSlot.getStack().getItem() instanceof BlockItem blockItem && !(blockItem.getBlock() instanceof AbstractRoundelBlock)) {
                 nbtCompound.put("DynamicTex", NbtHelper.fromBlockState(blockItem.getBlock().getDefaultState()));
             }

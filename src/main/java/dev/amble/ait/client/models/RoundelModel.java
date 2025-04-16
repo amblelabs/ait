@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import com.mojang.datafixers.util.Pair;
 import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
@@ -38,8 +37,8 @@ import net.minecraft.world.BlockRenderView;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blockentities.RoundelBlockEntity;
-import dev.amble.ait.core.roundels.RoundelPattern;
 import dev.amble.ait.core.roundels.RoundelPatterns;
+import dev.amble.ait.core.roundels.RoundelType;
 import dev.amble.ait.core.world.TardisServerWorld;
 
 public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel {
@@ -62,11 +61,11 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
         if (blockRenderView.getBlockEntity(blockPos) instanceof RoundelBlockEntity roundelBlockEntity) {
             if (roundelBlockEntity.getDynamicTextureBlockState() != null) {
                 if (roundelBlockEntity.getDynamicTextureBlockState().getRenderType() != BlockRenderType.INVISIBLE) {
-                    for (Pair<RoundelPattern, DyeColor> patterns : roundelBlockEntity.getPatterns()) {
-                        if (patterns.getFirst().equals(RoundelPatterns.BASE)) {
-                            int colorForBlock = patterns.getSecond().equals(DyeColor.WHITE) ? ColorHelper.Argb.getArgb(255, 255, 255, 255)
-                            : ColorHelper.Argb.getArgb(255, (int) (255f * patterns.getSecond().getColorComponents()[0]), (int)
-                                    (255f * patterns.getSecond().getColorComponents()[1]), (int) (255f * patterns.getSecond().getColorComponents()[2]));
+                    for (RoundelType patterns : roundelBlockEntity.getPatterns()) {
+                        if (patterns.pattern().equals(RoundelPatterns.BASE)) {
+                            int colorForBlock = patterns.color().equals(DyeColor.WHITE) ? ColorHelper.Argb.getArgb(255, 255, 255, 255)
+                            : ColorHelper.Argb.getArgb(255, (int) (255f * patterns.color().getColorComponents()[0]), (int)
+                                    (255f * patterns.color().getColorComponents()[1]), (int) (255f * patterns.color().getColorComponents()[2]));
                             RoundelModel.emitBlockQuads(
                                     BLOCK_MODELS.getModel(roundelBlockEntity.getDynamicTextureBlockState()),
                                     roundelBlockEntity.getDynamicTextureBlockState(),
@@ -76,8 +75,6 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
                                     colorForBlock);
                         }
                     }
-                    /*BLOCK_MODELS.getModel(roundelBlockEntity.getDynamicTextureBlockState())
-                            .emitBlockQuads(blockRenderView, roundelBlockEntity.getDynamicTextureBlockState(), blockPos, supplier, renderContext);*/
                 }
                 Renderer renderer = RendererAccess.INSTANCE.getRenderer();
                 if (renderer == null) {
@@ -87,8 +84,8 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
                 MeshBuilder builder = renderer.meshBuilder();
                 QuadEmitter emitter = builder.getEmitter();
 
-                for (Pair<RoundelPattern, DyeColor> patterns : roundelBlockEntity.getPatterns()) {
-                    if (patterns.getFirst().equals(RoundelPatterns.BASE)) {
+                for (RoundelType patterns : roundelBlockEntity.getPatterns()) {
+                    if (patterns.pattern().equals(RoundelPatterns.BASE)) {
                         continue;
                     }
                     for (Direction direction : Direction.values()) {
@@ -98,16 +95,16 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
                         emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
                         // Set the sprite of the face, must be called after .square()
                         // We haven't specified any UV coordinates, so we want to use the whole texture. BAKE_LOCK_UV does exactly that.
-                        Identifier idOf = AITMod.id(patterns.getFirst().texture().getPath()
-                                .substring(9, patterns.getFirst().texture().getPath().length() - 4));
+                        Identifier idOf = AITMod.id(patterns.pattern().texture().getPath()
+                                .substring(9, patterns.pattern().texture().getPath().length() - 4));
                         SpriteIdentifier spriteId = new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, idOf);
                         //System.out.println(spriteId);
                         emitter.spriteBake(spriteId.getSprite(), MutableQuadView.BAKE_LOCK_UV);
                         // Enable texture usage
-                        int colorOf = ColorHelper.Argb.getArgb(255, (int) (255f * patterns.getSecond().getColorComponents()[0]), (int)
-                                (255f * patterns.getSecond().getColorComponents()[1]), (int) (255f * patterns.getSecond().getColorComponents()[2]));
+                        int colorOf = ColorHelper.Argb.getArgb(255, (int) (255f * patterns.color().getColorComponents()[0]), (int)
+                                (255f * patterns.color().getColorComponents()[1]), (int) (255f * patterns.color().getColorComponents()[2]));
                         emitter.color(colorOf, colorOf, colorOf, colorOf);
-                        if (patterns.getFirst().emissive()) {
+                        if (patterns.emissive()) {
                             boolean bl = roundelBlockEntity.tardis() != null && roundelBlockEntity.tardis().get() != null &&
                                     roundelBlockEntity.tardis().get().fuel().hasPower();
                             int colorWithTardis = bl || !TardisServerWorld.isTardisDimension(roundelBlockEntity.getWorld()) ? 0xf000f0 : colorOf / 100;

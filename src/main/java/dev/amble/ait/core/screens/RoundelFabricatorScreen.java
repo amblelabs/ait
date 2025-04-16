@@ -2,7 +2,6 @@ package dev.amble.ait.core.screens;
 
 import java.util.List;
 
-import com.mojang.datafixers.util.Pair;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
@@ -10,32 +9,24 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.*;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.client.renderers.decoration.RoundelBlockEntityRenderer;
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.blockentities.RoundelBlockEntity;
 import dev.amble.ait.core.item.RoundelItem;
 import dev.amble.ait.core.roundels.RoundelPattern;
-import dev.amble.ait.core.roundels.RoundelPatterns;
+import dev.amble.ait.core.roundels.RoundelType;
 
 @Environment(value=EnvType.CLIENT)
 public class RoundelFabricatorScreen
@@ -49,7 +40,7 @@ public class RoundelFabricatorScreen
     private static final int SCROLLBAR_AREA_HEIGHT = 56;
     private static final int PATTERN_LIST_OFFSET_X = 60;
     private static final int PATTERN_LIST_OFFSET_Y = 13;
-    @Nullable private List<Pair<RoundelPattern, DyeColor>> roundelPatterns;
+    @Nullable private List<RoundelType> roundelPatterns;
     private ItemStack roundel = ItemStack.EMPTY;
     private ItemStack dye = ItemStack.EMPTY;
     private ItemStack pattern = ItemStack.EMPTY;
@@ -102,7 +93,7 @@ public class RoundelFabricatorScreen
         int k = (int)(41.0f * this.scrollPosition);
         context.drawTexture(TEXTURE, i + 119, j + 13 + k, 232 + (this.canApplyDyePattern ? 0 : 12), 0, 12, 15);
         DiffuseLighting.disableGuiDepthLighting();
-        if (this.roundelPatterns != null && !this.hasTooManyPatterns) {
+        /*if (this.roundelPatterns != null && !this.hasTooManyPatterns) {
             MatrixStack matrixOfTheStack = context.getMatrices();
             matrixOfTheStack.push();
             matrixOfTheStack.translate(i + 139, j + 4, 0);
@@ -114,7 +105,7 @@ public class RoundelFabricatorScreen
             matrixOfTheStack.scale(f, f, f);
             ModelPart modelPart = RoundelBlockEntityRenderer.getTexturedModelData().createModel();
             for (int p = 0; p < 17 && p < this.roundelPatterns.size(); ++p) {
-                Pair<RoundelPattern, DyeColor> pair = this.roundelPatterns.get(p);
+                RoundelType pair = this.roundelPatterns.get(p);
                 float[] fs = pair.getSecond().getColorComponents();
                 if (pair.getFirst().equals(RoundelPatterns.BASE)) {
                     matrixOfTheStack.push();
@@ -132,7 +123,7 @@ public class RoundelFabricatorScreen
 
             context.getMatrices().pop();
             context.draw();
-        } else if (this.hasTooManyPatterns) {
+        } else*/ if (this.hasTooManyPatterns) {
             context.drawTexture(TEXTURE, i + slot4.x - 2, j + slot4.y - 2, this.backgroundWidth, 17, 17, 16);
         }
         if (this.canApplyDyePattern) {
@@ -150,14 +141,14 @@ public class RoundelFabricatorScreen
                     boolean bl2 = bl = mouseX >= r && mouseY >= s && mouseX < r + 14 && mouseY < s + 14;
                     int t = q == this.handler.getSelectedPattern() ? this.backgroundHeight + 14 : (bl ? this.backgroundHeight + 28 : this.backgroundHeight);
                     context.drawTexture(TEXTURE, r, s, 0, t, 14, 14);
-                    this.drawRoundel(context, list.get(q), r, s);
+                    //this.drawRoundel(context, list.get(q), r, s);
                 }
             }
         }
         DiffuseLighting.enableGuiDepthLighting();
     }
 
-    private void drawRoundel(DrawContext context, RoundelPattern pattern, int x, int y) {
+    /*private void drawRoundel(DrawContext context, RoundelPattern pattern, int x, int y) {
         NbtCompound nbtCompound = new NbtCompound();
         NbtList nbtList = new RoundelPattern.Patterns().add(RoundelPatterns.BASE, DyeColor.BLACK).add(pattern, DyeColor.WHITE).toNbt();
         nbtCompound.put("Patterns", nbtList);
@@ -171,13 +162,13 @@ public class RoundelFabricatorScreen
         matrixStack.translate(0.5f, 0.5f, 0.5f);
         float f = 1f;
         matrixStack.scale(f, -f, -f);
-        List<Pair<RoundelPattern, DyeColor>> list = RoundelBlockEntity.getPatternsFromNbt(DyeColor.GRAY, RoundelBlockEntity.getPatternListNbt(itemStack));
+        List<RoundelType> list = RoundelBlockEntity.getPatternsFromNbt(DyeColor.GRAY, RoundelBlockEntity.getPatternListNbt(itemStack));
         ModelPart modelPart = RoundelBlockEntityRenderer.getTexturedModelData().createModel();
         RoundelBlockEntityRenderer.getTexturedModelData().createModel().render(matrixStack, context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutoutNoCull(list.get(0).getFirst().texture())), 0xf000f0, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1.0f);
         for (int i = 0; i < 17 && i < list.size(); ++i) {
-            Pair<RoundelPattern, DyeColor> pair = list.get(i);
-            float[] fs = pair.getSecond().getColorComponents();
-            if (pair.getFirst().equals(RoundelPatterns.BASE)) {
+            RoundelType pair = list.get(i);
+            float[] fs = pair.color().getColorComponents();
+            if (pair.pattern().equals(RoundelPatterns.BASE)) {
                 modelPart.render(matrixStack, context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutoutNoCull(pair.getFirst().texture())),
                         0xf000f0, OverlayTexture.DEFAULT_UV, fs[0], fs[1], fs[2], 1.0f);
                 continue;
@@ -189,7 +180,7 @@ public class RoundelFabricatorScreen
         }
         matrixStack.pop();
         context.draw();
-    }
+    }*/
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {

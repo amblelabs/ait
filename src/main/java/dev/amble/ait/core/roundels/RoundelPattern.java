@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -25,12 +24,11 @@ import net.minecraft.util.dynamic.Codecs;
 
 import dev.amble.ait.AITMod;
 
-public record RoundelPattern(Identifier id, Identifier texture, boolean usesDynamicTexture, boolean emissive) implements Identifiable {
+public record RoundelPattern(Identifier id, Identifier texture, boolean usesDynamicTexture) implements Identifiable {
     public static final Codec<RoundelPattern> CODEC = Codecs.exceptionCatching(RecordCodecBuilder.create(instance -> instance.group(
                     Identifier.CODEC.fieldOf("id").forGetter(RoundelPattern::id),
                     Identifier.CODEC.fieldOf("texture").forGetter(RoundelPattern::texture),
-                    Codec.BOOL.optionalFieldOf("uses_dynamic_texture", false).forGetter(RoundelPattern::usesDynamicTexture),
-                    Codec.BOOL.optionalFieldOf("emissive", false).forGetter(RoundelPattern::emissive))
+                    Codec.BOOL.optionalFieldOf("uses_dynamic_texture", false).forGetter(RoundelPattern::usesDynamicTexture))
             .apply(instance, RoundelPattern::new)));
 
     public static RoundelPattern fromInputStream(InputStream stream) {
@@ -63,29 +61,25 @@ public record RoundelPattern(Identifier id, Identifier texture, boolean usesDyna
         return usesDynamicTexture;
     }
 
-    @Override
-    public boolean emissive() {
-        return emissive;
-    }
-
     public static class Patterns {
-        private final List<Pair<RoundelPattern, DyeColor>> entries = Lists.newArrayList();
+        private final List<RoundelType> entries = Lists.newArrayList();
 
         public Patterns add(RoundelPattern pattern, DyeColor color) {
-            return this.add(Pair.of(pattern, color));
+            return this.add(new RoundelType(pattern, color, true));
         }
 
-        public Patterns add(Pair<RoundelPattern, DyeColor> pattern) {
+        public Patterns add(RoundelType pattern) {
             this.entries.add(pattern);
             return this;
         }
 
         public NbtList toNbt() {
             NbtList nbtList = new NbtList();
-            for (Pair<RoundelPattern, DyeColor> pair : this.entries) {
+            for (RoundelType type : this.entries) {
                 NbtCompound nbtCompound = new NbtCompound();
-                nbtCompound.putString("Pattern", pair.getFirst().id.toString());
-                nbtCompound.putInt("Color", pair.getSecond().getId());
+                nbtCompound.putString("Pattern", type.pattern().id.toString());
+                nbtCompound.putInt("Color", type.color().getId());
+                nbtCompound.putBoolean("Emissive", true);
                 nbtList.add(nbtCompound);
             }
             return nbtList;

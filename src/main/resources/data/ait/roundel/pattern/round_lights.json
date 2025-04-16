@@ -1,5 +1,4 @@
 {
   "id": "ait:roundel/round_lights",
-  "texture": "ait:textures/block/roundel/round_lights.png",
-  "emissive": true
+  "texture": "ait:textures/block/roundel/round_lights.png"
 }

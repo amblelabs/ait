@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,6 +31,7 @@ import dev.amble.ait.core.blocks.AbstractRoundelBlock;
 import dev.amble.ait.core.blocks.RoundelBlock;
 import dev.amble.ait.core.roundels.RoundelPattern;
 import dev.amble.ait.core.roundels.RoundelPatterns;
+import dev.amble.ait.core.roundels.RoundelType;
 
 public class RoundelBlockEntity
         extends InteriorLinkableBlockEntity
@@ -44,7 +44,7 @@ public class RoundelBlockEntity
     private DyeColor baseColor;
     private BlockState dynamicTex;
     @Nullable private NbtList patternListNbt;
-    @Nullable private List<Pair<RoundelPattern, DyeColor>> patterns;
+    @Nullable private List<RoundelType> patterns;
 
     {
         TardisEvents.LOSE_POWER.register(tardis -> {
@@ -160,23 +160,23 @@ public class RoundelBlockEntity
         return 0;
     }
 
-    public List<Pair<RoundelPattern, DyeColor>> getPatterns() {
+    public List<RoundelType> getPatterns() {
         if (this.patterns == null) {
             this.patterns = RoundelBlockEntity.getPatternsFromNbt(this.baseColor, this.patternListNbt);
         }
         return this.patterns;
     }
 
-    public static List<Pair<RoundelPattern, DyeColor>> getPatternsFromNbt(DyeColor baseColor, @Nullable NbtList patternListNbt) {
-        ArrayList<Pair<RoundelPattern, DyeColor>> list = Lists.newArrayList();
-        list.add(Pair.of(RoundelPatterns.BASE, baseColor));
+    public static List<RoundelType> getPatternsFromNbt(DyeColor baseColor, @Nullable NbtList patternListNbt) {
+        ArrayList<RoundelType> list = Lists.newArrayList();
+        list.add(new RoundelType(RoundelPatterns.BASE, baseColor, true));
         if (patternListNbt != null) {
             for (int i = 0; i < patternListNbt.size(); ++i) {
                 NbtCompound nbtCompound = patternListNbt.getCompound(i);
                 RoundelPattern pattern = RoundelPatterns.getInstance().get(Identifier.tryParse(nbtCompound.getString(PATTERN_KEY)));
                 if (pattern == null) continue;
                 int j = nbtCompound.getInt(COLOR_KEY);
-                list.add(Pair.of(pattern, DyeColor.byId(j)));
+                list.add(new RoundelType(pattern, DyeColor.byId(j), true));
             }
         }
         return list;
