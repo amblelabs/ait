@@ -1,35 +1,21 @@
 package dev.amble.ait.client.renderers.items;
 
-import com.mojang.datafixers.util.Pair;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 
-import net.minecraft.block.Block;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RotationAxis;
 
-import dev.amble.ait.client.renderers.decoration.RoundelBlockEntityRenderer;
 import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.blockentities.RoundelBlockEntity;
-import dev.amble.ait.core.blocks.AbstractRoundelBlock;
-import dev.amble.ait.core.roundels.RoundelPattern;
-import dev.amble.ait.core.roundels.RoundelPatterns;
 
 public class DynamicRoundelItemRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
     private final RoundelBlockEntity renderRoundel = new RoundelBlockEntity(BlockPos.ORIGIN, AITBlocks.ROUNDEL.getDefaultState());
     @Override
     public void render(ItemStack stack, ModelTransformationMode mode, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
-
+        /*
         if (stack.isEmpty())
             return;
 
@@ -45,8 +31,8 @@ public class DynamicRoundelItemRenderer implements BuiltinItemRendererRegistry.D
 
         this.renderRoundel.readFrom(stack, roundelBlock.getColor());
 
-        /*MinecraftClient.getInstance().getBlockEntityRenderDispatcher()
-                .renderEntity(this.renderRoundel, matrices, vertexConsumers, light, overlay);*/
+        MinecraftClient.getInstance().getBlockEntityRenderDispatcher()
+                .renderEntity(this.renderRoundel, matrices, vertexConsumers, light, overlay);
         matrices.push();
         matrices.translate(0.5, 1f, 0.5);
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
@@ -72,5 +58,6 @@ public class DynamicRoundelItemRenderer implements BuiltinItemRendererRegistry.D
             matrices.pop();
         }
         matrices.pop();
+        */
     }
 }
