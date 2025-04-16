@@ -64,7 +64,8 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
                 if (roundelBlockEntity.getDynamicTextureBlockState().getRenderType() != BlockRenderType.INVISIBLE) {
                     for (Pair<RoundelPattern, DyeColor> patterns : roundelBlockEntity.getPatterns()) {
                         if (patterns.getFirst().equals(RoundelPatterns.BASE)) {
-                            int colorForBlock = ColorHelper.Argb.getArgb(255, (int) (255f * patterns.getSecond().getColorComponents()[0]), (int)
+                            int colorForBlock = patterns.getSecond().equals(DyeColor.WHITE) ? ColorHelper.Argb.getArgb(255, 255, 255, 255)
+                            : ColorHelper.Argb.getArgb(255, (int) (255f * patterns.getSecond().getColorComponents()[0]), (int)
                                     (255f * patterns.getSecond().getColorComponents()[1]), (int) (255f * patterns.getSecond().getColorComponents()[2]));
                             RoundelModel.emitBlockQuads(
                                     BLOCK_MODELS.getModel(roundelBlockEntity.getDynamicTextureBlockState()),
@@ -109,7 +110,7 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
                         if (patterns.getFirst().emissive()) {
                             boolean bl = roundelBlockEntity.tardis() != null && roundelBlockEntity.tardis().get() != null &&
                                     roundelBlockEntity.tardis().get().fuel().hasPower();
-                            int colorWithTardis = bl || !TardisServerWorld.isTardisDimension(roundelBlockEntity.getWorld()) ? colorOf : colorOf / 100;
+                            int colorWithTardis = bl || !TardisServerWorld.isTardisDimension(roundelBlockEntity.getWorld()) ? 0xf000f0 : colorOf / 100;
                             emitter.lightmap(colorWithTardis, colorWithTardis, colorWithTardis, colorWithTardis);
                         }
                         // Add the quad to the mesh

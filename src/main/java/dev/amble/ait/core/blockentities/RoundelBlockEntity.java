@@ -5,20 +5,17 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.DataResult;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.*;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -67,7 +64,8 @@ public class RoundelBlockEntity
     public RoundelBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE, pos, state);
         this.baseColor = ((AbstractRoundelBlock)state.getBlock()).getColor();
-        this.setDynamicTex(Blocks.WHITE_CONCRETE.getDefaultState());
+        if (this.dynamicTex == null)
+            this.dynamicTex = Blocks.WHITE_CONCRETE.getDefaultState();
     }
 
     @Override
@@ -78,7 +76,6 @@ public class RoundelBlockEntity
     public RoundelBlockEntity(BlockPos pos, BlockState state, DyeColor baseColor) {
         this(pos, state);
         this.baseColor = baseColor;
-        this.setDynamicTex(Blocks.WHITE_CONCRETE.getDefaultState());
     }
 
     @Nullable public static NbtList getPatternListNbt(ItemStack stack) {
@@ -120,6 +117,9 @@ public class RoundelBlockEntity
 
     @Override
     public void writeNbt(NbtCompound nbt) {
+        if (this.dynamicTex != null) {
+            nbt.put("DynamicTex", NbtHelper.fromBlockState(this.dynamicTex));
+        }
         super.writeNbt(nbt);
         if (this.patternListNbt != null) {
             nbt.put(PATTERNS_KEY, this.patternListNbt);
@@ -127,9 +127,7 @@ public class RoundelBlockEntity
         if (this.customName != null) {
             nbt.putString("CustomName", Text.Serializer.toJson(this.customName));
         }
-        if (this.dynamicTex != null) {
-            nbt.put("DynamicTex", NbtHelper.fromBlockState(this.getDynamicTextureBlockState()));
-        }
+
     }
 
     @Override
@@ -144,24 +142,14 @@ public class RoundelBlockEntity
 
     @Override
     public void readNbt(NbtCompound nbt) {
+        DataResult<BlockState> blockStateResult = BlockState.CODEC.parse(NbtOps.INSTANCE, nbt.getCompound("DynamicTex"));
+        this.setDynamicTex(blockStateResult.result().orElse(null));
         super.readNbt(nbt);
         if (nbt.contains("CustomName", NbtElement.STRING_TYPE)) {
             this.customName = Text.Serializer.fromJson(nbt.getString("CustomName"));
         }
         this.patternListNbt = nbt.getList(PATTERNS_KEY, NbtElement.COMPOUND_TYPE);
         this.patterns = null;
-
-        if (this.getWorld() == null) return;
-
-        if (nbt.contains("DynamicTex", NbtElement.COMPOUND_TYPE)) {
-            this.setDynamicTex(NbtHelper.toBlockState(this.getWorld()
-                    .createCommandRegistryWrapper(RegistryKeys.BLOCK), nbt.getCompound("DynamicTex")));
-        }
-    }
-
-    @Override
-    public NbtCompound toInitialChunkDataNbt() {
-        return this.createNbt();
     }
 
     public static int getPatternCount(ItemStack stack) {
@@ -214,10 +202,13 @@ public class RoundelBlockEntity
         ItemStack itemStack = new ItemStack(RoundelBlock.getForColor(this.baseColor));
         if (this.patternListNbt != null && !this.patternListNbt.isEmpty()) {
             NbtCompound nbtCompound = new NbtCompound();
+            if (this.dynamicTex != null) {
+                nbtCompound.put("DynamicTex", NbtHelper.fromBlockState(this.dynamicTex));
+            }
             nbtCompound.put(PATTERNS_KEY, this.patternListNbt.copy());
-            nbtCompound.put("DynamicTex", NbtHelper.fromBlockState(this.getDynamicTextureBlockState()));
             BlockItem.setBlockEntityNbt(itemStack, this.getType(), nbtCompound);
         }
+
         if (this.customName != null) {
             itemStack.setCustomName(this.customName);
         }

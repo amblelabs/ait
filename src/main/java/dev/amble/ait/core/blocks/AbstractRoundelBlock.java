@@ -60,6 +60,8 @@ public abstract class AbstractRoundelBlock
             if (roundelBlockEntity.tardis() != null && roundelBlockEntity.tardis().get() != null) {
                 int lightOf = roundelBlockEntity.tardis().get().fuel().hasPower() ? 11 : 0;
                 world.setBlockState(pos, state.with(LEVEL_15, lightOf), Block.NOTIFY_LISTENERS | Block.REDRAW_ON_MAIN_THREAD);
+            } else {
+                world.setBlockState(pos, state.with(LEVEL_15, 11), Block.NOTIFY_LISTENERS | Block.REDRAW_ON_MAIN_THREAD);
             }
             roundelBlockEntity.markDirty();
         }
