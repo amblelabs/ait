@@ -5,6 +5,9 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.ChunkPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
@@ -110,6 +113,16 @@ public class RoundelBlockEntity
         }
         if (this.dynamicTex != null) {
             nbt.put("DynamicTex", NbtHelper.fromBlockState(this.getDynamicTextureBlockState()));
+        }
+    }
+
+    @Override
+    public void markDirty() {
+        super.markDirty();
+        if (this.world instanceof ServerWorld world1) {
+            for (ServerPlayerEntity player : world1.getChunkManager().threadedAnvilChunkStorage.getPlayersWatchingChunk(new ChunkPos(this.pos))) {
+                player.networkHandler.sendPacket(this.toUpdatePacket());
+            }
         }
     }
 

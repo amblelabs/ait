@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
+import net.minecraft.registry.Registries;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockRenderType;
@@ -52,19 +53,19 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
     }
 
     @Override
-    public void emitBlockQuads(BlockRenderView blockRenderView, BlockState blockState, BlockPos blockPos,
-                               Supplier<Random> supplier, RenderContext renderContext) {
-        BlockEntity be = blockRenderView.getBlockEntity(blockPos);
-        if (be instanceof RoundelBlockEntity roundelBlockEntity) {
+    public void emitBlockQuads(BlockRenderView blockRenderView, BlockState blockState, BlockPos blockPos, Supplier<Random> supplier, RenderContext renderContext) {
+        Renderer renderer = RendererAccess.INSTANCE.getRenderer();
+        if (renderer == null) return;
+        if (blockRenderView.getBlockEntity(blockPos) instanceof RoundelBlockEntity roundelBlockEntity) {
             if (roundelBlockEntity.getDynamicTextureBlockState() != null) {
                 if (roundelBlockEntity.getDynamicTextureBlockState().getRenderType() != BlockRenderType.INVISIBLE) {
-                    BLOCK_MODELS.getModel(roundelBlockEntity.getDynamicTextureBlockState())
-                            .emitBlockQuads(blockRenderView, roundelBlockEntity.getDynamicTextureBlockState(),
-                                    blockPos, supplier, renderContext);
+                    BLOCK_MODELS.getModel(roundelBlockEntity.getDynamicTextureBlockState()).emitBlockQuads(blockRenderView, roundelBlockEntity.getDynamicTextureBlockState(), blockPos, supplier, renderContext);
                 }
             }
         }
-        mesh.outputTo(renderContext.getEmitter());
+        if (mesh != null) {
+            mesh.outputTo(renderContext.getEmitter());
+        }
     }
 
     @Override
@@ -94,7 +95,7 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
 
     @Override
     public Sprite getParticleSprite() {
-        return null;
+        return MinecraftClient.getInstance().getPaintingManager().getBackSprite();
     }
 
     @Override
@@ -119,6 +120,7 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
         QuadEmitter emitter = builder.getEmitter();
 
         for(Direction direction : Direction.values()) {
+
             // UP and DOWN share the Y axis
             int spriteIdx = direction == Direction.UP || direction == Direction.DOWN ? SPRITE_TOP : SPRITE_SIDE;
             // Add a new face to the mesh
@@ -143,7 +145,7 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
 
     @Override
     public ModelOverrideList getOverrides() {
-        return null;
+        return ModelOverrideList.EMPTY;
     }
 
     // We will also implement this method to have the correct lighting in the item rendering. Try to set this to false and you will see the difference.
@@ -154,7 +156,9 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
 
     // Finally, we can implement the item render function
     @Override
-    public void emitItemQuads(ItemStack itemStack, Supplier<Random> supplier, RenderContext renderContext) {
-        mesh.outputTo(renderContext.getEmitter());
+    public void emitItemQuads(ItemStack itemStack, Supplier<Random> randomSupplier, RenderContext renderContext) {
+        if (mesh != null) {
+            mesh.outputTo(renderContext.getEmitter());
+        }
     }
 }
