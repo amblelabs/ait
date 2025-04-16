@@ -41,8 +41,10 @@ public class RoundelItem
             NbtCompound nbtCompound2 = nbtList.getCompound(i);
             DyeColor dyeColor = DyeColor.byId(nbtCompound2.getInt("Color"));
             RoundelPattern roundel = RoundelPatterns.getInstance().get(Identifier.tryParse(nbtCompound2.getString("Pattern")));
+            boolean emissive = nbtCompound2.getBoolean("Emissive");
             if (roundel == null) continue;
             tooltip.add(Text.literal(roundel.id().getPath() + " | Color: " + dyeColor.getName()).formatted(Formatting.GRAY, Formatting.ITALIC));
+            tooltip.add(Text.literal("Emissive: " + emissive).formatted(Formatting.GRAY, Formatting.ITALIC));
         }
         if (nbtCompound.contains("DynamicTex", NbtElement.COMPOUND_TYPE)) {
 

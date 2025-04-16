@@ -42,6 +42,7 @@ public class RoundelBlockEntity
     public static final String COLOR_KEY = "Color";
     @Nullable private Text customName;
     private DyeColor baseColor;
+    private boolean emissive;
     private BlockState dynamicTex;
     @Nullable private NbtList patternListNbt;
     @Nullable private List<RoundelType> patterns;
@@ -64,6 +65,7 @@ public class RoundelBlockEntity
     public RoundelBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE, pos, state);
         this.baseColor = ((AbstractRoundelBlock)state.getBlock()).getColor();
+        this.emissive = false;
         if (this.dynamicTex == null)
             this.dynamicTex = Blocks.WHITE_CONCRETE.getDefaultState();
     }
@@ -169,14 +171,15 @@ public class RoundelBlockEntity
 
     public static List<RoundelType> getPatternsFromNbt(DyeColor baseColor, @Nullable NbtList patternListNbt) {
         ArrayList<RoundelType> list = Lists.newArrayList();
-        list.add(new RoundelType(RoundelPatterns.BASE, baseColor, true));
+        list.add(new RoundelType(RoundelPatterns.BASE, baseColor, false));
         if (patternListNbt != null) {
             for (int i = 0; i < patternListNbt.size(); ++i) {
                 NbtCompound nbtCompound = patternListNbt.getCompound(i);
                 RoundelPattern pattern = RoundelPatterns.getInstance().get(Identifier.tryParse(nbtCompound.getString(PATTERN_KEY)));
                 if (pattern == null) continue;
                 int j = nbtCompound.getInt(COLOR_KEY);
-                list.add(new RoundelType(pattern, DyeColor.byId(j), true));
+                boolean b = nbtCompound.getBoolean("Emissive");
+                list.add(new RoundelType(pattern, DyeColor.byId(j), b));
             }
         }
         return list;
