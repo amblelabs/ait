@@ -149,10 +149,11 @@ public class TardisDoorBOTI extends BOTI {
                 }
 
                 boolean power = tardis.fuel().hasPower();
+                boolean alarm = tardis.alarm().enabled().get();
 
-                float red = tardis.alarm().enabled().get() ? !power ? 0.25f : s : s;
-                float green = tardis.alarm().enabled().get() ? !power ? 0.01f : 0.3f : t;
-                float blue = tardis.alarm().enabled().get() ? !power ? 0.01f : 0.3f : u;
+                float red = power ? s : 0;
+                float green = power ? alarm ? 0.3f : t : 0;
+                float blue = power ? alarm ? 0.3f : u:  0;
 
                 ((DoorModel) frame).renderWithAnimations(tardis, door, frame.getPart(), stack, botiProvider.getBuffer((DependencyChecker.hasIris() ? AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true) : AITRenderLayers.getBeaconBeam(variant.emission(), true))), 0xf000f0, OverlayTexture.DEFAULT_UV, red, green, blue, 1.0F);
                 botiProvider.draw();

@@ -153,11 +153,12 @@ public class TardisExteriorBOTI extends BOTI {
                 u = hs[2];
             }
 
-            boolean power = exterior.tardis().get().fuel().hasPower();
+            boolean power = tardis.fuel().hasPower();
+            boolean alarms = tardis.alarm().enabled().get();
 
-            float red = exterior.tardis().get().alarm().enabled().get() ? !power ? 0.25f : s : s;
-            float green = exterior.tardis().get().alarm().enabled().get() ? !power ? 0.01f : 0.3f : t;
-            float blue = exterior.tardis().get().alarm().enabled().get() ? !power ? 0.01f : 0.3f : u ;
+            float red = power ? s : 0;
+            float green = power ? alarms ? 0.3f : t : 0;
+            float blue = power ? alarms ? 0.3f : u : 0;
 
             ((ExteriorModel) frame).renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(DependencyChecker.hasIris() ? AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true) : AITRenderLayers.getBeaconBeam(variant.emission(), true)), 0xf000f0,
                     OverlayTexture.DEFAULT_UV, red, green, blue, 1, true);
