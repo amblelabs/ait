@@ -39,7 +39,7 @@ public class GravityHandler extends KeyedTardisComponent implements TardisTickab
 
     private final Value<Direction> direction = DIRECTION.create(this);
 
-    @Exclude
+    @Exclude @dev.drtheo.autojson.annotation.Exclude
     private Direction tempDirection = Direction.DOWN;
 
     public GravityHandler() {

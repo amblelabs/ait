@@ -1,6 +1,7 @@
 package dev.amble.ait.core.tardis.handler;
 
 
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,6 +27,7 @@ public class LandingPadHandler extends KeyedTardisComponent {
     public static final Property<String> CODE = new Property<>(Property.Type.STR, "code", "");
     private final Value<String> code = LandingPadHandler.CODE.create(this);
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private LandingPadSpot current;
 
     static {

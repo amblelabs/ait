@@ -2,6 +2,7 @@ package dev.amble.ait.core.tardis.control.impl.pos;
 
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.properties.integer.IntProperty;
 import dev.amble.ait.data.properties.integer.IntValue;
@@ -10,7 +11,6 @@ public class IncrementManager extends KeyedTardisComponent {
     private static final IntProperty INCREMENT_PROPERTY = new IntProperty("increment", 1);
     private final IntValue increment = INCREMENT_PROPERTY.create(this);
 
-    @Exclude
     private static final int[] validIncrements = new int[]{1, 10, 100, 1000, 10000};
 
     public IncrementManager() {

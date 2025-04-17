@@ -5,6 +5,7 @@ import java.util.function.Function;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
@@ -68,6 +69,7 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
     protected final BoolValue hGroundSearch = HGROUND_SEARCH.create(this);
 
     @Exclude(strategy = Exclude.Strategy.NETWORK)
+    @dev.drtheo.autojson.annotation.Exclude(layer = TardisManager.NETWORK)
     protected int hammerUses = 0;
 
     public TravelHandlerBase(Id id) {

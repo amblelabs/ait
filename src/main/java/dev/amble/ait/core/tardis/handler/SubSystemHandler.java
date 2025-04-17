@@ -21,7 +21,7 @@ import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.enummap.EnumMap;
 
 public class SubSystemHandler extends KeyedTardisComponent implements TardisTickable, Iterable<SubSystem> {
-    @Exclude
+    @Exclude @dev.drtheo.autojson.annotation.Exclude
     private final EnumMap<SubSystem.IdLike, SubSystem> systems = new EnumMap<>(SubSystemRegistry::values,
             SubSystem[]::new);
 

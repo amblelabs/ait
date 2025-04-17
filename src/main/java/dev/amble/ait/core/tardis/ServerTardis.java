@@ -20,15 +20,19 @@ import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 public class ServerTardis extends Tardis {
 
     @Exclude(strategy = Exclude.Strategy.NETWORK)
+    @dev.drtheo.autojson.annotation.Exclude(layer = TardisManager.NETWORK)
     protected int version = 2;
 
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private boolean removed;
 
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private final Set<TardisComponent> delta = new HashSet<>(32);
 
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private ServerWorld world;
 
     public ServerTardis(UUID uuid, TardisDesktopSchema schema, ExteriorVariantSchema variantType) {

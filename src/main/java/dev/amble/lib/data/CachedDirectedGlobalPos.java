@@ -17,6 +17,7 @@ import dev.amble.ait.data.Exclude;
 public class CachedDirectedGlobalPos extends DirectedGlobalPos {
 
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private ServerWorld world;
 
     private CachedDirectedGlobalPos(RegistryKey<World> key, BlockPos pos, byte rotation) {

@@ -1,8 +1,11 @@
 package dev.amble.ait.core.tardis.manager;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import dev.amble.ait.core.tardis.manager.autojson.PacketBufAdapter;
+import dev.drtheo.autojson.AutoJSON;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -106,7 +109,7 @@ public class ServerTardisManager extends DeprecatedServerTardisManager {
         String rawId = TardisComponentRegistry.getInstance().get(component);
 
         buf.writeString(rawId);
-        buf.writeString(this.networkGson.toJson(component));
+        buf.writeBytes(adapter.toJson(component));
     }
 
     private PacketByteBuf prepareSend(ServerTardis tardis) {

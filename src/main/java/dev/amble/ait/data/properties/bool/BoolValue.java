@@ -1,6 +1,9 @@
 package dev.amble.ait.data.properties.bool;
 
 import dev.amble.ait.data.properties.Value;
+import dev.amble.ait.data.properties.integer.IntValue;
+import dev.drtheo.autojson.AutoJSON;
+import dev.drtheo.autojson.schema.Schema;
 
 public class BoolValue extends Value<Boolean> {
 
@@ -23,5 +26,9 @@ public class BoolValue extends Value<Boolean> {
 
     public static Object serializer() {
         return new Serializer<>(BoolProperty.TYPE, BoolValue::new);
+    }
+
+    public static dev.drtheo.autojson.schema.Schema<BoolValue> serial() {
+        return new Schema<>(boolean.class, BoolValue::new);
     }
 }

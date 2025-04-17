@@ -1,11 +1,14 @@
 package dev.amble.ait.client.tardis.manager;
 
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.GsonBuilder;
+import dev.amble.ait.core.tardis.manager.autojson.PacketBufAdapter;
+import dev.drtheo.autojson.AutoJSON;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginConnectionEvents;
@@ -133,7 +136,7 @@ public class ClientTardisManager extends TardisManager<ClientTardis, MinecraftCl
         String rawId = buf.readString();
 
         TardisComponent.IdLike id = TardisComponentRegistry.getInstance().get(rawId);
-        TardisComponent component = this.networkGson.fromJson(buf.readString(), id.clazz());
+        TardisComponent component = this.adapter.fromJson(buf, id.clazz());
 
         id.set(tardis, component);
         TardisComponent.init(component, tardis, TardisComponent.InitContext.deserialize());

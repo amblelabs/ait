@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import com.google.gson.*;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,9 +29,10 @@ import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.enummap.Ordered;
 
 public abstract class SubSystem extends Initializable<SubSystem.InitContext> implements Disposable {
-    @Exclude protected Tardis tardis;
+    @Exclude @dev.drtheo.autojson.annotation.Exclude protected Tardis tardis;
 
     @Exclude(strategy = Exclude.Strategy.NETWORK)
+    @dev.drtheo.autojson.annotation.Exclude(layer = TardisManager.NETWORK)
     private final IdLike id;
     private boolean enabled = false;
 

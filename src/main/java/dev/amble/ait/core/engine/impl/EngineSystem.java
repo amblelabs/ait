@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import org.joml.Vector3f;
 
@@ -29,8 +30,10 @@ import dev.amble.ait.data.Exclude;
 
 public class EngineSystem extends DurableSubSystem {
     @Exclude(strategy = Exclude.Strategy.FILE)
+    @dev.drtheo.autojson.annotation.Exclude(layer = TardisManager.FILE)
     private Status status;
     @Exclude(strategy = Exclude.Strategy.FILE)
+    @dev.drtheo.autojson.annotation.Exclude(layer = TardisManager.FILE)
     private Phaser phaser;
 
     public EngineSystem() {
@@ -117,12 +120,16 @@ public class EngineSystem extends DurableSubSystem {
 
     public static class Phaser {
         @Exclude(strategy = Exclude.Strategy.NETWORK)
+        @dev.drtheo.autojson.annotation.Exclude(layer = TardisManager.NETWORK)
         private final Function<Phaser, Boolean> allowed;
         @Exclude(strategy = Exclude.Strategy.NETWORK)
+        @dev.drtheo.autojson.annotation.Exclude(layer = TardisManager.NETWORK)
         private final Consumer<Phaser> miss;
         @Exclude(strategy = Exclude.Strategy.NETWORK)
+        @dev.drtheo.autojson.annotation.Exclude(layer = TardisManager.NETWORK)
         private final Consumer<Phaser> start;
         @Exclude(strategy = Exclude.Strategy.NETWORK)
+        @dev.drtheo.autojson.annotation.Exclude(layer = TardisManager.NETWORK)
         private final Consumer<Phaser> cancel;
         private int countdown;
         private int initial;

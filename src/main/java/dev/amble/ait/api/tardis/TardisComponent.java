@@ -26,9 +26,11 @@ import dev.amble.ait.data.enummap.Ordered;
  */
 public abstract class TardisComponent extends Initializable<TardisComponent.InitContext> implements Disposable {
 
-    @Exclude protected Tardis tardis;
+    @Exclude @dev.drtheo.autojson.annotation.Exclude protected Tardis tardis;
 
-    @Exclude(strategy = Exclude.Strategy.NETWORK) private final IdLike id;
+    @Exclude(strategy = Exclude.Strategy.NETWORK)
+    @dev.drtheo.autojson.annotation.Exclude(layer = TardisManager.NETWORK)
+    private final IdLike id;
 
     /**
      * Do NOT under any circumstances run logic in this constructor. Default field
