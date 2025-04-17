@@ -2,8 +2,10 @@ package dev.amble.ait.data.schema.exterior.variant.addon;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.util.math.Direction;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import net.minecraft.client.MinecraftClient;
@@ -27,6 +29,8 @@ import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+
+import java.util.function.BiFunction;
 
 /**
  * An all-in-one utility class for creating addon exteriors
@@ -53,6 +57,8 @@ public class AddonExterior extends ExteriorVariantSchema {
     private Door door;
     private float portalWidth = -1f;
     private float portalHeight = -1f;
+    @Nullable
+    private BiFunction<Vec3d, Byte, Vec3d> portalTranslations;
     @Environment(EnvType.CLIENT)
     private Vector3f sonicItemTranslations;
     private Vec3d seatTranslations;
@@ -183,6 +189,30 @@ public class AddonExterior extends ExteriorVariantSchema {
     }
 
     @Override
+    public Vec3d adjustPortalPos(Vec3d pos, byte direction) {
+        if (this.portalTranslations != null) {
+            Vec3d translation = this.portalTranslations.apply(pos, direction);
+
+            if (translation != null) {
+                return translation;
+            }
+        }
+
+        return super.adjustPortalPos(pos, direction);
+    }
+
+    /**
+     * Sets the translation for the portal
+     * @param translations (pos, dir) -> (pos)
+     * @return this
+     */
+    public AddonExterior setPortalTranslations(BiFunction<Vec3d, Byte, Vec3d> translations) {
+        this.portalTranslations = translations;
+
+        return this;
+    }
+
+    @Override
     public boolean hasPortals() {
         return this.portalHeight() != -1 && this.portalWidth() != -1;
     }
@@ -270,6 +300,9 @@ public class AddonExterior extends ExteriorVariantSchema {
         private final SoundEvent open;
         private final SoundEvent close;
 
+        @Nullable
+        private BiFunction<Vec3d, Direction, Vec3d> portalTranslations;
+
         @Environment(EnvType.CLIENT)
         private ClientDoor client;
 
@@ -280,6 +313,30 @@ public class AddonExterior extends ExteriorVariantSchema {
             this.isDouble = isDouble;
             this.open = open;
             this.close = close;
+        }
+
+        @Override
+        public Vec3d adjustPortalPos(Vec3d pos, Direction direction) {
+            if (this.portalTranslations != null) {
+                Vec3d translation = this.portalTranslations.apply(pos, direction);
+
+                if (translation != null) {
+                    return translation;
+                }
+            }
+
+            return super.adjustPortalPos(pos, direction);
+        }
+
+        /**
+         * Sets the translation for the portal
+         * @param translations (pos, dir) -> (pos)
+         * @return this
+         */
+        public Door setPortalTranslations(BiFunction<Vec3d, Direction, Vec3d> translations) {
+            this.portalTranslations = translations;
+
+            return this;
         }
 
         @Override
