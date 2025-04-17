@@ -51,6 +51,7 @@ public abstract class AbstractRoundelBlock
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         if (world.isClient) {
             world.getBlockEntity(pos, AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE).ifPresent(blockEntity -> blockEntity.readFrom(itemStack));
+            world.setBlockState(pos, state, Block.REDRAW_ON_MAIN_THREAD);
         } else if (itemStack.hasCustomName()) {
             world.getBlockEntity(pos, AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE).ifPresent(blockEntity -> blockEntity.setCustomName(itemStack.getName()));
         }

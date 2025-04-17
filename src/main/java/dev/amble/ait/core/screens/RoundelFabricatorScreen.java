@@ -9,23 +9,31 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.model.*;
 import net.minecraft.client.render.*;
 import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.blockentities.RoundelBlockEntity;
 import dev.amble.ait.core.item.RoundelItem;
 import dev.amble.ait.core.roundels.RoundelPattern;
+import dev.amble.ait.core.roundels.RoundelPatterns;
 import dev.amble.ait.core.roundels.RoundelType;
 
 @Environment(value=EnvType.CLIENT)
@@ -93,7 +101,7 @@ public class RoundelFabricatorScreen
         int k = (int)(41.0f * this.scrollPosition);
         context.drawTexture(TEXTURE, i + 119, j + 13 + k, 232 + (this.canApplyDyePattern ? 0 : 12), 0, 12, 15);
         DiffuseLighting.disableGuiDepthLighting();
-        /*if (this.roundelPatterns != null && !this.hasTooManyPatterns) {
+        if (this.roundelPatterns != null && !this.hasTooManyPatterns) {
             MatrixStack matrixOfTheStack = context.getMatrices();
             matrixOfTheStack.push();
             matrixOfTheStack.translate(i + 139, j + 4, 0);
@@ -103,27 +111,27 @@ public class RoundelFabricatorScreen
             matrixOfTheStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(0));
             float f = 1f;
             matrixOfTheStack.scale(f, f, f);
-            ModelPart modelPart = RoundelBlockEntityRenderer.getTexturedModelData().createModel();
+            ModelPart modelPart = RoundelFabricatorScreen.getTexturedModelData().createModel();
             for (int p = 0; p < 17 && p < this.roundelPatterns.size(); ++p) {
                 RoundelType pair = this.roundelPatterns.get(p);
-                float[] fs = pair.getSecond().getColorComponents();
-                if (pair.getFirst().equals(RoundelPatterns.BASE)) {
+                float[] fs = pair.color().getColorComponents();
+                if (pair.pattern().equals(RoundelPatterns.BASE)) {
                     matrixOfTheStack.push();
                     matrixOfTheStack.translate(0, 0, -0.01f);
-                    modelPart.render(matrixOfTheStack, context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutoutNoCull(pair.getFirst().texture())),
+                    modelPart.render(matrixOfTheStack, context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutoutNoCull(pair.pattern().texture())),
                             0xf000f0, OverlayTexture.DEFAULT_UV, fs[0], fs[1], fs[2], 1.0f);
                     matrixOfTheStack.pop();
                     continue;
                 }
 
-                VertexConsumer vertexConsumer = context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutoutNoCullZOffset(pair.getFirst().texture()));
+                VertexConsumer vertexConsumer = context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutoutNoCullZOffset(pair.pattern().texture()));
 
                 modelPart.render(matrixOfTheStack, vertexConsumer, 0xf000f0, OverlayTexture.DEFAULT_UV, fs[0], fs[1], fs[2], 1.0f);
             }
 
             context.getMatrices().pop();
             context.draw();
-        } else*/ if (this.hasTooManyPatterns) {
+        } else if (this.hasTooManyPatterns) {
             context.drawTexture(TEXTURE, i + slot4.x - 2, j + slot4.y - 2, this.backgroundWidth, 17, 17, 16);
         }
         if (this.canApplyDyePattern) {
@@ -141,14 +149,21 @@ public class RoundelFabricatorScreen
                     boolean bl2 = bl = mouseX >= r && mouseY >= s && mouseX < r + 14 && mouseY < s + 14;
                     int t = q == this.handler.getSelectedPattern() ? this.backgroundHeight + 14 : (bl ? this.backgroundHeight + 28 : this.backgroundHeight);
                     context.drawTexture(TEXTURE, r, s, 0, t, 14, 14);
-                    //this.drawRoundel(context, list.get(q), r, s);
+                    this.drawRoundel(context, list.get(q), r, s);
                 }
             }
         }
         DiffuseLighting.enableGuiDepthLighting();
     }
 
-    /*private void drawRoundel(DrawContext context, RoundelPattern pattern, int x, int y) {
+    public static TexturedModelData getTexturedModelData() {
+        ModelData modelData = new ModelData();
+        ModelPartData modelPartData = modelData.getRoot();
+        ModelPartData cube = modelPartData.addChild("cube", ModelPartBuilder.create().uv(0, 0).cuboid(-8.0F, -8.0F, -8.0F, 16.0F, 16.0F, 16.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 8.0F, 0.0F));
+        return TexturedModelData.of(modelData, 16, 16);
+    }
+
+    private void drawRoundel(DrawContext context, RoundelPattern pattern, int x, int y) {
         NbtCompound nbtCompound = new NbtCompound();
         NbtList nbtList = new RoundelPattern.Patterns().add(RoundelPatterns.BASE, DyeColor.BLACK).add(pattern, DyeColor.WHITE).toNbt();
         nbtCompound.put("Patterns", nbtList);
@@ -163,24 +178,24 @@ public class RoundelFabricatorScreen
         float f = 1f;
         matrixStack.scale(f, -f, -f);
         List<RoundelType> list = RoundelBlockEntity.getPatternsFromNbt(DyeColor.GRAY, RoundelBlockEntity.getPatternListNbt(itemStack));
-        ModelPart modelPart = RoundelBlockEntityRenderer.getTexturedModelData().createModel();
-        RoundelBlockEntityRenderer.getTexturedModelData().createModel().render(matrixStack, context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutoutNoCull(list.get(0).getFirst().texture())), 0xf000f0, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1.0f);
+        ModelPart modelPart = RoundelFabricatorScreen.getTexturedModelData().createModel();
+        modelPart.render(matrixStack, context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutoutNoCull(list.get(0).pattern().texture())), 0xf000f0, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1.0f);
         for (int i = 0; i < 17 && i < list.size(); ++i) {
             RoundelType pair = list.get(i);
             float[] fs = pair.color().getColorComponents();
             if (pair.pattern().equals(RoundelPatterns.BASE)) {
-                modelPart.render(matrixStack, context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutoutNoCull(pair.getFirst().texture())),
+                modelPart.render(matrixStack, context.getVertexConsumers().getBuffer(RenderLayer.getEntityCutoutNoCull(pair.pattern().texture())),
                         0xf000f0, OverlayTexture.DEFAULT_UV, fs[0], fs[1], fs[2], 1.0f);
                 continue;
             }
 
-            VertexConsumer vertexConsumer = context.getVertexConsumers().getBuffer(RenderLayer.getEntityNoOutline(pair.getFirst().texture()));
+            VertexConsumer vertexConsumer = context.getVertexConsumers().getBuffer(RenderLayer.getEntityNoOutline(pair.pattern().texture()));
 
             modelPart.render(matrixStack, vertexConsumer, 0xf000f0, OverlayTexture.DEFAULT_UV, fs[0], fs[1], fs[2], 1.0f);
         }
         matrixStack.pop();
         context.draw();
-    }*/
+    }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
