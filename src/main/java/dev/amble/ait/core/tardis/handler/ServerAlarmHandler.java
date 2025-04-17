@@ -1,5 +1,6 @@
 package dev.amble.ait.core.tardis.handler;
 
+import dev.amble.ait.core.tardis.TardisManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.mob.HostileEntity;
@@ -20,10 +21,10 @@ import dev.amble.ait.data.properties.bool.BoolValue;
 // use this as reference for starting other looping sounds on the exterior
 public class ServerAlarmHandler extends KeyedTardisComponent implements TardisTickable {
 
-    @Exclude
     public static final int CLOISTER_LENGTH_TICKS = 3 * 20;
 
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private int soundCounter = 0;
 
     private static final BoolProperty ENABLED = new BoolProperty("enabled", false);

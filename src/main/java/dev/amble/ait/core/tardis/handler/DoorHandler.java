@@ -1,5 +1,6 @@
 package dev.amble.ait.core.tardis.handler;
 
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.lib.data.DirectedBlockPos;
 import net.fabricmc.fabric.api.util.TriState;
 import org.jetbrains.annotations.Nullable;
@@ -60,6 +61,7 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
       Set on server, used on client
      */
     @Exclude(strategy = Exclude.Strategy.FILE)
+    @dev.drtheo.autojson.annotation.Exclude(layer = TardisManager.FILE)
     public final Value<AnimationDoorState> animationState = ANIMATION_STATE.create(this);
 
     static {

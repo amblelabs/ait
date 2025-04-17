@@ -23,12 +23,15 @@ import dev.amble.ait.registry.impl.MoodEventPoolRegistry;
 public class MoodHandler extends TardisComponent implements TardisTickable {
 
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     public TardisMood.Moods[] priorityMoods;
 
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private MoodDictatedEvent moodEvent;
 
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private TardisMood winningMood;
 
     /**

@@ -2,6 +2,7 @@ package dev.amble.ait.core.tardis.handler;
 
 import java.util.Optional;
 
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.gaslighter.Gaslighter3000;
 import dev.drtheo.gaslighter.api.FakeBlockEvents;
@@ -26,6 +27,7 @@ import dev.amble.ait.data.schema.exterior.variant.adaptive.AdaptiveVariant;
 public class ChameleonHandler extends TardisComponent {
 
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private Gaslighter3000 gaslighter;
 
     static {

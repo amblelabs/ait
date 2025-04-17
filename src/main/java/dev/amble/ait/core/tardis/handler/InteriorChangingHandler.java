@@ -3,6 +3,7 @@ package dev.amble.ait.core.tardis.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import dev.amble.lib.data.DirectedGlobalPos;
@@ -71,6 +72,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
     private final BoolValue regenerating = REGENERATING.create(this);
 
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private List<ItemStack> restorationChestContents;
 
     public InteriorChangingHandler() {
