@@ -1,7 +1,5 @@
 package dev.amble.ait.core.tardis.control.impl;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -9,7 +7,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.tardis.Tardis;
@@ -27,13 +24,7 @@ public class AntiGravsControl extends Control {
         super.runServer(tardis, player, world, console, leftClick);
 
         tardis.travel().antigravs().toggle();
-
-        CachedDirectedGlobalPos globalPos = tardis.travel().position();
-        ServerWorld targetWorld = globalPos.getWorld();
-        BlockPos pos = globalPos.getPos();
-
-        targetWorld.getChunkManager().markForUpdate(pos);
-        world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, 2);
+        tardis.travel().scheduleExteriorUpdate();
         return tardis.travel().antigravs().get() ? Result.SUCCESS : Result.SUCCESS_ALT;
     }
 
