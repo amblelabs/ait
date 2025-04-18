@@ -28,6 +28,8 @@ public class DynamicRoundelItemRenderer implements BuiltinItemRendererRegistry.D
     private final RoundelBlockEntity renderRoundel = new RoundelBlockEntity(BlockPos.ORIGIN, AITBlocks.ROUNDEL.getDefaultState());
     @Override
     public void render(ItemStack stack, ModelTransformationMode mode, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
+        System.out.println("HELLO");
+
         if (stack.isEmpty())
             return;
 

@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 
 import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
+import net.fabricmc.fabric.api.renderer.v1.material.BlendMode;
 import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
 import net.fabricmc.fabric.api.renderer.v1.mesh.*;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
@@ -98,7 +99,6 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
                         Identifier idOf = AITMod.id(patterns.pattern().texture().getPath()
                                 .substring(9, patterns.pattern().texture().getPath().length() - 4));
                         SpriteIdentifier spriteId = new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, idOf);
-                        //System.out.println(spriteId);
                         emitter.spriteBake(spriteId.getSprite(), MutableQuadView.BAKE_LOCK_UV);
                         // Enable texture usage
                         int colorOf = ColorHelper.Argb.getArgb(255, (int) (255f * patterns.color().getColorComponents()[0]), (int)
@@ -110,6 +110,7 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
                             int colorWithTardis = bl || !TardisServerWorld.isTardisDimension(roundelBlockEntity.getWorld()) ? 0xf000f0 : colorOf / 100;
                             emitter.lightmap(colorWithTardis, colorWithTardis, colorWithTardis, colorWithTardis);
                         }
+                        emitter.material(RENDERER.materialFinder().blendMode(BlendMode.TRANSLUCENT).find());
                         // Add the quad to the mesh
                         emitter.emit();
                     }
@@ -189,7 +190,6 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
     @Override
     public BakedModel bake(Baker baker, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings rotationContainer, Identifier modelId) {
         // Get the sprites
-        System.out.println("AM I PRINTING");
         for(int i = 0; i < SPRITE_IDS.length; ++i) {
             sprites[i] = textureGetter.apply(SPRITE_IDS[i]);
         }
@@ -239,14 +239,17 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
     // Finally, we can implement the item render function
     @Override
     public void emitItemQuads(ItemStack itemStack, Supplier<Random> randomSupplier, RenderContext renderContext) {
+
         /*if (itemStack.getItem() instanceof RoundelItem roundelItem) {
             if (RoundelItem.getBlockEntityNbt(itemStack) != null) {
-                NbtCompound nbtCompound = itemStack.getOrCreateNbt();
+
+                NbtCompound nbtCompound = RoundelItem.getBlockEntityNbt(itemStack);
                 NbtList nbtList = nbtCompound.getList("Patterns", NbtElement.COMPOUND_TYPE);
                 NbtCompound dynamicTex = nbtCompound.getCompound("DynamicTex");
-                BlockState dynamicTexBlockState = NbtHelper.toBlockState(MinecraftClient.getInstance()
-                                .world.createCommandRegistryWrapper(RegistryKeys.BLOCK),
+                BlockState dynamicTexBlockState = NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(),
                         dynamicTex);
+
+
                 if (dynamicTexBlockState.getRenderType() != BlockRenderType.INVISIBLE) {
                     for (int i = 0; i < nbtList.size() && i < 6; ++i) {
                         NbtCompound nbtCompound2 = nbtList.getCompound(i);
@@ -256,27 +259,33 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
                         if (roundel.equals(RoundelPatterns.BASE)) {
                             int colorForBlock = ColorHelper.Argb.getArgb(255, (int) (255f * dyeColor.getColorComponents()[0]), (int)
                                     (255f * dyeColor.getColorComponents()[1]), (int) (255f * dyeColor.getColorComponents()[2]));
-                            RoundelModel.emitBlockQuads(
-                                    BLOCK_MODELS.getModel(dynamicTexBlockState),
-                                    dynamicTexBlockState,
-                                    randomSupplier,
-                                    renderContext,
-                                    renderContext.getEmitter(),
-                                    colorForBlock);
+                            RoundelModel.emitItemQuads(BLOCK_MODELS.getModel(dynamicTexBlockState), colorForBlock, dynamicTexBlockState, randomSupplier, renderContext);
                         }
                     }
-                    *//*BLOCK_MODELS.getModel(roundelBlockEntity.getDynamicTextureBlockState())
-                            .emitBlockQuads(blockRenderView, roundelBlockEntity.getDynamicTextureBlockState(), blockPos, supplier, renderContext);*//*
+                    BLOCK_MODELS.getModel(dynamicTexBlockState)
+                            .emitItemQuads(itemStack, randomSupplier, renderContext);
                 }
                 Renderer renderer = RendererAccess.INSTANCE.getRenderer();
                 if (renderer == null) {
                     System.out.println("I returned null for some weird reason");
                     return;
                 }
+
                 MeshBuilder builder = renderer.meshBuilder();
                 QuadEmitter emitter = builder.getEmitter();
+                List<BakedQuad> bakedQuadList = new ArrayList<>();
+
+                for (int i = 0; i < nbtList.size() && i < 7; ++i) {
+                    NbtCompound nbtCompound2 = nbtList.getCompound(i);
+                    RoundelPattern roundel = RoundelPatterns.getInstance().get(Identifier.tryParse(nbtCompound2.getString("Pattern")));
+                    Identifier idOf = AITMod.id(roundel.texture().getPath()
+                            .substring(9, roundel.texture().getPath().length() - 4));
+                    SpriteIdentifier spriteId = new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, idOf);
+                    bakedQuadList.add(emitter.toBakedQuad(spriteId.getSprite()));
+                }
 
                 for (int i = 0; i < nbtList.size() && i < 6; ++i) {
+                    int colorOf = 0;
                     NbtCompound nbtCompound2 = nbtList.getCompound(i);
                     DyeColor dyeColor = DyeColor.byId(nbtCompound2.getInt("Color"));
                     RoundelPattern roundel = RoundelPatterns.getInstance().get(Identifier.tryParse(nbtCompound2.getString("Pattern")));
@@ -284,33 +293,44 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
                     if (roundel.equals(RoundelPatterns.BASE)) {
                         continue;
                     }
-                    for (Direction direction : Direction.values()) {
-                        // UP and DOWN share the Y axis
-                        int spriteIdx = direction == Direction.UP || direction == Direction.DOWN ? SPRITE_TOP : SPRITE_SIDE;
-                        // Add a new face to the mesh
-                        emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-                        // Set the sprite of the face, must be called after .square()
-                        // We haven't specified any UV coordinates, so we want to use the whole texture. BAKE_LOCK_UV does exactly that.
-                        Identifier idOf = AITMod.id(roundel.texture().getPath()
-                                .substring(9, roundel.texture().getPath().length() - 4));
-                        SpriteIdentifier spriteId = new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, idOf);
-                        //System.out.println(spriteId);
-                        emitter.spriteBake(spriteId.getSprite(), MutableQuadView.BAKE_LOCK_UV);
-                        // Enable texture usage
-                        int colorOf = ColorHelper.Argb.getArgb(255, (int) (255f * dyeColor.getColorComponents()[0]), (int)
-                                (255f * dyeColor.getColorComponents()[1]), (int) (255f * dyeColor.getColorComponents()[2]));
-                        emitter.color(colorOf, colorOf, colorOf, colorOf);
-                        if (roundel.emissive()) {
-                            emitter.lightmap(colorOf, colorOf, colorOf, colorOf);
-                        }
-                        // Add the quad to the mesh
-                        emitter.emit();
-                    }
+
+
+                    // Add a new face to the mesh
+
+                    colorOf = ColorHelper.Argb.getArgb(255, (int) (255f * dyeColor.getColorComponents()[0]), (int)
+                            (255f * dyeColor.getColorComponents()[1]), (int) (255f * dyeColor.getColorComponents()[2]));
+
+
+
+                    final Direction cullFace = ModelHelper.faceFromIndex(i);
+                    emitter.fromVanilla(bakedQuadList.get(i), RENDERER.materialFinder()
+                                    .disableColorIndex(true).blendMode(BlendMode.TRANSLUCENT).find(), cullFace);
+                    emitter.color(colorOf, colorOf, colorOf, colorOf);
+                    emitter.lightmap(colorOf, colorOf, colorOf, colorOf);
+                    emitter.emit();
                 }
+
+
                 builder.build().outputTo(renderContext.getEmitter());
             }
-        }*/
+        }
 
-        mesh.outputTo(renderContext.getEmitter());
+
+        //mesh.outputTo(renderContext.getEmitter());
+    }
+
+    public static void emitItemQuads(BakedModel model, int color, @Nullable BlockState state, Supplier<Random> randomSupplier, RenderContext context) {
+        QuadEmitter emitter = context.getEmitter();
+
+        for (int i = 0; i <= ModelHelper.NULL_FACE_ID; i++) {
+            final Direction cullFace = ModelHelper.faceFromIndex(i);
+            final List<BakedQuad> quads = model.getQuads(state, cullFace, randomSupplier.get());
+            final int count = quads.size();
+
+            for (final BakedQuad q : quads) {
+                emitter.fromVanilla(q, RENDERER.materialFinder().disableColorIndex(true).find(), cullFace).color(color, color, color, color);
+                emitter.emit();
+            }
+        }*/
     }
 }
