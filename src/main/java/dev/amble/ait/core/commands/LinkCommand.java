@@ -6,6 +6,7 @@ import static net.minecraft.server.command.CommandManager.literal;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ServerCommandSource;
@@ -24,7 +25,7 @@ public class LinkCommand {
                 .then(argument("tardis", TardisArgumentType.tardis()).executes(LinkCommand::runCommand))));
     }
 
-    private static int runCommand(CommandContext<ServerCommandSource> context) {
+    private static int runCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity source = context.getSource().getPlayer();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 

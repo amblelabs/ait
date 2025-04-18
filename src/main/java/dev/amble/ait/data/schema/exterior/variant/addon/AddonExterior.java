@@ -1,14 +1,18 @@
 package dev.amble.ait.data.schema.exterior.variant.addon;
 
+import java.util.function.BiFunction;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.client.models.doors.DoorModel;
@@ -51,6 +55,9 @@ public class AddonExterior extends ExteriorVariantSchema {
     @Environment(EnvType.CLIENT)
     private ClientExterior client;
     private Door door;
+    private float portalWidth = -1f;
+    private float portalHeight = -1f;
+    @Nullable private BiFunction<Vec3d, Byte, Vec3d> portalTranslations;
     @Environment(EnvType.CLIENT)
     private Vector3f sonicItemTranslations;
     private Vec3d seatTranslations;
@@ -93,7 +100,8 @@ public class AddonExterior extends ExteriorVariantSchema {
     @Environment(EnvType.CLIENT)
     public AddonExterior copyClient(AddonExterior source, boolean register) {
         if (source.client != null) {
-            this.setClient(new ClientExterior(this, source.client.model, source.client.sonicItemTranslations, source.client.biomeOverrides));
+            this.setClient(new ClientExterior(this, source.client.model, source.client.sonicItemTranslations,
+                    source.client.biomeOverrides, source.client.hasTransparentDoors));
 
             if (register) {
                 this.toClient().register();
@@ -158,6 +166,57 @@ public class AddonExterior extends ExteriorVariantSchema {
         return this.client;
     }
 
+    public AddonExterior setPortalWidth(float width) {
+        this.portalWidth = width;
+
+        return this;
+    }
+
+    @Override
+    public double portalWidth() {
+        return this.portalWidth;
+    }
+
+    public AddonExterior setPortalHeight(float height) {
+        this.portalHeight = height;
+
+        return this;
+    }
+
+    @Override
+    public double portalHeight() {
+        return this.portalHeight;
+    }
+
+    @Override
+    public Vec3d adjustPortalPos(Vec3d pos, byte direction) {
+        if (this.portalTranslations != null) {
+            Vec3d translation = this.portalTranslations.apply(pos, direction);
+
+            if (translation != null) {
+                return translation;
+            }
+        }
+
+        return super.adjustPortalPos(pos, direction);
+    }
+
+    /**
+     * Sets the translation for the portal
+     * @param translations (pos, dir) -> (pos)
+     * @return this
+     */
+    public AddonExterior setPortalTranslations(BiFunction<Vec3d, Byte, Vec3d> translations) {
+        this.portalTranslations = translations;
+
+        return this;
+    }
+
+    @Override
+    public boolean hasPortals() {
+        return this.portalHeight() != -1 && this.portalWidth() != -1;
+    }
+
     public AddonExterior setDoor(Door door) {
         this.door = door;
 
@@ -178,20 +237,22 @@ public class AddonExterior extends ExteriorVariantSchema {
         private boolean checkedEmission = false;
         private final Vector3f sonicItemTranslations;
         private final BiomeOverrides biomeOverrides;
+        private final boolean hasTransparentDoors;
         private final ExteriorModel model;
 
-        public ClientExterior(AddonExterior parent, ExteriorModel model, Vector3f sonicItemTranslations, BiomeOverrides biomeOverrides) {
+        public ClientExterior(AddonExterior parent, ExteriorModel model, Vector3f sonicItemTranslations, BiomeOverrides biomeOverrides, boolean hasTransparentDoors) {
             super(parent.id());
 
             this.server = parent;
 
             this.sonicItemTranslations = sonicItemTranslations;
             this.biomeOverrides = biomeOverrides;
+            this.hasTransparentDoors = hasTransparentDoors;
             this.model = model;
         }
         public ClientExterior(AddonExterior parent, ExteriorModel model) {
             this(parent, model, parent.sonicItemTranslations != null ? parent.sonicItemTranslations :
-                    new Vector3f(0, 0, 0), BiomeOverrides.builder().build());
+                    new Vector3f(0, 0, 0), BiomeOverrides.builder().build(), false);
         }
         @Override
         public Identifier texture() {
@@ -225,6 +286,11 @@ public class AddonExterior extends ExteriorVariantSchema {
             return this.biomeOverrides;
         }
 
+        @Override
+        public boolean hasTransparentDoors() {
+            return this.hasTransparentDoors;
+        }
+
         public ClientExterior register() {
             ClientExteriorVariantRegistry.getInstance().register(this);
             return this;
@@ -241,6 +307,8 @@ public class AddonExterior extends ExteriorVariantSchema {
         private final SoundEvent open;
         private final SoundEvent close;
 
+        @Nullable private BiFunction<Vec3d, Direction, Vec3d> portalTranslations;
+
         @Environment(EnvType.CLIENT)
         private ClientDoor client;
 
@@ -251,6 +319,30 @@ public class AddonExterior extends ExteriorVariantSchema {
             this.isDouble = isDouble;
             this.open = open;
             this.close = close;
+        }
+
+        @Override
+        public Vec3d adjustPortalPos(Vec3d pos, Direction direction) {
+            if (this.portalTranslations != null) {
+                Vec3d translation = this.portalTranslations.apply(pos, direction);
+
+                if (translation != null) {
+                    return translation;
+                }
+            }
+
+            return super.adjustPortalPos(pos, direction);
+        }
+
+        /**
+         * Sets the translation for the portal
+         * @param translations (pos, dir) -> (pos)
+         * @return this
+         */
+        public Door setPortalTranslations(BiFunction<Vec3d, Direction, Vec3d> translations) {
+            this.portalTranslations = translations;
+
+            return this;
         }
 
         @Override

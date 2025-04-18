@@ -1,5 +1,7 @@
 package dev.amble.ait.core.blocks;
 
+import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -214,7 +216,9 @@ public class CoralPlantBlock extends HorizontalDirectionalBlock implements Block
     public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
         super.appendTooltip(stack, world, tooltip, options);
 
-        tooltip.add(Text.translatable("tooltip.ait.tardis_coral").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
+        addShiftHiddenTooltip(stack, tooltip, tooltips -> {
+            tooltip.add(Text.translatable("tooltip.ait.tardis_coral").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
+        });
     }
 
     @Nullable @Override

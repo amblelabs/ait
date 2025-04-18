@@ -7,6 +7,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,22 +37,22 @@ public class SummonTardisCommand {
                                         .executes(SummonTardisCommand::runCommandWithPosAndMessage)))));
     }
 
-    private static int runCommand(CommandContext<ServerCommandSource> context) {
+    private static int runCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         return summonTardis(context, null, true);  // Default to showing the message
     }
 
-    private static int runCommandWithPos(CommandContext<ServerCommandSource> context) {
+    private static int runCommandWithPos(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
         return summonTardis(context, pos, true);
     }
 
-    private static int runCommandWithPosAndMessage(CommandContext<ServerCommandSource> context) {
+    private static int runCommandWithPosAndMessage(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
         boolean showMessage = BoolArgumentType.getBool(context, "showMessage");
         return summonTardis(context, pos, showMessage);
     }
 
-    private static int summonTardis(CommandContext<ServerCommandSource> context, @Nullable BlockPos pos, boolean showMessage) {
+    private static int summonTardis(CommandContext<ServerCommandSource> context, @Nullable BlockPos pos, boolean showMessage) throws CommandSyntaxException {
         Entity source = context.getSource().getEntity();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 

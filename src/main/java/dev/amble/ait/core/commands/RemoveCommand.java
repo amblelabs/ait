@@ -6,6 +6,7 @@ import static net.minecraft.server.command.CommandManager.literal;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -18,12 +19,11 @@ import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 public class RemoveCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher
-                .register(literal(AITMod.MOD_ID).then(literal("remove").requires(source -> source.hasPermissionLevel(2))
-                        .then(argument("tardis", TardisArgumentType.tardis()).executes(RemoveCommand::removeCommand))));
+        dispatcher.register(literal(AITMod.MOD_ID).then(literal("remove").requires(source -> source.hasPermissionLevel(2))
+                .then(argument("tardis", TardisArgumentType.tardis()).executes(RemoveCommand::removeCommand))));
     }
 
-    private static int removeCommand(CommandContext<ServerCommandSource> context) {
+    private static int removeCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 

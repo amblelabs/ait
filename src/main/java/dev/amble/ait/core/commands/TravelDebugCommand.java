@@ -30,7 +30,7 @@ public class TravelDebugCommand {
                         .then(literal("remat").executes(TravelDebugCommand::remat)))));
     }
 
-    private static int demat(CommandContext<ServerCommandSource> context) {
+    private static int demat(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         Tardis tardis = TardisArgumentType.getTardis(context, "tardis");
         tardis.travel().dematerialize();
 
@@ -46,7 +46,7 @@ public class TravelDebugCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int remat(CommandContext<ServerCommandSource> context) {
+    private static int remat(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         Tardis tardis = TardisArgumentType.getTardis(context, "tardis");
         tardis.travel().rematerialize();
 

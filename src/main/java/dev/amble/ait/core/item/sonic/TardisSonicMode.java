@@ -74,10 +74,11 @@ public class TardisSonicMode extends SonicMode {
         }
 
         // turn on handbrake and engage refueling
-        tardis.travel().handbrake(true);
-        tardis.fuel().refueling().set(true);
-
-        player.sendMessage(Text.translatable("sonic.ait.mode.tardis.refuel"), true);
+        if (tardis.travel().isLanded()) {
+            tardis.travel().handbrake(true);
+            tardis.fuel().refueling().set(true);
+            player.sendMessage(Text.translatable("sonic.ait.mode.tardis.refuel"), true);
+        }
 
         return true;
     }

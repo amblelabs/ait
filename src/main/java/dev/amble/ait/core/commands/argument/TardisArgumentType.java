@@ -15,23 +15,28 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
 
+import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.world.TardisServerWorld;
 
 public class TardisArgumentType implements ArgumentType<TardisArgumentType.ServerTardisAccessor> {
 
     public static final SimpleCommandExceptionType INVALID_UUID = new SimpleCommandExceptionType(
             Text.translatable("argument.uuid.invalid"));
 
-    private static final Collection<String> EXAMPLES = List.of("dd12be42-52a9-4a91-a8a1-11c01849e498");
+    private static final Collection<String> EXAMPLES = List.of("~", "^", "dd12be42-52a9-4a91-a8a1-11c01849e498");
     private static final Pattern VALID_CHARACTERS = Pattern.compile("^([-A-Fa-f0-9]+)");
 
-    public static ServerTardis getTardis(CommandContext<ServerCommandSource> context, String name) {
+    public static ServerTardis getTardis(CommandContext<ServerCommandSource> context, String name) throws CommandSyntaxException {
         return context.getArgument(name, ServerTardisAccessor.class).get(context);
     }
 
@@ -41,7 +46,37 @@ public class TardisArgumentType implements ArgumentType<TardisArgumentType.Serve
 
     @Override
     public ServerTardisAccessor parse(StringReader reader) throws CommandSyntaxException {
+        if (reader.canRead() && reader.peek() == '~') {
+            reader.skip();
+
+            return context -> {
+                if (!(context.getSource().getWorld() instanceof TardisServerWorld tardisWorld))
+                    throw INVALID_UUID.create();
+
+                return tardisWorld.getTardis();
+            };
+        }
+
+        if (reader.canRead() && reader.peek() == '^') {
+            reader.skip();
+
+            return context -> {
+                HitResult hit = context.getSource().getEntity().raycast(16, 0, false);
+
+                if (!(hit instanceof BlockHitResult blockHit))
+                    throw INVALID_UUID.create();
+
+                BlockEntity blockEntity = context.getSource().getWorld().getBlockEntity(blockHit.getBlockPos());
+
+                if (!(blockEntity instanceof AbstractLinkableBlockEntity linkable))
+                    throw INVALID_UUID.create();
+
+                return linkable.tardis().get().asServer();
+            };
+        }
+
         String string = reader.getRemaining();
+
         Matcher matcher = VALID_CHARACTERS.matcher(string);
 
         if (!matcher.find())
@@ -60,7 +95,8 @@ public class TardisArgumentType implements ArgumentType<TardisArgumentType.Serve
         boolean isServer = context.getSource() instanceof ServerCommandSource;
         TardisManager<?, ?> manager = TardisManager.getInstance(isServer);
 
-        return CommandSource.suggestMatching(manager.ids().stream().map(UUID::toString), builder);
+        return CommandSource.suggestMatching(manager.ids().stream().map(UUID::toString),
+                builder.suggest("~").suggest("^"));
     }
 
     @Override
@@ -70,6 +106,6 @@ public class TardisArgumentType implements ArgumentType<TardisArgumentType.Serve
 
     @FunctionalInterface
     public interface ServerTardisAccessor {
-        ServerTardis get(CommandContext<ServerCommandSource> context);
+        ServerTardis get(CommandContext<ServerCommandSource> context) throws CommandSyntaxException;
     }
 }

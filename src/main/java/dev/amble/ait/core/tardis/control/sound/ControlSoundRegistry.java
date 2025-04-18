@@ -98,7 +98,7 @@ public class ControlSoundRegistry extends SimpleDatapackRegistry<ControlSound> {
         instance.registerFallback(ControlSound.forFallback(AutoPilotControl.ID, AITSounds.PROTOCOL_116_ON, AITSounds.PROTOCOL_116_OFF));
         instance.registerFallback(ControlSound.forFallback(CloakControl.ID, AITSounds.PROTOCOL_3, AITSounds.PROTOCOL_3ALT));
         instance.registerFallback(ControlSound.forFallback(DoorControl.ID, AITSounds.DOOR_CONTROL, AITSounds.DOOR_CONTROLALT));
-        instance.registerFallback(ControlSound.forFallback(HandBrakeControl.ID, AITSounds.HANDBRAKE_UP, AITSounds.HANDBRAKE_DOWN));
+        instance.registerFallback(ControlSound.forFallback(HandBrakeControl.ID, AITSounds.HANDBRAKE_DOWN, AITSounds.HANDBRAKE_UP));
         instance.registerFallback(ControlSound.forFallback(RefuelerControl.ID, AITSounds.ENGINE_REFUEL_CRANK, AITSounds.ENGINE_REFUEL));
         instance.registerFallback(ControlSound.forFallback(ShieldsControl.ID, AITSounds.HANDBRAKE_LEVER_PULL, AITSounds.SHIELDS));
     }

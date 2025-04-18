@@ -3,7 +3,6 @@ package dev.amble.ait.core.util;
 import java.util.*;
 import java.util.function.Predicate;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.amble.lib.util.TeleportUtil;
 import dev.drtheo.scheduler.api.Scheduler;
@@ -33,17 +32,13 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
-import net.minecraft.world.chunk.Chunk;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.mixin.server.EnderDragonFightAccessor;
 
@@ -184,147 +179,6 @@ public class WorldUtil {
 
     public static List<ServerWorld> getTravelWorlds() {
         return TRAVEL_WORLDS;
-    }
-
-    public static CachedDirectedGlobalPos locateSafe(CachedDirectedGlobalPos cached,
-                                                     TravelHandlerBase.GroundSearch vSearch, boolean hSearch) {
-        ServerWorld world = cached.getWorld();
-        BlockPos pos = cached.getPos();
-
-        Chunk chunk = world.getChunk(pos);
-
-        if (isSafe(chunk, pos))
-            return cached;
-
-        if (hSearch) {
-            BlockPos temp = findSafeXZ(world, pos, SAFE_RADIUS);
-
-            if (temp != null)
-                return cached.pos(temp);
-        }
-
-        int x = pos.getX();
-        int z = pos.getZ();
-
-        int y = switch (vSearch) {
-            case CEILING -> chunk.sampleHeightmap(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
-                    pos.getX() & 15, pos.getZ() & 15) + 1;
-            case FLOOR -> findSafeBottomY(chunk, pos);
-            case MEDIAN -> findSafeMedianY(chunk, pos);
-            case NONE -> pos.getY();
-        };
-
-        return cached.pos(x, y, z);
-    }
-
-    public static BlockPos findSafeXZ(World world, BlockPos original, int radius) {
-        BlockPos.Mutable pos = original.mutableCopy();
-
-        int minX = pos.getX() - radius;
-        int maxX = pos.getX() + radius;
-
-        int minZ = pos.getZ() - radius;
-        int maxZ = pos.getZ() + radius;
-
-        Chunk chunk = null;
-        ChunkPos chunkPos = null;
-
-        for (int x = minX; x < maxX; x++) {
-            for (int z = minZ; z < maxZ; z++) {
-                pos.setX(x).setZ(z);
-
-                ChunkPos tempPos = new ChunkPos(pos);
-                if (chunkPos == null || !chunkPos.equals(tempPos)) {
-                    chunkPos = tempPos;
-                    chunk = world.getChunk(chunkPos.x, chunkPos.z);
-                }
-
-                if (isSafe(chunk, pos))
-                    return pos;
-            }
-        }
-
-        return null;
-    }
-
-    private static int findSafeMedianY(Chunk chunk, BlockPos pos) {
-        BlockPos upCursor = pos;
-        BlockState floorUp = chunk.getBlockState(upCursor.down());
-        BlockState curUp = chunk.getBlockState(upCursor);
-        BlockState aboveUp = chunk.getBlockState(upCursor.up());
-
-        BlockPos downCursor = pos;
-        BlockState floorDown = chunk.getBlockState(downCursor.down());
-        BlockState curDown = chunk.getBlockState(downCursor);
-        BlockState aboveDown = chunk.getBlockState(downCursor.up());
-
-        while (true) {
-            boolean canGoUp = upCursor.getY() < chunk.getTopY();
-            boolean canGoDown = downCursor.getY() > chunk.getBottomY();
-
-            if (!canGoUp && !canGoDown)
-                return pos.getY();
-
-            if (canGoUp) {
-                if (isSafe(floorUp, curUp, aboveUp))
-                    return upCursor.getY() - 1;
-
-                upCursor = upCursor.up();
-
-                floorUp = curUp;
-                curUp = aboveUp;
-                aboveUp = chunk.getBlockState(upCursor);
-            }
-
-            if (canGoDown) {
-                if (isSafe(floorDown, curDown, aboveDown))
-                    return downCursor.getY() + 1;
-
-                downCursor = downCursor.down();
-
-                curDown = aboveDown;
-                aboveDown = floorDown;
-                floorDown = chunk.getBlockState(downCursor);
-            }
-        }
-    }
-
-    private static int findSafeBottomY(Chunk chunk, BlockPos pos) {
-        BlockPos cursor = pos.withY(chunk.getBottomY() + 2);
-
-        BlockState floor = chunk.getBlockState(cursor.down());
-        BlockState current = chunk.getBlockState(cursor);
-        BlockState above = chunk.getBlockState(cursor.up());
-
-        while (true) {
-            if (cursor.getY() > chunk.getTopY())
-                return pos.getY();
-
-            if (isSafe(floor, current, above))
-                return cursor.getY() - 1;
-
-            cursor = cursor.up();
-
-            floor = current;
-            current = above;
-            above = chunk.getBlockState(cursor);
-        }
-    }
-
-    private static boolean isSafe(BlockState floor, BlockState block1, BlockState block2) {
-        return floor.blocksMovement() && !block1.blocksMovement() && !block2.blocksMovement();
-    }
-
-    private static boolean isSafe(Chunk chunk, BlockPos pos) {
-        BlockState floor = chunk.getBlockState(pos.down());
-
-        if (!floor.blocksMovement())
-            return false;
-
-        BlockState curUp = chunk.getBlockState(pos);
-        BlockState aboveUp = chunk.getBlockState(pos.up());
-
-        return !curUp.blocksMovement() && !aboveUp.blocksMovement();
     }
 
     @Environment(EnvType.CLIENT)

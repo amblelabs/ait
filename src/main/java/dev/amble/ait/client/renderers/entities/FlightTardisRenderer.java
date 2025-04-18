@@ -65,6 +65,8 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
             matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) MinecraftClient.getInstance().player.age / 100 * 360f));
             matrices.translate(0, 0, 500);
             vortexUtil.renderVortex(matrices);
+            vortexUtil.renderVortexLayer(matrices, 1.5f);
+            vortexUtil.renderVortexLayer(matrices, 2.5f);
             matrices.pop();
         }
 

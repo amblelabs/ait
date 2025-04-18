@@ -66,7 +66,8 @@ for e in j:
     max_pr = max(num, max_pr)
 
     if ':cl:' not in body:
-        print(f'#{num}: changelog not found, skipping')
+        print(f'#{num}: changelog not found, using title')
+        clines.append("- " + e['title'] + f" ([#{num}]({e['html_url']}))")
         continue
 
     print(f'#{num} changelog found')
@@ -81,7 +82,7 @@ for e in j:
         if ls[n] in STOP:
             break
 
-        clines.append(ls[n] + f' (#{num})')
+        clines.append(ls[n] + f" ([#{num}]({e['html_url']}))")
 
 with open('CHANGELOG.md', 'w') as f:
     f.write(PREFIX + str(last_update))

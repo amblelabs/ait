@@ -3,8 +3,6 @@ package dev.amble.ait.registry.impl;
 import java.util.HashMap;
 import java.util.List;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedGlobalPos;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 
@@ -342,37 +340,6 @@ public class HandlesResponseRegistry {
             }
         });
 
-        register(new HandlesResponse() {
-            @Override
-            public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
-                // if player in TARDIS dim deny
-                if (TardisServerWorld.isTardisDimension(player.getServerWorld())) {
-                    sendChat(player, Text.literal("You are already in the TARDIS"));
-                    return failure(source);
-                }
-
-                // get position of player
-                CachedDirectedGlobalPos targetPos = CachedDirectedGlobalPos.create(player.getServerWorld().getRegistryKey(), player.getBlockPos(), DirectedGlobalPos.getGeneralizedRotation(player.getMovementDirection()));
-
-                tardis.travel().destination(targetPos);
-                tardis.travel().autopilot(true);
-                tardis.travel().dematerialize();
-
-                sendChat(player, Text.literal("Initiating autopilot to your location."));
-
-                return success(source);
-            }
-
-            @Override
-            public List<String> getCommandWords() {
-                return List.of("hail mary", "come to me", "summon");
-            }
-
-            @Override
-            public Identifier id() {
-                return AITMod.id("hail_mary");
-            }
-        });
 
         register(new HandlesResponse() {
             @Override

@@ -10,7 +10,6 @@ import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -20,6 +19,7 @@ import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.sounds.travel.TravelSound;
 import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
+import dev.amble.ait.core.util.SafePosSearch;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.enummap.Ordered;
@@ -48,8 +48,8 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
     private static final IntProperty SPEED = new IntProperty("speed", 0);
     private static final IntProperty MAX_SPEED = new IntProperty("max_speed", 7);
 
-    private static final Property<GroundSearch> VGROUND_SEARCH = Property.forEnum("vground_search", GroundSearch.class,
-            GroundSearch.CEILING);
+    private static final Property<SafePosSearch.Kind> VGROUND_SEARCH = Property.forEnum("vground_search", SafePosSearch.Kind.class,
+            SafePosSearch.Kind.CEILING);
     private static final BoolProperty HGROUND_SEARCH = new BoolProperty("hground_search", true);
 
     protected final Value<State> state = STATE.create(this);
@@ -64,7 +64,7 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
     protected final IntValue speed = SPEED.create(this);
     protected final IntValue maxSpeed = MAX_SPEED.create(this);
 
-    protected final Value<GroundSearch> vGroundSearch = VGROUND_SEARCH.create(this);
+    protected final Value<SafePosSearch.Kind> vGroundSearch = VGROUND_SEARCH.create(this);
     protected final BoolValue hGroundSearch = HGROUND_SEARCH.create(this);
 
     @Exclude(strategy = Exclude.Strategy.NETWORK)
@@ -143,6 +143,10 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
 
     public State getState() {
         return state.get();
+    }
+
+    protected void setState(State state) {
+        this.state.set(state);
     }
 
     public CachedDirectedGlobalPos position() {
@@ -234,7 +238,7 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
         return hGroundSearch;
     }
 
-    public Value<GroundSearch> verticalSearch() {
+    public Value<SafePosSearch.Kind> verticalSearch() {
         return vGroundSearch;
     }
 
@@ -295,39 +299,5 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
         public int index() {
             return ordinal();
         }
-    }
-
-    public enum GroundSearch implements StringIdentifiable {
-        NONE {
-            @Override
-            public GroundSearch next() {
-                return FLOOR;
-            }
-        },
-        FLOOR {
-            @Override
-            public GroundSearch next() {
-                return CEILING;
-            }
-        },
-        CEILING {
-            @Override
-            public GroundSearch next() {
-                return MEDIAN;
-            }
-        },
-        MEDIAN {
-            @Override
-            public GroundSearch next() {
-                return NONE;
-            }
-        };
-
-        @Override
-        public String asString() {
-            return toString();
-        }
-
-        public abstract GroundSearch next();
     }
 }

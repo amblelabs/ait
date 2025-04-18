@@ -1,5 +1,7 @@
 package dev.amble.ait.core.engine.item;
 
+import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
+
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +32,9 @@ public class SubSystemItem extends Item {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
 
-        tooltip.add(Text.literal(this.id().name().replace("_", " ")).formatted(Formatting.YELLOW));
-        tooltip.add(Text.translatable("tooltip.ait.subsystem_item").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
+        addShiftHiddenTooltip(stack, tooltip, tooltips -> {
+            tooltip.add(Text.literal(this.id().name().replace("_", " ")).formatted(Formatting.YELLOW));
+            tooltip.add(Text.translatable("tooltip.ait.subsystem_item").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
+        });
     }
 }

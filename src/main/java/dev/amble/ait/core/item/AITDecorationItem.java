@@ -23,7 +23,7 @@ import net.minecraft.world.event.GameEvent;
 
 import dev.amble.ait.core.AITEntityTypes;
 import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.entities.GallifreyFallsPaintingEntity;
+import dev.amble.ait.core.entities.BOTIPaintingEntity;
 
 public class AITDecorationItem extends Item {
     private final EntityType<? extends AbstractDecorationEntity> entityType;
@@ -52,14 +52,15 @@ public class AITDecorationItem extends Item {
 
         World world = context.getWorld();
 
-        if (this.entityType == AITEntityTypes.GALLIFREY_FALLS_PAINTING_TYPE) {
-            Optional<GallifreyFallsPaintingEntity> optional = GallifreyFallsPaintingEntity.placePainting(world, placementPos, facing);
+        if (this.entityType == AITEntityTypes.GALLIFREY_FALLS_PAINTING_ENTITY_TYPE || this.entityType == AITEntityTypes.TRENZALORE_PAINTING_ENTITY_TYPE) {
+            Optional<BOTIPaintingEntity> optional = BOTIPaintingEntity.placePainting((EntityType<? extends BOTIPaintingEntity>)
+                    this.entityType, world, placementPos, facing);
 
             if (optional.isEmpty()) {
                 return ActionResult.CONSUME;
             }
 
-            GallifreyFallsPaintingEntity paintingEntity = optional.get();
+            BOTIPaintingEntity paintingEntity = optional.get();
 
             NbtCompound nbtData = itemStack.getNbt();
             if (nbtData != null) {
@@ -92,6 +93,10 @@ public class AITDecorationItem extends Item {
         if (stack.getItem() == AITItems.GALLIFREY_FALLS_PAINTING) {
             tooltip.add(Text.translatable("painting.ait.gallifrey_falls.title").formatted(Formatting.YELLOW));
             tooltip.add(Text.translatable("painting.ait.gallifrey_falls.author").formatted(Formatting.GRAY));
+        }
+        if (stack.getItem() == AITItems.TRENZALORE_PAINTING) {
+            tooltip.add(Text.translatable("painting.ait.trenzalore.title").formatted(Formatting.YELLOW));
+            tooltip.add(Text.translatable("painting.ait.trenzalore.author").formatted(Formatting.GRAY));
         }
     }
 }

@@ -29,9 +29,9 @@ import dev.amble.ait.core.AITEntityTypes;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.control.impl.DirectionControl;
 import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.mixin.rwf.LivingEntityAccessor;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
@@ -290,13 +290,19 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         if (this.getWorld().isClient()) return;
         if (!this.isLinked()) return;
 
-        BlockPos consolePos = this.tardis().get().getDesktop().getConsolePos().iterator().next();
-        BlockPos pos = WorldUtil.findSafeXZ(this.tardis().get().asServer().getInteriorWorld(), consolePos, 2);
 
-        nbt.putLong("InteriorPos", this.interiorPos == null
-                ? pos == null
-                ? new BlockPos(0, 0, 0).asLong() :
-                pos.asLong() : this.interiorPos.asLong());
+        TardisDesktop desktop = tardis().get().getDesktop();
+
+        if (interiorPos == null)
+            interiorPos = desktop.getConsolePos().iterator().next();
+
+        if (interiorPos == null)
+            interiorPos = desktop.getDoorPos().getPos();
+
+        if (interiorPos == null)
+            interiorPos = new BlockPos(0, 0, 0);
+
+        nbt.putLong("InteriorPos", interiorPos.asLong());
     }
 
     public static DefaultAttributeContainer.Builder createDummyAttributes() {

@@ -208,9 +208,17 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
             boolean power = tardis.fuel().hasPower();
 
-            float red = alarms ? !power ? 0.25f : s - colorAlpha : s - colorAlpha;
-            float green = alarms ? !power ? 0.01f : 0.3f : t - colorAlpha;
-            float blue = alarms ? !power ? 0.01f : 0.3f : u - colorAlpha;
+            float red = alarms
+                    ? (!power ? 0.25f : s - colorAlpha)
+                    : (power ? s - colorAlpha : 0f);
+
+            float green = alarms
+                    ? (!power ? 0.01f : 0.3f)
+                    : (power ? t - colorAlpha : 0f);
+
+            float blue = alarms
+                    ? (!power ? 0.01f : 0.3f)
+                    : (power ? u - colorAlpha : 0f);
 
             ClientLightUtil.renderEmissive((v, l) -> model.renderWithAnimations(
                     tardis, entity, this.model.getPart(), matrices, v, l, overlay, red, green, blue, alpha
@@ -277,8 +285,6 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
         matrices.pop();
         profiler.pop();
-
-
     }
 
     private void updateModel(Tardis tardis) {

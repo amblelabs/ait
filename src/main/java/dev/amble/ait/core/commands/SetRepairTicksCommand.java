@@ -7,6 +7,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -26,7 +27,7 @@ public class SetRepairTicksCommand {
                                         .executes(SetRepairTicksCommand::runCommand))))));
     }
 
-    private static int runCommand(CommandContext<ServerCommandSource> context) {
+    private static int runCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 

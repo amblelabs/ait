@@ -6,12 +6,11 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
 public class ThrottleControl extends Control {
 
@@ -27,12 +26,10 @@ public class ThrottleControl extends Control {
             return Result.FAILURE;
 
         TravelHandler travel = tardis.travel();
+        TravelHandlerBase.State state = travel.getState();
 
-        if (player.getMainHandStack().isOf(AITItems.MUG)) {
-            travel.forceDemat();
-            travel.crash();
-
-            TardisCriterions.BRAND_NEW.trigger(player);
+        if (TelepathicControl.isLiquid(player.getMainHandStack())) {
+            return TelepathicControl.spillLiquid(tardis, world, console, player);
         }
 
         if (!leftClick) {
@@ -51,6 +48,7 @@ public class ThrottleControl extends Control {
 
         if (travel.getState() == TravelHandler.State.DEMAT)
             tardis.sequence().setActivePlayer(player);
+
 
         return player.isSneaking() ? Result.SUCCESS_ALT : Result.SUCCESS;
     }

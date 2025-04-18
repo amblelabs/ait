@@ -224,7 +224,7 @@ public class AITMod implements ModInitializer {
             TeleportInteriorCommand.register(dispatcher);
             SummonTardisCommand.register(dispatcher);
             SetLockedCommand.register(dispatcher);
-            GetInsideTardisCommand.register(dispatcher);
+            ThisTardisCommand.register(dispatcher);
             FuelCommand.register(dispatcher);
             SetRepairTicksCommand.register(dispatcher);
             RiftChunkCommand.register(dispatcher);

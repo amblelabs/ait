@@ -35,14 +35,14 @@ public final class TeleportInteriorCommand {
                 )));
     }
 
-    private static int tpSelfInterior(CommandContext<ServerCommandSource> context) {
+    private static int tpSelfInterior(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         Entity source = context.getSource().getEntity();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 
         return tpToInterior(tardis, Collections.singleton(source));
     }
 
-    private static int tpSelfExterior(CommandContext<ServerCommandSource> context) {
+    private static int tpSelfExterior(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         Entity source = context.getSource().getEntity();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 

@@ -19,6 +19,7 @@ import dev.amble.ait.api.tardis.Initializable;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.engine.impl.*;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
@@ -103,6 +104,7 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
             stacks.addAll(holder.getStructure().toStacks());
 
         stacks.add(this.asItem().getDefaultStack());
+        stacks.add(AITBlocks.GENERIC_SUBSYSTEM.asItem().getDefaultStack());
         return stacks;
     }
 

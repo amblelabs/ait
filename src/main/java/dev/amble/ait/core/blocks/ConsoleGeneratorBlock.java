@@ -15,6 +15,7 @@ import net.minecraft.world.World;
 
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlock;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 
 public class ConsoleGeneratorBlock extends FluidLinkBlock implements BlockEntityProvider {
 
@@ -23,7 +24,7 @@ public class ConsoleGeneratorBlock extends FluidLinkBlock implements BlockEntity
     }
 
     @Nullable @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public FluidLinkBlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new ConsoleGeneratorBlockEntity(pos, state);
     }
 

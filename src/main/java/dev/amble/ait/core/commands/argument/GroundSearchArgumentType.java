@@ -6,23 +6,23 @@ import net.minecraft.command.argument.EnumArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.StringIdentifiable;
 
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.util.SafePosSearch;
 
-public class GroundSearchArgumentType extends EnumArgumentType<TravelHandlerBase.GroundSearch> {
+public class GroundSearchArgumentType extends EnumArgumentType<SafePosSearch.Kind> {
 
-    public static final StringIdentifiable.Codec<TravelHandlerBase.GroundSearch> CODEC = StringIdentifiable
-            .createCodec(TravelHandlerBase.GroundSearch::values);
+    public static final StringIdentifiable.Codec<SafePosSearch.Kind> CODEC = StringIdentifiable
+            .createCodec(SafePosSearch.Kind::values);
 
     protected GroundSearchArgumentType() {
-        super(CODEC, TravelHandlerBase.GroundSearch::values);
+        super(CODEC, SafePosSearch.Kind::values);
     }
 
     public static GroundSearchArgumentType groundSearch() {
         return new GroundSearchArgumentType();
     }
 
-    public static TravelHandlerBase.GroundSearch getGroundSearch(CommandContext<ServerCommandSource> context,
+    public static SafePosSearch.Kind getGroundSearch(CommandContext<ServerCommandSource> context,
             String id) {
-        return context.getArgument(id, TravelHandlerBase.GroundSearch.class);
+        return context.getArgument(id, SafePosSearch.Kind.class);
     }
 }

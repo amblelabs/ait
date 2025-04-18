@@ -260,9 +260,6 @@ public class SonicRendering {
         if (player.getMainHandStack().getItem() instanceof SonicItem)
             return player.getMainHandStack();
 
-        if (player.getOffHandStack().getItem() instanceof SonicItem)
-            return player.getOffHandStack();
-
         return null;
     }
 }

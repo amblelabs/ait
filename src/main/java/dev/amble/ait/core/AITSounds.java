@@ -13,11 +13,12 @@ public class AITSounds {
     // public static final SoundEvent SECRET_MUSIC = init("music/secret_music"); // removed for its large size - if you bring it back, COMPRESS IT
     public static final SoundEvent EVEN_MORE_SECRET_MUSIC = register("music/even_more_secret_music");
     public static final SoundEvent DRIFTING_MUSIC = register("music/drifting_by_radio");
-    public static final SoundEvent MERCURY_MUSIC = register("music/mercury_nitrogenez");
     public static final SoundEvent WONDERFUL_TIME_IN_SPACE = register("music/wonderful_time_in_space");
     public static final SoundEvent EARTH_MUSIC = register("music/earth_nitrogenez");
     public static final SoundEvent VENUS_MUSIC = register("music/venus_nitrogenez");
     public static final SoundEvent GOOD_MAN_MUSIC = register("music/good_man_dian");
+    public static final SoundEvent MAD_MAN = register("music/mad_man");
+    public static final SoundEvent MAD_MAN_SAD = register("music/mad_man_sad");
     public static final SoundEvent SPACE = register("music/space");
 
     // TARDIS
@@ -42,6 +43,7 @@ public class AITSounds {
     public static final SoundEvent POLICE_BOX_DOOR_CLOSE = register("tardis/police_box_door_close");
     public static final SoundEvent TARDIS_BLING = register("tardis/bling");
     public static final SoundEvent NAV_NOTIFICATION = register("tardis/nav_notification");
+    public static final SoundEvent SHIELD_AMBIANCE = register("tardis/shield_ambiance");
 
 
     public static final SoundEvent SIEGE_ENABLE = register("tardis/siege_enable");
@@ -81,8 +83,8 @@ public class AITSounds {
     public static final SoundEvent GROAN = register("tardis/groan");
     public static final SoundEvent REMOTE_LOCK = register("tardis/remote_lock");
     public static final SoundEvent REMOTE_UNLOCK = register("tardis/remote_unlock");
-    public static final SoundEvent INTERIOR_KEY_INTERACT = register("tardis/interior_key_interact");
-    public static final SoundEvent EXTERIOR_KEY_INTERACT = register("tardis/exterior_key_interact");
+    public static final SoundEvent KEY_LOCK = register("tardis/key_lock");
+    public static final SoundEvent KEY_UNLOCK = register("tardis/key_unlock");
     //Possible could be used for a mood related thing?
     public static final SoundEvent TARDIS_REJECTION_SFX = register("tardis/tardis_rejection_sfx");
 
@@ -118,6 +120,7 @@ public class AITSounds {
     public static final SoundEvent HAIL_MARY = register("controls/hail_mary");
     public static final SoundEvent SIEGE = register("controls/siege");
     public static final SoundEvent DIRECTION = register("controls/direction");
+    public static final SoundEvent THROTTLE_SNAP = register("controls/throttle_snap");
     public static final SoundEvent SET_WAYPOINT = register("controls/waypoint_set");
     public static final SoundEvent XYZ = register("controls/xyz");
     public static final SoundEvent RANDOMIZE = register("controls/randomize");
@@ -173,6 +176,7 @@ public class AITSounds {
     public static final SoundEvent RENAISSANCE_HUM = register("tardis/hums/renaissance_hum");
 
     public static final SoundEvent CLOISTER = register("tardis/cloister");
+
 
 
     // Creaks

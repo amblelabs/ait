@@ -11,7 +11,7 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.util.SafePosSearch;
 import dev.amble.ait.data.schema.console.variant.coral.*;
 import dev.amble.ait.data.schema.console.variant.renaissance.*;
 
@@ -48,7 +48,7 @@ public class LandTypeControl extends Control {
         return AITSounds.LAND_TYPE;
     }
 
-    public void messageYPlayer(ServerPlayerEntity player, TravelHandlerBase.GroundSearch value) {
+    public void messageYPlayer(ServerPlayerEntity player, SafePosSearch.Kind value) {
         player.sendMessage(Text.translatable("message.ait.control.ylandtype", value), true);
     }
 

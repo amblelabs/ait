@@ -13,6 +13,8 @@ import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
@@ -39,6 +41,14 @@ public class TardisServerWorld extends MultiDimServerWorld {
 
     public TardisServerWorld(WorldBlueprint blueprint, MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey<World> worldKey, DimensionOptions dimensionOptions, WorldGenerationProgressListener worldGenerationProgressListener, List<Spawner> spawners, @Nullable RandomSequencesState randomSequencesState, boolean created) {
         super(blueprint, server, workerExecutor, session, properties, worldKey, dimensionOptions, worldGenerationProgressListener, spawners, randomSequencesState, created);
+    }
+
+    @Override
+    public boolean spawnEntity(Entity entity) {
+        if (entity instanceof ItemEntity && this.getTardis().interiorChangingHandler().regenerating().get())
+            return false;
+
+        return super.spawnEntity(entity);
     }
 
     public void setTardis(ServerTardis tardis) {

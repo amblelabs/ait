@@ -2,10 +2,12 @@ package dev.amble.ait.core.tardis.handler.travel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.util.ServerLifecycleHooks;
+import dev.drtheo.queue.api.ActionQueue;
 
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -15,12 +17,12 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.properties.bool.BoolValue;
@@ -45,7 +47,7 @@ public sealed interface CrashableTardisTravel permits TravelHandler {
 
     BoolValue antigravs();
 
-    void forceRemat();
+    Optional<ActionQueue> forceRemat();
 
     CachedDirectedGlobalPos position();
 
@@ -71,7 +73,10 @@ public sealed interface CrashableTardisTravel permits TravelHandler {
         boolean fireGriefing = server.getGameRules().getBoolean(AITMod.TARDIS_FIRE_GRIEFING);
 
         tardis.getDesktop().getConsolePos().forEach(console -> {
-            TardisDesktop.playSoundAtConsole(world, console, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 3f, 1f);
+            Explosion explosion = world.createExplosion(null, null, null,
+                    console.toCenterPos(), 3f * power, fireGriefing, World.ExplosionSourceType.NONE);
+
+            explosions.add(explosion);
 
             startCrashEffects(tardis, console, power);
         });

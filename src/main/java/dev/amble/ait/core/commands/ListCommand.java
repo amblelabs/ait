@@ -40,8 +40,15 @@ public class ListCommand {
         ServerCommandSource source = context.getSource();
         source.sendMessage(Text.literal("TARDIS':"));
 
-        ServerTardisManager.getInstance().forEach(tardis -> sendTardis(source, tardis));
+        ServerTardisManager.getInstance().forEach(tardis -> filterTardis(source, tardis, args));
         return Command.SINGLE_SUCCESS;
+    }
+
+    private static void filterTardis(ServerCommandSource source, ServerTardis tardis, String args) {
+        if (!tardis.getUuid().toString().contains(args))
+            return;
+
+        sendTardis(source, tardis);
     }
 
     private static void sendTardis(ServerCommandSource source, ServerTardis tardis) {

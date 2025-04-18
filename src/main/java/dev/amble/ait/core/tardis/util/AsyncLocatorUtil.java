@@ -44,7 +44,7 @@ public class AsyncLocatorUtil {
             return;
         }
 
-        LOCATING_EXECUTOR_SERVICE = Executors.newFixedThreadPool(threads, new ThreadFactory() {
+        LOCATING_EXECUTOR_SERVICE = Executors.newCachedThreadPool(new ThreadFactory() {
             private static final AtomicInteger poolNum = new AtomicInteger(1);
             private final AtomicInteger threadNum = new AtomicInteger(1);
             private final String namePrefix = AITMod.MOD_ID + "-" + poolNum.getAndIncrement() + "-thread-";

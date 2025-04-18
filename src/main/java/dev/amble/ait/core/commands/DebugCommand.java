@@ -54,11 +54,11 @@ public class DebugCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int executeTardis(CommandContext<ServerCommandSource> context) {
+    private static int executeTardis(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
 
         if (!source.isExecutedByPlayer())
-            return Command.SINGLE_SUCCESS;
+            return 0;
 
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 

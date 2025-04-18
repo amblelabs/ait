@@ -85,6 +85,11 @@ public class ExteriorHumHandler extends SoundHandler {
             return;
         }
 
+        if (!tardis.travel().isLanded()) {
+            this.stopSounds();
+            return;
+        }
+
         if (this.sounds == null)
             this.generate(tardis);
 

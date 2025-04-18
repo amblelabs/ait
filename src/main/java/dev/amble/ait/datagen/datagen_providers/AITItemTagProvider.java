@@ -31,7 +31,7 @@ public class AITItemTagProvider extends FabricTagProvider<Item> {
         getOrCreateTagBuilder(AITTags.Items.SONIC_ITEM).add(AITItems.SONIC_SCREWDRIVER);
 
         getOrCreateTagBuilder(ItemTags.CREEPER_DROP_MUSIC_DISCS).add(AITItems.DRIFTING_MUSIC_DISC)
-                .add(AITItems.MERCURY_MUSIC_DISC).add(AITItems.WONDERFUL_TIME_IN_SPACE_MUSIC_DISC)
+               .add(AITItems.WONDERFUL_TIME_IN_SPACE_MUSIC_DISC)
                 .add(AITItems.GOOD_MAN_MUSIC_DISC)
                 .add(AITItems.EARTH_MUSIC_DISC).add(AITItems.VENUS_MUSIC_DISC);
 
@@ -53,7 +53,7 @@ public class AITItemTagProvider extends FabricTagProvider<Item> {
         /*getOrCreateTagBuilder(AITTags.Items.GOAT_HORN).add(AITItems.IRON_GOAT_HORN, AITItems.GOLD_GOAT_HORN, AITItems.CLASSIC_GOAT_HORN,
                 AITItems.NETHERITE_GOAT_HORN);*/
 
-        getOrCreateTagBuilder(AITTags.Items.REPAIRS_SUBSYSTEM).add(Items.IRON_INGOT,Items.GOLD_INGOT,  AITItems.ZEITON_SHARD, Items.COPPER_INGOT, Items.AMETHYST_SHARD);
+        getOrCreateTagBuilder(AITTags.Items.REPAIRS_SUBSYSTEM).add(Items.IRON_INGOT,Items.GOLD_INGOT, Items.COPPER_INGOT);
 
         getOrCreateTagBuilder(AITTags.Items.IS_TARDIS_FUEL).add(AITItems.ZEITON_DUST, AITItems.ZEITON_SHARD,
                 AITBlocks.TARDIS_CORAL_BLOCK.asItem(), AITBlocks.TARDIS_CORAL_SLAB.asItem(),

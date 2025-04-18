@@ -4,10 +4,10 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.core.engine.block.SubSystemBlock;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 
 public class GenericSubSystemBlock extends SubSystemBlock {
 
@@ -16,7 +16,7 @@ public class GenericSubSystemBlock extends SubSystemBlock {
     }
 
     @Override
-    public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public @Nullable FluidLinkBlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new GenericStructureSystemBlockEntity(pos, state);
     }
 

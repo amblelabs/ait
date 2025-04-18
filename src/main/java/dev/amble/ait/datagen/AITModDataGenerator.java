@@ -474,6 +474,12 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .input('C', Items.COPPER_INGOT).criterion(hasItem(Items.COPPER_INGOT), conditionsFromItem(Items.COPPER_INGOT))
                     .input('Z', AITItems.ZEITON_SHARD).criterion(hasItem(AITItems.ZEITON_SHARD), conditionsFromItem(AITItems.ZEITON_SHARD)));
 
+            provider.addShapelessRecipe(ShapelessRecipeJsonBuilder.create(RecipeCategory.REDSTONE, AITBlocks.FULL_CABLE_BLOCK, 2)
+                    .input(AITBlocks.CABLE_BLOCK, 4).criterion(hasItem(AITBlocks.CABLE_BLOCK), conditionsFromItem(AITBlocks.CABLE_BLOCK)));
+
+            //provider.addShapelessRecipe(ShapelessRecipeJsonBuilder.create(RecipeCategory.REDSTONE, AITBlocks.CABLE_BLOCK, 2)
+            //        .input(AITBlocks.FULL_CABLE_BLOCK).criterion(hasItem(AITBlocks.FULL_CABLE_BLOCK), conditionsFromItem(AITBlocks.FULL_CABLE_BLOCK)));
+
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.REDSTONE, AITItems.HYPERION_CORE_SHAFT)
                     .pattern("ACB")
                     .input('B', AITItems.SUPERHEATED_ZEITON).criterion(hasItem(AITItems.SUPERHEATED_ZEITON), conditionsFromItem(AITItems.SUPERHEATED_ZEITON))
@@ -496,6 +502,19 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .pattern("OPO")
                     .input('O', Blocks.ORANGE_WOOL)
                     .criterion(hasItem(Blocks.ORANGE_WOOL), conditionsFromItem(Blocks.ORANGE_WOOL))
+                    .input('S', Items.NETHER_STAR)
+                    .criterion(hasItem(Items.NETHER_STAR), conditionsFromItem(Items.NETHER_STAR))
+                    .input('P', Items.PAINTING)
+                    .criterion(hasItem(Items.PAINTING), conditionsFromItem(Items.PAINTING))
+                    .input('B', Blocks.BLACK_WOOL)
+                    .criterion(hasItem(Blocks.BLACK_WOOL), conditionsFromItem(Blocks.BLACK_WOOL)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITItems.TRENZALORE_PAINTING)
+                    .pattern("OBO")
+                    .pattern("BSB")
+                    .pattern("OPO")
+                    .input('O', Blocks.PURPLE_WOOL)
+                    .criterion(hasItem(Blocks.PURPLE_WOOL), conditionsFromItem(Blocks.PURPLE_WOOL))
                     .input('S', Items.NETHER_STAR)
                     .criterion(hasItem(Items.NETHER_STAR), conditionsFromItem(Items.NETHER_STAR))
                     .input('P', Items.PAINTING)
@@ -798,7 +817,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITEntityTypes.CONTROL_ENTITY_TYPE.getTranslationKey(), "Control Entity");
         provider.addTranslation(AITEntityTypes.FALLING_TARDIS_TYPE.getTranslationKey(), "Falling TARDIS");
         provider.addTranslation(AITEntityTypes.FLIGHT_TARDIS_TYPE.getTranslationKey(), "RWF TARDIS");
-        provider.addTranslation(AITEntityTypes.GALLIFREY_FALLS_PAINTING_TYPE.getTranslationKey(), "Galifray Falls Painting");
+        provider.addTranslation(AITEntityTypes.GALLIFREY_FALLS_PAINTING_ENTITY_TYPE.getTranslationKey(), "Gallifrey Falls Painting");
+        provider.addTranslation(AITEntityTypes.TRENZALORE_PAINTING_ENTITY_TYPE.getTranslationKey(), "Trenzalore Painting");
         provider.addTranslation(GunEntityTypes.STASER_BOLT_ENTITY_TYPE.getTranslationKey(), "Stazer Bolt Projectile");
 
         // Items
@@ -810,8 +830,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItems.WONDERFUL_TIME_IN_SPACE_MUSIC_DISC, "Music Disc");
         provider.addTranslation(AITItems.DRIFTING_MUSIC_DISC.getTranslationKey() + ".desc", "Radio - Drifting");
         provider.addTranslation(AITItems.WONDERFUL_TIME_IN_SPACE_MUSIC_DISC.getTranslationKey() + ".desc", "Dian - Wonderful Time in Space");
-        provider.addTranslation(AITItems.MERCURY_MUSIC_DISC, "Music Disc");
-        provider.addTranslation(AITItems.MERCURY_MUSIC_DISC.getTranslationKey() + ".desc", "Nitrogenez - Mercury");
         provider.addTranslation(AITItems.EARTH_MUSIC_DISC, "Music Disc");
         provider.addTranslation(AITItems.EARTH_MUSIC_DISC.getTranslationKey() + ".desc", "Nitrogenez - Earth");
         provider.addTranslation(AITItems.VENUS_MUSIC_DISC, "Music Disc");
@@ -823,6 +841,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItems.CLASSIC_KEY_UPGRADE_SMITHING_TEMPLATE, "Smithing Template");
         provider.addTranslation(AITItems.PSYCHPAPER, "Psychic Paper");
         provider.addTranslation(AITItems.GALLIFREY_FALLS_PAINTING, "Painting");
+        provider.addTranslation(AITItems.TRENZALORE_PAINTING, "Painting");
         provider.addTranslation("ait.item.drink.mug_empty", "Empty Mug");
         provider.addTranslation("ait.item.drink.hot_cocoa", "Hot Cocoa");
         provider.addTranslation("ait.item.drink.tea", "Tea");
@@ -896,6 +915,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("desktop.ait.exile", "Exile");
         provider.addTranslation("desktop.ait.axos", "Axos");
         provider.addTranslation("desktop.ait.cherryblossom", "Cherryblossom");
+        provider.addTranslation("desktop.ait.corpoyta", "Corpoyta");
+        provider.addTranslation("desktop.ait.legacy", "Legacy");
 
         // Sonic Screwdrivers
         provider.addTranslation("sonic.ait.prime", "Prime");
@@ -954,6 +975,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITBlocks.REDSTONE_CONTROL_BLOCK, "Redstone Control");
         provider.addTranslation(AITBlocks.ENGINE_BLOCK, "Engine");
         provider.addTranslation(AITBlocks.CABLE_BLOCK, "Artron Cable");
+        provider.addTranslation(AITBlocks.FULL_CABLE_BLOCK, "Full Artron Cable");
         provider.addTranslation(AITBlocks.GENERIC_SUBSYSTEM, "Generalized Subsystem Core");
 
         // Block Tooltips
@@ -971,6 +993,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         provider.addTranslation("painting.ait.gallifrey_falls.title", "Gallifrey Falls");
         provider.addTranslation("painting.ait.gallifrey_falls.author", "???");
+
+        provider.addTranslation("painting.ait.trenzalore.title", "Trenzalore");
+        provider.addTranslation("painting.ait.trenzalore.author", "???");
 
         provider.addTranslation("painting.ait.peanut.title", "Peanut");
         provider.addTranslation("painting.ait.peanut.author", "???");
@@ -1108,7 +1133,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("achievement.ait.description.engines_phase", "ENGINES PHASING! That doesn't sound good.");
         provider.addTranslation("achievement.ait.title.place_energizer", "Procrastination 3000");
         provider.addTranslation("achievement.ait.description.place_energizer", "Place a Matrix Energizer ontop of a naturaly generated Shrieker.");
-
+        provider.addTranslation("achievement." + AITMod.MOD_ID + ".title.brand_new", "Having a Coffee!");
+        provider.addTranslation("achievement." + AITMod.MOD_ID + ".description.brand_new", "OH MY GOD! IVE DONE IT AGAIN!");
 
         // Commands
         // Fuel
@@ -1181,7 +1207,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.max_tardises", "SERVER has reached the maximum amount of TARDISes");
 
         provider.addTranslation("tooltip.ait.key.notardis", "Key does not identify with any TARDIS");
-        provider.addTranslation("tooltip.ait.remoteitem.holdformoreinfo", "Hold shift for more info");
+        provider.addTranslation("tooltip.ait.items.holdformoreinfo", "Hold shift for more info");
         provider.addTranslation("tooltip.ait.remoteitem.notardis", "Remote does not identify with any TARDIS");
         provider.addTranslation("tooltip.ait.distresscall.source", "SOURCE");
 
@@ -1247,25 +1273,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.handles.disable_refuel","<Handles> Refuel Disabled.");
         provider.addTranslation("message.ait.handles.when","<Handles> When.");
         provider.addTranslation("message.ait.handles.when","<Handles> Affirmative.");
-        provider.addTranslation("message.ait.handles.play_wtis","<Handles> Now Playing Wonderful Time In Space.");
-        provider.addTranslation("message.ait.handles.play_drifting","<Handles> Now Playing Drifting.");
-        provider.addTranslation("message.ait.handles.play_mercury","<Handles> Now Playing Mercury.");
-        provider.addTranslation("message.ait.handles.play_13","<Handles> Now Playing 13.");
-        provider.addTranslation("message.ait.handles.play_cat","<Handles> Now Playing Cat.");
-        provider.addTranslation("message.ait.handles.play_blocks","<Handles> Now Playing Blocks.");
-        provider.addTranslation("message.ait.handles.play_chirp","<Handles> Now Playing Chirp.");
-        provider.addTranslation("message.ait.handles.play_far","<Handles> Now Playing Far.");
-        provider.addTranslation("message.ait.handles.play_hall","<Handles> Now Playing Hall.");
-        provider.addTranslation("message.ait.handles.play_mellohi","<Handles> Now Playing Mellohi.");
-        provider.addTranslation("message.ait.handles.play_stal","<Handles> Now Playing Stal.");
-        provider.addTranslation("message.ait.handles.play_strad","<Handles> Now Playing Strad.");
-        provider.addTranslation("message.ait.handles.play_ward","<Handles> Now Playing Ward.");
-        provider.addTranslation("message.ait.handles.play_11","<Handles> Now Playing 11.");
-        provider.addTranslation("message.ait.handles.play_wait","<Handles> Now Playing Wait.");
-        provider.addTranslation("message.ait.handles.play_pigstep","<Handles> Now Playing Pigstep.");
-        provider.addTranslation("message.ait.handles.play_otherside","<Handles> Now Playing Otherside.");
-        provider.addTranslation("message.ait.handles.play_relic","<Handles> Now Playing Relic.");
-        provider.addTranslation("message.ait.handles.play_5","<Handles> Now Playing 5.");
 
 
         // Exterior Variant translations

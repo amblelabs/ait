@@ -6,6 +6,7 @@ import static net.minecraft.server.command.CommandManager.literal;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -21,12 +22,11 @@ public class GetNameCommand {
                         .then(argument("tardis", TardisArgumentType.tardis()).executes(GetNameCommand::runCommand)))));
     }
 
-    private static int runCommand(CommandContext<ServerCommandSource> context) {
+    private static int runCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 
-        source.sendMessage(Text.translatableWithFallback("tardis.name", "TARDIS name: %s", tardis.stats().getName()));
-
+        source.sendMessage(Text.translatableWithFallback("command.tardis.ait.name", "TARDIS name: %s", tardis.stats().getName()));
         return Command.SINGLE_SUCCESS;
     }
 }

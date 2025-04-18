@@ -21,7 +21,6 @@ import net.minecraft.item.BrushItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -60,9 +59,7 @@ import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements BlockEntityTicker<ExteriorBlockEntity> {
 
     private ExteriorAnimation animation;
-    private ExteriorVariantSchema variant;
     private UUID seatEntityUUID = null;
-    public long lastRequestTime = 0;
 
     public ExteriorBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.EXTERIOR_BLOCK_ENTITY_TYPE, pos, state);
@@ -192,26 +189,24 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
      */
     @Deprecated(since = "1.3.0")
     public boolean validateExteriorPosition() {
-        if (!this.isLinked()) return true;
+        if (!this.isLinked())
+            return true;
 
         ServerTardis tardis = this.tardis().get().asServer();
 
         CachedDirectedGlobalPos expectedPos = tardis.travel().position();
-        RegistryKey<World> expectedDim = expectedPos.getDimension();
         BlockPos expectedBlockPos = expectedPos.getPos();
 
         ServerWorld extWorld = (ServerWorld) this.getWorld();
         BlockPos extPos = this.getPos();
 
-        boolean invalid = !extWorld.getRegistryKey().equals(expectedDim) || !extPos.equals(expectedBlockPos);
-
-        if (!invalid) return true;
+        if (extPos.equals(expectedBlockPos) && expectedPos.getWorld() == extWorld)
+            return true;
 
         AITMod.LOGGER.warn("Invalid exterior at {} {}, expected {} {} for TARDIS {}. Removing..",
-                extWorld.getRegistryKey(), extPos, expectedDim, expectedBlockPos, tardis.getUuid());
+                extWorld.getRegistryKey(), extPos, expectedPos.getDimension(), expectedBlockPos, tardis.getUuid());
 
         extWorld.setBlockState(extPos, Blocks.AIR.getDefaultState());
-
         return true;
     }
 
@@ -351,13 +346,11 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         this.exteriorLightBlockState(blockState, pos, state);
     }
 
-    public void verifyAnimation() {
-        TardisRef ref = this.tardis();
+    public ExteriorAnimation getAnimation() {
+        if (!this.isLinked() || this.animation != null)
+            return this.animation;
 
-        if (this.animation != null || ref == null || ref.isEmpty())
-            return;
-
-        Tardis tardis = ref.get();
+        Tardis tardis = this.tardis().get();
 
         this.animation = tardis.getExterior().getVariant().animation(this);
         this.animation.setupAnimation(tardis.travel().getState());
@@ -365,10 +358,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         if (this.getWorld() != null && !this.getWorld().isClient()) {
             this.animation.tellClientsToSetup(tardis.travel().getState());
         }
-    }
 
-    public ExteriorAnimation getAnimation() {
-        this.verifyAnimation();
         return this.animation;
     }
 

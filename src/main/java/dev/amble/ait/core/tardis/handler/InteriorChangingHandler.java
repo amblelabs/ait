@@ -10,6 +10,7 @@ import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ChestBlock;
 import net.minecraft.block.entity.ChestBlockEntity;
@@ -26,6 +27,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
@@ -36,10 +38,9 @@ import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.core.util.SafePosSearch;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
@@ -57,7 +58,10 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
     private static final Property<Identifier> QUEUED_INTERIOR_PROPERTY = new Property<>(Property.Type.IDENTIFIER, "queued_interior", new Identifier(""));
     private static final BoolProperty QUEUED = new BoolProperty("queued");
     private static final BoolProperty REGENERATING = new BoolProperty("regenerating");
+
     public static final int MAX_PLASMIC_MATERIAL_AMOUNT = 8;
+    private static final Text HINT_TEXT = Text.translatable("tardis.message.growth.hint").formatted(Formatting.DARK_GRAY, Formatting.ITALIC);
+
     private final Value<Identifier> queuedInterior = QUEUED_INTERIOR_PROPERTY.create(this);
     private static final IntProperty PLASMIC_MATERIAL_AMOUNT = new IntProperty("plasmic_material_amount");
     private final IntValue plasmicMaterialAmount = PLASMIC_MATERIAL_AMOUNT.create(this);
@@ -80,6 +84,17 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         queuedInterior.of(this, QUEUED_INTERIOR_PROPERTY);
         queued.of(this, QUEUED);
         regenerating.of(this, REGENERATING);
+
+        if (this.isServer() && this.regenerating.get()) {
+            this.regenerating.set(false);
+
+            TardisDesktopSchema queued = this.getQueuedInterior();
+
+            if (queued == null)
+                return;
+
+            tardis.interiorChangingHandler().queueInteriorChange(queued);
+        }
     }
 
     static {
@@ -254,15 +269,29 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         }
 
         DirectedBlockPos door = this.tardis.getDesktop().getDoorPos();
-        CachedDirectedGlobalPos safe = WorldUtil.locateSafe(CachedDirectedGlobalPos.create(this.tardis.asServer().getInteriorWorld(), door.getPos().offset(door.toMinecraftDirection(), 2), door.getRotation()), TravelHandlerBase.GroundSearch.MEDIAN, true);
 
+        CachedDirectedGlobalPos safe = CachedDirectedGlobalPos.create(
+                this.tardis.asServer().getInteriorWorld(),
+                door.getPos().offset(door.toMinecraftDirection(), 2),
+                door.getRotation()
+        );
+
+        // vars are ew, but fully qualifying the package name is worse.
+        var ref = new dev.drtheo.queue.api.util.Value<BlockPos>(null);
+
+        SafePosSearch.wrapSafe(safe, SafePosSearch.Kind.MEDIAN, true,
+                result -> this.finishCreatingChest(result, contents));
+    }
+
+    private void finishCreatingChest(CachedDirectedGlobalPos safe, List<ItemStack> contents) {
         // set block to chest
         if (!(safe.getWorld().getBlockState(safe.getPos()).isAir())) {
             AITMod.LOGGER.error("Failed to create recovery chest at {} for {}", safe, this.tardis);
             return;
         }
 
-        safe.getWorld().setBlockState(safe.getPos(), Blocks.CHEST.getDefaultState().with(ChestBlock.FACING, door.toMinecraftDirection().getOpposite()), 3);
+        Direction doorDir = tardis.getDesktop().getDoorPos().toMinecraftDirection();
+        safe.getWorld().setBlockState(safe.getPos(), Blocks.CHEST.getDefaultState().with(ChestBlock.FACING, doorDir.getOpposite()), Block.NOTIFY_ALL);
 
         // set chest contents
         ChestBlockEntity chest = (ChestBlockEntity) safe.getWorld().getBlockEntity(safe.getPos());
@@ -286,6 +315,10 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
             this.generateInteriorWithItem();
 
             if (!isQueued) {
+                if (server.getTicks() % 200 == 0 && this.hasEnoughPlasmicMaterial())
+                    this.tardis.asServer().getInteriorWorld().getPlayers().forEach(player ->
+                            player.sendMessage(HINT_TEXT, true));
+
                 if (this.tardis.door().isClosed()) {
                     this.tardis.door().openDoors();
                 } else {

@@ -7,6 +7,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.server.command.ServerCommandSource;
 
@@ -22,7 +23,7 @@ public class SetNameCommand {
                         .then(argument("value", StringArgumentType.string()).executes(SetNameCommand::runCommand))))));
     }
 
-    private static int runCommand(CommandContext<ServerCommandSource> context) {
+    private static int runCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
         String name = StringArgumentType.getString(context, "value");
 

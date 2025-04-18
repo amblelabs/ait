@@ -22,8 +22,7 @@ import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.commands.argument.GroundSearchArgumentType;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.core.util.SafePosSearch;
 
 public class SafePosCommand {
 
@@ -40,12 +39,16 @@ public class SafePosCommand {
         ServerWorld world = DimensionArgumentType.getDimensionArgument(context, "world");
         BlockPos posA = BlockPosArgumentType.getBlockPos(context, "pos");
 
-        TravelHandlerBase.GroundSearch search = GroundSearchArgumentType.getGroundSearch(context, "search-type");
+        SafePosSearch.Kind search = GroundSearchArgumentType.getGroundSearch(context, "search-type");
+        CachedDirectedGlobalPos pos = CachedDirectedGlobalPos.create(world, posA, (byte) 0);
 
-        CachedDirectedGlobalPos cached = WorldUtil.locateSafe(CachedDirectedGlobalPos.create(world, posA, (byte) 0),
-                search, false);
-        BlockPos blockPos = cached.getPos();
+        SafePosSearch.wrapSafe(pos, search, false,
+                result -> reply(context, result.getPos()));
 
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static void reply(CommandContext<ServerCommandSource> context, BlockPos blockPos) {
         Text text = Texts
                 .bracketed(Text.translatable("chat.coordinates", blockPos.getX(), blockPos.getY(), blockPos.getZ()))
                 .styled((style) -> style.withColor(Formatting.GREEN)
@@ -55,6 +58,5 @@ public class SafePosCommand {
                                 Text.translatable("chat.coordinates.tooltip"))));
 
         context.getSource().sendMessage(text);
-        return Command.SINGLE_SUCCESS;
     }
 }

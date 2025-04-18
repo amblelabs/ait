@@ -61,6 +61,8 @@ public class SkyboxUtil extends WorldRenderer {
         matrices.scale(scale, scale, scale);
 
         util.renderVortex(matrices);
+        util.renderVortexLayer(matrices, 1.5f);
+        util.renderVortexLayer(matrices, 2.5f);
         matrices.pop();
     }
 
@@ -76,6 +78,8 @@ public class SkyboxUtil extends WorldRenderer {
         matrices.scale(scale, scale, scale);
 
         util.renderVortex(matrices);
+        util.renderVortexLayer(matrices, 1.5f);
+        util.renderVortexLayer(matrices, 2.5f);
         matrices.pop();
     }
 

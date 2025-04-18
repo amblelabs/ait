@@ -77,10 +77,9 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
         }
 
         // woopsie daisy i forgor to put this here lelelelel
-        if (exteriorWorld.getBlockState(exteriorPos).getBlock() instanceof ExteriorBlock
-                && !tardis.areShieldsActive()) {
+        if (exteriorWorld.getBlockState(exteriorPos).getBlock() instanceof ExteriorBlock) {
             boolean waterlogged = exteriorWorld.getBlockState(exteriorPos).get(Properties.WATERLOGGED);
-            world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, waterlogged && tardis.door().isOpen()),
+            world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, waterlogged && tardis.door().isOpen() && !tardis.areShieldsActive()),
                     Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
 
             world.emitGameEvent(null, GameEvent.BLOCK_CHANGE, pos);
@@ -90,7 +89,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
     }
 
     public void useOn(World world, boolean sneaking, PlayerEntity player) {
-        if (player == null || this.tardis().isEmpty())
+        if (player == null || this.tardis() == null || this.tardis().isEmpty())
             return;
 
         Tardis tardis = this.tardis().get();
@@ -165,7 +164,8 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
     @Override
     public void onLinked() {
-        this.tardis().ifPresent(tardis -> tardis.getDesktop().setDoorPos(this));
+        if (this.getWorld() != null && TardisServerWorld.isTardisDimension(this.getWorld()))
+            this.tardis().ifPresent(tardis -> tardis.getDesktop().setDoorPos(this));
     }
 
     public void onBreak() {

@@ -47,19 +47,14 @@ public class RemoteItem extends LinkableItem {
         if (!(world instanceof ServerWorld serverWorld))
             return ActionResult.PASS;
 
+        boolean notTardisDimension = !TardisServerWorld.isTardisDimension((ServerWorld) world);
+
         Tardis tardis = RemoteItem.getTardisStatic(world, itemStack);
 
         if (tardis == null)
             return ActionResult.FAIL;
 
-        if (tardis.getFuel() <= 0)
-            player.sendMessage(Text.translatable("message.ait.remoteitem.warning1"));
-
-        if (tardis.isRefueling())
-            player.sendMessage(Text.translatable("message.ait.remoteitem.cancel.refuel"));
-
-        //It was dematting before anyway so as a lazy fix its a feature now!!
-        //player.sendMessage(Text.translatable("message.ait.remoteitem.warning2"));
+        // It was dematting before anyway so as a lazy fix it's a feature now!!
 
         // Check if the Tardis is already present at this location before moving
         // it there
@@ -68,7 +63,16 @@ public class RemoteItem extends LinkableItem {
         if (currentPosition.getPos().equals(pos))
             return ActionResult.FAIL;
 
-        if (!TardisServerWorld.isTardisDimension((ServerWorld) world)) {
+        if (notTardisDimension) {
+
+            if (tardis.getFuel() <= 0) {
+                player.sendMessage(Text.translatable("message.ait.remoteitem.warning1"));
+            }
+
+            if (tardis.isRefueling()) {
+                player.sendMessage(Text.translatable("message.ait.remoteitem.cancel.refuel"));
+            }
+
             world.playSound(null, pos, AITSounds.REMOTE, SoundCategory.BLOCKS);
 
             BlockPos temp = pos.up();
