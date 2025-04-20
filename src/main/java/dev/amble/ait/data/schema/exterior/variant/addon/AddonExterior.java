@@ -1,8 +1,9 @@
 package dev.amble.ait.data.schema.exterior.variant.addon;
 
+import java.util.function.BiFunction;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.util.math.Direction;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -11,6 +12,7 @@ import org.joml.Vector3f;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.client.models.doors.DoorModel;
@@ -29,8 +31,6 @@ import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
-
-import java.util.function.BiFunction;
 
 /**
  * An all-in-one utility class for creating addon exteriors
@@ -57,10 +57,11 @@ public class AddonExterior extends ExteriorVariantSchema {
     private Door door;
     private float portalWidth = -1f;
     private float portalHeight = -1f;
-    @Nullable
-    private BiFunction<Vec3d, Byte, Vec3d> portalTranslations;
+    @Nullable private BiFunction<Vec3d, Byte, Vec3d> portalTranslations;
     @Environment(EnvType.CLIENT)
     private Vector3f sonicItemTranslations;
+    @Environment(EnvType.CLIENT)
+    private boolean hasTransparentDoors;
     private Vec3d seatTranslations;
 
     public AddonExterior(Identifier category, String modid, String name) {
@@ -101,7 +102,8 @@ public class AddonExterior extends ExteriorVariantSchema {
     @Environment(EnvType.CLIENT)
     public AddonExterior copyClient(AddonExterior source, boolean register) {
         if (source.client != null) {
-            this.setClient(new ClientExterior(this, source.client.model, source.client.sonicItemTranslations, source.client.biomeOverrides));
+            this.setClient(new ClientExterior(this, source.client.model, source.client.sonicItemTranslations,
+                    source.client.biomeOverrides, source.client.hasTransparentDoors));
 
             if (register) {
                 this.toClient().register();
@@ -144,6 +146,13 @@ public class AddonExterior extends ExteriorVariantSchema {
     @Environment(EnvType.CLIENT)
     public AddonExterior setModel(ExteriorModel model) {
         this.client = new ClientExterior(this, model);
+
+        return this;
+    }
+
+    @Environment(EnvType.CLIENT)
+    public AddonExterior setHasTransparentDoors(boolean hasTransparentDoors) {
+        this.hasTransparentDoors = hasTransparentDoors;
 
         return this;
     }
@@ -237,20 +246,22 @@ public class AddonExterior extends ExteriorVariantSchema {
         private boolean checkedEmission = false;
         private final Vector3f sonicItemTranslations;
         private final BiomeOverrides biomeOverrides;
+        private final boolean hasTransparentDoors;
         private final ExteriorModel model;
 
-        public ClientExterior(AddonExterior parent, ExteriorModel model, Vector3f sonicItemTranslations, BiomeOverrides biomeOverrides) {
+        public ClientExterior(AddonExterior parent, ExteriorModel model, Vector3f sonicItemTranslations, BiomeOverrides biomeOverrides, boolean hasTransparentDoors) {
             super(parent.id());
 
             this.server = parent;
 
             this.sonicItemTranslations = sonicItemTranslations;
             this.biomeOverrides = biomeOverrides;
+            this.hasTransparentDoors = hasTransparentDoors;
             this.model = model;
         }
         public ClientExterior(AddonExterior parent, ExteriorModel model) {
             this(parent, model, parent.sonicItemTranslations != null ? parent.sonicItemTranslations :
-                    new Vector3f(0, 0, 0), BiomeOverrides.builder().build());
+                    new Vector3f(0, 0, 0), BiomeOverrides.builder().build(), parent.hasTransparentDoors);
         }
         @Override
         public Identifier texture() {
@@ -284,6 +295,11 @@ public class AddonExterior extends ExteriorVariantSchema {
             return this.biomeOverrides;
         }
 
+        @Override
+        public boolean hasTransparentDoors() {
+            return this.hasTransparentDoors;
+        }
+
         public ClientExterior register() {
             ClientExteriorVariantRegistry.getInstance().register(this);
             return this;
@@ -300,8 +316,7 @@ public class AddonExterior extends ExteriorVariantSchema {
         private final SoundEvent open;
         private final SoundEvent close;
 
-        @Nullable
-        private BiFunction<Vec3d, Direction, Vec3d> portalTranslations;
+        @Nullable private BiFunction<Vec3d, Direction, Vec3d> portalTranslations;
 
         @Environment(EnvType.CLIENT)
         private ClientDoor client;

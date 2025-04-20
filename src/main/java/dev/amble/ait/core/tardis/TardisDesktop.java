@@ -89,17 +89,6 @@ public class TardisDesktop extends TardisComponent {
         this.changeInterior(schema, false, false).execute();
     }
 
-    @Override
-    public void onLoaded() {
-        if (this.isClient())
-            return;
-
-        for (BlockPos pos : this.consolePos) {
-            if (tardis.asServer().getInteriorWorld().getBlockEntity(pos) instanceof ConsoleBlockEntity console)
-                console.markNeedsControl();
-        }
-    }
-
     public TardisDesktopSchema getSchema() {
         return schema;
     }

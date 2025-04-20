@@ -2,8 +2,6 @@ package dev.amble.ait.core.tardis.handler;
 
 import java.util.function.Consumer;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
@@ -38,6 +36,12 @@ public class ExtraHandler extends KeyedTardisComponent {
         Drink drink = DrinkRegistry.getInstance().get(AITMod.id("coffee"));
         ItemStack stack = new ItemStack(AITItems.MUG);
         DrinkUtil.setDrink(stack, drink);
+    }
+
+    @Override
+    public void onLoaded() {
+        setRefreshmentItemValue.of(this, SET_REFRESHMENT_ITEM);
+        setInsertedDiscValue.of(this, INSERTED_DISC);
         consoleHammer.of(this, CONSOLE_HAMMER);
     }
 
@@ -78,16 +82,6 @@ public class ExtraHandler extends KeyedTardisComponent {
         world.spawnEntity(entity);
     }
 
-    public static void spawnItem(CachedDirectedGlobalPos cached, ItemStack sonic) {
-        spawnItem(cached.getWorld(), cached.getPos(), sonic);
-    }
-
-    @Override
-    public void onLoaded() {
-        setRefreshmentItemValue.of(this, SET_REFRESHMENT_ITEM);
-        setInsertedDiscValue.of(this, INSERTED_DISC);
-    }
-
     public ItemStack getRefreshmentItem() {
         ItemStack itemStack = setRefreshmentItemValue.get();
         return itemStack != null ? itemStack : ItemStack.EMPTY;
@@ -105,5 +99,4 @@ public class ExtraHandler extends KeyedTardisComponent {
     public void setInsertedDisc(ItemStack item) {
         setInsertedDiscValue.set(item);
     }
-
 }
