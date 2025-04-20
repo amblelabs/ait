@@ -81,6 +81,7 @@ public abstract class TardisManager<T extends Tardis, C> {
 
         auto.template(Value.class, Value.newSerializer());
         auto.template(Map.class, UuidMapSchema::new);
+        auto.template(RegistryKey.class, (holder, type) -> new RegistryKeySchema());
 
         auto.schema(IntValue.class, IntValue.serial());
         auto.schema(BoolValue.class, BoolValue.serial());

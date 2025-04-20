@@ -18,6 +18,6 @@ public class FloatValue extends Value<Float> {
     }
 
     public static dev.drtheo.autojson.schema.Schema<FloatValue> serial() {
-        return new Schema<>(float.class, FloatValue::new);
+        return new SchemaImpl<>(float.class, FloatValue::new);
     }
 }

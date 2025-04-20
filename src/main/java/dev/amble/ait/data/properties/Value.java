@@ -11,9 +11,9 @@ import com.google.gson.*;
 import dev.drtheo.autojson.AutoJSON;
 import dev.drtheo.autojson.SchemaHolder;
 import dev.drtheo.autojson.adapter.JsonAdapter;
-import dev.drtheo.autojson.schema.ObjectSchema;
 import dev.drtheo.autojson.schema.PrimitiveSchema;
-import dev.drtheo.autojson.schema.Schema;
+import dev.drtheo.autojson.schema.base.Schema;
+import dev.drtheo.autojson.schema.base.WrapperSchema;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -162,7 +162,7 @@ public class Value<T> implements Disposable {
     }
 
     public static <V> AutoJSON.TemplateCreator<Value<V>> newSerializer() {
-        return (holder, type) -> new Schema<>(holder, type, Value::new);
+        return (holder, type) -> new SchemaImpl<>(holder, type, Value::new);
     }
 
     protected static class Serializer<V, T extends Value<V>> implements JsonSerializer<T>, JsonDeserializer<T> {
@@ -200,19 +200,20 @@ public class Value<T> implements Disposable {
         }
     }
 
-    public static class Schema<V, T extends Value<V>> implements PrimitiveSchema<T> {
+    public static class SchemaImpl<V, T extends Value<V>> implements WrapperSchema<T> {
 
         // TODO: schema caching
 
         private final Type clazz;
         private final Function<V, T> creator;
+        private final
 
-        public Schema(SchemaHolder holder, ParameterizedType type, Function<V, T> creator) {
+        public SchemaImpl(SchemaHolder holder, ParameterizedType type, Function<V, T> creator) {
             this.clazz = type.getActualTypeArguments()[0];
             this.creator = creator;
         }
 
-        public Schema(Class<V> c, Function<V, T> creator) {
+        public SchemaImpl(Class<V> c, Function<V, T> creator) {
             this.clazz = c;
             this.creator = creator;
         }
@@ -225,6 +226,11 @@ public class Value<T> implements Disposable {
         @Override
         public <To> T deserialize(JsonAdapter<Object, To> adapter, dev.drtheo.autojson.adapter.JsonDeserializationContext ctx) {
             return this.creator.apply(ctx.decode(this.clazz));
+        }
+
+        @Override
+        public Schema<T> child() {
+            return null;
         }
     }
 }
