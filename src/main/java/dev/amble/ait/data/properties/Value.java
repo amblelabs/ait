@@ -104,7 +104,7 @@ public class Value<T> implements Disposable {
 
         ServerTardisManager.getInstance().markPropertyDirty(tardis, this);
     }
-    
+
     @Environment(EnvType.CLIENT)
     protected void syncToServer() { // todo - flags
         ClientPlayNetworking.send(new SyncPropertyC2SPacket(this.holder.tardis().getUuid(), this));

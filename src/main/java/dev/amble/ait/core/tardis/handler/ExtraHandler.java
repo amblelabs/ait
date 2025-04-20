@@ -1,6 +1,5 @@
 package dev.amble.ait.core.tardis.handler;
 
-import java.util.function.Consumer;
 
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
@@ -48,33 +47,13 @@ public class ExtraHandler extends KeyedTardisComponent {
     public ItemStack getConsoleHammer() {
         return this.consoleHammer.get();
     }
-
-    public ItemStack takeConsoleHammer() {
-        return takeAnyHammer(this.consoleHammer);
-    }
-    public boolean consoleHammerInserted() {
-        return this.consoleHammer.get() != null && !this.consoleHammer.get().isEmpty();
+    public ItemStack consoleHammerInserted() {
+        ItemStack itemStack = consoleHammer.get();
+        return itemStack != null ? itemStack : ItemStack.EMPTY;
     }
 
-    public void insertConsoleHammer(ItemStack sonic, BlockPos consolePos) {
-        insertAnyHammer(this.consoleHammer, sonic,
-                stack -> spawnItem(tardis.asServer().getInteriorWorld(), consolePos, stack));
-    }
-
-    private static ItemStack takeAnyHammer(Value<ItemStack> value) {
-        ItemStack result = value.get();
-        value.set((ItemStack) null);
-
-        return result;
-    }
-
-    private static void insertAnyHammer(Value<ItemStack> value, ItemStack sonic, Consumer<ItemStack> spawner) {
-        value.flatMap(stack -> {
-            if (stack != null)
-                spawner.accept(stack);
-
-            return sonic;
-        });
+    public void insertConsoleHammer(ItemStack item) {
+        this.consoleHammer.set(item);
     }
 
     public static void spawnItem(World world, BlockPos pos, ItemStack sonic) {
