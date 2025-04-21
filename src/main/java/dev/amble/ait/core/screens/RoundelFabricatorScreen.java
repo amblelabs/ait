@@ -1,7 +1,9 @@
 package dev.amble.ait.core.screens;
 
+import java.awt.*;
 import java.util.List;
 
+import me.shedaniel.clothconfig2.gui.widget.ColorDisplayWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
@@ -9,9 +11,12 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.*;
 import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.BlockItem;
@@ -84,6 +89,7 @@ public class RoundelFabricatorScreen
         this.renderBackground(context);
         int i = this.x;
         int j = this.y;
+        this.drawColorWheel(context, delta, mouseX, mouseY);
         context.drawTexture(TEXTURE, i, j, 0, 0, this.backgroundWidth, this.backgroundHeight);
         Slot slot = this.handler.getRoundelSlot();
         Slot slot2 = this.handler.getDyeSlot();
@@ -154,6 +160,89 @@ public class RoundelFabricatorScreen
             }
         }
         DiffuseLighting.enableGuiDepthLighting();
+    }
+
+    private static Identifier colorWheelTexture;
+    private static boolean colorWheelInitialized = false;
+
+    private void drawColorWheel(DrawContext context, float delta, int mouseX, int mouseY) {
+
+        if (!colorWheelInitialized) {
+            colorWheelTexture = generateColorWheelTexture();
+            colorWheelInitialized = true;
+        }
+
+        int xPos = -90;
+        int yPos= 20;
+
+        int centerX = xPos + this.x + this.backgroundWidth / 2;
+        int centerY = yPos + this.y + this.backgroundHeight / 2;
+        int radius = 50; // Adjust the radius as needed
+
+        int mouseXRelative = mouseX + this.x;
+        int mouseYRelative = mouseY + this.y;
+        int insertMouseColorHere = 0xFFFFFF; // Default color in case the pixel is out of bounds
+        ColorWheel colorWheel = new ColorWheel(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
+
+        if (mouseXRelative >= colorWheel.x() && mouseXRelative <= colorWheel.toX() && mouseYRelative >= colorWheel.y() && mouseYRelative <= colorWheel.toY()) {
+            /*NativeImage colorWheelImage = new NativeImage(colorWheel.width(), colorWheel.height(), true);
+            colorWheelImage.copyRect(colorWheel.x(), colorWheel.y(), colorWheel.toX(), colorWheel.toY(), colorWheelImage.getWidth(), colorWheelImage.getHeight(), false, false);
+            insertMouseColorHere = colorWheelImage.getColor(mouseXRelative, mouseYRelative);
+            System.out.println(insertMouseColorHere);*/
+            // this wont work :)
+        }
+
+        // Draw the precomputed color wheel texture
+        MatrixStack stack = context.getMatrices();
+        stack.push();
+
+        stack.translate(colorWheel.x(), colorWheel.y(), 1);
+        context.fill(RenderLayer.getGui(), -radius - 3, -radius - 3, radius + 5, radius + 63, -1, 0xff000000);
+        context.fill(RenderLayer.getGui(), -radius - 2, -radius - 2, radius + 5, radius + 62, -1, 0x0ff303f5b);
+        ColorDisplayWidget displayWidget = new ColorDisplayWidget(new TextFieldWidget(MinecraftClient.getInstance().textRenderer, 25, 25, 50, 50, Text.literal("HI IM TEXT")),
+                25, 25, 50, insertMouseColorHere);
+        displayWidget.render(context, mouseX, mouseY, delta);
+        stack.multiply(RotationAxis.POSITIVE_Z
+                .rotationDegrees(180f));
+        stack.scale(0.4f, 0.4f, 1.0f); // Scale down the texture
+
+        context.drawTexture(colorWheelTexture, -253 / 2, -253 / 2, 3, 3, 253, 253);
+        stack.pop();
+    }
+
+    public record ColorWheel(int x, int y, int toX, int toY) {
+        public int width() {
+            return x + toX;
+        }
+
+        public int height() {
+            return y + toY;
+        }
+    }
+
+    private Identifier generateColorWheelTexture() {
+        int radius = 50; // Adjust the radius as needed
+        int diameter = radius * 2;
+        NativeImage image = new NativeImage(diameter, diameter, true);
+
+        for (int y = -radius; y < radius; y++) {
+            for (int x = -radius; x < radius; x++) {
+                double distance = Math.sqrt(x * x + y * y);
+                if (distance <= radius) {
+                    double angle = Math.atan2(y, x) + Math.PI; // Angle in radians
+                    float hue = (float) (angle / (2 * Math.PI));
+                    float saturation = (float) (distance / radius);
+                    int color = Color.HSBtoRGB(hue, saturation, 1.0f); // Full brightness
+                    image.setColor(x + radius, y + radius, color | 0xFF000000); // Add alpha
+                } else {
+                    image.setColor(x + radius, y + radius, 0); // Transparent
+                }
+            }
+        }
+
+        Identifier textureId = AITMod.id("textures/gui/color_wheel.png");
+        MinecraftClient.getInstance().getTextureManager().registerTexture(textureId, new NativeImageBackedTexture(image));
+        return textureId;
     }
 
     public static TexturedModelData getTexturedModelData() {
