@@ -44,16 +44,14 @@ public class WaypointHandler extends KeyedTardisComponent {
     /**
      * Sets the new waypoint
      *
-     * @return The optional of the previous waypoiint
+     * @return The optional of the previous waypoint
      */
     public Optional<Waypoint> set(Waypoint var, BlockPos console, boolean spawnItem) {
-        Optional<Waypoint> prev = Optional.ofNullable(this.current);
-
         if (spawnItem && this.current != null)
-            this.spawnItem(console, prev.get());
+            this.spawnItem(console, var);
 
         this.current = var;
-        return prev;
+        return Optional.ofNullable(this.current);
     }
 
     public Waypoint get() {

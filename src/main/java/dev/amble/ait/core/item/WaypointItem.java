@@ -82,7 +82,8 @@ public class WaypointItem extends Item implements DyeableItem {
 
     public static ItemStack create(Waypoint pos) {
         ItemStack stack = new ItemStack(AITItems.WAYPOINT_CARTRIDGE);
-        setPos(stack, pos.getPos());
+        if (pos.getPos() != null)
+            setPos(stack, pos.getPos());
 
         if (pos.hasName())
             stack.setCustomName(Text.literal(pos.name()));

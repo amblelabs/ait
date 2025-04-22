@@ -73,9 +73,6 @@ public class ConsolePortControl extends Control {
 
 
         if (itemStack.getItem() instanceof WaypointItem) {
-            if (WaypointItem.getPos(itemStack) == null)
-                WaypointItem.setPos(itemStack, tardis.travel().position());
-
             tardis.waypoint().markHasCartridge();
             tardis.waypoint().set(Waypoint.fromStack(itemStack), console, false);
             player.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
