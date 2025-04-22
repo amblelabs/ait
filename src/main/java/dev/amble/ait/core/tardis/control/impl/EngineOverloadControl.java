@@ -75,8 +75,8 @@ public class EngineOverloadControl extends Control {
         }
 
         tardis.alarm().enable();
-        tardis.subsystems().demat().removeDurability(CIRCUIT_DAMAGE);
         tardis.subsystems().engine().removeDurability(CIRCUIT_DAMAGE);
+        tardis.subsystems().demat().removeDurability(CIRCUIT_DAMAGE);
         tardis.crash().addRepairTicks(CRASH_REPAIR_TIME);
 
         spawnParticles(world, console);
