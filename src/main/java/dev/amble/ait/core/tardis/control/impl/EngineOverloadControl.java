@@ -48,7 +48,7 @@ public class EngineOverloadControl extends Control {
             return Result.FAILURE;
         }
 
-        if (tardis.fuel().getCurrentFuel() <= REQUIRED_FUEL) {
+        if (tardis.fuel().getCurrentFuel() < REQUIRED_FUEL) {
             player.sendMessage(Text.translatable("tardis.message.overload.not_enough_fuel").formatted(Formatting.RED), true);
             world.playSound(null, player.getBlockPos(), AITSounds.CLOISTER, SoundCategory.BLOCKS, 1.0F, 1.0F);
             return Result.FAILURE;
