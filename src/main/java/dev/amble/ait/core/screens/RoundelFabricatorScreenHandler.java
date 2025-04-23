@@ -79,7 +79,7 @@ public class RoundelFabricatorScreenHandler
             if (screenHandler instanceof RoundelFabricatorScreenHandler roundelScreenHandler) {
                 if (roundelScreenHandler.roundelSlot.hasStack() && roundelScreenHandler.dyeSlot.hasStack()) {
                     roundelScreenHandler.colorProperty.set(color);
-                    if (!roundelScreenHandler.roundelPatterns.isEmpty() && roundelScreenHandler.selectedPattern != null)
+                    if (!roundelScreenHandler.roundelPatterns.isEmpty() && roundelScreenHandler.selectedPattern != null && roundelScreenHandler.selectedPattern.get() != -1)
                         roundelScreenHandler.updateOutputSlot(roundelScreenHandler.roundelPatterns.get(roundelScreenHandler.selectedPattern.get()));
                 }
             }

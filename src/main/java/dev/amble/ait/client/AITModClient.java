@@ -69,7 +69,6 @@ import dev.amble.ait.client.renderers.decoration.SnowGlobeRenderer;
 import dev.amble.ait.client.renderers.doors.DoorRenderer;
 import dev.amble.ait.client.renderers.entities.*;
 import dev.amble.ait.client.renderers.exteriors.ExteriorRenderer;
-import dev.amble.ait.client.renderers.items.DynamicRoundelItemRenderer;
 import dev.amble.ait.client.renderers.machines.*;
 import dev.amble.ait.client.renderers.monitors.MonitorRenderer;
 import dev.amble.ait.client.renderers.monitors.WallMonitorRenderer;
@@ -144,7 +143,7 @@ public class AITModClient implements ClientModInitializer {
         siegeItemPredicate();
         adventItemPredicates();
         registerItemColors();
-        registerBuiltInItems();
+        //registerBuiltInItems();
         registerParticles();
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
@@ -505,9 +504,9 @@ public class AITModClient implements ClientModInitializer {
                 DrinkUtil.getColor(stack), AITItems.MUG);
     }
 
-    public void registerBuiltInItems() {
+    /*public void registerBuiltInItems() {
         BuiltinItemRendererRegistry.INSTANCE.register(AITItems.ROUNDEL, new DynamicRoundelItemRenderer());
-    }
+    }*/
 
     public void registerParticles() {
         ParticleFactoryRegistry.getInstance().register(CORAL_PARTICLE, EndRodParticle.Factory::new);

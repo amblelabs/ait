@@ -2,7 +2,11 @@ package dev.amble.ait.core.screens;
 
 import java.awt.*;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -14,6 +18,8 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2i;
+import org.lwjgl.glfw.GLFW;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -33,10 +39,14 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.ScreenHandlerListener;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextColor;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
@@ -54,7 +64,7 @@ import dev.amble.ait.core.roundels.RoundelType;
 
 @Environment(value=EnvType.CLIENT)
 public class RoundelFabricatorScreen
-        extends HandledScreen<RoundelFabricatorScreenHandler> {
+        extends HandledScreen<RoundelFabricatorScreenHandler> implements ScreenHandlerListener {
     private static final Identifier TEXTURE = AITMod.id("textures/gui/roundel_fabricator.png");
     private static final int PATTERN_LIST_COLUMNS = 4;
     private static final int PATTERN_LIST_ROWS = 4;
@@ -65,6 +75,8 @@ public class RoundelFabricatorScreen
     private static final int PATTERN_LIST_OFFSET_X = 60;
     private static final int PATTERN_LIST_OFFSET_Y = 13;
     @Nullable private List<RoundelType> roundelPatterns;
+    private static final Map<Formatting, TextColor> FORMATTING_TO_COLOR = Stream.of(Formatting.values()).filter(Formatting::isColor).collect(ImmutableMap.toImmutableMap(Function.identity(), formatting -> new TextColor(formatting.getColorValue(), formatting.getName())));
+    private static final Map<String, TextColor> BY_NAME = FORMATTING_TO_COLOR.values().stream().collect(ImmutableMap.toImmutableMap(TextColor::getName, Function.identity()));
     private ItemStack roundel = ItemStack.EMPTY;
     private ItemStack dye = ItemStack.EMPTY;
     private ItemStack pattern = ItemStack.EMPTY;
@@ -74,6 +86,8 @@ public class RoundelFabricatorScreen
     private boolean scrollbarClicked;
     private int visibleTopRow;
     private final List<TexturedButtonWidget> buttons = Lists.newArrayList();
+    private TextFieldWidget hexColorField;
+    private ColorDisplayWidget displayWidget;
     public RoundelFabricatorScreen(RoundelFabricatorScreenHandler screenHandler, PlayerInventory inventory, Text title) {
         super(screenHandler, inventory, title);
         screenHandler.setInventoryChangeListener(this::onInventoryChanged);
@@ -88,13 +102,79 @@ public class RoundelFabricatorScreen
     @Override
     protected void init() {
         super.init();
+        int i = (this.width - this.backgroundWidth) / 2;
+        int j = (this.height - this.backgroundHeight) / 2;
+        this.hexColorField = new TextFieldWidget(this.textRenderer, i - 99, j + 150, 103, 12, Text.literal("#00ff00ff"));
+        this.hexColorField.setFocusUnlocked(false);
+        this.hexColorField.setEditableColor(-1);
+        this.hexColorField.setUneditableColor(-1);
+        this.hexColorField.setDrawsBackground(false);
+        this.hexColorField.setMaxLength(14);
+        this.hexColorField.setChangedListener(this::onInputHexCode);
+        this.hexColorField.setText("");
+        this.addSelectableChild(this.hexColorField);
+        this.setInitialFocus(this.hexColorField);
+        this.hexColorField.setEditable(false);
         this.addButton(new TexturedButtonWidget(this.x - 103, this.y + 2, 102, 102, -50, 0, AITMod.id("textures/environment/saturn_ring.png"), button -> {
-            this.onPress();
+            this.onPress(true);
         }));
+        this.displayWidget = new ColorDisplayWidget(new TextFieldWidget(MinecraftClient.getInstance().textRenderer,
+                25, 25, 50, 50, Text.literal("HI IM TEXT")),
+                15, 65, 27, 0xffffffff);
     }
 
-    public void onPress() {
-        this.shouldMoveCursor = true;
+    @Override
+    public void resize(MinecraftClient client, int width, int height) {
+        String string = this.hexColorField.getText();
+        this.init(client, width, height);
+        this.hexColorField.setText(string);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+            this.client.player.closeHandledScreen();
+        }
+        if (this.hexColorField.keyPressed(keyCode, scanCode, modifiers) || this.hexColorField.isActive()) {
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    private void onInputHexCode(String name) {
+        if (TextColor.parse(name) != null) {
+            this.insertMouseColorHere = RoundelFabricatorScreen.parse(name);
+            this.onPress(false);
+            int xPos = -90;
+            int yPos = 20;
+            int centerX = xPos + this.x + this.backgroundWidth / 2;
+            int centerY = yPos + this.y + this.backgroundHeight / 2;
+            this.cursorVec = getPositionForColor(this.insertMouseColorHere, centerX - 50, -centerY + 50, 50);
+        }
+    }
+
+    @Nullable public static int parse(String name) {
+        if (name.startsWith("#")) {
+            try {
+                String p = name.substring(1);
+                int i = Integer.parseInt(p/*p.length() < 15 ? p + "FF" : p*/, 16);
+                int r = ColorHelper.Argb.getRed(i);
+                int g = ColorHelper.Argb.getGreen(i);
+                int b = ColorHelper.Argb.getBlue(i);
+                return ColorHelper.Argb.getArgb(255, r, g, b);
+            } catch (NumberFormatException numberFormatException) {
+                return 0;
+            }
+        }
+        int i = BY_NAME.get(name).getRgb();
+        int r = ColorHelper.Argb.getRed(i);
+        int g = ColorHelper.Argb.getGreen(i);
+        int b = ColorHelper.Argb.getBlue(i);
+        return ColorHelper.Argb.getArgb(255, r, g, b);
+    }
+
+    public void onPress(boolean moveCursor) {
+        this.shouldMoveCursor = moveCursor;
         Scheduler.get().runTaskLater(() -> {
             PacketByteBuf buf = PacketByteBufs.create();
             buf.writeInt(insertMouseColorHere);
@@ -105,6 +185,7 @@ public class RoundelFabricatorScreen
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
+        this.renderForeground(context, mouseX, mouseY, delta);
         this.drawMouseoverTooltip(context, mouseX, mouseY);
     }
 
@@ -192,10 +273,29 @@ public class RoundelFabricatorScreen
         DiffuseLighting.enableGuiDepthLighting();
     }
 
+    protected void renderForeground(DrawContext context, int mouseX, int mouseY, float delta) {
+        this.hexColorField.render(context, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public void onSlotUpdate(ScreenHandler handler, int slotId, ItemStack stack) {
+        System.out.print(slotId);
+        if (slotId == this.handler.getDyeSlot().id) {
+            this.hexColorField.setText(stack.isEmpty() ? "" : stack.getName().getString());
+            this.hexColorField.setEditable(!stack.isEmpty());
+            this.setFocused(this.hexColorField);
+        }
+    }
+
+    @Override
+    public void onPropertyUpdate(ScreenHandler handler, int property, int value) {
+    }
+
     private static Identifier colorWheelTexture;
     private static boolean colorWheelInitialized = false;
     private boolean shouldMoveCursor;
-    private int insertMouseColorHere = 0xFF000000;
+    private int insertMouseColorHere = 0xFFFFFFFF;
+    private Vector2i cursorVec = new Vector2i((int) 3.400E+2, (int) -2.220E+2);
 
     private void drawColorWheel(DrawContext context, float delta, int mouseX, int mouseY) {
 
@@ -213,21 +313,20 @@ public class RoundelFabricatorScreen
 
         ColorWheel colorWheel = new ColorWheel(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
         int circumference = radius * 2;
-        if (mouseX >= centerX - circumference && mouseX <= centerX && mouseY >= centerY - circumference
-                && mouseY <= centerY && shouldMoveCursor) {
+        //System.out.println("X: " + (this.x - mouseX) + ", Y: " + (this.y - mouseY) + " | " + "centerX: " + centerX + ", centerY: " + (-centerY));
+        if (isCursorInsideCircle((this.x - mouseX), (this.y - mouseY) , 50, -50, 56) && shouldMoveCursor) {
             try {
                 Robot robot = new Robot();
                 Point mouseLocation;
                 Color pixelColor;
-                // Get the current mouse location
                 mouseLocation = MouseInfo.getPointerInfo().getLocation();
-                // Get the color of the pixel at the mouse location
                 pixelColor = robot.getPixelColor(mouseLocation.x, mouseLocation.y);
-                // Print the RGB values of the color
-                //System.out.println("RGB: " + pixelColor.getRed() + ", " + pixelColor.getGreen() + ", " + pixelColor.getBlue());
-                if (pixelColor.getRGB() != 0x0ff303f5b) {
+                //System.out.print(mouseLocation.x + "||" + mouseLocation.y);
+                //if (pixelColor.getRGB() != 0x0ff303f5b) {
                     insertMouseColorHere = pixelColor.getRGB();
-                }
+                //}
+                this.cursorVec = getPositionForColor(insertMouseColorHere, centerX - 50, -centerY + 50, 50);
+
                 shouldMoveCursor = false;
             } catch (AWTException e) {
                 e.printStackTrace();
@@ -236,28 +335,34 @@ public class RoundelFabricatorScreen
 
         // Draw the precomputed color wheel texture
         MatrixStack stack = context.getMatrices();
+        {
+            stack.push();
+            stack.translate(-2, -3, 30);
+            context.drawText(this.textRenderer, Text.literal("+"),
+                    this.cursorVec.x(), -this.cursorVec.y(), Color.WHITE.getRGB(), false);
+            stack.pop();
+        }
         stack.push();
 
         stack.translate(colorWheel.x(), colorWheel.y(), 1);
         context.fill(RenderLayer.getGui(), -radius - 3, -radius - 3, radius + 5, radius + 63, -1, 0xff000000);
         context.fill(RenderLayer.getGui(), -radius - 2, -radius - 2, radius + 5, radius + 62, -1, 0x0ff303f5b);
-        ColorDisplayWidget displayWidget = new ColorDisplayWidget(new TextFieldWidget(MinecraftClient.getInstance().textRenderer,
-                25, 25, 50, 50, Text.literal("HI IM TEXT")),
-                -25, 55, 50, insertMouseColorHere);
+        context.fill(RenderLayer.getGui(), -48, 95, 42, 106, -1, Color.GRAY.getRGB());
+
+        this.displayWidget.setColor(this.insertMouseColorHere);
         stack.push();
         stack.translate(0, 0, 1);
         int r = ColorHelper.Argb.getRed(insertMouseColorHere);
         int g = ColorHelper.Argb.getGreen(insertMouseColorHere);
         int b = ColorHelper.Argb.getBlue(insertMouseColorHere);
-        int luminance = 0xffffff00 - ((int) (0.2126 * r + 0.7152 * g + 0.0722 * b));
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.ONE_MINUS_DST_COLOR, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ZERO);
-        context.drawText(this.textRenderer,  Text.literal("R: " + ColorHelper.Argb.getRed(insertMouseColorHere)),
-                -22, 57, 0xff000000, false);
+        context.drawText(this.textRenderer, Text.literal("R: " + ColorHelper.Argb.getRed(insertMouseColorHere)),
+                -48, 65, Color.WHITE.getRGB(), false);
         context.drawText(this.textRenderer,  Text.literal("G: " +
-                ColorHelper.Argb.getGreen(insertMouseColorHere)),-22, 65,0xff000000, false);
+                ColorHelper.Argb.getGreen(insertMouseColorHere)),-40, 73,Color.WHITE.getRGB(), false);
         context.drawText(this.textRenderer,  Text.literal(
-                "B: " + ColorHelper.Argb.getBlue(insertMouseColorHere)),-22, 73, 0xff000000, false);
+                "B: " + ColorHelper.Argb.getBlue(insertMouseColorHere)),-32, 81, Color.WHITE.getRGB(), false);
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
         stack.pop();
@@ -266,10 +371,36 @@ public class RoundelFabricatorScreen
                 .rotationDegrees(180f));
         stack.scale(0.4f, 0.4f, 1.0f); // Scale down the texture
 
-        RenderSystem.setShaderColor(1,1, 1, 1);
+        // TODO: work on brightness. - Loqor
+        /*float brightness = MathHelper.clamp((float) Math.sqrt(mouseX * mouseX + mouseY * mouseY) % 256 / 255.0f, 0.0f, 1.0f);
+
+        RenderSystem.setShaderColor(brightness, brightness, brightness, 1);*/
         context.drawTexture(colorWheelTexture, -253 / 2, -253 / 2, 3, 3, 253, 253);
         RenderSystem.setShaderColor(1, 1, 1, 1);
         stack.pop();
+    }
+
+    public boolean isCursorInsideCircle(int cursorX, int cursorY, int centerX, int centerY, int radius) {
+        int deltaX = cursorX - centerX;
+        int deltaY = cursorY - centerY;
+        return (deltaX * deltaX + deltaY * deltaY) <= (radius * radius);
+    }
+
+    public Vector2i getPositionForColor(int color, int centerX, int centerY, int radius) {
+        float[] hsb = Color.RGBtoHSB(
+                ColorHelper.Argb.getRed(color),
+                ColorHelper.Argb.getGreen(color),
+                ColorHelper.Argb.getBlue(color),
+                null
+        );
+
+        float angle = (float) (-hsb[0] * 2 * Math.PI - Math.toRadians(120)); // Add 120 degrees offset
+        float distance = Math.min(hsb[1] * radius, radius); // Clamp distance to the radius
+
+        int x = centerX + (int) (Math.cos(angle) * distance);
+        int y = centerY - (int) (Math.sin(angle) * distance); // Invert y-axis to correct flipping
+
+        return new Vector2i(x, y);
     }
 
     public record ColorWheel(int x, int y, int toX, int toY) {
@@ -406,6 +537,7 @@ public class RoundelFabricatorScreen
     }
 
     private void onInventoryChanged() {
+        this.hexColorField.setEditable(!this.dye.isEmpty());
         ItemStack itemStack = this.handler.getOutputSlot().getStack();
         this.roundelPatterns = itemStack.isEmpty() ? null : RoundelBlockEntity.getPatternsFromNbt(((RoundelItem)itemStack.getItem()).getColor(), RoundelBlockEntity.getPatternListNbt(itemStack));
         ItemStack itemStack2 = this.handler.getRoundelSlot().getStack();

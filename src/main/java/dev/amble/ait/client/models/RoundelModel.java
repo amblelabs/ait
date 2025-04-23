@@ -1,5 +1,6 @@
 package dev.amble.ait.client.models;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.block.BlockModels;
 import net.minecraft.client.render.model.*;
@@ -27,6 +29,11 @@ import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.Registries;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
@@ -36,7 +43,10 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blockentities.RoundelBlockEntity;
+import dev.amble.ait.core.item.RoundelItem;
+import dev.amble.ait.core.roundels.RoundelPattern;
 import dev.amble.ait.core.roundels.RoundelPatterns;
 import dev.amble.ait.core.roundels.RoundelType;
 import dev.amble.ait.core.world.TardisServerWorld;
@@ -230,13 +240,13 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
     @Override
     public void emitItemQuads(ItemStack itemStack, Supplier<Random> randomSupplier, RenderContext renderContext) {
 
-        /*if (itemStack.getItem() instanceof RoundelItem roundelItem) {
+        if (itemStack.getItem() instanceof RoundelItem roundelItem) {
             if (RoundelItem.getBlockEntityNbt(itemStack) != null) {
 
                 NbtCompound nbtCompound = RoundelItem.getBlockEntityNbt(itemStack);
                 NbtList nbtList = nbtCompound.getList("Patterns", NbtElement.COMPOUND_TYPE);
                 NbtCompound dynamicTex = nbtCompound.getCompound("DynamicTex");
-                BlockState dynamicTexBlockState = NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(),
+                BlockState dynamicTexBlockState = !nbtCompound.contains("DynamicTex", NbtElement.COMPOUND_TYPE) ? Blocks.WHITE_CONCRETE.getDefaultState() : NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(),
                         dynamicTex);
 
 
@@ -321,6 +331,6 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
                 emitter.fromVanilla(q, RENDERER.materialFinder().disableColorIndex(true).find(), cullFace).color(color, color, color, color);
                 emitter.emit();
             }
-        }*/
+        }
     }
 }
