@@ -59,7 +59,6 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
 
     @Override
     public void onLinked() {
-        if (this.getWorld() == null || !TardisServerWorld.isTardisDimension(this.getWorld())) return;
         if (this.tardis().isEmpty())
             return;
 

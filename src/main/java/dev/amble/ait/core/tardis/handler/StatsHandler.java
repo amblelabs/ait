@@ -12,6 +12,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import dev.amble.lib.register.unlockable.Unlockable;
 import dev.amble.lib.util.ServerLifecycleHooks;
+import org.joml.Vector3f;
 
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.resource.Resource;
@@ -23,10 +24,8 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.core.sounds.flight.FlightSound;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
-import dev.amble.ait.core.sounds.travel.TravelSound;
-import dev.amble.ait.core.sounds.travel.TravelSoundRegistry;
 import dev.amble.ait.core.sounds.travel.map.TravelSoundMap;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.tardis.handler.travel.AnimatedTravelHandler;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
 import dev.amble.ait.core.util.Lazy;
@@ -56,8 +55,7 @@ public class StatsHandler extends KeyedTardisComponent {
             Direction.NORTH);
     private static final Property<HashSet<String>> UNLOCKS = new Property<>(Property.Type.STR_SET, "unlocks",
             new HashSet<>());
-    private static final Property<Identifier> DEMAT_FX = new Property<>(Property.Type.IDENTIFIER, "demat_fx", new Identifier(""));
-    private static final Property<Identifier> MAT_FX = new Property<>(Property.Type.IDENTIFIER, "mat_fx", new Identifier(""));
+
     private static final Property<Identifier> FLIGHT_FX = new Property<>(Property.Type.IDENTIFIER, "flight_fx", new Identifier(""));
     private static final Property<Identifier> VORTEX_FX = new Property<>(Property.Type.IDENTIFIER, "vortex_fx", new Identifier(""));
     private static final BoolProperty SECURITY = new BoolProperty("security", false);
@@ -78,8 +76,6 @@ public class StatsHandler extends KeyedTardisComponent {
     private final BoolValue security = SECURITY.create(this);
     private final BoolValue hailMary = HAIL_MARY.create(this);
     private final BoolValue receiveCalls = RECEIVE_CALLS.create(this);
-    private final Value<Identifier> dematId = DEMAT_FX.create(this);
-    private final Value<Identifier> matId = MAT_FX.create(this);
     private final Value<Identifier> flightId = FLIGHT_FX.create(this);
     private final Value<Identifier> vortexId = VORTEX_FX.create(this);
     private final DoubleValue tardisXScale = TARDIS_X_SCALE.create(this);
@@ -118,8 +114,6 @@ public class StatsHandler extends KeyedTardisComponent {
         security.of(this, SECURITY);
         hailMary.of(this, HAIL_MARY);
         receiveCalls.of(this, RECEIVE_CALLS);
-        dematId.of(this, DEMAT_FX);
-        matId.of(this, MAT_FX);
         flightId.of(this, FLIGHT_FX);
         vortexId.of(this, VORTEX_FX);
         tardisXScale.of(this, TARDIS_X_SCALE);
@@ -134,16 +128,6 @@ public class StatsHandler extends KeyedTardisComponent {
             if (this.flightFxCache != null)
                 this.flightFxCache.invalidate();
             else this.getFlightEffects();
-        });
-        dematId.addListener((id) -> {
-            if (this.travelFxCache != null)
-                this.travelFxCache.invalidate();
-            else this.getTravelEffects();
-        });
-        matId.addListener((id) -> {
-            if (this.travelFxCache != null)
-                this.travelFxCache.invalidate();
-            else this.getTravelEffects();
         });
 
         for (Iterator<TardisDesktopSchema> it = DesktopRegistry.getInstance().iterator(); it.hasNext();) {
@@ -274,19 +258,27 @@ public class StatsHandler extends KeyedTardisComponent {
         }
     }
 
-    public float getXScale() {
+    private float getXScale() {
         double v = tardisXScale.get();
         return (float) v;
     }
 
-    public float getYScale() {
+    private float getYScale() {
         double v = tardisYScale.get();
         return (float) v;
     }
 
-    public float getZScale() {
+    private float getZScale() {
         double v = tardisZScale.get();
         return (float) v;
+    }
+
+    /**
+     * The scale of the TARDIS.
+     * @see AnimatedTravelHandler#getScale()
+     */
+    public Vector3f getScale() {
+        return new Vector3f(this.getXScale(), this.getYScale(), this.getZScale());
     }
 
     public void setXScale(double scale) {
@@ -314,23 +306,6 @@ public class StatsHandler extends KeyedTardisComponent {
 
     public void markPlayerCreatorName() {
         playerCreatorName.set(this.getPlayerCreatorName());
-    }
-
-    public TravelSoundMap getTravelEffects() {
-        if (this.travelFxCache == null) {
-            this.travelFxCache = new Lazy<>(this::createTravelEffectsCache);
-        }
-
-        return this.travelFxCache.get();
-    }
-    private TravelSoundMap createTravelEffectsCache() {
-        TravelSoundMap map = new TravelSoundMap();
-
-        // TODO move to proper registries
-        map.put(TravelHandlerBase.State.DEMAT, TravelSoundRegistry.getInstance().getOrElse(this.dematId.get(), TravelSoundRegistry.DEFAULT_DEMAT));
-        map.put(TravelHandlerBase.State.MAT, TravelSoundRegistry.getInstance().getOrElse(this.matId.get(), TravelSoundRegistry.DEFAULT_MAT));
-
-        return map;
     }
 
     public FlightSound getFlightEffects() {
@@ -369,30 +344,5 @@ public class StatsHandler extends KeyedTardisComponent {
 
         if (this.flightFxCache != null)
             this.flightFxCache.invalidate();
-    }
-
-    private void setDematEffects(TravelSound current) {
-        this.dematId.set(current.id());
-
-        if (this.travelFxCache != null)
-            this.travelFxCache.invalidate();
-    }
-
-    private void setMatEffects(TravelSound current) {
-        this.matId.set(current.id());
-
-        if (this.travelFxCache != null)
-            this.travelFxCache.invalidate();
-    }
-
-    public void setTravelEffects(TravelSound current) {
-        switch (current.target()) {
-            case DEMAT:
-                this.setDematEffects(current);
-                break;
-            case MAT:
-                this.setMatEffects(current);
-                break;
-        }
     }
 }

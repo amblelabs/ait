@@ -173,11 +173,7 @@ public class AITItems extends ItemContainer {
             new AItemSettings().group(AITItemGroups.FABRICATOR), SubSystem.Id.LIFE_SUPPORT);
 
     @NoEnglish
-    public static final Item GALLIFREY_FALLS_PAINTING = new AITDecorationItem(AITEntityTypes.GALLIFREY_FALLS_PAINTING_ENTITY_TYPE,
-            new AItemSettings().group(AITItemGroups.MAIN));
-    @NoEnglish
-    public static final Item TRENZALORE_PAINTING = new AITDecorationItem(AITEntityTypes.TRENZALORE_PAINTING_ENTITY_TYPE,
-            new AItemSettings().group(AITItemGroups.MAIN));
+    public static final Item GALLIFREY_FALLS_PAINTING = new AITDecorationItem(AITEntityTypes.GALLIFREY_FALLS_PAINTING_TYPE, new AItemSettings().group(AITItemGroups.MAIN));
 
     // Blueprint
     public static final Item BLUEPRINT = new BlueprintItem(

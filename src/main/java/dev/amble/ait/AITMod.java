@@ -70,6 +70,8 @@ import dev.amble.ait.core.roundels.RoundelPatterns;
 import dev.amble.ait.core.screens.RoundelFabricatorScreenHandler;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
 import dev.amble.ait.core.sounds.travel.TravelSoundRegistry;
+import dev.amble.ait.core.tardis.animation.v2.blockbench.BlockbenchParser;
+import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
 import dev.amble.ait.core.tardis.handler.SeatHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
@@ -172,9 +174,12 @@ public class AITMod implements ModInitializer {
                 SubSystemRegistry.getInstance(),
                 ItemOpinionRegistry.getInstance(),
                 DrinkRegistry.getInstance(),
-                RoundelPatterns.getInstance()
+                RoundelPatterns.getInstance(),
+                DrinkRegistry.getInstance(),
+                TardisAnimationRegistry.getInstance()
         );
         ControlSoundRegistry.init();
+        BlockbenchParser.init();
 
         registerParticles();
 

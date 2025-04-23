@@ -3,12 +3,18 @@ package dev.amble.ait.core.tardis.handler.travel;
 import java.util.EnumMap;
 import java.util.Optional;
 
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -29,7 +35,6 @@ import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.lock.LockedDimension;
 import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.ait.core.sounds.travel.TravelSound;
-import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
 import dev.amble.ait.core.tardis.control.impl.DirectionControl;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
@@ -99,6 +104,21 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
             if (tardis.travel().isCrashing())
                 tardis.travel().setCrashing(false);
         });
+
+        if (EnvType.CLIENT == FabricLoader.getInstance().getEnvironmentType()) initializeClient();
+    }
+
+    @Environment(EnvType.CLIENT)
+    private static void initializeClient() {
+        ClientPlayNetworking.registerGlobalReceiver(TravelHandler.CANCEL_DEMAT_SOUND, (client, handler, buf,
+                                                                                       responseSender) -> {
+            ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
+
+            if (tardis == null)
+                return;
+
+            client.getSoundManager().stopSounds(tardis.travel().getAnimationIdFor(TravelHandlerBase.State.DEMAT), SoundCategory.BLOCKS);
+        });
     }
 
     public TravelHandler() {
@@ -154,6 +174,8 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
     @Override
     public void postInit(InitContext context) {
+        super.postInit(context);
+
         if (this.isServer() && context.created())
             this.placeExterior(true);
     }
@@ -205,14 +227,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
     private void runAnimations(ExteriorBlockEntity exterior) {
         State state = this.getState();
-        ExteriorAnimation animation = exterior.getAnimation();
-
-        if (animation == null) {
-            AITMod.LOGGER.info("Null animation for exterior at {}", exterior.getPos());
-            return;
-        }
-
-        animation.setupAnimation(state);
+        this.getAnimations().onStateChange(state);
     }
 
     public void runAnimations() {
@@ -294,13 +309,9 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     public ActionQueue forceDemat(TravelSound replacementSound) {
         this.setState(State.DEMAT);
 
-        SoundEvent sound = tardis.stats().getTravelEffects().get(this.getState()).sound();
-
-        // Play dematerialize sound at the position
-        this.position().getWorld().playSound(null, this.position().getPos(), sound, SoundCategory.BLOCKS);
-
-        //System.out.println(tardis.stats().getTravelEffects().get(this.getState()).soundId());
+        SoundEvent sound = this.getAnimationFor(this.getState()).getSound();
         this.tardis.getDesktop().playSoundAtEveryConsole(sound, SoundCategory.BLOCKS, 2f, 1f);
+
         this.runAnimations();
 
         this.startFlight();
@@ -334,6 +345,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
                 SoundCategory.AMBIENT);
         this.tardis.getDesktop().playSoundAtEveryConsole(AITSounds.ABORT_FLIGHT, SoundCategory.AMBIENT);
 
+        // TODO - cancel for subscribed players instead
         NetworkUtil.sendToInterior(this.tardis.asServer(), CANCEL_DEMAT_SOUND, PacketByteBufs.empty());
     }
 
@@ -378,19 +390,16 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         this.waiting = false;
         this.tardis.door().closeDoors();
 
-        SoundEvent sound = tardis.stats().getTravelEffects().get(this.getState()).sound();
+        SoundEvent sound = this.getAnimationFor(this.getState()).getSound();
 
         if (this.isCrashing())
             sound = AITSounds.EMERG_MAT;
 
+        this.tardis.getDesktop().playSoundAtEveryConsole(sound, SoundCategory.BLOCKS, 2f, 1f);
+
         this.destination(pos);
         this.forcePosition(this.destination());
 
-        // Play materialize sound at the destination
-        this.position().getWorld().playSound(null, this.position().getPos(), sound, SoundCategory.BLOCKS);
-
-        this.tardis.getDesktop().playSoundAtEveryConsole(sound, SoundCategory.BLOCKS, 2f, 1f);
-        //System.out.println(sound.getId());
         this.placeExterior(true); // we schedule block update in #finishRemat
     }
 

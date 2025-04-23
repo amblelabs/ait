@@ -247,8 +247,7 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
     }
 
     public enum State implements Ordered {
-        LANDED, DEMAT(null, TravelHandler::finishDemat), FLIGHT, MAT(
-                null, TravelHandler::finishRemat);
+        LANDED(null), DEMAT(TravelHandler::finishDemat), FLIGHT(null, false), MAT(TravelHandler::finishRemat);
 
         public static final Codec<State> CODEC = Codecs.NON_EMPTY_STRING.flatXmap(s -> {
             try {
@@ -258,33 +257,18 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
             }
         }, var -> DataResult.success(var.toString()));
 
-        private final TravelSound sound;
         private final boolean animated;
 
         private final Consumer<TravelHandler> finish;
 
-        State() {
-            this(null);
+        State(Consumer<TravelHandler> finish) {
+            this(finish, true);
         }
 
-        State(TravelSound sound) {
-            this(sound, null, false);
-        }
-
-        State(TravelSound sound, Consumer<TravelHandler> finish) {
-            this(sound, finish, true);
-        }
-
-        State(TravelSound sound, Consumer<TravelHandler> finish, boolean animated) {
-            this.sound = sound;
+        State(Consumer<TravelHandler> finish, boolean animated) {
             this.animated = animated;
 
             this.finish = finish;
-        }
-
-        @Deprecated(forRemoval = true, since = "1.2.0")
-        public TravelSound effect() {
-            return this.sound;
         }
 
         public boolean animated() {
@@ -292,6 +276,8 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
         }
 
         public void finish(TravelHandler handler) {
+            if (this.finish == null) return;
+
             this.finish.accept(handler);
         }
 

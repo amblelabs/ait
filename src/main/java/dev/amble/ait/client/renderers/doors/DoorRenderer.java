@@ -1,5 +1,7 @@
 package dev.amble.ait.client.renderers.doors;
 
+import org.joml.Vector3f;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -14,7 +16,6 @@ import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.boti.BOTI;
-import dev.amble.ait.client.models.doors.CapsuleDoorModel;
 import dev.amble.ait.client.models.doors.DoomDoorModel;
 import dev.amble.ait.client.models.doors.DoorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
@@ -39,28 +40,14 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
             int light, int overlay) {
-        if (entity.getWorld() == null) return;
-        if (!entity.isLinked()) {
-            BlockState blockState = entity.getCachedState();
-            float k = blockState.get(DoorBlock.FACING).asRotation();
-            matrices.push();
-            matrices.translate(0.5, 1.5, 0.5);
-            matrices.scale(1, 1, 1);
-            matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(k + 180));
-            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
-            CapsuleDoorModel doorModel = new CapsuleDoorModel(CapsuleDoorModel.getTexturedModelData().createModel());
-            doorModel.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityCutout(ClientExteriorVariantRegistry.CAPSULE_DEFAULT.texture())),
-                    light, overlay, 1, 1, 1, 1);
-            matrices.pop();
+        if (!entity.isLinked() || entity.getWorld() == null)
             return;
-        }
 
         Profiler profiler = entity.getWorld().getProfiler();
         profiler.push("door");
 
         ClientTardis tardis = entity.tardis().get().asClient();
-        if (!tardis.siege().isActive())
-            this.renderDoor(profiler, tardis, entity, matrices, vertexConsumers, light, overlay);
+        this.renderDoor(profiler, tardis, entity, matrices, vertexConsumers, light, overlay);
 
         profiler.pop();
     }
@@ -79,7 +66,8 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
 
         matrices.push();
         matrices.translate(0.5, 0, 0.5);
-        matrices.scale(tardis.stats().getXScale(), tardis.stats().getYScale(), tardis.stats().getZScale());
+        Vector3f scale = tardis.travel().getScale();
+        matrices.scale(scale.x, scale.y, scale.z);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(k));
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 

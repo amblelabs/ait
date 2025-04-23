@@ -13,7 +13,7 @@ import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 
 
 public abstract class ClientDalekModVariant extends ClientExteriorVariantSchema {
-    private final int number;
+    private final String name;
     protected static final String CATEGORY_PATH = "textures/blockentities/exteriors/dalek_mod";
     protected static final Identifier CATEGORY_IDENTIFIER = new Identifier(AITMod.MOD_ID,
             CATEGORY_PATH + "/dalek_mod.png");
@@ -27,10 +27,10 @@ public abstract class ClientDalekModVariant extends ClientExteriorVariantSchema 
             .build();
 
 
-    protected ClientDalekModVariant(int number) {
-        super(AITMod.id("exterior/dalek_mod/" + number));
+    protected ClientDalekModVariant(String name) {
+        super(AITMod.id("exterior/dalek_mod/" + name));
 
-        this.number = number;
+        this.name = name;
     }
 
     @Override
@@ -40,12 +40,12 @@ public abstract class ClientDalekModVariant extends ClientExteriorVariantSchema 
 
     @Override
     public Identifier texture() {
-        return AITMod.id(TEXTURE_PATH + number + ".png");
+        return AITMod.id(TEXTURE_PATH + name + ".png");
     }
 
     @Override
     public Identifier emission() {
-        return AITMod.id(TEXTURE_PATH + number + "_emission" + ".png");
+        return AITMod.id(TEXTURE_PATH + name + "_emission" + ".png");
     }
 
     @Override
