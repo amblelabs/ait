@@ -28,11 +28,10 @@ import net.minecraft.client.render.model.json.ModelOverrideList;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.SpriteIdentifier;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.Registries;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.DyeColor;
@@ -43,8 +42,9 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
 
-import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.blockentities.RoundelBlockEntity;
+import dev.amble.ait.core.blocks.AbstractRoundelBlock;
 import dev.amble.ait.core.item.RoundelItem;
 import dev.amble.ait.core.roundels.RoundelPattern;
 import dev.amble.ait.core.roundels.RoundelPatterns;
@@ -237,82 +237,58 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
     }
 
     // Finally, we can implement the item render function
+    private final RoundelBlockEntity renderableRoundel = new RoundelBlockEntity(BlockPos.ORIGIN, AITBlocks.ROUNDEL.getDefaultState());
     @Override
     public void emitItemQuads(ItemStack itemStack, Supplier<Random> randomSupplier, RenderContext renderContext) {
 
         if (itemStack.getItem() instanceof RoundelItem roundelItem) {
-            if (RoundelItem.getBlockEntityNbt(itemStack) != null) {
 
-                NbtCompound nbtCompound = RoundelItem.getBlockEntityNbt(itemStack);
-                NbtList nbtList = nbtCompound.getList("Patterns", NbtElement.COMPOUND_TYPE);
-                NbtCompound dynamicTex = nbtCompound.getCompound("DynamicTex");
-                BlockState dynamicTexBlockState = !nbtCompound.contains("DynamicTex", NbtElement.COMPOUND_TYPE) ? Blocks.WHITE_CONCRETE.getDefaultState() : NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(),
-                        dynamicTex);
-
-
-                if (dynamicTexBlockState.getRenderType() != BlockRenderType.INVISIBLE) {
-                    for (int i = 0; i < nbtList.size() && i < 6; ++i) {
-                        NbtCompound nbtCompound2 = nbtList.getCompound(i);
-                        DyeColor dyeColor = DyeColor.byId(nbtCompound2.getInt("Color"));
-                        RoundelPattern roundel = RoundelPatterns.getInstance().get(Identifier.tryParse(nbtCompound2.getString("Pattern")));
-                        if (roundel == null) continue;
-                        if (roundel.equals(RoundelPatterns.BASE)) {
-                            int colorForBlock = ColorHelper.Argb.getArgb(255, (int) (255f * dyeColor.getColorComponents()[0]), (int)
-                                    (255f * dyeColor.getColorComponents()[1]), (int) (255f * dyeColor.getColorComponents()[2]));
-                            RoundelModel.emitItemQuads(BLOCK_MODELS.getModel(dynamicTexBlockState), colorForBlock, dynamicTexBlockState, randomSupplier, renderContext);
-                        }
-                    }
+            if (!(roundelItem.getBlock() instanceof AbstractRoundelBlock roundelBlock)) return;
+            this.renderableRoundel.readFrom(itemStack, roundelBlock.getColor());
+            NbtCompound nbt = this.renderableRoundel.createNbt();
+            if(BlockItem.getBlockEntityNbt(itemStack) != null) nbt.copyFrom(BlockItem.getBlockEntityNbt(itemStack));
+            if (nbt.contains("DynamicTex")) {
+                this.renderableRoundel.setDynamicTex(NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(), nbt.getCompound("DynamicTex")));
+            } else {
+                this.renderableRoundel.setDynamicTex(Blocks.WHITE_CONCRETE.getDefaultState());
+            }
+            List<RoundelType> list = RoundelBlockEntity.getPatternsFromNbt(((RoundelItem) itemStack.getItem()).getColor(), RoundelBlockEntity.getPatternListNbt(itemStack));
+            BlockState dynamicTexBlockState = this.renderableRoundel.getDynamicTextureBlockState();
+            for (int i = 0; i < list.size() && i < 6; ++i) {
+                RoundelType pair = this.renderableRoundel.getPatterns().get(i);
+                RoundelPattern roundel = pair.pattern();
+                if (roundel == null) continue;
+                if (roundel.equals(RoundelPatterns.BASE)) {
+                    int colorForBlock = pair.color();
+                    RoundelModel.emitItemQuads(BLOCK_MODELS.getModel(dynamicTexBlockState), colorForBlock, dynamicTexBlockState, randomSupplier, renderContext);
+                } else {
                     BLOCK_MODELS.getModel(dynamicTexBlockState)
                             .emitItemQuads(itemStack, randomSupplier, renderContext);
                 }
-                Renderer renderer = RendererAccess.INSTANCE.getRenderer();
-                if (renderer == null) {
-                    System.out.println("I returned null for some weird reason");
-                    return;
-                }
-
-                MeshBuilder builder = renderer.meshBuilder();
-                QuadEmitter emitter = builder.getEmitter();
-                List<BakedQuad> bakedQuadList = new ArrayList<>();
-
-                for (int i = 0; i < nbtList.size() && i < 7; ++i) {
-                    NbtCompound nbtCompound2 = nbtList.getCompound(i);
-                    RoundelPattern roundel = RoundelPatterns.getInstance().get(Identifier.tryParse(nbtCompound2.getString("Pattern")));
-                    Identifier idOf = AITMod.id(roundel.texture().getPath()
-                            .substring(9, roundel.texture().getPath().length() - 4));
-                    SpriteIdentifier spriteId = new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, idOf);
-                    bakedQuadList.add(emitter.toBakedQuad(spriteId.getSprite()));
-                }
-
-                for (int i = 0; i < nbtList.size() && i < 6; ++i) {
-                    int colorOf = 0;
-                    NbtCompound nbtCompound2 = nbtList.getCompound(i);
-                    DyeColor dyeColor = DyeColor.byId(nbtCompound2.getInt("Color"));
-                    RoundelPattern roundel = RoundelPatterns.getInstance().get(Identifier.tryParse(nbtCompound2.getString("Pattern")));
-                    if (roundel == null) continue;
-                    if (roundel.equals(RoundelPatterns.BASE)) {
-                        continue;
-                    }
-
-
-                    // Add a new face to the mesh
-
-                    colorOf = ColorHelper.Argb.getArgb(255, (int) (255f * dyeColor.getColorComponents()[0]), (int)
-                            (255f * dyeColor.getColorComponents()[1]), (int) (255f * dyeColor.getColorComponents()[2]));
-
-
-
-                    final Direction cullFace = ModelHelper.faceFromIndex(i);
-                    emitter.fromVanilla(bakedQuadList.get(i), RENDERER.materialFinder()
-                                    .disableColorIndex(true).blendMode(BlendMode.TRANSLUCENT).find(), cullFace);
-                    emitter.color(colorOf, colorOf, colorOf, colorOf);
-                    emitter.lightmap(colorOf, colorOf, colorOf, colorOf);
-                    emitter.emit();
-                }
-
-
-                builder.build().outputTo(renderContext.getEmitter());
             }
+
+            Renderer renderer = RendererAccess.INSTANCE.getRenderer();
+            if (renderer == null) {
+                System.out.println("I returned null for some weird reason");
+                return;
+            }
+            MeshBuilder builder = renderer.meshBuilder();
+            QuadEmitter emitter = builder.getEmitter();
+            List<BakedQuad> bakedQuadList = new ArrayList<>();
+            for (int i = 0; i < this.renderableRoundel.getPatterns().size() && i < 7; ++i) {
+                RoundelType pair = this.renderableRoundel.getPatterns().get(i);
+                RoundelPattern roundel = pair.pattern();
+                Identifier idOf = new Identifier(roundel.texture().getNamespace(), roundel.texture().getPath()
+                        .substring(9, roundel.texture().getPath().length() - 4));
+                SpriteIdentifier spriteId = new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, idOf);
+                bakedQuadList.add(emitter.toBakedQuad(spriteId.getSprite()));
+            }
+
+            for (BakedQuad quad : bakedQuadList) {
+                builder.getEmitter().fromVanilla(quad.getVertexData(), 0);
+            }
+
+            builder.build().outputTo(builder.getEmitter());
         }
 
 
