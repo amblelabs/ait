@@ -36,7 +36,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blockentities.RoundelBlockEntity;
 import dev.amble.ait.core.roundels.RoundelPatterns;
 import dev.amble.ait.core.roundels.RoundelType;
@@ -64,9 +63,8 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
                 if (roundelBlockEntity.getDynamicTextureBlockState().getRenderType() != BlockRenderType.INVISIBLE) {
                     for (RoundelType patterns : roundelBlockEntity.getPatterns()) {
                         if (patterns.pattern().equals(RoundelPatterns.BASE)) {
-                            int colorForBlock = patterns.color().equals(DyeColor.WHITE) ? ColorHelper.Argb.getArgb(255, 255, 255, 255)
-                            : ColorHelper.Argb.getArgb(255, (int) (255f * patterns.color().getColorComponents()[0]), (int)
-                                    (255f * patterns.color().getColorComponents()[1]), (int) (255f * patterns.color().getColorComponents()[2]));
+                            int colorForBlock = patterns.color() == DyeColor.WHITE.getSignColor() ? ColorHelper.Argb.getArgb(255, 255, 255, 255)
+                            : patterns.color();
                             RoundelModel.emitBlockQuads(
                                     BLOCK_MODELS.getModel(roundelBlockEntity.getDynamicTextureBlockState()),
                                     roundelBlockEntity.getDynamicTextureBlockState(),
@@ -90,19 +88,12 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
                         continue;
                     }
                     for (Direction direction : Direction.values()) {
-                        // UP and DOWN share the Y axis
-                        int spriteIdx = direction == Direction.UP || direction == Direction.DOWN ? SPRITE_TOP : SPRITE_SIDE;
-                        // Add a new face to the mesh
                         emitter.square(direction, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-                        // Set the sprite of the face, must be called after .square()
-                        // We haven't specified any UV coordinates, so we want to use the whole texture. BAKE_LOCK_UV does exactly that.
-                        Identifier idOf = AITMod.id(patterns.pattern().texture().getPath()
+                        Identifier idOf = new Identifier(patterns.pattern().texture().getNamespace(), patterns.pattern().texture().getPath()
                                 .substring(9, patterns.pattern().texture().getPath().length() - 4));
                         SpriteIdentifier spriteId = new SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, idOf);
                         emitter.spriteBake(spriteId.getSprite(), MutableQuadView.BAKE_LOCK_UV);
-                        // Enable texture usage
-                        int colorOf = ColorHelper.Argb.getArgb(255, (int) (255f * patterns.color().getColorComponents()[0]), (int)
-                                (255f * patterns.color().getColorComponents()[1]), (int) (255f * patterns.color().getColorComponents()[2]));
+                        int colorOf = patterns.color();
                         emitter.color(colorOf, colorOf, colorOf, colorOf);
                         if (patterns.emissive()) {
                             boolean bl = roundelBlockEntity.tardis() != null && roundelBlockEntity.tardis().get() != null &&
@@ -111,7 +102,6 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
                             emitter.lightmap(colorWithTardis, colorWithTardis, colorWithTardis, colorWithTardis);
                         }
                         emitter.material(RENDERER.materialFinder().blendMode(BlendMode.TRANSLUCENT).find());
-                        // Add the quad to the mesh
                         emitter.emit();
                     }
                 }

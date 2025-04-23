@@ -12,7 +12,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
@@ -24,9 +23,9 @@ public abstract class AbstractRoundelBlock
         extends Block implements BlockEntityProvider {
     public static final IntProperty LEVEL_15 = Properties.LEVEL_15;
     public static final ToIntFunction<BlockState> STATE_TO_LUMINANCE = state -> state.get(LEVEL_15);
-    private final DyeColor color;
+    private final int color;
 
-    protected AbstractRoundelBlock(DyeColor color, AbstractBlock.Settings settings) {
+    protected AbstractRoundelBlock(int color, AbstractBlock.Settings settings) {
         super(settings);
         this.color = color;
         this.setDefaultState(this.stateManager.getDefaultState().with(LEVEL_15, 11));
@@ -82,7 +81,7 @@ public abstract class AbstractRoundelBlock
         return this.getDefaultState().with(LEVEL_15, 11);
     }
 
-    public DyeColor getColor() {
+    public int getColor() {
         return this.color;
     }
 

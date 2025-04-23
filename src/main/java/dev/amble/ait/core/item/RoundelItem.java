@@ -14,7 +14,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.text.Text;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
@@ -39,11 +38,11 @@ public class RoundelItem
         NbtList nbtList = nbtCompound.getList("Patterns", NbtElement.COMPOUND_TYPE);
         for (int i = 0; i < nbtList.size() && i < 6; ++i) {
             NbtCompound nbtCompound2 = nbtList.getCompound(i);
-            DyeColor dyeColor = DyeColor.byId(nbtCompound2.getInt("Color"));
+            int dyeColor = nbtCompound2.getInt("Color");
             RoundelPattern roundel = RoundelPatterns.getInstance().get(Identifier.tryParse(nbtCompound2.getString("Pattern")));
             boolean emissive = nbtCompound2.getBoolean("Emissive");
             if (roundel == null) continue;
-            tooltip.add(Text.literal(roundel.id().getPath() + " | Color: " + dyeColor.getName()).formatted(Formatting.GRAY, Formatting.ITALIC));
+            tooltip.add(Text.literal(roundel.id().getPath() + " | Color: #" + dyeColor).formatted(Formatting.GRAY, Formatting.ITALIC));
             tooltip.add(Text.literal("Emissive: " + emissive).formatted(Formatting.GRAY, Formatting.ITALIC));
         }
         if (nbtCompound.contains("DynamicTex", NbtElement.COMPOUND_TYPE)) {
@@ -52,7 +51,7 @@ public class RoundelItem
         }
     }
 
-    public DyeColor getColor() {
+    public int getColor() {
         return ((AbstractRoundelBlock)this.getBlock()).getColor();
     }
 

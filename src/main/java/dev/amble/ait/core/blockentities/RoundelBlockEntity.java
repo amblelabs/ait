@@ -18,7 +18,6 @@ import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Nameable;
 import net.minecraft.util.math.BlockPos;
@@ -41,7 +40,7 @@ public class RoundelBlockEntity
     public static final String PATTERN_KEY = "Pattern";
     public static final String COLOR_KEY = "Color";
     @Nullable private Text customName;
-    private DyeColor baseColor;
+    private int baseColor;
     private boolean emissive;
     private BlockState dynamicTex;
     @Nullable private NbtList patternListNbt;
@@ -75,7 +74,7 @@ public class RoundelBlockEntity
         return this;
     }
 
-    public RoundelBlockEntity(BlockPos pos, BlockState state, DyeColor baseColor) {
+    public RoundelBlockEntity(BlockPos pos, BlockState state, int baseColor) {
         this(pos, state);
         this.baseColor = baseColor;
     }
@@ -89,7 +88,7 @@ public class RoundelBlockEntity
         return nbtList;
     }
 
-    public void readFrom(ItemStack stack, DyeColor baseColor) {
+    public void readFrom(ItemStack stack, int baseColor) {
         this.baseColor = baseColor;
         this.readFrom(stack);
     }
@@ -169,7 +168,7 @@ public class RoundelBlockEntity
         return this.patterns;
     }
 
-    public static List<RoundelType> getPatternsFromNbt(DyeColor baseColor, @Nullable NbtList patternListNbt) {
+    public static List<RoundelType> getPatternsFromNbt(int baseColor, @Nullable NbtList patternListNbt) {
         ArrayList<RoundelType> list = Lists.newArrayList();
         list.add(new RoundelType(RoundelPatterns.BASE, baseColor, false));
         if (patternListNbt != null) {
@@ -179,7 +178,7 @@ public class RoundelBlockEntity
                 if (pattern == null) continue;
                 int j = nbtCompound.getInt(COLOR_KEY);
                 boolean b = nbtCompound.getBoolean("Emissive");
-                list.add(new RoundelType(pattern, DyeColor.byId(j), b));
+                list.add(new RoundelType(pattern, j, b));
             }
         }
         return list;
@@ -218,7 +217,7 @@ public class RoundelBlockEntity
         return itemStack;
     }
 
-    public DyeColor getColorForState() {
+    public int getColorForState() {
         return this.baseColor;
     }
 

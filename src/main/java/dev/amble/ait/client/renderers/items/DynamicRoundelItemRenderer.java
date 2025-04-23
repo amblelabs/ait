@@ -14,6 +14,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.core.AITBlocks;
@@ -54,11 +55,13 @@ public class DynamicRoundelItemRenderer implements BuiltinItemRendererRegistry.D
         ModelPart modelPart = RoundelFabricatorScreen.getTexturedModelData().createModel();
         for (int p = 0; p < 17 && p < this.renderRoundel.getPatterns().size(); ++p) {
             RoundelType pair = this.renderRoundel.getPatterns().get(p);
-            float[] fs = pair.color().getColorComponents();
+            int r = ColorHelper.Argb.getRed(pair.color());
+            int g = ColorHelper.Argb.getGreen(pair.color());
+            int b = ColorHelper.Argb.getBlue(pair.color());
             if (pair.pattern().equals(RoundelPatterns.BASE)) {
                 matrices.push();
                 modelPart.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(pair.pattern().texture())),
-                        pair.emissive() ? 0xf000f0 : light, OverlayTexture.DEFAULT_UV, fs[0], fs[1], fs[2], 1.0f);
+                        pair.emissive() ? 0xf000f0 : light, OverlayTexture.DEFAULT_UV, r, g, b, 1.0f);
                 matrices.pop();
                 continue;
             }
@@ -68,7 +71,7 @@ public class DynamicRoundelItemRenderer implements BuiltinItemRendererRegistry.D
             matrices.push();
             matrices.translate(0, p >= 1 ? -0.002 * p : 0, 0);
             matrices.scale(1 + (0.0001f * p), p >= 1 ? 1 + (0.01f * p) : 1 + (0.0001f * p), 1 + (0.0001f * p));
-            modelPart.render(matrices, vertexConsumer, pair.emissive() ? 0xf000f0 : light, overlay, fs[0], fs[1], fs[2], 1.0f);
+            modelPart.render(matrices, vertexConsumer, pair.emissive() ? 0xf000f0 : light, overlay, r, g, b, 1.0f);
             matrices.pop();
         }
         matrices.pop();

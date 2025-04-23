@@ -5,6 +5,8 @@ package dev.amble.ait.core.screens;
 
 import java.util.List;
 
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -21,6 +23,7 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.math.ColorHelper;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlockEntityTypes;
@@ -39,6 +42,7 @@ public class RoundelFabricatorScreenHandler
     private static final int HOTBAR_END = 40;
     private final ScreenHandlerContext context;
     final Property selectedPattern = Property.create();
+    final Property colorProperty = Property.create();
     private List<RoundelPattern> roundelPatterns = List.of();
     Runnable inventoryChangeListener = () -> {};
     final Slot roundelSlot;
@@ -66,6 +70,20 @@ public class RoundelFabricatorScreenHandler
 
     public RoundelFabricatorScreenHandler(int syncId, PlayerInventory playerInventory) {
         this(syncId, playerInventory, ScreenHandlerContext.EMPTY);
+    }
+
+    static {
+        ServerPlayNetworking.registerGlobalReceiver(AITMod.id("update_roundel_color"), (server, player, handler, buf, responseSender) -> {
+            int color = buf.readInt();
+            ScreenHandler screenHandler = player.currentScreenHandler;
+            if (screenHandler instanceof RoundelFabricatorScreenHandler roundelScreenHandler) {
+                if (roundelScreenHandler.roundelSlot.hasStack() && roundelScreenHandler.dyeSlot.hasStack()) {
+                    roundelScreenHandler.colorProperty.set(color);
+                    if (!roundelScreenHandler.roundelPatterns.isEmpty() && roundelScreenHandler.selectedPattern != null)
+                        roundelScreenHandler.updateOutputSlot(roundelScreenHandler.roundelPatterns.get(roundelScreenHandler.selectedPattern.get()));
+                }
+            }
+        });
     }
 
     public RoundelFabricatorScreenHandler(int syncId, PlayerInventory playerInventory, final ScreenHandlerContext context) {
@@ -127,6 +145,7 @@ public class RoundelFabricatorScreenHandler
             this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
         }
         this.addProperty(this.selectedPattern);
+        this.addProperty(this.colorProperty);
     }
 
     @Override
@@ -275,7 +294,8 @@ public class RoundelFabricatorScreenHandler
             }
             NbtCompound nbtCompound2 = new NbtCompound();
             nbtCompound2.putString("Pattern", pattern.id().toString());
-            nbtCompound2.putInt("Color", dyeColor.getId());
+            nbtCompound2.putInt("Color", this.colorProperty.get() == 0 ? ColorHelper.Argb.getArgb(255, (int) (255 * dyeColor.getColorComponents()[0]), (int) (255 * dyeColor.getColorComponents()[1]),
+                    (int) (255 * dyeColor.getColorComponents()[2])) : this.colorProperty.get());
             nbtCompound2.putBoolean("Emissive", true);
             if (this.patternSlot.getStack().getItem() instanceof BlockItem blockItem && !(blockItem.getBlock() instanceof AbstractRoundelBlock)) {
                 nbtCompound.put("DynamicTex", NbtHelper.fromBlockState(blockItem.getBlock().getDefaultState()));

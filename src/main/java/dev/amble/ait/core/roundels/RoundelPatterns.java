@@ -12,7 +12,7 @@ public class RoundelPatterns extends SimpleDatapackRegistry<RoundelPattern> {
     private static final RoundelPatterns instance = new RoundelPatterns();
 
     public RoundelPatterns() {
-        super(RoundelPattern::fromInputStream, RoundelPattern.CODEC, "roundel/pattern", "roundel/pattern", true, AITMod.MOD_ID);
+        super(RoundelPattern::fromInputStream, RoundelPattern.CODEC, "roundel/pattern", true, AITMod.MOD_ID);
     }
 
     public static RoundelPattern BASE;

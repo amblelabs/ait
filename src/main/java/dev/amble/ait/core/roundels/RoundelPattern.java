@@ -18,7 +18,6 @@ import dev.amble.lib.api.Identifiable;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.dynamic.Codecs;
 
@@ -64,7 +63,7 @@ public record RoundelPattern(Identifier id, Identifier texture, boolean usesDyna
     public static class Patterns {
         private final List<RoundelType> entries = Lists.newArrayList();
 
-        public Patterns add(RoundelPattern pattern, DyeColor color) {
+        public Patterns add(RoundelPattern pattern, int color) {
             return this.add(new RoundelType(pattern, color, true));
         }
 
@@ -78,7 +77,7 @@ public record RoundelPattern(Identifier id, Identifier texture, boolean usesDyna
             for (RoundelType type : this.entries) {
                 NbtCompound nbtCompound = new NbtCompound();
                 nbtCompound.putString("Pattern", type.pattern().id.toString());
-                nbtCompound.putInt("Color", type.color().getId());
+                nbtCompound.putInt("Color", type.color());
                 nbtCompound.putBoolean("Emissive", true);
                 nbtList.add(nbtCompound);
             }

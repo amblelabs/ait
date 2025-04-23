@@ -172,7 +172,7 @@ public class AITBlocks extends BlockContainer {
             .requiresTool().instrument(Instrument.COW_BELL).strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
 
     @NoBlockItem
-    public static final Block ROUNDEL = new RoundelBlock(DyeColor.WHITE, ABlockSettings.create().itemSettings(new AItemSettings()
+    public static final Block ROUNDEL = new RoundelBlock(DyeColor.WHITE.getSignColor(), ABlockSettings.create().itemSettings(new AItemSettings()
                     .group(AITItemGroups.FABRICATOR)).burnable().dropsLike(Blocks.BLACK_BANNER).nonOpaque()
             .requiresTool().strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.NORMAL).luminance(AbstractRoundelBlock.STATE_TO_LUMINANCE));
 
