@@ -23,7 +23,7 @@ public class SetWaypointControl extends Control {
 
         WaypointHandler waypoints = tardis.waypoint();
 
-        if (waypoints.get().getPos() != null)
+        if (waypoints.hasCartridge() && waypoints.get().getPos() != null)
             waypoints.setDestination();
 
         waypoints.spawnItem(console);
