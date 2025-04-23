@@ -17,7 +17,6 @@ import net.minecraft.world.border.WorldBorder;
 
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisTickable;
-import dev.amble.ait.core.sounds.travel.TravelSound;
 import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
 import dev.amble.ait.core.util.SafePosSearch;
 import dev.amble.ait.core.util.WorldUtil;

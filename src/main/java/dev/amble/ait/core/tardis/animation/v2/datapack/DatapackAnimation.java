@@ -10,10 +10,10 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
@@ -33,8 +33,7 @@ public class DatapackAnimation extends TardisAnimation {
 
     private final TravelHandlerBase.State expectedState;
     private final String nameKey;
-    @Nullable
-    private final Identifier blockbenchId;
+    @Nullable private final Identifier blockbenchId;
 
     protected DatapackAnimation(Identifier id, Optional<Identifier> blockbench, TravelHandlerBase.State expectedState, Optional<Identifier> sound) {
         super(id, sound.orElse(null), BlockbenchParser.getOrFallback(blockbench.orElse(id)));

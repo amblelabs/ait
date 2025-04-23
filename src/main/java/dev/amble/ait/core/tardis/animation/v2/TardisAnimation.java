@@ -40,8 +40,7 @@ import dev.amble.ait.data.Exclude;
  */
 public abstract class TardisAnimation implements TardisTickable, Disposable, Identifiable, Linkable, Nameable {
     private final Identifier id;
-    @Nullable
-    private Identifier soundId;
+    @Nullable private Identifier soundId;
 
     private TardisRef ref;
     private boolean isServer = true;

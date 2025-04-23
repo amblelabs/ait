@@ -165,8 +165,7 @@ public abstract class AnimatedTravelHandler extends ProgressiveTravelHandler {
         return this.animations;
     }
 
-    @Nullable
-    public Identifier getAnimationIdFor(State state) {
+    @Nullable public Identifier getAnimationIdFor(State state) {
         return switch (state) {
             case LANDED, FLIGHT -> null;
             case DEMAT -> this.dematId.get();

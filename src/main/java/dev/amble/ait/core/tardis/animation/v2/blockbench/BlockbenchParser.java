@@ -4,8 +4,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -37,8 +35,6 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.animation.v2.keyframe.AnimationKeyframe;
 import dev.amble.ait.core.tardis.animation.v2.keyframe.KeyframeTracker;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 
 public class BlockbenchParser implements
         SimpleSynchronousResourceReloadListener {
