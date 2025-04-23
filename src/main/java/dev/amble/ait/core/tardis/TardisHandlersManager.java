@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import com.google.gson.*;
+import dev.amble.ait.data.enummap.ConcurrentEnumMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.ApiStatus;
@@ -21,7 +22,7 @@ import dev.amble.ait.registry.impl.TardisComponentRegistry;
 public class TardisHandlersManager extends TardisComponent implements TardisTickable {
 
     @Exclude
-    private final EnumMap<IdLike, TardisComponent> handlers = new EnumMap<>(TardisComponentRegistry::values,
+    private final EnumMap<IdLike, TardisComponent> handlers = new ConcurrentEnumMap<>(TardisComponentRegistry::values,
             TardisComponent[]::new);
 
     public TardisHandlersManager() {
