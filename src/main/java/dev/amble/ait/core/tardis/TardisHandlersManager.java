@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import com.google.gson.*;
-import dev.amble.ait.data.enummap.ConcurrentEnumMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.ApiStatus;
@@ -16,6 +15,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.data.Exclude;
+import dev.amble.ait.data.enummap.ConcurrentEnumMap;
 import dev.amble.ait.data.enummap.EnumMap;
 import dev.amble.ait.registry.impl.TardisComponentRegistry;
 

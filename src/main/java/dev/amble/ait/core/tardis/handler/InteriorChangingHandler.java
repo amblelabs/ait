@@ -33,6 +33,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.core.AITDamageTypes;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
@@ -69,6 +70,9 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
     private final BoolValue hasCage = HAS_CAGE.create(this);
     private final BoolValue queued = QUEUED.create(this);
     private final BoolValue regenerating = REGENERATING.create(this);
+
+    @Exclude
+    private boolean countdownStarted = false;
 
     @Exclude
     private List<ItemStack> restorationChestContents;
@@ -334,24 +338,40 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
             this.queued.set(false);
             this.regenerating.set(false);
 
-            tardis.alarm().enabled().set(false);
+            tardis.alarm().disable();
             return;
         }
 
         if (!TardisUtil.isInteriorEmpty(tardis.asServer())) {
-            if (this.regenerating.get())
-                TardisUtil.teleportOutside(tardis.asServer(),
-                        TardisUtil.getAnyPlayerInsideInterior(tardis.asServer().getInteriorWorld()));
-            warnPlayers();
-            return;
+            if (this.regenerating.get()) {
+                PlayerEntity target = TardisUtil.getAnyPlayerInsideInterior(tardis.asServer().getInteriorWorld());
+
+                if (this.tardis().subsystems().lifeSupport().isEnabled()) {
+                    TardisUtil.teleportOutside(tardis.asServer(), target);
+                } else {
+                    target.damage(AITDamageTypes.of(target.getWorld(), AITDamageTypes.INTERIOR_CHANGE), Float.MAX_VALUE);
+                }
+            }
         }
 
-        if (!this.regenerating.get()) {
+        if (!this.regenerating.get() && !this.countdownStarted) {
+            this.startRegeneratingCountdown();
+        }
+    }
+
+    private ServerAlarmHandler.Countdown startRegeneratingCountdown() {
+        ServerAlarmHandler.Countdown cd = new ServerAlarmHandler.Countdown.Builder().bellTolls(5).message("tardis.message.interiorchange.regenerating").thenRun(() -> {
             tardis.getDesktop().startQueue(true);
             Scheduler.get().runTaskLater(this::changeInterior, TimeUnit.SECONDS, 5);
 
             this.regenerating.set(true);
-        }
+            this.countdownStarted = false;
+        });
+
+        this.tardis().alarm().enable(cd);
+        this.countdownStarted = true;
+
+        return cd;
     }
 
     public boolean hasEnoughPlasmicMaterial() {
