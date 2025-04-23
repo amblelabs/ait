@@ -6,10 +6,7 @@ import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
@@ -27,16 +24,17 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
 import dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 import dev.amble.ait.core.tardis.Tardis;
 
 @SuppressWarnings("deprecation")
-public class EnvironmentProjectorBlock extends Block implements BlockEntityProvider {
-
+public class EnvironmentProjectorBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
     public static final BooleanProperty ENABLED = Properties.ENABLED;
     public static final BooleanProperty POWERED = Properties.POWERED;
     public static final BooleanProperty SILENT = BooleanProperty.of("silent");
@@ -44,6 +42,7 @@ public class EnvironmentProjectorBlock extends Block implements BlockEntityProvi
     public EnvironmentProjectorBlock(Settings settings) {
         super(settings.emissiveLighting((state, world, pos) -> state.get(EnvironmentProjectorBlock.ENABLED)).nonOpaque()
                 .luminance(value -> value.get(EnvironmentProjectorBlock.ENABLED) ? 9 : 3));
+        this.setDefaultState(this.getStateManager().getDefaultState().with(FACING, Direction.NORTH));
     }
 
     @Nullable @Override
@@ -52,12 +51,13 @@ public class EnvironmentProjectorBlock extends Block implements BlockEntityProvi
         boolean powered = ctx.getWorld().isReceivingRedstonePower(ctx.getBlockPos());
 
         return blockState.with(ENABLED, powered).with(POWERED, powered).with(SILENT,
-                ctx.getWorld().getBlockState(ctx.getBlockPos().down()).isIn(BlockTags.WOOL));
+                ctx.getWorld().getBlockState(ctx.getBlockPos().down()).isIn(BlockTags.WOOL))
+                .with(FACING, ctx.getHorizontalPlayerFacing());
     }
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(ENABLED, POWERED, SILENT);
+        builder.add(FACING, ENABLED, POWERED, SILENT);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class EnvironmentProjectorBlock extends Block implements BlockEntityProvi
     public static void toggle(Tardis tardis, @Nullable PlayerEntity player, World world, BlockPos pos, BlockState state,
                               boolean active) {
         if (world.getBlockEntity(pos) instanceof EnvironmentProjectorBlockEntity projector)
-            projector.toggle(tardis, active);
+            projector.toggle(tardis, state, active);
 
         if (state.get(SILENT))
             return;

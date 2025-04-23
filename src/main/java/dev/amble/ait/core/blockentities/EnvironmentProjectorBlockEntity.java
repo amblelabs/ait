@@ -98,19 +98,20 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
         this.current = next.getRegistryKey();
 
         if (state.get(EnvironmentProjectorBlock.ENABLED))
-            this.apply(tardis);
+            this.apply(tardis, state);
     }
 
-    public void toggle(Tardis tardis, boolean active) {
+    public void toggle(Tardis tardis, BlockState state, boolean active) {
         if (active) {
-            this.apply(tardis);
+            this.apply(tardis, state);
         } else {
             this.disable(tardis);
         }
     }
 
-    public void apply(Tardis tardis) {
+    public void apply(Tardis tardis, BlockState state) {
         tardis.stats().skybox().set(this.current);
+        tardis.stats().skyboxDirection().set(state.get(EnvironmentProjectorBlock.FACING));
     }
 
     public void disable(Tardis tardis) {

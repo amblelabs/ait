@@ -29,7 +29,7 @@ public class PowerControl extends Control {
             boolean refueling = !tardis.isRefueling();
 
             if (inRange && doorLocked && refueling) {
-                SoundEvent track = world.getRandom().nextBoolean() ? AITSounds.MAD_MAN : AITSounds.MAD_MAN_SAD;
+                SoundEvent track = world.getRandom().nextBoolean() ? AITSounds.WONDERFUL_TIME_IN_SPACE : AITSounds.GOOD_MAN_MUSIC;
                 world.playSound(null, console, track, SoundCategory.BLOCKS, 3.0f, 1.0f);
             }
         }

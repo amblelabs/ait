@@ -16,6 +16,7 @@ import dev.amble.lib.util.ServerLifecycleHooks;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
@@ -51,6 +52,8 @@ public class StatsHandler extends KeyedTardisComponent {
     private static final Property<String> DATE_TIME_ZONE = new Property<>(Property.Type.STR, "date_time_zone", "");
     private static final Property<RegistryKey<World>> SKYBOX = new Property<>(Property.Type.WORLD_KEY, "skybox",
             World.END);
+    private static final Property<Direction> SKYBOX_DIRECTION = new Property<>(Property.Type.DIRECTION, "skybox_direction",
+            Direction.NORTH);
     private static final Property<HashSet<String>> UNLOCKS = new Property<>(Property.Type.STR_SET, "unlocks",
             new HashSet<>());
     private static final Property<Identifier> DEMAT_FX = new Property<>(Property.Type.IDENTIFIER, "demat_fx", new Identifier(""));
@@ -70,6 +73,7 @@ public class StatsHandler extends KeyedTardisComponent {
     private final Value<String> creationDate = DATE.create(this);
     private final Value<String> dateTimeZone = DATE_TIME_ZONE.create(this);
     private final Value<RegistryKey<World>> skybox = SKYBOX.create(this);
+    private final Value<Direction> skyboxDirection = SKYBOX_DIRECTION.create(this);
     private final Value<HashSet<String>> unlocks = UNLOCKS.create(this);
     private final BoolValue security = SECURITY.create(this);
     private final BoolValue hailMary = HAIL_MARY.create(this);
@@ -105,6 +109,7 @@ public class StatsHandler extends KeyedTardisComponent {
     @Override
     public void onLoaded() {
         skybox.of(this, SKYBOX);
+        skyboxDirection.of(this, SKYBOX_DIRECTION);
         unlocks.of(this, UNLOCKS);
         tardisName.of(this, NAME);
         playerCreatorName.of(this, PLAYER_CREATOR_NAME);
@@ -163,6 +168,10 @@ public class StatsHandler extends KeyedTardisComponent {
 
     public Value<RegistryKey<World>> skybox() {
         return skybox;
+    }
+
+    public Value<Direction> skyboxDirection() {
+        return skyboxDirection;
     }
 
     public String getName() {

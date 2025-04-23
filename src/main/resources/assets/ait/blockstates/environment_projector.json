@@ -1,16 +1,68 @@
 {
   "variants": {
-    "enabled=true,powered=true": {
-      "model": "ait:block/environment_projector"
+    "enabled=true,powered=true,facing=east": {
+      "model": "ait:block/environment_projector",
+      "y": 90
     },
-    "enabled=false,powered=false": {
-      "model": "ait:block/environment_projector"
+    "enabled=true,powered=true,facing=north": {
+      "model": "ait:block/environment_projector",
+      "y": 0
     },
-    "enabled=false,powered=true": {
-      "model": "ait:block/environment_projector"
+    "enabled=true,powered=true,facing=south": {
+      "model": "ait:block/environment_projector",
+      "y": 180
     },
-    "enabled=true,powered=false": {
-      "model": "ait:block/environment_projector"
+    "enabled=true,powered=true,facing=west": {
+      "model": "ait:block/environment_projector",
+      "y": 270
+    },
+    "enabled=false,powered=false,facing=east": {
+      "model": "ait:block/environment_projector",
+      "y": 90
+    },
+    "enabled=false,powered=false,facing=north": {
+      "model": "ait:block/environment_projector",
+      "y": 0
+    },
+    "enabled=false,powered=false,facing=south": {
+      "model": "ait:block/environment_projector",
+      "y": 180
+    },
+    "enabled=false,powered=false,facing=west": {
+      "model": "ait:block/environment_projector",
+      "y": 270
+    },
+    "enabled=false,powered=true,facing=east": {
+      "model": "ait:block/environment_projector",
+      "y": 90
+    },
+    "enabled=false,powered=true,facing=north": {
+      "model": "ait:block/environment_projector",
+      "y": 0
+    },
+    "enabled=false,powered=true,facing=south": {
+      "model": "ait:block/environment_projector",
+      "y": 180
+    },
+    "enabled=false,powered=true,facing=west": {
+      "model": "ait:block/environment_projector",
+      "y": 270
+    },
+    "enabled=true,powered=false,facing=east": {
+      "model": "ait:block/environment_projector",
+      "y": 90
+    },
+    "enabled=true,powered=false,facing=north": {
+      "model": "ait:block/environment_projector",
+      "y": 0
+    },
+    "enabled=true,powered=false,facing=south": {
+      "model": "ait:block/environment_projector",
+      "y": 180
+    },
+    "enabled=true,powered=false,facing=west": {
+      "model": "ait:block/environment_projector",
+      "y": 270
     }
   }
 }
