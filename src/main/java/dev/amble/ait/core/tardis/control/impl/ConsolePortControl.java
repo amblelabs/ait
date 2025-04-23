@@ -74,7 +74,7 @@ public class ConsolePortControl extends Control {
 
         if (itemStack.getItem() instanceof WaypointItem) {
             tardis.waypoint().markHasCartridge();
-            tardis.waypoint().set(Waypoint.fromStack(itemStack), console, false);
+            tardis.waypoint().set(Waypoint.fromStack(itemStack), console);
             player.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
 
             TardisDesktop.playSoundAtConsole(world, console, AITSounds.SLOT_IN, SoundCategory.PLAYERS, 6f, 1);
