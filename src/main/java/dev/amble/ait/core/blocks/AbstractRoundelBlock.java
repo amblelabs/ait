@@ -57,7 +57,7 @@ public abstract class AbstractRoundelBlock
         if (world.isClient) return;
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof RoundelBlockEntity roundelBlockEntity) {
-            if (roundelBlockEntity.tardis() != null && roundelBlockEntity.tardis().get() != null) {
+            if (roundelBlockEntity.isLinked()) {
                 int lightOf = roundelBlockEntity.tardis().get().fuel().hasPower() ? 11 : 0;
                 world.setBlockState(pos, state.with(LEVEL_15, lightOf), Block.NOTIFY_LISTENERS | Block.REDRAW_ON_MAIN_THREAD);
             } else {
@@ -70,8 +70,8 @@ public abstract class AbstractRoundelBlock
     @Override
     public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity instanceof RoundelBlockEntity) {
-            return ((RoundelBlockEntity)blockEntity).getPickStack();
+        if (blockEntity instanceof RoundelBlockEntity roundelBlockEntity) {
+            return roundelBlockEntity.getPickStack();
         }
         return super.getPickStack(world, pos, state);
     }

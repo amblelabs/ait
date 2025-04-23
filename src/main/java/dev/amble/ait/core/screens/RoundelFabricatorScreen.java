@@ -1,13 +1,13 @@
 package dev.amble.ait.core.screens;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.drtheo.scheduler.api.Scheduler;
@@ -62,7 +62,7 @@ import dev.amble.ait.core.roundels.RoundelPatterns;
 import dev.amble.ait.core.roundels.RoundelType;
 
 
-@Environment(value=EnvType.CLIENT)
+@Environment(EnvType.CLIENT)
 public class RoundelFabricatorScreen
         extends HandledScreen<RoundelFabricatorScreenHandler> implements ScreenHandlerListener {
     private static final Identifier TEXTURE = AITMod.id("textures/gui/roundel_fabricator.png");
@@ -85,7 +85,7 @@ public class RoundelFabricatorScreen
     private float scrollPosition;
     private boolean scrollbarClicked;
     private int visibleTopRow;
-    private final List<TexturedButtonWidget> buttons = Lists.newArrayList();
+    private final List<TexturedButtonWidget> buttons = new ArrayList<>();
     private TextFieldWidget hexColorField;
     private ColorDisplayWidget displayWidget;
     public RoundelFabricatorScreen(RoundelFabricatorScreenHandler screenHandler, PlayerInventory inventory, Text title) {
@@ -312,8 +312,6 @@ public class RoundelFabricatorScreen
         int radius = 50; // Adjust the radius as needed
 
         ColorWheel colorWheel = new ColorWheel(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
-        int circumference = radius * 2;
-        //System.out.println("X: " + (this.x - mouseX) + ", Y: " + (this.y - mouseY) + " | " + "centerX: " + centerX + ", centerY: " + (-centerY));
         if (isCursorInsideCircle((this.x - mouseX), (this.y - mouseY) , 50, -50, 56) && shouldMoveCursor) {
             try {
                 Robot robot = new Robot();
@@ -321,10 +319,7 @@ public class RoundelFabricatorScreen
                 Color pixelColor;
                 mouseLocation = MouseInfo.getPointerInfo().getLocation();
                 pixelColor = robot.getPixelColor(mouseLocation.x, mouseLocation.y);
-                //System.out.print(mouseLocation.x + "||" + mouseLocation.y);
-                //if (pixelColor.getRGB() != 0x0ff303f5b) {
-                    insertMouseColorHere = pixelColor.getRGB();
-                //}
+                insertMouseColorHere = pixelColor.getRGB();
                 this.cursorVec = getPositionForColor(insertMouseColorHere, centerX - 50, -centerY + 50, 50);
 
                 shouldMoveCursor = false;

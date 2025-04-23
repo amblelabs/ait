@@ -86,12 +86,11 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
 
     private void renderConsole(Profiler profiler, ClientTardis tardis, T entity, MatrixStack matrices,
                                VertexConsumerProvider vertexConsumers, int light, int overlay) {
-        if (tardis.travel() == null) return;
         profiler.push("model");
 
         this.updateModel(entity);
 
-        boolean hasPower = tardis.fuel() != null && tardis.fuel().hasPower();
+        boolean hasPower = tardis.fuel().hasPower();
 
         matrices.push();
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));

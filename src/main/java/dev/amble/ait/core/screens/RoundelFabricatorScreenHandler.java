@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0.2.2 (FabricMC 7c48b8c4).
- */
 package dev.amble.ait.core.screens;
 
 import java.util.List;
@@ -251,7 +248,14 @@ public class RoundelFabricatorScreenHandler
                     return ItemStack.EMPTY;
                 }
                 slot2.onQuickTransfer(itemStack2, itemStack);
-            } else if (slot == this.dyeSlot.id || slot == this.roundelSlot.id || slot == this.patternSlot.id ? !this.insertItem(itemStack2, 4, 40, false) : (itemStack2.getItem() instanceof RoundelItem ? !this.insertItem(itemStack2, this.roundelSlot.id, this.roundelSlot.id + 1, false) : (itemStack2.getItem() instanceof DyeItem ? !this.insertItem(itemStack2, this.dyeSlot.id, this.dyeSlot.id + 1, false) : (itemStack2.getItem() instanceof BlockItem blockItem && !(blockItem.getBlock() instanceof AbstractRoundelBlock) ? !this.insertItem(itemStack2, this.patternSlot.id, this.patternSlot.id + 1, false) : (slot >= 4 && slot < 31 ? !this.insertItem(itemStack2, 31, 40, false) : slot >= 31 && slot < 40 && !this.insertItem(itemStack2, 4, 31, false)))))) {
+            } else if (slot == this.dyeSlot.id || slot == this.roundelSlot.id || slot == this.patternSlot.id ?
+                    !this.insertItem(itemStack2, 4, 40, false) : (itemStack2.getItem() instanceof RoundelItem ?
+                    !this.insertItem(itemStack2, this.roundelSlot.id, this.roundelSlot.id + 1, false) : (itemStack2.getItem() instanceof DyeItem ?
+                    !this.insertItem(itemStack2, this.dyeSlot.id, this.dyeSlot.id + 1, false) :
+                    (itemStack2.getItem() instanceof BlockItem blockItem && !(blockItem.getBlock() instanceof AbstractRoundelBlock) ?
+                            !this.insertItem(itemStack2, this.patternSlot.id, this.patternSlot.id + 1, false) :
+                            (slot >= 4 && slot < 31 ? !this.insertItem(itemStack2, 31, 40, false) :
+                                    slot >= 31 && slot < 40 && !this.insertItem(itemStack2, 4, 31, false)))))) {
                 return ItemStack.EMPTY;
             }
             if (itemStack2.isEmpty()) {

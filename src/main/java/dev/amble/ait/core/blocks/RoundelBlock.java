@@ -1,8 +1,7 @@
 package dev.amble.ait.core.blocks;
 
+import java.util.HashMap;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
 
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
@@ -11,7 +10,7 @@ import dev.amble.ait.core.AITBlocks;
 
 public class RoundelBlock
         extends AbstractRoundelBlock {
-    private static final Map<Integer, Block> COLORED_ROUNDELS = Maps.newHashMap();
+    private static final Map<Integer, Block> COLORED_ROUNDELS = new HashMap<>();
 
     public RoundelBlock(int dyeColor, AbstractBlock.Settings settings) {
         super(dyeColor, settings);

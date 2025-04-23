@@ -10,12 +10,10 @@ import java.util.function.Supplier;
 import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.material.BlendMode;
-import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
 import net.fabricmc.fabric.api.renderer.v1.mesh.*;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
-import net.fabricmc.fabric.api.util.TriState;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockRenderType;
@@ -42,6 +40,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.blockentities.RoundelBlockEntity;
 import dev.amble.ait.core.blocks.AbstractRoundelBlock;
@@ -60,7 +59,6 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
     private static final int SPRITE_SIDE = 0;
     private static final int SPRITE_TOP = 1;
     private final BlockModels BLOCK_MODELS;
-    private Mesh mesh;
 
     public RoundelModel() {
         BLOCK_MODELS = MinecraftClient.getInstance().getBakedModelManager().getBlockModels();
@@ -87,7 +85,7 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
                 }
                 Renderer renderer = RendererAccess.INSTANCE.getRenderer();
                 if (renderer == null) {
-                    System.out.println("I returned null for some weird reason");
+                    AITMod.LOGGER.warn("I returned null for some weird reason");
                     return;
                 }
                 MeshBuilder builder = renderer.meshBuilder();
@@ -118,19 +116,11 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
                 builder.build().outputTo(renderContext.getEmitter());
             }
         }
-
-        /*if (mesh != null) {
-            mesh.outputTo(renderContext.getEmitter());
-        }*/
     }
 
     private static final Renderer RENDERER = RendererAccess.INSTANCE.getRenderer();
-    private static final RenderMaterial MATERIAL_STANDARD = RENDERER.materialFinder().find();
-    private static final RenderMaterial MATERIAL_NO_AO = RENDERER.materialFinder().ambientOcclusion(TriState.FALSE).find();
 
     public static void emitBlockQuads(BakedModel model, @Nullable BlockState state, Supplier<Random> randomSupplier, RenderContext context, QuadEmitter emitter, int color) {
-        //final RenderMaterial defaultMaterial = model.useAmbientOcclusion() ? MATERIAL_STANDARD : MATERIAL_NO_AO;
-
         for (int i = 0; i <= ModelHelper.NULL_FACE_ID; i++) {
             final Direction cullFace = ModelHelper.faceFromIndex(i);
 
@@ -196,7 +186,7 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
         // Build the mesh using the Renderer API
         Renderer renderer = RendererAccess.INSTANCE.getRenderer();
         if (renderer == null) {
-            System.out.println("I returned null for some weird reason");
+            AITMod.LOGGER.warn("I returned null for some weird reason");
             return null;
         }
         MeshBuilder builder = renderer.meshBuilder();
@@ -215,7 +205,6 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
             // Add the quad to the mesh
             emitter.emit();
         }
-        mesh = builder.build();
 
         return this;
     }
@@ -269,7 +258,7 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
 
             Renderer renderer = RendererAccess.INSTANCE.getRenderer();
             if (renderer == null) {
-                System.out.println("I returned null for some weird reason");
+                AITMod.LOGGER.warn("I returned null for some weird reason");
                 return;
             }
             MeshBuilder builder = renderer.meshBuilder();
@@ -290,9 +279,6 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
 
             builder.build().outputTo(builder.getEmitter());
         }
-
-
-        //mesh.outputTo(renderContext.getEmitter());
     }
 
     public static void emitItemQuads(BakedModel model, int color, @Nullable BlockState state, Supplier<Random> randomSupplier, RenderContext context) {

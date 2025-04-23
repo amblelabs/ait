@@ -26,7 +26,6 @@ public class AITModelPlugin implements ModelLoadingPlugin, ModelModifier.OnLoad 
         // This is EXCEPTIONALLY stupid. But so is Mojang. So, in conclusion, fuck you. - Loqor
         if (id != null && (
                 id.toString().contains("ait:roundel#") && !id.toString().contains("ait:roundel_fabricator"))) {
-            //System.out.println(id);
             return new RoundelModel();
         }
         return model;

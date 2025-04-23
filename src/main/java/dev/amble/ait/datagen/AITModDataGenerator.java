@@ -1076,6 +1076,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.subsystem.requires_link", "LINK TO ENGINE VIA FLUID LINKS");
         provider.addTranslation("tardis.message.engine.no_space", "Engine requires a 3x3 space to function!");
 
+        provider.addTranslation("ait.title.roundel_fabricator", "Roundel Fabricator");
+
         // Achievements
         provider.addTranslation("achievement.ait.title.root", "Adventures in Time");
         provider.addTranslation("achievement.ait.description.root", "Discover the wonders of time and space.");

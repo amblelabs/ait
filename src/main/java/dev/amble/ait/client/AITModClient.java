@@ -134,7 +134,6 @@ public class AITModClient implements ClientModInitializer {
         siegeItemPredicate();
         adventItemPredicates();
         registerItemColors();
-        //registerBuiltInItems();
         registerParticles();
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
@@ -163,7 +162,6 @@ public class AITModClient implements ClientModInitializer {
             WorldRenderEvents.AFTER_ENTITIES.register(this::riftBOTI);
         }
 
-        // @TODO idk why but this gets rid of other important stuff, not sure
         DimensionRenderingRegistry.registerDimensionEffects(AITDimensions.MARS.getValue(), new MarsSkyProperties());
 
         WorldRenderEvents.BEFORE_ENTITIES.register(context -> {
@@ -402,8 +400,6 @@ public class AITModClient implements ClientModInitializer {
                 FabricatorRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ROUNDEL_FABRICATOR_BLOCK_ENTITY_TYPE,
                 RoundelFabricatorRenderer::new);
-        /*BlockEntityRendererFactories.register(AITBlockEntityTypes.ROUNDEL_BLOCK_ENTITY_TYPE,
-                RoundelBlockEntityRenderer::new);*/
         BlockEntityRendererFactories.register(AITBlockEntityTypes.WAYPOINT_BANK_BLOCK_ENTITY_TYPE,
                 WaypointBankBlockEntityRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.FLAG_BLOCK_ENTITY_TYPE, FlagBlockEntityRenderer::new);
@@ -460,10 +456,6 @@ public class AITModClient implements ClientModInitializer {
         ColorProviderRegistry.ITEM.register((stack, tintIndex) ->tintIndex > 0 ? -1 :
                 DrinkUtil.getColor(stack), AITItems.MUG);
     }
-
-    /*public void registerBuiltInItems() {
-        BuiltinItemRendererRegistry.INSTANCE.register(AITItems.ROUNDEL, new DynamicRoundelItemRenderer());
-    }*/
 
     public void registerParticles() {
         ParticleFactoryRegistry.getInstance().register(CORAL_PARTICLE, EndRodParticle.Factory::new);
@@ -541,7 +533,6 @@ public class AITModClient implements ClientModInitializer {
             if (painting == null) continue;
             Vec3d pos = painting.getPos();
             stack.push();
-            //0, -0.5, 0.5
             stack.translate(pos.getX() - context.camera().getPos().getX(),
                     pos.getY() - context.camera().getPos().getY(), pos.getZ() - context.camera().getPos().getZ());
             stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));

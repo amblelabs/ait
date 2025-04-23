@@ -68,7 +68,7 @@ public class RoundelFabricatorBlock extends HorizontalDirectionalBlock implement
     @Override
     public NamedScreenHandlerFactory createScreenHandlerFactory(BlockState state, World world, BlockPos pos) {
         return new SimpleNamedScreenHandlerFactory((syncId, inventory, player) -> new RoundelFabricatorScreenHandler(syncId, inventory,
-                ScreenHandlerContext.create(world, pos)), Text.literal("Roundel Fabricator"));
+                ScreenHandlerContext.create(world, pos)), Text.translatable("ait.title.roundel_fabricator"));
     }
 
     @Override
