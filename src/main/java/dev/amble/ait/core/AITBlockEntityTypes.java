@@ -39,6 +39,8 @@ public class AITBlockEntityTypes implements BlockEntityContainer {
             .create(DetectorBlockEntity::new, AITBlocks.DETECTOR_BLOCK).build();
     public static BlockEntityType<ArtronCollectorBlockEntity> ARTRON_COLLECTOR_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
             .create(ArtronCollectorBlockEntity::new, AITBlocks.ARTRON_COLLECTOR_BLOCK).build();
+    public static BlockEntityType<ArtronContainerBlockEntity> ARTRON_CONTAINER_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
+            .create(ArtronContainerBlockEntity::new, AITBlocks.ARTRON_CONTAINER_BLOCK).build();
     public static BlockEntityType<PlaqueBlockEntity> PLAQUE_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
             .create(PlaqueBlockEntity::new, AITBlocks.PLAQUE_BLOCK).build();
     public static BlockEntityType<EngineBlockEntity> ENGINE_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder

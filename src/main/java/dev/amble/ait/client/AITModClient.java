@@ -382,6 +382,8 @@ public class AITModClient implements ClientModInitializer {
         BlockEntityRendererFactories.register(AITBlockEntityTypes.MONITOR_BLOCK_ENTITY_TYPE, MonitorRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ARTRON_COLLECTOR_BLOCK_ENTITY_TYPE,
                 ArtronCollectorRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.ARTRON_CONTAINER_BLOCK_ENTITY_TYPE,
+                ArtronContainerRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.PLAQUE_BLOCK_ENTITY_TYPE, PlaqueRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.WALL_MONITOR_BLOCK_ENTITY_TYPE,
                 WallMonitorRenderer::new);

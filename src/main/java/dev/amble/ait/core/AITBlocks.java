@@ -78,6 +78,11 @@ public class AITBlocks extends BlockContainer {
     public static final Block ARTRON_COLLECTOR_BLOCK = new ArtronCollectorBlock(
             FabricBlockSettings.create().nonOpaque().noBlockBreakParticles().requiresTool().strength(1F)
                     .instrument(Instrument.BANJO).pistonBehavior(PistonBehavior.IGNORE));
+    @PickaxeMineable
+    @NoEnglish
+    public static final Block ARTRON_CONTAINER_BLOCK = new ArtronContainerBlock(
+            FabricBlockSettings.create().nonOpaque().noBlockBreakParticles().requiresTool().strength(1F)
+                    .instrument(Instrument.BANJO).pistonBehavior(PistonBehavior.IGNORE));
 
     // Coral Blocks
     @NoEnglish
