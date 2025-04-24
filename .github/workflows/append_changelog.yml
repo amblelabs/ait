@@ -1,0 +1,52 @@
+name: Update Changelog
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      pr_numbers:
+        description: 'Comma-separated PR numbers to process (e.g. "12,47")'
+        required: false
+        default: ''
+
+jobs:
+  append-changelog:
+    runs-on: ubuntu-latest
+    # only proceed if merge event or manual run
+    if: |
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true) ||
+      (github.event_name == 'workflow_dispatch')
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.BOT_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run changelog updater
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+        run: |
+          python scripts/update_changelog.py \
+            --pr-numbers "${{ github.event.inputs.pr_numbers }}"
+      - name: Commit & push
+        env:
+          TOKEN: ${{ secrets.BOT_TOKEN }}
+        run: |
+          git config user.name "github-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "docs: update CHANGELOG"
+          git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }} HEAD:${{ github.ref }}

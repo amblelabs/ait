@@ -12,7 +12,7 @@ ext.getCurrentVersion = {
             qualifier = null
         }
 
-        if (branch == "main" || branch == "release") {
+        if (branch == "main") {
             branch = null
         }
     }

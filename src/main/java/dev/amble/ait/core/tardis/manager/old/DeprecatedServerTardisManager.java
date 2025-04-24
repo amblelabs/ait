@@ -123,8 +123,13 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
 
     @Override
     public void loadTardis(MinecraftServer server, UUID uuid, @Nullable Consumer<ServerTardis> consumer) {
-        if (consumer != null)
-            this.loadTardis(server, uuid).ifLeft(consumer);
+        if (consumer == null) return;
+
+        Either<ServerTardis,Exception> either = this.loadTardis(server, uuid);
+
+        if (either == null) return;
+
+        either.ifLeft(consumer);
     }
 
     @Override

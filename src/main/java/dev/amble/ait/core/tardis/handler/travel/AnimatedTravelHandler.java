@@ -60,6 +60,20 @@ public abstract class AnimatedTravelHandler extends ProgressiveTravelHandler {
     }
 
     @Override
+    public void postInit(InitContext ctx) {
+        super.postInit(ctx);
+
+        // This is necessary, because we need to invalidate on server when the client changes the animation, theres no other way to do this. - duzo
+        this.dematId.addListener((id) -> {
+            this.invalidateAnimations();
+        });
+
+        this.matId.addListener((id) -> {
+            this.invalidateAnimations();
+        });
+    }
+
+    @Override
     public void onLoaded() {
         super.onLoaded();
 

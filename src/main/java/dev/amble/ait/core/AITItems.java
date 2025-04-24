@@ -67,6 +67,7 @@ public class AITItems extends ItemContainer {
             new AItemSettings().group(AITItemGroups.MAIN).maxCount(1));
     public static final Item GEIGER_COUNTER = new RiftScannerItem(
             new AItemSettings().group(AITItemGroups.MAIN).maxCount(1));
+    @NoEnglish
     public static final Item HAMMER = new HammerItem(3, -2.4F,
             new AItemSettings().group(AITItemGroups.MAIN).maxCount(1).maxDamage(600));
     public static final Item RESPIRATOR = new RenderableArmorItem(ArmorMaterials.IRON, ArmorItem.Type.HELMET,
