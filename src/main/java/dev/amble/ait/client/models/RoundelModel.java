@@ -20,6 +20,7 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.render.block.BlockModels;
 import net.minecraft.client.render.model.*;
 import net.minecraft.client.render.model.json.ModelOverrideList;
@@ -131,7 +132,7 @@ public class RoundelModel implements UnbakedModel, BakedModel, FabricBakedModel 
             final List<BakedQuad> quads = model.getQuads(state, cullFace, randomSupplier.get());
 
             for (final BakedQuad q : quads) {
-                emitter.fromVanilla(q, RENDERER.materialFinder().disableColorIndex(true).find(), cullFace).color(color, color, color, color);
+                emitter.fromVanilla(q, RENDERER.materialFinder().blendMode(BlendMode.fromRenderLayer(RenderLayers.getBlockLayer(state))).disableColorIndex(true).find(), cullFace).color(color, color, color, color);
                 emitter.emit();
             }
         }
