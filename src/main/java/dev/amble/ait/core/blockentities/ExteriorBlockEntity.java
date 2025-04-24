@@ -4,6 +4,9 @@ import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.MAX_PLAS
 
 import java.util.UUID;
 
+import dev.amble.ait.core.engine.link.IFluidLink;
+import dev.amble.ait.core.engine.link.IFluidSource;
+import dev.amble.ait.core.engine.link.ITardisSource;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
@@ -53,7 +56,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 
-public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements BlockEntityTicker<ExteriorBlockEntity> {
+public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements BlockEntityTicker<ExteriorBlockEntity>, ITardisSource {
     private UUID seatEntityUUID = null;
 
     public ExteriorBlockEntity(BlockPos pos, BlockState state) {
@@ -348,5 +351,22 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         Tardis tardis = this.tardis().get();
 
         this.getWorld().setBlockState(pos, blockState.with(ExteriorBlock.LEVEL_4, MathHelper.clamp(Math.round(tardis.travel().getAlpha() * 4), 0, 15)));
+    }
+
+    @Override
+    public Tardis getTardisForFluid() {
+        if (!this.isLinked()) return null;
+
+        return this.tardis().get();
+    }
+
+    @Override
+    public void setSource(IFluidSource source) {
+
+    }
+
+    @Override
+    public void setLast(IFluidLink last) {
+
     }
 }
