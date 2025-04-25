@@ -2,7 +2,6 @@ package dev.amble.ait.core.tardis.handler.travel;
 
 import java.util.UUID;
 
-import dev.amble.ait.core.tardis.animation.v2.TardisAnimationMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -17,6 +16,7 @@ import net.minecraft.util.Identifier;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.core.tardis.animation.v2.AnimationHolder;
 import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
+import dev.amble.ait.core.tardis.animation.v2.TardisAnimationMap;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.properties.Property;
