@@ -6,7 +6,6 @@
   "plugin": "dev.amble.ait.compat.AITMixinPlugin",
   "mixins": [
     "EntityMixin",
-    "HopperBlockEntityMixin",
     "LivingEntityMixin",
     "UseActionMixin",
     "artron.ServerWorldMixin",

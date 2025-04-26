@@ -252,17 +252,17 @@ public class AITSounds {
 
     // Mobs
     // Cybermen2005
-    public static final SoundEvent DELETE = register("mobs/cybermen/2005/delete");
-    public static final SoundEvent UNNECESSARY = register("mobs/cybermen/2005/unnecessary");
-    public static final SoundEvent SUPERIOR = register("mobs/cybermen/2005/superior");
-    public static final SoundEvent DELETED = register("mobs/cybermen/2005/deleted");
-    public static final SoundEvent CYBER_STUN = register("mobs/cybermen/2005/cyber_stun");
-    public static final SoundEvent STOMP4 = register("mobs/cybermen/2005/stomp4");
-    public static final SoundEvent STOMP3 = register("mobs/cybermen/2005/stomp3");
-    public static final SoundEvent STOMP2 = register("mobs/cybermen/2005/stomp2");
-    public static final SoundEvent STOMP1 = register("mobs/cybermen/2005/stomp1");
-    public static final SoundEvent CYBER_FIRE = register("mobs/cybermen/2005/cyber_fire");
-    public static final SoundEvent ELECTRIC_HIT = register("mobs/cybermen/2005/electric_hit");
+    public static final SoundEvent DELETE = register("mobs/cybermen/newwho/delete");
+    public static final SoundEvent UNNECESSARY = register("mobs/cybermen/newwho/unnecessary");
+    public static final SoundEvent SUPERIOR = register("mobs/cybermen/newwho/superior");
+    public static final SoundEvent DELETED = register("mobs/cybermen/newwho/deleted");
+    public static final SoundEvent CYBER_STUN = register("mobs/cybermen/newwho/cyber_stun");
+    public static final SoundEvent STOMP4 = register("mobs/cybermen/newwho/stomp4");
+    public static final SoundEvent STOMP3 = register("mobs/cybermen/newwho/stomp3");
+    public static final SoundEvent STOMP2 = register("mobs/cybermen/newwho/stomp2");
+    public static final SoundEvent STOMP1 = register("mobs/cybermen/newwho/stomp1");
+    public static final SoundEvent CYBER_FIRE = register("mobs/cybermen/newwho/cyber_fire");
+    public static final SoundEvent ELECTRIC_HIT = register("mobs/cybermen/newwho/electric_hit");
 
     // Nightmare in silver
     public static final SoundEvent UPGRADE_IN_PROGRESS = register("mobs/cybermen/nightmare/upgrade_in_progress");
