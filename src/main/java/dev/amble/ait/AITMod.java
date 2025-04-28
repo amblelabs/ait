@@ -55,10 +55,7 @@ import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.commands.*;
 import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.engine.registry.SubSystemRegistry;
-import dev.amble.ait.core.entities.ConsoleControlEntity;
-import dev.amble.ait.core.entities.DalekEntity;
-import dev.amble.ait.core.entities.FlightTardisEntity;
-import dev.amble.ait.core.entities.RiftEntity;
+import dev.amble.ait.core.entities.*;
 import dev.amble.ait.core.entities.daleks.DalekRegistry;
 import dev.amble.ait.core.item.blueprint.BlueprintRegistry;
 import dev.amble.ait.core.item.component.AbstractTardisPart;
@@ -339,6 +336,9 @@ public class AITMod implements ModInitializer {
 
         FabricDefaultAttributeRegistry.register(AITEntityTypes.RIFT_ENTITY,
                 RiftEntity.createMobAttributes());
+
+        FabricDefaultAttributeRegistry.register(AITEntityTypes.DALEK_SHIP_ENTITY_TYPE,
+                DalekShipEntity.createMobAttributes());
 
         FabricDefaultAttributeRegistry.register(AITEntityTypes.FLIGHT_TARDIS_TYPE,
                 FlightTardisEntity.createDummyAttributes());

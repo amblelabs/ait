@@ -38,6 +38,9 @@ public class AITEntityTypes implements EntityContainer {
 //    public static final EntityType<CobbledSnowballEntity> COBBLED_SNOWBALL_TYPE = FabricEntityTypeBuilder
 //            .<CobbledSnowballEntity>create(SpawnGroup.MISC, CobbledSnowballEntity::new)
 //            .dimensions(EntityDimensions.fixed(0.25f, 0.25f)).trackRangeBlocks(4).trackedUpdateRate(10).build();
+public static final EntityType<DalekShipEntity> DALEK_SHIP_ENTITY_TYPE = FabricEntityTypeBuilder
+        .create(SpawnGroup.MISC, DalekShipEntity::new)
+        .dimensions(EntityDimensions.fixed(16.5f, 4f)).build();
 
     public static final EntityType<RiftEntity> RIFT_ENTITY = FabricEntityTypeBuilder.Mob.createMob()
             .spawnGroup(SpawnGroup.AMBIENT).entityFactory(RiftEntity::new)

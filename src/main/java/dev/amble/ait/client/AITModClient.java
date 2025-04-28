@@ -419,6 +419,7 @@ public class AITModClient implements ClientModInitializer {
 //        }
         EntityRendererRegistry.register(AITEntityTypes.RIFT_ENTITY, RiftEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.DALEK_ENTITY, DalekEntityRenderer::new);
+        EntityRendererRegistry.register(AITEntityTypes.DALEK_SHIP_ENTITY_TYPE, DalekShipEntityRenderer::new);
     }
 
     public static void setupBlockRendering() {
