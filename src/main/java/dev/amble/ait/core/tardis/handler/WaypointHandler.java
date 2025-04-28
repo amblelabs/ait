@@ -72,7 +72,7 @@ public class WaypointHandler extends KeyedTardisComponent {
         if (!this.hasWaypoint())
             return; // todo move this check to the DEMAT event so the fail to takeoff happens
 
-        this.tardis.travel().autopilot(true);
+        //this.tardis.travel().autopilot(true);
         TravelUtil.travelTo(tardis, this.get().getPos());
     }
 
@@ -81,6 +81,7 @@ public class WaypointHandler extends KeyedTardisComponent {
             return;
 
         this.tardis.travel().forceDestination(this.get().getPos());
+
     }
 
     public void spawnItem(BlockPos console) {

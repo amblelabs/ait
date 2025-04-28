@@ -94,13 +94,17 @@ public class Value<T> implements Disposable {
     }
 
     protected void sync() {
-        if (this.holder == null || !(this.holder.tardis() instanceof ServerTardis tardis)) {
+        if (this.holder == null)
+            return;
+
+        if (!(this.holder.tardis() instanceof ServerTardis tardis)) {
             this.syncToServer();
             return;
         }
 
         ServerTardisManager.getInstance().markPropertyDirty(tardis, this);
     }
+
     @Environment(EnvType.CLIENT)
     protected void syncToServer() { // todo - flags
         ClientPlayNetworking.send(new SyncPropertyC2SPacket(this.holder.tardis().getUuid(), this));

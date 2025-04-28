@@ -166,5 +166,11 @@ public class AITAchievementProvider extends FabricAdvancementProvider {
                         Text.translatable("achievement.ait.description.engines_phase"), null, AdvancementFrame.CHALLENGE, true, true, true)
                 .criterion("engines_phase", TardisCriterions.ENGINES_PHASE.conditions())
                 .build(consumer, AITMod.MOD_ID + "/engines_phase");
+
+        Advancement statRemote = Advancement.Builder.create().parent(ironKey)
+                .display(AITItems.REMOTE_ITEM, Text.translatable("achievement.ait.title.remote"),
+                        Text.translatable("achievement.ait.description.remote"), null, AdvancementFrame.CHALLENGE, true, false, true)
+                .criterion("gain_remote", InventoryChangedCriterion.Conditions.items(AITItems.REMOTE_ITEM))
+                .build(consumer, AITMod.MOD_ID + "/gain_remote");
     }
 }

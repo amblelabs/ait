@@ -63,6 +63,8 @@ public class RiftBOTI extends BOTI {
         stack.translate(0, -1, 500);
         VortexUtil util = new VortexUtil("darkness");
         util.renderVortex(stack);
+        util.renderVortexLayer(stack, 1.5f);
+        util.renderVortexLayer(stack, 2.5f);
         portalProvider.draw();
         stack.pop();
 

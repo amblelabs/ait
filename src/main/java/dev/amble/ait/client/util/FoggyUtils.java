@@ -8,8 +8,10 @@ import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.MathHelper;
 
 import dev.amble.ait.core.AITDimensions;
@@ -80,6 +82,32 @@ public class FoggyUtils {
             RenderSystem.setShaderFogColor(0.2f, 0.2f, 0.2f,
                     stack.isIn(AITTags.Items.FULL_RESPIRATORS) ? 0.015f : 0.35f);
         }
+
+        if (ClientTardisUtil.isPlayerInATardis()
+                && !tardis.isGrowth()
+                && ("partytardis".equalsIgnoreCase(String.valueOf(tardis.stats().getName()))
+                || !tardis.extra().getInsertedDisc().isEmpty())) {
+
+            MinecraftClient minecraftClient = MinecraftClient.getInstance();
+
+            int m = 25;
+            int n = minecraftClient.player.age / m + minecraftClient.player.getId();
+            int o = DyeColor.values().length;
+            int p = n % o;
+            int q = (n + 1) % o;
+            float rProgress = ((float)(minecraftClient.player.age % m)) / m;
+            float[] fs = SheepEntity.getRgbColor(DyeColor.byId(p));
+            float[] gs = SheepEntity.getRgbColor(DyeColor.byId(q));
+            float red = fs[0] * (1f - rProgress) + gs[0] * rProgress;
+            float green = fs[1] * (1f - rProgress) + gs[1] * rProgress;
+            float blue = fs[2] * (1f - rProgress) + gs[2] * rProgress;
+
+            RenderSystem.setShaderFogStart(MathHelper.lerp(minecraftClient.getTickDelta() / 100f, -8, 24));
+            RenderSystem.setShaderFogEnd(MathHelper.lerp(minecraftClient.getTickDelta() / 100f, 20, 40));
+            RenderSystem.setShaderFogShape(FogShape.SPHERE);
+            RenderSystem.setShaderFogColor(red, green, blue, 0.25f);
+        }
+
 
         /*
          * if (!AITMod.AIT_CONFIG.DISABLE_LOYALTY_FOG() &&

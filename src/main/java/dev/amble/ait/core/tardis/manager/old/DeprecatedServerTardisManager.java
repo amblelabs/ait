@@ -47,7 +47,9 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
     protected final TardisFileManager<ServerTardis> fileManager = new TardisFileManager<>();
 
     public DeprecatedServerTardisManager() {
-        ServerLifecycleEvents.SERVER_STARTING.register(server -> this.fileManager.setLocked(false));
+        this.fileManager.setLocked(true);
+
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> this.fileManager.setLocked(false));
         ServerLifecycleEvents.SERVER_STOPPING.register(this::saveAndReset);
 
         ServerCrashEvent.EVENT.register(((server, report) -> this.reset())); // just panic and reset
@@ -113,13 +115,21 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
         if (either == null)
             either = this.loadTardis(server, uuid);
 
+        if (either == null)
+            return null;
+
         return either.map(tardis -> tardis, o -> null);
     }
 
     @Override
     public void loadTardis(MinecraftServer server, UUID uuid, @Nullable Consumer<ServerTardis> consumer) {
-        if (consumer != null)
-            this.loadTardis(server, uuid).ifLeft(consumer);
+        if (consumer == null) return;
+
+        Either<ServerTardis,Exception> either = this.loadTardis(server, uuid);
+
+        if (either == null) return;
+
+        either.ifLeft(consumer);
     }
 
     @Override
@@ -147,7 +157,7 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
         this.lookup.forEach((uuid, either) -> either.ifLeft(consumer));
     }
 
-    private Either<ServerTardis, Exception> loadTardis(MinecraftServer server, UUID uuid) {
+    @Nullable private Either<ServerTardis, Exception> loadTardis(MinecraftServer server, UUID uuid) {
         if (this.fileManager.isLocked())
             return null;
 

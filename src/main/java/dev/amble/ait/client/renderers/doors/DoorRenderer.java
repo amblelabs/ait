@@ -1,5 +1,7 @@
 package dev.amble.ait.client.renderers.doors;
 
+import org.joml.Vector3f;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -10,6 +12,7 @@ import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.api.tardis.TardisComponent;
@@ -38,7 +41,7 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
 
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
-            int light, int overlay) {
+                       int light, int overlay) {
         if (entity.getWorld() == null) return;
         if (!entity.isLinked()) {
             BlockState blockState = entity.getCachedState();
@@ -66,7 +69,7 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
     }
 
     private void renderDoor(Profiler profiler, ClientTardis tardis, T entity, MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers, int light, int overlay) {
+                            VertexConsumerProvider vertexConsumers, int light, int overlay) {
         this.updateModel(tardis);
 
         BlockState blockState = entity.getCachedState();
@@ -79,7 +82,8 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
 
         matrices.push();
         matrices.translate(0.5, 0, 0.5);
-        matrices.scale(tardis.stats().getXScale(), tardis.stats().getYScale(), tardis.stats().getZScale());
+        Vector3f scale = tardis.stats().getScale();
+        matrices.scale(scale.x(), scale.y(), scale.z());
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(k));
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 
@@ -99,7 +103,7 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
 
         if (emissive != null && !emissive.equals(DatapackConsole.EMPTY)) {
             boolean power = tardis.fuel().hasPower();
-            boolean alarms = tardis.alarm().enabled().get();
+            boolean alarms = tardis.alarm().isEnabled();
 
             float u;
             float t;
@@ -163,5 +167,20 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
             this.variant = variant;
             this.model = variant.getDoor().model();
         }
+    }
+
+    @Override
+    public boolean rendersOutsideBoundingBox(DoorBlockEntity doorBlockEntity) {
+        return true;
+    }
+
+    @Override
+    public int getRenderDistance() {
+        return 256;
+    }
+
+    @Override
+    public boolean isInRenderDistance(DoorBlockEntity doorBlockEntity, Vec3d vec3d) {
+        return Vec3d.ofCenter(doorBlockEntity.getPos()).multiply(1.0, 0.0, 1.0).isInRange(vec3d.multiply(1.0, 0.0, 1.0), this.getRenderDistance());
     }
 }

@@ -1,6 +1,7 @@
 package dev.amble.ait.client.boti;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.MinecraftClient;
@@ -27,11 +28,13 @@ import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.tardis.handler.StatsHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 
 public class TardisDoorBOTI extends BOTI {
     public static void renderInteriorDoorBoti(ClientTardis tardis, DoorBlockEntity door, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, SinglePartEntityModel frame, ModelPart mask, int light) {
-        if (!variant.parent().hasPortals()) return;
+        ExteriorVariantSchema parent = variant.parent();
+        if (!parent.hasPortals()) return;
 
         if (!AITMod.CONFIG.CLIENT.ENABLE_TARDIS_BOTI)
             return;
@@ -65,9 +68,11 @@ public class TardisDoorBOTI extends BOTI {
         RenderSystem.depthMask(true);
         stack.push();
         StatsHandler stats = tardis.stats();
-        stack.scale((float) variant.parent().portalWidth() * stats.getXScale(),
-                (float) variant.parent().portalHeight() * stats.getYScale(), stats.getZScale());
-        Vec3d vec = variant.parent().door().adjustPortalPos(new Vec3d(0, -0.55f, 0), Direction.NORTH);
+        Vector3f scale = tardis.travel().getScale();
+
+        stack.scale((float) parent.portalWidth() * scale.x(),
+                (float) parent.portalHeight() * scale.y(), scale.z());
+        Vec3d vec = parent.door().adjustPortalPos(new Vec3d(0, -0.55f, 0), Direction.NORTH);
         stack.translate(vec.x, vec.y, vec.z);
         if (tardis.travel().getState() == TravelHandlerBase.State.LANDED) {
             RenderLayer whichOne = AITMod.CONFIG.CLIENT.SHOULD_RENDER_BOTI_INTERIOR || AITMod.CONFIG.CLIENT.GREEN_SCREEN_BOTI ?
@@ -99,6 +104,8 @@ public class TardisDoorBOTI extends BOTI {
         VortexUtil util = stats.getVortexEffects().toUtil();
         if (!tardis.travel().isLanded() /*&& !tardis.flight().isFlying()*/) {
             util.renderVortex(stack);
+            util.renderVortexLayer(stack, 1.5f);
+            util.renderVortexLayer(stack, 2.5f);
             /*// TODO not a clue if this will work but oh well - Loqor
             stack.push();
             stack.scale(0.9f, 0.9f, 0.9f);
@@ -111,7 +118,7 @@ public class TardisDoorBOTI extends BOTI {
         if (!tardis.getExterior().getCategory().equals(CategoryRegistry.GEOMETRIC)) {
             stack.push();
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
-            stack.scale(stats.getXScale(), stats.getYScale(), stats.getZScale());
+            stack.scale(scale.x, scale.y, scale.z);
 
             // TODO: use DoorRenderer/ClientLightUtil instead.
             ((DoorModel) frame).renderWithAnimations(tardis, door, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.getBotiInterior(variant.texture())), light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F);
@@ -121,7 +128,7 @@ public class TardisDoorBOTI extends BOTI {
 
             stack.push();
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
-            stack.scale(stats.getXScale(), stats.getYScale(), stats.getZScale());
+            stack.scale(scale.x, scale.y, scale.z);
             if (variant.emission() != null) {
                 float u;
                 float t;
@@ -147,12 +154,13 @@ public class TardisDoorBOTI extends BOTI {
                 }
 
                 boolean power = tardis.fuel().hasPower();
+                boolean alarm = tardis.alarm().enabled().get();
 
-                float red = tardis.alarm().enabled().get() ? !power ? 0.25f : s : s;
-                float green = tardis.alarm().enabled().get() ? !power ? 0.01f : 0.3f : t;
-                float blue = tardis.alarm().enabled().get() ? !power ? 0.01f : 0.3f : u;
+                float red = power ? s : 0;
+                float green = power ? alarm ? 0.3f : t : 0;
+                float blue = power ? alarm ? 0.3f : u:  0;
 
-                ((DoorModel) frame).renderWithAnimations(tardis, door, frame.getPart(), stack, botiProvider.getBuffer((DependencyChecker.hasIris() ? AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true) : AITRenderLayers.getBeaconBeam(variant.emission(), true))), 0xf000f0, OverlayTexture.DEFAULT_UV, red, green, blue, 1.0F);
+                ((DoorModel) frame).renderWithAnimations(tardis, door, frame.getPart(), stack, botiProvider.getBuffer((DependencyChecker.hasIris() ? AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true) : AITRenderLayers.getTextPolygonOffset(variant.emission()))), 0xf000f0, OverlayTexture.DEFAULT_UV, red, green, blue, 1.0F);
                 botiProvider.draw();
             }
             stack.pop();

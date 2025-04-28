@@ -1,0 +1,37 @@
+name: Clear Changelog
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [release]
+  workflow_dispatch:  # allow on-demand run
+    inputs:
+      confirm:
+        description: 'Type "YES" to confirm clearing changelog'
+        required: true
+
+jobs:
+  clear-changelog:
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true) ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'YES')
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.BOT_TOKEN }}
+
+      - name: Truncate CHANGELOG.md
+        run: echo -n '' > CHANGELOG.md
+
+      - name: Commit & push
+        env:
+          TOKEN: ${{ secrets.BOT_TOKEN }}
+        run: |
+          git config user.name "github-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "chore: clear CHANGELOG"
+          git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }} HEAD:main

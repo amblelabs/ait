@@ -18,17 +18,19 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
+import dev.amble.ait.api.ConsumableBlock;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.AITTags;
 import dev.amble.ait.core.engine.link.block.DirectionalFluidLinkBlock;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 
-public class PowerConverterBlock extends DirectionalFluidLinkBlock {
+public class PowerConverterBlock extends DirectionalFluidLinkBlock implements ConsumableBlock {
 
     public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
     protected static final VoxelShape Y_SHAPE = Block.createCuboidShape(
@@ -85,6 +87,28 @@ public class PowerConverterBlock extends DirectionalFluidLinkBlock {
         }
 
         return super.onUse(state, world, pos, player, hand, hit);
+    }
+
+    @Override
+    public boolean canAcceptItem(World world, BlockPos pos, ItemStack stack, Direction from) {
+        return stack.isIn(AITTags.Items.IS_TARDIS_FUEL);
+    }
+
+    @Override
+    public ItemStack insertItem(World world, BlockPos pos, ItemStack stack, Direction from, boolean simulate) {
+        if (!(world.getBlockEntity(pos) instanceof FluidLinkBlockEntity be)) return stack;
+
+        if (!be.isPowered()) return stack;
+
+        if (!simulate && !world.isClient) {
+            be.source().addLevel(175);
+            world.playSound(null, pos, AITSounds.POWER_CONVERT, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        }
+
+        ItemStack leftover = stack.copy();
+        leftover.decrement(1);
+
+        return leftover.isEmpty() ? ItemStack.EMPTY : leftover;
     }
 
     @Override

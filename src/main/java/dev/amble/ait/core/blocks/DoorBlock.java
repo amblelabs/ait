@@ -92,8 +92,8 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        if (world.getBlockEntity(pos) instanceof DoorBlockEntity door && door.isLinked()
-                && door.tardis().get().siege().isActive())
+        if (world.getBlockEntity(pos) instanceof DoorBlockEntity door && door.isLinked() &&
+                door.tardis().get().siege() != null && door.tardis().get().siege().isActive())
             return VoxelShapes.empty();
 
         return ShapeUtil.rotate(Direction.NORTH, state.get(FACING), NORTH_SHAPE);

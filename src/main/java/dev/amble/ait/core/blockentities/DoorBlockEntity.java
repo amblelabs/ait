@@ -40,6 +40,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 
+
 public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
     private DirectedBlockPos directedPos;
@@ -51,14 +52,23 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
     public static <T extends BlockEntity> void tick(World world, BlockPos pos, BlockState blockState, T tDoor) {
         DoorBlockEntity door = (DoorBlockEntity) tDoor;
 
+        if (world.isClient())
+            return;
+
         if (!door.isLinked())
             return;
 
         Tardis tardis = door.tardis().get();
-        CachedDirectedGlobalPos globalExteriorPos = tardis.travel().position();
 
-        if (world.isClient())
+        if (TardisServerWorld.isTardisDimension(world) && !tardis.equals(((TardisServerWorld)world).getTardis())) {
+            door.setWorld(world);
             return;
+        }
+
+        if (tardis.travel() == null)
+            return;
+
+        CachedDirectedGlobalPos globalExteriorPos = tardis.travel().position();
 
         BlockPos exteriorPos = globalExteriorPos.getPos();
         World exteriorWorld = globalExteriorPos.getWorld();
@@ -77,9 +87,10 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
         }
 
         // woopsie daisy i forgor to put this here lelelelel
-        if (exteriorWorld.getBlockState(exteriorPos).getBlock() instanceof ExteriorBlock) {
+        if (exteriorWorld.getBlockState(exteriorPos).getBlock() instanceof ExteriorBlock
+                && !tardis.areShieldsActive()) {
             boolean waterlogged = exteriorWorld.getBlockState(exteriorPos).get(Properties.WATERLOGGED);
-            world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, waterlogged && tardis.door().isOpen() && !tardis.areShieldsActive()),
+            world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, waterlogged && tardis.door().isOpen()),
                     Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
 
             world.emitGameEvent(null, GameEvent.BLOCK_CHANGE, pos);
@@ -164,8 +175,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
     @Override
     public void onLinked() {
-        if (this.getWorld() != null && TardisServerWorld.isTardisDimension(this.getWorld()))
-            this.tardis().ifPresent(tardis -> tardis.getDesktop().setDoorPos(this));
+        this.tardis().ifPresent(tardis -> tardis.getDesktop().setDoorPos(this));
     }
 
     public void onBreak() {

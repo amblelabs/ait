@@ -22,7 +22,6 @@ import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.DoorBlock;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
@@ -33,7 +32,6 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import net.minecraft.world.LightType;
@@ -90,9 +88,6 @@ import dev.amble.ait.core.entities.TrenzalorePaintingEntity;
 import dev.amble.ait.core.entities.daleks.DalekRegistry;
 import dev.amble.ait.core.item.*;
 import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
@@ -237,39 +232,6 @@ public class AITModClient implements ClientModInitializer {
                     if (client.world.getBlockEntity(consolePos) instanceof ConsoleGeneratorBlockEntity console)
                         console.setVariant(id);
                 });
-
-        ClientPlayNetworking.registerGlobalReceiver(ExteriorAnimation.UPDATE,
-                (client, handler, buf, responseSender) -> {
-                    int p = buf.readInt();
-                    UUID tardisId = buf.readUuid();
-
-                    ClientTardisManager.getInstance().getTardis(client, tardisId, tardis -> {
-                        if (tardis == null)
-                            return;
-
-                        // todo remember to use the right world in future !!
-                        BlockEntity block = MinecraftClient.getInstance().world
-                                .getBlockEntity(tardis.travel().position().getPos());
-
-                        if (!(block instanceof ExteriorBlockEntity exterior))
-                            return;
-
-                        if (exterior.getAnimation() == null)
-                            return;
-
-                        exterior.getAnimation().setupAnimation(TravelHandlerBase.State.values()[p]);
-                    });
-                });
-
-        ClientPlayNetworking.registerGlobalReceiver(TravelHandler.CANCEL_DEMAT_SOUND, (client, handler, buf,
-                responseSender) -> {
-            ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
-
-            if (tardis == null)
-                return;
-
-            client.getSoundManager().stopSounds(tardis.stats().getTravelEffects().get(TravelHandlerBase.State.DEMAT).soundId(), SoundCategory.BLOCKS);
-        });
 
         WorldRenderEvents.END.register((context) -> SonicRendering.getInstance().renderWorld(context));
         HudRenderCallback.EVENT.register((context, delta) -> SonicRendering.getInstance().renderGui(context, delta));
@@ -555,9 +517,9 @@ public class AITModClient implements ClientModInitializer {
 
     public void paintingBOTI(WorldRenderContext context) {
         MinecraftClient client = MinecraftClient.getInstance();
-        SinglePartEntityModel contents;
-        Identifier frameTex;
-        Identifier contentsTex;
+        SinglePartEntityModel contents = new GallifreyFallsModel(GallifreyFallsModel.getTexturedModelData().createModel());
+        Identifier frameTex = BOTIPaintingEntityRenderer.GALLIFREY_FRAME_TEXTURE;
+        Identifier contentsTex = BOTIPaintingEntityRenderer.GALLIFREY_PAINTING_TEXTURE;
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
@@ -576,10 +538,6 @@ public class AITModClient implements ClientModInitializer {
                 contents = new TrenzalorePaintingModel(TrenzalorePaintingModel.getTexturedModelData().createModel());
                 frameTex = BOTIPaintingEntityRenderer.TRENZALORE_FRAME_TEXTURE;
                 contentsTex = BOTIPaintingEntityRenderer.TRENZALORE_PAINTING_TEXTURE;
-            } else {
-                contents = new GallifreyFallsModel(GallifreyFallsModel.getTexturedModelData().createModel());
-                frameTex = BOTIPaintingEntityRenderer.GALLIFREY_FRAME_TEXTURE;
-                contentsTex = BOTIPaintingEntityRenderer.GALLIFREY_PAINTING_TEXTURE;
             }
             PaintingBOTI.renderBOTIPainting(stack, frame,
                     LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, blockPos),

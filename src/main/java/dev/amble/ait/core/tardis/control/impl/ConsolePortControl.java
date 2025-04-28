@@ -14,6 +14,7 @@ import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITTags;
 import dev.amble.ait.core.item.WaypointItem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisDesktop;
@@ -44,13 +45,15 @@ public class ConsolePortControl extends Control {
 
         ItemStack itemStack = player.getMainHandStack();
 
-        if (itemStack.getItem() instanceof MusicDiscItem musicDisc) {
+        if (itemStack.isIn(AITTags.Items.INSERTABLE_DISCS) || itemStack.getItem() instanceof MusicDiscItem) {
             if (!tardis.extra().getInsertedDisc().isEmpty()) return Result.FAILURE;
 
-            tardis.extra().setInsertedDisc(itemStack.copy());
-            currentMusic = musicDisc.getSound();
 
-            world.playSound(null, console, currentMusic, SoundCategory.RECORDS, 6f, 1);
+            tardis.extra().setInsertedDisc(itemStack.copy());
+            if (itemStack.getItem() instanceof MusicDiscItem musicDisc) {
+                currentMusic = musicDisc.getSound();
+                world.playSound(null, console, currentMusic, SoundCategory.RECORDS, 6f, 1);
+            }
             player.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
 
             return Result.SUCCESS;
@@ -71,10 +74,9 @@ public class ConsolePortControl extends Control {
             }
         }
 
-
         if (itemStack.getItem() instanceof WaypointItem) {
-            if (WaypointItem.getPos(itemStack) == null)
-                WaypointItem.setPos(itemStack, tardis.travel().position());
+            /*if (WaypointItem.getPos(itemStack) == null)
+                WaypointItem.setPos(itemStack, tardis.travel().position());*/
 
             tardis.waypoint().markHasCartridge();
             tardis.waypoint().set(Waypoint.fromStack(itemStack), console, true);

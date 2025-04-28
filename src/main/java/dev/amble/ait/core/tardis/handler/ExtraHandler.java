@@ -1,8 +1,5 @@
 package dev.amble.ait.core.tardis.handler;
 
-import java.util.function.Consumer;
-
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
@@ -38,54 +35,30 @@ public class ExtraHandler extends KeyedTardisComponent {
         Drink drink = DrinkRegistry.getInstance().get(AITMod.id("coffee"));
         ItemStack stack = new ItemStack(AITItems.MUG);
         DrinkUtil.setDrink(stack, drink);
-        consoleHammer.of(this, CONSOLE_HAMMER);
-    }
-
-    public ItemStack getConsoleHammer() {
-        return this.consoleHammer.get();
-    }
-
-    public ItemStack takeConsoleHammer() {
-        return takeAnyHammer(this.consoleHammer);
-    }
-    public boolean consoleHammerInserted() {
-        return this.consoleHammer.get() != null && !this.consoleHammer.get().isEmpty();
-    }
-
-    public void insertConsoleHammer(ItemStack sonic, BlockPos consolePos) {
-        insertAnyHammer(this.consoleHammer, sonic,
-                stack -> spawnItem(tardis.asServer().getInteriorWorld(), consolePos, stack));
-    }
-
-    private static ItemStack takeAnyHammer(Value<ItemStack> value) {
-        ItemStack result = value.get();
-        value.set((ItemStack) null);
-
-        return result;
-    }
-
-    private static void insertAnyHammer(Value<ItemStack> value, ItemStack sonic, Consumer<ItemStack> spawner) {
-        value.flatMap(stack -> {
-            if (stack != null)
-                spawner.accept(stack);
-
-            return sonic;
-        });
-    }
-
-    public static void spawnItem(World world, BlockPos pos, ItemStack sonic) {
-        ItemEntity entity = new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), sonic);
-        world.spawnEntity(entity);
-    }
-
-    public static void spawnItem(CachedDirectedGlobalPos cached, ItemStack sonic) {
-        spawnItem(cached.getWorld(), cached.getPos(), sonic);
     }
 
     @Override
     public void onLoaded() {
         setRefreshmentItemValue.of(this, SET_REFRESHMENT_ITEM);
         setInsertedDiscValue.of(this, INSERTED_DISC);
+        consoleHammer.of(this, CONSOLE_HAMMER);
+    }
+
+    public ItemStack getConsoleHammer() {
+        return this.consoleHammer.get();
+    }
+    public ItemStack consoleHammerInserted() {
+        ItemStack itemStack = consoleHammer.get();
+        return itemStack != null ? itemStack : ItemStack.EMPTY;
+    }
+
+    public void insertConsoleHammer(ItemStack item) {
+        this.consoleHammer.set(item);
+    }
+
+    public static void spawnItem(World world, BlockPos pos, ItemStack sonic) {
+        ItemEntity entity = new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), sonic);
+        world.spawnEntity(entity);
     }
 
     public ItemStack getRefreshmentItem() {
@@ -105,5 +78,4 @@ public class ExtraHandler extends KeyedTardisComponent {
     public void setInsertedDisc(ItemStack item) {
         setInsertedDiscValue.set(item);
     }
-
 }

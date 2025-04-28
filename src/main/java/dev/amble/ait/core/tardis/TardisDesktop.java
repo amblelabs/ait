@@ -1,6 +1,8 @@
 package dev.amble.ait.core.tardis;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 import dev.amble.lib.data.DirectedBlockPos;
 import dev.drtheo.queue.api.ActionQueue;
@@ -87,17 +89,6 @@ public class TardisDesktop extends TardisComponent {
 
         // must be done in postInit, because it accesses door and alarm handlers
         this.changeInterior(schema, false, false).execute();
-    }
-
-    @Override
-    public void onLoaded() {
-        if (this.isClient())
-            return;
-
-        for (BlockPos pos : this.consolePos) {
-            if (tardis.asServer().getInteriorWorld().getBlockEntity(pos) instanceof ConsoleBlockEntity console)
-                console.markNeedsControl();
-        }
     }
 
     public TardisDesktopSchema getSchema() {

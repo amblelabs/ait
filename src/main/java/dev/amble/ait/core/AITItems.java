@@ -67,6 +67,7 @@ public class AITItems extends ItemContainer {
             new AItemSettings().group(AITItemGroups.MAIN).maxCount(1));
     public static final Item GEIGER_COUNTER = new RiftScannerItem(
             new AItemSettings().group(AITItemGroups.MAIN).maxCount(1));
+    @NoEnglish
     public static final Item HAMMER = new HammerItem(3, -2.4F,
             new AItemSettings().group(AITItemGroups.MAIN).maxCount(1).maxDamage(600));
     public static final Item RESPIRATOR = new RenderableArmorItem(ArmorMaterials.IRON, ArmorItem.Type.HELMET,
@@ -75,7 +76,7 @@ public class AITItems extends ItemContainer {
             ArmorItem.Type.HELMET, new AItemSettings().group(AITItemGroups.MAIN).maxCount(1).maxDamage(80),
             true);
 
-    public static final Item SONIC_SCREWDRIVER = new SonicItem(new AItemSettings().group(AITItemGroups.MAIN));
+    public static final Item SONIC_SCREWDRIVER = new SonicItem(new AItemSettings().maxCount(1).group(AITItemGroups.MAIN));
 
     public static final Item HYPERCUBE = new HypercubeItem(new AItemSettings().maxCount(1).group(AITItemGroups.MAIN));
     public static final Item PSYCHPAPER = new PsychpaperItem(new AItemSettings().maxCount(1).group(AITItemGroups.MAIN));

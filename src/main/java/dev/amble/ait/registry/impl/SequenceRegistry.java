@@ -76,7 +76,7 @@ public class SequenceRegistry {
 
                     missedTardis.getDesktop().getConsolePos().forEach(console -> {
                         Explosion explosion = missedTardis.asServer().getInteriorWorld().createExplosion(null, null, null,
-                                console.toCenterPos(), 3f * 2, false, World.ExplosionSourceType.NONE);
+                                console.toCenterPos(), 3f * 2, false, World.ExplosionSourceType.BLOCK);
 
                         explosions.add(explosion);
                     });

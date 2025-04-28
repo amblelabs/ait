@@ -49,6 +49,7 @@ public class ThrottleControl extends Control {
         if (travel.getState() == TravelHandler.State.DEMAT)
             tardis.sequence().setActivePlayer(player);
 
+
         return player.isSneaking() ? Result.SUCCESS_ALT : Result.SUCCESS;
     }
 

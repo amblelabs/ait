@@ -1,5 +1,0 @@
-- perf: siege mode is no longer as performance heavy as it was (#1281)
-- fix: the painting no longer move up by one block (#1280)
-- fix: provide a fallback sound for hammer hanger control (#1279)
-- fix: disable autopilot after growth land (#1278)
-- fix: dont ignore isomophic level setting (#127

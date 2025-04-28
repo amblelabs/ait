@@ -55,7 +55,8 @@ public class AITBlockTagProvider extends AmbleBlockTagProvider {
                 .add(Blocks.BARREL)
                 .add(Blocks.REDSTONE_WIRE, Blocks.COMPARATOR, Blocks.REPEATER)
                 .add(Blocks.BELL, Blocks.JUKEBOX, Blocks.TRAPPED_CHEST)
-                .add(Blocks.DAYLIGHT_DETECTOR);
+                .add(Blocks.DAYLIGHT_DETECTOR)
+                .add(Blocks.OBSIDIAN);
 
         getOrCreateTagBuilder(BlockTags.COAL_ORES).add(PlanetBlocks.ANORTHOSITE_COAL_ORE, PlanetBlocks.MARTIAN_COAL_ORE);
         getOrCreateTagBuilder(BlockTags.COPPER_ORES).add(PlanetBlocks.ANORTHOSITE_COPPER_ORE, PlanetBlocks.MARTIAN_COPPER_ORE);

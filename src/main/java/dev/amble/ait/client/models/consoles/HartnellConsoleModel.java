@@ -1508,7 +1508,7 @@ public class HartnellConsoleModel extends ConsoleModel {
         hailMary.roll = tardis.stats().hailMary().get() ? hailMary.roll + 1.75f : hailMary.roll;
         ModelPart hailMaryWarningLight = this.bone.getChild("panels").getChild("p_2").getChild("bone48")
                 .getChild("bone49").getChild("bone50").getChild("sym_lamp").getChild("bone97");
-        hailMaryWarningLight.pivotY = !tardis.stats().hailMary().get()
+        hailMaryWarningLight.pivotY = tardis.stats().hailMary().get()
                 ? hailMaryWarningLight.pivotY
                 : hailMaryWarningLight.pivotY + 1;
 

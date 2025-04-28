@@ -22,6 +22,7 @@ public class PlanetBlocks extends BlockContainer {
 
     // Tech
 
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     public static final Block OXYGENATOR_BLOCK = new OxygenatorBlock(
             FabricBlockSettings.copy(Blocks.IRON_BLOCK));
 

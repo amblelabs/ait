@@ -2528,7 +2528,7 @@ public class CoralConsoleModel extends ConsoleModel {
 
         // Hammer
         ModelPart hammer = controls.getChild("p_ctrl_6").getChild("bone62").getChild("hammer").getChild("bone40");
-        hammer.hidden = tardis.extra().consoleHammerInserted() ? false : true;
+        hammer.hidden = tardis.extra().getConsoleHammer() == null || tardis.extra().getConsoleHammer().isEmpty();
 
         super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();

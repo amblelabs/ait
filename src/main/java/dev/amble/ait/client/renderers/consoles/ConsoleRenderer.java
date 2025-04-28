@@ -11,6 +11,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.client.models.consoles.ConsoleModel;
@@ -37,7 +38,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
 
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
-            int light, int overlay) {
+                       int light, int overlay) {
 
         if (entity.getWorld() == null) return;
 
@@ -120,7 +121,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         profiler.swap("render");
         model.renderWithAnimations(entity, tardis, model.getPart(),
                 matrices, vertexConsumers.getBuffer(variant.equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(variant.texture()) :
-                RenderLayer.getEntityTranslucentCull(variant.texture())), light, overlay,
+                        RenderLayer.getEntityTranslucentCull(variant.texture())), light, overlay,
                 1, 1, 1, 1);
 
         matrices.pop();
@@ -193,5 +194,20 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
             this.variant = variant;
             this.model = variant.model();
         }
+    }
+
+    @Override
+    public boolean rendersOutsideBoundingBox(ConsoleBlockEntity consoleBlockEntity) {
+        return true;
+    }
+
+    @Override
+    public int getRenderDistance() {
+        return 256;
+    }
+
+    @Override
+    public boolean isInRenderDistance(ConsoleBlockEntity consoleBlockEntity, Vec3d vec3d) {
+        return Vec3d.ofCenter(consoleBlockEntity.getPos()).multiply(1.0, 0.0, 1.0).isInRange(vec3d.multiply(1.0, 0.0, 1.0), this.getRenderDistance());
     }
 }

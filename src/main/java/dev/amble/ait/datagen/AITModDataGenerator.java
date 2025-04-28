@@ -735,6 +735,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         });
 
         provider.addTranslation("ait.tardis.likes_item", "The TARDIS may like this item...");
+        provider.addTranslation("tooltip.ait.remoteitem.holdformoreinfo", "Hold shift for more info");
 
         // Control entities
         provider.addTranslation("control.ait.antigravs", "Antigravs");
@@ -766,6 +767,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.console_port", "Console Port");
         provider.addTranslation("control.ait.mark_waypoint", "Save Waypoint");
         provider.addTranslation("control.ait.set_waypoint", "Load Waypoint");
+        provider.addTranslation("control.ait.set_waypoint.error", "Cannot travel to waypoint with handbrake engaged");
         provider.addTranslation("control.ait.increment", "Increment");
         provider.addTranslation("control.ait.x", "X");
         provider.addTranslation("control.ait.y", "Y");
@@ -844,6 +846,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItems.PSYCHPAPER, "Psychic Paper");
         provider.addTranslation(AITItems.GALLIFREY_FALLS_PAINTING, "Painting");
         provider.addTranslation(AITItems.TRENZALORE_PAINTING, "Painting");
+        provider.addTranslation(AITItems.HAMMER, "Mallet");
         provider.addTranslation("ait.item.drink.mug_empty", "Empty Mug");
         provider.addTranslation("ait.item.drink.hot_cocoa", "Hot Cocoa");
         provider.addTranslation("ait.item.drink.tea", "Tea");
@@ -1064,7 +1067,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("warning.ait.needs_subsystem", "ERROR, REQUIRES ACTIVE SUBSYSTEM: %s");
         provider.addTranslation("tardis.message.growth.hint", "Throw the Personality Matrix into the water to give it life...");
         provider.addTranslation("tardis.message.growth.no_cage", "Cage the TARDIS Coral to begin Plasmic coating process!");
-        provider.addTranslation("tardis.message.interiorchange.not_enough_plasmic_material", "Not enough Plasmic Material for shell: %s / 8");
+
         provider.addTranslation("message.ait.control.ylandtype", "Vertical Search Mode: %s");
         provider.addTranslation("message.ait.loyalty_amount", "Loyalty Level: %s");
         provider.addTranslation("message.ait.landing_code", "Landing Code...");
@@ -1079,6 +1082,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.all_types", "Consoles, Exteriors, Desktops & Sonic Casings");
         provider.addTranslation("screen.ait.sonic_casing", "Sonic Casing");
         provider.addTranslation("sonic.ait.mode.tardis.location_summon", "Summoned TARDIS To Your Location, Please Wait...");
+        provider.addTranslation("sonic.ait.mode.tardis.is_not_in_range",  "TARDIS is out of range!");
         provider.addTranslation("sonic.ait.mode.tardis.does_not_have_stabilisers",  "Remote Summoning Requires Stabilisers!");
         provider.addTranslation("sonic.ait.mode.tardis.refuel", "Engaged Handbrake, TARDIS Refueling...");
         provider.addTranslation("sonic.ait.mode.tardis.flight", "Disengaged Handbrake, TARDIS Dematerialising...");
@@ -1137,6 +1141,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("achievement.ait.description.place_energizer", "Place a Matrix Energizer ontop of a naturaly generated Shrieker.");
         provider.addTranslation("achievement." + AITMod.MOD_ID + ".title.brand_new", "Having a Coffee!");
         provider.addTranslation("achievement." + AITMod.MOD_ID + ".description.brand_new", "OH MY GOD! IVE DONE IT AGAIN!");
+        provider.addTranslation("achievement.ait.title.remote", "Grand Design");
+        provider.addTranslation("achievement.ait.description.remote", "The Stattenheim Remote is yours. Fascinating. Now we shall observe precisely how you manipulate causality… and fracture under pressure.");
 
         // Commands
         // Fuel
@@ -1349,6 +1355,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("exterior.ait.1980", "1980");
 
 
+        // Alarms
+        provider.addTranslation("tardis.message.alarm.crashing", "System Alert: TARDIS is experiencing a critical failure.");
 
         // Security Settings Menu
         provider.addTranslation("screen.ait.sonic.button", "> Sonic Settings");
@@ -1359,13 +1367,16 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.security.hostile_alarms", "> Hostile Alarms");
         provider.addTranslation("screen.ait.security.minimum_loyalty", "> Isomorphic LVL");
         provider.addTranslation("screen.ait.security.receive_distress_calls", "> Receive Distress Calls");
+
+        // Interior changing
         provider.addTranslation("tardis.message.interiorchange.not_enough_fuel",
                 "The TARDIS does not have enough fuel to change it's interior");
         provider.addTranslation("tardis.message.interiorchange.warning",
                 "ARS initiated, console room is being reconfigured, please vacate the interior!");
         provider.addTranslation("tardis.message.interiorchange.subsystems_enabled",
                 "TARDIS has %s subsystems enabled. Are you sure you want to do this?");
-
+        provider.addTranslation("tardis.message.interiorchange.not_enough_plasmic_material", "Not enough Plasmic Material for shell: %s / 8");
+        provider.addTranslation("tardis.message.interiorchange.regenerating", "Interior Reconfiguration in %s seconds");
         // Landing Pad
         provider.addTranslation("message.ait.landingpad.adjust", "Your landing position has been adjusted");
 
@@ -1425,6 +1436,26 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(SubSystem.Id.ENGINE.toTranslationKey(), "Engine");
         provider.addTranslation(SubSystem.Id.STABILISERS.toTranslationKey(), "Blue Stabilisers");
         provider.addTranslation(SubSystem.Id.EMERGENCY_POWER.toTranslationKey(), "Emergency Backup Power");
+
+        // Exterior Animations
+        provider.addTranslation("animation." + AITMod.MOD_ID + ".bnt_demat", "Bill & Ted");
+        provider.addTranslation("animation." + AITMod.MOD_ID + ".bnt_mat", "Bill & Ted");
+        provider.addTranslation("animation." + AITMod.MOD_ID + ".classic_demat", "Classic");
+        provider.addTranslation("animation." + AITMod.MOD_ID + ".classic_mat", "Classic");
+        provider.addTranslation("animation." + AITMod.MOD_ID + ".crumple", "Crumple");
+        provider.addTranslation("animation." + AITMod.MOD_ID + ".drill_demat", "Drill");
+        provider.addTranslation("animation." + AITMod.MOD_ID + ".drill_mat", "Drill");
+        provider.addTranslation("animation." + AITMod.MOD_ID + ".ghost_mat", "Ghosting");
+        provider.addTranslation("animation." + AITMod.MOD_ID + ".pulsating_demat", "Pulsating");
+        provider.addTranslation("animation." + AITMod.MOD_ID + ".pulsating_mat", "Pulsating");
+        provider.addTranslation("animation." + AITMod.MOD_ID + ".self_destruct", "Self Destruct");
+        provider.addTranslation("animation." + AITMod.MOD_ID + ".zwip_demat", "Zwip");
+        provider.addTranslation("animation." + AITMod.MOD_ID + ".zwip_mat", "Zwip");
+        provider.addTranslation("animation." + AITMod.MOD_ID + ".eighth_demat", "Eighth");
+        provider.addTranslation("animation." + AITMod.MOD_ID + ".eighth_mat", "Eighth");
+        provider.addTranslation("animation." + AITMod.MOD_ID + ".proton_mat", "Proton");
+        provider.addTranslation("animation." + AITMod.MOD_ID + ".proton_demat", "Proton");
+
 
         return provider;
     }

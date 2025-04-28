@@ -30,7 +30,6 @@ public class PlanetItems extends ItemContainer {
             new AItemSettings().maxDamage(240), true);
 
     // TOOLS
-
     public static final Item MARTIAN_STONE_SWORD = new SwordItem(PlanetToolMaterial.MARTIAN_STONE, 3, -2.4f, new AItemSettings());
     public static final Item MARTIAN_STONE_SHOVEL = new ShovelItem(PlanetToolMaterial.MARTIAN_STONE, 0, 0f, new AItemSettings());
     public static final Item MARTIAN_STONE_PICKAXE = new PickaxeItem(PlanetToolMaterial.MARTIAN_STONE, 2, 2f, new AItemSettings());

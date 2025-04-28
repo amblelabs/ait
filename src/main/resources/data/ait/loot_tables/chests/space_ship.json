@@ -116,11 +116,6 @@
         },
         {
           "type": "minecraft:item",
-          "name": "ait:mercury_music_disc",
-          "weight": 1
-        },
-        {
-          "type": "minecraft:item",
           "name": "ait:drifting_music_disc",
           "weight": 1
         }

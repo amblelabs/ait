@@ -1,7 +1,5 @@
 package dev.amble.ait.client.models.exteriors;
 
-import static dev.amble.ait.core.tardis.animation.ExteriorAnimation.*;
-
 import java.util.function.Function;
 
 import net.minecraft.client.model.ModelPart;

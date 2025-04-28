@@ -96,7 +96,7 @@ public class SonicItem extends LinkableItem implements ArtronHolderItem {
         int ticks = mode.maxTime() - remainingUseTicks;
 
         if (ticks % 10 == 0) {
-            removeFuel(1, stack);
+            removeFuel(mode.fuelCost(), stack);
 
             if (!this.checkFuel(stack))
                 return;

@@ -4,14 +4,20 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 
 import dev.amble.ait.core.blockentities.PlaqueBlockEntity;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
@@ -33,6 +39,16 @@ public class PlaqueBlock extends HorizontalDirectionalBlock implements BlockEnti
     }
 
     @Override
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+        if (!world.isClient && world.getBlockEntity(pos) instanceof PlaqueBlockEntity plaque) {
+            if (plaque.onUse((ServerPlayerEntity) player, hand)) {
+                return ActionResult.SUCCESS;
+            }
+        }
+        return ActionResult.PASS;
+    }
+
+    @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         return ShapeUtil.rotate(Direction.NORTH, state.get(FACING), SHAPE);
     }
@@ -49,7 +65,7 @@ public class PlaqueBlock extends HorizontalDirectionalBlock implements BlockEnti
 
     @Override
     public BlockState getAppearance(BlockState state, BlockRenderView renderView, BlockPos pos, Direction side,
-            @Nullable BlockState sourceState, @Nullable BlockPos sourcePos) {
+                                    @Nullable BlockState sourceState, @Nullable BlockPos sourcePos) {
         return super.getAppearance(state, renderView, pos, side, sourceState, sourcePos);
     }
 

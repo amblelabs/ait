@@ -80,6 +80,7 @@ public class Property<T> {
                 CachedDirectedGlobalPos.class, (buf, pos) -> pos.write(buf), CachedDirectedGlobalPos::read);
         public static final Type<Identifier> IDENTIFIER = new Type<>(Identifier.class, PacketByteBuf::writeIdentifier,
                 PacketByteBuf::readIdentifier);
+        public static final Type<Long> LONG = new Type<>(Long.class, PacketByteBuf::writeLong, PacketByteBuf::readLong);
 
         public static final Type<RegistryKey<World>> WORLD_KEY = new Type<>(RegistryKey.class,
                 PacketByteBuf::writeRegistryKey, buf -> buf.readRegistryKey(RegistryKeys.WORLD));

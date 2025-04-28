@@ -173,10 +173,8 @@ public class TardisUtil {
         return TardisUtil.offsetInteriorDoorPos(desktop.getDoorPos());
     }
 
-    public static Vec3d offsetDoorPosition(DirectedBlockPos directed) {
-        BlockPos pos = directed.getPos();
-
-        return switch (directed.getRotation()) {
+    public static Vec3d offsetDoorPosition(Vec3d pos, byte rotation) {
+        return switch (rotation) {
             case 1, 2, 3 -> new Vec3d(pos.getX() + 1.1f, pos.getY(), pos.getZ() - 0.5f);
             case 4 -> new Vec3d(pos.getX() + 1.5f, pos.getY(), pos.getZ() + 0.5f);
             case 5, 6, 7 -> new Vec3d(pos.getX() + 1.5f, pos.getY(), pos.getZ() + 1.1f);
@@ -188,6 +186,10 @@ public class TardisUtil {
         };
     }
 
+    public static Vec3d offsetDoorPosition(DirectedBlockPos directed) {
+        return offsetDoorPosition(new Vec3d(directed.getPos().getX(), directed.getPos().getY(), directed.getPos().getZ()), directed.getRotation());
+    }
+
     public static Vec3d offsetInteriorDoorPos(DirectedBlockPos directed) {
         BlockPos pos = directed.getPos();
 
@@ -197,6 +199,15 @@ public class TardisUtil {
             case 12 -> new Vec3d(pos.getX() + 0.6f, pos.getY(), pos.getZ() + 0.5f);
             default -> new Vec3d(pos.getX() + 0.5f, pos.getY(), pos.getZ() + 0.6f);
         };
+    }
+
+    // TODO - move to amblekit
+    public static Vec3d offsetPos(DirectedBlockPos directed, float value) {
+        BlockPos pos = directed.getPos();
+
+        return new Vec3d(pos.getX() + value * (double) directed.getVector().getX(),
+                pos.getY() + value * (double) directed.getVector().getY(),
+                pos.getZ() + value * (double) directed.getVector().getZ());
     }
 
     public static void teleportOutside(Tardis tardis, Entity entity) {
@@ -464,5 +475,15 @@ public class TardisUtil {
         }
 
         return Optional.ofNullable(nearestPlayer);
+    }
+
+    public static boolean isNearTardis(PlayerEntity player, Tardis tardis, double radius) {
+        return radius >= distanceFromTardis(player, tardis);
+    }
+
+    public static double distanceFromTardis(PlayerEntity player, Tardis tardis) {
+        BlockPos pPos = player.getBlockPos();
+        BlockPos tPos = tardis.travel().position().getPos();
+        return Math.sqrt(tPos.getSquaredDistance(pPos));
     }
 }

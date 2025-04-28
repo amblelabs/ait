@@ -12,20 +12,20 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import dev.amble.lib.register.unlockable.Unlockable;
 import dev.amble.lib.util.ServerLifecycleHooks;
+import org.joml.Vector3f;
 
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.core.sounds.flight.FlightSound;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
-import dev.amble.ait.core.sounds.travel.TravelSound;
-import dev.amble.ait.core.sounds.travel.TravelSoundRegistry;
 import dev.amble.ait.core.sounds.travel.map.TravelSoundMap;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.tardis.handler.travel.AnimatedTravelHandler;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
 import dev.amble.ait.core.util.Lazy;
@@ -47,14 +47,15 @@ public class StatsHandler extends KeyedTardisComponent {
     private static final Property<String> NAME = new Property<>(Property.Type.STR, "name", "");
     private static final Property<String> PLAYER_CREATOR_NAME = new Property<>(Property.Type.STR, "player_creator_name",
             "");
-    private static final Property<String> DATE = new Property<>(Property.Type.STR, "date", "");
+    private static final Property<Long> DATE = new Property<>(Property.Type.LONG, "date", 0L);
     private static final Property<String> DATE_TIME_ZONE = new Property<>(Property.Type.STR, "date_time_zone", "");
     private static final Property<RegistryKey<World>> SKYBOX = new Property<>(Property.Type.WORLD_KEY, "skybox",
             World.END);
+    private static final Property<Direction> SKYBOX_DIRECTION = new Property<>(Property.Type.DIRECTION, "skybox_direction",
+            Direction.NORTH);
     private static final Property<HashSet<String>> UNLOCKS = new Property<>(Property.Type.STR_SET, "unlocks",
             new HashSet<>());
-    private static final Property<Identifier> DEMAT_FX = new Property<>(Property.Type.IDENTIFIER, "demat_fx", new Identifier(""));
-    private static final Property<Identifier> MAT_FX = new Property<>(Property.Type.IDENTIFIER, "mat_fx", new Identifier(""));
+
     private static final Property<Identifier> FLIGHT_FX = new Property<>(Property.Type.IDENTIFIER, "flight_fx", new Identifier(""));
     private static final Property<Identifier> VORTEX_FX = new Property<>(Property.Type.IDENTIFIER, "vortex_fx", new Identifier(""));
     private static final BoolProperty SECURITY = new BoolProperty("security", false);
@@ -67,15 +68,14 @@ public class StatsHandler extends KeyedTardisComponent {
 
     private final Value<String> tardisName = NAME.create(this);
     private final Value<String> playerCreatorName = PLAYER_CREATOR_NAME.create(this);
-    private final Value<String> creationDate = DATE.create(this);
+    private final Value<Long> dateCreated = DATE.create(this);
     private final Value<String> dateTimeZone = DATE_TIME_ZONE.create(this);
     private final Value<RegistryKey<World>> skybox = SKYBOX.create(this);
+    private final Value<Direction> skyboxDirection = SKYBOX_DIRECTION.create(this);
     private final Value<HashSet<String>> unlocks = UNLOCKS.create(this);
     private final BoolValue security = SECURITY.create(this);
     private final BoolValue hailMary = HAIL_MARY.create(this);
     private final BoolValue receiveCalls = RECEIVE_CALLS.create(this);
-    private final Value<Identifier> dematId = DEMAT_FX.create(this);
-    private final Value<Identifier> matId = MAT_FX.create(this);
     private final Value<Identifier> flightId = FLIGHT_FX.create(this);
     private final Value<Identifier> vortexId = VORTEX_FX.create(this);
     private final DoubleValue tardisXScale = TARDIS_X_SCALE.create(this);
@@ -95,7 +95,7 @@ public class StatsHandler extends KeyedTardisComponent {
 
     @Override
     public void onCreate() {
-        this.markCreationDate();
+        this.markDateCreated();
         this.setName("Type 50 TT Capsule");
         this.setXScale(1.0f);
         this.setYScale(1.0f);
@@ -105,16 +105,15 @@ public class StatsHandler extends KeyedTardisComponent {
     @Override
     public void onLoaded() {
         skybox.of(this, SKYBOX);
+        skyboxDirection.of(this, SKYBOX_DIRECTION);
         unlocks.of(this, UNLOCKS);
         tardisName.of(this, NAME);
         playerCreatorName.of(this, PLAYER_CREATOR_NAME);
-        creationDate.of(this, DATE);
+        dateCreated.of(this, DATE);
         dateTimeZone.of(this, DATE_TIME_ZONE);
         security.of(this, SECURITY);
         hailMary.of(this, HAIL_MARY);
         receiveCalls.of(this, RECEIVE_CALLS);
-        dematId.of(this, DEMAT_FX);
-        matId.of(this, MAT_FX);
         flightId.of(this, FLIGHT_FX);
         vortexId.of(this, VORTEX_FX);
         tardisXScale.of(this, TARDIS_X_SCALE);
@@ -129,16 +128,6 @@ public class StatsHandler extends KeyedTardisComponent {
             if (this.flightFxCache != null)
                 this.flightFxCache.invalidate();
             else this.getFlightEffects();
-        });
-        dematId.addListener((id) -> {
-            if (this.travelFxCache != null)
-                this.travelFxCache.invalidate();
-            else this.getTravelEffects();
-        });
-        matId.addListener((id) -> {
-            if (this.travelFxCache != null)
-                this.travelFxCache.invalidate();
-            else this.getTravelEffects();
         });
 
         for (Iterator<TardisDesktopSchema> it = DesktopRegistry.getInstance().iterator(); it.hasNext();) {
@@ -163,6 +152,10 @@ public class StatsHandler extends KeyedTardisComponent {
 
     public Value<RegistryKey<World>> skybox() {
         return skybox;
+    }
+
+    public Value<Direction> skyboxDirection() {
+        return skyboxDirection;
     }
 
     public String getName() {
@@ -247,37 +240,47 @@ public class StatsHandler extends KeyedTardisComponent {
         }
     }
 
-    public Date getCreationDate() {
-        if (creationDate.get() == null) {
+    public Date getDateCreated() {
+        if (dateCreated.get() == null) {
             AITMod.LOGGER.error("{} was missing creation date! Resetting to now", tardis.getUuid().toString());
-            markCreationDate();
+            markDateCreated();
         }
 
-        // parse a Date from the creationDate, and add to the hours the difference between this time zone and the time zone stored in the dateTimeZone
+        // parse a Date from the dateCreated, and add to the hours the difference between this time zone and the time zone stored in the dateTimeZone
         try {
-            Date date = DateFormat.getDateTimeInstance(DateFormat.LONG, 3).parse(creationDate.get());
+            Instant instant = Instant.ofEpochSecond(dateCreated.get());
+            //System.out.println(Instant.now().getEpochSecond());
             TimeZone timeZone = TimeZone.getTimeZone(dateTimeZone.get());
-            date.setTime(date.getTime() + timeZone.getRawOffset());
-            return date;
+            Calendar calendar = Calendar.getInstance(timeZone);
+            calendar.setTimeInMillis(instant.toEpochMilli());
+            return calendar.getTime();
         } catch (Exception e) {
             AITMod.LOGGER.error("Error parsing creation date for {}", tardis.getUuid().toString(), e);
             return Date.from(Instant.now());
         }
     }
 
-    public float getXScale() {
+    private float getXScale() {
         double v = tardisXScale.get();
         return (float) v;
     }
 
-    public float getYScale() {
+    private float getYScale() {
         double v = tardisYScale.get();
         return (float) v;
     }
 
-    public float getZScale() {
+    private float getZScale() {
         double v = tardisZScale.get();
         return (float) v;
+    }
+
+    /**
+     * The scale of the TARDIS.
+     * @see AnimatedTravelHandler#getScale()
+     */
+    public Vector3f getScale() {
+        return new Vector3f(this.getXScale(), this.getYScale(), this.getZScale());
     }
 
     public void setXScale(double scale) {
@@ -293,35 +296,17 @@ public class StatsHandler extends KeyedTardisComponent {
     }
 
     public String getCreationString() {
-        return DateFormat.getDateTimeInstance(DateFormat.LONG, 3).format(this.getCreationDate());
+        return DateFormat.getDateTimeInstance(DateFormat.LONG, 3).format(this.getDateCreated());
     }
 
-    public void markCreationDate() {
+    public void markDateCreated() {
         // set the creation date to now, along with the time zone, and store it in a computer-readable string format
-        Date now = Date.from(Instant.now());
-        creationDate.set(DateFormat.getDateTimeInstance(DateFormat.LONG, 3).format(now));
-        dateTimeZone.set(DateFormat.getTimeInstance(DateFormat.LONG).getTimeZone().getID());
+       dateCreated.set(Instant.now().getEpochSecond());
+       dateTimeZone.set(DateFormat.getTimeInstance(DateFormat.LONG).getTimeZone().getID());
     }
 
     public void markPlayerCreatorName() {
         playerCreatorName.set(this.getPlayerCreatorName());
-    }
-
-    public TravelSoundMap getTravelEffects() {
-        if (this.travelFxCache == null) {
-            this.travelFxCache = new Lazy<>(this::createTravelEffectsCache);
-        }
-
-        return this.travelFxCache.get();
-    }
-    private TravelSoundMap createTravelEffectsCache() {
-        TravelSoundMap map = new TravelSoundMap();
-
-        // TODO move to proper registries
-        map.put(TravelHandlerBase.State.DEMAT, TravelSoundRegistry.getInstance().getOrElse(this.dematId.get(), TravelSoundRegistry.DEFAULT_DEMAT));
-        map.put(TravelHandlerBase.State.MAT, TravelSoundRegistry.getInstance().getOrElse(this.matId.get(), TravelSoundRegistry.DEFAULT_MAT));
-
-        return map;
     }
 
     public FlightSound getFlightEffects() {
@@ -360,30 +345,5 @@ public class StatsHandler extends KeyedTardisComponent {
 
         if (this.flightFxCache != null)
             this.flightFxCache.invalidate();
-    }
-
-    private void setDematEffects(TravelSound current) {
-        this.dematId.set(current.id());
-
-        if (this.travelFxCache != null)
-            this.travelFxCache.invalidate();
-    }
-
-    private void setMatEffects(TravelSound current) {
-        this.matId.set(current.id());
-
-        if (this.travelFxCache != null)
-            this.travelFxCache.invalidate();
-    }
-
-    public void setTravelEffects(TravelSound current) {
-        switch (current.target()) {
-            case DEMAT:
-                this.setDematEffects(current);
-                break;
-            case MAT:
-                this.setMatEffects(current);
-                break;
-        }
     }
 }
