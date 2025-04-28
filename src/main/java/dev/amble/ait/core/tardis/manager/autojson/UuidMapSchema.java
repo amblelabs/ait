@@ -4,8 +4,8 @@ import dev.drtheo.autojson.SchemaHolder;
 import dev.drtheo.autojson.adapter.JsonAdapter;
 import dev.drtheo.autojson.adapter.JsonDeserializationContext;
 import dev.drtheo.autojson.adapter.JsonSerializationContext;
-import dev.drtheo.autojson.schema.ObjectSchema;
-import dev.drtheo.autojson.schema.Schema;
+import dev.drtheo.autojson.schema.base.ObjectSchema;
+import dev.drtheo.autojson.schema.base.Schema;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;

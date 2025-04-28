@@ -4,7 +4,7 @@ import dev.amble.ait.data.Loyalty;
 import dev.drtheo.autojson.adapter.JsonAdapter;
 import dev.drtheo.autojson.adapter.JsonDeserializationContext;
 import dev.drtheo.autojson.adapter.JsonSerializationContext;
-import dev.drtheo.autojson.schema.PrimitiveSchema;
+import dev.drtheo.autojson.schema.base.PrimitiveSchema;
 
 public class LoyaltySchema implements PrimitiveSchema<Loyalty> {
 

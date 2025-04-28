@@ -2,17 +2,14 @@ package dev.amble.ait.core.tardis.manager.autojson;
 
 import dev.drtheo.autojson.AutoJSON;
 import dev.drtheo.autojson.adapter.JsonDeserializationContext;
-import dev.drtheo.autojson.schema.ArraySchema;
-import dev.drtheo.autojson.schema.ObjectSchema;
-import dev.drtheo.autojson.schema.PrimitiveSchema;
-import dev.drtheo.autojson.schema.Schema;
+import dev.drtheo.autojson.schema.base.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.UUID;
 
 public class PacketBufParser implements JsonDeserializationContext {
@@ -32,17 +29,17 @@ public class PacketBufParser implements JsonDeserializationContext {
     }
 
     @Override
-    public <T> T decode(Type type) {
-        return this.decode(type, this.adapter.schema(type));
+    public <T> T decodeBuiltIn(Class<T> t) {
+        return decode0(t, null, PacketBufAdapter.canBeNull(t));
     }
 
     @Override
-    public <T> T decode(Type type, Schema<T> schema) {
-        return decode0(type, schema, true);
+    public <T> T decodeCustom(Type type, @NotNull Schema<T> schema) {
+        return null;
     }
 
     private <T> T decode0(Type type, Schema<T> schema, boolean canBeNull) {
-        if (PacketBufAdapter.canBeNull(type) && canBeNull) {
+        if (canBeNull && PacketBufAdapter.canBeNull(type)) {
             return (T) buf.readNullable(b -> read(this, b, type, schema));
         } else {
             return (T) read(this, buf, type, schema);
@@ -50,16 +47,12 @@ public class PacketBufParser implements JsonDeserializationContext {
     }
 
     private static <T> Object read(PacketBufParser self, PacketByteBuf buf, Type type, Schema<T> s) {
-        // == UnsafeUtil.isPrimitive(type)
-        if (s == null || s instanceof PrimitiveSchema<T>) {
-            // TODO: handle primitive schema
-            if (s instanceof PrimitiveSchema<T> ps && self.currentValue == null) {
-                self.currentValue = self.readPrimitive(type);
-                return self.readPrimitive(ps);
-            }
-
+        if (s == null) {
             self.currentValue = null;
             return self.readPrimitive(type);
+        } else if (s.type() == SchemaType.PRIMITIVE) {
+            self.currentValue = self.readPrimitive(type);
+            return self.readPrimitive(s.asPrimitive());
         } else if (s instanceof ObjectSchema<T> os) {
             return self.readObject(os);
         } else if (s instanceof ArraySchema<T,?> as) {

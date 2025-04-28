@@ -1,6 +1,7 @@
 package dev.amble.ait.data.properties.integer;
 
 import dev.amble.ait.data.properties.Value;
+import dev.drtheo.autojson.SchemaHolder;
 
 public class IntValue extends Value<Integer> {
 
@@ -17,7 +18,7 @@ public class IntValue extends Value<Integer> {
         return new Serializer<>(IntProperty.TYPE, IntValue::new);
     }
 
-    public static dev.drtheo.autojson.schema.Schema<IntValue> serial() {
-        return new SchemaImpl<>(int.class, IntValue::new);
+    public static dev.drtheo.autojson.schema.base.Schema<IntValue> serial(SchemaHolder holder) {
+        return new SchemaImpl<>(holder, int.class, IntValue::new);
     }
 }

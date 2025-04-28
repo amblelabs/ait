@@ -3,7 +3,7 @@ package dev.amble.ait.core.tardis.manager.autojson;
 import dev.drtheo.autojson.adapter.JsonAdapter;
 import dev.drtheo.autojson.adapter.JsonDeserializationContext;
 import dev.drtheo.autojson.adapter.JsonSerializationContext;
-import dev.drtheo.autojson.schema.ArraySchema;
+import dev.drtheo.autojson.schema.base.ArraySchema;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 

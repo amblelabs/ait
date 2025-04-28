@@ -1,6 +1,7 @@
 package dev.amble.ait.data.properties.dbl;
 
 import dev.amble.ait.data.properties.Value;
+import dev.drtheo.autojson.SchemaHolder;
 
 public class DoubleValue extends Value<Double> {
 
@@ -17,7 +18,7 @@ public class DoubleValue extends Value<Double> {
         return new Serializer<>(DoubleProperty.TYPE, DoubleValue::new);
     }
 
-    public static dev.drtheo.autojson.schema.Schema<DoubleValue> serial() {
-        return new SchemaImpl<>(double.class, DoubleValue::new);
+    public static dev.drtheo.autojson.schema.base.Schema<DoubleValue> serial(SchemaHolder holder) {
+        return new SchemaImpl<>(holder, double.class, DoubleValue::new);
     }
 }

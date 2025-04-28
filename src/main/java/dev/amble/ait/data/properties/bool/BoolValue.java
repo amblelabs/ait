@@ -1,6 +1,7 @@
 package dev.amble.ait.data.properties.bool;
 
 import dev.amble.ait.data.properties.Value;
+import dev.drtheo.autojson.SchemaHolder;
 
 public class BoolValue extends Value<Boolean> {
 
@@ -25,7 +26,7 @@ public class BoolValue extends Value<Boolean> {
         return new Serializer<>(BoolProperty.TYPE, BoolValue::new);
     }
 
-    public static dev.drtheo.autojson.schema.Schema<BoolValue> serial() {
-        return new SchemaImpl<>(boolean.class, BoolValue::new);
+    public static dev.drtheo.autojson.schema.base.Schema<BoolValue> serial(SchemaHolder holder) {
+        return new SchemaImpl<>(holder, boolean.class, BoolValue::new);
     }
 }

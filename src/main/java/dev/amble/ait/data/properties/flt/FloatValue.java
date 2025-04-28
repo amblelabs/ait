@@ -1,6 +1,7 @@
 package dev.amble.ait.data.properties.flt;
 
 import dev.amble.ait.data.properties.Value;
+import dev.drtheo.autojson.SchemaHolder;
 
 public class FloatValue extends Value<Float> {
 
@@ -17,7 +18,7 @@ public class FloatValue extends Value<Float> {
         return new Serializer<>(FloatProperty.TYPE, FloatValue::new);
     }
 
-    public static dev.drtheo.autojson.schema.Schema<FloatValue> serial() {
-        return new SchemaImpl<>(float.class, FloatValue::new);
+    public static dev.drtheo.autojson.schema.base.Schema<FloatValue> serial(SchemaHolder holder) {
+        return new SchemaImpl<>(holder, float.class, FloatValue::new);
     }
 }

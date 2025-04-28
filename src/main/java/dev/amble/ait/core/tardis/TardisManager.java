@@ -85,13 +85,14 @@ public abstract class TardisManager<T extends Tardis, C> {
         auto.template(Map.class, UuidMapSchema::new);
         auto.template(RegistryKey.class, (holder, type) -> new RegistryKeySchema());
 
-        auto.schema(IntValue.class, IntValue.serial());
-        auto.schema(BoolValue.class, BoolValue.serial());
-        auto.schema(DoubleValue.class, DoubleValue.serial());
-        auto.schema(FloatValue.class, FloatValue.serial());
         auto.schema(TardisHandlersManager.class, new HandlersManagerSchema());
         auto.schema(SubSystemHandler.class, new SubSystemHandlerSchema());
         auto.schema(Loyalty.class, new LoyaltySchema());
+
+        auto.schema(IntValue.class, IntValue.serial(auto));
+        auto.schema(BoolValue.class, BoolValue.serial(auto));
+        auto.schema(DoubleValue.class, DoubleValue.serial(auto));
+        auto.schema(FloatValue.class, FloatValue.serial(auto));
 
         this.networkGson = this.getNetworkGson(this.createGsonBuilder(Exclude.Strategy.NETWORK)).create();
         this.fileGson = this.getFileGson(this.createGsonBuilder(Exclude.Strategy.FILE)).create();

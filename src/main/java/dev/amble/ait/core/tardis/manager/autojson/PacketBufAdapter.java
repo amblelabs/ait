@@ -2,8 +2,7 @@ package dev.amble.ait.core.tardis.manager.autojson;
 
 import dev.drtheo.autojson.AutoJSON;
 import dev.drtheo.autojson.adapter.JsonAdapter;
-import dev.drtheo.autojson.adapter.string.JsonStringBuilder;
-import dev.drtheo.autojson.schema.Schema;
+import dev.drtheo.autojson.schema.base.Schema;
 import net.minecraft.network.PacketByteBuf;
 
 import java.lang.reflect.Type;

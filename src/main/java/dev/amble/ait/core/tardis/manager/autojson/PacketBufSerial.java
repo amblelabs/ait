@@ -2,8 +2,8 @@ package dev.amble.ait.core.tardis.manager.autojson;
 
 import dev.drtheo.autojson.AutoJSON;
 import dev.drtheo.autojson.adapter.JsonSerializationContext;
-import dev.drtheo.autojson.schema.PrimitiveSchema;
-import dev.drtheo.autojson.schema.Schema;
+import dev.drtheo.autojson.schema.base.PrimitiveSchema;
+import dev.drtheo.autojson.schema.base.Schema;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;

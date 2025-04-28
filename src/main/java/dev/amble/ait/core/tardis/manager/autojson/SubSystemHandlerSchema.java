@@ -7,7 +7,7 @@ import dev.amble.ait.core.tardis.handler.SubSystemHandler;
 import dev.drtheo.autojson.adapter.JsonAdapter;
 import dev.drtheo.autojson.adapter.JsonDeserializationContext;
 import dev.drtheo.autojson.adapter.JsonSerializationContext;
-import dev.drtheo.autojson.schema.ObjectSchema;
+import dev.drtheo.autojson.schema.base.ObjectSchema;
 
 public class SubSystemHandlerSchema implements ObjectSchema<SubSystemHandler> {
 
