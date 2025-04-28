@@ -7,24 +7,31 @@ import dev.drtheo.queue.api.ActionQueue;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.loader.api.FabricLoader;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.Disposable;
 import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
+import dev.amble.ait.core.effects.ZeitonHighEffect;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.data.Exclude;
+import dev.amble.ait.data.Loyalty;
 
 public class AnimationHolder implements TardisTickable, Disposable, Linkable {
     public static final Identifier UPDATE_PACKET = AITMod.id("sync/ext_anim");
@@ -32,6 +39,7 @@ public class AnimationHolder implements TardisTickable, Disposable, Linkable {
     protected final TardisAnimationMap map;
     private TardisAnimation current;
     private float alphaOverride = -1;
+    public static final double MAX_CLOAK_DISTANCE = 5d;
     @Exclude
     private boolean isServer = true;
     private TardisRef ref;
@@ -179,6 +187,12 @@ public class AnimationHolder implements TardisTickable, Disposable, Linkable {
     }
 
     public float getAlpha(float delta) {
+        if (this.isLinked()) {
+            Tardis tardis = this.tardis().get();
+            if (tardis.cloak().cloaked().get())
+                return cloakAlpha(tardis);
+        }
+
         if (this.alphaOverride != -1) {
             return this.alphaOverride;
         }
@@ -187,6 +201,42 @@ public class AnimationHolder implements TardisTickable, Disposable, Linkable {
              return 1f;
 
         return this.current.getAlpha(delta);
+    }
+
+    private float cloakAlpha(Tardis tardis) {
+        if (FabricLoader.getInstance().getEnvironmentType() != EnvType.CLIENT)
+            return 0f;
+
+        return getCloakAlpha(tardis);
+    }
+
+    @Environment(EnvType.CLIENT)
+    private float getCloakAlpha(Tardis tardis) {
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+
+        if (player == null)
+            return 0f;
+
+        double distance = distanceFromTardis(player, tardis);
+
+        if (distance >= MAX_CLOAK_DISTANCE)
+            return 0f;
+
+        boolean companion = tardis.loyalty().get(player).isOf(Loyalty.Type.COMPANION);
+
+        float distanceAlpha = 1f - (float) (distance / MAX_CLOAK_DISTANCE);
+        float base = 1f;
+
+        if (!companion)
+            base = ZeitonHighEffect.isHigh(player) ? 0.105f : 0f;
+
+        return distanceAlpha * base;
+    }
+
+    public static double distanceFromTardis(PlayerEntity player, Tardis tardis) {
+        BlockPos pPos = player.getBlockPos();
+        BlockPos tPos = tardis.travel().position().getPos();
+        return Math.sqrt(tPos.getSquaredDistance(pPos));
     }
 
     public Vector3f getScale(float delta) {

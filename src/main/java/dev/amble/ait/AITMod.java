@@ -196,7 +196,7 @@ public class AITMod implements ModInitializer {
         AITSounds.init();
         AITDimensions.init();
 
-        CustomTrades.registerCustomTrades();
+        CustomTrades.register();
 
         RegistryContainer.register(AITItemGroups.class, MOD_ID);
         RegistryContainer.register(AITItems.class, MOD_ID);
@@ -262,6 +262,7 @@ public class AITMod implements ModInitializer {
             DebugCommand.register(dispatcher);
             EraseChunksCommand.register(dispatcher);
             FlightCommand.register(dispatcher);
+            SetDoorParticleCommand.register(dispatcher, registryAccess);
         }));
 
         ServerPlayNetworking.registerGlobalReceiver(TardisUtil.REGION_LANDING_CODE,

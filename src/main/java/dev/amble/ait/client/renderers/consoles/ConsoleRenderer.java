@@ -11,12 +11,16 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.client.models.consoles.ConsoleModel;
+import dev.amble.ait.client.models.consoles.HartnellConsoleModel;
 import dev.amble.ait.client.models.items.HandlesModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientLightUtil;
+import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.item.HandlesItem;
 import dev.amble.ait.data.datapack.DatapackConsole;
@@ -34,9 +38,25 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
 
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
-            int light, int overlay) {
-        if (!entity.isLinked() || entity.getWorld() == null)
+                       int light, int overlay) {
+
+        if (entity.getWorld() == null) return;
+
+        if (!entity.isLinked()) {
+            matrices.push();
+            matrices.translate(0.5, 1.5, 0.5);
+            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
+            HartnellConsoleModel model = new HartnellConsoleModel(HartnellConsoleModel.getTexturedModelData().createModel());
+            model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(ClientConsoleVariantRegistry.HARTNELL.texture())),
+                    light, overlay, 1, 1, 1, 1);
+            RenderLayer layer = DependencyChecker.hasIris()
+                    ? AITRenderLayers.tardisEmissiveCullZOffset(ClientConsoleVariantRegistry.HARTNELL.emission(), true)
+                    : AITRenderLayers.getBeaconBeam(ClientConsoleVariantRegistry.HARTNELL.emission(), true);
+            model.render(matrices, vertexConsumers.getBuffer(layer),
+                    0xf000f0, overlay, 1, 1, 1, 1);
+            matrices.pop();
             return;
+        }
 
         ClientTardis tardis = entity.tardis().get().asClient();
         Profiler profiler = entity.getWorld().getProfiler();
@@ -101,7 +121,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         profiler.swap("render");
         model.renderWithAnimations(entity, tardis, model.getPart(),
                 matrices, vertexConsumers.getBuffer(variant.equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(variant.texture()) :
-                RenderLayer.getEntityTranslucentCull(variant.texture())), light, overlay,
+                        RenderLayer.getEntityTranslucentCull(variant.texture())), light, overlay,
                 1, 1, 1, 1);
 
         matrices.pop();
@@ -174,5 +194,20 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
             this.variant = variant;
             this.model = variant.model();
         }
+    }
+
+    @Override
+    public boolean rendersOutsideBoundingBox(ConsoleBlockEntity consoleBlockEntity) {
+        return true;
+    }
+
+    @Override
+    public int getRenderDistance() {
+        return 256;
+    }
+
+    @Override
+    public boolean isInRenderDistance(ConsoleBlockEntity consoleBlockEntity, Vec3d vec3d) {
+        return Vec3d.ofCenter(consoleBlockEntity.getPos()).multiply(1.0, 0.0, 1.0).isInRange(vec3d.multiply(1.0, 0.0, 1.0), this.getRenderDistance());
     }
 }

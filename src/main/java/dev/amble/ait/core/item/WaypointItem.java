@@ -82,6 +82,8 @@ public class WaypointItem extends Item implements DyeableItem {
 
     public static ItemStack create(Waypoint pos) {
         ItemStack stack = new ItemStack(AITItems.WAYPOINT_CARTRIDGE);
+        if (pos == null) return stack;
+
         setPos(stack, pos.getPos());
 
         if (pos.hasName())
@@ -101,6 +103,7 @@ public class WaypointItem extends Item implements DyeableItem {
 
     public static void setPos(ItemStack stack, DirectedGlobalPos pos) {
         NbtCompound nbt = stack.getOrCreateNbt();
+        if (pos == null) return;
         nbt.put(POS_KEY, pos.toNbt());
     }
 }

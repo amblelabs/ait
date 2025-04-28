@@ -151,7 +151,9 @@ public abstract class SkyboxMixin {
         }
 
         if (skyboxWorld == World.NETHER) {
-            this.renderEndPortalEffect(matrices, projectionMatrix, tickDelta, camera, fogCallback);
+            //this.renderEndPortalEffect(matrices, projectionMatrix, tickDelta, camera, fogCallback);
+            // I will do this later I really don't care
+            SkyboxUtil.renderTardisSky(matrices);
             ci.cancel();
             return;
         }

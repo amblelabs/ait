@@ -67,8 +67,6 @@ public class ControlRegistry {
         register(new ElectricalDischargeControl());
 
         // Waypoints
-        register(new EjectWaypointControl());
-        register(new GotoWaypointControl());
         register(new ConsolePortControl());
         register(new MarkWaypointControl());
         register(new SetWaypointControl());

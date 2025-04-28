@@ -12,7 +12,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -20,6 +19,7 @@ import net.minecraft.world.World;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.sonic.SonicSchema;
 
@@ -58,8 +58,7 @@ public class TardisSonicMode extends SonicMode {
             HitResult hitResult = SonicMode.getHitResult(user, 2);
 
             // summon to selected block
-            if (hitResult instanceof BlockHitResult blockHit)
-                return this.interactBlock(stack, world, player, blockHit.getBlockPos());
+            return this.interactBlock(stack, world, player, BlockPos.ofFloored(hitResult.getPos()));
         }
         boolean isLookingUp = user.getPitch() < 0;
 
@@ -97,6 +96,15 @@ public class TardisSonicMode extends SonicMode {
 
         if (!tardis.subsystems().get(SubSystem.Id.STABILISERS).isUsable()) {
             player.sendMessage(Text.translatable("sonic.ait.mode.tardis.does_not_have_stabilisers"), true);
+            return false;
+        }
+
+        // check if player is within range of and in same world as TARDIS
+        World tardisWorld = tardis.travel().position().getWorld();
+        boolean inSameWorld = player.getWorld().equals(tardisWorld);
+        boolean isNearTardis = TardisUtil.isNearTardis(player, tardis, 256);
+        if (!inSameWorld || !isNearTardis) {
+            player.sendMessage(Text.translatable("sonic.ait.mode.tardis.is_not_in_range"), true);
             return false;
         }
 

@@ -10,7 +10,7 @@ import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITVillagers;
 
 public class CustomTrades {
-    public static void registerCustomTrades() {
+    public static void register() {
         // Fabricator Engineers Trades
         // Level 1
         TradeOfferHelper.registerVillagerOffers(AITVillagers.FABRICATOR_ENGINEER, 1,

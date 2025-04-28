@@ -109,6 +109,10 @@ public abstract class SonicMode implements Ordered {
 
     public abstract Identifier model(SonicSchema.Models models);
 
+    public int fuelCost() {
+        return 1;
+    }
+
     public static HitResult getHitResult(LivingEntity user) {
         return getHitResult(user, 16);
     }

@@ -16,6 +16,7 @@ import net.minecraft.util.Identifier;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.core.tardis.animation.v2.AnimationHolder;
 import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
+import dev.amble.ait.core.tardis.animation.v2.TardisAnimationMap;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.properties.Property;
@@ -172,7 +173,11 @@ public abstract class AnimatedTravelHandler extends ProgressiveTravelHandler {
 
     protected AnimationHolder getAnimations() {
         if (this.animations == null) {
-            this.animations = new AnimationHolder(this.tardis());
+            if (this.tardis() != null) { // Ask loqor how this happened, because I dont know.
+                this.animations = new AnimationHolder(this.tardis());
+            } else {
+                this.animations = new AnimationHolder(new TardisAnimationMap());
+            }
             this.animations.onStateChange(this.getState());
         }
 

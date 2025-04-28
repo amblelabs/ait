@@ -62,6 +62,8 @@ public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceIm
 
     private BlockState state;
 
+
+
     public FallingTardisEntity(EntityType<? extends Entity> entityType, World world) {
         super(entityType, world);
     }
@@ -99,6 +101,7 @@ public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceIm
     protected void tickInVoid() {
         this.stopFalling(true);
     }
+
 
     @Override
     public void tick() {

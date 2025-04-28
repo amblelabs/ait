@@ -18,6 +18,8 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.ParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -228,6 +230,12 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
                     TardisUtil.sendMessageToLinked(tardis.asServer(), Text.translatable("tardis.message.interiorchange.success", tardis.stats().getName(), tardis.getDesktop().getSchema().name()));
                     createChestAtInteriorDoor(restorationChestContents);
+
+                    ParticleEffect particle = ParticleTypes.CLOUD;
+                    tardis.door().setDoorParticles(particle);
+                    Scheduler.get().runTaskLater(() -> {
+                        tardis.door().setDoorParticles(null);
+                    }, TimeUnit.SECONDS, 3);
                 }).execute();
     }
 
