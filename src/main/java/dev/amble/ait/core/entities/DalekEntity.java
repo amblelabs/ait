@@ -123,18 +123,14 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
         if (this.isRemoved() || !this.isAlive()) return;
 
         if (this.ambianceTimer-- <= 0) {
-            this.getWorld().playSound(
-                    null,
-                    this.getX(), this.getY(), this.getZ(),
+            playSound(
                     AITSounds.DALEK_AMBIANCE,
-                    SoundCategory.HOSTILE,
                     0.6f,
                     1.0f
             );
             this.ambianceTimer = 40;
         }
     }
-
 
     @Override
     public boolean isTeammate(Entity other) {
@@ -337,14 +333,18 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
     }
 
     private void playSoundAndSendStatus(SoundEvent sound, DalekState state) {
-        this.getWorld().playSound(null, this.getPos().getX(), this.getPos().getY(),
-                this.getPos().getZ(), sound, SoundCategory.HOSTILE, 2.0F, 1.0F);
+        this.playSound(sound, 2.0F, 1.0F);
         this.setState(state);
     }
 
     public PersistentProjectileEntity createStaserbolt(World world, LivingEntity shooter) {
         StaserBoltEntity staserBoltEntity = new StaserBoltEntity(GunEntityTypes.STASER_BOLT_ENTITY_TYPE, world);
         return staserBoltEntity.createFromConstructor(world, shooter);
+    }
+
+    @Override
+    public boolean canBeLeashedBy(PlayerEntity player) {
+        return !this.isLeashed();
     }
 
     @Override

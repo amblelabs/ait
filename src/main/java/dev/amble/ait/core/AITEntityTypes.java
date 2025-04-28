@@ -40,7 +40,7 @@ public class AITEntityTypes implements EntityContainer {
 //            .dimensions(EntityDimensions.fixed(0.25f, 0.25f)).trackRangeBlocks(4).trackedUpdateRate(10).build();
 public static final EntityType<DalekShipEntity> DALEK_SHIP_ENTITY_TYPE = FabricEntityTypeBuilder
         .create(SpawnGroup.MISC, DalekShipEntity::new)
-        .dimensions(EntityDimensions.fixed(16.5f, 4f)).build();
+        .dimensions(EntityDimensions.fixed(15f, 4f)).build();
 
     public static final EntityType<RiftEntity> RIFT_ENTITY = FabricEntityTypeBuilder.Mob.createMob()
             .spawnGroup(SpawnGroup.AMBIENT).entityFactory(RiftEntity::new)

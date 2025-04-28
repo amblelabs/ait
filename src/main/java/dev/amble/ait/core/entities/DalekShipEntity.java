@@ -20,9 +20,9 @@ public class DalekShipEntity extends DummyAmbientEntity implements ISpaceImmune 
     private int currentSoundIndex = 0;
 
     private static final SoundEvent[] RIFT_SOUNDS = {
-            AITSounds.RIFT1_AMBIENT,
-            AITSounds.RIFT2_AMBIENT,
-            AITSounds.RIFT3_AMBIENT
+            AITSounds.DALEK_AMBIANCE,
+            AITSounds.DALEK_AMBIANCE,
+            AITSounds.DALEK_AMBIANCE,
     };
 
     private static final int[] RIFT_DURATIONS = {
