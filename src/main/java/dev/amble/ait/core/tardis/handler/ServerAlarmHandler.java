@@ -26,10 +26,10 @@ import dev.amble.ait.data.properties.bool.BoolValue;
 // use this as reference for starting other looping sounds on the exterior
 public class ServerAlarmHandler extends KeyedTardisComponent implements TardisTickable {
 
-    @Exclude
     public static final int CLOISTER_LENGTH_TICKS = 3 * 20;
 
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private int soundCounter = 0;
 
     @Exclude

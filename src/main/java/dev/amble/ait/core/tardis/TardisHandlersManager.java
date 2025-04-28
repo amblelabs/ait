@@ -20,7 +20,7 @@ import dev.amble.ait.registry.impl.TardisComponentRegistry;
 
 public class TardisHandlersManager extends TardisComponent implements TardisTickable {
 
-    @Exclude
+    @Exclude @dev.drtheo.autojson.annotation.Exclude
     private final ConcurrentEnumMap<IdLike, TardisComponent> handlers = new ConcurrentEnumMap<>(TardisComponentRegistry::values,
             TardisComponent[]::new);
 
@@ -43,7 +43,7 @@ public class TardisHandlersManager extends TardisComponent implements TardisTick
         this.forEach(component -> component.postInit(ctx));
     }
 
-    private void forEach(Consumer<TardisComponent> consumer) {
+    public void forEach(Consumer<TardisComponent> consumer) {
         for (TardisComponent component : this.handlers.getValues()) {
             if (component == null)
                 continue;

@@ -24,4 +24,8 @@ public class BoolValue extends Value<Boolean> {
     public static Object serializer() {
         return new Serializer<>(BoolProperty.TYPE, BoolValue::new);
     }
+
+    public static dev.drtheo.autojson.schema.Schema<BoolValue> serial() {
+        return new SchemaImpl<>(boolean.class, BoolValue::new);
+    }
 }

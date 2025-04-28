@@ -102,6 +102,8 @@ dependencies {
     modImplementation("com.github.amblelabs:modkit:${project.amblekit_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
+
+    include(implementation("dev.drtheo:autojson:${project.autojson_version}"))
 }
 
 processResources {

@@ -1,5 +1,6 @@
 package dev.amble.ait.api.tardis;
 
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.properties.PropertyMap;
 import dev.amble.ait.data.properties.Value;
@@ -7,6 +8,7 @@ import dev.amble.ait.data.properties.Value;
 public abstract class KeyedTardisComponent extends TardisComponent {
 
     @Exclude(strategy = Exclude.Strategy.FILE)
+    @dev.drtheo.autojson.annotation.Exclude(layer = TardisManager.FILE)
     private PropertyMap data = new PropertyMap();
 
     /**

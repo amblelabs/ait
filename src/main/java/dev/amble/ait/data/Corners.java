@@ -10,7 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 
 public class Corners {
-    @Exclude
+    @Exclude @dev.drtheo.autojson.annotation.Exclude
     private final Box box;
 
     private final BlockPos first;

@@ -3,6 +3,7 @@ package dev.amble.ait.core.tardis.control.sequences;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -31,11 +32,13 @@ import dev.amble.ait.registry.impl.SequenceRegistry;
 
 public class SequenceHandler extends TardisComponent implements TardisTickable {
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private RecentControls recent;
 
     private int ticks = 0;
 
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private Sequence activeSequence;
 
     private static final Random random = Random.create();

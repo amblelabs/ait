@@ -16,4 +16,8 @@ public class DoubleValue extends Value<Double> {
     public static Object serializer() {
         return new Serializer<>(DoubleProperty.TYPE, DoubleValue::new);
     }
+
+    public static dev.drtheo.autojson.schema.Schema<DoubleValue> serial() {
+        return new SchemaImpl<>(double.class, DoubleValue::new);
+    }
 }

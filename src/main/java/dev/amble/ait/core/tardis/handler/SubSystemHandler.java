@@ -21,7 +21,7 @@ import dev.amble.ait.core.engine.registry.SubSystemRegistry;
 import dev.amble.ait.data.Exclude;
 
 public class SubSystemHandler extends KeyedTardisComponent implements TardisTickable, Iterable<SubSystem> {
-    @Exclude
+    @Exclude @dev.drtheo.autojson.annotation.Exclude
     private final ConcurrentEnumMap<SubSystem.IdLike, SubSystem> systems = new ConcurrentEnumMap<>(SubSystemRegistry::values,
             SubSystem[]::new);
 

@@ -49,12 +49,15 @@ import dev.amble.ait.data.Exclude;
 public final class TravelHandler extends AnimatedTravelHandler implements CrashableTardisTravel {
 
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private boolean travelCooldown;
 
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private boolean waiting;
 
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private EnumMap<State, ActionQueue> travelQueue;
 
     public static final Identifier CANCEL_DEMAT_SOUND = AITMod.id("cancel_demat_sound");

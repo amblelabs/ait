@@ -10,6 +10,7 @@ import java.util.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.lib.register.unlockable.Unlockable;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import org.joml.Vector3f;
@@ -83,10 +84,13 @@ public class StatsHandler extends KeyedTardisComponent {
     private final DoubleValue tardisZScale = TARDIS_Z_SCALE.create(this);
 
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private Lazy<TravelSoundMap> travelFxCache;
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private Lazy<FlightSound> flightFxCache;
     @Exclude
+    @dev.drtheo.autojson.annotation.Exclude
     private Lazy<VortexReference> vortexFxCache;
 
     public StatsHandler() {

@@ -16,4 +16,8 @@ public class FloatValue extends Value<Float> {
     public static Object serializer() {
         return new Serializer<>(FloatProperty.TYPE, FloatValue::new);
     }
+
+    public static dev.drtheo.autojson.schema.Schema<FloatValue> serial() {
+        return new SchemaImpl<>(float.class, FloatValue::new);
+    }
 }

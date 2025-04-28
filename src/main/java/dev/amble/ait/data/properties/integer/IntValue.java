@@ -16,4 +16,8 @@ public class IntValue extends Value<Integer> {
     public static Object serializer() {
         return new Serializer<>(IntProperty.TYPE, IntValue::new);
     }
+
+    public static dev.drtheo.autojson.schema.Schema<IntValue> serial() {
+        return new SchemaImpl<>(int.class, IntValue::new);
+    }
 }

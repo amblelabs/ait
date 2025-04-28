@@ -1,6 +1,7 @@
 package dev.amble.ait.core.tardis;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -9,8 +10,12 @@ import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dev.amble.ait.core.tardis.manager.autojson.*;
+import dev.amble.ait.data.Loyalty;
+import dev.amble.ait.data.properties.flt.FloatValue;
 import dev.amble.lib.data.DirectedBlockPos;
 import dev.amble.lib.data.DirectedGlobalPos;
+import dev.drtheo.autojson.AutoJSON;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.entity.BlockEntity;
@@ -55,8 +60,6 @@ import dev.amble.ait.registry.impl.TardisComponentRegistry;
 
 public abstract class TardisManager<T extends Tardis, C> {
 
-    public static final Identifier ASK = AITMod.id("ask_tardis");
-
     public static final Identifier SEND = AITMod.id("tardis/send");
     public static final Identifier SEND_BULK = AITMod.id("tardis/send_bulk");
 
@@ -69,7 +72,27 @@ public abstract class TardisManager<T extends Tardis, C> {
     protected final Gson networkGson;
     protected final Gson fileGson;
 
+    protected final AutoJSON auto = new CustomAutoJSON();
+    protected final PacketBufAdapter adapter = new PacketBufAdapter(auto);
+
+    public static final int NETWORK = 2;
+    public static final int FILE = 1;
+
     protected TardisManager() {
+        auto.setLayer(NETWORK);
+
+        auto.template(Value.class, Value.newSerializer());
+        auto.template(Map.class, UuidMapSchema::new);
+        auto.template(RegistryKey.class, (holder, type) -> new RegistryKeySchema());
+
+        auto.schema(IntValue.class, IntValue.serial());
+        auto.schema(BoolValue.class, BoolValue.serial());
+        auto.schema(DoubleValue.class, DoubleValue.serial());
+        auto.schema(FloatValue.class, FloatValue.serial());
+        auto.schema(TardisHandlersManager.class, new HandlersManagerSchema());
+        auto.schema(SubSystemHandler.class, new SubSystemHandlerSchema());
+        auto.schema(Loyalty.class, new LoyaltySchema());
+
         this.networkGson = this.getNetworkGson(this.createGsonBuilder(Exclude.Strategy.NETWORK)).create();
         this.fileGson = this.getFileGson(this.createGsonBuilder(Exclude.Strategy.FILE)).create();
     }
