@@ -30,12 +30,12 @@ public class PacketBufParser implements JsonDeserializationContext {
 
     @Override
     public <T> T decodeBuiltIn(Class<T> t) {
-        return decode0(t, null, PacketBufAdapter.canBeNull(t));
+        return decode0(t, null, true);
     }
 
     @Override
     public <T> T decodeCustom(Type type, @NotNull Schema<T> schema) {
-        return null;
+        return decode0(type, schema, true);
     }
 
     private <T> T decode0(Type type, Schema<T> schema, boolean canBeNull) {
@@ -109,8 +109,10 @@ public class PacketBufParser implements JsonDeserializationContext {
 
         for (int i = 0; i < len; i++) {
             String key = buf.readString();
+            boolean notNull = buf.readBoolean();
 
-            os.deserialize(this.adapter, this, t, key);
+            if (notNull)
+                os.deserialize(this.adapter, this, t, key);
         }
 
         byte end = buf.readByte();

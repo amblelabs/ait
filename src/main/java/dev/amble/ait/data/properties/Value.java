@@ -34,13 +34,13 @@ public class Value<T> implements Disposable {
      * Due to a circular-dependency between a component and a property, it should be
      * excluded.
      */
-    @Exclude
+    @Exclude @dev.drtheo.autojson.annotation.Exclude
     private TardisComponent holder;
 
-    @Exclude
+    @Exclude @dev.drtheo.autojson.annotation.Exclude
     protected Property<T> property;
 
-    @Exclude
+    @Exclude @dev.drtheo.autojson.annotation.Exclude
     private List<Consumer<T>> listeners;
 
     private T value;

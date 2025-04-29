@@ -31,11 +31,7 @@ public class PacketBufSerial implements JsonSerializationContext, JsonSerializat
     }
 
     <T> void put(T t, Type type, Schema<T> schema) {
-        if (PacketBufAdapter.canBeNull(type)) {
-            buf.writeNullable(t, (packetByteBuf, t1) -> this.put0(t1, type, schema));
-        } else {
-            this.put0(t, type, schema);
-        }
+        buf.writeNullable(t, (packetByteBuf, t1) -> this.put0(t1, type, schema));
     }
 
     private <T> void put0(T t, Type type, Schema<T> schema) {
@@ -66,14 +62,11 @@ public class PacketBufSerial implements JsonSerializationContext, JsonSerializat
         else if (t instanceof ItemStack i)
             buf.writeItemStack(i);
         else {
-
             if (schema != null) {
                 this.adapter.toJson(this, t, type, schema);
             } else {
                 throw new IllegalArgumentException("No schema for type " + type);
             }
-
-            return;
         }
     }
 
@@ -138,6 +131,7 @@ public class PacketBufSerial implements JsonSerializationContext, JsonSerializat
     @Override
     public Obj object() {
         this.buf.writeByte(PacketBufAdapter.BEGIN_OBJECT);
+        this.buf.writeBoolean(true);
         return this;
     }
 

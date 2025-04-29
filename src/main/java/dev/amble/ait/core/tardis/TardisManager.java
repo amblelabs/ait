@@ -12,10 +12,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.amble.ait.core.tardis.manager.autojson.*;
 import dev.amble.ait.data.Loyalty;
+import dev.amble.ait.data.properties.PropertyMap;
 import dev.amble.ait.data.properties.flt.FloatValue;
 import dev.amble.lib.data.DirectedBlockPos;
 import dev.amble.lib.data.DirectedGlobalPos;
 import dev.drtheo.autojson.AutoJSON;
+import dev.drtheo.autojson.schema.template.JavaMapSchema;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.entity.BlockEntity;
@@ -88,6 +90,7 @@ public abstract class TardisManager<T extends Tardis, C> {
         auto.schema(TardisHandlersManager.class, new HandlersManagerSchema());
         auto.schema(SubSystemHandler.class, new SubSystemHandlerSchema());
         auto.schema(Loyalty.class, new LoyaltySchema());
+//        auto.schema(PropertyMap.class, new PropertyMapSchema());
 
         auto.schema(IntValue.class, IntValue.serial(auto));
         auto.schema(BoolValue.class, BoolValue.serial(auto));

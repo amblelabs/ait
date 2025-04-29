@@ -8,7 +8,7 @@ import dev.amble.ait.data.properties.Value;
 public abstract class KeyedTardisComponent extends TardisComponent {
 
     @Exclude(strategy = Exclude.Strategy.FILE)
-    @dev.drtheo.autojson.annotation.Exclude(layer = TardisManager.FILE)
+    @dev.drtheo.autojson.annotation.Exclude
     private PropertyMap data = new PropertyMap();
 
     /**
