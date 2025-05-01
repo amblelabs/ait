@@ -2,15 +2,12 @@ package dev.amble.ait.client.models.machines;
 
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
+import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 
-import dev.amble.ait.client.animation.console.renaissance.RenaissanceAnimation;
-import dev.amble.ait.client.animation.machines.ToyotaSpinningRotorAnimation;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
-public class ToyotaSpinningRotorModel extends SpinningRotorModel {
+public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
     private final ModelPart bone4;
     public ToyotaSpinningRotorModel(ModelPart root) {
         this.bone4 = root.getChild("bone4");
@@ -562,14 +559,6 @@ public class ToyotaSpinningRotorModel extends SpinningRotorModel {
     }
     @Override
     public void setAngles(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-    }
-
-    @Override
-    public Animation getAnimationForState(TravelHandlerBase.State state) {
-        return switch (state) {
-            default -> ToyotaSpinningRotorAnimation.FLIGHT;
-            case LANDED -> RenaissanceAnimation.RENAISSANCE_IDLE;
-        };
     }
 
     @Override
