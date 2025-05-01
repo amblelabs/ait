@@ -13,7 +13,6 @@ import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.StructureHolder;
 import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
-import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 
@@ -62,7 +61,6 @@ public class LifeSupportCircuit extends DurableSubSystem implements StructureHol
         List<LivingEntity> entities = TardisUtil.getLivingEntitiesInInterior(tardis);
 
         for (LivingEntity entity : entities) {
-            if (entity instanceof ConsoleControlEntity) continue;
             entity.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 20, 1, true, false));
         }
     }

@@ -1,7 +1,6 @@
 package dev.amble.ait.core.blocks;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.util.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -62,15 +61,15 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
     }
 
     private static void setDoorLight(Tardis tardis, int level) {
-        if (ServerLifecycleHooks.get() == null) return; // beautiful jank
+        tardis.asServer().worldRef().ifPresent(world -> {
+            BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
 
-        World world = tardis.asServer().getInteriorWorld();
-        BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
+            BlockState state = world.getBlockState(pos);
+            if (!(state.getBlock() instanceof DoorBlock))
+                return;
 
-        BlockState state = world.getBlockState(pos);
-        if (!(state.getBlock() instanceof DoorBlock))
-            return;
-        world.setBlockState(pos, state.with(LEVEL_4, level));
+            world.setBlockState(pos, state.with(LEVEL_4, level));
+        });
     }
 
     public DoorBlock(Settings settings) {

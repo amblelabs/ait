@@ -10,30 +10,27 @@ import java.util.function.Supplier;
  */
 public class ConcurrentEnumMap<K extends Ordered, V> extends EnumMap<K, V> {
 
-    private final Object lock = new Object();
-
     public ConcurrentEnumMap(Supplier<K[]> values, Function<Integer, V[]> supplier) {
         super(values, supplier);
     }
 
     @Override
-    public V put(K k, V v) {
-        synchronized (lock) {
-            return super.put(k, v);
-        }
+    public synchronized V put(K k, V v) {
+        return super.put(k, v);
     }
 
     @Override
-    public void clear() {
-        synchronized (lock) {
-            super.clear();
-        }
+    public synchronized void clear() {
+        super.clear();
     }
 
     @Override
-    public V get(int index) {
-        synchronized (lock) {
-            return super.get(index);
-        }
+    public synchronized V get(K k) {
+        return super.get(k);
+    }
+
+    @Override
+    public synchronized V get(int index) {
+        return super.get(index);
     }
 }

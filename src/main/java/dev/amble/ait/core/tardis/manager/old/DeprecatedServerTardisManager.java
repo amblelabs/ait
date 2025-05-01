@@ -37,6 +37,7 @@ import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.manager.TardisBuilder;
 import dev.amble.ait.core.tardis.manager.TardisFileManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.TardisMap;
 import dev.amble.ait.data.properties.Value;
@@ -57,7 +58,7 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
 
         ServerTickEvents.START_SERVER_TICK.register(server -> {
             this.forEach(tardis -> {
-                if (tardis.isRemoved())
+                if (tardis.isRemoved() || !tardis.shouldTick())
                     return;
 
                 tardis.tick(server);
@@ -176,7 +177,6 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
     public void remove(MinecraftServer server, ServerTardis tardis) {
         tardis.setRemoved(true);
 
-        ServerWorld tardisWorld = tardis.getInteriorWorld();
         CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
 
         if (exteriorPos != null) {
@@ -189,7 +189,7 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
             world.removeBlockEntity(pos);
         }
 
-        MultiDim.get(server).remove(tardisWorld.getRegistryKey());
+        MultiDim.get(server).remove(TardisServerWorld.keyForTardis(tardis));
 
         this.sendTardisRemoval(server, tardis);
 

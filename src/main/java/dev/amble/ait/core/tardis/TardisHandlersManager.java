@@ -16,13 +16,12 @@ import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.enummap.ConcurrentEnumMap;
-import dev.amble.ait.data.enummap.EnumMap;
 import dev.amble.ait.registry.impl.TardisComponentRegistry;
 
 public class TardisHandlersManager extends TardisComponent implements TardisTickable {
 
     @Exclude
-    private final EnumMap<IdLike, TardisComponent> handlers = new ConcurrentEnumMap<>(TardisComponentRegistry::values,
+    private final ConcurrentEnumMap<IdLike, TardisComponent> handlers = new ConcurrentEnumMap<>(TardisComponentRegistry::values,
             TardisComponent[]::new);
 
     public TardisHandlersManager() {

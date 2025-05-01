@@ -58,6 +58,11 @@ public class AITBlockTagProvider extends AmbleBlockTagProvider {
                 .add(Blocks.DAYLIGHT_DETECTOR)
                 .add(Blocks.OBSIDIAN);
 
+        getOrCreateTagBuilder(AITTags.Blocks.SONIC_CAN_LOCATE).add(AITBlocks.ZEITON_BLOCK).add(AITBlocks.ZEITON_COBBLE)
+                .add(AITBlocks.BUDDING_ZEITON).add(AITBlocks.COMPACT_ZEITON).add(AITBlocks.SMALL_ZEITON_BUD)
+                .add(AITBlocks.MEDIUM_ZEITON_BUD).add(AITBlocks.LARGE_ZEITON_BUD).add(AITBlocks.ZEITON_CLUSTER)
+                .add(Blocks.BELL);
+
         getOrCreateTagBuilder(BlockTags.COAL_ORES).add(PlanetBlocks.ANORTHOSITE_COAL_ORE, PlanetBlocks.MARTIAN_COAL_ORE);
         getOrCreateTagBuilder(BlockTags.COPPER_ORES).add(PlanetBlocks.ANORTHOSITE_COPPER_ORE, PlanetBlocks.MARTIAN_COPPER_ORE);
         getOrCreateTagBuilder(BlockTags.IRON_ORES).add(PlanetBlocks.ANORTHOSITE_COPPER_ORE, PlanetBlocks.MARTIAN_COPPER_ORE);

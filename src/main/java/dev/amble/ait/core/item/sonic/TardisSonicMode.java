@@ -10,7 +10,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
@@ -35,13 +34,6 @@ public class TardisSonicMode extends SonicMode {
             return;
 
         this.process(stack, world, player);
-    }
-
-    @Override
-    public boolean startUsing(ItemStack stack, World world, PlayerEntity user, Hand hand) {
-        if (world.isClient()) return false;
-
-        return this.process(stack, world, user);
     }
 
     public boolean process(ItemStack stack, World world, PlayerEntity user) {

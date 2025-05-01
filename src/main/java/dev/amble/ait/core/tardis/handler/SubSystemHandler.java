@@ -18,11 +18,11 @@ import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.impl.*;
 import dev.amble.ait.core.engine.registry.SubSystemRegistry;
 import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.enummap.EnumMap;
+import dev.amble.ait.data.enummap.ConcurrentEnumMap;
 
 public class SubSystemHandler extends KeyedTardisComponent implements TardisTickable, Iterable<SubSystem> {
     @Exclude
-    private final EnumMap<SubSystem.IdLike, SubSystem> systems = new EnumMap<>(SubSystemRegistry::values,
+    private final ConcurrentEnumMap<SubSystem.IdLike, SubSystem> systems = new ConcurrentEnumMap<>(SubSystemRegistry::values,
             SubSystem[]::new);
 
     static {

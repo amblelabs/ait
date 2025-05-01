@@ -16,7 +16,6 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
@@ -26,6 +25,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.control.impl.*;
 import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
 import dev.amble.ait.core.tardis.control.impl.pos.XControl;
@@ -33,7 +33,6 @@ import dev.amble.ait.core.tardis.control.impl.pos.YControl;
 import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
 import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
 import dev.amble.ait.core.tardis.control.sequences.Sequence;
-import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.util.WorldUtil;
 
 public class SequenceRegistry {
@@ -74,27 +73,28 @@ public class SequenceRegistry {
                     missedTardis.door().openDoors();
                     List<Explosion> explosions = new ArrayList<>();
 
-                    missedTardis.getDesktop().getConsolePos().forEach(console -> {
-                        Explosion explosion = missedTardis.asServer().getInteriorWorld().createExplosion(null, null, null,
-                                console.toCenterPos(), 3f * 2, false, World.ExplosionSourceType.BLOCK);
+                    missedTardis.asServer().worldRef().ifPresent(world -> {
+                        missedTardis.getDesktop().getConsolePos().forEach(console -> {
+                            Explosion explosion = world.createExplosion(null, null, null,
+                                    console.toCenterPos(), 3f * 2, false, World.ExplosionSourceType.BLOCK);
 
-                        explosions.add(explosion);
-                    });
+                            explosions.add(explosion);
+                        });
 
-                    for (ServerPlayerEntity player : TardisUtil.getPlayersInsideInterior(missedTardis.asServer())) {
-                        float xVel = AITMod.RANDOM.nextFloat(-2f, 3f);
-                        float yVel = AITMod.RANDOM.nextFloat(-1f, 2f);
-                        float zVel = AITMod.RANDOM.nextFloat(-2f, 3f);
+                        for (ServerPlayerEntity player : world.getPlayers()) {
+                            float xVel = AITMod.RANDOM.nextFloat(-2f, 3f);
+                            float yVel = AITMod.RANDOM.nextFloat(-1f, 2f);
+                            float zVel = AITMod.RANDOM.nextFloat(-2f, 3f);
 
-                        player.setVelocity(xVel * 2, yVel * 2, zVel * 2);
+                            player.setVelocity(xVel * 2, yVel * 2, zVel * 2);
 
-                        if (!explosions.isEmpty()) {
-                            player.damage(
-                                    missedTardis.asServer().getInteriorWorld().getDamageSources().explosion(explosions.get(0)), 0);
-                        } else {
-                            player.damage(WorldUtil.getOverworld().getDamageSources().generic(), 0);
+                            if (!explosions.isEmpty()) {
+                                player.damage(world.getDamageSources().explosion(explosions.get(0)), 0);
+                            } else {
+                                player.damage(WorldUtil.getOverworld().getDamageSources().generic(), 0);
+                            }
                         }
-                    }
+                    });
                 }, 100L, Text.translatable("sequence.ait.avoid_debris").formatted(Formatting.ITALIC, Formatting.YELLOW),
                 new DirectionControl(), new RandomiserControl()));
 
@@ -186,17 +186,17 @@ public class SequenceRegistry {
 
                     BlockPos doorPos = directedDoorPos.getPos();
 
-                    if (finishedTardis.door().isOpen() || WorldUtil.getOverworld().isClient())
+                    if (finishedTardis.door().isOpen() || !(finishedTardis instanceof ServerTardis))
                         return;
 
-                    ServerWorld interior = finishedTardis.asServer().getInteriorWorld();
+                    finishedTardis.asServer().worldRef().ifPresent(world -> {
+                        ItemEntity rewardForCloaking = new ItemEntity(EntityType.ITEM, world);
+                        rewardForCloaking.setPosition(doorPos.toCenterPos());
 
-                    ItemEntity rewardForCloaking = new ItemEntity(EntityType.ITEM, interior);
-                    rewardForCloaking.setPosition(doorPos.toCenterPos());
-
-                    rewardForCloaking.setStack(
-                            random.nextBoolean() ? Items.COOKIE.getDefaultStack() : Items.POPPY.getDefaultStack());
-                            interior.spawnEntity(rewardForCloaking);
+                        rewardForCloaking.setStack(
+                                random.nextBoolean() ? Items.COOKIE.getDefaultStack() : Items.POPPY.getDefaultStack());
+                        world.spawnEntity(rewardForCloaking);
+                    });
                 }), (missedTardis -> {
                     DirectedBlockPos directedDoorPos = missedTardis.getDesktop().getDoorPos();
 
@@ -206,26 +206,25 @@ public class SequenceRegistry {
                     BlockPos doorPos = directedDoorPos.getPos();
                     missedTardis.travel().increaseFlightTime(120);
 
-                    if (missedTardis.door().isOpen() || WorldUtil.getOverworld().isClient())
+                    if (missedTardis.door().isOpen() || !(missedTardis instanceof ServerTardis))
                         return;
 
-                    ServerWorld interior = missedTardis.asServer().getInteriorWorld();
+                    missedTardis.asServer().worldRef().ifPresent(interior -> {
+                        Vec3d centered = doorPos.toCenterPos();
 
-                    Vec3d centered = doorPos.toCenterPos();
+                        ZombieEntity zombieEntity = new ZombieEntity(EntityType.ZOMBIE, interior);
+                        zombieEntity.setPosition(centered);
 
-                    ZombieEntity zombieEntity = new ZombieEntity(EntityType.ZOMBIE, interior);
-                    zombieEntity.setPosition(centered);
+                        DrownedEntity drownedEntity = new DrownedEntity(EntityType.DROWNED,
+                                interior);
+                        drownedEntity.setPosition(centered);
 
-                    DrownedEntity drownedEntity = new DrownedEntity(EntityType.DROWNED,
-                            interior);
-                    drownedEntity.setPosition(centered);
+                        PhantomEntity phantomEntity = new PhantomEntity(EntityType.PHANTOM,
+                                interior);
+                        phantomEntity.setPosition(centered);
 
-                    PhantomEntity phantomEntity = new PhantomEntity(EntityType.PHANTOM,
-                            interior);
-                    phantomEntity.setPosition(centered);
-
-                            interior.spawnEntity(
-                            random.nextBoolean() ? random.nextBoolean() ? drownedEntity : zombieEntity : phantomEntity);
+                        interior.spawnEntity(random.nextBoolean() ? random.nextBoolean() ? drownedEntity : zombieEntity : phantomEntity);
+                    });
                 }), 80L, Text.translatable("sequence.ait.cloak_to_avoid_vortex_trapped_mobs").formatted(Formatting.ITALIC, Formatting.YELLOW),
                         new CloakControl(), new RandomiserControl()));
 
