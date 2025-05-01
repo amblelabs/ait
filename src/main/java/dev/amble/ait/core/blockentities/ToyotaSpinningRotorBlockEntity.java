@@ -2,8 +2,6 @@ package dev.amble.ait.core.blockentities;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.entity.AnimationState;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -17,7 +15,6 @@ public class ToyotaSpinningRotorBlockEntity extends InteriorLinkableBlockEntity 
         super(AITBlockEntityTypes.TOYOTA_SPINNING_ROTOR_ENTITY_TYPE, pos, state);
     }
 
-    public final AnimationState ANIM_STATE = new AnimationState();
     public int age;
 
     public int getAge() {
@@ -40,11 +37,9 @@ public class ToyotaSpinningRotorBlockEntity extends InteriorLinkableBlockEntity 
 
     @Override
     public void tick(World world, BlockPos pos, BlockState state, ToyotaSpinningRotorBlockEntity blockEntity) {
-        if (!(world instanceof ServerWorld serverWorld)) {
+        /*if (!(world instanceof ServerWorld serverWorld)) {
             this.age++;
-
-            ANIM_STATE.startIfNotRunning(this.age);
             return;
-        }
+        }*/
     }
 }
