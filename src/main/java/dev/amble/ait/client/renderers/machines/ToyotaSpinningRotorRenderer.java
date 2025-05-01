@@ -1,7 +1,6 @@
 package dev.amble.ait.client.renderers.machines;
 
 
-import net.minecraft.block.BlockState;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -13,6 +12,9 @@ import net.minecraft.util.math.RotationAxis;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.machines.ToyotaSpinningRotorModel;
 import dev.amble.ait.core.blockentities.ToyotaSpinningRotorBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.world.TardisServerWorld;
 
 public class ToyotaSpinningRotorRenderer<T extends ToyotaSpinningRotorBlockEntity>
         implements BlockEntityRenderer<T> {
@@ -32,11 +34,15 @@ public class ToyotaSpinningRotorRenderer<T extends ToyotaSpinningRotorBlockEntit
     @Override
     public void render(ToyotaSpinningRotorBlockEntity entity, float tickDelta, MatrixStack matrices,
                        VertexConsumerProvider vertexConsumers, int light, int overlay) {
-        BlockState blockState = entity.getCachedState();
+        if (!entity.isLinked() && TardisServerWorld.isTardisDimension(entity.getWorld())) return;
+        Tardis tardis = entity.tardis().get();
+        TravelHandler travel = tardis.travel();
         matrices.push();
         matrices.scale(1f, 1f, 1f);
         matrices.translate(0.5f, 1.5f, 0.5f);
         matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180));
+
+        this.model.animateBlockEntity(entity, travel.getState(), tardis.fuel().hasPower());
 
         this.model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(TEXTURE)),
                 light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);

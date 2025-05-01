@@ -19,9 +19,9 @@ public class ToyotaSpinningRotorBlock extends Block implements BlockEntityProvid
             0,
             0,
             0,
-            16,
-            16,
-            16
+            1,
+            1,
+            1
     );
 
 

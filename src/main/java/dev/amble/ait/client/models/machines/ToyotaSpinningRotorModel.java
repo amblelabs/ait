@@ -2,12 +2,15 @@ package dev.amble.ait.client.models.machines;
 
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.model.SinglePartEntityModel;
+import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 
+import dev.amble.ait.client.animation.machines.ToyotaSpinningRotorAnimation;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
-public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
+
+public class ToyotaSpinningRotorModel extends SpinningRotorModel {
     private final ModelPart bone4;
     public ToyotaSpinningRotorModel(ModelPart root) {
         this.bone4 = root.getChild("bone4");
@@ -15,24 +18,24 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
     public static TexturedModelData getTexturedModelData() {
         ModelData modelData = new ModelData();
         ModelPartData modelPartData = modelData.getRoot();
-        ModelPartData bone4 = modelPartData.addChild("bone4", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, 22.5F, 0.0F));
+        ModelPartData whirlagig = modelPartData.addChild("whirlagig", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, 22.5F, 0.0F));
 
-        ModelPartData base = bone4.addChild("base", ModelPartBuilder.create().uv(0, 0).cuboid(-9.0F, -30.0F, -8.0F, 18.0F, 0.0F, 16.0F, new Dilation(0.0F))
-        .uv(326, 0).cuboid(-31.0F, -68.75F, -31.0F, 62.0F, 0.0F, 62.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 30.5F, 0.0F));
+        ModelPartData unspinnable = whirlagig.addChild("unspinnable", ModelPartBuilder.create().uv(0, 0).cuboid(-9.0F, -30.0F, -8.0F, 18.0F, 0.0F, 16.0F, new Dilation(0.0F))
+                .uv(326, 0).cuboid(-31.0F, -68.75F, -31.0F, 62.0F, 0.0F, 62.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 30.5F, 0.0F));
 
-        ModelPartData cube_r1 = base.addChild("cube_r1", ModelPartBuilder.create().uv(68, 0).cuboid(-9.55F, -31.0F, -5.5F, 2.0F, 2.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -3.1416F, -0.5236F, 3.1416F));
+        ModelPartData cube_r1 = unspinnable.addChild("cube_r1", ModelPartBuilder.create().uv(68, 0).cuboid(-9.55F, -31.0F, -5.5F, 2.0F, 2.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -3.1416F, -0.5236F, 3.1416F));
 
-        ModelPartData cube_r2 = base.addChild("cube_r2", ModelPartBuilder.create().uv(68, 0).cuboid(-9.55F, -31.0F, -5.5F, 2.0F, 2.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -3.1416F, 0.5236F, 3.1416F));
+        ModelPartData cube_r2 = unspinnable.addChild("cube_r2", ModelPartBuilder.create().uv(68, 0).cuboid(-9.55F, -31.0F, -5.5F, 2.0F, 2.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, -3.1416F, 0.5236F, 3.1416F));
 
-        ModelPartData cube_r3 = base.addChild("cube_r3", ModelPartBuilder.create().uv(68, 0).cuboid(-9.55F, -31.0F, -5.5F, 2.0F, 2.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 1.5708F, 0.0F));
+        ModelPartData cube_r3 = unspinnable.addChild("cube_r3", ModelPartBuilder.create().uv(68, 0).cuboid(-9.55F, -31.0F, -5.5F, 2.0F, 2.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 1.5708F, 0.0F));
 
-        ModelPartData cube_r4 = base.addChild("cube_r4", ModelPartBuilder.create().uv(68, 0).cuboid(-9.55F, -31.0F, -5.5F, 2.0F, 2.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.5236F, 0.0F));
+        ModelPartData cube_r4 = unspinnable.addChild("cube_r4", ModelPartBuilder.create().uv(68, 0).cuboid(-9.55F, -31.0F, -5.5F, 2.0F, 2.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.5236F, 0.0F));
 
-        ModelPartData cube_r5 = base.addChild("cube_r5", ModelPartBuilder.create().uv(68, 0).cuboid(-9.55F, -28.0F, -5.5F, 2.0F, 2.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -3.0F, 0.0F, 0.0F, -0.5236F, 0.0F));
+        ModelPartData cube_r5 = unspinnable.addChild("cube_r5", ModelPartBuilder.create().uv(68, 0).cuboid(-9.55F, -28.0F, -5.5F, 2.0F, 2.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -3.0F, 0.0F, 0.0F, -0.5236F, 0.0F));
 
-        ModelPartData cube_r6 = base.addChild("cube_r6", ModelPartBuilder.create().uv(68, 0).cuboid(-8.55F, -31.0F, -5.5F, 2.0F, 2.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, -1.0F, 0.0F, -1.5708F, 0.0F));
+        ModelPartData cube_r6 = unspinnable.addChild("cube_r6", ModelPartBuilder.create().uv(68, 0).cuboid(-8.55F, -31.0F, -5.5F, 2.0F, 2.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, -1.0F, 0.0F, -1.5708F, 0.0F));
 
-        ModelPartData adapter = bone4.addChild("adapter", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+        ModelPartData adapter = whirlagig.addChild("adapter", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
         ModelPartData bone2 = adapter.addChild("bone2", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
@@ -154,7 +157,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
 
         ModelPartData cube_r30 = bone145.addChild("cube_r30", ModelPartBuilder.create().uv(322, 268).cuboid(-4.0F, -19.1366F, -4.275F, 8.0F, 11.0F, 1.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, 1.0472F, 0.0F, 0.0F));
 
-        ModelPartData ring1 = bone4.addChild("ring1", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+        ModelPartData ring1 = whirlagig.addChild("ring1", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
         ModelPartData bone5 = ring1.addChild("bone5", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
@@ -165,7 +168,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone7 = bone5.addChild("bone7", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r32 = bone7.addChild("cube_r32", ModelPartBuilder.create().uv(270, 198).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.25F))
-        .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
+                .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone110 = ring1.addChild("bone110", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, -3.1416F, 0.0F, 3.1416F));
 
@@ -176,7 +179,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone112 = bone110.addChild("bone112", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r34 = bone112.addChild("cube_r34", ModelPartBuilder.create().uv(92, 284).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.25F))
-        .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
+                .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone14 = ring1.addChild("bone14", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.5236F, 0.0F));
 
@@ -187,7 +190,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone16 = bone14.addChild("bone16", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r36 = bone16.addChild("cube_r36", ModelPartBuilder.create().uv(230, 263).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.25F))
-        .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
+                .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone113 = ring1.addChild("bone113", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, -3.1416F, -0.5236F, 3.1416F));
 
@@ -198,7 +201,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone115 = bone113.addChild("bone115", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r38 = bone115.addChild("cube_r38", ModelPartBuilder.create().uv(138, 284).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.25F))
-        .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
+                .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone17 = ring1.addChild("bone17", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 1.0472F, 0.0F));
 
@@ -209,7 +212,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone19 = bone17.addChild("bone19", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r40 = bone19.addChild("cube_r40", ModelPartBuilder.create().uv(184, 263).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.25F))
-        .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
+                .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone116 = ring1.addChild("bone116", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, -3.1416F, -1.0472F, 3.1416F));
 
@@ -220,7 +223,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone118 = bone116.addChild("bone118", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r42 = bone118.addChild("cube_r42", ModelPartBuilder.create().uv(46, 279).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.25F))
-        .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
+                .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone20 = ring1.addChild("bone20", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 1.5708F, 0.0F));
 
@@ -231,7 +234,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone22 = bone20.addChild("bone22", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r44 = bone22.addChild("cube_r44", ModelPartBuilder.create().uv(138, 263).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.25F))
-        .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
+                .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone119 = ring1.addChild("bone119", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, -1.5708F, 0.0F));
 
@@ -242,7 +245,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone121 = bone119.addChild("bone121", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r46 = bone121.addChild("cube_r46", ModelPartBuilder.create().uv(0, 279).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.25F))
-        .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
+                .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone23 = ring1.addChild("bone23", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, -3.1416F, 1.0472F, 3.1416F));
 
@@ -253,7 +256,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone25 = bone23.addChild("bone25", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r48 = bone25.addChild("cube_r48", ModelPartBuilder.create().uv(92, 263).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.25F))
-        .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
+                .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone122 = ring1.addChild("bone122", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, -1.0472F, 0.0F));
 
@@ -264,7 +267,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone124 = bone122.addChild("bone124", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r50 = bone124.addChild("cube_r50", ModelPartBuilder.create().uv(276, 263).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.25F))
-        .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
+                .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone38 = ring1.addChild("bone38", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, -3.1416F, 0.5236F, 3.1416F));
 
@@ -275,7 +278,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone40 = bone38.addChild("bone40", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r52 = bone40.addChild("cube_r52", ModelPartBuilder.create().uv(46, 258).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.25F))
-        .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
+                .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone125 = ring1.addChild("bone125", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, -0.5236F, 0.0F));
 
@@ -286,7 +289,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone127 = bone125.addChild("bone127", ModelPartBuilder.create(), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r54 = bone127.addChild("cube_r54", ModelPartBuilder.create().uv(270, 219).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.25F))
-        .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
+                .uv(240, 22).cuboid(-6.0F, -7.0F, 0.5F, 12.0F, 10.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2102F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData ring3 = ring1.addChild("ring3", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, -15.0F, 0.0F));
 
@@ -299,7 +302,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone13 = bone11.addChild("bone13", ModelPartBuilder.create(), ModelTransform.of(-3.6882F, 0.0F, -13.7644F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r56 = bone13.addChild("cube_r56", ModelPartBuilder.create().uv(124, 132).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone74 = ring3.addChild("bone74", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, -3.1416F, 0.0F, 3.1416F));
 
@@ -310,7 +313,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone76 = bone74.addChild("bone76", ModelPartBuilder.create(), ModelTransform.of(-3.6882F, 0.0F, -13.7644F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r58 = bone76.addChild("cube_r58", ModelPartBuilder.create().uv(124, 44).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone59 = ring3.addChild("bone59", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, 0.0F, 0.5236F, 0.0F));
 
@@ -321,7 +324,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone61 = bone59.addChild("bone61", ModelPartBuilder.create(), ModelTransform.of(-3.6882F, 0.0F, -13.7644F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r60 = bone61.addChild("cube_r60", ModelPartBuilder.create().uv(0, 148).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone77 = ring3.addChild("bone77", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, -3.1416F, -0.5236F, 3.1416F));
 
@@ -332,7 +335,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone79 = bone77.addChild("bone79", ModelPartBuilder.create(), ModelTransform.of(-3.6882F, 0.0F, -13.7644F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r62 = bone79.addChild("cube_r62", ModelPartBuilder.create().uv(124, 66).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone62 = ring3.addChild("bone62", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, 0.0F, 1.0472F, 0.0F));
 
@@ -343,7 +346,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone64 = bone62.addChild("bone64", ModelPartBuilder.create(), ModelTransform.of(-3.6882F, 0.0F, -13.7644F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r64 = bone64.addChild("cube_r64", ModelPartBuilder.create().uv(62, 148).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone80 = ring3.addChild("bone80", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, -3.1416F, -1.0472F, 3.1416F));
 
@@ -354,7 +357,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone82 = bone80.addChild("bone82", ModelPartBuilder.create(), ModelTransform.of(-3.6882F, 0.0F, -13.7644F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r66 = bone82.addChild("cube_r66", ModelPartBuilder.create().uv(124, 88).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone65 = ring3.addChild("bone65", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, 0.0F, 1.5708F, 0.0F));
 
@@ -365,7 +368,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone67 = bone65.addChild("bone67", ModelPartBuilder.create(), ModelTransform.of(-3.6882F, 0.0F, -13.7644F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r68 = bone67.addChild("cube_r68", ModelPartBuilder.create().uv(124, 154).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone83 = ring3.addChild("bone83", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, 0.0F, -1.5708F, 0.0F));
 
@@ -376,7 +379,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone85 = bone83.addChild("bone85", ModelPartBuilder.create(), ModelTransform.of(-3.6882F, 0.0F, -13.7644F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r70 = bone85.addChild("cube_r70", ModelPartBuilder.create().uv(124, 110).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone68 = ring3.addChild("bone68", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, 3.1416F, 1.0472F, 3.1416F));
 
@@ -387,7 +390,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone70 = bone68.addChild("bone70", ModelPartBuilder.create(), ModelTransform.of(-3.6882F, 0.0F, -13.7644F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r72 = bone70.addChild("cube_r72", ModelPartBuilder.create().uv(0, 170).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone86 = ring3.addChild("bone86", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, 0.0F, -1.0472F, 0.0F));
 
@@ -398,7 +401,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone88 = bone86.addChild("bone88", ModelPartBuilder.create(), ModelTransform.of(-3.6882F, 0.0F, -13.7644F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r74 = bone88.addChild("cube_r74", ModelPartBuilder.create().uv(0, 126).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone71 = ring3.addChild("bone71", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, 3.1416F, 0.5236F, 3.1416F));
 
@@ -409,7 +412,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone73 = bone71.addChild("bone73", ModelPartBuilder.create(), ModelTransform.of(-3.6882F, 0.0F, -13.7644F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r76 = bone73.addChild("cube_r76", ModelPartBuilder.create().uv(62, 170).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone89 = ring3.addChild("bone89", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, 0.0F, -0.5236F, 0.0F));
 
@@ -420,9 +423,9 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone91 = bone89.addChild("bone91", ModelPartBuilder.create(), ModelTransform.of(-3.6882F, 0.0F, -13.7644F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r78 = bone91.addChild("cube_r78", ModelPartBuilder.create().uv(62, 126).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 0).cuboid(-10.0F, -7.0F, 0.5F, 20.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
-        ModelPartData ring2 = bone4.addChild("ring2", ModelPartBuilder.create(), ModelTransform.of(0.0F, -4.0F, 0.0F, 0.0F, 0.2618F, 0.0F));
+        ModelPartData ring2 = whirlagig.addChild("ring2", ModelPartBuilder.create(), ModelTransform.of(0.0F, -4.0F, 0.0F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData bone8 = ring2.addChild("bone8", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, -7.0F, 0.0F));
 
@@ -433,7 +436,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone10 = bone8.addChild("bone10", ModelPartBuilder.create(), ModelTransform.of(-1.9411F, 0.0F, -7.2444F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r80 = bone10.addChild("cube_r80", ModelPartBuilder.create().uv(216, 220).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone92 = ring2.addChild("bone92", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, -3.1416F, 0.0F, 3.1416F));
 
@@ -444,7 +447,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone94 = bone92.addChild("bone94", ModelPartBuilder.create(), ModelTransform.of(-1.9411F, 0.0F, -7.2444F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r82 = bone94.addChild("cube_r82", ModelPartBuilder.create().uv(162, 198).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone44 = ring2.addChild("bone44", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, 0.0F, 0.5236F, 0.0F));
 
@@ -455,7 +458,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone46 = bone44.addChild("bone46", ModelPartBuilder.create(), ModelTransform.of(-1.9411F, 0.0F, -7.2444F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r84 = bone46.addChild("cube_r84", ModelPartBuilder.create().uv(232, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone95 = ring2.addChild("bone95", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, -3.1416F, -0.5236F, 3.1416F));
 
@@ -466,7 +469,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone97 = bone95.addChild("bone97", ModelPartBuilder.create(), ModelTransform.of(-1.9411F, 0.0F, -7.2444F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r86 = bone97.addChild("cube_r86", ModelPartBuilder.create().uv(0, 214).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone47 = ring2.addChild("bone47", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, 0.0F, 1.0472F, 0.0F));
 
@@ -477,7 +480,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone49 = bone47.addChild("bone49", ModelPartBuilder.create(), ModelTransform.of(-1.9411F, 0.0F, -7.2444F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r88 = bone49.addChild("cube_r88", ModelPartBuilder.create().uv(0, 236).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone98 = ring2.addChild("bone98", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, -3.1416F, -1.0472F, 3.1416F));
 
@@ -488,7 +491,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone100 = bone98.addChild("bone100", ModelPartBuilder.create(), ModelTransform.of(-1.9411F, 0.0F, -7.2444F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r90 = bone100.addChild("cube_r90", ModelPartBuilder.create().uv(54, 214).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone50 = ring2.addChild("bone50", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, 0.0F, 1.5708F, 0.0F));
 
@@ -499,7 +502,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone52 = bone50.addChild("bone52", ModelPartBuilder.create(), ModelTransform.of(-1.9411F, 0.0F, -7.2444F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r92 = bone52.addChild("cube_r92", ModelPartBuilder.create().uv(54, 236).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone101 = ring2.addChild("bone101", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, 0.0F, -1.5708F, 0.0F));
 
@@ -510,7 +513,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone103 = bone101.addChild("bone103", ModelPartBuilder.create(), ModelTransform.of(-1.9411F, 0.0F, -7.2444F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r94 = bone103.addChild("cube_r94", ModelPartBuilder.create().uv(216, 198).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone53 = ring2.addChild("bone53", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, -3.1416F, 1.0472F, 3.1416F));
 
@@ -521,7 +524,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone55 = bone53.addChild("bone55", ModelPartBuilder.create(), ModelTransform.of(-1.9411F, 0.0F, -7.2444F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r96 = bone55.addChild("cube_r96", ModelPartBuilder.create().uv(240, 0).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone104 = ring2.addChild("bone104", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, 0.0F, -1.0472F, 0.0F));
 
@@ -532,7 +535,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone106 = bone104.addChild("bone106", ModelPartBuilder.create(), ModelTransform.of(-1.9411F, 0.0F, -7.2444F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r98 = bone106.addChild("cube_r98", ModelPartBuilder.create().uv(108, 220).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone56 = ring2.addChild("bone56", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, -3.1416F, 0.5236F, 3.1416F));
 
@@ -543,7 +546,7 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone58 = bone56.addChild("bone58", ModelPartBuilder.create(), ModelTransform.of(-1.9411F, 0.0F, -7.2444F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r100 = bone58.addChild("cube_r100", ModelPartBuilder.create().uv(108, 198).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
 
         ModelPartData bone107 = ring2.addChild("bone107", ModelPartBuilder.create(), ModelTransform.of(0.0F, -7.0F, 0.0F, 0.0F, -0.5236F, 0.0F));
 
@@ -554,11 +557,21 @@ public class ToyotaSpinningRotorModel extends SinglePartEntityModel {
         ModelPartData bone109 = bone107.addChild("bone109", ModelPartBuilder.create(), ModelTransform.of(-1.9411F, 0.0F, -7.2444F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData cube_r102 = bone109.addChild("cube_r102", ModelPartBuilder.create().uv(162, 220).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.25F))
-        .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
+                .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
         return TexturedModelData.of(modelData, 512, 512);
     }
     @Override
     public void setAngles(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    }
+
+    @Override
+    public Animation getAnimationForState(TravelHandlerBase.State state) {
+        return switch(state) {
+            case DEMAT -> ToyotaSpinningRotorAnimation.START_UP;
+            case MAT -> ToyotaSpinningRotorAnimation.STOP;
+            case FLIGHT -> ToyotaSpinningRotorAnimation.FLIGHT;
+            default -> Animation.Builder.create(0).build();
+        };
     }
 
     @Override
