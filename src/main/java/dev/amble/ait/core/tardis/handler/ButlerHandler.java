@@ -9,8 +9,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import dev.amble.ait.api.ArtronHolderItem;
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisTickable;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
@@ -37,7 +37,7 @@ public class ButlerHandler extends KeyedTardisComponent implements ArtronHolderI
 
     public void insertHandles(ItemStack handlesMyBoy, BlockPos consolePos) {
         insertAnyHandles(this.handles, handlesMyBoy,
-                stack -> spawnItem(tardis.asServer().getInteriorWorld(), consolePos, stack));
+                stack -> spawnItem(tardis.asServer().worldRef().get(), consolePos, stack));
     }
 
     public ItemStack takeHandles() {

@@ -37,7 +37,7 @@ public class AITKeyBinds {
             if (player.hasVehicle()) {
                 Entity entity = player.getVehicle();
                 if (entity instanceof FlightTardisEntity flightTardis) {
-                    if (flightTardis.tardis() == null) return;
+                    if (!flightTardis.isLinked()) return;
                     Tardis tardis = flightTardis.tardis().get();
 
                     ClientTardisUtil.snapToOpenDoors(tardis);
@@ -66,7 +66,7 @@ public class AITKeyBinds {
 
             Entity entity = player.getVehicle();
             if (entity instanceof FlightTardisEntity flightTardis) {
-                if (flightTardis.tardis() == null) return;
+                if (!flightTardis.isLinked()) return;
                 Tardis tardis = flightTardis.tardis().get();
 
                 ClientTardisUtil.flyingSpeedPacket(tardis, "up");
@@ -80,7 +80,7 @@ public class AITKeyBinds {
 
             Entity entity = player.getVehicle();
             if (entity instanceof FlightTardisEntity flightTardis) {
-                if (flightTardis.tardis() == null) return;
+                if (!flightTardis.isLinked()) return;
                 Tardis tardis = flightTardis.tardis().get();
 
                 ClientTardisUtil.flyingSpeedPacket(tardis, "down");
@@ -94,7 +94,7 @@ public class AITKeyBinds {
 
             Entity entity = player.getVehicle();
             if (entity instanceof FlightTardisEntity flightTardis) {
-                if (flightTardis.tardis() == null) return;
+                if (!flightTardis.isLinked()) return;
                 Tardis tardis = flightTardis.tardis().get();
 
                 ClientTardisUtil.toggleAntigravs(tardis);

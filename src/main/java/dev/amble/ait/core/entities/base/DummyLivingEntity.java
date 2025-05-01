@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Dynamic;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
@@ -14,6 +15,7 @@ import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtOps;
@@ -35,12 +37,8 @@ public abstract class DummyLivingEntity extends LivingEntity {
                     )
     )));
 
-    private boolean hasBrain;
-
-    protected DummyLivingEntity(EntityType<? extends LivingEntity> entityType, World world, boolean hasBrain) {
+    protected DummyLivingEntity(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
-
-        this.hasBrain = hasBrain;
     }
 
     @Override
@@ -118,12 +116,17 @@ public abstract class DummyLivingEntity extends LivingEntity {
 
     @Override
     protected Brain<?> deserializeBrain(Dynamic<?> dynamic) {
-        return hasBrain ? super.deserializeBrain(dynamic) : null;
+        return null;
     }
 
     @Override
     public Brain<?> getBrain() {
-        return hasBrain ? super.getBrain() : BRAIN;
+        return BRAIN;
+    }
+
+    @Override
+    public boolean addStatusEffect(StatusEffectInstance effect, @Nullable Entity source) {
+        return false;
     }
 
     public static DefaultAttributeContainer.Builder createDummyAttributes() {

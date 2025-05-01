@@ -26,7 +26,7 @@ public class RWFOverlay implements HudRenderCallback {
             return;
 
         if (mc.player.hasVehicle() &&   mc.player.getVehicle() instanceof FlightTardisEntity entity) {
-            if (entity.tardis() == null) return;
+            if (!entity.isLinked()) return;
             Tardis tardis = entity.tardis().get();
             Yaw.render(drawContext, mc.player);
             Position.render(drawContext, mc.player, mc);

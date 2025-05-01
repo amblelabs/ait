@@ -8,10 +8,8 @@ import dev.amble.lib.register.unlockable.Unlockable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
@@ -50,7 +48,6 @@ public abstract class ExteriorVariantSchema extends BasicSchema implements Unloc
 
     public static final double DEFAULT_SEAT_FORWARD_TRANSLATION = 0.5;
     public static final Vec3d DEFAULT_SEAT_POS = new Vec3d(0.5, 1, 0.5);
-
     @Environment(EnvType.CLIENT)
     private ClientExteriorVariantSchema cachedSchema;
 
@@ -110,14 +107,11 @@ public abstract class ExteriorVariantSchema extends BasicSchema implements Unloc
         return cachedSchema;
     }
 
-    /**
-     * The bounding box for this exterior, will be used in
-     * {@link #getNormalShape(BlockState, BlockPos)}
-     */
     public VoxelShape bounding(Direction dir) {
         return null;
     }
 
+    @Deprecated(forRemoval = true, since = "1.3.0")
     public abstract ExteriorAnimation animation(ExteriorBlockEntity exterior);
 
     public abstract DoorSchema door();

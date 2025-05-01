@@ -14,8 +14,9 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 
-import dev.amble.ait.api.TardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.animation.console.coral.CoralAnimations;
+import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.impl.DirectionControl;
@@ -2005,15 +2006,11 @@ public class CoralConsoleModel extends ConsoleModel {
                 -0.1F, 0.8F, 5.0F, 0.0F, 10.0F, new Dilation(0.0F)),
                 ModelTransform.of(0.0F, 0.0F, 0.0F, -0.48F, 0.0F, 0.0F));
 
-        ModelPartData hammer = bone62.addChild("hammer",
-                ModelPartBuilder.create().uv(77, 148).cuboid(4.0F, -3.0F, -3.25F, 1.0F, 1.0F, 2.0F, new Dilation(-0.3F))
-                        .uv(12, 130).cuboid(3.8F, -3.75F, -2.5F, 3.0F, 2.0F, 0.0F, new Dilation(0.0F)),
-                ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -0.4363F));
+        ModelPartData hammer = bone62.addChild("hammer", ModelPartBuilder.create().uv(77, 148).cuboid(4.0F, -3.0F, -3.25F, 1.0F, 1.0F, 2.0F, new Dilation(-0.3F)), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -0.4363F));
 
-        ModelPartData bone40 = hammer.addChild("bone40",
-                ModelPartBuilder.create().uv(29, 50).cuboid(-0.5F, -0.5F, -0.5F, 6.0F, 1.0F, 1.0F, new Dilation(-0.1F))
-                        .uv(80, 47).cuboid(5.25F, -1.5F, -1.0F, 2.0F, 3.0F, 2.0F, new Dilation(0.0F)),
-                ModelTransform.pivot(6.5F, -2.5F, -2.5F));
+        ModelPartData bone40 = hammer.addChild("bone40", ModelPartBuilder.create().uv(29, 50).cuboid(-0.5F, -0.5F, -0.5F, 6.0F, 1.0F, 1.0F, new Dilation(-0.1F))
+                .uv(80, 47).cuboid(5.25F, -1.5F, -1.0F, 2.0F, 3.0F, 2.0F, new Dilation(0.0F))
+                .uv(12, 130).cuboid(-2.7F, -1.25F, 0.0F, 3.0F, 2.0F, 0.0F, new Dilation(0.0F)), ModelTransform.pivot(6.5F, -2.5F, -2.5F));
 
         ModelPartData handbrake2 = bone62.addChild("handbrake2", ModelPartBuilder.create(),
                 ModelTransform.of(4.25F, -3.65F, 1.9F, 0.0F, 0.0F, -0.4363F));
@@ -2425,13 +2422,8 @@ public class CoralConsoleModel extends ConsoleModel {
     }
 
     @Override
-    public void renderWithAnimations(ConsoleBlockEntity console, ModelPart root, MatrixStack matrices,
-            VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        Tardis tardis = console.tardis().get();
-
-        if (tardis == null)
-            return;
-
+    public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
+                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
 
@@ -2534,7 +2526,11 @@ public class CoralConsoleModel extends ConsoleModel {
         ModelPart groundSearch = controls.getChild("p_ctrl_6").getChild("bone62").getChild("bow").getChild("bone68");
         groundSearch.pitch = tardis.travel().horizontalSearch().get() ? 0.2182F - 0.5f : 0.2182F;
 
-        super.renderWithAnimations(console, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        // Hammer
+        ModelPart hammer = controls.getChild("p_ctrl_6").getChild("bone62").getChild("hammer").getChild("bone40");
+        hammer.hidden = tardis.extra().getConsoleHammer() == null || tardis.extra().getConsoleHammer().isEmpty();
+
+        super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
     }
 
@@ -2567,7 +2563,7 @@ public class CoralConsoleModel extends ConsoleModel {
         Text positionDimensionText = WorldUtil.worldText(abpp.getDimension());
         String positionDirectionText = " " + DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
         String destinationPosText = " " + abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
-        Text destinationDimensionText = WorldUtil.worldText(abpd.getDimension());
+        Text destinationDimensionText = WorldUtil.worldText(abpd.getDimension(), false);
         String destinationDirectionText = " " + DirectionControl.rotationToDirection(abpd.getRotation()).toUpperCase();
         renderer.drawWithOutline(Text.of("❌").asOrderedText(), 0, 40, 0xF00F00, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);

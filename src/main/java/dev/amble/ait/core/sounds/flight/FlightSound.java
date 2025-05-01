@@ -20,6 +20,7 @@ import dev.amble.ait.api.Nameable;
 import dev.amble.ait.core.AITSounds;
 
 public record FlightSound(Identifier id, Identifier soundId, int length, String name) implements Identifiable, Nameable {
+
     public static final Codec<FlightSound> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     Identifier.CODEC.fieldOf("id").forGetter(FlightSound::id),
@@ -28,6 +29,7 @@ public record FlightSound(Identifier id, Identifier soundId, int length, String 
                     Codec.STRING.optionalFieldOf("name", "").forGetter(FlightSound::name)
             ).apply(instance, FlightSound::new)
     );
+
     public FlightSound {
         if (name.isEmpty()) {
             name = id.getPath();

@@ -63,7 +63,7 @@ public abstract class SonicMode implements Ordered {
 
         public static SonicMode getAndWrap(Integer index) {
             if (index == null)
-                return INTERACTION;
+                return INACTIVE;
 
             while (index >= VALUES.length) {
                 index -= VALUES.length;
@@ -109,8 +109,15 @@ public abstract class SonicMode implements Ordered {
 
     public abstract Identifier model(SonicSchema.Models models);
 
+    public int fuelCost() {
+        return 1;
+    }
+
     public static HitResult getHitResult(LivingEntity user) {
-        return ProjectileUtil.getCollision(user, entity -> !entity.isSpectator() && entity.canHit(), 16);
+        return getHitResult(user, 16);
+    }
+    public static HitResult getHitResult(LivingEntity user, double distance) {
+        return ProjectileUtil.getCollision(user, entity -> !entity.isSpectator() && entity.canHit(), distance);
     }
 
     @Override

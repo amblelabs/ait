@@ -20,7 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.link.v2.block.InteriorLinkableBlockEntity;
+import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
@@ -59,6 +59,7 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
 
     @Override
     public void onLinked() {
+        if (this.getWorld() == null || !TardisServerWorld.isTardisDimension(this.getWorld())) return;
         if (this.tardis().isEmpty())
             return;
 
@@ -231,7 +232,7 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
         if (!TardisServerWorld.isTardisDimension((ServerWorld) this.getWorld()))
             this.markRemoved();
 
-        if (this.tardis() == null || this.tardis().isEmpty())
+        if (!this.isLinked())
             return;
 
         SequenceHandler handler = this.tardis().get().sequence();
@@ -260,12 +261,17 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
         ServerTardis tardis = (ServerTardis) this.tardis().get();
         boolean isRiftChunk = RiftChunkManager.isRiftChunk(tardis.travel().position());
 
-        if (tardis.travel().isCrashing()) {
+        boolean moreThanAFew = this.controlEntities.stream()
+                .filter(controlEntity -> controlEntity.getDurability() <
+                        ConsoleControlEntity.DurabilityStates.FULL.durability)
+                .count() > 5;
+
+        if (tardis.travel().isCrashing() || moreThanAFew) {
             serverWorld.spawnParticles(ParticleTypes.LARGE_SMOKE, pos.getX() + 0.5f, pos.getY() + 1.25,
                     pos.getZ() + 0.5f, 5, 0, 0, 0, 0.025f);
 
-            serverWorld.spawnParticles(ParticleTypes.SMALL_FLAME, pos.getX() + 0.5f, pos.getY() + 1.25,
-                    pos.getZ() + 0.5f, 5, 0, 0, 0, 0.01f);
+            serverWorld.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, pos.getX() + 0.5f, pos.getY() + 1.85,
+                    pos.getZ() + 0.5f, 2, 0.2f, 0.5f, 0.2f, 0.01f);
 
             serverWorld.spawnParticles(
                     new DustColorTransitionParticleEffect(new Vector3f(0.75f, 0.75f, 0.75f),

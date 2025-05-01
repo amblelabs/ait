@@ -15,7 +15,22 @@
       "minCount": 1
     },
     {
+      "item": "ait:artron_mercurial_link",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:data_mercurial_link",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
       "item": "ait:vortex_fluid_link",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:vortex_mercurial_link",
       "maxCount": 1,
       "minCount": 1
     },
@@ -25,19 +40,14 @@
       "minCount": 6
     },
     {
-      "item": "minecraft:iron_block",
-      "maxCount": 6,
-      "minCount": 4
-    },
-    {
       "item": "ait:zeiton_shard",
       "maxCount": 6,
       "minCount": 3
     },
     {
-      "item": "minecraft:glass",
-      "maxCount": 12,
-      "minCount": 8
+      "item": "ait:coral_fragment",
+      "maxCount": 4,
+      "minCount": 4
     }
   ]
 }

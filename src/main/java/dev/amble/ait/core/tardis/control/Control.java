@@ -1,10 +1,14 @@
 package dev.amble.ait.core.tardis.control;
 
+import dev.amble.lib.api.Identifiable;
+
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
@@ -12,31 +16,44 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
+import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
 import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 
-public class Control {
+public class Control implements Identifiable {
 
-    public String id; // a name to represent the control
+    private final Identifier id;
 
-    public Control(String id) {
-        this.setId(id);
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
+    public Control(Identifier id) {
         this.id = id;
     }
 
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console) {
-        return false;
+    @Override
+    public Identifier id() {
+        return id;
     }
 
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
+    protected Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
+                             boolean leftClick) throws ControlSequencedException {
+        if (this.shouldBeAddedToSequence(tardis)) {
+            this.addToControlSequence(tardis, player, console);
+            throw ControlSequencedException.INSTANCE;
+        }
+
+        return Result.FAILURE;
+    }
+
+    public Result handleRun(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
                              boolean leftClick) {
-        return runServer(tardis, player, world, console);
+        try {
+            return this.runServer(tardis, player, world, console, leftClick);
+        } catch (Control.ControlSequencedException e) {
+            return Result.SEQUENCE;
+        }
+    }
+
+    protected boolean shouldBeAddedToSequence(Tardis tardis) {
+        return tardis.sequence().hasActiveSequence() && tardis.sequence().controlPartOfSequence(this);
     }
 
     public void addToControlSequence(Tardis tardis, ServerPlayerEntity player, BlockPos pos) {
@@ -50,13 +67,31 @@ public class Control {
         }
     }
 
-    public SoundEvent getSound() {
-        return AITSounds.XYZ;
+
+    public SoundEvent getFallbackSound() {
+        return null;
+    }
+
+    /**
+     * Get the sound to play when this control is used
+     * @param console The console variant this control is being used on
+     * @param result Result of the control
+     * @return The sound to play
+     */
+    public SoundEvent getSound(ConsoleTypeSchema console, Result result) {
+        SoundEvent sound = ControlSoundRegistry.getInstance().get(console, this).sound(result);
+
+        if (this.getFallbackSound() != null && (sound == null || sound == AITSounds.ERROR)) {
+            return this.getFallbackSound();
+        }
+
+        return sound;
     }
 
     public boolean requiresPower() {
         return true;
     }
+
     protected SubSystem.IdLike requiredSubSystem() {
         return SubSystem.Id.ENGINE;
     }
@@ -87,7 +122,7 @@ public class Control {
     }
 
     public boolean canRun(Tardis tardis, ServerPlayerEntity user) {
-        if ((this.requiresPower() && !tardis.fuel().hasPower()))
+        if (this.requiresPower() && !tardis.fuel().hasPower())
             return false;
 
         boolean security = tardis.stats().security().get();
@@ -95,15 +130,15 @@ public class Control {
         if (!this.ignoresSecurity() && security)
             return SecurityControl.hasMatchingKey(user, tardis);
 
-        /*if (tardis.flight().isFlying())
-            return false;*/
-
         SubSystem.IdLike dependent = this.requiredSubSystem();
+
         if (dependent != null) {
-            boolean bool = tardis.subsystems().get(dependent).isEnabled();
-            if (!bool)
-                user.sendMessage(Text.translatable("warning.ait.needs_subsystem", WorldUtil.fakeTranslate(dependent.toString())));
-            return bool;
+            boolean enabled = tardis.subsystems().get(dependent).isEnabled();
+
+            if (!enabled)
+                user.sendMessage(Text.translatable("warning.ait.needs_subsystem", Text.literal(WorldUtil.fakeTranslate(dependent.toString())).formatted(Formatting.RED)).formatted(Formatting.WHITE), true);
+
+            return enabled;
         }
 
         return true;
@@ -118,11 +153,38 @@ public class Control {
             return false;
 
         Control control = (Control) o;
-        return this.id.equals(control.getId());
+        return this.id.equals(control.id());
     }
 
     @Override
     public int hashCode() {
         return this.id.hashCode();
+    }
+
+    public enum Result {
+        SUCCESS, FAILURE, SEQUENCE, SUCCESS_ALT;
+
+        public boolean isSuccess() {
+            return this == SUCCESS || this == SUCCESS_ALT;
+        }
+        public boolean isAltSound() {
+            return this == SUCCESS_ALT || this == FAILURE;
+        }
+    }
+
+    public static class ControlSequencedException extends RuntimeException {
+        /**
+         * The singleton instance, to reduce object allocations.
+         */
+        public static final ControlSequencedException INSTANCE = new ControlSequencedException();
+
+        private ControlSequencedException() {
+            this.setStackTrace(new StackTraceElement[0]);
+        }
+
+        public synchronized Throwable fillInStackTrace() {
+            this.setStackTrace(new StackTraceElement[0]);
+            return this;
+        }
     }
 }

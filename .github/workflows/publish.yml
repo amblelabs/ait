@@ -1,6 +1,12 @@
 name: Publish on GitHub, Modrinth, and CurseForge
 
-on: [ workflow_dispatch, push ]
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - Generate Changelog
+    types:
+      - completed
 
 env:
   JAVA_VERSION: 17
@@ -41,8 +47,8 @@ jobs:
         uses: Kir-Antipov/mc-publish@v3.3                                   #The specified MC-Publish GitHub Action in the version 3.2
         with:
           changelog-file: CHANGELOG.md
-          # curseforge-id: 856138                                             #The id of your CurseForge project
-          # curseforge-token: "${{secrets.CURSEFORGE_TOKEN}}"
+          curseforge-id: 856138                                             #The id of your CurseForge project
+          curseforge-token: "${{secrets.CURSEFORGE_TOKEN}}"
 
           modrinth-id: ZMP9ZjB9                                             #The id of your modrinth project
           modrinth-token: "${{secrets.MODRINTH_TOKEN}}"

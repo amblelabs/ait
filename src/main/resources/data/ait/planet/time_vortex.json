@@ -1,0 +1,8 @@
+{
+  "dimension": "ait:time_vortex",
+  "gravity": 0.08,
+  "has_oxygen": true,
+  "has_landable_surface": false,
+  "temperature": 2,
+  "has_clouds": false
+}

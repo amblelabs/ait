@@ -7,7 +7,5 @@
     "scanning": "ait:item/sonic/copper/scanning",
     "tardis": "ait:item/sonic/copper/tardis"
   },
-  "loyalty": {
-    "type": "PILOT"
-  }
+  "loyalty": "PILOT"
 }

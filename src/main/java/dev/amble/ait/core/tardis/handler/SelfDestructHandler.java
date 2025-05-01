@@ -1,8 +1,6 @@
 package dev.amble.ait.core.tardis.handler;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.drtheo.scheduler.api.Scheduler;
-import dev.drtheo.scheduler.api.TimeUnit;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.ParticleTypes;
@@ -15,11 +13,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisTickable;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
 
@@ -28,6 +27,7 @@ public class SelfDestructHandler extends KeyedTardisComponent implements TardisT
     private static final BoolProperty QUEUED = new BoolProperty("queued");
     private final BoolValue queued = QUEUED.create(this);
 
+    @Exclude
     private boolean destructing;
 
     public SelfDestructHandler() {
@@ -37,6 +37,7 @@ public class SelfDestructHandler extends KeyedTardisComponent implements TardisT
     @Override
     public void onLoaded() {
         queued.of(this, QUEUED);
+        this.destructing = false;
     }
 
     public void boom() {
@@ -105,7 +106,9 @@ public class SelfDestructHandler extends KeyedTardisComponent implements TardisT
 
         if (!this.destructing) {
             tardis.getDesktop().startQueue(true);
-            Scheduler.get().runTaskLater(this::complete, TimeUnit.SECONDS, 5);
+
+            tardis.travel().setTemporaryAnimation(AITMod.id("self_destruct"));
+            tardis.travel().onAnimationComplete(this::complete);
 
             this.destructing = true;
         }

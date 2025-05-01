@@ -18,7 +18,7 @@ import dev.amble.ait.AITMod;
 public class EraseChunksCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher.register(literal(AITMod.MOD_ID).then(literal("erase-chunks")
+        dispatcher.register(literal(AITMod.MOD_ID).then(literal("erase-chunks").requires(source -> source.hasPermissionLevel(2))
                 .then(argument("from", ColumnPosArgumentType.columnPos())
                         .then(argument("to", ColumnPosArgumentType.columnPos())
                                 .executes(EraseChunksCommand::execute)))));

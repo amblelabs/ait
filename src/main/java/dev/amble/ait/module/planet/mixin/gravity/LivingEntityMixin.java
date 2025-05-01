@@ -22,6 +22,7 @@ import dev.amble.ait.core.AITStatusEffects;
 import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
+import dev.amble.ait.module.planet.core.util.ISpaceImmune;
 
 @Mixin(value = LivingEntity.class, priority = 1001)
 public abstract class LivingEntityMixin extends Entity {
@@ -29,6 +30,23 @@ public abstract class LivingEntityMixin extends Entity {
     public LivingEntityMixin(EntityType<?> type, World world) {
         super(type, world);
     }
+
+    /*@Inject(method = "tickFallFlying", at = @At("HEAD"), cancellable = true)
+    public void ait$tickFallFlying(CallbackInfo ci) {
+        if (!this.isLogicalSideForUpdatingMovement())
+            return;
+
+        Planet planet = PlanetRegistry.getInstance().get(this.getWorld());
+
+        if (planet == null || !planet.hasGravityModifier())
+            return;
+
+        *//*LivingEntity entity = (LivingEntity) (Object) this;*//*
+        // todo make this better its a yikes
+        if (planet.gravity() > 0) {
+            ci.cancel();
+        }
+    }*/
 
     @Inject(method = "tickMovement", at = @At("TAIL"))
     public void ait$tickMovement(CallbackInfo ci) {
@@ -42,7 +60,7 @@ public abstract class LivingEntityMixin extends Entity {
 
         LivingEntity entity = (LivingEntity) (Object) this;
 
-        if (entity.isSwimming() || entity.hasNoGravity() || entity.isFallFlying() || entity.isSpectator())
+        if (entity.isSwimming() || entity.hasNoGravity()/* || entity.isFallFlying()*/ || entity.isSpectator())
             return;
 
         if (entity instanceof PlayerEntity player && player.getAbilities().flying)
@@ -90,7 +108,10 @@ public abstract class LivingEntityMixin extends Entity {
         if (oxygenated)
             return;
 
-        if (planet.isFreezing() && Planet.hasFullSuit(entity)) {
+        if (entity instanceof ISpaceImmune)
+            return;
+
+        if (planet.isFreezing() && !Planet.hasFullSuit(entity)) {
             if (entity.getType().isIn(EntityTypeTags.FREEZE_IMMUNE_ENTITY_TYPES))
                 return;
 
@@ -98,7 +119,7 @@ public abstract class LivingEntityMixin extends Entity {
                 entity.setFrozenTicks(entity.getMinFreezeDamageTicks() + 20);
         }
 
-        if (!planet.hasOxygen() && !Planet.hasOxygenInTank(entity)) {
+        if (!planet.hasOxygen() && !Planet.hasFullSuit(entity) && !Planet.hasOxygenInTank(entity)) {
             entity.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA,
                     200, 1, false, false));
             entity.addStatusEffect(new StatusEffectInstance(StatusEffects.WITHER, 1,

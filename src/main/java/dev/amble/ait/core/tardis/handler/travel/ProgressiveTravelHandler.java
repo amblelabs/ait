@@ -9,7 +9,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.TardisEvents;
+import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.sequences.SequenceHandler;
@@ -151,7 +151,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
     public void decreaseSpeed() {
         if (this.getState() == State.LANDED && this.speed.get() == 1)
-            this.tardis.getDesktop().playSoundAtEveryConsole(AITSounds.RENAISSANCE_HANDBRAKE_ALTALT, SoundCategory.AMBIENT);
+            this.tardis.getDesktop().playSoundAtEveryConsole(AITSounds.THROTTLE_SNAP, SoundCategory.AMBIENT);
 
         this.speed(this.speed.get() - 1);
     }
@@ -204,7 +204,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
         if (!this.autopilot.get() && this.getDurationAsPercentage() < 100
                 && this.getState() == TravelHandlerBase.State.FLIGHT && !sequences.hasActiveSequence()
                 && !this.position().equals(this.destination()) && this.getTargetTicks() > 100
-                && random.nextBetween(0, 230 / (this.speed() == 0 ? 1 : this.speed())) == 7) {
+                && random.nextBetween(0, 110 /*230*/ / (this.speed() == 0 ? 1 : this.speed())) == 7) {
             sequences.triggerRandomSequence(true);
         }
     }

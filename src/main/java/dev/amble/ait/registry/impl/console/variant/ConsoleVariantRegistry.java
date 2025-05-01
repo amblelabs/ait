@@ -28,10 +28,6 @@ import dev.amble.ait.data.schema.console.variant.hartnell.HartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.KeltHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.MintHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.WoodenHartnellVariant;
-import dev.amble.ait.data.schema.console.variant.hourglass.HourglassVariant;
-import dev.amble.ait.data.schema.console.variant.hudolin.HudolinNatureVariant;
-import dev.amble.ait.data.schema.console.variant.hudolin.HudolinShalkaVariant;
-import dev.amble.ait.data.schema.console.variant.hudolin.HudolinVariant;
 import dev.amble.ait.data.schema.console.variant.renaissance.*;
 import dev.amble.ait.data.schema.console.variant.steam.*;
 import dev.amble.ait.data.schema.console.variant.toyota.ToyotaBlueVariant;
@@ -153,7 +149,7 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
     public static ConsoleVariantSchema RENAISSANCE_FIRE;
     public static ConsoleVariantSchema RENAISSANCE_IDENTITY;
     public static ConsoleVariantSchema RENAISSANCE_INDUSTRIOUS;
-    public static ConsoleVariantSchema HOURGLASS;
+    //public static ConsoleVariantSchema HOURGLASS;
 
 
     @Override
@@ -190,9 +186,9 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
         STEAM_COPPER = registerStatic(new SteamCopperVariant());
 
         // Hudolin variants
-        HUDOLIN = registerStatic(new HudolinVariant());
+   /*     HUDOLIN = registerStatic(new HudolinVariant());
         HUDOLIN_NATURE = registerStatic(new HudolinNatureVariant());
-        HUDOLIN_SHALKA = registerStatic(new HudolinShalkaVariant());
+        HUDOLIN_SHALKA = registerStatic(new HudolinShalkaVariant());*/
 
         // Copper variants
         COPPER = registerStatic(new CopperVariant());
@@ -212,7 +208,7 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
         RENAISSANCE_INDUSTRIOUS = registerStatic(new RenaissanceIndustriousVariant());
 
         // Hourglass variants
-        HOURGLASS = registerStatic(new HourglassVariant());
+        //HOURGLASS = registerStatic(new HourglassVariant());
 
     }
 }

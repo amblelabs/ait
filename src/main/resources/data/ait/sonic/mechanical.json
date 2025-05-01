@@ -19,7 +19,5 @@
       "z": -1.5
     }
   },
-  "loyalty": {
-    "type": "OWNER"
-  }
+  "loyalty": "OWNER"
 }

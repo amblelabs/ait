@@ -1,6 +1,6 @@
 package dev.amble.ait.core.tardis.control.impl.pos;
 
-import dev.amble.ait.api.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.properties.integer.IntProperty;

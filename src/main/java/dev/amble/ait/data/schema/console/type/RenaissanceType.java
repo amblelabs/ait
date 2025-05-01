@@ -7,13 +7,13 @@ import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.control.ControlTypes;
-import dev.amble.ait.core.tardis.control.RefreshmentControl;
 import dev.amble.ait.core.tardis.control.impl.*;
+import dev.amble.ait.core.tardis.control.impl.ConsolePortControl;
+import dev.amble.ait.core.tardis.control.impl.RefreshmentControl;
 import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
 import dev.amble.ait.core.tardis.control.impl.pos.XControl;
 import dev.amble.ait.core.tardis.control.impl.pos.YControl;
 import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.ConsolePortControl;
 import dev.amble.ait.core.tardis.control.impl.waypoint.MarkWaypointControl;
 import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
@@ -39,6 +39,10 @@ public class RenaissanceType extends ConsoleTypeSchema {
 
             new ControlTypes(new DoorControl(), EntityDimensions.changing(0.06249999f, 0.21250002f),
                     new Vector3f(-0.9984386460855603f, 0.5750001911073923f, 0.6882816292345524f)),
+
+            new ControlTypes(new ElectricalDischargeControl(), EntityDimensions.changing(0.08749999f, 0.07499999f),
+                    new Vector3f(-1.1984382644295692f, 0.5500002857297659f, 0.4007816296070814f)),
+
 
             new ControlTypes(new DoorLockControl(), EntityDimensions.changing(0.06249999f, 0.21250002f),
                     new Vector3f(-1.0984386475756764f, 0.5750001911073923f, 0.5257816268131137f)),
@@ -73,10 +77,10 @@ public class RenaissanceType extends ConsoleTypeSchema {
             new ControlTypes(new RandomiserControl(), EntityDimensions.changing(0.15f, 0.099999994f),
                     new Vector3f(0.6390628833323717f, 0.6625000033527613f, -0.7867185575887561f)),
 
-            new ControlTypes(new VisualiserControl(), EntityDimensions.changing(0.16250001f, 0.08749999f),
-                    new Vector3f(-1.0265632634982467f, 0.912500667385757f, -0.17460975889116526f)),
+          //  new ControlTypes(new VisualiserControl(), EntityDimensions.changing(0.16250001f, 0.08749999f),
+                //    new Vector3f(-1.0265632634982467f, 0.912500667385757f, -0.17460975889116526f)),
 
-            new ControlTypes(new EngineOverload(), EntityDimensions.changing(0.08750002f, 0.1125f),
+            new ControlTypes(new EngineOverloadControl(), EntityDimensions.changing(0.08750002f, 0.1125f),
                     new Vector3f(0.1874992409721017f, 0.5375003814697266f, 1.2609376907348633f)),
 
 
@@ -87,7 +91,7 @@ public class RenaissanceType extends ConsoleTypeSchema {
                     new Vector3f(1.3390628937631845f, 0.5000000009313226f, -0.4867185531184077f)),
 
             new ControlTypes(new DimensionControl(), EntityDimensions.changing(0.1375f, 0.099999994f),
-                    new Vector3f(1.0890628900378942f, 0.5125000011175871f, -0.9242185596376657f)),
+                    new Vector3f(1.1140636447817087f, 0.4999998090788722f, -1.0117191327735782f)),
 
             new ControlTypes(new RefuelerControl(), EntityDimensions.changing(0.1375f, 0.1375f),
                     new Vector3f(7.816394791007042E-4f, 0.6499996222555637f, -0.9929687511175871f)),

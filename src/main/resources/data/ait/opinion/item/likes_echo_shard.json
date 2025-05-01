@@ -1,0 +1,8 @@
+{
+  "id": "ait:likes_echo_shard",
+  "stack": {
+    "id": "minecraft:echo_shard",
+    "Count": 1
+  },
+  "loyalty": 20
+}

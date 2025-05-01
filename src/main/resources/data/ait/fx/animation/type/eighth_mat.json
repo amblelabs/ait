@@ -1,0 +1,6 @@
+{
+  "id": "ait:eighth_mat",
+  "expected_state": "mat",
+  "sound": "ait:tardis/eighth_mat",
+  "blockbench_file": "ait:classic_eighth_mat"
+}

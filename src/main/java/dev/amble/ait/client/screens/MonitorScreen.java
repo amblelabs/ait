@@ -14,8 +14,10 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.PressableTextWidget;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -113,9 +115,9 @@ public class MonitorScreen extends ConsoleScreen {
     private void createButtons() {
         this.buttons.clear();
         // exterior change text button
-        Text applyText = Text.translatable("screen.ait.monitor.apply");
+        MutableText applyText = Text.translatable("screen.ait.monitor.apply");
         this.addButton(new PressableTextWidget((width / 2 + 55), (height / 2 + 8),
-                this.textRenderer.getWidth(applyText), 20, Text.translatable("screen.ait.monitor.apply").formatted(Formatting.BOLD), button -> {
+                this.textRenderer.getWidth(applyText), 20, applyText.formatted(Formatting.BOLD), button -> {
                     sendExteriorPacket(this.tardis(), this.getCategory(), this.getCurrentVariant());
                 }, this.textRenderer));
         this.addButton(new PressableTextWidget((width / 2 + 30), (height / 2 + 8), this.textRenderer.getWidth("<#>"),
@@ -376,18 +378,33 @@ public class MonitorScreen extends ConsoleScreen {
                 LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, base, base, base, 1f);
 
         if (hasPower && emissive != null && !(emissive.equals(DatapackConsole.EMPTY))) {
-            ClientLightUtil.renderEmissive(ClientLightUtil.Renderable.create(model::render), emissive, null,
-                    model.getPart(), stack, context.getVertexConsumers(), LightmapTextureManager.MAX_LIGHT_COORDINATE,
-                    OverlayTexture.DEFAULT_UV, base, tinted, tinted, 1f);
+            ClientLightUtil.renderEmissive((v, l) -> model.render(
+                    stack, v, l, OverlayTexture.DEFAULT_UV, base, tinted, tinted, 1
+            ), emissive, context.getVertexConsumers());
         }
 
         stack.pop();
 
         stack.push();
-        stack.translate(0, 0, 50f);
+        stack.translate(0, 0, 550f);
 
         context.drawCenteredTextWithShadow(this.textRenderer, isExtUnlocked ? "" : "\uD83D\uDD12", x, y,
                 0xFFFFFF);
+
+        //float h = (float) (-textRenderer.getWidth("\uD83D\uDD12") / 2);
+
+        //Matrix4f matrix4f = stack.peek().getPositionMatrix();
+        VertexConsumerProvider vertex = context.getVertexConsumers();
+
+        //textRenderer.draw(Text.literal("\uD83D\uDD12"), h + 0.35f, 0.0F, 0xFFFFFFFF, false, matrix4f, vertex,
+                //TextRenderer.TextLayerType.SEE_THROUGH, 0x000000, 0xf000f0);
+
+        stack.push();
+        stack.translate(0, 0, 50f);
+
+        context.drawCenteredTextWithShadow(this.textRenderer, isExtUnlocked ? "" : "\uD83D\uDD12", x, y, 0xFFFFFF);
+
+        stack.pop();
 
         stack.pop();
     }
@@ -418,7 +435,7 @@ public class MonitorScreen extends ConsoleScreen {
         BlockPos dabpdPos = dabpd.getPos();
 
         String destinationText = dabpdPos.getX() + ", " + dabpdPos.getY() + ", " + dabpdPos.getZ();
-        Text dDimensionText = WorldUtil.worldText(dabpd.getDimension());
+        Text dDimensionText = WorldUtil.worldText(dabpd.getDimension(), false);
 
         // position
         context.drawText(this.textRenderer, Text.literal(positionText), (width / 2 - 119), (height / 2 - 48), 0xFFFFFF,

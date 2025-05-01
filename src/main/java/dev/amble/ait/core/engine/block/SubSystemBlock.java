@@ -35,12 +35,11 @@ public abstract class SubSystemBlock extends FluidLinkBlock {
 
     @Override
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (state.getBlock() != newState.getBlock() && !(world.isClient())) { // on break
+        if (state.getBlock() != newState.getBlock() && !(world.isClient())) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof SubSystemBlockEntity be) {
+
+            if (blockEntity instanceof SubSystemBlockEntity be)
                 world.updateComparators(pos, this);
-                be.onBroken(world, pos);
-            }
         }
 
         super.onStateReplaced(state, world, pos, newState, moved);
@@ -66,13 +65,6 @@ public abstract class SubSystemBlock extends FluidLinkBlock {
         return ActionResult.SUCCESS;
     }
 
-    protected abstract BlockEntityType<? extends SubSystemBlockEntity> getType();
-
-    @Override
-    public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return this.getType().instantiate(pos, state);
-    }
-
     @Override
     public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
         super.randomDisplayTick(state, world, pos, random);
@@ -91,10 +83,18 @@ public abstract class SubSystemBlock extends FluidLinkBlock {
                 pos.getZ() + 0.5f, 0.15, 0, 0);
         world.addParticle(ParticleTypes.CLOUD, pos.getX() + 0.5f, pos.getY() + 1, pos.getZ() + 0.5f, 0.1,
                 0, 0.05f);
+        world.addParticle(ParticleTypes.LAVA, pos.getX() + 0.5f, pos.getY() + 1, pos.getZ() + 0.5f, 0.1,
+                0, 0.05f);
+        world.addParticle(ParticleTypes.ELECTRIC_SPARK, pos.getX() + 0.5f, pos.getY() + 1, pos.getZ() + 0.5f, 0.1,
+                0, 0.05f);
 
         world.addParticle(ParticleTypes.SMOKE, true, pos.getX() + 0.5f, pos.getY() + 1,
                 pos.getZ() + 0.5f, -0.15, 0, 0);
         world.addParticle(ParticleTypes.CLOUD, pos.getX() + 0.5f, pos.getY() + 1.25, pos.getZ() + 0.5f, -0.1,
+                0, -0.05f);
+        world.addParticle(ParticleTypes.LAVA, pos.getX() + 0.5f, pos.getY() + 1.25, pos.getZ() + 0.5f, -0.1,
+                0, -0.05f);
+        world.addParticle(ParticleTypes.ELECTRIC_SPARK, pos.getX() + 0.5f, pos.getY() + 1.25, pos.getZ() + 0.5f, -0.1,
                 0, -0.05f);
     }
 }

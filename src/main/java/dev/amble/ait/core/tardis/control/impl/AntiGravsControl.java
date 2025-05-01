@@ -5,37 +5,26 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.data.schema.console.variant.renaissance.*;
 
 public class AntiGravsControl extends Control {
-
-    private SoundEvent soundEvent = AITSounds.ANTI_GRAVS;
+    public static final Identifier ID = AITMod.id("antigravs");
 
     public AntiGravsControl() {
-        super("antigravs");
+        super(ID);
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console) {
-        if (tardis.sequence().hasActiveSequence() && tardis.sequence().controlPartOfSequence(this)) {
-            this.addToControlSequence(tardis, player, console);
-            return false;
-        }
-
-        boolean isRenaissance = false;
-        if (world.getBlockEntity(console) instanceof ConsoleBlockEntity consoleBlockEntity) {
-            isRenaissance = isRenaissanceVariant(consoleBlockEntity);
-        }
-
-        this.soundEvent = isRenaissance ? AITSounds.RENAISSANCE_ANTI_GRAV_ALT : AITSounds.ANTI_GRAVS;
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+        super.runServer(tardis, player, world, console, leftClick);
 
         tardis.travel().antigravs().toggle();
 
@@ -45,24 +34,16 @@ public class AntiGravsControl extends Control {
 
         targetWorld.getChunkManager().markForUpdate(pos);
         world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, 2);
-        return true;
+        return tardis.travel().antigravs().get() ? Result.SUCCESS : Result.SUCCESS_ALT;
     }
 
     @Override
-    public SoundEvent getSound() {
-        return this.soundEvent;
+    public SoundEvent getFallbackSound() {
+        return AITSounds.ANTI_GRAVS;
     }
 
     @Override
     protected SubSystem.IdLike requiredSubSystem() {
         return SubSystem.Id.GRAVITATIONAL;
-    }
-
-    private boolean isRenaissanceVariant(ConsoleBlockEntity consoleBlockEntity) {
-        return consoleBlockEntity.getVariant() instanceof RenaissanceTokamakVariant ||
-                consoleBlockEntity.getVariant() instanceof RenaissanceVariant ||
-                consoleBlockEntity.getVariant() instanceof RenaissanceIndustriousVariant ||
-                consoleBlockEntity.getVariant() instanceof RenaissanceIdentityVariant ||
-                consoleBlockEntity.getVariant() instanceof RenaissanceFireVariant;
     }
 }

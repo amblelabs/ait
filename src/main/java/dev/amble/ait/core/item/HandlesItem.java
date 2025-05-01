@@ -2,15 +2,11 @@ package dev.amble.ait.core.item;
 
 import java.util.*;
 
-import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.message.MessageType;
-import net.minecraft.network.message.SignedMessage;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
@@ -18,64 +14,15 @@ import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.link.LinkableItem;
+import dev.amble.ait.api.tardis.link.LinkableItem;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.world.TardisServerWorld;
 
 public class HandlesItem extends LinkableItem {
     private static final Map<String, HandlesResponses> RESPONSE_MAP = new HashMap<>();
     public HandlesItem(Settings settings) {
         super(settings, true);
-    }
-
-    static {
-        ServerMessageEvents.CHAT_MESSAGE.register(HandlesItem::onChatMessage);
-    }
-
-    private static void onChatMessage(SignedMessage signedMessage, ServerPlayerEntity player, MessageType.Parameters parameters) {
-        ItemStack stack;
-
-        String messageSignedContent = signedMessage.getSignedContent();
-
-        boolean bl = messageSignedContent.toLowerCase().startsWith("handles");
-
-        if (player.getWorld().isClient()) return;
-
-        if (!bl) return;
-
-        for (int i = 0; i < player.getInventory().size(); i++) {
-            stack = player.getInventory().getStack(i);
-
-            if (stack.getItem() instanceof HandlesItem item && item.isLinked(stack)) {
-                Tardis tardis = item.getTardis(player.getWorld(), stack);
-                HandlesResponses response = item.getHandlesResponses(messageSignedContent);
-
-                if (tardis.butler().getHandles() == null)
-                    respond(tardis, player, response, stack);
-                break;
-            }
-        }
-
-        if (!TardisServerWorld.isTardisDimension(player.getWorld())) return;
-
-        Tardis tardis = ((TardisServerWorld) player.getWorld()).getTardis();
-
-        if (tardis.butler().getHandles() == null) return;
-
-        if (!(tardis.butler().getHandles().getItem() instanceof HandlesItem item)) return;
-
-        HandlesResponses response = item.getHandlesResponses(messageSignedContent);
-
-        System.out.println(messageSignedContent.toLowerCase().replace(",", "").replace("handles ", ""));
-
-        respond(tardis, player, response, tardis.butler().getHandles());
-    }
-
-    private static void respond(Tardis tardis, PlayerEntity player, HandlesResponses response, ItemStack stack) {
-        response.run(tardis, (ServerWorld) player.getWorld(), player.getBlockPos(), player, stack);
-        player.sendMessage(response.getResponseText(tardis, player), false);
     }
 
     static {
@@ -175,11 +122,10 @@ public class HandlesItem extends LinkableItem {
 
     }
 
-    public HandlesResponses getHandlesResponses(String lastMessage) {
-        return RESPONSE_MAP.getOrDefault(lastMessage.toLowerCase().replace(",", "")
-                .replace("handles ", ""), HandlesResponses.DEFAULT);
-    }
-
+    /**
+     * @see dev.amble.ait.core.handles.HandlesResponse
+     */
+    @Deprecated(forRemoval = true)
     public enum HandlesResponses implements StringIdentifiable {
         DEFAULT {
             @Override
@@ -213,7 +159,8 @@ public class HandlesItem extends LinkableItem {
 
             @Override
             public Text getResponseText(Tardis tardis, PlayerEntity player) {
-                return null;
+                return Text.literal("<Handles> Here are all the available commands: "
+                        + new ArrayList<>(RESPONSE_MAP.keySet()));
             }
 
             @Override
@@ -230,13 +177,6 @@ public class HandlesItem extends LinkableItem {
                     player.getWorld().playSound(null, pos.getX(), pos.getY(), pos.getZ(),
                             AITSounds.HANDLES_AFFIRMATIVE, SoundCategory.PLAYERS, 1f, 1f);
                 });
-
-                if (world.getServer() != null) {
-                    world.getServer().execute(() -> {
-                        player.sendMessage(Text.literal("<Handles> Here are all the available commands: "
-                                + String.valueOf(new ArrayList<>(RESPONSE_MAP.keySet()))), false);
-                    });
-                }
             }
         },
         JOKE {

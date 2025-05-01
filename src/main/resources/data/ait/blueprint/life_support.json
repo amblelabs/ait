@@ -30,7 +30,7 @@
       "minCount": 5
     },
     {
-      "item": "ait:inductor",
+      "item": "ait:hyperion_core_shaft",
       "maxCount": 1,
       "minCount": 1
     }

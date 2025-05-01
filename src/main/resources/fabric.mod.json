@@ -5,34 +5,35 @@
 	"name": "Adventures In Time",
 	"description": "Adventures In Time - Apparatus Vivi. Living machine. TARDIS from Doctor Who. Whatever you call it, it grows with you. It learns with you, and flies the way you fly. Sure, you might be the pilot, but despite that, it does with that what it may.",
 	"authors": [
-		"AMBLE LABS: \n",
-		"Developers: \n",
-		"Loqor",
-		"DrTheo",
-		"Duzo",
-		"Maketendo",
-		"Artists: \n",
-		"Tright",
-		"b2bmrww2",
-		"panda_red (classic_account)",
-		"Ouroboros",
-		"Maggie",
-		"Monsterwaill",
-		"Westankrang",
-		"Dian",
-		"Special Thanks To: \n",
-		"Tryzo (Ben)",
-		"Nitrogenesis",
-		"DocArcane (Designed the original steam console)",
-		"Bug1312",
-		"Jayson",
-		"Creativious",
-		"TheVale",
-		"TARDIS SFX for some TARDIS Sounds"
+		"Amble Labs:",
+		"Developers:",
+		" - Loqor",
+		" - DrTheo",
+		" - Duzo",
+		" - Maketendo",
+		" - AddieDaBaddie",
+		" - Saturn",
+		"\nArtists:",
+		" - Tright",
+		" - b2bmrww2",
+		" - panda_red (classic_account)",
+		" - Ouroboros",
+		" - Maggie",
+		" - Monsterwaill",
+		" - Westankrang",
+		" - Dian"
 	],
 	"contributors": [
-		"Pastelb96 (translations)",
-		"Saturn & Maketendo (wiki)"
+		"\nContributors:",
+		" - Tryzo (Ben)",
+		" - Nitrogenesis",
+		" - DocArcane (Designed the original steam console)",
+		" - Bug1312",
+		" - Jayson",
+		" - Creativious",
+		" - TARDIS SFX for some TARDIS Sounds",
+		" - Pastelb96 (translations)",
+		" - Codiak"
 	],
 	"contact": {
 		"homepage": "https://amblelabs.github.io",
@@ -44,32 +45,33 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-          "dev.amble.ait.AITMod"
+			"dev.amble.ait.AITMod"
 		],
 		"client": [
-          "dev.amble.ait.client.AITModClient",
-          "dev.amble.ait.compat.Compat"
+			"dev.amble.ait.client.AITModClient",
+			"dev.amble.ait.compat.Compat"
 		],
 		"fabric-datagen": [
-          "dev.amble.ait.datagen.AITModDataGenerator"
+			"dev.amble.ait.datagen.AITModDataGenerator"
 		],
 		"ait-main": [
-          "dev.amble.ait.compat.Compat"
+			"dev.amble.ait.compat.Compat"
 		],
 		"modmenu": [
 			"dev.amble.ait.config.AITModMenu"
 		],
 		"amblekit-main": [
-          "dev.amble.ait.init.AmbleInitializer"
+			"dev.amble.ait.init.AmbleInitializer"
 		],
 		"amblekit-client": [
-          "dev.amble.ait.init.client.AmbleClientInitializer"
+			"dev.amble.ait.init.client.AmbleClientInitializer"
 		]
 	},
 	"mixins": [
 		"ait.mixins.json",
 		"gaslighter.mixins.json",
-		"planet.mixins.json"
+		"planet.mixins.json",
+		"gun.mixins.json"
 	],
 	"accessWidener": "ait.accesswidener",
 	"depends": {
@@ -85,12 +87,8 @@
 	},
 	"custom": {
 		"modmenu": {
-			"parent": {
-				"id": "ait",
-				"name": "Adventures In Time",
-				"description": "Adds the TARDIS from Doctor Who into Minecraft 1.20.1.",
-				"icon": "assets/ait/icon.png",
-				"badges": [ "amble", "Doctor WHO" ]
+			"links": {
+				"modmenu.discord": "https://discord.gg/WjKhRjavCj"
 			},
 			"update_checker": true
 		}

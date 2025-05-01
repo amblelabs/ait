@@ -16,6 +16,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -34,15 +35,13 @@ public abstract class ControlBlock extends HorizontalDirectionalBlock implements
 
     @Override
     public Item asItem() {
-        return null; // this.getItem();
+        return null;
     }
-
-    // protected abstract ControlBlockItem getItem();
 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
             ItemStack itemStack) {
-        Optional<String> id = ControlBlockItem.findControlId(itemStack);
+        Optional<Identifier> id = ControlBlockItem.findControlId(itemStack);
 
         if (id.isEmpty())
             return;
@@ -51,21 +50,23 @@ public abstract class ControlBlock extends HorizontalDirectionalBlock implements
         if (!(be instanceof ControlBlockEntity))
             return;
 
-        ((ControlBlockEntity) be).setControl(id.get());
+        ((ControlBlockEntity) be).setControlId(id.get());
     }
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
             BlockHitResult hit) {
-        if (world.isClient()) return ActionResult.SUCCESS;
+        if (world.isClient())
+            return ActionResult.SUCCESS;
 
-        if (!(world.getBlockEntity(pos) instanceof ControlBlockEntity be)) return ActionResult.FAIL;
+        if (!(world.getBlockEntity(pos) instanceof ControlBlockEntity be))
+            return ActionResult.FAIL;
 
-        if (isHoldingScanningSonic(player)) sendSonicMessage((ServerPlayerEntity) player, be);
+        if (isHoldingScanningSonic(player))
+            sendSonicMessage((ServerPlayerEntity) player, be);
 
-        boolean success = be.run((ServerPlayerEntity) player, false);
-
-        return (success) ? ActionResult.SUCCESS : ActionResult.FAIL;
+        return be.run((ServerPlayerEntity) player, false)
+                ? ActionResult.SUCCESS : ActionResult.FAIL;
     }
 
     @Override
@@ -85,7 +86,8 @@ public abstract class ControlBlock extends HorizontalDirectionalBlock implements
     protected static boolean isHoldingScanningSonic(PlayerEntity player) {
         return SonicItem.mode(player.getMainHandStack()) == SonicMode.Modes.SCANNING;
     }
+
     protected static void sendSonicMessage(ServerPlayerEntity player, ControlBlockEntity entity) {
-        player.sendMessage(Text.literal(entity.getControl().getId().toUpperCase()).formatted(Formatting.AQUA));
+        player.sendMessage(Text.translatable(entity.getControl().id().toTranslationKey("control")).formatted(Formatting.AQUA));
     }
 }

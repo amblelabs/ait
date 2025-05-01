@@ -11,10 +11,13 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -23,25 +26,31 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.IntProperty;
+import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
+import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.Structure;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.blockentities.AstralMapBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.control.impl.TelepathicControl;
 import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 
-public class AstralMapBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
+public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvider {
+    public static final int MAX_ROTATION_INDEX = RotationPropertyHelper.getMax();
+    private static final int MAX_ROTATIONS = MAX_ROTATION_INDEX + 1;
+    public static final IntProperty ROTATION = Properties.ROTATION;
+
     public static final Identifier REQUEST_SEARCH = AITMod.id("c2s/request_search");
     public static final Identifier SYNC_STRUCTURES = AITMod.id("s2c/sync_structures");
     public static List<Identifier> structureIds; // since the client doesnt have the structures we need to send them over
@@ -60,6 +69,7 @@ public class AstralMapBlock extends HorizontalDirectionalBlock implements BlockE
 
     public AstralMapBlock(Settings settings) {
         super(settings);
+        this.setDefaultState(this.stateManager.getDefaultState().with(ROTATION, 0));
     }
 
     @Override
@@ -72,10 +82,13 @@ public class AstralMapBlock extends HorizontalDirectionalBlock implements BlockE
                               BlockHitResult hit) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
 
-        if (blockEntity instanceof AstralMapBlockEntity be && !world.isClient()) {
+        if (blockEntity instanceof AstralMapBlockEntity && !world.isClient()) {
             sendStructures((ServerWorld) world, (ServerPlayerEntity) player);
-            be.useOn(world, player.isSneaking(), player);
+
+            player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 1.0F, 1.0F);
+            AITMod.openScreen((ServerPlayerEntity) player, 2);
         }
+
         return ActionResult.SUCCESS;
     }
 
@@ -133,7 +146,6 @@ public class AstralMapBlock extends HorizontalDirectionalBlock implements BlockE
             structureIds = ids;
         }
 
-
         PacketByteBuf buf = PacketByteBufs.create();
 
         buf.writeInt(structureIds.size());
@@ -145,7 +157,7 @@ public class AstralMapBlock extends HorizontalDirectionalBlock implements BlockE
     }
 
     @Environment(EnvType.CLIENT)
-    private static void registerSyncListener() {
+    public static void registerSyncListener() {
         ClientPlayNetworking.registerGlobalReceiver(SYNC_STRUCTURES, (client, handler, buf, responseSender) -> {
             int size = buf.readInt();
             List<Identifier> ids = new ArrayList<>(size);
@@ -156,5 +168,25 @@ public class AstralMapBlock extends HorizontalDirectionalBlock implements BlockE
 
             structureIds = ids;
         });
+    }
+
+    @Override
+    public BlockState getPlacementState(ItemPlacementContext ctx) {
+        return this.getDefaultState().with(ROTATION, RotationPropertyHelper.fromYaw(ctx.getPlayerYaw()));
+    }
+
+    @Override
+    public BlockState rotate(BlockState state, BlockRotation rotation) {
+        return state.with(ROTATION, rotation.rotate(state.get(ROTATION), MAX_ROTATIONS));
+    }
+
+    @Override
+    public BlockState mirror(BlockState state, BlockMirror mirror) {
+        return state.with(ROTATION, mirror.mirror(state.get(ROTATION), MAX_ROTATIONS));
+    }
+
+    @Override
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        builder.add(ROTATION);
     }
 }

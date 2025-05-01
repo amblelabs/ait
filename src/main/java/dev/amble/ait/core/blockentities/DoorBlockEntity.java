@@ -25,7 +25,7 @@ import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
-import dev.amble.ait.api.link.v2.block.InteriorLinkableBlockEntity;
+import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITItems;
@@ -40,6 +40,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 
+
 public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
     private DirectedBlockPos directedPos;
@@ -51,14 +52,23 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
     public static <T extends BlockEntity> void tick(World world, BlockPos pos, BlockState blockState, T tDoor) {
         DoorBlockEntity door = (DoorBlockEntity) tDoor;
 
+        if (world.isClient())
+            return;
+
         if (!door.isLinked())
             return;
 
         Tardis tardis = door.tardis().get();
-        CachedDirectedGlobalPos globalExteriorPos = tardis.travel().position();
 
-        if (world.isClient())
+        if (TardisServerWorld.isTardisDimension(world) && !tardis.equals(((TardisServerWorld)world).getTardis())) {
+            door.setWorld(world);
             return;
+        }
+
+        if (tardis.travel() == null)
+            return;
+
+        CachedDirectedGlobalPos globalExteriorPos = tardis.travel().position();
 
         BlockPos exteriorPos = globalExteriorPos.getPos();
         World exteriorWorld = globalExteriorPos.getWorld();
@@ -90,7 +100,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
     }
 
     public void useOn(World world, boolean sneaking, PlayerEntity player) {
-        if (player == null || this.tardis().isEmpty())
+        if (player == null || this.tardis() == null || this.tardis().isEmpty())
             return;
 
         Tardis tardis = this.tardis().get();
@@ -115,7 +125,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
         if (tardis.sonic().getExteriorSonic() != null) {
             SonicHandler handler = tardis.sonic();
             if (pos != null) {
-                player.giveItemStack(handler.takeExteriorSonic());
+                player.getInventory().offerOrDrop(handler.takeExteriorSonic());
                 world.playSound(null, pos, SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(), SoundCategory.BLOCKS, 1F,
                         0.2F);
             }
@@ -152,7 +162,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
         TravelHandler travel = tardis.travel();
 
-        if (travel.getState() == TravelHandlerBase.State.FLIGHT && !tardis.areShieldsActive()) {
+        if (!tardis.flight().isFlying() && travel.getState() == TravelHandlerBase.State.FLIGHT && !tardis.areShieldsActive()) {
             TardisUtil.dropOutside(tardis, entity);
             return;
         }

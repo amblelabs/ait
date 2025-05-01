@@ -14,13 +14,14 @@ import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.ArtronHolderItem;
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisTickable;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
+import dev.amble.ait.registry.impl.SonicRegistry;
 
 public class SonicHandler extends KeyedTardisComponent implements ArtronHolderItem, TardisTickable {
 
@@ -39,6 +40,8 @@ public class SonicHandler extends KeyedTardisComponent implements ArtronHolderIt
         ServerPlayNetworking.registerGlobalReceiver(CHANGE_SONIC,
                 ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
                     Identifier id = buf.readIdentifier();
+                    if (!tardis.isUnlocked(SonicRegistry.getInstance().get(id))) return;
+
                     SonicItem.setSchema(tardis.sonic().getConsoleSonic(), id);
                 }));
     }
@@ -63,7 +66,7 @@ public class SonicHandler extends KeyedTardisComponent implements ArtronHolderIt
 
     public void insertConsoleSonic(ItemStack sonic, BlockPos consolePos) {
         insertAnySonic(this.consoleSonic, sonic,
-                stack -> spawnItem(tardis.asServer().getInteriorWorld(), consolePos, stack));
+                stack -> spawnItem(tardis.asServer().worldRef().get(), consolePos, stack));
     }
 
     public void insertExteriorSonic(ItemStack sonic) {

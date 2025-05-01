@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "ait:item/artron_collector"
+    "layer0": "ait:item/artron_collector_unit"
   }
 }

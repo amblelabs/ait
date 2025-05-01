@@ -90,7 +90,8 @@ public class RedstoneControlBlock extends ControlBlock {
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (world.isClient()) return ActionResult.SUCCESS;
+        if (world.isClient())
+            return ActionResult.SUCCESS;
 
         if (isHoldingScanningSonic(player)) {
             sendSonicMessage((ServerPlayerEntity) player, (RedstoneControlBlockEntity) world.getBlockEntity(pos));

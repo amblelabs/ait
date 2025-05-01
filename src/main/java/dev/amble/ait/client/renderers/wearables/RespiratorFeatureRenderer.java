@@ -10,11 +10,11 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
-import net.minecraft.client.render.entity.model.EntityModelLoader;
-import net.minecraft.client.render.entity.model.PlayerEntityModel;
+import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 
@@ -23,7 +23,7 @@ import dev.amble.ait.client.models.wearables.RespiratorModel;
 import dev.amble.ait.core.AITItems;
 
 @Environment(value = EnvType.CLIENT)
-public class RespiratorFeatureRenderer<T extends LivingEntity, M extends PlayerEntityModel<T>>
+public class RespiratorFeatureRenderer<T extends LivingEntity, M extends EntityModel<T> & ModelWithArms>
         extends
             FeatureRenderer<T, M> {
 
@@ -46,18 +46,18 @@ public class RespiratorFeatureRenderer<T extends LivingEntity, M extends PlayerE
         if (!(stack.isOf(AITItems.RESPIRATOR) || stack.isOf(AITItems.FACELESS_RESPIRATOR)))
             return;
 
-        if (!(livingEntity instanceof AbstractClientPlayerEntity))
-            return;
+        if (livingEntity instanceof AbstractClientPlayerEntity || livingEntity instanceof ArmorStandEntity) {
 
-        matrixStack.push();
+            matrixStack.push();
 
-        this.model.mask.copyTransform(this.getContextModel().head);
-        this.model.setAngles(livingEntity, f, g, j, k, l);
+            this.model.mask.copyTransform(((BipedEntityModel)this.getContextModel()).head);
+            this.model.setAngles(livingEntity, f, g, j, k, l);
 
-        VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(RenderLayer.getEntitySmoothCutout(
-                stack.getItem() == AITItems.RESPIRATOR ? RESPIRATOR : FACELESS_RESPIRATOR));
-        this.model.render(matrixStack, vertexConsumer, i, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1f);
+            VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(RenderLayer.getEntitySmoothCutout(
+                    stack.getItem() == AITItems.RESPIRATOR ? RESPIRATOR : FACELESS_RESPIRATOR));
+            this.model.render(matrixStack, vertexConsumer, i, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1f);
 
-        matrixStack.pop();
+            matrixStack.pop();
+        }
     }
 }

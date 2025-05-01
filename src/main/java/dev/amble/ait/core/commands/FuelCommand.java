@@ -7,6 +7,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -37,7 +38,7 @@ public class FuelCommand {
                                 .then(argument("tardis", TardisArgumentType.tardis()).executes(FuelCommand::get)))));
     }
 
-    private static int add(CommandContext<ServerCommandSource> context) {
+    private static int add(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 
@@ -50,7 +51,7 @@ public class FuelCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int remove(CommandContext<ServerCommandSource> context) {
+    private static int remove(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 
@@ -63,7 +64,7 @@ public class FuelCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int set(CommandContext<ServerCommandSource> context) {
+    private static int set(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 
@@ -80,7 +81,7 @@ public class FuelCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int get(CommandContext<ServerCommandSource> context) {
+    private static int get(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 

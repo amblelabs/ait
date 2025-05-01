@@ -5,7 +5,9 @@ import static net.minecraft.server.command.CommandManager.literal;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,21 +29,30 @@ public class SummonTardisCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher
                 .register(literal(AITMod.MOD_ID).then(literal("summon").requires(source -> source.hasPermissionLevel(2))
-                        .then(argument("tardis", TardisArgumentType.tardis()).executes(SummonTardisCommand::runCommand)
+                        .then(argument("tardis", TardisArgumentType.tardis())
+                                .executes(SummonTardisCommand::runCommand)
                                 .then(argument("pos", BlockPosArgumentType.blockPos())
-                                        .executes(SummonTardisCommand::runCommandWithPos)))));
+                                        .executes(SummonTardisCommand::runCommandWithPos))
+                                .then(argument("message", BoolArgumentType.bool())
+                                        .executes(SummonTardisCommand::runCommandWithPosAndMessage)))));
     }
 
-    private static int runCommand(CommandContext<ServerCommandSource> context) {
-        return summonTardis(context, null);
+    private static int runCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        return summonTardis(context, null, true);  // Default to showing the message
     }
 
-    private static int runCommandWithPos(CommandContext<ServerCommandSource> context) {
+    private static int runCommandWithPos(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
-        return summonTardis(context, pos);
+        return summonTardis(context, pos, true);
     }
 
-    private static int summonTardis(CommandContext<ServerCommandSource> context, @Nullable BlockPos pos) {
+    private static int runCommandWithPosAndMessage(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
+        boolean showMessage = BoolArgumentType.getBool(context, "showMessage");
+        return summonTardis(context, pos, showMessage);
+    }
+
+    private static int summonTardis(CommandContext<ServerCommandSource> context, @Nullable BlockPos pos, boolean showMessage) throws CommandSyntaxException {
         Entity source = context.getSource().getEntity();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 
@@ -52,8 +63,11 @@ public class SummonTardisCommand {
                 (byte) RotationPropertyHelper.fromYaw(source.getBodyYaw()));
 
         TravelUtil.travelTo(tardis, globalPos);
-        source.sendMessage(Text.translatableWithFallback("tardis.summon", "TARDIS [%s] is on the way!",
-                tardis.getUuid().toString().substring(0, 7)));
+
+        if (showMessage) {
+            source.sendMessage(Text.translatableWithFallback("tardis.summon", "TARDIS [%s] is on the way!",
+                    tardis.getUuid().toString().substring(0, 7)));
+        }
 
         return Command.SINGLE_SUCCESS;
     }

@@ -9,6 +9,8 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.random.ChunkRandom;
+import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.world.StructureWorldAccess;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.events.ServerChunkEvents;
@@ -94,17 +96,17 @@ public record RiftChunkManager(ServerWorld world) {
         return isRiftChunk(cached.getWorld(), cached.getPos());
     }
 
-    public static boolean isRiftChunk(ServerWorld world, BlockPos pos) {
+    public static boolean isRiftChunk(StructureWorldAccess world, BlockPos pos) {
         return isRiftChunk(world, new ChunkPos(pos));
     }
 
-    public static boolean isRiftChunk(ServerWorld world, ChunkPos pos) {
+    public static boolean isRiftChunk(StructureWorldAccess world, ChunkPos pos) {
         return ChunkRandom.getSlimeRandom(pos.x, pos.z,
                 world.getSeed(), 987234910L
         ).nextInt(8) == 0;
     }
 
-    private static void addFuel(ServerWorld world, ChunkPos pos, double amount) {
+    private static void addFuel(ServerWorldAccess world, ChunkPos pos, double amount) {
         world.getChunk(pos.x, pos.z).modifyAttached(ARTRON, d -> d + amount);
     }
 

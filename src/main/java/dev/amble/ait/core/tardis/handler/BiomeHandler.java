@@ -23,15 +23,16 @@ import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.gen.feature.*;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisEvents;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 import dev.amble.ait.data.enummap.Ordered;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
 
 /**
- * @author Loqor TODO reminder to work on this more, making it so you have to
+ * @author Loqor
+ * TODO reminder to work on this more, making it so you have to
  *         brush off different biomes if you don't just demat/remat + having to
  *         land on the respective blocks / has to snow for it to take effect.
  */
@@ -41,7 +42,12 @@ public class BiomeHandler extends KeyedTardisComponent {
     private final Value<BiomeType> type = TYPE.create(this);
 
     static {
+        TardisEvents.DEMAT.register(tardis -> {
+            tardis.<BiomeHandler>handler(Id.BIOME).forceTypeDefault();
+            return TardisEvents.Interaction.PASS;
+        });
         TardisEvents.LANDED.register(tardis -> tardis.<BiomeHandler>handler(Id.BIOME).update());
+        TardisEvents.ENTER_FLIGHT.register(tardis -> tardis.<BiomeHandler>handler(Id.BIOME).forceTypeDefault());
     }
 
     public BiomeHandler() {
@@ -65,10 +71,12 @@ public class BiomeHandler extends KeyedTardisComponent {
         BiomeType biome = getTagForBiome(entry);
 
         this.type.set(biome);
+        this.sync();
     }
 
     public void forceTypeDefault() {
         this.type.set(BiomeType.DEFAULT);
+        this.sync();
     }
 
     public Gaslighter3000 testBiome(ServerWorld world, BlockPos pos) {
@@ -85,13 +93,6 @@ public class BiomeHandler extends KeyedTardisComponent {
 
         tree.generate(access, world.getChunkManager().getChunkGenerator(), world.random, pos);
         return gaslighter;
-    }
-
-    static {
-        TardisEvents.DEMAT.register(tardis -> {
-            tardis.<BiomeHandler>handler(Id.BIOME).forceTypeDefault();
-            return TardisEvents.Interaction.PASS;
-        });
     }
 
     private static final Set<Class<? extends Feature<?>>> TREES = Set.of(

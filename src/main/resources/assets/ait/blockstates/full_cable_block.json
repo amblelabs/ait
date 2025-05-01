@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "ait:block/full_cable_block"
+    }
+  }
+}

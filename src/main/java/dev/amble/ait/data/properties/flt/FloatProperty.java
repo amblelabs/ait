@@ -4,7 +4,7 @@ import java.util.function.Function;
 
 import net.minecraft.network.PacketByteBuf;
 
-import dev.amble.ait.api.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.data.properties.Property;
 
 public class FloatProperty extends Property<Float> {

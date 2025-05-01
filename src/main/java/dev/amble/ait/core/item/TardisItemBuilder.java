@@ -10,12 +10,13 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.world.World;
 
-import dev.amble.ait.api.TardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
@@ -101,8 +102,12 @@ public class TardisItemBuilder extends Item {
                     fuel.enablePower();
                 })
                 .with(TardisComponent.Id.SUBSYSTEM, SubSystemHandler::repairAll)
-                .<LoyaltyHandler>with(TardisComponent.Id.LOYALTY,
-                        loyalty -> loyalty.set(serverPlayer, new Loyalty(Loyalty.Type.OWNER)));
+                .<LoyaltyHandler> with(TardisComponent.Id.LOYALTY,
+                loyalty -> {
+                    loyalty.setMessageEnabled(false);
+                    loyalty.set(serverPlayer, new Loyalty(Loyalty.Type.OWNER));
+                    loyalty.setMessageEnabled(true);
+                });
 
         if (this.exterior == null || this.desktop == null) {
             DefaultThemes.getRandom().apply(builder);
@@ -114,7 +119,10 @@ public class TardisItemBuilder extends Item {
         ServerTardis created = ServerTardisManager.getInstance()
                 .create(builder);
 
-        if (created == null) {
+        player.sendMessage(Text.translatable("message.ait.unlocked_all", Text.translatable("message.ait.all_types").formatted(Formatting.GREEN)).formatted(Formatting.WHITE), false);
+
+
+        if ( created == null ) {
             player.sendMessage(Text.translatable("message.ait.max_tardises"), true);
             return ActionResult.FAIL;
         }

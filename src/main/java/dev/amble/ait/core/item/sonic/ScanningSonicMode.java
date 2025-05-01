@@ -1,20 +1,33 @@
 package dev.amble.ait.core.item.sonic;
 
+import dev.amble.lib.api.ICantBreak;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
-import net.minecraft.util.*;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.util.MonitorUtil;
+import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.LandingPadManager;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.core.world.TardisServerWorld;
@@ -43,20 +56,81 @@ public class ScanningSonicMode extends SonicMode {
     }
 
     @Override
-    public boolean startUsing(ItemStack stack, World world, PlayerEntity user, Hand hand) {
-        if (world.isClient()) return false;
+    public void tick(ItemStack stack, World world, LivingEntity user, int ticks, int ticksLeft) {
+        if (!(world instanceof ServerWorld serverWorld) || !(user instanceof PlayerEntity player) || ticks % 10 != 0)
+            return;
 
-        return this.process(stack, world, user);
+        this.process(stack, world, player);
     }
+
+
 
     public boolean process(ItemStack stack, World world, PlayerEntity user) {
         HitResult hitResult = SonicMode.getHitResult(user);
 
-        if (hitResult instanceof BlockHitResult blockHit)
-            return this.scanRegion(stack, world, user, blockHit.getBlockPos());
+        boolean isMainHand = user.getMainHandStack().getItem() == stack.getItem();
 
-        return false;
+        if (isMainHand) {
+            if (hitResult instanceof BlockHitResult blockHit && !world.getBlockState(blockHit.getBlockPos()).isAir()) {
+                return this.scanBlocks(stack, world, user, blockHit.getBlockPos());
+            }
+
+            if (hitResult instanceof EntityHitResult entityHit && !(entityHit.getEntity() instanceof RiftEntity)) {
+                return this.scanEntities(stack, world, user, entityHit.getEntity());
+            }
+        }
+
+        return this.scanRegion(stack, world, user, BlockPos.ofFloored(hitResult.getPos()));
     }
+
+
+
+    public boolean scanBlocks(ItemStack stack, World world, PlayerEntity user, BlockPos pos) {
+        if (world.isClient() || user == null)
+            return true;
+
+        BlockState state = world.getBlockState(pos);
+        Block block = state.getBlock();
+
+        String blastRes = String.format("%.2f", block.getBlastResistance());
+
+        if (state.isIn(AITTags.Blocks.SONIC_CAN_LOCATE)) {
+            Tardis tardis = SonicItem.getTardisStatic(world, stack);
+            BlockPos tPos = tardis.travel().position().getPos();
+            String dimensionText = MonitorUtil.truncateDimensionName(WorldUtil.worldText(world.getRegistryKey()).getString(), 20);
+
+            Text coordinatesMessage = Text.translatable("item.sonic.scanning.locator_message.coordinates", tPos.getX(), tPos.getY(), tPos.getZ());
+            Text fullMessage = Text.translatable("item.sonic.scanning.locator_message.title", dimensionText).append("\n").append(coordinatesMessage);
+
+            // Output looks like:
+            // TARDIS Location: {DIMENSION}
+            // Coordinates: {X} {Y} {Z}
+            user.sendMessage(fullMessage);
+        }
+
+        String toolRequirement = "item.sonic.scanning.any_tool";
+        if (block instanceof ICantBreak) {
+            toolRequirement = "item.sonic.scanning.cant_break";
+        } else {
+            if (state.isIn(BlockTags.NEEDS_DIAMOND_TOOL)) {
+                toolRequirement = "item.sonic.scanning.diamond_tool";
+            } else if (state.isIn(BlockTags.NEEDS_IRON_TOOL)) {
+                toolRequirement = "item.sonic.scanning.iron_tool";
+            } else if (state.isIn(BlockTags.NEEDS_STONE_TOOL)) {
+                toolRequirement = "item.sonic.scanning.stone_tool";
+            } else if (!block.getDefaultState().isToolRequired()) {
+                toolRequirement = "item.sonic.scanning.no_tool";
+            }
+        }
+
+        Text message = Text.literal("\uD83D\uDD25: " + blastRes + " ⛏: ").append(Text.translatable(toolRequirement)).formatted(Formatting.YELLOW)
+                .formatted(Formatting.GOLD);
+        user.sendMessage(message, true);
+
+        return true;
+    }
+
+
 
     public boolean scanRegion(ItemStack stack, World world, PlayerEntity user, BlockPos pos) {
         if (world.isClient())
@@ -65,16 +139,11 @@ public class ScanningSonicMode extends SonicMode {
         if (user == null)
             return false;
 
-        Tardis tardis = SonicItem.getTardisStatic(world, stack);
-
-        if (tardis == null)
-            return false;
-
         LandingPadRegion region = LandingPadManager.getInstance((ServerWorld) world).getRegionAt(pos);
         if (region != null) {
             if (world.getBlockState(pos).isAir()) return true;
 
-            boolean wasSpotCreated = modifyRegion(tardis, (ServerWorld) world, pos.up(), user, stack, region);
+            boolean wasSpotCreated = modifyRegion(null, (ServerWorld) world, pos.up(), user, stack, region);
 
             float pitch = wasSpotCreated ? 1.1f : 0.75f;
             world.playSound(null, pos, AITSounds.SONIC_SWITCH, SoundCategory.PLAYERS, 1f, pitch);
@@ -83,13 +152,34 @@ public class ScanningSonicMode extends SonicMode {
         }
 
         if (!TardisServerWorld.isTardisDimension(world)) {
-            sendRiftInfo(tardis, (ServerWorld) world, pos, user, stack);
+            sendRiftInfo(null, (ServerWorld) world, pos, user, stack);
             return true;
         }
+
+        Tardis tardis = SonicItem.getTardisStatic(world, stack);
+
+        if (tardis == null)
+            return false;
 
         if (TardisServerWorld.isTardisDimension(world)) {
             sendTardisInfo(tardis, (ServerWorld) world, pos, user, stack);
             return true;
+        }
+
+        return false;
+    }
+
+    public boolean scanEntities(ItemStack stack, World world, PlayerEntity user, Entity entity) {
+        if (world.isClient())
+            return true;
+
+        if (user == null)
+            return false;
+
+        if (entity instanceof LivingEntity) {
+            String health = String.valueOf(((LivingEntity) entity).getHealth());
+            String maxhealth = String.valueOf(((LivingEntity) entity).getMaxHealth());
+            user.sendMessage(Text.literal("♥:").append(health).append("/").append(maxhealth).formatted(Formatting.YELLOW), true);
         }
 
         return false;
@@ -138,7 +228,7 @@ public class ScanningSonicMode extends SonicMode {
             return;
 
         if (tardis.crash().isUnstable() || tardis.crash().isToxic()) {
-            player.sendMessage(Text.literal("Repair time: " + tardis.crash().getRepairTicks())
+            player.sendMessage(Text.translatable("message.ait.sonic.repairtime", tardis.crash().getRepairTicks())
                     .formatted(Formatting.DARK_RED, Formatting.ITALIC), true);
             return;
         }

@@ -10,23 +10,29 @@ import org.jetbrains.annotations.NotNull;
 import net.minecraft.server.MinecraftServer;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisEvents;
-import dev.amble.ait.api.TardisTickable;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.impl.*;
 import dev.amble.ait.core.engine.registry.SubSystemRegistry;
 import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.enummap.EnumMap;
+import dev.amble.ait.data.enummap.ConcurrentEnumMap;
 
 public class SubSystemHandler extends KeyedTardisComponent implements TardisTickable, Iterable<SubSystem> {
     @Exclude
-    private final EnumMap<SubSystem.IdLike, SubSystem> systems = new EnumMap<>(SubSystemRegistry::values,
+    private final ConcurrentEnumMap<SubSystem.IdLike, SubSystem> systems = new ConcurrentEnumMap<>(SubSystemRegistry::values,
             SubSystem[]::new);
 
     static {
         TardisEvents.OUT_OF_FUEL.register(tardis -> tardis.fuel().disablePower());
+        TardisEvents.LANDED.register(tardis -> {
+            if (tardis.travel().autopilot()) {
+                if (tardis.travel().isCrashing())
+                    tardis.travel().autopilot(false);
+            }
+        });
     }
 
     public SubSystemHandler() {
@@ -63,9 +69,9 @@ public class SubSystemHandler extends KeyedTardisComponent implements TardisTick
         return system;
     }
 
-    private SubSystem remove(SubSystem.IdLike id) {
+    public SubSystem remove(SubSystem.IdLike id, boolean sync) {
         SubSystem found = this.systems.remove(id);
-        this.sync();
+        if (sync) this.sync();
         return found;
     }
 

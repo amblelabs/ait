@@ -1,5 +1,7 @@
 package dev.amble.ait.core.blocks;
 
+import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -12,20 +14,15 @@ import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.RavagerEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
@@ -36,7 +33,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.TardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.advancement.TardisCriterions;
@@ -44,27 +41,26 @@ import dev.amble.ait.core.blockentities.CoralBlockEntity;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
+import dev.amble.ait.core.tardis.handler.LoyaltyHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.manager.TardisBuilder;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.exterior.variant.growth.CoralGrowthVariant;
 import dev.amble.ait.registry.impl.DesktopRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 
 @SuppressWarnings("deprecation")
 public class CoralPlantBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
-
     private final VoxelShape DEFAULT = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 32.0, 16.0);
-
     public static final IntProperty AGE = Properties.AGE_7;
-    public static final BooleanProperty HAS_SMS = BooleanProperty.of("has_sms");
 
     public CoralPlantBlock(Settings settings) {
         super(settings);
 
         this.setDefaultState(
-                this.getDefaultState().with(AGE, 0).with(HAS_SMS, false)
+                this.getDefaultState().with(AGE, 0)
         );
     }
 
@@ -82,29 +78,6 @@ public class CoralPlantBlock extends HorizontalDirectionalBlock implements Block
 
     public final boolean isMature(BlockState blockState) {
         return this.getAge(blockState) >= this.getMaxAge();
-    }
-    public static boolean hasSms(BlockState state) {
-        return state.get(HAS_SMS);
-    }
-
-    @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        ItemStack stack = player.getStackInHand(hand);
-        if (stack.isOf(AITBlocks.ENGINE_CORE_BLOCK.asItem()) && !hasSms(state)) {
-            if (world.isClient()) return ActionResult.SUCCESS;
-
-            // If the player is holding an engine core block, set the has_sms property to true
-            world.setBlockState(pos, state.with(HAS_SMS, true));
-            stack.decrement(1);
-
-            world.playSound(null, pos, AITSounds.SIEGE_DISABLE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-
-            tryCreate((ServerWorld) world, pos, state);
-
-            return ActionResult.SUCCESS;
-        }
-
-        return super.onUse(state, world, pos, player, hand, hit);
     }
 
     @Override
@@ -146,33 +119,32 @@ public class CoralPlantBlock extends HorizontalDirectionalBlock implements Block
         if (!this.isMature(state))
             return false;
 
-        if (!hasSms(state)) {
-            world.playSound(null, pos, AITSounds.SIEGE_ENABLE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-            return false;
-        }
-
         if (TardisServerWorld.isTardisDimension(world)) {
             this.createConsole(world, pos);
             return true;
         }
 
         if (world.getBlockEntity(pos) instanceof CoralBlockEntity coral)
-            this.createTardis(world, pos, coral.creator);
+            this.createTardis(world, pos, coral.creator, state);
 
         return true;
     }
 
     private void createConsole(ServerWorld world, BlockPos pos) {
+        world.playSound(null, pos, AITSounds.FABRICATOR_END, SoundCategory.BLOCKS);
+
         world.setBlockState(pos, AITBlocks.CONSOLE.getDefaultState());
     }
 
-    private void createTardis(ServerWorld world, BlockPos pos, UUID creatorId) {
+    private void createTardis(ServerWorld world, BlockPos pos, UUID creatorId, BlockState state) {
         if (!(world.getPlayerByUuid(creatorId) instanceof ServerPlayerEntity player))
             return;
 
-        TardisBuilder builder = new TardisBuilder().at(CachedDirectedGlobalPos.create(world, pos, (byte) 0))
+        TardisBuilder builder = new TardisBuilder().at(CachedDirectedGlobalPos.create(world, pos,
+                        CachedDirectedGlobalPos.getGeneralizedRotation(state.get(FACING))))
                 .owner(player)
                 .<FuelHandler>with(TardisComponent.Id.FUEL, fuel -> fuel.setCurrentFuel(5000))
+                .<LoyaltyHandler>with(TardisComponent.Id.LOYALTY, loyaltyHandler -> loyaltyHandler.set(player, new Loyalty(Loyalty.Type.NEUTRAL)))
                 .with(TardisComponent.Id.TRAVEL, travel -> travel.tardis().travel().autopilot(false))
                 .exterior(ExteriorVariantRegistry.getInstance().get(CoralGrowthVariant.REFERENCE))
                 .desktop(DesktopRegistry.DEFAULT_CAVE);
@@ -189,12 +161,7 @@ public class CoralPlantBlock extends HorizontalDirectionalBlock implements Block
         if (!(placer instanceof ServerPlayerEntity player))
             return;
 
-        if (!RiftChunkManager.isRiftChunk((ServerWorld) world, pos)) {
-            world.breakBlock(pos, !placer.isPlayer() || !player.isCreative());
-            return;
-        }
-
-        if (TardisServerWorld.isTardisDimension((ServerWorld) world)) {
+        if (!RiftChunkManager.isRiftChunk((ServerWorld) world, pos) && !TardisServerWorld.isTardisDimension((ServerWorld) world)) {
             world.breakBlock(pos, !placer.isPlayer() || !player.isCreative());
             return;
         }
@@ -205,9 +172,10 @@ public class CoralPlantBlock extends HorizontalDirectionalBlock implements Block
         }
 
         if (world.getBlockEntity(pos) instanceof CoralBlockEntity coral) {
-            if (player.getUuid() != null)
+            if (player.getUuid() != null) {
                 coral.creator = player.getUuid();
                 coral.markDirty();
+            }
             TardisCriterions.PLACE_CORAL.trigger(player);
         }
     }
@@ -241,14 +209,16 @@ public class CoralPlantBlock extends HorizontalDirectionalBlock implements Block
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(AGE).add(FACING).add(HAS_SMS);
+        builder.add(AGE).add(FACING);
     }
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
         super.appendTooltip(stack, world, tooltip, options);
 
-        tooltip.add(Text.translatable("tooltip.ait.tardis_coral").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
+        addShiftHiddenTooltip(stack, tooltip, tooltips -> {
+            tooltip.add(Text.translatable("tooltip.ait.tardis_coral").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
+        });
     }
 
     @Nullable @Override

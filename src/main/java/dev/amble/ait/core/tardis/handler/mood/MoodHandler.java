@@ -13,8 +13,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.TardisComponent;
-import dev.amble.ait.api.TardisTickable;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.Exclude;

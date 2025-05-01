@@ -6,7 +6,8 @@ import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
 public class BookshelfDoorModel extends DoorModel {
@@ -43,15 +44,11 @@ public class BookshelfDoorModel extends DoorModel {
     }
 
     @Override
-    public void renderWithAnimations(AbstractLinkableBlockEntity doorEntity, ModelPart root, MatrixStack matrices,
+    public void renderWithAnimations(ClientTardis tardis, AbstractLinkableBlockEntity doorEntity, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        if (doorEntity.tardis().isEmpty())
-            return;
-
-        DoorHandler door = doorEntity.tardis().get().door();
+        DoorHandler door = tardis.door();
 
         if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS) {
-
             this.bookshelf.getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? 4.75F : 0.0F;
             this.bookshelf.getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen()) ? -4.75F : 0.0F;
         } else {
@@ -64,7 +61,7 @@ public class BookshelfDoorModel extends DoorModel {
         matrices.scale(1F, 1F, 1F);
         matrices.translate(0, -1.5, 0);
 
-        super.renderWithAnimations(doorEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(tardis, doorEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
     }
 

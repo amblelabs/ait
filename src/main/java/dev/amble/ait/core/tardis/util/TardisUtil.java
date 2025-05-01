@@ -5,12 +5,17 @@ import java.util.function.Predicate;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
+import dev.amble.lib.util.TeleportUtil;
+import dev.drtheo.scheduler.api.Scheduler;
+import dev.drtheo.scheduler.api.TimeUnit;
 import it.unimi.dsi.fastutil.longs.LongBidirectionalIterator;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.util.TriState;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
@@ -28,8 +33,9 @@ import net.minecraft.world.entity.EntityLike;
 import net.minecraft.world.entity.EntityTrackingSection;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.TardisComponent;
-import dev.amble.ait.api.TardisEvents;
+import dev.amble.ait.api.ExtraPushableEntity;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.AITTags;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -37,7 +43,6 @@ import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisDesktop;
-import dev.amble.ait.core.tardis.handler.OvergrownHandler;
 import dev.amble.ait.core.tardis.handler.permissions.PermissionHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.util.WorldUtil;
@@ -65,7 +70,7 @@ public class TardisUtil {
 
                 if (tardis.flight().isFlying()) {
                     if (!player.isSneaking()) {
-                        tardis.door().interact(player.getServerWorld(), null, player);
+                        tardis.door().interactAllDoors(player.getServerWorld(), null, player, true);
                     } else {
                         tardis.door().interactToggleLock(player);
                     }
@@ -73,8 +78,6 @@ public class TardisUtil {
                 }
 
                 if (!tardis.loyalty().get(player).isOf(Loyalty.Type.PILOT))
-                    return;
-                if (tardis.<OvergrownHandler>handler(TardisComponent.Id.OVERGROWN).overgrown().get())
                     return;
 
                 player.getWorld().playSound(null, player.getBlockPos(), AITSounds.SNAP, SoundCategory.PLAYERS, 4f, 1f);
@@ -86,7 +89,7 @@ public class TardisUtil {
                         : exteriorPos;
 
                 if ((player.squaredDistanceTo(exteriorPos.getX(), exteriorPos.getY(), exteriorPos.getZ())) > 200
-                        && !player.getWorld().equals(tardis.getInteriorWorld()))
+                        && player.getWorld() != tardis.worldRef().get())
                     return;
 
                 if (!player.isSneaking()) {
@@ -168,11 +171,8 @@ public class TardisUtil {
         return TardisUtil.offsetInteriorDoorPos(desktop.getDoorPos());
     }
 
-    public static Vec3d offsetDoorPosition(DirectedBlockPos directed) {
-        BlockPos pos = directed.getPos();
-
-        return switch (directed.getRotation()) {
-            default -> new Vec3d(pos.getX() + 0.5f, pos.getY(), pos.getZ() - 0.5f);
+    public static Vec3d offsetDoorPosition(Vec3d pos, byte rotation) {
+        return switch (rotation) {
             case 1, 2, 3 -> new Vec3d(pos.getX() + 1.1f, pos.getY(), pos.getZ() - 0.5f);
             case 4 -> new Vec3d(pos.getX() + 1.5f, pos.getY(), pos.getZ() + 0.5f);
             case 5, 6, 7 -> new Vec3d(pos.getX() + 1.5f, pos.getY(), pos.getZ() + 1.1f);
@@ -180,18 +180,32 @@ public class TardisUtil {
             case 9, 10, 11 -> new Vec3d(pos.getX(), pos.getY(), pos.getZ() + 1.5f);
             case 12 -> new Vec3d(pos.getX() - 0.5f, pos.getY(), pos.getZ() + 0.5f);
             case 13, 14, 15 -> new Vec3d(pos.getX() - 0.3f, pos.getY(), pos.getZ() - 0.5f);
+            default -> new Vec3d(pos.getX() + 0.5f, pos.getY(), pos.getZ() - 0.5f);
         };
+    }
+
+    public static Vec3d offsetDoorPosition(DirectedBlockPos directed) {
+        return offsetDoorPosition(new Vec3d(directed.getPos().getX(), directed.getPos().getY(), directed.getPos().getZ()), directed.getRotation());
     }
 
     public static Vec3d offsetInteriorDoorPos(DirectedBlockPos directed) {
         BlockPos pos = directed.getPos();
 
         return switch (directed.getRotation()) {
-            default -> new Vec3d(pos.getX() + 0.5f, pos.getY(), pos.getZ() + 0.6f);
             case 4 -> new Vec3d(pos.getX() + 0.4f, pos.getY(), pos.getZ() + 0.5f);
             case 8 -> new Vec3d(pos.getX() + 0.5f, pos.getY(), pos.getZ() + 0.4f);
             case 12 -> new Vec3d(pos.getX() + 0.6f, pos.getY(), pos.getZ() + 0.5f);
+            default -> new Vec3d(pos.getX() + 0.5f, pos.getY(), pos.getZ() + 0.6f);
         };
+    }
+
+    // TODO - move to amblekit
+    public static Vec3d offsetPos(DirectedBlockPos directed, float value) {
+        BlockPos pos = directed.getPos();
+
+        return new Vec3d(pos.getX() + value * (double) directed.getVector().getX(),
+                pos.getY() + value * (double) directed.getVector().getY(),
+                pos.getZ() + value * (double) directed.getVector().getZ());
     }
 
     public static void teleportOutside(Tardis tardis, Entity entity) {
@@ -203,21 +217,37 @@ public class TardisUtil {
     public static void dropOutside(Tardis tardis, Entity entity) {
         TardisEvents.LEAVE_TARDIS.invoker().onLeave(tardis, entity);
 
+        if (!(entity instanceof LivingEntity living))
+            return;
+
         CachedDirectedGlobalPos percentageOfDestination = tardis.travel().getProgress();
-        TardisUtil.teleportWithDoorOffset(tardis.travel().destination().getWorld(), entity,
-                percentageOfDestination.toPos());
+        Scheduler scheduler = Scheduler.get();
+
+        ServerWorld vortexWorld = WorldUtil.getTimeVortex();
+
+        if (vortexWorld == null)
+            return;
+
+        TeleportUtil.teleport(living, vortexWorld, new Vec3d(vortexWorld.getRandom().nextBetween(0, 256), 0, vortexWorld.getRandom().nextBetween(0, 256)), living.getBodyYaw());
+
+        scheduler.runTaskLater(() -> {
+            if (living.getWorld() == vortexWorld) {
+                TeleportUtil.teleport(living, tardis.travel().destination().getWorld(),
+                        percentageOfDestination.getPos().toCenterPos(), living.getBodyYaw());
+            }
+        }, TimeUnit.SECONDS, 4);
     }
 
-    public static void teleportInside(Tardis tardis, Entity entity) {
+    public static void teleportInside(ServerTardis tardis, Entity entity) {
         TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity);
-        TardisUtil.teleportWithDoorOffset(tardis.asServer().getInteriorWorld(), entity, tardis.getDesktop().getDoorPos());
+        TardisUtil.teleportWithDoorOffset(tardis.worldRef().get(), entity, tardis.getDesktop().getDoorPos());
     }
 
-    public static void teleportToInteriorPosition(Tardis tardis, Entity entity, BlockPos pos) {
+    public static void teleportToInteriorPosition(ServerTardis tardis, Entity entity, BlockPos pos) {
         if (entity instanceof ServerPlayerEntity player) {
             TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity);
 
-            WorldUtil.teleportToWorld(player, tardis.asServer().getInteriorWorld(),
+            WorldUtil.teleportToWorld(player, tardis.worldRef().get(),
                     new Vec3d(pos.getX(), pos.getY(), pos.getZ()), entity.getYaw(), player.getPitch());
 
             player.networkHandler.sendPacket(new EntityVelocityUpdateS2CPacket(player));
@@ -225,8 +255,14 @@ public class TardisUtil {
     }
 
     private static void teleportWithDoorOffset(ServerWorld world, Entity entity, DirectedBlockPos directed) {
-        BlockPos pos = directed.getPos();
+        if (!AITMod.CONFIG.SERVER.TNT_CAN_TELEPORT_THROUGH_DOOR && entity instanceof TntEntity) {
+            return;
+        }
 
+        if (entity instanceof ExtraPushableEntity pushable && pushable.ait$pushBehaviour() == TriState.FALSE)
+            return;
+
+        BlockPos pos = directed.getPos();
         boolean isDoor = world.getBlockEntity(pos) instanceof DoorBlockEntity;
 
         Vec3d vec = isDoor
@@ -234,7 +270,12 @@ public class TardisUtil {
                 : TardisUtil.offsetDoorPosition(directed).add(0, 0.125, 0);
 
         world.getServer().execute(() -> {
-            if (entity.getVehicle() instanceof FlightTardisEntity) return;
+            if (entity.getVehicle() instanceof FlightTardisEntity)
+                return;
+
+            if (entity instanceof ExtraPushableEntity pushable)
+                pushable.ait$setPushBehaviour(TriState.FALSE);
+
             if (entity instanceof ServerPlayerEntity player) {
                 WorldUtil.teleportToWorld(player, world, vec,
                         RotationPropertyHelper.toDegrees(directed.getRotation()) + (isDoor ? 0 : 180f),
@@ -257,6 +298,8 @@ public class TardisUtil {
                             entity.getPitch());
                 }
             }
+            if (entity instanceof ExtraPushableEntity pushable)
+                Scheduler.get().runTaskLater(() -> pushable.ait$setPushBehaviour(TriState.DEFAULT), TimeUnit.SECONDS, 3);
         });
     }
 
@@ -280,17 +323,13 @@ public class TardisUtil {
         return null;
     }
 
+    /**
+     * @deprecated Use the {@link ServerTardis#worldRef()} instead.
+     */
+    @Deprecated(forRemoval = true)
     public static List<ServerPlayerEntity> getPlayersInsideInterior(ServerTardis tardis) {
-        return new ArrayList<>(tardis.getInteriorWorld().getPlayers());
-    }
-
-    public static List<LivingEntity> getLivingInInterior(Tardis tardis, Predicate<LivingEntity> predicate) {
-        for (Entity entity : ((ServerTardis) tardis).getInteriorWorld().getEntitiesByType(TypeFilter.instanceOf(LivingEntity.class), predicate)) {
-            if (entity instanceof LivingEntity living && predicate.test(living)) {
-                return List.of(living);
-            }
-        }
-        return List.of();
+        ServerWorld world = tardis.worldRef().getOrDefault(() -> null);
+        return world == null ? List.of() : world.getPlayers();
     }
 
     public static <T extends Entity> List<T> getEntitiesInBox(Class<T> clazz, World world, Box box,
@@ -374,6 +413,11 @@ public class TardisUtil {
     }
 
     public static List<LivingEntity> getLivingEntitiesInInterior(Tardis tardis, int area) {
+        ServerWorld world = tardis.asServer().worldRef().get();
+
+        if (world == null)
+            return List.of();
+
         DirectedBlockPos directedPos = tardis.getDesktop().getDoorPos();
 
         if (directedPos == null)
@@ -381,11 +425,16 @@ public class TardisUtil {
 
         BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
 
-        return tardis.asServer().getInteriorWorld().getEntitiesByClass(LivingEntity.class,
+        return world.getEntitiesByClass(LivingEntity.class,
                 new Box(pos.north(area).east(area).up(area), pos.south(area).west(area).down(area)), (e) -> true);
     }
 
     public static List<Entity> getEntitiesInInterior(Tardis tardis, int area) {
+        ServerWorld world = tardis.asServer().worldRef().getOrDefault(() -> null);
+
+        if (world == null)
+            return List.of();
+
         DirectedBlockPos directedPos = tardis.getDesktop().getDoorPos();
 
         if (directedPos == null)
@@ -393,8 +442,8 @@ public class TardisUtil {
 
         BlockPos pos = directedPos.getPos();
 
-        return tardis.asServer().getInteriorWorld().getEntitiesByClass(Entity.class,
-                new Box(pos.north(area).east(area).up(area), pos.south(area).west(area).down(area)), (e) -> true);
+        return world.getEntitiesByClass(Entity.class,
+                new Box(pos.north(area).east(area).up(area), pos.south(area).west(area).down(area)), e -> true);
     }
 
     public static List<LivingEntity> getLivingEntitiesInInterior(ServerTardis tardis) {
@@ -402,7 +451,12 @@ public class TardisUtil {
     }
 
     public static boolean isInteriorEmpty(ServerTardis tardis) {
-        return TardisUtil.getAnyPlayerInsideInterior(tardis.getInteriorWorld()) == null;
+        ServerWorld world = tardis.worldRef().getOrDefault(() -> null);
+
+        if (world == null)
+            return true;
+
+        return world.getPlayers().isEmpty();
     }
 
     public static void sendMessageToInterior(ServerTardis tardis, Text text) {
@@ -430,5 +484,15 @@ public class TardisUtil {
         }
 
         return Optional.ofNullable(nearestPlayer);
+    }
+
+    public static boolean isNearTardis(PlayerEntity player, Tardis tardis, double radius) {
+        return radius >= distanceFromTardis(player, tardis);
+    }
+
+    public static double distanceFromTardis(PlayerEntity player, Tardis tardis) {
+        BlockPos pPos = player.getBlockPos();
+        BlockPos tPos = tardis.travel().position().getPos();
+        return Math.sqrt(tPos.getSquaredDistance(pPos));
     }
 }

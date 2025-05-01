@@ -1,0 +1,54 @@
+"C: Textures":
+  - changed-files:
+      - any-glob-to-any-file: 'src/main/resources/assets/*/textures/**/*.png'
+
+"C: Structures":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/main/resources/data/ait/structures/**/*.nbt'
+
+#"Changes: UI":
+#  - changed-files:
+#      - any-glob-to-any-file: '**/*.xml*'
+
+#"Changes: Shaders":
+#  - changed-files:
+#      - any-glob-to-any-file: '**/*.glsl'
+"A: Tardis Components":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/main/java/dev/amble/ait/api/tardis/**/*.java'
+          - 'src/main/java/dev/amble/ait/core/tardis/**/*.java'
+
+"A: Engine":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/main/java/dev/amble/ait/core/engine/**/*.java'
+          - 'src/main/java/dev/amble/ait/core/blocks/EngineBlock.java'
+          - 'src/main/java/dev/amble/ait/core/blockentities/EngineBlockEntity.java'
+
+"A: Console":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/main/java/dev/amble/ait/core/tardis/control/**/*.java'
+          - 'src/main/java/dev/amble/ait/core/blocks/ConsoleBlock.java'
+          - 'src/main/java/dev/amble/ait/core/blockentities/ConsoleBlockEntity.java'
+
+"A: Datagen":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/main/java/dev/amble/ait/datagen/**/*.java'
+
+"A: Admin Tooling":
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/main/java/dev/amble/ait/core/commands/**/*.java'
+
+"C: Audio":
+  - changed-files:
+      - any-glob-to-any-file: 'src/main/resources/assets/*/sounds/**/*.ogg'
+
+"C: No Java":
+  - changed-files:
+      # Equiv to any-glob-to-all as long as this has one matcher. If ALL changed files are not Java files, then apply label.
+      - all-globs-to-all-files: "!src/main/java/**/*.java"

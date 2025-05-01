@@ -36,18 +36,18 @@ public class BedInTardisMixin {
     @Unique @Environment(EnvType.CLIENT)
     private void onClientSleep(PlayerEntity player) {
         Tardis tardis = ClientTardisUtil.getCurrentTardis();
-        if (tardis == null || AITMod.CONFIG.CLIENT.DISABLE_LOYALTY_SLEEPING_ACTIONBAR) return;
+        if (tardis == null || AITMod.CONFIG.CLIENT.DISABLE_LOYALTY_BED_MESSAGE) return;
 
         Loyalty loyalty = tardis.loyalty().get(player);
 
         Text message = switch (loyalty.type()) {
-            case REJECT -> Text.literal("You hear whispers all around you, you are not welcome. [REJECT]");
-            case NEUTRAL -> Text.literal("The TARDIS hums, neither welcoming nor dismissing your presence. [NEUTRAL]");
-            case COMPANION -> Text.literal("The TARDIS hums you a tune, as if glad to have you on board. [COMPANION]");
-            case PILOT -> Text.literal("The TARDIS hums gently, as if to show its trust. [PILOT]");
-            case OWNER -> Text.literal("The TARDIS hums you a song, as if to show it will always be here for you. [OWNER]");
+            case REJECT -> Text.translatable("tardis.loyalty.message.reject");
+            case NEUTRAL -> Text.translatable("tardis.loyalty.message.neutral");
+            case COMPANION -> Text.translatable("tardis.loyalty.message.companion");
+            case PILOT -> Text.translatable("tardis.loyalty.message.pilot");
+            case OWNER -> Text.translatable("tardis.loyalty.message.owner");
         };
-        player.sendMessage(message, true);
+        player.sendMessage(message, false);
 
         SoundEvent sound = switch(loyalty.type()) {
             case OWNER -> AITSounds.OWNER_BED;

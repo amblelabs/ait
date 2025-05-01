@@ -7,7 +7,8 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
 public class PlinthDoorModel extends DoorModel {
@@ -43,19 +44,19 @@ public class PlinthDoorModel extends DoorModel {
     }
 
     @Override
-    public void renderWithAnimations(AbstractLinkableBlockEntity linkableBlockEntity, ModelPart root, MatrixStack matrices,
+    public void renderWithAnimations(ClientTardis tardis, AbstractLinkableBlockEntity linkableBlockEntity, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
         matrices.push();
         matrices.translate(0, -1.5f, 0);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
 
         if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS) {
-            plinth.getChild("door").yaw = linkableBlockEntity.tardis().get().door().isOpen() ? -1.75f : 0f;
+            plinth.getChild("door").yaw = tardis.door().isOpen() ? -1.75f : 0f;
         } else {
             float maxRot = 90f;
-            plinth.getChild("door").yaw = -(float) Math.toRadians(maxRot*linkableBlockEntity.tardis().get().door().getLeftRot());
+            plinth.getChild("door").yaw = -(float) Math.toRadians(maxRot*tardis.door().getLeftRot());
         }
-        super.renderWithAnimations(linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
 
         matrices.pop();
     }

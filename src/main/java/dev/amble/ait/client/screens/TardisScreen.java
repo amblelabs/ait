@@ -3,7 +3,7 @@ package dev.amble.ait.client.screens;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
-import dev.amble.ait.api.link.v2.TardisRef;
+import dev.amble.ait.api.tardis.link.v2.TardisRef;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 

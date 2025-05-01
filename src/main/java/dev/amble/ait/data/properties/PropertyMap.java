@@ -2,7 +2,7 @@ package dev.amble.ait.data.properties;
 
 import java.util.HashMap;
 
-import dev.amble.ait.api.Disposable;
+import dev.amble.ait.api.tardis.Disposable;
 
 public class PropertyMap extends HashMap<String, Value<?>> implements Disposable {
 

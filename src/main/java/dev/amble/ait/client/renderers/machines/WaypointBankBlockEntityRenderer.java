@@ -107,7 +107,7 @@ public class WaypointBankBlockEntityRenderer<T extends WaypointBankBlockEntity> 
         BlockPos abpdPos = abpd.getPos();
 
         String destPos = abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
-        String destDim = WorldUtil.worldText(abpd.getDimension()).getString();
+        String destDim = WorldUtil.worldText(abpd.getDimension(), false).getString();
 
         matrices.push();
         matrices.translate(0.5, 0.75, 0.5);

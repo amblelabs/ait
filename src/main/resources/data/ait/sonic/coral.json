@@ -7,7 +7,5 @@
     "scanning": "ait:item/sonic/coral/scanning",
     "tardis": "ait:item/sonic/coral/tardis"
   },
-  "loyalty": {
-    "type": "NEUTRAL"
-  }
+  "loyalty": "NEUTRAL"
 }

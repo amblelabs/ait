@@ -1,12 +1,13 @@
 package dev.amble.ait.core.item;
 
+import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
+
 import java.util.List;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.DyeableItem;
 import net.minecraft.item.Item;
@@ -40,33 +41,33 @@ public class WaypointItem extends Item implements DyeableItem {
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        if (!Screen.hasShiftDown()) {
-            tooltip.add(Text.translatable("tooltip.ait.remoteitem.holdformoreinfo").formatted(Formatting.GRAY)
-                    .formatted(Formatting.ITALIC));
-            return;
-        }
+        super.appendTooltip(stack, world, tooltip, context);
 
-        NbtCompound main = stack.getOrCreateNbt();
+        addShiftHiddenTooltip(stack, tooltip, tooltips -> {
+            NbtCompound main = stack.getOrCreateNbt();
 
-        if (!(main.contains(POS_KEY)))
-            return;
+            if (!main.contains(POS_KEY))
+                return;
 
-        NbtCompound nbt = main.getCompound(POS_KEY);
-        DirectedGlobalPos globalPos = DirectedGlobalPos.fromNbt(nbt);
+            NbtCompound nbt = main.getCompound(POS_KEY);
+            DirectedGlobalPos globalPos = DirectedGlobalPos.fromNbt(nbt);
 
-        BlockPos pos = globalPos.getPos();
-        String dir = DirectionControl.rotationToDirection(globalPos.getRotation());
-        RegistryKey<World> dimension = globalPos.getDimension();
+            BlockPos pos = globalPos.getPos();
+            String dir = DirectionControl.rotationToDirection(globalPos.getRotation());
+            RegistryKey<World> dimension = globalPos.getDimension();
 
-        tooltip.add(Text.translatable("waypoint.position.tooltip")
-                .append(Text.literal(" > " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()))
-                .formatted(Formatting.BLUE));
+            tooltips.add(Text.translatable("waypoint.position.tooltip")
+                    .append(Text.literal(" > " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()))
+                    .formatted(Formatting.BLUE));
 
-        tooltip.add(Text.translatable("waypoint.direction.tooltip").append(Text.literal(" > " + dir.toUpperCase()))
-                .formatted(Formatting.BLUE));
+            tooltips.add(Text.translatable("waypoint.direction.tooltip")
+                    .append(Text.literal(" > " + dir.toUpperCase()))
+                    .formatted(Formatting.BLUE));
 
-        tooltip.add(Text.translatable("waypoint.dimension.tooltip")
-                .append(Text.literal(" > ").append(WorldUtil.worldText(dimension))).formatted(Formatting.BLUE));
+            tooltips.add(Text.translatable("waypoint.dimension.tooltip")
+                    .append(Text.literal(" > ").append(WorldUtil.worldText(dimension, false)))
+                    .formatted(Formatting.BLUE));
+        });
     }
 
     @Override
@@ -81,6 +82,8 @@ public class WaypointItem extends Item implements DyeableItem {
 
     public static ItemStack create(Waypoint pos) {
         ItemStack stack = new ItemStack(AITItems.WAYPOINT_CARTRIDGE);
+        if (pos == null) return stack;
+
         setPos(stack, pos.getPos());
 
         if (pos.hasName())
@@ -100,6 +103,7 @@ public class WaypointItem extends Item implements DyeableItem {
 
     public static void setPos(ItemStack stack, DirectedGlobalPos pos) {
         NbtCompound nbt = stack.getOrCreateNbt();
+        if (pos == null) return;
         nbt.put(POS_KEY, pos.toNbt());
     }
 }

@@ -11,22 +11,19 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.link.v2.TardisRef;
-import dev.amble.ait.api.link.v2.block.InteriorLinkableBlockEntity;
+import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.blocks.EnvironmentProjectorBlock;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.properties.Value;
 
@@ -39,8 +36,7 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
         super(AITBlockEntityTypes.ENVIRONMENT_PROJECTOR_BLOCK_ENTITY_TYPE, pos, state);
     }
 
-    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos,
-            boolean notify) {
+    public void neighborUpdate(BlockState state, World world, BlockPos pos) {
         boolean powered = world.isReceivingRedstonePower(pos);
 
         if (powered != state.get(POWERED)) {
@@ -57,18 +53,11 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
                 Block.NOTIFY_LISTENERS);
     }
 
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
-            BlockHitResult hit) {
-
-        if (this.tardis() == null)
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player) {
+        if (!this.isLinked())
             return ActionResult.FAIL;
 
-        TardisRef ref = this.tardis();
-
-        if (ref.isEmpty())
-            return ActionResult.PASS;
-
-        Tardis tardis = ref.get();
+        Tardis tardis = this.tardis().get();
 
         if (player.isSneaking()) {
             this.switchSkybox(tardis, state, player);
@@ -97,10 +86,10 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
     }
 
     public void switchSkybox(Tardis tardis, BlockState state, PlayerEntity player) {
-        ServerWorld next = findNext(world.getServer(), this.current);
+        ServerWorld next = findNext(this.current);
 
         while (TardisServerWorld.isTardisDimension(next)) {
-            next = findNext(world.getServer(), next.getRegistryKey());
+            next = findNext(next.getRegistryKey());
         }
 
         player.sendMessage(Text.translatable("message.ait.projector.skybox", next.getRegistryKey().getValue().toString()));
@@ -109,19 +98,20 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
         this.current = next.getRegistryKey();
 
         if (state.get(EnvironmentProjectorBlock.ENABLED))
-            this.apply(tardis);
+            this.apply(tardis, state);
     }
 
-    public void toggle(Tardis tardis, boolean active) {
+    public void toggle(Tardis tardis, BlockState state, boolean active) {
         if (active) {
-            this.apply(tardis);
+            this.apply(tardis, state);
         } else {
             this.disable(tardis);
         }
     }
 
-    public void apply(Tardis tardis) {
+    public void apply(Tardis tardis, BlockState state) {
         tardis.stats().skybox().set(this.current);
+        tardis.stats().skyboxDirection().set(state.get(EnvironmentProjectorBlock.FACING));
     }
 
     public void disable(Tardis tardis) {
@@ -131,8 +121,8 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
             value.set(DEFAULT);
     }
 
-    private static ServerWorld findNext(MinecraftServer server, RegistryKey<World> last) {
-        Iterator<ServerWorld> iter = server.getWorlds().iterator();
+    private static ServerWorld findNext(RegistryKey<World> last) {
+        Iterator<ServerWorld> iter = WorldUtil.getOpenWorlds().iterator();
 
         ServerWorld first = iter.next();
         ServerWorld found = first;

@@ -1,23 +1,6 @@
+/*
 package dev.amble.ait.data.schema.console.type;
 
-import org.joml.Vector3f;
-
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.control.ControlTypes;
-import dev.amble.ait.core.tardis.control.impl.*;
-import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
-import dev.amble.ait.core.tardis.control.impl.pos.XControl;
-import dev.amble.ait.core.tardis.control.impl.pos.YControl;
-import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.ConsolePortControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.MarkWaypointControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
-import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
-import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
-import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 
 public class HudolinType extends ConsoleTypeSchema {
     public static final Identifier REFERENCE = AITMod.id("console/hudolin");
@@ -52,6 +35,8 @@ public class HudolinType extends ConsoleTypeSchema {
                     Vector3f(-0.7484371336176991f, 0.4750002846121788f, 0.45195352006703615f)),
             new ControlTypes(new ZControl(), EntityDimensions.changing(0.125f, 0.1f),
                     new Vector3f(-0.6359377028420568f, 0.4874998079612851f, 0.6882812678813934f)),
+            new ControlTypes(new ElectricalDischargeControl(), EntityDimensions.changing(0.099999994f, 0.3749999f),
+                    new Vector3f(0.26093693170696497f, 0.31251535285264254f, 0.7003898629918694f)),
             new ControlTypes(new RandomiserControl(), EntityDimensions.changing(0.1375f, 0.16250001f),
                     new Vector3f(-1.0531250098720193f, 0.39999942295253277f, 0.23867206927388906f)),
             new ControlTypes(new DirectionControl(), EntityDimensions.changing(0.15f, 0.16250001f),
@@ -82,7 +67,7 @@ public class HudolinType extends ConsoleTypeSchema {
                     new Vector3f(-1.0101562598720193f, 0.44999999552965164f, -0.23671875055879354f)),
             new ControlTypes(new ShieldsControl(), EntityDimensions.changing(0.07499999f, 0.1375f),
                     new Vector3f(0.7414058679714799f, 0.48749985732138157f, 0.20195274520665407f)),
-            new ControlTypes(new EngineOverload(), EntityDimensions.changing(0.099999994f, 0.2625f),
+            new ControlTypes(new EngineOverloadControl(), EntityDimensions.changing(0.099999994f, 0.2625f),
                     new Vector3f(-0.46484432090073824f, 0.549999619834125f, -0.27421855833381414f)),
     };
 
@@ -100,3 +85,4 @@ public class HudolinType extends ConsoleTypeSchema {
         return ConsoleVariantRegistry.HUDOLIN;
     }
 }
+*/

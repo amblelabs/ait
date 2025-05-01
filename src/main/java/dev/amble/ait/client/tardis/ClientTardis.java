@@ -8,8 +8,8 @@ import com.google.gson.InstanceCreator;
 import net.minecraft.client.MinecraftClient;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.Disposable;
-import dev.amble.ait.api.TardisComponent;
+import dev.amble.ait.api.tardis.Disposable;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.util.ClientShakeUtil;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.tardis.Tardis;

@@ -14,7 +14,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-import dev.amble.ait.api.link.LinkableItem;
+import dev.amble.ait.api.tardis.link.LinkableItem;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -33,7 +33,6 @@ public class InteriorTeleporterItem extends LinkableItem { // todo - new model +
         ItemStack stack = user.getStackInHand(hand);
         Tardis tardis = getTardis(world, stack);
 
-
         if (world.isClient()) {
             boolean success = (tardis != null);
 
@@ -45,16 +44,17 @@ public class InteriorTeleporterItem extends LinkableItem { // todo - new model +
         }
         // server-side
 
-        if (tardis == null) return TypedActionResult.fail(stack);
+        if (tardis == null)
+            return TypedActionResult.fail(stack);
 
         Loyalty loyalty = tardis.loyalty().get(user);
         Loyalty.Type type = loyalty.type();
 
-        boolean success;
-        success = switch (type) {
+        boolean success = switch (type) {
             case REJECT, NEUTRAL -> false;
-            case COMPANION -> tardis.travel().isLanded();
             case PILOT, OWNER -> true;
+
+            case COMPANION -> tardis.travel().isLanded();
         };
 
         if (!success) {
@@ -68,13 +68,13 @@ public class InteriorTeleporterItem extends LinkableItem { // todo - new model +
         createTeleportEffect((ServerPlayerEntity) user, PARTICLE_SUCCESS);
         world.playSound(null, user.getBlockPos(), AITSounds.BWEEP, SoundCategory.PLAYERS, 1f, 1f);
 
-        TardisUtil.teleportInside(tardis, user);
+        TardisUtil.teleportInside(tardis.asServer(), user);
 
         stack.setCount(stack.getCount() - 1);
         user.getItemCooldownManager().set(this, 16 * 20);
 
         BlockPos door = tardis.getDesktop().getDoorPos().getPos();
-        createTeleportEffect(tardis.asServer().getInteriorWorld(), door.toCenterPos().subtract(0, 0.5, 0), PARTICLE_SUCCESS);
+        createTeleportEffect(tardis.asServer().worldRef().get(), door.toCenterPos().subtract(0, 0.5, 0), PARTICLE_SUCCESS);
         world.playSound(null, door, AITSounds.DING, SoundCategory.PLAYERS, 1f, 1f);
         world.playSound(null, door, AITSounds.LAND_THUD, SoundCategory.PLAYERS, 1f, 1f);
 

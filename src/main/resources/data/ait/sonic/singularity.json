@@ -7,7 +7,5 @@
     "scanning": "ait:item/sonic/singularity/scanning",
     "tardis": "ait:item/sonic/singularity/tardis"
   },
-  "loyalty": {
-    "type": "PILOT"
-  }
+  "loyalty": "PILOT"
 }

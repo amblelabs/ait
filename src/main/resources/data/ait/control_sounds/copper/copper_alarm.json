@@ -1,0 +1,6 @@
+{
+  "control": "ait:alarms",
+  "console": "ait:console/copper",
+  "success_sound": "ait:controls/copper_alarm",
+  "alt_sound": "ait:controls/copper_alarm_alt"
+}

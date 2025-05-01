@@ -24,6 +24,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.util.MonitorUtil;
 import dev.amble.ait.core.util.WorldUtil;
 
 public class MonitorRenderer<T extends MonitorBlockEntity> implements BlockEntityRenderer<T> {
@@ -39,12 +40,6 @@ public class MonitorRenderer<T extends MonitorBlockEntity> implements BlockEntit
         this.crtMonitorModel = new CRTMonitorModel(CRTMonitorModel.getTexturedModelData().createModel());
     }
 
-    private String truncateDimensionName(String name, int maxLength) {
-        if (name.length() > maxLength) {
-            return name.substring(0, maxLength) + "...";
-        }
-        return name;
-    }
 
     @Override
     public void render(MonitorBlockEntity entity, float tickDelta, MatrixStack matrices,
@@ -94,7 +89,7 @@ public class MonitorRenderer<T extends MonitorBlockEntity> implements BlockEntit
         BlockPos abpdPos = abpd.getPos();
 
         String positionPosText = " " + abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
-        Text positionDimensionText = Text.of(truncateDimensionName(WorldUtil.worldText(abpp.getDimension()).getString(), 20));
+        Text positionDimensionText = Text.of(MonitorUtil.truncateDimensionName(WorldUtil.worldText(abpp.getDimension()).getString(), 20));
 
         this.textRenderer.drawWithOutline(Text.of("❌").asOrderedText(), 0, 0, 0xF00F00, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
@@ -106,7 +101,7 @@ public class MonitorRenderer<T extends MonitorBlockEntity> implements BlockEntit
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
 
         String destinationPosText = " " + abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
-        Text destinationDimensionText = Text.of(truncateDimensionName(WorldUtil.worldText(abpd.getDimension()).getString(), 20));
+        Text destinationDimensionText = Text.of(MonitorUtil.truncateDimensionName(WorldUtil.worldText(abpd.getDimension(), false).getString(), 20));
 
 
         this.textRenderer.drawWithOutline(Text.of("✛").asOrderedText(), 0, 40, 0x00F0FF, 0x000000,

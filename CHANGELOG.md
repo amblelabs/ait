@@ -1,21 +1,14 @@
-# AIT 1.1.0
-
-## Main Changes
-- [MultiDim TARDIS Interior](https://github.com/amble/ait/pull/396)
-- [Lockable Dimensions](https://github.com/amble/ait/pull/381)
-- [Adaptive Exterior](https://github.com/amble/ait/pull/374)
-- [Hypercube](https://github.com/amble/ait/pull/367)
-- [Hazandra](https://github.com/amble/ait/pull/365)
-- [Landing Markers](https://github.com/amble/ait/pull/361)
-- [Redstone Controls](https://github.com/amble/ait/pull/366)
-- [Artron chunks refill](https://github.com/amble/ait/issues/310)
-- [Notification on Interior Change](https://github.com/amble/ait/issues/285)
-- [Rename to Block of Zeiton](https://github.com/amble/ait/issues/253)
-- [Text Rendering on Toyota](https://github.com/amble/ait/commit/80bf18d8f8d9c2d74284fa397ed3ffd622623712)
-- [Planet API](https://github.com/amble/ait/pull/380) ( backend for future update )
-- New TARDIS Exteriors (ty Frooploof)
-- New TARDIS Interiors
-- Fix crashes, bugs, performance (ty theo)
-- Removed Peanut
-
-[full changelog](https://github.com/amble/ait/compare/4ecbc8e94db34af029bf0b2226a5aa1e19a32761...d8ee2b3d91b11624fcfc587f0759eda6803dabaf)
+- fix: more stability | by [@DrTheodor](https://github.com/DrTheodor) ([#1505](https://github.com/amblelabs/ait/pull/1505))
+- fix: capsule interior door BOTI portal clipping into the blocks behind it | by [@Addi3](https://github.com/Addi3) ([#1510](https://github.com/amblelabs/ait/pull/1510))
+- fix: fix sonic modes makes double calls | by [@Mansarde](https://github.com/Mansarde) ([#1516](https://github.com/amblelabs/ait/pull/1516))
+- Sticky keys | by [@MaketendoDev](https://github.com/MaketendoDev), [@Loqor](https://github.com/Loqor) ([#1503](https://github.com/amblelabs/ait/pull/1503))
+- perf: control entities are no longer living entities | by [@DrTheodor](https://github.com/DrTheodor), [@duzos](https://github.com/duzos) ([#1507](https://github.com/amblelabs/ait/pull/1507))
+- perf: improved ticking large amounts of tardises | by [@DrTheodor](https://github.com/DrTheodor) ([#1509](https://github.com/amblelabs/ait/pull/1509))
+- add: TARDIS locator functionality to sonic scanning mode | by [@Mansarde](https://github.com/Mansarde) ([#1497](https://github.com/amblelabs/ait/pull/1497))
+- Electric Discharge now is translatable | by [@Saturnorsomthing](https://github.com/Saturnorsomthing), [@duzos](https://github.com/duzos) ([#1513](https://github.com/amblelabs/ait/pull/1513))
+- fix: empty mug is drinkable | by [@MaketendoDev](https://github.com/MaketendoDev), [@duzos](https://github.com/duzos) ([#1282](https://github.com/amblelabs/ait/pull/1282))
+- feat: made milk mug clear status effects | by [@MaketendoDev](https://github.com/MaketendoDev), [@duzos](https://github.com/duzos) ([#1282](https://github.com/amblelabs/ait/pull/1282))
+- feat: updated disc textures | by [@Saturnorsomthing](https://github.com/Saturnorsomthing) ([#1517](https://github.com/amblelabs/ait/pull/1517))
+- chore(sonic): Type 100 -> Frontier | by [@duzos](https://github.com/duzos) ([#1518](https://github.com/amblelabs/ait/pull/1518))
+- Updated proton flight sound | by [@Saturnorsomthing](https://github.com/Saturnorsomthing) ([#1521](https://github.com/amblelabs/ait/pull/1521))
+- Updated exterior item texture | by [@Saturnorsomthing](https://github.com/Saturnorsomthing) ([#1527](https://github.com/amblelabs/ait/pull/1527))

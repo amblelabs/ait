@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import net.minecraft.block.*;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
@@ -19,14 +21,17 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 
 import dev.amble.ait.core.engine.link.IFluidLink;
+import dev.amble.ait.core.engine.link.block.CableBlockEntity;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlock;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 
-public class CableBlock extends FluidLinkBlock {
+public class CableBlock extends FluidLinkBlock implements Waterloggable {
 
     private static final Direction[] FACINGS = Direction.values();
     public static final BooleanProperty NORTH = Properties.NORTH;
     public static final BooleanProperty EAST = Properties.EAST;
     public static final BooleanProperty SOUTH = Properties.SOUTH;
+    public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
     public static final BooleanProperty WEST = Properties.WEST;
     public static final BooleanProperty UP = Properties.UP;
     public static final BooleanProperty DOWN = Properties.DOWN;
@@ -42,7 +47,7 @@ public class CableBlock extends FluidLinkBlock {
 
     public CableBlock(AbstractBlock.Settings settings) {
         super(settings);
-        this.setDefaultState(this.getStateManager().getDefaultState().with(NORTH, false).with(EAST, false).with(SOUTH, false).with(WEST, false).with(UP, false).with(DOWN, false));
+        this.setDefaultState(this.getStateManager().getDefaultState().with(WATERLOGGED, false).with(NORTH, false).with(EAST, false).with(SOUTH, false).with(WEST, false).with(UP, false).with(DOWN, false));
         this.connectionsToShape = this.generateFacingsToShapeMap(0.2f);
     }
 
@@ -77,6 +82,8 @@ public class CableBlock extends FluidLinkBlock {
         if (!state.canPlaceAt(world, pos)) {
             return super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
         }
+        if (state.get(WATERLOGGED))
+            world.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
         boolean bl = neighborState.isOf(this) || neighborState.getBlock() instanceof IFluidLink;
         return state.with(FACING_PROPERTIES.get(direction), bl);
     }
@@ -100,7 +107,9 @@ public class CableBlock extends FluidLinkBlock {
 
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return this.withConnectionProperties(ctx.getWorld(), ctx.getBlockPos());
+        FluidState fluidState = ctx.getWorld().getFluidState(ctx.getBlockPos());
+        return this.withConnectionProperties(ctx.getWorld(), ctx.getBlockPos())
+                .with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
     }
 
     public BlockState withConnectionProperties(BlockView world, BlockPos pos) {
@@ -121,6 +130,19 @@ public class CableBlock extends FluidLinkBlock {
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN);
+        builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN).add(WATERLOGGED);
+    }
+
+    public boolean isTransparent(BlockState state, BlockView world, BlockPos pos) {
+        return !(Boolean) state.get(WATERLOGGED);
+    }
+
+    public FluidState getFluidState(BlockState state) {
+        return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
+    }
+
+    @Override
+    public FluidLinkBlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+        return new CableBlockEntity(pos, state);
     }
 }

@@ -1,29 +1,7 @@
+/*
 package dev.amble.ait.core.tardis.handler;
 
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ShearsItem;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisEvents;
-import dev.amble.ait.api.TardisTickable;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.properties.bool.BoolProperty;
-import dev.amble.ait.data.properties.bool.BoolValue;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 
 public class OvergrownHandler extends KeyedTardisComponent implements TardisTickable {
     private static final BoolProperty IS_OVERGROWN_PROPERTY = new BoolProperty("is_overgrown", false);
@@ -34,7 +12,8 @@ public class OvergrownHandler extends KeyedTardisComponent implements TardisTick
     private boolean ticking = false;
     private int soundCooldown = 0;
 
-    static {
+    */
+/*static {
         TardisEvents.USE_DOOR.register((tardis, interior, world, player, pos) -> {
             if (!tardis.overgrown().overgrown().get() || player == null)
                 return DoorHandler.InteractionResult.CONTINUE;
@@ -52,7 +31,8 @@ public class OvergrownHandler extends KeyedTardisComponent implements TardisTick
 
             return DoorHandler.InteractionResult.KNOCK;
         });
-    }
+    }*//*
+
 
     public OvergrownHandler() {
         super(Id.OVERGROWN);
@@ -144,3 +124,4 @@ public class OvergrownHandler extends KeyedTardisComponent implements TardisTick
         }
     }
 }
+*/

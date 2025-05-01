@@ -17,9 +17,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationPropertyHelper;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisEvents;
-import dev.amble.ait.api.TardisTickable;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.engine.impl.GravitationalCircuit;
 import dev.amble.ait.core.entities.FallingTardisEntity;
@@ -40,7 +40,10 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
     private final BoolValue flying = FLYING.create(this);
 
     static {
-        TardisEvents.DEMAT.register(tardis -> tardis.flight().falling().get() ? TardisEvents.Interaction.FAIL : TardisEvents.Interaction.PASS);
+        TardisEvents.DEMAT.register(tardis -> {
+            tardis.flight().flying.set(false);
+            return tardis.flight().falling().get() ? TardisEvents.Interaction.FAIL : TardisEvents.Interaction.PASS;
+        });
     }
 
     public RealFlightHandler() {
@@ -95,8 +98,10 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
     }
 
     public void enterFlight(ServerPlayerEntity player) {
+        if (!AITMod.CONFIG.SERVER.RWF_ENABLED) return;
         this.tardis.door().closeDoors();
         this.tardis().travel().autopilot(false);
+        this.tardis.travel().handbrake(true);
         this.flying.set(true);
 
         FlightTardisEntity entity = FlightTardisEntity.createAndSpawn(
@@ -113,6 +118,7 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
     }
 
     private void sendEnterFlightPacket(ServerPlayerEntity player) {
+        if (!AITMod.CONFIG.SERVER.RWF_ENABLED) return;
         ServerPlayNetworking.send(player, ENTER_FLIGHT, PacketByteBufs.create());
   }
 

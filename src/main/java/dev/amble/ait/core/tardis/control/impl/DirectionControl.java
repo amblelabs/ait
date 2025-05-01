@@ -8,6 +8,7 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.tardis.Tardis;
@@ -18,19 +19,16 @@ import dev.amble.ait.core.util.WorldUtil;
 public class DirectionControl extends Control {
 
     public DirectionControl() {
-        super("direction");
+        super(AITMod.id("direction"));
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
             boolean leftClick) {
+        super.runServer(tardis, player, world, console, leftClick);
+
         TravelHandler travel = tardis.travel();
         CachedDirectedGlobalPos dest = travel.destination();
-
-        if (tardis.sequence().hasActiveSequence() && tardis.sequence().controlPartOfSequence(this)) {
-            this.addToControlSequence(tardis, player, console);
-            return false;
-        }
 
         byte rotation = dest.getRotation();
         rotation = (byte) (leftClick ? getPreviousGeneralizedRotation(rotation) : getNextGeneralizedRotation(rotation));
@@ -39,7 +37,7 @@ public class DirectionControl extends Control {
 
         travel.forceDestination(dest.rotation(rotation));
         messagePlayer(player, rotation);
-        return true;
+        return Result.SUCCESS;
     }
 
     // ↖ ↑ ↗
@@ -94,7 +92,7 @@ public class DirectionControl extends Control {
     }
 
     @Override
-    public SoundEvent getSound() {
+    public SoundEvent getFallbackSound() {
         return AITSounds.DIRECTION;
     }
 }

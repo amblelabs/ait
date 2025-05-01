@@ -5,7 +5,7 @@ import java.util.function.Function;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.MathHelper;
 
-import dev.amble.ait.api.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.data.properties.Property;
 
 public class RangedIntProperty extends Property<Integer> {

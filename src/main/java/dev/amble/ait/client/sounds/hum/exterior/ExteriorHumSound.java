@@ -7,8 +7,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 
-import dev.amble.ait.api.link.v2.Linkable;
-import dev.amble.ait.api.link.v2.TardisRef;
+import dev.amble.ait.api.tardis.link.v2.Linkable;
+import dev.amble.ait.api.tardis.link.v2.TardisRef;
 import dev.amble.ait.client.sounds.PositionedLoopingSound;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;

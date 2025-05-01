@@ -23,7 +23,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.link.LinkableItem;
+import dev.amble.ait.api.tardis.link.LinkableItem;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.item.SonicItem;
@@ -168,7 +168,7 @@ public class SonicSettingsScreen extends ConsoleScreen {
             stack.pop();
 
             stack.push();
-            stack.translate(0, 0, 500f);
+            stack.translate(10, 0, 500f);
             context.drawCenteredTextWithShadow(this.textRenderer, Text.translatable("screen.ait.sonic_casing"), x + 140, y + 10,
                     0xFFFFFF);
             context.drawCenteredTextWithShadow(this.textRenderer, SonicItem.schema(sonicCopy).name(), x + 140,
@@ -201,7 +201,7 @@ public class SonicSettingsScreen extends ConsoleScreen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.drawBackground(context);
-        this.drawSonicScrewdriver(context, (width / 2 - 92), (height / 2 - 45), 6f);
+        this.drawSonicScrewdriver(context, (width / 2 - 100), (height / 2 - 45), 6f);
         if (!this.buttons.get(0).isHovered())
             context.drawTexture(BACKGROUND, left + 30, top + 109, 40, 130, 53, 12);
         else

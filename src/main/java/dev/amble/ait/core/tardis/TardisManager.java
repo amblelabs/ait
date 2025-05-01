@@ -3,7 +3,6 @@ package dev.amble.ait.core.tardis;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import com.google.gson.ExclusionStrategy;
@@ -27,10 +26,12 @@ import net.minecraft.util.math.GlobalPos;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.TardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.registry.SubSystemRegistry;
+import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
+import dev.amble.ait.core.tardis.animation.v2.TardisAnimationMap;
 import dev.amble.ait.core.tardis.handler.SubSystemHandler;
 import dev.amble.ait.core.tardis.handler.permissions.Permission;
 import dev.amble.ait.core.tardis.handler.permissions.PermissionLike;
@@ -64,8 +65,6 @@ public abstract class TardisManager<T extends Tardis, C> {
     public static final Identifier SEND_COMPONENT = AITMod.id("tardis/send_component");
 
     public static final boolean DEMENTIA = false;
-
-    protected final TardisMap<T> lookup = new TardisMap<>();
 
     protected final Gson networkGson;
     protected final Gson fileGson;
@@ -112,7 +111,9 @@ public abstract class TardisManager<T extends Tardis, C> {
                 .registerTypeAdapter(TardisComponent.IdLike.class, TardisComponentRegistry.idSerializer())
                 .registerTypeAdapter(SubSystemHandler.class, SubSystemHandler.serializer())
                 .registerTypeAdapter(SubSystem.IdLike.class, SubSystemRegistry.idSerializer())
-                .registerTypeAdapter(SubSystem.class, SubSystem.serializer());
+                .registerTypeAdapter(SubSystem.class, SubSystem.serializer())
+                .registerTypeAdapter(TardisAnimationMap.class, TardisAnimationMap.serializer())
+                .registerTypeAdapter(TardisAnimation.class, TardisAnimation.serializer());
     }
 
     protected GsonBuilder getNetworkGson(GsonBuilder builder) {
@@ -173,19 +174,7 @@ public abstract class TardisManager<T extends Tardis, C> {
         }
     }
 
-    public void getTardis(C c, UUID uuid, Consumer<T> consumer) {
-        if (uuid == null)
-            return; // ugh
-
-        T result = this.lookup.get(uuid);
-
-        if (result == null) {
-            this.loadTardis(c, uuid, consumer);
-            return;
-        }
-
-        consumer.accept(result);
-    }
+    public abstract void getTardis(C c, UUID uuid, Consumer<T> consumer);
 
     /**
      * By all means a bad practice. Use {@link #getTardis(Object, UUID, Consumer)}
@@ -201,26 +190,17 @@ public abstract class TardisManager<T extends Tardis, C> {
 
     public abstract void loadTardis(C c, UUID uuid, @Nullable Consumer<T> consumer);
 
+    protected abstract TardisMap<?> lookup();
+
     public void reset() {
-        this.lookup.clear();
+        this.lookup().clear();
     }
 
     public Collection<UUID> ids() {
-        return this.lookup.keySet();
+        return this.lookup().keySet();
     }
 
-    public void forEach(Consumer<T> consumer) {
-        this.lookup.forEach((uuid, t) -> consumer.accept(t));
-    }
-
-    public T find(Predicate<T> predicate) {
-        for (T t : this.lookup.values()) {
-            if (predicate.test(t))
-                return t;
-        }
-
-        return null;
-    }
+    public abstract void forEach(Consumer<T> consumer);
 
     public Gson getNetworkGson() {
         return this.networkGson;

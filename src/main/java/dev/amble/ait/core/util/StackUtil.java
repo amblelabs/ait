@@ -1,5 +1,6 @@
 package dev.amble.ait.core.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
@@ -232,5 +233,11 @@ public class StackUtil {
 
     public static Item orAir(Item item) {
         return item == null ? Items.AIR : item;
+    }
+
+    public static List<ItemStack> cloneList(List<ItemStack> list) {
+        List<ItemStack> clone = new ArrayList<>(list.size());
+        for (ItemStack item : list) clone.add(item.copy());
+        return clone;
     }
 }

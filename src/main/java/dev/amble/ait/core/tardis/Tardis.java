@@ -5,8 +5,8 @@ import java.util.UUID;
 
 import dev.amble.lib.register.unlockable.Unlockable;
 
-import dev.amble.ait.api.Initializable;
-import dev.amble.ait.api.TardisComponent;
+import dev.amble.ait.api.tardis.Initializable;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.control.sequences.SequenceHandler;
 import dev.amble.ait.core.tardis.handler.*;
@@ -108,12 +108,6 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
     }
     public ServerHumHandler hum() {
         return this.handler(TardisComponent.Id.HUM);
-    }
-
-    // THEO - can i safely remove this without it causing errors reading from json ??
-    // you do it, im scared.
-    private EngineHandler engine() {
-        return this.handler(TardisComponent.Id.ENGINE);
     }
 
     public ChameleonHandler chameleon() {
@@ -228,9 +222,9 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
         return this.handler(TardisComponent.Id.PERMISSIONS);
     }
 
-    public OvergrownHandler overgrown() {
+    /*public OvergrownHandler overgrown() {
         return this.handler(TardisComponent.Id.OVERGROWN);
-    }
+    }*/
 
 
     public CloakHandler cloak() {

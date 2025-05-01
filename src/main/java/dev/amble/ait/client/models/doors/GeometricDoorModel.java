@@ -5,7 +5,8 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 
-import dev.amble.ait.api.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
 public class GeometricDoorModel extends DoorModel {
@@ -38,17 +39,17 @@ public class GeometricDoorModel extends DoorModel {
     }
 
     @Override
-    public void renderWithAnimations(AbstractLinkableBlockEntity doorEntity, ModelPart root, MatrixStack matrices,
+    public void renderWithAnimations(ClientTardis tardis, AbstractLinkableBlockEntity doorEntity, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        DoorHandler door = doorEntity.tardis().get().door();
+        DoorHandler door = tardis.door();
 
-        this.geometric.getChild("door").pivotZ = door.isOpen() ? 2.05f : 1f;
+        this.geometric.getChild("door").pivotZ = door.isOpen() ? 5.05f : 1f;
 
         matrices.push();
         matrices.scale(1F, 1F, 1F);
         matrices.translate(0, -1.5, 0);
 
-        super.renderWithAnimations(doorEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(tardis, doorEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
     }
 
@@ -66,4 +67,5 @@ public class GeometricDoorModel extends DoorModel {
     public ModelPart getPart() {
         return geometric;
     }
+
 }

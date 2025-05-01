@@ -18,6 +18,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
+import net.minecraft.text.Texts;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
@@ -112,6 +113,14 @@ public record BlueprintSchema(Identifier id, Text text, InputList inputs, ItemSt
                     ", maxCount=" + maxCount +
                     ", minCount=" + minCount +
                     '}';
+        }
+
+        public Text text() {
+            Text countText = minCount == maxCount ? Text.literal(String.valueOf(minCount)) : Text.literal(minCount + "-" + maxCount);
+
+            return Texts.bracketed(Text.translatable(item.getTranslationKey()))
+                    .append(" x")
+                    .append(countText);
         }
     }
     public static class InputList extends ArrayList<Input> {

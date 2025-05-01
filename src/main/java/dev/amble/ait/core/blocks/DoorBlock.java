@@ -1,7 +1,6 @@
 package dev.amble.ait.core.blocks;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.util.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -32,7 +31,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-import dev.amble.ait.api.TardisEvents;
+import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
@@ -62,15 +61,15 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
     }
 
     private static void setDoorLight(Tardis tardis, int level) {
-        if (ServerLifecycleHooks.get() == null) return; // beautiful jank
+        tardis.asServer().worldRef().ifPresent(world -> {
+            BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
 
-        World world = tardis.asServer().getInteriorWorld();
-        BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
+            BlockState state = world.getBlockState(pos);
+            if (!(state.getBlock() instanceof DoorBlock))
+                return;
 
-        BlockState state = world.getBlockState(pos);
-        if (!(state.getBlock() instanceof DoorBlock))
-            return;
-        world.setBlockState(pos, state.with(LEVEL_4, level));
+            world.setBlockState(pos, state.with(LEVEL_4, level));
+        });
     }
 
     public DoorBlock(Settings settings) {
@@ -92,8 +91,8 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        if (world.getBlockEntity(pos) instanceof DoorBlockEntity door && door.isLinked()
-                && door.tardis().get().siege().isActive())
+        if (world.getBlockEntity(pos) instanceof DoorBlockEntity door && door.isLinked() &&
+                door.tardis().get().siege() != null && door.tardis().get().siege().isActive())
             return VoxelShapes.empty();
 
         return ShapeUtil.rotate(Direction.NORTH, state.get(FACING), NORTH_SHAPE);

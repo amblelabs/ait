@@ -2,15 +2,13 @@ package dev.amble.ait.data;
 
 import java.util.Optional;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public record Loyalty(int level, Type type) {
 
-    public static final Codec<Loyalty> CODEC = RecordCodecBuilder.create(instance -> instance
-            .group(Codec.STRING.optionalFieldOf("type").forGetter(loyalty -> Optional.of(loyalty.type.toString())),
-                    Codec.INT.optionalFieldOf("level").forGetter(loyalty -> Optional.of(loyalty.level)))
-            .apply(instance, (Loyalty::deserialize)));
+    public static final Codec<Loyalty> CODEC = Codec.either(Codec.STRING, Codec.INT).xmap(either -> either
+            .mapLeft(Type::get).map(Loyalty::new, Loyalty::fromLevel), loyalty -> Either.right(loyalty.level));
 
     public Loyalty(Type type) {
         this(type.level, type);

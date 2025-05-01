@@ -10,10 +10,10 @@ import com.google.gson.InstanceCreator;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
-import dev.amble.ait.api.TardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.util.Lazy;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
@@ -31,7 +31,7 @@ public class ServerTardis extends Tardis {
     private final Set<TardisComponent> delta = new HashSet<>(32);
 
     @Exclude
-    private ServerWorld world;
+    private final Lazy<ServerWorld> world = new Lazy<>(this::getOrCreateWorld);
 
     public ServerTardis(UUID uuid, TardisDesktopSchema schema, ExteriorVariantSchema variantType) {
         super(uuid, new TardisDesktop(schema), new TardisExterior(variantType));
@@ -50,13 +50,8 @@ public class ServerTardis extends Tardis {
     }
 
     public void tick(MinecraftServer server) {
+        this.world.get(); // force load the world
         this.getHandlers().tick(server);
-
-        // tell interior players how to fix growth every 10 seconds
-        if (this.isGrowth() && server.getTicks() % 200 == 0 && !this.interiorChangingHandler().queued().get()) {
-            if (this.interiorChangingHandler().hasEnoughPlasmicMaterial())
-                this.getInteriorWorld().getPlayers().forEach(player -> player.sendMessage(Text.translatable("tardis.message.growth.hint").formatted(Formatting.DARK_GRAY,Formatting.ITALIC), true));
-        }
     }
 
     public void markDirty(TardisComponent component) {
@@ -88,16 +83,30 @@ public class ServerTardis extends Tardis {
         return this.delta.size();
     }
 
-    public ServerWorld getInteriorWorld() {
-        if (this.world == null)
-            this.world = TardisServerWorld.get(this);
+    public Lazy<ServerWorld> worldRef() {
+        return world;
+    }
 
-        // If its still null, its likely to be pre-1.2.0, meaning we should create a new one.
-        if (this.world == null) {
-            this.world = TardisServerWorld.create(this);
-        }
+    private ServerWorld getOrCreateWorld() {
+        ServerWorld world = TardisServerWorld.get(this);
 
-        return this.world;
+        // If its still null, It's likely to be pre-1.2.0, meaning we should create a new one.
+        if (world == null)
+            world = TardisServerWorld.create(this);
+
+        return world;
+    }
+
+    public boolean shouldTick() {
+        if (this.world.isCached() && !this.world.get().getPlayers().isEmpty())
+            return true;
+
+        TravelHandler travel = this.travel();
+
+        if (travel == null)
+            return false;
+
+        return travel.position().getWorld().shouldTickEntity(travel.position().getPos());
     }
 
     public static Object creator() {

@@ -13,6 +13,7 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
@@ -114,6 +115,7 @@ public class SonicRendering {
         worldProfiler.pop();
         worldProfiler.pop();
     }
+
     private void renderSelectedBlock(WorldRenderContext context) {
         Profiler worldProfiler = context.profiler();
         worldProfiler.push("target");
@@ -135,6 +137,7 @@ public class SonicRendering {
         worldProfiler.pop();
         worldProfiler.pop();
     }
+
     public void renderGui(DrawContext context, float delta) {
         if (client.world == null) return;
         if (!isPlayerHoldingScanningSonic()) return;
@@ -153,38 +156,45 @@ public class SonicRendering {
 
         profiler.swap("redstone");
         renderRedstone(context, state, targetPos);
-        profiler.swap("durability");
-        renderDurability(context, targetPos);
+        profiler.swap("subsystem_info");
+        renderSubSystemInfo(context, targetPos);
 
         profiler.pop();
         profiler.pop();
     }
+
     private void renderRedstone(DrawContext context, BlockState state, BlockPos pos) {
         profiler.push("power");
         renderPower(context, pos);
         profiler.pop();
     }
+
     private void renderPower(DrawContext context, BlockPos pos) {
         int power = this.client.world.getReceivedRedstonePower(pos);
         if (power == 0) return;
 
         context.drawCenteredTextWithShadow(client.textRenderer, "" + power, getCentreX(), (int) (getMaxY() * 0.4), Colors.WHITE);
     }
-    private void renderDurability(DrawContext context, BlockPos pos) {
-        if (!(client.world.getBlockEntity(pos) instanceof SubSystemBlockEntity be)) return;
 
-        String text = "";
+    private void renderSubSystemInfo(DrawContext context, BlockPos pos) {
+        if (!(client.world.getBlockEntity(pos) instanceof SubSystemBlockEntity be)) return;
 
         SubSystem system = be.system();
         if (system == null) return;
+
+        Text text = Text.empty();
+
         if (system instanceof DurableSubSystem) {
-            text = (Math.round(((DurableSubSystem) be.system()).durability())) + " / 1250";
+            text = Text.literal((Math.round(((DurableSubSystem) be.system()).durability())) + " / 1250");
         }
         if (!system.isEnabled() && !(system instanceof EngineSystem)) {
-            text = "LINK TO ENGINE VIA FLUID LINKS";
+            text = Text.translatable("tardis.message.subsystem.requires_link");
         }
 
         context.drawCenteredTextWithShadow(client.textRenderer, text, getCentreX(), (int) (getMaxY() * 0.42), Colors.WHITE);
+
+        text = system.name();
+        context.drawCenteredTextWithShadow(client.textRenderer, text, getCentreX(), (int) (getMaxY() * 0.46), Colors.WHITE);
     }
 
     private int getMaxX() {

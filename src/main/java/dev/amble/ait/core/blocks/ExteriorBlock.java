@@ -12,6 +12,7 @@ import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.util.ParticleUtil;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -38,7 +39,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-import dev.amble.ait.api.TardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITItems;
@@ -47,6 +48,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.util.ShapeUtil;
 import dev.amble.ait.data.schema.exterior.variant.adaptive.AdaptiveVariant;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
@@ -162,9 +164,12 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         if (!(blockEntity instanceof ExteriorBlockEntity exterior))
             return normal;
 
-        Tardis tardis = exterior.tardis() != null ? exterior.tardis().get() : null;
+        if (!exterior.isLinked())
+            return normal;
 
-        if (tardis == null)
+        Tardis tardis = exterior.tardis().get();
+
+        if (tardis.siege() == null)
             return normal;
 
         if (tardis.siege().isActive())
@@ -172,7 +177,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
 
         TravelHandlerBase.State travelState = tardis.travel().getState();
 
-        if (travelState == TravelHandlerBase.State.LANDED || exterior.getAlpha() > 0.75)
+        if (travelState == TravelHandlerBase.State.LANDED || tardis.travel().getAlpha() > 0.75)
             return normal;
 
         if (DependencyChecker.hasPortals())
@@ -195,13 +200,15 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
     public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
 
-        if (!(blockEntity instanceof ExteriorBlockEntity exterior) || exterior.tardis() == null)
+        if (!(blockEntity instanceof ExteriorBlockEntity exterior) || !exterior.isLinked())
+            return getNormalShape(state, false);
+
+
+
+        if (!exterior.isLinked())
             return getNormalShape(state, false);
 
         Tardis tardis = exterior.tardis().get();
-
-        if (tardis == null)
-            return getNormalShape(state, false);
 
         if (tardis.siege().isActive())
             return SIEGE_SHAPE;
@@ -218,7 +225,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         TravelHandler travel = tardis.travel();
 
         if (travel.getState() == TravelHandlerBase.State.LANDED
-                || travel.getAnimTicks() >= 0.75 * travel.getMaxAnimTicks())
+                || travel.isHitboxShown())
             return getNormalShape(state, false);
 
         if (DependencyChecker.hasPortals())
@@ -241,7 +248,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
             shape = DependencyChecker.hasPortals() && !ignorePortals ? PORTALS_SHAPE : CUBE_NORTH_SHAPE;
         }
 
-        return rotateShape(Direction.NORTH, direction, shape);
+        return ShapeUtil.rotate(Direction.NORTH, direction, shape);
     }
 
     public Direction approximateDirection(int rotation) {
@@ -265,12 +272,14 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         if (!(blockEntity instanceof ExteriorBlockEntity exterior) || !exterior.isLinked())
             return getNormalShape(state, false);
 
-        TravelHandlerBase.State travelState = exterior.tardis().get().travel().getState();
+        Tardis tardis = exterior.tardis().get();
 
-        if (travelState == TravelHandlerBase.State.LANDED || exterior.getAlpha() > 0.75)
+        TravelHandlerBase.State travelState = tardis.travel().getState();
+
+        if (travelState == TravelHandlerBase.State.LANDED || tardis.travel().getAlpha() > 0.75)
             return getNormalShape(state, false);
 
-        if (exterior.tardis().get().getExterior().getVariant().equals(ExteriorVariantRegistry.DOOM))
+        if (tardis.getExterior().getVariant().equals(ExteriorVariantRegistry.DOOM))
             return LEDGE_DOOM;
 
         if (DependencyChecker.hasPortals())
@@ -282,26 +291,17 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
                               BlockHitResult hit) {
+        if (world.isClient())
+            return ActionResult.SUCCESS;
 
+        if (!(world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior))
+            return ActionResult.CONSUME;
 
-        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (exterior.tardis().isEmpty())
+            return ActionResult.FAIL;
 
-
-        if (blockEntity instanceof ExteriorBlockEntity exterior) {
-
-            //exterior.sitOn(state, world, pos, player, hand, hit);
-
-            if (world.isClient()) {
-                return ActionResult.SUCCESS;
-            }
-
-            if (exterior.tardis().isEmpty()) {
-                return ActionResult.FAIL;
-            }
-            if (hit.getSide() != Direction.UP) {
-                exterior.useOn((ServerWorld) world, player.isSneaking(), player);
-            }
-        }
+        if (hit.getSide() != Direction.UP)
+            exterior.useOn((ServerWorld) world, player.isSneaking(), player);
 
         return ActionResult.CONSUME; // Consume the event regardless of the outcome
     }
@@ -390,6 +390,28 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         return canFallThrough(state);
     }
 
+    @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        super.onPlaced(world, pos, state, placer, itemStack);
+
+        if (world.isClient())
+            return;
+
+        if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior)
+            exterior.validateExteriorPosition();
+    }
+
+    @Override
+    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        super.onStateReplaced(state, world, pos, newState, moved);
+
+        if (world.isClient())
+            return;
+
+        if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior)
+            exterior.validateExteriorPosition();
+    }
+
     private static boolean canFallThrough(BlockState state) {
         return state.isAir() || state.isIn(BlockTags.FIRE) || state.isLiquid() || state.isReplaceable();
     }
@@ -405,7 +427,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
 
     private Tardis findTardis(ServerWorld world, BlockPos pos) {
         if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior) {
-            if (exterior.tardis() == null || exterior.tardis().isEmpty())
+            if (!exterior.isLinked() || exterior.tardis().isEmpty())
                 return null;
 
             return exterior.tardis().get();
@@ -429,20 +451,6 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
                 ParticleUtil.spawnParticle(world, pos, random, ParticleTypes.TOTEM_OF_UNDYING);
             }
         }
-    }
-
-    public static VoxelShape rotateShape(Direction from, Direction to, VoxelShape shape) {
-        VoxelShape[] buffer = new VoxelShape[]{shape, VoxelShapes.empty()};
-
-        int times = (to.getHorizontal() - from.getHorizontal() + 4) % 4;
-        for (int i = 0; i < times; i++) {
-            buffer[0].forEachBox((minX, minY, minZ, maxX, maxY, maxZ) -> buffer[1] = VoxelShapes.combine(buffer[1],
-                    VoxelShapes.cuboid(1 - maxZ, minY, minX, 1 - minZ, maxY, maxX), BooleanBiFunction.OR));
-            buffer[0] = buffer[1];
-            buffer[1] = VoxelShapes.empty();
-        }
-
-        return buffer[0];
     }
 
     @Override

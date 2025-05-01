@@ -16,7 +16,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.WorldWithTardis;
+import dev.amble.ait.api.tardis.WorldWithTardis;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
@@ -54,11 +54,11 @@ public class DebugCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int executeTardis(CommandContext<ServerCommandSource> context) {
+    private static int executeTardis(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
 
         if (!source.isExecutedByPlayer())
-            return Command.SINGLE_SUCCESS;
+            return 0;
 
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 

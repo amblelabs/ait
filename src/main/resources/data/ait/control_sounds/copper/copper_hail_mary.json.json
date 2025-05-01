@@ -1,0 +1,5 @@
+{
+  "control": "ait:protocol_813",
+  "console": "ait:console/copper",
+  "success_sound": "ait:controls/copper_hail_mary"
+}

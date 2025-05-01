@@ -18,7 +18,6 @@ import dev.amble.ait.data.datapack.DatapackExterior;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
-import dev.amble.ait.data.schema.exterior.variant.adaptive.client.ClientAdaptiveVariant;
 import dev.amble.ait.data.schema.exterior.variant.bookshelf.client.ClientBookshelfDefaultVariant;
 import dev.amble.ait.data.schema.exterior.variant.booth.client.*;
 import dev.amble.ait.data.schema.exterior.variant.box.client.*;
@@ -42,9 +41,6 @@ import dev.amble.ait.data.schema.exterior.variant.pipe.client.ClientPipeRedVaria
 import dev.amble.ait.data.schema.exterior.variant.plinth.client.ClientPlinthDefaultVariant;
 import dev.amble.ait.data.schema.exterior.variant.plinth.client.ClientPlinthFireVariant;
 import dev.amble.ait.data.schema.exterior.variant.plinth.client.ClientPlinthSoulVariant;
-import dev.amble.ait.data.schema.exterior.variant.present.client.ClientPresentBlueVariant;
-import dev.amble.ait.data.schema.exterior.variant.present.client.ClientPresentDefaultVariant;
-import dev.amble.ait.data.schema.exterior.variant.present.client.ClientPresentGreenVariant;
 import dev.amble.ait.data.schema.exterior.variant.renegade.client.ClientRenegadeCabinetVariant;
 import dev.amble.ait.data.schema.exterior.variant.renegade.client.ClientRenegadeDefaultVariant;
 import dev.amble.ait.data.schema.exterior.variant.renegade.client.ClientRenegadeTronVariant;
@@ -138,6 +134,11 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
             public BiomeOverrides overrides() {
                 return variant.overrides();
             }
+
+            @Override
+            public boolean hasTransparentDoors() {
+                return variant.hasTransparentDoors();
+            }
         };
     }
 
@@ -195,16 +196,16 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
     public static ClientExteriorVariantSchema STALLION_FIRE;
     public static ClientExteriorVariantSchema STALLION_SOUL;
     public static ClientExteriorVariantSchema STALLION_STEEL;
-    public static ClientExteriorVariantSchema ADAPTIVE;
+    //public static ClientExteriorVariantSchema ADAPTIVE;
     public static ClientExteriorVariantSchema DALEK_MOD_1963;
     public static ClientExteriorVariantSchema DALEK_MOD_1967;
     public static ClientExteriorVariantSchema DALEK_MOD_1970;
     public static ClientExteriorVariantSchema DALEK_MOD_1976;
     public static ClientExteriorVariantSchema DALEK_MOD_1980;
     //public static ClientExteriorVariantSchema JAKE_DEFAULT;
-    public static ClientExteriorVariantSchema PRESENT_DEFAULT;
-    public static ClientExteriorVariantSchema PRESENT_GREEN;
-    public static ClientExteriorVariantSchema PRESENT_BLUE;
+    //public static ClientExteriorVariantSchema PRESENT_DEFAULT;
+    //public static ClientExteriorVariantSchema PRESENT_GREEN;
+    //public static ClientExteriorVariantSchema PRESENT_BLUE;
     public static ClientExteriorVariantSchema PIPE_DEFAULT;
     //public static ClientExteriorVariantSchema PIPE_YELLOW;
     public static ClientExteriorVariantSchema PIPE_RED;
@@ -285,7 +286,7 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
         STALLION_SOUL = register(new ClientStallionSoulVariant());
         STALLION_STEEL = register(new ClientStallionSteelVariant());
 
-        ADAPTIVE = register(new ClientAdaptiveVariant());
+        //ADAPTIVE = register(new ClientAdaptiveVariant());
 
         // Dalek Mod
         DALEK_MOD_1963 = register(new ClientDalekMod1963Variant());
@@ -298,9 +299,9 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
         //JAKE_DEFAULT = register(new ClientJakeDefaultVariant());
 
         // Present
-        PRESENT_DEFAULT = register(new ClientPresentDefaultVariant());
-        PRESENT_GREEN = register(new ClientPresentGreenVariant());
-        PRESENT_BLUE = register(new ClientPresentBlueVariant());
+        //PRESENT_DEFAULT = register(new ClientPresentDefaultVariant());
+        //PRESENT_GREEN = register(new ClientPresentGreenVariant());
+        //PRESENT_BLUE = register(new ClientPresentBlueVariant());
 
         // Pipe
         PIPE_DEFAULT = register(new ClientPipeDefaultVariant());

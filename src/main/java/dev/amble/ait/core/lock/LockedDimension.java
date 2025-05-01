@@ -67,6 +67,6 @@ public record LockedDimension(Identifier dimension, ItemStack stack) implements 
 
     @Override
     public Text text() {
-        return WorldUtil.worldText(RegistryKey.of(RegistryKeys.WORLD, this.dimension()));
+        return WorldUtil.worldText(RegistryKey.of(RegistryKeys.WORLD, this.dimension()), false);
     }
 }

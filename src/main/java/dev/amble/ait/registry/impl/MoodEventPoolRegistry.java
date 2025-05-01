@@ -80,7 +80,7 @@ public class MoodEventPoolRegistry {
         //The ones i commented out do not work
 
         CHANGE_DIM = register(MoodDictatedEvent.Builder.create(AITMod.id("change_dim"), tardis -> {
-            List<ServerWorld> listOfDims = WorldUtil.getOpenWorlds();
+            List<ServerWorld> listOfDims = WorldUtil.getTravelWorlds();
             ServerWorld randomWorld = listOfDims.get(random.nextInt(listOfDims.size()));
 
             tardis.travel().forceDestination(cached -> cached.world(randomWorld));

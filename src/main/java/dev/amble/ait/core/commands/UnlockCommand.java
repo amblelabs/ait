@@ -50,7 +50,7 @@ public class UnlockCommand {
 
     private static <T extends Identifiable & Unlockable & Nameable> int unlock(
             CommandContext<ServerCommandSource> context, String type, Wildcard<T> wildcard,
-            UnlockableRegistry<T> registry) {
+            UnlockableRegistry<T> registry) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 

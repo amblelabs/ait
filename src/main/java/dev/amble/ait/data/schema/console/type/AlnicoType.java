@@ -8,11 +8,11 @@ import net.minecraft.util.Identifier;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.core.tardis.control.impl.*;
+import dev.amble.ait.core.tardis.control.impl.ConsolePortControl;
 import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
 import dev.amble.ait.core.tardis.control.impl.pos.XControl;
 import dev.amble.ait.core.tardis.control.impl.pos.YControl;
 import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.ConsolePortControl;
 import dev.amble.ait.core.tardis.control.impl.waypoint.MarkWaypointControl;
 import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
@@ -38,10 +38,12 @@ public class AlnicoType extends ConsoleTypeSchema {
                     new Vector3f(0.1898437375202775f, 0.44999999832361937f, 0.9023437546566129f)),
             new ControlTypes(new MonitorControl(), EntityDimensions.changing(0.33749995f, 0.29999998f),
                     new Vector3f(0.7742187557742f, 0.5375017123296857f, 0.4632812477648258f)),
-            new ControlTypes(new VisualiserControl(), EntityDimensions.changing(0.26250002f, 0.16250001f),
-                    new Vector3f(-0.13476581498980522f, 0.2775001022964716f, 1.2582029392942786f)),
-            new ControlTypes(new EngineOverload(), EntityDimensions.changing(0.26250002f, 0.32499996f),
+          //  new ControlTypes(new VisualiserControl(), EntityDimensions.changing(0.26250002f, 0.16250001f),
+                  //  new Vector3f(-0.13476581498980522f, 0.2775001022964716f, 1.2582029392942786f)),
+            new ControlTypes(new EngineOverloadControl(), EntityDimensions.changing(0.26250002f, 0.32499996f),
                     new Vector3f(1.6117185717448592f, 0.20000180695205927f, 0.4882816318422556f)),
+            new ControlTypes(new ElectricalDischargeControl(),
+                    EntityDimensions.changing(0.26250002f, 0.32499996f), new Vector3f(1.211719125509262f, 0.1750017162412405f, 1.1007812591269612f)),
 
             // extra monitor entity because he's a special lil guy
             new ControlTypes(new MonitorControl(), EntityDimensions.changing(0.42499986f, 0.39999992f),

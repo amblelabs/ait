@@ -6,7 +6,7 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 
-import dev.amble.ait.api.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.core.item.WaypointItem;
 import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
 import dev.amble.ait.data.Waypoint;
@@ -72,7 +72,7 @@ public class WaypointHandler extends KeyedTardisComponent {
         if (!this.hasWaypoint())
             return; // todo move this check to the DEMAT event so the fail to takeoff happens
 
-        this.tardis.travel().autopilot(true);
+        //this.tardis.travel().autopilot(true);
         TravelUtil.travelTo(tardis, this.get().getPos());
     }
 
@@ -81,6 +81,7 @@ public class WaypointHandler extends KeyedTardisComponent {
             return;
 
         this.tardis.travel().forceDestination(this.get().getPos());
+
     }
 
     public void spawnItem(BlockPos console) {
@@ -95,10 +96,10 @@ public class WaypointHandler extends KeyedTardisComponent {
         if (!this.hasCartridge())
             return;
 
-        ItemEntity entity = new ItemEntity(tardis.asServer().getInteriorWorld(), console.getX(), console.getY(),
+        ItemEntity entity = new ItemEntity(tardis.asServer().worldRef().get(), console.getX(), console.getY(),
                 console.getZ(), createWaypointItem(waypoint));
 
-        tardis.asServer().getInteriorWorld().spawnEntity(entity);
+        tardis.asServer().worldRef().get().spawnEntity(entity);
         this.clearCartridge();
     }
 

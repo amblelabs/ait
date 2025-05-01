@@ -7,6 +7,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -23,7 +24,7 @@ public class SetLockedCommand {
                         .then(argument("locked", BoolArgumentType.bool()).executes(SetLockedCommand::runCommand)))));
     }
 
-    private static int runCommand(CommandContext<ServerCommandSource> context) {
+    private static int runCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity source = context.getSource().getPlayer();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
         boolean locked = BoolArgumentType.getBool(context, "locked");

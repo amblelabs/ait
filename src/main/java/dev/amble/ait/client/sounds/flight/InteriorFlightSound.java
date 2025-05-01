@@ -6,7 +6,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.client.sounds.ClientSoundManager;
 import dev.amble.ait.client.sounds.PositionedLoopingSound;
 import dev.amble.ait.client.tardis.ClientTardis;
@@ -40,7 +39,7 @@ public class InteriorFlightSound extends PositionedLoopingSound {
         this.ticks = 0;
 
         if (this.dirty) {
-            AITMod.LOGGER.warn("Interior Flight Sound is still dirty, stopping.."); // this must mean its not being tracked by the flight handler
+            //AITMod.LOGGER.warn("Interior Flight Sound is still dirty, stopping.."); // this must mean its not being tracked by the flight handler
             MinecraftClient.getInstance().getSoundManager().stop(this);
         }
 

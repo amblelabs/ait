@@ -12,16 +12,16 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.server.MinecraftServer;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.TardisComponent;
-import dev.amble.ait.api.TardisTickable;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.enummap.EnumMap;
+import dev.amble.ait.data.enummap.ConcurrentEnumMap;
 import dev.amble.ait.registry.impl.TardisComponentRegistry;
 
 public class TardisHandlersManager extends TardisComponent implements TardisTickable {
 
     @Exclude
-    private final EnumMap<IdLike, TardisComponent> handlers = new EnumMap<>(TardisComponentRegistry::values,
+    private final ConcurrentEnumMap<IdLike, TardisComponent> handlers = new ConcurrentEnumMap<>(TardisComponentRegistry::values,
             TardisComponent[]::new);
 
     public TardisHandlersManager() {

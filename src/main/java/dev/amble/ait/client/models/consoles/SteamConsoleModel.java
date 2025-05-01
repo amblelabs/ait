@@ -6,8 +6,8 @@ import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 
 import dev.amble.ait.client.animation.console.steam.SteamAnimations;
+import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
@@ -1477,13 +1477,8 @@ public class SteamConsoleModel extends ConsoleModel {
     }
 
     @Override
-    public void renderWithAnimations(ConsoleBlockEntity console, ModelPart root, MatrixStack matrices,
-            VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        Tardis tardis = console.tardis().get();
-
-        if (tardis == null)
-            return;
-
+    public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
+                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
 
@@ -1559,7 +1554,7 @@ public class SteamConsoleModel extends ConsoleModel {
                 .getChild("bone48");
         autopilot.roll = autopilot.roll - (tardis.travel().autopilot() ? 1.5708f : 0);
 
-        super.renderWithAnimations(console, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
     }
 

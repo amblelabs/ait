@@ -1,6 +1,5 @@
 package dev.amble.ait.mixin.server;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -8,10 +7,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 
-import dev.amble.ait.core.blocks.ZeitonCageBlock;
 import dev.amble.ait.core.item.SiegeTardisItem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -43,12 +39,5 @@ public abstract class ItemEntityMixin {
         // if entity is in tardis and y is less than -100 save them
         if (entity.getY() <= -100 && entity.getWorld() instanceof TardisServerWorld tardisWorld)
             TardisUtil.teleportInside(tardisWorld.getTardis(), entity);
-
-        // if entity is zeiton cage and y is less than -100 give it back :(
-        if (entity.getY() <= -60 && ZeitonCageBlock.isCageItem(stack)) {
-            ServerPlayerEntity nearest = TardisUtil.findNearestPlayer(CachedDirectedGlobalPos.create((ServerWorld) entity.getWorld(), entity.getBlockPos(), (byte)0)).orElse(null);
-            ZeitonCageBlock.onVoid(stack, nearest);
-            entity.kill();
-        }
     }
 }

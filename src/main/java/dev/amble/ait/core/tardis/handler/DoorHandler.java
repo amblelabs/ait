@@ -4,6 +4,7 @@ import dev.amble.lib.data.DirectedBlockPos;
 import net.fabricmc.fabric.api.util.TriState;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.particle.ParticleEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -14,13 +15,12 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisEvents;
-import dev.amble.ait.api.TardisTickable;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.entities.ConsoleControlEntity;
+import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.Exclude;
@@ -52,6 +52,9 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
 
     private final FloatValue leftDoorRot = LEFT_DOOR_ROT.create(this);
     private final FloatValue rightDoorRot = RIGHT_DOOR_ROT.create(this);
+
+    @Exclude
+    @Nullable private ParticleEffect doorOpenParticles = null; // server-only
 
     /*
      this is the previous state before it was changed, used for
@@ -101,6 +104,17 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
 
         leftDoorRot.flatMap(rot -> this.tryUpdateRot(rot, this.getDoorState() != DoorState.CLOSED));
         rightDoorRot.flatMap(rot -> this.tryUpdateRot(rot, this.getDoorState() == DoorState.BOTH));
+
+        if (this.doorOpenParticles != null && !this.tardis().crash().isNormal() && server.getTicks() % 5 == 0 && tardis.door().isOpen()) {
+            Vec3d exteriorPosition = TardisUtil.offsetPos(tardis.travel().position().toPos(), -0.15F);
+            exteriorPosition = TardisUtil.offsetDoorPosition(exteriorPosition, tardis.travel().position().getRotation());
+
+            ServerWorld exteriorWorld = tardis.travel().position().getWorld();
+
+            exteriorWorld.spawnParticles(this.doorOpenParticles, exteriorPosition.getX(),
+                    exteriorPosition.getY() + 0.1, exteriorPosition.getZ(), 25, 0.25D, 1.1,
+                    0.25D, 0.025D);
+        }
     }
 
     private float tryUpdateRot(float rot, boolean opening) {
@@ -132,15 +146,16 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
     private void succ() {
         // Get all entities in the Tardis interior
         TardisUtil.getLivingEntitiesInInterior(tardis.asServer()).stream()
-                .filter(entity -> !(entity instanceof ConsoleControlEntity)) // Exclude control entities
-                .filter(entity -> !(entity instanceof ServerPlayerEntity && entity.isSpectator())) // Exclude spectators
+                .filter(entity -> !entity.isSpectator()) // Exclude spectators
                 .forEach(entity -> {
-
                     DirectedBlockPos directed = tardis.getDesktop().getDoorPos();
+                    if (!(tardis.asServer().worldRef().get().getBlockEntity(directed.getPos()) instanceof DoorBlockEntity))
+                        return;
+
                     Vec3d pos = new Vec3d(directed.getPos().getX(), directed.getPos().getY(),
                             directed.getPos().getZ()).offset(directed.toMinecraftDirection(), -0.5f);
 
-                    float suckValue = tardis.travel().position().getDimension().equals(AITDimensions.SPACE) ? 0.8f: 0.05f;
+                    float suckValue = tardis.travel().position().getDimension().equals(AITDimensions.SPACE) ? 0.08f: 0.05f;
                     Vec3d motion = pos.subtract(entity.getPos()).normalize().multiply(suckValue);
 
                     // Apply the motion to the entity
@@ -234,7 +249,12 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
     }
 
     public boolean interact(ServerWorld world, @Nullable BlockPos pos, @Nullable ServerPlayerEntity player) {
-        ServerWorld interior = tardis.asServer().getInteriorWorld();
+        return this.interactAllDoors(world, pos, player, false);
+    }
+
+    public boolean interactAllDoors(ServerWorld world, @Nullable BlockPos pos, @Nullable ServerPlayerEntity player, boolean both) {
+        ServerWorld interior = tardis.asServer().worldRef().getOrDefault(() -> null);
+
         InteractionResult result = TardisEvents.USE_DOOR.invoker().onUseDoor(tardis, interior, world, player, pos);
 
         if (result == InteractionResult.KNOCK) {
@@ -242,8 +262,9 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
                 world.playSound(null, pos, AITSounds.KNOCK, SoundCategory.BLOCKS, 3f,
                         world.getRandom().nextBoolean() ? 0.5f : 0.3f);
 
-            interior.playSound(null, tardis.getDesktop().getDoorPos().getPos(), AITSounds.KNOCK,
-                    SoundCategory.BLOCKS, 3f, world.getRandom().nextBoolean() ? 0.5f : 0.3f);
+            if (interior != null)
+                interior.playSound(null, tardis.getDesktop().getDoorPos().getPos(), AITSounds.KNOCK,
+                        SoundCategory.BLOCKS, 3f, world.getRandom().nextBoolean() ? 0.5f : 0.3f);
         }
 
         if (result == InteractionResult.BANG) {
@@ -251,8 +272,9 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
                 world.playSound(null, pos, SoundEvents.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, SoundCategory.BLOCKS, 1f,
                         1f);
 
-            interior.playSound(null, tardis.getDesktop().getDoorPos().getPos(),
-                    SoundEvents.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, SoundCategory.BLOCKS);
+            if (interior != null)
+                interior.playSound(null, tardis.getDesktop().getDoorPos().getPos(),
+                        SoundEvents.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, SoundCategory.BLOCKS);
         }
 
         if (result.returns != TriState.DEFAULT)
@@ -265,8 +287,9 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
                 world.playSound(null, pos, AITSounds.KNOCK, SoundCategory.BLOCKS, 3f,
                         world.getRandom().nextBoolean() ? 0.5f : 0.3f);
 
-                interior.playSound(null, tardis.getDesktop().getDoorPos().getPos(), AITSounds.KNOCK,
-                        SoundCategory.BLOCKS, 3f, world.getRandom().nextBoolean() ? 0.5f : 0.3f);
+                if (interior != null)
+                    interior.playSound(null, tardis.getDesktop().getDoorPos().getPos(), AITSounds.KNOCK,
+                            SoundCategory.BLOCKS, 3f, world.getRandom().nextBoolean() ? 0.5f : 0.3f);
             }
 
             return false;
@@ -280,10 +303,11 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         tardis.travel().position().getWorld().playSound(null, tardis.travel().position().getPos(), sound,
                 SoundCategory.BLOCKS, 0.2F, world.getRandom().nextBoolean() ? 1f : 0.8f);
 
-        interior.playSound(null, tardis.getDesktop().getDoorPos().getPos(), sound,
-                SoundCategory.BLOCKS, 0.2F, world.getRandom().nextBoolean() ? 1f : 0.8f);
+        if (interior != null)
+            interior.playSound(null, tardis.getDesktop().getDoorPos().getPos(), sound,
+                    SoundCategory.BLOCKS, 0.2F, world.getRandom().nextBoolean() ? 1f : 0.8f);
 
-        if (player.isSneaking()) {
+        if (player.isSneaking() || both) {
             if (this.isOpen()) {
                 this.closeDoors();
             } else {
@@ -326,11 +350,15 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         if (player != null)
             player.sendMessage(Text.literal(lockedState), true);
 
-        tardis.travel().position().getWorld().playSound(null, tardis.travel().position().getPos(),
-                AITSounds.EXTERIOR_KEY_INTERACT, SoundCategory.BLOCKS, 0.6F, 1F);
+        SoundEvent keySound = lock ? AITSounds.KEY_LOCK : AITSounds.KEY_UNLOCK;
 
-        tardis.asServer().getInteriorWorld().playSound(null, tardis.getDesktop().getDoorPos().getPos(),
-                AITSounds.INTERIOR_KEY_INTERACT, SoundCategory.BLOCKS, 0.6F, 1F);
+        tardis.travel().position().getWorld().playSound(null, tardis.travel().position().getPos(),
+                keySound, SoundCategory.BLOCKS, 0.6F, 1F);
+
+        tardis.asServer().worldRef().ifPresent(interior -> {
+            interior.playSound(null, tardis.getDesktop().getDoorPos().getPos(),
+                    keySound, SoundCategory.BLOCKS, 0.6F, 1F);
+        });
 
         return true;
     }
@@ -339,14 +367,24 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         return this.previouslyLocked;
     }
 
-    // FIXME @THEO
     public float getLeftRot() {
         return this.leftDoorRot.get();
     }
 
-    // FIXME @THEO
     public float getRightRot() {
         return this.rightDoorRot.get();
+    }
+
+    /**
+     * Sets the particles which will spawn at the doors when they are opened
+     * Server-side Only
+     * @param particle particle to spawn
+     * @see #tick(MinecraftServer)
+     * @author duzo
+     */
+    public void setDoorParticles(ParticleEffect particle) {
+        this.doorOpenParticles = particle;
+        this.sync();
     }
 
     public enum InteractionResult {
@@ -430,7 +468,7 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
                 animState = AnimationDoorState.FIRST;
 
             if (animState == null) {
-                AITMod.LOGGER.info("Couldn't predict door animation state for {}->{}", oldState, newState);
+                //AITMod.LOGGER.info("Couldn't predict door animation state for {}->{}", oldState, newState);
                 animState = CLOSED;
             }
 

@@ -14,17 +14,13 @@ import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.*;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.MusicDiscItem;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.InstrumentTags;
 import net.minecraft.util.Rarity;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.link.LinkableItem;
+import dev.amble.ait.api.tardis.link.LinkableItem;
 import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.drinks.DrinkUtil;
 import dev.amble.ait.core.engine.SubSystem;
@@ -71,6 +67,7 @@ public class AITItems extends ItemContainer {
             new AItemSettings().group(AITItemGroups.MAIN).maxCount(1));
     public static final Item GEIGER_COUNTER = new RiftScannerItem(
             new AItemSettings().group(AITItemGroups.MAIN).maxCount(1));
+    @NoEnglish
     public static final Item HAMMER = new HammerItem(3, -2.4F,
             new AItemSettings().group(AITItemGroups.MAIN).maxCount(1).maxDamage(600));
     public static final Item RESPIRATOR = new RenderableArmorItem(ArmorMaterials.IRON, ArmorItem.Type.HELMET,
@@ -78,11 +75,14 @@ public class AITItems extends ItemContainer {
     public static final Item FACELESS_RESPIRATOR = new RenderableArmorItem(ArmorMaterials.IRON,
             ArmorItem.Type.HELMET, new AItemSettings().group(AITItemGroups.MAIN).maxCount(1).maxDamage(80),
             true);
+
+    public static final Item SONIC_SCREWDRIVER = new SonicItem(new AItemSettings().maxCount(1).group(AITItemGroups.MAIN));
+
     public static final Item HYPERCUBE = new HypercubeItem(new AItemSettings().maxCount(1).group(AITItemGroups.MAIN));
     //public static final Item PSYCHPAPER = new PsychpaperItem(new AItemSettings().maxCount(1).group(AITItemGroups.MAIN));
     public static final Item HAZANDRA = new InteriorTeleporterItem(new AItemSettings().group(AITItemGroups.MAIN));
 
-    // Keys/Key Templates
+    // Keys/Horns - Templates
     public static final Item IRON_KEY = new KeyItem(new AItemSettings().group(AITItemGroups.MAIN));
     public static final Item GOLD_KEY = new KeyItem(
             new AItemSettings().rarity(Rarity.UNCOMMON).group(AITItemGroups.MAIN), KeyItem.Protocols.SNAP);
@@ -97,6 +97,15 @@ public class AITItems extends ItemContainer {
     public static final Item SKELETON_KEY = new KeyItem(
             new AItemSettings().rarity(Rarity.EPIC).group(AITItemGroups.MAIN), KeyItem.Protocols.SKELETON,
             KeyItem.Protocols.HAIL, KeyItem.Protocols.SNAP);
+
+   /* public static final Item IRON_GOAT_HORN = new TardisGoatHorn(new AItemSettings().group(AITItemGroups.MAIN), InstrumentTags.GOAT_HORNS);
+
+    public static final Item GOLD_GOAT_HORN = new TardisGoatHorn(new AItemSettings().rarity(Rarity.UNCOMMON).group(AITItemGroups.MAIN), InstrumentTags.GOAT_HORNS);
+
+    public static final Item CLASSIC_GOAT_HORN = new TardisGoatHorn(new AItemSettings().rarity(Rarity.EPIC).group(AITItemGroups.MAIN), InstrumentTags.GOAT_HORNS, TardisGoatHorn.Protocols.HAIL);
+
+    public static final Item NETHERITE_GOAT_HORN = new TardisGoatHorn(new AItemSettings().rarity(Rarity.RARE).group(AITItemGroups.MAIN), InstrumentTags.GOAT_HORNS, TardisGoatHorn.Protocols.HAIL);*/
+
     @NoEnglish
     public static final Item GOLD_KEY_UPGRADE_SMITHING_TEMPLATE = new KeySmithingTemplateItem(
             new AItemSettings().group(AITItemGroups.MAIN), "Gold Key", "Gold Nugget");
@@ -106,8 +115,7 @@ public class AITItems extends ItemContainer {
     @NoEnglish
     public static final Item CLASSIC_KEY_UPGRADE_SMITHING_TEMPLATE = new KeySmithingTemplateItem(
             new AItemSettings().group(AITItemGroups.MAIN), "Classic Key", "Amethyst Shard");
-    //public static final Item SONIC_SCREWDRIVER = new SonicItem(new AItemSettings().group(AITItemGroups.MAIN));
-    public static final Item SONIC_SCREWDRIVER = new SonicItem(new AItemSettings().group(AITItemGroups.MAIN));
+
 
     // Crafting items
     public static final Item ZEITON_SHARD = new ZeitonShardItem(new AItemSettings());
@@ -118,6 +126,8 @@ public class AITItems extends ItemContainer {
     public static final Item SUPERHEATED_ZEITON = new Item(new AItemSettings().group(AITItemGroups.MAIN));
     public static final Item PLASMIC_MATERIAL = new Item(new AItemSettings().group(AITItemGroups.MAIN));
     public static final Item CORAL_FRAGMENT = new Item(new AItemSettings().group(AITItemGroups.MAIN));
+    public static final Item CORAL_CAGE = new Item(new AItemSettings().group(AITItemGroups.MAIN));
+    public static final Item PERSONALITY_MATRIX = new PersonalityMatrixItem(new AItemSettings().group(AITItemGroups.MAIN));
 
     // Machine parts
     public static final Item ARTRON_FLUID_LINK = new FluidLinkItem(AbstractLinkItem.Type.ARTRON,
@@ -134,13 +144,13 @@ public class AITItems extends ItemContainer {
     public static final Item VORTEX_MERCURIAL_LINK = new MercurialLinkItem(AbstractLinkItem.Type.VORTEX,
             new AItemSettings().group(AITItemGroups.FABRICATOR));
 
-    public static final Item CONDENSER = new MachinePartItem(MachinePartItem.Type.CONDENSER,
+    public static final Item ORTHOGONAL_ENGINE_FILTER = new MachinePartItem(MachinePartItem.Type.ORTHOGONAL_ENGINE_FILTER,
             new AItemSettings().group(AITItemGroups.FABRICATOR));
-    public static final Item MANIPULATOR = new MachinePartItem(MachinePartItem.Type.MANIPULATOR,
+    public static final Item TRANSWARP_RESONATOR = new MachinePartItem(MachinePartItem.Type.TRANSWARP_RESONATOR,
             new AItemSettings().group(AITItemGroups.FABRICATOR));
-    public static final Item BULB = new MachinePartItem(MachinePartItem.Type.BULB,
+    public static final Item PHOTON_ACCELERATOR = new MachinePartItem(MachinePartItem.Type.PHOTON_ACCELERATOR,
             new AItemSettings() .group(AITItemGroups.FABRICATOR));
-    public static final Item INDUCTOR = new MachinePartItem(MachinePartItem.Type.INDUCTOR,
+    public static final Item HYPERION_CORE_SHAFT = new MachinePartItem(MachinePartItem.Type.HYPERION_CORE_SHAFT,
             new AItemSettings().group(AITItemGroups.FABRICATOR));
 
     // Components
@@ -163,7 +173,11 @@ public class AITItems extends ItemContainer {
             new AItemSettings().group(AITItemGroups.FABRICATOR), SubSystem.Id.LIFE_SUPPORT);
 
     @NoEnglish
-    public static final Item GALLIFREY_FALLS_PAINTING = new AITDecorationItem(AITEntityTypes.GALLIFREY_FALLS_PAINTING_TYPE, new AItemSettings().group(AITItemGroups.MAIN));
+    public static final Item GALLIFREY_FALLS_PAINTING = new AITDecorationItem(AITEntityTypes.GALLIFREY_FALLS_PAINTING_ENTITY_TYPE,
+            new AItemSettings().group(AITItemGroups.MAIN));
+    @NoEnglish
+    public static final Item TRENZALORE_PAINTING = new AITDecorationItem(AITEntityTypes.TRENZALORE_PAINTING_ENTITY_TYPE,
+            new AItemSettings().group(AITItemGroups.MAIN));
 
     // Blueprint
     public static final Item BLUEPRINT = new BlueprintItem(
@@ -182,25 +196,19 @@ public class AITItems extends ItemContainer {
     public static final Item WONDERFUL_TIME_IN_SPACE_MUSIC_DISC = new MusicDiscItem(1, AITSounds.WONDERFUL_TIME_IN_SPACE,
             new AItemSettings().maxCount(1).rarity(Rarity.RARE), 73);
 
-    @NoEnglish
-    public static final Item MERCURY_MUSIC_DISC = new MusicDiscItem(11, AITSounds.MERCURY_MUSIC,
-            new AItemSettings().maxCount(1).rarity(Rarity.RARE), 216);
 
     @NoEnglish
     public static final Item VENUS_MUSIC_DISC = new MusicDiscItem(1, AITSounds.VENUS_MUSIC,
             new AItemSettings().maxCount(1).rarity(Rarity.RARE), 342);
 
     @NoEnglish
+    public static final Item GOOD_MAN_MUSIC_DISC = new MusicDiscItem(1, AITSounds.GOOD_MAN_MUSIC,
+            new AItemSettings().maxCount(1).rarity(Rarity.RARE), 342);
+
+    @NoEnglish
     public static final Item EARTH_MUSIC_DISC = new MusicDiscItem(1, AITSounds.EARTH_MUSIC,
             new AItemSettings().maxCount(1).rarity(Rarity.RARE), 315);
 
-    public static final Item IRON_GOAT_HORN = new TardisGoatHorn(new AItemSettings().group(AITItemGroups.MAIN), InstrumentTags.GOAT_HORNS);
-
-    public static final Item GOLD_GOAT_HORN = new TardisGoatHorn(new AItemSettings().rarity(Rarity.UNCOMMON).group(AITItemGroups.MAIN), InstrumentTags.GOAT_HORNS);
-
-    public static final Item CLASSIC_GOAT_HORN = new TardisGoatHorn(new AItemSettings().rarity(Rarity.EPIC).group(AITItemGroups.MAIN), InstrumentTags.GOAT_HORNS, TardisGoatHorn.Protocols.HAIL);
-
-    public static final Item NETHERITE_GOAT_HORN = new TardisGoatHorn(new AItemSettings().rarity(Rarity.RARE).group(AITItemGroups.MAIN), InstrumentTags.GOAT_HORNS, TardisGoatHorn.Protocols.HAIL);
 
     // Block controls
 
@@ -249,10 +257,9 @@ public class AITItems extends ItemContainer {
     static {
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
             entries.addAfter(Items.MUSIC_DISC_RELIC, DRIFTING_MUSIC_DISC);
-            entries.addAfter(DRIFTING_MUSIC_DISC, MERCURY_MUSIC_DISC);
-            entries.addAfter(MERCURY_MUSIC_DISC, WONDERFUL_TIME_IN_SPACE_MUSIC_DISC);
+            entries.addAfter(DRIFTING_MUSIC_DISC, WONDERFUL_TIME_IN_SPACE_MUSIC_DISC);
             entries.addAfter(WONDERFUL_TIME_IN_SPACE_MUSIC_DISC, EARTH_MUSIC_DISC);
-            entries.addAfter(EARTH_MUSIC_DISC, VENUS_MUSIC_DISC);
+            entries.addAfter(EARTH_MUSIC_DISC, VENUS_MUSIC_DISC, GOOD_MAN_MUSIC_DISC);
         });
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.FOOD_AND_DRINK).register(entries -> {

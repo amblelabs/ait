@@ -1,6 +1,8 @@
 package dev.amble.ait.client.renderers.exteriors;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -16,23 +18,24 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.RotationPropertyHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.TardisComponent;
-import dev.amble.ait.api.link.v2.TardisRef;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.boti.BOTI;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.models.exteriors.SiegeModeModel;
 import dev.amble.ait.client.models.machines.ShieldsModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientLightUtil;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
-import dev.amble.ait.core.tardis.handler.CloakHandler;
-import dev.amble.ait.core.tardis.handler.OvergrownHandler;
+import dev.amble.ait.core.tardis.handler.SiegeHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
@@ -49,8 +52,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
     private ClientExteriorVariantSchema variant;
     private ExteriorModel model;
 
-    public ExteriorRenderer(BlockEntityRendererFactory.Context ctx) {
-    }
+    public ExteriorRenderer(BlockEntityRendererFactory.Context ctx) {}
 
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
@@ -59,72 +61,82 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         profiler.push("exterior");
 
         profiler.push("find_tardis");
-        TardisRef optionalTardis = entity.tardis();
 
-        if (optionalTardis == null || optionalTardis.isEmpty())
+        if (!entity.isLinked())
             return;
 
-        Tardis tardis = optionalTardis.get();
-
+        ClientTardis tardis = entity.tardis().get().asClient();
 
         profiler.swap("render");
 
-        if (entity.getAlpha() > 0 || !tardis.<CloakHandler>handler(TardisComponent.Id.CLOAK).cloaked().get())
+        this.updateModel(tardis);
+
+        if (tardis.travel().getAlpha() > 0)
             this.renderExterior(profiler, tardis, entity, tickDelta, matrices, vertexConsumers, light, overlay);
+
+        if ((tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) && !tardis.isGrowth() && tardis.travel().isLanded() &&
+        !tardis.siege().isActive())
+            BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
+
         profiler.pop();
 
         profiler.pop();
     }
 
-    private void renderExterior(Profiler profiler, Tardis tardis, T entity, float tickDelta, MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers, int light, int overlay) {
-        final float alpha = entity.getAlpha();
-        if (tardis.areVisualShieldsActive()) {
-            profiler.push("shields");
+    private void renderExterior(Profiler profiler, ClientTardis tardis, T entity, float tickDelta, MatrixStack matrices,
+                                VertexConsumerProvider vertexConsumers, int light, int overlay) {
+        final float alpha = tardis.travel().getAlpha(tickDelta);
+        RenderSystem.enableCull();
+        RenderSystem.enableBlend();
+        RenderSystem.enableDepthTest();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableBlend();
+        RenderSystem.enableCull();
 
-            float delta = (tickDelta + MinecraftClient.getInstance().player.age) * 0.03f;
-            VertexConsumer vertexConsumer = vertexConsumers
-                    .getBuffer(RenderLayer.getEnergySwirl(SHIELDS, delta % 1.0F, (delta * 0.1F) % 1.0F));
+        SiegeHandler siege = tardis.siege();
 
-            matrices.push();
-            matrices.translate(0.5F, 0.0F, 0.5F);
-
-            SHIELDS_MODEL.render(matrices, vertexConsumer, LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, 0f,
-                    0.25f, 0.5f, alpha);
-
-            matrices.pop();
-            profiler.pop();
-        }
-
-        if (tardis.siege().isActive()) {
+        if (siege.isActive()) {
             profiler.push("siege");
 
             matrices.push();
             matrices.translate(0.5f, 0.5f, 0.5f);
-            SIEGE_MODEL.renderWithAnimations(entity, SIEGE_MODEL.getPart(), matrices,
-                    vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(tardis.siege().texture().get())),
-                    light, overlay, 1, 1, 1, 1);
+            SIEGE_MODEL.renderWithAnimations(tardis, entity, SIEGE_MODEL.getPart(),
+                    matrices,
+                    vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(siege.texture().get())), light, overlay, 1, 1, 1, 1);
 
             matrices.pop();
             profiler.pop();
             return;
         }
 
-        CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
+        TravelHandler travel = tardis.travel();
+
+        CachedDirectedGlobalPos exteriorPos = travel.position();
 
         if (exteriorPos == null) {
             profiler.pop();
             return;
         }
 
-        this.updateModel(tardis);
-
         BlockState blockState = entity.getCachedState();
         int k = blockState.get(ExteriorBlock.ROTATION);
         float h = RotationPropertyHelper.toDegrees(k);
 
         matrices.push();
+
+        // adjust based off animation position
+        Vector3f animPositionOffset = travel.getAnimationPosition(tickDelta);
+        matrices.translate(animPositionOffset.x(), animPositionOffset.y(), animPositionOffset.z());
+
         matrices.translate(0.5f, 0.0f, 0.5f);
+
+        // adjust based off animation rotation
+        Vector3f animRotationOffset = travel.getAnimationRotation(tickDelta);
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(animRotationOffset.z()));
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(animRotationOffset.y()));
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(animRotationOffset.x()));
+
+        this.applyNameTransforms(tardis, matrices, tardis.stats().getName(), tickDelta);
 
         Identifier texture = this.variant.texture();
         Identifier emission = this.variant.emission();
@@ -155,79 +167,110 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             return;
         }
 
-        this.applyNameTransforms(tardis, matrices, tardis.stats().getName());
-
-        if (tardis.travel().antigravs().get() && tardis.flight().falling().get()) {
+        if (travel.antigravs().get() && tardis.flight().falling().get()) {
             float sinFunc = (float) Math.sin((MinecraftClient.getInstance().player.age / 400f * 220f) * 0.2f + 0.2f);
             matrices.translate(0, sinFunc, 0);
         }
 
-        if (tardis.selfDestruct().isQueued())
-            matrices.scale(0.7f, 0.7f, 0.7f);
-
-        model.renderWithAnimations(entity, this.model.getPart(), matrices,
-                vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)), light, overlay, 1, 1, 1,
-                alpha);
-
-        if (tardis.door().getLeftRot() > 0 && !tardis.isGrowth() && tardis.travel().isLanded())
-            BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
-            //this.renderExteriorBoti(entity, variant, matrices, texture, model, BotiPortalModel.getTexturedModelData().createModel(), light);
-
-        if (tardis.<OvergrownHandler>handler(TardisComponent.Id.OVERGROWN).overgrown().get()) {
-            model.renderWithAnimations(entity, this.model.getPart(), matrices,
-                    vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(
-                            tardis.<OvergrownHandler>handler(TardisComponent.Id.OVERGROWN).getOvergrownTexture())),
-                    light, overlay, 1, 1, 1, alpha);
-        }
+        model.renderWithAnimations(tardis, entity, this.model.getPart(),
+                matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)), light, overlay, 1, 1,
+                1, alpha);
 
         profiler.push("emission");
-        boolean alarms = tardis.alarm().enabled().get();
-        float u;
-        float t;
-        float s;
+        boolean alarms = tardis.alarm().isEnabled();
 
-        if (tardis.stats().getName() != null && "partytardis".equals(tardis.stats().getName().toLowerCase())) {
-            int m = 25;
-            int n = MinecraftClient.getInstance().player.age / 25 + MinecraftClient.getInstance().player.getId();
-            int o = DyeColor.values().length;
-            int p = n % o;
-            int q = (n + 1) % o;
-            float r = ((float)(MinecraftClient.getInstance().player.age % 25) + h) / 25f;
-            float[] fs = SheepEntity.getRgbColor(DyeColor.byId(p));
-            float[] gs = SheepEntity.getRgbColor(DyeColor.byId(q));
-            s = fs[0] * (1f - r) + gs[0] * r;
-            t = fs[1] * (1f - r) + gs[1] * r;
-            u = fs[2] * (1f - r) + gs[2] * r;
-        } else {
-            float[] hs = new float[]{ 1.0f, 1.0f, 1.0f };
-            s = hs[0];
-            t = hs[1];
-            u = hs[2];
+
+        if (alpha > 0.105f && emission != null && !emission.equals(DatapackConsole.EMPTY)) {
+            float u;
+            float t;
+            float s;
+
+            if ((tardis.stats().getName() != null && "partytardis".equals(tardis.stats().getName().toLowerCase())) ||
+                    (!tardis.extra().getInsertedDisc().isEmpty())) {
+                int m = 25;
+                int n = MinecraftClient.getInstance().player.age / m + MinecraftClient.getInstance().player.getId();
+                int o = DyeColor.values().length;
+                int p = n % o;
+                int q = (n + 1) % o;
+                float r = ((float)(MinecraftClient.getInstance().player.age % m)) / m;
+                float[] fs = SheepEntity.getRgbColor(DyeColor.byId(p));
+                float[] gs = SheepEntity.getRgbColor(DyeColor.byId(q));
+                s = fs[0] * (1f - r) + gs[0] * r;
+                t = fs[1] * (1f - r) + gs[1] * r;
+                u = fs[2] * (1f - r) + gs[2] * r;
+            } else if (tardis.sonic().getExteriorSonic() != null) {
+                float time = MinecraftClient.getInstance().player.age + MinecraftClient.getInstance().getTickDelta();
+                float progress = (float)((Math.sin(time * 0.03) + 1) / 2.0f);
+
+                final float FROM_R = 1.0f, FROM_G = 1.0f, FROM_B = 1.0f;
+                final float TO_R = 0.3f, TO_G = 0.3f, TO_B = 1.0f;
+
+                s = FROM_R * (1f - progress) + TO_R * progress;
+                t = FROM_G * (1f - progress) + TO_G * progress;
+                u = FROM_B * (1f - progress) + TO_B * progress;
+            } else {
+                s = 1.0f;
+                t = 1.0f;
+                u = 1.0f;
+            }
+
+
+            float colorAlpha = 1 - alpha;
+            boolean power = tardis.fuel().hasPower();
+
+            float red = alarms
+                    ? (!power ? 0.25f : s - colorAlpha)
+                    : (power ? s - colorAlpha : 0f);
+
+            float green = alarms
+                    ? (!power ? 0.01f : 0.3f)
+                    : (power ? t - colorAlpha : 0f);
+
+            float blue = alarms
+                    ? (!power ? 0.01f : 0.3f)
+                    : (power ? u - colorAlpha : 0f);
+
+            ClientLightUtil.renderEmissive((v, l) -> model.renderWithAnimations(
+                    tardis, entity, this.model.getPart(), matrices, v, l, overlay, red, green, blue, alpha
+            ), emission, vertexConsumers);
         }
 
-        float colorAlpha = 1 - alpha;
-
-        if (alpha > 0.105f && emission != null && !(emission.equals(DatapackConsole.EMPTY)))
-            ClientLightUtil.renderEmissivable(tardis.fuel().hasPower(), model::renderWithAnimations, emission, entity,
-                    this.model.getPart(), matrices, vertexConsumers, 0xf000f0, overlay, alarms ? !tardis.fuel().hasPower() ? 0.25f : s - colorAlpha : s - colorAlpha, alarms ? !tardis.fuel().hasPower() ? 0.01f : 0.3f : t - colorAlpha,
-                    alarms ? !tardis.fuel().hasPower() ? 0.01f : 0.3f : u - colorAlpha, alpha);
 
         profiler.swap("biome");
 
         if (this.variant != ClientExteriorVariantRegistry.CORAL_GROWTH) {
             BiomeHandler handler = tardis.handler(TardisComponent.Id.BIOME);
-            Identifier biomeTexture = handler.getBiomeKey().get(this.variant.overrides());
+            if (handler.getBiomeKey() != null) {
+                Identifier biomeTexture = handler.getBiomeKey().get(this.variant.overrides());
 
-            if (alpha > 0.105f && (biomeTexture != null && !texture.equals(biomeTexture))) {
-                model.renderWithAnimations(entity, this.model.getPart(), matrices,
-                        vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(biomeTexture, false)),
-                        light, overlay, 1, 1, 1, alpha);
+                if (alpha > 0.105f && (biomeTexture != null && !texture.equals(biomeTexture))) {
+                    model.renderWithAnimations(tardis, entity, this.model.getPart(),
+                            matrices,
+                            vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(biomeTexture, false)), light, overlay, 1, 1, 1, alpha);
+                }
+
             }
-
         }
 
         profiler.pop();
         matrices.pop();
+
+        if (tardis.areVisualShieldsActive()) {
+            profiler.push("shields");
+
+            float delta = (tickDelta + MinecraftClient.getInstance().player.age) * 0.03f;
+            VertexConsumer vertexConsumer = vertexConsumers
+                    .getBuffer(RenderLayer.getEnergySwirl(SHIELDS, delta % 1.0F, (delta * 0.1F) % 1.0F));
+
+            matrices.push();
+            matrices.translate(0.5F, 0.0F, 0.5F);
+
+            SHIELDS_MODEL.render(matrices, vertexConsumer, LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, 0f,
+                    0.25f, 0.5f, alpha);
+
+            matrices.pop();
+            profiler.pop();
+        }
 
         profiler.push("sonic");
         ItemStack stack = tardis.sonic().getExteriorSonic();
@@ -256,6 +299,8 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
     }
 
     private void updateModel(Tardis tardis) {
+        if (tardis.getExterior() == null)
+            return;
         ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
 
         if (this.variant != variant) {
@@ -264,20 +309,29 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         }
     }
 
-    private void applyNameTransforms(Tardis tardis, MatrixStack matrices, String name) {
+    private void applyNameTransforms(Tardis tardis, MatrixStack matrices, String name, float delta) {
+        Vector3f scale = tardis.travel().getScale(delta);
+
         if (name.equalsIgnoreCase("grumm") || name.equalsIgnoreCase("dinnerbone")) {
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-90f));
-            matrices.translate(0, tardis.stats().getYScale() + 0.25f, -0.7f);
-        }else if (name.equalsIgnoreCase("smallboi")) {
-            matrices.scale(tardis.stats().getXScale() - 0.3f, tardis.stats().getYScale() - 0.3f, tardis.stats().getZScale() - 0.3f);
-        }else if (name.equalsIgnoreCase("toy")) {
-            matrices.scale(tardis.stats().getXScale() - 0.7f, tardis.stats().getYScale() - 0.7f, tardis.stats().getZScale() - 0.7f);
-        }else if (name.equalsIgnoreCase("bigboi")) {
-            matrices.scale(tardis.stats().getXScale() + 0.1f, tardis.stats().getYScale() + 0.1f, tardis.stats().getZScale() + 0.1f);
-        }else if (name.equalsIgnoreCase("massiveboi")) {
-            matrices.scale(tardis.stats().getXScale() + 0.2f, tardis.stats().getYScale() + 0.2f, tardis.stats().getZScale() + 0.2f);
-        }else {
-            matrices.scale(tardis.stats().getXScale(), tardis.stats().getYScale(), tardis.stats().getZScale());
+            matrices.translate(0, scale.y + 0.25f, scale.z - 1.7f);
         }
+
+        matrices.scale(scale.x, scale.y, scale.z);
+    }
+
+    @Override
+    public boolean rendersOutsideBoundingBox(ExteriorBlockEntity exteriorBlockEntity) {
+        return true;
+    }
+
+    @Override
+    public int getRenderDistance() {
+        return 256;
+    }
+
+    @Override
+    public boolean isInRenderDistance(ExteriorBlockEntity exteriorBlockEntity, Vec3d vec3d) {
+        return Vec3d.ofCenter(exteriorBlockEntity.getPos()).multiply(1.0, 0.0, 1.0).isInRange(vec3d.multiply(1.0, 0.0, 1.0), this.getRenderDistance());
     }
 }

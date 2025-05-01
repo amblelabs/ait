@@ -43,8 +43,6 @@ public class SpacesuitItem extends RenderableArmorItem {
         if (this.type != Type.CHESTPLATE) return;
         NbtCompound compound = stack.getOrCreateNbt();
 
-        if (!compound.contains(OXYGEN_KEY)) return;
-
         if (world == null || world.getServer() == null) return;
 
         if (world.getServer().getTicks() % 20 != 0) {
@@ -53,14 +51,9 @@ public class SpacesuitItem extends RenderableArmorItem {
 
         Planet planet = PlanetRegistry.getInstance().get(world);
 
-        if (planet == null) return;
-
-        if ((TardisServerWorld.isTardisDimension(world) || planet.hasOxygen()) && compound.getDouble(OXYGEN_KEY) < MAX_OXYGEN) {
-            // compound.putDouble(OXYGEN_KEY, Math.min(4.2D, compound.getDouble(OXYGEN_KEY) + 0.0035D));
+        if ((TardisServerWorld.isTardisDimension(world) || (planet != null && planet.hasOxygen()))) {
             compound.putDouble(OXYGEN_KEY, Math.min(MAX_OXYGEN, compound.getDouble(OXYGEN_KEY) + 0.2D));
         } else if (compound.getDouble(OXYGEN_KEY) > 0.0D) {
-            // This is based on some probably-not-super-accurate math about how many liters of oxygen a human uses.
-            // humans usually use about 0.21 liters of air per minute, so I did the math for per second - since the getTicks() % 20 != 0 is every second.
             compound.putDouble(OXYGEN_KEY, Math.max(0.0D, compound.getDouble(OXYGEN_KEY) - 0.0035D));
         }
     }

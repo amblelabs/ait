@@ -1,0 +1,6 @@
+{
+  "id": "ait:proton_mat",
+  "expected_state": "mat",
+  "sound": "ait:tardis/proton_mat",
+  "blockbench_file": "ait:pulsating_mat"
+}

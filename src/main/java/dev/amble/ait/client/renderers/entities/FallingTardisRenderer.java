@@ -11,10 +11,11 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.RotationPropertyHelper;
 
-import dev.amble.ait.api.TardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.models.exteriors.SiegeModeModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.entities.FallingTardisEntity;
 import dev.amble.ait.core.tardis.Tardis;
@@ -81,7 +82,7 @@ public class FallingTardisRenderer extends EntityRenderer<FallingTardisEntity> {
 
         if (emission != null)
             model.renderEntity(entity, model.getPart(), matrices,
-                    vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(emission, true)),
+                    vertexConsumers.getBuffer(DependencyChecker.hasIris() ? AITRenderLayers.tardisEmissiveCullZOffset(emission, true) : AITRenderLayers.getTextPolygonOffset(emission)),
                     0xf000f0, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 
         if (!exteriorVariant.equals(ClientExteriorVariantRegistry.CORAL_GROWTH)) {

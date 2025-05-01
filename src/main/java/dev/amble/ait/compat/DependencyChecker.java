@@ -11,6 +11,7 @@ public class DependencyChecker {
     private static final boolean HAS_IRIS = doesModExist("iris");
     private static final boolean HAS_SODIUM = doesModExist("sodium");
     private static final boolean HAS_GRAVITY = doesModExist("gravity_changer_q");
+    private static final boolean HAS_INDIUM = doesModExist("indium");
 
     private static Boolean NVIDIA_CARD;
 
@@ -32,6 +33,10 @@ public class DependencyChecker {
 
     public static boolean hasGravity() {
         return HAS_GRAVITY;
+    }
+
+    public static boolean hasIndium() {
+        return HAS_INDIUM;
     }
 
     @Environment(EnvType.CLIENT)

@@ -55,4 +55,9 @@ public abstract class ClientBoothVariant extends ClientExteriorVariantSchema {
     public BiomeOverrides overrides() {
         return OVERRIDES;
     }
+
+    @Override
+    public boolean hasTransparentDoors() {
+        return true;
+    }
 }

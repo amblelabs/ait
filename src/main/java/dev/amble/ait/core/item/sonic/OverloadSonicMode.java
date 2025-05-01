@@ -4,6 +4,7 @@ import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -30,14 +31,6 @@ public class OverloadSonicMode extends SonicMode {
     @Override
     public Text text() {
         return Text.translatable("sonic.ait.mode.overload").formatted(Formatting.RED, Formatting.BOLD);
-    }
-
-    @Override
-    public void stopUsing(ItemStack stack, World world, LivingEntity user, int ticks, int ticksLeft) {
-        if (!(world instanceof ServerWorld serverWorld))
-            return;
-
-        this.process(serverWorld, user, ticks);
     }
 
     @Override
@@ -83,6 +76,12 @@ public class OverloadSonicMode extends SonicMode {
             return;
         }
 
+        if (block instanceof GlassBlock
+                || block instanceof StainedGlassPaneBlock) {
+            breakBlock(world, pos, user, state, blockHit);
+            return;
+        }
+
         if (block instanceof ButtonBlock) {
             activateBlock(world, pos, user, state, blockHit);
             return;
@@ -95,11 +94,35 @@ public class OverloadSonicMode extends SonicMode {
             TntBlock.primeTnt(world, pos);
             world.removeBlock(pos, false);
             world.emitGameEvent(user, GameEvent.BLOCK_DESTROY, pos);
+            return;
+        }
+
+        if (state.isOf(Blocks.OBSIDIAN)) {
+            BlockPos blockPos2 = pos.offset(blockHit.getSide());
+            if (AbstractFireBlock.canPlaceAt(world, blockPos2, user.getHorizontalFacing())) {
+                this.playFx(world, blockPos2);
+                BlockState blockState2 = AbstractFireBlock.getState(world, blockPos2);
+                world.setBlockState(blockPos2, blockState2, Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
+                world.emitGameEvent(user, GameEvent.BLOCK_PLACE, pos);
+            }
         }
     }
 
     private void activateBlock(ServerWorld world, BlockPos pos, LivingEntity user, BlockState state, BlockHitResult blockHitResult) {
         state.onUse(world, (PlayerEntity) user, user.getActiveHand(), blockHitResult);
+        this.playFx(world, pos);
+    }
+
+    private void breakBlock(ServerWorld world, BlockPos pos, LivingEntity user, BlockState state, BlockHitResult blockHitResult) {
+        world.playSound(null, pos, state.getSoundGroup().getBreakSound(), SoundCategory.BLOCKS, 1.0F, 1.0F);
+
+        // Spawn block break particles
+        ((ServerWorld) world).spawnParticles(
+                new BlockStateParticleEffect(ParticleTypes.BLOCK, state),
+                pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                10, 0.5, 0.5, 0.5, 0.1
+        );
+        world.breakBlock(pos, false);
         this.playFx(world, pos);
     }
 
@@ -135,5 +158,10 @@ public class OverloadSonicMode extends SonicMode {
     @Override
     public Identifier model(SonicSchema.Models models) {
         return models.overload();
+    }
+
+    @Override
+    public int fuelCost() {
+        return 2;
     }
 }

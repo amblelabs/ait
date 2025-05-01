@@ -8,32 +8,25 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
-import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
 
 public class RandomiserControl extends Control {
 
     public RandomiserControl() {
-        super("randomiser");
+        super(AITMod.id("randomiser"));
     }
 
-    /**
-     * TODO rewrite the randomizer to follow the async stuff like this class
-     * {@link AsyncLocatorUtil}
-     */
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console) {
-        TravelHandler travel = tardis.travel();
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+        super.runServer(tardis, player, world, console, leftClick);
 
-        if (tardis.sequence().hasActiveSequence() && tardis.sequence().controlPartOfSequence(this)) {
-            this.addToControlSequence(tardis, player, console);
-            return false;
-        }
+        TravelHandler travel = tardis.travel();
 
         TravelUtil.randomPos(tardis, 10, IncrementManager.increment(tardis), cached -> {
             tardis.travel().destination(cached);
@@ -42,7 +35,7 @@ public class RandomiserControl extends Control {
             messagePlayer(player, travel);
         });
 
-        return true;
+        return Result.SUCCESS;
     }
 
     @Override
@@ -56,10 +49,11 @@ public class RandomiserControl extends Control {
 
         Text text = Text.translatable("tardis.message.control.randomiser.destination")
                 .append(Text.literal(pos.getX() + " | " + pos.getY() + " | " + pos.getZ()));
+
         player.sendMessage(text, true);
     }
     @Override
-    public SoundEvent getSound() {
+    public SoundEvent getFallbackSound() {
         return AITSounds.RANDOMIZE;
     }
 }

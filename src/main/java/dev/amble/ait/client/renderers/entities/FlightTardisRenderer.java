@@ -11,7 +11,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 
-import dev.amble.ait.api.TardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.models.machines.ShieldsModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
@@ -65,6 +65,8 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
             matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) MinecraftClient.getInstance().player.age / 100 * 360f));
             matrices.translate(0, 0, 500);
             vortexUtil.renderVortex(matrices);
+            vortexUtil.renderVortexLayer(matrices, 1.5f);
+            vortexUtil.renderVortexLayer(matrices, 2.5f);
             matrices.pop();
         }
 
@@ -95,10 +97,11 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
         if (variant.emission() != null && tardis.fuel().hasPower()) {
             boolean alarms = tardis.alarm().enabled().get();
 
-            ClientLightUtil.renderEmissivable(tardis.fuel().hasPower(), model::renderEntity,
-                    variant.emission(), entity, this.model.getPart(), matrices,
-                    vertexConsumers, light, OverlayTexture.DEFAULT_UV, 1, alarms ? 0.3f : 1,
-                    alarms ? 0.3f : 1, 1);
+            float color = alarms ? 0.3f : 1f;
+
+            ClientLightUtil.renderEmissivable(tardis.fuel().hasPower(), (v, l) -> model.renderEntity(
+                    entity, this.model.getPart(), matrices, v, l, OverlayTexture.DEFAULT_UV, color, color, color, 1
+            ), variant.emission(), vertexConsumers);
         }
 
         BiomeHandler biome = tardis.handler(TardisComponent.Id.BIOME);
@@ -130,7 +133,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
     @Override
     public Identifier getTexture(FlightTardisEntity entity) {
-        if (entity.tardis() == null || entity.tardis().isEmpty())
+        if (!entity.isLinked())
             return SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE; // random texture just so i dont crash
 
         return entity.tardis().get().getExterior().getVariant().getClient().texture();

@@ -1,0 +1,8 @@
+{
+  "id": "ait:likes_redstone_block",
+  "stack": {
+    "id": "minecraft:redstone_block",
+    "Count": 1
+  },
+  "loyalty": 15
+}

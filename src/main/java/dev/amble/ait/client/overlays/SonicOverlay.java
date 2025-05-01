@@ -1,6 +1,5 @@
 package dev.amble.ait.client.overlays;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 
@@ -76,17 +75,20 @@ public class SonicOverlay implements HudRenderCallback {
     }
 
     private void renderOverlay(DrawContext context, Identifier texture) {
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
         context.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.ONE_MINUS_DST_COLOR,
-                GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SrcFactor.ONE,
-                GlStateManager.DstFactor.ZERO);
+
         context.drawTexture(texture, (context.getScaledWindowWidth() / 2) - 8,
-                (context.getScaledWindowHeight() / 2) - 8, 0, 0.0F, 0.0F, 16, 16, 16, 16);
+                (context.getScaledWindowHeight() / 2) - 24, 0, 0.0F, 0.0F, 16, 16, 16, 16);
+
         RenderSystem.defaultBlendFunc();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
-        context.setShaderColor(0.9F, 0.9F, 0.9F, 1.0F);
+        context.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
+
 }

@@ -7,7 +7,8 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.link.v2.Linkable;
+import dev.amble.ait.api.tardis.link.v2.Linkable;
+import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
@@ -87,17 +88,14 @@ public class BoothExteriorModel extends ExteriorModel {
     }
 
     @Override
-    public void renderWithAnimations(ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices,
-            VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        if (exterior.tardis().isEmpty())
-            return;
-
+    public void renderWithAnimations(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices,
+                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
         matrices.push();
         matrices.scale(1f, 1f, 1f);
         matrices.translate(0, -1.5f, 0);
-        this.renderDoors(exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, false);
+        this.renderDoors(tardis, exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, false);
 
-        super.renderWithAnimations(exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(tardis, exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
     }
 
@@ -107,15 +105,12 @@ public class BoothExteriorModel extends ExteriorModel {
     }
 
     @Override
-    public void renderDoors(ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
-        if (exterior.tardis().isEmpty())
-            return;
-
+    public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
         if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS)
-            this.k2.getChild("Door").yaw = exterior.tardis().get().door().isOpen() ? 1.575F : 0.0F;
+            this.k2.getChild("Door").yaw = tardis.door().isOpen() ? 1.575F : 0.0F;
         else {
             float maxRot = 90f;
-            this.k2.getChild("Door").yaw = (float) Math.toRadians(maxRot * exterior.tardis().get().door().getLeftRot());
+            this.k2.getChild("Door").yaw = (float) Math.toRadians(maxRot * tardis.door().getLeftRot());
         }
 
         if (isBOTI) {

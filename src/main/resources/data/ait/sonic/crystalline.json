@@ -7,7 +7,5 @@
     "scanning": "ait:item/sonic/crystalline/scanning",
     "tardis": "ait:item/sonic/crystalline/tardis"
   },
-  "loyalty": {
-    "type": "NEUTRAL"
-  }
+  "loyalty": "NEUTRAL"
 }

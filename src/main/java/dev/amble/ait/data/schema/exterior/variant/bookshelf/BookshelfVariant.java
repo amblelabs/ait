@@ -32,38 +32,38 @@ public abstract class BookshelfVariant extends ExteriorVariantSchema {
         return DoorRegistry.REGISTRY.get(BookshelfDoorVariant.REFERENCE);
     }
 
-//    @Override
-//    public boolean hasPortals() {
-//        return true;
-//    }
+    @Override
+    public boolean hasPortals() {
+        return false;
+    }
 
-//    @Override
-//    public Vec3d adjustPortalPos(Vec3d pos, byte direction) {
-//        return switch (direction) {
-//            case 0 -> pos.add(0, 0, -0.4); // NORTH
-//            case 1, 2, 3 -> pos; // NORTH EAST
-//            case 4 -> pos.add(0.628, 0, 0); // EAST
-//            case 5, 6, 7 -> pos; // SOUTH EAST
-//            case 8 -> pos.add(0, 0, 0.4); // SOUTH
-//            case 9, 10, 11 -> pos; // SOUTH WEST
-//            case 12 -> pos.add(-0.628, 0, 0); // WEST
-//            case 13, 14, 15 -> pos; // NORTH WEST
-//            default -> pos;
-//      };
-//  }
+    @Override
+    public Vec3d adjustPortalPos(Vec3d pos, byte direction) {
+       return switch (direction) {
+            case 0 -> pos.add(0, 0, -0.4); // NORTH
+            case 1, 2, 3 -> pos; // NORTH EAST
+           case 4 -> pos.add(0.628, 0, 0); // EAST
+          case 5, 6, 7 -> pos; // SOUTH EAST
+            case 8 -> pos.add(0, 0, 0.4); // SOUTH
+           case 9, 10, 11 -> pos; // SOUTH WEST
+           case 12 -> pos.add(-0.628, 0, 0); // WEST
+            case 13, 14, 15 -> pos; // NORTH WEST
+           default -> pos;
+      };
+  }
 
     @Override
     public Vec3d seatTranslations() {
         return new Vec3d(0.5, 1, 0.5);
     }
 
-//    @Override
-//    public double portalHeight() {
-//        return 2.8d;
-//    }
-//
-//    @Override
-//    public double portalWidth() {
-//        return 1.145d;
-//    }
+   @Override
+   public double portalHeight() {
+       return 2.6d;
+    }
+
+   @Override
+   public double portalWidth() {
+       return 1.145d;
+   }
 }

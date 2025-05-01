@@ -30,14 +30,13 @@ public class PlanetItems extends ItemContainer {
             new AItemSettings().maxDamage(240), true);
 
     // TOOLS
-
-    public static final Item MARTIAN_STONE_SWORD = new SwordItem(PlanetToolMaterial.MARTIAN_STONE, 5, 3f, new AItemSettings());
+    public static final Item MARTIAN_STONE_SWORD = new SwordItem(PlanetToolMaterial.MARTIAN_STONE, 3, -2.4f, new AItemSettings());
     public static final Item MARTIAN_STONE_SHOVEL = new ShovelItem(PlanetToolMaterial.MARTIAN_STONE, 0, 0f, new AItemSettings());
     public static final Item MARTIAN_STONE_PICKAXE = new PickaxeItem(PlanetToolMaterial.MARTIAN_STONE, 2, 2f, new AItemSettings());
     public static final Item MARTIAN_STONE_AXE = new AxeItem(PlanetToolMaterial.MARTIAN_STONE, 3, 1f, new AItemSettings());
     public static final Item MARTIAN_STONE_HOE = new HoeItem(PlanetToolMaterial.MARTIAN_STONE, 1, 2f, new AItemSettings());
 
-    public static final Item ANORTHOSITE_SWORD = new AnorthositeSwordItem(PlanetToolMaterial.ANORTHOSITE, 5, 3f, new AItemSettings());
+    public static final Item ANORTHOSITE_SWORD = new AnorthositeSwordItem(PlanetToolMaterial.ANORTHOSITE, 3, -2.4f, new AItemSettings());
     public static final Item ANORTHOSITE_SHOVEL = new ShovelItem(PlanetToolMaterial.ANORTHOSITE, 0, 0f, new AItemSettings());
     public static final Item ANORTHOSITE_PICKAXE = new PickaxeItem(PlanetToolMaterial.ANORTHOSITE, 2, 2f, new AItemSettings());
     public static final Item ANORTHOSITE_AXE = new AxeItem(PlanetToolMaterial.ANORTHOSITE, 3, 1f, new AItemSettings());

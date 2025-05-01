@@ -6,6 +6,7 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
@@ -14,30 +15,26 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 public class FastReturnControl extends Control {
 
     public FastReturnControl() {
-        super("fast_return");
+        super(AITMod.id("fast_return"));
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console) {
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+        super.runServer(tardis, player, world, console, leftClick);
+
         TravelHandler travel = tardis.travel();
-
-        if (tardis.sequence().hasActiveSequence() && tardis.sequence().controlPartOfSequence(this)) {
-            this.addToControlSequence(tardis, player, console);
-            return false;
-        }
-
         boolean same = travel.destination().equals(travel.previousPosition());
 
         if (travel.previousPosition() != null) {
             travel.forceDestination(same ? travel.position() : travel.previousPosition());
 
             this.messagePlayer(player, same);
-            return true;
+            return Result.SUCCESS;
         }
 
         Text text = Text.translatable("tardis.message.control.fast_return.destination_nonexistent");
         player.sendMessage(text, true);
-        return true;
+        return Result.FAILURE;
     }
 
     public void messagePlayer(ServerPlayerEntity player, boolean isLastPosition) {
@@ -47,7 +44,7 @@ public class FastReturnControl extends Control {
     }
 
     @Override
-    public SoundEvent getSound() {
+    public SoundEvent getFallbackSound() {
         return AITSounds.FAST_RETURN;
     }
 }

@@ -13,7 +13,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.Loyalty;
@@ -40,8 +40,6 @@ public class PermissionHandler extends KeyedTardisComponent {
     }
 
     static {
-        // TODO: make properties have a built-in util to C->S
-        // YES PLEASE :)))
         ServerPlayNetworking.registerGlobalReceiver(P19_LOYALTY_SYNC,
                 ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
                     if (tardis == null)

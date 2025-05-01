@@ -5,7 +5,6 @@ import java.util.*;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
@@ -19,9 +18,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
-import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRenderInfo;
-import dev.amble.ait.module.planet.core.space.planet.PlanetTransition;
 import dev.amble.ait.module.planet.core.space.system.Space;
 
 // todo - all this code is very sucky
@@ -73,7 +70,7 @@ public class SpaceUtils {
             teleportPlayerToTouchingPlanet(player);
         }
 
-        for (Entity entity : world.iterateEntities()) {
+        /*for (Entity entity : world.iterateEntities()) {
             if (!(entity instanceof LivingEntity)) continue;
 
             // get planet
@@ -86,7 +83,7 @@ public class SpaceUtils {
             if (entity.getBlockPos().getY() < transition.height()) continue;
 
             transition.run((LivingEntity) entity);
-        }
+        }*/
     }
 
     private static void applySuction(List<ServerPlayerEntity> player, Vec3d planetPos) {

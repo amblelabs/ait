@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "has_power=false": {
+      "model": "ait:block/matrix_energizer"
+    },
+    "age=0,has_power=true": {
+      "model": "ait:block/matrix_energizer"
+    },
+    "age=1,has_power=true": {
+      "model": "ait:block/matrix_energizer/matrix_energizer_1"
+    },
+    "age=2,has_power=true": {
+      "model": "ait:block/matrix_energizer/matrix_energizer_2"
+    },
+    "age=3,has_power=true": {
+      "model": "ait:block/matrix_energizer/matrix_energizer_3"
+    }
+  }
+}

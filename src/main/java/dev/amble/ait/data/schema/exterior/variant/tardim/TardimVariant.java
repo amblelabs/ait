@@ -40,21 +40,21 @@ public abstract class TardimVariant extends ExteriorVariantSchema {
     @Override
     public Vec3d adjustPortalPos(Vec3d pos, byte direction) {
         return switch (direction) {
-            case 0 -> pos.add(0, 0.5, -0.499f); // NORTH
-            case 1, 2, 3 -> pos.add(0.349f, 0.5, -0.349f); // NORTH EAST p n
-            case 4 -> pos.add(0.499f, 0.5, 0); // EAST
-            case 5, 6, 7 -> pos.add(0.349f, 0.5, 0.349f); // SOUTH EAST p p
-            case 8 -> pos.add(0, 0.5, 0.499f); // SOUTH
-            case 9, 10, 11 -> pos.add(-0.349f, 0.5, 0.349f); // SOUTH WEST n p
-            case 12 -> pos.add(-0.499f, 0.5, 0); // WEST
-            case 13, 14, 15 -> pos.add(-0.349f, 0.5, -0.349f); // NORTH WEST n n
+            case 0 -> pos.add(0, -0.03, -0.499f); // NORTH
+            case 1, 2, 3 -> pos.add(0.349f, -0.03, -0.349f); // NORTH EAST p n
+            case 4 -> pos.add(0.499f, -0.03, 0); // EAST
+            case 5, 6, 7 -> pos.add(0.349f, -0.03, 0.349f); // SOUTH EAST p p
+            case 8 -> pos.add(0, -0.03, 0.499f); // SOUTH
+            case 9, 10, 11 -> pos.add(-0.349f, -0.03, 0.349f); // SOUTH WEST n p
+            case 12 -> pos.add(-0.499f, -0.03, 0); // WEST
+            case 13, 14, 15 -> pos.add(-0.349f, -0.03, -0.349f); // NORTH WEST n n
             default -> pos;
         };
     }
 
     @Override
     public double portalHeight() {
-        return 2.7d;
+        return 2d;
     }
 
     @Override

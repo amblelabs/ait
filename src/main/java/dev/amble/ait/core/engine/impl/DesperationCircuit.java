@@ -1,5 +1,8 @@
 package dev.amble.ait.core.engine.impl;
 
+import net.minecraft.item.Item;
+
+import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.engine.StructureHolder;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
@@ -12,6 +15,11 @@ public class DesperationCircuit extends SubSystem implements StructureHolder {
     @Override
     public MultiBlockStructure getStructure() {
         return MultiBlockStructure.EMPTY;
+    }
+
+    @Override
+    public Item asItem() {
+        return AITItems.DESPERATION_CIRCUIT;
     }
 
     @Override

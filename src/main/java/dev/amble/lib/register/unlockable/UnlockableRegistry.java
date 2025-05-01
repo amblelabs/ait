@@ -19,12 +19,12 @@ import dev.amble.ait.data.Loyalty;
 public abstract class UnlockableRegistry<T extends Unlockable> extends SimpleDatapackRegistry<T> {
 
     protected UnlockableRegistry(Function<InputStream, T> deserializer, Codec<T> codec, Identifier packet,
-            Identifier name, boolean sync) {
+                                 Identifier name, boolean sync) {
         super(deserializer, codec, packet, name, sync);
     }
 
     protected UnlockableRegistry(Function<InputStream, T> deserializer, Codec<T> codec, String packet, String name,
-            boolean sync, String modid) {
+                                 boolean sync, String modid) {
         super(deserializer, codec, packet, name, sync, modid);
     }
 

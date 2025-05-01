@@ -8,7 +8,8 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
 public class TardimDoorModel extends DoorModel {
@@ -62,26 +63,26 @@ public class TardimDoorModel extends DoorModel {
     }
 
     @Override
-    public void renderWithAnimations(AbstractLinkableBlockEntity linkableBlockEntity, ModelPart root, MatrixStack matrices,
+    public void renderWithAnimations(ClientTardis tardis, AbstractLinkableBlockEntity linkableBlockEntity, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
         matrices.push();
         matrices.translate(0, -1.5f, 0);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180f));
 
         if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS) {
-            DoorHandler handler = linkableBlockEntity.tardis().get().door();
+            DoorHandler handler = tardis.door();
 
             this.tardis.getChild("left_door").yaw = (handler.isLeftOpen() || handler.isOpen()) ? -1.575f : 0.0F;
             this.tardis.getChild("right_door").yaw = (handler.isRightOpen() || handler.areBothOpen()) ? 1.575f : 0.0F;
         } else {
             float maxRot = 90f;
 
-            DoorHandler handler = linkableBlockEntity.tardis().get().door();
+            DoorHandler handler = tardis.door();
             this.tardis.getChild("left_door").yaw = (float) -Math.toRadians(maxRot*handler.getLeftRot());
             this.tardis.getChild("right_door").yaw = (float) Math.toRadians(maxRot*handler.getRightRot());
         }
 
-        super.renderWithAnimations(linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
     }
 }

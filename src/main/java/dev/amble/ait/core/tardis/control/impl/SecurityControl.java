@@ -10,34 +10,31 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.item.KeyItem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.data.Loyalty;
 
 public class SecurityControl extends Control {
 
     public SecurityControl() {
         // ⨷ ?
-        super("protocol_19");
+        super(AITMod.id("protocol_19"));
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console) {
-        if (tardis.sequence().hasActiveSequence() && tardis.sequence().controlPartOfSequence(this)) {
-            this.addToControlSequence(tardis, player, console);
-            return false;
-        }
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+        super.runServer(tardis, player, world, console, leftClick);
 
         if (!hasMatchingKey(player, tardis))
-            return false;
+            return Result.FAILURE;
 
         boolean security = tardis.stats().security().get();
         tardis.stats().security().set(!security);
-        return true;
+        return security ? Result.SUCCESS : Result.SUCCESS_ALT;
     }
 
     public static void runSecurityProtocols(Tardis tardis) {
@@ -66,7 +63,8 @@ public class SecurityControl extends Control {
         if (player.hasPermissionLevel(2))
             return true;
 
-        boolean companion = tardis.loyalty().get(player).isOf(Loyalty.Type.COMPANION);
+        if (!tardis.loyalty().get(player).isOf(tardis.permissions().p19Loyalty().get()))
+            return false;
 
         if (!KeyItem.isKeyInInventory(player))
             return false;
@@ -76,19 +74,18 @@ public class SecurityControl extends Control {
         for (ItemStack stack : keys) {
             Tardis found = KeyItem.getTardisStatic(player.getWorld(), stack);
 
-            if (stack.getItem() == AITItems.SKELETON_KEY) {
+            if (stack.getItem() == AITItems.SKELETON_KEY)
                 return true;
-            }
 
             if (found == tardis)
-                return companion;
+                return true;
         }
 
         return false;
     }
 
     @Override
-    public SoundEvent getSound() {
+    public SoundEvent getFallbackSound() {
         return AITSounds.PROTOCOL_19;
     }
 

@@ -8,9 +8,11 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.config.AITConfig;
+import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.module.planet.core.item.SpacesuitItem;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
@@ -27,17 +29,20 @@ public class SpaceSuitOverlay implements HudRenderCallback {
 
         Planet planet = PlanetRegistry.getInstance().get(mc.world);
 
+        boolean isPlanetOrTARDIS = planet != null || TardisServerWorld.isTardisDimension(mc.world);
+
         if (!mc.options.getPerspective().isFirstPerson())
             return;
 
         TextRenderer textRenderer = mc.textRenderer;
 
-        if (planet != null &&mc.player.getEquippedStack(EquipmentSlot.HEAD).getItem() instanceof SpacesuitItem) {
+        if (isPlanetOrTARDIS && mc.player.getEquippedStack(EquipmentSlot.HEAD).getItem() instanceof SpacesuitItem) {
             stack.push();
             stack.scale(1.5f, 1.5f, 1.5f);
 
             drawContext.drawTextWithShadow(textRenderer,
-                    Text.literal(this.getTemperatureType(AITMod.CONFIG, planet)),
+                    TardisServerWorld.isTardisDimension(mc.world) ? Text.literal("??????").formatted(Formatting.OBFUSCATED) :
+                            Text.literal(this.getTemperatureType(AITMod.CONFIG, planet)),
                     0, 0, 0xFFFFFF);
 
             stack.pop();

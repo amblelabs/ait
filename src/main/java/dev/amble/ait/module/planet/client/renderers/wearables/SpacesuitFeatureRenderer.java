@@ -10,11 +10,11 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
-import net.minecraft.client.render.entity.model.EntityModelLoader;
-import net.minecraft.client.render.entity.model.PlayerEntityModel;
+import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 
@@ -23,7 +23,7 @@ import dev.amble.ait.module.planet.client.models.wearables.SpacesuitModel;
 import dev.amble.ait.module.planet.core.item.SpacesuitItem;
 
 @Environment(value = EnvType.CLIENT)
-public class SpacesuitFeatureRenderer<T extends LivingEntity, M extends PlayerEntityModel<T>>
+public class SpacesuitFeatureRenderer<T extends LivingEntity, M extends EntityModel<T> & ModelWithArms>
         extends
             FeatureRenderer<T, M> {
 
@@ -40,7 +40,7 @@ public class SpacesuitFeatureRenderer<T extends LivingEntity, M extends PlayerEn
     public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, T livingEntity,
                        float f, float g, float h, float j, float k, float l) {
 
-        if (!(livingEntity instanceof AbstractClientPlayerEntity))
+        if (!(livingEntity instanceof AbstractClientPlayerEntity || livingEntity instanceof ArmorStandEntity))
             return;
 
         matrixStack.push();
@@ -56,12 +56,12 @@ public class SpacesuitFeatureRenderer<T extends LivingEntity, M extends PlayerEn
             }
         }
 
-        this.model.Head.copyTransform(getContextModel().head);
-        this.model.Body.copyTransform(getContextModel().body);
-        this.model.LeftArm.copyTransform(getContextModel().leftArm);
-        this.model.RightArm.copyTransform(getContextModel().rightArm);
-        this.model.LeftLeg.copyTransform(getContextModel().leftLeg);
-        this.model.RightLeg.copyTransform(getContextModel().rightLeg);
+        this.model.Head.copyTransform(((BipedEntityModel) getContextModel()).head);
+        this.model.Body.copyTransform(((BipedEntityModel) getContextModel()).body);
+        this.model.LeftArm.copyTransform(((BipedEntityModel) getContextModel()).leftArm);
+        this.model.RightArm.copyTransform(((BipedEntityModel) getContextModel()).rightArm);
+        this.model.LeftLeg.copyTransform(((BipedEntityModel) getContextModel()).leftLeg);
+        this.model.RightLeg.copyTransform(((BipedEntityModel) getContextModel()).rightLeg);
         this.model.setAngles(livingEntity, f, g, j, k, l);
 
         VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(RenderLayer.getEntityCutoutNoCullZOffset(BLANK_SPACESUIT));

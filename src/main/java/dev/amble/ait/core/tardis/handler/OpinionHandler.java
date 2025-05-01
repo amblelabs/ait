@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.api.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.core.likes.ItemOpinionRegistry;
 import dev.amble.ait.core.likes.Opinion;
 import dev.amble.ait.core.likes.OpinionCache;

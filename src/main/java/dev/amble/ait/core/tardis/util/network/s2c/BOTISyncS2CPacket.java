@@ -55,9 +55,9 @@ public class BOTISyncS2CPacket implements FabricPacket {
         BlockEntity exterior = world.getBlockEntity(this.pos);
 
         if (exterior instanceof ExteriorBlockEntity exteriorBlockEntity) {
-            if (exteriorBlockEntity.tardis() == null) return false;
+            if (!exteriorBlockEntity.isLinked()) return false;
             Tardis tardis = exteriorBlockEntity.tardis().get();
-            tardis.stats().setTargetWorld(exteriorBlockEntity, this.targetWorld, this.targetPos, false);
+            // tardis.stats().setTargetWorld(exteriorBlockEntity, this.targetWorld, this.targetPos, false);
         }
         return true;
     }

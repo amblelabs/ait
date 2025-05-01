@@ -17,7 +17,7 @@ import net.minecraft.world.World;
 
 import dev.amble.ait.api.AITUseActions;
 import dev.amble.ait.api.ArtronHolderItem;
-import dev.amble.ait.api.link.LinkableItem;
+import dev.amble.ait.api.tardis.link.LinkableItem;
 import dev.amble.ait.client.sounds.ClientSoundManager;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.item.sonic.SonicMode;
@@ -96,7 +96,7 @@ public class SonicItem extends LinkableItem implements ArtronHolderItem {
         int ticks = mode.maxTime() - remainingUseTicks;
 
         if (ticks % 10 == 0) {
-            removeFuel(1, stack);
+            removeFuel(mode.fuelCost(), stack);
 
             if (!this.checkFuel(stack))
                 return;

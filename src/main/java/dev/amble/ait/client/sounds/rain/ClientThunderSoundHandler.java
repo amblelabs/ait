@@ -3,7 +3,7 @@ package dev.amble.ait.client.sounds.rain;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundCategory;
 
-import dev.amble.ait.api.TardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.sounds.LoopingSound;
 import dev.amble.ait.client.sounds.PositionedLoopingSound;
 import dev.amble.ait.client.sounds.SoundHandler;

@@ -38,6 +38,11 @@ public abstract class ClientStallionVariant extends ClientExteriorVariantSchema 
     }
 
     @Override
+    public boolean hasTransparentDoors() {
+        return true;
+    }
+
+    @Override
     public Identifier texture() {
         return AITMod.id(TEXTURE_PATH + name + ".png");
     }

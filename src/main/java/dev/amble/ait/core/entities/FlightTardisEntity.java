@@ -18,20 +18,23 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Arm;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RotationPropertyHelper;
+import net.minecraft.util.math.Vec2f;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.link.LinkableLivingEntity;
+import dev.amble.ait.api.tardis.link.LinkableLivingEntity;
 import dev.amble.ait.client.util.ClientShakeUtil;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITEntityTypes;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.control.impl.DirectionControl;
 import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.mixin.rwf.LivingEntityAccessor;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
@@ -83,7 +86,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     @Override
     protected float getOffGroundSpeed() {
-        if (this.tardis() != null) {
+        if (this.isLinked()  && this.tardis().get().travel() != null) {
             float spaceSpeed = this.getWorld().getRegistryKey().equals(AITDimensions.SPACE) ? 0.1f : 0.05f;
             return this.getMovementSpeed() * (this.tardis().get().travel().speed() * spaceSpeed);
         }
@@ -98,24 +101,30 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
         PlayerEntity player = this.getPlayer();
 
-        if (!this.isLinked()) return;
+        if (player == null)
+            return;
+
+        if (!this.isLinked())
+            return;
 
         Tardis tardis = this.tardis().get();
 
+        if (player.isSneaking() && (this.isOnGround() || tardis.travel().antigravs().get())
+                && this.getWorld().isInBuildLimit(this.getBlockPos()))
+            this.finishLand(tardis, player);
+
         if (this.getWorld().isClient()) {
             MinecraftClient client = MinecraftClient.getInstance();
-            Tardis tardisClient = this.tardis().get().asClient();
+
             if (client.player == this.getControllingPassenger()) {
                 client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
-                //client.options.hudHidden = true;
+
                 if (!this.groundCollision)
-                    ClientShakeUtil.shake((float) (tardisClient.travel().speed() + this.getVelocity().horizontalLength()) / tardisClient.travel().maxSpeed().get());
+                    ClientShakeUtil.shake((float) (tardis.travel().speed() + this.getVelocity().horizontalLength()) / tardis.travel().maxSpeed().get());
             }
+
             return;
         }
-
-        if (player == null)
-            return;
 
         if (!player.isInvisible())
             player.setInvisible(true);
@@ -123,21 +132,13 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         if (!player.isInvulnerable())
             player.setInvulnerable(true);
 
-        boolean onGround = this.isOnGround();
-
         tardis.flight().tickFlight((ServerPlayerEntity) player);
 
         if (tardis.door().isOpen()) {
             this.getWorld().getOtherEntities(this, this.getBoundingBox(), entity
                     -> !entity.isSpectator() && entity != player && entity instanceof LivingEntity).forEach(
-                    entity -> TardisUtil.teleportInside(tardis, entity)
+                    entity -> TardisUtil.teleportInside(tardis.asServer(), entity)
             );
-        }
-
-        if (player.isSneaking() && (onGround || tardis.travel().antigravs().get())
-                && this.getY() > this.getWorld().getBottomY() && this.getY() < this.getWorld().getTopY()) {
-            //System.out.println(onGround);
-            this.finishLand(tardis, player);
         }
     }
 
@@ -168,13 +169,14 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
             client.options.hudHidden = false;
             return;
         }
+
         if (!(player instanceof ServerPlayerEntity serverPlayer))
             return;
 
         if (this.interiorPos == null) {
-            TardisUtil.teleportInside(tardis, serverPlayer);
+            TardisUtil.teleportInside(tardis.asServer(), serverPlayer);
         } else {
-            TardisUtil.teleportToInteriorPosition(tardis, serverPlayer, this.interiorPos);
+            TardisUtil.teleportToInteriorPosition(tardis.asServer(), serverPlayer, this.interiorPos);
         }
 
         tardis.flight().exitFlight(serverPlayer);
@@ -224,7 +226,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     @Override
     protected Vec3d getControlledMovementInput(PlayerEntity controllingPlayer, Vec3d movementInput) {
-        if (this.tardis() == null || !this.tardis().get().fuel().hasPower()) return new Vec3d(0, 0, 0);
+        if (!this.isLinked() || !this.tardis().get().fuel().hasPower()) return new Vec3d(0, 0, 0);
         float f = controllingPlayer.sidewaysSpeed * this.tardis().get().travel().speed();
         float g = controllingPlayer.forwardSpeed * this.tardis().get().travel().speed();
 
@@ -277,20 +279,33 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
-        this.interiorPos = BlockPos.fromLong(nbt.getLong("InteriorPos"));
+
+        if (nbt.contains("InteriorPos")) {
+            this.interiorPos = BlockPos.fromLong(nbt.getLong("InteriorPos"));
+        } else {
+            this.interiorPos = BlockPos.ORIGIN;
+        }
     }
 
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
         if (this.getWorld().isClient()) return;
+        if (!this.isLinked()) return;
 
-        BlockPos consolePos = this.tardis().get().getDesktop().getConsolePos().iterator().next();
-        BlockPos pos = WorldUtil.findSafeXZ(this.tardis().get().asServer().getInteriorWorld(), consolePos, 2);
-        nbt.putLong("InteriorPos", this.interiorPos == null
-                ? pos == null
-                ? new BlockPos(0, 0, 0).asLong() :
-                pos.asLong() : this.interiorPos.asLong());
+
+        TardisDesktop desktop = tardis().get().getDesktop();
+
+        if (interiorPos == null)
+            interiorPos = desktop.getConsolePos().iterator().next();
+
+        if (interiorPos == null)
+            interiorPos = desktop.getDoorPos().getPos();
+
+        if (interiorPos == null)
+            interiorPos = new BlockPos(0, 0, 0);
+
+        nbt.putLong("InteriorPos", interiorPos.asLong());
     }
 
     public static DefaultAttributeContainer.Builder createDummyAttributes() {

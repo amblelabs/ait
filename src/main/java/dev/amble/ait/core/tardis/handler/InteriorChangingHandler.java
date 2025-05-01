@@ -10,34 +10,40 @@ import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ChestBlock;
 import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.ParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisEvents;
-import dev.amble.ait.api.TardisTickable;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.core.AITDamageTypes;
+import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.item.ChargedZeitonCrystalItem;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.core.util.SafePosSearch;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
@@ -48,18 +54,27 @@ import dev.amble.ait.data.properties.integer.IntValue;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.DesktopRegistry;
+import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 
 public class InteriorChangingHandler extends KeyedTardisComponent implements TardisTickable {
     public static final Identifier CHANGE_DESKTOP = AITMod.id("change_desktop");
     private static final Property<Identifier> QUEUED_INTERIOR_PROPERTY = new Property<>(Property.Type.IDENTIFIER, "queued_interior", new Identifier(""));
     private static final BoolProperty QUEUED = new BoolProperty("queued");
     private static final BoolProperty REGENERATING = new BoolProperty("regenerating");
+
     public static final int MAX_PLASMIC_MATERIAL_AMOUNT = 8;
+    private static final Text HINT_TEXT = Text.translatable("tardis.message.growth.hint").formatted(Formatting.DARK_GRAY, Formatting.ITALIC);
+
     private final Value<Identifier> queuedInterior = QUEUED_INTERIOR_PROPERTY.create(this);
     private static final IntProperty PLASMIC_MATERIAL_AMOUNT = new IntProperty("plasmic_material_amount");
     private final IntValue plasmicMaterialAmount = PLASMIC_MATERIAL_AMOUNT.create(this);
+    private static final BoolProperty HAS_CAGE = new BoolProperty("has_cage");
+    private final BoolValue hasCage = HAS_CAGE.create(this);
     private final BoolValue queued = QUEUED.create(this);
     private final BoolValue regenerating = REGENERATING.create(this);
+
+    @Exclude
+    private boolean countdownStarted = false;
 
     @Exclude
     private List<ItemStack> restorationChestContents;
@@ -70,9 +85,22 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
     @Override
     public void onLoaded() {
+        plasmicMaterialAmount.of(this, PLASMIC_MATERIAL_AMOUNT);
+        hasCage.of(this, HAS_CAGE);
         queuedInterior.of(this, QUEUED_INTERIOR_PROPERTY);
         queued.of(this, QUEUED);
         regenerating.of(this, REGENERATING);
+
+        if (this.isServer() && this.regenerating.get()) {
+            this.regenerating.set(false);
+
+            TardisDesktopSchema queued = this.getQueuedInterior();
+
+            if (queued == null)
+                return;
+
+            tardis.interiorChangingHandler().queueInteriorChange(queued);
+        }
     }
 
     static {
@@ -88,7 +116,9 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
             if (!tardis.isGrowth())
                 return TardisEvents.Interaction.PASS;
 
+            tardis.travel().autopilot(false);
             tardis.getExterior().setType(CategoryRegistry.CAPSULE);
+            tardis.getExterior().setVariant(ExteriorVariantRegistry.CAPSULE_DEFAULT);
             return TardisEvents.Interaction.SUCCESS; // force mat even if checks fail
         });
 
@@ -116,6 +146,14 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
     public int plasmicMaterialAmount() {
         return plasmicMaterialAmount.get();
+    }
+
+    public boolean hasCage() {
+        return hasCage.get();
+    }
+
+    public void setHasCage(boolean value) {
+        hasCage.set(value);
     }
 
     public void setPlasmicMaterialAmount(int amount) {
@@ -160,7 +198,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
         TravelHandler travel = this.tardis.travel();
 
-        if (travel.getState() == TravelHandler.State.FLIGHT && !travel.isCrashing())
+        if (travel.getState() == TravelHandler.State.FLIGHT && !travel.isCrashing() && !tardis.isGrowth())
             travel.crash();
 
         restorationChestContents = new ArrayList<>();
@@ -185,13 +223,46 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
                         travel.autopilot(true);
                         travel.forceDemat();
+                        this.replaceAllConsolesWithGrowth();
                     } else {
                         tardis.removeFuel(5000 * tardis.travel().instability());
                     }
 
                     TardisUtil.sendMessageToLinked(tardis.asServer(), Text.translatable("tardis.message.interiorchange.success", tardis.stats().getName(), tardis.getDesktop().getSchema().name()));
                     createChestAtInteriorDoor(restorationChestContents);
+
+                    ParticleEffect particle = ParticleTypes.CLOUD;
+                    tardis.door().setDoorParticles(particle);
+                    Scheduler.get().runTaskLater(() -> {
+                        tardis.door().setDoorParticles(null);
+                    }, TimeUnit.SECONDS, 3);
                 }).execute();
+    }
+
+    /**
+     * Replaces the console with air, and places soul sand beneath it.
+     * @param cPos The position of the console to replace.
+     */
+    private void replaceConsoleWithGrowth(BlockPos cPos) {
+        ServerWorld world = tardis.asServer().worldRef().get();
+
+        if (!(world.getBlockEntity(cPos) instanceof ConsoleBlockEntity console))
+            return;
+
+        world.setBlockState(cPos, Blocks.AIR.getDefaultState());
+        world.setBlockState(cPos.down(), Blocks.SOUL_SAND.getDefaultState());
+
+        console.onBroken();
+    }
+
+    /**
+     * Replaces all consoles with growth.
+     * @see #replaceConsoleWithGrowth(BlockPos)
+     */
+    private void replaceAllConsolesWithGrowth() {
+        for (BlockPos cPos : tardis.getDesktop().getConsolePos()) {
+            replaceConsoleWithGrowth(cPos);
+        }
     }
 
     private void warnPlayers() {
@@ -210,15 +281,29 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         }
 
         DirectedBlockPos door = this.tardis.getDesktop().getDoorPos();
-        CachedDirectedGlobalPos safe = WorldUtil.locateSafe(CachedDirectedGlobalPos.create(this.tardis.asServer().getInteriorWorld(), door.getPos().offset(door.toMinecraftDirection(), 2), door.getRotation()), TravelHandlerBase.GroundSearch.MEDIAN, true);
 
+        CachedDirectedGlobalPos safe = CachedDirectedGlobalPos.create(
+                this.tardis.asServer().worldRef().get(),
+                door.getPos().offset(door.toMinecraftDirection(), 2),
+                door.getRotation()
+        );
+
+        // vars are ew, but fully qualifying the package name is worse.
+        var ref = new dev.drtheo.queue.api.util.Value<BlockPos>(null);
+
+        SafePosSearch.wrapSafe(safe, SafePosSearch.Kind.MEDIAN, true,
+                result -> this.finishCreatingChest(result, contents));
+    }
+
+    private void finishCreatingChest(CachedDirectedGlobalPos safe, List<ItemStack> contents) {
         // set block to chest
         if (!(safe.getWorld().getBlockState(safe.getPos()).isAir())) {
             AITMod.LOGGER.error("Failed to create recovery chest at {} for {}", safe, this.tardis);
             return;
         }
 
-        safe.getWorld().setBlockState(safe.getPos(), Blocks.CHEST.getDefaultState().with(ChestBlock.FACING, door.toMinecraftDirection().getOpposite()), 3);
+        Direction doorDir = tardis.getDesktop().getDoorPos().toMinecraftDirection();
+        safe.getWorld().setBlockState(safe.getPos(), Blocks.CHEST.getDefaultState().with(ChestBlock.FACING, doorDir.getOpposite()), Block.NOTIFY_ALL);
 
         // set chest contents
         ChestBlockEntity chest = (ChestBlockEntity) safe.getWorld().getBlockEntity(safe.getPos());
@@ -242,6 +327,10 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
             this.generateInteriorWithItem();
 
             if (!isQueued) {
+                if (server.getTicks() % 200 == 0 && this.hasEnoughPlasmicMaterial())
+                    this.tardis.asServer().worldRef().get().getPlayers().forEach(player ->
+                            player.sendMessage(HINT_TEXT, true));
+
                 if (this.tardis.door().isClosed()) {
                     this.tardis.door().openDoors();
                 } else {
@@ -257,21 +346,40 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
             this.queued.set(false);
             this.regenerating.set(false);
 
-            tardis.alarm().enabled().set(false);
+            tardis.alarm().disable();
             return;
         }
 
         if (!TardisUtil.isInteriorEmpty(tardis.asServer())) {
-            warnPlayers();
-            return;
+            if (this.regenerating.get()) {
+                PlayerEntity target = TardisUtil.getAnyPlayerInsideInterior(tardis.asServer().worldRef().get());
+
+                if (this.tardis().subsystems().lifeSupport().isEnabled()) {
+                    TardisUtil.teleportOutside(tardis.asServer(), target);
+                } else {
+                    target.damage(AITDamageTypes.of(target.getWorld(), AITDamageTypes.INTERIOR_CHANGE), Float.MAX_VALUE);
+                }
+            }
         }
 
-        if (!this.regenerating.get()) {
+        if (!this.regenerating.get() && !this.countdownStarted) {
+            this.startRegeneratingCountdown();
+        }
+    }
+
+    private ServerAlarmHandler.Countdown startRegeneratingCountdown() {
+        ServerAlarmHandler.Countdown cd = new ServerAlarmHandler.Countdown.Builder().bellTolls(5).message("tardis.message.interiorchange.regenerating").thenRun(() -> {
             tardis.getDesktop().startQueue(true);
             Scheduler.get().runTaskLater(this::changeInterior, TimeUnit.SECONDS, 5);
 
             this.regenerating.set(true);
-        }
+            this.countdownStarted = false;
+        });
+
+        this.tardis().alarm().enable(cd);
+        this.countdownStarted = true;
+
+        return cd;
     }
 
     public boolean hasEnoughPlasmicMaterial() {
@@ -286,9 +394,11 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
         TardisUtil.getEntitiesInInterior(this.tardis, 50).stream()
                 .filter(entity -> entity instanceof ItemEntity item
-                        && (item.getStack().getItem() == Items.NETHER_STAR || isChargedCrystal(item.getStack()))
+                        && (item.getStack().getItem() == AITItems.PERSONALITY_MATRIX)
                         && entity.isTouchingWater())
                 .forEach(entity -> {
+                    ItemEntity item = (ItemEntity) entity;
+                    ItemStack stack = item.getStack();
                     DirectedGlobalPos position = this.tardis.travel().position();
 
                     if (position == null)
@@ -301,23 +411,17 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                     entity.getWorld().playSound(null, position.getPos(), SoundEvents.BLOCK_BEACON_POWER_SELECT,
                             SoundCategory.BLOCKS, 10.0F, 0.75F);
 
-                    this.queueInteriorChange(DesktopRegistry.getInstance().getRandom(this.tardis));
+                    this.queueInteriorChange(DesktopRegistry.getInstance().get(AITMod.id("cave")));
+                    if (stack.isOf(AITItems.PERSONALITY_MATRIX)) {
+                        NbtCompound nbt = stack.getOrCreateNbt();
+                        if (nbt.contains("name")) {
+                            this.tardis.stats().setName(nbt.getString("name"));
+                        }
+                    }
 
                     if (this.queued.get())
                         entity.discard();
                 });
-    }
-
-    private boolean isChargedCrystal(ItemStack stack) {
-        if (!(stack.getItem() instanceof ChargedZeitonCrystalItem))
-            return false;
-
-        NbtCompound nbt = stack.getOrCreateNbt();
-
-        if (!nbt.contains(ChargedZeitonCrystalItem.FUEL_KEY))
-            return false;
-
-        return nbt.getDouble(ChargedZeitonCrystalItem.FUEL_KEY) >= ChargedZeitonCrystalItem.MAX_FUEL;
     }
 
     private boolean canQueue() {

@@ -7,7 +7,5 @@
     "scanning": "ait:item/sonic/type_100/scanning",
     "tardis": "ait:item/sonic/type_100/tardis"
   },
-  "loyalty": {
-    "type": "OWNER"
-  }
+  "loyalty": "OWNER"
 }

@@ -2,8 +2,8 @@ package dev.amble.ait.core.tardis.handler;
 
 import net.minecraft.server.MinecraftServer;
 
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisTickable;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;

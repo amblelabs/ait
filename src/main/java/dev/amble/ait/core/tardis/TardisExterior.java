@@ -11,8 +11,8 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.TardisComponent;
-import dev.amble.ait.api.TardisEvents;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
@@ -97,7 +97,7 @@ public class TardisExterior extends TardisComponent {
         this.category = exterior;
 
         if (exterior != this.getVariant().category()) {
-            AITMod.LOGGER.error("Force changing exterior variant to a random one to ensure it matches!");
+            //AITMod.LOGGER.error("Force changing exterior variant to a random one to ensure it matches!");
             this.setVariant(ExteriorVariantRegistry.getInstance().pickRandomWithParent(exterior));
         }
 
@@ -110,7 +110,9 @@ public class TardisExterior extends TardisComponent {
     }
 
     public Optional<ExteriorBlockEntity> findExteriorBlock() {
-        if (tardis.travel().position().getWorld().isClient()) return Optional.empty();
+        CachedDirectedGlobalPos pos = tardis.travel().position();
+
+        if (pos.getWorld() == null || pos.getWorld().isClient()) return Optional.empty();
 
         BlockEntity found = tardis.travel().position().getWorld().getBlockEntity(tardis.travel().position().getPos());
 
@@ -122,6 +124,8 @@ public class TardisExterior extends TardisComponent {
 
     public void playSound(SoundEvent sound, SoundCategory category, float volume, float pitch) {
         CachedDirectedGlobalPos pos = tardis.travel().position();
+
+        if (pos == null || pos.getWorld() == null) return;
 
         pos.getWorld().playSound(null, pos.getPos(), sound, category, volume, pitch);
     }

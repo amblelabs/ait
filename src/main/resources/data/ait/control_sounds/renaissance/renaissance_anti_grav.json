@@ -1,0 +1,6 @@
+{
+  "control": "ait:antigravs",
+  "console": "ait:console/renaissance",
+  "success_sound": "ait:controls/renaissance_anti_grav",
+  "alt_sound": "ait:controls/renaissance_anti_grav"
+}

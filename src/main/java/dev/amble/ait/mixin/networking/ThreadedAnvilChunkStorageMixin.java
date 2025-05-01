@@ -11,12 +11,12 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.world.chunk.WorldChunk;
 
-import dev.amble.ait.api.TardisEvents;
+import dev.amble.ait.api.tardis.TardisEvents;
 
 @Mixin(value = ThreadedAnvilChunkStorage.class, priority = 1001)
 public abstract class ThreadedAnvilChunkStorageMixin {
 
-    @Inject(method = "sendChunkDataPackets", at = @At("TAIL"))
+    @Inject(method = "sendChunkDataPackets", at = @At("RETURN"))
     public void sendChunkDataPackets(ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk, CallbackInfo ci) {
         TardisEvents.SYNC_TARDIS.invoker().sync(player, chunk);
     }

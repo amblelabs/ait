@@ -1,0 +1,8 @@
+{
+  "id": "ait:likes_repeater",
+  "stack": {
+    "id": "minecraft:repeater",
+    "Count": 1
+  },
+  "loyalty": 10
+}

@@ -10,14 +10,14 @@ import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITVillagers;
 
 public class CustomTrades {
-    public static void registerCustomTrades() {
+    public static void register() {
         // Fabricator Engineers Trades
         // Level 1
         TradeOfferHelper.registerVillagerOffers(AITVillagers.FABRICATOR_ENGINEER, 1,
                 factories -> {
                     factories.add((entity, random) -> new TradeOffer(
                             new ItemStack(Items.EMERALD, 4),
-                            new ItemStack(AITItems.BULB, 3),
+                            new ItemStack(AITItems.PHOTON_ACCELERATOR, 3),
                             6, 5, 0.075f));
                 });
 
@@ -26,7 +26,7 @@ public class CustomTrades {
                 factories -> {
                     factories.add((entity, random) -> new TradeOffer(
                             new ItemStack(Items.IRON_INGOT, 5),
-                            new ItemStack(AITItems.CONDENSER, 2),
+                            new ItemStack(AITItems.ORTHOGONAL_ENGINE_FILTER, 2),
                             3, 3, 0.045f));
                 });
 
@@ -35,7 +35,7 @@ public class CustomTrades {
                     factories.add((entity, random) -> new TradeOffer(
                             new ItemStack(Items.COPPER_INGOT, 5),
                             new ItemStack(Items.IRON_INGOT, 3),
-                            new ItemStack(AITItems.INDUCTOR, 1),
+                            new ItemStack(AITItems.HYPERION_CORE_SHAFT, 1),
                             2, 4, 3, 0.105f));
                 });
 
@@ -87,7 +87,7 @@ public class CustomTrades {
         TradeOfferHelper.registerVillagerOffers(AITVillagers.FABRICATOR_ENGINEER, 3,
                 factories -> {
                     factories.add((entity, random) -> new TradeOffer(
-                            new ItemStack(AITItems.INDUCTOR, 8),
+                            new ItemStack(AITItems.HYPERION_CORE_SHAFT, 8),
                             new ItemStack(AITItems.BLUEPRINT, 1),
                             4, 2, 0.075f));
                 });

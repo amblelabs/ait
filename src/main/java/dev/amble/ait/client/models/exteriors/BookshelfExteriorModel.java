@@ -9,7 +9,8 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.link.v2.Linkable;
+import dev.amble.ait.api.tardis.link.v2.Linkable;
+import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
@@ -151,18 +152,15 @@ public class BookshelfExteriorModel extends ExteriorModel {
     }
 
     @Override
-    public void renderWithAnimations(ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices,
-            VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        if (!exterior.isLinked())
-            return;
-
+    public void renderWithAnimations(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices,
+                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
         matrices.push();
         matrices.scale(1F, 1F, 1F);
         matrices.translate(0, -1.5f, 0);
 
-        this.renderDoors(exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, false);
+        this.renderDoors(tardis, exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, false);
 
-        super.renderWithAnimations(exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(tardis, exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
 
         matrices.pop();
     }
@@ -198,28 +196,25 @@ public class BookshelfExteriorModel extends ExteriorModel {
     }
 
     @Override
-    public void renderDoors(ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
-        if (exterior.tardis().isEmpty())
-            return;
+    public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
+        DoorHandler door = tardis.door();
 
         if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS) {
-            DoorHandler door = exterior.tardis().get().door();
-
             this.bookshelf.getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? -4.75F : 0.0F;
             this.bookshelf.getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen()) ? 4.75F : 0.0F;
         } else {
             float maxRot = 90f;
-            this.bookshelf.getChild("left_door").yaw = -(float) Math.toRadians(maxRot * exterior.tardis().get().door().getLeftRot());
-            this.bookshelf.getChild("right_door").yaw = (float) Math.toRadians(maxRot * exterior.tardis().get().door().getRightRot());
+            this.bookshelf.getChild("left_door").yaw = -(float) Math.toRadians(maxRot * door.getLeftRot());
+            this.bookshelf.getChild("right_door").yaw = (float) Math.toRadians(maxRot * door.getRightRot());
         }
 
-//        if (isBOTI) {
-//            matrices.push();
-//            matrices.scale(1F, 1F, 1F);
-//            matrices.translate(0.04, -1.26f, -0.36);
-//            this.bookshelf.getChild("left_door").render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
-//            this.bookshelf.getChild("right_door").render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
-//            matrices.pop();
-//        }
+      if (isBOTI) {
+          matrices.push();
+            matrices.scale(1F, 1F, 1F);
+           matrices.translate(0.04, -1.26f, -0.36);
+           this.bookshelf.getChild("left_door").render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
+           this.bookshelf.getChild("right_door").render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
+            matrices.pop();
+        }
     }
 }

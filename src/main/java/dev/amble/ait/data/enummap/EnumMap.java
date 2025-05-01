@@ -7,8 +7,10 @@ import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Custom and lightweight map implementation for enums. I know
- * {@link java.util.EnumMap} exists, but it's different.
+ * Custom and lightweight map implementation for enums.
+ * Faster than {@link java.util.EnumMap}.
+ *
+ * @author Theo.
  */
 public class EnumMap<K extends Ordered, V> {
 
@@ -41,10 +43,7 @@ public class EnumMap<K extends Ordered, V> {
     }
 
     public V remove(K k) {
-        V prev = values[k.index()];
-        values[k.index()] = null;
-
-        return prev;
+        return put(k, null);
     }
 
     public V get(K k) {
@@ -58,7 +57,7 @@ public class EnumMap<K extends Ordered, V> {
     public boolean containsKey(K k) {
         if ((this.size() - 1) < k.index()) return false;
 
-        return this.values[k.index()] != null;
+        return this.get(k) != null;
     }
 
     public void clear() {

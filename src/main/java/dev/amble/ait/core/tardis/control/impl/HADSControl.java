@@ -3,31 +3,28 @@ package dev.amble.ait.core.tardis.control.impl;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.core.tardis.handler.ServerAlarmHandler;
 
 public class HADSControl extends Control {
+    public static final Identifier ID = AITMod.id("alarms");
 
     // @TODO fix hads but for now it's changed to the alarm toggle
     public HADSControl() {
-        super("alarms");
+        super(ID);
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console) {
-        if (tardis.sequence().hasActiveSequence() && tardis.sequence().controlPartOfSequence(this)) {
-            this.addToControlSequence(tardis, player, console);
-            return false;
-        }
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+        super.runServer(tardis, player, world, console, leftClick);
 
-        ServerAlarmHandler alarms = tardis.alarm();
-        alarms.toggle();
-
-        return true;
+        tardis.alarm().toggle();
+        return tardis.alarm().enabled().get() ? Result.SUCCESS_ALT : Result.SUCCESS;
     }
 
     @Override
@@ -36,7 +33,7 @@ public class HADSControl extends Control {
     }
 
     @Override
-    public SoundEvent getSound() {
+    public SoundEvent getFallbackSound() {
         return AITSounds.ALARM;
     }
 }

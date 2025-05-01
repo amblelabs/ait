@@ -81,6 +81,10 @@ public abstract class ClientExteriorVariantSchema implements Identifiable {
         return this.door;
     }
 
+    public boolean hasTransparentDoors() {
+        return false;
+    }
+
     public static Object serializer() {
         return new Serializer();
     }

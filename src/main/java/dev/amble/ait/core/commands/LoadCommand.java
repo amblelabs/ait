@@ -6,6 +6,7 @@ import static net.minecraft.server.command.CommandManager.literal;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -32,7 +33,7 @@ public class LoadCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    public static int search(CommandContext<ServerCommandSource> context) {
+    public static int search(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerTardis loaded = TardisArgumentType.getTardis(context, "target");
         ServerCommandSource source = context.getSource();
         sendTardis(source, loaded);

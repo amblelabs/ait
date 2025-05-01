@@ -26,7 +26,7 @@ import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
-import dev.amble.ait.api.TardisClientEvents;
+import dev.amble.ait.api.tardis.TardisClientEvents;
 import dev.amble.ait.client.screens.ConsoleScreen;
 import dev.amble.ait.client.screens.SonicSettingsScreen;
 import dev.amble.ait.client.screens.TardisSecurityScreen;
@@ -76,7 +76,6 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         this.left = (this.width - this.bgWidth) / 2;
         this.createButtons();
 
-
         super.init();
     }
 
@@ -92,8 +91,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         this.close();
     }
 
-    private void createCompatButtons() {
-    }
+    private void createCompatButtons() { }
 
     private void createButtons() {
         choicesCount = 0;
@@ -139,7 +137,6 @@ public class InteriorSettingsScreen extends ConsoleScreen {
                 this.textRenderer.getWidth("<"), 10, Text.literal(""), button -> this.modeManager.previous(), this.textRenderer));
         this.addButton(new PressableTextWidget((width / 2 + 105), (height / 2 + 33),
                 this.textRenderer.getWidth(">"), 10, Text.literal(""), button -> this.modeManager.next(), this.textRenderer));
-
     }
 
     private void toSonicScreen() {
@@ -152,9 +149,6 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         this.buttons.add((ButtonWidget) button);
     }
 
-    // this might be useful, so remember this exists and use it later on ( although
-    // its giving NTM
-    // vibes.. )
     public PressableTextWidget createTextButton(Text text, ButtonWidget.PressAction onPress) {
         return this.createAnyButton(text, PressableTextWidget::new, onPress);
     }
@@ -219,13 +213,8 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         context.getMatrices().translate(0, 0, 0f);
         context.getMatrices().pop();
 
-        // FIXME @Loqor, this is dumb.
-        int startIndex = DependencyChecker.hasGravity() ? 4 : 3;
-
-
-        // arrow (HUM)
-
-        int buttonIndex = startIndex;
+        // TODO: this is a fucking nightmare
+        int buttonIndex = DependencyChecker.hasGravity() ? 4 : 3;
         if (!this.buttons.get(buttonIndex).isHovered())
             context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 7, this.buttons.get(buttonIndex).getY() - 3, 93, 166, 20,
                     12);
@@ -407,7 +396,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private void nextDesktop() {
         this.selectedDesktop = nextDesktop(this.selectedDesktop);
 
-        if (!isCurrentUnlocked())
+        if (!isCurrentUnlocked() || this.selectedDesktop == DesktopRegistry.DEFAULT_CAVE)
             nextDesktop(); // ooo incursion crash
     }
 
@@ -422,7 +411,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private void previousDesktop() {
         this.selectedDesktop = previousDesktop(this.selectedDesktop);
 
-        if (!isCurrentUnlocked())
+        if (!isCurrentUnlocked() || this.selectedDesktop == DesktopRegistry.DEFAULT_CAVE)
             previousDesktop(); // ooo incursion crash
     }
 

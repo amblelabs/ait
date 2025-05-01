@@ -10,19 +10,23 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
-import dev.amble.ait.api.link.v2.TardisRef;
-import dev.amble.ait.api.link.v2.block.InteriorLinkableBlockEntity;
+import dev.amble.ait.api.tardis.link.v2.TardisRef;
+import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
 import dev.amble.ait.core.blocks.control.RedstoneControlBlock;
 import dev.amble.ait.core.item.control.ControlBlockItem;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.registry.impl.ControlRegistry;
+import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 
 public abstract class ControlBlockEntity extends InteriorLinkableBlockEntity {
 
     private Control control;
+    private ConsoleTypeSchema consoleType;
     private boolean onDelay = false;
 
     protected ControlBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -34,7 +38,10 @@ public abstract class ControlBlockEntity extends InteriorLinkableBlockEntity {
         super.writeNbt(nbt);
 
         if (this.getControl() != null)
-            nbt.putString(ControlBlockItem.CONTROL_ID_KEY, this.getControl().getId());
+            nbt.putString(ControlBlockItem.CONTROL_ID_KEY, this.getControl().id().toString());
+
+        if (this.getConsoleType() != null)
+            nbt.putString(ControlBlockItem.CONSOLE_TYPE_ID_KEY, this.getConsoleType().id().toString());
     }
 
     @Override
@@ -42,7 +49,10 @@ public abstract class ControlBlockEntity extends InteriorLinkableBlockEntity {
         super.readNbt(nbt);
 
         if (nbt.contains(ControlBlockItem.CONTROL_ID_KEY))
-            this.setControl(nbt.getString(ControlBlockItem.CONTROL_ID_KEY));
+            this.setControlId(new Identifier(nbt.getString(ControlBlockItem.CONTROL_ID_KEY)));
+
+        if (nbt.contains(ControlBlockItem.CONSOLE_TYPE_ID_KEY))
+            this.setConsoleId(new Identifier(nbt.getString(ControlBlockItem.CONSOLE_TYPE_ID_KEY)));
     }
 
     /**
@@ -54,7 +64,16 @@ public abstract class ControlBlockEntity extends InteriorLinkableBlockEntity {
         return this.control;
     }
 
-    public void setControl(String id) {
+    public ConsoleTypeSchema getConsoleType() {
+        if (this.consoleType == null) {
+            // default
+            this.consoleType = ConsoleRegistry.HARTNELL;
+        }
+
+        return this.consoleType;
+    }
+
+    public void setControlId(Identifier id) {
         Optional<Control> found = ControlRegistry.fromId(id);
 
         if (found.isEmpty())
@@ -63,14 +82,20 @@ public abstract class ControlBlockEntity extends InteriorLinkableBlockEntity {
         this.control = found.get();
     }
 
+    public void setConsoleId(Identifier id) {
+        Optional<ConsoleTypeSchema> found = ConsoleRegistry.REGISTRY.getOrEmpty(id);
+
+        if (found.isEmpty())
+            return;
+
+        this.consoleType = found.get();
+    }
+
     public boolean run(ServerPlayerEntity user, boolean isMine) {
-        if (this.getControl() == null)
+        if (this.getControl() == null || this.onDelay)
             return false;
 
         TardisRef found = this.tardis();
-
-        if (found.isEmpty())
-            return false;
 
         if (!(found.get() instanceof ServerTardis tardis))
             return false;
@@ -81,12 +106,14 @@ public abstract class ControlBlockEntity extends InteriorLinkableBlockEntity {
         if (this.control.shouldHaveDelay(tardis) && !this.onDelay)
             this.createDelay(this.control.getDelayLength());
 
-        this.getWorld().playSound(null, pos, this.control.getSound(), SoundCategory.BLOCKS, 0.7f, 1f);
-        return this.control.runServer(tardis, user, user.getServerWorld(), this.pos, isMine);
+        Control.Result result = this.control.handleRun(tardis, user, user.getServerWorld(), this.pos, isMine);
+        this.getWorld().playSound(null, pos, this.control.getSound(this.getConsoleType(), result), SoundCategory.BLOCKS, 0.7f, 1f);
+
+        return result.isSuccess();
     }
+
     public boolean run(ServerPlayerEntity user, RedstoneControlBlock.Mode mode) {
-        boolean isMine = mode == RedstoneControlBlock.Mode.PUNCH;
-        return this.run(user, isMine);
+        return this.run(user, mode == RedstoneControlBlock.Mode.PUNCH);
     }
 
     public void createDelay(long ticks) {

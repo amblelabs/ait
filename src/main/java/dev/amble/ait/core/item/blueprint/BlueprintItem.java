@@ -1,5 +1,7 @@
 package dev.amble.ait.core.item.blueprint;
 
+import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
+
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -45,11 +47,18 @@ public class BlueprintItem extends Item {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
 
-        BlueprintSchema blueprint = getSchema(stack);
-        if (blueprint == null) return;
+        addShiftHiddenTooltip(stack, tooltip, tooltips -> {
+            BlueprintSchema blueprint = getSchema(stack);
+            if (blueprint == null) return;
 
-        tooltip.add(Text.translatable("ait.blueprint.tooltip").formatted(Formatting.BLUE)
-                .append(blueprint.text().copy().formatted(Formatting.GRAY)));
+            tooltip.add(Text.translatable("ait.blueprint.tooltip").formatted(Formatting.BLUE)
+                    .append(blueprint.text().copy().formatted(Formatting.GRAY)));
+
+            for (int i = blueprint.inputs().size() - 1; i >= 0; i--) {
+                tooltip.add(blueprint.inputs().get(i).text().copy().formatted(Formatting.DARK_GRAY));
+            }
+        });
+
     }
 
     public static BlueprintSchema getSchema(ItemStack stack) {

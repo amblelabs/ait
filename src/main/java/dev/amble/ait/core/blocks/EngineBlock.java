@@ -3,8 +3,6 @@ package dev.amble.ait.core.blocks;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.state.StateManager;
@@ -17,24 +15,19 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
-import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blockentities.EngineBlockEntity;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.block.SubSystemBlock;
-import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 
 public class EngineBlock extends SubSystemBlock implements BlockEntityProvider {
     public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
-//    protected static final VoxelShape Y_SHAPE = Block.createCuboidShape(
-//            -16.0, 0.0, -16.0,
-//            32.0, 48.0, 32.0
-//    );
-    protected static final VoxelShape Y_SHAPE = VoxelShapes.fullCube();
 
+    protected static final VoxelShape Y_SHAPE = VoxelShapes.fullCube();
 
     public EngineBlock(Settings settings) {
         super(settings, SubSystem.Id.ENGINE);
-
         this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH));
     }
 
@@ -64,7 +57,7 @@ public class EngineBlock extends SubSystemBlock implements BlockEntityProvider {
     }
 
     @Nullable @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public FluidLinkBlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new EngineBlockEntity(pos, state);
     }
 
@@ -75,38 +68,32 @@ public class EngineBlock extends SubSystemBlock implements BlockEntityProvider {
 
         if (!engine.isLinked()) return;
 
-        world.addParticle(ParticleTypes.SMOKE, true, pos.getX() + -0.9f, pos.getY() + 1.25,
-                pos.getZ() + 1.8f, 0, 0.06, 0);
-        world.addParticle(ParticleTypes.LARGE_SMOKE, true, pos.getX() + -0.9f, pos.getY() + 1.25,
-                pos.getZ() + 1.8f, 0, 0.06, 0);
-        world.addParticle(ParticleTypes.FLAME, true, pos.getX() + -0.9f, pos.getY() + 1.25,
-                pos.getZ() + 1.8f, 0, 0.06, 0);
-        world.addParticle(ParticleTypes.SMALL_FLAME, true, pos.getX() + -0.9f, pos.getY() + 1.25,
-                pos.getZ() + 1.8f, 0, 0.06, 0);
+        double offsetX = (random.nextDouble() - 0.5) * 1.5;
+        double offsetZ = (random.nextDouble() - 0.5) * 1.5;
+        double offsetY = 1.5 + random.nextDouble();
+
+        world.addParticle(AITMod.CORAL_PARTICLE, true, pos.getX() + 0.5 + offsetX, pos.getY() + offsetY,
+                pos.getZ() + 0.5 + offsetZ, 0, 0.05, 0);
+        world.addParticle(ParticleTypes.ENCHANT, true, pos.getX() + 0.5 + offsetX, pos.getY() + offsetY,
+                pos.getZ() + 0.5 + offsetZ, 0, 0.05, 0);
 
         float durability = engine.tardis().get().subsystems().engine().durability();
 
         if (durability > 10) return;
 
-        // smoke and spark particles & sfx when below 50%
-        world.addParticle(ParticleTypes.LARGE_SMOKE, true, pos.getX() + 0.5f, pos.getY() + 1.25,
-                pos.getZ() + 0.5f, 0.15, 0, 0);
-        world.addParticle(ParticleTypes.CLOUD, pos.getX() + 0.5f, pos.getY() + 1.25, pos.getZ() + 0.5f, 0.1,
-                0, 0.05f);
+        world.addParticle(ParticleTypes.LARGE_SMOKE, true, pos.getX() + 0.5, pos.getY() + 1.5,
+                pos.getZ() + 0.5, 0, 0.1, 0);
+        world.addParticle(ParticleTypes.CLOUD, pos.getX() + 0.5, pos.getY() + 1.5,
+                pos.getZ() + 0.5, 0.1, 0, 0.05);
 
-        world.addParticle(ParticleTypes.LARGE_SMOKE, true, pos.getX() + 0.5f, pos.getY() + 1.25,
-                pos.getZ() + 0.5f, -0.15, 0, 0);
-        world.addParticle(ParticleTypes.CLOUD, pos.getX() + 0.5f, pos.getY() + 1.25, pos.getZ() + 0.5f, -0.1,
-                0, -0.05f);
+        world.addParticle(ParticleTypes.LARGE_SMOKE, true, pos.getX() + 0.5, pos.getY() + 1.5,
+                pos.getZ() + 0.5, 0, 0.1, 0);
+        world.addParticle(ParticleTypes.CLOUD, pos.getX() + 0.5, pos.getY() + 1.5,
+                pos.getZ() + 0.5, 0.1, 0, 0.05);
     }
 
     @Override
     public BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.ENTITYBLOCK_ANIMATED;
-    }
-
-    @Override
-    protected BlockEntityType<? extends SubSystemBlockEntity> getType() {
-        return AITBlockEntityTypes.ENGINE_BLOCK_ENTITY_TYPE;
     }
 }

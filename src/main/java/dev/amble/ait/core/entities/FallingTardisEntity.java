@@ -37,7 +37,6 @@ import net.minecraft.world.explosion.ExplosionBehavior;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.core.*;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITDamageTypes;
 import dev.amble.ait.core.AITEntityTypes;
@@ -48,11 +47,11 @@ import dev.amble.ait.core.entities.base.LinkableDummyEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.core.util.ForcedChunkUtil;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
+import dev.amble.ait.module.planet.core.util.ISpaceImmune;
 
-public class FallingTardisEntity extends LinkableDummyEntity {
+public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceImmune {
 
     private static final int HURT_MAX = 100;
     private static final float HURT_AMOUNT = 40f;
@@ -62,6 +61,8 @@ public class FallingTardisEntity extends LinkableDummyEntity {
     @Nullable public NbtCompound blockEntityData;
 
     private BlockState state;
+
+
 
     public FallingTardisEntity(EntityType<? extends Entity> entityType, World world) {
         super(entityType, world);
@@ -101,6 +102,7 @@ public class FallingTardisEntity extends LinkableDummyEntity {
         this.stopFalling(true);
     }
 
+
     @Override
     public void tick() {
         this.timeFalling++;
@@ -110,10 +112,11 @@ public class FallingTardisEntity extends LinkableDummyEntity {
 
         this.move(MovementType.SELF, this.getVelocity());
 
-        Tardis tardis = this.tardis().get();
 
-        if (tardis == null)
+        if (!this.isLinked())
             return;
+
+        Tardis tardis = this.tardis().get();
 
         this.setVelocity(this.getVelocity().multiply(tardis.travel().isCrashing() ? 1.05f : 0.98f));
 
@@ -166,9 +169,6 @@ public class FallingTardisEntity extends LinkableDummyEntity {
 
             player.playSound(sound, volume, 1.0f);
         });
-
-        if (ForcedChunkUtil.isChunkForced((ServerWorld) this.getWorld(), blockPos))
-            ForcedChunkUtil.stopForceLoading((ServerWorld) this.getWorld(), blockPos);
 
         if (isCrashing) {
             this.getWorld().createExplosion(this, null, new ExplosionBehavior() {

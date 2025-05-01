@@ -1,13 +1,14 @@
 package dev.amble.ait.core.tardis.animation;
 
-import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
 import org.joml.Math;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -16,15 +17,19 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.TardisComponent;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.effects.ZeitonHighEffect;
 import dev.amble.ait.core.sounds.travel.TravelSound;
+import dev.amble.ait.core.sounds.travel.TravelSoundRegistry;
 import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.CloakHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
+import dev.amble.ait.data.Loyalty;
 
+/**
+ * @see dev.amble.ait.core.tardis.animation.v2.TardisAnimation
+ */
+@Deprecated(forRemoval = true, since = "1.3.0")
 public abstract class ExteriorAnimation {
 
     public static final Identifier UPDATE = AITMod.id("update_setup_anim");
@@ -41,27 +46,48 @@ public abstract class ExteriorAnimation {
     }
 
     public float getAlpha() {
-        if (this.exterior.tardis().isEmpty())
+        if (!this.exterior.isLinked())
             return 1f;
 
-        if (this.exterior.tardis().get().travel().getState() == TravelHandlerBase.State.LANDED) {
-            if (!isHigh() && this.exterior.tardis().get().<CloakHandler>handler(TardisComponent.Id.CLOAK).cloaked().get()) {
-                return 0.105f;
-            }
-            return 1.0f;
-        }
+        Tardis tardis = this.exterior.tardis().get();
 
-        return this.alpha;
+        if (!tardis.travel().isLanded())
+            return this.alpha;
+
+        if (tardis.cloak().cloaked().get())
+            return cloakAlpha(tardis);
+
+        return 1;
     }
 
-    private static boolean isHigh() {
-        if (ServerLifecycleHooks.isServer()) return false;
+    private float cloakAlpha(Tardis tardis) {
+        if (FabricLoader.getInstance().getEnvironmentType() != EnvType.CLIENT)
+            return 0f;
 
-        return amIHigh();
+        return getCloakAlpha(tardis);
     }
+
     @Environment(EnvType.CLIENT)
-    private static boolean amIHigh() {
-        return MinecraftClient.getInstance().player != null && ZeitonHighEffect.isHigh(MinecraftClient.getInstance().player);
+    private float getCloakAlpha(Tardis tardis) {
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+
+        if (player == null)
+            return 0f;
+
+        double distance = distanceFromTardis(player, tardis);
+
+        if (distance >= MAX_CLOAK_DISTANCE)
+            return 0f;
+
+        boolean companion = tardis.loyalty().get(player).isOf(Loyalty.Type.COMPANION);
+
+        float distanceAlpha = 1f - (float) (distance / MAX_CLOAK_DISTANCE);
+        float base = 1f;
+
+        if (!companion)
+            base = ZeitonHighEffect.isHigh(player) ? 0.105f : 0f;
+
+        return distanceAlpha * base;
     }
 
     public static boolean isNearTardis(PlayerEntity player, Tardis tardis, double radius) {
@@ -101,16 +127,11 @@ public abstract class ExteriorAnimation {
 
         this.alpha = switch (state) {
             case DEMAT, LANDED -> 1f;
-            case MAT -> 0f;
-
-            default -> {
-                AITMod.LOGGER.error("Can't get alpha for a TARDIS in FLIGHT state! Using default!");
-                yield 0;
-            }
+            default -> 0;
         };
 
         this.tellClientsToSetup(state);
-        TravelSound sound = tardis.stats().getTravelEffects().get(state);
+        TravelSound sound = TravelSoundRegistry.EMPTY;
 
         if (sound == null)
             return false;

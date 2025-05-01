@@ -17,6 +17,7 @@ import net.minecraft.util.math.Direction;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITItems;
 import dev.amble.ait.module.ModuleRegistry;
 
 
@@ -85,6 +86,9 @@ public class AITModelProvider extends AmbleModelProvider {
             module.getBlockRegistry().ifPresent(this::withBlocks);
             module.getDataGenerator().ifPresent(data -> data.generateItemModels(this, generator));
         });
+
+        this.withItems(AITItems.class);
+        this.withBlocks(AITBlocks.class);
 
         super.generateItemModels(generator);
     }

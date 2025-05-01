@@ -18,7 +18,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-import dev.amble.ait.api.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
 
 public class Property<T> {
 
@@ -80,6 +80,7 @@ public class Property<T> {
                 CachedDirectedGlobalPos.class, (buf, pos) -> pos.write(buf), CachedDirectedGlobalPos::read);
         public static final Type<Identifier> IDENTIFIER = new Type<>(Identifier.class, PacketByteBuf::writeIdentifier,
                 PacketByteBuf::readIdentifier);
+        public static final Type<Long> LONG = new Type<>(Long.class, PacketByteBuf::writeLong, PacketByteBuf::readLong);
 
         public static final Type<RegistryKey<World>> WORLD_KEY = new Type<>(RegistryKey.class,
                 PacketByteBuf::writeRegistryKey, buf -> buf.readRegistryKey(RegistryKeys.WORLD));
@@ -112,7 +113,7 @@ public class Property<T> {
             }
 
             return result;
-        });
+        }, false);
 
         public static final Type<ItemStack> ITEM_STACK = new Type<>(ItemStack.class, PacketByteBuf::writeItemStack,
                 PacketByteBuf::readItemStack);
@@ -120,11 +121,17 @@ public class Property<T> {
         private final Class<?> clazz;
         private final BiConsumer<PacketByteBuf, T> encoder;
         private final Function<PacketByteBuf, T> decoder;
+        private final boolean sameRef;
 
         public Type(Class<?> clazz, BiConsumer<PacketByteBuf, T> encoder, Function<PacketByteBuf, T> decoder) {
+            this(clazz, encoder, decoder, true);
+        }
+
+        public Type(Class<?> clazz, BiConsumer<PacketByteBuf, T> encoder, Function<PacketByteBuf, T> decoder, boolean sameRef) {
             this.clazz = clazz;
             this.encoder = encoder;
             this.decoder = decoder;
+            this.sameRef = sameRef;
         }
 
         public void encode(PacketByteBuf buf, T value) {
@@ -137,6 +144,10 @@ public class Property<T> {
 
         public Class<?> getClazz() {
             return clazz;
+        }
+
+        public boolean isSameRef() {
+            return sameRef;
         }
 
         public static <T extends Enum<T>> Type<T> forEnum(Class<T> clazz) {

@@ -39,6 +39,7 @@ public class DatapackExterior extends ExteriorVariantSchema {
     protected final BiomeOverrides overrides;
     protected final Vec3d seatTranslations;
     protected final boolean initiallyDatapack;
+    protected final boolean hasTransparentDoors;
 
     public static final Codec<DatapackExterior> CODEC = RecordCodecBuilder.create(instance -> instance
             .group(Identifier.CODEC.fieldOf("id").forGetter(ExteriorVariantSchema::id),
@@ -50,16 +51,18 @@ public class DatapackExterior extends ExteriorVariantSchema {
                     BiomeOverrides.CODEC.fieldOf("overrides").orElse(BiomeOverrides.EMPTY)
                             .forGetter(DatapackExterior::overrides),
                     Vec3d.CODEC.optionalFieldOf("seat_translations", new Vec3d(0.5, 1, 0.5)).forGetter(DatapackExterior::seatTranslations),
+                    Codec.BOOL.optionalFieldOf("has_transparent_doors", false).forGetter(DatapackExterior::hasTransparentDoors),
                     Codec.BOOL.optionalFieldOf("isDatapack", true).forGetter(DatapackExterior::wasDatapack))
             .apply(instance, DatapackExterior::new));
 
     public DatapackExterior(Identifier id, Identifier category, Identifier parent, Identifier texture,
-                            Identifier emission, Optional<Loyalty> loyalty, BiomeOverrides overrides, Vec3d seatTranslations, boolean isDatapack) {
+                            Identifier emission, Optional<Loyalty> loyalty, BiomeOverrides overrides, Vec3d seatTranslations, boolean hasTransparentDoors, boolean isDatapack) {
         super(category, id, loyalty);
         this.parent = parent;
         this.texture = texture;
         this.emission = emission;
         this.seatTranslations = seatTranslations;
+        this.hasTransparentDoors = hasTransparentDoors;
         this.initiallyDatapack = isDatapack;
         this.overrides = overrides;
     }
@@ -104,6 +107,10 @@ public class DatapackExterior extends ExteriorVariantSchema {
     @Override
     public Vec3d seatTranslations() {
         return seatTranslations;
+    }
+
+    public boolean hasTransparentDoors() {
+        return hasTransparentDoors;
     }
 
     @Override

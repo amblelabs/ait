@@ -9,12 +9,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.StructureHolder;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
@@ -41,15 +43,39 @@ public class GenericStructureSystemBlockEntity extends StructureSystemBlockEntit
 
     @Override
     public ActionResult useOn(BlockState state, World world, boolean sneaking, PlayerEntity player, ItemStack hand) {
-        if (!(world.isClient())) {
-            if (hand.getItem() instanceof SubSystemItem link) {
-                this.setId(link.id());
-                this.idSource = hand.copy();
-                this.idSource.setCount(1);
-                hand.decrement(1);
-                world.playSound(null, this.getPos(), AITSounds.WAYPOINT_ACTIVATE, SoundCategory.BLOCKS, 1.0f, 1.0f);
+        if (hand.isEmpty()) {
+            if (this.system() != null && this.idSource != null) {
+                if (this.system() instanceof DurableSubSystem durable && (durable.isBroken() || durable.durability() < 1250)) {
+                    player.sendMessage(Text.translatable("tardis.message.engine.system_is_weakened"), true);
+                    return ActionResult.SUCCESS;
+                }
+                StackUtil.spawn(world, pos, this.idSource.copyAndEmpty());
+                if (this.tardis().isPresent() && this.id() != null) {
+                    this.tardis().get().subsystems().remove(this.id(), false);
+                }
+                world.playSound(null, this.getPos(), AITSounds.WAYPOINT_ACTIVATE, SoundCategory.BLOCKS, 1.0f, 0.1f);
+                this.markDirty();
+                this.id = null;
                 return ActionResult.SUCCESS;
             }
+        }
+
+        if (world.isClient())
+            return ActionResult.SUCCESS;
+
+        if (hand.getItem() instanceof SubSystemItem link) {
+            if (this.system() != null && this.idSource != null) {
+                if (tardis() != null) {
+                    tardis().get().subsystems().get(this.id()).setEnabled(false);
+                }
+                StackUtil.spawn(world, pos, this.idSource.copyAndEmpty());
+            }
+            this.setId(link.id());
+            this.idSource = hand.copy();
+            this.idSource.setCount(1);
+            hand.decrement(1);
+            world.playSound(null, this.getPos(), AITSounds.WAYPOINT_ACTIVATE, SoundCategory.BLOCKS, 1.0f, 1.0f);
+            return ActionResult.SUCCESS;
         }
 
         return super.useOn(state, world, sneaking, player, hand);
@@ -59,16 +85,19 @@ public class GenericStructureSystemBlockEntity extends StructureSystemBlockEntit
         this.id = id;
         this.onChangeId();
     }
+
     protected StructureHolder getHolder() {
         if (!(this.system() instanceof StructureHolder holder)) return null;
 
         return holder;
     }
+
     protected void onChangeId() {
         this.processStructure();
         this.markDirty();
         this.sync();
     }
+
     public boolean hasSystem() {
         return this.id() != null;
     }
@@ -80,6 +109,7 @@ public class GenericStructureSystemBlockEntity extends StructureSystemBlockEntit
 
         return holder.getStructure();
     }
+
     @Override
     public boolean isStructureComplete(World world, BlockPos pos) {
         if (this.getStructure() == null) return false;
@@ -93,6 +123,7 @@ public class GenericStructureSystemBlockEntity extends StructureSystemBlockEntit
 
         return super.shouldRefresh(world, pos);
     }
+
     @Override
     public void onLoseFluid() {
         if (this.system() == null) return;

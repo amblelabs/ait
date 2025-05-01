@@ -7,7 +7,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.TardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.core.tardis.handler.ServerHumHandler;
 import dev.amble.ait.core.tardis.manager.TardisBuilder;
 import dev.amble.ait.data.hum.Hum;

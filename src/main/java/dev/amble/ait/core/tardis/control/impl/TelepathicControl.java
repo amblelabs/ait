@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.drtheo.queue.api.ActionQueue;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -29,10 +31,10 @@ import net.minecraft.world.gen.structure.Structure;
 import net.minecraft.world.gen.structure.StructureKeys;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.link.LinkableItem;
+import dev.amble.ait.api.tardis.link.LinkableItem;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.drinks.DrinkRegistry;
+import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.drinks.DrinkUtil;
 import dev.amble.ait.core.item.HandlesItem;
 import dev.amble.ait.core.item.HypercubeItem;
@@ -46,6 +48,8 @@ import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
 import dev.amble.ait.core.tardis.handler.SiegeHandler;
 import dev.amble.ait.core.tardis.handler.distress.DistressCall;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
 import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
 import dev.amble.ait.data.Loyalty;
@@ -55,58 +59,52 @@ public class TelepathicControl extends Control {
     public static final int RADIUS = 256;
 
     public TelepathicControl() {
-        super("telepathic_circuit");
+        super(AITMod.id("telepathic_circuit"));
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console) {
-        if (tardis.sequence().hasActiveSequence() && tardis.sequence().controlPartOfSequence(this)) {
-            this.addToControlSequence(tardis, player, console);
-            return false;
-        }
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+        super.runServer(tardis, player, world, console, leftClick);
 
-        boolean security = tardis.stats().security().get();
-
-        if (!KeyItem.hasMatchingKeyInInventory(player, tardis) && security)
-            return false;
+        if (tardis.stats().security().get() && !KeyItem.hasMatchingKeyInInventory(player, tardis))
+            return Result.FAILURE;
 
         ItemStack held = player.getMainHandStack();
         Item type = held.getItem();
 
         if (type == Items.BRICK) {
             tardis.siege().texture().set(SiegeHandler.BRICK_TEXTURE);
-            return false;
+            return Result.FAILURE;
         }
 
         if (type == Items.STONE) {
             tardis.siege().texture().set(SiegeHandler.DEFAULT_TEXTURRE);
-            return false;
+            return Result.FAILURE;
         }
 
         if (type == Items.OBSERVER) {
             tardis.siege().texture().set(SiegeHandler.APERTURE_TEXTURE);
-            return false;
+            return Result.FAILURE;
         }
 
         if (type == Items.QUARTZ_BLOCK) {
             tardis.siege().texture().set(SiegeHandler.COMPANION_TEXTURE);
-            return false;
+            return Result.FAILURE;
         }
-
 
         if (type instanceof LinkableItem linker) {
             if (linker instanceof SonicItem || linker instanceof HandlesItem)
-                return false;
+                return Result.FAILURE;
 
             linker.link(held, tardis);
             world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_AMETHYST_BLOCK_RESONATE, SoundCategory.BLOCKS,
                     1.0F, 1.0F);
-            return true;
+            return Result.SUCCESS_ALT;
         }
 
         if (type instanceof NameTagItem) {
             if (!held.hasCustomName())
-                return false;
+                return Result.FAILURE;
 
             tardis.stats().setName(held.getName().getString());
             world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_PLACE, SoundCategory.BLOCKS, 1F, 1.0F);
@@ -114,11 +112,10 @@ public class TelepathicControl extends Control {
             if (!player.isCreative())
                 held.decrement(1);
 
-            return true;
+            return Result.SUCCESS;
         }
 
         if (type instanceof HypercubeItem) {
-            // todo - cleanup
             DistressCall call = HypercubeItem.getCall(held, world.getServer().getTicks());
 
             if (call == null) {
@@ -132,194 +129,37 @@ public class TelepathicControl extends Control {
             }
 
             // receive and process call
-
             call.summon(tardis, held);
-
-            return true;
+            return Result.SUCCESS;
         }
 
         if (held.isOf(Items.NETHER_STAR) && tardis.loyalty().get(player).isOf(Loyalty.Type.PILOT)) {
             tardis.selfDestruct().boom();
-            if (!(tardis.selfDestruct().isQueued())) return false;
+
+            if (!(tardis.selfDestruct().isQueued()))
+                return Result.FAILURE;
 
             if (!player.isCreative())
                 held.decrement(1);
-            return true;
+
+            return Result.SUCCESS;
         }
 
-        if (held.isOf(AITItems.MUG) && DrinkUtil.getDrink(held) == DrinkRegistry.getInstance().get(AITMod.id("coffee"))) {
+        if (isLiquid(held))
+            return spillLiquid(tardis, world, console, player);
 
-            tardis.door().closeDoors();
-
-            tardis.travel().handbrake(false);
-            tardis.travel().forceDemat();
-            tardis.travel().speed(1021);
-            TravelUtil.randomPos(tardis, 100000, 100000, cached -> {
-                tardis.travel().destination(cached);
-                tardis.removeFuel(0.1d * IncrementManager.increment(tardis) * tardis.travel().instability());
-            });
-            world.spawnParticles(ParticleTypes.SMALL_FLAME, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
-                    5 * 10, 0, 0, 0, 0.1f * 10);
-
-            world.spawnParticles(ParticleTypes.EXPLOSION, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
-                    5 * 10, 0, 0, 0, 0.1f * 10);
-
-            tardis.alarm().toggle();
-            tardis.crash().addRepairTicks(1500);
-            return true;
-        }
-        if (held.isOf(AITItems.MUG) && DrinkUtil.getDrink(held) == DrinkRegistry.getInstance().get(AITMod.id("water"))) {
-            tardis.door().closeDoors();
-
-            tardis.travel().handbrake(false);
-            tardis.travel().forceDemat();
-            tardis.travel().speed(1021);
-            TravelUtil.randomPos(tardis, 100000, 100000, cached -> {
-                tardis.travel().destination(cached);
-                tardis.removeFuel(0.1d * IncrementManager.increment(tardis) * tardis.travel().instability());
-            });
-            world.spawnParticles(ParticleTypes.SMALL_FLAME, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
-                    5 * 10, 0, 0, 0, 0.1f * 10);
-
-            world.spawnParticles(ParticleTypes.EXPLOSION, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
-                    5 * 10, 0, 0, 0, 0.1f * 10);
-
-            tardis.alarm().toggle();
-            tardis.crash().addRepairTicks(1500);
-            return true;
-        }
-        if (held.isOf(AITItems.MUG) && DrinkUtil.getDrink(held) == DrinkRegistry.getInstance().get(AITMod.id("latte"))) {
-            tardis.door().closeDoors();
-
-            tardis.travel().handbrake(false);
-            tardis.travel().forceDemat();
-            tardis.travel().speed(1021);
-            TravelUtil.randomPos(tardis, 100000, 100000, cached -> {
-                tardis.travel().destination(cached);
-                tardis.removeFuel(0.1d * IncrementManager.increment(tardis) * tardis.travel().instability());
-            });
-            world.spawnParticles(ParticleTypes.SMALL_FLAME, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
-                    5 * 10, 0, 0, 0, 0.1f * 10);
-
-            world.spawnParticles(ParticleTypes.EXPLOSION, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
-                    5 * 10, 0, 0, 0, 0.1f * 10);
-
-            tardis.alarm().toggle();
-            tardis.crash().addRepairTicks(1500);
-            return true;
-        }
-        if (held.isOf(AITItems.MUG) && DrinkUtil.getDrink(held) == DrinkRegistry.getInstance().get(AITMod.id("iced_coffee"))) {
-            tardis.door().closeDoors();
-
-            tardis.travel().handbrake(false);
-            tardis.travel().forceDemat();
-            tardis.travel().speed(1021);
-            TravelUtil.randomPos(tardis, 100000, 100000, cached -> {
-                tardis.travel().destination(cached);
-                tardis.removeFuel(0.1d * IncrementManager.increment(tardis) * tardis.travel().instability());
-            });
-            world.spawnParticles(ParticleTypes.SMALL_FLAME, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
-                    5 * 10, 0, 0, 0, 0.1f * 10);
-
-            world.spawnParticles(ParticleTypes.EXPLOSION, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
-                    5 * 10, 0, 0, 0, 0.1f * 10);
-
-            tardis.alarm().toggle();
-            tardis.crash().addRepairTicks(1500);
-            return true;
-        }
-        if (held.isOf(AITItems.MUG) && DrinkUtil.getDrink(held) == DrinkRegistry.getInstance().get(AITMod.id("milk"))) {
-            tardis.door().closeDoors();
-
-            tardis.travel().handbrake(false);
-            tardis.travel().forceDemat();
-            tardis.travel().speed(1021);
-            TravelUtil.randomPos(tardis, 100000, 100000, cached -> {
-                tardis.travel().destination(cached);
-                tardis.removeFuel(0.1d * IncrementManager.increment(tardis) * tardis.travel().instability());
-            });
-            world.spawnParticles(ParticleTypes.SMALL_FLAME, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
-                    5 * 10, 0, 0, 0, 0.1f * 10);
-
-            world.spawnParticles(ParticleTypes.EXPLOSION, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
-                    5 * 10, 0, 0, 0, 0.1f * 10);
-
-            tardis.alarm().toggle();
-            tardis.crash().addRepairTicks(1500);
-            return true;
-        }
-        if (held.isOf(Items.LAVA_BUCKET)) {
-            tardis.door().closeDoors();
-
-            tardis.travel().handbrake(false);
-            tardis.travel().forceDemat();
-            tardis.travel().speed(1021);
-            TravelUtil.randomPos(tardis, 100000, 100000, cached -> {
-                tardis.travel().destination(cached);
-                tardis.removeFuel(0.1d * IncrementManager.increment(tardis) * tardis.travel().instability());
-            });
-            world.spawnParticles(ParticleTypes.SMALL_FLAME, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
-                    5 * 10, 0, 0, 0, 0.1f * 10);
-
-            world.spawnParticles(ParticleTypes.EXPLOSION, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
-                    5 * 10, 0, 0, 0, 0.1f * 10);
-
-            tardis.alarm().toggle();
-            tardis.crash().addRepairTicks(1500);
-            return true;
-        }
-        if (held.isOf(Items.WATER_BUCKET)) {
-            tardis.door().closeDoors();
-
-            tardis.travel().handbrake(false);
-            tardis.travel().forceDemat();
-            tardis.travel().speed(1021);
-            TravelUtil.randomPos(tardis, 100000, 100000, cached -> {
-                tardis.travel().destination(cached);
-                tardis.removeFuel(0.1d * IncrementManager.increment(tardis) * tardis.travel().instability());
-            });
-            world.spawnParticles(ParticleTypes.SMALL_FLAME, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
-                    5 * 10, 0, 0, 0, 0.1f * 10);
-
-            world.spawnParticles(ParticleTypes.EXPLOSION, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
-                    5 * 10, 0, 0, 0, 0.1f * 10);
-
-            tardis.alarm().toggle();
-            tardis.crash().addRepairTicks(1500);
-            return true;
-        }
-        if (held.isOf(Items.MILK_BUCKET)) {
-            tardis.door().closeDoors();
-
-            tardis.travel().handbrake(false);
-            tardis.travel().forceDemat();
-            tardis.travel().speed(1021);
-            TravelUtil.randomPos(tardis, 100000, 100000, cached -> {
-                tardis.travel().destination(cached);
-                tardis.removeFuel(0.1d * IncrementManager.increment(tardis) * tardis.travel().instability());
-            });
-            world.spawnParticles(ParticleTypes.SMALL_FLAME, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
-                    5 * 10, 0, 0, 0, 0.1f * 10);
-
-            world.spawnParticles(ParticleTypes.EXPLOSION, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
-                    5 * 10, 0, 0, 0, 0.1f * 10);
-
-            tardis.alarm().toggle();
-            tardis.crash().addRepairTicks(1500);
-            return true;
-        }
-
-        if (LockedDimensionRegistry.tryUnlockDimension(player, held, tardis.asServer())) return true;
+        if (LockedDimensionRegistry.tryUnlockDimension(player, held, tardis.asServer()))
+            return Result.SUCCESS;
 
         ItemOpinion opinion = ItemOpinionRegistry.getInstance().get(held.getItem()).orElse(null);
         if (opinion != null && tardis.opinions().contains(opinion) && (player.experienceLevel >= opinion.cost() || player.isCreative())) {
             opinion.apply(tardis.asServer(), player);
 
-            player.getServerWorld().playSound(null, console, AITSounds.GROAN, SoundCategory.AMBIENT, 0.25f, 1f);
+            player.getServerWorld().playSound(null, console, AITSounds.TARDIS_BLING, SoundCategory.AMBIENT, 0.25f, 1f);
             player.getServerWorld().spawnParticles((opinion.likes()) ? ParticleTypes.HEART : ParticleTypes.ANGRY_VILLAGER, console.toCenterPos().getX(),
                     console.toCenterPos().getY() + 1, console.toCenterPos().getZ(), 1, 0f, 1F, 0f, 5.0F);
 
-            return true;
+            return Result.SUCCESS;
         }
 
         Text text = Text.translatable("tardis.message.control.telepathic.choosing");
@@ -328,11 +168,90 @@ public class TelepathicControl extends Control {
         CachedDirectedGlobalPos globalPos = tardis.travel().position();
 
         locateStructureOfInterest(player, tardis, globalPos.getWorld(), globalPos.getPos());
-        return true;
+        return Result.SUCCESS;
+    }
+
+    public static boolean isLiquid(ItemStack held) {
+        return (held.isOf(AITItems.MUG) && DrinkUtil.getDrink(held) != DrinkUtil.EMPTY)
+                || held.isOf(Items.LAVA_BUCKET) || held.isOf(Items.WATER_BUCKET) || held.isOf(Items.MILK_BUCKET);
+    }
+
+    public static Result spillLiquid(Tardis tardis, ServerWorld world, BlockPos console, @Nullable ServerPlayerEntity player) {
+        /*
+            This is an example of how to use the travel queue.
+            This code enqueues a crash to be performed after dematerialization.
+             */
+
+        TravelHandler travel = tardis.travel();
+        TravelHandlerBase.State state = travel.getState();
+
+        ActionQueue drinkAction = new ActionQueue();
+
+        drinkAction.thenRun(() -> {
+            // This is called after the dematerialization is complete
+            travel.speed(travel.maxSpeed().get());
+            travel.crash();
+            tardis.crash().addRepairTicks(1500);
+
+            world.spawnParticles(ParticleTypes.SMALL_FLAME, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
+                    5 * 10, 0, 0, 0, 0.1f * 10);
+
+            world.spawnParticles(ParticleTypes.EXPLOSION, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
+                    5 * 10, 0, 0, 0, 0.1f * 10);
+
+
+            world.playSound(null, console, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 1.0f, 1.0f);
+            world.playSound(null, console, AITSounds.SIEGE_ENABLE, SoundCategory.BLOCKS, 1.0f, 1.0f);
+
+            if (player != null) {
+                TardisCriterions.BRAND_NEW.trigger(player);
+            }
+        });
+
+        if (state == TravelHandlerBase.State.LANDED) {
+            boolean hadAutopilot = travel.autopilot();
+
+            travel.autopilot(true);
+
+            TravelUtil.randomPos(tardis, 100000, 100000, cached -> {
+                tardis.travel().destination(cached);
+                tardis.removeFuel(0.1d * IncrementManager.increment(tardis) * tardis.travel().instability());
+            });
+
+            travel.dematerialize().ifPresent(tr -> {
+                // These only run if the dematerialization is successful
+
+                tr.thenRun(drinkAction);
+
+                // This is called just before the dematerialization starts
+                tardis.alarm().enable();
+
+                world.spawnParticles(ParticleTypes.SMALL_FLAME, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
+                        5 * 10, 0, 0, 0, 0.1f * 10);
+
+                world.spawnParticles(ParticleTypes.EXPLOSION, console.toCenterPos().getX() + 0.5f, console.toCenterPos().getY() + 1.25, console.toCenterPos().getZ() + 0.5f,
+                        5 * 10, 0, 0, 0, 0.1f * 10);
+
+                world.playSound(null, console, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 1.0f, 1.0f);
+                world.playSound(null, console, AITSounds.SIEGE_ENABLE, SoundCategory.BLOCKS, 1.0f, 1.0f);
+            });
+
+            travel.autopilot(hadAutopilot);
+
+            return Result.SUCCESS;
+        }
+
+        if (state == TravelHandlerBase.State.FLIGHT) {
+            drinkAction.execute();
+
+            return Result.SUCCESS;
+        }
+
+        return Result.FAILURE;
     }
 
     public static void locateStructureOfInterest(ServerPlayerEntity player, Tardis tardis, ServerWorld world,
-            BlockPos source) {
+                                                 BlockPos source) {
         if (world.getRegistryKey() == World.NETHER) {
             getStructureViaChunkGen(player, tardis, world, source, RADIUS, StructureKeys.FORTRESS);
         } else if (world.getRegistryKey() == World.END) {
@@ -353,7 +272,7 @@ public class TelepathicControl extends Control {
     }
 
     public static void getStructureViaChunkGen(ServerPlayerEntity player, Tardis tardis, ServerWorld world,
-            BlockPos pos, int radius, RegistryKey<Structure> key) {
+                                               BlockPos pos, int radius, RegistryKey<Structure> key) {
         Registry<Structure> registry = world.getRegistryManager().get(RegistryKeys.STRUCTURE);
 
         if (registry.getEntry(key).isPresent())
@@ -362,7 +281,7 @@ public class TelepathicControl extends Control {
     }
 
     public static void getStructureViaWorld(ServerPlayerEntity player, Tardis tardis, ServerWorld world, BlockPos pos,
-            int radius, TagKey<Structure> key) {
+                                            int radius, TagKey<Structure> key) {
         locateWithWorldAsync(player, tardis, key, world, pos, radius);
     }
 
@@ -373,16 +292,16 @@ public class TelepathicControl extends Control {
 
     @Override
     public long getDelayLength() {
-        return 1000;
+        return 120;
     }
 
     @Override
-    public SoundEvent getSound() {
+    public SoundEvent getFallbackSound() {
         return AITSounds.TELEPATHIC_CIRCUITS;
     }
 
     public static void locateWithChunkGenAsync(ServerPlayerEntity player, Tardis tardis,
-            RegistryEntryList<Structure> structureList, ServerWorld world, BlockPos center, int radius) {
+                                               RegistryEntryList<Structure> structureList, ServerWorld world, BlockPos center, int radius) {
         AsyncLocatorUtil.locate(world, structureList, center, radius, false).thenOnServerThread(pos -> {
             BlockPos newPos = pos != null ? pos.getFirst() : null;
             if (newPos != null) {
@@ -396,7 +315,7 @@ public class TelepathicControl extends Control {
     }
 
     public static void locateWithWorldAsync(ServerPlayerEntity player, Tardis tardis, TagKey<Structure> structureTagKey,
-            ServerWorld world, BlockPos center, int radius) {
+                                            ServerWorld world, BlockPos center, int radius) {
         AsyncLocatorUtil.locate(world, structureTagKey, center, radius, false).thenOnServerThread(pos -> {
             if (pos != null) {
                 tardis.travel().forceDestination(cached -> cached.pos(pos.withY(75)));

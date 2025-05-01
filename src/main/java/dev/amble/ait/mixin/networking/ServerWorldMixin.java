@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Unique;
 
 import net.minecraft.server.world.ServerWorld;
 
-import dev.amble.ait.api.WorldWithTardis;
+import dev.amble.ait.api.tardis.WorldWithTardis;
 
 @Mixin(ServerWorld.class)
 public abstract class ServerWorldMixin implements WorldWithTardis {

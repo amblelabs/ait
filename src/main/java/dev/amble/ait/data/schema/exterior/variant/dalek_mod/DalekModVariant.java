@@ -18,7 +18,7 @@ import dev.amble.ait.registry.impl.door.DoorRegistry;
 public abstract class DalekModVariant extends ExteriorVariantSchema {
     protected static final String TEXTURE_PATH = "textures/blockentities/exteriors/dalek_mod/dalek_mod_";
 
-    protected DalekModVariant(Integer number) {
+    protected DalekModVariant(int number) {
         super(DalekModCategory.REFERENCE, AITMod.id("exterior/dalek_mod/" + number),
                 new Loyalty(Loyalty.Type.OWNER));
     }
@@ -26,16 +26,27 @@ public abstract class DalekModVariant extends ExteriorVariantSchema {
     @Override
     public Vec3d adjustPortalPos(Vec3d pos, byte direction) {
         return switch (direction) {
-            case 0 -> pos.add(0, 0.207, -0.59); // NORTH
-            case 1, 2, 3 -> pos.add(0.43, 0.207, -0.45); // NORTH EAST p n
-            case 4 -> pos.add(0.628, 0.207, 0); // EAST
-            case 5, 6, 7 -> pos.add(0.43, 0.207, 0.45); // SOUTH EAST p p
-            case 8 -> pos.add(0, 0.207, 0.628); // SOUTH
-            case 9, 10, 11 -> pos.add(-0.43, 0.207, 0.45); // SOUTH WEST n p
-            case 12 -> pos.add(-0.628, 0.207, 0); // WEST
-            case 13, 14, 15 -> pos.add(-0.43, 0.207, -0.45); // NORTH WEST n n
+            case 0 -> pos.add(0, -0.05, -0.59); // NORTH
+            case 1, 2, 3 -> pos.add(0.43, -0.05, -0.45); // NORTH EAST p n
+            case 4 -> pos.add(0.628, -0.05, 0); // EAST
+            case 5, 6, 7 -> pos.add(0.43, -0.05, 0.45); // SOUTH EAST p p
+            case 8 -> pos.add(0, -0.05, 0.628); // SOUTH
+            case 9, 10, 11 -> pos.add(-0.43, -0.05, 0.45); // SOUTH WEST n p
+            case 12 -> pos.add(-0.628, -0.05, 0); // WEST
+            case 13, 14, 15 -> pos.add(-0.43, -0.05, -0.45); // NORTH WEST n n
             default -> pos;
         };
+    }
+
+
+    @Override
+    public double portalHeight() {
+        return 1.92d;
+    }
+
+    @Override
+    public double portalWidth() {
+        return 1.145d;
     }
 
     @Override
@@ -55,7 +66,7 @@ public abstract class DalekModVariant extends ExteriorVariantSchema {
 
     @Override
     public boolean hasPortals() {
-        return false;
+        return true;
     }
 
 }

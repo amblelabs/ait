@@ -8,10 +8,10 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.TardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.animation.console.hartnell.HartnellAnimations;
+import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
 import dev.amble.ait.core.tardis.handler.CloakHandler;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
@@ -1380,15 +1380,8 @@ public class HartnellConsoleModel extends ConsoleModel {
     }
 
     @Override
-    public void renderWithAnimations(ConsoleBlockEntity console, ModelPart root, MatrixStack matrices,
-            VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        if (!console.isLinked()) return;
-
-        Tardis tardis = console.tardis().get();
-
-        if (tardis == null)
-            return;
-
+    public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
+                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
 
@@ -1515,7 +1508,7 @@ public class HartnellConsoleModel extends ConsoleModel {
         hailMary.roll = tardis.stats().hailMary().get() ? hailMary.roll + 1.75f : hailMary.roll;
         ModelPart hailMaryWarningLight = this.bone.getChild("panels").getChild("p_2").getChild("bone48")
                 .getChild("bone49").getChild("bone50").getChild("sym_lamp").getChild("bone97");
-        hailMaryWarningLight.pivotY = !tardis.stats().hailMary().get()
+        hailMaryWarningLight.pivotY = tardis.stats().hailMary().get()
                 ? hailMaryWarningLight.pivotY
                 : hailMaryWarningLight.pivotY + 1;
 
@@ -1576,7 +1569,7 @@ public class HartnellConsoleModel extends ConsoleModel {
         ModelPart autoPilot = this.bone.getChild("panels").getChild("p_1").getChild("bone38").getChild("bone36")
                 .getChild("bone37").getChild("st_switch").getChild("bone26");
         autoPilot.yaw = !tardis.travel().autopilot() ? autoPilot.yaw + 1 : autoPilot.yaw;
-        super.renderWithAnimations(console, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
     }
 

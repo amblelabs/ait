@@ -61,11 +61,12 @@ public class HammerItem extends SwordItem {
         if (!(world.getBlockEntity(pos) instanceof ConsoleBlockEntity consoleBlockEntity))
             return ActionResult.PASS;
 
-        Tardis tardis = consoleBlockEntity.tardis().get();
-        TravelHandler travel = tardis.travel();
-
-        if (player == null || tardis == null)
+        if (player == null || !consoleBlockEntity.isLinked())
             return ActionResult.PASS;
+
+        Tardis tardis = consoleBlockEntity.tardis().get();
+
+        TravelHandler travel = tardis.travel();
 
         if (player.getItemCooldownManager().isCoolingDown(stack.getItem()))
             return ActionResult.PASS;

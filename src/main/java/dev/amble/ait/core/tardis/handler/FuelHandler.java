@@ -15,9 +15,9 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 import dev.amble.ait.api.ArtronHolder;
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisEvents;
-import dev.amble.ait.api.TardisTickable;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.engine.impl.EmergencyPower;
@@ -155,10 +155,16 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
     }
 
     private void tickMat() {
+        if (tardis.isGrowth())
+            return;
+
         this.removeFuel(20 * 5 * this.tardis.travel().instability());
     }
 
     private void tickFlight() {
+        if (tardis.isGrowth())
+            return;
+
         TravelHandler travel = this.tardis.travel();
         this.removeFuel(20 * (4 ^ travel.speed()) * travel.instability());
 
@@ -186,7 +192,7 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
             this.addFuel(20 * toAdd);
         }
 
-        if (!this.refueling().get() && tardis.fuel().hasPower())
+        if (!this.refueling().get() && tardis.fuel().hasPower() && !tardis.isGrowth())
             this.removeFuel(20 * 0.25 * tardis.travel().instability());
     }
 
