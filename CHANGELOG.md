@@ -11,3 +11,7 @@
 - feat: updated disc textures | by [@Saturnorsomthing](https://github.com/Saturnorsomthing) ([#1517](https://github.com/amblelabs/ait/pull/1517))
 - chore(sonic): Type 100 -> Frontier | by [@duzos](https://github.com/duzos) ([#1518](https://github.com/amblelabs/ait/pull/1518))
 - Updated proton flight sound | by [@Saturnorsomthing](https://github.com/Saturnorsomthing) ([#1521](https://github.com/amblelabs/ait/pull/1521))
+- Updated exterior item texture | by [@Saturnorsomthing](https://github.com/Saturnorsomthing) ([#1527](https://github.com/amblelabs/ait/pull/1527))
+- fix: hammer no longer bypasses durability check | by [@DrTheodor](https://github.com/DrTheodor), [@Loqor](https://github.com/Loqor) ([#1522](https://github.com/amblelabs/ait/pull/1522))
+- fix: control entities can be interacted with again | by [@DrTheodor](https://github.com/DrTheodor), [@Loqor](https://github.com/Loqor) ([#1522](https://github.com/amblelabs/ait/pull/1522))
+- fix: you can interact with slightly broken controls again | by [@DrTheodor](https://github.com/DrTheodor), [@Loqor](https://github.com/Loqor) ([#1522](https://github.com/amblelabs/ait/pull/1522))

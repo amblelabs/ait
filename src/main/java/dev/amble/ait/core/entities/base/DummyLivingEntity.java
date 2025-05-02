@@ -2,7 +2,6 @@ package dev.amble.ait.core.entities.base;
 
 import java.util.Collections;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Dynamic;
 import org.jetbrains.annotations.Nullable;
@@ -27,18 +26,12 @@ import net.minecraft.world.World;
 public abstract class DummyLivingEntity extends LivingEntity {
 
     protected static final Iterable<ItemStack> ARMOR = Collections.singleton(ItemStack.EMPTY);
-
-    protected static final Brain<?> BRAIN = Brain.createProfile(
-            ImmutableList.of(), ImmutableList.of()
-    ).deserialize(new Dynamic<>(
-            NbtOps.INSTANCE, NbtOps.INSTANCE.createMap(
-                    ImmutableMap.of(NbtOps.INSTANCE.createString("memories"),
-                            NbtOps.INSTANCE.emptyMap()
-                    )
-    )));
+    private Brain<?> brain;
 
     protected DummyLivingEntity(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
+        NbtOps nbtOps = NbtOps.INSTANCE;
+        this.brain = this.deserializeBrain(new Dynamic<>(nbtOps, nbtOps.createMap(ImmutableMap.of(nbtOps.createString("memories"), nbtOps.emptyMap()))));
     }
 
     @Override
@@ -115,13 +108,8 @@ public abstract class DummyLivingEntity extends LivingEntity {
     }
 
     @Override
-    protected Brain<?> deserializeBrain(Dynamic<?> dynamic) {
-        return null;
-    }
-
-    @Override
     public Brain<?> getBrain() {
-        return BRAIN;
+        return this.brain;
     }
 
     @Override
