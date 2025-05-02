@@ -7,11 +7,10 @@ import org.joml.Matrix4f;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.*;
+import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.OrderedText;
@@ -29,23 +28,23 @@ import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.tardis.Tardis;
 
 @Environment(value = EnvType.CLIENT)
-public class ControlEntityRenderer extends LivingEntityRenderer<ConsoleControlEntity, ControlModel> {
+public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> {
 
     private static final Identifier TEXTURE = AITMod.id("textures/entity/control/sequenced.png");
 
     ControlModel model = new ControlModel(ControlModel.getTexturedModelData().createModel());
 
     public ControlEntityRenderer(EntityRendererFactory.Context context) {
-        super(context, new ControlModel(ControlModel.getNotModelData().createModel()), 0f);
+        super(context);
     }
 
     @Override
-    public void render(ConsoleControlEntity livingEntity, float yaw, float tickDelta, MatrixStack matrixStack,
+    public void render(ConsoleControlEntity entity, float yaw, float tickDelta, MatrixStack matrixStack,
             VertexConsumerProvider vertexConsumerProvider, int light) {
-        super.render(livingEntity, yaw, tickDelta, matrixStack, vertexConsumerProvider, light);
+        super.render(entity, yaw, tickDelta, matrixStack, vertexConsumerProvider, light);
 
         if (SonicRendering.isPlayerHoldingScanningSonic() && AITMod.CONFIG.CLIENT.SHOW_CONTROL_HITBOXES) {
-            renderOutline(livingEntity, matrixStack, vertexConsumerProvider);
+            renderOutline(entity, matrixStack, vertexConsumerProvider);
         }
     }
 
@@ -129,7 +128,7 @@ public class ControlEntityRenderer extends LivingEntityRenderer<ConsoleControlEn
         matrices.pop();
     }
 
-    private static void renderOutline(LivingEntity entity, MatrixStack matrices,
+    private static void renderOutline(Entity entity, MatrixStack matrices,
             VertexConsumerProvider vertexConsumers) {
         VertexConsumer vertices = vertexConsumers.getBuffer(RenderLayer.LINES);
 
@@ -169,10 +168,5 @@ public class ControlEntityRenderer extends LivingEntityRenderer<ConsoleControlEn
     @Override
     public Identifier getTexture(ConsoleControlEntity controlEntity) {
         return TEXTURE;
-    }
-
-    @Override
-    protected void setupTransforms(ConsoleControlEntity controlEntity, MatrixStack matrixStack, float f, float g,
-            float h) {
     }
 }

@@ -79,8 +79,6 @@ public class TardisUtil {
 
                 if (!tardis.loyalty().get(player).isOf(Loyalty.Type.PILOT))
                     return;
-                /*if (tardis.<OvergrownHandler>handler(TardisComponent.Id.OVERGROWN).overgrown().get())
-                    return;*/
 
                 player.getWorld().playSound(null, player.getBlockPos(), AITSounds.SNAP, SoundCategory.PLAYERS, 4f, 1f);
 
@@ -91,7 +89,7 @@ public class TardisUtil {
                         : exteriorPos;
 
                 if ((player.squaredDistanceTo(exteriorPos.getX(), exteriorPos.getY(), exteriorPos.getZ())) > 200
-                        && !player.getWorld().equals(tardis.getInteriorWorld()))
+                        && player.getWorld() != tardis.worldRef().get())
                     return;
 
                 if (!player.isSneaking()) {
@@ -242,14 +240,14 @@ public class TardisUtil {
 
     public static void teleportInside(ServerTardis tardis, Entity entity) {
         TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity);
-        TardisUtil.teleportWithDoorOffset(tardis.getInteriorWorld(), entity, tardis.getDesktop().getDoorPos());
+        TardisUtil.teleportWithDoorOffset(tardis.worldRef().get(), entity, tardis.getDesktop().getDoorPos());
     }
 
     public static void teleportToInteriorPosition(ServerTardis tardis, Entity entity, BlockPos pos) {
         if (entity instanceof ServerPlayerEntity player) {
             TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity);
 
-            WorldUtil.teleportToWorld(player, tardis.getInteriorWorld(),
+            WorldUtil.teleportToWorld(player, tardis.worldRef().get(),
                     new Vec3d(pos.getX(), pos.getY(), pos.getZ()), entity.getYaw(), player.getPitch());
 
             player.networkHandler.sendPacket(new EntityVelocityUpdateS2CPacket(player));
@@ -325,17 +323,13 @@ public class TardisUtil {
         return null;
     }
 
+    /**
+     * @deprecated Use the {@link ServerTardis#worldRef()} instead.
+     */
+    @Deprecated(forRemoval = true)
     public static List<ServerPlayerEntity> getPlayersInsideInterior(ServerTardis tardis) {
-        return tardis.getInteriorWorld().getPlayers();
-    }
-
-    public static List<LivingEntity> getLivingInInterior(Tardis tardis, Predicate<LivingEntity> predicate) {
-        for (Entity entity : ((ServerTardis) tardis).getInteriorWorld().getEntitiesByType(TypeFilter.instanceOf(LivingEntity.class), predicate)) {
-            if (entity instanceof LivingEntity living && predicate.test(living)) {
-                return List.of(living);
-            }
-        }
-        return List.of();
+        ServerWorld world = tardis.worldRef().getOrDefault(() -> null);
+        return world == null ? List.of() : world.getPlayers();
     }
 
     public static <T extends Entity> List<T> getEntitiesInBox(Class<T> clazz, World world, Box box,
@@ -419,6 +413,11 @@ public class TardisUtil {
     }
 
     public static List<LivingEntity> getLivingEntitiesInInterior(Tardis tardis, int area) {
+        ServerWorld world = tardis.asServer().worldRef().get();
+
+        if (world == null)
+            return List.of();
+
         DirectedBlockPos directedPos = tardis.getDesktop().getDoorPos();
 
         if (directedPos == null)
@@ -426,11 +425,16 @@ public class TardisUtil {
 
         BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
 
-        return tardis.asServer().getInteriorWorld().getEntitiesByClass(LivingEntity.class,
+        return world.getEntitiesByClass(LivingEntity.class,
                 new Box(pos.north(area).east(area).up(area), pos.south(area).west(area).down(area)), (e) -> true);
     }
 
     public static List<Entity> getEntitiesInInterior(Tardis tardis, int area) {
+        ServerWorld world = tardis.asServer().worldRef().getOrDefault(() -> null);
+
+        if (world == null)
+            return List.of();
+
         DirectedBlockPos directedPos = tardis.getDesktop().getDoorPos();
 
         if (directedPos == null)
@@ -438,8 +442,8 @@ public class TardisUtil {
 
         BlockPos pos = directedPos.getPos();
 
-        return tardis.asServer().getInteriorWorld().getEntitiesByClass(Entity.class,
-                new Box(pos.north(area).east(area).up(area), pos.south(area).west(area).down(area)), (e) -> true);
+        return world.getEntitiesByClass(Entity.class,
+                new Box(pos.north(area).east(area).up(area), pos.south(area).west(area).down(area)), e -> true);
     }
 
     public static List<LivingEntity> getLivingEntitiesInInterior(ServerTardis tardis) {
@@ -447,7 +451,12 @@ public class TardisUtil {
     }
 
     public static boolean isInteriorEmpty(ServerTardis tardis) {
-        return TardisUtil.getAnyPlayerInsideInterior(tardis.getInteriorWorld()) == null;
+        ServerWorld world = tardis.worldRef().getOrDefault(() -> null);
+
+        if (world == null)
+            return true;
+
+        return world.getPlayers().isEmpty();
     }
 
     public static void sendMessageToInterior(ServerTardis tardis, Text text) {

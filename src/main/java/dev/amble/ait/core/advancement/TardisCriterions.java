@@ -63,7 +63,7 @@ public class TardisCriterions {
 
             Advancement advancement = player.getServer().getAdvancementLoader().get(new Identifier("ait/enter_tardis"));
             if (player.getWorld() instanceof TardisServerWorld && !player.getAdvancementTracker().getProgress(advancement).isDone()) {
-                Scheduler.get().runTaskLater(() -> tardis.asServer().getInteriorWorld().playSound(null, player.getBlockPos(), AITSounds.WONDERFUL_TIME_IN_SPACE,
+                Scheduler.get().runTaskLater(() -> tardis.asServer().worldRef().get().playSound(null, player.getBlockPos(), AITSounds.WONDERFUL_TIME_IN_SPACE,
                         SoundCategory.PLAYERS, 0.6f, 1.0f), TimeUnit.TICKS, 400);
             }
             TardisCriterions.ENTER_TARDIS.trigger(player);

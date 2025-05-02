@@ -1,12 +1,10 @@
 package dev.amble.ait.core.entities.base;
 
-import com.mojang.serialization.Dynamic;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.mob.AmbientEntity;
@@ -93,16 +91,6 @@ public class DummyAmbientEntity extends AmbientEntity {
 
     @Override
     protected void playBlockFallSound() {
-    }
-
-    @Override
-    protected Brain<?> deserializeBrain(Dynamic<?> dynamic) {
-        return null;
-    }
-
-    @Override
-    public Brain<?> getBrain() {
-        return DummyLivingEntity.BRAIN;
     }
 
     @Override

@@ -8,6 +8,7 @@ import dev.drtheo.scheduler.api.TimeUnit;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
@@ -19,6 +20,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -32,12 +34,12 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITEntityTypes;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.entities.base.LinkableDummyLivingEntity;
-import dev.amble.ait.core.item.HammerItem;
+import dev.amble.ait.core.entities.base.LinkableDummyEntity;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.item.control.ControlBlockItem;
 import dev.amble.ait.core.item.sonic.SonicMode;
@@ -46,7 +48,7 @@ import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 
-public class ConsoleControlEntity extends LinkableDummyLivingEntity {
+public class ConsoleControlEntity extends LinkableDummyEntity {
     private static final TrackedData<Float> WIDTH = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.FLOAT);
     private static final TrackedData<Float> HEIGHT = DataTracker.registerData(ConsoleControlEntity.class,
@@ -65,13 +67,15 @@ public class ConsoleControlEntity extends LinkableDummyLivingEntity {
             TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Float> DURABILITY = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.FLOAT);
+    private static final TrackedData<Boolean> STICKY = DataTracker.registerData(ConsoleControlEntity.class,
+            TrackedDataHandlerRegistry.BOOLEAN);
 
     private BlockPos consoleBlockPos;
     private Control control;
     private static final float MAX_DURABILITY = 1.0f;
 
-    public ConsoleControlEntity(EntityType<? extends LivingEntity> entityType, World world) {
-        super(entityType, world, false);
+    public ConsoleControlEntity(EntityType<? extends Entity> entityType, World world) {
+        super(entityType, world);
     }
 
     private ConsoleControlEntity(World world, Tardis tardis) {
@@ -81,11 +85,6 @@ public class ConsoleControlEntity extends LinkableDummyLivingEntity {
 
     public static ConsoleControlEntity create(World world, Tardis tardis) {
         return new ConsoleControlEntity(world, tardis);
-    }
-
-    @Override
-    public void remove(RemovalReason reason) {
-        this.setRemoved(reason);
     }
 
     @Override
@@ -112,6 +111,7 @@ public class ConsoleControlEntity extends LinkableDummyLivingEntity {
         this.dataTracker.startTracking(WAS_SEQUENCED, false);
         this.dataTracker.startTracking(ON_DELAY, false);
         this.dataTracker.startTracking(DURABILITY, MAX_DURABILITY);
+        this.dataTracker.startTracking(STICKY, false);
     }
 
     @Override
@@ -130,6 +130,7 @@ public class ConsoleControlEntity extends LinkableDummyLivingEntity {
         nbt.putInt("sequenceColor", this.getSequenceIndex());
         nbt.putBoolean("wasSequenced", this.wasSequenced());
         nbt.putFloat("durability", this.getDurability());
+        nbt.putBoolean("sticky", this.isSticky());
     }
 
     @Override
@@ -161,6 +162,8 @@ public class ConsoleControlEntity extends LinkableDummyLivingEntity {
 
         if (nbt.contains("durability"))
             this.setDurability(nbt.getFloat("durability"));
+        if (nbt.contains("sticky"))
+            this.setSticky(nbt.getBoolean("sticky"));
     }
 
     @Override
@@ -169,22 +172,49 @@ public class ConsoleControlEntity extends LinkableDummyLivingEntity {
     }
 
     @Override
+    public boolean canHit() {
+        return !isRemoved();
+    }
+
+    @Override
     public ActionResult interact(PlayerEntity player, Hand hand) {
         ItemStack handStack = player.getStackInHand(hand);
 
-        if (player.getOffHandStack().getItem() == Items.COMMAND_BLOCK) {
+        if (player.getOffHandStack().isOf(Items.COMMAND_BLOCK)) {
             controlEditorHandler(player);
             return ActionResult.SUCCESS;
         }
 
-        handStack.useOnEntity(player, this, hand);
-
-        if (handStack.getItem() instanceof ControlBlockItem)
-            return ActionResult.FAIL;
-
-        if (hand == Hand.MAIN_HAND && !this.run(player, player.getWorld(), false)) {
-            this.playFailFx();
+        if (handStack.isOf(AITBlocks.REDSTONE_CONTROL_BLOCK.asItem())) {
+            NbtCompound nbt = handStack.getOrCreateNbt();
+            nbt.putString(ControlBlockItem.CONTROL_ID_KEY, this.getControl().id().toString());
+            this.getConsole().ifPresent(be -> nbt.putString(ControlBlockItem.CONSOLE_TYPE_ID_KEY, be.getTypeSchema().id().toString()));
+            return ActionResult.SUCCESS;
         }
+
+        if (isSticky()) {
+            if (player.getMainHandStack().isOf(Items.SHEARS)) {
+                this.playSound(SoundEvents.ENTITY_SHEEP_SHEAR, 1, 1);
+                this.dataTracker.set(STICKY, false);
+                return ActionResult.FAIL;
+            }
+
+            this.playSound(SoundEvents.BLOCK_SLIME_BLOCK_BREAK, 0.4f, 1);
+            player.getWorld().addParticle(
+                    new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.SLIME_BLOCK.getDefaultState()),
+                    this.getX(), this.getY(), this.getZ(),
+                    0.2, 0.5, -0.1
+            );
+
+            return ActionResult.FAIL;
+        } else if (player.getMainHandStack().isOf(Items.SLIME_BALL)) {
+            this.playSound(SoundEvents.BLOCK_SLIME_BLOCK_BREAK, 1, 1);
+            this.dataTracker.set(STICKY, true);
+            return ActionResult.FAIL;
+        }
+
+        if (hand == Hand.MAIN_HAND && !this.run(player, player.getWorld(), false))
+            this.playFailFx();
 
         return ActionResult.SUCCESS;
     }
@@ -193,15 +223,16 @@ public class ConsoleControlEntity extends LinkableDummyLivingEntity {
     public boolean damage(DamageSource source, float amount) {
         if (source.getSource() instanceof TntEntity)
             return false;
+
         if (source.getAttacker() instanceof PlayerEntity player) {
-            if (source.getSource() instanceof ProjectileEntity) {
+            if (source.getSource() instanceof ProjectileEntity)
                 source.getSource().discard();
-            }
-            if (player.getOffHandStack().getItem() == Items.COMMAND_BLOCK) {
+
+            if (player.getOffHandStack().isOf(Items.COMMAND_BLOCK))
                 controlEditorHandler(player);
-            } else
-                if (!this.run((PlayerEntity) source.getAttacker(), source.getAttacker().getWorld(), true))
-                    this.playFailFx();
+
+            else if (!this.run((PlayerEntity) source.getAttacker(), source.getAttacker().getWorld(), true))
+                this.playFailFx();
         }
 
         return false;
@@ -241,7 +272,7 @@ public class ConsoleControlEntity extends LinkableDummyLivingEntity {
 
         switch (this.getDurabilityState(this.getDurability())) {
             case JAMMED, SPARKING -> this.spark();
-            case CATCH_FIRE -> this.setOnFire(true);
+            case CATCH_FIRE -> this.onFire();
         }
     }
 
@@ -317,14 +348,25 @@ public class ConsoleControlEntity extends LinkableDummyLivingEntity {
     public boolean isOnDelay() {
         return this.dataTracker.get(ON_DELAY);
     }
+
     public float getDurability() {
         return this.dataTracker.get(DURABILITY);
     }
+
+    public boolean isSticky() {
+        return this.dataTracker.get(STICKY);
+    }
+
     public DurabilityStates getDurabilityState(float durability) {
         return DurabilityStates.get(durability);
     }
+
     public void setDurability(float durability) {
         this.dataTracker.set(DURABILITY, durability);
+    }
+
+    public void setSticky(boolean sticky) {
+        this.dataTracker.set(STICKY, sticky);
     }
 
     public void addDurability(float durability) {
@@ -334,15 +376,16 @@ public class ConsoleControlEntity extends LinkableDummyLivingEntity {
     public void subtractDurability(float durability) {
         this.setDurability(Math.max(this.getDurability() - durability, 0));
     }
+
     public boolean run(PlayerEntity player, World world, boolean leftClick) {
+        if (world.isClient())
+            return false;
+
         if (world.getRandom().nextBetween(1, 10_000) == 72)
             this.getWorld().playSound(null, this.getBlockPos(), AITSounds.EVEN_MORE_SECRET_MUSIC, SoundCategory.MASTER,
                     1F, 1F);
 
-        if (world.isClient())
-            return false;
-
-        if (player.getMainHandStack().getItem() == AITItems.TARDIS_ITEM)
+        if (player.getMainHandStack().isOf(AITItems.TARDIS_ITEM))
             this.discard();
 
         if (!this.isLinked()) {
@@ -355,18 +398,17 @@ public class ConsoleControlEntity extends LinkableDummyLivingEntity {
 
         Tardis tardis = this.tardis().get();
 
-        control.runAnimation(tardis, (ServerPlayerEntity) player, (ServerWorld) world);
-
-        if (player.getMainHandStack().getItem() instanceof SonicItem && this.getDurability() < 1.0f) {
-            if (SonicItem.mode(player.getMainHandStack()).equals(SonicMode.Modes.TARDIS)) {
-                Vec3d pos = this.getPos();
-                this.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
-                ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.WAX_ON,
-                        pos.getX(), pos.getY(), pos.getZ(), 2, 0.2, 0.4, 0.2, 0.02);
-                this.setDurability(MAX_DURABILITY);
-                return true;
-            }
+        if (player.getMainHandStack().isOf(AITItems.SONIC_SCREWDRIVER) && this.getDurability() < 1.0f
+                && SonicItem.mode(player.getMainHandStack()) == SonicMode.Modes.TARDIS) {
+            Vec3d pos = this.getPos();
+            this.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
+            ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.WAX_ON,
+                    pos.getX(), pos.getY(), pos.getZ(), 2, 0.2, 0.4, 0.2, 0.02);
+            this.setDurability(MAX_DURABILITY);
+            return true;
         }
+
+        control.runAnimation(tardis, (ServerPlayerEntity) player, (ServerWorld) world);
 
         if (this.isOnDelay())
             return false;
@@ -374,22 +416,40 @@ public class ConsoleControlEntity extends LinkableDummyLivingEntity {
         if (!this.control.canRun(tardis, (ServerPlayerEntity) player))
             return false;
 
-        boolean hasMallet = player.getMainHandStack().getItem() instanceof HammerItem;
+        boolean hasMallet = player.getMainHandStack().isOf(AITItems.HAMMER);
 
-        if (!hasMallet) {
-            switch (this.getDurabilityState(this.getDurability())) {
-                case OCCASIONALLY_JAM, SPARKING -> {
-                    return !(random.nextBetween(0, 10) == 5);
-                }
-                case JAMMED -> {
-                    return false;
-                }
-            }
-        } else {
+        if (hasMallet) {
             this.playSound(AITSounds.KNOCK, 1, 0.25f);
             Vec3d pos = this.getPos();
-            ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.SCRAPE,
+            ((ServerWorld) world).spawnParticles(ParticleTypes.SCRAPE,
                     pos.getX(), pos.getY(), pos.getZ(), 2, 0.2, 0.4, 0.2, 0.02);
+        }
+
+        DurabilityStates state = this.getDurabilityState(this.getDurability());
+
+        if (state == DurabilityStates.FULL) {
+            if (hasMallet)
+                this.subtractDurability(0.1f);
+        }
+
+        if (state == DurabilityStates.JAMMED) {
+            if (!hasMallet) return false;
+        }
+
+        if (state == DurabilityStates.OCCASIONALLY_JAM && random.nextBetween(0, 10) == 5) {
+            if (hasMallet) {
+                this.setDurability(state.next().durability);
+            } else {
+                return false;
+            }
+        }
+
+        if (state == DurabilityStates.SPARKING && random.nextBetween(0, 10) < 5) {
+            if (hasMallet) {
+                this.setDurability(state.next().durability);
+            } else {
+                return false;
+            }
         }
 
         if (this.control.shouldHaveDelay(tardis) && !this.isOnDelay()) {
@@ -401,7 +461,7 @@ public class ConsoleControlEntity extends LinkableDummyLivingEntity {
         Control.Result result = this.control.handleRun(tardis, (ServerPlayerEntity) player, (ServerWorld) world, this.consoleBlockPos, leftClick);
 
         if (result == Control.Result.SEQUENCE) {
-             //This is just for testing but its funny as hell.
+            // THIS IS LITERALLY A FEATURE DON'T REMOVE UNLESS I SAY SO DAMMIT - Loqor
             if (random.nextBetween(0, 10) == 5) {
                 int subtractCauseICan = random.nextBetween(0, 200);
                 this.subtractDurability(subtractCauseICan / 200f);
@@ -423,6 +483,15 @@ public class ConsoleControlEntity extends LinkableDummyLivingEntity {
             ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.ELECTRIC_SPARK, pos.getX(), pos.getY(), pos.getZ(), 5, 0.2, 0.2, 0.2, 0.01);
             ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.LAVA, pos.getX(), pos.getY(), pos.getZ(), 3, 0.1, 0.1, 0.1, 0.01);
         }
+        this.onFire();
+    }
+
+    private void onFire() {
+        if (this.getEntityWorld().isClient()) return;
+        Vec3d pos = this.getPos();
+        ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.SMOKE, pos.getX(), pos.getY(), pos.getZ(), 1, 0, 0, 0, 0.0f);
+        if (this.getEntityWorld().getServer().getTicks() % 10 == 0)
+            ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.SMALL_FLAME, pos.getX(), pos.getY() + 0.2f, pos.getZ(), 1, 0, 0.075f, 0, 0);
     }
 
     /**
@@ -485,11 +554,6 @@ public class ConsoleControlEntity extends LinkableDummyLivingEntity {
                         + this.getControlHeight() + "f), new Vector3f(" + centered.getX() + "f, " + centered.getY()
                         + "f, " + centered.getZ() + "f)),"));
         }
-    }
-
-    @Override
-    public boolean doesRenderOnFire() {
-        return DurabilityStates.get(this.getDurability()).equals(DurabilityStates.CATCH_FIRE);
     }
 
     @Override

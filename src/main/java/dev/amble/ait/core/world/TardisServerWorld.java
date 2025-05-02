@@ -76,7 +76,7 @@ public class TardisServerWorld extends MultiDimServerWorld {
         return ServerLifecycleHooks.get().getWorld(keyForTardis(tardis));
     }
 
-    private static RegistryKey<World> keyForTardis(ServerTardis tardis) {
+    public static RegistryKey<World> keyForTardis(ServerTardis tardis) {
         return RegistryKey.of(RegistryKeys.WORLD, idForTardis(tardis));
     }
 

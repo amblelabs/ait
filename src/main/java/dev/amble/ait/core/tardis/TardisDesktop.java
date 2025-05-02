@@ -147,7 +147,7 @@ public class TardisDesktop extends TardisComponent {
             TardisEvents.RECONFIGURE_DESKTOP.invoker().reconfigure(this.tardis);
 
         ServerTardis tardis = this.tardis.asServer();
-        ServerWorld world = tardis.getInteriorWorld();
+        ServerWorld world = tardis.worldRef().get();
 
         Optional<StructureTemplate> optional = this.schema.findTemplate();
 
@@ -173,7 +173,7 @@ public class TardisDesktop extends TardisComponent {
 
     public ActionQueue createDesktopClearQueue() {
         ServerTardis tardis = this.tardis.asServer();
-        ServerWorld world = tardis.getInteriorWorld();
+        ServerWorld world = tardis.worldRef().get();
         int chunkRadius = ChunkSectionPos.getSectionCoord(RADIUS);
 
         TardisUtil.getEntitiesInBox(AbstractDecorationEntity.class, world, corners.getBox(), frame -> true)
@@ -213,7 +213,7 @@ public class TardisDesktop extends TardisComponent {
     }
 
     public void cacheConsole(BlockPos consolePos) {
-        World dim = this.tardis.asServer().getInteriorWorld();
+        World dim = this.tardis.asServer().worldRef().get();
         dim.playSound(null, consolePos, SoundEvents.BLOCK_BEACON_DEACTIVATE, SoundCategory.BLOCKS, 0.5f, 1.0f);
 
         if (dim.getBlockEntity(consolePos) instanceof ConsoleBlockEntity entity) {
@@ -239,7 +239,9 @@ public class TardisDesktop extends TardisComponent {
     public void playSoundAtEveryConsole(SoundEvent sound, SoundCategory category, float volume, float pitch) {
         if (!this.isServer()) return;
 
-        this.getConsolePos().forEach(consolePos -> playSoundAtConsole(this.tardis.asServer().getInteriorWorld(), consolePos, sound, category, volume, pitch));
+        this.tardis.asServer().worldRef().ifPresent(world ->
+                this.getConsolePos().forEach(consolePos ->
+                        playSoundAtConsole(world, consolePos, sound, category, volume, pitch)));
     }
 
     public void playSoundAtEveryConsole(SoundEvent sound, SoundCategory category) {

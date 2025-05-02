@@ -167,6 +167,7 @@ public class Control implements Identifiable {
         public boolean isSuccess() {
             return this == SUCCESS || this == SUCCESS_ALT;
         }
+
         public boolean isAltSound() {
             return this == SUCCESS_ALT || this == FAILURE;
         }

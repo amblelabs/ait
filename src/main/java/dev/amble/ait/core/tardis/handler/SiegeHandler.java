@@ -14,7 +14,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
@@ -23,7 +22,6 @@ import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.item.SiegeTardisItem;
-import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.properties.Property;
@@ -143,9 +141,7 @@ public class SiegeHandler extends KeyedTardisComponent implements TardisTickable
             this.siegeTime = 0;
         }
 
-        for (BlockPos console : this.tardis.getDesktop().getConsolePos()) {
-            TardisDesktop.playSoundAtConsole(tardis.asServer().getInteriorWorld(), console, sound, SoundCategory.BLOCKS, 3f, 1f);
-        }
+        tardis.getDesktop().playSoundAtEveryConsole(sound, SoundCategory.BLOCKS, 3f, 1f);
 
         this.tardis.removeFuel(0.01 * FuelHandler.TARDIS_MAX_FUEL * this.tardis.travel().instability());
         this.active.set(siege);

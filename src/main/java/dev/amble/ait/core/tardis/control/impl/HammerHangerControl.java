@@ -53,4 +53,9 @@ public class HammerHangerControl extends Control {
     public SoundEvent getFallbackSound() {
         return SoundEvents.BLOCK_CHAIN_HIT;
     }
+
+    @Override
+    public boolean requiresPower() {
+        return false;
+    }
 }

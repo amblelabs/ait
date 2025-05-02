@@ -13,7 +13,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
@@ -23,9 +22,12 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITTags;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.util.MonitorUtil;
+import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.LandingPadManager;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.core.world.TardisServerWorld;
@@ -51,13 +53,6 @@ public class ScanningSonicMode extends SonicMode {
     @Override
     public int maxTime() {
         return 5 * 60 * 20;
-    }
-
-    @Override
-    public boolean startUsing(ItemStack stack, World world, PlayerEntity user, Hand hand) {
-        if (world.isClient()) return false;
-
-        return this.process(stack, world, user);
     }
 
     @Override
@@ -98,6 +93,20 @@ public class ScanningSonicMode extends SonicMode {
         Block block = state.getBlock();
 
         String blastRes = String.format("%.2f", block.getBlastResistance());
+
+        if (state.isIn(AITTags.Blocks.SONIC_CAN_LOCATE)) {
+            Tardis tardis = SonicItem.getTardisStatic(world, stack);
+            BlockPos tPos = tardis.travel().position().getPos();
+            String dimensionText = MonitorUtil.truncateDimensionName(WorldUtil.worldText(world.getRegistryKey()).getString(), 20);
+
+            Text coordinatesMessage = Text.translatable("item.sonic.scanning.locator_message.coordinates", tPos.getX(), tPos.getY(), tPos.getZ());
+            Text fullMessage = Text.translatable("item.sonic.scanning.locator_message.title", dimensionText).append("\n").append(coordinatesMessage);
+
+            // Output looks like:
+            // TARDIS Location: {DIMENSION}
+            // Coordinates: {X} {Y} {Z}
+            user.sendMessage(fullMessage);
+        }
 
         String toolRequirement = "item.sonic.scanning.any_tool";
         if (block instanceof ICantBreak) {

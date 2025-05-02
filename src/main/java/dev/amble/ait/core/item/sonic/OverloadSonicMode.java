@@ -34,14 +34,6 @@ public class OverloadSonicMode extends SonicMode {
     }
 
     @Override
-    public void stopUsing(ItemStack stack, World world, LivingEntity user, int ticks, int ticksLeft) {
-        if (!(world instanceof ServerWorld serverWorld))
-            return;
-
-        this.process(serverWorld, user, ticks);
-    }
-
-    @Override
     public void tick(ItemStack stack, World world, LivingEntity user, int ticks, int ticksLeft) {
         if (!(world instanceof ServerWorld serverWorld) || ticks % 10 != 0)
             return;

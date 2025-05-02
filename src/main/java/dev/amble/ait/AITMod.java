@@ -57,6 +57,8 @@ import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.engine.registry.SubSystemRegistry;
 import dev.amble.ait.core.entities.*;
 import dev.amble.ait.core.entities.daleks.DalekRegistry;
+import dev.amble.ait.core.entities.FlightTardisEntity;
+import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.blueprint.BlueprintRegistry;
 import dev.amble.ait.core.item.component.AbstractTardisPart;
 import dev.amble.ait.core.item.part.MachineItem;
@@ -165,7 +167,6 @@ public class AITMod implements ModInitializer {
                 SubSystemRegistry.getInstance(),
                 ItemOpinionRegistry.getInstance(),
                 DrinkRegistry.getInstance(),
-                DalekRegistry.getInstance(),
                 TardisAnimationRegistry.getInstance()
         );
         ControlSoundRegistry.init();
@@ -253,7 +254,6 @@ public class AITMod implements ModInitializer {
             EraseChunksCommand.register(dispatcher);
             FlightCommand.register(dispatcher);
             SetDoorParticleCommand.register(dispatcher, registryAccess);
-            DalekRaidCommand.register(dispatcher);
         }));
 
         ServerPlayNetworking.registerGlobalReceiver(TardisUtil.REGION_LANDING_CODE,
@@ -331,9 +331,6 @@ public class AITMod implements ModInitializer {
     }
 
     public void entityAttributeRegister() {
-        FabricDefaultAttributeRegistry.register(AITEntityTypes.CONTROL_ENTITY_TYPE,
-                ConsoleControlEntity.createDummyAttributes());
-
         FabricDefaultAttributeRegistry.register(AITEntityTypes.RIFT_ENTITY,
                 RiftEntity.createMobAttributes());
 
