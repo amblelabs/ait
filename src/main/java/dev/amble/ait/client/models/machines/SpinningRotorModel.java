@@ -17,7 +17,6 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
 @SuppressWarnings("rawtypes")
 public abstract class SpinningRotorModel extends SinglePartEntityModel {
-
     public SpinningRotorModel() {
         this(RenderLayer::getEntityCutoutNoCull);
     }
