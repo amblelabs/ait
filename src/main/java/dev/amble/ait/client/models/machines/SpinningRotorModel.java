@@ -35,8 +35,9 @@ public abstract class SpinningRotorModel extends SinglePartEntityModel {
         // to detect different states. - Loqor
         this.getPart().traverse().forEach(ModelPart::resetTransform);
 
-        if (hasPower && AITMod.CONFIG.CLIENT.ANIMATE_CONSOLE)
-            this.updateAnimation(rotor.ANIM_STATE, this.getAnimationForState(state), rotor.getAge());
+        if (hasPower && AITMod.CONFIG.CLIENT.ANIMATE_CONSOLE) {
+            this.updateAnimation(rotor.ANIM_STATE, this.getAnimationForState(state), rotor.getAge(), 1.0f);
+        }
     }
 
     public void renderWithAnimations(ToyotaSpinningRotorBlockEntity console, ModelPart root, MatrixStack matrices,

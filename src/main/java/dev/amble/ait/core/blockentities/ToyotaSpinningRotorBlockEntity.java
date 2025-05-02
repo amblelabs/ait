@@ -1,7 +1,6 @@
 package dev.amble.ait.core.blockentities;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.entity.AnimationState;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -12,7 +11,7 @@ import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.tardis.Tardis;
 
-public class ToyotaSpinningRotorBlockEntity extends InteriorLinkableBlockEntity implements BlockEntityTicker<ToyotaSpinningRotorBlockEntity> {
+public class ToyotaSpinningRotorBlockEntity extends InteriorLinkableBlockEntity {
     public ToyotaSpinningRotorBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.TOYOTA_SPINNING_ROTOR_ENTITY_TYPE, pos, state);
     }
@@ -38,13 +37,11 @@ public class ToyotaSpinningRotorBlockEntity extends InteriorLinkableBlockEntity 
         tardis.asServer().markDirty(tardis.getDesktop());
     }
 
-    @Override
     public void tick(World world, BlockPos pos, BlockState state, ToyotaSpinningRotorBlockEntity blockEntity) {
-        if (!(world instanceof ServerWorld serverWorld)) {
+        if (!(world instanceof ServerWorld)) {
             this.age++;
 
-            ANIM_STATE.startIfNotRunning(this.age);
-            return;
+            ANIM_STATE.startIfNotRunning(this.getAge());
         }
     }
 }

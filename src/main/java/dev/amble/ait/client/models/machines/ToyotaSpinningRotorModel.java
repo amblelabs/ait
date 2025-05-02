@@ -4,16 +4,16 @@ import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
 
 import dev.amble.ait.client.animation.machines.ToyotaSpinningRotorAnimation;
+import dev.amble.ait.core.blockentities.ToyotaSpinningRotorBlockEntity;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
 
 public class ToyotaSpinningRotorModel extends SpinningRotorModel {
-    private final ModelPart bone4;
+    private final ModelPart whirlagig;
     public ToyotaSpinningRotorModel(ModelPart root) {
-        this.bone4 = root.getChild("bone4");
+        this.whirlagig = root.getChild("whirlagig");
     }
     public static TexturedModelData getTexturedModelData() {
         ModelData modelData = new ModelData();
@@ -560,15 +560,12 @@ public class ToyotaSpinningRotorModel extends SpinningRotorModel {
                 .uv(124, 176).cuboid(-8.0F, -7.0F, 0.5F, 16.0F, 11.0F, 11.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -5.0F, -19.2103F, 1.5708F, 0.0F, 0.0F));
         return TexturedModelData.of(modelData, 512, 512);
     }
-    @Override
-    public void setAngles(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-    }
 
     @Override
     public Animation getAnimationForState(TravelHandlerBase.State state) {
         return switch(state) {
-            case DEMAT -> ToyotaSpinningRotorAnimation.START_UP;
-            case MAT -> ToyotaSpinningRotorAnimation.STOP;
+            case DEMAT -> ToyotaSpinningRotorAnimation.STOP;
+            case MAT -> ToyotaSpinningRotorAnimation.START_UP;
             case FLIGHT -> ToyotaSpinningRotorAnimation.FLIGHT;
             default -> Animation.Builder.create(0).build();
         };
@@ -576,12 +573,17 @@ public class ToyotaSpinningRotorModel extends SpinningRotorModel {
 
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
-        bone4.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
+        whirlagig.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
+    }
+
+    @Override
+    public void renderWithAnimations(ToyotaSpinningRotorBlockEntity console, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
+        super.renderWithAnimations(console, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
     }
 
     @Override
     public ModelPart getPart() {
-        return bone4;
+        return whirlagig;
     }
 
 }
