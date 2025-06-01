@@ -175,6 +175,7 @@ public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantS
     public static ExteriorVariantSchema HEAD_FIRE;
     public static ExteriorVariantSchema CORAL_GROWTH;
     public static ExteriorVariantSchema DOOM;
+    public static ExteriorVariantSchema BOOTH_WANDERER;
     public static ExteriorVariantSchema PLINTH_DEFAULT;
     public static ExteriorVariantSchema PLINTH_SOUL;
     public static ExteriorVariantSchema PLINTH_FIRE;
@@ -254,8 +255,9 @@ public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantS
         // Coral Growth
         CORAL_GROWTH = register(new CoralGrowthVariant());
 
-        // Doom
+        // Dev Exclusives
         DOOM = register(new DoomVariant());
+        BOOTH_WANDERER = register(new BoothWandererVariant());
 
         // Plinth
         PLINTH_DEFAULT = register(new PlinthDefaultVariant());

@@ -181,6 +181,7 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
     public static ClientExteriorVariantSchema HEAD_FIRE;
     public static ClientExteriorVariantSchema CORAL_GROWTH;
     public static ClientExteriorVariantSchema DOOM;
+    public static ClientExteriorVariantSchema BOOTH_WANDERER;
     public static ClientExteriorVariantSchema PLINTH_DEFAULT;
     public static ClientExteriorVariantSchema PLINTH_SOUL;
     public static ClientExteriorVariantSchema PLINTH_FIRE;
@@ -258,8 +259,9 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
         // Coral
         CORAL_GROWTH = register(new ClientGrowthVariant());
 
-        // Doom
+        // Dev Exclusives
         DOOM = register(new ClientDoomVariant());
+        BOOTH_WANDERER = register(new ClientBoothWandererVariant());
 
         // Plinth
         PLINTH_DEFAULT = register(new ClientPlinthDefaultVariant());
