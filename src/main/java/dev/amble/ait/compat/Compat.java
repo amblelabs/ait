@@ -2,6 +2,7 @@ package dev.amble.ait.compat;
 
 import dev.amble.ait.api.AITModInitializer;
 import dev.amble.ait.compat.gravity.GravityHandler;
+import dev.amble.ait.compat.immersive.PortalsHandler;
 import net.fabricmc.api.ClientModInitializer;
 
 public class Compat implements AITModInitializer, ClientModInitializer {
@@ -10,6 +11,9 @@ public class Compat implements AITModInitializer, ClientModInitializer {
     public void onInitializeAIT() {
         if (DependencyChecker.hasGravity())
             GravityHandler.init();
+
+        if (DependencyChecker.hasPortals())
+            PortalsHandler.init();
     }
 
     @Override

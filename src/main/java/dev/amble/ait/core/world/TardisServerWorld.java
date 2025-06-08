@@ -1,6 +1,7 @@
 package dev.amble.ait.core.world;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.lib.util.ServerLifecycleHooks;
@@ -29,6 +30,7 @@ import net.minecraft.world.level.ServerWorldProperties;
 import net.minecraft.world.level.storage.LevelStorage;
 import net.minecraft.world.spawner.Spawner;
 import org.jetbrains.annotations.Nullable;
+import qouteall.q_misc_util.dimension.DimensionIdManagement;
 
 import java.util.List;
 import java.util.UUID;
@@ -83,6 +85,7 @@ public class TardisServerWorld extends MultiDimServerWorld {
                 .add(AITDimensions.TARDIS_WORLD_BLUEPRINT, idForTardis(tardis));
 
         created.setTardis(tardis);
+
         return created;
     }
 
@@ -106,6 +109,10 @@ public class TardisServerWorld extends MultiDimServerWorld {
             result = create(tardis);
         } else {
             result.setTardis(tardis);
+        }
+
+        if (DependencyChecker.hasPortals()) {
+            DimensionIdManagement.updateAndSaveServerDimIdRecord();
         }
 
         MultiDimMod.LOGGER.info("Time taken to load sub-world: {}", System.currentTimeMillis() - start);
