@@ -83,7 +83,8 @@
 		"amblekit": "*"
 	},
 	"suggests": {
-		"k9-mod": "*"
+		"k9-mod": "*",
+		"immersiveportals": "*"
 	},
 	"custom": {
 		"modmenu": {

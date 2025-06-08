@@ -100,6 +100,15 @@ dependencies {
     modImplementation("com.github.amblelabs:modkit:v${project.amblekit_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
+
+    // immerisve poraltas
+    modImplementation ("com.github.iPortalTeam.ImmersivePortalsMod:imm_ptl_core:${project.immersive_portals_version}"){
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+
+    modImplementation ("com.github.iPortalTeam.ImmersivePortalsMod:q_misc_util:${project.immersive_portals_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 }
 
 processResources {
