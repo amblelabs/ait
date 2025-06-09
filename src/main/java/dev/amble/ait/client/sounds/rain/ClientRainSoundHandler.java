@@ -1,9 +1,6 @@
 package dev.amble.ait.client.sounds.rain;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.sound.SoundCategory;
-
-import dev.amble.ait.api.TardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.sounds.LoopingSound;
 import dev.amble.ait.client.sounds.PositionedLoopingSound;
 import dev.amble.ait.client.sounds.SoundHandler;
@@ -12,6 +9,8 @@ import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.handler.ExteriorEnvironmentHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.sound.SoundCategory;
 
 public class ClientRainSoundHandler extends SoundHandler {
 

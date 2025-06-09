@@ -1,16 +1,15 @@
 package dev.amble.ait.client.models.coral;
 
-import net.minecraft.client.model.*;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import net.minecraft.client.model.*;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.entity.animation.Animation;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 
 public class CoralGrowthExteriorModel extends ExteriorModel {
     public final ModelPart coral;
@@ -571,13 +570,8 @@ public class CoralGrowthExteriorModel extends ExteriorModel {
     }
 
     @Override
-    public void renderWithAnimations(ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices,
-            VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        if (exterior.tardis().isEmpty())
-            return;
-
-        ClientTardis tardis = (ClientTardis) exterior.tardis().get();
-
+    public void renderWithAnimations(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices,
+                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
         boolean isNotLanded = tardis.interiorChangingHandler().queued().get() || tardis.travel().getState() != TravelHandlerBase.State.LANDED;
         boolean hasCage = tardis.interiorChangingHandler().hasCage();
         seven.getChild("corallybits").visible = !hasCage && tardis.interiorChangingHandler().plasmicMaterialAmount() == 0;
@@ -587,9 +581,9 @@ public class CoralGrowthExteriorModel extends ExteriorModel {
 
         float alpha = ((float) tardis.interiorChangingHandler().plasmicMaterialAmount() / 8f);
 
-        super.renderWithAnimations(exterior, isNotLanded ? six : seven, matrices, vertices, light, overlay, red, green, blue, pAlpha);
-        if (hasCage) super.renderWithAnimations(exterior, cage, matrices, vertices, light, overlay, red, green, blue, pAlpha);
-        super.renderWithAnimations(exterior, perimeter, matrices, vertices, light, overlay, red, green, blue,
+        super.renderWithAnimations(tardis, exterior, isNotLanded ? six : seven, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        if (hasCage) super.renderWithAnimations(tardis, exterior, cage, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(tardis, exterior, perimeter, matrices, vertices, light, overlay, red, green, blue,
                 alpha >= 1 ? pAlpha : alpha);
     }
 
@@ -609,7 +603,7 @@ public class CoralGrowthExteriorModel extends ExteriorModel {
     }
 
     @Override
-    public void renderDoors(ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
+    public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
 
     }
 }

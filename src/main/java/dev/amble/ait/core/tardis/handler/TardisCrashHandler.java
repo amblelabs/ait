@@ -1,8 +1,14 @@
 package dev.amble.ait.core.tardis.handler;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.data.properties.Property;
+import dev.amble.ait.data.properties.Value;
+import dev.amble.ait.data.properties.integer.IntProperty;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import org.joml.Vector3f;
-
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -12,15 +18,7 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisTickable;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.data.properties.Property;
-import dev.amble.ait.data.properties.Value;
-import dev.amble.ait.data.properties.integer.IntProperty;
+import org.joml.Vector3f;
 
 public class TardisCrashHandler extends KeyedTardisComponent implements TardisTickable {
 
@@ -57,8 +55,6 @@ public class TardisCrashHandler extends KeyedTardisComponent implements TardisTi
         State state = this.state.get();
         int repairTicks = this.repairTicks.get();
 
-        ServerAlarmHandler alarms = tardis.handler(Id.ALARMS);
-
         if (repairTicks > 0) {
             repairTicks = tardis.isRefueling() ? repairTicks - 10 : repairTicks - 1;
             this.setRepairTicks(repairTicks);
@@ -67,12 +63,12 @@ public class TardisCrashHandler extends KeyedTardisComponent implements TardisTi
                 return;
 
             this.state.set(State.NORMAL);
-            alarms.enabled().set(false);
+            this.tardis().alarm().disable();
             return;
         }
 
         if (state == State.TOXIC)
-            alarms.enabled().set(true);
+            this.tardis().alarm().enable();
 
         if (repairTicks < UNSTABLE_TICK_START_THRESHOLD && state != State.UNSTABLE) {
             state = State.UNSTABLE;
@@ -82,11 +78,8 @@ public class TardisCrashHandler extends KeyedTardisComponent implements TardisTi
         CachedDirectedGlobalPos exteriorPosition = tardis.travel().position();
         ServerWorld exteriorWorld = exteriorPosition.getWorld();
 
-        if (tardis.door().isOpen() && state != State.NORMAL) {
-            exteriorWorld.spawnParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, exteriorPosition.getPos().toCenterPos().x,
-                    exteriorPosition.getPos().getY() + 2f, exteriorPosition.getPos().toCenterPos().z, 1, 0.05D, 0.05D,
-                    0.05D, 0.01D);
-        }
+        DoorHandler door = tardis.door();
+        door.setDoorParticles(state != State.NORMAL ? ParticleTypes.CAMPFIRE_COSY_SMOKE : null);
 
         if (state != State.TOXIC)
             return;

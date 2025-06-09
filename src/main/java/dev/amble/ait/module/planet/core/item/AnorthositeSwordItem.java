@@ -2,7 +2,7 @@ package dev.amble.ait.module.planet.core.item;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-
+import dev.amble.ait.core.AITStatusEffects;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EquipmentSlot;
@@ -16,8 +16,6 @@ import net.minecraft.item.*;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.AITStatusEffects;
 
 public class AnorthositeSwordItem extends ToolItem implements Vanishable {
     private final float attackDamage;

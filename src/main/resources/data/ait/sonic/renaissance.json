@@ -7,7 +7,5 @@
     "scanning": "ait:item/sonic/renaissance/scanning",
     "tardis": "ait:item/sonic/renaissance/tardis"
   },
-  "loyalty": {
-    "type": "COMPANION"
-  }
+  "loyalty": "COMPANION"
 }

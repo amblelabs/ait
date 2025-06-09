@@ -1,13 +1,13 @@
 package dev.amble.ait.core.entities.base;
 
-import java.util.Collections;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
+
+import java.util.Collections;
 
 public abstract class DummyEntity extends Entity {
 

@@ -1,25 +1,25 @@
 package dev.amble.ait.core.sounds.travel.map;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.sounds.travel.TravelSound;
 import dev.amble.ait.core.sounds.travel.TravelSoundRegistry;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.enummap.EnumMap;
+import net.minecraft.util.Identifier;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
+
+@Deprecated(since = "1.3.0")
 public class TravelSoundMap extends EnumMap.Compliant<TravelHandlerBase.State, TravelSound> {
+
     public static Codec<TravelSoundMap> CODEC = Identifier.CODEC.listOf().flatXmap((l) -> {
         TravelSoundMap map = new TravelSoundMap();
         for (Identifier id : l) {
@@ -39,6 +39,7 @@ public class TravelSoundMap extends EnumMap.Compliant<TravelHandlerBase.State, T
         this.put(TravelHandlerBase.State.DEMAT, TravelSoundRegistry.DEFAULT_DEMAT);
         this.put(TravelHandlerBase.State.MAT, TravelSoundRegistry.DEFAULT_MAT);
     }
+
     private static TravelSound[] createArray(int length) {
         TravelSound[] array = new TravelSound[length];
 

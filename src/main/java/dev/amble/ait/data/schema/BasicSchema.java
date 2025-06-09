@@ -1,11 +1,9 @@
 package dev.amble.ait.data.schema;
 
+import dev.amble.ait.api.Nameable;
 import dev.amble.lib.api.Identifiable;
-
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.api.Nameable;
 
 public abstract class BasicSchema implements Identifiable, Nameable {
 

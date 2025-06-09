@@ -1,13 +1,12 @@
 package dev.amble.ait.data.gson;
 
-import java.lang.reflect.Type;
-
 import com.google.gson.*;
-
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.GlobalPos;
 import net.minecraft.world.World;
+
+import java.lang.reflect.Type;
 
 public class GlobalPosSerializer implements JsonDeserializer<GlobalPos>, JsonSerializer<GlobalPos> {
 

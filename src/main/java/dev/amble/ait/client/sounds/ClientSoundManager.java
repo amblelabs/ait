@@ -1,10 +1,5 @@
 package dev.amble.ait.client.sounds;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-
-import net.minecraft.client.MinecraftClient;
-
 import dev.amble.ait.client.sounds.alarm.ClientAlarmHandler;
 import dev.amble.ait.client.sounds.console.ClientConsoleAmbientSoundsHandler;
 import dev.amble.ait.client.sounds.drifting.ClientDriftingSoundHandler;
@@ -18,6 +13,9 @@ import dev.amble.ait.client.sounds.rain.ClientRainSoundHandler;
 import dev.amble.ait.client.sounds.rain.ClientThunderSoundHandler;
 import dev.amble.ait.client.sounds.sonic.SonicSoundHandler;
 import dev.amble.ait.client.sounds.vortex.ClientVortexSoundsHandler;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 
 /**
  * A class for playing + managing our custom sounds on the client, right now

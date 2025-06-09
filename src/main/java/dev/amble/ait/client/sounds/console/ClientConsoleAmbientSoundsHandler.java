@@ -1,10 +1,9 @@
 package dev.amble.ait.client.sounds.console;
 
-import net.minecraft.client.MinecraftClient;
-
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
+import net.minecraft.client.MinecraftClient;
 
 public class ClientConsoleAmbientSoundsHandler extends SoundHandler {
     public static ConsoleAmbienceSound AMBIENCE;

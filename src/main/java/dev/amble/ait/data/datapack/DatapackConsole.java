@@ -1,22 +1,20 @@
 package dev.amble.ait.data.datapack;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import org.joml.Vector3f;
-
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.codec.MoreCodec;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
+import net.minecraft.util.Identifier;
+import org.joml.Vector3f;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 // Example usage
 /*

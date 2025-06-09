@@ -1,36 +1,30 @@
 package dev.amble.ait.core.tardis.control.impl.pos;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
 
 public abstract class PosControl extends Control {
 
     private final PosType type;
 
-    public PosControl(PosType type, String id) {
-        super(id);
+    public PosControl(PosType type) {
+        super(AITMod.id(type.asString()));
         this.type = type;
     }
 
-    public PosControl(PosType type) {
-        this(type, type.asString());
-    }
-
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
             boolean leftClick) {
-        if (tardis.sequence().hasActiveSequence() && tardis.sequence().controlPartOfSequence(this)) {
-            this.addToControlSequence(tardis, player, console);
-            return false;
-        }
+        super.runServer(tardis, player, world, console, leftClick);
 
         TravelHandler travel = tardis.travel();
         CachedDirectedGlobalPos destination = travel.destination();
@@ -41,7 +35,7 @@ public abstract class PosControl extends Control {
 
         travel.destination(destination.pos(pos));
         messagePlayerDestination(player, travel);
-        return true;
+        return Result.SUCCESS;
     }
 
     private void messagePlayerDestination(ServerPlayerEntity player, TravelHandler travel) {
@@ -56,5 +50,10 @@ public abstract class PosControl extends Control {
     @Override
     public boolean shouldHaveDelay() {
         return false;
+    }
+
+    @Override
+    public SoundEvent getFallbackSound() {
+        return AITSounds.XYZ;
     }
 }

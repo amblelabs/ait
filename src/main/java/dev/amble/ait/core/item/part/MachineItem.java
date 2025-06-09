@@ -1,10 +1,14 @@
 package dev.amble.ait.core.item.part;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.core.item.sonic.SonicMode;
+import dev.amble.ait.data.schema.MachineRecipeSchema;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,12 +17,6 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ClickType;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.item.sonic.SonicMode;
-import dev.amble.ait.data.schema.MachineRecipeSchema;
 
 public class MachineItem extends Item {
 

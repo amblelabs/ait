@@ -1,17 +1,7 @@
 package dev.amble.ait.core.tardis.manager;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
-
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.TardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.LoyaltyHandler;
@@ -22,6 +12,14 @@ import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.DesktopRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 public class TardisBuilder {
 

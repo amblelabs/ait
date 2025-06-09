@@ -1,28 +1,28 @@
 package dev.amble.ait.core.commands;
 
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
-
 import com.google.gson.JsonElement;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.core.commands.argument.JsonElementArgumentType;
+import dev.amble.ait.core.commands.argument.TardisArgumentType;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.data.properties.Value;
+import dev.amble.ait.registry.impl.TardisComponentRegistry;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisComponent;
-import dev.amble.ait.core.commands.argument.JsonElementArgumentType;
-import dev.amble.ait.core.commands.argument.TardisArgumentType;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.data.properties.Value;
-import dev.amble.ait.registry.impl.TardisComponentRegistry;
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
 
 public class DataCommand {
 
@@ -55,52 +55,57 @@ public class DataCommand {
                                 .then(literal("get").executes(DataCommand::runGet)))))));
     }
 
-    private static <T> int runGet(CommandContext<ServerCommandSource> context) {
+    private static <T> int runGet(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
+        Value<T> value = getValue(context, tardis);
 
-        String rawComponent = StringArgumentType.getString(context, "component");
-        String valueName = StringArgumentType.getString(context, "value");
+        if (value == null)
+            return 0;
 
-        TardisComponent.IdLike id = TardisComponentRegistry.getInstance().get(rawComponent);
-
-        if (!(tardis.handler(id) instanceof KeyedTardisComponent keyed)) {
-            source.sendMessage(Text.translatable("command.ait.data.fail", valueName, rawComponent));
-            return 0; // womp womp
-        }
-
-        Value<T> value = keyed.getPropertyData().getExact(valueName);
         T obj = value.get();
 
         String json = ServerTardisManager.getInstance().getFileGson().toJson(obj);
 
-        source.sendMessage(Text.translatable("command.ait.data.get", valueName, json));
+        source.sendMessage(Text.translatable("command.ait.data.get",
+                value.getProperty().getName(), json));
+
         return Command.SINGLE_SUCCESS;
     }
 
-    private static <T> int runSet(CommandContext<ServerCommandSource> context) {
+    @SuppressWarnings("unchecked")
+    private static <T> int runSet(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 
-        String rawComponent = StringArgumentType.getString(context, "component");
-        String valueName = StringArgumentType.getString(context, "value");
+        Value<T> value = getValue(context, tardis);
+
+        if (value == null)
+            return 0;
 
         JsonElement data = JsonElementArgumentType.getJsonElement(context, "data");
+
+        Class<?> classOfT = value.getProperty().getType().getClazz();
+        T obj = (T) ServerTardisManager.getInstance().getFileGson().fromJson(data, classOfT);
+
+        value.set(obj);
+        source.sendMessage(Text.translatable("command.ait.data.set",
+                value.getProperty().getName(), obj.toString()));
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static <T> Value<T> getValue(CommandContext<ServerCommandSource> context, Tardis tardis) {
+        String valueName = StringArgumentType.getString(context, "value");
+        String rawComponent = StringArgumentType.getString(context, "component");
+
         TardisComponent.IdLike id = TardisComponentRegistry.getInstance().get(rawComponent);
 
         if (!(tardis.handler(id) instanceof KeyedTardisComponent keyed)) {
-            source.sendMessage(Text.translatable("command.ait.data.fail", valueName, rawComponent));
-            return 0; // womp womp
+            context.getSource().sendMessage(Text.translatable("command.ait.data.fail", valueName, rawComponent));
+            return null; // womp womp
         }
 
-        Value<T> value = keyed.getPropertyData().getExact(valueName);
-        Class<?> classOfT = value.getProperty().getType().getClazz();
-
-        T obj = (T) ServerTardisManager.getInstance().getFileGson().fromJson(data.toString(), classOfT);
-
-        value.set(obj);
-        source.sendMessage(Text.translatable("command.ait.data.set", valueName, obj.toString()));
-
-        return Command.SINGLE_SUCCESS;
+        return keyed.getPropertyData().getExact(valueName);
     }
 }

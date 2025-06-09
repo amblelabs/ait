@@ -10,12 +10,12 @@
       "minCount": 1
     },
     {
-      "item": "ait:inductor",
+      "item": "ait:hyperion_core_shaft",
       "maxCount": 3,
       "minCount": 2
     },
     {
-      "item": "ait:condensor",
+      "item": "ait:orthogonal_engine_filter",
       "maxCount": 5,
       "minCount": 4
     },

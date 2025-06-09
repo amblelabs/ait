@@ -1,9 +1,11 @@
 package dev.amble.ait.core.engine.impl;
 
 
+import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.StructureHolder;
 import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
+import net.minecraft.item.Item;
 
 public class GravitationalCircuit extends DurableSubSystem implements StructureHolder {
 
@@ -26,6 +28,10 @@ public class GravitationalCircuit extends DurableSubSystem implements StructureH
         return MultiBlockStructure.EMPTY;
     }
 
+    @Override
+    public Item asItem() {
+        return AITItems.GRAVITATIONAL_CIRCUIT;
+    }
 
     @Override
     protected void onDisable() {

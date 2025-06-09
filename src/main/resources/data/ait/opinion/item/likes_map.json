@@ -1,0 +1,8 @@
+{
+  "id": "ait:map",
+  "stack": {
+    "id": "minecraft:map",
+    "Count": 1
+  },
+  "loyalty": 5
+}

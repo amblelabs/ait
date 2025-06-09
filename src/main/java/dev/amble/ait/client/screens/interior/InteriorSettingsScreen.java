@@ -1,32 +1,9 @@
 package dev.amble.ait.client.screens.interior;
 
-import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.CHANGE_DESKTOP;
-
-import java.util.List;
-import java.util.function.Function;
-
 import com.google.common.collect.Lists;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.PressableTextWidget;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
-import dev.amble.ait.api.TardisClientEvents;
+import dev.amble.ait.api.tardis.TardisClientEvents;
 import dev.amble.ait.client.screens.ConsoleScreen;
 import dev.amble.ait.client.screens.SonicSettingsScreen;
 import dev.amble.ait.client.screens.TardisSecurityScreen;
@@ -38,6 +15,29 @@ import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.registry.impl.DesktopRegistry;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.widget.PressableTextWidget;
+import net.minecraft.client.gui.widget.TextWidget;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+
+import java.util.List;
+import java.util.function.Function;
+
+import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.CHANGE_DESKTOP;
 
 @Environment(EnvType.CLIENT)
 public class InteriorSettingsScreen extends ConsoleScreen {
@@ -56,9 +56,19 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private final Screen parent;
     private TardisDesktopSchema selectedDesktop;
     private SwitcherManager.ModeManager modeManager;
+    private final int APPLY_BUTTON_WIDTH = 53;
+    private final int APPLY_BUTTON_HEIGHT = 20;
+    private final int APPLY_BAR_BUTTON_WIDTH = 53;
+    private final int APPLY_BAR_BUTTON_HEIGHT = 12;
+    private final int SMALL_ARROW_BUTTON_WIDTH = 20;
+    private final int SMALL_ARROW_BUTTON_HEIGHT = 12;
+    private final int BIG_ARROW_BUTTON_WIDTH = 20;
+    private final int BIG_ARROW_BUTTON_HEIGHT = 20;
+    private final int MAIN_SETTINGS_BUTTON_WIDTH = 20;
+    private final int MAIN_SETTINGS_BUTTON_HEIGHT = 20;
 
     public InteriorSettingsScreen(ClientTardis tardis, BlockPos console, Screen parent) {
-        super(Text.translatable("screen.ait.interiorsettings.title"), tardis, console);
+        super(Text.translatable("screen." + AITMod.MOD_ID + ".interiorsettings.title"), tardis, console);
 
         this.parent = parent;
     }
@@ -76,7 +86,6 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         this.left = (this.width - this.bgWidth) / 2;
         this.createButtons();
 
-
         super.init();
     }
 
@@ -92,8 +101,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         this.close();
     }
 
-    private void createCompatButtons() {
-    }
+    private void createCompatButtons() { }
 
     private void createButtons() {
         choicesCount = 0;
@@ -111,35 +119,47 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         this.createCompatButtons();
         TardisClientEvents.SETTINGS_SETUP.invoker().onSetup(this);
 
-        this.addButton(new PressableTextWidget((width / 2 + 30), (height / 2 + 64),
-                this.textRenderer.getWidth("<"), 10, Text.literal(""), button -> this.modeManager.get().previous(), this.textRenderer));
-        this.addButton(new PressableTextWidget((width / 2 + 105), (height / 2 + 64),
-                this.textRenderer.getWidth(">"), 10, Text.literal(""), button -> this.modeManager.get().next(), this.textRenderer));
-        Text applyInteriorText = Text.translatable("screen.ait.monitor.apply");
-        this.addButton(new PressableTextWidget((width / 2 + 55), (height / 2 + 64),
-                this.textRenderer.getWidth(applyInteriorText), 10, Text.literal(""), button -> this.modeManager.get().sync(this.tardis()), this.textRenderer));
-        this.addButton(new PressableTextWidget((width / 2 + 30), (height / 2 + 8), this.textRenderer.getWidth("<"), 10,
-                Text.literal(""), button -> {
+        // arrow - hum/misc screen - left
+        this.addButton(new PressableTextWidget((width / 2 + 23), (height / 2 + 61),
+                SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT, Text.empty(), button -> this.modeManager.get().previous(), this.textRenderer));
+
+        // arrow - hum/misc screen - right
+        this.addButton(new PressableTextWidget((width / 2 + 98), (height / 2 + 61),
+                SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT, Text.empty(), button -> this.modeManager.get().next(), this.textRenderer));
+
+        // apply (HUM)
+        this.addButton(new PressableTextWidget((width / 2 + 44), (height / 2 + 61),
+                APPLY_BAR_BUTTON_WIDTH, APPLY_BAR_BUTTON_HEIGHT, Text.empty(), button -> this.modeManager.get().sync(this.tardis()), this.textRenderer));
+
+        // arrows (Interior)
+        this.addButton(new PressableTextWidget((width / 2 + 23), (height / 2 + 3), BIG_ARROW_BUTTON_WIDTH, BIG_ARROW_BUTTON_HEIGHT,
+                Text.empty(), button -> {
                     previousDesktop();
                 }, this.textRenderer));
-        this.addButton(new PressableTextWidget((width / 2 + 105), (height / 2 + 8), this.textRenderer.getWidth(">"), 10,
-                Text.literal(""), button -> {
+        this.addButton(new PressableTextWidget((width / 2 + 98), (height / 2 + 3), BIG_ARROW_BUTTON_WIDTH, BIG_ARROW_BUTTON_HEIGHT,
+                Text.empty(), button -> {
                     nextDesktop();
                 }, this.textRenderer));
-        this.addButton(new PressableTextWidget((width / 2 + 55), (height / 2 + 8),
-                this.textRenderer.getWidth(applyInteriorText), 20, Text.translatable("screen.ait.monitor.apply").formatted(Formatting.BOLD), button -> applyDesktop(), this.textRenderer));
-        Text exteriorSettingsText = Text.translatable("screen.ait.monitor.gear_icon");
-        this.addButton(new PressableTextWidget((width / 2 - 6), (height / 2 + 57),
-                this.textRenderer.getWidth(exteriorSettingsText), 10,
-                Text.literal("").formatted(Formatting.BOLD).formatted(Formatting.WHITE),
+
+        // apply (Interior)
+        MutableText applyInteriorText = Text.translatable("screen.ait.monitor.apply");
+        this.addDrawable(new TextWidget((width / 2 + 44), (height / 2 + 3),
+                APPLY_BUTTON_WIDTH, APPLY_BUTTON_HEIGHT, applyInteriorText.formatted(Formatting.BOLD), this.textRenderer));
+        this.addButton(new PressableTextWidget((width / 2 + 44), (height / 2 + 3),
+                APPLY_BUTTON_WIDTH, APPLY_BUTTON_HEIGHT, Text.empty(), button -> applyDesktop(), this.textRenderer));
+
+        // back to main monitor menu
+        this.addButton(new PressableTextWidget((width / 2 - 13), (height / 2 + 52),
+                MAIN_SETTINGS_BUTTON_WIDTH, MAIN_SETTINGS_BUTTON_HEIGHT,
+                Text.empty(),
                 button -> backToExteriorChangeScreen(), this.textRenderer));
 
 
-        this.addButton(new PressableTextWidget((width / 2 + 84), (height / 2 + 33),
-                this.textRenderer.getWidth("<"), 10, Text.literal(""), button -> this.modeManager.previous(), this.textRenderer));
-        this.addButton(new PressableTextWidget((width / 2 + 105), (height / 2 + 33),
-                this.textRenderer.getWidth(">"), 10, Text.literal(""), button -> this.modeManager.next(), this.textRenderer));
-
+        // arrows (HUM) mode selector
+        this.addButton(new PressableTextWidget((width / 2 + 77), (height / 2 + 30),
+                SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT, Text.empty(), button -> this.modeManager.previous(), this.textRenderer));
+        this.addButton(new PressableTextWidget((width / 2 + 98), (height / 2 + 30),
+                SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT, Text.empty(), button -> this.modeManager.next(), this.textRenderer));
     }
 
     private void toSonicScreen() {
@@ -152,9 +172,6 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         this.buttons.add((ButtonWidget) button);
     }
 
-    // this might be useful, so remember this exists and use it later on ( although
-    // its giving NTM
-    // vibes.. )
     public PressableTextWidget createTextButton(Text text, ButtonWidget.PressAction onPress) {
         return this.createAnyButton(text, PressableTextWidget::new, onPress);
     }
@@ -219,88 +236,85 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         context.getMatrices().translate(0, 0, 0f);
         context.getMatrices().pop();
 
-        // FIXME @Loqor, this is dumb.
-        int startIndex = DependencyChecker.hasGravity() ? 4 : 3;
+        // TODO: this is a fucking nightmare
+        int buttonIndex = DependencyChecker.hasGravity() ? 4 : 3;
 
-
-        // arrow (HUM)
-
-        int buttonIndex = startIndex;
+        // arrow buttons (hum/misc screen)
         if (!this.buttons.get(buttonIndex).isHovered())
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 7, this.buttons.get(buttonIndex).getY() - 3, 93, 166, 20,
-                    12);
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 93, 166,
+                    SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT);
         else
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 7, this.buttons.get(buttonIndex).getY() - 3, 93, 178, 20,
-                    12);
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 93, 178,
+                    SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT);
 
         buttonIndex++;
         if (!this.buttons.get(buttonIndex).isHovered())
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 7, this.buttons.get(buttonIndex).getY() - 3, 113, 166, 20,
-                    12);
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 113, 166,
+                    SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT);
         else
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 7, this.buttons.get(buttonIndex).getY() - 3, 113, 178, 20,
-                    12);
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 113, 178,
+                    SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT);
 
-        // apply (HUM)
+        // apply bar button (hum/misc screen)
         buttonIndex++;
         if (!this.buttons.get(buttonIndex).isHovered())
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 11, this.buttons.get(buttonIndex).getY() - 3, 133, 166, 53,
-                    12);
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 133, 166,
+                    APPLY_BAR_BUTTON_WIDTH, APPLY_BAR_BUTTON_HEIGHT);
         else
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 11, this.buttons.get(buttonIndex).getY() - 3, 133, 178, 53,
-                    12);
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 133, 178,
+                    APPLY_BAR_BUTTON_WIDTH, APPLY_BAR_BUTTON_HEIGHT);
 
-        // arrow (Interior)
+        // arrow buttons (interior)
         buttonIndex++;
         if (!this.buttons.get(buttonIndex).isHovered())
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 7, this.buttons.get(buttonIndex).getY() - 5, 0, 166, 20,
-                    20);
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 0, 166,
+                    BIG_ARROW_BUTTON_WIDTH, BIG_ARROW_BUTTON_HEIGHT);
         else
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 7, this.buttons.get(buttonIndex).getY() - 5, 0, 186, 20,
-                    20);
-        buttonIndex++;
-        if (!this.buttons.get(buttonIndex).isHovered())
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 7, this.buttons.get(buttonIndex).getY() - 5, 20, 166, 20,
-                    20);
-        else
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 7, this.buttons.get(buttonIndex).getY() - 5, 20, 186, 20,
-                    20);
-
-        // apply (Interior)
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 0, 186,
+                    BIG_ARROW_BUTTON_WIDTH, BIG_ARROW_BUTTON_HEIGHT);
 
         buttonIndex++;
         if (!this.buttons.get(buttonIndex).isHovered())
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 11, this.buttons.get(buttonIndex).getY() - 5, 40, 166, 53,
-                    20);
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 20, 166,
+                    BIG_ARROW_BUTTON_WIDTH, BIG_ARROW_BUTTON_HEIGHT);
         else
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 11, this.buttons.get(buttonIndex).getY() - 5, 40, 186, 53,
-                    20);
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 20, 186,
+                    BIG_ARROW_BUTTON_WIDTH, BIG_ARROW_BUTTON_HEIGHT);
 
-        // back to main monitor menu
+        // apply button (interior)
+        buttonIndex++;
+        if (!this.buttons.get(buttonIndex).isHovered())
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 40, 166,
+                    APPLY_BUTTON_WIDTH, APPLY_BUTTON_HEIGHT);
+        else
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 40, 186,
+                    APPLY_BUTTON_WIDTH, APPLY_BUTTON_HEIGHT);
+
+        // back to main monitor menu button
+        buttonIndex++;
+        if (!this.buttons.get(buttonIndex).isHovered())
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 186, 166,
+                    MAIN_SETTINGS_BUTTON_WIDTH, MAIN_SETTINGS_BUTTON_HEIGHT);
+        else
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 186, 186,
+                    MAIN_SETTINGS_BUTTON_WIDTH, MAIN_SETTINGS_BUTTON_HEIGHT);
+
+        // arrow buttons (hum/misc screen) - mode selector
+        buttonIndex++;
+        if (!this.buttons.get(buttonIndex).isHovered())
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 93, 166,
+                    SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT);
+        else
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 93, 178,
+                    SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT);
 
         buttonIndex++;
         if (!this.buttons.get(buttonIndex).isHovered())
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 7, this.buttons.get(buttonIndex).getY() - 5, 186, 166, 53,
-                    20);
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 113, 166,
+                    SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT);
         else
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 7, this.buttons.get(buttonIndex).getY() - 5, 186, 186, 53,
-                    20);
-
-        buttonIndex++;
-        if (!this.buttons.get(buttonIndex).isHovered())
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 7, this.buttons.get(buttonIndex).getY() - 3, 93, 166, 20,
-                    12);
-        else
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 7, this.buttons.get(buttonIndex).getY() - 3, 93, 178, 20,
-                    12);
-
-        buttonIndex++;
-        if (!this.buttons.get(buttonIndex).isHovered())
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 7, this.buttons.get(buttonIndex).getY() - 3, 113, 166, 20,
-                    12);
-        else
-            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX() - 7, this.buttons.get(buttonIndex).getY() - 3, 113, 178, 20,
-                    12);
+            context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 113, 178,
+                    SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT);
 
 
         if (tardis() == null)
@@ -407,7 +421,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private void nextDesktop() {
         this.selectedDesktop = nextDesktop(this.selectedDesktop);
 
-        if (!isCurrentUnlocked())
+        if (!isCurrentUnlocked() || this.selectedDesktop == DesktopRegistry.DEFAULT_CAVE)
             nextDesktop(); // ooo incursion crash
     }
 
@@ -422,7 +436,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private void previousDesktop() {
         this.selectedDesktop = previousDesktop(this.selectedDesktop);
 
-        if (!isCurrentUnlocked())
+        if (!isCurrentUnlocked() || this.selectedDesktop == DesktopRegistry.DEFAULT_CAVE)
             previousDesktop(); // ooo incursion crash
     }
 

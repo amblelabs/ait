@@ -1,0 +1,5 @@
+{
+  "control": "ait:monitor",
+  "console": "ait:console/coral",
+  "success_sound": "ait:controls/coral_monitor"
+}

@@ -1,0 +1,6 @@
+{
+  "id": "ait:proton_demat",
+  "expected_state": "demat",
+  "sound": "ait:tardis/proton_demat",
+  "blockbench_file": "ait:pulsating_demat"
+}

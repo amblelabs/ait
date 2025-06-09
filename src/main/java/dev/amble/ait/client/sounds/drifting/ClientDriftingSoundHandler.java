@@ -1,15 +1,14 @@
 package dev.amble.ait.client.sounds.drifting;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.SoundInstance;
-import net.minecraft.sound.SoundCategory;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.sounds.PlayerFollowingSound;
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITSounds;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.sound.SoundInstance;
+import net.minecraft.sound.SoundCategory;
 
 // Client only class. One of the last surviving remnants of Duzocode.
 public class ClientDriftingSoundHandler extends SoundHandler {

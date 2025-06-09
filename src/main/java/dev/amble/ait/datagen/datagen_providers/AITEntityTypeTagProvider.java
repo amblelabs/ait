@@ -1,15 +1,13 @@
 package dev.amble.ait.datagen.datagen_providers;
 
-import java.util.concurrent.CompletableFuture;
-
+import dev.amble.ait.core.AITEntityTypes;
+import dev.amble.ait.core.AITTags;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
-
 import net.minecraft.entity.EntityType;
 import net.minecraft.registry.RegistryWrapper;
 
-import dev.amble.ait.core.AITEntityTypes;
-import dev.amble.ait.core.AITTags;
+import java.util.concurrent.CompletableFuture;
 
 
 public class AITEntityTypeTagProvider extends FabricTagProvider.EntityTypeTagProvider {

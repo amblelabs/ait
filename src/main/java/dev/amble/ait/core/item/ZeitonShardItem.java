@@ -1,12 +1,11 @@
 package dev.amble.ait.core.item;
 
+import dev.amble.ait.core.AITBlocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.util.ActionResult;
-
-import dev.amble.ait.core.AITBlocks;
 
 public class ZeitonShardItem extends Item {
     public ZeitonShardItem(Settings settings) {

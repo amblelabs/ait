@@ -1,26 +1,25 @@
 package dev.amble.ait.core.sounds.travel;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.amble.lib.api.Identifiable;
-
-import net.minecraft.registry.Registries;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.lib.api.Identifiable;
+import net.minecraft.registry.Registries;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.concurrent.atomic.AtomicReference;
 
 // @TODO better variable names
+@Deprecated(forRemoval = true, since = "1.3.0")
 public record TravelSound(TravelHandlerBase.State target, Identifier id, Identifier soundId, int timeLeft, int maxTime, int startTime, int length, float frequency,
                           float intensity, String name) implements Identifiable, Nameable {
     public static final Codec<TravelSound> CODEC = RecordCodecBuilder.create(instance -> instance

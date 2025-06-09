@@ -1,11 +1,10 @@
 package dev.amble.ait.data.gson;
 
-import java.lang.reflect.Type;
-
 import com.google.gson.*;
-
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
+
+import java.lang.reflect.Type;
 
 public class RegistryKeySerializer implements JsonSerializer<RegistryKey<?>>, JsonDeserializer<RegistryKey<?>> {
 

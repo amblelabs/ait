@@ -1,27 +1,11 @@
 package dev.amble.ait.registry.impl.exterior;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-import dev.amble.lib.register.datapack.DatapackRegistry;
-import dev.amble.lib.register.unlockable.UnlockableRegistry;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.Vec3d;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.AITRegistryEvents;
 import dev.amble.ait.data.datapack.DatapackExterior;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
-import dev.amble.ait.data.schema.exterior.variant.adaptive.AdaptiveVariant;
 import dev.amble.ait.data.schema.exterior.variant.bookshelf.BookshelfDefaultVariant;
 import dev.amble.ait.data.schema.exterior.variant.booth.*;
 import dev.amble.ait.data.schema.exterior.variant.box.*;
@@ -45,9 +29,6 @@ import dev.amble.ait.data.schema.exterior.variant.pipe.PipeRedVariant;
 import dev.amble.ait.data.schema.exterior.variant.plinth.PlinthDefaultVariant;
 import dev.amble.ait.data.schema.exterior.variant.plinth.PlinthFireVariant;
 import dev.amble.ait.data.schema.exterior.variant.plinth.PlinthSoulVariant;
-import dev.amble.ait.data.schema.exterior.variant.present.PresentBlueVariant;
-import dev.amble.ait.data.schema.exterior.variant.present.PresentDefaultVariant;
-import dev.amble.ait.data.schema.exterior.variant.present.PresentGreenVariant;
 import dev.amble.ait.data.schema.exterior.variant.renegade.RenegadeCabinetVariant;
 import dev.amble.ait.data.schema.exterior.variant.renegade.RenegadeDefaultVariant;
 import dev.amble.ait.data.schema.exterior.variant.renegade.RenegadeTronVariant;
@@ -58,6 +39,19 @@ import dev.amble.ait.data.schema.exterior.variant.stallion.StallionSteelVariant;
 import dev.amble.ait.data.schema.exterior.variant.tardim.TardimDefaultVariant;
 import dev.amble.ait.data.schema.exterior.variant.tardim.TardimFireVariant;
 import dev.amble.ait.data.schema.exterior.variant.tardim.TardimSoulVariant;
+import dev.amble.lib.register.datapack.DatapackRegistry;
+import dev.amble.lib.register.unlockable.UnlockableRegistry;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.resource.ResourceType;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.Vec3d;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantSchema> {
     private static ExteriorVariantRegistry INSTANCE;
@@ -92,7 +86,7 @@ public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantS
             buf.encodeAsJson(DatapackExterior.CODEC,
                     new DatapackExterior(schema.id(), schema.categoryId(), schema.id(),
                             DatapackExterior.DEFAULT_TEXTURE, DatapackExterior.DEFAULT_TEXTURE, schema.requirement(),
-                            BiomeOverrides.EMPTY,new Vec3d(0.5, 1, 0.5), false));
+                            BiomeOverrides.EMPTY,new Vec3d(0.5, 1, 0.5), false, false));
         }
 
         ServerPlayNetworking.send(player, this.packet, buf);
@@ -200,10 +194,10 @@ public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantS
     public static ExteriorVariantSchema DALEK_MOD_1970;
     public static ExteriorVariantSchema DALEK_MOD_1976;
     public static ExteriorVariantSchema DALEK_MOD_1980;
-    //public static ExteriorVariantSchema JAKE_DEFAULT;
-    public static ExteriorVariantSchema PRESENT_DEFAULT;
-    public static ExteriorVariantSchema PRESENT_GREEN;
-    public static ExteriorVariantSchema PRESENT_BLUE;
+//    public static ExteriorVariantSchema JAKE_DEFAULT;
+//    public static ExteriorVariantSchema PRESENT_DEFAULT;
+//    public static ExteriorVariantSchema PRESENT_GREEN;
+//    public static ExteriorVariantSchema PRESENT_BLUE;
     public static ExteriorVariantSchema PIPE_DEFAULT;
     public static ExteriorVariantSchema PIPE_RED;
     //public static ExteriorVariantSchema PIPE_YELLOW;
@@ -287,7 +281,7 @@ public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantS
         STALLION_STEEL = register(new StallionSteelVariant());
 
         // Adaptive
-        ADAPTIVE = register(new AdaptiveVariant());
+//        ADAPTIVE = register(new AdaptiveVariant());
 
         // Dalek Mod
         DALEK_MOD_1963 = register(new DalekMod1963Variant());
@@ -300,9 +294,9 @@ public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantS
         //JAKE_DEFAULT = init(new JakeDefaultVariant());
 
         // Present
-        PRESENT_DEFAULT = register(new PresentDefaultVariant());
-        PRESENT_GREEN = register(new PresentGreenVariant());
-        PRESENT_BLUE = register(new PresentBlueVariant());
+//        PRESENT_DEFAULT = register(new PresentDefaultVariant());
+//        PRESENT_GREEN = register(new PresentGreenVariant());
+//        PRESENT_BLUE = register(new PresentBlueVariant());
 
         // Pipe
         PIPE_DEFAULT = register(new PipeDefaultVariant());

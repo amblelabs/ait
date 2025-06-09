@@ -1,11 +1,10 @@
 package dev.amble.ait.data.gson;
 
-import java.lang.reflect.Type;
-
 import com.google.gson.*;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+
+import java.lang.reflect.Type;
 
 public class ItemStackSerializer implements JsonSerializer<ItemStack>, JsonDeserializer<ItemStack> {
     @Override

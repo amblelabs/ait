@@ -1,8 +1,8 @@
 package dev.amble.ait.module.planet.core.space.system;
 
-import java.util.HashSet;
-
 import dev.amble.ait.module.planet.core.space.planet.Planet;
+
+import java.util.HashSet;
 
 public class Space { // todo - there is only one "Space" dimension, so i guess a registry of solar systems is not necessary yet :(
     public final HashSet<SolarSystem> systems;

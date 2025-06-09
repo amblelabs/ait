@@ -1,9 +1,7 @@
 package dev.amble.ait.core.item.blueprint;
 
-import java.util.List;
-
-import org.jetbrains.annotations.Nullable;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITItems;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,9 +11,11 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITItems;
+import java.util.List;
+
+import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 public class BlueprintItem extends Item {
 
@@ -25,10 +25,14 @@ public class BlueprintItem extends Item {
 
     @Override
     public ItemStack getDefaultStack() {
-        ItemStack stack = new ItemStack(this);
-        NbtCompound nbt = stack.getOrCreateNbt();
+        ItemStack stack = super.getDefaultStack();
+        BlueprintSchema blueprint = BlueprintRegistry.getInstance().getRandom();
 
-        nbt.putString("Blueprint", BlueprintRegistry.getInstance().getRandom().id().toString());
+        if (blueprint != null) {
+            NbtCompound nbt = stack.getOrCreateNbt();
+            nbt.putString("Blueprint", blueprint.id().toString());
+        }
+
         return stack;
     }
 
@@ -45,11 +49,18 @@ public class BlueprintItem extends Item {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
 
-        BlueprintSchema blueprint = getSchema(stack);
-        if (blueprint == null) return;
+        addShiftHiddenTooltip(stack, tooltip, tooltips -> {
+            BlueprintSchema blueprint = getSchema(stack);
+            if (blueprint == null) return;
 
-        tooltip.add(Text.translatable("ait.blueprint.tooltip").formatted(Formatting.BLUE)
-                .append(blueprint.text().copy().formatted(Formatting.GRAY)));
+            tooltip.add(Text.translatable("ait.blueprint.tooltip").formatted(Formatting.BLUE)
+                    .append(blueprint.text().copy().formatted(Formatting.GRAY)));
+
+            for (int i = blueprint.inputs().size() - 1; i >= 0; i--) {
+                tooltip.add(blueprint.inputs().get(i).text().copy().formatted(Formatting.DARK_GRAY));
+            }
+        });
+
     }
 
     public static BlueprintSchema getSchema(ItemStack stack) {

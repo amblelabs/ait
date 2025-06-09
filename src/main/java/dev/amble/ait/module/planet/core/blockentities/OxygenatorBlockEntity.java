@@ -1,7 +1,9 @@
 package dev.amble.ait.module.planet.core.blockentities;
 
-import java.util.function.Predicate;
-
+import dev.amble.ait.core.AITStatusEffects;
+import dev.amble.ait.module.planet.core.PlanetBlockEntities;
+import dev.amble.ait.module.planet.core.space.planet.Planet;
+import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
@@ -12,10 +14,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 
-import dev.amble.ait.core.AITStatusEffects;
-import dev.amble.ait.module.planet.core.PlanetBlockEntities;
-import dev.amble.ait.module.planet.core.space.planet.Planet;
-import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
+import java.util.function.Predicate;
 
 public class OxygenatorBlockEntity extends BlockEntity {
     public OxygenatorBlockEntity(BlockPos pos, BlockState state) {

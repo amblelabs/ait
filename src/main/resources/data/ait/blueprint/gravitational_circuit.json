@@ -5,11 +5,6 @@
   },
   "inputs": [
     {
-      "item": "ait:engine_core_block",
-      "maxCount": 1,
-      "minCount": 1
-    },
-    {
       "item": "ait:artron_fluid_link",
       "maxCount": 1,
       "minCount": 1

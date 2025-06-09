@@ -1,12 +1,11 @@
 package dev.amble.ait.client.sounds.sonic;
 
-import java.util.HashMap;
-import java.util.UUID;
-
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-
 import dev.amble.ait.api.ClientWorldEvents;
 import dev.amble.ait.client.sounds.ClientSoundManager;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
+
+import java.util.HashMap;
+import java.util.UUID;
 
 public class SonicSoundHandler {
     private final HashMap<UUID, SonicSound> sounds;

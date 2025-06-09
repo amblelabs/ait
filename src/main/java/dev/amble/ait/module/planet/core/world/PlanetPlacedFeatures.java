@@ -1,7 +1,6 @@
 package dev.amble.ait.module.planet.core.world;
 
-import java.util.List;
-
+import dev.amble.ait.AITMod;
 import net.minecraft.registry.Registerable;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -12,7 +11,7 @@ import net.minecraft.world.gen.feature.PlacedFeature;
 import net.minecraft.world.gen.placementmodifier.HeightRangePlacementModifier;
 import net.minecraft.world.gen.placementmodifier.PlacementModifier;
 
-import dev.amble.ait.AITMod;
+import java.util.List;
 
 public class PlanetPlacedFeatures {
     public static final RegistryKey<PlacedFeature> MARTIAN_COAL_ORE_PLACED_KEY = registerKey("martian_coal_ore_placed");

@@ -1,13 +1,16 @@
 package dev.amble.ait.core.commands;
 
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
-
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.WorldWithTardis;
+import dev.amble.ait.core.commands.argument.TardisArgumentType;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.util.NetworkUtil;
+import dev.amble.ait.core.world.LandingPadManager;
+import dev.amble.ait.data.landing.LandingPadRegion;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
@@ -15,13 +18,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.WorldWithTardis;
-import dev.amble.ait.core.commands.argument.TardisArgumentType;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.util.NetworkUtil;
-import dev.amble.ait.core.world.LandingPadManager;
-import dev.amble.ait.data.landing.LandingPadRegion;
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
 
 public class DebugCommand {
 
@@ -54,11 +52,11 @@ public class DebugCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int executeTardis(CommandContext<ServerCommandSource> context) {
+    private static int executeTardis(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
 
         if (!source.isExecutedByPlayer())
-            return Command.SINGLE_SUCCESS;
+            return 0;
 
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 

@@ -1,8 +1,12 @@
 package dev.amble.ait.datagen.datagen_providers.loot;
 
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.module.ModuleRegistry;
+import dev.amble.ait.module.planet.core.PlanetBlocks;
 import dev.amble.lib.datagen.loot.AmbleBlockLootTable;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Items;
 import net.minecraft.loot.condition.MatchToolLootCondition;
@@ -12,12 +16,6 @@ import net.minecraft.loot.function.SetCountLootFunction;
 import net.minecraft.loot.provider.number.ConstantLootNumberProvider;
 import net.minecraft.predicate.item.ItemPredicate;
 
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.module.ModuleRegistry;
-import dev.amble.ait.module.planet.core.PlanetBlocks;
-
 public class AITBlockLootTables extends AmbleBlockLootTable {
 
     public AITBlockLootTables(FabricDataOutput output) {
@@ -26,6 +24,11 @@ public class AITBlockLootTables extends AmbleBlockLootTable {
 
     @Override
     public void generate() {
+        ModuleRegistry.instance().iterator().forEachRemaining(module -> module.getBlockRegistry().ifPresent(this::withBlocks));
+        this.withBlocks(AITBlocks.class);
+
+        super.generate();
+
         this.addDrop(AITBlocks.ZEITON_CLUSTER,
                 (block) -> dropsWithSilkTouch(block, ItemEntry.builder(AITItems.ZEITON_SHARD)
                         .apply(SetCountLootFunction.builder(ConstantLootNumberProvider.create(4.0F)))
@@ -67,9 +70,5 @@ public class AITBlockLootTables extends AmbleBlockLootTable {
         addDrop(PlanetBlocks.ANORTHOSITE_BRICK_SLAB, slabDrops(PlanetBlocks.ANORTHOSITE_BRICK_SLAB));
         addDrop(PlanetBlocks.ANORTHOSITE_SLAB, slabDrops(PlanetBlocks.ANORTHOSITE_SLAB));
         addDrop(PlanetBlocks.POLISHED_ANORTHOSITE_SLAB, slabDrops(PlanetBlocks.POLISHED_ANORTHOSITE_SLAB));
-
-
-        ModuleRegistry.instance().iterator().forEachRemaining(module -> module.getBlockRegistry().ifPresent(this::withBlocks));
-        super.generate();
     }
 }

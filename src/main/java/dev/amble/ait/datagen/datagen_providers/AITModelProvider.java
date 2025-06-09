@@ -1,12 +1,11 @@
 package dev.amble.ait.datagen.datagen_providers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.module.ModuleRegistry;
 import dev.amble.lib.datagen.model.AmbleModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-
 import net.minecraft.block.Block;
 import net.minecraft.data.client.*;
 import net.minecraft.item.Item;
@@ -15,9 +14,9 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Direction;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.module.ModuleRegistry;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 
 public class AITModelProvider extends AmbleModelProvider {
@@ -85,6 +84,9 @@ public class AITModelProvider extends AmbleModelProvider {
             module.getBlockRegistry().ifPresent(this::withBlocks);
             module.getDataGenerator().ifPresent(data -> data.generateItemModels(this, generator));
         });
+
+        this.withItems(AITItems.class);
+        this.withBlocks(AITBlocks.class);
 
         super.generateItemModels(generator);
     }

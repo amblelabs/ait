@@ -1,8 +1,12 @@
 package dev.amble.ait.client.screens;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.data.ClientLandingManager;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.data.landing.LandingPadRegion;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -14,11 +18,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.data.ClientLandingManager;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.data.landing.LandingPadRegion;
 
 public class LandingPadScreen extends Screen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
@@ -32,6 +31,8 @@ public class LandingPadScreen extends Screen {
 
     public LandingPadScreen(BlockPos pos) {
         super(Text.literal("landing_pad"));
+
+        this.client = MinecraftClient.getInstance();
         this.pos = pos;
         this.landingRegion = ClientLandingManager.getInstance().getRegion(new ChunkPos(pos));
     }
@@ -63,6 +64,21 @@ public class LandingPadScreen extends Screen {
 
         this.addSelectableChild(this.landingCodeInput);
         super.init();
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // Check if a text field is focused to prevent closing
+        if (this.landingCodeInput.isActive())
+            return super.keyPressed(keyCode, scanCode, modifiers);
+
+        // Close the screen when the inventory key is pressed
+        if (this.client.options.inventoryKey.matchesKey(keyCode, scanCode)) {
+            this.close();
+            return true;
+        }
+
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     private void updateLandingCode() {

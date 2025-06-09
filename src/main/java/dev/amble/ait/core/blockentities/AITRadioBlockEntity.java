@@ -1,10 +1,6 @@
 package dev.amble.ait.core.blockentities;
 
-import static dev.amble.ait.core.blocks.RadioBlock.*;
-import static java.lang.Double.NaN;
-
-import java.util.function.Function;
-
+import dev.amble.ait.core.AITBlockEntityTypes;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,7 +17,10 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
 
-import dev.amble.ait.core.AITBlockEntityTypes;
+import java.util.function.Function;
+
+import static dev.amble.ait.core.blocks.RadioBlock.*;
+import static java.lang.Double.NaN;
 
 public class AITRadioBlockEntity extends BlockEntity {
 

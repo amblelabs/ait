@@ -1,14 +1,14 @@
 package dev.amble.ait.client.models.coral;
 
+import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.client.models.doors.DoorModel;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.tardis.handler.DoorHandler;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.api.link.v2.block.AbstractLinkableBlockEntity;
-import dev.amble.ait.client.models.doors.DoorModel;
-import dev.amble.ait.core.tardis.handler.DoorHandler;
 
 public class CoralGrowthDoorModel extends DoorModel {
     private final ModelPart coral;
@@ -97,16 +97,13 @@ public class CoralGrowthDoorModel extends DoorModel {
     }
 
     @Override
-    public void renderWithAnimations(AbstractLinkableBlockEntity door, ModelPart root, MatrixStack matrices,
+    public void renderWithAnimations(ClientTardis tardis, AbstractLinkableBlockEntity door, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        if (door.tardis().get() == null)
-            return;
-
         matrices.push();
         matrices.translate(0, -1.5f, 0f);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180f));
 
-        super.renderWithAnimations(door, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(tardis, door, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
 
         matrices.pop();
     }

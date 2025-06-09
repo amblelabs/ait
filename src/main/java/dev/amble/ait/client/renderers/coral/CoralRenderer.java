@@ -1,5 +1,9 @@
 package dev.amble.ait.client.renderers.coral;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.coral.CoralGrowthModel;
+import dev.amble.ait.core.blockentities.CoralBlockEntity;
+import dev.amble.ait.core.blocks.CoralPlantBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.RenderLayer;
@@ -9,11 +13,6 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.coral.CoralGrowthModel;
-import dev.amble.ait.core.blockentities.CoralBlockEntity;
-import dev.amble.ait.core.blocks.CoralPlantBlock;
 
 public class CoralRenderer<T extends CoralBlockEntity> implements BlockEntityRenderer<T> {
 

@@ -1,17 +1,14 @@
 package dev.amble.ait.module.planet.core.space.planet;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.module.planet.core.item.SpacesuitItem;
 import dev.amble.lib.api.Identifiable;
 import dev.amble.lib.util.ServerLifecycleHooks;
-
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
@@ -21,8 +18,9 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.dynamic.Codecs;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.module.planet.core.item.SpacesuitItem;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.concurrent.atomic.AtomicReference;
 
 public record Planet(Identifier dimension, float gravity, boolean hasOxygen, boolean hasLandableSurface, int temperature,
                      PlanetRenderInfo render, PlanetTransition transition) implements Identifiable {
@@ -89,6 +87,7 @@ public record Planet(Identifier dimension, float gravity, boolean hasOxygen, boo
     public float fahrenheit() {
         return celcius() * 1.8f + 32f;
     }
+
     public boolean isFreezing() {
         return this.celcius() <= 0;
     }
@@ -96,9 +95,11 @@ public record Planet(Identifier dimension, float gravity, boolean hasOxygen, boo
     public boolean zeroGravity() {
         return this.gravity() == 0.8f; // exploding head emoji
     }
+
     public boolean hasGravityModifier() {
         return this.gravity() >= 0;
     }
+
     public boolean hasNoFallDamage() {
         return this.hasGravityModifier() && this.gravity() < 1 && this.gravity() != 0;
     }

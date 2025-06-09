@@ -1,17 +1,20 @@
 package dev.amble.ait.core;
 
+import dev.amble.ait.AITMod;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
-
-import dev.amble.ait.AITMod;
+import net.minecraft.world.dimension.DimensionOptions;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.event.GameEvent;
 
 public class AITTags {
 
     public static class Blocks {
         public static final TagKey<Block> SONIC_INTERACTABLE = createTag("sonic_interactable");
+        public static final TagKey<Block> SONIC_CAN_LOCATE = createTag("sonic_can_locate");
         public static final TagKey<Block> FLUID_LINK_CAN_CONNECT = createTag("fluid_link_can_connect");
 
         private static TagKey<Block> createTag(String name) {
@@ -31,6 +34,7 @@ public class AITTags {
         public static final TagKey<Item> LINK = createTag("link"); // TODO use the tag instead of the item instanceof
         public static final TagKey<Item> IS_TARDIS_FUEL = createTag("is_tardis_fuel");
         public static final TagKey<Item> REPAIRS_SUBSYSTEM = createTag("repairs_subsystem");
+        public static final TagKey<Item> INSERTABLE_DISCS = createTag("insertable_discs");
 
         private static TagKey<Item> createTag(String name) {
             return TagKey.of(RegistryKeys.ITEM, AITMod.id(name));
@@ -44,6 +48,14 @@ public class AITTags {
 
         private static TagKey<EntityType<?>> createTag(String name) {
             return TagKey.of(RegistryKeys.ENTITY_TYPE, AITMod.id(name));
+        }
+    }
+
+    public static class GameEvents {
+        public static final TagKey<GameEvent> MATRIX_CAN_LISTEN = createTag("matrix_can_listen");
+
+        public static TagKey<GameEvent> createTag(String name) {
+            return TagKey.of(RegistryKeys.GAME_EVENT, AITMod.id(name));
         }
     }
 }

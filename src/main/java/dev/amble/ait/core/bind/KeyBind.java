@@ -1,15 +1,13 @@
 package dev.amble.ait.core.bind;
 
-import java.util.function.Consumer;
-
+import dev.amble.ait.AITMod;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 
-import dev.amble.ait.AITMod;
+import java.util.function.Consumer;
 
 public class KeyBind {
 

@@ -1,14 +1,48 @@
 package dev.amble.ait;
 
-import static dev.amble.ait.module.planet.core.space.planet.Crater.CRATER_ID;
-
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
-
+import dev.amble.ait.api.AITModInitializer;
+import dev.amble.ait.config.AITServerConfig;
+import dev.amble.ait.core.*;
+import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.core.commands.*;
+import dev.amble.ait.core.drinks.DrinkRegistry;
+import dev.amble.ait.core.engine.registry.SubSystemRegistry;
+import dev.amble.ait.core.entities.FlightTardisEntity;
+import dev.amble.ait.core.entities.RiftEntity;
+import dev.amble.ait.core.item.blueprint.BlueprintRegistry;
+import dev.amble.ait.core.item.component.AbstractTardisPart;
+import dev.amble.ait.core.item.part.MachineItem;
+import dev.amble.ait.core.likes.ItemOpinionRegistry;
+import dev.amble.ait.core.lock.LockedDimensionRegistry;
+import dev.amble.ait.core.loot.SetBlueprintLootFunction;
+import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
+import dev.amble.ait.core.sounds.travel.TravelSoundRegistry;
+import dev.amble.ait.core.tardis.animation.v2.blockbench.BlockbenchParser;
+import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
+import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
+import dev.amble.ait.core.util.CustomTrades;
+import dev.amble.ait.core.util.SpaceUtils;
+import dev.amble.ait.core.util.StackUtil;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.core.world.LandingPadManager;
+import dev.amble.ait.core.world.RiftChunkManager;
+import dev.amble.ait.data.landing.LandingPadRegion;
+import dev.amble.ait.data.schema.MachineRecipeSchema;
+import dev.amble.ait.module.ModuleRegistry;
+import dev.amble.ait.module.planet.core.space.planet.Crater;
+import dev.amble.ait.registry.impl.*;
+import dev.amble.ait.registry.impl.console.ConsoleRegistry;
+import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
+import dev.amble.ait.registry.impl.door.DoorRegistry;
+import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 import dev.amble.lib.container.RegistryContainer;
 import dev.amble.lib.register.AmbleRegistries;
 import dev.amble.lib.util.ServerLifecycleHooks;
+import dev.drtheo.multidim.MultiDim;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
@@ -21,9 +55,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.fabricmc.loader.api.FabricLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import net.minecraft.entity.SpawnGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootPool;
 import net.minecraft.loot.LootTables;
@@ -46,55 +78,22 @@ import net.minecraft.world.GameRules;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.ProbabilityConfig;
 import net.minecraft.world.gen.feature.PlacedFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import dev.amble.ait.api.AITModInitializer;
-import dev.amble.ait.config.AITConfig;
-import dev.amble.ait.core.*;
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.core.commands.*;
-import dev.amble.ait.core.drinks.DrinkRegistry;
-import dev.amble.ait.core.engine.registry.SubSystemRegistry;
-import dev.amble.ait.core.entities.ConsoleControlEntity;
-import dev.amble.ait.core.entities.FlightTardisEntity;
-import dev.amble.ait.core.entities.RiftEntity;
-import dev.amble.ait.core.item.blueprint.BlueprintRegistry;
-import dev.amble.ait.core.item.component.AbstractTardisPart;
-import dev.amble.ait.core.item.part.MachineItem;
-import dev.amble.ait.core.likes.ItemOpinionRegistry;
-import dev.amble.ait.core.lock.LockedDimensionRegistry;
-import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
-import dev.amble.ait.core.sounds.travel.TravelSoundRegistry;
-import dev.amble.ait.core.tardis.handler.SeatHandler;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
-import dev.amble.ait.core.tardis.util.NetworkUtil;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
-import dev.amble.ait.core.util.CustomTrades;
-import dev.amble.ait.core.util.SpaceUtils;
-import dev.amble.ait.core.util.StackUtil;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.core.world.LandingPadManager;
-import dev.amble.ait.core.world.RiftChunkManager;
-import dev.amble.ait.data.landing.LandingPadRegion;
-import dev.amble.ait.data.schema.MachineRecipeSchema;
-import dev.amble.ait.datagen.datagen_providers.loot.SetBlueprintLootFunction;
-import dev.amble.ait.module.ModuleRegistry;
-import dev.amble.ait.module.planet.core.space.planet.Crater;
-import dev.amble.ait.registry.impl.*;
-import dev.amble.ait.registry.impl.console.ConsoleRegistry;
-import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
-import dev.amble.ait.registry.impl.door.DoorRegistry;
-import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
+
+import static dev.amble.ait.module.planet.core.space.planet.Crater.CRATER_ID;
 
 public class AITMod implements ModInitializer {
-    // The PREAmble lolololol
 
     public static final String MOD_ID = "ait";
     public static final Logger LOGGER = LoggerFactory.getLogger("ait");
     public static final Random RANDOM = new Random();
 
-    public static AITConfig CONFIG;
+    public static AITServerConfig CONFIG;
     public static final GameRules.Key<GameRules.BooleanRule> TARDIS_GRIEFING = GameRuleRegistry.register("tardisGriefing",
             GameRules.Category.MISC, GameRuleFactory.createBooleanRule(true));
 
@@ -131,12 +130,12 @@ public class AITMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        CONFIG = AITConfig.createAndLoad();
+        AITServerConfig.INSTANCE.load();
+        CONFIG = AITServerConfig.INSTANCE.instance();
 
         ServerLifecycleHooks.init();
-        NetworkUtil.init();
-        AsyncLocatorUtil.setupExecutorService();
-        SeatHandler.init();
+        AsyncLocatorUtil.init();
+        MultiDim.init();
 
         ConsoleRegistry.init();
         CreakRegistry.init();
@@ -162,8 +161,11 @@ public class AITMod implements ModInitializer {
                 HumRegistry.getInstance(),
                 SubSystemRegistry.getInstance(),
                 ItemOpinionRegistry.getInstance(),
-                DrinkRegistry.getInstance()
+                DrinkRegistry.getInstance(),
+                TardisAnimationRegistry.getInstance()
         );
+        ControlSoundRegistry.init();
+        BlockbenchParser.init();
 
         registerParticles();
 
@@ -172,6 +174,7 @@ public class AITMod implements ModInitializer {
                 AITModInitializer::onInitializeAIT);
 
         DoorRegistry.init();
+        HandlesResponseRegistry.init();
 
         AITStatusEffects.init();
         AITVillagers.init();
@@ -179,7 +182,7 @@ public class AITMod implements ModInitializer {
         AITSounds.init();
         AITDimensions.init();
 
-        CustomTrades.registerCustomTrades();
+        CustomTrades.register();
 
         RegistryContainer.register(AITItemGroups.class, MOD_ID);
         RegistryContainer.register(AITItems.class, MOD_ID);
@@ -206,15 +209,22 @@ public class AITMod implements ModInitializer {
         BiomeModifications.addFeature(BiomeSelectors.foundInOverworld(), GenerationStep.Feature.UNDERGROUND_ORES,
                 CUSTOM_GEODE_PLACED_KEY);
 
-        Registry.register(net.minecraft.registry.Registries.FEATURE, CRATER_ID, CRATER);
+        BiomeModifications.addSpawn(
+                BiomeSelectors.all(),
+                SpawnGroup.AMBIENT,
+                AITEntityTypes.RIFT_ENTITY,
+                4,
+                1,
+                1
+        );
 
-        RiftEntity.addSpawn();
+        Registry.register(net.minecraft.registry.Registries.FEATURE, CRATER_ID, CRATER);
 
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
             TeleportInteriorCommand.register(dispatcher);
             SummonTardisCommand.register(dispatcher);
             SetLockedCommand.register(dispatcher);
-            GetInsideTardisCommand.register(dispatcher);
+            ThisTardisCommand.register(dispatcher);
             FuelCommand.register(dispatcher);
             SetRepairTicksCommand.register(dispatcher);
             RiftChunkCommand.register(dispatcher);
@@ -238,6 +248,7 @@ public class AITMod implements ModInitializer {
             DebugCommand.register(dispatcher);
             EraseChunksCommand.register(dispatcher);
             FlightCommand.register(dispatcher);
+            SetDoorParticleCommand.register(dispatcher, registryAccess);
         }));
 
         ServerPlayNetworking.registerGlobalReceiver(TardisUtil.REGION_LANDING_CODE,
@@ -315,9 +326,6 @@ public class AITMod implements ModInitializer {
     }
 
     public void entityAttributeRegister() {
-        FabricDefaultAttributeRegistry.register(AITEntityTypes.CONTROL_ENTITY_TYPE,
-                ConsoleControlEntity.createDummyAttributes());
-
         FabricDefaultAttributeRegistry.register(AITEntityTypes.RIFT_ENTITY,
                 RiftEntity.createMobAttributes());
 

@@ -1,14 +1,13 @@
 package dev.amble.ait.core.commands;
 
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
-
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.commands.argument.GroundSearchArgumentType;
+import dev.amble.ait.core.util.SafePosSearch;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.command.argument.DimensionArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
@@ -20,10 +19,8 @@ import net.minecraft.text.Texts;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.commands.argument.GroundSearchArgumentType;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.util.WorldUtil;
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
 
 public class SafePosCommand {
 
@@ -40,12 +37,16 @@ public class SafePosCommand {
         ServerWorld world = DimensionArgumentType.getDimensionArgument(context, "world");
         BlockPos posA = BlockPosArgumentType.getBlockPos(context, "pos");
 
-        TravelHandlerBase.GroundSearch search = GroundSearchArgumentType.getGroundSearch(context, "search-type");
+        SafePosSearch.Kind search = GroundSearchArgumentType.getGroundSearch(context, "search-type");
+        CachedDirectedGlobalPos pos = CachedDirectedGlobalPos.create(world, posA, (byte) 0);
 
-        CachedDirectedGlobalPos cached = WorldUtil.locateSafe(CachedDirectedGlobalPos.create(world, posA, (byte) 0),
-                search, false);
-        BlockPos blockPos = cached.getPos();
+        SafePosSearch.wrapSafe(pos, search, false,
+                result -> reply(context, result.getPos()));
 
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static void reply(CommandContext<ServerCommandSource> context, BlockPos blockPos) {
         Text text = Texts
                 .bracketed(Text.translatable("chat.coordinates", blockPos.getX(), blockPos.getY(), blockPos.getZ()))
                 .styled((style) -> style.withColor(Formatting.GREEN)
@@ -55,6 +56,5 @@ public class SafePosCommand {
                                 Text.translatable("chat.coordinates.tooltip"))));
 
         context.getSource().sendMessage(text);
-        return Command.SINGLE_SUCCESS;
     }
 }

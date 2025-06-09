@@ -1,7 +1,7 @@
 package dev.amble.ait.core.item.sonic;
 
-import java.util.function.Function;
-
+import dev.amble.ait.data.enummap.Ordered;
+import dev.amble.ait.data.schema.sonic.SonicSchema;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
@@ -12,8 +12,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.World;
 
-import dev.amble.ait.data.enummap.Ordered;
-import dev.amble.ait.data.schema.sonic.SonicSchema;
+import java.util.function.Function;
 
 public abstract class SonicMode implements Ordered {
 
@@ -63,7 +62,7 @@ public abstract class SonicMode implements Ordered {
 
         public static SonicMode getAndWrap(Integer index) {
             if (index == null)
-                return INTERACTION;
+                return INACTIVE;
 
             while (index >= VALUES.length) {
                 index -= VALUES.length;
@@ -109,8 +108,15 @@ public abstract class SonicMode implements Ordered {
 
     public abstract Identifier model(SonicSchema.Models models);
 
+    public int fuelCost() {
+        return 1;
+    }
+
     public static HitResult getHitResult(LivingEntity user) {
-        return ProjectileUtil.getCollision(user, entity -> !entity.isSpectator() && entity.canHit(), 16);
+        return getHitResult(user, 16);
+    }
+    public static HitResult getHitResult(LivingEntity user, double distance) {
+        return ProjectileUtil.getCollision(user, entity -> !entity.isSpectator() && entity.canHit(), distance);
     }
 
     @Override

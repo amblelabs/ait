@@ -1,18 +1,16 @@
 package dev.amble.ait.data.schema.door;
 
-import java.lang.reflect.Type;
-
 import com.google.gson.*;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
-
 import dev.amble.ait.client.models.doors.DoorModel;
 import dev.amble.ait.data.schema.door.impl.CapsuleDoorVariant;
 import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
+
+import java.lang.reflect.Type;
 
 @Environment(EnvType.CLIENT)
 public abstract class ClientDoorSchema {

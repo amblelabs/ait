@@ -1,14 +1,8 @@
 package dev.amble.ait.core.tardis.util;
 
-import java.text.NumberFormat;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-
 import com.mojang.datafixers.util.Pair;
+import dev.amble.ait.AITMod;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import org.jetbrains.annotations.NotNull;
-
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
@@ -16,8 +10,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.structure.Structure;
+import org.jetbrains.annotations.NotNull;
 
-import dev.amble.ait.AITMod;
+import java.text.NumberFormat;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 /**
  * @author TheBrightSpark, Loqor
@@ -28,9 +26,12 @@ public class AsyncLocatorUtil {
 
     public static ExecutorService LOCATING_EXECUTOR_SERVICE = null;
 
-    static {
+    public static void init() {
         ServerLifecycleEvents.SERVER_STOPPING.register(
-                (server) -> AsyncLocatorUtil.shutdownExecutorService());
+                server -> AsyncLocatorUtil.shutdownExecutorService());
+
+        ServerLifecycleEvents.SERVER_STARTING.register(
+                server -> AsyncLocatorUtil.setupExecutorService());
     }
 
     public static void setupExecutorService() {
@@ -44,7 +45,7 @@ public class AsyncLocatorUtil {
             return;
         }
 
-        LOCATING_EXECUTOR_SERVICE = Executors.newFixedThreadPool(threads, new ThreadFactory() {
+        LOCATING_EXECUTOR_SERVICE = Executors.newCachedThreadPool(new ThreadFactory() {
             private static final AtomicInteger poolNum = new AtomicInteger(1);
             private final AtomicInteger threadNum = new AtomicInteger(1);
             private final String namePrefix = AITMod.MOD_ID + "-" + poolNum.getAndIncrement() + "-thread-";

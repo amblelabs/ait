@@ -1,23 +1,22 @@
 package dev.amble.ait.core.tardis.handler;
 
-import java.util.function.Consumer;
-
+import dev.amble.ait.api.ArtronHolderItem;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.data.properties.Property;
+import dev.amble.ait.data.properties.Value;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import dev.amble.ait.api.ArtronHolderItem;
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisTickable;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.data.properties.Property;
-import dev.amble.ait.data.properties.Value;
+import java.util.function.Consumer;
 
 public class ButlerHandler extends KeyedTardisComponent implements ArtronHolderItem, TardisTickable {
 
-    private static final Property<ItemStack> HANDLES = new Property<>(Property.Type.ITEM_STACK, "handles",
+    private static final Property<ItemStack> HANDLES = new Property<>(Property.ITEM_STACK, "handles",
             (ItemStack) null);
 
     private final Value<ItemStack> handles = HANDLES.create(this); // The current handles in the console
@@ -37,7 +36,7 @@ public class ButlerHandler extends KeyedTardisComponent implements ArtronHolderI
 
     public void insertHandles(ItemStack handlesMyBoy, BlockPos consolePos) {
         insertAnyHandles(this.handles, handlesMyBoy,
-                stack -> spawnItem(tardis.asServer().getInteriorWorld(), consolePos, stack));
+                stack -> spawnItem(tardis.asServer().world(), consolePos, stack));
     }
 
     public ItemStack takeHandles() {

@@ -1,0 +1,153 @@
+{
+	"credit": "Made by Loqor",
+	"texture_size": [64, 64],
+	"textures": {
+		"0": "ait:item/personality_matrix",
+		"particle": "ait:item/personality_matrix"
+	},
+	"elements": [
+		{
+			"from": [4, 4, 4],
+			"to": [12, 12, 12],
+			"rotation": {"angle": 45, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"east": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"south": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"west": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"up": {"uv": [2, 2, 0, 0], "texture": "#0"},
+				"down": {"uv": [2, 0, 0, 2], "texture": "#0"}
+			}
+		},
+		{
+			"from": [4, 4, 4],
+			"to": [12, 12, 12],
+			"rotation": {"angle": -45, "axis": "z", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"east": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"south": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"west": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"up": {"uv": [2, 2, 0, 0], "texture": "#0"},
+				"down": {"uv": [2, 0, 0, 2], "texture": "#0"}
+			}
+		},
+		{
+			"from": [4, 4, 4],
+			"to": [12, 12, 12],
+			"rotation": {"angle": 45, "axis": "x", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"east": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"south": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"west": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"up": {"uv": [2, 2, 0, 0], "texture": "#0"},
+				"down": {"uv": [2, 0, 0, 2], "texture": "#0"}
+			}
+		},
+		{
+			"from": [6, 6, 6],
+			"to": [10, 10, 10],
+			"rotation": {"angle": -45, "axis": "x", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0},
+				"east": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0},
+				"south": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0},
+				"west": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0},
+				"up": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0},
+				"down": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0}
+			}
+		},
+		{
+			"from": [6, 6, 6],
+			"to": [10, 10, 10],
+			"rotation": {"angle": 45, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0},
+				"east": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0},
+				"south": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0},
+				"west": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0},
+				"up": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0},
+				"down": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0}
+			}
+		},
+		{
+			"from": [6, 6, 6],
+			"to": [10, 10, 10],
+			"rotation": {"angle": 45, "axis": "z", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0},
+				"east": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0},
+				"south": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0},
+				"west": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0},
+				"up": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0},
+				"down": {"uv": [2, 0, 3, 1], "texture": "#0",
+					"tintindex": 0}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [-22.5, 0, 0],
+			"translation": [-5.5, 0.5, 1]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [-22.5, 0, 0],
+			"translation": [-5.5, 0.5, 1]
+		},
+		"firstperson_righthand": {
+			"translation": [-8.75, 0, 0]
+		},
+		"firstperson_lefthand": {
+			"translation": [-9.25, 0, 0]
+		},
+		"ground": {
+			"translation": [0, 2, 0]
+		},
+		"gui": {
+			"rotation": [22, 63, 0],
+			"scale": [1.15, 1.15, 1.15]
+		},
+		"head": {
+			"translation": [0, 15, 0]
+		},
+		"fixed": {
+			"scale": [1.5, 1.5, 1.5]
+		}
+	},
+	"groups": [
+		{
+			"name": "container",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [
+				0,
+				1,
+				2,
+				{
+					"name": "matrix",
+					"origin": [8, 8, 8],
+					"color": 0,
+					"children": [3, 4, 5]
+				}
+			]
+		}
+	]
+}

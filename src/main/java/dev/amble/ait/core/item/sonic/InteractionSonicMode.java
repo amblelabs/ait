@@ -1,5 +1,6 @@
 package dev.amble.ait.core.item.sonic;
 
+import dev.amble.ait.data.schema.sonic.SonicSchema;
 import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
@@ -14,8 +15,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
-import dev.amble.ait.data.schema.sonic.SonicSchema;
-
 public class InteractionSonicMode extends SonicMode {
 
     protected InteractionSonicMode(int index) {
@@ -25,14 +24,6 @@ public class InteractionSonicMode extends SonicMode {
     @Override
     public Text text() {
         return Text.translatable("sonic.ait.mode.interaction").formatted(Formatting.GREEN, Formatting.BOLD);
-    }
-
-    @Override
-    public void stopUsing(ItemStack stack, World world, LivingEntity user, int ticks, int ticksLeft) {
-        if (!(world instanceof ServerWorld serverWorld))
-            return;
-
-        this.process(serverWorld, user, ticks);
     }
 
     @Override

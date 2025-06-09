@@ -5,7 +5,7 @@
   },
   "inputs": [
     {
-      "item": "ait:inductor",
+      "item": "ait:hyperion_core_shaft",
       "maxCount": 3,
       "minCount": 1
     },

@@ -1,40 +1,37 @@
 package dev.amble.ait.compat.gravity;
 
-import java.util.List;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisClientEvents;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.client.screens.interior.InteriorSettingsScreen;
+import dev.amble.ait.client.screens.widget.DynamicPressableTextWidget;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.data.Exclude;
+import dev.amble.ait.data.properties.Property;
+import dev.amble.ait.data.properties.Value;
+import dev.amble.ait.registry.impl.TardisComponentRegistry;
 import gravity_changer.EntityTags;
 import gravity_changer.api.GravityChangerAPI;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.Direction;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisClientEvents;
-import dev.amble.ait.api.TardisEvents;
-import dev.amble.ait.api.TardisTickable;
-import dev.amble.ait.client.screens.interior.InteriorSettingsScreen;
-import dev.amble.ait.client.screens.widget.DynamicPressableTextWidget;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.properties.Property;
-import dev.amble.ait.data.properties.Value;
-import dev.amble.ait.registry.impl.TardisComponentRegistry;
 
 public class GravityHandler extends KeyedTardisComponent implements TardisTickable {
 
     private static final Identifier SYNC = AITMod.id("sync_gravity");
-    private static final Property<Direction> DIRECTION = new Property<>(Property.Type.DIRECTION, "direction",
+    private static final Property<Direction> DIRECTION = new Property<>(Property.DIRECTION, "direction",
             Direction.DOWN);
 
     private final Value<Direction> direction = DIRECTION.create(this);
@@ -59,9 +56,7 @@ public class GravityHandler extends KeyedTardisComponent implements TardisTickab
     }
 
     private void onTick() {
-        List<LivingEntity> list = TardisUtil.getLivingInInterior(this.tardis, EntityTags::canChangeGravity);
-
-        for (LivingEntity entity : list) {
+        for (Entity entity : this.tardis.asServer().world().getEntitiesByType(TypeFilter.instanceOf(LivingEntity.class), EntityTags::canChangeGravity)) {
             GravityChangerAPI.getGravityComponent(entity).setBaseGravityDirection(this.direction.get());
         }
     }

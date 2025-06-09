@@ -1,14 +1,12 @@
 package dev.amble.ait.core;
 
-import java.util.function.Supplier;
-
 import com.mojang.brigadier.arguments.ArgumentType;
-import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
-
-import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.commands.argument.*;
+import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
+import net.minecraft.command.argument.serialize.ConstantArgumentSerializer;
+
+import java.util.function.Supplier;
 
 public class AITArgumentTypes {
 

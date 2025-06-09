@@ -1,13 +1,12 @@
 package dev.amble.ait.data;
 
-import java.lang.reflect.Type;
-
 import com.google.gson.*;
-
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+
+import java.lang.reflect.Type;
 
 public class Corners {
     @Exclude

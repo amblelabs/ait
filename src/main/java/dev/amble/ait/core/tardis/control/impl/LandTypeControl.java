@@ -1,33 +1,27 @@
 package dev.amble.ait.core.tardis.control.impl;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.core.util.SafePosSearch;
+import dev.amble.ait.data.schema.console.variant.coral.*;
+import dev.amble.ait.data.schema.console.variant.renaissance.*;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.data.schema.console.variant.coral.*;
-import dev.amble.ait.data.schema.console.variant.renaissance.*;
-
 public class LandTypeControl extends Control {
-
-    private SoundEvent soundEvent = AITSounds.LAND_TYPE;
-
     public LandTypeControl() {
-        super("land_type");
+        super(AITMod.id("land_type"));
     }
 
     @Override
-    public boolean runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
-        if (tardis.sequence().hasActiveSequence() && tardis.sequence().controlPartOfSequence(this)) {
-            this.addToControlSequence(tardis, player, console);
-            return false;
-        }
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+        super.runServer(tardis, player, world, console, leftClick);
 
         if (leftClick) {
             tardis.travel().horizontalSearch().flatMap(value -> {
@@ -36,7 +30,7 @@ public class LandTypeControl extends Control {
                 return value;
             });
 
-            return false;
+            return Result.SUCCESS_ALT;
         }
 
         tardis.travel().verticalSearch().flatMap(value -> {
@@ -45,23 +39,15 @@ public class LandTypeControl extends Control {
             return value;
         });
 
-        if (world.getBlockEntity(console) instanceof ConsoleBlockEntity consoleBlockEntity) {
-            if (isRenaissanceVariant(consoleBlockEntity)) {
-                this.soundEvent = AITSounds.RENAISSANCE_LAND_TYPE_ALT;
-            } else if (isCoralVariant(consoleBlockEntity)) {
-                this.soundEvent = AITSounds.CORAL_LAND_TYPE_ALT;
-            }
-        }
-
-        return false;
+        return Result.SUCCESS;
     }
 
     @Override
-    public SoundEvent getSound() {
-        return this.soundEvent;
+    public SoundEvent getFallbackSound() {
+        return AITSounds.LAND_TYPE;
     }
 
-    public void messageYPlayer(ServerPlayerEntity player, TravelHandlerBase.GroundSearch value) {
+    public void messageYPlayer(ServerPlayerEntity player, SafePosSearch.Kind value) {
         player.sendMessage(Text.translatable("message.ait.control.ylandtype", value), true);
     }
 

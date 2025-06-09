@@ -1,12 +1,12 @@
 package dev.amble.ait.core.util;
 
+import dev.amble.ait.data.ShapeMap;
 import net.minecraft.block.Block;
 import net.minecraft.util.function.BooleanBiFunction;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
-
-import dev.amble.ait.data.ShapeMap;
 
 public class ShapeUtil {
 
@@ -43,5 +43,9 @@ public class ShapeUtil {
         }
 
         return builder;
+    }
+
+    public static Box cloneBox(Box box) {
+        return new Box(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
     }
 }

@@ -1,15 +1,13 @@
 package dev.amble.ait.module;
 
-import dev.amble.lib.register.datapack.DatapackRegistry;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-
 import dev.amble.ait.module.decoration.DecorationModule;
 import dev.amble.ait.module.gun.GunModule;
 import dev.amble.ait.module.planet.PlanetModule;
+import dev.amble.lib.register.datapack.DatapackRegistry;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 // these arent datapack definable
 public class ModuleRegistry extends DatapackRegistry<Module> {

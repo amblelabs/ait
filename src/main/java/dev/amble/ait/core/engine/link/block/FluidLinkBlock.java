@@ -1,7 +1,8 @@
 package dev.amble.ait.core.engine.link.block;
 
-import org.jetbrains.annotations.Nullable;
-
+import dev.amble.ait.core.engine.link.IFluidLink;
+import dev.amble.ait.core.engine.link.IFluidSource;
+import dev.amble.ait.core.world.TardisServerWorld;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
@@ -10,11 +11,9 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
-import dev.amble.ait.core.engine.link.IFluidLink;
-import dev.amble.ait.core.engine.link.IFluidSource;
-
-public class FluidLinkBlock extends BlockWithEntity implements IFluidLink {
+public abstract class FluidLinkBlock extends BlockWithEntity implements IFluidLink {
     public FluidLinkBlock(Settings settings) {
         super(settings);
     }
@@ -22,6 +21,8 @@ public class FluidLinkBlock extends BlockWithEntity implements IFluidLink {
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         super.onPlaced(world, pos, state, placer, itemStack);
+
+        if (!TardisServerWorld.isTardisDimension(world)) return;
 
         if (world.getBlockEntity(pos) instanceof FluidLinkBlockEntity be) {
             be.onPlaced(world, pos, placer);
@@ -51,9 +52,7 @@ public class FluidLinkBlock extends BlockWithEntity implements IFluidLink {
     }
 
     @Override
-    public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new FluidLinkBlockEntity(pos, state);
-    }
+    public abstract FluidLinkBlockEntity createBlockEntity(BlockPos pos, BlockState state);
 
     @Override
     public IFluidSource source(boolean search) {

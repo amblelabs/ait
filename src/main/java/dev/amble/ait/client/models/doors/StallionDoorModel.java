@@ -1,14 +1,14 @@
 package dev.amble.ait.client.models.doors;
 
+import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.tardis.handler.DoorHandler;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.link.v2.block.AbstractLinkableBlockEntity;
-import dev.amble.ait.core.tardis.handler.DoorHandler;
 
 public class StallionDoorModel extends DoorModel {
     private final ModelPart body;
@@ -69,25 +69,25 @@ public class StallionDoorModel extends DoorModel {
     }
 
     @Override
-    public void renderWithAnimations(AbstractLinkableBlockEntity linkableBlockEntity, ModelPart root, MatrixStack matrices,
+    public void renderWithAnimations(ClientTardis tardis, AbstractLinkableBlockEntity linkableBlockEntity, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
         matrices.push();
         matrices.scale(0.95f, 0.95f, 0.95f);
         matrices.translate(0, -1.5f, 0);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
 
-        if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS) {
-            body.getChild("door").yaw = linkableBlockEntity.tardis().get().door().isOpen() ? -1.35f : 0f;
-            body.getChild("door").getChild("door_two").yaw = linkableBlockEntity.tardis().get().door().isOpen() ? 2.65f : 0f;
+        if (!AITModClient.CONFIG.animateDoors) {
+            body.getChild("door").yaw = tardis.door().isOpen() ? -1.35f : 0f;
+            body.getChild("door").getChild("door_two").yaw = tardis.door().isOpen() ? 2.65f : 0f;
         } else {
             float maxLeftRot = 87f;
             float maxRightRot = 150f;
 
-            body.getChild("door").yaw = -(float) Math.toRadians(maxLeftRot*linkableBlockEntity.tardis().get().door().getLeftRot());
-            body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(maxRightRot*linkableBlockEntity.tardis().get().door().getLeftRot());
+            body.getChild("door").yaw = -(float) Math.toRadians(maxLeftRot*tardis.door().getLeftRot());
+            body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(maxRightRot*tardis.door().getLeftRot());
         }
 
-        super.renderWithAnimations(linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
 
         matrices.pop();
     }

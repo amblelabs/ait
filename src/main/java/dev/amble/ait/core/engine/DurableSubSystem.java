@@ -1,11 +1,9 @@
 package dev.amble.ait.core.engine;
 
-import dev.amble.lib.util.ServerLifecycleHooks;
-
-import net.minecraft.item.ItemStack;
-
-import dev.amble.ait.api.TardisEvents;
+import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITTags;
+import dev.amble.lib.util.ServerLifecycleHooks;
+import net.minecraft.item.ItemStack;
 
 public abstract class DurableSubSystem extends SubSystem {
     private float durability = 1250;

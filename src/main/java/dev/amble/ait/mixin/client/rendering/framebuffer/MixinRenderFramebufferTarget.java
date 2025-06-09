@@ -1,10 +1,8 @@
 package dev.amble.ait.mixin.client.rendering.framebuffer;
 
-import static org.lwjgl.opengl.GL11.GL_DEPTH_COMPONENT;
-import static org.lwjgl.opengl.GL30.*;
-
-import java.util.Objects;
-
+import dev.amble.ait.client.boti.StencilFrameBuffer;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL30C;
@@ -17,10 +15,11 @@ import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
+import java.util.Objects;
 
-import dev.amble.ait.client.boti.StencilFrameBuffer;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_COMPONENT;
+import static org.lwjgl.opengl.GL30.GL_DEPTH24_STENCIL8;
+import static org.lwjgl.opengl.GL30.GL_UNSIGNED_INT_24_8;
 
 @Mixin(Framebuffer.class)
 public abstract class MixinRenderFramebufferTarget implements StencilFrameBuffer {

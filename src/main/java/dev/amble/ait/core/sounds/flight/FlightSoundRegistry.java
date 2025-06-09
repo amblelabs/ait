@@ -1,12 +1,10 @@
 package dev.amble.ait.core.sounds.flight;
 
-import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-
-import net.minecraft.resource.ResourceType;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.resource.ResourceType;
 
 public class FlightSoundRegistry extends SimpleDatapackRegistry<FlightSound> {
     private static final FlightSoundRegistry instance = new FlightSoundRegistry();

@@ -1,7 +1,11 @@
 package dev.amble.ait.client.renderers.machines;
 
-import org.joml.Vector3f;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.machines.FabricatorModel;
+import dev.amble.ait.client.util.ClientLightUtil;
+import dev.amble.ait.core.blockentities.FabricatorBlockEntity;
+import dev.amble.ait.core.blocks.FabricatorBlock;
+import dev.amble.ait.core.item.blueprint.Blueprint;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.RenderLayer;
@@ -16,13 +20,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.profiler.Profiler;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.machines.FabricatorModel;
-import dev.amble.ait.client.util.ClientLightUtil;
-import dev.amble.ait.core.blockentities.FabricatorBlockEntity;
-import dev.amble.ait.core.blocks.FabricatorBlock;
-import dev.amble.ait.core.item.blueprint.Blueprint;
+import org.joml.Vector3f;
 
 public class FabricatorRenderer<T extends FabricatorBlockEntity> implements BlockEntityRenderer<T> {
 
@@ -53,9 +51,9 @@ public class FabricatorRenderer<T extends FabricatorBlockEntity> implements Bloc
                 1.0F, 1.0F, 1.0F);
 
         if (entity.isValid()) {
-            ClientLightUtil.renderEmissive(ClientLightUtil.Renderable.create(fabricatorModel::render),
-                    EMISSIVE_FABRICATOR_TEXTURE, entity, fabricatorModel.getPart(), matrices, vertexConsumers, light,
-                    overlay, 1, 1, 1, 1);
+            ClientLightUtil.renderEmissive((v, l) -> fabricatorModel.render(
+                    matrices, v, l, overlay, 1, 1, 1, 1
+            ), EMISSIVE_FABRICATOR_TEXTURE, vertexConsumers);
         }
 
         matrices.pop();
@@ -83,7 +81,7 @@ public class FabricatorRenderer<T extends FabricatorBlockEntity> implements Bloc
             matrices.scale(0.7f, 0.7f, 0.7f);
             matrices.scale(scale.x, scale.y, scale.z);
 
-            MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformationMode.GROUND, light,
+            MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformationMode.GROUND, 0xf000f0,
                     overlay, matrices, vertexConsumers, entity.getWorld(), 0);
             matrices.pop();
         }

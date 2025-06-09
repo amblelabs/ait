@@ -1,13 +1,13 @@
 package dev.amble.ait.compat;
 
-import java.util.List;
-import java.util.Set;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
+
+import java.util.List;
+import java.util.Set;
 
 @SuppressWarnings("unused")
 public class AITMixinPlugin implements IMixinConfigPlugin {

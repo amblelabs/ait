@@ -1,21 +1,6 @@
 package dev.amble.ait.data.schema.exterior;
 
-import java.lang.reflect.Type;
-import java.util.Optional;
-
 import com.google.gson.*;
-import dev.amble.lib.register.unlockable.Unlockable;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
@@ -25,6 +10,17 @@ import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.register.unlockable.Unlockable;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
+
+import java.lang.reflect.Type;
+import java.util.Optional;
 
 /**
  * A variant for a {@link ExteriorCategorySchema} which provides a model,
@@ -50,7 +46,6 @@ public abstract class ExteriorVariantSchema extends BasicSchema implements Unloc
 
     public static final double DEFAULT_SEAT_FORWARD_TRANSLATION = 0.5;
     public static final Vec3d DEFAULT_SEAT_POS = new Vec3d(0.5, 1, 0.5);
-
     @Environment(EnvType.CLIENT)
     private ClientExteriorVariantSchema cachedSchema;
 
@@ -110,14 +105,11 @@ public abstract class ExteriorVariantSchema extends BasicSchema implements Unloc
         return cachedSchema;
     }
 
-    /**
-     * The bounding box for this exterior, will be used in
-     * {@link #getNormalShape(BlockState, BlockPos)}
-     */
     public VoxelShape bounding(Direction dir) {
         return null;
     }
 
+    @Deprecated(forRemoval = true, since = "1.3.0")
     public abstract ExteriorAnimation animation(ExteriorBlockEntity exterior);
 
     public abstract DoorSchema door();

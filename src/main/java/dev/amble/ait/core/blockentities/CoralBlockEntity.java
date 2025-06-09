@@ -1,13 +1,12 @@
 package dev.amble.ait.core.blockentities;
 
-import java.util.UUID;
-
+import dev.amble.ait.core.AITBlockEntityTypes;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
 
-import dev.amble.ait.core.AITBlockEntityTypes;
+import java.util.UUID;
 
 public class CoralBlockEntity extends BlockEntity {
 

@@ -1,21 +1,19 @@
 package dev.amble.ait.mixin.client.experimental_screen;
 
 import com.mojang.serialization.Lifecycle;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
+import dev.amble.ait.client.AITModClient;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;
 import net.minecraft.client.world.GeneratorOptionsHolder;
 import net.minecraft.registry.CombinedDynamicRegistries;
 import net.minecraft.registry.ServerDynamicRegistryType;
 import net.minecraft.world.dimension.DimensionOptionsRegistryHolder;
 import net.minecraft.world.level.LevelProperties;
-
-import dev.amble.ait.AITMod;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @SuppressWarnings("deprecation")
 @Mixin(value = CreateWorldScreen.class)
@@ -35,7 +33,7 @@ public abstract class CreateWorldScreenMixin {
         if (this.recreated)
             return;
 
-        if (!AITMod.CONFIG.CLIENT.SHOW_EXPERIMENTAL_WARNING) {
+        if (!AITModClient.CONFIG.showExperimentalWarning) {
             this.startServer(config.specialWorldProperty(), registries, lifecycle3);
             ci.cancel();
         }

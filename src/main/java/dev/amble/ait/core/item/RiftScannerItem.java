@@ -1,7 +1,7 @@
 package dev.amble.ait.core.item;
 
-import java.util.function.Consumer;
-
+import dev.amble.ait.core.world.RiftChunkManager;
+import dev.amble.ait.core.world.TardisServerWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -14,8 +14,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-import dev.amble.ait.core.world.RiftChunkManager;
-import dev.amble.ait.core.world.TardisServerWorld;
+import java.util.function.Consumer;
 
 public class RiftScannerItem extends Item {
     private static final int MAX_ITERATIONS = 32;

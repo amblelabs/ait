@@ -1,8 +1,9 @@
 package dev.amble.ait.client.renderers.wearables;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.wearables.SantaHatModel;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
@@ -17,9 +18,6 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.wearables.SantaHatModel;
 
 @Environment(value = EnvType.CLIENT)
 public class SantaHatFeatureRenderer<T extends LivingEntity, M extends PlayerEntityModel<T>>

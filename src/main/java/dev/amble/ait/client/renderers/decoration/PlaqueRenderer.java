@@ -1,5 +1,10 @@
 package dev.amble.ait.client.renderers.decoration;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.decoration.PlaqueModel;
+import dev.amble.ait.core.blockentities.PlaqueBlockEntity;
+import dev.amble.ait.core.blocks.PlaqueBlock;
+import dev.amble.ait.core.tardis.Tardis;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -13,12 +18,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.decoration.PlaqueModel;
-import dev.amble.ait.core.blockentities.PlaqueBlockEntity;
-import dev.amble.ait.core.blocks.PlaqueBlock;
-import dev.amble.ait.core.tardis.Tardis;
-
 public class PlaqueRenderer<T extends PlaqueBlockEntity> implements BlockEntityRenderer<T> {
 
     public static final Identifier PLAQUE_TEXTURE = new Identifier(AITMod.MOD_ID,
@@ -31,8 +30,7 @@ public class PlaqueRenderer<T extends PlaqueBlockEntity> implements BlockEntityR
     }
 
     @Override
-    public void render(PlaqueBlockEntity entity, float tickDelta, MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers, int light, int overlay) {
+    public void render(PlaqueBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
 
         BlockState blockState = entity.getCachedState();
 
@@ -51,7 +49,7 @@ public class PlaqueRenderer<T extends PlaqueBlockEntity> implements BlockEntityR
 
         matrices.pop();
 
-        if (entity.tardis() == null || entity.tardis().isEmpty())
+        if (!entity.isLinked() || entity.tardis().isEmpty())
             return;
 
         Tardis tardis = entity.tardis().get();
@@ -67,8 +65,8 @@ public class PlaqueRenderer<T extends PlaqueBlockEntity> implements BlockEntityR
         this.textRenderer.drawWithOutline(Text.of(tardis.stats().getCreationString()).asOrderedText(),
                 xVal - ((float) this.textRenderer.getWidth(tardis.stats().getCreationString()) / 2), 35, 0xFFFFFF,
                 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(Text.of("-========-").asOrderedText(),
-                xVal - ((float) this.textRenderer.getWidth("-========-") / 2), 55, 0xFFFFFF, 0x000000,
+        this.textRenderer.drawWithOutline(Text.of(entity.getPlaqueText()).asOrderedText(),
+                xVal - ((float) this.textRenderer.getWidth(entity.getPlaqueText()) / 2), 55, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         this.textRenderer.drawWithOutline(Text.of(tardis.stats().getName()).asOrderedText(),
                 xVal - ((float) this.textRenderer.getWidth(tardis.stats().getName()) / 2), 75, 0xFFFFFF, 0x000000,

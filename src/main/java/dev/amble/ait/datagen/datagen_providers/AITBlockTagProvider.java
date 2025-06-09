@@ -1,11 +1,12 @@
 package dev.amble.ait.datagen.datagen_providers;
 
-import java.util.concurrent.CompletableFuture;
-
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.module.ModuleRegistry;
+import dev.amble.ait.module.planet.core.PlanetBlocks;
 import dev.amble.lib.datagen.tag.AmbleBlockTagProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.registry.RegistryKeys;
@@ -14,10 +15,7 @@ import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.module.ModuleRegistry;
-import dev.amble.ait.module.planet.core.PlanetBlocks;
+import java.util.concurrent.CompletableFuture;
 
 
 public class AITBlockTagProvider extends AmbleBlockTagProvider {
@@ -55,7 +53,13 @@ public class AITBlockTagProvider extends AmbleBlockTagProvider {
                 .add(Blocks.BARREL)
                 .add(Blocks.REDSTONE_WIRE, Blocks.COMPARATOR, Blocks.REPEATER)
                 .add(Blocks.BELL, Blocks.JUKEBOX, Blocks.TRAPPED_CHEST)
-                .add(Blocks.DAYLIGHT_DETECTOR);
+                .add(Blocks.DAYLIGHT_DETECTOR)
+                .add(Blocks.OBSIDIAN);
+
+        getOrCreateTagBuilder(AITTags.Blocks.SONIC_CAN_LOCATE).add(AITBlocks.ZEITON_BLOCK).add(AITBlocks.ZEITON_COBBLE)
+                .add(AITBlocks.BUDDING_ZEITON).add(AITBlocks.COMPACT_ZEITON).add(AITBlocks.SMALL_ZEITON_BUD)
+                .add(AITBlocks.MEDIUM_ZEITON_BUD).add(AITBlocks.LARGE_ZEITON_BUD).add(AITBlocks.ZEITON_CLUSTER)
+                .add(Blocks.BELL);
 
         getOrCreateTagBuilder(BlockTags.COAL_ORES).add(PlanetBlocks.ANORTHOSITE_COAL_ORE, PlanetBlocks.MARTIAN_COAL_ORE);
         getOrCreateTagBuilder(BlockTags.COPPER_ORES).add(PlanetBlocks.ANORTHOSITE_COPPER_ORE, PlanetBlocks.MARTIAN_COPPER_ORE);
@@ -80,6 +84,7 @@ public class AITBlockTagProvider extends AmbleBlockTagProvider {
             module.getBlockRegistry().ifPresent(this::withBlocks);
         });
 
+        this.withBlocks(AITBlocks.class);
         super.configure(arg);
     }
 

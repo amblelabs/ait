@@ -1,8 +1,15 @@
 package dev.amble.ait.client.models.consoles;
 
+import dev.amble.ait.client.animation.console.hudolin.HudolinAnimations;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.impl.DirectionControl;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedGlobalPos;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.model.*;
@@ -13,14 +20,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.client.animation.console.hudolin.HudolinAnimations;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.impl.DirectionControl;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.util.WorldUtil;
 
 public class HudolinConsoleModel extends ConsoleModel {
     private final ModelPart hudolin;
@@ -909,7 +908,7 @@ public class HudolinConsoleModel extends ConsoleModel {
         Text positionDimensionText = WorldUtil.worldText(abpp.getDimension());
         String positionDirectionText = " " + DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
         String destinationPosText = " " + abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
-        Text destinationDimensionText = WorldUtil.worldText(abpd.getDimension());
+        Text destinationDimensionText = WorldUtil.worldText(abpd.getDimension(), false);
         String destinationDirectionText = " " + DirectionControl.rotationToDirection(abpd.getRotation()).toUpperCase();
         renderer.drawWithOutline(positionDimensionText.asOrderedText(), -43 - renderer.getWidth(positionDimensionText) / 2, 76, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
@@ -923,16 +922,11 @@ public class HudolinConsoleModel extends ConsoleModel {
     }
 
     @Override
-    public void renderWithAnimations(ConsoleBlockEntity console, ModelPart root, MatrixStack matrices,
-            VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        Tardis tardis = console.tardis().get();
-
-        if (tardis == null)
-            return;
-
+    public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
+                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
-        super.renderWithAnimations(console, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
     }
 

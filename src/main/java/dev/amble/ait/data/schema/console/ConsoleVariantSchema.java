@@ -1,23 +1,21 @@
 package dev.amble.ait.data.schema.console;
 
-import java.lang.reflect.Type;
-import java.util.Optional;
-
 import com.google.gson.*;
-import dev.amble.lib.register.unlockable.Unlockable;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import org.joml.Vector3f;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.BasicSchema;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
+import dev.amble.lib.register.unlockable.Unlockable;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
+import org.joml.Vector3f;
+
+import java.lang.reflect.Type;
+import java.util.Optional;
 
 /**
  * This class is for variants of a {@link ConsoleTypeSchema} and can be changed

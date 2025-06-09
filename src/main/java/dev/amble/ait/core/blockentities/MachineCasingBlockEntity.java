@@ -1,10 +1,10 @@
 package dev.amble.ait.core.blockentities;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-
-import org.jetbrains.annotations.Nullable;
-
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.core.util.StackUtil;
+import dev.amble.ait.registry.impl.MachineRecipeRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -15,12 +15,10 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.util.StackUtil;
-import dev.amble.ait.registry.impl.MachineRecipeRegistry;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class MachineCasingBlockEntity extends BlockEntity {
 

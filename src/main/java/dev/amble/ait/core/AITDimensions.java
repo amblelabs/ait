@@ -1,18 +1,16 @@
 package dev.amble.ait.core;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.world.TardisServerWorld;
 import dev.drtheo.multidim.MultiDim;
 import dev.drtheo.multidim.api.VoidChunkGenerator;
 import dev.drtheo.multidim.api.WorldBlueprint;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.world.World;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.world.TardisServerWorld;
 
 public class AITDimensions {
     public static final RegistryKey<World> TIME_VORTEX_WORLD = RegistryKey.of(RegistryKeys.WORLD,
@@ -32,7 +30,8 @@ public class AITDimensions {
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             TARDIS_WORLD_BLUEPRINT = new WorldBlueprint(AITMod.id("tardis"))
-                    .setPersistent(true).shouldTickTime(false).withCreator(TardisServerWorld::new)
+                    .setPersistent(false).shouldTickTime(false)
+                    .setAutoLoad(false).withCreator(TardisServerWorld::new)
                     .withType(AITMod.id("tardis_dimension_type"))
                     .withGenerator(new VoidChunkGenerator(
                             server.getRegistryManager().get(RegistryKeys.BIOME),

@@ -2,13 +2,11 @@ package dev.amble.ait.module.planet.core.space.planet;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import org.joml.Vector3f;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.codec.MoreCodec;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
+import org.joml.Vector3f;
 
 public record PlanetRenderInfo(Identifier texture, Vec3d position, Vector3f scale, Vector3f rotation, boolean clouds,
                                boolean atmosphere, Vector3f color, double radius, double suctionRadius, boolean hasRings) {

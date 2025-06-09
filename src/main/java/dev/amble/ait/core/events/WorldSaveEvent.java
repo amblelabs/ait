@@ -2,7 +2,6 @@ package dev.amble.ait.core.events;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-
 import net.minecraft.server.world.ServerWorld;
 
 public class WorldSaveEvent {

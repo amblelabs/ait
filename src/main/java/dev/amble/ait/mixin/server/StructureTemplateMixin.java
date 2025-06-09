@@ -1,14 +1,6 @@
 package dev.amble.ait.mixin.server;
 
-import java.util.Iterator;
-import java.util.List;
-
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
-
+import dev.amble.ait.core.entities.ConsoleControlEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.painting.PaintingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -18,8 +10,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
-import dev.amble.ait.core.entities.ConsoleControlEntity;
+import java.util.Iterator;
+import java.util.List;
 
 @Mixin(StructureTemplate.class)
 public abstract class StructureTemplateMixin {

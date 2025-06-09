@@ -1,14 +1,12 @@
 package dev.amble.ait.mixin;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import dev.amble.ait.api.AITUseActions;
+import net.minecraft.util.UseAction;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-import net.minecraft.util.UseAction;
-
-import dev.amble.ait.api.AITUseActions;
+import java.util.ArrayList;
+import java.util.List;
 
 @Mixin(UseAction.class)
 public class UseActionMixin implements AITUseActions {

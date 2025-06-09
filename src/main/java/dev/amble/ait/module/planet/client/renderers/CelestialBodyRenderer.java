@@ -2,19 +2,17 @@ package dev.amble.ait.module.planet.client.renderers;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
-import org.joml.Vector3f;
-import org.lwjgl.opengl.GL11;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.module.planet.client.models.CelestialBodyModel;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.module.planet.client.models.CelestialBodyModel;
+import org.joml.Vector3f;
+import org.lwjgl.opengl.GL11;
 
 
 public class CelestialBodyRenderer {
@@ -76,8 +74,8 @@ public class CelestialBodyRenderer {
 
         matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.getPitch()));
         matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(camera.getYaw() + 180.0F));
-        matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(mc.world.getSkyAngle(mc.getTickDelta()) * 360.0f));
         if (isTardisSkybox) {
+            matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(mc.world.getSkyAngle(mc.getTickDelta()) * 360.0f));
             matrixStack.translate(0, -4000, 0);
             matrixStack.scale(0.25f, 0.25f, 0.25f);
         }
@@ -111,6 +109,10 @@ public class CelestialBodyRenderer {
     }
 
     public static void renderComprehendableBody(boolean isTardisSkybox, Vec3d targetPosition, Vector3f scale, Vector3f rotation, Identifier texture, boolean isSkyRendered, boolean hasClouds, boolean hasAtmosphere, Vector3f atmosphereColor, boolean hasRings) {
+        renderComprehendableBody(0, isTardisSkybox, targetPosition, scale, rotation, texture, isSkyRendered, hasClouds, hasAtmosphere, atmosphereColor, hasRings);
+    }
+
+    public static void renderComprehendableBody(float skyboxRot, boolean isTardisSkybox, Vec3d targetPosition, Vector3f scale, Vector3f rotation, Identifier texture, boolean isSkyRendered, boolean hasClouds, boolean hasAtmosphere, Vector3f atmosphereColor, boolean hasRings) {
         MinecraftClient mc = MinecraftClient.getInstance();
         Camera camera = mc.gameRenderer.getCamera();
         VertexConsumerProvider.Immediate provider = mc.getBufferBuilders().getEntityVertexConsumers();
@@ -124,7 +126,7 @@ public class CelestialBodyRenderer {
         MatrixStack matrixStack = new MatrixStack();
         matrixStack.push();
         matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.getPitch()));
-        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(camera.getYaw() + 180.0F));
+        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(camera.getYaw() + 180.0F + skyboxRot));
         if (isTardisSkybox) {
             matrixStack.translate(0, 4000, 0);
             matrixStack.scale(0.25f, 0.25f, 0.25f);

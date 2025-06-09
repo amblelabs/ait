@@ -1,13 +1,11 @@
 package dev.amble.ait.mixin.server;
 
+import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.data.Loyalty;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
 import net.minecraft.block.BedBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -18,12 +16,11 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.util.ClientTardisUtil;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.data.Loyalty;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(BedBlock.class)
 public class BedInTardisMixin {
@@ -36,18 +33,18 @@ public class BedInTardisMixin {
     @Unique @Environment(EnvType.CLIENT)
     private void onClientSleep(PlayerEntity player) {
         Tardis tardis = ClientTardisUtil.getCurrentTardis();
-        if (tardis == null || AITMod.CONFIG.CLIENT.DISABLE_LOYALTY_SLEEPING_ACTIONBAR) return;
+        if (tardis == null) return;
 
         Loyalty loyalty = tardis.loyalty().get(player);
 
         Text message = switch (loyalty.type()) {
-            case REJECT -> Text.literal("You hear whispers all around you, you are not welcome. [REJECT]");
-            case NEUTRAL -> Text.literal("The TARDIS hums, neither welcoming nor dismissing your presence. [NEUTRAL]");
-            case COMPANION -> Text.literal("The TARDIS hums you a tune, as if glad to have you on board. [COMPANION]");
-            case PILOT -> Text.literal("The TARDIS hums gently, as if to show its trust. [PILOT]");
-            case OWNER -> Text.literal("The TARDIS hums you a song, as if to show it will always be here for you. [OWNER]");
+            case REJECT -> Text.translatable("tardis.loyalty.message.reject");
+            case NEUTRAL -> Text.translatable("tardis.loyalty.message.neutral");
+            case COMPANION -> Text.translatable("tardis.loyalty.message.companion");
+            case PILOT -> Text.translatable("tardis.loyalty.message.pilot");
+            case OWNER -> Text.translatable("tardis.loyalty.message.owner");
         };
-        player.sendMessage(message, true);
+        player.sendMessage(message, false);
 
         SoundEvent sound = switch(loyalty.type()) {
             case OWNER -> AITSounds.OWNER_BED;

@@ -1,10 +1,7 @@
 package dev.amble.ait.core.blocks;
 
-import java.util.List;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
+import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -24,9 +21,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
+import java.util.List;
+
+import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 public class ArtronCollectorBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
 
@@ -80,6 +80,8 @@ public class ArtronCollectorBlock extends HorizontalDirectionalBlock implements 
     public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
         super.appendTooltip(stack, world, tooltip, options);
 
-        tooltip.add(Text.translatable("block.ait.artron_collector_block.tooltip.use").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
+        addShiftHiddenTooltip(stack, tooltip, tooltips -> {
+            tooltip.add(Text.translatable("block.ait.artron_collector_block.tooltip.use").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
+        });
     }
 }

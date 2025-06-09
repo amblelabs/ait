@@ -1,17 +1,15 @@
 package dev.amble.ait.data.schema;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gson.*;
+import dev.amble.ait.core.util.StackUtil;
+import dev.amble.ait.registry.impl.MachineRecipeRegistry;
 import dev.amble.lib.api.Identifiable;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.core.util.StackUtil;
-import dev.amble.ait.registry.impl.MachineRecipeRegistry;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MachineRecipeSchema implements Identifiable {
 

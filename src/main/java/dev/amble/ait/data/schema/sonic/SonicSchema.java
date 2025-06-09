@@ -1,16 +1,14 @@
 package dev.amble.ait.data.schema.sonic;
 
-import java.util.Optional;
-import java.util.function.Consumer;
-
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.amble.lib.register.unlockable.Unlockable;
-
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.BasicSchema;
+import dev.amble.lib.register.unlockable.Unlockable;
+import net.minecraft.util.Identifier;
+
+import java.util.Optional;
+import java.util.function.Consumer;
 
 public abstract class SonicSchema extends BasicSchema implements Unlockable {
 

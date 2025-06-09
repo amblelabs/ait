@@ -1,13 +1,12 @@
 package dev.amble.ait.module.planet.core.space.system;
 
-import java.util.Arrays;
-import java.util.HashSet;
-
-import net.minecraft.text.Text;
-
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
+import net.minecraft.text.Text;
+
+import java.util.Arrays;
+import java.util.HashSet;
 
 public class SolarSystem extends HashSet<Planet> implements Nameable {
     protected final Text name;

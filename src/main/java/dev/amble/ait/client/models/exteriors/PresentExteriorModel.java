@@ -1,15 +1,15 @@
 package dev.amble.ait.client.models.exteriors;
 
+import dev.amble.ait.api.tardis.link.v2.Linkable;
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.tardis.handler.DoorHandler;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.link.v2.Linkable;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.handler.DoorHandler;
 
 public class PresentExteriorModel extends ExteriorModel {
     private final ModelPart present;
@@ -36,17 +36,14 @@ public class PresentExteriorModel extends ExteriorModel {
     }
 
     @Override
-    public void renderWithAnimations(ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices,
+    public void renderWithAnimations(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        if (exterior.tardis().isEmpty())
-            return;
-
         matrices.push();
         matrices.translate(0, -1.5f, 0);
 
-        this.renderDoors(exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, false);
+        this.renderDoors(tardis, exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, false);
 
-        super.renderWithAnimations(exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(tardis, exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
     }
 
@@ -59,7 +56,7 @@ public class PresentExteriorModel extends ExteriorModel {
         matrices.push();
         matrices.translate(0, -1.5f, 0);
 
-        if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS) {
+        if (!AITModClient.CONFIG.animateDoors) {
             DoorHandler door = falling.tardis().get().door();
 
             this.present.getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? 8F : 0.0F;
@@ -87,12 +84,9 @@ public class PresentExteriorModel extends ExteriorModel {
     }
 
     @Override
-    public void renderDoors(ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
-        if (exterior.tardis().isEmpty())
-            return;
-
-        if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS) {
-            DoorHandler door = exterior.tardis().get().door();
+    public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
+        if (!AITModClient.CONFIG.animateDoors) {
+            DoorHandler door = tardis.door();
 
             this.present.getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? 8F : 0.0F;
             this.present.getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen())
@@ -100,8 +94,8 @@ public class PresentExteriorModel extends ExteriorModel {
                     : 0.0F;
         } else {
             float maxRot = 90f;
-            this.present.getChild("left_door").yaw = (float) Math.toRadians(exterior.tardis().get().door().getLeftRot() * maxRot);
-            this.present.getChild("right_door").yaw = -(float) Math.toRadians(exterior.tardis().get().door().getRightRot() * maxRot);
+            this.present.getChild("left_door").yaw = (float) Math.toRadians(tardis.door().getLeftRot() * maxRot);
+            this.present.getChild("right_door").yaw = -(float) Math.toRadians(tardis.door().getRightRot() * maxRot);
         }
 
         if (isBOTI) {

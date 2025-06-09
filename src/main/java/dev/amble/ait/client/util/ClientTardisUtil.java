@@ -1,15 +1,19 @@
 package dev.amble.ait.client.util;
 
-import static dev.amble.ait.core.tardis.util.TardisUtil.*;
-
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
-
+import dev.amble.ait.api.ClientWorldEvents;
+import dev.amble.ait.api.tardis.link.v2.TardisRef;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.tardis.manager.ClientTardisManager;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisExterior;
+import dev.amble.ait.core.tardis.handler.SonicHandler;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.data.schema.sonic.SonicSchema;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
@@ -18,16 +22,13 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import dev.amble.ait.api.ClientWorldEvents;
-import dev.amble.ait.api.link.v2.TardisRef;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.tardis.manager.ClientTardisManager;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisExterior;
-import dev.amble.ait.core.tardis.handler.SonicHandler;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.data.schema.sonic.SonicSchema;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
+import static dev.amble.ait.core.tardis.util.TardisUtil.*;
+
+@Environment(EnvType.CLIENT)
 public class ClientTardisUtil {
 
     public static final int MAX_POWER_DELTA_TICKS = 3 * 20;
@@ -41,16 +42,15 @@ public class ClientTardisUtil {
 
     static {
         ClientWorldEvents.CHANGE_WORLD.register((client, world) -> {
-            UUID id = TardisServerWorld.getClientTardisId(world);
+            UUID id = TardisServerWorld.getTardisId(world);
             currentTardis = new TardisRef(id, uuid -> ClientTardisManager.getInstance().demandTardis(uuid));
         });
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            UUID id = TardisServerWorld.getClientTardisId(client.world);
+            UUID id = TardisServerWorld.getTardisId(client.world);
             currentTardis = new TardisRef(id, uuid -> ClientTardisManager.getInstance().demandTardis(uuid));
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            if (currentTardis != null)
-                currentTardis = null;
+            currentTardis = null;
         });
     }
 

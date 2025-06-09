@@ -1,25 +1,23 @@
 package dev.amble.ait.core.commands;
 
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
-
-import java.util.Collection;
-import java.util.Collections;
-
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.commands.argument.TardisArgumentType;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.util.TardisUtil;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.commands.argument.TardisArgumentType;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.util.TardisUtil;
+import java.util.Collection;
+import java.util.Collections;
+
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
 
 public final class TeleportInteriorCommand {
 
@@ -35,14 +33,14 @@ public final class TeleportInteriorCommand {
                 )));
     }
 
-    private static int tpSelfInterior(CommandContext<ServerCommandSource> context) {
+    private static int tpSelfInterior(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         Entity source = context.getSource().getEntity();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 
         return tpToInterior(tardis, Collections.singleton(source));
     }
 
-    private static int tpSelfExterior(CommandContext<ServerCommandSource> context) {
+    private static int tpSelfExterior(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         Entity source = context.getSource().getEntity();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 

@@ -1,10 +1,7 @@
 package dev.amble.ait.core.item;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.jetbrains.annotations.Nullable;
-
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -16,9 +13,10 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import java.util.List;
+import java.util.UUID;
 
 public class ArtronCollectorItem extends Item {
     public static final String AU_LEVEL = "au_level";

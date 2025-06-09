@@ -1,21 +1,21 @@
 package dev.amble.ait.client.screens;
 
-import java.util.List;
-import java.util.function.Consumer;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.Nameable;
+import dev.amble.ait.client.screens.widget.SwitcherManager;
+import dev.amble.ait.core.blocks.AstralMapBlock;
+import dev.amble.ait.core.util.WorldUtil;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.PressableTextWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.Nameable;
-import dev.amble.ait.client.screens.widget.SwitcherManager;
-import dev.amble.ait.core.blocks.AstralMapBlock;
+import java.util.List;
+import java.util.function.Consumer;
 
 public class AstralMapScreen extends Screen {
 
@@ -29,7 +29,9 @@ public class AstralMapScreen extends Screen {
     public AstralMapScreen() {
         super(Text.translatable("screen." + AITMod.MOD_ID + ".astral_map"));
 
-        switcher = new IdentifierSwitcher(AstralMapBlock.structureIds, (id) -> {
+        this.client = MinecraftClient.getInstance();
+
+        this.switcher = new IdentifierSwitcher(AstralMapBlock.structureIds, (id) -> {
             ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, PacketByteBufs.create().writeIdentifier(id));
             this.close();
         });
@@ -56,6 +58,16 @@ public class AstralMapScreen extends Screen {
     }
 
     @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (this.client.options.inventoryKey.matchesKey(keyCode, scanCode)) {
+            this.close();
+            return true;
+        }
+
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.drawBackground(context);
 
@@ -74,23 +86,11 @@ public class AstralMapScreen extends Screen {
         @Override
         public String name() {
             try {
-                return fakeTranslate(id.getPath());
+                return WorldUtil.fakeTranslate(id.getPath());
             } catch (Exception e) {
                 return id.toString();
             }
         }
-    }
-    private static String fakeTranslate(String path) {
-        // Split the string into words
-        String[] words = path.split("_");
-
-        // Capitalize the first letter of each word
-        for (int i = 0; i < words.length; i++) {
-            words[i] = words[i].substring(0, 1).toUpperCase() + words[i].substring(1).toLowerCase();
-        }
-
-        // Join the words back together with spaces
-        return String.join(" ", words);
     }
 
     static class IdentifierSwitcher extends SwitcherManager<IdentifierToName, Identifier> {
@@ -103,6 +103,7 @@ public class AstralMapScreen extends Screen {
             idx = (idx + 1) % list.size();
             return new IdentifierToName(list.get(idx));
         }
+
         private static IdentifierToName prev(IdentifierToName id, List<Identifier> list) {
             int idx = list.indexOf(id.id());
             idx = (idx - 1 + list.size()) % list.size();

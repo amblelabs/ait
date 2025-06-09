@@ -1,39 +1,5 @@
 package dev.amble.ait.module.planet;
 
-import static net.minecraft.data.server.recipe.RecipeProvider.*;
-
-import java.util.Optional;
-import java.util.function.Consumer;
-
-import dev.amble.lib.container.RegistryContainer;
-import dev.amble.lib.container.impl.BlockContainer;
-import dev.amble.lib.container.impl.ItemContainer;
-import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
-import dev.amble.lib.datagen.model.AmbleModelProvider;
-import dev.amble.lib.itemgroup.AItemGroup;
-import dev.amble.lib.register.AmbleRegistries;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-
-import net.minecraft.advancement.Advancement;
-import net.minecraft.advancement.AdvancementFrame;
-import net.minecraft.advancement.criterion.ChangedDimensionCriterion;
-import net.minecraft.data.client.BlockStateModelGenerator;
-import net.minecraft.data.client.ItemModelGenerator;
-import net.minecraft.data.client.Models;
-import net.minecraft.data.server.recipe.*;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.registry.tag.ItemTags;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.datagen.datagen_providers.AITBlockTagProvider;
@@ -46,6 +12,39 @@ import dev.amble.ait.module.planet.core.PlanetBlocks;
 import dev.amble.ait.module.planet.core.PlanetItems;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import dev.amble.ait.module.planet.core.util.PlanetCustomTrades;
+import dev.amble.lib.container.RegistryContainer;
+import dev.amble.lib.container.impl.BlockContainer;
+import dev.amble.lib.container.impl.ItemContainer;
+import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
+import dev.amble.lib.datagen.model.AmbleModelProvider;
+import dev.amble.lib.itemgroup.AItemGroup;
+import dev.amble.lib.register.AmbleRegistries;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraft.advancement.Advancement;
+import net.minecraft.advancement.AdvancementFrame;
+import net.minecraft.advancement.criterion.ChangedDimensionCriterion;
+import net.minecraft.data.client.BlockStateModelGenerator;
+import net.minecraft.data.client.ItemModelGenerator;
+import net.minecraft.data.client.Models;
+import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
+import net.minecraft.item.ArmorItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.recipe.book.RecipeCategory;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.ItemTags;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+
+import java.util.Optional;
+import java.util.function.Consumer;
+
+import static net.minecraft.data.server.recipe.RecipeProvider.conditionsFromItem;
+import static net.minecraft.data.server.recipe.RecipeProvider.hasItem;
 
 
 public class PlanetModule extends Module {

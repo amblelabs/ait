@@ -1,36 +1,16 @@
 package dev.amble.ait.core.tardis;
 
-import java.util.Collection;
-import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dev.amble.lib.data.DirectedBlockPos;
-import dev.amble.lib.data.DirectedGlobalPos;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.GlobalPos;
-import net.minecraft.world.World;
-
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.TardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.registry.SubSystemRegistry;
+import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
+import dev.amble.ait.core.tardis.animation.v2.TardisAnimationMap;
 import dev.amble.ait.core.tardis.handler.SubSystemHandler;
 import dev.amble.ait.core.tardis.handler.permissions.Permission;
 import dev.amble.ait.core.tardis.handler.permissions.PermissionLike;
@@ -51,8 +31,29 @@ import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.TardisComponentRegistry;
+import dev.amble.lib.data.DirectedBlockPos;
+import dev.amble.lib.data.DirectedGlobalPos;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.Entity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.GlobalPos;
+import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public abstract class TardisManager<T extends Tardis, C> {
+
+    public static final Identifier SEND_PROPERTY = AITMod.id("send_property");
 
     public static final Identifier ASK = AITMod.id("ask_tardis");
 
@@ -64,8 +65,6 @@ public abstract class TardisManager<T extends Tardis, C> {
     public static final Identifier SEND_COMPONENT = AITMod.id("tardis/send_component");
 
     public static final boolean DEMENTIA = false;
-
-    protected final TardisMap<T> lookup = new TardisMap<>();
 
     protected final Gson networkGson;
     protected final Gson fileGson;
@@ -112,7 +111,9 @@ public abstract class TardisManager<T extends Tardis, C> {
                 .registerTypeAdapter(TardisComponent.IdLike.class, TardisComponentRegistry.idSerializer())
                 .registerTypeAdapter(SubSystemHandler.class, SubSystemHandler.serializer())
                 .registerTypeAdapter(SubSystem.IdLike.class, SubSystemRegistry.idSerializer())
-                .registerTypeAdapter(SubSystem.class, SubSystem.serializer());
+                .registerTypeAdapter(SubSystem.class, SubSystem.serializer())
+                .registerTypeAdapter(TardisAnimationMap.class, TardisAnimationMap.serializer())
+                .registerTypeAdapter(TardisAnimation.class, TardisAnimation.serializer());
     }
 
     protected GsonBuilder getNetworkGson(GsonBuilder builder) {
@@ -120,7 +121,7 @@ public abstract class TardisManager<T extends Tardis, C> {
     }
 
     protected GsonBuilder getFileGson(GsonBuilder builder) {
-        if (!AITMod.CONFIG.SERVER.MINIFY_JSON)
+        if (!AITMod.CONFIG.minifyJson)
             builder.setPrettyPrinting();
 
         return builder.registerTypeAdapter(Value.class, Value.serializer())
@@ -173,19 +174,7 @@ public abstract class TardisManager<T extends Tardis, C> {
         }
     }
 
-    public void getTardis(C c, UUID uuid, Consumer<T> consumer) {
-        if (uuid == null)
-            return; // ugh
-
-        T result = this.lookup.get(uuid);
-
-        if (result == null) {
-            this.loadTardis(c, uuid, consumer);
-            return;
-        }
-
-        consumer.accept(result);
-    }
+    public abstract void getTardis(C c, UUID uuid, Consumer<T> consumer);
 
     /**
      * By all means a bad practice. Use {@link #getTardis(Object, UUID, Consumer)}
@@ -199,28 +188,17 @@ public abstract class TardisManager<T extends Tardis, C> {
     @Nullable @Deprecated
     public abstract T demandTardis(C c, UUID uuid);
 
-    public abstract void loadTardis(C c, UUID uuid, @Nullable Consumer<T> consumer);
+    protected abstract TardisMap<?> lookup();
 
     public void reset() {
-        this.lookup.clear();
+        this.lookup().clear();
     }
 
     public Collection<UUID> ids() {
-        return this.lookup.keySet();
+        return this.lookup().keySet();
     }
 
-    public void forEach(Consumer<T> consumer) {
-        this.lookup.forEach((uuid, t) -> consumer.accept(t));
-    }
-
-    public T find(Predicate<T> predicate) {
-        for (T t : this.lookup.values()) {
-            if (predicate.test(t))
-                return t;
-        }
-
-        return null;
-    }
+    public abstract void forEach(Consumer<T> consumer);
 
     public Gson getNetworkGson() {
         return this.networkGson;

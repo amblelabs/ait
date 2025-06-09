@@ -1,22 +1,20 @@
 package dev.amble.ait.core.commands;
 
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
-
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.commands.argument.TardisArgumentType;
+import dev.amble.ait.core.tardis.Tardis;
 import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.command.argument.DimensionArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.commands.argument.TardisArgumentType;
-import dev.amble.ait.core.tardis.Tardis;
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
 
 public class TravelDebugCommand {
 
@@ -30,7 +28,7 @@ public class TravelDebugCommand {
                         .then(literal("remat").executes(TravelDebugCommand::remat)))));
     }
 
-    private static int demat(CommandContext<ServerCommandSource> context) {
+    private static int demat(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         Tardis tardis = TardisArgumentType.getTardis(context, "tardis");
         tardis.travel().dematerialize();
 
@@ -46,7 +44,7 @@ public class TravelDebugCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int remat(CommandContext<ServerCommandSource> context) {
+    private static int remat(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         Tardis tardis = TardisArgumentType.getTardis(context, "tardis");
         tardis.travel().rematerialize();
 

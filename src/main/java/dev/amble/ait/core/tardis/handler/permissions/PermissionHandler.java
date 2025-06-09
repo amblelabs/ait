@@ -1,24 +1,22 @@
 package dev.amble.ait.core.tardis.handler.permissions;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class PermissionHandler extends KeyedTardisComponent {
 
@@ -40,8 +38,6 @@ public class PermissionHandler extends KeyedTardisComponent {
     }
 
     static {
-        // TODO: make properties have a built-in util to C->S
-        // YES PLEASE :)))
         ServerPlayNetworking.registerGlobalReceiver(P19_LOYALTY_SYNC,
                 ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
                     if (tardis == null)

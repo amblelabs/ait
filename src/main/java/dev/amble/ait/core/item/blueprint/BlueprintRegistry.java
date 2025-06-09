@@ -1,12 +1,10 @@
 package dev.amble.ait.core.item.blueprint;
 
+import dev.amble.ait.AITMod;
 import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-
 import net.minecraft.loot.function.LootFunctionType;
 import net.minecraft.resource.ResourceType;
-
-import dev.amble.ait.AITMod;
 
 
 public class BlueprintRegistry extends SimpleDatapackRegistry<BlueprintSchema> {
@@ -31,7 +29,7 @@ public class BlueprintRegistry extends SimpleDatapackRegistry<BlueprintSchema> {
 
     @Override
     public BlueprintSchema fallback() {
-        throw new IllegalStateException("No fallback blueprint found");
+        return null;
     }
 
     public static BlueprintRegistry getInstance() {

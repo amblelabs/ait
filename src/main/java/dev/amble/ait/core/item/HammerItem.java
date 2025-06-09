@@ -1,7 +1,12 @@
 package dev.amble.ait.core.item;
 
-import org.joml.Vector3f;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.blocks.PeanutBlock;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
@@ -19,14 +24,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.blocks.PeanutBlock;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import org.joml.Vector3f;
 
 public class HammerItem extends SwordItem {
 
@@ -61,11 +59,12 @@ public class HammerItem extends SwordItem {
         if (!(world.getBlockEntity(pos) instanceof ConsoleBlockEntity consoleBlockEntity))
             return ActionResult.PASS;
 
-        Tardis tardis = consoleBlockEntity.tardis().get();
-        TravelHandler travel = tardis.travel();
-
-        if (player == null || tardis == null)
+        if (player == null || !consoleBlockEntity.isLinked())
             return ActionResult.PASS;
+
+        Tardis tardis = consoleBlockEntity.tardis().get();
+
+        TravelHandler travel = tardis.travel();
 
         if (player.getItemCooldownManager().isCoolingDown(stack.getItem()))
             return ActionResult.PASS;

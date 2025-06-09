@@ -1,6 +1,12 @@
 package dev.amble.ait.core.engine.block;
 
 
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.engine.DurableSubSystem;
+import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
+import dev.amble.ait.core.engine.registry.SubSystemRegistry;
+import dev.amble.ait.core.util.SoundData;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -10,13 +16,6 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.engine.DurableSubSystem;
-import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
-import dev.amble.ait.core.engine.registry.SubSystemRegistry;
-import dev.amble.ait.core.util.SoundData;
 
 public class SubSystemBlockEntity extends FluidLinkBlockEntity {
     protected SubSystem.IdLike id;
@@ -69,10 +68,11 @@ public class SubSystemBlockEntity extends FluidLinkBlockEntity {
     }
 
     public void tick(World world, BlockPos pos, BlockState state) {}
+
     public ActionResult useOn(BlockState state, World world, boolean sneaking, PlayerEntity player, ItemStack hand) {
         if (this.system() instanceof DurableSubSystem durable) {
             if (durable.isRepairItem(hand) && durable.durability() < 1250) {
-                durable.addDurability(10);
+                durable.addDurability(50);
                 hand.decrement(1);
                 world.playSound(null, this.getPos(), AITSounds.ENGINE_REFUEL, SoundCategory.BLOCKS, 0.5f, 1f);
                 return ActionResult.SUCCESS;

@@ -1,15 +1,13 @@
 package dev.amble.ait.data.schema.exterior.variant.stallion.client;
 
-import org.joml.Vector3f;
-
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.models.exteriors.StallionExteriorModel;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import net.minecraft.util.Identifier;
+import org.joml.Vector3f;
 
 // a useful class for creating tardim variants as they all have the same filepath you know
 public abstract class ClientStallionVariant extends ClientExteriorVariantSchema {
@@ -35,6 +33,11 @@ public abstract class ClientStallionVariant extends ClientExteriorVariantSchema 
     @Override
     public ExteriorModel model() {
         return new StallionExteriorModel(StallionExteriorModel.getTexturedModelData().createModel());
+    }
+
+    @Override
+    public boolean hasTransparentDoors() {
+        return true;
     }
 
     @Override

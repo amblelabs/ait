@@ -1,26 +1,7 @@
 package dev.amble.ait.core.blockentities;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.joml.Vector3f;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.entity.AnimationState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.particle.DustColorTransitionParticleEffect;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.link.v2.block.InteriorLinkableBlockEntity;
+import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
@@ -40,6 +21,23 @@ import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.entity.AnimationState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.DustColorTransitionParticleEffect;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import org.joml.Vector3f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements BlockEntityTicker<ConsoleBlockEntity> {
 
@@ -59,6 +57,7 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
 
     @Override
     public void onLinked() {
+        if (this.getWorld() == null || !TardisServerWorld.isTardisDimension(this.getWorld())) return;
         if (this.tardis().isEmpty())
             return;
 
@@ -231,7 +230,7 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
         if (!TardisServerWorld.isTardisDimension((ServerWorld) this.getWorld()))
             this.markRemoved();
 
-        if (this.tardis() == null || this.tardis().isEmpty())
+        if (!this.isLinked())
             return;
 
         SequenceHandler handler = this.tardis().get().sequence();
@@ -260,12 +259,17 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
         ServerTardis tardis = (ServerTardis) this.tardis().get();
         boolean isRiftChunk = RiftChunkManager.isRiftChunk(tardis.travel().position());
 
-        if (tardis.travel().isCrashing()) {
+        boolean moreThanAFew = this.controlEntities.stream()
+                .filter(controlEntity -> controlEntity.getDurability() <
+                        ConsoleControlEntity.DurabilityStates.FULL.durability)
+                .count() > 5;
+
+        if (tardis.travel().isCrashing() || moreThanAFew) {
             serverWorld.spawnParticles(ParticleTypes.LARGE_SMOKE, pos.getX() + 0.5f, pos.getY() + 1.25,
                     pos.getZ() + 0.5f, 5, 0, 0, 0, 0.025f);
 
-            serverWorld.spawnParticles(ParticleTypes.SMALL_FLAME, pos.getX() + 0.5f, pos.getY() + 1.25,
-                    pos.getZ() + 0.5f, 5, 0, 0, 0, 0.01f);
+            serverWorld.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, pos.getX() + 0.5f, pos.getY() + 1.85,
+                    pos.getZ() + 0.5f, 2, 0.2f, 0.5f, 0.2f, 0.01f);
 
             serverWorld.spawnParticles(
                     new DustColorTransitionParticleEffect(new Vector3f(0.75f, 0.75f, 0.75f),

@@ -1,21 +1,20 @@
 package dev.amble.ait.core.commands;
 
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
-
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.util.TextUtil;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.Text;
+
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
 
 public class FuelCommand {
 
@@ -37,7 +36,7 @@ public class FuelCommand {
                                 .then(argument("tardis", TardisArgumentType.tardis()).executes(FuelCommand::get)))));
     }
 
-    private static int add(CommandContext<ServerCommandSource> context) {
+    private static int add(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 
@@ -50,7 +49,7 @@ public class FuelCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int remove(CommandContext<ServerCommandSource> context) {
+    private static int remove(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 
@@ -63,7 +62,7 @@ public class FuelCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int set(CommandContext<ServerCommandSource> context) {
+    private static int set(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 
@@ -80,7 +79,7 @@ public class FuelCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int get(CommandContext<ServerCommandSource> context) {
+    private static int get(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 

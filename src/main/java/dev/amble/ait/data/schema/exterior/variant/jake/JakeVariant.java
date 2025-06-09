@@ -1,7 +1,5 @@
 package dev.amble.ait.data.schema.exterior.variant.jake;
 
-import net.minecraft.util.math.Vec3d;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
@@ -12,6 +10,7 @@ import dev.amble.ait.data.schema.door.impl.JakeDoorVariant;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.category.JakeCategory;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
+import net.minecraft.util.math.Vec3d;
 
 public abstract class JakeVariant extends ExteriorVariantSchema {
     protected static final String TEXTURE_PATH = "textures/blockentities/exteriors/jake/jake_";

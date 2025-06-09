@@ -1,8 +1,7 @@
 package dev.amble.ait.data.schema.desktop.textures;
 
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
+import net.minecraft.util.Identifier;
 
 public class DesktopPreviewTexture {
     // public static final Codec<DesktopPreviewTexture> CODEC =

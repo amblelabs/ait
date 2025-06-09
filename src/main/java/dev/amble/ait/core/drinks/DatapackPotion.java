@@ -1,24 +1,23 @@
 package dev.amble.ait.core.drinks;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.google.common.collect.ComparisonChain;
-import com.google.gson.*;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.amble.ait.AITMod;
 import dev.amble.lib.api.Identifiable;
-
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.dynamic.Codecs;
 
-import dev.amble.ait.AITMod;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 public record DatapackPotion(Identifier id, int duration, int amplifier, Optional<Boolean> ambient,
                              Optional<Boolean> showParticles, Optional<Boolean> showIcon) implements Identifiable,

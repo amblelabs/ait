@@ -1,14 +1,13 @@
 package dev.amble.ait.module.planet.client.renderers;
 
-import static dev.amble.ait.client.util.SkyboxUtil.LOOKUP;
-
 import com.mojang.blaze3d.systems.RenderSystem;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+
+import static dev.amble.ait.client.util.SkyboxUtil.LOOKUP;
 
 public class SpaceSkyRenderer {
     private static final int FACES_COUNT = 6;

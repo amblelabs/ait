@@ -1,9 +1,13 @@
 package dev.amble.ait.core.item;
 
-import java.util.List;
-
-import org.jetbrains.annotations.Nullable;
-
+import dev.amble.ait.api.AITUseActions;
+import dev.amble.ait.api.ArtronHolderItem;
+import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.client.sounds.ClientSoundManager;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.item.sonic.SonicMode;
+import dev.amble.ait.data.schema.sonic.SonicSchema;
+import dev.amble.ait.registry.impl.SonicRegistry;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.LivingEntity;
@@ -14,15 +18,9 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
-import dev.amble.ait.api.AITUseActions;
-import dev.amble.ait.api.ArtronHolderItem;
-import dev.amble.ait.api.link.LinkableItem;
-import dev.amble.ait.client.sounds.ClientSoundManager;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.item.sonic.SonicMode;
-import dev.amble.ait.data.schema.sonic.SonicSchema;
-import dev.amble.ait.registry.impl.SonicRegistry;
+import java.util.List;
 
 
 public class SonicItem extends LinkableItem implements ArtronHolderItem {
@@ -96,7 +94,7 @@ public class SonicItem extends LinkableItem implements ArtronHolderItem {
         int ticks = mode.maxTime() - remainingUseTicks;
 
         if (ticks % 10 == 0) {
-            removeFuel(1, stack);
+            removeFuel(mode.fuelCost(), stack);
 
             if (!this.checkFuel(stack))
                 return;

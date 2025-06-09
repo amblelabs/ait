@@ -1,13 +1,12 @@
 package dev.amble.ait.core;
 
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.effects.OxygenatedEffect;
 import dev.amble.ait.core.effects.ZeitonHighEffect;
 import dev.amble.ait.module.planet.core.effect.LunarRegolithEffect;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 
 public class AITStatusEffects {
     public static StatusEffect ZEITON_HIGH = register(new ZeitonHighEffect(), "zeiton_high");

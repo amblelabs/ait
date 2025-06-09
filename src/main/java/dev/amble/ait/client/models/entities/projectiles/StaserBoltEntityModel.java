@@ -1,11 +1,10 @@
 package dev.amble.ait.client.models.entities.projectiles;
 
+import dev.amble.ait.module.gun.core.entity.StaserBoltEntity;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
-
-import dev.amble.ait.module.gun.core.entity.StaserBoltEntity;
 
 public class StaserBoltEntityModel extends SinglePartEntityModel<StaserBoltEntity> {
     private final ModelPart bone;

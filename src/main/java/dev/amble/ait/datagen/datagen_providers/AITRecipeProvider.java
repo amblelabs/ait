@@ -1,20 +1,18 @@
 package dev.amble.ait.datagen.datagen_providers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.function.Consumer;
-
+import dev.amble.ait.AITMod;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
-
 import net.minecraft.block.Block;
 import net.minecraft.data.server.recipe.*;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.book.RecipeCategory;
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.AITMod;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.function.Consumer;
 
 public class AITRecipeProvider extends FabricRecipeProvider {
     public List<ShapelessRecipeJsonBuilder> shapelessRecipes = new ArrayList<>();

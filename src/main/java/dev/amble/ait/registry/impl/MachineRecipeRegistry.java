@@ -1,16 +1,14 @@
 package dev.amble.ait.registry.impl;
 
-import java.util.Collection;
-import java.util.Optional;
-
-import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
-
-import net.minecraft.item.ItemStack;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.util.StackUtil;
 import dev.amble.ait.data.datapack.DatapackMachineRecipe;
 import dev.amble.ait.data.schema.MachineRecipeSchema;
+import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
+import net.minecraft.item.ItemStack;
+
+import java.util.Collection;
+import java.util.Optional;
 
 public class MachineRecipeRegistry extends SimpleDatapackRegistry<MachineRecipeSchema> {
 

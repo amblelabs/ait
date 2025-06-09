@@ -1,10 +1,10 @@
 package dev.amble.ait.core.tardis.handler.permissions;
 
+import com.google.gson.*;
+
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Function;
-
-import com.google.gson.*;
 
 public record Permission(String name, Permission parent, Map<String, Permission> children) implements PermissionLike {
 

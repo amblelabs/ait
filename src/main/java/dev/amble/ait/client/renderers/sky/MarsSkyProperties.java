@@ -1,10 +1,9 @@
 package dev.amble.ait.client.renderers.sky;
 
-import org.jetbrains.annotations.Nullable;
-
 import net.minecraft.client.render.DimensionEffects;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
 
 public class MarsSkyProperties extends DimensionEffects {
     public static final float[] SUNSET_COLORS = {0,0  , 1, 1};

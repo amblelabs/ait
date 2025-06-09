@@ -2,26 +2,6 @@ package dev.amble.ait.client.util;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
-import org.lwjgl.opengl.GL11;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.VertexBuffer;
-import net.minecraft.client.render.*;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.renderers.VortexUtil;
 import dev.amble.ait.core.tardis.Tardis;
@@ -32,6 +12,23 @@ import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRenderInfo;
 import dev.amble.ait.module.planet.core.space.system.SolarSystem;
 import dev.amble.ait.module.planet.core.space.system.Space;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.VertexBuffer;
+import net.minecraft.client.render.*;
+import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3d;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+import org.lwjgl.opengl.GL11;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 
 
@@ -61,11 +58,13 @@ public class SkyboxUtil extends WorldRenderer {
         matrices.scale(scale, scale, scale);
 
         util.renderVortex(matrices);
+        util.renderVortexLayer(matrices, 1.5f);
+        util.renderVortexLayer(matrices, 2.5f);
         matrices.pop();
     }
 
     public static void renderVortexSky(MatrixStack matrices) {
-        VortexUtil util = new VortexUtil("dalekmod");
+        VortexUtil util = new VortexUtil("darkness");
         matrices.push();
         float scale = 100f;
         float zOffset = 500 * scale;
@@ -76,6 +75,8 @@ public class SkyboxUtil extends WorldRenderer {
         matrices.scale(scale, scale, scale);
 
         util.renderVortex(matrices);
+        util.renderVortexLayer(matrices, 1.5f);
+        util.renderVortexLayer(matrices, 2.5f);
         matrices.pop();
     }
 
@@ -117,6 +118,9 @@ public class SkyboxUtil extends WorldRenderer {
         RenderSystem.disableBlend();
     }
     public static void renderMoonSky(MatrixStack matrices, Runnable fogCallback, VertexBuffer starsBuffer, ClientWorld world, float tickDelta, Matrix4f projectionMatrix) {
+        renderMoonSky(0, matrices, fogCallback, starsBuffer, world, tickDelta, projectionMatrix);
+    }
+    public static void renderMoonSky(float tallDrinkOfWater, MatrixStack matrices, Runnable fogCallback, VertexBuffer starsBuffer, ClientWorld world, float tickDelta, Matrix4f projectionMatrix) {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferBuilder = tessellator.getBuffer();
 
@@ -128,7 +132,7 @@ public class SkyboxUtil extends WorldRenderer {
         drawSpace(tessellator, bufferBuilder, matrices);
 
         matrices.push();
-        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-90.0f));
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90.0f));
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(world.getSkyAngle(tickDelta) * 360.0f));
 
         RenderSystem.setShaderColor(0.5f, 0.5f, 0.5f, 1);
@@ -150,19 +154,22 @@ public class SkyboxUtil extends WorldRenderer {
 
         // Planet Rendering
         Vec3d cameraPos = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
+        matrices.push();
         renderStarBody(false, matrices, SUN,
-                new Vec3d(cameraPos.getX() + 270, cameraPos.getY() + 200, cameraPos.getZ() + 30), new
+                new Vec3d(cameraPos.getX() + 270, cameraPos.getY() - 120, cameraPos.getZ() + 0), new
                         Vector3f(12f, 12f, 12f),
-                new Vector3f(12, 45, 0), false,
-                new Vector3f(0.5f, 0, 0f));
+                new Vector3f(12, 45, 0),
+                true,
+                new Vector3f(0.3f, 0.15f, 0.01f));
 
-        renderSkyBody(false, matrices, AITMod.id("textures/environment/earth.png"),
+        renderSkyBody(tallDrinkOfWater + (Direction.fromRotation(tallDrinkOfWater).equals(Direction.WEST) || Direction.fromRotation(tallDrinkOfWater).equals(Direction.EAST) ? -90f : 90f), false, matrices, AITMod.id("textures/environment/earth.png"),
                 new Vec3d(cameraPos.getX() - 530, cameraPos.getY() + 40, cameraPos.getZ() + 10), new
                         Vector3f(76f, 76f, 76f),
                 new Vector3f(-22.5f, 45f, 0), true, true,
                 new Vector3f(0.18f, 0.35f, 0.60f));
         RenderSystem.depthMask(true);
         RenderSystem.depthFunc(GL11.GL_LESS);
+        matrices.pop();
     }
 
     public static void renderMarsSky(MatrixStack matrices, Runnable fogCallback, VertexBuffer starsBuffer, ClientWorld world, float tickDelta, Matrix4f projectionMatrix, CallbackInfo ci) {
@@ -330,6 +337,12 @@ public class SkyboxUtil extends WorldRenderer {
     private static void renderSkyBody(boolean isTardisSkybox, MatrixStack matrices, Identifier texture, Vec3d position, Vector3f scale, Vector3f rotation, boolean clouds, boolean atmosphere, Vector3f color) {
         matrices.push();
         CelestialBodyRenderer.renderComprehendableBody(isTardisSkybox, position, scale, rotation, texture, true, clouds, atmosphere, color, false);
+        matrices.pop();
+    }
+
+    private static void renderSkyBody(float rotationOf, boolean isTardisSkybox, MatrixStack matrices, Identifier texture, Vec3d position, Vector3f scale, Vector3f rotation, boolean clouds, boolean atmosphere, Vector3f color) {
+        matrices.push();
+        CelestialBodyRenderer.renderComprehendableBody(rotationOf, isTardisSkybox, position, scale, rotation, texture, true, clouds, atmosphere, color, false);
         matrices.pop();
     }
 

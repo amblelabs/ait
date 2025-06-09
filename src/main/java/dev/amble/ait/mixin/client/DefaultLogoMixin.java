@@ -1,7 +1,11 @@
 package dev.amble.ait.mixin.client;
 
-import static dev.amble.ait.core.AITItems.isInAdvent;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.AITModClient;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.LogoDrawer;
+import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -9,12 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.LogoDrawer;
-import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
+import static dev.amble.ait.core.AITItems.isInAdvent;
 
 @Mixin(LogoDrawer.class)
 public class DefaultLogoMixin {
@@ -35,7 +34,7 @@ public class DefaultLogoMixin {
             currentLogo = AIT_LOGO;
         }
 
-        if (!AITMod.CONFIG.CLIENT.CUSTOM_MENU) {
+        if (!AITModClient.CONFIG.customMenu) {
             context.drawTexture(texture, x, y, u, v, width, height, textureWidth, textureHeight);
             return;
         }
@@ -52,7 +51,7 @@ public class DefaultLogoMixin {
     @Redirect(method = "draw(Lnet/minecraft/client/gui/DrawContext;IFI)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Lnet/minecraft/util/Identifier;IIFFIIII)V", ordinal = 1))
     private void ait$skipEdition(DrawContext context, Identifier texture, int x, int y, float u, float v, int width,
                                  int height, int textureWidth, int textureHeight) {
-        if (!AITMod.CONFIG.CLIENT.CUSTOM_MENU)
+        if (!AITModClient.CONFIG.customMenu)
             context.drawTexture(texture, x, y, u, v, width, height, textureWidth, textureHeight);
     }
 

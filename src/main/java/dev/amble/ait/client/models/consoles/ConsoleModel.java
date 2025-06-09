@@ -1,7 +1,10 @@
 package dev.amble.ait.client.models.consoles;
 
-import java.util.function.Function;
-
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -12,10 +15,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import java.util.function.Function;
 
 @SuppressWarnings("rawtypes")
 public abstract class ConsoleModel extends SinglePartEntityModel {
@@ -37,12 +37,12 @@ public abstract class ConsoleModel extends SinglePartEntityModel {
         // to detect different states. - Loqor
         this.getPart().traverse().forEach(ModelPart::resetTransform);
 
-        if (hasPower && AITMod.CONFIG.CLIENT.ANIMATE_CONSOLE)
+        if (hasPower && AITModClient.CONFIG.animateConsole)
             this.updateAnimation(console.ANIM_STATE, this.getAnimationForState(state), console.getAge());
     }
 
-    public void renderWithAnimations(ConsoleBlockEntity console, ModelPart root, MatrixStack matrices,
-            VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
+    public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
+                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
         root.render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
     }
 

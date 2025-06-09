@@ -1,8 +1,7 @@
 package dev.amble.ait.core.tardis.vortex.reference;
 
-import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
-
 import dev.amble.ait.AITMod;
+import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
 
 public class VortexReferenceRegistry extends SimpleDatapackRegistry<VortexReference> {
     private static final VortexReferenceRegistry instance = new VortexReferenceRegistry();

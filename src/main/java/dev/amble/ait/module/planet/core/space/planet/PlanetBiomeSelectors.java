@@ -1,15 +1,13 @@
 package dev.amble.ait.module.planet.core.space.planet;
 
-import java.util.function.Predicate;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITDimensions;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectionContext;
-
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.world.dimension.DimensionOptions;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITDimensions;
+import java.util.function.Predicate;
 
 public class PlanetBiomeSelectors {
     private static final RegistryKey<Registry<DimensionOptions>> DIMENSION_KEY =

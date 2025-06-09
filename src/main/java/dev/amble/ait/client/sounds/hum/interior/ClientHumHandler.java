@@ -1,22 +1,8 @@
 package dev.amble.ait.client.sounds.hum.interior;
 
-import static dev.amble.ait.AITMod.CONFIG;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.SoundInstance;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.api.ClientWorldEvents;
-import dev.amble.ait.api.TardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.sounds.ClientSoundManager;
 import dev.amble.ait.client.sounds.LoopingSound;
 import dev.amble.ait.client.sounds.PlayerFollowingLoopingSound;
@@ -26,6 +12,17 @@ import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.tardis.handler.ServerHumHandler;
 import dev.amble.ait.data.hum.Hum;
 import dev.amble.ait.registry.impl.HumRegistry;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.sound.SoundInstance;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Identifier;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientHumHandler extends SoundHandler {
 
@@ -107,7 +104,7 @@ public class ClientHumHandler extends SoundHandler {
 
         for (Hum sound : HumRegistry.getInstance().toList()) {
             list.add(new PlayerFollowingLoopingSound(sound.sound(), SoundCategory.AMBIENT,
-                    CONFIG.CLIENT.INTERIOR_HUM_VOLUME));
+                    AITModClient.CONFIG.interiorHumVolume));
         }
 
         return list;

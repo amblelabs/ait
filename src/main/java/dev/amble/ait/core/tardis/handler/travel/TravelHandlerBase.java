@@ -1,25 +1,11 @@
 package dev.amble.ait.core.tardis.handler.travel;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.drtheo.scheduler.api.Scheduler;
-import dev.drtheo.scheduler.api.TimeUnit;
-
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.dynamic.Codecs;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.border.WorldBorder;
-
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisTickable;
-import dev.amble.ait.core.sounds.travel.TravelSound;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
+import dev.amble.ait.core.util.SafePosSearch;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.enummap.Ordered;
@@ -29,6 +15,15 @@ import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.ait.data.properties.integer.IntProperty;
 import dev.amble.ait.data.properties.integer.IntValue;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.dynamic.Codecs;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.border.WorldBorder;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public abstract class TravelHandlerBase extends KeyedTardisComponent implements TardisTickable {
 
@@ -36,11 +31,11 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
     private static final BoolProperty LEAVE_BEHIND = new BoolProperty("leave_behind", false);
 
     private static final Property<CachedDirectedGlobalPos> POSITION = new Property<>(
-            Property.Type.CDIRECTED_GLOBAL_POS, "position", (CachedDirectedGlobalPos) null);
+            Property.CDIRECTED_GLOBAL_POS, "position", (CachedDirectedGlobalPos) null);
     private static final Property<CachedDirectedGlobalPos> DESTINATION = new Property<>(
-            Property.Type.CDIRECTED_GLOBAL_POS, "destination", (CachedDirectedGlobalPos) null);
+            Property.CDIRECTED_GLOBAL_POS, "destination", (CachedDirectedGlobalPos) null);
     private static final Property<CachedDirectedGlobalPos> PREVIOUS_POSITION = new Property<>(
-            Property.Type.CDIRECTED_GLOBAL_POS, "previous_position", (CachedDirectedGlobalPos) null);
+            Property.CDIRECTED_GLOBAL_POS, "previous_position", (CachedDirectedGlobalPos) null);
 
     private static final BoolProperty CRASHING = new BoolProperty("crashing", false);
     private static final BoolProperty ANTIGRAVS = new BoolProperty("antigravs", false);
@@ -48,8 +43,8 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
     private static final IntProperty SPEED = new IntProperty("speed", 0);
     private static final IntProperty MAX_SPEED = new IntProperty("max_speed", 7);
 
-    private static final Property<GroundSearch> VGROUND_SEARCH = Property.forEnum("vground_search", GroundSearch.class,
-            GroundSearch.CEILING);
+    private static final Property<SafePosSearch.Kind> VGROUND_SEARCH = Property.forEnum("vground_search", SafePosSearch.Kind.class,
+            SafePosSearch.Kind.CEILING);
     private static final BoolProperty HGROUND_SEARCH = new BoolProperty("hground_search", true);
 
     protected final Value<State> state = STATE.create(this);
@@ -64,7 +59,7 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
     protected final IntValue speed = SPEED.create(this);
     protected final IntValue maxSpeed = MAX_SPEED.create(this);
 
-    protected final Value<GroundSearch> vGroundSearch = VGROUND_SEARCH.create(this);
+    protected final Value<SafePosSearch.Kind> vGroundSearch = VGROUND_SEARCH.create(this);
     protected final BoolValue hGroundSearch = HGROUND_SEARCH.create(this);
 
     @Exclude(strategy = Exclude.Strategy.NETWORK)
@@ -104,21 +99,14 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
     }
 
     @Override
-    protected void onInit(InitContext ctx) {
-        super.onInit(ctx);
-
-        Scheduler.get().runTaskTimer(task -> {
-            if (this.hammerUses > 0)
-                this.hammerUses--;
-        }, TimeUnit.TICKS, 200);
-    }
-
-    @Override
     public void tick(MinecraftServer server) {
         TardisCrashHandler crash = tardis.crash();
 
         if (crash.getState() != TardisCrashHandler.State.NORMAL)
             crash.addRepairTicks(2 * this.speed());
+
+        if (server.getTicks() % 200 == 0)
+            this.hammerUses--;
     }
 
     public BoolValue leaveBehind() {
@@ -143,6 +131,10 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
 
     public State getState() {
         return state.get();
+    }
+
+    protected void setState(State state) {
+        this.state.set(state);
     }
 
     public CachedDirectedGlobalPos position() {
@@ -234,7 +226,7 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
         return hGroundSearch;
     }
 
-    public Value<GroundSearch> verticalSearch() {
+    public Value<SafePosSearch.Kind> verticalSearch() {
         return vGroundSearch;
     }
 
@@ -243,8 +235,7 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
     }
 
     public enum State implements Ordered {
-        LANDED, DEMAT(null, TravelHandler::finishDemat), FLIGHT(), MAT(
-                null, TravelHandler::finishRemat);
+        LANDED(null), DEMAT(TravelHandler::finishDemat), FLIGHT(null, false), MAT(TravelHandler::finishRemat);
 
         public static final Codec<State> CODEC = Codecs.NON_EMPTY_STRING.flatXmap(s -> {
             try {
@@ -254,33 +245,18 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
             }
         }, var -> DataResult.success(var.toString()));
 
-        private final TravelSound sound;
         private final boolean animated;
 
         private final Consumer<TravelHandler> finish;
 
-        State() {
-            this(null);
+        State(Consumer<TravelHandler> finish) {
+            this(finish, true);
         }
 
-        State(TravelSound sound) {
-            this(sound, null, false);
-        }
-
-        State(TravelSound sound, Consumer<TravelHandler> finish) {
-            this(sound, finish, true);
-        }
-
-        State(TravelSound sound, Consumer<TravelHandler> finish, boolean animated) {
-            this.sound = sound;
+        State(Consumer<TravelHandler> finish, boolean animated) {
             this.animated = animated;
 
             this.finish = finish;
-        }
-
-        @Deprecated(forRemoval = true, since = "1.2.0")
-        public TravelSound effect() {
-            return this.sound;
         }
 
         public boolean animated() {
@@ -288,6 +264,8 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
         }
 
         public void finish(TravelHandler handler) {
+            if (this.finish == null) return;
+
             this.finish.accept(handler);
         }
 
@@ -295,39 +273,5 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
         public int index() {
             return ordinal();
         }
-    }
-
-    public enum GroundSearch implements StringIdentifiable {
-        NONE {
-            @Override
-            public GroundSearch next() {
-                return FLOOR;
-            }
-        },
-        FLOOR {
-            @Override
-            public GroundSearch next() {
-                return CEILING;
-            }
-        },
-        CEILING {
-            @Override
-            public GroundSearch next() {
-                return MEDIAN;
-            }
-        },
-        MEDIAN {
-            @Override
-            public GroundSearch next() {
-                return NONE;
-            }
-        };
-
-        @Override
-        public String asString() {
-            return toString();
-        }
-
-        public abstract GroundSearch next();
     }
 }

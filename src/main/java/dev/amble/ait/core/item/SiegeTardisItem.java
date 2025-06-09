@@ -1,14 +1,14 @@
 package dev.amble.ait.core.item;
 
-import java.util.List;
-
+import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import org.jetbrains.annotations.Nullable;
-
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -18,10 +18,9 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
-import dev.amble.ait.api.link.LinkableItem;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.tardis.Tardis;
+import java.util.List;
 
 // todo fix so many issues with having more than one of this item
 public class SiegeTardisItem extends LinkableItem {
@@ -48,7 +47,6 @@ public class SiegeTardisItem extends LinkableItem {
 
         if (!tardis.siege().isActive()) {
             tardis.setSiegeBeingHeld(null);
-            stack.setCount(0);
             return;
         }
 
@@ -62,32 +60,31 @@ public class SiegeTardisItem extends LinkableItem {
         }
     }
 
+
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
-        if (context.getHand() != Hand.MAIN_HAND)
-            return ActionResult.FAIL; // bc i cba
+        if (context.getHand() != Hand.MAIN_HAND || context.getPlayer() == null)
+            return ActionResult.PASS; // bc i cba
+
+        context.getPlayer().getInventory().setStack(context.getPlayer().getInventory().selectedSlot, Items.AIR.getDefaultStack());
+
+        context.getStack().decrement(1);
 
         if (context.getWorld().isClient())
             return ActionResult.SUCCESS;
 
-        ItemStack stack = context.getStack();
-        Tardis tardis = this.getTardis(context.getWorld(), stack);
-
-        ServerPlayerEntity player = (ServerPlayerEntity) context.getPlayer();
-        context.getStack().setCount(0);
-
-        player.getInventory().markDirty();
+        Tardis tardis = this.getTardis(context.getWorld(), context.getStack());
 
         if (tardis == null)
-            return ActionResult.FAIL;
+            return ActionResult.CONSUME;
 
         if (!tardis.siege().isActive()) {
             tardis.setSiegeBeingHeld(null);
-            return ActionResult.FAIL;
+            return ActionResult.SUCCESS;
         }
 
         placeTardis(tardis, fromItemContext(context));
-        return ActionResult.SUCCESS;
+        return super.useOnBlock(context);
     }
 
     @Override

@@ -1,7 +1,5 @@
 package dev.amble.ait.core.commands.argument.json;
 
-import java.util.regex.Pattern;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -9,8 +7,9 @@ import com.google.gson.JsonPrimitive;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-
 import net.minecraft.text.Text;
+
+import java.util.regex.Pattern;
 
 public class StringJsonReader {
     public static final SimpleCommandExceptionType TRAILING = new SimpleCommandExceptionType(

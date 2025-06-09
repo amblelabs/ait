@@ -1,21 +1,20 @@
 package dev.amble.ait.core.entities.base;
 
-import java.util.Optional;
-import java.util.UUID;
-
+import dev.amble.ait.api.tardis.link.v2.TardisRef;
+import dev.amble.ait.api.tardis.link.v2.entity.AbstractLinkableEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
 
-import dev.amble.ait.api.link.v2.TardisRef;
-import dev.amble.ait.api.link.v2.entity.AbstractLinkableEntity;
+import java.util.Optional;
+import java.util.UUID;
 
 public class LinkableDummyEntity extends DummyEntity implements AbstractLinkableEntity {
 
     private static final TrackedData<Optional<UUID>> TARDIS = AbstractLinkableEntity
-            .register(LinkableDummyLivingEntity.class);
+            .register(LinkableDummyEntity.class);
 
     private TardisRef tardis;
 
@@ -23,11 +22,17 @@ public class LinkableDummyEntity extends DummyEntity implements AbstractLinkable
         super(type, world);
     }
 
+    /**
+     * Used by {@link AbstractLinkableEntity}, do not remove.
+     */
     @Override
     public World getWorld() {
         return super.getWorld();
     }
 
+    /**
+     * Used by {@link AbstractLinkableEntity}, do not remove.
+     */
     @Override
     public DataTracker getDataTracker() {
         return super.getDataTracker();

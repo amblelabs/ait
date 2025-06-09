@@ -1,26 +1,23 @@
 package dev.amble.ait.data.properties;
 
+import com.google.gson.*;
+import dev.amble.ait.api.tardis.Disposable;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.client.tardis.manager.ClientTardisManager;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.data.Exclude;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.network.PacketByteBuf;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-import com.google.gson.*;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-
-import net.minecraft.network.PacketByteBuf;
-
-import dev.amble.ait.api.Disposable;
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisComponent;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.tardis.util.network.c2s.SyncPropertyC2SPacket;
-import dev.amble.ait.data.Exclude;
 
 public class Value<T> implements Disposable {
 
@@ -79,8 +76,11 @@ public class Value<T> implements Disposable {
     }
 
     public void set(T value, boolean sync) {
-        if (this.value == value)
+        if (property.getType().equals(this.value, value))
             return;
+
+        if (!property.getType().isValid(value))
+            throw new IllegalArgumentException("Tried to set value '" + property.getName() + "' to illegal state: " + value);
 
         this.value = value;
 
@@ -94,16 +94,20 @@ public class Value<T> implements Disposable {
     }
 
     protected void sync() {
-        if (this.holder == null || !(this.holder.tardis() instanceof ServerTardis tardis)) {
+        if (this.holder == null)
+            return;
+
+        if (!(this.holder.tardis() instanceof ServerTardis tardis)) {
             this.syncToServer();
             return;
         }
 
         ServerTardisManager.getInstance().markPropertyDirty(tardis, this);
     }
+
     @Environment(EnvType.CLIENT)
-    protected void syncToServer() { // todo - flags
-        ClientPlayNetworking.send(new SyncPropertyC2SPacket(this.holder.tardis().getUuid(), this));
+    protected void syncToServer() {
+        ClientTardisManager.getInstance().sendProperty(this);
     }
 
     public void flatMap(Function<T, T> func) {
@@ -128,12 +132,12 @@ public class Value<T> implements Disposable {
             this.sync();
     }
 
-    public void read(PacketByteBuf buf, byte mode) {
+    public void read(PacketByteBuf buf) {
         if (this.property == null)
             throw new IllegalStateException(
                     "Couldn't get the parent property value! Maybe you forgot to initialize the value field on load?");
 
-        T value = mode == Property.Mode.UPDATE ? this.property.getType().decode(buf) : null;
+        T value = this.property.getType().decode(buf);
 
         this.set(value, false);
     }
@@ -156,7 +160,7 @@ public class Value<T> implements Disposable {
         private final Class<?> clazz;
         private final Function<V, T> creator;
 
-        public Serializer(Property.Type<?> type, Function<V, T> creator) {
+        public Serializer(PropertyType<?> type, Function<V, T> creator) {
             this(type.getClazz(), creator);
         }
 

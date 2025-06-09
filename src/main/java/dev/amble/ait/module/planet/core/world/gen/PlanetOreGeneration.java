@@ -1,12 +1,10 @@
 package dev.amble.ait.module.planet.core.world.gen;
 
 
-import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
-
-import net.minecraft.world.gen.GenerationStep;
-
 import dev.amble.ait.module.planet.core.space.planet.PlanetBiomeSelectors;
 import dev.amble.ait.module.planet.core.world.PlanetPlacedFeatures;
+import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
+import net.minecraft.world.gen.GenerationStep;
 
 
 public class PlanetOreGeneration {

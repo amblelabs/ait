@@ -1,0 +1,6 @@
+{
+  "control": "ait:handbrake",
+  "console": "ait:console/renaissance",
+  "success_sound": "ait:controls/renaissance_handbrake",
+  "alt_sound": "ait:controls/renaissance_handbrake_alt"
+}

@@ -1,10 +1,9 @@
 package dev.amble.ait.core.effects;
 
+import dev.amble.ait.core.AITStatusEffects;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectCategory;
-
-import dev.amble.ait.core.AITStatusEffects;
 
 public class ZeitonHighEffect extends StatusEffect {
     public ZeitonHighEffect() {

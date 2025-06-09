@@ -1,10 +1,7 @@
 package dev.amble.ait.client.screens.widget;
 
-import java.util.function.Function;
-
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -13,6 +10,8 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.Texts;
 import net.minecraft.util.math.MathHelper;
+
+import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
 public class DynamicPressableTextWidget extends ButtonWidget {

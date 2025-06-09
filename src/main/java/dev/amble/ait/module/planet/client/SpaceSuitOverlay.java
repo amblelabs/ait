@@ -1,19 +1,19 @@
 package dev.amble.ait.module.planet.client;
 
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.config.AITClientConfig;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.module.planet.core.item.SpacesuitItem;
+import dev.amble.ait.module.planet.core.space.planet.Planet;
+import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.text.Text;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.config.AITConfig;
-import dev.amble.ait.module.planet.core.item.SpacesuitItem;
-import dev.amble.ait.module.planet.core.space.planet.Planet;
-import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
+import net.minecraft.util.Formatting;
 
 public class SpaceSuitOverlay implements HudRenderCallback {
 
@@ -27,17 +27,20 @@ public class SpaceSuitOverlay implements HudRenderCallback {
 
         Planet planet = PlanetRegistry.getInstance().get(mc.world);
 
+        boolean isPlanetOrTARDIS = planet != null || TardisServerWorld.isTardisDimension(mc.world);
+
         if (!mc.options.getPerspective().isFirstPerson())
             return;
 
         TextRenderer textRenderer = mc.textRenderer;
 
-        if (planet != null &&mc.player.getEquippedStack(EquipmentSlot.HEAD).getItem() instanceof SpacesuitItem) {
+        if (isPlanetOrTARDIS && mc.player.getEquippedStack(EquipmentSlot.HEAD).getItem() instanceof SpacesuitItem) {
             stack.push();
             stack.scale(1.5f, 1.5f, 1.5f);
 
             drawContext.drawTextWithShadow(textRenderer,
-                    Text.literal(this.getTemperatureType(AITMod.CONFIG, planet)),
+                    TardisServerWorld.isTardisDimension(mc.world) ? Text.literal("??????").formatted(Formatting.OBFUSCATED) :
+                            Text.literal(this.getTemperatureType(AITModClient.CONFIG, planet)),
                     0, 0, 0xFFFFFF);
 
             stack.pop();
@@ -50,9 +53,9 @@ public class SpaceSuitOverlay implements HudRenderCallback {
         }
     }
 
-    public String getTemperatureType(AITConfig config, Planet planet) {
-        return switch(config.CLIENT.TEMPERATURE_TYPE) {
-            case CELCIUS -> ("" + planet.fahrenheit()).substring(0, 5) + "°C";
+    public String getTemperatureType(AITClientConfig config, Planet planet) {
+        return switch(config.temperatureType) {
+            case CELSIUS -> ("" + planet.fahrenheit()).substring(0, 5) + "°C";
             case FAHRENHEIT -> ("" + planet.fahrenheit()).substring(0, 5) + "°F";
             case KELVIN -> planet.kelvin() + "K";
         };

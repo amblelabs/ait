@@ -1,9 +1,8 @@
 package dev.amble.ait.client.renderers.exteriors;
 
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.Tardis;
+import net.minecraft.util.Identifier;
 
 public class DoomConstants {
 

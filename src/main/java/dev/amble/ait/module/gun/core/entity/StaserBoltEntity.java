@@ -1,5 +1,8 @@
 package dev.amble.ait.module.gun.core.entity;
 
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.module.gun.core.item.GunItems;
+import dev.amble.ait.module.planet.core.util.ISpaceImmune;
 import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -22,10 +25,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.module.gun.core.item.GunItems;
-
-public class StaserBoltEntity extends PersistentProjectileEntity {
+public class StaserBoltEntity extends PersistentProjectileEntity implements ISpaceImmune {
     public StaserBoltEntity(EntityType<? extends StaserBoltEntity> entityType, World world) {
         super(GunEntityTypes.STASER_BOLT_ENTITY_TYPE, world);
     }
@@ -71,9 +71,9 @@ public class StaserBoltEntity extends PersistentProjectileEntity {
         }
         if (getOwner() instanceof PlayerEntity player) {
             if (hitResult.getType() == HitResult.Type.ENTITY && player.getMainHandStack().getItem() == GunItems.CULT_STASER_RIFLE) {
-                this.setDamage(12d);
+                this.setDamage(3d);
             } else {
-                this.setDamage(2d);
+                this.setDamage(1.5d);
             }
         }
 

@@ -1,17 +1,18 @@
 package dev.amble.ait.client.renderers;
 
+import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.RenderLayers;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.BlockRenderView;
-
-import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
 
 
 public class MultiBlockStructureRenderer {

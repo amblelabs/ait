@@ -1,8 +1,6 @@
 package dev.amble.ait.client.sounds;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import dev.amble.ait.AITMod;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.sound.SoundCategory;
@@ -10,16 +8,19 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.AITMod;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 public class SoundHandler {
 
     private static final List<SoundInstance> EMPTY = List.of();
 
-    protected List<SoundInstance> sounds; // shouldnt really be LoopingSound
+    protected List<SoundInstance> sounds;
 
-    protected void ofSounds(SoundInstance sound) {
-        if (sound == null) {
+    protected void ofSounds(SoundInstance... sound) {
+        if (Arrays.stream(sound).anyMatch(Objects::isNull)) {
             this.sounds = EMPTY;
             return;
         }

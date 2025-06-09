@@ -1,17 +1,17 @@
 package dev.amble.ait.core.engine.impl;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-
 import dev.amble.ait.api.ArtronHolder;
-import dev.amble.ait.api.TardisEvents;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.engine.StructureHolder;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
 import dev.amble.ait.core.item.RiftScannerItem;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import net.minecraft.item.Item;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
 
 public class EmergencyPower extends SubSystem implements ArtronHolder, StructureHolder {
     private double fuel;
@@ -57,5 +57,10 @@ public class EmergencyPower extends SubSystem implements ArtronHolder, Structure
     @Override
     public MultiBlockStructure getStructure() {
         return MultiBlockStructure.EMPTY;
+    }
+
+    @Override
+    public Item asItem() {
+        return AITItems.BACKUP_CIRCUIT;
     }
 }

@@ -1,16 +1,14 @@
 package dev.amble.ait.core.likes;
 
-import java.util.Optional;
-
+import dev.amble.ait.AITMod;
 import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.resource.ResourceType;
 
-import dev.amble.ait.AITMod;
+import java.util.Optional;
 
 public class ItemOpinionRegistry extends SimpleDatapackRegistry<ItemOpinion> {
     private static final ItemOpinionRegistry instance = new ItemOpinionRegistry();

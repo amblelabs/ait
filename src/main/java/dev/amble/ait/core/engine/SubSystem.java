@@ -1,20 +1,11 @@
 package dev.amble.ait.core.engine;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
-
 import com.google.gson.*;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.item.ItemStack;
-
-import dev.amble.ait.api.Disposable;
-import dev.amble.ait.api.Initializable;
-import dev.amble.ait.api.TardisComponent;
-import dev.amble.ait.api.TardisEvents;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.Disposable;
+import dev.amble.ait.api.tardis.Initializable;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.engine.impl.*;
@@ -23,6 +14,16 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.enummap.Ordered;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 
 public abstract class SubSystem extends Initializable<SubSystem.InitContext> implements Disposable {
     @Exclude protected Tardis tardis;
@@ -35,19 +36,25 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
         this.id = id;
     }
 
+    public abstract Item asItem();
+
     public IdLike getId() {
         return id;
     }
+
     public Tardis tardis() {
         return this.tardis;
     }
 
+    public Text name() {
+        return Text.translatable(this.getId().toTranslationKey());
+    }
     public void setTardis(Tardis tardis) {
         this.tardis = tardis;
     }
 
     public boolean isClient() {
-        return this.tardis() instanceof ClientTardis;
+        return !isServer();
     }
 
     public boolean isServer() {
@@ -57,9 +64,11 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
     public boolean isEnabled() {
         return enabled;
     }
+
     public boolean isUsable() {
         return this.isEnabled();
     }
+
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
 
@@ -69,9 +78,11 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
             this.onDisable();
         }
     }
+
     protected void onEnable() {
         TardisEvents.SUBSYSTEM_ENABLE.invoker().onEnable(this);
     }
+
     protected void onDisable() {
         TardisEvents.SUBSYSTEM_DISABLE.invoker().onDisable(this);
     }
@@ -87,12 +98,11 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
     public List<ItemStack> toStacks() {
         List<ItemStack> stacks = new ArrayList<>();
 
-        if (this instanceof StructureHolder holder) {
-            if (holder.getStructure() == null || holder.getStructure().isEmpty()) return stacks;
+        if (this instanceof StructureHolder holder && holder.getStructure() != null && !holder.getStructure().isEmpty())
             stacks.addAll(holder.getStructure().toStacks());
-        }
-        stacks.add(AITBlocks.GENERIC_SUBSYSTEM.asItem().getDefaultStack());
 
+        stacks.add(this.asItem().getDefaultStack());
+        stacks.add(AITBlocks.GENERIC_SUBSYSTEM.asItem().getDefaultStack());
         return stacks;
     }
 
@@ -184,6 +194,10 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
         int index();
 
         void index(int i);
+
+        default String toTranslationKey() {
+            return "subsystem." + AITMod.MOD_ID + "." + this.name().toLowerCase();
+        }
     }
 
     public record InitContext(@Nullable CachedDirectedGlobalPos pos,

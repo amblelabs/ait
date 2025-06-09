@@ -1,7 +1,16 @@
 package dev.amble.ait.client.renderers.monitors;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.decoration.PlaqueModel;
+import dev.amble.ait.core.blockentities.WallMonitorBlockEntity;
+import dev.amble.ait.core.blocks.PlaqueBlock;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.impl.DirectionControl;
+import dev.amble.ait.core.tardis.handler.FuelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -15,17 +24,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.decoration.PlaqueModel;
-import dev.amble.ait.core.blockentities.WallMonitorBlockEntity;
-import dev.amble.ait.core.blocks.PlaqueBlock;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.impl.DirectionControl;
-import dev.amble.ait.core.tardis.handler.FuelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.util.WorldUtil;
 
 public class WallMonitorRenderer<T extends WallMonitorBlockEntity> implements BlockEntityRenderer<T> {
 
@@ -93,7 +91,7 @@ public class WallMonitorRenderer<T extends WallMonitorBlockEntity> implements Bl
         String fuelText = Math.round((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 100) + "%";
 
         String destinationPosText = abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
-        Text destinationDimensionText = Text.of(truncateDimensionName(WorldUtil.worldText(abpd.getDimension()).getString(), 16));
+        Text destinationDimensionText = Text.of(truncateDimensionName(WorldUtil.worldText(abpd.getDimension(), false).getString(), 16));
 
 
         float v = -20f;

@@ -1,23 +1,9 @@
 package dev.amble.ait.core.tardis.handler;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.item.AxeItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
-
 import dev.amble.ait.api.ArtronHolder;
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisEvents;
-import dev.amble.ait.api.TardisTickable;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.engine.impl.EmergencyPower;
@@ -32,6 +18,18 @@ import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.ait.data.properties.dbl.DoubleProperty;
 import dev.amble.ait.data.properties.dbl.DoubleValue;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import net.minecraft.block.BlockState;
+import net.minecraft.item.AxeItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 
 public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, TardisTickable {
     public static final double TARDIS_MAX_FUEL = 50000;
@@ -155,10 +153,16 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
     }
 
     private void tickMat() {
+        if (tardis.isGrowth())
+            return;
+
         this.removeFuel(20 * 5 * this.tardis.travel().instability());
     }
 
     private void tickFlight() {
+        if (tardis.isGrowth())
+            return;
+
         TravelHandler travel = this.tardis.travel();
         this.removeFuel(20 * (4 ^ travel.speed()) * travel.instability());
 
@@ -186,7 +190,7 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
             this.addFuel(20 * toAdd);
         }
 
-        if (!this.refueling().get() && tardis.fuel().hasPower())
+        if (!this.refueling().get() && tardis.fuel().hasPower() && !tardis.isGrowth())
             this.removeFuel(20 * 0.25 * tardis.travel().instability());
     }
 

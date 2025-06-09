@@ -1,13 +1,11 @@
 package dev.amble.ait.data.hum;
 
-import java.util.Optional;
-
+import dev.amble.ait.api.Nameable;
 import dev.amble.lib.api.Identifiable;
-
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.api.Nameable;
+import java.util.Optional;
 
 public class Hum implements Identifiable, Nameable {
     private final Identifier id;

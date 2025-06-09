@@ -1,13 +1,11 @@
 package dev.amble.ait.mixin.client.rendering;
 
+import dev.amble.ait.core.entities.FlightTardisEntity;
+import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import net.minecraft.entity.Entity;
-
-import dev.amble.ait.core.entities.FlightTardisEntity;
 
 @Mixin(Entity.class)
 public class EntityMixin {

@@ -1,14 +1,12 @@
 package dev.amble.ait.registry.impl.console;
 
-import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
-
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.SimpleRegistry;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.type.*;
+import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.SimpleRegistry;
 
 public class ConsoleRegistry {
 
@@ -38,9 +36,9 @@ public class ConsoleRegistry {
         TOYOTA = register(new ToyotaType());
         ALNICO = register(new AlnicoType());
         STEAM = register(new SteamType());
-        HUDOLIN = register(new HudolinType());
+        //HUDOLIN = register(new HudolinType());
         CRYSTALLINE = register(new CrystallineType());
         RENAISSANCE = register(new RenaissanceType());
-        HOURGLASS = register(new HourglassType());
+        //HOURGLASS = register(new HourglassType());
     }
 }

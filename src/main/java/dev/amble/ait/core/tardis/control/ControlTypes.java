@@ -1,12 +1,10 @@
 package dev.amble.ait.core.tardis.control;
 
-import org.joml.Vector3f;
-
-import net.minecraft.entity.EntityDimensions;
-
 import dev.amble.ait.core.blocks.ConsoleBlock;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
+import net.minecraft.entity.EntityDimensions;
+import org.joml.Vector3f;
 
 /**
  * Holds a control which will be ran when interacted with, an

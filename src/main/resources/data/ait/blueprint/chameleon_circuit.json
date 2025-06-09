@@ -10,7 +10,7 @@
       "minCount": 4
     },
     {
-      "item": "ait:bulb",
+      "item": "ait:photon_accelerator",
       "maxCount": 1,
       "minCount": 1
     },

@@ -1,13 +1,10 @@
 package dev.amble.ait.core.drinks;
 
-import java.util.*;
-
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
-import me.shedaniel.math.Color;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.item.PersonalityMatrixItem;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.effect.StatusEffect;
@@ -22,14 +19,19 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
+
+import java.util.*;
 
 public class DrinkUtil {
+
     public static final String CUSTOM_DRINK_EFFECTS_KEY = "CustomDrinkEffects";
     public static final String CUSTOM_DRINK_COLOR_KEY = "CustomDrinkColor";
     public static final String DRINK_KEY = "Drink";
-    private static final int DEFAULT_COLOR = Color.ofRGB(0.824f, 0.89f, 0.988f).getColor();
+    private static final int DEFAULT_COLOR = PersonalityMatrixItem.colorToInt(210, 227, 252);
     private static final Text NONE_TEXT = Text.translatable("effect.none").formatted(Formatting.GRAY);
-    private static final Drink EMPTY = DrinkRegistry.EMPTY_MUG;
+    public static final Drink EMPTY = DrinkRegistry.EMPTY_MUG;
 
     public static List<StatusEffectInstance> getDrinkEffects(ItemStack stack) {
         return DrinkUtil.getDrinkEffects(stack.getNbt());
@@ -42,7 +44,7 @@ public class DrinkUtil {
         return list;
     }
 
-    public static List<StatusEffectInstance> getDrinkEffects(@Nullable NbtCompound nbt) {
+    public static List<StatusEffectInstance> getDrinkEffects(NbtCompound nbt) {
         ArrayList<StatusEffectInstance> list = Lists.newArrayList();
         list.addAll(DrinkUtil.getDrink(nbt).getEffects());
         DrinkUtil.getCustomDrinkEffects(nbt, list);
@@ -80,14 +82,11 @@ public class DrinkUtil {
         return Objects.equals(drink, EMPTY) ? DEFAULT_COLOR : DrinkUtil.getColor(drink, DrinkUtil.getDrinkEffects(stack));
     }
 
-    public static int getColor(Drink drink) {
-        return Objects.equals(drink, EMPTY) ? DEFAULT_COLOR : DrinkUtil.getColor(drink, drink.getEffects());
-    }
-
     public static int getColor(Drink drink, Collection<StatusEffectInstance> effects) {
         if (drink.getHasColor()) {
+            // TODO: use hex or normal int rgb values instead of this shit
             Vector3f vector = drink.getColor();
-            return Color.ofRGB(vector.x(), vector.y(), vector.z()).getColor();
+            return PersonalityMatrixItem.colorToInt((int) (vector.x() * 255), (int) (vector.y() * 255), (int) (vector.z() * 255));
         }
         if (effects.isEmpty()) {
             return DEFAULT_COLOR;
@@ -102,7 +101,7 @@ public class DrinkUtil {
             int l = statusEffectInstance.getAmplifier() + 1;
             f += (float)(l * (k >> 16 & 0xFF)) / 255.0f;
             g += (float)(l * (k >> 8 & 0xFF)) / 255.0f;
-            h += (float)(l * (k >> 0 & 0xFF)) / 255.0f;
+            h += (float)(l * (k & 0xFF)) / 255.0f;
             j += l;
         }
         if (j == 0) {
@@ -111,7 +110,27 @@ public class DrinkUtil {
         f = f / (float)j * 255.0f;
         g = g / (float)j * 255.0f;
         h = h / (float)j * 255.0f;
-        return (int)f << 16 | (int)g << 8 | (int)h;
+        return (int)f << 16 | (int) g << 8 | (int)h;
+    }
+
+    public static void applyEffects(ItemStack drinkStack, LivingEntity user) {
+        if (isMilk(getDrink(drinkStack))) {
+            user.clearStatusEffects();
+            return;
+        }
+
+        List<StatusEffectInstance> list = DrinkUtil.getDrinkEffects(drinkStack);
+        for (StatusEffectInstance statusEffectInstance : list) {
+            if (statusEffectInstance.getEffectType().isInstant()) {
+                statusEffectInstance.getEffectType().applyInstantEffect(null, null, user, statusEffectInstance.getAmplifier(), 1.0);
+                continue;
+            }
+            user.addStatusEffect(new StatusEffectInstance(statusEffectInstance));
+        }
+    }
+
+    private static boolean isMilk(Drink drink) {
+        return DrinkRegistry.getInstance().getOrFallback(AITMod.id("milk")).equals(drink);
     }
 
     public static Drink getDrink(ItemStack stack) {
@@ -126,11 +145,10 @@ public class DrinkUtil {
     }
 
     public static ItemStack setDrink(ItemStack stack, Drink drink) {
-        Identifier identifier = drink.id();
-        if (drink == EMPTY) {
+        if (drink == null || drink == EMPTY) {
             stack.removeSubNbt(DRINK_KEY);
         } else {
-            stack.getOrCreateNbt().putString(DRINK_KEY, identifier.toString());
+            stack.getOrCreateNbt().putString(DRINK_KEY, drink.id().toString());
         }
         return stack;
     }

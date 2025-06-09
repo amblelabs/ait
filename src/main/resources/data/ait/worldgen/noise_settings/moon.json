@@ -270,32 +270,6 @@
       {
         "type": "minecraft:condition",
         "if_true": {
-          "type": "minecraft:y_above",
-          "anchor": {
-            "absolute": 0
-          },
-          "surface_depth_multiplier": 0,
-          "add_stone_depth": false
-        },
-        "then_run": {
-          "type": "minecraft:condition",
-          "if_true": {
-            "type": "minecraft:noise_threshold",
-            "noise": "minecraft:patch",
-            "min_threshold": 0.1,
-            "max_threshold": 0.8
-          },
-          "then_run": {
-            "type": "minecraft:block",
-            "result_state": {
-              "Name": "ait:martian_stone"
-            }
-          }
-        }
-      },
-      {
-        "type": "minecraft:condition",
-        "if_true": {
           "type": "minecraft:stone_depth",
           "offset": 0,
           "surface_type": "floor",

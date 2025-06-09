@@ -1,13 +1,13 @@
 ![ait_logo](https://github.com/amblelabs/ait/blob/main/src/main/resources/assets/ait_logo.png)
 
-![GitHub Release](https://img.shields.io/github/v/release/M-D-Team/ait-fabric-1.20.1?include_prereleases)
+![GitHub Release](https://img.shields.io/github/v/release/amblelabs/ait?include_prereleases)
 ![Modrinth Game Versions](https://img.shields.io/modrinth/game-versions/ait?link=https%3A%2F%2Fmodrinth.com%2Fmod%2Fait%2Fversions)
 
 ![Modrinth Downloads](https://img.shields.io/modrinth/dt/ait?logo=modrinth&link=https%3A%2F%2Fmodrinth.com%2Fmod%2Fait)
 ![CurseForge Downloads](https://img.shields.io/curseforge/dt/856138?logo=curseforge&color=red&link=https%3A%2F%2Fwww.curseforge.com%2Fminecraft%2Fmc-mods%2Fadventures-in-time)
 
 
-**by [pavatus](https://pavatus.github.io)**
+**by [Amble Labs](https://amblelabs.github.io)**
 
 **Requires [Cloth Config](https://modrinth.com/mod/cloth-config)**
 
@@ -50,9 +50,10 @@ Adventures In Time adds the TARDIS from Doctor Who that you can interact with in
 - [Loqor](https://loqor.dev/)
 - [duzo](https://duzo.is-a.dev/)
 - [Dr. Theo](https://theo.is-a.dev/)
-- Nitrogenesis
+- [nitrogenez](https://github.com/nitrogenez)
 - Maketendo
-- [AddieDaBaddie](https://github.com/Addi3/addie.info.io/wiki)
+- [AddieDaBaddie](https://addieastarr.carrd.co)
+- Saturn
 
 ---
 
@@ -82,13 +83,14 @@ Adventures In Time adds the TARDIS from Doctor Who that you can interact with in
 - Maggie (Help with texturing)
 - lavachefrancaise (French Translations)
 - hoooiii (German Translations)
-- Nitrogenesis (Ukrainian Translations)
+- nitrogenez (Ukrainian Translations)
+- Codiak (Help with code)
 
 
 ## Links
 [Wiki](https://amblelabs.github.io/ait-wiki/)
 
-[Github](https://github.com/loqor/ait/)
+[Github](https://github.com/amblelabs/ait/)
 
 [Curseforge](https://www.curseforge.com/minecraft/mc-mods/adventures-in-time)
 

@@ -1,17 +1,15 @@
 package dev.amble.ait.registry.impl;
 
 
-import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.resource.ResourceType;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.sounds.ClientSoundManager;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.data.hum.DatapackHum;
 import dev.amble.ait.data.hum.Hum;
+import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.resource.ResourceType;
 
 public class HumRegistry extends SimpleDatapackRegistry<Hum> {
     private static final HumRegistry instance = new HumRegistry();

@@ -1,9 +1,11 @@
 package dev.amble.ait.core.engine.link.block;
 
-import java.util.HashMap;
-
-import org.jetbrains.annotations.Nullable;
-
+import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.engine.link.IFluidLink;
+import dev.amble.ait.core.engine.link.IFluidSource;
+import dev.amble.ait.core.engine.link.tracker.WorldFluidTracker;
+import dev.amble.ait.core.util.SoundData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
@@ -18,16 +20,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
+import org.jetbrains.annotations.Nullable;
 
-import dev.amble.ait.api.link.v2.block.InteriorLinkableBlockEntity;
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.engine.link.IFluidLink;
-import dev.amble.ait.core.engine.link.IFluidSource;
-import dev.amble.ait.core.engine.link.tracker.WorldFluidTracker;
-import dev.amble.ait.core.util.SoundData;
+import java.util.HashMap;
 
-public class FluidLinkBlockEntity extends InteriorLinkableBlockEntity implements IFluidLink {
+public abstract class FluidLinkBlockEntity extends InteriorLinkableBlockEntity implements IFluidLink {
     private boolean powered = false;
     private IFluidLink last;
     private IFluidSource source;
@@ -35,9 +32,6 @@ public class FluidLinkBlockEntity extends InteriorLinkableBlockEntity implements
 
     protected FluidLinkBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-    }
-    public FluidLinkBlockEntity(BlockPos pos, BlockState state) {
-        this(AITBlockEntityTypes.FLUID_LINK_BLOCK_ENTITY, pos, state);
     }
 
     @Override

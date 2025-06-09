@@ -1,18 +1,5 @@
 package dev.amble.ait.registry.impl.console.variant;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import dev.amble.lib.register.unlockable.UnlockableRegistry;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import org.joml.Vector3f;
-
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.server.network.ServerPlayerEntity;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.datapack.DatapackExterior;
@@ -28,15 +15,22 @@ import dev.amble.ait.data.schema.console.variant.hartnell.HartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.KeltHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.MintHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.WoodenHartnellVariant;
-import dev.amble.ait.data.schema.console.variant.hourglass.HourglassVariant;
-import dev.amble.ait.data.schema.console.variant.hudolin.HudolinNatureVariant;
-import dev.amble.ait.data.schema.console.variant.hudolin.HudolinShalkaVariant;
-import dev.amble.ait.data.schema.console.variant.hudolin.HudolinVariant;
 import dev.amble.ait.data.schema.console.variant.renaissance.*;
 import dev.amble.ait.data.schema.console.variant.steam.*;
 import dev.amble.ait.data.schema.console.variant.toyota.ToyotaBlueVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.ToyotaLegacyVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.ToyotaVariant;
+import dev.amble.lib.register.unlockable.UnlockableRegistry;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.resource.ResourceType;
+import net.minecraft.server.network.ServerPlayerEntity;
+import org.joml.Vector3f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSchema> {
     private static ConsoleVariantRegistry INSTANCE;
@@ -153,7 +147,7 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
     public static ConsoleVariantSchema RENAISSANCE_FIRE;
     public static ConsoleVariantSchema RENAISSANCE_IDENTITY;
     public static ConsoleVariantSchema RENAISSANCE_INDUSTRIOUS;
-    public static ConsoleVariantSchema HOURGLASS;
+    //public static ConsoleVariantSchema HOURGLASS;
 
 
     @Override
@@ -190,9 +184,9 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
         STEAM_COPPER = registerStatic(new SteamCopperVariant());
 
         // Hudolin variants
-        HUDOLIN = registerStatic(new HudolinVariant());
+   /*     HUDOLIN = registerStatic(new HudolinVariant());
         HUDOLIN_NATURE = registerStatic(new HudolinNatureVariant());
-        HUDOLIN_SHALKA = registerStatic(new HudolinShalkaVariant());
+        HUDOLIN_SHALKA = registerStatic(new HudolinShalkaVariant());*/
 
         // Copper variants
         COPPER = registerStatic(new CopperVariant());
@@ -212,7 +206,7 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
         RENAISSANCE_INDUSTRIOUS = registerStatic(new RenaissanceIndustriousVariant());
 
         // Hourglass variants
-        HOURGLASS = registerStatic(new HourglassVariant());
+        //HOURGLASS = registerStatic(new HourglassVariant());
 
     }
 }

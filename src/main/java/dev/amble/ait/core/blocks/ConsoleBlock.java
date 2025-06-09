@@ -1,11 +1,13 @@
 package dev.amble.ait.core.blocks;
 
-import java.util.Random;
-
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
+import dev.amble.ait.core.item.HammerItem;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.data.schema.console.type.CopperType;
+import dev.amble.ait.data.schema.console.type.CrystallineType;
 import dev.amble.lib.api.ICantBreak;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
@@ -32,13 +34,10 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
-import dev.amble.ait.core.item.HammerItem;
-import dev.amble.ait.data.schema.console.variant.crystalline.CrystallineVariant;
-import dev.amble.ait.data.schema.console.variant.crystalline.CrystallineZeitonVariant;
+import java.util.Random;
 
 public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEntityProvider, ICantBreak {
 
@@ -78,7 +77,7 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
-            BlockHitResult hit) {
+                              BlockHitResult hit) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof ConsoleBlockEntity consoleBlockEntity) {
             if (world.getRegistryKey().equals(World.OVERWORLD)) return ActionResult.FAIL;
@@ -94,7 +93,7 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull World world, @NotNull BlockState state,
-            @NotNull BlockEntityType<T> type) {
+                                                                  @NotNull BlockEntityType<T> type) {
         return (world1, blockPos, blockState, ticker) -> {
             if (ticker instanceof ConsoleBlockEntity console) {
                 console.tick(world, blockPos, blockState, console);
@@ -104,7 +103,7 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
-            ItemStack itemStack) {
+                         ItemStack itemStack) {
         super.onPlaced(world, pos, state, placer, itemStack);
 
         if (world.getBlockEntity(pos) instanceof ConsoleBlockEntity consoleBlockEntity) {
@@ -127,6 +126,7 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
 
     @Override
     public void onSteppedOn(World world, BlockPos pos, BlockState state, Entity entity) {
+        if (!TardisServerWorld.isTardisDimension(world)) return;
         if (entity instanceof PlayerEntity player) {
             Random random = new Random();
             int x_random = random.nextInt(1, 10);
@@ -179,32 +179,50 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
 
             if (!consoleBlockEntity.tardis().get().fuel().hasPower()) return;
 
-            if (!(consoleBlockEntity.getVariant() instanceof CrystallineZeitonVariant ||
-                    consoleBlockEntity.getVariant() instanceof CrystallineVariant)) return;
-
             double d = pos.getX();
             double e = pos.getY();
             double f = pos.getZ();
 
-            for (int i = 0; i < random.nextInt(15) + 1; ++i) {
-                boolean bl = random.nextBoolean();
-                float particleSpeed = random.nextFloat() / 15.0f;
+            if ((consoleBlockEntity.getTypeSchema() instanceof CrystallineType)) {
 
-                world.addParticle(ParticleTypes.SMOKE,
-                        (double) pos.getX() + 0.5,
-                        (double) pos.getY() + 2,
-                        (double) pos.getZ() + 0.5,
-                        bl ? particleSpeed : -particleSpeed,
-                        2.2E-3,
-                        bl ? particleSpeed : -particleSpeed);
+                for (int i = 0; i < random.nextInt(15) + 1; ++i) {
+                    boolean bl = random.nextBoolean();
+                    float particleSpeed = random.nextFloat() / 15.0f;
 
-                world.addParticle(ParticleTypes.CLOUD,
-                        pos.getX() + 0.5,
-                        pos.getY() + 0.5,
-                        pos.getZ() + 0.5,
-                        0.0,
-                        0.1,
-                        0.0);
+                    world.addParticle(ParticleTypes.SMOKE,
+                            (double) pos.getX() + 0.5,
+                            (double) pos.getY() + 2,
+                            (double) pos.getZ() + 0.5,
+                            bl ? particleSpeed : -particleSpeed,
+                            2.2E-3,
+                            bl ? particleSpeed : -particleSpeed);
+
+                    world.addParticle(ParticleTypes.CLOUD,
+                            pos.getX() + 0.5,
+                            pos.getY() + 0.5,
+                            pos.getZ() + 0.5,
+                            0.0,
+                            0.1,
+                            0.0);
+                }
+                return;
+            }
+
+            if (consoleBlockEntity.tardis() != null &&
+                    !consoleBlockEntity.tardis().get().extra().getInsertedDisc().isEmpty() &&
+                    consoleBlockEntity.getTypeSchema() instanceof CopperType) {
+                for (int i = 0; i < random.nextInt(10) + 1; ++i) {
+                    boolean bl = random.nextBoolean();
+                    float b = (float)world.getRandom().nextInt(4) / 24.0f;
+
+                    world.addParticle(ParticleTypes.NOTE,
+                            d + 1.4,
+                            e + 2.6,
+                            f - 0.15f,
+                            b + 1.5,
+                            b,
+                            b + 0.5);
+                }
             }
         }
     }
@@ -215,5 +233,8 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
 
     @Override
     public void onTryBreak(World world, BlockPos pos, BlockState state) {
+        if (TardisServerWorld.isTardisDimension(world)) return;
+
+        world.breakBlock(pos, true);
     }
 }

@@ -2,7 +2,6 @@ package dev.amble.ait.core;
 
 
 import dev.amble.lib.container.impl.PaintingContainer;
-
 import net.minecraft.entity.decoration.painting.PaintingVariant;
 
 public class AITPaintings implements PaintingContainer {

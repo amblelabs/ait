@@ -1,7 +1,13 @@
 package dev.amble.ait.core.blockentities;
 
-import org.jetbrains.annotations.Nullable;
-
+import dev.amble.ait.api.ArtronHolder;
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.item.ArtronCollectorItem;
+import dev.amble.ait.core.item.ChargedZeitonCrystalItem;
+import dev.amble.ait.core.world.RiftChunkManager;
+import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -18,15 +24,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.api.ArtronHolder;
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.item.ArtronCollectorItem;
-import dev.amble.ait.core.item.ChargedZeitonCrystalItem;
-import dev.amble.ait.core.world.RiftChunkManager;
-import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
+import org.jetbrains.annotations.Nullable;
 
 public class ArtronCollectorBlockEntity extends BlockEntity implements BlockEntityTicker<ArtronCollectorBlockEntity>, ArtronHolder {
 

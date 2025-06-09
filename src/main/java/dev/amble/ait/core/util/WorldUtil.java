@@ -1,21 +1,28 @@
 package dev.amble.ait.core.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.AITWorldOptions;
+import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.mixin.server.EnderDragonFightAccessor;
 import dev.amble.lib.util.ServerLifecycleHooks;
+import dev.amble.lib.util.TeleportUtil;
+import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
-
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.network.packet.s2c.play.EntityStatusEffectS2CPacket;
@@ -28,35 +35,27 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.mixin.server.EnderDragonFightAccessor;
+import java.util.*;
 
 @SuppressWarnings("deprecation")
 public class WorldUtil {
 
-    private static final List<Identifier> blacklisted = new ArrayList<>();
-    private static List<ServerWorld> worlds;
-    private static final int SAFE_RADIUS = 3;
+    private static final List<ServerWorld> PROJECTOR_WORLDS = new ArrayList<>();
+    private static final List<ServerWorld> TRAVEL_WORLDS = new ArrayList<>();
+
+    private static final Set<ServerWorld> RIFT_SPAWN_WORLDS = new HashSet<>();
+    private static final List<ServerWorld> RIFT_DROP_WORLDS = new ArrayList<>();
 
     private static ServerWorld OVERWORLD;
     private static ServerWorld TIME_VORTEX;
 
     public static void init() {
-        for (String id : AITMod.CONFIG.SERVER.WORLDS_BLACKLIST) {
-            blacklisted.add(Identifier.tryParse(id));
-        }
-
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> worlds = getDimensions(server));
-        ServerLifecycleEvents.SERVER_STOPPING.register(server -> worlds = null);
+        ServerLifecycleEvents.SERVER_STARTED.register(WorldUtil::generateWorldCache);
+        ServerLifecycleEvents.SERVER_STOPPING.register(WorldUtil::clearWorldCache);
 
         ServerWorldEvents.UNLOAD.register((server, world) -> {
             if (world.getRegistryKey() == World.OVERWORLD)
@@ -77,12 +76,27 @@ public class WorldUtil {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             OVERWORLD = server.getOverworld();
             TIME_VORTEX = server.getWorld(AITDimensions.TIME_VORTEX_WORLD);
-
-            // blacklist all tardises
-            for (ServerWorld world : getDimensions(server)) {
-                if (TardisServerWorld.isTardisDimension(world)) blacklist(world);
-            }
         });
+
+        ServerEntityWorldChangeEvents.AFTER_ENTITY_CHANGE_WORLD.register((originalEntity, newEntity, origin, destination) -> {
+            if (destination == TIME_VORTEX && newEntity instanceof LivingEntity living)
+                scheduleVortexFall(living);
+        });
+
+        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
+            if (destination == TIME_VORTEX)
+                scheduleVortexFall(player);
+        });
+    }
+
+    private static void scheduleVortexFall(LivingEntity entity) {
+        int worldIndex = TIME_VORTEX.getRandom().nextInt(RIFT_DROP_WORLDS.size());
+
+        Scheduler.get().runTaskLater(() -> {
+            if (entity.getWorld() == TIME_VORTEX)
+                TeleportUtil.teleport(entity, RIFT_DROP_WORLDS.get(worldIndex),
+                        entity.getPos().add(2, 10, -2), entity.getYaw());
+        }, TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 5);
     }
 
     public static ServerWorld getOverworld() {
@@ -93,201 +107,116 @@ public class WorldUtil {
         return TIME_VORTEX;
     }
 
-    public static List<ServerWorld> getDimensions(MinecraftServer server) {
-        List<ServerWorld> worlds = new ArrayList<>();
+    private static void generateWorldCache(MinecraftServer server) {
+        generateWorldCache(server, AITMod.CONFIG.projectorBlacklist, PROJECTOR_WORLDS);
+        generateWorldCache(server, AITMod.CONFIG.travelBlacklist, TRAVEL_WORLDS);
+
+        generateWorldCache(server, AITMod.CONFIG.riftSpawnBlacklist, RIFT_SPAWN_WORLDS);
+        generateWorldCache(server, AITMod.CONFIG.riftDropBlacklist, RIFT_DROP_WORLDS);
+
+        for (ServerWorld riftSpawnable : RIFT_SPAWN_WORLDS) {
+            if (riftSpawnable instanceof AITWorldOptions options)
+                options.ait$setCanRiftsSpawn(true);
+        }
+    }
+
+    private static void generateWorldCache(MinecraftServer server, List<String> raw, Collection<ServerWorld> worlds) {
+        worlds.clear();
+
+        Set<Identifier> ids = new HashSet<>();
+        boolean blocksTardis = false;
+
+        for (String rawId : raw) {
+            if (rawId.equals("ait-tardis")) {
+                blocksTardis = true;
+                continue;
+            }
+
+            Identifier id = Identifier.tryParse(rawId);
+
+            if (id == null)
+                continue;
+
+            ids.add(id);
+        }
 
         for (ServerWorld world : server.getWorlds()) {
-            if (isOpen(world.getRegistryKey()))
+            if (blocksTardis && TardisServerWorld.isTardisDimension(world))
+                continue;
+
+            Identifier worldId = world.getRegistryKey().getValue();
+
+            if (!ids.contains(worldId))
                 worlds.add(world);
         }
-
-        return worlds;
     }
 
-    public static boolean isOpen(RegistryKey<World> world) {
-        for (Identifier blacklisted : blacklisted) {
-            if (world.getValue().equals(blacklisted))
-                return false;
-        }
+    private static void clearWorldCache(MinecraftServer server) {
+        PROJECTOR_WORLDS.clear();
+        TRAVEL_WORLDS.clear();
 
-        return true;
-    }
-    public static void blacklist(RegistryKey<World> world) {
-        blacklisted.add(world.getValue());
-    }
-    public static void blacklist(World world) {
-        blacklist(world.getRegistryKey());
+        RIFT_DROP_WORLDS.clear();
+        RIFT_SPAWN_WORLDS.clear();
     }
 
-    public static int worldIndex(ServerWorld world) {
-        for (int i = 0; i < worlds.size(); i++) {
-            if (world == worlds.get(i))
+    /**
+     * @implNote This method uses a reference check (by `==`), instead of
+     * {@link Object#equals(Object)}, as its {@link List} counterpart does.
+     */
+    public static int travelWorldIndex(ServerWorld world) {
+        for (int i = 0; i < TRAVEL_WORLDS.size(); i++) {
+            if (world == TRAVEL_WORLDS.get(i))
                 return i;
         }
 
         return -1;
     }
 
-    public static List<ServerWorld> getOpenWorlds() {
-        return worlds;
+    public static boolean canRiftsSpawn(ServerWorld world) {
+        return world instanceof AITWorldOptions options && options.ait$canRiftsSpawn();
     }
 
-    public static CachedDirectedGlobalPos locateSafe(CachedDirectedGlobalPos cached,
-                                                     TravelHandlerBase.GroundSearch vSearch, boolean hSearch) {
-        ServerWorld world = cached.getWorld();
-        BlockPos pos = cached.getPos();
-
-        if (isSafe(world, pos))
-            return cached;
-
-        if (hSearch) {
-            BlockPos temp = findSafeXZ(world, pos, SAFE_RADIUS);
-
-            if (temp != null)
-                return cached.pos(temp);
-        }
-
-        int x = pos.getX();
-        int z = pos.getZ();
-
-        int y = switch (vSearch) {
-            case CEILING -> findSafeTopY(world, pos);
-            case FLOOR -> findSafeBottomY(world, pos);
-            case MEDIAN -> findSafeMedianY(world, pos);
-            case NONE -> pos.getY();
-        };
-
-        return cached.pos(x, y, z);
+    public static List<ServerWorld> getProjectorWorlds() {
+        return PROJECTOR_WORLDS;
     }
 
-    public static BlockPos findSafeXZ(ServerWorld world, BlockPos original, int radius) {
-        BlockPos.Mutable pos = original.mutableCopy();
-
-        int minX = pos.getX() - radius;
-        int maxX = pos.getX() + radius;
-
-        int minZ = pos.getZ() - radius;
-        int maxZ = pos.getZ() + radius;
-
-        for (int x = minX; x < maxX; x++) {
-            for (int z = minZ; z < maxZ; z++) {
-                pos.setX(x).setZ(z);
-
-                if (isSafe(world, pos))
-                    return pos;
-            }
-        }
-
-        return null;
-    }
-
-    private static int findSafeMedianY(ServerWorld world, BlockPos pos) {
-        BlockPos upCursor = pos;
-        BlockState floorUp = world.getBlockState(upCursor.down());
-        BlockState curUp = world.getBlockState(upCursor);
-        BlockState aboveUp = world.getBlockState(upCursor.up());
-
-        BlockPos downCursor = pos;
-        BlockState floorDown = world.getBlockState(downCursor.down());
-        BlockState curDown = world.getBlockState(downCursor);
-        BlockState aboveDown = world.getBlockState(downCursor.up());
-
-        while (true) {
-            boolean canGoUp = upCursor.getY() < world.getTopY();
-            boolean canGoDown = downCursor.getY() > world.getBottomY();
-
-            if (!canGoUp && !canGoDown)
-                return pos.getY();
-
-            if (canGoUp) {
-                if (isSafe(floorUp, curUp, aboveUp))
-                    return upCursor.getY() - 1;
-
-                upCursor = upCursor.up();
-
-                floorUp = curUp;
-                curUp = aboveUp;
-                aboveUp = world.getBlockState(upCursor);
-            }
-
-            if (canGoDown) {
-                if (isSafe(floorDown, curDown, aboveDown))
-                    return downCursor.getY() + 1;
-
-                downCursor = downCursor.down();
-
-                curDown = aboveDown;
-                aboveDown = floorDown;
-                floorDown = world.getBlockState(downCursor);
-            }
-        }
-    }
-
-    private static int findSafeBottomY(ServerWorld world, BlockPos pos) {
-        BlockPos cursor = pos.withY(world.getBottomY() + 2);
-
-        BlockState floor = world.getBlockState(cursor.down());
-        BlockState current = world.getBlockState(cursor);
-        BlockState above = world.getBlockState(cursor.up());
-
-        while (true) {
-            if (cursor.getY() > world.getTopY())
-                return pos.getY();
-
-            if (isSafe(floor, current, above))
-                return cursor.getY() - 1;
-
-            cursor = cursor.up();
-
-            floor = current;
-            current = above;
-            above = world.getBlockState(cursor);
-        }
-    }
-
-    private static int findSafeTopY(ServerWorld world, BlockPos pos) {
-        int x = pos.getX();
-        int z = pos.getZ();
-
-        return world.getChunk(ChunkSectionPos.getSectionCoord(x), ChunkSectionPos.getSectionCoord(z))
-                .sampleHeightmap(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, x & 15, z & 15) + 1;
-    }
-
-    private static boolean isSafe(BlockState floor, BlockState block1, BlockState block2) {
-        return isFloor(floor) && !block1.blocksMovement() && !block2.blocksMovement();
-    }
-
-    private static boolean isSafe(BlockState block1, BlockState block2) {
-        return !block1.blocksMovement() && !block2.blocksMovement();
-    }
-
-    private static boolean isFloor(BlockState floor) {
-        return floor.blocksMovement();
-    }
-
-    private static boolean isSafe(World world, BlockPos pos) {
-        BlockState floor = world.getBlockState(pos.down());
-
-        if (!isFloor(floor))
-            return false;
-
-        BlockState curUp = world.getBlockState(pos);
-        BlockState aboveUp = world.getBlockState(pos.up());
-
-        return isSafe(curUp, aboveUp);
+    public static List<ServerWorld> getTravelWorlds() {
+        return TRAVEL_WORLDS;
     }
 
     @Environment(EnvType.CLIENT)
     @SuppressWarnings("DataFlowIssue")
     public static String getName(MinecraftClient client) {
-        if (client.isInSingleplayer()) {
+        if (client.isInSingleplayer())
             return client.getServer().getSavePath(WorldSavePath.ROOT).getParent().getFileName().toString();
-        }
 
         return client.getCurrentServerEntry().address;
     }
 
     public static Text worldText(RegistryKey<World> key) {
+        Text translated = Text.translatableWithFallback(key.getValue().toTranslationKey("dimension"), fakeTranslate(key));
+
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT)
+            return hackWorldText(translated);
+
+        return translated;
+    }
+
+    @Environment(EnvType.CLIENT)
+    private static Text hackWorldText(Text existing) {
+        if (ClientTardisUtil.getCurrentTardis() != null &&
+                !ClientTardisUtil.getCurrentTardis().flight().isFlying() && ClientTardisUtil.getCurrentTardis().travel().inFlight()) {
+            RegistryKey<World> timeVortex = AITDimensions.TIME_VORTEX_WORLD;
+            return
+                    Text.translatableWithFallback(
+                            timeVortex.getValue().toTranslationKey("dimension"),
+                            fakeTranslate(timeVortex)).append(" [").append(existing).append( "]");
+        }
+
+        return existing;
+    }
+
+    public static Text worldText(RegistryKey<World> key, boolean justToSeperate) {
         return Text.translatableWithFallback(key.getValue().toTranslationKey("dimension"), fakeTranslate(key));
     }
 
@@ -362,18 +291,4 @@ public class WorldUtil {
                 new EntityStatusEffectS2CPacket(player.getId(), effect)));
     }
 
-    public static void teleportAllPassengers(Entity vehicle, ServerWorld target, Vec3d pos) {
-        vehicle.getPassengerList().forEach(passenger -> {
-            passenger.teleport(pos.x, pos.y, pos.z);
-            passenger.moveToWorld(target);
-            if (passenger instanceof ServerPlayerEntity player)
-                player.getStatusEffects().forEach(effect -> player.networkHandler.sendPacket(
-                        new EntityStatusEffectS2CPacket(player.getId(), effect)));
-        });
-        vehicle.teleport(pos.x, pos.y, pos.z);
-        vehicle.moveToWorld(target);
-        if (vehicle instanceof ServerPlayerEntity player)
-            player.getStatusEffects().forEach(effect -> player.networkHandler.sendPacket(
-                    new EntityStatusEffectS2CPacket(player.getId(), effect)));
-    }
 }

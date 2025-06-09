@@ -1,10 +1,9 @@
 package dev.amble.ait.core.item.sonic;
 
+import dev.amble.ait.data.schema.sonic.SonicSchema;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.data.schema.sonic.SonicSchema;
 
 public class InactiveSonicMode extends SonicMode {
 

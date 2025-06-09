@@ -1,15 +1,13 @@
 package dev.amble.ait.data.schema.exterior.variant.capsule.client;
 
-import org.joml.Vector3f;
-
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.exteriors.CapsuleExteriorModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import net.minecraft.util.Identifier;
+import org.joml.Vector3f;
 
 // a useful class for creating tardim variants as they all have the same filepath you know
 public abstract class ClientCapsuleVariant extends ClientExteriorVariantSchema {
@@ -21,8 +19,9 @@ public abstract class ClientCapsuleVariant extends ClientExteriorVariantSchema {
 
     protected static final BiomeOverrides OVERRIDES = BiomeOverrides.builder()
             .with(type -> type.getTexture(BIOME_IDENTIFIER), BiomeHandler.BiomeType.SNOWY,
-                    BiomeHandler.BiomeType.SCULK, BiomeHandler.BiomeType.CHORUS, BiomeHandler.BiomeType.CHERRY,
-                    BiomeHandler.BiomeType.SANDY, BiomeHandler.BiomeType.RED_SANDY, BiomeHandler.BiomeType.MUDDY)
+                    BiomeHandler.BiomeType.CHORUS, BiomeHandler.BiomeType.CHERRY,
+                    BiomeHandler.BiomeType.SANDY, BiomeHandler.BiomeType.RED_SANDY, BiomeHandler.BiomeType.MUDDY,
+                    BiomeHandler.BiomeType.SCULK)
             .build();
 
     protected ClientCapsuleVariant(String name) {

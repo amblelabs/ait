@@ -1,11 +1,9 @@
 package dev.amble.ait.data.schema.exterior.category;
 
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
-import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import net.minecraft.util.Identifier;
 
 public class PresentCategory extends ExteriorCategorySchema {
     public static final Identifier REFERENCE = AITMod.id("exterior/present");
@@ -21,7 +19,8 @@ public class PresentCategory extends ExteriorCategorySchema {
 
     @Override
     public ExteriorVariantSchema getDefaultVariant() {
-        return ExteriorVariantRegistry.PRESENT_DEFAULT;
+        //return ExteriorVariantRegistry.PRESENT_DEFAULT;
+        return null;
     }
 
 

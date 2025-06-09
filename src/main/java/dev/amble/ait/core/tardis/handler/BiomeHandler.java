@@ -1,15 +1,16 @@
 package dev.amble.ait.core.tardis.handler;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
+import dev.amble.ait.data.enummap.Ordered;
+import dev.amble.ait.data.properties.Property;
+import dev.amble.ait.data.properties.Value;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.gaslighter.Gaslighter3000;
 import dev.drtheo.gaslighter.impl.FakeStructureWorldAccess;
 import net.fabricmc.fabric.api.tag.convention.v1.ConventionalBiomeTags;
-import org.apache.commons.lang3.StringUtils;
-
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -21,17 +22,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.gen.feature.*;
+import org.apache.commons.lang3.StringUtils;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.KeyedTardisComponent;
-import dev.amble.ait.api.TardisEvents;
-import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
-import dev.amble.ait.data.enummap.Ordered;
-import dev.amble.ait.data.properties.Property;
-import dev.amble.ait.data.properties.Value;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
- * @author Loqor TODO reminder to work on this more, making it so you have to
+ * @author Loqor
+ * TODO reminder to work on this more, making it so you have to
  *         brush off different biomes if you don't just demat/remat + having to
  *         land on the respective blocks / has to snow for it to take effect.
  */
@@ -41,7 +40,12 @@ public class BiomeHandler extends KeyedTardisComponent {
     private final Value<BiomeType> type = TYPE.create(this);
 
     static {
+        TardisEvents.DEMAT.register(tardis -> {
+            tardis.<BiomeHandler>handler(Id.BIOME).forceTypeDefault();
+            return TardisEvents.Interaction.PASS;
+        });
         TardisEvents.LANDED.register(tardis -> tardis.<BiomeHandler>handler(Id.BIOME).update());
+        TardisEvents.ENTER_FLIGHT.register(tardis -> tardis.<BiomeHandler>handler(Id.BIOME).forceTypeDefault());
     }
 
     public BiomeHandler() {
@@ -65,10 +69,12 @@ public class BiomeHandler extends KeyedTardisComponent {
         BiomeType biome = getTagForBiome(entry);
 
         this.type.set(biome);
+        this.sync();
     }
 
     public void forceTypeDefault() {
         this.type.set(BiomeType.DEFAULT);
+        this.sync();
     }
 
     public Gaslighter3000 testBiome(ServerWorld world, BlockPos pos) {
@@ -85,13 +91,6 @@ public class BiomeHandler extends KeyedTardisComponent {
 
         tree.generate(access, world.getChunkManager().getChunkGenerator(), world.random, pos);
         return gaslighter;
-    }
-
-    static {
-        TardisEvents.DEMAT.register(tardis -> {
-            tardis.<BiomeHandler>handler(Id.BIOME).forceTypeDefault();
-            return TardisEvents.Interaction.PASS;
-        });
     }
 
     private static final Set<Class<? extends Feature<?>>> TREES = Set.of(

@@ -1,0 +1,5 @@
+{
+  "control": "ait:telepathic_circuit",
+  "console": "ait:console/copper",
+  "success_sound": "ait:controls/copper_telepathic_circuit"
+}

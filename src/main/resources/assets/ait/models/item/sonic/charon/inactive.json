@@ -1,0 +1,6 @@
+{
+	"parent": "ait:item/sonic/charon",
+	"textures": {
+		"0": "ait:item/sonic_tools/charon_inactive"
+	}
+}

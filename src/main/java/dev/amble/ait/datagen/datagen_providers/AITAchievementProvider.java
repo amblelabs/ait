@@ -1,10 +1,12 @@
 package dev.amble.ait.datagen.datagen_providers;
 
-import java.util.function.Consumer;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.module.ModuleRegistry;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricAdvancementProvider;
-
 import net.minecraft.advancement.Advancement;
 import net.minecraft.advancement.AdvancementFrame;
 import net.minecraft.advancement.criterion.InventoryChangedCriterion;
@@ -12,11 +14,7 @@ import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.module.ModuleRegistry;
+import java.util.function.Consumer;
 
 public class AITAchievementProvider extends FabricAdvancementProvider {
     public AITAchievementProvider(FabricDataOutput output) {
@@ -36,7 +34,15 @@ public class AITAchievementProvider extends FabricAdvancementProvider {
                 .criterion("root", TardisCriterions.ROOT.conditions())
                 .build(consumer, AITMod.MOD_ID + "/root");
 
-        Advancement placeCoral = Advancement.Builder.create().parent(root)
+        Advancement placeEnergizer = Advancement.Builder.create().parent(root)
+                .display(AITBlocks.MATRIX_ENERGIZER, Text.translatable("achievement.ait.title.place_energizer"),
+                        Text.translatable("achievement.ait.description.place_energizer"),
+                        null,
+                        AdvancementFrame.TASK, true, true, true)
+                .criterion("place_energizer", TardisCriterions.PLACE_ENERGIZER.conditions())
+                .build(consumer, AITMod.MOD_ID + "/place_energizer");
+
+        Advancement placeCoral = Advancement.Builder.create().parent(placeEnergizer)
                 .display(AITBlocks.CORAL_PLANT, Text.translatable("achievement.ait.title.place_coral"),
                         Text.translatable("achievement.ait.description.place_coral"),
                         null,
@@ -53,6 +59,14 @@ public class AITAchievementProvider extends FabricAdvancementProvider {
         // its the first
         // one
         // that shows
+
+        Advancement brandNew = Advancement.Builder.create().parent(firstEnter)
+                .display(AITItems.MUG, Text.translatable("achievement.ait.title.brand_new"),
+                        Text.translatable("achievement.ait.description.brand_new"),
+                        null,
+                        AdvancementFrame.CHALLENGE, true, true, true)
+                .criterion("brand_new", TardisCriterions.BRAND_NEW.conditions())
+                .build(consumer, AITMod.MOD_ID + "/brand_new");
 
         Advancement ironKey = Advancement.Builder.create().parent(firstEnter)
                 .display(AITItems.IRON_KEY, Text.translatable("achievement.ait.title.iron_key"),
@@ -150,5 +164,11 @@ public class AITAchievementProvider extends FabricAdvancementProvider {
                         Text.translatable("achievement.ait.description.engines_phase"), null, AdvancementFrame.CHALLENGE, true, true, true)
                 .criterion("engines_phase", TardisCriterions.ENGINES_PHASE.conditions())
                 .build(consumer, AITMod.MOD_ID + "/engines_phase");
+
+        Advancement statRemote = Advancement.Builder.create().parent(ironKey)
+                .display(AITItems.REMOTE_ITEM, Text.translatable("achievement.ait.title.remote"),
+                        Text.translatable("achievement.ait.description.remote"), null, AdvancementFrame.CHALLENGE, true, false, true)
+                .criterion("gain_remote", InventoryChangedCriterion.Conditions.items(AITItems.REMOTE_ITEM))
+                .build(consumer, AITMod.MOD_ID + "/gain_remote");
     }
 }

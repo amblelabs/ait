@@ -1,13 +1,11 @@
 package dev.amble.ait.module.planet.core.util;
 
+import dev.amble.ait.module.planet.core.PlanetBlocks;
+import dev.amble.ait.module.planet.core.PlanetItems;
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.village.TradeOffer;
-
-import dev.amble.ait.module.planet.core.PlanetBlocks;
-import dev.amble.ait.module.planet.core.PlanetItems;
 
 public class PlanetCustomTrades {
     public static void registerCustomTrades() {

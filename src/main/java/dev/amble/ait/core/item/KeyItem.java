@@ -1,12 +1,17 @@
 package dev.amble.ait.core.item;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
+import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.ServerAlarmHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.data.Loyalty;
+import dev.amble.ait.data.enummap.EnumSet;
+import dev.amble.ait.data.enummap.Ordered;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import org.jetbrains.annotations.Nullable;
-
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
@@ -24,18 +29,11 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
-import dev.amble.ait.api.link.LinkableItem;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.data.Loyalty;
-import dev.amble.ait.data.enummap.EnumSet;
-import dev.amble.ait.data.enummap.Ordered;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class KeyItem extends LinkableItem {
 
@@ -127,6 +125,8 @@ public class KeyItem extends LinkableItem {
         if (player.getItemCooldownManager().isCoolingDown(stack.getItem()))
             return;
 
+        if (tardis == null) return;
+
         if (!tardis.stats().hailMary().get())
             return;
 
@@ -151,27 +151,15 @@ public class KeyItem extends LinkableItem {
         CachedDirectedGlobalPos globalPos = CachedDirectedGlobalPos.create((ServerWorld) world, pos,
                 (byte) RotationPropertyHelper.fromYaw(player.getBodyYaw()));
 
-        List<PlayerEntity> entities = TardisUtil.getLivingEntitiesInInterior(tardis.asServer())
-                .stream()
-                .filter(entity -> entity instanceof PlayerEntity)
-                .map(entity -> (PlayerEntity) entity)
-                .toList();
-
-        for (PlayerEntity entity : entities) {
-            entity.sendMessage(
-                    Text.translatable("tardis.message.protocol_813.travel").formatted(Formatting.RED),
-                    true
-            );
-        }
-        tardis.alarm().enabled().set(true);
-        tardis.travel().forceDemat();
+        tardis.alarm().enable(ServerAlarmHandler.AlarmType.HAIL_MARY);
+        tardis.travel().dematerialize();
 
         if (travel.getState() != TravelHandlerBase.State.DEMAT)
             return;
 
         travel.forceDestination(globalPos);
         travel.decreaseFlightTime(500000);
-        travel.forceRemat();
+        travel.rematerialize();
         tardis.shields().enable();
         tardis.shields().enableVisuals();
         tardis.removeFuel(4250);

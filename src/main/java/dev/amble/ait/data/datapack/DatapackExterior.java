@@ -1,23 +1,10 @@
 package dev.amble.ait.data.datapack;
 
-import static dev.amble.ait.data.datapack.DatapackConsole.EMPTY;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
@@ -26,6 +13,17 @@ import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static dev.amble.ait.data.datapack.DatapackConsole.EMPTY;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class DatapackExterior extends ExteriorVariantSchema {
@@ -39,6 +37,7 @@ public class DatapackExterior extends ExteriorVariantSchema {
     protected final BiomeOverrides overrides;
     protected final Vec3d seatTranslations;
     protected final boolean initiallyDatapack;
+    protected final boolean hasTransparentDoors;
 
     public static final Codec<DatapackExterior> CODEC = RecordCodecBuilder.create(instance -> instance
             .group(Identifier.CODEC.fieldOf("id").forGetter(ExteriorVariantSchema::id),
@@ -50,16 +49,18 @@ public class DatapackExterior extends ExteriorVariantSchema {
                     BiomeOverrides.CODEC.fieldOf("overrides").orElse(BiomeOverrides.EMPTY)
                             .forGetter(DatapackExterior::overrides),
                     Vec3d.CODEC.optionalFieldOf("seat_translations", new Vec3d(0.5, 1, 0.5)).forGetter(DatapackExterior::seatTranslations),
+                    Codec.BOOL.optionalFieldOf("has_transparent_doors", false).forGetter(DatapackExterior::hasTransparentDoors),
                     Codec.BOOL.optionalFieldOf("isDatapack", true).forGetter(DatapackExterior::wasDatapack))
             .apply(instance, DatapackExterior::new));
 
     public DatapackExterior(Identifier id, Identifier category, Identifier parent, Identifier texture,
-                            Identifier emission, Optional<Loyalty> loyalty, BiomeOverrides overrides, Vec3d seatTranslations, boolean isDatapack) {
+                            Identifier emission, Optional<Loyalty> loyalty, BiomeOverrides overrides, Vec3d seatTranslations, boolean hasTransparentDoors, boolean isDatapack) {
         super(category, id, loyalty);
         this.parent = parent;
         this.texture = texture;
         this.emission = emission;
         this.seatTranslations = seatTranslations;
+        this.hasTransparentDoors = hasTransparentDoors;
         this.initiallyDatapack = isDatapack;
         this.overrides = overrides;
     }
@@ -104,6 +105,10 @@ public class DatapackExterior extends ExteriorVariantSchema {
     @Override
     public Vec3d seatTranslations() {
         return seatTranslations;
+    }
+
+    public boolean hasTransparentDoors() {
+        return hasTransparentDoors;
     }
 
     @Override

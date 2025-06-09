@@ -1,20 +1,18 @@
 package dev.amble.ait.registry.impl;
 
-import java.util.List;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.handler.mood.MoodDictatedEvent;
+import dev.amble.ait.core.tardis.handler.mood.TardisMood;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.util.WorldUtil;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
-
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.random.Random;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.handler.mood.MoodDictatedEvent;
-import dev.amble.ait.core.tardis.handler.mood.TardisMood;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.core.util.WorldUtil;
+import java.util.List;
 
 public class MoodEventPoolRegistry {
     public static final SimpleRegistry<MoodDictatedEvent> REGISTRY = FabricRegistryBuilder
@@ -80,7 +78,7 @@ public class MoodEventPoolRegistry {
         //The ones i commented out do not work
 
         CHANGE_DIM = register(MoodDictatedEvent.Builder.create(AITMod.id("change_dim"), tardis -> {
-            List<ServerWorld> listOfDims = WorldUtil.getOpenWorlds();
+            List<ServerWorld> listOfDims = WorldUtil.getTravelWorlds();
             ServerWorld randomWorld = listOfDims.get(random.nextInt(listOfDims.size()));
 
             tardis.travel().forceDestination(cached -> cached.world(randomWorld));

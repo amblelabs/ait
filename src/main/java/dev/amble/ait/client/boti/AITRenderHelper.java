@@ -3,7 +3,6 @@ package dev.amble.ait.client.boti;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
 import net.minecraft.client.gl.Framebuffer;
 
 

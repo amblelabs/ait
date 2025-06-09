@@ -1,0 +1,10 @@
+*                                @amblelabs
+
+/src/main/java                   @amblelabs/development
+/src/main/resources/data         @amblelabs/development
+
+/src/main/resources/assets       @amblelabs/artists
+/models/       @amblelabs/artists
+
+/scripts                         @DrTheodor
+/src/main/java/dev/drtheo        @DrTheodor

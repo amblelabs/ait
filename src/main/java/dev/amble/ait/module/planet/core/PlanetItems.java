@@ -1,17 +1,15 @@
 package dev.amble.ait.module.planet.core;
 
-import dev.amble.lib.container.impl.ItemContainer;
-import dev.amble.lib.item.AItemSettings;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.item.*;
-
 import dev.amble.ait.core.item.HandlesItem;
 import dev.amble.ait.module.planet.PlanetModule;
 import dev.amble.ait.module.planet.core.item.AnorthositeSwordItem;
 import dev.amble.ait.module.planet.core.item.PlanetToolMaterial;
 import dev.amble.ait.module.planet.core.item.SpacesuitItem;
+import dev.amble.lib.container.impl.ItemContainer;
+import dev.amble.lib.item.AItemSettings;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.item.*;
+import org.jetbrains.annotations.Nullable;
 
 public class PlanetItems extends ItemContainer {
 
@@ -30,14 +28,13 @@ public class PlanetItems extends ItemContainer {
             new AItemSettings().maxDamage(240), true);
 
     // TOOLS
-
-    public static final Item MARTIAN_STONE_SWORD = new SwordItem(PlanetToolMaterial.MARTIAN_STONE, 5, 3f, new AItemSettings());
+    public static final Item MARTIAN_STONE_SWORD = new SwordItem(PlanetToolMaterial.MARTIAN_STONE, 3, -2.4f, new AItemSettings());
     public static final Item MARTIAN_STONE_SHOVEL = new ShovelItem(PlanetToolMaterial.MARTIAN_STONE, 0, 0f, new AItemSettings());
     public static final Item MARTIAN_STONE_PICKAXE = new PickaxeItem(PlanetToolMaterial.MARTIAN_STONE, 2, 2f, new AItemSettings());
     public static final Item MARTIAN_STONE_AXE = new AxeItem(PlanetToolMaterial.MARTIAN_STONE, 3, 1f, new AItemSettings());
     public static final Item MARTIAN_STONE_HOE = new HoeItem(PlanetToolMaterial.MARTIAN_STONE, 1, 2f, new AItemSettings());
 
-    public static final Item ANORTHOSITE_SWORD = new AnorthositeSwordItem(PlanetToolMaterial.ANORTHOSITE, 5, 3f, new AItemSettings());
+    public static final Item ANORTHOSITE_SWORD = new AnorthositeSwordItem(PlanetToolMaterial.ANORTHOSITE, 3, -2.4f, new AItemSettings());
     public static final Item ANORTHOSITE_SHOVEL = new ShovelItem(PlanetToolMaterial.ANORTHOSITE, 0, 0f, new AItemSettings());
     public static final Item ANORTHOSITE_PICKAXE = new PickaxeItem(PlanetToolMaterial.ANORTHOSITE, 2, 2f, new AItemSettings());
     public static final Item ANORTHOSITE_AXE = new AxeItem(PlanetToolMaterial.ANORTHOSITE, 3, 1f, new AItemSettings());
