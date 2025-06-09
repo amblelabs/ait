@@ -78,11 +78,11 @@ public class TardisExteriorBOTI extends BOTI {
 
         VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
-//        GL11.glEnable(GL11.GL_STENCIL_TEST);
-//        GL11.glStencilMask(0xFF);
-//        GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
-//        GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-//        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+        GL11.glEnable(GL11.GL_STENCIL_TEST);
+        GL11.glStencilMask(0xFF);
+        GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+        GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
 
         RenderSystem.depthMask(true);
         stack.push();
@@ -99,8 +99,8 @@ public class TardisExteriorBOTI extends BOTI {
         BOTI_HANDLER.afbo.beginWrite(false);
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 
-//        GL11.glStencilMask(0x00);
-//        GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+        GL11.glStencilMask(0x00);
+        GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
         // It's not a loop, it's a label https://www.geeksforgeeks.org/adding-labels-to-method-and-functions-in-java/
         OUTOFBOTI:
@@ -152,16 +152,18 @@ public class TardisExteriorBOTI extends BOTI {
                     stats.posState.forEach((pos, state) -> {
                         //TODO: Re-implement this (WORKING this time) (Might work this time)
 //                        if(!ClientCameraUtil.isInVisibleArea(pos)) return;
-                        if(!BehindDoor(doorPos, pos, doorDirection)) return; // Make sure blocks behind the door aren't rendered
+                        if(!behindDoor(doorPos, pos, doorDirection)) {
+                            return;
+                        } // Make sure blocks behind the door aren't rendered
                         if(state.equals(Blocks.AIR.getDefaultState())) return;
 
                         stack.push();
-                        stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180 + doorDirection.asRotation()));
+                        stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(doorDirection.asRotation()));
 
                         stack.translate(
-                                doorPos.getX() - pos.getX(),
-                                doorPos.getY() - pos.getY(),
-                                doorPos.getZ() - pos.getZ());
+                                doorPos.getX() - 0.5f - pos.getX(),
+                                doorPos.getY() - 1.0f - pos.getY(),
+                                doorPos.getZ() - 0.5f - pos.getZ());
                         MinecraftClient.getInstance().getBlockRenderManager().getModelRenderer().render(
                                 stack.peek(),
                                 botiProvider.getBuffer(RenderLayers.getBlockLayer(state)),
@@ -202,14 +204,16 @@ public class TardisExteriorBOTI extends BOTI {
 
 
         stack.push();
-        stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
+
+        // TODO come back to this rotation stuff momentarily
+        stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(0));
 
         ((ExteriorModel) frame).renderDoors(exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.getBotiInterior(variant.texture())), light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
         botiProvider.draw();
         stack.pop();
 
         stack.push();
-        stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
+        stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(0));
 
         if (variant != ClientExteriorVariantRegistry.CORAL_GROWTH) {
             BiomeHandler handler = exterior.tardis().get().handler(TardisComponent.Id.BIOME);
@@ -223,7 +227,7 @@ public class TardisExteriorBOTI extends BOTI {
         stack.pop();
 
         stack.push();
-        stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
+        stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(0));
         if (variant.emission() != null)
             ((ExteriorModel) frame).renderDoors(exterior, frame.getPart(), stack, botiProvider.getBuffer(DependencyChecker.hasIris() ? AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true) : AITRenderLayers.getBeaconBeam(variant.emission(), true)), 0xf000f0,
                     OverlayTexture.DEFAULT_UV, exterior.tardis().get().alarm().enabled().get() ?
@@ -237,7 +241,7 @@ public class TardisExteriorBOTI extends BOTI {
 
         BOTI.copyColor(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
 
-//        GL11.glDisable(GL11.GL_STENCIL_TEST);
+        GL11.glDisable(GL11.GL_STENCIL_TEST);
 
         stack.pop();
     }
@@ -259,7 +263,7 @@ public class TardisExteriorBOTI extends BOTI {
 //        }
     }
 
-    public boolean BehindDoor(BlockPos DoorPos, BlockPos pos, Direction doorFacing) {
+    public boolean behindDoor(BlockPos DoorPos, BlockPos pos, Direction doorFacing) {
         int x = pos.getX();
         int z = pos.getZ();
         int dx = DoorPos.getX();
@@ -270,16 +274,16 @@ public class TardisExteriorBOTI extends BOTI {
                 return false;
             }
             case NORTH -> {
-                return z > dz;
+                return z >= dz;
             }
             case SOUTH -> {
-                return z < dz;
+                return z <= dz;
             }
             case EAST -> {
-                return x < dx;
+                return x <= dx;
             }
             case WEST -> {
-                return x > dx;
+                return x >= dx;
             }
         }
         return false;
