@@ -1,8 +1,39 @@
 package dev.amble.ait.core.tardis.handler;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.text.DateFormat;
+import java.time.Instant;
+import java.util.*;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import dev.amble.lib.register.unlockable.Unlockable;
+import dev.amble.lib.util.ServerLifecycleHooks;
+import dev.codiak.threads.UpdateBOTIChunkModelThread;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import org.joml.Vector3f;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.resource.Resource;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
@@ -25,37 +56,6 @@ import dev.amble.ait.data.properties.dbl.DoubleProperty;
 import dev.amble.ait.data.properties.dbl.DoubleValue;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.registry.impl.DesktopRegistry;
-import dev.amble.lib.register.unlockable.Unlockable;
-import dev.amble.lib.util.ServerLifecycleHooks;
-import dev.codiak.threads.UpdateBOTIChunkModelThread;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.block.BlockRenderManager;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.BakedQuad;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.resource.Resource;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-import org.joml.Vector3f;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.text.DateFormat;
-import java.time.Instant;
-import java.util.*;
 
 public class StatsHandler extends KeyedTardisComponent {
 
@@ -416,16 +416,17 @@ public class StatsHandler extends KeyedTardisComponent {
         posState = statePos;
     }
 
-    @Environment(value = EnvType.CLIENT)
-    public void updateChunkModel(ExteriorBlockEntity exteriorBlockEntity, NbtCompound chunkData) {
-        if (exteriorBlockEntity == null || exteriorBlockEntity.getWorld() == null || !exteriorBlockEntity.getWorld().isClient())
-            return;
-
-        if (botiChunkVBO == null) botiChunkVBO = new BOTIChunkVBO();
-
-        botiChunkVBO.setTargetPos(this.targetPos.get());
-        botiChunkVBO.updateBlockMap(this.posState);
-    }
+    //TODO: Make sure I didn't just comment out some important code idfk atp
+//    @Environment(value = EnvType.CLIENT)
+//    public void updateChunkModel(ExteriorBlockEntity exteriorBlockEntity, NbtCompound chunkData) {
+//        if (exteriorBlockEntity == null || exteriorBlockEntity.getWorld() == null || !exteriorBlockEntity.getWorld().isClient())
+//            return;
+//
+//        if (botiChunkVBO == null) botiChunkVBO = new BOTIChunkVBO();
+//
+//        botiChunkVBO.setTargetPos(this.targetPos.get());
+//        botiChunkVBO.updateBlockMap(this.posState);
+//    }
 
 
     @Environment(value = EnvType.CLIENT)
@@ -443,8 +444,9 @@ public class StatsHandler extends KeyedTardisComponent {
         botiChunkVBO.updateChunkModel(exteriorBlockEntity);
 
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        BlockRenderManager blockRenderManager = mc.getBlockRenderManager();
+        // Might need these at some point idfk
+//        MinecraftClient mc = MinecraftClient.getInstance();
+//        BlockRenderManager blockRenderManager = mc.getBlockRenderManager();
 //        List<BakedQuad> quads = new ArrayList<>();
         ChunkPos chunkPos = new ChunkPos(targetPos.get());
         int baseY = targetPos.get().getY() & ~15;
@@ -474,89 +476,12 @@ public class StatsHandler extends KeyedTardisComponent {
                                 this.blockEntities.put(relativePos, blockEntity);
                             }
                         } catch (Exception e) {
-                            System.out.println("Failed to load block entity at " + pos + ": " + e.getMessage());
+                            AITMod.LOGGER.error("Failed to load block entity at {} \n {}", pos, e.getMessage());
                         }
                     }
                 }
             }
         }
-//
-//        this.botiChunkVBO.blocks.forEach((pos, state) -> {
-//            if (state != null && !state.isAir() && !state.hasBlockEntity()) {
-//                BakedModel model = blockRenderManager.getModel(state);
-//                if (model != null) {
-//                    List<BakedQuad> blockQuads = new ArrayList<>();
-//
-//                    // Add general quads
-//                    List<BakedQuad> generalQuads = model.getQuads(state, null, net.minecraft.util.math.random.Random.create());
-//                    if (generalQuads != null) {
-//                        blockQuads.addAll(generalQuads);
-//                    }
-//
-//                    // Add side quads
-//                    List<BakedQuad> sideQuads = model.getQuads(state, Direction.NORTH, net.minecraft.util.math.random.Random.create());
-//                    sideQuads.addAll(model.getQuads(state, Direction.SOUTH, net.minecraft.util.math.random.Random.create()));
-//                    sideQuads.addAll(model.getQuads(state, Direction.EAST, net.minecraft.util.math.random.Random.create()));
-//                    sideQuads.addAll(model.getQuads(state, Direction.WEST, net.minecraft.util.math.random.Random.create()));
-//                    blockQuads.addAll(sideQuads);
-//
-//                    // Translate and add valid quads
-//                    if (!blockQuads.isEmpty()) {
-//                        List<BakedQuad> translatedQuads = translateQuads(blockQuads, pos.getX(), pos.getY(), pos.getZ());
-//                        if (!translatedQuads.isEmpty()) {
-//                            quads.addAll(translatedQuads);
-//                        }
-//                    }
-//                }
-//            }
-//        });
-//
-//        if (quads.isEmpty() && blockEntities.isEmpty()) {
-//            System.out.println("No quads or block entities generated for chunk at " + targetPos.get());
-//        } else {
-//            this.chunkModel = new BakedModel() {
-//                @Override
-//                public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction face, net.minecraft.util.math.random.Random random) {
-//                    return quads;
-//                }
-//
-//                @Override
-//                public boolean useAmbientOcclusion() {
-//                    return true;
-//                }
-//
-//                @Override
-//                public boolean hasDepth() {
-//                    return true;
-//                }
-//
-//                @Override
-//                public boolean isSideLit() {
-//                    return true;
-//                }
-//
-//                @Override
-//                public boolean isBuiltin() {
-//                    return false;
-//                }
-//
-//                @Override
-//                public Sprite getParticleSprite() {
-//                    return mc.getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE)
-//                            .apply(new Identifier("minecraft", "stone"));
-//                }
-//
-//                @Override
-//                public ModelTransformation getTransformation() {
-//                    return ModelTransformation.NONE;
-//                }
-//
-//                @Override
-//                public ModelOverrideList getOverrides() {
-//                    return ModelOverrideList.EMPTY;
-//                }
-//            };
-//        }
     }
 
     public List<BakedQuad> translateQuads(List<BakedQuad> quads, int xOffset, int yOffset, int zOffset) {
@@ -618,7 +543,7 @@ public class StatsHandler extends KeyedTardisComponent {
                 System.out.println("Missing palette or data in block_states: " + blockStates);
             }
         } else {
-            System.out.println("No block_states in chunk data: " + chunkData);
+//            System.out.println("No block_states in chunk data: " + chunkData);
         }
         return Blocks.AIR.getDefaultState();
     }

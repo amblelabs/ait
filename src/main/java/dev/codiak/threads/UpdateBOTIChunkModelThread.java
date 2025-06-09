@@ -27,6 +27,8 @@ import net.minecraft.util.math.random.Random;
 import dev.amble.ait.client.boti.BOTIChunkVBO;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 
+//TODO: If I don't ever re-implement the baked model re-use this thread for the posState map
+@SuppressWarnings("deprecation")
 public class UpdateBOTIChunkModelThread extends Thread {
     ExteriorBlockEntity exteriorBlockEntity;
     public UpdateBOTIChunkModelThread(ExteriorBlockEntity exteriorBlockEntity) {
@@ -70,7 +72,7 @@ public class UpdateBOTIChunkModelThread extends Thread {
 
         botiChunkVBO.blocks.forEach((pos, state) -> {
             if (state != null && !state.isAir() && !state.hasBlockEntity()) {
-                if(finalBotiChunkVBO.shouldGenerateQuads) {
+                if(BOTIChunkVBO.shouldGenerateQuads) {
                     BakedModel model = blockRenderManager.getModel(state);
                     if (model != null) {
                         List<BakedQuad> blockQuads = new ArrayList<>();

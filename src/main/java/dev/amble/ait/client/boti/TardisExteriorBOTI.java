@@ -4,18 +4,17 @@ package dev.amble.ait.client.boti;
 import java.util.Map;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.core.tardis.Tardis;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.*;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
@@ -27,19 +26,19 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.core.tardis.handler.StatsHandler;
 import dev.amble.ait.core.tardis.util.network.c2s.BOTIChunkRequestC2SPacket;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumerProvider;
 
 
 public class TardisExteriorBOTI extends BOTI {
@@ -60,7 +59,8 @@ public class TardisExteriorBOTI extends BOTI {
             return;
         }
 
-        ClientTardis tardis = exterior.tardis().get().asClient();;
+        ClientTardis tardis = exterior.tardis().get().asClient();
+        ;
         if (currentTime - exterior.lastRequestTime >= 20) {
             updateChunkModel(exterior);
             exterior.lastRequestTime = currentTime;
@@ -118,6 +118,7 @@ public class TardisExteriorBOTI extends BOTI {
             BlockPos doorPos = tardis.getDesktop().getDoorPos().getPos();
             Direction doorDirection = tardis.getDesktop().getDoorPos().toMinecraftDirection();
             RegistryKey<World> targetWorld = stats.getTargetWorld();
+
             if (doorPos != null && targetPos != null && targetWorld != null) {
                 stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
 
@@ -126,29 +127,30 @@ public class TardisExteriorBOTI extends BOTI {
                     break OUTOFBOTI;
                 }
 
-                OUTOFVBO:
-                if (BOTIChunkVBO.shouldGenerateQuads) {
-//                    stats.botiChunkVBO.render(stack, light, OverlayTexture.DEFAULT_UV);
-                    if (stats.botiChunkVBO.isWorkingInThread()) break OUTOFVBO;
-                    if (stats.botiChunkVBO.isDirty()) break OUTOFVBO;
-
-                    stats.botiChunkVBO.vertexBuffer.bind();
-                    VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL.setupState();
-                    stats.botiChunkVBO.vertexBuffer.draw();
-                    VertexBuffer.unbind();
-                    VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL.clearState();
-
-
-                    if (stats.botiChunkVBO != null &&
-                            stats.botiChunkVBO.isDirty() &&
-                            !stats.botiChunkVBO.isWorkingInThread())
-                        stats.botiChunkVBO.updateChunkModel(exterior);
-                }
+                // DON'T TOUCH THIS LOQOR
+//                OUTOFVBO:
+//                if (BOTIChunkVBO.shouldGenerateQuads) {
+////                    stats.botiChunkVBO.render(stack, light, OverlayTexture.DEFAULT_UV);
+//                    if (stats.botiChunkVBO.isWorkingInThread()) break OUTOFVBO;
+//                    if (stats.botiChunkVBO.isDirty()) break OUTOFVBO;
+//
+//                    stats.botiChunkVBO.vertexBuffer.bind();
+//                    VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL.setupState();
+//                    stats.botiChunkVBO.vertexBuffer.draw();
+//                    VertexBuffer.unbind();
+//                    VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL.clearState();
+//
+//
+//                    if (stats.botiChunkVBO != null &&
+//                            stats.botiChunkVBO.isDirty() &&
+//                            !stats.botiChunkVBO.isWorkingInThread())
+//                        stats.botiChunkVBO.updateChunkModel(exterior);
+//                }
 
 //                stack.scale(-1, 0, 0);
                 OUTOFBLOCKRENDERER:
                 if (!BOTIChunkVBO.shouldGenerateQuads) {
-                    if(stats.posState == null) {
+                    if (stats.posState == null) {
                         updateChunkModel(exterior);
                         break OUTOFBLOCKRENDERER;
                     }
@@ -157,16 +159,14 @@ public class TardisExteriorBOTI extends BOTI {
                     }
 
                     stats.posState.forEach((pos, state) -> {
-                        //TODO: Re-implement this (WORKING this time) (Might work this time)
-//                        if(!ClientCameraUtil.isInVisibleArea(pos)) return;
-                        if(!behindDoor(doorPos, pos, doorDirection)) {
+                        if (!behindDoor(doorPos, pos, doorDirection))
                             return;
-                        } // Make sure blocks behind the door aren't rendered
-                        if(state.equals(Blocks.AIR.getDefaultState())) return;
+
+                        if (state.equals(Blocks.AIR.getDefaultState())) return;
 
                         stack.push();
                         stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(doorDirection.asRotation()));
-
+                        //TODO: Put rots here I think to fix that
                         stack.translate(
                                 doorPos.getX() - 0.5f - pos.getX(),
                                 doorPos.getY() - 1.0f - pos.getY(),
@@ -265,6 +265,8 @@ public class TardisExteriorBOTI extends BOTI {
 
         if (exteriorBlockEntity.tardis().get().stats().getTargetWorld() == World.OVERWORLD)
             return;
+
+        //TODO: Implement a real query time not some hacky non working bullshit
 //        if (exteriorBlockEntity.lastRequestTime == 0 || currentTime - exteriorBlockEntity.lastRequestTime >= 20) {
         ClientPlayNetworking.send(new BOTIChunkRequestC2SPacket(exteriorBlockEntity.getPos(), tardis.stats().getTargetWorld(), tardis.stats().targetPos()));
         exteriorBlockEntity.lastRequestTime = currentTime;
@@ -277,8 +279,9 @@ public class TardisExteriorBOTI extends BOTI {
         int dx = DoorPos.getX();
         int dz = DoorPos.getZ();
 
-        switch(doorFacing) {
-            case UP, DOWN -> { // If the door is facing Up or Down, something is severely wrong, and we shouldn't even attempt to render the blocks in the first place
+        switch (doorFacing) {
+            case UP,
+                 DOWN -> { // If the door is facing Up or Down, something is severely wrong, and we shouldn't even attempt to render the blocks in the first place
                 return false;
             }
             case NORTH -> {
