@@ -55,6 +55,7 @@ import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.MAX_PLAS
 
 public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements BlockEntityTicker<ExteriorBlockEntity> {
     private UUID seatEntityUUID = null;
+    public long lastRequestTime = 0;
 
     public ExteriorBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.EXTERIOR_BLOCK_ENTITY_TYPE, pos, state);

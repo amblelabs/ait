@@ -6,6 +6,7 @@ import java.util.Map;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.core.tardis.Tardis;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import org.lwjgl.opengl.GL11;
 
@@ -27,7 +28,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.TardisComponent;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
@@ -39,20 +39,12 @@ import dev.amble.ait.core.tardis.util.network.c2s.BOTIChunkRequestC2SPacket;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.model.SinglePartEntityModel;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.util.DyeColor;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3f;
-import org.lwjgl.opengl.GL11;
 
 
 public class TardisExteriorBOTI extends BOTI {
@@ -67,6 +59,11 @@ public class TardisExteriorBOTI extends BOTI {
 
         if (!exterior.isLinked())
             return;
+
+        long currentTime = MinecraftClient.getInstance().getRenderTime();
+        if (MinecraftClient.getInstance().getTickDelta() == lastRenderTick) {
+            return;
+        }
 
         ClientTardis tardis = exterior.tardis().get().asClient();;
         if (currentTime - exterior.lastRequestTime >= 20) {
@@ -131,9 +128,8 @@ public class TardisExteriorBOTI extends BOTI {
 
         // It's not a loop, it's a label https://www.geeksforgeeks.org/adding-labels-to-method-and-functions-in-java/
         OUTOFBOTI:
-        if (AITMod.CONFIG.CLIENT.SHOULD_RENDER_BOTI_INTERIOR) {
+        if (AITModClient.CONFIG.shouldRenderBOTIInterior) {
             MatrixStack matrices = new MatrixStack();
-            StatsHandler stats = tardis.stats();
             BlockPos targetPos = stats.targetPos();
             BlockPos doorPos = tardis.getDesktop().getDoorPos().getPos();
             Direction doorDirection = tardis.getDesktop().getDoorPos().toMinecraftDirection();
@@ -251,7 +247,7 @@ public class TardisExteriorBOTI extends BOTI {
         // TODO come back to this rotation stuff momentarily
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(0));
 
-        ((ExteriorModel) frame).renderDoors(exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.getBotiInterior(variant.texture())), light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
+        ((ExteriorModel) frame).renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.getBotiInterior(variant.texture())), light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
         botiProvider.draw();
         stack.pop();
 
@@ -301,7 +297,7 @@ public class TardisExteriorBOTI extends BOTI {
             }
 
             boolean power = tardis.fuel().hasPower();
-            boolean alarms = tardis.alarm().enabled().get();
+            boolean alarms = tardis.alarm().isEnabled();
 
             float red = power ? s : alarms ? 0.3f : 0;
             float green = power ? alarms ? 0.3f : t : 0;
