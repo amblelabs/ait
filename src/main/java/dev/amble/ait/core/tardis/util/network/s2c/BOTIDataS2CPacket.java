@@ -41,37 +41,47 @@ public class BOTIDataS2CPacket implements FabricPacket {
         this.botiPos = botiPos;
         ServerWorld world = ServerLifecycleHooks.get().getWorld(key);
         try {
-            int chunksToRender = BOTIChunkVBO.chunksToRender;
-            int r = 16;
+            int chunksToRender = BOTIChunkVBO.chunksToRender; // Should be 4
+            int r = 16; // Chunk size in blocks
             int targetY = targetPos.getY();
-            int baseY = targetY & ~15;
+            int baseY = targetY & ~15; // Align to chunk section boundary
 
-            for (int i = 0; i < chunksToRender; i++) {
-                for (int d = 0; d < chunksToRender; d++) {
-                    BlockPos target = targetPos.add(BOTIChunkVBO.blocksToRender(i), 0, BOTIChunkVBO.blocksToRender(d));
+            // Assuming chunksToRender = 4 means a 2x2 chunk grid
+            int chunkRadius = chunksToRender / 2; // Should be 2 for 4 chunks
+            ChunkPos centerChunkPos = new ChunkPos(targetPos);
 
-                    ChunkPos chunkPos = new ChunkPos(target);
+            for (int chunkXOffset = -chunkRadius / 2; chunkXOffset < chunkRadius / 2; chunkXOffset++) {
+                for (int chunkZOffset = -chunkRadius / 2; chunkZOffset < chunkRadius / 2; chunkZOffset++) {
+                    // Calculate the chunk position for the current offset
+                    ChunkPos chunkPos = new ChunkPos(centerChunkPos.x + chunkXOffset, centerChunkPos.z + chunkZOffset);
 
+                    // Load the chunk
                     assert world != null;
                     world.getChunkManager().getChunk(chunkPos.x, chunkPos.z, ChunkStatus.FULL, false);
-
                     Chunk chunk = world.getChunk(chunkPos.x, chunkPos.z);
                     if (chunk == null) continue;
 
+                    // Get the chunk section for the target Y level
                     int sectionIndex = chunk.getSectionIndex(targetY);
                     ChunkSection section = chunk.getSection(sectionIndex);
+                    if (section == null) continue;
 
-                    for (int y = 0; y < r; y++) {
-                        for (int x = 0; x < r; x++) {
+                    // Iterate over blocks within the chunk
+                    for (int x = 0; x < r; x++) {
+                        for (int y = 0; y < r; y++) {
                             for (int z = 0; z < r; z++) {
-                                BlockPos localPos = new BlockPos(x + (i >> 4), y, z + (d >> 4));
+                                // Local position within the chunk
                                 BlockState state = section.getBlockState(x, y, z);
-                                if(state == null || state.isAir()) continue;
+                                BlockPos localPos = new BlockPos(x + chunk.getPos().x * 16, y, z + chunk.getPos().z * 16);
+                                if (state == null || state.isAir()) continue;
 
+                                // Store block state
                                 if (!this.posStates.containsKey(localPos)) {
+
                                     this.posStates.put(localPos, state);
                                 }
 
+                                // World position for block entity lookup
                                 BlockPos worldPos = new BlockPos(
                                         chunkPos.getStartX() + x,
                                         baseY + y,
@@ -79,10 +89,7 @@ public class BOTIDataS2CPacket implements FabricPacket {
                                 );
                                 BlockEntity be = chunk.getBlockEntity(worldPos);
                                 if (be != null) {
-                                    blockEntities.put(
-                                            localPos,
-                                            be.createNbtWithIdentifyingData()
-                                    );
+                                    blockEntities.put(localPos, be.createNbtWithIdentifyingData());
                                 }
                             }
                         }

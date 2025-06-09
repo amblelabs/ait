@@ -5,7 +5,6 @@ import java.util.Map;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.block.Blocks;
@@ -113,6 +112,8 @@ public class TardisExteriorBOTI extends BOTI {
             Direction doorDirection = tardis.getDesktop().getDoorPos().toMinecraftDirection();
             RegistryKey<World> targetWorld = stats.getTargetWorld();
             if (doorPos != null && targetPos != null && targetWorld != null) {
+                stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
+
                 if (stats.botiChunkVBO == null) {
                     this.updateChunkModel(exterior);
                     break OUTOFBOTI;
@@ -137,6 +138,7 @@ public class TardisExteriorBOTI extends BOTI {
                         stats.botiChunkVBO.updateChunkModel(exterior);
                 }
 
+//                stack.scale(-1, 0, 0);
                 OUTOFBLOCKRENDERER:
                 if (!BOTIChunkVBO.shouldGenerateQuads) {
                     if(stats.posState == null) {
@@ -148,23 +150,18 @@ public class TardisExteriorBOTI extends BOTI {
                     }
 
                     stats.posState.forEach((pos, state) -> {
+                        //TODO: Re-implement this (WORKING this time) (Might work this time)
 //                        if(!ClientCameraUtil.isInVisibleArea(pos)) return;
-//                        if(!BehindDoor(pos, doorPos, doorDirection)) return; // Make sure blocks behind the door aren't rendered
+                        if(!BehindDoor(doorPos, pos, doorDirection)) return; // Make sure blocks behind the door aren't rendered
                         if(state.equals(Blocks.AIR.getDefaultState())) return;
 
                         stack.push();
                         stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180 + doorDirection.asRotation()));
-                        Matrix4f matrix = stack.peek().getPositionMatrix();
 
-                        // Extract the translation components (x, y, z) from the matrix
-                        float x = matrix.m03(); // Translation in X
-                        float y = matrix.m13(); // Translation in Y
-                        float z = matrix.m23(); // Translation in Z
                         stack.translate(
                                 doorPos.getX() - pos.getX(),
                                 doorPos.getY() - pos.getY(),
                                 doorPos.getZ() - pos.getZ());
-                        stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
                         MinecraftClient.getInstance().getBlockRenderManager().getModelRenderer().render(
                                 stack.peek(),
                                 botiProvider.getBuffer(RenderLayers.getBlockLayer(state)),
@@ -178,7 +175,6 @@ public class TardisExteriorBOTI extends BOTI {
                         );
                         stack.pop();
                     });
-
                     this.lastRenderTick = MinecraftClient.getInstance().getTickDelta();
                 }
 
@@ -203,6 +199,7 @@ public class TardisExteriorBOTI extends BOTI {
 //            }
             }
         }
+
 
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
@@ -273,16 +270,16 @@ public class TardisExteriorBOTI extends BOTI {
                 return false;
             }
             case NORTH -> {
-                return z < dz;
-            }
-            case SOUTH -> {
                 return z > dz;
             }
+            case SOUTH -> {
+                return z < dz;
+            }
             case EAST -> {
-                return x > dx;
+                return x < dx;
             }
             case WEST -> {
-                return x < dx;
+                return x > dx;
             }
         }
         return false;

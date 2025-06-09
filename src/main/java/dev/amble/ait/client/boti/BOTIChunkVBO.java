@@ -22,7 +22,7 @@ public class BOTIChunkVBO {
     public VertexBuffer vertexBuffer;
     public BufferBuilder bufferBuilder;
     public int vertexCount = 0;
-    public static int chunksToRender = 4;
+    public static int chunksToRender = 8;
     private final Map<BlockPos, BlockEntity> blockEntities = new HashMap<>();
     public Map<BlockPos, BlockState> blocks = new HashMap<>();
     private BlockPos targetPos;
