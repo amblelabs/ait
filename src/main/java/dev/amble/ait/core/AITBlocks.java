@@ -14,7 +14,6 @@ import dev.amble.lib.datagen.util.NoBlockDrop;
 import dev.amble.lib.datagen.util.NoEnglish;
 import dev.amble.lib.datagen.util.PickaxeMineable;
 import dev.amble.lib.item.AItemSettings;
-import dev.codiak.blocks.BOTIBlock;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
@@ -41,11 +40,6 @@ public class AITBlocks extends BlockContainer {
     public static final Block EXTERIOR_BLOCK = new ExteriorBlock(
             FabricBlockSettings.create().nonOpaque().noBlockBreakParticles().strength(-1.0f, 3600000.0f).dropsNothing()
                     .pistonBehavior(PistonBehavior.IGNORE).luminance(ExteriorBlock.STATE_TO_LUMINANCE));
-
-    @NoBlockDrop
-    @NoEnglish
-    public static final Block PORTAL_BLOCK = new BOTIBlock(FabricBlockSettings.create().nonOpaque().noBlockBreakParticles()
-            .strength(-1.0f, 3600000.0f).dropsNothing().pistonBehavior(PistonBehavior.IGNORE));
 
     @PickaxeMineable
     @NoEnglish

@@ -19,6 +19,7 @@ import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.core.tardis.handler.SonicHandler;
+import dev.amble.ait.core.tardis.handler.StatsHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -38,6 +39,7 @@ import net.minecraft.item.BrushItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -174,6 +176,17 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
 
         if (!tardis.travel().isLanded())
             return;
+
+        ServerWorld tardisServerWorld = tardis.world();
+        RegistryKey<World> targetWorldKey = tardisServerWorld.getRegistryKey();
+        StatsHandler stats = tardis.stats();
+        RegistryKey<World> targetWorld = stats.getTargetWorld();
+
+        if (targetWorld != null &&
+                !targetWorld.equals(targetWorldKey))
+
+            stats.setTargetWorld(this,
+                    targetWorldKey, tardis.getDesktop().getDoorPos().getPos(), true);
 
         tardis.door().interact((ServerWorld) this.getWorld(), this.getPos(), (ServerPlayerEntity) player);
     }

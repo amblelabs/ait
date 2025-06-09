@@ -51,6 +51,7 @@ import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.*;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
@@ -119,6 +120,7 @@ public class AITModClient implements ClientModInitializer {
 
         ClientDoorRegistry.init();
         ClientTardisManager.init();
+        NetworkUtil.initClient();
 
         ModuleRegistry.instance().onClientInit();
 

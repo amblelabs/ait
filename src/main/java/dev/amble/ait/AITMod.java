@@ -22,6 +22,7 @@ import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
+import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
 import dev.amble.ait.core.util.CustomTrades;
@@ -144,6 +145,7 @@ public class AITMod implements ModInitializer {
         LandingPadManager.init();
         ControlRegistry.init();
         RiftChunkManager.init();
+        NetworkUtil.init();
 
         AmbleRegistries.getInstance().registerAll(
                 SonicRegistry.getInstance(),

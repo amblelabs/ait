@@ -6,12 +6,17 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.LinkableItem;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.util.network.c2s.BOTIChunkRequestC2SPacket;
+import dev.amble.ait.core.tardis.util.network.s2c.BOTIDataS2CPacket;
+import dev.amble.ait.core.tardis.util.network.s2c.BOTISyncS2CPacket;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -26,6 +31,16 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class NetworkUtil {
+
+    public static void init() {
+        ServerPlayNetworking.registerGlobalReceiver(BOTIChunkRequestC2SPacket.TYPE, BOTIChunkRequestC2SPacket::handle);
+    }
+
+    @Environment(EnvType.CLIENT)
+    public static void initClient() {
+        ClientPlayNetworking.registerGlobalReceiver(BOTISyncS2CPacket.TYPE, BOTISyncS2CPacket::handle);
+        ClientPlayNetworking.registerGlobalReceiver(BOTIDataS2CPacket.TYPE, BOTIDataS2CPacket::handle);
+    }
 
     public static <T> void send(ServerPlayerEntity player, PacketByteBuf buf, Identifier id, Codec<T> codec, T t) {
         DataResult<NbtElement> result = codec.encodeStart(NbtOps.INSTANCE, t);
