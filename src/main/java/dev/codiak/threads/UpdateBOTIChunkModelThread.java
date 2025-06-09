@@ -118,7 +118,7 @@ public class UpdateBOTIChunkModelThread extends Thread {
         });
 
         if (quads.isEmpty()) {
-            System.out.println("No quads or block entities generated for chunk at " + targetPos);
+            //System.out.println("No quads or block entities generated for chunk at " + targetPos);
         } else {
             exteriorBlockEntity.tardis().get().stats().chunkModel = new BakedModel() {
                 @Override

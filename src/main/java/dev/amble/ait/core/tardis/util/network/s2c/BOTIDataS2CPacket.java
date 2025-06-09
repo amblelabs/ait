@@ -72,8 +72,8 @@ public class BOTIDataS2CPacket implements FabricPacket {
                             for (int z = 0; z < r; z++) {
                                 // Local position within the chunk
                                 BlockState state = section.getBlockState(x, y, z);
-                                BlockPos localPos = new BlockPos(x + chunk.getPos().x * 16, y, z + chunk.getPos().z * 16);
                                 if (state == null || state.isAir()) continue;
+                                BlockPos localPos = new BlockPos(x + chunk.getPos().x * 16, y, z + chunk.getPos().z * 16);
 
                                 // Store block state
                                 if (!this.posStates.containsKey(localPos)) {

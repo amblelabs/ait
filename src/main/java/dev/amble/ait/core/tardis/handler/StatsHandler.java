@@ -443,7 +443,6 @@ public class StatsHandler extends KeyedTardisComponent {
 
         botiChunkVBO.updateChunkModel(exteriorBlockEntity);
 
-
         // Might need these at some point idfk
 //        MinecraftClient mc = MinecraftClient.getInstance();
 //        BlockRenderManager blockRenderManager = mc.getBlockRenderManager();

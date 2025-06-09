@@ -4,7 +4,14 @@ package dev.amble.ait.client.boti;
 import java.util.Map;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
+import net.minecraft.block.FluidBlock;
+import net.minecraft.block.SlabBlock;
+import net.minecraft.client.render.block.BlockModelRenderer;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.FluidState;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.block.Blocks;
@@ -147,55 +154,68 @@ public class TardisExteriorBOTI extends BOTI {
 //                        stats.botiChunkVBO.updateChunkModel(exterior);
 //                }
 
-//                stack.scale(-1, 0, 0);
                 OUTOFBLOCKRENDERER:
                 if (!BOTIChunkVBO.shouldGenerateQuads) {
                     if (stats.posState == null) {
                         updateChunkModel(exterior);
                         break OUTOFBLOCKRENDERER;
                     }
-                    if (this.lastRenderTick == MinecraftClient.getInstance().getTickDelta()) {
+                    float tickDelta = MinecraftClient.getInstance().getTickDelta();
+                    if (this.lastRenderTick == tickDelta) {
                         break OUTOFBLOCKRENDERER;
                     }
 
-                    stats.posState.forEach((pos, state) -> {
-                        if (!behindDoor(doorPos, pos, doorDirection))
-                            return;
-
-                        if (state.equals(Blocks.AIR.getDefaultState())) return;
+                    for (Map.Entry<BlockPos, net.minecraft.block.BlockState> entry : stats.posState.entrySet()) {
+                        BlockPos pos = entry.getKey();
+                        net.minecraft.block.BlockState state = entry.getValue();
+                        if (state.isAir()) continue;
+                        if (!behindDoor(doorPos, pos, doorDirection)) continue;
 
                         stack.push();
-                        stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(doorDirection.asRotation()));
-                        //TODO: Put rots here I think to fix that
-                        stack.translate(
-                                doorPos.getX() - 0.5f - pos.getX(),
-                                doorPos.getY() - 1.0f - pos.getY(),
-                                doorPos.getZ() - 0.5f - pos.getZ());
+                        stack.scale(-1, 1, 1);
+                        stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(doorDirection.asRotation()));
 
-                        MinecraftClient.getInstance().getBlockRenderManager().getModelRenderer().render(
-                                stack.peek(),
-                                botiProvider.getBuffer(RenderLayers.getBlockLayer(state)),
-                                state,
-                                MinecraftClient.getInstance().getBlockRenderManager().getModel(state),
-                                1,
-                                1,
-                                1,
-                                light - 0xf00ff,
-                                OverlayTexture.DEFAULT_UV
-                        );
+                        float offsetX = doorPos.getX() + 0.5f - pos.getX();
+                        float offsetY = doorPos.getY() - pos.getY();
+                        float offsetZ = doorPos.getZ() + 0.5f - pos.getZ();
+                        stack.translate(offsetX, offsetY, offsetZ);
+
+                        stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180f));
+                        stack.scale(1, -1, 1);
+
+                        BlockModelRenderer.enableBrightnessCache();
+                        if (state.getBlock() instanceof FluidBlock fluidBlock) {
+                            FluidState fluidState = fluidBlock.getFluidState(state);
+                            MinecraftClient.getInstance().getBlockRenderManager().renderFluid(
+                                    new BlockPos((int) offsetX, (int) offsetY, (int) offsetZ),
+                                    MinecraftClient.getInstance().world,
+                                    botiProvider.getBuffer(RenderLayers.getFluidLayer(fluidState)),
+                                    state,
+                                    fluidState);
+                        } else {
+                            MinecraftClient.getInstance().getBlockRenderManager().getModelRenderer().render(
+                                    stack.peek(),
+                                    botiProvider.getBuffer(RenderLayers.getBlockLayer(state)),
+                                    state,
+                                    MinecraftClient.getInstance().getBlockRenderManager().getModel(state),
+                                    1, 1, 1, 210, OverlayTexture.DEFAULT_UV
+                            );
+                        }
+                        BlockModelRenderer.disableBrightnessCache();
                         stack.pop();
-                    });
-                    this.lastRenderTick = MinecraftClient.getInstance().getTickDelta();
+                    }
+                    this.lastRenderTick = tickDelta;
                 }
 
                 for (Map.Entry<BlockPos, BlockEntity> entry : stats.blockEntities.entrySet()) {
                     BlockPos offsetPos = entry.getKey();
                     BlockEntity be = entry.getValue();
                     BlockEntityRenderer<BlockEntity> renderer = MinecraftClient.getInstance().getBlockEntityRenderDispatcher().get(be);
+
                     if (renderer != null) {
                         stack.push();
                         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-90));
-                        stack.translate(offsetPos.getX(), offsetPos.getY(), offsetPos.getZ());
+                        stack.translate(doorPos.getX() - offsetPos.getX(), doorPos.getY() - offsetPos.getY(), doorPos.getZ() - offsetPos.getZ());
                         be.setWorld(MinecraftClient.getInstance().world);
                         renderer.render(be, MinecraftClient.getInstance().getTickDelta(), stack,
                                 botiProvider, light, OverlayTexture.DEFAULT_UV);
