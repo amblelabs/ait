@@ -12,7 +12,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import dev.amble.lib.register.unlockable.Unlockable;
 import dev.amble.lib.util.ServerLifecycleHooks;
-import dev.codiak.threads.UpdateBOTIChunkModelThread;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -439,7 +438,7 @@ public class StatsHandler extends KeyedTardisComponent {
         botiChunkVBO.setTargetPos(this.targetPos.get());
         botiChunkVBO.updateBlockMap(this.posState);
 
-        new UpdateBOTIChunkModelThread(exteriorBlockEntity).start();
+//        new UpdateBOTIChunkModelThread(exteriorBlockEntity).start();
 
         botiChunkVBO.updateChunkModel(exteriorBlockEntity);
 
