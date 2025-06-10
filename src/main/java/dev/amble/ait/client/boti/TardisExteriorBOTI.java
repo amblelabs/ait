@@ -8,7 +8,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.block.FluidBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
@@ -17,18 +16,17 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.BlockModelRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.fluid.FluidState;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 
 import dev.amble.ait.api.tardis.TardisComponent;
@@ -49,6 +47,40 @@ import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 public class TardisExteriorBOTI extends BOTI {
     private float lastRenderTick = -1;
     private VertexBuffer BOTI_VBO;
+
+    public TardisExteriorBOTI(Tardis tardis) {
+        this.renderChunkVBO(tardis);
+    }
+
+    public void renderChunkVBO(Tardis tardis) {
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder buffer = tessellator.getBuffer();
+        RenderSystem.setShader(GameRenderer::getPositionTexLightmapColorProgram);
+
+        if (this.BOTI_VBO != null) {
+            this.BOTI_VBO.close();
+        }
+
+        this.BOTI_VBO = new VertexBuffer(VertexBuffer.Usage.STATIC);
+
+        // Equivalent to a separate method, probably will move - Loqor
+        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL);
+        tardis.stats().posState.forEach((pos, state) -> {
+            if (behindDoor(tardis.getDesktop().getDoorPos().getPos(), pos,
+                    tardis.getDesktop().getDoorPos().toMinecraftDirection())) {
+                return; // Don't render blocks behind the door
+            }
+            for (Direction direction : Direction.values()) {
+                List<BakedQuad> quads = MinecraftClient.getInstance().getBlockRenderManager().getModel(state).getQuads(state, direction, Random.create(42L));
+                BOTIChunkVBO.addQuadsToBuffer(quads, buffer, pos.getX(), pos.getY(), pos.getZ());
+            }
+        });
+        BufferBuilder.BuiltBuffer builtBuffer = buffer.end();
+
+        this.BOTI_VBO.bind();
+        this.BOTI_VBO.upload(builtBuffer);
+        VertexBuffer.unbind();
+    }
 
     public void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, SinglePartEntityModel frame, ModelPart mask, int light) {
         if (!AITModClient.CONFIG.enableTardisBOTI)
@@ -133,26 +165,6 @@ public class TardisExteriorBOTI extends BOTI {
                     break OUTOFBOTI;
                 }
 
-                // DON'T TOUCH THIS LOQOR
-//                OUTOFVBO:
-//                if (BOTIChunkVBO.shouldGenerateQuads) {
-////                    stats.botiChunkVBO.render(stack, light, OverlayTexture.DEFAULT_UV);
-//                    if (stats.botiChunkVBO.isWorkingInThread()) break OUTOFVBO;
-//                    if (stats.botiChunkVBO.isDirty()) break OUTOFVBO;
-//
-//                    stats.botiChunkVBO.vertexBuffer.bind();
-//                    VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL.setupState();
-//                    stats.botiChunkVBO.vertexBuffer.draw();
-//                    VertexBuffer.unbind();
-//                    VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL.clearState();
-//
-//
-//                    if (stats.botiChunkVBO != null &&
-//                            stats.botiChunkVBO.isDirty() &&
-//                            !stats.botiChunkVBO.isWorkingInThread())
-//                        stats.botiChunkVBO.updateChunkModel(exterior);
-//                }
-
                 OUTOFBLOCKRENDERER:
                 if (!BOTIChunkVBO.shouldGenerateQuads) {
                     if (stats.posState == null) {
@@ -164,73 +176,21 @@ public class TardisExteriorBOTI extends BOTI {
                         break OUTOFBLOCKRENDERER;
                     }
 
-                    if (this.BOTI_VBO == null || stats.botiChunkVBO.isDirty()) {
-                        if(this.BOTI_VBO != null) this.BOTI_VBO = null; // Reset the VBO in case it's just being updated, such as a chunk update
-                        this.BOTI_VBO = new VertexBuffer(VertexBuffer.Usage.STATIC);
+                    // TODO WORKING HERE
+                    stack.push();
+                    stack.scale(1, -1, -1);
+                    stack.translate(14.5f, -4, -20.35F);
+                    stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(270f));
 
-                        this.BOTI_VBO.bind();
+                    this.BOTI_VBO.bind();
+                    // Ensure correct shader and state before drawing
+                    RenderSystem.setShader(GameRenderer::getPositionColorTexProgram);
+                    RenderSystem.enableDepthTest();
+                    RenderSystem.depthMask(true);
+                    this.BOTI_VBO.draw(stack.peek().getPositionMatrix(), RenderSystem.getProjectionMatrix(), GameRenderer.getPositionColorTexProgram());
+                    VertexBuffer.unbind();
+                    stack.pop();
 
-                        BufferBuilder terrain = Tessellator.getInstance().getBuffer();
-
-                        terrain.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL);
-                        tardis.stats().posState.forEach((pos, state) -> {
-                            List<BakedQuad> quads = MinecraftClient.getInstance().getBlockRenderManager().getModel(state).getQuads(state, null, MinecraftClient.getInstance().world.random);
-                            BOTIChunkVBO.addQuadsToBuffer(quads, terrain, pos.getX(), pos.getY(), pos.getZ());
-                        });
-
-                        BufferBuilder.BuiltBuffer builtBuffer = terrain.end();
-
-                        this.BOTI_VBO.upload(builtBuffer);
-
-                        VertexBuffer.unbind();
-                    }
-
-                    else {
-                        this.BOTI_VBO.bind();
-                        this.BOTI_VBO.draw();
-                        VertexBuffer.unbind();
-                    }
-
-                    if(false) // Disable following render code we don't need it
-                    for (Map.Entry<BlockPos, net.minecraft.block.BlockState> entry : stats.posState.entrySet()) {
-                        BlockPos pos = entry.getKey();
-                        net.minecraft.block.BlockState state = entry.getValue();
-                        if (state.isAir()) continue;
-                        if (!behindDoor(doorPos, pos, doorDirection)) continue;
-
-                        stack.push();
-                        stack.scale(-1, 1, 1);
-                        stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(doorDirection.asRotation()));
-
-                        float offsetX = doorPos.getX() + 0.5f - pos.getX();
-                        float offsetY = doorPos.getY() - pos.getY();
-                        float offsetZ = doorPos.getZ() + 0.5f - pos.getZ();
-                        stack.translate(offsetX, offsetY, offsetZ);
-
-                        stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180f));
-                        stack.scale(1, -1, 1);
-
-                        BlockModelRenderer.enableBrightnessCache();
-                        if (state.getBlock() instanceof FluidBlock fluidBlock) {
-                            FluidState fluidState = fluidBlock.getFluidState(state);
-                            MinecraftClient.getInstance().getBlockRenderManager().renderFluid(
-                                    new BlockPos((int) offsetX, (int) offsetY, (int) offsetZ),
-                                    MinecraftClient.getInstance().world,
-                                    botiProvider.getBuffer(RenderLayers.getFluidLayer(fluidState)),
-                                    state,
-                                    fluidState);
-                        } else {
-                            MinecraftClient.getInstance().getBlockRenderManager().getModelRenderer().render(
-                                    stack.peek(),
-                                    botiProvider.getBuffer(RenderLayers.getBlockLayer(state)),
-                                    state,
-                                    MinecraftClient.getInstance().getBlockRenderManager().getModel(state),
-                                    1, 1, 1, 210, OverlayTexture.DEFAULT_UV
-                            );
-                        }
-                        BlockModelRenderer.disableBrightnessCache();
-                        stack.pop();
-                    }
                     this.lastRenderTick = tickDelta;
                 }
 
@@ -314,10 +274,10 @@ public class TardisExteriorBOTI extends BOTI {
             return;
 
         //TODO: Implement a real query time not some hacky non working bullshit
-//        if (exteriorBlockEntity.lastRequestTime == 0 || currentTime - exteriorBlockEntity.lastRequestTime >= 20) {
+        if (exteriorBlockEntity.lastRequestTime == 0 || currentTime - exteriorBlockEntity.lastRequestTime >= 20) {
         ClientPlayNetworking.send(new BOTIChunkRequestC2SPacket(exteriorBlockEntity.getPos(), tardis.stats().getTargetWorld(), tardis.stats().targetPos()));
         exteriorBlockEntity.lastRequestTime = currentTime;
-//        }
+        }
     }
 
     public boolean behindDoor(BlockPos DoorPos, BlockPos pos, Direction doorFacing) {
@@ -332,16 +292,16 @@ public class TardisExteriorBOTI extends BOTI {
                 return false;
             }
             case NORTH -> {
-                return z >= dz;
+                return z < dz;
             }
             case SOUTH -> {
-                return z <= dz;
+                return z > dz;
             }
             case EAST -> {
-                return x <= dx;
+                return x > dx;
             }
             case WEST -> {
-                return x >= dx;
+                return x < dx;
             }
         }
         return false;

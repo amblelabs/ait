@@ -90,7 +90,7 @@ public class BOTIChunkVBO {
                 vertexBuffer.upload(builtBuffer);
                 VertexBuffer.unbind();
                 unmarkDirty();
-                System.out.println("VBO updated with " + vertexCount + " vertices for position " + targetPos);
+                //System.out.println("VBO updated with " + vertexCount + " vertices for position " + targetPos);
             }
         }
     }
@@ -130,12 +130,12 @@ public class BOTIChunkVBO {
                         .normal(nx, ny, nz)
                         .next();
                 verticesAdded++;
-                if (verticesAdded <= 4) { // Log first quad only
+                /*if (verticesAdded <= 4) { // Log first quad only
                     System.out.println("Vertex: (" + x + ", " + y + ", " + z + "), Color: (" + r + ", " + g + ", " + b + ", " + a + ")");
-                }
+                }*/
             }
         }
-        System.out.println("Added " + verticesAdded + " vertices to buffer");
+        //System.out.println("Added " + verticesAdded + " vertices to buffer");
         return verticesAdded;
     }
 }
