@@ -1,13 +1,13 @@
 package dev.amble.ait.client.boti;
 
 
+import java.util.List;
 import java.util.Map;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
@@ -15,6 +15,7 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
+import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
@@ -40,6 +41,7 @@ import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 
 public class TardisExteriorBOTI extends BOTI {
     private float lastRenderTick = -1;
+    private VertexBuffer BOTI_VBO;
 
     public void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, SinglePartEntityModel frame, ModelPart mask, int light) {
         if (!AITMod.CONFIG.CLIENT.ENABLE_TARDIS_BOTI)
@@ -78,11 +80,11 @@ public class TardisExteriorBOTI extends BOTI {
 
         VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
-        GL11.glEnable(GL11.GL_STENCIL_TEST);
-        GL11.glStencilMask(0xFF);
-        GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
-        GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+//        GL11.glEnable(GL11.GL_STENCIL_TEST);
+//        GL11.glStencilMask(0xFF);
+//        GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+//        GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+//        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
 
         RenderSystem.depthMask(true);
         stack.push();
@@ -99,8 +101,8 @@ public class TardisExteriorBOTI extends BOTI {
         BOTI_HANDLER.afbo.beginWrite(false);
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 
-        GL11.glStencilMask(0x00);
-        GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+//        GL11.glStencilMask(0x00);
+//        GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
         // It's not a loop, it's a label https://www.geeksforgeeks.org/adding-labels-to-method-and-functions-in-java/
         OUTOFBOTI:
@@ -141,7 +143,7 @@ public class TardisExteriorBOTI extends BOTI {
 //                stack.scale(-1, 0, 0);
                 OUTOFBLOCKRENDERER:
                 if (!BOTIChunkVBO.shouldGenerateQuads) {
-                    if(stats.posState == null) {
+                    if (stats.posState == null) {
                         updateChunkModel(exterior);
                         break OUTOFBLOCKRENDERER;
                     }
@@ -149,34 +151,65 @@ public class TardisExteriorBOTI extends BOTI {
                         break OUTOFBLOCKRENDERER;
                     }
 
-                    stats.posState.forEach((pos, state) -> {
-                        //TODO: Re-implement this (WORKING this time) (Might work this time)
-//                        if(!ClientCameraUtil.isInVisibleArea(pos)) return;
-                        if(!behindDoor(doorPos, pos, doorDirection)) {
-                            return;
-                        } // Make sure blocks behind the door aren't rendered
-                        if(state.equals(Blocks.AIR.getDefaultState())) return;
+                    if (this.BOTI_VBO == null || stats.botiChunkVBO.isDirty()) {
+                        if(this.BOTI_VBO != null) this.BOTI_VBO = null; // Reset the VBO in case it's just being updated, such as a chunk update
+                        this.BOTI_VBO = new VertexBuffer(VertexBuffer.Usage.STATIC);
 
-                        stack.push();
-                        stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(doorDirection.asRotation()));
+                        this.BOTI_VBO.bind();
 
-                        stack.translate(
-                                doorPos.getX() - 0.5f - pos.getX(),
-                                doorPos.getY() - 1.0f - pos.getY(),
-                                doorPos.getZ() - 0.5f - pos.getZ());
-                        MinecraftClient.getInstance().getBlockRenderManager().getModelRenderer().render(
-                                stack.peek(),
-                                botiProvider.getBuffer(RenderLayers.getBlockLayer(state)),
-                                state,
-                                MinecraftClient.getInstance().getBlockRenderManager().getModel(state),
-                                1,
-                                1,
-                                1,
-                                light - 0xf00ff,
-                                OverlayTexture.DEFAULT_UV
-                        );
-                        stack.pop();
-                    });
+                        BufferBuilder terrain = Tessellator.getInstance().getBuffer();
+
+                        terrain.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL);
+                        tardis.stats().posState.forEach((pos, state) -> {
+                            List<BakedQuad> quads = MinecraftClient.getInstance().getBlockRenderManager().getModel(state).getQuads(state, null, MinecraftClient.getInstance().world.random);
+                            BOTIChunkVBO.addQuadsToBuffer(quads, terrain, pos.getX(), pos.getY(), pos.getZ());
+                        });
+
+                        BufferBuilder.BuiltBuffer builtBuffer = terrain.end();
+
+                        this.BOTI_VBO.upload(builtBuffer);
+
+                        VertexBuffer.unbind();
+                    }
+
+                    else {
+                        this.BOTI_VBO.bind();
+                        this.BOTI_VBO.draw();
+                        VertexBuffer.unbind();
+                    }
+
+
+
+//                    stats.posState.forEach((pos, state) -> {
+//                        //TODO: Re-implement this (WORKING this time) (Might work this time)
+////                        if(!ClientCameraUtil.isInVisibleArea(pos)) return;
+//                        if (!behindDoor(doorPos, pos, doorDirection)) {
+//                            return;
+//                        } // Make sure blocks behind the door aren't rendered
+//                        if (state.equals(Blocks.AIR.getDefaultState())) return;
+//
+//                        stack.push();
+//                        stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(doorDirection.asRotation()));
+//
+//                        stack.translate(
+//                                doorPos.getX() - 0.5f - pos.getX(),
+//                                doorPos.getY() - 1.0f - pos.getY(),
+//                                doorPos.getZ() - 0.5f - pos.getZ());
+//
+//
+//                        MinecraftClient.getInstance().getBlockRenderManager().getModelRenderer().render(
+//                                stack.peek(),
+//                                botiProvider.getBuffer(RenderLayers.getBlockLayer(state)),
+//                                state,
+//                                MinecraftClient.getInstance().getBlockRenderManager().getModel(state),
+//                                1,
+//                                1,
+//                                1,
+//                                light - 0xf00ff,
+//                                OverlayTexture.DEFAULT_UV
+//                        );
+//                        stack.pop();
+//                    });
                     this.lastRenderTick = MinecraftClient.getInstance().getTickDelta();
                 }
 
@@ -241,7 +274,7 @@ public class TardisExteriorBOTI extends BOTI {
 
         BOTI.copyColor(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
 
-        GL11.glDisable(GL11.GL_STENCIL_TEST);
+//        GL11.glDisable(GL11.GL_STENCIL_TEST);
 
         stack.pop();
     }
@@ -269,8 +302,9 @@ public class TardisExteriorBOTI extends BOTI {
         int dx = DoorPos.getX();
         int dz = DoorPos.getZ();
 
-        switch(doorFacing) {
-            case UP, DOWN -> { // If the door is facing Up or Down, something is severely wrong, and we shouldn't even attempt to render the blocks in the first place
+        switch (doorFacing) {
+            case UP,
+                 DOWN -> { // If the door is facing Up or Down, something is severely wrong, and we shouldn't even attempt to render the blocks in the first place
                 return false;
             }
             case NORTH -> {

@@ -94,7 +94,7 @@ public class BOTIChunkVBO {
         }
     }
 
-    public int addQuadsToBuffer(List<BakedQuad> quads, BufferBuilder buffer, int xOffset, int yOffset, int zOffset) {
+    public static int addQuadsToBuffer(List<BakedQuad> quads, BufferBuilder buffer, int xOffset, int yOffset, int zOffset) {
         if (quads == null || quads.isEmpty()) return 0;
 
         int verticesAdded = 0;

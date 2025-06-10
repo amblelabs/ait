@@ -156,7 +156,6 @@ public class BOTIDataS2CPacket implements FabricPacket {
             if (exteriorBlockEntity.tardis() == null) return false;
             Tardis tardis = exteriorBlockEntity.tardis().get();
             tardis.stats().updateMap(this.posStates);
-
             tardis.stats().updateChunkModel(exteriorBlockEntity);
         }
         return true;
