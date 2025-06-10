@@ -1,30 +1,28 @@
 package dev.amble.ait.client.boti;
 
 
+import java.util.List;
 import java.util.Map;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
-import net.minecraft.block.FluidBlock;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.client.render.block.BlockModelRenderer;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.block.Blocks;
+import net.minecraft.block.FluidBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.block.BlockModelRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
+import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -50,6 +48,7 @@ import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 
 public class TardisExteriorBOTI extends BOTI {
     private float lastRenderTick = -1;
+    private VertexBuffer BOTI_VBO;
 
     public void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, SinglePartEntityModel frame, ModelPart mask, int light) {
         if (!AITModClient.CONFIG.enableTardisBOTI)
@@ -165,6 +164,34 @@ public class TardisExteriorBOTI extends BOTI {
                         break OUTOFBLOCKRENDERER;
                     }
 
+                    if (this.BOTI_VBO == null || stats.botiChunkVBO.isDirty()) {
+                        if(this.BOTI_VBO != null) this.BOTI_VBO = null; // Reset the VBO in case it's just being updated, such as a chunk update
+                        this.BOTI_VBO = new VertexBuffer(VertexBuffer.Usage.STATIC);
+
+                        this.BOTI_VBO.bind();
+
+                        BufferBuilder terrain = Tessellator.getInstance().getBuffer();
+
+                        terrain.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL);
+                        tardis.stats().posState.forEach((pos, state) -> {
+                            List<BakedQuad> quads = MinecraftClient.getInstance().getBlockRenderManager().getModel(state).getQuads(state, null, MinecraftClient.getInstance().world.random);
+                            BOTIChunkVBO.addQuadsToBuffer(quads, terrain, pos.getX(), pos.getY(), pos.getZ());
+                        });
+
+                        BufferBuilder.BuiltBuffer builtBuffer = terrain.end();
+
+                        this.BOTI_VBO.upload(builtBuffer);
+
+                        VertexBuffer.unbind();
+                    }
+
+                    else {
+                        this.BOTI_VBO.bind();
+                        this.BOTI_VBO.draw();
+                        VertexBuffer.unbind();
+                    }
+
+                    if(false) // Disable following render code we don't need it
                     for (Map.Entry<BlockPos, net.minecraft.block.BlockState> entry : stats.posState.entrySet()) {
                         BlockPos pos = entry.getKey();
                         net.minecraft.block.BlockState state = entry.getValue();
