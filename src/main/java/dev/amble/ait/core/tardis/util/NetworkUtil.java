@@ -1,14 +1,10 @@
 package dev.amble.ait.core.tardis.util;
 
+import java.util.*;
+import java.util.stream.Stream;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.link.LinkableItem;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.util.network.c2s.BOTIChunkRequestC2SPacket;
-import dev.amble.ait.core.tardis.util.network.s2c.BOTIDataS2CPacket;
-import dev.amble.ait.core.tardis.util.network.s2c.BOTISyncS2CPacket;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.api.EnvType;
@@ -16,7 +12,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.loader.api.FabricLoader;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -27,8 +23,13 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ChunkPos;
 
-import java.util.*;
-import java.util.stream.Stream;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.util.network.c2s.BOTIChunkRequestC2SPacket;
+import dev.amble.ait.core.tardis.util.network.s2c.BOTIDataS2CPacket;
+import dev.amble.ait.core.tardis.util.network.s2c.BOTISyncS2CPacket;
 
 public class NetworkUtil {
 

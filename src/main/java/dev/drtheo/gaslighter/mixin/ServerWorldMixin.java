@@ -3,10 +3,11 @@ package dev.drtheo.gaslighter.mixin;
 import dev.drtheo.gaslighter.api.Twitter;
 import it.unimi.dsi.fastutil.longs.LongArraySet;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
+
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
 
 @Mixin(ServerWorld.class)
 public class ServerWorldMixin implements Twitter {

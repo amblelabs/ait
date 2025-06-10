@@ -1,13 +1,9 @@
 package dev.amble.ait.core.item;
 
-import dev.amble.ait.api.AITUseActions;
-import dev.amble.ait.api.ArtronHolderItem;
-import dev.amble.ait.api.tardis.link.LinkableItem;
-import dev.amble.ait.client.sounds.ClientSoundManager;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.item.sonic.SonicMode;
-import dev.amble.ait.data.schema.sonic.SonicSchema;
-import dev.amble.ait.registry.impl.SonicRegistry;
+import java.util.List;
+
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.LivingEntity;
@@ -18,9 +14,15 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import dev.amble.ait.api.AITUseActions;
+import dev.amble.ait.api.ArtronHolderItem;
+import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.client.sounds.ClientSoundManager;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.item.sonic.SonicMode;
+import dev.amble.ait.data.schema.sonic.SonicSchema;
+import dev.amble.ait.registry.impl.SonicRegistry;
 
 
 public class SonicItem extends LinkableItem implements ArtronHolderItem {

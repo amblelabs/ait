@@ -1,6 +1,7 @@
 package dev.amble.ait.core.blocks;
 
-import dev.amble.ait.core.blockentities.MonitorBlockEntity;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -19,7 +20,8 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
+
+import dev.amble.ait.core.blockentities.MonitorBlockEntity;
 
 public class MonitorBlock extends BlockWithEntity implements BlockEntityProvider {
     public static final int MAX_ROTATION_INDEX = RotationPropertyHelper.getMax();

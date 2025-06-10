@@ -1,14 +1,16 @@
 package dev.amble.ait.data.schema.exterior;
 
+import java.lang.reflect.Type;
+
 import com.google.gson.*;
+
+import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
+
 import dev.amble.ait.data.schema.BasicSchema;
 import dev.amble.ait.data.schema.exterior.category.CapsuleCategory;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
-
-import java.lang.reflect.Type;
 
 /**
  * @author duzo

@@ -1,18 +1,5 @@
 package dev.amble.ait.core.drinks;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.JsonOps;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.data.codec.MoreCodec;
-import dev.amble.lib.api.Identifiable;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.dynamic.Codecs;
-import org.joml.Vector3f;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
@@ -20,6 +7,21 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.amble.lib.api.Identifiable;
+import org.joml.Vector3f;
+
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.dynamic.Codecs;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.data.codec.MoreCodec;
 
 public record Drink(Identifier id, Optional<Boolean> hasCustomColor, Optional<Vector3f> custom_color, List<DatapackPotion> potionInstances) implements Identifiable {
     public static final Codec<Drink> CODEC = Codecs.exceptionCatching(RecordCodecBuilder.create(instance -> instance.group(

@@ -1,8 +1,7 @@
 package dev.amble.ait.core.blocks;
 
-import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
-import dev.amble.ait.core.engine.link.block.FluidLinkBlock;
-import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -13,7 +12,10 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
+
+import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlock;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 
 public class ConsoleGeneratorBlock extends FluidLinkBlock implements BlockEntityProvider {
 

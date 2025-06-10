@@ -1,10 +1,10 @@
 package dev.amble.ait.data.properties;
 
-import net.minecraft.network.PacketByteBuf;
-
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import net.minecraft.network.PacketByteBuf;
 
 public class PropertyType<T> {
 

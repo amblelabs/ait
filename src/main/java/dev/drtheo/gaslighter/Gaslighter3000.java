@@ -1,11 +1,16 @@
 package dev.drtheo.gaslighter;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import dev.drtheo.gaslighter.api.FakeBlockEvents;
 import dev.drtheo.gaslighter.api.Twitter;
 import dev.drtheo.gaslighter.impl.FakeChunkSection;
 import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
@@ -14,10 +19,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Gaslighter3000 {
 

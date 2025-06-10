@@ -1,11 +1,15 @@
 package dev.amble.ait.mixin.client.rendering;
 
-import dev.amble.ait.client.renderers.wearables.RespiratorFeatureRenderer;
-import dev.amble.ait.core.entities.FlightTardisEntity;
-import dev.amble.ait.core.item.PsychpaperItem;
-import dev.amble.ait.module.planet.client.models.wearables.SpacesuitModel;
-import dev.amble.ait.module.planet.client.renderers.wearables.SpacesuitFeatureRenderer;
-import dev.amble.ait.module.planet.core.item.SpacesuitItem;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.OverlayTexture;
@@ -21,15 +25,13 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
-import java.util.List;
+import dev.amble.ait.client.renderers.wearables.RespiratorFeatureRenderer;
+import dev.amble.ait.core.entities.FlightTardisEntity;
+import dev.amble.ait.core.item.PsychpaperItem;
+import dev.amble.ait.module.planet.client.models.wearables.SpacesuitModel;
+import dev.amble.ait.module.planet.client.renderers.wearables.SpacesuitFeatureRenderer;
+import dev.amble.ait.module.planet.core.item.SpacesuitItem;
 
 @Mixin(PlayerEntityRenderer.class)
 public abstract class PlayerEntityRendererMixin

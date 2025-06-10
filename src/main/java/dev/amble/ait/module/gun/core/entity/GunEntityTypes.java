@@ -2,6 +2,7 @@ package dev.amble.ait.module.gun.core.entity;
 
 import dev.amble.lib.container.impl.EntityContainer;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;

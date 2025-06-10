@@ -1,6 +1,19 @@
 package dev.amble.ait.data.schema.exterior;
 
+import java.lang.reflect.Type;
+import java.util.Optional;
+
 import com.google.gson.*;
+import dev.amble.lib.register.unlockable.Unlockable;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+
+import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
@@ -10,17 +23,6 @@ import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
-import dev.amble.lib.register.unlockable.Unlockable;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-
-import java.lang.reflect.Type;
-import java.util.Optional;
 
 /**
  * A variant for a {@link ExteriorCategorySchema} which provides a model,

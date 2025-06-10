@@ -1,14 +1,16 @@
 package dev.amble.ait.datagen.datagen_providers;
 
-import dev.amble.ait.core.AITPaintings;
+import java.util.concurrent.CompletableFuture;
+
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
+
 import net.minecraft.entity.decoration.painting.PaintingVariant;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.PaintingVariantTags;
 
-import java.util.concurrent.CompletableFuture;
+import dev.amble.ait.core.AITPaintings;
 
 public class AITPaintingVariantTagProvider extends FabricTagProvider<PaintingVariant> {
     /**

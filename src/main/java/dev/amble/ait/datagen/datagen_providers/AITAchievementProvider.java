@@ -1,12 +1,10 @@
 package dev.amble.ait.datagen.datagen_providers;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.module.ModuleRegistry;
+import java.util.function.Consumer;
+
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricAdvancementProvider;
+
 import net.minecraft.advancement.Advancement;
 import net.minecraft.advancement.AdvancementFrame;
 import net.minecraft.advancement.criterion.InventoryChangedCriterion;
@@ -14,7 +12,11 @@ import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-import java.util.function.Consumer;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.module.ModuleRegistry;
 
 public class AITAchievementProvider extends FabricAdvancementProvider {
     public AITAchievementProvider(FabricDataOutput output) {

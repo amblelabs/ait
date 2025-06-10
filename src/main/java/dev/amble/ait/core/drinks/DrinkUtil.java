@@ -1,9 +1,12 @@
 package dev.amble.ait.core.drinks;
 
+import java.util.*;
+
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.item.PersonalityMatrixItem;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
+
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
@@ -19,10 +22,9 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 
-import java.util.*;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.item.PersonalityMatrixItem;
 
 public class DrinkUtil {
 

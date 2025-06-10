@@ -1,15 +1,16 @@
 package dev.amble.ait.core.entities.base;
 
-import dev.amble.ait.api.tardis.link.v2.TardisRef;
-import dev.amble.ait.api.tardis.link.v2.entity.AbstractLinkableEntity;
+import java.util.Optional;
+import java.util.UUID;
+
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
 
-import java.util.Optional;
-import java.util.UUID;
+import dev.amble.ait.api.tardis.link.v2.TardisRef;
+import dev.amble.ait.api.tardis.link.v2.entity.AbstractLinkableEntity;
 
 public class LinkableDummyEntity extends DummyEntity implements AbstractLinkableEntity {
 

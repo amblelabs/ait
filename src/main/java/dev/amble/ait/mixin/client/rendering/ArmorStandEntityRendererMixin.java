@@ -1,17 +1,19 @@
 package dev.amble.ait.mixin.client.rendering;
 
-import dev.amble.ait.client.renderers.wearables.RespiratorFeatureRenderer;
-import dev.amble.ait.module.planet.client.renderers.wearables.SpacesuitFeatureRenderer;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
 import net.minecraft.client.render.entity.ArmorStandEntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.model.ArmorStandArmorEntityModel;
 import net.minecraft.client.render.entity.model.ArmorStandEntityModel;
 import net.minecraft.entity.decoration.ArmorStandEntity;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import dev.amble.ait.client.renderers.wearables.RespiratorFeatureRenderer;
+import dev.amble.ait.module.planet.client.renderers.wearables.SpacesuitFeatureRenderer;
 
 
 @Mixin(ArmorStandEntityRenderer.class)

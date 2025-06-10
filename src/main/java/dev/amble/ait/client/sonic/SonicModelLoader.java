@@ -1,13 +1,14 @@
 package dev.amble.ait.client.sonic;
 
-import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
-import net.minecraft.resource.Resource;
-import net.minecraft.resource.ResourceFinder;
-import net.minecraft.util.Identifier;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
+
+import net.minecraft.resource.Resource;
+import net.minecraft.resource.ResourceFinder;
+import net.minecraft.util.Identifier;
 
 
 // TODO: when finished, move to SonicRendering

@@ -1,9 +1,5 @@
 package dev.amble.ait.client.renderers.decoration;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.decoration.FlagModel;
-import dev.amble.ait.core.blockentities.FlagBlockEntity;
-import dev.amble.ait.core.blocks.FlagBlock;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -11,6 +7,11 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.decoration.FlagModel;
+import dev.amble.ait.core.blockentities.FlagBlockEntity;
+import dev.amble.ait.core.blocks.FlagBlock;
 
 public class FlagBlockEntityRenderer<T extends FlagBlockEntity> implements BlockEntityRenderer<T> {
     public static final Identifier FLAG_TEXTURE = AITMod.id("textures/blockentities/decoration/us_flag.png");

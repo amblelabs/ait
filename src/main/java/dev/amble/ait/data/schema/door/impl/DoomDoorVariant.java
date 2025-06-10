@@ -1,10 +1,11 @@
 package dev.amble.ait.data.schema.door.impl;
 
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.data.schema.door.DoorSchema;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
 
 public class DoomDoorVariant extends DoorSchema {
 

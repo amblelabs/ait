@@ -1,12 +1,13 @@
 package dev.amble.ait.core.blocks;
 
-import dev.amble.ait.core.AITBlocks;
 import net.minecraft.block.*;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
+
+import dev.amble.ait.core.AITBlocks;
 
 public class BuddingZeitonBlock extends AmethystBlock {
     public static final int GROW_CHANCE = 5;

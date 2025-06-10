@@ -1,16 +1,18 @@
 package dev.amble.ait.client.boti;
 
-import dev.amble.ait.client.renderers.AITRenderLayers;
+import java.util.SortedMap;
+
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.util.Util;
 
-import java.util.SortedMap;
+import dev.amble.ait.client.renderers.AITRenderLayers;
 
 @Environment(value=EnvType.CLIENT)
 public class AITBufferBuilderStorage extends BufferBuilderStorage {

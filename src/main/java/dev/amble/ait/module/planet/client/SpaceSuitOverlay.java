@@ -1,12 +1,7 @@
 package dev.amble.ait.module.planet.client;
 
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.config.AITClientConfig;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.module.planet.core.item.SpacesuitItem;
-import dev.amble.ait.module.planet.core.space.planet.Planet;
-import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -14,6 +9,13 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.config.AITClientConfig;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.module.planet.core.item.SpacesuitItem;
+import dev.amble.ait.module.planet.core.space.planet.Planet;
+import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 
 public class SpaceSuitOverlay implements HudRenderCallback {
 

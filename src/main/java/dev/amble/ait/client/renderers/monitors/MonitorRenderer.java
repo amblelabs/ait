@@ -1,15 +1,7 @@
 package dev.amble.ait.client.renderers.monitors;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.monitors.CRTMonitorModel;
-import dev.amble.ait.core.blockentities.MonitorBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.FuelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.util.MonitorUtil;
-import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SkullBlock;
 import net.minecraft.client.MinecraftClient;
@@ -24,6 +16,16 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.RotationPropertyHelper;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.monitors.CRTMonitorModel;
+import dev.amble.ait.core.blockentities.MonitorBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.FuelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.util.MonitorUtil;
+import dev.amble.ait.core.util.WorldUtil;
 
 public class MonitorRenderer<T extends MonitorBlockEntity> implements BlockEntityRenderer<T> {
 

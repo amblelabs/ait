@@ -1,5 +1,9 @@
 package dev.amble.ait.module.decoration.core.block;
 
+import java.util.List;
+
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.item.TooltipContext;
@@ -13,9 +17,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public class TARDISDecoBlock extends Block {
     public static final EnumProperty<Direction> FACING = EnumProperty.of("facing", Direction.class);

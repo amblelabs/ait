@@ -1,18 +1,20 @@
 package dev.amble.lib.register.unlockable;
 
-import com.mojang.serialization.Codec;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.data.Loyalty;
-import dev.amble.lib.register.datapack.DatapackRegistry;
-import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
-import net.minecraft.util.Identifier;
-
 import java.io.InputStream;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import com.mojang.serialization.Codec;
+import dev.amble.lib.register.datapack.DatapackRegistry;
+import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
+
+import net.minecraft.util.Identifier;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.data.Loyalty;
 
 public abstract class UnlockableRegistry<T extends Unlockable> extends SimpleDatapackRegistry<T> {
 

@@ -1,14 +1,8 @@
 package dev.amble.ait.module.gun;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.datagen.datagen_providers.AITBlockTagProvider;
-import dev.amble.ait.datagen.datagen_providers.AITItemTagProvider;
-import dev.amble.ait.datagen.datagen_providers.AITRecipeProvider;
-import dev.amble.ait.module.Module;
-import dev.amble.ait.module.gun.client.ScopeOverlay;
-import dev.amble.ait.module.gun.client.render.StaserBoltEntityRenderer;
-import dev.amble.ait.module.gun.core.entity.GunEntityTypes;
-import dev.amble.ait.module.gun.core.item.GunItems;
+import java.util.Optional;
+import java.util.function.Consumer;
+
 import dev.amble.lib.container.RegistryContainer;
 import dev.amble.lib.container.impl.ItemContainer;
 import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
@@ -16,6 +10,7 @@ import dev.amble.lib.datagen.model.AmbleModelProvider;
 import dev.amble.lib.itemgroup.AItemGroup;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+
 import net.minecraft.advancement.Advancement;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
@@ -25,8 +20,15 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 
-import java.util.Optional;
-import java.util.function.Consumer;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.datagen.datagen_providers.AITBlockTagProvider;
+import dev.amble.ait.datagen.datagen_providers.AITItemTagProvider;
+import dev.amble.ait.datagen.datagen_providers.AITRecipeProvider;
+import dev.amble.ait.module.Module;
+import dev.amble.ait.module.gun.client.ScopeOverlay;
+import dev.amble.ait.module.gun.client.render.StaserBoltEntityRenderer;
+import dev.amble.ait.module.gun.core.entity.GunEntityTypes;
+import dev.amble.ait.module.gun.core.item.GunItems;
 
 public class GunModule extends Module {
     private static final GunModule INSTANCE = new GunModule();

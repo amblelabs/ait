@@ -1,8 +1,10 @@
 package dev.amble.ait.client.boti;
 
+import static dev.amble.ait.client.renderers.entities.RiftEntityRenderer.RIFT_TEXTURE;
+
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.renderers.VortexUtil;
+import org.lwjgl.opengl.GL11;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
@@ -10,9 +12,9 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
-import org.lwjgl.opengl.GL11;
 
-import static dev.amble.ait.client.renderers.entities.RiftEntityRenderer.RIFT_TEXTURE;
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.renderers.VortexUtil;
 
 public class RiftBOTI extends BOTI {
     public static void renderRiftBoti(MatrixStack stack, SinglePartEntityModel frame, int pack) {

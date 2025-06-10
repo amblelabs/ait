@@ -1,5 +1,8 @@
 package dev.amble.ait.data.schema.exterior.variant.booth;
 
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
@@ -10,8 +13,6 @@ import dev.amble.ait.data.schema.door.impl.BoothDoorVariant;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.category.BoothCategory;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
 
 // a useful class for creating tardim variants as they all have the same filepath you know
 public abstract class BoothVariant extends ExteriorVariantSchema {

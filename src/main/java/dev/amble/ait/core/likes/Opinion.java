@@ -1,11 +1,13 @@
 package dev.amble.ait.core.likes;
 
-import dev.amble.ait.core.tardis.ServerTardis;
+import java.util.Optional;
+
 import dev.amble.lib.api.Identifiable;
+
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
-import java.util.Optional;
+import dev.amble.ait.core.tardis.ServerTardis;
 
 public interface Opinion extends Identifiable {
     int loyalty();

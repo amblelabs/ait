@@ -1,10 +1,12 @@
 package dev.amble.ait.core.commands.argument;
 
 import com.mojang.brigadier.context.CommandContext;
-import dev.amble.ait.core.util.SafePosSearch;
+
 import net.minecraft.command.argument.EnumArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.StringIdentifiable;
+
+import dev.amble.ait.core.util.SafePosSearch;
 
 public class GroundSearchArgumentType extends EnumArgumentType<SafePosSearch.Kind> {
 

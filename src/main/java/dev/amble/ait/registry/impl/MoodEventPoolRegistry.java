@@ -1,18 +1,20 @@
 package dev.amble.ait.registry.impl;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.handler.mood.MoodDictatedEvent;
-import dev.amble.ait.core.tardis.handler.mood.TardisMood;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.core.util.WorldUtil;
+import java.util.List;
+
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.random.Random;
 
-import java.util.List;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.handler.mood.MoodDictatedEvent;
+import dev.amble.ait.core.tardis.handler.mood.TardisMood;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.util.WorldUtil;
 
 public class MoodEventPoolRegistry {
     public static final SimpleRegistry<MoodDictatedEvent> REGISTRY = FabricRegistryBuilder

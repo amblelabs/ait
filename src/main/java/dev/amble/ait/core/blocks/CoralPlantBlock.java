@@ -1,24 +1,13 @@
 package dev.amble.ait.core.blocks;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.core.blockentities.CoralBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.handler.FuelHandler;
-import dev.amble.ait.core.tardis.handler.LoyaltyHandler;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.tardis.manager.TardisBuilder;
-import dev.amble.ait.core.world.RiftChunkManager;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.data.Loyalty;
-import dev.amble.ait.data.schema.exterior.variant.growth.CoralGrowthVariant;
-import dev.amble.ait.registry.impl.DesktopRegistry;
-import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
+
+import java.util.List;
+import java.util.UUID;
+
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
@@ -42,12 +31,25 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.UUID;
-
-import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.core.blockentities.CoralBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.handler.FuelHandler;
+import dev.amble.ait.core.tardis.handler.LoyaltyHandler;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.manager.TardisBuilder;
+import dev.amble.ait.core.world.RiftChunkManager;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.data.Loyalty;
+import dev.amble.ait.data.schema.exterior.variant.growth.CoralGrowthVariant;
+import dev.amble.ait.registry.impl.DesktopRegistry;
+import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 
 @SuppressWarnings("deprecation")
 public class CoralPlantBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {

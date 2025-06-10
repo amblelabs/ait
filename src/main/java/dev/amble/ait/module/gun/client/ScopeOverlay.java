@@ -1,13 +1,15 @@
 package dev.amble.ait.module.gun.client;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.module.gun.core.item.StaserRifleItem;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.module.gun.core.item.StaserRifleItem;
 
 public class ScopeOverlay implements HudRenderCallback {
 

@@ -1,8 +1,8 @@
 package dev.amble.ait.module.planet.core.world;
 
-import net.minecraft.world.gen.placementmodifier.*;
-
 import java.util.List;
+
+import net.minecraft.world.gen.placementmodifier.*;
 
 public class PlanetOrePlacement {
     public static List<PlacementModifier> modifiers(PlacementModifier countModifier, PlacementModifier heightModifier) {

@@ -1,7 +1,18 @@
 package dev.amble.ait.core.tardis.handler.travel;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.dynamic.Codecs;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.border.WorldBorder;
+
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
@@ -15,15 +26,6 @@ import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.ait.data.properties.integer.IntProperty;
 import dev.amble.ait.data.properties.integer.IntValue;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.dynamic.Codecs;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.border.WorldBorder;
-
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 public abstract class TravelHandlerBase extends KeyedTardisComponent implements TardisTickable {
 

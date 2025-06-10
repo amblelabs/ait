@@ -1,10 +1,11 @@
 package dev.amble.ait.client.util;
 
-import dev.amble.ait.AITMod;
+import java.io.IOException;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.PostEffectProcessor;
 
-import java.io.IOException;
+import dev.amble.ait.AITMod;
 
 public class ShaderUtils {
     public static MinecraftClient client = MinecraftClient.getInstance();

@@ -1,10 +1,11 @@
 package dev.amble.ait.client.screens;
 
-import dev.amble.ait.AITMod;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+
+import dev.amble.ait.AITMod;
 
 public class BlueprintFabricatorScreen extends Screen {
 

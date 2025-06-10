@@ -1,11 +1,10 @@
 package dev.amble.ait.core.tardis.util.network.c2s;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.util.network.s2c.BOTIDataS2CPacket;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -13,6 +12,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.util.network.s2c.BOTIDataS2CPacket;
 
 public class BOTIChunkRequestC2SPacket implements FabricPacket {
     public static final PacketType<BOTIChunkRequestC2SPacket> TYPE = PacketType.create(AITMod.id("request_chunk_data"), BOTIChunkRequestC2SPacket::new);

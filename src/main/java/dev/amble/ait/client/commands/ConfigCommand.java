@@ -1,13 +1,15 @@
 package dev.amble.ait.client.commands;
 
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
+
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.config.AITConfigScreen;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+
 import net.minecraft.client.MinecraftClient;
 
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.config.AITConfigScreen;
 
 
 public class ConfigCommand {

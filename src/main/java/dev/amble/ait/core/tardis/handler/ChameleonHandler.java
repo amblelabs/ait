@@ -1,16 +1,11 @@
 package dev.amble.ait.core.tardis.handler;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.schema.exterior.variant.adaptive.AdaptiveVariant;
+import java.util.Optional;
+
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.gaslighter.Gaslighter3000;
 import dev.drtheo.gaslighter.api.FakeBlockEvents;
+
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.particle.ParticleTypes;
@@ -19,7 +14,14 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-import java.util.Optional;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.data.Exclude;
+import dev.amble.ait.data.schema.exterior.variant.adaptive.AdaptiveVariant;
 
 public class ChameleonHandler extends TardisComponent {
 

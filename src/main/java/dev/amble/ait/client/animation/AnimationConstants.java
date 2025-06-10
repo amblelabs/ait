@@ -1,7 +1,8 @@
 package dev.amble.ait.client.animation;
 
-import net.minecraft.client.render.entity.animation.Transformation;
 import org.joml.Vector3f;
+
+import net.minecraft.client.render.entity.animation.Transformation;
 
 public class AnimationConstants {
 

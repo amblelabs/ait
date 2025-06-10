@@ -1,18 +1,20 @@
 package dev.amble.ait.core.tardis.control.sound;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.core.tardis.control.impl.*;
-import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.lib.register.AmbleRegistries;
 import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.core.tardis.control.impl.*;
+import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 
 public class ControlSoundRegistry extends SimpleDatapackRegistry<ControlSound> {
     private static final ControlSoundRegistry instance = new ControlSoundRegistry();

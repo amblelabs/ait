@@ -1,17 +1,11 @@
 package dev.amble.ait.module.planet;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.datagen.datagen_providers.AITBlockTagProvider;
-import dev.amble.ait.datagen.datagen_providers.AITItemTagProvider;
-import dev.amble.ait.datagen.datagen_providers.AITRecipeProvider;
-import dev.amble.ait.module.Module;
-import dev.amble.ait.module.planet.client.SpaceSuitOverlay;
-import dev.amble.ait.module.planet.core.PlanetBlockEntities;
-import dev.amble.ait.module.planet.core.PlanetBlocks;
-import dev.amble.ait.module.planet.core.PlanetItems;
-import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
-import dev.amble.ait.module.planet.core.util.PlanetCustomTrades;
+import static net.minecraft.data.server.recipe.RecipeProvider.conditionsFromItem;
+import static net.minecraft.data.server.recipe.RecipeProvider.hasItem;
+
+import java.util.Optional;
+import java.util.function.Consumer;
+
 import dev.amble.lib.container.RegistryContainer;
 import dev.amble.lib.container.impl.BlockContainer;
 import dev.amble.lib.container.impl.ItemContainer;
@@ -22,6 +16,7 @@ import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+
 import net.minecraft.advancement.Advancement;
 import net.minecraft.advancement.AdvancementFrame;
 import net.minecraft.advancement.criterion.ChangedDimensionCriterion;
@@ -40,11 +35,18 @@ import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-import java.util.Optional;
-import java.util.function.Consumer;
-
-import static net.minecraft.data.server.recipe.RecipeProvider.conditionsFromItem;
-import static net.minecraft.data.server.recipe.RecipeProvider.hasItem;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.datagen.datagen_providers.AITBlockTagProvider;
+import dev.amble.ait.datagen.datagen_providers.AITItemTagProvider;
+import dev.amble.ait.datagen.datagen_providers.AITRecipeProvider;
+import dev.amble.ait.module.Module;
+import dev.amble.ait.module.planet.client.SpaceSuitOverlay;
+import dev.amble.ait.module.planet.core.PlanetBlockEntities;
+import dev.amble.ait.module.planet.core.PlanetBlocks;
+import dev.amble.ait.module.planet.core.PlanetItems;
+import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
+import dev.amble.ait.module.planet.core.util.PlanetCustomTrades;
 
 
 public class PlanetModule extends Module {

@@ -1,6 +1,7 @@
 package dev.amble.ait.core.blocks;
 
-import dev.amble.ait.core.blockentities.MachineCasingBlockEntity;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -12,7 +13,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
+
+import dev.amble.ait.core.blockentities.MachineCasingBlockEntity;
 
 public class MachineCasingBlock extends Block implements BlockEntityProvider {
 

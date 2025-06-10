@@ -1,19 +1,21 @@
 package dev.amble.ait.mixin.client.experimental_screen;
 
 import com.mojang.serialization.Lifecycle;
-import dev.amble.ait.client.AITModClient;
-import net.minecraft.client.gui.screen.world.CreateWorldScreen;
-import net.minecraft.client.world.GeneratorOptionsHolder;
-import net.minecraft.registry.CombinedDynamicRegistries;
-import net.minecraft.registry.ServerDynamicRegistryType;
-import net.minecraft.world.dimension.DimensionOptionsRegistryHolder;
-import net.minecraft.world.level.LevelProperties;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+
+import net.minecraft.client.gui.screen.world.CreateWorldScreen;
+import net.minecraft.client.world.GeneratorOptionsHolder;
+import net.minecraft.registry.CombinedDynamicRegistries;
+import net.minecraft.registry.ServerDynamicRegistryType;
+import net.minecraft.world.dimension.DimensionOptionsRegistryHolder;
+import net.minecraft.world.level.LevelProperties;
+
+import dev.amble.ait.client.AITModClient;
 
 @SuppressWarnings("deprecation")
 @Mixin(value = CreateWorldScreen.class)

@@ -1,15 +1,17 @@
 package dev.amble.ait.core.tardis.animation.v2.keyframe;
 
-import dev.amble.ait.api.tardis.Disposable;
-import dev.amble.ait.api.tardis.TardisTickable;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.server.MinecraftServer;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.NoSuchElementException;
+
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.server.MinecraftServer;
+
+import dev.amble.ait.api.tardis.Disposable;
+import dev.amble.ait.api.tardis.TardisTickable;
 
 /**
  * A collection of keyframes that can be tracked.

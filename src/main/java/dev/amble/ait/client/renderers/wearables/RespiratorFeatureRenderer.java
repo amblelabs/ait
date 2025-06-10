@@ -1,10 +1,8 @@
 package dev.amble.ait.client.renderers.wearables;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.wearables.RespiratorModel;
-import dev.amble.ait.core.AITItems;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
@@ -22,6 +20,10 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.wearables.RespiratorModel;
+import dev.amble.ait.core.AITItems;
 
 @Environment(value = EnvType.CLIENT)
 public class RespiratorFeatureRenderer<T extends LivingEntity, M extends EntityModel<T> & ModelWithArms>

@@ -1,13 +1,19 @@
 package dev.amble.ait.core.item.blueprint;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.amble.ait.AITMod;
 import dev.amble.lib.api.Identifiable;
+
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
@@ -15,11 +21,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.Texts;
 import net.minecraft.util.Identifier;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import dev.amble.ait.AITMod;
 
 public record BlueprintSchema(Identifier id, Text text, InputList inputs, ItemStack output) implements Identifiable {
     public static Codec<BlueprintSchema> CODEC = RecordCodecBuilder.create(instance -> instance.group(

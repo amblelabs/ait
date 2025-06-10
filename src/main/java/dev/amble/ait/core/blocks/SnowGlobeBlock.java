@@ -1,13 +1,15 @@
 package dev.amble.ait.core.blocks;
 
-import dev.amble.ait.core.blockentities.SnowGlobeBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
-import org.jetbrains.annotations.Nullable;
+
+import dev.amble.ait.core.blockentities.SnowGlobeBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 public class SnowGlobeBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
 
     public SnowGlobeBlock(Settings settings) {

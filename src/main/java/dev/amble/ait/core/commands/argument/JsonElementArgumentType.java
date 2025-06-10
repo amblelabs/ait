@@ -1,14 +1,15 @@
 package dev.amble.ait.core.commands.argument;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import com.google.gson.JsonElement;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import dev.amble.ait.core.commands.argument.json.StringJsonReader;
 
-import java.util.Arrays;
-import java.util.Collection;
+import dev.amble.ait.core.commands.argument.json.StringJsonReader;
 
 public class JsonElementArgumentType implements ArgumentType<JsonElement> {
 

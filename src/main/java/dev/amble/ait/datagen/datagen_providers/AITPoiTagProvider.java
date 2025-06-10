@@ -1,6 +1,7 @@
 package dev.amble.ait.datagen.datagen_providers;
 
-import dev.amble.ait.AITMod;
+import java.util.concurrent.CompletableFuture;
+
 import net.minecraft.data.DataOutput;
 import net.minecraft.data.server.tag.TagProvider;
 import net.minecraft.registry.RegistryKeys;
@@ -8,7 +9,7 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.PointOfInterestTypeTags;
 import net.minecraft.world.poi.PointOfInterestType;
 
-import java.util.concurrent.CompletableFuture;
+import dev.amble.ait.AITMod;
 
 public class AITPoiTagProvider extends TagProvider<PointOfInterestType> {
     public AITPoiTagProvider(DataOutput output,

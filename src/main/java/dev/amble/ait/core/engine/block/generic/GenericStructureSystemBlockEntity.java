@@ -1,14 +1,7 @@
 package dev.amble.ait.core.engine.block.generic;
 
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.engine.DurableSubSystem;
-import dev.amble.ait.core.engine.StructureHolder;
-import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
-import dev.amble.ait.core.engine.block.multi.StructureSystemBlockEntity;
-import dev.amble.ait.core.engine.item.SubSystemItem;
-import dev.amble.ait.core.util.StackUtil;
+import java.util.Optional;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,7 +14,15 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.Optional;
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.engine.DurableSubSystem;
+import dev.amble.ait.core.engine.StructureHolder;
+import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
+import dev.amble.ait.core.engine.block.multi.StructureSystemBlockEntity;
+import dev.amble.ait.core.engine.item.SubSystemItem;
+import dev.amble.ait.core.util.StackUtil;
 
 /**
  * a mutable version of the structure system block entity

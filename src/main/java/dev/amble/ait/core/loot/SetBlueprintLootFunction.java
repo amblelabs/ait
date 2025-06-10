@@ -1,14 +1,13 @@
 
 package dev.amble.ait.core.loot;
 
+import java.util.Random;
+
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSyntaxException;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.item.blueprint.BlueprintItem;
-import dev.amble.ait.core.item.blueprint.BlueprintRegistry;
-import dev.amble.ait.core.item.blueprint.BlueprintSchema;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.condition.LootCondition;
 import net.minecraft.loot.context.LootContext;
@@ -17,7 +16,10 @@ import net.minecraft.loot.function.LootFunctionType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 
-import java.util.Random;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.item.blueprint.BlueprintItem;
+import dev.amble.ait.core.item.blueprint.BlueprintRegistry;
+import dev.amble.ait.core.item.blueprint.BlueprintSchema;
 
 public class SetBlueprintLootFunction extends ConditionalLootFunction {
     final BlueprintSchema blueprint;

@@ -1,11 +1,13 @@
 package dev.amble.ait.module.planet.core.space.planet;
 
-import dev.amble.ait.AITMod;
 import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+
 import net.minecraft.resource.ResourceType;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionTypes;
+
+import dev.amble.ait.AITMod;
 
 public class PlanetRegistry extends SimpleDatapackRegistry<Planet> {
 

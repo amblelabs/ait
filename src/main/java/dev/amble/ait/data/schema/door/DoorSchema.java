@@ -1,17 +1,19 @@
 package dev.amble.ait.data.schema.door;
 
+import java.lang.reflect.Type;
+
 import com.google.gson.*;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.data.schema.door.impl.CapsuleDoorVariant;
-import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
-import dev.amble.ait.registry.impl.door.DoorRegistry;
+
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
-import java.lang.reflect.Type;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.data.schema.door.impl.CapsuleDoorVariant;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.registry.impl.door.DoorRegistry;
 
 /**
  * This class provides information about a door for an exterior <br>

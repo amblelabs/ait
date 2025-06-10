@@ -1,8 +1,14 @@
 package dev.amble.ait.core.tardis.util;
 
+import java.text.NumberFormat;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+
 import com.mojang.datafixers.util.Pair;
-import dev.amble.ait.AITMod;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import org.jetbrains.annotations.NotNull;
+
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
@@ -10,12 +16,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.structure.Structure;
-import org.jetbrains.annotations.NotNull;
 
-import java.text.NumberFormat;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
+import dev.amble.ait.AITMod;
 
 /**
  * @author TheBrightSpark, Loqor

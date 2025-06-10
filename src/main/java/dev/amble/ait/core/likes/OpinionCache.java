@@ -1,9 +1,9 @@
 package dev.amble.ait.core.likes;
 
-import net.minecraft.util.Identifier;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import net.minecraft.util.Identifier;
 
 public class OpinionCache extends ArrayList<Opinion> {
     private boolean valid;

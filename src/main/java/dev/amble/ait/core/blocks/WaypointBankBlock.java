@@ -1,8 +1,9 @@
 package dev.amble.ait.core.blocks;
 
-import dev.amble.ait.core.blockentities.WaypointBankBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
-import dev.amble.ait.core.util.WorldUtil;
+import java.util.Optional;
+
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.enums.DoubleBlockHalf;
@@ -19,9 +20,10 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
+import dev.amble.ait.core.blockentities.WaypointBankBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
+import dev.amble.ait.core.util.WorldUtil;
 
 @SuppressWarnings("deprecation")
 public class WaypointBankBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {

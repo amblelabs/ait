@@ -1,10 +1,11 @@
 package dev.amble.ait.data.schema.door.impl;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.data.schema.door.DoorSchema;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.data.schema.door.DoorSchema;
 
 public class ClassicDoorVariant extends DoorSchema {
     public static final Identifier REFERENCE = AITMod.id("door/classic");

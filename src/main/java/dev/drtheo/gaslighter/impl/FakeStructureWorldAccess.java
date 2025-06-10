@@ -1,6 +1,11 @@
 package dev.drtheo.gaslighter.impl;
 
+import java.util.List;
+import java.util.function.Predicate;
+
 import dev.drtheo.gaslighter.Gaslighter3000;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -37,10 +42,6 @@ import net.minecraft.world.chunk.light.LightingProvider;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.tick.QueryableTickScheduler;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
-import java.util.function.Predicate;
 
 public class FakeStructureWorldAccess implements StructureWorldAccess {
 

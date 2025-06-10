@@ -2,17 +2,19 @@ package dev.amble.ait.module.planet.client.renderers;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.module.planet.client.models.CelestialBodyModel;
+import org.joml.Vector3f;
+import org.lwjgl.opengl.GL11;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
-import org.joml.Vector3f;
-import org.lwjgl.opengl.GL11;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.module.planet.client.models.CelestialBodyModel;
 
 
 public class CelestialBodyRenderer {

@@ -1,9 +1,8 @@
 package dev.amble.ait.client.overlays;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.amble.ait.core.entities.FlightTardisEntity;
-import dev.amble.ait.core.tardis.Tardis;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -13,6 +12,9 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
+
+import dev.amble.ait.core.entities.FlightTardisEntity;
+import dev.amble.ait.core.tardis.Tardis;
 
 public class RWFOverlay implements HudRenderCallback {
     private static final int ALPHA_GRAY = ColorHelper.Argb.getArgb(125, 255, 255, 255);

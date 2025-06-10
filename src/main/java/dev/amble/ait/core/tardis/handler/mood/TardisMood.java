@@ -1,9 +1,9 @@
 package dev.amble.ait.core.tardis.handler.mood;
 
+import java.util.Optional;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
-import java.util.Optional;
 
 public record TardisMood(Moods moods, Alignment alignment, int weight) {
 

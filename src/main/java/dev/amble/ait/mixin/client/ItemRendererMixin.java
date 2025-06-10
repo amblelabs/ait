@@ -1,10 +1,12 @@
 package dev.amble.ait.mixin.client;
 
-import dev.amble.ait.client.models.items.GeigerCounterModel;
-import dev.amble.ait.client.models.items.HandlesModel;
-import dev.amble.ait.client.models.items.RiftScannerModel;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.module.planet.core.PlanetItems;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.BakedModel;
@@ -14,12 +16,12 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import dev.amble.ait.client.models.items.GeigerCounterModel;
+import dev.amble.ait.client.models.items.HandlesModel;
+import dev.amble.ait.client.models.items.RiftScannerModel;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.module.planet.core.PlanetItems;
 
 @Mixin(ItemRenderer.class)
 public class ItemRendererMixin {

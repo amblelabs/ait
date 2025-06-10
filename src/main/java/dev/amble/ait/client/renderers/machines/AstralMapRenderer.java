@@ -1,9 +1,6 @@
 package dev.amble.ait.client.renderers.machines;
 
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.machines.AstralMapModel;
-import dev.amble.ait.core.blockentities.AstralMapBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SkullBlock;
 import net.minecraft.client.render.RenderLayer;
@@ -14,6 +11,10 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.RotationPropertyHelper;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.machines.AstralMapModel;
+import dev.amble.ait.core.blockentities.AstralMapBlockEntity;
 
 public class AstralMapRenderer<T extends AstralMapBlockEntity> implements BlockEntityRenderer<T> {
 

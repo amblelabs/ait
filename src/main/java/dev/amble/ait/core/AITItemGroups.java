@@ -1,9 +1,11 @@
 package dev.amble.ait.core;
 
-import dev.amble.ait.AITMod;
 import dev.amble.lib.container.impl.ItemGroupContainer;
 import dev.amble.lib.itemgroup.AItemGroup;
+
 import net.minecraft.item.ItemStack;
+
+import dev.amble.ait.AITMod;
 
 public class AITItemGroups implements ItemGroupContainer {
 

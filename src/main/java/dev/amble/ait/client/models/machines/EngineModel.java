@@ -1,12 +1,13 @@
 package dev.amble.ait.client.models.machines;
 
-import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.tardis.Tardis;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+
+import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.tardis.Tardis;
 
 public class EngineModel extends SinglePartEntityModel {
     private final ModelPart coral;

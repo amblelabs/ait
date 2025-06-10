@@ -1,5 +1,38 @@
 package dev.amble.ait.core.tardis.util;
 
+import java.util.*;
+import java.util.function.Predicate;
+
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedBlockPos;
+import dev.amble.lib.util.TeleportUtil;
+import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
+import it.unimi.dsi.fastutil.longs.LongBidirectionalIterator;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.util.TriState;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.TntEntity;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.TypeFilter;
+import net.minecraft.util.function.LazyIterationConsumer;
+import net.minecraft.util.math.*;
+import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityLike;
+import net.minecraft.world.entity.EntityTrackingSection;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.ExtraPushableEntity;
 import dev.amble.ait.api.tardis.TardisComponent;
@@ -20,37 +53,6 @@ import dev.amble.ait.mixin.lookup.EntityTrackingSectionAccessor;
 import dev.amble.ait.mixin.lookup.SectionedEntityCacheAccessor;
 import dev.amble.ait.mixin.lookup.SimpleEntityLookupAccessor;
 import dev.amble.ait.mixin.lookup.WorldInvoker;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedBlockPos;
-import dev.amble.lib.util.TeleportUtil;
-import dev.drtheo.scheduler.api.TimeUnit;
-import dev.drtheo.scheduler.api.common.Scheduler;
-import dev.drtheo.scheduler.api.common.TaskStage;
-import it.unimi.dsi.fastutil.longs.LongBidirectionalIterator;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.util.TriState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.TntEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.TypeFilter;
-import net.minecraft.util.function.LazyIterationConsumer;
-import net.minecraft.util.math.*;
-import net.minecraft.world.World;
-import net.minecraft.world.entity.EntityLike;
-import net.minecraft.world.entity.EntityTrackingSection;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.*;
-import java.util.function.Predicate;
 
 @SuppressWarnings("unused")
 public class TardisUtil {

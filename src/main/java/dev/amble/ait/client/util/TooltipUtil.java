@@ -1,12 +1,12 @@
 package dev.amble.ait.client.util;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-
-import java.util.List;
-import java.util.function.Consumer;
 
 public class TooltipUtil {
 

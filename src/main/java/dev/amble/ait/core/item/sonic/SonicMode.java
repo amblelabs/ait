@@ -1,7 +1,7 @@
 package dev.amble.ait.core.item.sonic;
 
-import dev.amble.ait.data.enummap.Ordered;
-import dev.amble.ait.data.schema.sonic.SonicSchema;
+import java.util.function.Function;
+
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
@@ -12,7 +12,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.World;
 
-import java.util.function.Function;
+import dev.amble.ait.data.enummap.Ordered;
+import dev.amble.ait.data.schema.sonic.SonicSchema;
 
 public abstract class SonicMode implements Ordered {
 

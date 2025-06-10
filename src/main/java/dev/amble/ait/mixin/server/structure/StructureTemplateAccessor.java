@@ -1,11 +1,12 @@
 package dev.amble.ait.mixin.server.structure;
 
-import net.minecraft.structure.StructureTemplate;
-import net.minecraft.util.math.Vec3i;
+import java.util.List;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import java.util.List;
+import net.minecraft.structure.StructureTemplate;
+import net.minecraft.util.math.Vec3i;
 
 @Mixin(StructureTemplate.class)
 public interface StructureTemplateAccessor {

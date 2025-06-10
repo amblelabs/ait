@@ -1,15 +1,16 @@
 package dev.amble.ait.client.renderers;
 
+import java.util.function.BiFunction;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderPhase;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-
-import java.util.function.BiFunction;
 
 @Environment(EnvType.CLIENT)
 public class AITRenderLayers extends RenderLayer {
