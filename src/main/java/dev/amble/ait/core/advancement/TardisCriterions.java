@@ -24,7 +24,6 @@ public class TardisCriterions {
     public static SimpleCriterion VEGETATION = SimpleCriterion.create("break_vegetation").register();
     public static SimpleCriterion PLACE_CORAL = SimpleCriterion.create("place_coral").register();
     public static final SimpleCriterion PLACE_ENERGIZER = SimpleCriterion.create("place_energizer").register();
-    public static SimpleCriterion FEED_POWER_CONVERTER = SimpleCriterion.create("feed_power_converter").register();
     public static SimpleCriterion ENTER_TARDIS = SimpleCriterion.create("enter_tardis").register();
     public static SimpleCriterion REDECORATE = SimpleCriterion.create("redecorate").register();
     public static SimpleCriterion FORCED_ENTRY = SimpleCriterion.create("forced_entry").register();

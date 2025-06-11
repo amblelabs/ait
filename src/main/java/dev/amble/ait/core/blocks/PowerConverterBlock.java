@@ -4,9 +4,6 @@ import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 import java.util.List;
 
-import dev.amble.ait.api.ConsumableBlock;
-import dev.amble.ait.core.advancement.TardisCriterions;
-import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -26,6 +23,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
+import dev.amble.ait.api.ConsumableBlock;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.AITTags;
@@ -71,7 +69,7 @@ public class PowerConverterBlock extends DirectionalFluidLinkBlock implements Co
         if (world.getBlockEntity(pos) instanceof FluidLinkBlockEntity be) {
             if (world.isClient()) return ActionResult.SUCCESS;
             if (!(be.isPowered())) return ActionResult.FAIL;
-            if (!stack.isIn(AITTags.Items.IS_TARDIS_FUEL) && !stack.getItem().isFood()) return ActionResult.FAIL;
+            if (!stack.isIn(AITTags.Items.IS_TARDIS_FUEL)) return ActionResult.FAIL;
 
             if (!player.isSneaking()) {
                 be.source().addLevel(175);
@@ -81,10 +79,6 @@ public class PowerConverterBlock extends DirectionalFluidLinkBlock implements Co
 
                 be.source().addLevel(175 * count);
                 stack.decrement(count);
-            }
-
-            if (stack.getItem().isFood()) {
-                TardisCriterions.FEED_POWER_CONVERTER.trigger((ServerPlayerEntity) player);
             }
 
             world.playSound(null, pos, AITSounds.POWER_CONVERT, SoundCategory.BLOCKS, 1.0F, 1.0F);
