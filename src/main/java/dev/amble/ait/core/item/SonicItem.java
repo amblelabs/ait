@@ -204,8 +204,4 @@ public class SonicItem extends LinkableItem implements ArtronHolderItem {
     public double getMaxFuel(ItemStack stack) {
         return MAX_FUEL;
     }
-
-    public static boolean isBeingUsed(PlayerEntity player, ItemStack stack) {
-        return player.isUsingItem() && player.getActiveItem() == stack;
-    }
 }

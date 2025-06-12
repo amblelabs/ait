@@ -5,7 +5,6 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import dev.amble.ait.client.sounds.PositionedLoopingSound;
@@ -35,40 +34,8 @@ public class SonicSound extends PositionedLoopingSound {
             return;
         }
 
-        if (checkAndPlayDuelSound())
-            return;
-
-
         this.updatePosition();
         this.updatePitchBasedOnCameraMovement();
-    }
-
-    private boolean checkAndPlayDuelSound() {
-        World world = this.player.getWorld();
-
-        for (PlayerEntity other : world.getPlayers()) {
-            if (other == this.player || !(other instanceof AbstractClientPlayerEntity otherClient)) continue;
-            if (!shouldPlay(other)) continue;
-            if (!isLookingAtEachOther(this.player, other)) continue;
-            if (this.player.squaredDistanceTo(other) > 10.0D * 10.0D) continue;
-
-            if (!hasPlayedOnSound) {
-                playSoundAtPlayer(AITSounds.SONIC_DUEL);
-                hasPlayedOnSound = true;
-                hasPlayedOffSound = false;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    private boolean isLookingAtEachOther(PlayerEntity a, PlayerEntity b) {
-        Vec3d aLook = a.getRotationVec(1.0F);
-        Vec3d bLook = b.getRotationVec(1.0F);
-        Vec3d delta = b.getPos().subtract(a.getPos()).normalize();
-        return aLook.dotProduct(delta) > 0.85 && bLook.dotProduct(delta.multiply(-1)) > 0.85;
     }
 
     public static boolean shouldPlay(PlayerEntity player) {
