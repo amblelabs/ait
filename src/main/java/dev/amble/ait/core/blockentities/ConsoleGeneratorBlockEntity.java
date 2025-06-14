@@ -1,6 +1,8 @@
 package dev.amble.ait.core.blockentities;
 
+import static dev.amble.ait.core.blockentities.ConsoleBlockEntity.previousConsole;
 import static dev.amble.ait.core.blockentities.ConsoleBlockEntity.nextConsole;
+import static dev.amble.ait.core.blockentities.ConsoleBlockEntity.previousVariant;
 import static dev.amble.ait.core.blockentities.ConsoleBlockEntity.nextVariant;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -52,7 +54,7 @@ public class ConsoleGeneratorBlockEntity extends FluidLinkBlockEntity {
         this.variant = variant;
     }
 
-    public void useOn(World world, boolean sneaking, PlayerEntity player) {
+    public void useOn(World world, boolean sneaking, boolean punching, PlayerEntity player) {
         if (!TardisServerWorld.isTardisDimension(world))
             return;
 
@@ -76,9 +78,13 @@ public class ConsoleGeneratorBlockEntity extends FluidLinkBlockEntity {
         world.playSound(null, this.pos, SoundEvents.BLOCK_SCULK_CHARGE, SoundCategory.BLOCKS, 0.5f, 1.0f);
 
         if (sneaking) {
-            this.changeConsole(nextVariant(this.getConsoleVariant()));
+            this.changeConsole(punching
+                    ? previousVariant(this.getConsoleVariant())
+                    : nextVariant(this.getConsoleVariant()));
         } else {
-            this.changeConsole(nextConsole(this.getConsoleSchema()));
+            this.changeConsole(punching
+                    ? previousConsole(this.getConsoleSchema())
+                    : nextConsole(this.getConsoleSchema()));
         }
     }
 

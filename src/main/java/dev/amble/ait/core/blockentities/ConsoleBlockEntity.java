@@ -303,25 +303,35 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
         }
     }
 
+    public static ConsoleTypeSchema previousConsole(ConsoleTypeSchema current) {
+        List<ConsoleTypeSchema> list = ConsoleRegistry.REGISTRY.stream().toList();
+        int idx = list.indexOf(current);
+        int size = list.size();
+
+        return list.get((size + idx - 1) % size);
+    }
+
     public static ConsoleTypeSchema nextConsole(ConsoleTypeSchema current) {
         List<ConsoleTypeSchema> list = ConsoleRegistry.REGISTRY.stream().toList();
-
         int idx = list.indexOf(current);
+        int size = list.size();
 
-        if (idx < 0 || idx + 1 == list.size())
-            return list.get(0);
+        return list.get((idx + 1) % size);
+    }
 
-        return list.get(idx + 1);
+    public static ConsoleVariantSchema previousVariant(ConsoleVariantSchema current) {
+        List<ConsoleVariantSchema> list = ConsoleVariantRegistry.withParent(current.parent());
+        int idx = list.indexOf(current);
+        int size = list.size();
+
+        return list.get((size + idx - 1) % size);
     }
 
     public static ConsoleVariantSchema nextVariant(ConsoleVariantSchema current) {
         List<ConsoleVariantSchema> list = ConsoleVariantRegistry.withParent(current.parent());
-
         int idx = list.indexOf(current);
+        int size = list.size();
 
-        if (idx < 0 || idx + 1 == list.size())
-            return list.get(0);
-
-        return list.get(idx + 1);
+        return list.get((idx + 1) % size);
     }
 }
