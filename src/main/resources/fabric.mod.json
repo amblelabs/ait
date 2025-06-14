@@ -65,6 +65,9 @@
 		],
 		"amblekit-client": [
 			"dev.amble.ait.init.client.AmbleClientInitializer"
+		],
+		"permission-api-compat": [
+			"dev.amble.ait.compat.permissionapi.PermissionAPICompat"
 		]
 	},
 	"mixins": [
@@ -83,7 +86,8 @@
 		"amblekit": "*"
 	},
 	"suggests": {
-		"k9-mod": "*"
+		"k9-mod": "*",
+		"fabric-permissions-api": "*"
 	},
 	"custom": {
 		"modmenu": {

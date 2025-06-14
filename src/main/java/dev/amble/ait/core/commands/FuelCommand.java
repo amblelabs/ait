@@ -13,6 +13,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
@@ -22,19 +23,19 @@ public class FuelCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher
-                .register(literal(AITMod.MOD_ID).then(literal("fuel").requires(source -> source.hasPermissionLevel(2))
+                .register(literal(AITMod.MOD_ID).then(literal("fuel").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.fuel", 2))
                         .then(literal("add").then(argument("tardis", TardisArgumentType.tardis())
                                 .then(argument("amount", DoubleArgumentType.doubleArg(0, FuelHandler.TARDIS_MAX_FUEL))
                                         .executes(FuelCommand::add))))
-                        .then(literal("remove").requires(source -> source.hasPermissionLevel(2))
+                        .then(literal("remove").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.fuel.remove", 2))
                                 .then(argument("tardis", TardisArgumentType.tardis()).then(
                                         argument("amount", DoubleArgumentType.doubleArg(0, FuelHandler.TARDIS_MAX_FUEL))
                                                 .executes(FuelCommand::remove))))
-                        .then(literal("set").requires(source -> source.hasPermissionLevel(2))
+                        .then(literal("set").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.fuel.set", 2))
                                 .then(argument("tardis", TardisArgumentType.tardis()).then(
                                         argument("amount", DoubleArgumentType.doubleArg(0, FuelHandler.TARDIS_MAX_FUEL))
                                                 .executes(FuelCommand::set))))
-                        .then(literal("get").requires(source -> source.hasPermissionLevel(2))
+                        .then(literal("get").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.fuel.get", 2))
                                 .then(argument("tardis", TardisArgumentType.tardis()).executes(FuelCommand::get)))));
     }
 

@@ -15,12 +15,13 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.ServerTardis;
 
 public class SetDoorParticleCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access) {
-        dispatcher.register(literal(AITMod.MOD_ID).then(literal("door_particle").requires(source -> source.hasPermissionLevel(2))
+        dispatcher.register(literal(AITMod.MOD_ID).then(literal("door_particle").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.door_particle", 2))
                 .then(argument("tardis", TardisArgumentType.tardis()).then(argument("particle_type", ParticleEffectArgumentType.particleEffect(access)).executes(SetDoorParticleCommand::execute)))));
     }
 

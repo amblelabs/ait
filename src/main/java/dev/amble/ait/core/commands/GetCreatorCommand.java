@@ -12,6 +12,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.ServerTardis;
 
@@ -19,7 +20,7 @@ public class GetCreatorCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(literal(AITMod.MOD_ID)
-                .then(literal("creator-name").requires(source -> source.hasPermissionLevel(2)).then(literal("get").then(
+                .then(literal("creator-name").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.creator-name", 2)).then(literal("get").then(
                         argument("tardis", TardisArgumentType.tardis()).executes(GetCreatorCommand::runCommand)))));
     }
 

@@ -15,13 +15,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.world.RiftChunkManager;
 
 public class RiftChunkCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(literal(AITMod.MOD_ID).then(literal("rift_chunk")
-                .requires(source -> source.hasPermissionLevel(2))
+                .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.rift_chunk", 2))
                 .then(literal("check")
                         .then(argument("position", BlockPosArgumentType.blockPos()).executes(RiftChunkCommand::check)))
                 .then(literal("get")

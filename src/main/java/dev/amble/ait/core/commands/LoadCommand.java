@@ -12,6 +12,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
@@ -21,7 +22,7 @@ public class LoadCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(literal(AITMod.MOD_ID).then(literal("load")
-                .requires(source -> source.hasPermissionLevel(2)).executes(LoadCommand::load)
+                .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.load", 2)).executes(LoadCommand::load)
                 .then(argument("target", TardisArgumentType.tardis())
                         .executes(LoadCommand::search))
         ));

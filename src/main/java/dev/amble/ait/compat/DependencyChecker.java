@@ -12,6 +12,7 @@ public class DependencyChecker {
     private static final boolean HAS_SODIUM = doesModExist("sodium");
     private static final boolean HAS_GRAVITY = doesModExist("gravity_changer_q");
     private static final boolean HAS_INDIUM = doesModExist("indium");
+    private static final boolean HAS_PERMISSION_API = doesModExist("fabric-permissions-api");
     private static final boolean HAS_PLAYER_ANIMATOR = doesModExist("player-animator");
 
     private static Boolean NVIDIA_CARD;
@@ -24,9 +25,7 @@ public class DependencyChecker {
         return HAS_PORTALS;
     }
 
-    public static boolean hasSodium() {
-        return HAS_SODIUM;
-    }
+    public static boolean hasSodium() {return HAS_SODIUM;}
 
     public static boolean hasIris() {
         return HAS_IRIS;
@@ -38,6 +37,10 @@ public class DependencyChecker {
 
     public static boolean hasIndium() {
         return HAS_INDIUM;
+    }
+
+    public static boolean hasPermissionApi() {
+        return HAS_PERMISSION_API;
     }
 
     @Environment(EnvType.CLIENT)

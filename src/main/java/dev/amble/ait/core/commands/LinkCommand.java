@@ -14,6 +14,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.ServerTardis;
 
@@ -21,7 +22,7 @@ public class LinkCommand {
 
     // TODO: add slot argument, like in "/item replace" command
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher.register(literal(AITMod.MOD_ID).then(literal("link").requires(source -> source.hasPermissionLevel(2))
+        dispatcher.register(literal(AITMod.MOD_ID).then(literal("link").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.link", 2))
                 .then(argument("tardis", TardisArgumentType.tardis()).executes(LinkCommand::runCommand))));
     }
 

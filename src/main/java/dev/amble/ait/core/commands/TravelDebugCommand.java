@@ -15,6 +15,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.Tardis;
 
@@ -22,7 +23,7 @@ public class TravelDebugCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(literal(AITMod.MOD_ID).then(literal("travel")
-                .requires(source -> source.hasPermissionLevel(2))
+                .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.travel", 2))
                 .then(argument("tardis", TardisArgumentType.tardis())
                         .then(literal("demat").executes(TravelDebugCommand::demat))
                         .then(literal("destination").then(argument("dimension", DimensionArgumentType.dimension()).then(
