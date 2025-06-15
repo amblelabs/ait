@@ -208,6 +208,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
     private ExteriorBlockEntity placeExterior(CachedDirectedGlobalPos globalPos, boolean animate, boolean schedule) {
         ServerWorld world = globalPos.getWorld();
+        if (world == null) return null; // This should be fine for now
         BlockPos pos = globalPos.getPos();
 
         boolean hasPower = this.tardis.fuel().hasPower();

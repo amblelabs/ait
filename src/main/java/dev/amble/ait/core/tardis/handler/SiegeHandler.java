@@ -138,8 +138,9 @@ public class SiegeHandler extends KeyedTardisComponent implements TardisTickable
 
             this.tardis.alarm().disable();
 
-            if (this.tardis.getExterior().findExteriorBlock().isEmpty())
+            if (this.tardis.getExterior().findExteriorBlock().isEmpty()) {
                 this.tardis.travel().placeExterior(false);
+            }
 
             this.siegeTime = 0;
         }
