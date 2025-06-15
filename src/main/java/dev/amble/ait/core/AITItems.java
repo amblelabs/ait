@@ -81,6 +81,7 @@ public class AITItems extends ItemContainer {
     public static final Item HYPERCUBE = new HypercubeItem(new AItemSettings().maxCount(1).group(AITItemGroups.MAIN));
     public static final Item PSYCHPAPER = new PsychpaperItem(new AItemSettings().maxCount(1).group(AITItemGroups.MAIN));
     public static final Item HAZANDRA = new InteriorTeleporterItem(new AItemSettings().group(AITItemGroups.MAIN));
+    public static final Item ROUNDEL = new RoundelItem(AITBlocks.ROUNDEL, new AItemSettings().group(AITItemGroups.FABRICATOR));
 
     // Keys/Horns - Templates
     public static final Item IRON_KEY = new KeyItem(new AItemSettings().group(AITItemGroups.MAIN));
