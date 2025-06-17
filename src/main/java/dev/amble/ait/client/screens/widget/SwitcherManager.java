@@ -2,6 +2,7 @@ package dev.amble.ait.client.screens.widget;
 
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import dev.amble.ait.api.Nameable;
@@ -17,8 +18,10 @@ import dev.amble.ait.core.tardis.handler.ServerHumHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
+import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.data.hum.Hum;
 import dev.amble.ait.registry.impl.HumRegistry;
+import net.minecraft.util.Identifier;
 
 public class SwitcherManager<T extends Nameable, U> implements Nameable {
 
@@ -227,6 +230,35 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
 
         private static void sync(SwitcherManager<?, ClientTardis> current, ClientTardis object) {
             current.sync(object);
+        }
+    }
+
+    public record IdentifierToName(Identifier id) implements Nameable {
+        @Override
+        public String name() {
+            try {
+                return WorldUtil.fakeTranslate(id.getPath());
+            } catch (Exception e) {
+                return id.toString();
+            }
+        }
+    }
+
+    public static class IdentifierSwitcher extends SwitcherManager<IdentifierToName, Identifier> {
+        public IdentifierSwitcher(List<Identifier> list, Consumer<Identifier> sync) {
+            super((var) -> next(var, list), (var) -> prev(var, list), (var, arg) -> {sync.accept(var.id());}, new IdentifierToName(list.get(0)), "identifier");
+        }
+
+        private static IdentifierToName next(IdentifierToName id, List<Identifier> list) {
+            int idx =  list.indexOf(id.id());
+            idx = (idx + 1) % list.size();
+            return new IdentifierToName(list.get(idx));
+        }
+
+        private static IdentifierToName prev(IdentifierToName id, List<Identifier> list) {
+            int idx = list.indexOf(id.id());
+            idx = (idx - 1 + list.size()) % list.size();
+            return new IdentifierToName(list.get(idx));
         }
     }
 }

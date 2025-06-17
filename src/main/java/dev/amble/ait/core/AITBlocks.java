@@ -79,6 +79,13 @@ public class AITBlocks extends BlockContainer {
             FabricBlockSettings.create().nonOpaque().noBlockBreakParticles().requiresTool().strength(1F)
                     .instrument(Instrument.BANJO).pistonBehavior(PistonBehavior.IGNORE));
 
+    @PickaxeMineable
+    @NoEnglish
+    public static final Block ARS_PLACER_BLOCK = new ArsPlacerBlock(
+            FabricBlockSettings.create().noBlockBreakParticles().requiresTool().strength(1F)
+                    .instrument(Instrument.BANJO).pistonBehavior(PistonBehavior.IGNORE));
+
+
     // Coral Blocks
     @NoEnglish
     public static final Block CORAL_PLANT = new CoralPlantBlock(FabricBlockSettings.create().ticksRandomly().nonOpaque()
