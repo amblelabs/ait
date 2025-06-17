@@ -38,5 +38,8 @@ public abstract class DoorModel extends SinglePartEntityModel {
             float headPitch) {
     }
 
-    public abstract Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state);
+    @Deprecated(forRemoval = true)
+    public Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state) {
+        throw new UnsupportedOperationException("This method is deprecated and should not be used.");
+    }
 }

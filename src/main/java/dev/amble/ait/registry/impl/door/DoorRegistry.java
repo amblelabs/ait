@@ -1,6 +1,7 @@
 package dev.amble.ait.registry.impl.door;
 
 
+import dev.amble.ait.data.schema.door.impl.exclusive.PersonaDoorVariant;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 
 import net.minecraft.registry.Registry;
@@ -43,6 +44,7 @@ public class DoorRegistry {
 
     public static DoorSchema DOOM;
     public static DoorSchema BLUE_BOX;
+    public static DoorSchema PERSONA;
 
     public static void init() {
         TARDIM = register(new TardimDoorVariant());
@@ -68,5 +70,6 @@ public class DoorRegistry {
         // Exclusives
         DOOM = register(new DoomDoorVariant());
         BLUE_BOX = register(new BlueBoxDoorVariant());
+        PERSONA = register(new PersonaDoorVariant());
     }
 }

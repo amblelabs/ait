@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import dev.amble.ait.data.schema.exterior.variant.exclusive.persona.VelvetDoorVariant;
 import dev.amble.lib.register.datapack.DatapackRegistry;
 import dev.amble.lib.register.unlockable.UnlockableRegistry;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -203,6 +204,7 @@ public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantS
     // Exclusives
     public static ExteriorVariantSchema DOOM;
     public static ExteriorVariantSchema WANDERER;
+    public static ExteriorVariantSchema PERSONA;
 
     @Override
     protected void defaults() {
@@ -298,5 +300,6 @@ public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantS
         // Dev Exclusives
         DOOM = register(new DoomVariant());
         WANDERER = register(new BoothWandererVariant());
+        PERSONA = register(new VelvetDoorVariant());
     }
 }

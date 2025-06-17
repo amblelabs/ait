@@ -1,6 +1,7 @@
 package dev.amble.ait.registry.impl.exterior;
 
 
+import dev.amble.ait.data.schema.exterior.variant.exclusive.persona.client.ClientVelvetDoorVariant;
 import dev.amble.lib.register.datapack.DatapackRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
@@ -208,6 +209,7 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
 
     public static ClientExteriorVariantSchema DOOM;
     public static ClientExteriorVariantSchema BOOTH_WANDERER;
+    public static ClientExteriorVariantSchema PERSONA;
 
     @Override
     public void onClientInit() {
@@ -259,6 +261,7 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
         // Dev Exclusives
         DOOM = register(new ClientDoomVariant());
         BOOTH_WANDERER = register(new ClientBoothWandererVariant());
+        PERSONA = register(new ClientVelvetDoorVariant());
 
         // Plinth
         PLINTH_DEFAULT = register(new ClientPlinthDefaultVariant());

@@ -112,7 +112,9 @@ public abstract class ExteriorVariantSchema extends BasicSchema implements Unloc
     }
 
     @Deprecated(forRemoval = true, since = "1.3.0")
-    public abstract ExteriorAnimation animation(ExteriorBlockEntity exterior);
+    public ExteriorAnimation animation(ExteriorBlockEntity exterior) {
+        throw new UnsupportedOperationException("This method has been removed and is no longer supported.");
+    }
 
     public abstract DoorSchema door();
 

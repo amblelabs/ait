@@ -1,6 +1,7 @@
 package dev.amble.ait.registry.impl.door;
 
 
+import dev.amble.ait.data.schema.door.impl.exclusive.client.ClientPersonaDoorVariant;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 
 import net.minecraft.registry.Registry;
@@ -11,8 +12,8 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.data.schema.door.ClientDoorSchema;
 import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.door.impl.*;
-import dev.amble.ait.data.schema.door.impl.exclusive.ClientBlueBoxDoorVariant;
-import dev.amble.ait.data.schema.door.impl.exclusive.ClientDoomDoorVariant;
+import dev.amble.ait.data.schema.door.impl.exclusive.client.ClientBlueBoxDoorVariant;
+import dev.amble.ait.data.schema.door.impl.exclusive.client.ClientDoomDoorVariant;
 
 public class ClientDoorRegistry {
     public static final SimpleRegistry<ClientDoorSchema> REGISTRY = FabricRegistryBuilder
@@ -60,6 +61,7 @@ public class ClientDoorRegistry {
 
     public static ClientDoorSchema DOOM;
     public static ClientDoorSchema BLUE_BOX;
+    public static ClientDoorSchema PERSONA;
 
     public static void init() {
         TARDIM = register(new ClientTardimDoorVariant());
@@ -84,5 +86,6 @@ public class ClientDoorRegistry {
 
         DOOM = register(new ClientDoomDoorVariant());
         BLUE_BOX = register(new ClientBlueBoxDoorVariant());
+        PERSONA = register(new ClientPersonaDoorVariant());
     }
 }

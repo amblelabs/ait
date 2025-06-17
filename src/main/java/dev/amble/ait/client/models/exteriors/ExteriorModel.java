@@ -42,7 +42,10 @@ public abstract class ExteriorModel extends SinglePartEntityModel {
             float headPitch) {
     }
 
-    public abstract Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state);
+    @Deprecated(forRemoval = true)
+    public Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state) {
+        throw new UnsupportedOperationException("This method is deprecated and should not be used.");
+    }
 
     public abstract void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI);
