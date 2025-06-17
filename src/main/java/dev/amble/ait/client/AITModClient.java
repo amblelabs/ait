@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.UUID;
 
+import dev.amble.ait.client.screens.interior.ArsPlacerScreen;
 import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -261,6 +262,7 @@ public class AITModClient implements ClientModInitializer {
             case 0 -> new MonitorScreen(tardis, console);
             case 1 -> new BlueprintFabricatorScreen();
             case 2 -> new AstralMapScreen();
+            case 3 -> new ArsPlacerScreen(tardis, console);
             default -> null;
         };
     }

@@ -44,7 +44,7 @@ public class DesktopRegistry extends UnlockableRegistry<TardisDesktopSchema> {
 
     @Override
     public TardisDesktopSchema fallback() {
-        throw new UnsupportedOperationException("No desktops registered!");
+        return DEV;
     }
 
     public static DesktopRegistry getInstance() {
