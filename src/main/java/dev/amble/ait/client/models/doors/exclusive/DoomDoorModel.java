@@ -16,9 +16,9 @@ public class DoomDoorModel extends DoorModel {
     private final ModelPart doom;
 
     public static final Identifier DOOM_DOOR = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_door.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_door.png");
     public static final Identifier DOOM_DOOR_OPEN = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_door_open.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_door_open.png");
 
     public DoomDoorModel(ModelPart root) {
         this.doom = root.getChild("doom");

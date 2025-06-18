@@ -14,7 +14,7 @@ public class ClientBoothWandererVariant extends ClientExteriorVariantSchema {
 
     protected static final String CATEGORY_PATH = "textures/blockentities/exteriors/exclusive/wanderer";
     protected static final String TEXTURE_PATH = CATEGORY_PATH + "/wanderer.png";
-    protected static final String EMISSIVE_TEXTURE_PATH = CATEGORY_PATH + "/wanderer_emissive.png";
+    protected static final String EMISSIVE_TEXTURE_PATH = CATEGORY_PATH + "/wanderer_emission.png";
 
     public ClientBoothWandererVariant() {
         super(AITMod.id("exterior/exclusive/wanderer"));
