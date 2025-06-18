@@ -157,17 +157,13 @@ public class OverloadSonicMode extends SonicMode {
         else if (block instanceof RedstoneWireBlock || block instanceof AbstractRedstoneGateBlock) {
             forceRedstonePower(world, pos, state, 5 * 20);
         }
-        else if (block instanceof GlassBlock || block instanceof StainedGlassPaneBlock) {
+        else if (block instanceof GlassBlock || block instanceof StainedGlassPaneBlock || block instanceof LeavesBlock) {
             breakBlock(world, pos, user, state, blockHit);
         }
         else if (canLight(ticks) && block instanceof TntBlock) {
             TntBlock.primeTnt(world, pos);
             world.removeBlock(pos, false);
             world.emitGameEvent(user, GameEvent.BLOCK_DESTROY, pos);
-        }
-        else if (state.getBlock() instanceof AbstractCandleBlock) {
-            world.setBlockState(pos, state.with(AbstractCandleBlock.LIT, true), Block.NOTIFY_ALL);
-            world.emitGameEvent(user, GameEvent.BLOCK_CHANGE, pos);
         }
         else if (state.isOf(Blocks.OBSIDIAN)) {
             BlockPos blockPos2 = pos.offset(blockHit.getSide());
@@ -178,6 +174,31 @@ public class OverloadSonicMode extends SonicMode {
             }
         }
 
+        if (block == Blocks.IRON_DOOR && state.contains(Properties.OPEN)) {
+            boolean isOpen = state.get(Properties.OPEN);
+            world.setBlockState(pos, state.with(Properties.OPEN, !isOpen), 3);
+            world.emitGameEvent(user, GameEvent.BLOCK_ACTIVATE, pos);
+            return;
+        }
+
+        if (block == Blocks.IRON_TRAPDOOR && state.contains(Properties.OPEN)) {
+            boolean isOpen = state.get(Properties.OPEN);
+            world.setBlockState(pos, state.with(Properties.OPEN, !isOpen), 3);
+            world.emitGameEvent(user, GameEvent.BLOCK_ACTIVATE, pos);
+            return;
+        }
+
+        if (block instanceof RepeaterBlock && state.contains(Properties.DELAY)) {
+            world.setBlockState(pos, state.cycle(Properties.DELAY), 3);
+            world.emitGameEvent(user, GameEvent.BLOCK_CHANGE, pos);
+            return;
+        }
+
+        if (block instanceof ComparatorBlock && state.contains(Properties.COMPARATOR_MODE)) {
+            world.setBlockState(pos, state.cycle(Properties.COMPARATOR_MODE), 3);
+            world.emitGameEvent(user, GameEvent.BLOCK_CHANGE, pos);
+            return;
+        }
 
         playFx(world, pos);
     }

@@ -14,6 +14,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
+import dev.amble.ait.core.AITTags;
 import dev.amble.ait.data.schema.sonic.SonicSchema;
 
 public class InteractionSonicMode extends SonicMode {
@@ -47,36 +48,15 @@ public class InteractionSonicMode extends SonicMode {
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
 
-        if (block == Blocks.IRON_DOOR && state.contains(Properties.OPEN)) {
-            boolean isOpen = state.get(Properties.OPEN);
-            world.setBlockState(pos, state.with(Properties.OPEN, !isOpen), 3);
-            world.emitGameEvent(user, GameEvent.BLOCK_ACTIVATE, pos);
-            return;
-        }
-
-        if (block == Blocks.IRON_TRAPDOOR && state.contains(Properties.OPEN)) {
-            boolean isOpen = state.get(Properties.OPEN);
-            world.setBlockState(pos, state.with(Properties.OPEN, !isOpen), 3);
-            world.emitGameEvent(user, GameEvent.BLOCK_ACTIVATE, pos);
-            return;
-        }
-
-        if (block instanceof RepeaterBlock && state.contains(Properties.DELAY)) {
-            world.setBlockState(pos, state.cycle(Properties.DELAY), 3);
-            world.emitGameEvent(user, GameEvent.BLOCK_CHANGE, pos);
-            return;
-        }
-
-        if (block instanceof ComparatorBlock && state.contains(Properties.COMPARATOR_MODE)) {
-            world.setBlockState(pos, state.cycle(Properties.COMPARATOR_MODE), 3);
-            world.emitGameEvent(user, GameEvent.BLOCK_CHANGE, pos);
-            return;
-        }
+        if (!state.isIn(AITTags.Blocks.SONIC_INTERACTABLE)) return;
 
         if (block instanceof DaylightDetectorBlock && state.contains(Properties.INVERTED)) {
             world.setBlockState(pos, state.cycle(Properties.INVERTED), 3);
             world.emitGameEvent(user, GameEvent.BLOCK_CHANGE, pos);
-            return;
+        }
+        else if (state.getBlock() instanceof AbstractCandleBlock) {
+            world.setBlockState(pos, state.with(AbstractCandleBlock.LIT, true), Block.NOTIFY_ALL);
+            world.emitGameEvent(user, GameEvent.BLOCK_CHANGE, pos);
         }
     }
 
