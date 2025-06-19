@@ -2,7 +2,8 @@ package dev.amble.ait.core.item;
 
 import static net.minecraft.block.entity.BeaconBlockEntity.playSound;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Optional;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 

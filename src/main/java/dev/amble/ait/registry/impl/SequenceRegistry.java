@@ -26,6 +26,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.control.impl.*;
 import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
 import dev.amble.ait.core.tardis.control.impl.pos.XControl;
@@ -33,7 +34,6 @@ import dev.amble.ait.core.tardis.control.impl.pos.YControl;
 import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
 import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
 import dev.amble.ait.core.tardis.control.sequences.Sequence;
-import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.util.WorldUtil;
 
 public class SequenceRegistry {
@@ -72,16 +72,18 @@ public class SequenceRegistry {
                 finishedTardis -> finishedTardis.travel().decreaseFlightTime(120), missedTardis -> {
                     missedTardis.removeFuel(-random.nextBetween(45, 125));
                     missedTardis.door().openDoors();
+
                     List<Explosion> explosions = new ArrayList<>();
+                    ServerWorld world = missedTardis.asServer().world();
 
                     missedTardis.getDesktop().getConsolePos().forEach(console -> {
-                        Explosion explosion = missedTardis.asServer().getInteriorWorld().createExplosion(null, null, null,
+                        Explosion explosion = world.createExplosion(null, null, null,
                                 console.toCenterPos(), 3f * 2, false, World.ExplosionSourceType.BLOCK);
 
                         explosions.add(explosion);
                     });
 
-                    for (ServerPlayerEntity player : TardisUtil.getPlayersInsideInterior(missedTardis.asServer())) {
+                    for (ServerPlayerEntity player : world.getPlayers()) {
                         float xVel = AITMod.RANDOM.nextFloat(-2f, 3f);
                         float yVel = AITMod.RANDOM.nextFloat(-1f, 2f);
                         float zVel = AITMod.RANDOM.nextFloat(-2f, 3f);
@@ -89,8 +91,7 @@ public class SequenceRegistry {
                         player.setVelocity(xVel * 2, yVel * 2, zVel * 2);
 
                         if (!explosions.isEmpty()) {
-                            player.damage(
-                                    missedTardis.asServer().getInteriorWorld().getDamageSources().explosion(explosions.get(0)), 0);
+                            player.damage(world.getDamageSources().explosion(explosions.get(0)), 0);
                         } else {
                             player.damage(WorldUtil.getOverworld().getDamageSources().generic(), 0);
                         }
@@ -186,17 +187,17 @@ public class SequenceRegistry {
 
                     BlockPos doorPos = directedDoorPos.getPos();
 
-                    if (finishedTardis.door().isOpen() || WorldUtil.getOverworld().isClient())
+                    if (finishedTardis.door().isOpen() || !(finishedTardis instanceof ServerTardis))
                         return;
 
-                    ServerWorld interior = finishedTardis.asServer().getInteriorWorld();
+                    ServerWorld world = finishedTardis.asServer().world();
 
-                    ItemEntity rewardForCloaking = new ItemEntity(EntityType.ITEM, interior);
+                    ItemEntity rewardForCloaking = new ItemEntity(EntityType.ITEM, world);
                     rewardForCloaking.setPosition(doorPos.toCenterPos());
 
                     rewardForCloaking.setStack(
                             random.nextBoolean() ? Items.COOKIE.getDefaultStack() : Items.POPPY.getDefaultStack());
-                            interior.spawnEntity(rewardForCloaking);
+                    world.spawnEntity(rewardForCloaking);
                 }), (missedTardis -> {
                     DirectedBlockPos directedDoorPos = missedTardis.getDesktop().getDoorPos();
 
@@ -206,11 +207,10 @@ public class SequenceRegistry {
                     BlockPos doorPos = directedDoorPos.getPos();
                     missedTardis.travel().increaseFlightTime(120);
 
-                    if (missedTardis.door().isOpen() || WorldUtil.getOverworld().isClient())
+                    if (missedTardis.door().isOpen() || !(missedTardis instanceof ServerTardis))
                         return;
 
-                    ServerWorld interior = missedTardis.asServer().getInteriorWorld();
-
+                    ServerWorld interior = missedTardis.asServer().world();
                     Vec3d centered = doorPos.toCenterPos();
 
                     ZombieEntity zombieEntity = new ZombieEntity(EntityType.ZOMBIE, interior);
@@ -224,8 +224,7 @@ public class SequenceRegistry {
                             interior);
                     phantomEntity.setPosition(centered);
 
-                            interior.spawnEntity(
-                            random.nextBoolean() ? random.nextBoolean() ? drownedEntity : zombieEntity : phantomEntity);
+                    interior.spawnEntity(random.nextBoolean() ? random.nextBoolean() ? drownedEntity : zombieEntity : phantomEntity);
                 }), 80L, Text.translatable("sequence.ait.cloak_to_avoid_vortex_trapped_mobs").formatted(Formatting.ITALIC, Formatting.YELLOW),
                         new CloakControl(), new RandomiserControl()));
 

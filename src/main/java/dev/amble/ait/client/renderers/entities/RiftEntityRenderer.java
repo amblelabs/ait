@@ -12,8 +12,8 @@ import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.boti.BOTI;
-import dev.amble.ait.client.models.decoration.GallifreyFallsFrameModel;
 import dev.amble.ait.client.models.decoration.GallifreyFallsModel;
+import dev.amble.ait.client.models.decoration.PaintingFrameModel;
 import dev.amble.ait.core.entities.RiftEntity;
 
 @Environment(value=EnvType.CLIENT)
@@ -21,11 +21,11 @@ public class RiftEntityRenderer
         extends EntityRenderer<RiftEntity> {
     public static final Identifier RIFT_TEXTURE = AITMod.id("textures/entity/rift/rift.png");
     public static final Identifier CIRCLE_TEXTURE = AITMod.id("textures/entity/rift/circle_rift.png");
-    GallifreyFallsFrameModel frame;
+    PaintingFrameModel frame;
     GallifreyFallsModel painting;
     public RiftEntityRenderer(EntityRendererFactory.Context context) {
         super(context);
-        frame = new GallifreyFallsFrameModel(GallifreyFallsFrameModel.getTexturedModelData().createModel());
+        frame = new PaintingFrameModel(PaintingFrameModel.getTexturedModelData().createModel());
         painting = new GallifreyFallsModel(GallifreyFallsModel.getTexturedModelData().createModel());
     }
 

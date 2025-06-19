@@ -6,10 +6,11 @@ import net.minecraft.network.PacketByteBuf;
 
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.data.properties.Property;
+import dev.amble.ait.data.properties.PropertyType;
 
 public class FloatProperty extends Property<Float> {
 
-    public static final Type<Float> TYPE = new Type<>(Float.class, PacketByteBuf::writeFloat,
+    public static final PropertyType<Float> TYPE = new PropertyType<>(Float.class, PacketByteBuf::writeFloat,
             PacketByteBuf::readFloat);
 
     public FloatProperty(String name) {

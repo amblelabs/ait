@@ -57,8 +57,6 @@ public class TardisCrashHandler extends KeyedTardisComponent implements TardisTi
         State state = this.state.get();
         int repairTicks = this.repairTicks.get();
 
-        ServerAlarmHandler alarms = tardis.handler(Id.ALARMS);
-
         if (repairTicks > 0) {
             repairTicks = tardis.isRefueling() ? repairTicks - 10 : repairTicks - 1;
             this.setRepairTicks(repairTicks);
@@ -67,12 +65,12 @@ public class TardisCrashHandler extends KeyedTardisComponent implements TardisTi
                 return;
 
             this.state.set(State.NORMAL);
-            alarms.enabled().set(false);
+            this.tardis().alarm().disable();
             return;
         }
 
         if (state == State.TOXIC)
-            alarms.enabled().set(true);
+            this.tardis().alarm().enable();
 
         if (repairTicks < UNSTABLE_TICK_START_THRESHOLD && state != State.UNSTABLE) {
             state = State.UNSTABLE;
@@ -83,11 +81,7 @@ public class TardisCrashHandler extends KeyedTardisComponent implements TardisTi
         ServerWorld exteriorWorld = exteriorPosition.getWorld();
 
         DoorHandler door = tardis.door();
-        if (state != State.NORMAL) {
-            door.setDoorParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE);
-        } else {
-            door.tryReplaceDoorParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, null);
-        }
+        door.setDoorParticles(state != State.NORMAL ? ParticleTypes.CAMPFIRE_COSY_SMOKE : null);
 
         if (state != State.TOXIC)
             return;

@@ -63,7 +63,7 @@ public class DatapackAnimation extends TardisAnimation {
 
     @Override
     public DatapackAnimation instantiate() {
-        return new DatapackAnimation(this.id(), this.alpha.instantiate(), this.scale.instantiate(), this.position.instantiate(), this.rotation.instantiate(), this.blockbenchId, this.expectedState, this.nameKey, this.getSound().getId());
+        return new DatapackAnimation(this.id(), this.alpha.instantiate(), this.scale.instantiate(), this.position.instantiate(), this.rotation.instantiate(), this.blockbenchId, this.expectedState, this.nameKey, this.getSoundIdOrDefault());
     }
 
     public static DatapackAnimation fromInputStream(InputStream stream) {

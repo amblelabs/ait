@@ -51,7 +51,7 @@ public class GenericStructureSystemBlockEntity extends StructureSystemBlockEntit
                 }
                 StackUtil.spawn(world, pos, this.idSource.copyAndEmpty());
                 if (this.tardis().isPresent() && this.id() != null) {
-                    this.tardis().get().subsystems().remove(this.id(), false);
+                    system().setEnabled(false);
                 }
                 world.playSound(null, this.getPos(), AITSounds.WAYPOINT_ACTIVATE, SoundCategory.BLOCKS, 1.0f, 0.1f);
                 this.markDirty();
@@ -66,7 +66,7 @@ public class GenericStructureSystemBlockEntity extends StructureSystemBlockEntit
         if (hand.getItem() instanceof SubSystemItem link) {
             if (this.system() != null && this.idSource != null) {
                 if (tardis() != null) {
-                    tardis().get().subsystems().get(this.id()).setEnabled(false);
+                    system().setEnabled(false);
                 }
                 StackUtil.spawn(world, pos, this.idSource.copyAndEmpty());
             }

@@ -1,9 +1,11 @@
 package dev.amble.ait.core.tardis.handler;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import com.google.gson.*;
+import dev.amble.lib.util.ArrayIterator;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,11 +20,11 @@ import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.impl.*;
 import dev.amble.ait.core.engine.registry.SubSystemRegistry;
 import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.enummap.EnumMap;
+import dev.amble.ait.data.enummap.ConcurrentEnumMap;
 
 public class SubSystemHandler extends KeyedTardisComponent implements TardisTickable, Iterable<SubSystem> {
     @Exclude
-    private final EnumMap<SubSystem.IdLike, SubSystem> systems = new EnumMap<>(SubSystemRegistry::values,
+    private final ConcurrentEnumMap<SubSystem.IdLike, SubSystem> systems = new ConcurrentEnumMap<>(SubSystemRegistry::values,
             SubSystem[]::new);
 
     static {
@@ -39,11 +41,8 @@ public class SubSystemHandler extends KeyedTardisComponent implements TardisTick
         super(Id.SUBSYSTEM);
     }
 
-
     @Override
     public void onCreate() {
-        super.onCreate();
-
         SubSystemRegistry.getInstance().fill(this::create);
     }
 
@@ -54,52 +53,36 @@ public class SubSystemHandler extends KeyedTardisComponent implements TardisTick
         this.forEach(component -> SubSystem.init(component, this.tardis, ctx));
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends SubSystem> T get(SubSystem.IdLike id) {
-        if (!(this.systems.containsKey(id))) {
-            AITMod.LOGGER.info("Creating subsystem: {} | {}", id, tardis);
-            this.add(this.create(id));
-        }
-
         return (T) this.systems.get(id);
     }
 
     public SubSystem add(SubSystem system) {
         this.systems.put(system.getId(), system);
         this.sync();
+
         return system;
     }
 
-    public SubSystem remove(SubSystem.IdLike id, boolean sync) {
-        SubSystem found = this.systems.remove(id);
-        if (sync) this.sync();
-        return found;
-    }
-
+    @Override
     public @NotNull Iterator<SubSystem> iterator() {
-        return Arrays.stream(this.systems.getValues()).iterator();
+        return new ArrayIterator<>(this.systems.getValues());
     }
 
+    @Override
     public void forEach(Consumer<? super SubSystem> consumer) {
         for (SubSystem system : this.systems.getValues()) {
-            if (system == null)
-                continue;
-
             consumer.accept(system);
         }
     }
 
-    private SubSystem create(SubSystem.IdLike id) {
-        SubSystem system = id.create();
-        if (tardis != null)
-            SubSystem.init(system, this.tardis, InitContext.createdAt(this.tardis.travel().position()));
-        return system;
-    }
     private void create(SubSystem subSystem) {
-        this.systems.put(subSystem.getId(), subSystem);
+        this.set(subSystem);
+
         if (this.tardis != null)
             SubSystem.init(subSystem, this.tardis, InitContext.createdAt(this.tardis.travel().position()));
     }
-
 
     /**
      * @return true if all subsystems are enabled
@@ -112,55 +95,27 @@ public class SubSystemHandler extends KeyedTardisComponent implements TardisTick
 
         return true;
     }
+
     public int count() {
         return this.systems.size();
-    }
-    public int countEnabled() {
-        int count = 0;
-
-        for (SubSystem subSystem : this) {
-            if (subSystem.isEnabled())
-                count++;
-        }
-
-        return count;
     }
 
     @Override
     public void tick(MinecraftServer server) {
         for (SubSystem next : this) {
-            if (next == null) return;
             next.tick();
         }
     }
 
-    public Optional<DurableSubSystem> findBrokenSubsystem() {
-        for (SubSystem next : this) {
-            if (next instanceof DurableSubSystem && next.isEnabled() && ((DurableSubSystem) next).durability() <= 5)
-                return Optional.of((DurableSubSystem) next);
-        }
-
-        return Optional.empty();
-    }
-
     public void repairAll() {
         AITMod.LOGGER.info("Repairing all subsystems for {}", this.tardis);
+
         for (SubSystem next : this) {
-            if (next == null) continue;
-            if (next instanceof DurableSubSystem)
-                ((DurableSubSystem) next).addDurability(1250);
+            if (next instanceof DurableSubSystem durable)
+                durable.addDurability(1250);
+
             next.setEnabled(true);
         }
-    }
-
-    public List<SubSystem> getEnabled() {
-        List<SubSystem> enabled = new ArrayList<>();
-        for (SubSystem next : this) {
-            if (next.isEnabled())
-                enabled.add(next);
-        }
-
-        return enabled;
     }
 
     public EngineSystem engine() {
@@ -235,7 +190,7 @@ public class SubSystemHandler extends KeyedTardisComponent implements TardisTick
                 SubSystem.IdLike id = registry.get(i);
                 AITMod.LOGGER.debug("Appending new subsystem {}", id);
 
-                manager.get(id);
+                manager.set(id.create());
             }
 
             return manager;

@@ -18,7 +18,10 @@ import dev.amble.ait.data.schema.console.variant.copper.client.ClientCopperVaria
 import dev.amble.ait.data.schema.console.variant.coral.client.*;
 import dev.amble.ait.data.schema.console.variant.crystalline.client.ClientCrystallineVariant;
 import dev.amble.ait.data.schema.console.variant.crystalline.client.ClientCrystallineZeitonVariant;
-import dev.amble.ait.data.schema.console.variant.hartnell.client.*;
+import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientHartnellVariant;
+import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientKeltHartnellVariant;
+import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientMintHartnellVariant;
+import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientWoodenHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.renaissance.client.*;
 import dev.amble.ait.data.schema.console.variant.steam.client.*;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaBlueVariant;

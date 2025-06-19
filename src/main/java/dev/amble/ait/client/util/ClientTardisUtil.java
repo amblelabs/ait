@@ -44,16 +44,15 @@ public class ClientTardisUtil {
 
     static {
         ClientWorldEvents.CHANGE_WORLD.register((client, world) -> {
-            UUID id = TardisServerWorld.getClientTardisId(world);
+            UUID id = TardisServerWorld.getTardisId(world);
             currentTardis = new TardisRef(id, uuid -> ClientTardisManager.getInstance().demandTardis(uuid));
         });
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            UUID id = TardisServerWorld.getClientTardisId(client.world);
+            UUID id = TardisServerWorld.getTardisId(client.world);
             currentTardis = new TardisRef(id, uuid -> ClientTardisManager.getInstance().demandTardis(uuid));
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            if (currentTardis != null)
-                currentTardis = null;
+            currentTardis = null;
         });
     }
 

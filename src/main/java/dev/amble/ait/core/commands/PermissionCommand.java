@@ -17,6 +17,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.commands.argument.PermissionArgumentType;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.ServerTardis;
@@ -27,7 +28,7 @@ public class PermissionCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(literal(AITMod.MOD_ID).then(literal("permission")
-                .requires(source -> source.hasPermissionLevel(2))
+                .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.permission", 2))
                 .then(argument("tardis", TardisArgumentType.tardis()).then(argument("player",
                         EntityArgumentType.player())
                         .then(argument("permission", PermissionArgumentType.permission())

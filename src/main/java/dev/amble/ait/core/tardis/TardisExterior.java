@@ -2,13 +2,20 @@ package dev.amble.ait.core.tardis;
 
 import java.util.Optional;
 
+import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
@@ -136,5 +143,14 @@ public class TardisExterior extends TardisComponent {
 
     public void playSound(SoundEvent sound) {
         this.playSound(sound, SoundCategory.BLOCKS);
+    }
+
+    /**
+     * Plays a sound at the tardis position, ignoring whether it exists on the server
+     * @author duzo
+     */
+    public void playSound(Identifier soundId, SoundCategory category) {
+        CachedDirectedGlobalPos pos = tardis.travel().position();
+        NetworkUtil.playSound(pos.getDimension(), pos.getPos(), soundId, category);
     }
 }

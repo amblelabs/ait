@@ -10,6 +10,7 @@ import net.minecraft.block.*;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.text.Text;
@@ -27,6 +28,7 @@ import dev.amble.ait.api.ConsumableBlock;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.engine.link.block.DirectionalFluidLinkBlock;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 
@@ -69,7 +71,7 @@ public class PowerConverterBlock extends DirectionalFluidLinkBlock implements Co
         if (world.getBlockEntity(pos) instanceof FluidLinkBlockEntity be) {
             if (world.isClient()) return ActionResult.SUCCESS;
             if (!(be.isPowered())) return ActionResult.FAIL;
-            if (!stack.isIn(AITTags.Items.IS_TARDIS_FUEL)) return ActionResult.FAIL;
+            if (!stack.isIn(AITTags.Items.IS_TARDIS_FUEL) && !stack.getItem().isFood()) return ActionResult.FAIL;
 
             if (!player.isSneaking()) {
                 be.source().addLevel(175);
@@ -79,6 +81,10 @@ public class PowerConverterBlock extends DirectionalFluidLinkBlock implements Co
 
                 be.source().addLevel(175 * count);
                 stack.decrement(count);
+            }
+
+            if (stack.getItem().isFood()) {
+                TardisCriterions.FEED_POWER_CONVERTER.trigger((ServerPlayerEntity) player);
             }
 
             world.playSound(null, pos, AITSounds.POWER_CONVERT, SoundCategory.BLOCKS, 1.0F, 1.0F);

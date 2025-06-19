@@ -59,6 +59,7 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
 
     @Override
     public void onLinked() {
+        if (this.getWorld() == null || !TardisServerWorld.isTardisDimension(this.getWorld())) return;
         if (this.tardis().isEmpty())
             return;
 
@@ -260,12 +261,17 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
         ServerTardis tardis = (ServerTardis) this.tardis().get();
         boolean isRiftChunk = RiftChunkManager.isRiftChunk(tardis.travel().position());
 
-        if (tardis.travel().isCrashing()) {
+        boolean moreThanAFew = this.controlEntities.stream()
+                .filter(controlEntity -> controlEntity.getDurability() <
+                        ConsoleControlEntity.DurabilityStates.FULL.durability)
+                .count() > 5;
+
+        if (tardis.travel().isCrashing() || moreThanAFew) {
             serverWorld.spawnParticles(ParticleTypes.LARGE_SMOKE, pos.getX() + 0.5f, pos.getY() + 1.25,
                     pos.getZ() + 0.5f, 5, 0, 0, 0, 0.025f);
 
-            serverWorld.spawnParticles(ParticleTypes.SMALL_FLAME, pos.getX() + 0.5f, pos.getY() + 1.25,
-                    pos.getZ() + 0.5f, 5, 0, 0, 0, 0.01f);
+            serverWorld.spawnParticles(ParticleTypes.SOUL_FIRE_FLAME, pos.getX() + 0.5f, pos.getY() + 1.85,
+                    pos.getZ() + 0.5f, 2, 0.2f, 0.5f, 0.2f, 0.01f);
 
             serverWorld.spawnParticles(
                     new DustColorTransitionParticleEffect(new Vector3f(0.75f, 0.75f, 0.75f),
@@ -297,25 +303,35 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
         }
     }
 
+    public static ConsoleTypeSchema previousConsole(ConsoleTypeSchema current) {
+        List<ConsoleTypeSchema> list = ConsoleRegistry.REGISTRY.stream().toList();
+        int idx = list.indexOf(current);
+        int size = list.size();
+
+        return list.get((size + idx - 1) % size);
+    }
+
     public static ConsoleTypeSchema nextConsole(ConsoleTypeSchema current) {
         List<ConsoleTypeSchema> list = ConsoleRegistry.REGISTRY.stream().toList();
-
         int idx = list.indexOf(current);
+        int size = list.size();
 
-        if (idx < 0 || idx + 1 == list.size())
-            return list.get(0);
+        return list.get((idx + 1) % size);
+    }
 
-        return list.get(idx + 1);
+    public static ConsoleVariantSchema previousVariant(ConsoleVariantSchema current) {
+        List<ConsoleVariantSchema> list = ConsoleVariantRegistry.withParent(current.parent());
+        int idx = list.indexOf(current);
+        int size = list.size();
+
+        return list.get((size + idx - 1) % size);
     }
 
     public static ConsoleVariantSchema nextVariant(ConsoleVariantSchema current) {
         List<ConsoleVariantSchema> list = ConsoleVariantRegistry.withParent(current.parent());
-
         int idx = list.indexOf(current);
+        int size = list.size();
 
-        if (idx < 0 || idx + 1 == list.size())
-            return list.get(0);
-
-        return list.get(idx + 1);
+        return list.get((idx + 1) % size);
     }
 }

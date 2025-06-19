@@ -16,9 +16,9 @@ import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
 
 public class ExtraHandler extends KeyedTardisComponent {
-    private static final Property<ItemStack> SET_REFRESHMENT_ITEM = new Property<>(Property.Type.ITEM_STACK, "set_refreshment_item", (ItemStack) null);
-    private static final Property<ItemStack> INSERTED_DISC = new Property<>(Property.Type.ITEM_STACK, "inserted_disc", (ItemStack) null);
-    private static final Property<ItemStack> CONSOLE_HAMMER = new Property<>(Property.Type.ITEM_STACK, "console_hammer",
+    private static final Property<ItemStack> SET_REFRESHMENT_ITEM = new Property<>(Property.ITEM_STACK, "set_refreshment_item", (ItemStack) null);
+    private static final Property<ItemStack> INSERTED_DISC = new Property<>(Property.ITEM_STACK, "inserted_disc", (ItemStack) null);
+    private static final Property<ItemStack> CONSOLE_HAMMER = new Property<>(Property.ITEM_STACK, "console_hammer",
             (ItemStack) null);
 
     private final Value<ItemStack> consoleHammer = CONSOLE_HAMMER.create(this);

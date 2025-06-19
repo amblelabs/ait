@@ -11,50 +11,64 @@ repo = os.environ["GITHUB_REPOSITORY"]
 token = os.environ["BOT_TOKEN"]
 headers = {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github.v3+json"}
 
+# Fetch PR metadata
 def fetch_pr(pr_number):
     url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}"
     r = requests.get(url, headers=headers)
     r.raise_for_status()
     return r.json()
 
+# Fetch all commit authors on a PR
+# Uses the List commits on a pull request endpoint
+# └─ GET /repos/:owner/:repo/pulls/{pull_number}/commits ([docs.github.com](https://docs.github.com/rest/reference/pulls?utm_source=chatgpt.com))
+def fetch_commit_authors(pr_number):
+    url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}/commits"
+    r = requests.get(url, headers=headers)
+    r.raise_for_status()
+    commits = r.json()
+    authors = []
+    for c in commits:
+        author = c.get("author")
+        if author and author.get("login"):
+            login = author["login"]
+            if login not in authors:
+                authors.append(login)
+    return authors
+
+# Extract CL entries from title/body
 def extract_entries(title: str, body: str) -> list[str]:
-    """
-    1. Strip all HTML comments.
-    2. Find all blocks after each :cl: or 🆑 marker up to ---, -->, or end-of-string.
-    3. Return lines from the LAST such block (negative index [-1]).
-    4. If no block found, return [title].
-    """
-    # 1) Remove ALL HTML comments (<!-- ... -->), DOTALL so it spans lines
     cleaned = re.sub(r"<!--.*?-->", "", body or "", flags=re.S)
-
-    # 2) Find all ":cl:" or "🆑" blocks up to the next ---, -->, or end-of-string
     pattern = r"(?:\:cl\:|🆑)(.*?)(?=(?:\n---|\n-->|$))"
-    blocks = re.findall(pattern, cleaned, flags=re.S)  # returns list of inner captures
-
+    blocks = re.findall(pattern, cleaned, flags=re.S)
     if blocks:
-        # 3) Only use the LAST block via negative indexing
         last = blocks[-1]
-        # split on lines, strip whitespace, drop empty lines
         return [ln.strip() for ln in last.splitlines() if ln.strip()]
-
-    # 4) Fallback when no live marker found
     return [title]
 
+# Process one PR into changelog lines, including authors hyperlinked
 def process_pr(pr):
     num = pr["number"]
     title = pr["title"].strip()
     body = pr.get("body") or ""
     entries = extract_entries(title, body)
+    # Build markdown link to PR
     link = f"https://github.com/{repo}/pull/{num}"
+    # Fetch all contributors/authors on this PR
+    authors = fetch_commit_authors(num)
+    # Format authors as markdown hyperlinks
+    if authors:
+        authors_md = ", ".join(f"[@{login}](https://github.com/{login})" for login in authors)
+    else:
+        authors_md = ""
     lines = []
     for e in entries:
-        # strip any existing leading dashes and spaces
         clean = e.lstrip('- ').strip()
-        lines.append(f"- {clean} ([#{num}]({link}))")
+        # Append "by authors" only if authors list not empty
+        suffix = f" by {authors_md}" if authors_md else ""
+        lines.append(f"- {clean} |{suffix} ([#{num}]({link}))")
     return lines
 
 all_lines = []
-
 if args.pr_numbers:
     for n in args.pr_numbers.split(","):
         pr = fetch_pr(n.strip())

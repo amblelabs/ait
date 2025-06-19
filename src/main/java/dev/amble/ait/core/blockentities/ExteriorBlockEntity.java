@@ -5,8 +5,9 @@ import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.MAX_PLAS
 import java.util.UUID;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -34,6 +35,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
@@ -147,7 +149,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
                     world.playSound(null, pos, AITSounds.SONIC_MENDING, SoundCategory.BLOCKS, 1F, 1F);
                     Scheduler.get().runTaskLater(() -> {
                         world.playSound(null, pos, AITSounds.TARDIS_BLING, SoundCategory.BLOCKS, 1F, 1F);
-                    }, TimeUnit.SECONDS, 15);
+                    }, TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 15);
 
                 } else {
                     world.playSound(null, pos, SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(), SoundCategory.BLOCKS, 1F, 0.2F);
@@ -156,7 +158,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
                 return;
             }
 
-        // try to stop phasing
+            // try to stop phasing
             EngineSystem.Phaser phasing = tardis.subsystems().engine().phaser();
 
             if (phasing.isPhasing()) {
@@ -166,7 +168,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
             }
         }
 
-        if (sneaking && tardis.siege().isActive() && !tardis.isSiegeBeingHeld()) {
+        if (sneaking && !tardis.isSiegeBeingHeld() && tardis.siege().isActive()) {
             SiegeTardisItem.pickupTardis(tardis, (ServerPlayerEntity) player);
             return;
         }
@@ -311,7 +313,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
             return;
         }
 
-        if (AITMod.CONFIG.CLIENT.RENDER_DEMAT_PARTICLES && !tardis.travel().isLanded() && tardis.travel().isHitboxShown()) {
+        if (AITModClient.CONFIG.renderDematParticles && !tardis.travel().isLanded() && tardis.travel().isHitboxShown()) {
             for (int ji = 0; ji < 4; ji++) {
                 double offsetX = AITMod.RANDOM.nextGaussian() * 0.125f;
                 double offsetY = AITMod.RANDOM.nextGaussian() * 0.125f;

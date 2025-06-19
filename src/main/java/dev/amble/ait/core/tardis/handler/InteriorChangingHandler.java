@@ -6,8 +6,9 @@ import java.util.List;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import dev.amble.lib.data.DirectedGlobalPos;
-import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.block.Block;
@@ -21,7 +22,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -37,7 +37,6 @@ import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.AITDamageTypes;
 import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
@@ -58,7 +57,7 @@ import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 
 public class InteriorChangingHandler extends KeyedTardisComponent implements TardisTickable {
     public static final Identifier CHANGE_DESKTOP = AITMod.id("change_desktop");
-    private static final Property<Identifier> QUEUED_INTERIOR_PROPERTY = new Property<>(Property.Type.IDENTIFIER, "queued_interior", new Identifier(""));
+    private static final Property<Identifier> QUEUED_INTERIOR_PROPERTY = new Property<>(Property.IDENTIFIER, "queued_interior", new Identifier(""));
     private static final BoolProperty QUEUED = new BoolProperty("queued");
     private static final BoolProperty REGENERATING = new BoolProperty("regenerating");
 
@@ -177,18 +176,27 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
             return;
 
         if (tardis.fuel().getCurrentFuel() < 5000) {
-            for (PlayerEntity player : TardisUtil.getPlayersInsideInterior(tardis.asServer())) {
+            tardis.asServer().world().getPlayers().forEach(player -> {
                 player.sendMessage(
                         Text.translatable("tardis.message.interiorchange.not_enough_fuel").formatted(Formatting.RED),
                         true);
-                return;
-            }
+            });
+
+            return;
         }
         if (tardis.subsystems().isEnabled()) {
-            for (PlayerEntity player : TardisUtil.getPlayersInsideInterior(tardis.asServer())) {
+            tardis.asServer().world().getPlayers().forEach(player -> {
+                int count = 0;
+
+                for (SubSystem subSystem : tardis.subsystems()) {
+                    if (subSystem.isEnabled())
+                        count++;
+                }
+
                 player.sendMessage(
-                        Text.translatable("tardis.message.interiorchange.subsystems_enabled", tardis.subsystems().countEnabled()).formatted(Formatting.RED), false);
-            }
+                        Text.translatable("tardis.message.interiorchange.subsystems_enabled", count)
+                                .formatted(Formatting.RED), false);
+            });
         }
 
         AITMod.LOGGER.info("Queueing interior change for {} to {}", this.tardis, schema);
@@ -203,8 +211,8 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
         restorationChestContents = new ArrayList<>();
 
-        for (SubSystem system : tardis.subsystems().getEnabled()) {
-            if (system == null)
+        for (SubSystem system : tardis.subsystems()) {
+            if (system.isEnabled())
                 continue;
 
             restorationChestContents.addAll(system.toStacks());
@@ -234,8 +242,8 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                     ParticleEffect particle = ParticleTypes.CLOUD;
                     tardis.door().setDoorParticles(particle);
                     Scheduler.get().runTaskLater(() -> {
-                        tardis.door().tryReplaceDoorParticle(particle, null);
-                    }, TimeUnit.SECONDS, 3);
+                        tardis.door().setDoorParticles(null);
+                    }, TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 3);
                 }).execute();
     }
 
@@ -244,7 +252,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
      * @param cPos The position of the console to replace.
      */
     private void replaceConsoleWithGrowth(BlockPos cPos) {
-        ServerWorld world = tardis.asServer().getInteriorWorld();
+        ServerWorld world = tardis.asServer().world();
 
         if (!(world.getBlockEntity(cPos) instanceof ConsoleBlockEntity console))
             return;
@@ -265,15 +273,6 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         }
     }
 
-    private void warnPlayers() {
-        for (ServerPlayerEntity player : TardisUtil.getPlayersInsideInterior(this.tardis.asServer())) {
-            player.sendMessage(Text.translatable("tardis.message.interiorchange.warning").formatted(Formatting.RED),
-                    true);
-            if (!tardis.isGrowth())
-                TardisCriterions.REDECORATE.trigger(player);
-        }
-    }
-
     private void createChestAtInteriorDoor(List<ItemStack> contents) {
         if (contents == null || contents.isEmpty()) {
             AITMod.LOGGER.debug("No contents to save in recovery chest for {}", this.tardis);
@@ -283,7 +282,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         DirectedBlockPos door = this.tardis.getDesktop().getDoorPos();
 
         CachedDirectedGlobalPos safe = CachedDirectedGlobalPos.create(
-                this.tardis.asServer().getInteriorWorld(),
+                this.tardis.asServer().world(),
                 door.getPos().offset(door.toMinecraftDirection(), 2),
                 door.getRotation()
         );
@@ -328,7 +327,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
             if (!isQueued) {
                 if (server.getTicks() % 200 == 0 && this.hasEnoughPlasmicMaterial())
-                    this.tardis.asServer().getInteriorWorld().getPlayers().forEach(player ->
+                    this.tardis.asServer().world().getPlayers().forEach(player ->
                             player.sendMessage(HINT_TEXT, true));
 
                 if (this.tardis.door().isClosed()) {
@@ -352,7 +351,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
         if (!TardisUtil.isInteriorEmpty(tardis.asServer())) {
             if (this.regenerating.get()) {
-                PlayerEntity target = TardisUtil.getAnyPlayerInsideInterior(tardis.asServer().getInteriorWorld());
+                PlayerEntity target = TardisUtil.getAnyPlayerInsideInterior(tardis.asServer().world());
 
                 if (this.tardis().subsystems().lifeSupport().isEnabled()) {
                     TardisUtil.teleportOutside(tardis.asServer(), target);
@@ -370,7 +369,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
     private ServerAlarmHandler.Countdown startRegeneratingCountdown() {
         ServerAlarmHandler.Countdown cd = new ServerAlarmHandler.Countdown.Builder().bellTolls(5).message("tardis.message.interiorchange.regenerating").thenRun(() -> {
             tardis.getDesktop().startQueue(true);
-            Scheduler.get().runTaskLater(this::changeInterior, TimeUnit.SECONDS, 5);
+            Scheduler.get().runTaskLater(this::changeInterior, TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 5);
 
             this.regenerating.set(true);
             this.countdownStarted = false;

@@ -20,6 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationPropertyHelper;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
@@ -28,7 +29,7 @@ public class SummonTardisCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher
-                .register(literal(AITMod.MOD_ID).then(literal("summon").requires(source -> source.hasPermissionLevel(2))
+                .register(literal(AITMod.MOD_ID).then(literal("summon").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.summon", 2))
                         .then(argument("tardis", TardisArgumentType.tardis())
                                 .executes(SummonTardisCommand::runCommand)
                                 .then(argument("pos", BlockPosArgumentType.blockPos())

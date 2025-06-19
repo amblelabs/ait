@@ -27,10 +27,14 @@ public class BlueprintItem extends Item {
 
     @Override
     public ItemStack getDefaultStack() {
-        ItemStack stack = new ItemStack(this);
-        NbtCompound nbt = stack.getOrCreateNbt();
+        ItemStack stack = super.getDefaultStack();
+        BlueprintSchema blueprint = BlueprintRegistry.getInstance().getRandom();
 
-        nbt.putString("Blueprint", BlueprintRegistry.getInstance().getRandom().id().toString());
+        if (blueprint != null) {
+            NbtCompound nbt = stack.getOrCreateNbt();
+            nbt.putString("Blueprint", blueprint.id().toString());
+        }
+
         return stack;
     }
 

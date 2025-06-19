@@ -8,14 +8,18 @@ import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
+import net.minecraft.inventory.StackReference;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
+import net.minecraft.util.ClickType;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 
 import dev.amble.ait.api.ArtronHolderItem;
+import dev.amble.ait.core.item.ZeitonShardItem;
 import dev.amble.ait.module.gun.core.entity.GunEntityTypes;
 import dev.amble.ait.module.gun.core.entity.StaserBoltEntity;
 
@@ -24,7 +28,7 @@ public class StaserBoltMagazine extends Item implements ArtronHolderItem {
         super(settings);
     }
 
-    public static final double MAX_FUEL = 2000;
+    public static final double MAX_FUEL = 64;
 
     public PersistentProjectileEntity createStaserbolt(World world, ItemStack stack, LivingEntity shooter) {
         StaserBoltEntity staserBoltEntity = new StaserBoltEntity(GunEntityTypes.STASER_BOLT_ENTITY_TYPE, world);
@@ -38,6 +42,23 @@ public class StaserBoltMagazine extends Item implements ArtronHolderItem {
         nbt.putDouble(FUEL_KEY, MAX_FUEL);
 
         return stack;
+    }
+
+    @Override
+    public boolean onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {
+        if (otherStack.getItem() instanceof ZeitonShardItem) {
+            int shardCount = otherStack.getCount();
+            if (stack.getItem() instanceof StaserBoltMagazine mag) {
+                double ammo = mag.getCurrentFuel(stack);
+                if (clickType == ClickType.RIGHT && mag.getCurrentFuel(stack) < mag.getMaxFuel(stack)) {
+                    int residual = (int) ((ammo + shardCount) - mag.getCurrentFuel(stack));
+                    mag.setCurrentFuel(ammo + shardCount, stack);
+                    otherStack.decrement(residual);
+                    return true;
+                }
+            }
+        }
+        return super.onClicked(stack, otherStack, slot, clickType, player, cursorStackReference);
     }
 
     @Override

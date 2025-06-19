@@ -18,32 +18,23 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.LinkableItem;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.util.network.c2s.SyncPropertyC2SPacket;
+import net.minecraft.world.World;
 
 public class NetworkUtil {
-    public static void init() {
-
-        ServerPlayNetworking.registerGlobalReceiver(SyncPropertyC2SPacket.TYPE, SyncPropertyC2SPacket::handle);
-        //ServerPlayNetworking.registerGlobalReceiver(BOTIChunkRequestC2SPacket.TYPE, BOTIChunkRequestC2SPacket::handle);
-
-        /*if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-            initClient();
-        }*/
-    }
-
-    /*@Environment(EnvType.CLIENT)
-    private static void initClient() {
-        ClientPlayNetworking.registerGlobalReceiver(BOTISyncS2CPacket.TYPE, BOTISyncS2CPacket::handle);
-        ClientPlayNetworking.registerGlobalReceiver(BOTIDataS2CPacket.TYPE, BOTIDataS2CPacket::handle);
-    }*/
 
     public static <T> void send(ServerPlayerEntity player, PacketByteBuf buf, Identifier id, Codec<T> codec, T t) {
         DataResult<NbtElement> result = codec.encodeStart(NbtOps.INSTANCE, t);
@@ -131,6 +122,29 @@ public class NetworkUtil {
 
         ChunkPos chunkPos = new ChunkPos(exteriorPos.getPos());
         return Stream.concat(result, PlayerLookup.tracking(exteriorPos.getWorld(), chunkPos).stream());
+    }
+
+    /**
+     * plays a sound, ignoring whether it exists or not.
+     */
+    public static void playSound(RegistryKey<World> worldKey, BlockPos pos, Identifier soundId, SoundCategory category) {
+        if (!ServerLifecycleHooks.isServer()) return;
+
+        RegistryEntry<SoundEvent> soundEntry = RegistryEntry.of(SoundEvent.of(soundId));
+        long seed = ServerLifecycleHooks.get().getOverworld().getRandom().nextLong();
+
+        final float distance = 8f; // default distance for exterior sounds
+        ServerLifecycleHooks.get()
+                .getPlayerManager()
+                .sendToAround(
+                        null,
+                        pos.getX(),
+                        pos.getY(),
+                        pos.getZ(),
+                        distance,
+                        worldKey,
+                        new PlaySoundS2CPacket(soundEntry, category, pos.getX(), pos.getY(), pos.getZ(), 1f, 1f, seed)
+                );
     }
 
     @Environment(EnvType.CLIENT)

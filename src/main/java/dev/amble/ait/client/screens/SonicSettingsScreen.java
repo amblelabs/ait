@@ -40,9 +40,13 @@ public class SonicSettingsScreen extends ConsoleScreen {
     int choicesCount = 0;
     private final Screen parent;
     private int selectedSonic;
+    private final int APPLY_BAR_BUTTON_WIDTH = 53;
+    private final int APPLY_BAR_BUTTON_HEIGHT = 12;
+    private final int SMALL_ARROW_BUTTON_WIDTH = 20;
+    private final int SMALL_ARROW_BUTTON_HEIGHT = 12;
 
     public SonicSettingsScreen(ClientTardis tardis, BlockPos console, Screen parent) {
-        super(Text.translatable("screen.ait.sonicsettings.title"), tardis, console);
+        super(Text.translatable("screen." + AITMod.MOD_ID + ".sonicsettings.title"), tardis, console);
         this.parent = parent;
     }
 
@@ -67,21 +71,23 @@ public class SonicSettingsScreen extends ConsoleScreen {
         choicesCount = 0;
         this.buttons.clear();
 
-        Text applyText = Text.translatable("screen.ait.monitor.apply");
-        this.addButton(new AITPressableTextWidget((int) (left + (bgWidth * 0.2f)), (int) (top + (bgHeight * 0.878f)),
-                this.textRenderer.getWidth(applyText), 10, Text.literal("     "), button -> {
+        // apply bar button
+        this.addButton(new AITPressableTextWidget((int) (left + (bgWidth * 0.139f)), (int) (top + (bgHeight * 0.839f)),
+                APPLY_BAR_BUTTON_WIDTH, APPLY_BAR_BUTTON_HEIGHT, Text.empty(), button -> {
                     sendSonicChangePacket();
                 }, this.textRenderer));
 
+        // back button
         Text back = Text.translatable("screen.ait.sonicsettings.back");
         this.addButton(new PressableTextWidget((width / 2 - 102), (height / 2 - 59), this.textRenderer.getWidth(back),
                 10, back, button -> backToInteriorSettings(), this.textRenderer));
 
-        this.addButton(new AITPressableTextWidget((int) (left + (bgWidth * 0.08f)), (int) (top + (bgHeight * 0.878f)),
-                this.textRenderer.getWidth("<"), 10, Text.literal("  "), button -> this.getLastSelectedSonic(),
+        // arrow buttons
+        this.addButton(new AITPressableTextWidget((int) (left + (bgWidth * 0.042f)), (int) (top + (bgHeight * 0.839f)),
+                SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT, Text.empty(), button -> this.getLastSelectedSonic(),
                 this.textRenderer));
-        this.addButton(new AITPressableTextWidget((int) (left + (bgWidth * 0.42f)), (int) (top + (bgHeight * 0.878f)),
-                this.textRenderer.getWidth(">"), 10, Text.literal("  "), button -> this.getNextSelectedSonic(),
+        this.addButton(new AITPressableTextWidget((int) (left + (bgWidth * 0.389f)), (int) (top + (bgHeight * 0.839f)),
+                SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT, Text.empty(), button -> this.getNextSelectedSonic(),
                 this.textRenderer));
     }
 
@@ -202,18 +208,24 @@ public class SonicSettingsScreen extends ConsoleScreen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.drawBackground(context);
         this.drawSonicScrewdriver(context, (width / 2 - 100), (height / 2 - 45), 6f);
+
+        // apply bar button
         if (!this.buttons.get(0).isHovered())
-            context.drawTexture(BACKGROUND, left + 30, top + 109, 40, 130, 53, 12);
+            context.drawTexture(BACKGROUND, left + 30, top + 109, 40, 130, APPLY_BAR_BUTTON_WIDTH, APPLY_BAR_BUTTON_HEIGHT);
         else
-            context.drawTexture(BACKGROUND, left + 30, top + 109, 40, 142, 53, 12);
+            context.drawTexture(BACKGROUND, left + 30, top + 109, 40, 142, APPLY_BAR_BUTTON_WIDTH, APPLY_BAR_BUTTON_HEIGHT);
+
+        // arrow buttons
         if (!this.buttons.get(2).isHovered())
-            context.drawTexture(BACKGROUND, left + 9, top + 109, 0, 130, 20, 12);
+            context.drawTexture(BACKGROUND, left + 9, top + 109, 0, 130, SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT);
         else
-            context.drawTexture(BACKGROUND, left + 9, top + 109, 0, 142, 20, 12);
+            context.drawTexture(BACKGROUND, left + 9, top + 109, 0, 142, SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT);
+
         if (!this.buttons.get(3).isHovered())
-            context.drawTexture(BACKGROUND, left + 84, top + 109, 20, 130, 20, 12);
+            context.drawTexture(BACKGROUND, left + 84, top + 109, 20, 130, SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT);
         else
-            context.drawTexture(BACKGROUND, left + 84, top + 109, 20, 142, 20, 12);
+            context.drawTexture(BACKGROUND, left + 84, top + 109, 20, 142, SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT);
+
         super.render(context, mouseX, mouseY, delta);
     }
 

@@ -18,6 +18,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.RotationPropertyHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.AITMod;
@@ -51,8 +52,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
     private ClientExteriorVariantSchema variant;
     private ExteriorModel model;
 
-    public ExteriorRenderer(BlockEntityRendererFactory.Context ctx) {
-    }
+    public ExteriorRenderer(BlockEntityRendererFactory.Context ctx) {}
 
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
@@ -69,10 +69,13 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
         profiler.swap("render");
 
+        this.updateModel(tardis);
+
         if (tardis.travel().getAlpha() > 0)
             this.renderExterior(profiler, tardis, entity, tickDelta, matrices, vertexConsumers, light, overlay);
 
-        if ((tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) && !tardis.isGrowth() && tardis.travel().isLanded())
+        if ((tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) && !tardis.isGrowth() && tardis.travel().isLanded() &&
+        !tardis.siege().isActive())
             BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
 
         profiler.pop();
@@ -115,8 +118,6 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             return;
         }
 
-        this.updateModel(tardis);
-
         BlockState blockState = entity.getCachedState();
         int k = blockState.get(ExteriorBlock.ROTATION);
         float h = RotationPropertyHelper.toDegrees(k);
@@ -124,13 +125,13 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         matrices.push();
 
         // adjust based off animation position
-        Vector3f animPositionOffset = tardis.travel().getAnimationPosition(tickDelta);
+        Vector3f animPositionOffset = travel.getAnimationPosition(tickDelta);
         matrices.translate(animPositionOffset.x(), animPositionOffset.y(), animPositionOffset.z());
 
         matrices.translate(0.5f, 0.0f, 0.5f);
 
         // adjust based off animation rotation
-        Vector3f animRotationOffset = tardis.travel().getAnimationRotation(tickDelta);
+        Vector3f animRotationOffset = travel.getAnimationRotation(tickDelta);
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(animRotationOffset.z()));
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(animRotationOffset.y()));
         matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(animRotationOffset.x()));
@@ -175,21 +176,8 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
                 matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)), light, overlay, 1, 1,
                 1, alpha);
 
-        //System.out.println( variant.hasTransparentDoors());
-
-        /*if ((tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) && !tardis.isGrowth() && travel.isLanded())
-            BOTI.EXTERIOR_RENDER_QUEUE.add(entity);*/
-            //this.renderExteriorBoti(entity, variant, matrices, texture, model, BotiPortalModel.getTexturedModelData().createModel(), light);
-
-        /*if (tardis.<OvergrownHandler>handler(TardisComponent.Id.OVERGROWN).overgrown().get()) {
-            model.renderWithAnimations(entity, this.model.getPart(), matrices,
-                    vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(
-                            tardis.<OvergrownHandler>handler(TardisComponent.Id.OVERGROWN).getOvergrownTexture())),
-                    light, overlay, 1, 1, 1, alpha);
-        }*/
-
         profiler.push("emission");
-        boolean alarms = tardis.alarm().enabled().get();
+        boolean alarms = tardis.alarm().isEnabled();
 
 
         if (alpha > 0.105f && emission != null && !emission.equals(DatapackConsole.EMPTY)) {
@@ -330,5 +318,20 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         }
 
         matrices.scale(scale.x, scale.y, scale.z);
+    }
+
+    @Override
+    public boolean rendersOutsideBoundingBox(ExteriorBlockEntity exteriorBlockEntity) {
+        return true;
+    }
+
+    @Override
+    public int getRenderDistance() {
+        return 256;
+    }
+
+    @Override
+    public boolean isInRenderDistance(ExteriorBlockEntity exteriorBlockEntity, Vec3d vec3d) {
+        return Vec3d.ofCenter(exteriorBlockEntity.getPos()).multiply(1.0, 0.0, 1.0).isInRange(vec3d.multiply(1.0, 0.0, 1.0), this.getRenderDistance());
     }
 }

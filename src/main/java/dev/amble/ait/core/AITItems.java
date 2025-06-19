@@ -59,7 +59,7 @@ public class AITItems extends ItemContainer {
     // Functional Items
     @NoEnglish
     public static final Item REMOTE_ITEM = new RemoteItem(
-            new AItemSettings().group(AITItemGroups.MAIN).maxCount(1));
+            new AItemSettings().group(AITItemGroups.MAIN).maxCount(1).fireproof().maxDamageIfAbsent(300));
     @NoEnglish
     public static final Item ARTRON_COLLECTOR = new ArtronCollectorItem(
             new AItemSettings().group(AITItemGroups.MAIN).maxCount(1));
@@ -173,7 +173,11 @@ public class AITItems extends ItemContainer {
             new AItemSettings().group(AITItemGroups.FABRICATOR), SubSystem.Id.LIFE_SUPPORT);
 
     @NoEnglish
-    public static final Item GALLIFREY_FALLS_PAINTING = new AITDecorationItem(AITEntityTypes.GALLIFREY_FALLS_PAINTING_TYPE, new AItemSettings().group(AITItemGroups.MAIN));
+    public static final Item GALLIFREY_FALLS_PAINTING = new AITDecorationItem(AITEntityTypes.GALLIFREY_FALLS_PAINTING_ENTITY_TYPE,
+            new AItemSettings().group(AITItemGroups.MAIN));
+    @NoEnglish
+    public static final Item TRENZALORE_PAINTING = new AITDecorationItem(AITEntityTypes.TRENZALORE_PAINTING_ENTITY_TYPE,
+            new AItemSettings().group(AITItemGroups.MAIN));
 
     // Blueprint
     public static final Item BLUEPRINT = new BlueprintItem(

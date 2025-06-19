@@ -29,19 +29,26 @@ import net.minecraft.client.particle.EndRodParticle;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.RotationPropertyHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.boti.*;
 import dev.amble.ait.client.commands.ConfigCommand;
+import dev.amble.ait.client.config.AITClientConfig;
 import dev.amble.ait.client.data.ClientLandingManager;
 import dev.amble.ait.client.models.boti.BotiPortalModel;
-import dev.amble.ait.client.models.decoration.GallifreyFallsFrameModel;
+import dev.amble.ait.client.models.decoration.GallifreyFallsModel;
+import dev.amble.ait.client.models.decoration.PaintingFrameModel;
 import dev.amble.ait.client.models.decoration.RiftModel;
+import dev.amble.ait.client.models.decoration.TrenzalorePaintingModel;
 import dev.amble.ait.client.models.doors.DoorModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.overlays.ExteriorAxeOverlay;
@@ -79,7 +86,7 @@ import dev.amble.ait.core.blocks.AstralMapBlock;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.drinks.DrinkUtil;
-import dev.amble.ait.core.entities.GallifreyFallsPaintingEntity;
+import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.*;
 import dev.amble.ait.core.tardis.Tardis;
@@ -97,10 +104,14 @@ import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 @Environment(value = EnvType.CLIENT)
 public class AITModClient implements ClientModInitializer {
 
+    public static AITClientConfig CONFIG;
+
     @Override
     public void onInitializeClient() {
-        // TODO move to Registries
+        AITClientConfig.INSTANCE.load();
+        CONFIG = AITClientConfig.INSTANCE.instance();
 
+        // TODO move to Registries
         AmbleRegistries.getInstance().registerAll(
                 SonicRegistry.getInstance(),
                 DrinkRegistry.getInstance(),
@@ -118,7 +129,6 @@ public class AITModClient implements ClientModInitializer {
         entityRenderRegister();
         chargedZeitonCrystalPredicate();
         waypointPredicate();
-        personalityMatrixPredicate();
         hammerPredicate();
         siegeItemPredicate();
         adventItemPredicates();
@@ -142,12 +152,14 @@ public class AITModClient implements ClientModInitializer {
         if (DependencyChecker.hasIris()) {
             WorldRenderEvents.END.register(this::exteriorBOTI);
             WorldRenderEvents.END.register(this::doorBOTI);
-            WorldRenderEvents.END.register(this::paintingBOTI);
+            WorldRenderEvents.END.register(this::gallifreyanBOTI);
+            WorldRenderEvents.END.register(this::trenzaloreBOTI);
             WorldRenderEvents.END.register(this::riftBOTI);
         } else {
             WorldRenderEvents.AFTER_ENTITIES.register(this::exteriorBOTI);
             WorldRenderEvents.AFTER_ENTITIES.register(this::doorBOTI);
-            WorldRenderEvents.AFTER_ENTITIES.register(this::paintingBOTI);
+            WorldRenderEvents.AFTER_ENTITIES.register(this::gallifreyanBOTI);
+            WorldRenderEvents.AFTER_ENTITIES.register(this::trenzaloreBOTI);
             WorldRenderEvents.AFTER_ENTITIES.register(this::riftBOTI);
         }
 
@@ -277,26 +289,6 @@ public class AITModClient implements ClientModInitializer {
         ModelPredicateProviderRegistry.register(AITItems.WAYPOINT_CARTRIDGE, new Identifier("type"),
                 (stack, clientWorld, livingEntity, integer) ->
                         stack.getOrCreateNbt().contains(WaypointItem.POS_KEY) ? 1 : 0);
-
-        ColorProviderRegistry.ITEM.register((stack, tintIndex) -> {
-            if (tintIndex != 0)
-                return -1;
-
-            WaypointItem waypoint = (WaypointItem) stack.getItem();
-            return waypoint.getColor(stack);
-        }, AITItems.WAYPOINT_CARTRIDGE);
-    }
-
-    public static void personalityMatrixPredicate() {
-        ColorProviderRegistry.ITEM.register((stack, tintIndex) -> {
-            if (tintIndex != 0)
-                return -1;
-
-            PersonalityMatrixItem personalityMatrixItem = (PersonalityMatrixItem) stack.getItem();
-            int[] integers = personalityMatrixItem.getColor(stack);
-            return colorToInt(integers[0], integers[1], integers[2]);
-        },
-                AITItems.PERSONALITY_MATRIX);
     }
 
     public static void hammerPredicate() {
@@ -406,7 +398,8 @@ public class AITModClient implements ClientModInitializer {
         EntityRendererRegistry.register(AITEntityTypes.CONTROL_ENTITY_TYPE, ControlEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.FALLING_TARDIS_TYPE, FallingTardisRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.FLIGHT_TARDIS_TYPE, FlightTardisRenderer::new);
-        EntityRendererRegistry.register(AITEntityTypes.GALLIFREY_FALLS_PAINTING_TYPE, GallifreyFallsPaintingEntityRenderer::new);
+        EntityRendererRegistry.register(AITEntityTypes.GALLIFREY_FALLS_PAINTING_ENTITY_TYPE, GallifreyanPaintingEntityRenderer::new);
+        EntityRendererRegistry.register(AITEntityTypes.TRENZALORE_PAINTING_ENTITY_TYPE, TrenzalorePaintingEntityRenderer::new);
 //        if (isUnlockedOnThisDay(Calendar.DECEMBER, 26)) {
 //            EntityRendererRegistry.register(AITEntityTypes.COBBLED_SNOWBALL_TYPE, FlyingItemEntityRenderer::new);
 //        }
@@ -436,8 +429,25 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void registerItemColors() {
-        ColorProviderRegistry.ITEM.register((stack, tintIndex) ->tintIndex > 0 ? -1 :
+        ColorProviderRegistry.ITEM.register((stack, tintIndex) -> {
+                    if (tintIndex != 0)
+                        return -1;
+
+                    PersonalityMatrixItem personalityMatrixItem = (PersonalityMatrixItem) stack.getItem();
+                    int[] integers = personalityMatrixItem.getColor(stack);
+                    return colorToInt(integers[0], integers[1], integers[2]);
+                }, AITItems.PERSONALITY_MATRIX);
+
+        ColorProviderRegistry.ITEM.register((stack, tintIndex) -> tintIndex > 0 ? -1 :
                 DrinkUtil.getColor(stack), AITItems.MUG);
+
+        ColorProviderRegistry.ITEM.register((stack, tintIndex) -> {
+            if (tintIndex != 0)
+                return -1;
+
+            WaypointItem waypoint = (WaypointItem) stack.getItem();
+            return waypoint.getColor(stack);
+        }, AITItems.WAYPOINT_CARTRIDGE);
     }
 
     public void registerParticles() {
@@ -507,27 +517,58 @@ public class AITModClient implements ClientModInitializer {
         }
     }
 
-    public void paintingBOTI(WorldRenderContext context) {
+    public void gallifreyanBOTI(WorldRenderContext context) {
         MinecraftClient client = MinecraftClient.getInstance();
+        SinglePartEntityModel contents = new GallifreyFallsModel(GallifreyFallsModel.getTexturedModelData().createModel());
+        Identifier frameTex = GallifreyanPaintingEntityRenderer.GALLIFREY_FRAME_TEXTURE;
+        Identifier contentsTex = GallifreyanPaintingEntityRenderer.GALLIFREY_PAINTING_TEXTURE;
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
-        for (GallifreyFallsPaintingEntity painting : BOTI.PAINTING_RENDER_QUEUE) {
+        for (BOTIPaintingEntity painting : BOTI.GALLIFREYAN_RENDER_QUEUE) {
             if (painting == null) continue;
             Vec3d pos = painting.getPos();
             stack.push();
-            //0, -0.5, 0.5
             stack.translate(pos.getX() - context.camera().getPos().getX(),
                     pos.getY() - context.camera().getPos().getY(), pos.getZ() - context.camera().getPos().getZ());
             stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(painting.getBodyYaw()));
             stack.translate(0, -0.5f, 0.5);
-            GallifreyFallsFrameModel frame = new GallifreyFallsFrameModel(GallifreyFallsFrameModel.getTexturedModelData().createModel());
+            PaintingFrameModel frame = new PaintingFrameModel(PaintingFrameModel.getTexturedModelData().createModel());
             BlockPos blockPos = BlockPos.ofFloored(painting.getClientCameraPosVec(client.getTickDelta()));
-            GallifreyFallsBOTI.renderGallifreyFallsPainting(stack, frame, LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, blockPos), world.getLightLevel(LightType.SKY, blockPos)));
+            PaintingBOTI.renderBOTIPainting(stack, frame,
+                    LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, blockPos),
+                            world.getLightLevel(LightType.SKY, blockPos)), contents, frameTex, contentsTex);
             stack.pop();
         }
-        BOTI.PAINTING_RENDER_QUEUE.clear();
+        BOTI.GALLIFREYAN_RENDER_QUEUE.clear();
+    }
+
+    public void trenzaloreBOTI(WorldRenderContext context) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        SinglePartEntityModel contents = new TrenzalorePaintingModel(TrenzalorePaintingModel.getTexturedModelData().createModel());
+        Identifier frameTex = TrenzalorePaintingEntityRenderer.TRENZALORE_FRAME_TEXTURE;
+        Identifier contentsTex = TrenzalorePaintingEntityRenderer.TRENZALORE_PAINTING_TEXTURE;
+        if (client.player == null || client.world == null) return;
+        ClientWorld world = client.world;
+        MatrixStack stack = context.matrixStack();
+        for (BOTIPaintingEntity painting : BOTI.TRENZALORE_PAINTING_QUEUE) {
+            if (painting == null) continue;
+            Vec3d pos = painting.getPos();
+            stack.push();
+            stack.translate(pos.getX() - context.camera().getPos().getX(),
+                    pos.getY() - context.camera().getPos().getY(), pos.getZ() - context.camera().getPos().getZ());
+            stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
+            stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(painting.getBodyYaw()));
+            stack.translate(0, -0.5f, 0.5);
+            PaintingFrameModel frame = new PaintingFrameModel(PaintingFrameModel.getTexturedModelData().createModel());
+            BlockPos blockPos = BlockPos.ofFloored(painting.getClientCameraPosVec(client.getTickDelta()));
+            PaintingBOTI.renderBOTIPainting(stack, frame,
+                    LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, blockPos),
+                            world.getLightLevel(LightType.SKY, blockPos)), contents, frameTex, contentsTex);
+            stack.pop();
+        }
+        BOTI.TRENZALORE_PAINTING_QUEUE.clear();
     }
 
     public void riftBOTI(WorldRenderContext context) {

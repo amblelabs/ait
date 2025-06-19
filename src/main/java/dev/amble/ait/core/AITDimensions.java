@@ -32,7 +32,8 @@ public class AITDimensions {
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             TARDIS_WORLD_BLUEPRINT = new WorldBlueprint(AITMod.id("tardis"))
-                    .setPersistent(true).shouldTickTime(false).withCreator(TardisServerWorld::new)
+                    .setPersistent(false).shouldTickTime(false)
+                    .setAutoLoad(false).withCreator(TardisServerWorld::new)
                     .withType(AITMod.id("tardis_dimension_type"))
                     .withGenerator(new VoidChunkGenerator(
                             server.getRegistryManager().get(RegistryKeys.BIOME),

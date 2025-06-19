@@ -1,8 +1,5 @@
 package dev.amble.ait.client.boti;
 
-import static dev.amble.ait.client.renderers.entities.GallifreyFallsPaintingEntityRenderer.FRAME_TEXTURE;
-import static dev.amble.ait.client.renderers.entities.GallifreyFallsPaintingEntityRenderer.PAINTING_TEXTURE;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.lwjgl.opengl.GL11;
 
@@ -11,21 +8,22 @@ import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.decoration.GallifreyFallsFrameModel;
-import dev.amble.ait.client.models.decoration.GallifreyFallsModel;
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.models.decoration.PaintingFrameModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 
-public class GallifreyFallsBOTI extends BOTI {
-    public static void renderGallifreyFallsPainting(MatrixStack stack, SinglePartEntityModel singlePartEntityModel, int light) {
-        if (!AITMod.CONFIG.CLIENT.ENABLE_TARDIS_BOTI)
+public class PaintingBOTI extends BOTI {
+    public static void renderBOTIPainting(MatrixStack stack, PaintingFrameModel frame,
+                                          int light, SinglePartEntityModel paintingContents, Identifier frameTexture, Identifier paintingContentsTexture) {
+        if (!AITModClient.CONFIG.enableTardisBOTI)
             return;
 
         if (MinecraftClient.getInstance().world == null
                 || MinecraftClient.getInstance().player == null) return;
 
-        GallifreyFallsFrameModel model = new GallifreyFallsFrameModel(GallifreyFallsFrameModel.getTexturedModelData().createModel());
+        PaintingFrameModel model = new PaintingFrameModel(PaintingFrameModel.getTexturedModelData().createModel());
 
         stack.push();
 
@@ -37,7 +35,7 @@ public class GallifreyFallsBOTI extends BOTI {
 
         VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
-        model.render(stack, botiProvider.getBuffer(AITRenderLayers.getEntityCutout(FRAME_TEXTURE)), light, OverlayTexture.DEFAULT_UV, 1.0F, 1.0F, 1.0F, 1.0F);
+        model.render(stack, botiProvider.getBuffer(AITRenderLayers.getEntityCutout(frameTexture)), light, OverlayTexture.DEFAULT_UV, 1.0F, 1.0F, 1.0F, 1.0F);
         botiProvider.draw();
 
         stack.translate(0, 0, -0.125);
@@ -53,10 +51,9 @@ public class GallifreyFallsBOTI extends BOTI {
 
         RenderSystem.depthMask(true);
         stack.push();
-        ((GallifreyFallsFrameModel) singlePartEntityModel).renderWithFbo(stack, botiProvider, null, 0xf000f0, OverlayTexture.DEFAULT_UV, 0, 0, 0, 1);
+        frame.renderWithFbo(stack, botiProvider, 0xf000f0, OverlayTexture.DEFAULT_UV, 0, 0, 0, 1, frameTexture);
         botiProvider.draw();
         BOTI.copyDepth(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
-        // RenderSystem.depthMask(false);
 
         BOTI_HANDLER.afbo.beginWrite(false);
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
@@ -68,7 +65,7 @@ public class GallifreyFallsBOTI extends BOTI {
         stack.push();
         stack.translate(0, 0, -4f);
         RenderSystem.enableCull();
-        GallifreyFallsModel.getTexturedModelData().createModel().render(stack, botiProvider.getBuffer(AITRenderLayers.getBotiInterior(PAINTING_TEXTURE)), 0xf000f0, OverlayTexture.DEFAULT_UV, 1.0F, 1.0F, 1.0F, 1.0F);
+        paintingContents.render(stack, botiProvider.getBuffer(AITRenderLayers.getBotiInterior(paintingContentsTexture)), 0xf000f0, OverlayTexture.DEFAULT_UV, 1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableCull();
         botiProvider.draw();
         stack.pop();

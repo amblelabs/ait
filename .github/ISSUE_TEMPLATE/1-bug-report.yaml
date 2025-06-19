@@ -31,6 +31,12 @@ body:
     options:
     - 1.1.0
     - 1.2.0
+    - 1.2.1
+    - 1.2.2
+    - 1.2.3
+    - 1.2.4
+    - 1.2.5
+    - 1.2.6
     default: 0
   validations:
     required: true

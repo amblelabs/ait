@@ -1,7 +1,5 @@
 package dev.amble.ait.client.sounds.hum.interior;
 
-import static dev.amble.ait.AITMod.CONFIG;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +15,7 @@ import net.minecraft.util.Identifier;
 
 import dev.amble.ait.api.ClientWorldEvents;
 import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.sounds.ClientSoundManager;
 import dev.amble.ait.client.sounds.LoopingSound;
 import dev.amble.ait.client.sounds.PlayerFollowingLoopingSound;
@@ -107,7 +106,7 @@ public class ClientHumHandler extends SoundHandler {
 
         for (Hum sound : HumRegistry.getInstance().toList()) {
             list.add(new PlayerFollowingLoopingSound(sound.sound(), SoundCategory.AMBIENT,
-                    CONFIG.CLIENT.INTERIOR_HUM_VOLUME));
+                    AITModClient.CONFIG.interiorHumVolume));
         }
 
         return list;

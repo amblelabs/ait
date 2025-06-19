@@ -10,8 +10,8 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.config.AITConfig;
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.config.AITClientConfig;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.module.planet.core.item.SpacesuitItem;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
@@ -42,7 +42,7 @@ public class SpaceSuitOverlay implements HudRenderCallback {
 
             drawContext.drawTextWithShadow(textRenderer,
                     TardisServerWorld.isTardisDimension(mc.world) ? Text.literal("??????").formatted(Formatting.OBFUSCATED) :
-                            Text.literal(this.getTemperatureType(AITMod.CONFIG, planet)),
+                            Text.literal(this.getTemperatureType(AITModClient.CONFIG, planet)),
                     0, 0, 0xFFFFFF);
 
             stack.pop();
@@ -55,9 +55,9 @@ public class SpaceSuitOverlay implements HudRenderCallback {
         }
     }
 
-    public String getTemperatureType(AITConfig config, Planet planet) {
-        return switch(config.CLIENT.TEMPERATURE_TYPE) {
-            case CELCIUS -> ("" + planet.fahrenheit()).substring(0, 5) + "°C";
+    public String getTemperatureType(AITClientConfig config, Planet planet) {
+        return switch(config.temperatureType) {
+            case CELSIUS -> ("" + planet.fahrenheit()).substring(0, 5) + "°C";
             case FAHRENHEIT -> ("" + planet.fahrenheit()).substring(0, 5) + "°F";
             case KELVIN -> planet.kelvin() + "K";
         };

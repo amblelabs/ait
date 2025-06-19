@@ -1,7 +1,8 @@
 package dev.amble.ait.core.tardis.control.impl;
 
-import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -38,7 +39,7 @@ public class ElectricalDischargeControl extends Control {
         super.runServer(tardis, player, world, console, leftClick);
 
         if (tardis.fuel().getCurrentFuel() < ARTRON_COST) {
-            player.sendMessage(Text.literal("ERROR: Insufficient Artron Energy! Required: " + ARTRON_COST + " AU").formatted(Formatting.RED), true);
+            player.sendMessage(Text.translatable("tardis.message.control.electric.fail", ARTRON_COST).formatted(Formatting.RED), true);
             return Result.FAILURE;
         }
 
@@ -49,15 +50,14 @@ public class ElectricalDischargeControl extends Control {
 
         Scheduler.get().runTaskLater(() -> {
             spreadElectricalEffects(exteriorWorld, exteriorPos);
-        }, TimeUnit.TICKS, INITIAL_DELAY);
+        }, TaskStage.END_SERVER_TICK, TimeUnit.TICKS, INITIAL_DELAY);
 
         Scheduler.get().runTaskLater(() -> {
             world.playSound(null, console, AITSounds.DING, SoundCategory.BLOCKS, 1.0F, 1.0F);
-        }, TimeUnit.TICKS, TOTAL_DURATION);
+        }, TaskStage.END_SERVER_TICK, TimeUnit.TICKS, TOTAL_DURATION);
 
         return Result.SUCCESS;
     }
-
 
     private void spreadElectricalEffects(ServerWorld world, BlockPos pos) {
         Box effectBox = new Box(pos).expand(EFFECT_RADIUS);

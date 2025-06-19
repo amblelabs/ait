@@ -40,9 +40,7 @@ public class DimensionControl extends Control {
 
         CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
             List<ServerWorld> dims = WorldUtil.getTravelWorlds();
-
-            int index = WorldUtil.travelWorldIndex(!WorldUtil.isTravelValid(dest.getWorld())
-                    ? WorldUtil.getOverworld() : dest.getWorld());
+            int index = Math.max(0, WorldUtil.travelWorldIndex(dest.getWorld()));
 
             if (leftClick) {
                 index = (dims.size() + index - 1) % dims.size();

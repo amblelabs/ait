@@ -195,7 +195,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
         }
 
         if (server.getTicks() % (this.maxSpeed.get() - this.speed() + 1) == 0)
-            this.setFlightTicks(this.getFlightTicks() + AITMod.CONFIG.SERVER.TRAVEL_PER_TICK);
+            this.setFlightTicks(this.getFlightTicks() + AITMod.CONFIG.travelPerTick);
     }
 
     public void triggerSequencingDuringFlight(Tardis tardis) {
@@ -204,7 +204,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
         if (!this.autopilot.get() && this.getDurationAsPercentage() < 100
                 && this.getState() == TravelHandlerBase.State.FLIGHT && !sequences.hasActiveSequence()
                 && !this.position().equals(this.destination()) && this.getTargetTicks() > 100
-                && random.nextBetween(0, 230 / (this.speed() == 0 ? 1 : this.speed())) == 7) {
+                && random.nextBetween(0, 110 /*230*/ / (this.speed() == 0 ? 1 : this.speed())) == 7) {
             sequences.triggerRandomSequence(true);
         }
     }

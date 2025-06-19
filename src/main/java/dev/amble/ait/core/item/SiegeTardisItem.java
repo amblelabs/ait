@@ -49,7 +49,6 @@ public class SiegeTardisItem extends LinkableItem {
 
         if (!tardis.siege().isActive()) {
             tardis.setSiegeBeingHeld(null);
-            stack = ItemStack.EMPTY;
             return;
         }
 

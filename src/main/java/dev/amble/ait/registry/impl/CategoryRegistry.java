@@ -1,7 +1,6 @@
 package dev.amble.ait.registry.impl;
 
 
-
 import java.util.Random;
 
 import dev.amble.lib.register.datapack.SimpleDatapackRegistry;

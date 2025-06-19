@@ -17,6 +17,7 @@ import net.minecraft.text.Text;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.commands.argument.IdentifierWildcardArgumentType;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.ServerTardis;
@@ -38,7 +39,7 @@ public class UnlockCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(literal(AITMod.MOD_ID).then(literal("unlock")
-                .requires(source -> source.hasPermissionLevel(2))
+                .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.unlock", 2))
                 .then(argument("tardis", TardisArgumentType.tardis())
                         .then(literal("console").then(argument("console", IdentifierWildcardArgumentType.wildcard())
                                 .suggests(CONSOLE_SUGGESTION).executes(UnlockCommand::unlockConsole)))

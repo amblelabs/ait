@@ -164,7 +164,7 @@ public class KeyItem extends LinkableItem {
         travel.rematerialize();
         tardis.shields().enable();
         tardis.shields().enableVisuals();
-        tardis.removeFuel(4250);
+        tardis.removeFuel(4250 + 50 * tardis.travel().instability());
 
 
         player.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 80, 3));

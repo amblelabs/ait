@@ -2,8 +2,9 @@ package dev.amble.ait.core.tardis.handler;
 
 import static dev.amble.ait.core.engine.SubSystem.Id.GRAVITATIONAL;
 
-import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
@@ -98,7 +99,7 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
     }
 
     public void enterFlight(ServerPlayerEntity player) {
-        if (!AITMod.CONFIG.SERVER.RWF_ENABLED) return;
+        if (!AITMod.CONFIG.rwfEnabled) return;
         this.tardis.door().closeDoors();
         this.tardis().travel().autopilot(false);
         this.tardis.travel().handbrake(true);
@@ -112,13 +113,13 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
         Scheduler.get().runTaskLater(() -> {
             player.startRiding(entity);
             this.sendEnterFlightPacket(player);
-        }, TimeUnit.TICKS, 2);
+        }, TaskStage.END_SERVER_TICK, TimeUnit.TICKS, 2);
 
         tardis.travel().finishDemat();
     }
 
     private void sendEnterFlightPacket(ServerPlayerEntity player) {
-        if (!AITMod.CONFIG.SERVER.RWF_ENABLED) return;
+        if (!AITMod.CONFIG.rwfEnabled) return;
         ServerPlayNetworking.send(player, ENTER_FLIGHT, PacketByteBufs.create());
   }
 

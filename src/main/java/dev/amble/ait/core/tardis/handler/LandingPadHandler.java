@@ -23,7 +23,7 @@ import dev.amble.ait.data.properties.Value;
 import dev.amble.ait.data.properties.bool.BoolValue;
 
 public class LandingPadHandler extends KeyedTardisComponent {
-    public static final Property<String> CODE = new Property<>(Property.Type.STR, "code", "");
+    public static final Property<String> CODE = new Property<>(Property.STR, "code", "");
     private final Value<String> code = LandingPadHandler.CODE.create(this);
     @Exclude
     private LandingPadSpot current;

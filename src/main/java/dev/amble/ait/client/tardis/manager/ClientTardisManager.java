@@ -1,5 +1,6 @@
 package dev.amble.ait.client.tardis.manager;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -12,6 +13,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientLoginConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,6 +28,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.TardisMap;
+import dev.amble.ait.data.properties.Value;
 import dev.amble.ait.registry.impl.TardisComponentRegistry;
 
 public class ClientTardisManager extends TardisManager<ClientTardis, MinecraftClient> {
@@ -68,14 +71,20 @@ public class ClientTardisManager extends TardisManager<ClientTardis, MinecraftCl
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> this.reset());
     }
 
-    private void remove(PacketByteBuf buf) {
-        this.lookup.remove(buf.readUuid());
+    public void sendProperty(Value<?> value) {
+        PacketByteBuf buf = PacketByteBufs.create();
+
+        TardisComponent holder = value.getHolder();
+        buf.writeUuid(holder.tardis().getUuid());
+        buf.writeString(holder.getId().name());
+        buf.writeString(value.getProperty().getName());
+        value.write(buf);
+
+        ClientPlayNetworking.send(SEND_PROPERTY, buf);
     }
 
-    @Override
-    @Deprecated(forRemoval = true)
-    public void loadTardis(MinecraftClient client, UUID uuid, @Nullable Consumer<ClientTardis> consumer) {
-        // do nothing
+    private void remove(PacketByteBuf buf) {
+        this.lookup.remove(buf.readUuid());
     }
 
     @Override
@@ -86,6 +95,7 @@ public class ClientTardisManager extends TardisManager<ClientTardis, MinecraftCl
     @Override
     @Deprecated
     public @Nullable ClientTardis demandTardis(MinecraftClient client, UUID uuid) {
+        Objects.requireNonNull(uuid);
         return this.lookup.get(uuid);
     }
 

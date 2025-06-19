@@ -1,4 +1,5 @@
 package dev.amble.ait.core.blockentities;
+
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Dynamic;
 import org.jetbrains.annotations.Nullable;

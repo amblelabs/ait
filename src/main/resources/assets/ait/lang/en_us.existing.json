@@ -1,23 +1,33 @@
 {
-  "text.config.aitconfig.title": "Adventures in Time",
+  "text.ait.config.categories": "Adventures in Time",
+  "category.ait.config.client": "Client",
+  "category.ait.config.server": "Server",
 
-  "text.config.aitconfig.section.Server": "Server",
+  "yacl3.config.ait:client.category.client": "AIT (Client)",
+  "yacl3.config.ait:server.category.server": "AIT (Server)",
 
-  "text.config.aitconfig.option.searchHeight": "Search Height",
-  "text.config.aitconfig.option.searchHeight.tooltip": "How many blocks up and down a TARDIS should ground search for before giving up",
+  "yacl3.config.ait:server.minifyJson": "Minify JSON?",
+  "yacl3.config.ait:server.ghostMonument": "Ghost Monument",
+  "yacl3.config.ait:server.lockDimensions": "Lock Dimensions?",
+  "yacl3.config.ait:server.rwfEnabled": "Enable RWF?",
+  "yacl3.config.ait:server.tntCanTeleportThroughDoors": "Can TNT teleport through doors?",
+  "yacl3.config.ait:server.projectorBlacklist": "Environment Projector world blacklist",
+  "yacl3.config.ait:server.travelBlacklist": "TARDIS travel world blacklist",
+  "yacl3.config.ait:server.riftSpawnBlacklist": "Rift spawn world blacklist",
+  "yacl3.config.ait:server.riftDropBlacklist": "Rift drop world blacklist",
 
-  "text.config.aitconfig.option.askDelay": "Ask Delay",
-  "text.config.aitconfig.option.askDelay.tooltip": "How many seconds a client should be on delay for before asking for another TARDIS\nHigher -> Better server performance\nLower -> Less client sync issues",
-
-  "text.config.aitconfig.option.forceSyncDelay": "Force Sync Delay",
-  "text.config.aitconfig.option.force_sync_delay.tooltip": "How many seconds a client should be away from a tardis for before forcing a resync\nHigher -> Better server performance\nLower -> Less client sync issues",
-
-  "text.config.aitconfig.section.Client": "Client",
-
-  "text.config.aitconfig.option.INTERIOR_HUM_VOLUME": "Interior Hum Volume",
-
-  "text.config.aitconfig.option.CUSTOM_MENU": "Custom Menu",
-  "text.config.aitconfig.option.CUSTOM_MENU.tooltip": "Whether the custom title screen should show",
+  "yacl3.config.ait:client.interiorHumVolume": "Interior hum volume",
+  "yacl3.config.ait:client.customMenu": "Use custom main menu?",
+  "yacl3.config.ait:client.showExperimentalWarning": "Show experimental warning?",
+  "yacl3.config.ait:client.environmentProjector": "Render local skybox?",
+  "yacl3.config.ait:client.enableTardisBOTI": "Enable TARDIS BOTI?",
+  "yacl3.config.ait:client.shouldRenderBOTIInterior": "Render BOTI interior?",
+  "yacl3.config.ait:client.greenScreenBOTI": "Green screen BOTI?",
+  "yacl3.config.ait:client.showControlHitboxes": "Show control hitboxes?",
+  "yacl3.config.ait:client.renderDematParticles": "Render demat particles?",
+  "yacl3.config.ait:client.animateConsole": "Animate console?",
+  "yacl3.config.ait:client.animateDoors": "Animate doors?",
+  "yacl3.config.ait:client.temperatureType": "Temperature type",
 
   "screen.ait.security.title": "Security"
 }

@@ -12,13 +12,14 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.ServerTardis;
 
 public class GetNameCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(literal(AITMod.MOD_ID)
-                .then(literal("name").requires(source -> source.hasPermissionLevel(2)).then(literal("get")
+                .then(literal("name").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.name", 2)).then(literal("get")
                         .then(argument("tardis", TardisArgumentType.tardis()).executes(GetNameCommand::runCommand)))));
     }
 

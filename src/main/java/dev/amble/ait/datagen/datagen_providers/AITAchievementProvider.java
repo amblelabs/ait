@@ -62,6 +62,14 @@ public class AITAchievementProvider extends FabricAdvancementProvider {
         // one
         // that shows
 
+        Advancement feedPowerConverter = Advancement.Builder.create().parent(firstEnter)
+                .display(AITBlocks.POWER_CONVERTER, Text.translatable("achievement.ait.title.feed_power_converter"),
+                        Text.translatable("achievement.ait.description.feed_power_converter"),
+                        null,
+                        AdvancementFrame.TASK, true, true, true)
+                .criterion("feed_power_converter", TardisCriterions.FEED_POWER_CONVERTER.conditions())
+                .build(consumer, AITMod.MOD_ID + "/feed_power_converter");
+
         Advancement brandNew = Advancement.Builder.create().parent(firstEnter)
                 .display(AITItems.MUG, Text.translatable("achievement.ait.title.brand_new"),
                         Text.translatable("achievement.ait.description.brand_new"),

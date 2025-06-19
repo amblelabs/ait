@@ -16,7 +16,6 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.data.schema.console.variant.coral.*;
 
 public class MonitorControl extends Control {
     public MonitorControl() {

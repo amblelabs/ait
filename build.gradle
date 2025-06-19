@@ -25,9 +25,10 @@ repositories {
 
     // Dependency for GravityAPI
     maven { url "https://maven.ladysnake.org/releases" }
-
-    // Cloth Config
     maven { url "https://maven.shedaniel.me/" }
+
+    // YACL
+    maven { url 'https://maven.isxander.dev/releases' }
 
     // ModMenu
     maven { url "https://maven.terraformersmc.com/releases/" }
@@ -92,6 +93,8 @@ dependencies {
     }
 
     modApi("com.terraformersmc:modmenu:${project.modmenu_version}")
+    modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+    modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 
     modCompileOnlyApi "maven.modrinth:k9-mod:${project.k9_version}"
 
@@ -136,12 +139,16 @@ processResources {
     inputs.property "version", project.version
     inputs.property "minecraft_version", project.minecraft_version
     inputs.property "loader_version", project.loader_version
+    inputs.property "amblekit_version", project.amblekit_version
+    inputs.property "yacl_version", project.yacl_version
     filteringCharset "UTF-8"
 
     filesMatching("fabric.mod.json") {
         expand "version": project.version,
                 "minecraft_version": project.minecraft_version,
-                "loader_version": project.loader_version
+                "loader_version": project.loader_version,
+                "amblekit_version": project.amblekit_version,
+                "yacl_version": project.yacl_version
     }
 }
 

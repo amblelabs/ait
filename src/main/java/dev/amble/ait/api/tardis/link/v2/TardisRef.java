@@ -64,6 +64,9 @@ public class TardisRef implements Disposable {
         if (this.cached != null && !this.shouldInvalidate())
             return this.cached;
 
+        if (this.id == null)
+            return null;
+
         this.cached = this.load.apply(this.id);
         return this.cached;
     }

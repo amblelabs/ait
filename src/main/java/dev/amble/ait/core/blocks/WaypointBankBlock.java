@@ -18,7 +18,8 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.*;
-import net.minecraft.world.*;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 
 import dev.amble.ait.core.blockentities.WaypointBankBlockEntity;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;

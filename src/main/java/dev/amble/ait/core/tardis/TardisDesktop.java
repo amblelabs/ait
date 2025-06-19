@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.lib.data.DirectedBlockPos;
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.queue.api.util.block.ChunkEraser;
@@ -13,6 +14,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.AbstractDecorationEntity;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -47,7 +49,7 @@ public class TardisDesktop extends TardisComponent {
     private DirectedBlockPos doorPos;
     private final Corners corners;
     private final Set<BlockPos> consolePos;
-    private static final int RADIUS = 500;
+    public static final int RADIUS = 500;
     private static final Corners CORNERS;
 
     static {
@@ -147,7 +149,7 @@ public class TardisDesktop extends TardisComponent {
             TardisEvents.RECONFIGURE_DESKTOP.invoker().reconfigure(this.tardis);
 
         ServerTardis tardis = this.tardis.asServer();
-        ServerWorld world = tardis.getInteriorWorld();
+        ServerWorld world = tardis.world();
 
         Optional<StructureTemplate> optional = this.schema.findTemplate();
 
@@ -173,7 +175,7 @@ public class TardisDesktop extends TardisComponent {
 
     public ActionQueue createDesktopClearQueue() {
         ServerTardis tardis = this.tardis.asServer();
-        ServerWorld world = tardis.getInteriorWorld();
+        ServerWorld world = tardis.world();
         int chunkRadius = ChunkSectionPos.getSectionCoord(RADIUS);
 
         TardisUtil.getEntitiesInBox(AbstractDecorationEntity.class, world, corners.getBox(), frame -> true)
@@ -213,7 +215,7 @@ public class TardisDesktop extends TardisComponent {
     }
 
     public void cacheConsole(BlockPos consolePos) {
-        World dim = this.tardis.asServer().getInteriorWorld();
+        World dim = this.tardis.asServer().world();
         dim.playSound(null, consolePos, SoundEvents.BLOCK_BEACON_DEACTIVATE, SoundCategory.BLOCKS, 0.5f, 1.0f);
 
         if (dim.getBlockEntity(consolePos) instanceof ConsoleBlockEntity entity) {
@@ -239,7 +241,19 @@ public class TardisDesktop extends TardisComponent {
     public void playSoundAtEveryConsole(SoundEvent sound, SoundCategory category, float volume, float pitch) {
         if (!this.isServer()) return;
 
-        this.getConsolePos().forEach(consolePos -> playSoundAtConsole(this.tardis.asServer().getInteriorWorld(), consolePos, sound, category, volume, pitch));
+        ServerWorld world = this.tardis.asServer().world();
+
+        this.getConsolePos().forEach(consolePos ->
+                playSoundAtConsole(world, consolePos, sound, category, volume, pitch));
+    }
+
+    public void forcePlaySoundAtEveryConsole(Identifier soundId, SoundCategory category) {
+        if (!this.isServer()) return;
+
+        RegistryKey<World> worldKey = this.tardis.asServer().world().getRegistryKey();
+        this.getConsolePos().forEach(consolePos -> {
+            NetworkUtil.playSound(worldKey, consolePos, soundId, category);
+        });
     }
 
     public void playSoundAtEveryConsole(SoundEvent sound, SoundCategory category) {

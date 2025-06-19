@@ -28,9 +28,12 @@ public class AsyncLocatorUtil {
 
     public static ExecutorService LOCATING_EXECUTOR_SERVICE = null;
 
-    static {
+    public static void init() {
         ServerLifecycleEvents.SERVER_STOPPING.register(
-                (server) -> AsyncLocatorUtil.shutdownExecutorService());
+                server -> AsyncLocatorUtil.shutdownExecutorService());
+
+        ServerLifecycleEvents.SERVER_STARTING.register(
+                server -> AsyncLocatorUtil.setupExecutorService());
     }
 
     public static void setupExecutorService() {

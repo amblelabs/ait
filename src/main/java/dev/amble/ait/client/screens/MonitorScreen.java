@@ -12,6 +12,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.PressableTextWidget;
+import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -55,6 +56,14 @@ public class MonitorScreen extends ConsoleScreen {
     int backgroundHeight = 166;
     int backgroundWidth = 256;
     private int tickForSpin = 0;
+    private final int APPLY_BUTTON_WIDTH = 53;
+    private final int APPLY_BUTTON_HEIGHT = 20;
+    private final int SMALL_ARROW_BUTTON_WIDTH = 20;
+    private final int SMALL_ARROW_BUTTON_HEIGHT = 12;
+    private final int BIG_ARROW_BUTTON_WIDTH = 20;
+    private final int BIG_ARROW_BUTTON_HEIGHT = 20;
+    private final int INTERIOR_SETTINGS_BUTTON_WIDTH = 20;
+    private final int INTERIOR_SETTINGS_BUTTON_HEIGHT = 20;
 
     public MonitorScreen(ClientTardis tardis, BlockPos console) {
         super(Text.translatable("screen." + AITMod.MOD_ID + ".monitor"), tardis, console);
@@ -116,31 +125,43 @@ public class MonitorScreen extends ConsoleScreen {
         this.buttons.clear();
         // exterior change text button
         MutableText applyText = Text.translatable("screen.ait.monitor.apply");
-        this.addButton(new PressableTextWidget((width / 2 + 55), (height / 2 + 8),
-                this.textRenderer.getWidth(applyText), 20, applyText.formatted(Formatting.BOLD), button -> {
+
+        // apply text (exterior change screen)
+        this.addDrawable(new TextWidget((width / 2 + 44), (height / 2 + 3),
+                APPLY_BUTTON_WIDTH, APPLY_BUTTON_HEIGHT, applyText.formatted(Formatting.BOLD), this.textRenderer));
+
+        // apply button (exterior change screen)
+        this.addButton(new PressableTextWidget((width / 2 + 44), (height / 2 + 3),
+                APPLY_BUTTON_WIDTH, APPLY_BUTTON_HEIGHT, Text.empty(), button -> {
                     sendExteriorPacket(this.tardis(), this.getCategory(), this.getCurrentVariant());
                 }, this.textRenderer));
-        this.addButton(new PressableTextWidget((width / 2 + 30), (height / 2 + 8), this.textRenderer.getWidth("<#>"),
-                15, Text.literal("").formatted(Formatting.BOLD), button -> {
+
+        // arrow buttons (exterior change screen)
+        this.addButton(new PressableTextWidget((width / 2 + 23), (height / 2 + 3),
+                BIG_ARROW_BUTTON_WIDTH, BIG_ARROW_BUTTON_HEIGHT, Text.empty(), button -> {
                     changeCategory(false);
                 }, this.textRenderer));
-        this.addButton(new PressableTextWidget((width / 2 + 105), (height / 2 + 8), this.textRenderer.getWidth("<#>"),
-                15, Text.literal("").formatted(Formatting.BOLD), button -> {
+        this.addButton(new PressableTextWidget((width / 2 + 98), (height / 2 + 3),
+                BIG_ARROW_BUTTON_WIDTH, BIG_ARROW_BUTTON_HEIGHT, Text.empty(), button -> {
                     changeCategory(true);
                 }, this.textRenderer));
-        this.addButton(new PressableTextWidget((width / 2 + 30), (height / 2 + 64), this.textRenderer.getWidth("<#>"),
-                15, Text.literal("").formatted(Formatting.BOLD).formatted(Formatting.LIGHT_PURPLE), button -> {
+
+        // arrow buttons (exterior variant screen)
+        this.addButton(new PressableTextWidget((width / 2 + 23), (height / 2 + 61),
+                SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT, Text.empty(), button -> {
                     whichDirectionVariant(false);
                 }, this.textRenderer));
-        this.addButton(new PressableTextWidget((width / 2 + 105), (height / 2 + 64), this.textRenderer.getWidth("<#>"),
-                15, Text.literal("").formatted(Formatting.BOLD).formatted(Formatting.LIGHT_PURPLE), button -> {
+        this.addButton(new PressableTextWidget((width / 2 + 98), (height / 2 + 61),
+                SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT, Text.empty(), button -> {
                     whichDirectionVariant(true);
                 }, this.textRenderer));
-        Text desktopSettingsText = Text.translatable("screen.ait.monitor.gear_icon");
-        this.addButton(new PressableTextWidget((width / 2 - 6), (height / 2 + 57),
-                this.textRenderer.getWidth(desktopSettingsText), 10,
-                Text.literal("").formatted(Formatting.BOLD).formatted(Formatting.WHITE),
+
+        // interior settings button
+        this.addButton(new PressableTextWidget((width / 2 - 13), (height / 2 + 52),
+                INTERIOR_SETTINGS_BUTTON_WIDTH, INTERIOR_SETTINGS_BUTTON_HEIGHT,
+                Text.empty(),
                 button -> toInteriorSettingsScreen(), this.textRenderer));
+
         this.buttons.forEach(buttons -> {
             // buttons.visible = false;
             buttons.active = true;
@@ -238,45 +259,49 @@ public class MonitorScreen extends ConsoleScreen {
         int j = ((this.height) - this.backgroundHeight) / 2;
         context.drawTexture(TEXTURE, i, j, 0, 0, this.backgroundWidth, this.backgroundHeight);
 
-        // apply button
+        // apply button (exterior change screen)
         if (!this.buttons.get(0).isHovered())
-            context.drawTexture(TEXTURE, this.buttons.get(0).getX() - 11, this.buttons.get(0).getY() - 5, 40, 166, 53,
-                    20);
+            context.drawTexture(TEXTURE, this.buttons.get(0).getX(), this.buttons.get(0).getY(), 40, 166,
+                    APPLY_BUTTON_WIDTH,APPLY_BUTTON_HEIGHT);
         else
-            context.drawTexture(TEXTURE, this.buttons.get(0).getX() - 11, this.buttons.get(0).getY() - 5, 40, 186, 53,
-                    20);
+            context.drawTexture(TEXTURE, this.buttons.get(0).getX(), this.buttons.get(0).getY(), 40, 186,
+                    APPLY_BUTTON_WIDTH, APPLY_BUTTON_HEIGHT);
 
-        // arrow buttons
+        // arrow buttons (exterior change screen)
         if (!this.buttons.get(1).isHovered())
-            context.drawTexture(TEXTURE, this.buttons.get(1).getX() - 7, this.buttons.get(1).getY() - 5, 0, 166, 20,
-                    20);
+            context.drawTexture(TEXTURE, this.buttons.get(1).getX(), this.buttons.get(1).getY(), 0, 166,
+                    BIG_ARROW_BUTTON_WIDTH, BIG_ARROW_BUTTON_HEIGHT);
         else
-            context.drawTexture(TEXTURE, this.buttons.get(1).getX() - 7, this.buttons.get(1).getY() - 5, 0, 186, 20,
-                    20);
+            context.drawTexture(TEXTURE, this.buttons.get(1).getX(), this.buttons.get(1).getY(), 0, 186,
+                    BIG_ARROW_BUTTON_WIDTH, BIG_ARROW_BUTTON_HEIGHT);
         if (!this.buttons.get(2).isHovered())
-            context.drawTexture(TEXTURE, this.buttons.get(2).getX() - 7, this.buttons.get(2).getY() - 5, 20, 166, 20,
-                    20);
+            context.drawTexture(TEXTURE, this.buttons.get(2).getX(), this.buttons.get(2).getY(), 20, 166,
+                    BIG_ARROW_BUTTON_WIDTH, BIG_ARROW_BUTTON_HEIGHT);
         else
-            context.drawTexture(TEXTURE, this.buttons.get(2).getX() - 7, this.buttons.get(2).getY() - 5, 20, 186, 20,
-                    20);
+            context.drawTexture(TEXTURE, this.buttons.get(2).getX(), this.buttons.get(2).getY(), 20, 186,
+                    BIG_ARROW_BUTTON_WIDTH, BIG_ARROW_BUTTON_HEIGHT);
+
+        // arrow buttons (exterior variant screen)
         if (!this.buttons.get(3).isHovered())
-            context.drawTexture(TEXTURE, this.buttons.get(3).getX() - 7, this.buttons.get(3).getY() - 2, 93, 166, 20,
-                    12);
+            context.drawTexture(TEXTURE, this.buttons.get(3).getX(), this.buttons.get(3).getY(), 93, 166,
+                    SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT);
         else
-            context.drawTexture(TEXTURE, this.buttons.get(3).getX() - 7, this.buttons.get(3).getY() - 2, 93, 178, 20,
-                    12);
+            context.drawTexture(TEXTURE, this.buttons.get(3).getX(), this.buttons.get(3).getY(), 93, 178,
+                    SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT);
         if (!this.buttons.get(4).isHovered())
-            context.drawTexture(TEXTURE, this.buttons.get(4).getX() - 7, this.buttons.get(4).getY() - 2, 113, 166, 20,
-                    12);
+            context.drawTexture(TEXTURE, this.buttons.get(4).getX(), this.buttons.get(4).getY(), 113, 166,
+                    SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT);
         else
-            context.drawTexture(TEXTURE, this.buttons.get(4).getX() - 7, this.buttons.get(4).getY() - 2, 113, 178, 20,
-                    12);
+            context.drawTexture(TEXTURE, this.buttons.get(4).getX(), this.buttons.get(4).getY(), 113, 178,
+                    SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT);
+
+        // interior settings button
         if (!this.buttons.get(5).isHovered())
-            context.drawTexture(TEXTURE, this.buttons.get(5).getX() - 7, this.buttons.get(5).getY() - 5, 186, 166, 20,
-                    20);
+            context.drawTexture(TEXTURE, this.buttons.get(5).getX(), this.buttons.get(5).getY(), 186, 166,
+                    INTERIOR_SETTINGS_BUTTON_WIDTH, INTERIOR_SETTINGS_BUTTON_HEIGHT);
         else
-            context.drawTexture(TEXTURE, this.buttons.get(5).getX() - 7, this.buttons.get(5).getY() - 5, 186, 186, 20,
-                    20);
+            context.drawTexture(TEXTURE, this.buttons.get(5).getX(), this.buttons.get(5).getY(), 186, 186,
+                    INTERIOR_SETTINGS_BUTTON_WIDTH, INTERIOR_SETTINGS_BUTTON_HEIGHT);
 
         context.drawTexture(TEXTURE, i + 16, j + 144, 0,
                 this.tardis().getFuel() > (FuelHandler.TARDIS_MAX_FUEL / 4) ? 225 : 234,

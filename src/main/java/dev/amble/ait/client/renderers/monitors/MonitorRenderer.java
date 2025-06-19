@@ -20,17 +20,20 @@ import net.minecraft.util.math.RotationPropertyHelper;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.monitors.CRTMonitorModel;
 import dev.amble.ait.core.blockentities.MonitorBlockEntity;
+import dev.amble.ait.core.blocks.MonitorBlock;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.util.MonitorStateUtil;
 import dev.amble.ait.core.util.MonitorUtil;
 import dev.amble.ait.core.util.WorldUtil;
 
 public class MonitorRenderer<T extends MonitorBlockEntity> implements BlockEntityRenderer<T> {
 
-    public static final Identifier MONITOR_TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/monitors/crt_monitor.png"));
+
+    private static final Identifier MONITOR_TEXTURE_DEFAULT = new Identifier(AITMod.MOD_ID, "textures/blockentities/monitors/crt_monitor.png");
+    private static final Identifier MONITOR_TEXTURE_BLAZE = new Identifier(AITMod.MOD_ID, "textures/blockentities/monitors/crt_monitor/blaze.png");
     public static final Identifier EMISSIVE_MONITOR_TEXTURE = new Identifier(AITMod.MOD_ID,
             ("textures/blockentities/monitors/crt_monitor_emission.png"));
     private final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
@@ -43,7 +46,15 @@ public class MonitorRenderer<T extends MonitorBlockEntity> implements BlockEntit
 
     @Override
     public void render(MonitorBlockEntity entity, float tickDelta, MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers, int light, int overlay) {
+                       VertexConsumerProvider vertexConsumers, int light, int overlay) {
+
+        MonitorStateUtil state = entity.getCachedState().get(MonitorBlock.TEXTURE);
+
+        Identifier texture = switch (state) {
+            case BLAZE -> MONITOR_TEXTURE_BLAZE;
+            default -> MONITOR_TEXTURE_DEFAULT;
+        };
+
         BlockState blockState = entity.getCachedState();
 
         int k = blockState.get(SkullBlock.ROTATION);
@@ -55,12 +66,13 @@ public class MonitorRenderer<T extends MonitorBlockEntity> implements BlockEntit
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180));
 
         this.crtMonitorModel.render(matrices,
-                vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(MONITOR_TEXTURE)), light, overlay, 1.0F,
+                vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(texture)), light, overlay, 1.0F,
                 1.0F, 1.0F, 1.0F);
-        this.crtMonitorModel.render(matrices,
-                vertexConsumers.getBuffer(RenderLayer.getEntityTranslucentEmissive(EMISSIVE_MONITOR_TEXTURE)),
-                0xF000F00, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
-
+        if (state == MonitorStateUtil.DEFAULT) {
+            this.crtMonitorModel.render(matrices,
+                    vertexConsumers.getBuffer(RenderLayer.getEntityTranslucentEmissive(EMISSIVE_MONITOR_TEXTURE)),
+                    0xF000F00, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+        }
         matrices.pop();
 
         if (!entity.isLinked())

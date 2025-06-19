@@ -2,6 +2,7 @@ package dev.amble.ait.core.tardis.manager;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -14,6 +15,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.api.tardis.WorldWithTardis;
@@ -38,7 +40,7 @@ public class ServerTardisManager extends DeprecatedServerTardisManager {
             if (this.fileManager.isLocked())
                 return;
 
-            if (AITMod.CONFIG.SERVER.SEND_BULK && tardisSet.size() >= 8) {
+            if (AITMod.CONFIG.sendBulk && tardisSet.size() >= 8) {
                 this.sendTardisBulk(player, tardisSet);
                 return;
             }
@@ -80,6 +82,22 @@ public class ServerTardisManager extends DeprecatedServerTardisManager {
             }
 
             this.delta.clear();
+        });
+
+        ServerPlayNetworking.registerGlobalReceiver(SEND_PROPERTY, (server, player, networkHandler, buf, response) -> {
+            UUID tardisId = buf.readUuid();
+            ServerTardis tardis = this.demandTardis(server, tardisId);
+
+            if (tardis == null)
+                return;
+
+            TardisComponent.IdLike componentId = TardisComponentRegistry.getInstance().get(buf.readString());
+
+            if (!(tardis.handler(componentId) instanceof KeyedTardisComponent keyed))
+                return;
+
+            String propertyId = buf.readString();
+            keyed.getPropertyData().get(propertyId).read(buf);
         });
     }
 
@@ -200,8 +218,8 @@ public class ServerTardisManager extends DeprecatedServerTardisManager {
     }
 
     public boolean isFull() {
-        int max = AITMod.CONFIG.SERVER.MAX_TARDISES;
-        return this.lookup.size() >= max && max > 0;
+        int max = AITMod.CONFIG.maxTardises;
+        return max > 0 && this.lookup.size() >= max;
     }
 
     private static boolean isInvalid(ServerTardis tardis) {

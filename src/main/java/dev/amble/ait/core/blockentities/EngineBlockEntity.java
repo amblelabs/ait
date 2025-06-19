@@ -1,7 +1,6 @@
 package dev.amble.ait.core.blockentities;
 
 
-
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;

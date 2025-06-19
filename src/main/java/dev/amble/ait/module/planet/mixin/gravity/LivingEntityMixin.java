@@ -100,7 +100,7 @@ public abstract class LivingEntityMixin extends Entity {
 
 
         if (entity instanceof PlayerEntity player
-                && (player.isCreative() || player.isSpectator()))
+                && player.isSpectator())
             return;
 
         boolean oxygenated = entity.hasStatusEffect(AITStatusEffects.OXYGENATED);

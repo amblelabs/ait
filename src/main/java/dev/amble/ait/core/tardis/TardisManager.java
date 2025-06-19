@@ -55,6 +55,8 @@ import dev.amble.ait.registry.impl.TardisComponentRegistry;
 
 public abstract class TardisManager<T extends Tardis, C> {
 
+    public static final Identifier SEND_PROPERTY = AITMod.id("send_property");
+
     public static final Identifier ASK = AITMod.id("ask_tardis");
 
     public static final Identifier SEND = AITMod.id("tardis/send");
@@ -121,7 +123,7 @@ public abstract class TardisManager<T extends Tardis, C> {
     }
 
     protected GsonBuilder getFileGson(GsonBuilder builder) {
-        if (!AITMod.CONFIG.SERVER.MINIFY_JSON)
+        if (!AITMod.CONFIG.minifyJson)
             builder.setPrettyPrinting();
 
         return builder.registerTypeAdapter(Value.class, Value.serializer())
@@ -187,8 +189,6 @@ public abstract class TardisManager<T extends Tardis, C> {
      */
     @Nullable @Deprecated
     public abstract T demandTardis(C c, UUID uuid);
-
-    public abstract void loadTardis(C c, UUID uuid, @Nullable Consumer<T> consumer);
 
     protected abstract TardisMap<?> lookup();
 

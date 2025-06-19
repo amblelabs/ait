@@ -37,6 +37,7 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 import dev.amble.ait.core.item.HammerItem;
+import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.console.type.CopperType;
 import dev.amble.ait.data.schema.console.type.CrystallineType;
 
@@ -78,7 +79,7 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
-            BlockHitResult hit) {
+                              BlockHitResult hit) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof ConsoleBlockEntity consoleBlockEntity) {
             if (world.getRegistryKey().equals(World.OVERWORLD)) return ActionResult.FAIL;
@@ -94,7 +95,7 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull World world, @NotNull BlockState state,
-            @NotNull BlockEntityType<T> type) {
+                                                                  @NotNull BlockEntityType<T> type) {
         return (world1, blockPos, blockState, ticker) -> {
             if (ticker instanceof ConsoleBlockEntity console) {
                 console.tick(world, blockPos, blockState, console);
@@ -104,7 +105,7 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
-            ItemStack itemStack) {
+                         ItemStack itemStack) {
         super.onPlaced(world, pos, state, placer, itemStack);
 
         if (world.getBlockEntity(pos) instanceof ConsoleBlockEntity consoleBlockEntity) {
@@ -127,6 +128,7 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
 
     @Override
     public void onSteppedOn(World world, BlockPos pos, BlockState state, Entity entity) {
+        if (!TardisServerWorld.isTardisDimension(world)) return;
         if (entity instanceof PlayerEntity player) {
             Random random = new Random();
             int x_random = random.nextInt(1, 10);
@@ -233,5 +235,8 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
 
     @Override
     public void onTryBreak(World world, BlockPos pos, BlockState state) {
+        if (TardisServerWorld.isTardisDimension(world)) return;
+
+        world.breakBlock(pos, true);
     }
 }

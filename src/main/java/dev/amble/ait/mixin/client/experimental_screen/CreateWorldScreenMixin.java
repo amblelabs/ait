@@ -15,7 +15,7 @@ import net.minecraft.registry.ServerDynamicRegistryType;
 import net.minecraft.world.dimension.DimensionOptionsRegistryHolder;
 import net.minecraft.world.level.LevelProperties;
 
-import dev.amble.ait.AITMod;
+import dev.amble.ait.client.AITModClient;
 
 @SuppressWarnings("deprecation")
 @Mixin(value = CreateWorldScreen.class)
@@ -35,7 +35,7 @@ public abstract class CreateWorldScreenMixin {
         if (this.recreated)
             return;
 
-        if (!AITMod.CONFIG.CLIENT.SHOW_EXPERIMENTAL_WARNING) {
+        if (!AITModClient.CONFIG.showExperimentalWarning) {
             this.startServer(config.specialWorldProperty(), registries, lifecycle3);
             ci.cancel();
         }

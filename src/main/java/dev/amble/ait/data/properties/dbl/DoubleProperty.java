@@ -6,10 +6,11 @@ import net.minecraft.network.PacketByteBuf;
 
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.data.properties.Property;
+import dev.amble.ait.data.properties.PropertyType;
 
 public class DoubleProperty extends Property<Double> {
 
-    public static final Type<Double> TYPE = new Type<>(Double.class, PacketByteBuf::writeDouble,
+    public static final PropertyType<Double> TYPE = new PropertyType<>(Double.class, PacketByteBuf::writeDouble,
             PacketByteBuf::readDouble);
 
     public DoubleProperty(String name) {

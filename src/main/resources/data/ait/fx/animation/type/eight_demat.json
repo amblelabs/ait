@@ -1,6 +1,0 @@
-{
-  "id": "ait:eight_demat",
-  "expected_state": "demat",
-  "sound": "ait:tardis/eight_demat",
-  "blockbench_file": "ait:classic_demat"
-}

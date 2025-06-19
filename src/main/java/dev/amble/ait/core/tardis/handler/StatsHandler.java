@@ -44,20 +44,20 @@ public class StatsHandler extends KeyedTardisComponent {
     private static final Identifier NAME_PATH = AITMod.id("tardis_names.json");
     private static List<String> NAME_CACHE;
 
-    private static final Property<String> NAME = new Property<>(Property.Type.STR, "name", "");
-    private static final Property<String> PLAYER_CREATOR_NAME = new Property<>(Property.Type.STR, "player_creator_name",
+    private static final Property<String> NAME = new Property<>(Property.STR, "name", "");
+    private static final Property<String> PLAYER_CREATOR_NAME = new Property<>(Property.STR, "player_creator_name",
             "");
-    private static final Property<String> DATE = new Property<>(Property.Type.STR, "date", "");
-    private static final Property<String> DATE_TIME_ZONE = new Property<>(Property.Type.STR, "date_time_zone", "");
-    private static final Property<RegistryKey<World>> SKYBOX = new Property<>(Property.Type.WORLD_KEY, "skybox",
+    private static final Property<Long> DATE = new Property<>(Property.LONG, "date", 0L);
+    private static final Property<String> DATE_TIME_ZONE = new Property<>(Property.STR, "date_time_zone", "");
+    private static final Property<RegistryKey<World>> SKYBOX = new Property<>(Property.WORLD_KEY, "skybox",
             World.END);
-    private static final Property<Direction> SKYBOX_DIRECTION = new Property<>(Property.Type.DIRECTION, "skybox_direction",
+    private static final Property<Direction> SKYBOX_DIRECTION = new Property<>(Property.DIRECTION, "skybox_direction",
             Direction.NORTH);
-    private static final Property<HashSet<String>> UNLOCKS = new Property<>(Property.Type.STR_SET, "unlocks",
+    private static final Property<HashSet<String>> UNLOCKS = new Property<>(Property.STR_SET, "unlocks",
             new HashSet<>());
 
-    private static final Property<Identifier> FLIGHT_FX = new Property<>(Property.Type.IDENTIFIER, "flight_fx", new Identifier(""));
-    private static final Property<Identifier> VORTEX_FX = new Property<>(Property.Type.IDENTIFIER, "vortex_fx", new Identifier(""));
+    private static final Property<Identifier> FLIGHT_FX = new Property<>(Property.IDENTIFIER, "flight_fx", new Identifier(""));
+    private static final Property<Identifier> VORTEX_FX = new Property<>(Property.IDENTIFIER, "vortex_fx", new Identifier(""));
     private static final BoolProperty SECURITY = new BoolProperty("security", false);
     private static final BoolProperty HAIL_MARY = new BoolProperty("hail_mary", false);
     private static final BoolProperty RECEIVE_CALLS = new BoolProperty("receive_calls", true);
@@ -68,7 +68,7 @@ public class StatsHandler extends KeyedTardisComponent {
 
     private final Value<String> tardisName = NAME.create(this);
     private final Value<String> playerCreatorName = PLAYER_CREATOR_NAME.create(this);
-    private final Value<String> creationDate = DATE.create(this);
+    private final Value<Long> dateCreated = DATE.create(this);
     private final Value<String> dateTimeZone = DATE_TIME_ZONE.create(this);
     private final Value<RegistryKey<World>> skybox = SKYBOX.create(this);
     private final Value<Direction> skyboxDirection = SKYBOX_DIRECTION.create(this);
@@ -95,7 +95,7 @@ public class StatsHandler extends KeyedTardisComponent {
 
     @Override
     public void onCreate() {
-        this.markCreationDate();
+        this.markDateCreated();
         this.setName("Type 50 TT Capsule");
         this.setXScale(1.0f);
         this.setYScale(1.0f);
@@ -109,7 +109,7 @@ public class StatsHandler extends KeyedTardisComponent {
         unlocks.of(this, UNLOCKS);
         tardisName.of(this, NAME);
         playerCreatorName.of(this, PLAYER_CREATOR_NAME);
-        creationDate.of(this, DATE);
+        dateCreated.of(this, DATE);
         dateTimeZone.of(this, DATE_TIME_ZONE);
         security.of(this, SECURITY);
         hailMary.of(this, HAIL_MARY);
@@ -240,18 +240,20 @@ public class StatsHandler extends KeyedTardisComponent {
         }
     }
 
-    public Date getCreationDate() {
-        if (creationDate.get() == null) {
+    public Date getDateCreated() {
+        if (dateCreated.get() == null) {
             AITMod.LOGGER.error("{} was missing creation date! Resetting to now", tardis.getUuid().toString());
-            markCreationDate();
+            markDateCreated();
         }
 
-        // parse a Date from the creationDate, and add to the hours the difference between this time zone and the time zone stored in the dateTimeZone
+        // parse a Date from the dateCreated, and add to the hours the difference between this time zone and the time zone stored in the dateTimeZone
         try {
-            Date date = DateFormat.getDateTimeInstance(DateFormat.LONG, 3).parse(creationDate.get());
+            Instant instant = Instant.ofEpochSecond(dateCreated.get());
+            //System.out.println(Instant.now().getEpochSecond());
             TimeZone timeZone = TimeZone.getTimeZone(dateTimeZone.get());
-            date.setTime(date.getTime() + timeZone.getRawOffset());
-            return date;
+            Calendar calendar = Calendar.getInstance(timeZone);
+            calendar.setTimeInMillis(instant.toEpochMilli());
+            return calendar.getTime();
         } catch (Exception e) {
             AITMod.LOGGER.error("Error parsing creation date for {}", tardis.getUuid().toString(), e);
             return Date.from(Instant.now());
@@ -294,16 +296,13 @@ public class StatsHandler extends KeyedTardisComponent {
     }
 
     public String getCreationString() {
-        return DateFormat.getDateTimeInstance(DateFormat.LONG, 3).format(this.getCreationDate());
+        return DateFormat.getDateTimeInstance(DateFormat.LONG, 3).format(this.getDateCreated());
     }
 
-    public void markCreationDate() {
+    public void markDateCreated() {
         // set the creation date to now, along with the time zone, and store it in a computer-readable string format
-        Date now = Date.from(Instant.now());
-        if (this.creationDate.get() == null && this.dateTimeZone.get() == null) {
-            creationDate.set(DateFormat.getDateTimeInstance(DateFormat.LONG, 3).format(now));
-            dateTimeZone.set(DateFormat.getTimeInstance(DateFormat.LONG).getTimeZone().getID());
-        }
+       dateCreated.set(Instant.now().getEpochSecond());
+       dateTimeZone.set(DateFormat.getTimeInstance(DateFormat.LONG).getTimeZone().getID());
     }
 
     public void markPlayerCreatorName() {
