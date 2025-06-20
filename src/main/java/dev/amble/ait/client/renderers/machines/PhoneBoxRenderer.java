@@ -10,19 +10,19 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.exteriors.BoothExteriorModel;
+import dev.amble.ait.client.models.exteriors.StallionExteriorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.core.blockentities.PhoneBoxBlockEntity;
 import dev.amble.ait.core.blocks.PhoneBoxBlock;
 
 public class PhoneBoxRenderer<T extends PhoneBoxBlockEntity> implements BlockEntityRenderer<T> {
 
-    private static final Identifier TEXTURE = AITMod.id("textures/blockentities/exteriors/booth/booth_default.png");
-    private static final Identifier EMISSION = AITMod.id("textures/blockentities/exteriors/booth/booth_default_emission.png");
-    private BoothExteriorModel booth;
+    private static final Identifier TEXTURE = AITMod.id("textures/blockentities/exteriors/stallion/stallion_default.png");
+    private static final Identifier EMISSION = AITMod.id("textures/blockentities/exteriors/stallion/stallion_default_emission.png");
+    private StallionExteriorModel stallionExteriorModel;
 
     public PhoneBoxRenderer(BlockEntityRendererFactory.Context ctx) {
-        this.booth = new BoothExteriorModel(BoothExteriorModel.getTexturedModelData().createModel());
+        this.stallionExteriorModel = new StallionExteriorModel(StallionExteriorModel.getTexturedModelData().createModel());
     }
 
     @Override
@@ -35,11 +35,12 @@ public class PhoneBoxRenderer<T extends PhoneBoxBlockEntity> implements BlockEnt
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(k));
 
-        this.booth.getPart().getChild("Door").yaw = 1.7f;
+        this.stallionExteriorModel.getPart().getChild("door").yaw =  -1.35f;
+        this.stallionExteriorModel.getPart().getChild("door").getChild("door_two").yaw = 2.65f;
 
-        this.booth.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityCutoutNoCull(TEXTURE)),
+        this.stallionExteriorModel.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityCutoutNoCull(TEXTURE)),
                 light, overlay, 1, 1, 1, 1);
-        this.booth.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.getText(EMISSION)),
+        this.stallionExteriorModel.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.getText(EMISSION)),
                 0xf000f0, overlay, 1, 1, 1, 1);
 
         matrices.pop();
