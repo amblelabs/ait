@@ -50,8 +50,14 @@ public class TardisServerWorld extends MultiDimServerWorld {
 
     @Override
     public void tick(BooleanSupplier shouldKeepTicking) {
-        if (this.tardis != null && this.tardis.shouldTick())
+        if (this.tardis != null && this.tardis.shouldTick()) {
             super.tick(shouldKeepTicking);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Tardis" + super.toString();
     }
 
     @Override
