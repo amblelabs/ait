@@ -43,6 +43,10 @@ public class AITBlocks extends BlockContainer {
             FabricBlockSettings.create().nonOpaque().noBlockBreakParticles().strength(-1.0f, 3600000.0f).dropsNothing()
                     .pistonBehavior(PistonBehavior.IGNORE).luminance(ExteriorBlock.STATE_TO_LUMINANCE));
 
+    public static final Block PHONE_BOX = new PhoneBoxBlock(
+            FabricBlockSettings.create().nonOpaque().noBlockBreakParticles().strength(-1.0f, 3600000.0f).dropsNothing()
+                    .instrument(Instrument.COW_BELL).pistonBehavior(PistonBehavior.IGNORE));
+
     @PickaxeMineable
     @NoEnglish
     public static final Block DOOR_BLOCK = new DoorBlock(FabricBlockSettings.create().nonOpaque().noCollision()

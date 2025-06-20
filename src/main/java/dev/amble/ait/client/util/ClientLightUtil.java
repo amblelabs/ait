@@ -31,7 +31,7 @@ public class ClientLightUtil {
 
         RenderLayer layer = DependencyChecker.hasIris()
                 ? AITRenderLayers.tardisEmissiveCullZOffset(emissive, true)
-                : AITRenderLayers.getTextPolygonOffset(emissive);
+                : AITRenderLayers.getText(emissive);
 
         ClientLightUtil.render(renderable, layer, vertices);
     }
