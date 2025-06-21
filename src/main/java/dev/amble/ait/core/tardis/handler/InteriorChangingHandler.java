@@ -175,7 +175,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         if (!this.canQueue())
             return;
 
-        if (tardis.fuel().getCurrentFuel() < 5000) {
+        if (tardis.fuel().getCurrentFuel() < schema.getFuelCost()) {
             tardis.asServer().world().getPlayers().forEach(player -> {
                 player.sendMessage(
                         Text.translatable("tardis.message.interiorchange.not_enough_fuel").formatted(Formatting.RED),
