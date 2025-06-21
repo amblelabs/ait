@@ -103,6 +103,10 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
         return this.handler(TardisComponent.Id.STATS);
     }
 
+    public DatabaseHandler database() {
+        return this.handler(TardisComponent.Id.DATABASE);
+    }
+
     public InteriorChangingHandler interiorChangingHandler() {
         return this.handler(TardisComponent.Id.INTERIOR);
     }
