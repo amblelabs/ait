@@ -741,23 +741,23 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.antigravs", "Antigravs");
         provider.addTranslation("control.ait.refreshment_control", "Refreshment Selector");
         provider.addTranslation("control.ait.food_creation", "Refreshment Dispenser");
-        provider.addTranslation("control.ait.protocol_116", "Protocol 116");
-        provider.addTranslation("control.ait.protocol_3", "Protocol 3");
+        provider.addTranslation("control.ait.protocol_116", "Stabiliser");
+        provider.addTranslation("control.ait.protocol_3", "Shell Cloaking");
         provider.addTranslation("control.ait.dimension", "Dimension");
         provider.addTranslation("control.ait.direction", "Direction");
         provider.addTranslation("control.ait.door_control", "Door Control");
         provider.addTranslation("control.ait.door_lock", "Door Lock");
         provider.addTranslation("control.ait.fast_return", "Fast Return");
         provider.addTranslation("control.ait.alarms", "Alarms");
-        provider.addTranslation("control.ait.protocol_813", "Protocol 813");
+        provider.addTranslation("control.ait.protocol_813", "Hail Mary");
         provider.addTranslation("control.ait.handbrake", "Handbrake");
         provider.addTranslation("control.ait.land_type", "Land Type");
         provider.addTranslation("control.ait.monitor", "Monitor");
         provider.addTranslation("control.ait.power", "Power");
         provider.addTranslation("control.ait.randomiser", "Randomiser");
         provider.addTranslation("control.ait.refueler", "Refueler");
-        provider.addTranslation("control.ait.protocol_19", "Protocol 19");
-        provider.addTranslation("control.ait.protocol_1913", "Protocol 1913");
+        provider.addTranslation("control.ait.protocol_19", "Isomorphic Security");
+        provider.addTranslation("control.ait.protocol_1913", "Siege Mode");
         provider.addTranslation("control.ait.sonic_port", "Sonic Port");
         provider.addTranslation("control.ait.telepathic_circuit", "Telepathic Circuit");
         provider.addTranslation("control.ait.throttle", "Throttle");
@@ -773,8 +773,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.y", "Y");
         provider.addTranslation("control.ait.z", "Z");
         provider.addTranslation("control.ait.shields", "Shields");
-        provider.addTranslation("control.ait.engine_overload", "Protocol 515");
-        provider.addTranslation("control.ait.electrical_discharge", "Protocol 54");
+        provider.addTranslation("control.ait.engine_overload", "Engine Overload");
+        provider.addTranslation("control.ait.electrical_discharge", "Shell Repellent");
         provider.addTranslation("control.ait.hammer_hanger", "Hammer Hanger");
 
         // Tabs
@@ -1030,11 +1030,11 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.loyalty.message.owner", "The TARDIS hums you a song, as if to show it will always be here for you. [OWNER]");
 
         // TARDIS Control Actionbar Title
-        provider.addTranslation("tardis.message.protocol_813.travel", "Hail Mary: Protocol 813 is active, please prepare for departure.");
-        provider.addTranslation("tardis.message.control.protocol_116.active", "Protocol 116: ENGAGED");
-        provider.addTranslation("tardis.message.control.hail_mary.engaged", "Protocol 813: ENGAGED");
-        provider.addTranslation("tardis.message.control.hail_mary.disengaged", "Protocol 813: DISENGAGED");
-        provider.addTranslation("tardis.message.control.protocol_116.inactive", "Protocol 116: DISENGAGED");
+        provider.addTranslation("tardis.message.protocol_813.travel", "Hail Mary is active, please prepare for departure.");
+        provider.addTranslation("tardis.message.control.protocol_116.active", "Stabiliser: ENGAGED");
+        provider.addTranslation("tardis.message.control.hail_mary.engaged", "Hail Mary: ENGAGED");
+        provider.addTranslation("tardis.message.control.hail_mary.disengaged", "Hail Mary: DISENGAGED");
+        provider.addTranslation("tardis.message.control.protocol_116.inactive", "Stabilisers: DISENGAGED");
         provider.addTranslation("tardis.message.console.has_sonic_in_port", "Cannot cache console with sonic in port");
         provider.addTranslation("tardis.message.control.antigravs.active", "Antigravs: ENGAGED");
         provider.addTranslation("tardis.message.control.antigravs.inactive", "Antigravs: DISENGAGED");
@@ -1046,8 +1046,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.fast_return.last_position", "Fast Return: LAST POSITION SET");
         provider.addTranslation("tardis.message.control.fast_return.current_position",
                 "Fast Return: CURRENT POSITION SET");
-        provider.addTranslation("tardis.message.control.protocol_813.active", "Protocol 813: ENGAGED");
-        provider.addTranslation("tardis.message.control.protocol_813.inactive", "Protocol 813: DISENGAGED");
+        provider.addTranslation("tardis.message.control.protocol_813.active", "Hail Mary: ENGAGED");
+        provider.addTranslation("tardis.message.control.protocol_813.inactive", "Hail Mary: DISENGAGED");
         provider.addTranslation("tardis.message.control.handbrake.on", "Handbrake: ON");
         provider.addTranslation("tardis.message.control.handbrake.off", "Handbrake: OFF");
         provider.addTranslation("tardis.message.control.randomiser.destination", "Destination: ");
