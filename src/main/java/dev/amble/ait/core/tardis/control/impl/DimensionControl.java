@@ -3,6 +3,7 @@ package dev.amble.ait.core.tardis.control.impl;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import dev.amble.ait.core.tardis.control.impl.pos.PosType;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -50,7 +51,11 @@ public class DimensionControl extends Control {
 
             return dims.get(index);
         }).thenAccept(destWorld -> {
-            travel.forceDestination(cached -> cached.world(destWorld));
+            travel.destination(cached -> {
+                CachedDirectedGlobalPos cachedPos = cached.world(destWorld);
+                BlockPos clampedPos = PosType.clamp(cachedPos.getPos(), 0, destWorld);
+                return cachedPos.pos(clampedPos);
+            });
             messagePlayer(player, destWorld, LockedDimensionRegistry.getInstance().isUnlocked(tardis, destWorld));
         });
 
