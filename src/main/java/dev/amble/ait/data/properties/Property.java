@@ -120,6 +120,22 @@ public class Property<T> {
         return result;
     });
 
+    public static final PropertyType.Nullable<HashSet<UUID>> UUID_SET = new PropertyType.Nullable<>(HashSet.class, (buf, uuids) -> {
+        buf.writeVarInt(uuids.size());
+
+        for (UUID uuid : uuids)
+            buf.writeUuid(uuid);
+    }, buf -> {
+        HashSet<UUID> result = new HashSet<>();
+        int size = buf.readVarInt();
+
+        for (int i = 0; i < size; i++) {
+            result.add(buf.readUuid());
+        }
+
+        return result;
+    });
+
     public static final PropertyType.Nullable<ItemStack> ITEM_STACK = new PropertyType.Nullable<>(ItemStack.class, PacketByteBuf::writeItemStack,
             PacketByteBuf::readItemStack);
 }
