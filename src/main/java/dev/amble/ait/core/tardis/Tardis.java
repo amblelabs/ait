@@ -10,6 +10,7 @@ import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.control.sequences.SequenceHandler;
 import dev.amble.ait.core.tardis.handler.*;
+import dev.amble.ait.core.tardis.handler.database.DatabaseHandler;
 import dev.amble.ait.core.tardis.handler.permissions.PermissionHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.registry.impl.DesktopRegistry;
@@ -137,27 +138,27 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
     }
 
     public double addFuel(double fuel) {
-        return this.<FuelHandler>handler(TardisComponent.Id.FUEL).addFuel(fuel);
+        return this.fuel().addFuel(fuel);
     }
 
     public void removeFuel(double fuel) {
-        this.<FuelHandler>handler(TardisComponent.Id.FUEL).removeFuel(fuel);
+        this.fuel().removeFuel(fuel);
     }
 
     public double getFuel() {
-        return this.<FuelHandler>handler(TardisComponent.Id.FUEL).getCurrentFuel();
+        return this.fuel().getCurrentFuel();
     }
 
     public void setFuelCount(double i) {
-        this.<FuelHandler>handler(TardisComponent.Id.FUEL).setCurrentFuel(i);
+        this.fuel().setCurrentFuel(i);
     }
 
     public boolean isRefueling() {
-        return this.<FuelHandler>handler(TardisComponent.Id.FUEL).refueling().get();
+        return this.fuel().refueling().get();
     }
 
     public void setRefueling(boolean b) {
-        this.<FuelHandler>handler(TardisComponent.Id.FUEL).refueling().set(b);
+        this.fuel().refueling().set(b);
     }
 
     public boolean isInDanger() {

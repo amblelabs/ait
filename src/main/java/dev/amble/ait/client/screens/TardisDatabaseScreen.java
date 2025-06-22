@@ -1,5 +1,10 @@
 package dev.amble.ait.client.screens;
 
+import java.util.Map;
+import java.util.UUID;
+
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -12,6 +17,7 @@ import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.tardis.handler.database.PersonalData;
 
 public class TardisDatabaseScreen extends ConsoleScreen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
@@ -69,6 +75,22 @@ public class TardisDatabaseScreen extends ConsoleScreen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.drawBackground(context);
+        ClientTardis clientTardis = this.tardis();
+        Map<UUID, PersonalData> hashMap = clientTardis.database().data();
+        hashMap.forEach((uuid, personalData) -> {
+            int x = (int) (left + (bgWidth * 0.06f));
+            int y = (int) (top + (bgHeight * (0.1f * (choicesCount + 1))));
+            Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> map =
+                    MinecraftClient.getInstance().getSkinProvider().getTextures(personalData.gameProfile());
+            if (map.containsKey((Object)MinecraftProfileTexture.Type.SKIN)) {
+                context.drawTexture(MinecraftClient.getInstance().getSkinProvider()
+                                .loadSkin(map.get((Object)MinecraftProfileTexture.Type.SKIN), MinecraftProfileTexture.Type.SKIN),
+                        x - 10, y, 0, 0, 8, 8);
+            }
+            context.drawText(MinecraftClient.getInstance().textRenderer,
+                    Text.literal(personalData.currentName() + " (" + uuid + ")"),
+                    x, y, 0xFFFFFF, false);
+        });
         super.render(context, mouseX, mouseY, delta);
     }
 
