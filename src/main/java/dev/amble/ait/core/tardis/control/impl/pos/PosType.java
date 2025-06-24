@@ -15,13 +15,7 @@ public enum PosType implements StringIdentifiable {
     Y() {
         @Override
         public BlockPos add(BlockPos pos, int amount, World world) {
-            if (world.getRegistryKey() == World.NETHER) {
-                return pos.withY(MathHelper.clamp(pos.getY() + amount, world.getBottomY(), 120));
-            }
-
-            return pos.withY(MathHelper.clamp(pos.getY() + amount, world.getBottomY(), world.getTopY() - 1)); // i hate
-                                                                                                                // you
-                                                                                                                // loqor
+            return PosType.clamp(pos, amount, world);
         }
 
         @Override
@@ -36,6 +30,15 @@ public enum PosType implements StringIdentifiable {
             return pos.add(0, 0, amount);
         }
     };
+
+    // Clamps the Y coordinate of a position depending on the world.
+    public static BlockPos clamp(BlockPos pos, int amount, World world) {
+        if (world.getRegistryKey() == World.NETHER) {
+            return pos.withY(MathHelper.clamp(pos.getY() + amount, world.getBottomY(), 120));
+        }
+
+        return pos.withY(MathHelper.clamp(pos.getY() + amount, world.getBottomY(), world.getTopY() - 1));
+    }
 
     // adds an amount to a blockpos based on this type
     public abstract BlockPos add(BlockPos pos, int amount);

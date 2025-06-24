@@ -82,12 +82,21 @@ public class AITClientConfig {
         private final String key;
 
         TemperatureType() {
-            this.key = this.toString().toLowerCase();
+            String key1;
+            key1 = this.toString().toLowerCase();
+            key1 = key1.substring(0, 1).toUpperCase() + key1.substring(1);
+            key1 = switch (key1) {
+                case "Celsius" -> key1 + " (°C)";
+                case "Fahrenheit" -> key1 + " (°F)";
+                case "Kelvin" -> key1 + " (K)";
+                default -> key1;
+            };
+            this.key = key1;
         }
 
         @Override
         public Text getDisplayName() {
-            return Text.translatable("temperature." + key);
+            return Text.translatable(key);
         }
     }
 }
