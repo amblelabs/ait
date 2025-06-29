@@ -71,6 +71,10 @@ public class AITClientConfig {
     @SerialEntry public boolean animateDoors = true;
 
     @AutoGen(category = CATEGORY)
+    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @SerialEntry public boolean useProtocolNaming = false;
+
+    @AutoGen(category = CATEGORY)
     @EnumCycler
     @SerialEntry public TemperatureType temperatureType = TemperatureType.CELSIUS;
 

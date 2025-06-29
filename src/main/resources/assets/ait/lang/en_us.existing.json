@@ -28,6 +28,7 @@
   "yacl3.config.ait:client.animateConsole": "Animate console?",
   "yacl3.config.ait:client.animateDoors": "Animate doors?",
   "yacl3.config.ait:client.temperatureType": "Temperature type",
+  "yacl3.config.ait:client.enableProtocolNaming": "Enable Protocol Naming Convention",
 
   "screen.ait.security.title": "Security"
 }
