@@ -1062,10 +1062,13 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.loyalty.message.owner", "The TARDIS hums you a song, as if to show it will always be here for you. [OWNER]");
 
         // TARDIS Control Actionbar Title
-        provider.addTranslation("tardis.message.protocol_813.travel", "Hail Mary is active, please prepare for departure.");
+        provider.addTranslation("tardis.message.hail_mary.travel", "Hail Mary is active, please prepare for departure.");
+        provider.addTranslation("tardis.message.protocol_813.travel", "Protocol 813 is active, please prepare for departure.");
         provider.addTranslation("tardis.message.control.protocol_116.active", "Stabiliser: ENGAGED");
         provider.addTranslation("tardis.message.control.hail_mary.engaged", "Hail Mary: ENGAGED");
         provider.addTranslation("tardis.message.control.hail_mary.disengaged", "Hail Mary: DISENGAGED");
+        provider.addTranslation("tardis.message.control.protocol_813.engaged", "Protocol 813: ENGAGED");
+        provider.addTranslation("tardis.message.control.protocol_813.disengaged", "Protocol 813: DISENGAGED");
         provider.addTranslation("tardis.message.control.protocol_116.inactive", "Stabilisers: DISENGAGED");
         provider.addTranslation("tardis.message.console.has_sonic_in_port", "Cannot cache console with sonic in port");
         provider.addTranslation("tardis.message.control.antigravs.active", "Antigravs: ENGAGED");

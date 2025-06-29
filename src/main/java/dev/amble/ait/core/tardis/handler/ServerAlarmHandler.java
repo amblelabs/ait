@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Optional;
 import java.util.Queue;
 
+import dev.amble.ait.client.AITModClient;
 import dev.drtheo.queue.api.ActionQueue;
 
 import net.minecraft.entity.Entity;
@@ -308,7 +309,7 @@ public class ServerAlarmHandler extends KeyedTardisComponent implements TardisTi
 
     public enum AlarmType implements Alarm {
         CRASHING,
-        HAIL_MARY("tardis.message.protocol_813.travel");
+        HAIL_MARY(AITModClient.CONFIG.useProtocolNaming ? "tardis.message.protocol_813.travel" : "tardis.message.hail_mary.travel");
 
         private final String translation;
 

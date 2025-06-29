@@ -28,6 +28,8 @@ import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.tardis.Tardis;
 
+import java.util.Objects;
+
 @Environment(value = EnvType.CLIENT)
 public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> {
 
@@ -58,6 +60,18 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
             return;
 
         Text name = entity.getCustomName();
+
+        if (AITModClient.CONFIG.useProtocolNaming){
+            switch (Objects.requireNonNull(name).getString()) {
+                case "Stabiliser": name = Text.of("Protocol 116"); break;
+                case "Shell Cloaking": name = Text.of("Protocol 3"); break;
+                case "Hail Mary": name = Text.of("Protocol 813"); break;
+                case "Isomorphic Security": name = Text.of("Protocol 19"); break;
+                case "Siege Mode": name = Text.of("Protocol 1913"); break;
+                case "Engine Overload": name = Text.of("Protocol 515"); break;
+                case "Shell Repellent": name = Text.of("Protocol 54"); break;
+            }
+        }
 
         if (name == null)
             return;

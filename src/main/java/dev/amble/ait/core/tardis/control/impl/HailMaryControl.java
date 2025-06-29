@@ -1,5 +1,6 @@
 package dev.amble.ait.core.tardis.control.impl;
 
+import dev.amble.ait.client.AITModClient;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -27,9 +28,15 @@ public class HailMaryControl extends Control {
 
         tardis.stats().hailMary().set(!tardis.stats().hailMary().get());
 
-        player.sendMessage(tardis.stats().hailMary().get()
-                ? Text.translatable("tardis.message.control.hail_mary.engaged")
-                : Text.translatable("tardis.message.control.hail_mary.disengaged"), true);
+        if (AITModClient.CONFIG.useProtocolNaming) {
+            player.sendMessage(tardis.stats().hailMary().get()
+                    ? Text.translatable("tardis.message.control.protocol_813.engaged")
+                    : Text.translatable("tardis.message.control.protocol_813.disengaged"), true);
+        } else {
+            player.sendMessage(tardis.stats().hailMary().get()
+                    ? Text.translatable("tardis.message.control.hail_mary.engaged")
+                    : Text.translatable("tardis.message.control.hail_mary.disengaged"), true);
+        }
 
         return tardis.stats().hailMary().get() ? Result.SUCCESS_ALT : Result.SUCCESS;
     }
