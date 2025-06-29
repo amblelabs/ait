@@ -823,6 +823,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.sendBulk", "Send Bulk?");
         provider.addTranslation("yacl3.config.ait:server.maxTardises", "Max Amount Of Tardises");
         provider.addTranslation("yacl3.config.ait:client.showConsoleMonitorText", "Show text on console monitors?");
+        provider.addTranslation("yacl3.config.ait:client.renderDematParticles", "Render demat particles?");
+		provider.addTranslation("yacl3.config.ait:client.animateConsole", "Animate console?");
+		provider.addTranslation("yacl3.config.ait:client.animateDoors", "Animate doors?");
+		provider.addTranslation("yacl3.config.ait:client.temperatureType", "Temperature type");
 
         provider.addTranslation("text.autoconfig.aitconfig.category.client", "Client");
         provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.SHOW_EXPERIMENTAL_WARNING", "Show Experimental Warning");
