@@ -149,8 +149,8 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
 
         profiler.swap("sonic_port"); // } emission / sonic {
 
-        ItemStack stack = tardis.sonic().getConsoleSonic() == null ?
-                tardis.butler().getHandles() : tardis.sonic().getConsoleSonic();
+        /*ItemStack stack = tardis.sonic().getConsoleSonic() == null ? tardis.butler().getHandles() : tardis.sonic().getConsoleSonic();*/
+        ItemStack stack = entity.getSonicScrewdriver();
 
         if (stack == null) {
             profiler.pop(); // } sonic
