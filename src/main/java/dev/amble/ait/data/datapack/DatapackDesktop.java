@@ -16,7 +16,7 @@ import net.minecraft.util.Identifier;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
-import dev.amble.ait.data.schema.desktop.textures.DesktopPreviewTexture;
+import dev.amble.ait.data.schema.desktop.textures.StructurePreviewTexture;
 
 public class DatapackDesktop extends TardisDesktopSchema {
     public static final Codec<TardisDesktopSchema> CODEC = RecordCodecBuilder.create(instance -> instance
@@ -25,7 +25,7 @@ public class DatapackDesktop extends TardisDesktopSchema {
             .apply(instance, DatapackDesktop::new));
 
     public DatapackDesktop(Identifier id, Optional<Loyalty> loyalty) {
-        super(id, new DesktopPreviewTexture(DesktopPreviewTexture.pathFromDesktopId(id)), loyalty);
+        super(id, new StructurePreviewTexture(StructurePreviewTexture.pathFromDesktopId(id)), loyalty);
     }
 
     public static TardisDesktopSchema fromInputStream(InputStream stream) {
