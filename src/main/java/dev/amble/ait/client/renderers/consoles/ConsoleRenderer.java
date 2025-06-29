@@ -1,5 +1,6 @@
 package dev.amble.ait.client.renderers.consoles;
 
+import dev.amble.ait.client.AITModClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -143,7 +144,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
 
         profiler.swap("monitor");
 
-        if (hasPower) {
+        if (hasPower && AITModClient.CONFIG.showConsoleMonitorText) {
             model.renderMonitorText(tardis, entity, matrices, vertexConsumers, light, overlay);
         }
 
