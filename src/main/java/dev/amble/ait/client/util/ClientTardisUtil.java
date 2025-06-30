@@ -71,10 +71,11 @@ public class ClientTardisUtil {
         changeExteriorWithScreen(tardis.getUuid(), variant, variantchange);
     }
 
-    public static void changeSonicWithScreen(UUID uuid, SonicSchema schema) {
+    public static void changeSonicWithScreen(UUID uuid, SonicSchema schema, BlockPos consolePos) {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeUuid(uuid);
         buf.writeIdentifier(schema.id());
+        buf.writeBlockPos(consolePos);
         ClientPlayNetworking.send(SonicHandler.CHANGE_SONIC, buf);
     }
 

@@ -90,6 +90,15 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
             }
         }
 
+        if (world.isClient()) {
+            return ActionResult.SUCCESS;
+        }
+
+        if (blockEntity instanceof ConsoleBlockEntity consoleBlockEntity) {
+            player.openHandledScreen(consoleBlockEntity);
+            world.playSound(null, pos, AITSounds.DOOM_DOOR_OPEN, SoundCategory.BLOCKS, 1.0f, 0.7f);
+        }
+
         return ActionResult.SUCCESS;
     }
 
