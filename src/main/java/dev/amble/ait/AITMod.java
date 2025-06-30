@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
+import dev.amble.ait.core.ars.ArsRegistry;
 import dev.amble.lib.container.RegistryContainer;
 import dev.amble.lib.register.AmbleRegistries;
 import dev.amble.lib.util.ServerLifecycleHooks;
@@ -164,7 +165,8 @@ public class AITMod implements ModInitializer {
                 SubSystemRegistry.getInstance(),
                 ItemOpinionRegistry.getInstance(),
                 DrinkRegistry.getInstance(),
-                TardisAnimationRegistry.getInstance()
+                TardisAnimationRegistry.getInstance(),
+                ArsRegistry.getInstance()
         );
         ControlSoundRegistry.init();
         BlockbenchParser.init();
