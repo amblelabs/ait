@@ -10,14 +10,14 @@ import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.core.tardis.control.impl.*;
-import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
-import dev.amble.ait.core.tardis.control.impl.pos.XControl;
-import dev.amble.ait.core.tardis.control.impl.pos.YControl;
-import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.MarkWaypointControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
+import dev.amble.ait.tardis.control.Control;
+import dev.amble.ait.tardis.control.impl.*;
+import dev.amble.ait.tardis.control.impl.pos.IncrementControl;
+import dev.amble.ait.tardis.control.impl.pos.XControl;
+import dev.amble.ait.tardis.control.impl.pos.YControl;
+import dev.amble.ait.tardis.control.impl.pos.ZControl;
+import dev.amble.ait.tardis.control.impl.waypoint.MarkWaypointControl;
+import dev.amble.ait.tardis.control.impl.waypoint.SetWaypointControl;
 
 public class ControlRegistry {
 

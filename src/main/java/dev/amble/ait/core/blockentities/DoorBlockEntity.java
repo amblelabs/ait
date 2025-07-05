@@ -35,11 +35,11 @@ import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 import dev.amble.ait.core.item.KeyItem;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.SonicHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.handler.SonicHandler;
+import dev.amble.ait.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 
 public class DoorBlockEntity extends InteriorLinkableBlockEntity {

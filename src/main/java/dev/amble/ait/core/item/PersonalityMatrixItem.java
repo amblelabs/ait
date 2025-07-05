@@ -13,7 +13,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 
 import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.tardis.handler.StatsHandler;
+import dev.amble.ait.tardis.handler.StatsHandler;
 
 public class PersonalityMatrixItem extends Item {
     public PersonalityMatrixItem(Settings settings) {

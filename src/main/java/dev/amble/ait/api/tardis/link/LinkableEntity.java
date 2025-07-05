@@ -13,8 +13,8 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
 
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.ServerTardis;
+import dev.amble.ait.tardis.Tardis;
 
 public abstract class LinkableEntity extends Entity {
 

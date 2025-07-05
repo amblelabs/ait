@@ -8,8 +8,8 @@ import net.minecraft.client.util.math.MatrixStack;
 import dev.amble.ait.client.animation.console.steam.SteamAnimations;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.tardis.control.impl.pos.IncrementManager;
+import dev.amble.ait.tardis.handler.travel.TravelHandlerBase;
 
 public class SteamConsoleModel extends ConsoleModel {
     private final ModelPart steam;

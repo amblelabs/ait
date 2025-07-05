@@ -12,7 +12,7 @@ import dev.amble.ait.api.tardis.link.v2.TardisRef;
 import dev.amble.ait.client.sounds.PositionedLoopingSound;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 import dev.amble.ait.data.hum.Hum;
 
 public class ExteriorHumSound extends PositionedLoopingSound implements Linkable {

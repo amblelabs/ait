@@ -18,7 +18,7 @@ import net.minecraft.util.Identifier;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.tardis.handler.travel.TravelHandlerBase;
 
 // @TODO better variable names
 @Deprecated(forRemoval = true, since = "1.3.0")

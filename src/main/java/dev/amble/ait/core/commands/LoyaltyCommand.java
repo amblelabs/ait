@@ -19,8 +19,8 @@ import net.minecraft.text.Text;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.handler.LoyaltyHandler;
+import dev.amble.ait.tardis.ServerTardis;
+import dev.amble.ait.tardis.handler.LoyaltyHandler;
 import dev.amble.ait.data.Loyalty;
 
 public class LoyaltyCommand {

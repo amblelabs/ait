@@ -11,8 +11,8 @@ import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.tardis.handler.DoorHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.tardis.handler.DoorHandler;
+import dev.amble.ait.tardis.handler.travel.TravelHandlerBase;
 
 public class ClientVortexSoundsHandler extends SoundHandler {
     public static LoopingSound VORTEX_SOUND;

@@ -60,12 +60,6 @@
 		],
 		"modmenu": [
           "dev.amble.ait.client.config.AITModMenu"
-		],
-		"amblekit-main": [
-			"dev.amble.ait.init.AmbleInitializer"
-		],
-		"amblekit-client": [
-			"dev.amble.ait.init.client.AmbleClientInitializer"
 		]
 	},
 	"mixins": [

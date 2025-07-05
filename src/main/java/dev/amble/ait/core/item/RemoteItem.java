@@ -1,6 +1,6 @@
 package dev.amble.ait.core.item;
 
-import static dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase.State.LANDED;
+import static dev.amble.ait.tardis.handler.travel.TravelHandlerBase.State.LANDED;
 
 import java.util.List;
 
@@ -23,9 +23,9 @@ import net.minecraft.world.World;
 
 import dev.amble.ait.api.tardis.link.LinkableItem;
 import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.impl.DirectionControl;
-import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.control.impl.DirectionControl;
+import dev.amble.ait.tardis.handler.travel.TravelUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 
 public class RemoteItem extends LinkableItem {

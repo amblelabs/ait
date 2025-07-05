@@ -25,7 +25,7 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.AITTags;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 import dev.amble.ait.core.util.MonitorUtil;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.LandingPadManager;

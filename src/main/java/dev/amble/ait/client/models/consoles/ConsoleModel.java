@@ -15,8 +15,8 @@ import net.minecraft.util.Identifier;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.handler.travel.TravelHandlerBase;
 
 @SuppressWarnings("rawtypes")
 public abstract class ConsoleModel extends SinglePartEntityModel {

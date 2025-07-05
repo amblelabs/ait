@@ -18,9 +18,9 @@ import net.minecraft.world.chunk.WorldChunk;
 import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.impl.EngineSystem;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.DoorHandler;
+import dev.amble.ait.tardis.ServerTardis;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.handler.DoorHandler;
 import dev.amble.ait.data.landing.LandingPadSpot;
 
 public final class TardisEvents {

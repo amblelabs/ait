@@ -9,7 +9,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 
 public class LandingPadSpot {
 

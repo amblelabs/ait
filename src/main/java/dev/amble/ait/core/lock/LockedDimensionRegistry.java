@@ -17,8 +17,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionTypes;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.ServerTardis;
+import dev.amble.ait.tardis.Tardis;
 import dev.amble.ait.core.util.WorldUtil;
 
 public class LockedDimensionRegistry extends SimpleDatapackRegistry<LockedDimension> {

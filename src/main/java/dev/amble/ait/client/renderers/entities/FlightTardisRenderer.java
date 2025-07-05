@@ -22,8 +22,8 @@ import dev.amble.ait.client.renderers.VortexUtil;
 import dev.amble.ait.client.util.ClientLightUtil;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.entities.FlightTardisEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.BiomeHandler;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.handler.BiomeHandler;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 
 public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {

@@ -26,7 +26,7 @@ import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.consoles.ControlModel;
 import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 
 @Environment(value = EnvType.CLIENT)
 public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> {

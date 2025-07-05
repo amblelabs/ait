@@ -21,9 +21,9 @@ import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.engine.impl.*;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.tardis.ServerTardis;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.enummap.Ordered;
 

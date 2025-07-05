@@ -16,7 +16,7 @@ import net.minecraft.util.Identifier;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.sounds.travel.TravelSound;
 import dev.amble.ait.core.sounds.travel.TravelSoundRegistry;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.enummap.EnumMap;
 
 @Deprecated(since = "1.3.0")

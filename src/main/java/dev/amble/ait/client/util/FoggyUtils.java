@@ -14,7 +14,7 @@ import net.minecraft.util.math.MathHelper;
 
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import dev.amble.ait.module.planet.core.space.system.Space;

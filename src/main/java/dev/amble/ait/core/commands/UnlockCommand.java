@@ -20,7 +20,7 @@ import dev.amble.ait.api.Nameable;
 import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.commands.argument.IdentifierWildcardArgumentType;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
-import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.tardis.ServerTardis;
 import dev.amble.ait.data.Wildcard;
 import dev.amble.ait.registry.impl.DesktopRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;

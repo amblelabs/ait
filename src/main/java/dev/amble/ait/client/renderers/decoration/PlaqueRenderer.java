@@ -17,7 +17,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.decoration.PlaqueModel;
 import dev.amble.ait.core.blockentities.PlaqueBlockEntity;
 import dev.amble.ait.core.blocks.PlaqueBlock;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 
 public class PlaqueRenderer<T extends PlaqueBlockEntity> implements BlockEntityRenderer<T> {
 

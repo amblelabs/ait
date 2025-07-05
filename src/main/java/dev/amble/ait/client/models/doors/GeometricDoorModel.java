@@ -7,7 +7,7 @@ import net.minecraft.client.util.math.MatrixStack;
 
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.core.tardis.handler.DoorHandler;
+import dev.amble.ait.tardis.handler.DoorHandler;
 
 public class GeometricDoorModel extends DoorModel {
 

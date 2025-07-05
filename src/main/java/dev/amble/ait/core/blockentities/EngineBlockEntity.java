@@ -22,7 +22,7 @@ import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
 import dev.amble.ait.core.engine.link.IFluidLink;
 import dev.amble.ait.core.engine.link.IFluidSource;
 import dev.amble.ait.core.engine.link.ITardisSource;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 
 public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSource {
     public EngineBlockEntity(BlockPos pos, BlockState state) {

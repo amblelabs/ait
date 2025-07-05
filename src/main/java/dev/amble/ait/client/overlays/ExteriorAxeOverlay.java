@@ -14,7 +14,7 @@ import net.minecraft.util.hit.HitResult;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.blocks.ExteriorBlock;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 
 public class ExteriorAxeOverlay implements HudRenderCallback {
     @Override

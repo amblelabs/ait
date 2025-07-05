@@ -8,7 +8,7 @@ import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.core.tardis.handler.DoorHandler;
+import dev.amble.ait.tardis.handler.DoorHandler;
 
 public class PipeDoorModel extends DoorModel {
     private final ModelPart tardis;

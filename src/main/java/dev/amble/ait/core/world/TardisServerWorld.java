@@ -35,7 +35,7 @@ import net.minecraft.world.spawner.Spawner;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.tardis.ServerTardis;
 
 public class TardisServerWorld extends MultiDimServerWorld {
 

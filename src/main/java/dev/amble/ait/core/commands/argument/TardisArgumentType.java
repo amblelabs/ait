@@ -23,9 +23,9 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.TardisManager;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.tardis.ServerTardis;
+import dev.amble.ait.tardis.TardisManager;
+import dev.amble.ait.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.world.TardisServerWorld;
 
 public class TardisArgumentType implements ArgumentType<TardisArgumentType.ServerTardisAccessor> {

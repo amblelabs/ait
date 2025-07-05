@@ -1,6 +1,6 @@
 package dev.amble.ait.core.blockentities;
 
-import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.MAX_PLASMIC_MATERIAL_AMOUNT;
+import static dev.amble.ait.tardis.handler.InteriorChangingHandler.MAX_PLASMIC_MATERIAL_AMOUNT;
 
 import java.util.UUID;
 
@@ -46,13 +46,13 @@ import dev.amble.ait.core.engine.impl.EngineSystem;
 import dev.amble.ait.core.item.KeyItem;
 import dev.amble.ait.core.item.SiegeTardisItem;
 import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.BiomeHandler;
-import dev.amble.ait.core.tardis.handler.SonicHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.tardis.ServerTardis;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.handler.BiomeHandler;
+import dev.amble.ait.tardis.handler.SonicHandler;
+import dev.amble.ait.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.tardis.util.TardisUtil;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 
 public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements BlockEntityTicker<ExteriorBlockEntity> {

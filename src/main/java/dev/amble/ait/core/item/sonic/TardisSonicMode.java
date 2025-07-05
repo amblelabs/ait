@@ -17,8 +17,8 @@ import net.minecraft.world.World;
 
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.sonic.SonicSchema;
 

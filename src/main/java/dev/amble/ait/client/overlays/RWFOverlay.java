@@ -14,7 +14,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 
 import dev.amble.ait.core.entities.FlightTardisEntity;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 
 public class RWFOverlay implements HudRenderCallback {
     private static final int ALPHA_GRAY = ColorHelper.Argb.getArgb(125, 255, 255, 255);

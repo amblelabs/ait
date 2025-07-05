@@ -14,7 +14,7 @@ import net.minecraft.util.math.random.Random;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.decoration.TardisStarModel;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 
 public class TardisStar {
 

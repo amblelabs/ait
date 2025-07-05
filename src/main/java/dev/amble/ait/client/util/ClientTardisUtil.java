@@ -1,6 +1,6 @@
 package dev.amble.ait.client.util;
 
-import static dev.amble.ait.core.tardis.util.TardisUtil.*;
+import static dev.amble.ait.tardis.util.TardisUtil.*;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -27,9 +27,9 @@ import dev.amble.ait.api.ClientWorldEvents;
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisExterior;
-import dev.amble.ait.core.tardis.handler.SonicHandler;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.TardisExterior;
+import dev.amble.ait.tardis.handler.SonicHandler;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.sonic.SonicSchema;
 

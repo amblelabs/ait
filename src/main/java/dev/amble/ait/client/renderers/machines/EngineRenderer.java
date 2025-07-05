@@ -16,7 +16,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.machines.EngineModel;
 import dev.amble.ait.core.blockentities.EngineBlockEntity;
 import dev.amble.ait.core.engine.impl.EngineSystem;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 
 // Made with Blockbench 4.8.3
 // Exported for Minecraft version 1.17+ for Yarn

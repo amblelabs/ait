@@ -11,9 +11,9 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.random.Random;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.handler.mood.MoodDictatedEvent;
-import dev.amble.ait.core.tardis.handler.mood.TardisMood;
-import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.tardis.handler.mood.MoodDictatedEvent;
+import dev.amble.ait.tardis.handler.mood.TardisMood;
+import dev.amble.ait.tardis.util.TardisUtil;
 import dev.amble.ait.core.util.WorldUtil;
 
 public class MoodEventPoolRegistry {

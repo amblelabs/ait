@@ -41,9 +41,9 @@ import net.minecraft.world.gen.structure.Structure;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.blockentities.AstralMapBlockEntity;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.control.impl.TelepathicControl;
-import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
+import dev.amble.ait.tardis.ServerTardis;
+import dev.amble.ait.tardis.control.impl.TelepathicControl;
+import dev.amble.ait.tardis.util.AsyncLocatorUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 
 public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvider {

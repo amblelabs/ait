@@ -21,7 +21,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.tardis.control.impl.DirectionControl;
+import dev.amble.ait.tardis.control.impl.DirectionControl;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Waypoint;

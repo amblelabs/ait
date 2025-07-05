@@ -1,8 +1,8 @@
 package dev.amble.ait.client.renderers;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.util.TardisUtil;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;

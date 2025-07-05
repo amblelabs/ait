@@ -8,7 +8,7 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 
 import net.minecraft.resource.ResourceType;
 
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 import dev.amble.ait.data.datapack.DatapackDesktop;
 import dev.amble.ait.data.schema.desktop.DefaultCaveDesktop;
 import dev.amble.ait.data.schema.desktop.DevDesktop;

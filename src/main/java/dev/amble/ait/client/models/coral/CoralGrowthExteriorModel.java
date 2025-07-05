@@ -9,8 +9,8 @@ import net.minecraft.entity.Entity;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.handler.DoorHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.tardis.handler.DoorHandler;
+import dev.amble.ait.tardis.handler.travel.TravelHandlerBase;
 
 public class CoralGrowthExteriorModel extends ExteriorModel {
     public final ModelPart coral;

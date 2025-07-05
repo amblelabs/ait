@@ -7,14 +7,14 @@ import org.jetbrains.annotations.Nullable;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.core.tardis.*;
-import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
-import dev.amble.ait.core.tardis.control.sequences.SequenceHandler;
-import dev.amble.ait.core.tardis.handler.*;
-import dev.amble.ait.core.tardis.handler.mood.MoodHandler;
-import dev.amble.ait.core.tardis.handler.permissions.PermissionHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.tardis.*;
+import dev.amble.ait.tardis.control.impl.pos.IncrementManager;
+import dev.amble.ait.tardis.control.sequences.SequenceHandler;
+import dev.amble.ait.tardis.handler.*;
+import dev.amble.ait.tardis.handler.mood.MoodHandler;
+import dev.amble.ait.tardis.handler.permissions.PermissionHandler;
+import dev.amble.ait.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.enummap.Ordered;
 

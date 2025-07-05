@@ -13,7 +13,7 @@ import dev.amble.ait.client.models.decoration.SnowGlobeModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.core.blockentities.SnowGlobeBlockEntity;
 import dev.amble.ait.core.blocks.SnowGlobeBlock;
-import dev.amble.ait.core.tardis.handler.BiomeHandler;
+import dev.amble.ait.tardis.handler.BiomeHandler;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 

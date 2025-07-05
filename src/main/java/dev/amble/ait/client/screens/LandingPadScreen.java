@@ -18,7 +18,7 @@ import net.minecraft.util.math.ChunkPos;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.data.ClientLandingManager;
-import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.tardis.util.TardisUtil;
 import dev.amble.ait.data.landing.LandingPadRegion;
 
 public class LandingPadScreen extends Screen {
