@@ -17,11 +17,11 @@ import net.minecraft.util.math.RotationAxis;
 import dev.amble.ait.client.animation.console.copper.CopperAnimations;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.impl.DirectionControl;
-import dev.amble.ait.core.tardis.handler.FuelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.control.impl.DirectionControl;
+import dev.amble.ait.tardis.handler.FuelHandler;
+import dev.amble.ait.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.WorldUtil;
 
 public class CopperConsoleModel extends ConsoleModel {

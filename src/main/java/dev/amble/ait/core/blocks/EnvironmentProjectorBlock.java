@@ -34,7 +34,7 @@ import net.minecraft.world.event.GameEvent;
 
 import dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 
 @SuppressWarnings("deprecation")
 public class EnvironmentProjectorBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {

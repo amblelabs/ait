@@ -10,8 +10,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 
 import dev.amble.ait.api.tardis.Disposable;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisManager;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.TardisManager;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class TardisRef implements Disposable {

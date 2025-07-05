@@ -14,7 +14,7 @@ import net.minecraft.world.World;
 
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 
 public interface AbstractLinkableEntity extends Linkable {
 

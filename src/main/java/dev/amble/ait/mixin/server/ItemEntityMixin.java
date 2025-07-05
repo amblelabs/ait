@@ -9,8 +9,8 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 
 import dev.amble.ait.core.item.SiegeTardisItem;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 
 // mmm mixin i love mixin

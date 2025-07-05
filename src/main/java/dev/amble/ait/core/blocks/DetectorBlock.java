@@ -28,9 +28,9 @@ import net.minecraft.world.event.GameEvent;
 
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.blockentities.DetectorBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.handler.TardisCrashHandler;
+import dev.amble.ait.tardis.handler.travel.TravelHandlerBase;
 
 @SuppressWarnings("deprecation")
 public class DetectorBlock extends WallMountedBlock implements BlockEntityProvider {

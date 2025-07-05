@@ -23,8 +23,8 @@ import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.renderers.VortexUtil;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.module.planet.client.renderers.CelestialBodyRenderer;
 import dev.amble.ait.module.planet.client.renderers.SpaceSkyRenderer;
 import dev.amble.ait.module.planet.core.space.planet.Planet;

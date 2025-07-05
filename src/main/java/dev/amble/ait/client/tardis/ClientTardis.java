@@ -12,9 +12,9 @@ import dev.amble.ait.api.tardis.Disposable;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.util.ClientShakeUtil;
 import dev.amble.ait.client.util.ClientTardisUtil;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisDesktop;
-import dev.amble.ait.core.tardis.TardisExterior;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.TardisDesktop;
+import dev.amble.ait.tardis.TardisExterior;
 import dev.amble.ait.data.Exclude;
 
 public class ClientTardis extends Tardis implements Disposable {

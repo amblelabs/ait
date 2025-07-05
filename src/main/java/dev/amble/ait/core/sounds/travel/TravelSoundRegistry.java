@@ -8,7 +8,7 @@ import net.minecraft.resource.ResourceType;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.sounds.travel.map.TravelSoundMap;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.tardis.handler.travel.TravelHandlerBase;
 
 public class TravelSoundRegistry extends SimpleDatapackRegistry<TravelSound> {
     private static final TravelSoundRegistry instance = new TravelSoundRegistry();

@@ -17,7 +17,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.dynamic.Codecs;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.tardis.ServerTardis;
 
 public record ItemOpinion(Identifier id, ItemStack stack, int cost, int loyalty) implements Identifiable, Opinion {
     public static final Codec<ItemOpinion> CODEC = Codecs.exceptionCatching(RecordCodecBuilder.create(instance -> instance.group(

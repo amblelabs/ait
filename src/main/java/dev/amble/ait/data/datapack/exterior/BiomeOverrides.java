@@ -14,7 +14,7 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 
-import dev.amble.ait.core.tardis.handler.BiomeHandler;
+import dev.amble.ait.tardis.handler.BiomeHandler;
 import dev.amble.ait.data.enummap.EnumMap;
 
 public record BiomeOverrides(EnumMap.Compliant<BiomeHandler.BiomeType, Identifier> lookup) {

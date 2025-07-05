@@ -10,7 +10,7 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 
 import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.tardis.ServerTardis;
 
 /**
  * For Handles the robot, this is used to handle responses.

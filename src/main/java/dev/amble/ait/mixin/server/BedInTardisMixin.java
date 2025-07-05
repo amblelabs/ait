@@ -21,7 +21,7 @@ import net.minecraft.world.World;
 
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 import dev.amble.ait.data.Loyalty;
 
 @Mixin(BedBlock.class)

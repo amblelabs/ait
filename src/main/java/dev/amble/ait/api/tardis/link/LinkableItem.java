@@ -19,8 +19,8 @@ import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisManager;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.TardisManager;
 
 public abstract class LinkableItem extends Item {
 

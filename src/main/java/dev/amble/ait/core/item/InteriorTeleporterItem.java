@@ -16,8 +16,8 @@ import net.minecraft.world.World;
 
 import dev.amble.ait.api.tardis.link.LinkableItem;
 import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.util.TardisUtil;
 import dev.amble.ait.data.Loyalty;
 
 public class InteriorTeleporterItem extends LinkableItem { // todo - new model + texture?

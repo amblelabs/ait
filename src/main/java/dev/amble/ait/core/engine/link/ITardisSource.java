@@ -1,6 +1,6 @@
 package dev.amble.ait.core.engine.link;
 
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 
 public interface ITardisSource extends IFluidSource {
     Tardis getTardisForFluid();

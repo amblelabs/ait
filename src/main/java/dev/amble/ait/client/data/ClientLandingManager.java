@@ -17,7 +17,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
 
-import dev.amble.ait.core.tardis.util.NetworkUtil;
+import dev.amble.ait.tardis.util.NetworkUtil;
 import dev.amble.ait.core.world.LandingPadManager;
 import dev.amble.ait.data.landing.LandingPadRegion;
 

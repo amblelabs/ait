@@ -9,7 +9,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 
 import dev.amble.ait.api.Nameable;
-import dev.amble.ait.core.tardis.control.ControlTypes;
+import dev.amble.ait.tardis.control.ControlTypes;
 import dev.amble.ait.data.schema.exterior.category.CapsuleCategory;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;

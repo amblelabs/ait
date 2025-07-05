@@ -20,12 +20,12 @@ import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
-import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.tardis.ServerTardis;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.animation.v2.datapack.TardisAnimationRegistry;
+import dev.amble.ait.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.tardis.handler.travel.TravelUtil;
+import dev.amble.ait.tardis.util.TardisUtil;
 import dev.amble.ait.data.Exclude;
 
 public class EngineSystem extends DurableSubSystem {

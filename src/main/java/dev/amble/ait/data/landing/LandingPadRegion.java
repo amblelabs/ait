@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.tardis.manager.ServerTardisManager;
 
 public class LandingPadRegion {
 

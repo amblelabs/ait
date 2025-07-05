@@ -20,11 +20,11 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.decoration.PlaqueModel;
 import dev.amble.ait.core.blockentities.WallMonitorBlockEntity;
 import dev.amble.ait.core.blocks.PlaqueBlock;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.impl.DirectionControl;
-import dev.amble.ait.core.tardis.handler.FuelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.control.impl.DirectionControl;
+import dev.amble.ait.tardis.handler.FuelHandler;
+import dev.amble.ait.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.WorldUtil;
 
 public class WallMonitorRenderer<T extends WallMonitorBlockEntity> implements BlockEntityRenderer<T> {

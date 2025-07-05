@@ -13,7 +13,7 @@ import dev.amble.ait.core.engine.StructureHolder;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
 import dev.amble.ait.core.item.RiftScannerItem;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.tardis.handler.travel.TravelHandler;
 
 public class EmergencyPower extends SubSystem implements ArtronHolder, StructureHolder {
     private double fuel;

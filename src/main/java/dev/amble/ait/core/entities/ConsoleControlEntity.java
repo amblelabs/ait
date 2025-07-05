@@ -44,9 +44,9 @@ import dev.amble.ait.core.entities.base.LinkableDummyEntity;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.item.control.ControlBlockItem;
 import dev.amble.ait.core.item.sonic.SonicMode;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.core.tardis.control.ControlTypes;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.control.Control;
+import dev.amble.ait.tardis.control.ControlTypes;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 
 public class ConsoleControlEntity extends LinkableDummyEntity {

@@ -22,7 +22,7 @@ import dev.amble.ait.client.sounds.PlayerFollowingLoopingSound;
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
-import dev.amble.ait.core.tardis.handler.ServerHumHandler;
+import dev.amble.ait.tardis.handler.ServerHumHandler;
 import dev.amble.ait.data.hum.Hum;
 import dev.amble.ait.registry.impl.HumRegistry;
 

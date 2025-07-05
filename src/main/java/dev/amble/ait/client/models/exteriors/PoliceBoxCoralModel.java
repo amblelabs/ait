@@ -11,7 +11,7 @@ import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.handler.DoorHandler;
+import dev.amble.ait.tardis.handler.DoorHandler;
 
 public class PoliceBoxCoralModel extends ExteriorModel {
     private final ModelPart TARDIS;

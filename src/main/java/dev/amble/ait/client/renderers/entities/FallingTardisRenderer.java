@@ -18,9 +18,9 @@ import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.entities.FallingTardisEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisExterior;
-import dev.amble.ait.core.tardis.handler.BiomeHandler;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.TardisExterior;
+import dev.amble.ait.tardis.handler.BiomeHandler;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 

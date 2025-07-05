@@ -9,7 +9,7 @@ import net.minecraft.util.Identifier;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.handles.HandlesResponse;
 import dev.amble.ait.core.handles.HandlesSound;
-import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.tardis.ServerTardis;
 
 public class TakeOffResponse implements HandlesResponse {
     @Override

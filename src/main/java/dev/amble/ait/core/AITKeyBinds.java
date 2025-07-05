@@ -16,7 +16,7 @@ import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.bind.KeyBind;
 import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.item.KeyItem;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 
 public class AITKeyBinds {
 

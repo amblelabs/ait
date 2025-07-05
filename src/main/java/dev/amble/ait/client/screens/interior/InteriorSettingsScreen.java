@@ -1,6 +1,6 @@
 package dev.amble.ait.client.screens.interior;
 
-import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.CHANGE_DESKTOP;
+import static dev.amble.ait.tardis.handler.InteriorChangingHandler.CHANGE_DESKTOP;
 
 import java.util.List;
 import java.util.function.Function;
@@ -35,9 +35,9 @@ import dev.amble.ait.client.screens.TardisSecurityScreen;
 import dev.amble.ait.client.screens.widget.SwitcherManager;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.compat.DependencyChecker;
-import dev.amble.ait.core.tardis.TardisDesktop;
-import dev.amble.ait.core.tardis.handler.FuelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.tardis.TardisDesktop;
+import dev.amble.ait.tardis.handler.FuelHandler;
+import dev.amble.ait.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.registry.impl.DesktopRegistry;
 

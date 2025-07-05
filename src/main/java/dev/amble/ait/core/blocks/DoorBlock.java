@@ -36,7 +36,7 @@ import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 import dev.amble.ait.core.util.ShapeUtil;
 
 @SuppressWarnings("deprecation")

@@ -18,9 +18,9 @@ import net.minecraft.util.math.ChunkPos;
 
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.tardis.ServerTardis;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.manager.ServerTardisManager;
 
 public abstract class AbstractLinkableBlockEntity extends BlockEntity implements Linkable {
 

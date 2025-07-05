@@ -16,7 +16,7 @@ import net.minecraft.util.shape.VoxelShape;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
+import dev.amble.ait.tardis.animation.ExteriorAnimation;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.BasicSchema;
 import dev.amble.ait.data.schema.door.DoorSchema;

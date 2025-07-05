@@ -13,8 +13,8 @@ import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.StructureHolder;
 import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.tardis.ServerTardis;
+import dev.amble.ait.tardis.util.TardisUtil;
 
 public class LifeSupportCircuit extends DurableSubSystem implements StructureHolder {
     private static final MultiBlockStructure STRUCTURE = createStructure();

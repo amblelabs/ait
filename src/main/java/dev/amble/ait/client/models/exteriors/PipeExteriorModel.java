@@ -10,8 +10,8 @@ import net.minecraft.util.math.RotationAxis;
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.DoorHandler;
+import dev.amble.ait.tardis.Tardis;
+import dev.amble.ait.tardis.handler.DoorHandler;
 
 public class PipeExteriorModel extends ExteriorModel {
     private final ModelPart tardis;

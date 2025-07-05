@@ -11,8 +11,8 @@ import net.minecraft.server.PlayerManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.tardis.ServerTardis;
+import dev.amble.ait.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.world.TardisServerWorld;
 
 @Mixin(PlayerManager.class)

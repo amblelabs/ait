@@ -33,7 +33,7 @@ import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.client.util.SkyboxUtil;
 import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 import dev.amble.ait.core.world.TardisServerWorld;
 
 @Mixin(WorldRenderer.class)

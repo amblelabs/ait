@@ -22,7 +22,7 @@ import net.minecraft.world.World;
 
 import dev.amble.ait.api.tardis.link.LinkableItem;
 import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 
 // todo fix so many issues with having more than one of this item
 public class SiegeTardisItem extends LinkableItem {

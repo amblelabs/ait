@@ -17,7 +17,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.handler.permissions.Permission;
+import dev.amble.ait.tardis.handler.permissions.Permission;
 
 public class PermissionArgumentType implements ArgumentType<Permission> {
 

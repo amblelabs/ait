@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import dev.amble.ait.core.entities.FlightTardisEntity;
-import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 
 @Mixin(ServerPlayerEntity.class)

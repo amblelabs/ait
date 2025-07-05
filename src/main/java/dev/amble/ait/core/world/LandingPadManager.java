@@ -22,7 +22,7 @@ import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.util.NetworkUtil;
+import dev.amble.ait.tardis.util.NetworkUtil;
 import dev.amble.ait.data.landing.LandingPadRegion;
 
 @SuppressWarnings("UnstableApiUsage")

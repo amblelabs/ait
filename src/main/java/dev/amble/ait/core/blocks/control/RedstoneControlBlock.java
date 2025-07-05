@@ -24,7 +24,7 @@ import net.minecraft.world.World;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.control.RedstoneControlBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 
 public class RedstoneControlBlock extends ControlBlock {
     private static final BooleanProperty POWERED = Properties.POWERED;

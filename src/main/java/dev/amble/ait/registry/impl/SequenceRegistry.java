@@ -26,14 +26,14 @@ import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.control.impl.*;
-import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
-import dev.amble.ait.core.tardis.control.impl.pos.XControl;
-import dev.amble.ait.core.tardis.control.impl.pos.YControl;
-import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
-import dev.amble.ait.core.tardis.control.sequences.Sequence;
+import dev.amble.ait.tardis.ServerTardis;
+import dev.amble.ait.tardis.control.impl.*;
+import dev.amble.ait.tardis.control.impl.pos.IncrementControl;
+import dev.amble.ait.tardis.control.impl.pos.XControl;
+import dev.amble.ait.tardis.control.impl.pos.YControl;
+import dev.amble.ait.tardis.control.impl.pos.ZControl;
+import dev.amble.ait.tardis.control.impl.waypoint.SetWaypointControl;
+import dev.amble.ait.tardis.control.sequences.Sequence;
 import dev.amble.ait.core.util.WorldUtil;
 
 public class SequenceRegistry {

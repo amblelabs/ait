@@ -3,7 +3,7 @@ package dev.amble.ait.client.renderers.exteriors;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.tardis.Tardis;
 
 // TODO: move to client exterior schema or sum
 public class DoomConstants {

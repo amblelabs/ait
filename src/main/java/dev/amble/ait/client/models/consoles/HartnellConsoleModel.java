@@ -12,10 +12,10 @@ import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.animation.console.hartnell.HartnellAnimations;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
-import dev.amble.ait.core.tardis.handler.CloakHandler;
-import dev.amble.ait.core.tardis.handler.FuelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.tardis.control.impl.pos.IncrementManager;
+import dev.amble.ait.tardis.handler.CloakHandler;
+import dev.amble.ait.tardis.handler.FuelHandler;
+import dev.amble.ait.tardis.handler.travel.TravelHandlerBase;
 
 // Made with Blockbench 4.9.2
 // Exported for Minecraft version 1.17+ for Yarn

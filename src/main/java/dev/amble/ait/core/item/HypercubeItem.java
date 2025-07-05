@@ -19,7 +19,7 @@ import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.tardis.handler.distress.DistressCall;
+import dev.amble.ait.tardis.handler.distress.DistressCall;
 
 public class HypercubeItem extends Item {
     public HypercubeItem(Settings settings) {

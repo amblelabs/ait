@@ -14,8 +14,8 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.handler.mood.MoodHandler;
+import dev.amble.ait.tardis.ServerTardis;
+import dev.amble.ait.tardis.handler.mood.MoodHandler;
 
 public class TriggerMoodRollCommand {
 

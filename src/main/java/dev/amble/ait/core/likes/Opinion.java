@@ -7,7 +7,7 @@ import dev.amble.lib.api.Identifiable;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.tardis.ServerTardis;
 
 public interface Opinion extends Identifiable {
     int loyalty();

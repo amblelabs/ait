@@ -25,12 +25,12 @@ import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.AITTags;
 import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.core.tardis.control.impl.HADSControl;
-import dev.amble.ait.core.tardis.control.impl.HandBrakeControl;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.tardis.ServerTardis;
+import dev.amble.ait.tardis.control.Control;
+import dev.amble.ait.tardis.control.impl.HADSControl;
+import dev.amble.ait.tardis.control.impl.HandBrakeControl;
+import dev.amble.ait.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.sonic.SonicSchema;
 

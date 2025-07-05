@@ -20,9 +20,9 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.commands.argument.PermissionArgumentType;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.handler.permissions.Permission;
-import dev.amble.ait.core.tardis.handler.permissions.PermissionHandler;
+import dev.amble.ait.tardis.ServerTardis;
+import dev.amble.ait.tardis.handler.permissions.Permission;
+import dev.amble.ait.tardis.handler.permissions.PermissionHandler;
 
 public class PermissionCommand {
 
