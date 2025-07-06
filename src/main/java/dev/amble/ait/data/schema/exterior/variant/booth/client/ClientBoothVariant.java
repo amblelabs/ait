@@ -1,5 +1,9 @@
 package dev.amble.ait.data.schema.exterior.variant.booth.client;
 
+import dev.amble.ait.client.models.exteriors.PoliceBoxModel;
+import dev.amble.ait.client.models.exteriors.pixelconsistant.ConsistantBoothExteriorModel;
+import dev.amble.ait.client.models.exteriors.pixelconsistant.ConsistantPoliceBoxModel;
+import dev.amble.ait.client.util.ResourcePackUtil;
 import org.joml.Vector3f;
 
 import net.minecraft.util.Identifier;
@@ -33,7 +37,11 @@ public abstract class ClientBoothVariant extends ClientExteriorVariantSchema {
 
     @Override
     public ExteriorModel model() {
-        return new BoothExteriorModel(BoothExteriorModel.getTexturedModelData().createModel());
+        if (ResourcePackUtil.isPixelConsistentPackActive()) {
+            return new ConsistantBoothExteriorModel(ConsistantBoothExteriorModel.getTexturedModelData().createModel());
+        } else {
+            return new BoothExteriorModel(BoothExteriorModel.getTexturedModelData().createModel());
+        }
     }
 
     @Override

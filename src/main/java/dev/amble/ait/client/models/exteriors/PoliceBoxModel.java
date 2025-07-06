@@ -1,5 +1,6 @@
 package dev.amble.ait.client.models.exteriors;
 
+import dev.amble.ait.client.util.ResourcePackUtil;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -176,8 +177,13 @@ public class PoliceBoxModel extends ExteriorModel {
     public void renderWithAnimations(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
         matrices.push();
-        matrices.scale(0.63F, 0.63F, 0.63F);
-        matrices.translate(0, -1.5f, 0);
+        if (ResourcePackUtil.isPixelConsistentPackActive()) {
+            matrices.scale(1F, 1F, 1F);
+            matrices.translate(0, -1.5f, 0);
+        } else {
+            matrices.scale(0.63F, 0.63F, 0.63F);
+            matrices.translate(0, -1.5f, 0);
+        }
 
         this.renderDoors(tardis, exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, false);
 
@@ -192,8 +198,13 @@ public class PoliceBoxModel extends ExteriorModel {
             return;
 
         matrices.push();
-        matrices.scale(0.63F, 0.63F, 0.63F);
-        matrices.translate(0, -1.5f, 0);
+        if (ResourcePackUtil.isPixelConsistentPackActive()) {
+            matrices.scale(1F, 1F, 1F);
+            matrices.translate(0, -1.5f, 0);
+        } else {
+            matrices.scale(0.63F, 0.63F, 0.63F);
+            matrices.translate(0, -1.5f, 0);
+        }
 
         DoorHandler door = falling.tardis().get().door();
 
@@ -234,8 +245,13 @@ public class PoliceBoxModel extends ExteriorModel {
 
         if (isBOTI) {
             matrices.push();
-            matrices.scale(0.63F, 0.63F, 0.63F);
-            matrices.translate(0, 0f, -0.01);
+            if (ResourcePackUtil.isPixelConsistentPackActive()) {
+                matrices.scale(1F, 1F, 1F);
+                matrices.translate(0, 0f, 0.01);
+            } else {
+                matrices.scale(0.63F, 0.63F, 0.63F);
+                matrices.translate(0, 0f, -0.01);
+            }
             this.TARDIS.getChild("Doors").render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
             matrices.pop();
         }

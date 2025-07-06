@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.UUID;
 
+import dev.amble.ait.client.util.ResourcePackUtil;
 import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -122,6 +123,7 @@ public class AITModClient implements ClientModInitializer {
         ClientDoorRegistry.init();
         ClientTardisManager.init();
 
+        ResourcePackUtil.registerResourcePacks();
         ModuleRegistry.instance().onClientInit();
 
         setupBlockRendering();

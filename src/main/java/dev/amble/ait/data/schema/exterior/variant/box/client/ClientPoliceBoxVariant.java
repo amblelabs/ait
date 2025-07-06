@@ -1,5 +1,7 @@
 package dev.amble.ait.data.schema.exterior.variant.box.client;
 
+import dev.amble.ait.client.models.exteriors.pixelconsistant.ConsistantPoliceBoxModel;
+import dev.amble.ait.client.util.ResourcePackUtil;
 import org.joml.Vector3f;
 
 import net.minecraft.util.Identifier;
@@ -32,7 +34,11 @@ public abstract class ClientPoliceBoxVariant extends ClientExteriorVariantSchema
 
     @Override
     public ExteriorModel model() {
-        return new PoliceBoxModel(PoliceBoxModel.getTexturedModelData().createModel());
+        if (ResourcePackUtil.isPixelConsistentPackActive()) {
+            return new ConsistantPoliceBoxModel(ConsistantPoliceBoxModel.getTexturedModelData().createModel());
+        } else {
+            return new PoliceBoxModel(PoliceBoxModel.getTexturedModelData().createModel());
+        }
     }
 
     @Override
