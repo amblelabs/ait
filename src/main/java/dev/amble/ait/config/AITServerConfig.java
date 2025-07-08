@@ -85,6 +85,10 @@ public class AITServerConfig {
     @IntField(min = -1)
     @SerialEntry public int maxTardises = -1;
 
+    @AutoGen(category = CATEGORY)
+    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @SerialEntry public boolean disableSafeguards = false;
+
     public static class StringListFactory implements ListGroup.ValueFactory<String>, ListGroup.ControllerFactory<String> {
 
         // used by the reflections
