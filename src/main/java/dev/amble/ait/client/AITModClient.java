@@ -14,6 +14,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.DoorBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.particle.EndRodParticle;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -89,6 +91,8 @@ import dev.amble.ait.core.drinks.DrinkUtil;
 import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.*;
+import dev.amble.ait.core.roundels.RoundelPatterns;
+import dev.amble.ait.core.screens.RoundelFabricatorScreen;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
@@ -115,15 +119,19 @@ public class AITModClient implements ClientModInitializer {
         AmbleRegistries.getInstance().registerAll(
                 SonicRegistry.getInstance(),
                 DrinkRegistry.getInstance(),
+                RoundelPatterns.getInstance(),
                 ClientExteriorVariantRegistry.getInstance(),
                 ClientConsoleVariantRegistry.getInstance()
         );
+
+        ModelLoadingPlugin.register(new AITModelPlugin());
 
         ClientDoorRegistry.init();
         ClientTardisManager.init();
 
         ModuleRegistry.instance().onClientInit();
 
+        registerScreens();
         setupBlockRendering();
         blockEntityRendererRegister();
         entityRenderRegister();
@@ -163,7 +171,6 @@ public class AITModClient implements ClientModInitializer {
             WorldRenderEvents.AFTER_ENTITIES.register(this::riftBOTI);
         }
 
-        // @TODO idk why but this gets rid of other important stuff, not sure
         DimensionRenderingRegistry.registerDimensionEffects(AITDimensions.MARS.getValue(), new MarsSkyProperties());
 
         WorldRenderEvents.BEFORE_ENTITIES.register(context -> {
@@ -380,6 +387,8 @@ public class AITModClient implements ClientModInitializer {
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ENGINE_BLOCK_ENTITY_TYPE, EngineRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.FABRICATOR_BLOCK_ENTITY_TYPE,
                 FabricatorRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.ROUNDEL_FABRICATOR_BLOCK_ENTITY_TYPE,
+                RoundelFabricatorRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.WAYPOINT_BANK_BLOCK_ENTITY_TYPE,
                 WaypointBankBlockEntityRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.FLAG_BLOCK_ENTITY_TYPE, FlagBlockEntityRenderer::new);
@@ -419,6 +428,7 @@ public class AITModClient implements ClientModInitializer {
         map.putBlock(AITBlocks.FABRICATOR, RenderLayer.getTranslucent());
         map.putBlock(AITBlocks.ENVIRONMENT_PROJECTOR, RenderLayer.getTranslucent());
         map.putBlock(AITBlocks.WAYPOINT_BANK, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.ROUNDEL, RenderLayer.getCutout());
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             map.putBlock(AITBlocks.SNOW_GLOBE, RenderLayer.getCutout());
         }
@@ -426,6 +436,10 @@ public class AITModClient implements ClientModInitializer {
         map.putBlock(AITBlocks.TARDIS_CORAL_FAN, RenderLayer.getCutout());
         map.putBlock(AITBlocks.TARDIS_CORAL_WALL_FAN, RenderLayer.getCutout());
         map.putBlock(AITBlocks.MATRIX_ENERGIZER, RenderLayer.getCutout());
+    }
+
+    public void registerScreens() {
+        HandledScreens.register(ROUNDEL_FABRICATOR_HANDLER, RoundelFabricatorScreen::new);
     }
 
     public void registerItemColors() {
