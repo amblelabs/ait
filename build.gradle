@@ -89,16 +89,7 @@ dependencies {
     modCompileOnlyApi "maven.modrinth:k9-mod:${project.k9_version}"
     modCompileOnlyApi "me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"
 
-    include(modImplementation("dev.drtheo:multidim:${project.multidim_version}")) {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
-    include(modImplementation("dev.drtheo:scheduler:${project.scheduler_version}")) {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
-    include(modImplementation("dev.drtheo:queue:${project.queue_version}")) {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
-    modImplementation("com.github.amblelabs:modkit:v${project.amblekit_version}") {
+    modImplementation("maven.modrinth:amblekit:${project.amblekit_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
 }
