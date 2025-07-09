@@ -162,12 +162,19 @@ public class FuelHandler implements THandler, ServerEvents {
         this.removeFuel(tardis, 20 * 5 * data.instability().get());
     }
 
+    public static double getPerTickFuelCost(double speed, double instability) {
+        return speed + instability - 1;
+    }
+
+    public static double getPerTickFuelCost(Tardis tardis) {
+        TravelData travel = tardis.resolve(TravelData.ID);
+        return getPerTickFuelCost(travel.speed().get(), travel.instability().get());
+    }
+
     private void tickFlight(Tardis tardis) {
         FuelData fuel = tardis.resolve(FuelData.ID);
-        TravelData travel = tardis.resolve(TravelData.ID);
 
-        double cost = 20 * Math.pow(4, travel.speed().get()) * travel.instability().get();
-        this.removeFuel(tardis, cost);
+        this.removeFuel(tardis, 20 * getPerTickFuelCost(tardis));
 
         if (!fuel.power().get())
             travelHandler.crash();
