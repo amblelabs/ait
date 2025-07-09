@@ -1,48 +1,61 @@
 package dev.amble.ait.api.tardis.v2.event;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.v2.data.DataResolveError;
 
-import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public interface TEvent<T extends TEvents> {
 
-    TEvents.Holder<T> handler();
-    void handle(T handler);
+    TEvents.BaseHolder<T> handler();
 
-    default boolean debug() {
-        return false;
+    void handleAll(Iterable<T> subscribed);
+
+    static void handleSilent(TEvent<?> event, TEvents handler, Runnable r) {
+        try {
+            r.run();
+        } catch (DataResolveError ignored) {
+            // ignored
+        } catch (Throwable e) {
+            System.err.println("Failed to handle event '" + event.getClass() + " for handler " + handler.getClass());
+        }
     }
 
-    default void handleAll(Iterable<T> subscribed) {
-        for (T handler : subscribed) {
-            try {
-                this.handle(handler);
-            } catch (DataResolveError e) {
-                if (debug())
-                    AITMod.LOGGER.debug("Failed to resolve data", e);
-            } catch (Throwable e) {
-                AITMod.LOGGER.warn("Failed to handle event '{} for handler {}", this.getClass(), handler.getClass());
+    static <R> R handleSilent(TEvent<?> event, TEvents handler, Supplier<R> s, Supplier<R> def) {
+        try {
+            return s.get();
+        } catch (DataResolveError ignored) {
+            // ignored
+        } catch (Throwable e) {
+            System.err.println("Failed to handle event '" + event.getClass() + " for handler " + handler.getClass());
+        }
+
+        return def.get();
+    }
+
+    static <R> R handleSilent(TEvent<?> event, TEvents handler, Supplier<R> s, R def) {
+        try {
+            return s.get();
+        } catch (DataResolveError ignored) {
+            // ignored
+        } catch (Throwable e) {
+            System.err.println("Failed to handle event '" + event.getClass() + " for handler " + handler.getClass());
+        }
+
+        return def;
+    }
+
+    interface Notify<T extends TEvents> extends TEvent<T> {
+        void handle(T handler) throws DataResolveError;
+
+        @Override
+        default void handleAll(Iterable<T> subscribed) {
+            for (T handler : subscribed) {
+                handleSilent(this, handler, () -> this.handle(handler));
             }
         }
     }
 
-    record Impl<T extends TEvents>(
-            TEvents.Holder<T> handler,
-            Consumer<T> consumer
-    ) implements TEvent<T> {
-
-        @Override
-        public void handle(T handler) {
-            consumer.accept(handler);
-        }
-    }
-
-    static <T extends TEvents> Impl<T> make(TEvents.Holder<T> handler, Consumer<T> consumer) {
-        return new Impl<>(handler, consumer);
-    }
-
-    static <T extends TEvents> void apply(TEvents.Holder<T> handler, Consumer<T> consumer) {
-        TEventsRegistry.handle(new Impl<>(handler, consumer));
+    interface Result<T extends TEvents, R> extends TEvent<T> {
+        R result();
     }
 }

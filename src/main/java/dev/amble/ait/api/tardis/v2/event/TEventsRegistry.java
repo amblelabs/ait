@@ -28,8 +28,4 @@ public class TEventsRegistry {
     public static boolean isFrozen() {
         return frozen;
     }
-
-    public static <T extends TEvents> void handle(TEvent<T> event) {
-        event.handler().handle(event);
-    }
 }

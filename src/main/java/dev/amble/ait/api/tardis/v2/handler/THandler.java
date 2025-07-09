@@ -2,7 +2,6 @@ package dev.amble.ait.api.tardis.v2.handler;
 
 import dev.amble.ait.api.tardis.v2.event.TEvent;
 import dev.amble.ait.api.tardis.v2.event.TEvents;
-import dev.amble.ait.api.tardis.v2.event.TEventsRegistry;
 
 public interface THandler {
 
@@ -15,9 +14,16 @@ public interface THandler {
     }
 
     /**
-     * Redirects to {@link TEventsRegistry#handle(TEvent)}
+     * Redirects to {@link TEvents#handle(TEvent)}
      */
     default <T extends TEvents> void handle(TEvent<T> event) {
-        TEventsRegistry.handle(event);
+        TEvents.handle(event);
+    }
+
+    /**
+     * Redirects to {@link TEvents#handle(TEvent.Result)}
+     */
+    default <T extends TEvents, R> R handle(TEvent.Result<T, R> event) {
+        return TEvents.handle(event);
     }
 }

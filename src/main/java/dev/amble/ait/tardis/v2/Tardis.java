@@ -30,9 +30,22 @@ public class Tardis {
         return id;
     }
 
-    public void attach(TData<?> data) {
+    public void attach(TData<?> data, boolean overwrite) {
         synchronized(lock) {
+            if (!overwrite && this.has(data.holder()))
+                return;
+
             this.data[data.index()] = data;
+        }
+    }
+
+    public void attach(TData<?> data) {
+        this.attach(data, false);
+    }
+
+    public void deattach(TDataHolder<?> data) {
+        synchronized(lock) {
+            this.data[data.index()] = null;
         }
     }
 

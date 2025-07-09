@@ -10,9 +10,9 @@ import dev.amble.ait.registry.impl.SonicRegistry;
 import dev.amble.ait.tardis.handler.ExtraHandler;
 import dev.amble.ait.tardis.manager.ServerTardisManager;
 import dev.amble.ait.tardis.v2.Tardis;
-import dev.amble.ait.tardis.v2.data.DesktopData;
-import dev.amble.ait.tardis.v2.data.SonicData;
+import dev.amble.ait.tardis.v2.data.*;
 import dev.amble.ait.tardis.v2.event.ServerEvents;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
@@ -26,13 +26,10 @@ public class SonicHandler implements THandler, ArtronHolderItem, ServerEvents {
     public static final Identifier CHANGE_SONIC = AITMod.id("change_sonic");
 
     @Resolve
-    private final TravelHandler travelHandler = handler();
-
-    @Resolve
     private final FuelHandler fuelHandler = handler();
 
     @Resolve
-    private final CrashHandler crashHandler = handler();
+    private final RepairHandler repairHandler = handler();
 
     public SonicHandler() {
         ServerPlayNetworking.registerGlobalReceiver(CHANGE_SONIC,
@@ -48,15 +45,18 @@ public class SonicHandler implements THandler, ArtronHolderItem, ServerEvents {
         SonicData sonics = tardis.resolve(SonicData.ID);
         DesktopData desktop = tardis.resolve(DesktopData.ID);
 
-        insertAnySonic(sonics.consoleSonic(), sonic,
-                stack -> ExtraHandler.spawnItem(desktop.getServerWorld(), consolePos, stack));
+        insertAnySonic(sonics.consoleSonic(), sonic, stack ->
+                ExtraHandler.spawnItem(desktop.getServerWorld(), consolePos, stack));
     }
 
     public void insertExteriorSonic(Tardis tardis, ItemStack sonic) {
         SonicData sonics = tardis.resolve(SonicData.ID);
+        TravelData travel = tardis.resolve(TravelData.ID);
 
-        insertAnySonic(sonics.exteriorSonic(), sonic,
-                stack -> ExtraHandler.spawnItem(travelHandler.position(), stack));
+        CachedDirectedGlobalPos pos = travel.position().get();
+
+        insertAnySonic(sonics.exteriorSonic(), sonic, stack ->
+                ExtraHandler.spawnItem(pos.getWorld(), pos.getPos(), stack));
     }
 
     public ItemStack takeConsoleSonic(Tardis tardis) {
@@ -86,7 +86,7 @@ public class SonicHandler implements THandler, ArtronHolderItem, ServerEvents {
     }
 
     @Override
-    public void event$tardisTick(MinecraftServer server, Tardis tardis) {
+    public void event$tardisTick(Tardis tardis, MinecraftServer server) {
         if (server.getTicks() % 10 != 0)
             return;
 
@@ -99,7 +99,8 @@ public class SonicHandler implements THandler, ArtronHolderItem, ServerEvents {
             if (this.hasMaxFuel(consoleSonic))
                 return;
 
-            if (!fuelHandler.hasPower(tardis))
+            if (!tardis.ifHasOrElse(FuelData.ID,
+                    f -> f.power().get(), true))
                 return;
 
             this.addFuel(10, consoleSonic);
@@ -107,14 +108,14 @@ public class SonicHandler implements THandler, ArtronHolderItem, ServerEvents {
         }
 
         if (exteriorSonic != null) {
-            boolean isToxic = crashHandler.isToxic();
-            boolean isUnstable = crashHandler.isUnstable();
-            int repairTicks = crashHandler.getRepairTicks();
+            RepairData repair = tardis.resolve(RepairData.ID);
 
-            if (!isToxic && !isUnstable)
+            int repairTicks = repairHandler.getRepairTicks();
+
+            if (repair.state().get() != RepairData.State.NORMAL)
                 return;
 
-            crashHandler.setRepairTicks(tardis, repairTicks <= 0 ? 0 : repairTicks - 5);
+            repairHandler.setRepairTicks(tardis, repairTicks <= 0 ? 0 : repairTicks - 5);
             this.removeFuel(10, exteriorSonic);
         }
     }

@@ -20,7 +20,7 @@ public interface ServerEvents extends TEvents {
 
     default void event$tardisTick(Tardis tardis, MinecraftServer server) { }
 
-    interface ServerEvents$Event extends TEvent<ServerEvents>{
+    interface ServerEvents$Event extends TEvent.Notify<ServerEvents> {
 
         @Override
         default Holder<ServerEvents> handler() {
@@ -28,7 +28,7 @@ public interface ServerEvents extends TEvents {
         }
     }
 
-    record StartServerTick(WeakReference<MinecraftServer> server) implements ServerEvents$Event{
+    record StartServerTick(WeakReference<MinecraftServer> server) implements ServerEvents$Event {
 
         // micro-optimization :D
         private static StartServerTick instance;

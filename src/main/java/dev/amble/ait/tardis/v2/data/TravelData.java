@@ -31,6 +31,14 @@ public class TravelData implements TData<TravelData> {
 
     }
 
+    public BoolValue crashing() {
+
+    }
+
+    public IntValue hammerUses() {
+
+    }
+
     public enum State {
         LANDED,
         DEMAT,

@@ -21,7 +21,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 
-public class FuelHandler implements THandler, ServerEvents {
+public class FuelHandler implements THandler, ServerEvents, TardisEvents {
 
     @Resolve
     private final TravelHandler travelHandler = handler();
@@ -70,6 +70,11 @@ public class FuelHandler implements THandler, ServerEvents {
 
             return DoorHandler.InteractionResult.KNOCK;
         });
+    }
+
+    @Override
+    public void event$crash(Tardis tardis, int power) {
+        this.removeFuel(tardis, 700 * power);
     }
 
     @Override
@@ -175,9 +180,6 @@ public class FuelHandler implements THandler, ServerEvents {
         FuelData fuel = tardis.resolve(FuelData.ID);
 
         this.removeFuel(tardis, 20 * getPerTickFuelCost(tardis));
-
-        if (!fuel.power().get())
-            travelHandler.crash();
     }
 
     private void tickIdle(Tardis tardis) {
