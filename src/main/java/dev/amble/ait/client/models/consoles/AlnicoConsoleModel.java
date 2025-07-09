@@ -1,5 +1,6 @@
 package dev.amble.ait.client.models.consoles;
 
+import dev.amble.ait.tardis.v2.data.FuelData;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedGlobalPos;
 
@@ -1432,7 +1433,7 @@ public class AlnicoConsoleModel extends ConsoleModel {
         refueler.yaw = !tardis.isRefueling() ? refueler.yaw - 0.7854f : refueler.yaw;
 
         ModelPart fuelGauge = alnico.getChild("section3").getChild("controls3").getChild("geiger").getChild("needle");
-        fuelGauge.roll = (float) (((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 2) - 1);
+        fuelGauge.roll = (float) (((tardis.getFuel() / FuelData.MAX_FUEL) * 2) - 1);
 
         ModelPart increment = alnico.getChild("section5").getChild("controls5").getChild("multiswitchpanel2")
                 .getChild("longswitch5");

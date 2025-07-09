@@ -1,5 +1,6 @@
 package dev.amble.ait.client.renderers.monitors;
 
+import dev.amble.ait.tardis.v2.data.FuelData;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.block.BlockState;
@@ -125,7 +126,7 @@ public class MonitorRenderer<T extends MonitorBlockEntity> implements BlockEntit
         this.textRenderer.drawWithOutline(WorldUtil.rot2Text(abpd.getRotation()).asOrderedText(), 0, 64, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
 
-        String fuelText = Math.round((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 100) + "%";
+        String fuelText = Math.round((tardis.getFuel() / FuelData.MAX_FUEL) * 100) + "%";
         this.textRenderer.drawWithOutline(Text.of("⛽").asOrderedText(), 0, 78, 0xFAF000, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         this.textRenderer.drawWithOutline(Text.of(fuelText).asOrderedText(), 8, 78, 0xFFFFFF, 0x000000,

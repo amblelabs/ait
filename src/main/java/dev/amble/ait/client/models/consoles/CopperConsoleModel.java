@@ -1,5 +1,6 @@
 package dev.amble.ait.client.models.consoles;
 
+import dev.amble.ait.tardis.v2.data.FuelData;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedGlobalPos;
 
@@ -1757,7 +1758,7 @@ public class CopperConsoleModel extends ConsoleModel {
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(150f));
 
         // fuel meter
-        this.copper.getChild("pillars").getChild("pillars2").getChild("pillars3").getChild("pillars4").getChild("bone121").getChild("fuel_gauge").yaw = (float) (((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 3));
+        this.copper.getChild("pillars").getChild("pillars2").getChild("pillars3").getChild("pillars4").getChild("bone121").getChild("fuel_gauge").yaw = (float) (((tardis.getFuel() / FuelData.MAX_FUEL) * 3));
 
         // direction
         this.copper.getChild("pillars").getChild("pillars2").getChild("pillars3").getChild("pillars4").getChild("pillars5").getChild("bone126").pitch -= (float) (tardis.travel().destination().getRotation() * (1.5708f / 4f));

@@ -1,5 +1,6 @@
 package dev.amble.ait.client.models.consoles;
 
+import dev.amble.ait.tardis.v2.data.FuelData;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.animation.Animation;
@@ -1387,11 +1388,11 @@ public class HartnellConsoleModel extends ConsoleModel {
 
         this.bone.getChild("panels").getChild("p_4").getChild("bone98").getChild("bone99").getChild("bone100")
                 .getChild("m_meter_2")
-                .getChild("bone110").yaw = (float) (((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 2) - 1);
+                .getChild("bone110").yaw = (float) (((tardis.getFuel() / FuelData.MAX_FUEL) * 2) - 1);
         ModelPart fuelLowWarningLight = this.bone.getChild("panels").getChild("p_3").getChild("bone67")
                 .getChild("bone68").getChild("bone69").getChild("sym_lamp2").getChild("bone96");
         // Low Fuel Light
-        if (!(tardis.getFuel() <= (FuelHandler.TARDIS_MAX_FUEL / 10))) {
+        if (!(tardis.getFuel() <= (FuelData.MAX_FUEL / 10))) {
             fuelLowWarningLight.pivotY = fuelLowWarningLight.pivotY + 1;
         }
 

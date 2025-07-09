@@ -1,6 +1,7 @@
 // Made with Blockbench 4.9.3
 package dev.amble.ait.client.models.consoles;
 
+import dev.amble.ait.tardis.v2.data.FuelData;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedGlobalPos;
 
@@ -1719,7 +1720,7 @@ public class ToyotaConsoleModel extends ConsoleModel {
                 .getChild("needle");
         fuelGauge.pivotX = fuelGauge.pivotX + 0.25f;
         fuelGauge.pivotZ = fuelGauge.pivotZ + 0.25f;
-        fuelGauge.yaw = (float) (((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 2) - 1);
+        fuelGauge.yaw = (float) (((tardis.getFuel() / FuelData.MAX_FUEL) * 2) - 1);
 
         // Refuel Light Warning
         ModelPart fuelWarning = this.toyota.getChild("panel4").getChild("yellow5");

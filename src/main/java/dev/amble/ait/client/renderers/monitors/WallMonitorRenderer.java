@@ -1,5 +1,6 @@
 package dev.amble.ait.client.renderers.monitors;
 
+import dev.amble.ait.tardis.v2.data.FuelData;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.block.BlockState;
@@ -90,7 +91,7 @@ public class WallMonitorRenderer<T extends WallMonitorBlockEntity> implements Bl
         String positionPosText = abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
         Text positionDimensionText = Text.of(truncateDimensionName(WorldUtil.worldText(abpp.getDimension()).getString(), 16));
 
-        String fuelText = Math.round((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 100) + "%";
+        String fuelText = Math.round((tardis.getFuel() / FuelData.MAX_FUEL) * 100) + "%";
 
         String destinationPosText = abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
         Text destinationDimensionText = Text.of(truncateDimensionName(WorldUtil.worldText(abpd.getDimension(), false).getString(), 16));

@@ -1,5 +1,6 @@
 package dev.amble.ait.client.models.consoles;
 
+import dev.amble.ait.tardis.v2.data.FuelData;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedGlobalPos;
 
@@ -2434,12 +2435,12 @@ public class CoralConsoleModel extends ConsoleModel {
 
         // Fuel Gauge
         controls.getChild("ctrl_1").getChild("bone13").getChild("compass")
-                .getChild("needle").pitch = -(float) (((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 2) - 1);
+                .getChild("needle").pitch = -(float) (((tardis.getFuel() / FuelData.MAX_FUEL) * 2) - 1);
 
         ModelPart fuelLowWarningLight = controls.getChild("p_ctrl_4").getChild("bone41").getChild("light")
                 .getChild("bone45");
         // Low Fuel Light
-        fuelLowWarningLight.visible = (tardis.getFuel() <= (FuelHandler.TARDIS_MAX_FUEL / 10));
+        fuelLowWarningLight.visible = (tardis.getFuel() <= (FuelData.MAX_FUEL / 10));
 
         // Anti-gravs Lever
         controls.getChild("p_ctrl_1").getChild("bone29").getChild("lever").getChild("bone8").roll = tardis.travel()

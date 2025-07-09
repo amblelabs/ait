@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.google.common.collect.Lists;
+import dev.amble.ait.tardis.v2.data.FuelData;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedGlobalPos;
 
@@ -308,8 +309,8 @@ public class MonitorScreen extends ConsoleScreen {
                     INTERIOR_SETTINGS_BUTTON_WIDTH, INTERIOR_SETTINGS_BUTTON_HEIGHT);
 
         context.drawTexture(TEXTURE, i + 16, j + 144, 0,
-                this.tardis().getFuel() > (FuelHandler.TARDIS_MAX_FUEL / 4) ? 225 : 234,
-                (int) (85 * this.tardis().getFuel() / FuelHandler.TARDIS_MAX_FUEL), 9);
+                this.tardis().getFuel() > (FuelData.MAX_FUEL / 4) ? 225 : 234,
+                (int) (85 * this.tardis().getFuel() / FuelData.MAX_FUEL), 9);
 
         int progress = this.tardis().travel().getDurationAsPercentage();
 
