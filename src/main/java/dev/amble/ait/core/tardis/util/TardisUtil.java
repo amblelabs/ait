@@ -484,7 +484,7 @@ public class TardisUtil {
     }
 
     public static double estimatedFuelCost(PlayerEntity player, Tardis tardis, double distance){
-        double speed = Math.max(tardis.travel().speed(), 1);
+        int speed = Math.max(tardis.travel().speed(), 1);
         double ticksRequired = distance / speed;
         double perTick = FuelHandler.getPerTickFuelCost(speed, tardis.travel().instability());
         return perTick * ticksRequired;
