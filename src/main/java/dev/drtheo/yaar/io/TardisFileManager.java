@@ -4,12 +4,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import dev.amble.ait.api.tardis.v2.data.TDataHolder;
 import dev.drtheo.yaar.Tardis;
 import dev.amble.ait.api.tardis.v2.data.TData;
 import dev.amble.ait.api.tardis.v2.data.TDataRegistry;
 import dev.drtheo.yaar.io.update.AbstractUpdateProcedure;
 import dev.drtheo.yaar.io.update.UpdateProcedure2;
-import mock.Identifier;
+import net.minecraft.util.Identifier;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -46,7 +47,7 @@ public class TardisFileManager {
             JsonObject handler = rawHandler.getAsJsonObject();
             Identifier handlerId = Identifier.tryParse(handler.get("id").getAsString());
 
-            TData.Holder<?> holder = TDataRegistry.get(handlerId);
+            TDataHolder<?> holder = TDataRegistry.get(handlerId);
 
             if (holder == null) {
                 System.err.println("Failed to deserialize missing handler " + handlerId);

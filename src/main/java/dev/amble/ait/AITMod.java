@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
+import dev.amble.ait.tardis.v2.AITData;
+import dev.amble.ait.tardis.v2.AITHandlers;
 import dev.amble.lib.container.RegistryContainer;
 import dev.amble.lib.register.AmbleRegistries;
 import dev.amble.lib.util.ServerLifecycleHooks;
@@ -183,6 +185,9 @@ public class AITMod implements ModInitializer {
         AITArgumentTypes.register();
         AITSounds.init();
         AITDimensions.init();
+
+        AITData.init();
+        AITHandlers.init();
 
         CustomTrades.register();
 

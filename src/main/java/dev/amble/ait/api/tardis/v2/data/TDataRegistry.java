@@ -1,6 +1,6 @@
 package dev.amble.ait.api.tardis.v2.data;
 
-import mock.Identifier;
+import net.minecraft.util.Identifier;
 
 import java.util.*;
 
@@ -8,10 +8,10 @@ public class TDataRegistry {
 
     private static boolean frozen;
 
-    private static final List<TData.Holder<?>> comps = new ArrayList<>();
-    private static final Map<Identifier, TData.Holder<?>> idToHolder = new HashMap<>();
+    private static final List<TDataHolder<?>> comps = new ArrayList<>();
+    private static final Map<Identifier, TDataHolder<?>> idToHolder = new HashMap<>();
 
-    public static void register(TData.Holder<?> holder) {
+    public static void register(TDataHolder<?> holder) {
         if (frozen)
             throw new IllegalStateException("Already frozen");
 
@@ -20,11 +20,11 @@ public class TDataRegistry {
         idToHolder.put(holder.id(), holder);
     }
 
-    public TData.Holder<?> get(int index) {
+    public TDataHolder<?> get(int index) {
         return comps.get(index);
     }
 
-    public static TData.Holder<?> get(Identifier id) {
+    public static TDataHolder<?> get(Identifier id) {
         return idToHolder.get(id);
     }
 

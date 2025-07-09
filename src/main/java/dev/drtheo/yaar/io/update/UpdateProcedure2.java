@@ -3,9 +3,10 @@ package dev.drtheo.yaar.io.update;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import dev.amble.ait.api.tardis.v2.data.TData;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.v2.data.TDataHolder;
 import dev.amble.ait.api.tardis.v2.data.TDataRegistry;
-import mock.Identifier;
+import net.minecraft.util.Identifier;
 
 import java.util.Map;
 
@@ -27,11 +28,11 @@ public class UpdateProcedure2 implements AbstractUpdateProcedure {
             JsonObject handler = rawHandler.getValue().getAsJsonObject();
             String rawId = rawHandler.getKey();
 
-            Identifier id = new Identifier("ait", rawId.toLowerCase());
-            TData.Holder<?> holder = TDataRegistry.get(id);
+            Identifier id = AITMod.id(rawId.toLowerCase());
+            TDataHolder<?> holder = TDataRegistry.get(id);
 
             if (holder == null) {
-                System.err.println("Unknown id " + id);
+                AITMod.LOGGER.error("Failed to update TARDIS data; unknown id: {}", id);
                 continue;
             }
 
