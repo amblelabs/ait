@@ -37,9 +37,6 @@ Adventures In Time adds the TARDIS from Doctor Who that you can interact with in
 
 ### If you have [Adventures in Space](https://github.com/DrTheodor/adventures-in-space) and [Ad Astra](https://modrinth.com/mod/ad-astra)
 - Special compatibility with the TARDIS when playing with Ad Astra
-  
-### If you have [AIT: Computed](https://github.com/Duzos/aitcompute/tree/0.1.0.24-1.20.1-dev) and [Computer Craft](https://modrinth.com/mod/cc-tweaked)
-- Your TARDIS will be able to communicate with a turtle through the vortex
 
 ### Here is the official collection of [AIT addon mods](https://modrinth.com/collection/eP9vTYE5)
 - You can also find them in the official [AIT addon discord server](https://discord.gg/jz3mPsDEdT)
