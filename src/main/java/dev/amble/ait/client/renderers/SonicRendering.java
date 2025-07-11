@@ -135,8 +135,12 @@ public class SonicRendering {
             return;
         }
 
-
         Tardis tardis = SonicItem.getTardisStatic(client.world, client.player.getMainHandStack());
+        if (tardis == null) {
+            profiler.pop();
+            return;
+        }
+
         double distance = TardisUtil.distanceFromTardis(client.player, tardis);
         boolean hasEnoughFuel = tardis.fuel().getCurrentFuel() > TardisUtil.estimatedFuelCost(client.player, tardis, distance);
 
