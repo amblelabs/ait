@@ -1,8 +1,5 @@
 package dev.amble.ait.client.screens;
 
-import java.util.List;
-import java.util.function.Consumer;
-
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 
@@ -14,10 +11,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.Nameable;
 import dev.amble.ait.client.screens.widget.SwitcherManager;
 import dev.amble.ait.core.blocks.AstralMapBlock;
-import dev.amble.ait.core.util.WorldUtil;
 
 public class AstralMapScreen extends Screen {
 
@@ -26,14 +21,14 @@ public class AstralMapScreen extends Screen {
     int bgHeight = 138;
     int bgWidth = 216;
     int left, top;
-    final IdentifierSwitcher switcher;
+    final SwitcherManager.IdentifierSwitcher switcher;
 
     public AstralMapScreen() {
         super(Text.translatable("screen." + AITMod.MOD_ID + ".astral_map"));
 
         this.client = MinecraftClient.getInstance();
 
-        this.switcher = new IdentifierSwitcher(AstralMapBlock.structureIds, (id) -> {
+        this.switcher = new SwitcherManager.IdentifierSwitcher(AstralMapBlock.structureIds, (id) -> {
             ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, PacketByteBufs.create().writeIdentifier(id));
             this.close();
         });
@@ -84,32 +79,4 @@ public class AstralMapScreen extends Screen {
         context.drawTexture(TEXTURE, left, top, 0, 0, bgWidth, bgHeight);
     }
 
-    record IdentifierToName(Identifier id) implements Nameable {
-        @Override
-        public String name() {
-            try {
-                return WorldUtil.fakeTranslate(id.getPath());
-            } catch (Exception e) {
-                return id.toString();
-            }
-        }
-    }
-
-    static class IdentifierSwitcher extends SwitcherManager<IdentifierToName, Identifier> {
-        public IdentifierSwitcher(List<Identifier> list, Consumer<Identifier> sync) {
-            super((var) -> next(var, list), (var) -> prev(var, list), (var, arg) -> {sync.accept(var.id());}, new IdentifierToName(list.get(0)), "identifier");
-        }
-
-        private static IdentifierToName next(IdentifierToName id, List<Identifier> list) {
-            int idx =  list.indexOf(id.id());
-            idx = (idx + 1) % list.size();
-            return new IdentifierToName(list.get(idx));
-        }
-
-        private static IdentifierToName prev(IdentifierToName id, List<Identifier> list) {
-            int idx = list.indexOf(id.id());
-            idx = (idx - 1 + list.size()) % list.size();
-            return new IdentifierToName(list.get(idx));
-        }
-    }
 }
