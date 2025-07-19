@@ -16,6 +16,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.ArtronHolderItem;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
@@ -37,9 +38,15 @@ public class SonicHandler extends KeyedTardisComponent implements ArtronHolderIt
         ServerPlayNetworking.registerGlobalReceiver(CHANGE_SONIC,
                 ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
                     Identifier id = buf.readIdentifier();
-                    if (!tardis.isUnlocked(SonicRegistry.getInstance().get(id))) return;
+                    BlockPos pos = buf.readBlockPos();
+                    server.execute(() -> {
+                        if (!tardis.isUnlocked(SonicRegistry.getInstance().get(id))) return;
 
-                    SonicItem.setSchema(tardis.sonic().getConsoleSonic(), id);
+                        System.out.println(tardis.world()/*.getWorldChunk(pos)*/.getBlockEntity(pos));
+
+                        if (!(tardis.world()/*.getWorldChunk(pos)*/.getBlockEntity(pos) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
+
+                        SonicItem.setSchema(consoleBlockEntity.getSonicScrewdriver()/*tardis.sonic().getConsoleSonic()*/, id);});
                 }));
     }
 
@@ -53,6 +60,7 @@ public class SonicHandler extends KeyedTardisComponent implements ArtronHolderIt
         exteriorSonic.of(this, EXTERIOR_SONIC);
     }
 
+    // TODO replace with setSonicScrewdriver() from the ConsoleBlockEntity - Loqor
     public ItemStack getConsoleSonic() {
         return this.consoleSonic.get();
     }
