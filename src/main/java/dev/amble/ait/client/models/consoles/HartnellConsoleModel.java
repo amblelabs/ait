@@ -1,5 +1,12 @@
 package dev.amble.ait.client.models.consoles;
 
+import net.minecraft.client.model.*;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.entity.animation.Animation;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.animation.console.hartnell.HartnellAnimations;
@@ -9,12 +16,6 @@ import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
 import dev.amble.ait.core.tardis.handler.CloakHandler;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import net.minecraft.client.model.*;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
 
 // Made with Blockbench 4.9.2
 // Exported for Minecraft version 1.17+ for Yarn
@@ -1518,7 +1519,7 @@ public class HartnellConsoleModel extends ConsoleModel {
                 .getChild("bone133").getChild("bone134").getChild("sym_lamp4").getChild("bone145");
         ModelPart hadsAlarmsLightsTwo = this.bone.getChild("panels").getChild("p_6").getChild("bone132")
                 .getChild("bone133").getChild("bone134").getChild("sym_lamp5").getChild("bone141");
-        if (tardis.alarm().enabled().get()) {
+        if (tardis.alarm().isEnabled()) {
             hadsAlarms.roll = hadsAlarms.roll + 1.75f;
         } else {
             hadsAlarmsLightsOne.pivotY = hadsAlarmsLightsOne.pivotY + 1;

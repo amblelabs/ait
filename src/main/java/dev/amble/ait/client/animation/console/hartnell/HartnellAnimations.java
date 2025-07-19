@@ -1,14 +1,14 @@
 package dev.amble.ait.client.animation.console.hartnell;
 
-import net.minecraft.client.render.entity.animation.Animation;
-import net.minecraft.client.render.entity.animation.AnimationHelper;
-import net.minecraft.client.render.entity.animation.Keyframe;
-import net.minecraft.client.render.entity.animation.Transformation;
+import static dev.amble.ait.client.animation.AnimationConstants.STEP;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.amble.ait.client.animation.AnimationConstants.STEP;
+import net.minecraft.client.render.entity.animation.Animation;
+import net.minecraft.client.render.entity.animation.AnimationHelper;
+import net.minecraft.client.render.entity.animation.Keyframe;
+import net.minecraft.client.render.entity.animation.Transformation;
 
 public class HartnellAnimations {
 

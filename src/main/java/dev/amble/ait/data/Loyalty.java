@@ -1,9 +1,9 @@
 package dev.amble.ait.data;
 
+import java.util.Optional;
+
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-
-import java.util.Optional;
 
 public record Loyalty(int level, Type type) {
 

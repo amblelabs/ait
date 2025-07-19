@@ -1,15 +1,16 @@
 package dev.amble.ait.client.util;
 
-import dev.amble.ait.AITMod;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Optional;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Optional;
+import dev.amble.ait.AITMod;
 
 
 // This is from DM 1.16 so cope harder ig. I'm gonna get Jayson to take a look at it later. Don't worry 'bout it.

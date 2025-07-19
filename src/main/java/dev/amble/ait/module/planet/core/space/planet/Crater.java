@@ -1,6 +1,9 @@
 package dev.amble.ait.module.planet.core.space.planet;
 
+import static dev.amble.ait.AITMod.MOD_ID;
+
 import com.mojang.serialization.Codec;
+
 import net.minecraft.block.Blocks;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -8,8 +11,6 @@ import net.minecraft.world.Heightmap;
 import net.minecraft.world.gen.ProbabilityConfig;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.util.FeatureContext;
-
-import static dev.amble.ait.AITMod.MOD_ID;
 
 /**
  * @author Codiak540

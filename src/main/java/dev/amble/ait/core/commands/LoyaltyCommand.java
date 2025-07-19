@@ -1,30 +1,33 @@
 package dev.amble.ait.core.commands;
 
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
+
+import java.util.function.Function;
+
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.commands.argument.TardisArgumentType;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.handler.LoyaltyHandler;
-import dev.amble.ait.data.Loyalty;
+
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
-import java.util.function.Function;
-
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
+import dev.amble.ait.core.commands.argument.TardisArgumentType;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.handler.LoyaltyHandler;
+import dev.amble.ait.data.Loyalty;
 
 public class LoyaltyCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(literal(AITMod.MOD_ID).then(literal("loyalty")
-                .requires(source -> source.hasPermissionLevel(2))
+                .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.loyalty", 2))
                 .then(argument("tardis", TardisArgumentType.tardis())
                         .then(argument("player", EntityArgumentType.player()).executes(LoyaltyCommand::get).then(
                                 argument("value", IntegerArgumentType.integer()).executes(LoyaltyCommand::set))))));

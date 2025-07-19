@@ -1,18 +1,9 @@
 package dev.amble.ait.client.boti;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.models.doors.DoorModel;
-import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.client.renderers.VortexUtil;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.compat.DependencyChecker;
-import dev.amble.ait.core.blockentities.DoorBlockEntity;
-import dev.amble.ait.core.tardis.handler.StatsHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
-import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
-import dev.amble.ait.registry.impl.CategoryRegistry;
+import org.joml.Vector3f;
+import org.lwjgl.opengl.GL11;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.OverlayTexture;
@@ -20,14 +11,24 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.passive.SheepEntity;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
-import org.joml.Vector3f;
-import org.lwjgl.opengl.GL11;
+
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.models.doors.DoorModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.renderers.VortexUtil;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.core.blockentities.DoorBlockEntity;
+import dev.amble.ait.core.tardis.handler.StatsHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.registry.impl.CategoryRegistry;
 
 public class TardisDoorBOTI extends BOTI {
     public static void renderInteriorDoorBoti(ClientTardis tardis, DoorBlockEntity door, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, SinglePartEntityModel frame, ModelPart mask, int light) {
@@ -128,37 +129,26 @@ public class TardisDoorBOTI extends BOTI {
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
             stack.scale(scale.x, scale.y, scale.z);
             if (variant.emission() != null) {
-                float u;
-                float t;
-                float s;
+                float u = 1;
+                float t = 1;
+                float s = 1;
 
                 if ((stats.getName() != null && "partytardis".equals(stats.getName().toLowerCase()) || (!tardis.extra().getInsertedDisc().isEmpty()))) {
-                    int m = 25;
-                    int n = MinecraftClient.getInstance().player.age / m + MinecraftClient.getInstance().player.getId();
-                    int o = DyeColor.values().length;
-                    int p = n % o;
-                    int q = (n + 1) % o;
-                    float r = ((float) (MinecraftClient.getInstance().player.age % m)) / m;
-                    float[] fs = SheepEntity.getRgbColor(DyeColor.byId(p));
-                    float[] gs = SheepEntity.getRgbColor(DyeColor.byId(q));
-                    s = fs[0] * (1f - r) + gs[0] * r;
-                    t = fs[1] * (1f - r) + gs[1] * r;
-                    u = fs[2] * (1f - r) + gs[2] * r;
-                } else {
-                    float[] hs = new float[]{1.0f, 1.0f, 1.0f};
-                    s = hs[0];
-                    t = hs[1];
-                    u = hs[2];
+                    final float[] rgb = ClientTardisUtil.getPartyColors();
+
+                    u = rgb[0];
+                    t = rgb[1];
+                    s = rgb[2];
                 }
 
                 boolean power = tardis.fuel().hasPower();
-                boolean alarm = tardis.alarm().enabled().get();
+                boolean alarm = tardis.alarm().isEnabled();
 
                 float red = power ? s : 0;
                 float green = power ? alarm ? 0.3f : t : 0;
                 float blue = power ? alarm ? 0.3f : u:  0;
 
-                ((DoorModel) frame).renderWithAnimations(tardis, door, frame.getPart(), stack, botiProvider.getBuffer((DependencyChecker.hasIris() ? AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true) : AITRenderLayers.getTextPolygonOffset(variant.emission()))), 0xf000f0, OverlayTexture.DEFAULT_UV, red, green, blue, 1.0F);
+                ((DoorModel) frame).renderWithAnimations(tardis, door, frame.getPart(), stack, botiProvider.getBuffer((DependencyChecker.hasIris() ? AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true) : AITRenderLayers.getText(variant.emission()))), 0xf000f0, OverlayTexture.DEFAULT_UV, red, green, blue, 1.0F);
                 botiProvider.draw();
             }
             stack.pop();

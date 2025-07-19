@@ -1,6 +1,25 @@
 package dev.amble.ait.core.tardis.animation.v2;
 
+import java.lang.reflect.Type;
+import java.util.Optional;
+import java.util.UUID;
+
 import com.google.gson.*;
+import dev.amble.lib.api.Identifiable;
+import dev.amble.lib.util.ServerLifecycleHooks;
+import dev.drtheo.queue.api.ActionQueue;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.registry.Registries;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.api.tardis.Disposable;
@@ -15,22 +34,6 @@ import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.animation.v2.keyframe.KeyframeTracker;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.Exclude;
-import dev.amble.lib.api.Identifiable;
-import dev.amble.lib.util.ServerLifecycleHooks;
-import dev.drtheo.queue.api.ActionQueue;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
-
-import java.lang.reflect.Type;
-import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Represents an exterior animation for the TARDIS.
@@ -99,7 +102,7 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
         playSound = playSound && this.tryStart(this.rotation, new Vector3f());
 
         if (playSound) {
-            tardis.getExterior().playSound(this.getSound());
+            tardis.getExterior().playSound(this.getSoundIdOrDefault(), SoundCategory.BLOCKS);
         }
 
         if (this.isAged() && this.doneQueue != null) {
@@ -125,6 +128,11 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
         return true;
     }
 
+    /**
+     * Gets the sound event for this animation.
+     * If the sound event is not found, it will log an error and return a default error sound.
+     * @return the sound event
+     */
     public SoundEvent getSound() {
         SoundEvent sfx = null;
 
@@ -135,7 +143,6 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
         if (sfx == null) {
             AITMod.LOGGER.error("Unknown sound event: {} in tardis animation {}", this.soundId, this.id());
             sfx = AITSounds.ERROR;
-            this.soundId = sfx.getId();
         }
 
         return sfx;
@@ -147,6 +154,10 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
 
     public Optional<Identifier> getSoundId() {
         return Optional.ofNullable(this.soundId);
+    }
+
+    public Identifier getSoundIdOrDefault() {
+        return this.getSoundId().orElse(AITSounds.ERROR.getId());
     }
 
     @Override

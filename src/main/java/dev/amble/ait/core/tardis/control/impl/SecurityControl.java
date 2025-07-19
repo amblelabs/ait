@@ -1,5 +1,15 @@
 package dev.amble.ait.core.tardis.control.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.math.BlockPos;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
@@ -7,15 +17,6 @@ import dev.amble.ait.core.item.KeyItem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.util.TardisUtil;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class SecurityControl extends Control {
 

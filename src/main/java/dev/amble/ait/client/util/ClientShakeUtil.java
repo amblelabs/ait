@@ -1,10 +1,11 @@
 package dev.amble.ait.client.util;
 
 
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.MathHelper;
+
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
 public class ClientShakeUtil {
     private static final float SHAKE_CLAMP = 45.0f; // Adjust this value to set the maximum shake angle

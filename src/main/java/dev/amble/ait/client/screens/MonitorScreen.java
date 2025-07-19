@@ -1,29 +1,12 @@
 package dev.amble.ait.client.screens;
 
+import java.util.List;
+import java.util.Objects;
+
 import com.google.common.collect.Lists;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
-import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.client.screens.interior.InteriorSettingsScreen;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientLightUtil;
-import dev.amble.ait.client.util.ClientTardisUtil;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.FuelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.data.datapack.DatapackConsole;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
-import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
-import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
-import dev.amble.ait.data.schema.exterior.category.ClassicCategory;
-import dev.amble.ait.data.schema.exterior.category.PoliceBoxCategory;
-import dev.amble.ait.registry.impl.CategoryRegistry;
-import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
-import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedGlobalPos;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -42,8 +25,28 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 
-import java.util.List;
-import java.util.Objects;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.screens.interior.InteriorSettingsScreen;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.ClientLightUtil;
+import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.FuelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.data.datapack.DatapackConsole;
+import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.data.schema.exterior.category.ClassicCategory;
+import dev.amble.ait.data.schema.exterior.category.ExclusiveCategory;
+import dev.amble.ait.data.schema.exterior.category.PoliceBoxCategory;
+import dev.amble.ait.registry.impl.CategoryRegistry;
+import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
+import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 
 public class MonitorScreen extends ConsoleScreen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
@@ -192,11 +195,9 @@ public class MonitorScreen extends ConsoleScreen {
         else
             setCategory(previousCategory());
 
-        if (CategoryRegistry.CORAL_GROWTH.equals(this.category)
-                || (!("ad504e7c-22a0-4b3f-94e3-5b6ad5514cb6".equalsIgnoreCase(player.getUuidAsString()))
-                        && CategoryRegistry.DOOM.equals(this.category))) {
+        if ((this.category instanceof ExclusiveCategory && ExclusiveCategory.isUnlocked(player.getUuid()))
+                || CategoryRegistry.CORAL_GROWTH.equals(this.category))
             changeCategory(direction);
-        }
     }
 
     public ExteriorCategorySchema nextCategory() {
@@ -216,6 +217,11 @@ public class MonitorScreen extends ConsoleScreen {
     }
 
     public void whichDirectionVariant(boolean direction) {
+        PlayerEntity player = MinecraftClient.getInstance().player;
+
+        if (player == null)
+            return;
+
         if (direction)
             setCurrentVariant(nextVariant());
         else
@@ -349,9 +355,11 @@ public class MonitorScreen extends ConsoleScreen {
         boolean isPoliceBox = category.equals(CategoryRegistry.getInstance().get(PoliceBoxCategory.REFERENCE))
                 || category.equals(CategoryRegistry.getInstance().get(ClassicCategory.REFERENCE));
 
+        boolean isHorriblyUnscaled = variant.equals(ClientExteriorVariantRegistry.DOOM);
+
         boolean isExtUnlocked = tardis.isUnlocked(variant.parent());
         boolean hasPower = tardis.fuel().hasPower();
-        boolean alarms = tardis.alarm().enabled().get();
+        boolean alarms = tardis.alarm().isEnabled();
 
         stack.push();
         stack.translate(0, 0, 500f);
@@ -381,9 +389,11 @@ public class MonitorScreen extends ConsoleScreen {
          */
 
         stack.push();
-        stack.translate(x, isPoliceBox ? y + 11 : y, 100f);
+        stack.translate(x, isPoliceBox || isHorriblyUnscaled ? y + 11 : y, 100f);
 
         if (isPoliceBox) {
+            stack.scale(-12, 12, 12);
+        } else if (isHorriblyUnscaled) {
             stack.scale(-12, 12, 12);
         } else {
             stack.scale(-scale, scale, scale);

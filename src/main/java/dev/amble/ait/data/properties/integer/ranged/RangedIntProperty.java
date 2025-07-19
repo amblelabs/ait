@@ -1,12 +1,13 @@
 package dev.amble.ait.data.properties.integer.ranged;
 
-import dev.amble.ait.api.tardis.KeyedTardisComponent;
-import dev.amble.ait.data.properties.Property;
-import dev.amble.ait.data.properties.PropertyType;
+import java.util.function.Function;
+
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.function.Function;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.data.properties.Property;
+import dev.amble.ait.data.properties.PropertyType;
 
 public class RangedIntProperty extends Property<Integer> {
 

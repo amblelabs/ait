@@ -1,16 +1,20 @@
 package dev.amble.ait.core.tardis.handler;
 
-import dev.amble.ait.api.tardis.KeyedTardisComponent;
-import dev.amble.ait.core.item.WaypointItem;
-import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
-import dev.amble.ait.data.Waypoint;
-import dev.amble.ait.data.properties.bool.BoolProperty;
-import dev.amble.ait.data.properties.bool.BoolValue;
+import java.util.Optional;
+
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.Optional;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.core.item.WaypointItem;
+import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.data.Waypoint;
+import dev.amble.ait.data.properties.bool.BoolProperty;
+import dev.amble.ait.data.properties.bool.BoolValue;
 
 public class WaypointHandler extends KeyedTardisComponent {
     public static final BoolProperty HAS_CARTRIDGE = new BoolProperty("has_cartridge", false);
@@ -72,7 +76,11 @@ public class WaypointHandler extends KeyedTardisComponent {
             return; // todo move this check to the DEMAT event so the fail to takeoff happens
 
         //this.tardis.travel().autopilot(true);
-        TravelUtil.travelTo(tardis, this.get().getPos());
+        CachedDirectedGlobalPos cached = this.get().getPos();
+        if (cached.getWorld() instanceof TardisServerWorld) {
+            cached = CachedDirectedGlobalPos.create(TardisServerWorld.OVERWORLD, cached.getPos(), cached.getRotation());
+        }
+        TravelUtil.travelTo(tardis, cached);
     }
 
     public void setDestination() {

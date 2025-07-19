@@ -4,6 +4,11 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.tardis.ServerTardis;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.function.BooleanSupplier;
+
 import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.drtheo.multidim.MultiDim;
 import dev.drtheo.multidim.MultiDimMod;
@@ -11,6 +16,8 @@ import dev.drtheo.multidim.api.MultiDimServerWorld;
 import dev.drtheo.multidim.api.WorldBlueprint;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
@@ -32,10 +39,9 @@ import net.minecraft.world.spawner.Spawner;
 import org.jetbrains.annotations.Nullable;
 import qouteall.q_misc_util.dimension.DimensionIdManagement;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.Executor;
-import java.util.function.BooleanSupplier;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.tardis.ServerTardis;
 
 public class TardisServerWorld extends MultiDimServerWorld {
 
@@ -50,8 +56,14 @@ public class TardisServerWorld extends MultiDimServerWorld {
 
     @Override
     public void tick(BooleanSupplier shouldKeepTicking) {
-        if (this.tardis != null && this.tardis.shouldTick())
+        if (this.tardis != null && this.tardis.shouldTick()) {
             super.tick(shouldKeepTicking);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Tardis" + super.toString();
     }
 
     @Override

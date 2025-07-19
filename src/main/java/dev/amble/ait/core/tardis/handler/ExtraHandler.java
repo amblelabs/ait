@@ -1,6 +1,11 @@
 package dev.amble.ait.core.tardis.handler;
 
 
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.core.AITItems;
@@ -9,10 +14,6 @@ import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.drinks.DrinkUtil;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 public class ExtraHandler extends KeyedTardisComponent {
     private static final Property<ItemStack> SET_REFRESHMENT_ITEM = new Property<>(Property.ITEM_STACK, "set_refreshment_item", (ItemStack) null);

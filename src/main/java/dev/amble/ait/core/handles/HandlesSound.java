@@ -1,9 +1,10 @@
 package dev.amble.ait.core.handles;
 
-import dev.amble.ait.core.tardis.ServerTardis;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
+
+import dev.amble.ait.core.tardis.ServerTardis;
 
 /**
  * For Handles the robot, this is used to play sounds.

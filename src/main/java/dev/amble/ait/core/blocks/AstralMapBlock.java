@@ -1,17 +1,16 @@
 package dev.amble.ait.core.blocks;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.blockentities.AstralMapBlockEntity;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.control.impl.TelepathicControl;
-import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
-import dev.amble.ait.core.world.TardisServerWorld;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -38,11 +37,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.Structure;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.blockentities.AstralMapBlockEntity;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.control.impl.TelepathicControl;
+import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
 
 public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvider {
     public static final int MAX_ROTATION_INDEX = RotationPropertyHelper.getMax();

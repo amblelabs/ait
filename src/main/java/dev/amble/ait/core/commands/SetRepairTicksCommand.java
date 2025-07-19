@@ -1,25 +1,28 @@
 package dev.amble.ait.core.commands;
 
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
+
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.commands.argument.TardisArgumentType;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
+
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
+import dev.amble.ait.core.commands.argument.TardisArgumentType;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
 
 public class SetRepairTicksCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(literal(AITMod.MOD_ID)
-                .then(literal("repair").requires(source -> source.hasPermissionLevel(2))
+                .then(literal("repair").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.repair", 2))
                         .then(literal("set").then(argument("tardis", TardisArgumentType.tardis()).then(
                                 argument("ticks", IntegerArgumentType.integer(0, TardisCrashHandler.MAX_REPAIR_TICKS))
                                         .executes(SetRepairTicksCommand::runCommand))))));

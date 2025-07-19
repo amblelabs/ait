@@ -1,19 +1,21 @@
 package dev.amble.ait.data.datapack.exterior;
 
+import java.util.Map;
+import java.util.function.Function;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.amble.ait.core.tardis.handler.BiomeHandler;
-import dev.amble.ait.data.enummap.EnumMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 
-import java.util.Map;
-import java.util.function.Function;
+import dev.amble.ait.core.tardis.handler.BiomeHandler;
+import dev.amble.ait.data.enummap.EnumMap;
 
 public record BiomeOverrides(EnumMap.Compliant<BiomeHandler.BiomeType, Identifier> lookup) {
 

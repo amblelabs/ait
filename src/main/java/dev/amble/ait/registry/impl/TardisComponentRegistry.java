@@ -1,18 +1,19 @@
 package dev.amble.ait.registry.impl;
 
-import com.google.gson.*;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.core.tardis.TardisDesktop;
-import dev.amble.ait.core.tardis.TardisExterior;
-import dev.amble.ait.core.tardis.TardisHandlersManager;
-import dev.amble.lib.register.Registry;
-
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import com.google.gson.*;
+import dev.amble.lib.register.Registry;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.core.tardis.TardisDesktop;
+import dev.amble.ait.core.tardis.TardisExterior;
+import dev.amble.ait.core.tardis.TardisHandlersManager;
 
 public class TardisComponentRegistry implements Registry {
 

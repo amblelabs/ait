@@ -1,19 +1,7 @@
 package dev.amble.ait.core.item.sonic;
 
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.entities.RiftEntity;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.util.MonitorUtil;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.core.world.LandingPadManager;
-import dev.amble.ait.core.world.RiftChunkManager;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.data.landing.LandingPadRegion;
-import dev.amble.ait.data.landing.LandingPadSpot;
-import dev.amble.ait.data.schema.sonic.SonicSchema;
 import dev.amble.lib.api.ICantBreak;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -32,6 +20,20 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
+
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.entities.RiftEntity;
+import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.util.MonitorUtil;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.core.world.LandingPadManager;
+import dev.amble.ait.core.world.RiftChunkManager;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.data.landing.LandingPadRegion;
+import dev.amble.ait.data.landing.LandingPadSpot;
+import dev.amble.ait.data.schema.sonic.SonicSchema;
 
 public class ScanningSonicMode extends SonicMode {
     private static final Text RIFT_FOUND = Text.translatable("message.ait.sonic.riftfound").formatted(Formatting.AQUA)
@@ -89,13 +91,14 @@ public class ScanningSonicMode extends SonicMode {
 
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
+        Tardis tardis = SonicItem.getTardisStatic(world, stack);
 
         String blastRes = String.format("%.2f", block.getBlastResistance());
 
-        if (state.isIn(AITTags.Blocks.SONIC_CAN_LOCATE)) {
-            Tardis tardis = SonicItem.getTardisStatic(world, stack);
+        if (tardis != null && state.isIn(AITTags.Blocks.SONIC_CAN_LOCATE)) {
             BlockPos tPos = tardis.travel().position().getPos();
-            String dimensionText = MonitorUtil.truncateDimensionName(WorldUtil.worldText(world.getRegistryKey()).getString(), 20);
+            World tardisWorld = tardis.travel().position().getWorld();
+            String dimensionText = MonitorUtil.truncateDimensionName(WorldUtil.worldText(tardisWorld.getRegistryKey()).getString(), 20);
 
             Text coordinatesMessage = Text.translatable("item.sonic.scanning.locator_message.coordinates", tPos.getX(), tPos.getY(), tPos.getZ());
             Text fullMessage = Text.translatable("item.sonic.scanning.locator_message.title", dimensionText).append("\n").append(coordinatesMessage);

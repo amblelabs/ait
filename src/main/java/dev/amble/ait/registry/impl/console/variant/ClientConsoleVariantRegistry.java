@@ -1,5 +1,12 @@
 package dev.amble.ait.registry.impl.console.variant;
 
+import dev.amble.lib.register.datapack.DatapackRegistry;
+import org.joml.Vector3f;
+
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.consoles.ConsoleModel;
 import dev.amble.ait.data.datapack.DatapackConsole;
@@ -20,11 +27,6 @@ import dev.amble.ait.data.schema.console.variant.steam.client.*;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaBlueVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaLegacyVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaVariant;
-import dev.amble.lib.register.datapack.DatapackRegistry;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-import org.joml.Vector3f;
 
 public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsoleVariantSchema> {
     private static ClientConsoleVariantRegistry INSTANCE;

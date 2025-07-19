@@ -1,9 +1,5 @@
 package dev.amble.ait.client.renderers.machines;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.machines.ArtronCollectorModel;
-import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
-import dev.amble.ait.core.blocks.ArtronCollectorBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
@@ -14,6 +10,11 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.machines.ArtronCollectorModel;
+import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
+import dev.amble.ait.core.blocks.ArtronCollectorBlock;
 
 // Made with Blockbench 4.8.3
 // Exported for Minecraft version 1.17+ for Yarn

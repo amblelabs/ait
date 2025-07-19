@@ -87,6 +87,7 @@ dependencies {
     modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 
     modCompileOnlyApi "maven.modrinth:k9-mod:${project.k9_version}"
+    modCompileOnlyApi "me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"
 
     include(modImplementation("dev.drtheo:multidim:${project.multidim_version}")) {
         exclude(group: "net.fabricmc.fabric-api")

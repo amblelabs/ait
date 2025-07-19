@@ -1,5 +1,24 @@
 package dev.amble.ait.core.blockentities;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.joml.Vector3f;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.entity.AnimationState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.DustColorTransitionParticleEffect;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
 import dev.amble.ait.client.tardis.ClientTardis;
@@ -21,23 +40,6 @@ import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.entity.AnimationState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.particle.DustColorTransitionParticleEffect;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import org.joml.Vector3f;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements BlockEntityTicker<ConsoleBlockEntity> {
 
@@ -256,6 +258,8 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
             }
         }
 
+        world.updateNeighborsAlways(pos, state.getBlock());
+
         ServerTardis tardis = (ServerTardis) this.tardis().get();
         boolean isRiftChunk = RiftChunkManager.isRiftChunk(tardis.travel().position());
 
@@ -299,27 +303,38 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
                     pos.getX() + 0.5f, pos.getY() + 1.25, pos.getZ() + 0.5f, 1, 0, 0, 0,
                     (isRiftChunk) ? 0.05f : 0.025f);
         }
+
+    }
+
+    public static ConsoleTypeSchema previousConsole(ConsoleTypeSchema current) {
+        List<ConsoleTypeSchema> list = ConsoleRegistry.REGISTRY.stream().toList();
+        int idx = list.indexOf(current);
+        int size = list.size();
+
+        return list.get((size + idx - 1) % size);
     }
 
     public static ConsoleTypeSchema nextConsole(ConsoleTypeSchema current) {
         List<ConsoleTypeSchema> list = ConsoleRegistry.REGISTRY.stream().toList();
-
         int idx = list.indexOf(current);
+        int size = list.size();
 
-        if (idx < 0 || idx + 1 == list.size())
-            return list.get(0);
+        return list.get((idx + 1) % size);
+    }
 
-        return list.get(idx + 1);
+    public static ConsoleVariantSchema previousVariant(ConsoleVariantSchema current) {
+        List<ConsoleVariantSchema> list = ConsoleVariantRegistry.withParent(current.parent());
+        int idx = list.indexOf(current);
+        int size = list.size();
+
+        return list.get((size + idx - 1) % size);
     }
 
     public static ConsoleVariantSchema nextVariant(ConsoleVariantSchema current) {
         List<ConsoleVariantSchema> list = ConsoleVariantRegistry.withParent(current.parent());
-
         int idx = list.indexOf(current);
+        int size = list.size();
 
-        if (idx < 0 || idx + 1 == list.size())
-            return list.get(0);
-
-        return list.get(idx + 1);
+        return list.get((idx + 1) % size);
     }
 }

@@ -1,14 +1,11 @@
 package dev.amble.ait.core.blockentities;
 
-import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blocks.WaypointBankBlock;
-import dev.amble.ait.core.item.WaypointItem;
-import dev.amble.ait.core.util.StackUtil;
-import dev.amble.ait.data.Waypoint;
+import java.util.ArrayList;
+import java.util.List;
+
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.enums.DoubleBlockHalf;
@@ -27,10 +24,15 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blocks.WaypointBankBlock;
+import dev.amble.ait.core.item.WaypointItem;
+import dev.amble.ait.core.util.StackUtil;
+import dev.amble.ait.data.Waypoint;
 
 public class WaypointBankBlockEntity extends InteriorLinkableBlockEntity {
 

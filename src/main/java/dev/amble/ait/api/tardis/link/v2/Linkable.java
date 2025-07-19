@@ -1,9 +1,9 @@
 package dev.amble.ait.api.tardis.link.v2;
 
+import java.util.UUID;
+
 import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
-
-import java.util.UUID;
 
 public interface Linkable {
 

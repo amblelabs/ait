@@ -1,5 +1,21 @@
 package dev.amble.ait.core.item;
 
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemUsageContext;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.RotationPropertyHelper;
+import net.minecraft.world.World;
+
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
@@ -15,20 +31,6 @@ import dev.amble.ait.core.tardis.util.DefaultThemes;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.registry.impl.DesktopRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.RotationPropertyHelper;
-import net.minecraft.world.World;
 
 public class TardisItemBuilder extends Item {
     private final Identifier exterior;

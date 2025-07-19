@@ -1,13 +1,14 @@
 package dev.amble.ait.core.util;
 
-import dev.amble.ait.core.tardis.Tardis;
+import java.util.UUID;
+
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.text.Texts;
 import net.minecraft.util.Formatting;
 
-import java.util.UUID;
+import dev.amble.ait.core.tardis.Tardis;
 
 public class TextUtil {
 

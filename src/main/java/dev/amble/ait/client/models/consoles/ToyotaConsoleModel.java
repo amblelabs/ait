@@ -1,18 +1,8 @@
 // Made with Blockbench 4.9.3
 package dev.amble.ait.client.models.consoles;
 
-import dev.amble.ait.client.animation.console.toyota.ToyotaAnimations;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.impl.DirectionControl;
-import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
-import dev.amble.ait.core.tardis.handler.FuelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedGlobalPos;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.model.*;
@@ -23,6 +13,17 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
+
+import dev.amble.ait.client.animation.console.toyota.ToyotaAnimations;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.impl.DirectionControl;
+import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
+import dev.amble.ait.core.tardis.handler.FuelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.util.WorldUtil;
 
 public class ToyotaConsoleModel extends ConsoleModel {
     private final ModelPart toyota;
@@ -1694,8 +1695,8 @@ public class ToyotaConsoleModel extends ConsoleModel {
         // Alarm Control and Lights
         ModelPart alarms = this.toyota.getChild("panel4").getChild("controls4").getChild("coloredlever2");
         ModelPart alarmsLight = this.toyota.getChild("panel4").getChild("yellow3");
-        alarmsLight.pivotY = (tardis.alarm().enabled().get()) ? alarmsLight.pivotY : alarmsLight.pivotY + 1;
-        alarms.pitch = tardis.alarm().enabled().get() ? alarms.pitch + 1f : alarms.pitch;
+        alarmsLight.pivotY = (tardis.alarm().isEnabled()) ? alarmsLight.pivotY : alarmsLight.pivotY + 1;
+        alarms.pitch = tardis.alarm().isEnabled() ? alarms.pitch + 1f : alarms.pitch;
 
         ModelPart security = this.toyota.getChild("panel4").getChild("controls4").getChild("coloredlever5");
         security.pitch = tardis.stats().security().get() ? security.pitch + 1f : security.pitch;
@@ -1784,13 +1785,10 @@ public class ToyotaConsoleModel extends ConsoleModel {
         MinecraftClient client = MinecraftClient.getInstance();
         TextRenderer renderer = client.textRenderer;
         TravelHandler travel = tardis.travel();
-        DirectedGlobalPos abpd = travel.getState() == TravelHandlerBase.State.FLIGHT
-                ? travel.getProgress()
-                : travel.position();
-        CachedDirectedGlobalPos dabpd = travel.destination();
-        CachedDirectedGlobalPos abpp = travel.isLanded() || travel.getState() != TravelHandlerBase.State.MAT
-                ? travel.getProgress()
-                : travel.position();
+        CachedDirectedGlobalPos abpd = travel.destination();
+        CachedDirectedGlobalPos abpp = travel.isLanded() || travel.getState() == TravelHandlerBase.State.MAT
+                ? travel.position()
+                : travel.getProgress();
 
         BlockPos abppPos = abpp.getPos();
         BlockPos abpdPos = abpd.getPos();

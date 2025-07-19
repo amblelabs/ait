@@ -1,8 +1,10 @@
 package dev.amble.ait.data;
 
-import dev.amble.ait.core.item.WaypointItem;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+
 import net.minecraft.item.ItemStack;
+
+import dev.amble.ait.core.item.WaypointItem;
 
 public class Waypoint {
 

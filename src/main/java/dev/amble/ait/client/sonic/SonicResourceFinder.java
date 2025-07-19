@@ -1,11 +1,11 @@
 package dev.amble.ait.client.sonic;
 
+import java.util.Map;
+
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceFinder;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
-
-import java.util.Map;
 
 public class SonicResourceFinder extends ResourceFinder {
 

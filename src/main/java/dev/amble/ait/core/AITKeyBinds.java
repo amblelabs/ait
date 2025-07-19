@@ -1,20 +1,22 @@
 package dev.amble.ait.core;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import org.lwjgl.glfw.GLFW;
+
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.util.InputUtil;
+import net.minecraft.entity.Entity;
+import net.minecraft.item.ItemStack;
+
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.bind.KeyBind;
 import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.item.KeyItem;
 import dev.amble.ait.core.tardis.Tardis;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
-import org.lwjgl.glfw.GLFW;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class AITKeyBinds {
 

@@ -1,14 +1,13 @@
 package dev.amble.ait.core;
 
-import dev.amble.ait.AITMod;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.world.dimension.DimensionOptions;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.event.GameEvent;
+
+import dev.amble.ait.AITMod;
 
 public class AITTags {
 

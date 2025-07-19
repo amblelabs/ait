@@ -1,17 +1,19 @@
 package dev.amble.ait.module.gun.mixin.client;
 
-import dev.amble.ait.module.gun.core.item.BaseGunItem;
-import dev.amble.ait.module.gun.core.item.GunItems;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.util.math.MathHelper;
+
+import dev.amble.ait.module.gun.core.item.BaseGunItem;
+import dev.amble.ait.module.gun.core.item.GunItems;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {

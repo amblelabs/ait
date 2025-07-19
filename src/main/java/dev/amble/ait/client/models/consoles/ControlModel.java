@@ -1,12 +1,14 @@
 package dev.amble.ait.client.models.consoles;
 
-import dev.amble.ait.core.entities.ConsoleControlEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
+
+import dev.amble.ait.core.entities.ConsoleControlEntity;
 
 @Environment(value = EnvType.CLIENT)
 public class ControlModel extends SinglePartEntityModel<ConsoleControlEntity> {

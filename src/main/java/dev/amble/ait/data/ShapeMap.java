@@ -1,12 +1,13 @@
 package dev.amble.ait.data;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.common.collect.Maps;
+
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ShapeMap {
 

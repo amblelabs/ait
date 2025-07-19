@@ -1,10 +1,5 @@
 package dev.amble.ait.core.item;
 
-import dev.amble.ait.api.tardis.link.LinkableItem;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.data.Loyalty;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -18,6 +13,12 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+
+import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.data.Loyalty;
 
 public class InteriorTeleporterItem extends LinkableItem { // todo - new model + texture?
     private static final ParticleEffect PARTICLE_SUCCESS = ParticleTypes.GLOW;

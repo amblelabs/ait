@@ -1,12 +1,14 @@
 package dev.amble.ait.core.drinks;
 
-import dev.amble.ait.AITMod;
-import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.resource.ResourceType;
-
 import java.util.List;
 import java.util.Optional;
+
+import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+
+import net.minecraft.resource.ResourceType;
+
+import dev.amble.ait.AITMod;
 
 public class DrinkRegistry extends SimpleDatapackRegistry<Drink> {
     private static final DrinkRegistry instance = new DrinkRegistry();

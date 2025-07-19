@@ -1,13 +1,7 @@
 package dev.amble.ait.core.blockentities;
 
-import dev.amble.ait.api.ArtronHolder;
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.item.ArtronCollectorItem;
-import dev.amble.ait.core.item.ChargedZeitonCrystalItem;
-import dev.amble.ait.core.world.RiftChunkManager;
-import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -24,7 +18,16 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
+
+import dev.amble.ait.api.ArtronHolder;
+import dev.amble.ait.api.ArtronHolderItem;
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.item.ArtronCollectorItem;
+import dev.amble.ait.core.item.ChargedZeitonCrystalItem;
+import dev.amble.ait.core.world.RiftChunkManager;
+import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
 
 public class ArtronCollectorBlockEntity extends BlockEntity implements BlockEntityTicker<ArtronCollectorBlockEntity>, ArtronHolder {
 
@@ -54,6 +57,9 @@ public class ArtronCollectorBlockEntity extends BlockEntity implements BlockEnti
             ItemStack stack = player.getMainHandStack();
             if (stack.getItem() instanceof ArtronCollectorItem) {
                 double residual = ArtronCollectorItem.addFuel(stack, this.getCurrentFuel());
+                this.setCurrentFuel(residual);
+            } else if (stack.getItem() instanceof ArtronHolderItem) {
+                double residual = ((ArtronHolderItem) stack.getItem()).addFuel(this.getCurrentFuel(), stack);
                 this.setCurrentFuel(residual);
             } else if (stack.getItem() instanceof ChargedZeitonCrystalItem crystal) {
                 double residual = crystal.addFuel(this.getCurrentFuel(), stack);

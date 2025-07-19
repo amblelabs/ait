@@ -1,19 +1,21 @@
 package dev.amble.ait.core.advancement;
 
+import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+
+import net.minecraft.advancement.Advancement;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.util.Identifier;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.effects.ZeitonHighEffect;
 import dev.amble.ait.core.engine.impl.EngineSystem;
 import dev.amble.ait.core.world.TardisServerWorld;
-import dev.drtheo.scheduler.api.TimeUnit;
-import dev.drtheo.scheduler.api.common.Scheduler;
-import dev.drtheo.scheduler.api.common.TaskStage;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.advancement.Advancement;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.Identifier;
 
 public class TardisCriterions {
     public static SimpleCriterion ROOT = SimpleCriterion.create("root").register();
@@ -22,6 +24,7 @@ public class TardisCriterions {
     public static SimpleCriterion VEGETATION = SimpleCriterion.create("break_vegetation").register();
     public static SimpleCriterion PLACE_CORAL = SimpleCriterion.create("place_coral").register();
     public static final SimpleCriterion PLACE_ENERGIZER = SimpleCriterion.create("place_energizer").register();
+    public static SimpleCriterion FEED_POWER_CONVERTER = SimpleCriterion.create("feed_power_converter").register();
     public static SimpleCriterion ENTER_TARDIS = SimpleCriterion.create("enter_tardis").register();
     public static SimpleCriterion REDECORATE = SimpleCriterion.create("redecorate").register();
     public static SimpleCriterion FORCED_ENTRY = SimpleCriterion.create("forced_entry").register();
@@ -33,6 +36,7 @@ public class TardisCriterions {
     public static SimpleCriterion REPAIR_SUBSYSTEM = SimpleCriterion.create("repair_subsystem").register();
     public static SimpleCriterion ENGINES_PHASE = SimpleCriterion.create("engines_phase").register();
     public static SimpleCriterion BRAND_NEW = SimpleCriterion.create("brand_new").register();
+    public static SimpleCriterion ATTACK_EYEBROWS = SimpleCriterion.create("attack_eyebrows").register();
 
     public static void init() {
         AITMod.LOGGER.info("Initializing Tardis Criterions");

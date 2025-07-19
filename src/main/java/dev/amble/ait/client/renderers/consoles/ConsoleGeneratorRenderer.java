@@ -1,11 +1,7 @@
 package dev.amble.ait.client.renderers.consoles;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.consoles.ConsoleGeneratorModel;
-import dev.amble.ait.client.models.consoles.ConsoleModel;
-import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
+import org.joml.Matrix4f;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.OverlayTexture;
@@ -19,7 +15,13 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.RotationAxis;
-import org.joml.Matrix4f;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.consoles.ConsoleGeneratorModel;
+import dev.amble.ait.client.models.consoles.ConsoleModel;
+import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 
 public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> implements BlockEntityRenderer<T> {
 
@@ -74,18 +76,18 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
             Matrix4f matrix4f = matrices.peek().getPositionMatrix();
 
             textRenderer.draw(text, h + 0.35f, 0.0F, 0xFFFFFFFF, false, matrix4f, vertexConsumers,
-                    TextRenderer.TextLayerType.SEE_THROUGH, 0x000000, 0xf000f0);
+                    TextRenderer.TextLayerType.NORMAL, 0x000000, 0xf000f0);
             matrices.push();
             matrices.scale(0.2f, 0.2f, 0.2f);
             Matrix4f matrixcf = matrices.peek().getPositionMatrix();
             textRenderer.draw(type, l - 0.35f, 42.5F, ColorHelper.Argb.getArgb(1, 0, 175, 235), false, matrixcf, vertexConsumers,
-                    TextRenderer.TextLayerType.SEE_THROUGH, 0x000000, 0xf000f0);
+                    TextRenderer.TextLayerType.NORMAL, 0x000000, 0xf000f0);
             matrices.pop();
             matrices.push();
             matrices.scale(0.2f, 0.2f, 0.2f);
             Matrix4f matrixdf = matrices.peek().getPositionMatrix();
             textRenderer.draw(requirement, p - 0.35f, 55F, ColorHelper.Argb.getArgb(1, 255, 205, 0), false, matrixdf, vertexConsumers,
-                    TextRenderer.TextLayerType.SEE_THROUGH, 0x000000, 0xf000f0);
+                    TextRenderer.TextLayerType.NORMAL, 0x000000, 0xf000f0);
             matrices.pop();
             matrices.pop();
         }

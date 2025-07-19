@@ -1,17 +1,11 @@
 package dev.amble.ait.registry.impl;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.handles.HandlesResponse;
-import dev.amble.ait.core.handles.HandlesSound;
-import dev.amble.ait.core.item.HandlesItem;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.impl.SecurityControl;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.world.TardisServerWorld;
+import java.util.HashMap;
+import java.util.List;
+
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.message.MessageType;
 import net.minecraft.network.message.SignedMessage;
@@ -23,8 +17,16 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-import java.util.HashMap;
-import java.util.List;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.handles.HandlesResponse;
+import dev.amble.ait.core.handles.HandlesSound;
+import dev.amble.ait.core.item.HandlesItem;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.world.TardisServerWorld;
 
 /**
  * Registry for Handles responses.
@@ -360,6 +362,113 @@ public class HandlesResponseRegistry {
             @Override
             public Identifier id() {
                 return AITMod.id("progress");
+            }
+        });
+
+        HandlesResponseRegistry.register(new HandlesResponse() {
+            @Override
+            public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
+                sendChat(player, Text.literal("Toggled Shields."));
+                tardis.shields().visuallyShielded().toggle();
+                return success(source);
+            }
+
+            @Override
+            public List<String> getCommandWords() {
+                return List.of("toggle shields", "shields");
+            }
+
+            @Override
+            public Identifier id() {
+                return AITMod.id("toggle_shields");
+            }
+        });
+
+        HandlesResponseRegistry.register(new HandlesResponse() {
+            @Override
+            public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
+                if (tardis.isRefueling()) {
+                    sendChat(player, Text.literal("Refueling is already enabled."));
+                    return failure(source);
+                }
+
+                sendChat(player, Text.literal("Enabling Refueling."));
+                tardis.travel().handbrake(true);
+                tardis.setRefueling(true);
+                return success(source);
+            }
+
+            @Override
+            public List<String> getCommandWords() {
+                return List.of("refuel");
+            }
+
+            @Override
+            public Identifier id() {
+                return AITMod.id("enable_refuel");
+            }
+        });
+
+        HandlesResponseRegistry.register(new HandlesResponse() {
+            @Override
+            public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
+                if (!tardis.isRefueling()) {
+                    sendChat(player, Text.literal("Refueling is already disabled."));
+                    return failure(source);
+                }
+
+                sendChat(player, Text.literal("Disabling Refueling."));
+                tardis.travel().handbrake(false);
+                tardis.setRefueling(false);
+                return success(source);
+            }
+
+            @Override
+            public List<String> getCommandWords() {
+                return List.of("stop refuel");
+            }
+
+            @Override
+            public Identifier id() {
+                return AITMod.id("disable_refuel");
+            }
+        });
+
+        HandlesResponseRegistry.register(new HandlesResponse() {
+            @Override
+            public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
+                sendChat(player, Text.literal("Protocol 3 Toggled."));
+                tardis.cloak().cloaked().toggle();
+                return success(source);
+            }
+
+            @Override
+            public List<String> getCommandWords() {
+                return List.of("p3");
+            }
+
+            @Override
+            public Identifier id() {
+                return AITMod.id("toggle_cloak");
+            }
+        });
+
+        HandlesResponseRegistry.register(new HandlesResponse() {
+            @Override
+            public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
+                sendChat(player, Text.literal("Anti-Gravs Toggled."));
+                tardis.travel().antigravs().toggle();
+                return success(source);
+            }
+
+            @Override
+            public List<String> getCommandWords() {
+                return List.of("antigravs");
+            }
+
+            @Override
+            public Identifier id() {
+                return AITMod.id("toggle_antigravs");
             }
         });
     }

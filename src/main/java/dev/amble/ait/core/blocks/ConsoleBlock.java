@@ -1,13 +1,11 @@
 package dev.amble.ait.core.blocks;
 
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
-import dev.amble.ait.core.item.HammerItem;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.data.schema.console.type.CopperType;
-import dev.amble.ait.data.schema.console.type.CrystallineType;
+import java.util.Random;
+
 import dev.amble.lib.api.ICantBreak;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
@@ -34,10 +32,15 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Random;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
+import dev.amble.ait.core.item.HammerItem;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.data.schema.console.type.CopperType;
+import dev.amble.ait.data.schema.console.type.CrystallineType;
 
 public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEntityProvider, ICantBreak {
 
@@ -121,8 +124,21 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
 
     @Override
     public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
-        return 15;
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof ConsoleBlockEntity console && console.isLinked()) {
+            Tardis tardis = console.tardis().get();
+            if (console.tardis().get().fuel().hasPower()) {
+                return 15;
+            }
+        }
+        return 0;
     }
+
+    @Override
+    public int getStrongRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
+        return getWeakRedstonePower(state, world, pos, direction);
+    }
+
 
     @Override
     public void onSteppedOn(World world, BlockPos pos, BlockState state, Entity entity) {

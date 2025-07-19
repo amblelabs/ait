@@ -1,16 +1,18 @@
 package dev.amble.ait.client.boti;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.models.decoration.PaintingFrameModel;
-import dev.amble.ait.client.renderers.AITRenderLayers;
+import org.lwjgl.opengl.GL11;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import org.lwjgl.opengl.GL11;
+
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.models.decoration.PaintingFrameModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
 
 public class PaintingBOTI extends BOTI {
     public static void renderBOTIPainting(MatrixStack stack, PaintingFrameModel frame,

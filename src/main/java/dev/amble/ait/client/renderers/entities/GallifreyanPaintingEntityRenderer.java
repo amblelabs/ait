@@ -1,16 +1,18 @@
 package dev.amble.ait.client.renderers.entities;
 
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.boti.BOTI;
-import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.boti.BOTI;
+import dev.amble.ait.core.entities.BOTIPaintingEntity;
 
 @Environment(value=EnvType.CLIENT)
 public class GallifreyanPaintingEntityRenderer

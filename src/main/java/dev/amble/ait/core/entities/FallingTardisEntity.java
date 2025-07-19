@@ -1,21 +1,10 @@
 package dev.amble.ait.core.entities;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITDamageTypes;
-import dev.amble.ait.core.AITEntityTypes;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.blocks.ExteriorBlock;
-import dev.amble.ait.core.entities.base.LinkableDummyEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.module.planet.core.space.planet.Planet;
-import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
-import dev.amble.ait.module.planet.core.util.ISpaceImmune;
+import java.util.function.Predicate;
+
 import dev.amble.lib.util.ServerLifecycleHooks;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -45,9 +34,22 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 import net.minecraft.world.explosion.ExplosionBehavior;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Predicate;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITDamageTypes;
+import dev.amble.ait.core.AITEntityTypes;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.blocks.ExteriorBlock;
+import dev.amble.ait.core.entities.base.LinkableDummyEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.module.planet.core.space.planet.Planet;
+import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
+import dev.amble.ait.module.planet.core.util.ISpaceImmune;
 
 public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceImmune {
 

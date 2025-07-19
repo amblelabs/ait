@@ -1,7 +1,9 @@
 package dev.amble.ait.core.item;
 
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.tardis.handler.StatsHandler;
+import java.util.List;
+
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -9,9 +11,9 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.tardis.handler.StatsHandler;
 
 public class PersonalityMatrixItem extends Item {
     public PersonalityMatrixItem(Settings settings) {

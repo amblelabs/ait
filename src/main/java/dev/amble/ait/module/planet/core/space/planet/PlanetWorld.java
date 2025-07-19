@@ -1,8 +1,9 @@
 package dev.amble.ait.module.planet.core.space.planet;
 
-import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.world.World;
 
 /**
  * @apiNote Do NOT use this interface unless you know what you're doing.

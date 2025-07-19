@@ -1,25 +1,8 @@
 package dev.amble.ait.core.tardis.util;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.ExtraPushableEntity;
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.blockentities.DoorBlockEntity;
-import dev.amble.ait.core.entities.FlightTardisEntity;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisDesktop;
-import dev.amble.ait.core.tardis.handler.permissions.PermissionHandler;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.data.Loyalty;
-import dev.amble.ait.mixin.lookup.EntityTrackingSectionAccessor;
-import dev.amble.ait.mixin.lookup.SectionedEntityCacheAccessor;
-import dev.amble.ait.mixin.lookup.SimpleEntityLookupAccessor;
-import dev.amble.ait.mixin.lookup.WorldInvoker;
+import java.util.*;
+import java.util.function.Predicate;
+
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import dev.amble.lib.util.TeleportUtil;
@@ -29,6 +12,8 @@ import dev.drtheo.scheduler.api.common.TaskStage;
 import it.unimi.dsi.fastutil.longs.LongBidirectionalIterator;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.util.TriState;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.TntEntity;
@@ -47,10 +32,28 @@ import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraft.world.entity.EntityLike;
 import net.minecraft.world.entity.EntityTrackingSection;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.function.Predicate;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.ExtraPushableEntity;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.blockentities.DoorBlockEntity;
+import dev.amble.ait.core.entities.FlightTardisEntity;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisDesktop;
+import dev.amble.ait.core.tardis.handler.FuelHandler;
+import dev.amble.ait.core.tardis.handler.permissions.PermissionHandler;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.data.Loyalty;
+import dev.amble.ait.mixin.lookup.EntityTrackingSectionAccessor;
+import dev.amble.ait.mixin.lookup.SectionedEntityCacheAccessor;
+import dev.amble.ait.mixin.lookup.SimpleEntityLookupAccessor;
+import dev.amble.ait.mixin.lookup.WorldInvoker;
 
 @SuppressWarnings("unused")
 public class TardisUtil {
@@ -478,5 +481,12 @@ public class TardisUtil {
         BlockPos pPos = player.getBlockPos();
         BlockPos tPos = tardis.travel().position().getPos();
         return Math.sqrt(tPos.getSquaredDistance(pPos));
+    }
+
+    public static double estimatedFuelCost(PlayerEntity player, Tardis tardis, double distance){
+        int speed = Math.max(tardis.travel().speed(), 1);
+        double ticksRequired = distance / speed;
+        double perTick = FuelHandler.getPerTickFuelCost(speed, tardis.travel().instability());
+        return perTick * ticksRequired;
     }
 }

@@ -1,13 +1,17 @@
 package dev.amble.ait.registry.impl.door;
 
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.data.schema.door.DoorSchema;
-import dev.amble.ait.data.schema.door.impl.*;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.data.schema.door.DoorSchema;
+import dev.amble.ait.data.schema.door.impl.*;
+import dev.amble.ait.data.schema.door.impl.exclusive.BlueBoxDoorVariant;
+import dev.amble.ait.data.schema.door.impl.exclusive.DoomDoorVariant;
 
 public class DoorRegistry {
     public static final SimpleRegistry<DoorSchema> REGISTRY = FabricRegistryBuilder
@@ -27,7 +31,6 @@ public class DoorRegistry {
     public static DoorSchema BOX_RENAISSANCE;
     public static DoorSchema HEAD;
     public static DoorSchema GROWTH;
-    public static DoorSchema DOOM;
     public static DoorSchema PLINTH;
     public static DoorSchema RENEGADE;
     public static DoorSchema BOOKSHELF;
@@ -35,9 +38,11 @@ public class DoorRegistry {
     public static DoorSchema STALLION;
     public static DoorSchema ADAPTIVE;
     public static DoorSchema DALEK_MOD;
-    //public static DoorSchema JAKE;
     public static DoorSchema PRESENT;
     public static DoorSchema PIPE;
+
+    public static DoorSchema DOOM;
+    public static DoorSchema BLUE_BOX;
 
     public static void init() {
         TARDIM = register(new TardimDoorVariant());
@@ -50,7 +55,6 @@ public class DoorRegistry {
         BOX_RENAISSANCE = register(new PoliceBoxRenaissanceDoorVariant());
         HEAD = register(new EasterHeadDoorVariant());
         GROWTH = register(new CoralGrowthDoorVariant());
-        DOOM = register(new DoomDoorVariant());
         PLINTH = register(new PlinthDoorVariant());
         RENEGADE = register(new RenegadeDoorVariant());
         BOOKSHELF = register(new BookshelfDoorVariant());
@@ -58,8 +62,11 @@ public class DoorRegistry {
         STALLION = register(new StallionDoorVariant());
         ADAPTIVE = register(new AdaptiveDoorVariant());
         DALEK_MOD = register(new DalekModDoorVariant());
-        //JAKE = init(new JakeDoorVariant());
         PRESENT = register(new PresentDoorVariant());
         PIPE = register(new PipeDoorVariant());
+
+        // Exclusives
+        DOOM = register(new DoomDoorVariant());
+        BLUE_BOX = register(new BlueBoxDoorVariant());
     }
 }

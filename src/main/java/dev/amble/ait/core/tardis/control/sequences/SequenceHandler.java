@@ -1,12 +1,10 @@
 package dev.amble.ait.core.tardis.control.sequences;
 
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.api.tardis.TardisTickable;
-import dev.amble.ait.core.tardis.TardisDesktop;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.data.Exclude;
-import dev.amble.ait.registry.impl.SequenceRegistry;
+import java.util.UUID;
+
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
+
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
@@ -17,10 +15,14 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 
-import java.util.UUID;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.core.tardis.TardisDesktop;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.data.Exclude;
+import dev.amble.ait.registry.impl.SequenceRegistry;
 
 public class SequenceHandler extends TardisComponent implements TardisTickable {
     @Exclude

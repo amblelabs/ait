@@ -1,10 +1,13 @@
 package dev.amble.ait.core.engine.block.multi;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.mixin.server.structure.StructureTemplateAccessor;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+
 import dev.amble.lib.util.ServerLifecycleHooks;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.SimpleInventory;
@@ -14,12 +17,11 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.mixin.server.structure.StructureTemplateAccessor;
 
 public class MultiBlockStructure extends ArrayList<MultiBlockStructure.BlockOffset> {
     public static final MultiBlockStructure EMPTY = new MultiBlockStructure();

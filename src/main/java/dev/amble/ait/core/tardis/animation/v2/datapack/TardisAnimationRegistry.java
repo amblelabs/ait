@@ -1,9 +1,11 @@
 package dev.amble.ait.core.tardis.animation.v2.datapack;
 
+import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
+
+import net.minecraft.util.Identifier;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
-import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
-import net.minecraft.util.Identifier;
 
 public class TardisAnimationRegistry extends SimpleDatapackRegistry<TardisAnimation> {
     public static final Identifier DEFAULT_DEMAT = AITMod.id("pulsating_demat");

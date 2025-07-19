@@ -1,8 +1,9 @@
 package dev.amble.ait.core.blockentities.control;
 
-import dev.amble.ait.core.AITBlockEntityTypes;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
+
+import dev.amble.ait.core.AITBlockEntityTypes;
 
 public class RedstoneControlBlockEntity extends ControlBlockEntity {
 

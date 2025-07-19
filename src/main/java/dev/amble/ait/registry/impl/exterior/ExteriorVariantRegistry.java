@@ -1,5 +1,20 @@
 package dev.amble.ait.registry.impl.exterior;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import dev.amble.lib.register.datapack.DatapackRegistry;
+import dev.amble.lib.register.unlockable.UnlockableRegistry;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.resource.ResourceType;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.Vec3d;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.AITRegistryEvents;
 import dev.amble.ait.data.datapack.DatapackExterior;
@@ -14,10 +29,11 @@ import dev.amble.ait.data.schema.exterior.variant.capsule.CapsuleFireVariant;
 import dev.amble.ait.data.schema.exterior.variant.capsule.CapsuleSoulVariant;
 import dev.amble.ait.data.schema.exterior.variant.classic.*;
 import dev.amble.ait.data.schema.exterior.variant.dalek_mod.*;
-import dev.amble.ait.data.schema.exterior.variant.doom.DoomVariant;
 import dev.amble.ait.data.schema.exterior.variant.easter_head.EasterHeadDefaultVariant;
 import dev.amble.ait.data.schema.exterior.variant.easter_head.EasterHeadFireVariant;
 import dev.amble.ait.data.schema.exterior.variant.easter_head.EasterHeadSoulVariant;
+import dev.amble.ait.data.schema.exterior.variant.exclusive.doom.DoomVariant;
+import dev.amble.ait.data.schema.exterior.variant.exclusive.wanderer.BoothWandererVariant;
 import dev.amble.ait.data.schema.exterior.variant.geometric.GeometricDefaultVariant;
 import dev.amble.ait.data.schema.exterior.variant.geometric.GeometricFireVariant;
 import dev.amble.ait.data.schema.exterior.variant.geometric.GeometricGildedVariant;
@@ -39,19 +55,6 @@ import dev.amble.ait.data.schema.exterior.variant.stallion.StallionSteelVariant;
 import dev.amble.ait.data.schema.exterior.variant.tardim.TardimDefaultVariant;
 import dev.amble.ait.data.schema.exterior.variant.tardim.TardimFireVariant;
 import dev.amble.ait.data.schema.exterior.variant.tardim.TardimSoulVariant;
-import dev.amble.lib.register.datapack.DatapackRegistry;
-import dev.amble.lib.register.unlockable.UnlockableRegistry;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.Vec3d;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantSchema> {
     private static ExteriorVariantRegistry INSTANCE;
@@ -172,7 +175,6 @@ public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantS
     public static ExteriorVariantSchema HEAD_SOUL;
     public static ExteriorVariantSchema HEAD_FIRE;
     public static ExteriorVariantSchema CORAL_GROWTH;
-    public static ExteriorVariantSchema DOOM;
     public static ExteriorVariantSchema PLINTH_DEFAULT;
     public static ExteriorVariantSchema PLINTH_SOUL;
     public static ExteriorVariantSchema PLINTH_FIRE;
@@ -194,14 +196,13 @@ public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantS
     public static ExteriorVariantSchema DALEK_MOD_1970;
     public static ExteriorVariantSchema DALEK_MOD_1976;
     public static ExteriorVariantSchema DALEK_MOD_1980;
-//    public static ExteriorVariantSchema JAKE_DEFAULT;
-//    public static ExteriorVariantSchema PRESENT_DEFAULT;
-//    public static ExteriorVariantSchema PRESENT_GREEN;
-//    public static ExteriorVariantSchema PRESENT_BLUE;
     public static ExteriorVariantSchema PIPE_DEFAULT;
     public static ExteriorVariantSchema PIPE_RED;
-    //public static ExteriorVariantSchema PIPE_YELLOW;
     public static ExteriorVariantSchema PIPE_BLUE;
+
+    // Exclusives
+    public static ExteriorVariantSchema DOOM;
+    public static ExteriorVariantSchema WANDERER;
 
     @Override
     protected void defaults() {
@@ -252,8 +253,6 @@ public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantS
         // Coral Growth
         CORAL_GROWTH = register(new CoralGrowthVariant());
 
-        // Doom
-        DOOM = register(new DoomVariant());
 
         // Plinth
         PLINTH_DEFAULT = register(new PlinthDefaultVariant());
@@ -290,18 +289,14 @@ public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantS
         DALEK_MOD_1976 = register(new DalekMod1976Variant());
         DALEK_MOD_1980 = register(new DalekMod1980Variant());
 
-        // Jake
-        //JAKE_DEFAULT = init(new JakeDefaultVariant());
-
-        // Present
-//        PRESENT_DEFAULT = register(new PresentDefaultVariant());
-//        PRESENT_GREEN = register(new PresentGreenVariant());
-//        PRESENT_BLUE = register(new PresentBlueVariant());
-
         // Pipe
         PIPE_DEFAULT = register(new PipeDefaultVariant());
         PIPE_RED = register(new PipeRedVariant());
         //PIPE_YELLOW = register(new PipeYellowVariant());
         PIPE_BLUE = register(new PipeBlueVariant());
+
+        // Dev Exclusives
+        DOOM = register(new DoomVariant());
+        WANDERER = register(new BoothWandererVariant());
     }
 }

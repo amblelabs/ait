@@ -1,24 +1,26 @@
 package dev.amble.ait.core.tardis.animation.v2.datapack;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
+
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
 import dev.amble.ait.core.tardis.animation.v2.blockbench.BlockbenchParser;
 import dev.amble.ait.core.tardis.animation.v2.keyframe.KeyframeTracker;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class DatapackAnimation extends TardisAnimation {
     public static final Codec<TardisAnimation> CODEC = RecordCodecBuilder.create(instance -> instance
@@ -61,7 +63,7 @@ public class DatapackAnimation extends TardisAnimation {
 
     @Override
     public DatapackAnimation instantiate() {
-        return new DatapackAnimation(this.id(), this.alpha.instantiate(), this.scale.instantiate(), this.position.instantiate(), this.rotation.instantiate(), this.blockbenchId, this.expectedState, this.nameKey, this.getSound().getId());
+        return new DatapackAnimation(this.id(), this.alpha.instantiate(), this.scale.instantiate(), this.position.instantiate(), this.rotation.instantiate(), this.blockbenchId, this.expectedState, this.nameKey, this.getSoundIdOrDefault());
     }
 
     public static DatapackAnimation fromInputStream(InputStream stream) {

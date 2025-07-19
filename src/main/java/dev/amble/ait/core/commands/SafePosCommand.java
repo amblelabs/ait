@@ -1,13 +1,14 @@
 package dev.amble.ait.core.commands;
 
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
+
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.commands.argument.GroundSearchArgumentType;
-import dev.amble.ait.core.util.SafePosSearch;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+
 import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.command.argument.DimensionArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
@@ -19,14 +20,16 @@ import net.minecraft.text.Texts;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
+import dev.amble.ait.core.commands.argument.GroundSearchArgumentType;
+import dev.amble.ait.core.util.SafePosSearch;
 
 public class SafePosCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(
-                literal(AITMod.MOD_ID).then(literal("safe-pos").requires(source -> source.hasPermissionLevel(2))
+                literal(AITMod.MOD_ID).then(literal("safe-pos").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.safe-pos", 2))
                         .then(argument("world", DimensionArgumentType.dimension())
                                 .then(argument("pos", BlockPosArgumentType.blockPos())
                                         .then(argument("search-type", GroundSearchArgumentType.groundSearch())

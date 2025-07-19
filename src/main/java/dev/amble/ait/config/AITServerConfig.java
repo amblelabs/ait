@@ -1,8 +1,8 @@
 package dev.amble.ait.config;
 
+import java.util.List;
+
 import com.google.common.collect.Lists;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITDimensions;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.controller.ControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
@@ -14,7 +14,8 @@ import dev.isxander.yacl3.config.v2.api.autogen.Boolean;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import dev.isxander.yacl3.platform.YACLPlatform;
 
-import java.util.List;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITDimensions;
 
 public class AITServerConfig {
 
@@ -49,6 +50,10 @@ public class AITServerConfig {
     @SerialEntry public boolean tntCanTeleportThroughDoors = true;
 
     @AutoGen(category = CATEGORY)
+    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @SerialEntry public boolean hypercubesEnabled = true;
+
+    @AutoGen(category = CATEGORY)
     @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
     @SerialEntry public List<String> projectorBlacklist = Lists.newArrayList(
             "ait-tardis");
@@ -79,6 +84,10 @@ public class AITServerConfig {
     @AutoGen(category = CATEGORY)
     @IntField(min = -1)
     @SerialEntry public int maxTardises = -1;
+
+    @AutoGen(category = CATEGORY)
+    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @SerialEntry public boolean disableSafeguards = false;
 
     public static class StringListFactory implements ListGroup.ValueFactory<String>, ListGroup.ControllerFactory<String> {
 

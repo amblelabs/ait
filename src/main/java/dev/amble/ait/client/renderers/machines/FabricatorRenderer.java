@@ -1,11 +1,7 @@
 package dev.amble.ait.client.renderers.machines;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.machines.FabricatorModel;
-import dev.amble.ait.client.util.ClientLightUtil;
-import dev.amble.ait.core.blockentities.FabricatorBlockEntity;
-import dev.amble.ait.core.blocks.FabricatorBlock;
-import dev.amble.ait.core.item.blueprint.Blueprint;
+import org.joml.Vector3f;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.RenderLayer;
@@ -20,7 +16,13 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.profiler.Profiler;
-import org.joml.Vector3f;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.machines.FabricatorModel;
+import dev.amble.ait.client.util.ClientLightUtil;
+import dev.amble.ait.core.blockentities.FabricatorBlockEntity;
+import dev.amble.ait.core.blocks.FabricatorBlock;
+import dev.amble.ait.core.item.blueprint.Blueprint;
 
 public class FabricatorRenderer<T extends FabricatorBlockEntity> implements BlockEntityRenderer<T> {
 

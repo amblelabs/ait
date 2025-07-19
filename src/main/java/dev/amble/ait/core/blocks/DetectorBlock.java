@@ -1,10 +1,9 @@
 package dev.amble.ait.core.blocks;
 
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.blockentities.DetectorBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import java.util.function.Function;
+
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -26,9 +25,12 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Function;
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.blockentities.DetectorBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
 @SuppressWarnings("deprecation")
 public class DetectorBlock extends WallMountedBlock implements BlockEntityProvider {
@@ -165,7 +167,7 @@ public class DetectorBlock extends WallMountedBlock implements BlockEntityProvid
                 }), DOOR_LOCKED(tardis -> tardis.door().locked() ? 15 : 0), DOOR_OPEN(
                         tardis -> tardis.door().isOpen() ? 15 : 0), SONIC(
                                 tardis -> tardis.sonic().getConsoleSonic() != null ? 15 : 0), ALARMS(
-                                        tardis -> tardis.alarm().enabled().get() ? 15 : 0);
+                                        tardis -> tardis.alarm().isEnabled() ? 15 : 0);
 
         private final String name;
         private final Function<Tardis, Integer> func;

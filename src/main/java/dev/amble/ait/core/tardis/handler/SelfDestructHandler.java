@@ -1,15 +1,7 @@
 package dev.amble.ait.core.tardis.handler;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.KeyedTardisComponent;
-import dev.amble.ait.api.tardis.TardisTickable;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.properties.bool.BoolProperty;
-import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
@@ -19,6 +11,16 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.data.Exclude;
+import dev.amble.ait.data.properties.bool.BoolProperty;
+import dev.amble.ait.data.properties.bool.BoolValue;
 
 public class SelfDestructHandler extends KeyedTardisComponent implements TardisTickable {
 
@@ -43,7 +45,7 @@ public class SelfDestructHandler extends KeyedTardisComponent implements TardisT
             return;
 
         this.queued.set(true);
-        this.tardis.alarm().enabled().set(true);
+        this.tardis.alarm().enable();
     }
 
     private void complete() {
@@ -93,7 +95,7 @@ public class SelfDestructHandler extends KeyedTardisComponent implements TardisT
         if (!this.canSelfDestruct()) {
             this.queued.set(false);
 
-            tardis.alarm().enabled().set(false);
+            tardis.alarm().disable();
             return;
         }
 

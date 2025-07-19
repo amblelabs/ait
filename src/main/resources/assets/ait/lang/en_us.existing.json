@@ -15,6 +15,7 @@
   "yacl3.config.ait:server.travelBlacklist": "TARDIS travel world blacklist",
   "yacl3.config.ait:server.riftSpawnBlacklist": "Rift spawn world blacklist",
   "yacl3.config.ait:server.riftDropBlacklist": "Rift drop world blacklist",
+  "yacl3.config.ait:server.disableSafeguards": "Disable Safeguards",
 
   "yacl3.config.ait:client.interiorHumVolume": "Interior hum volume",
   "yacl3.config.ait:client.customMenu": "Use custom main menu?",

@@ -1,17 +1,19 @@
 package dev.amble.ait.module.planet.mixin.client;
 
-import dev.amble.ait.core.entities.FlightTardisEntity;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.module.planet.core.space.planet.Planet;
-import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.GameRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.GameRenderer;
+
+import dev.amble.ait.core.entities.FlightTardisEntity;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.module.planet.core.space.planet.Planet;
+import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {

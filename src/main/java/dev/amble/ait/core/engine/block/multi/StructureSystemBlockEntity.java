@@ -1,13 +1,14 @@
 package dev.amble.ait.core.engine.block.multi;
 
-import dev.amble.ait.core.engine.DurableSubSystem;
-import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import dev.amble.ait.core.engine.DurableSubSystem;
+import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
 
 public abstract class StructureSystemBlockEntity extends SubSystemBlockEntity {
     protected StructureSystemBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, SubSystem.IdLike id) {

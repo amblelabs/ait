@@ -1,22 +1,24 @@
 package dev.amble.ait.core.sounds.travel;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.concurrent.atomic.AtomicReference;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.Nameable;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.lib.api.Identifiable;
+
 import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.concurrent.atomic.AtomicReference;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.Nameable;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
 // @TODO better variable names
 @Deprecated(forRemoval = true, since = "1.3.0")

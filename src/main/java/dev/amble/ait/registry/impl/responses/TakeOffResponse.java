@@ -1,14 +1,15 @@
 package dev.amble.ait.registry.impl.responses;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.handles.HandlesResponse;
 import dev.amble.ait.core.handles.HandlesSound;
 import dev.amble.ait.core.tardis.ServerTardis;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TakeOffResponse implements HandlesResponse {
     @Override

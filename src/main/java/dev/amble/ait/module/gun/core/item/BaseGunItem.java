@@ -1,13 +1,17 @@
 package dev.amble.ait.module.gun.core.item;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.AITStatusEffects;
+import java.util.List;
+import java.util.function.Predicate;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -32,17 +36,15 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
-import java.util.List;
-import java.util.function.Predicate;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITStatusEffects;
 
 public class BaseGunItem extends RangedWeaponItem {
     public static final Identifier SHOOT = AITMod.id("shoot_gun");
     public static final Predicate<ItemStack> GUN_PROJECTILES = itemStack -> itemStack.isOf(GunItems.STASER_BOLT_MAGAZINE);
-    public static final double MAX_AMMO = 2000;
+    public static final double MAX_AMMO = 64;
     public static final String AMMO_KEY = "ammo";
 
     public BaseGunItem(Settings settings) {
@@ -64,7 +66,7 @@ public class BaseGunItem extends RangedWeaponItem {
                         1.0f, false, 4.0f, player.hasStatusEffect(AITStatusEffects.ZEITON_HIGH) ? 20f : gun.getAimDeviation(isAds), 0.0f);
                 NbtCompound compound = player.getMainHandStack().getOrCreateNbt();
                 double current = compound.getDouble(AMMO_KEY);
-                double removableAmmo = (isAds ? 15 : 10);
+                double removableAmmo = (isAds ? 2 : 1);
                 player.getItemCooldownManager().set(gun, gun.getCooldown());
                 if (current - removableAmmo <= 0) {
                     compound.putDouble(AMMO_KEY, 0);

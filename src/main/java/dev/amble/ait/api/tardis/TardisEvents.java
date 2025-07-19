@@ -1,5 +1,19 @@
 package dev.amble.ait.api.tardis;
 
+import java.util.Optional;
+
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedBlockPos;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.entity.Entity;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+
 import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.impl.EngineSystem;
@@ -7,19 +21,6 @@ import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 import dev.amble.ait.data.landing.LandingPadSpot;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedBlockPos;
-import net.fabricmc.fabric.api.event.Event;
-import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.chunk.WorldChunk;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Optional;
 
 public final class TardisEvents {
 
@@ -473,7 +474,7 @@ public final class TardisEvents {
 
     @FunctionalInterface
     public interface SyncTardis {
-        void sync(ServerPlayerEntity player, WorldChunk chunk);
+        void sync(ServerPlayerEntity player, ChunkPos chunk);
     }
 
     @FunctionalInterface

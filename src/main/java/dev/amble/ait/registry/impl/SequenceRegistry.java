@@ -1,17 +1,11 @@
 package dev.amble.ait.registry.impl;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.control.impl.*;
-import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
-import dev.amble.ait.core.tardis.control.impl.pos.XControl;
-import dev.amble.ait.core.tardis.control.impl.pos.YControl;
-import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
-import dev.amble.ait.core.tardis.control.sequences.Sequence;
-import dev.amble.ait.core.util.WorldUtil;
+import java.util.ArrayList;
+import java.util.List;
+
 import dev.amble.lib.data.DirectedBlockPos;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.mob.DrownedEntity;
@@ -31,8 +25,16 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 
-import java.util.ArrayList;
-import java.util.List;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.control.impl.*;
+import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
+import dev.amble.ait.core.tardis.control.impl.pos.XControl;
+import dev.amble.ait.core.tardis.control.impl.pos.YControl;
+import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
+import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
+import dev.amble.ait.core.tardis.control.sequences.Sequence;
+import dev.amble.ait.core.util.WorldUtil;
 
 public class SequenceRegistry {
     public static final SimpleRegistry<Sequence> REGISTRY = FabricRegistryBuilder

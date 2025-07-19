@@ -1,10 +1,7 @@
 package dev.amble.ait.client.renderers.machines;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.machines.EngineModel;
-import dev.amble.ait.core.blockentities.EngineBlockEntity;
-import dev.amble.ait.core.engine.impl.EngineSystem;
-import dev.amble.ait.core.tardis.Tardis;
+import org.joml.Vector3f;
+
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -14,7 +11,12 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.world.LightType;
-import org.joml.Vector3f;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.machines.EngineModel;
+import dev.amble.ait.core.blockentities.EngineBlockEntity;
+import dev.amble.ait.core.engine.impl.EngineSystem;
+import dev.amble.ait.core.tardis.Tardis;
 
 // Made with Blockbench 4.8.3
 // Exported for Minecraft version 1.17+ for Yarn

@@ -1,10 +1,12 @@
 package dev.amble.ait.api.tardis;
 
-import dev.amble.ait.core.tardis.Tardis;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.server.MinecraftServer;
+
+import dev.amble.ait.core.tardis.Tardis;
 
 /**
  * An interface for something that can be ticked by a tardis Make sure to add

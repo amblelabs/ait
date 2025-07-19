@@ -1,10 +1,11 @@
 package dev.amble.ait.client.models.machines;
 
-import dev.amble.ait.AITMod;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
+
+import dev.amble.ait.AITMod;
 
 public class GenericSubSystemModel extends SinglePartEntityModel {
     public static final Identifier TEXTURE = AITMod.id("textures/blockentities/machines/subsystem.png");

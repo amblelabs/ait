@@ -7,7 +7,7 @@ public class StaserRifleItem extends BaseGunItem {
 
     @Override
     public double getMaxAmmo() {
-        return 1000;
+        return 64;
     }
 
     @Override

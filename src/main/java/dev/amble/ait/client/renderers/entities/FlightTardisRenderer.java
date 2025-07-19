@@ -1,16 +1,5 @@
 package dev.amble.ait.client.renderers.entities;
 
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
-import dev.amble.ait.client.models.machines.ShieldsModel;
-import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.client.renderers.VortexUtil;
-import dev.amble.ait.client.util.ClientLightUtil;
-import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.entities.FlightTardisEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.BiomeHandler;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.OverlayTexture;
@@ -24,6 +13,18 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
+
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.models.machines.ShieldsModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.renderers.VortexUtil;
+import dev.amble.ait.client.util.ClientLightUtil;
+import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.entities.FlightTardisEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.BiomeHandler;
+import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 
 public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
@@ -97,7 +98,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
         this.model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(getTexture(entity))), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 
         if (variant.emission() != null && tardis.fuel().hasPower()) {
-            boolean alarms = tardis.alarm().enabled().get();
+            boolean alarms = tardis.alarm().isEnabled();
 
             float color = alarms ? 0.3f : 1f;
 

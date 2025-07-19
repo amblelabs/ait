@@ -1,6 +1,7 @@
 package dev.amble.ait.client.models.items;
 
-import dev.amble.ait.AITMod;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -13,7 +14,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
-import org.jetbrains.annotations.Nullable;
+
+import dev.amble.ait.AITMod;
 
 public class HandlesModel extends Model {
     public static final Identifier TEXTURE = AITMod.id("textures/blockentities/items/handles.png");

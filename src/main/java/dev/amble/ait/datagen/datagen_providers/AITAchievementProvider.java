@@ -1,12 +1,10 @@
 package dev.amble.ait.datagen.datagen_providers;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.module.ModuleRegistry;
+import java.util.function.Consumer;
+
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricAdvancementProvider;
+
 import net.minecraft.advancement.Advancement;
 import net.minecraft.advancement.AdvancementFrame;
 import net.minecraft.advancement.criterion.InventoryChangedCriterion;
@@ -14,7 +12,11 @@ import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-import java.util.function.Consumer;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.module.ModuleRegistry;
 
 public class AITAchievementProvider extends FabricAdvancementProvider {
     public AITAchievementProvider(FabricDataOutput output) {
@@ -59,6 +61,22 @@ public class AITAchievementProvider extends FabricAdvancementProvider {
         // its the first
         // one
         // that shows
+
+        Advancement feedPowerConverter = Advancement.Builder.create().parent(firstEnter)
+                .display(AITBlocks.POWER_CONVERTER, Text.translatable("achievement.ait.title.feed_power_converter"),
+                        Text.translatable("achievement.ait.description.feed_power_converter"),
+                        null,
+                        AdvancementFrame.TASK, true, true, true)
+                .criterion("feed_power_converter", TardisCriterions.FEED_POWER_CONVERTER.conditions())
+                .build(consumer, AITMod.MOD_ID + "/feed_power_converter");
+
+        Advancement attackEyebrows = Advancement.Builder.create().parent(firstEnter)
+                .display(AITItems.SONIC_SCREWDRIVER, Text.translatable("achievement.ait.title.attack_eyebrows"),
+                        Text.translatable("achievement.ait.description.attack_eyebrows"),
+                        null,
+                        AdvancementFrame.TASK, true, true, true)
+                .criterion("attack_eyebrows", TardisCriterions.ATTACK_EYEBROWS.conditions())
+                .build(consumer, AITMod.MOD_ID + "/attack_eyebrows");
 
         Advancement brandNew = Advancement.Builder.create().parent(firstEnter)
                 .display(AITItems.MUG, Text.translatable("achievement.ait.title.brand_new"),

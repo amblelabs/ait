@@ -1,10 +1,5 @@
 package dev.amble.ait.client.renderers.decoration;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.decoration.PlaqueModel;
-import dev.amble.ait.core.blockentities.PlaqueBlockEntity;
-import dev.amble.ait.core.blocks.PlaqueBlock;
-import dev.amble.ait.core.tardis.Tardis;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -17,6 +12,12 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.decoration.PlaqueModel;
+import dev.amble.ait.core.blockentities.PlaqueBlockEntity;
+import dev.amble.ait.core.blocks.PlaqueBlock;
+import dev.amble.ait.core.tardis.Tardis;
 
 public class PlaqueRenderer<T extends PlaqueBlockEntity> implements BlockEntityRenderer<T> {
 

@@ -1,17 +1,41 @@
 package dev.amble.ait.core.tardis.handler.travel;
 
+import java.util.EnumMap;
+import java.util.Optional;
+
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.drtheo.queue.api.ActionQueue;
+import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.loader.api.FabricLoader;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
-import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.lock.LockedDimension;
 import dev.amble.ait.core.lock.LockedDimensionRegistry;
-import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.control.impl.DirectionControl;
@@ -23,32 +47,6 @@ import dev.amble.ait.core.util.SafePosSearch;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.data.Exclude;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.drtheo.queue.api.ActionQueue;
-import dev.drtheo.scheduler.api.TimeUnit;
-import dev.drtheo.scheduler.api.common.Scheduler;
-import dev.drtheo.scheduler.api.common.TaskStage;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.EnumMap;
-import java.util.Optional;
 
 public final class TravelHandler extends AnimatedTravelHandler implements CrashableTardisTravel {
 
@@ -121,7 +119,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
                 if (tardis == null) return;
 
                 TardisAnimationRegistry.getInstance().getOptional(tardis.travel().getAnimationIdFor(TravelHandlerBase.State.DEMAT)).ifPresent(animation -> {
-                    client.getSoundManager().stopSounds(animation.getSound().getId(), SoundCategory.BLOCKS);
+                    client.getSoundManager().stopSounds(animation.getSoundIdOrDefault(), SoundCategory.BLOCKS);
                 });
             });
         });
@@ -209,6 +207,10 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
     private ExteriorBlockEntity placeExterior(CachedDirectedGlobalPos globalPos, boolean animate, boolean schedule) {
         ServerWorld world = globalPos.getWorld();
+        if (world == null) {
+            AITMod.LOGGER.error("Failed to place exterior: world is null for position {}", globalPos);
+            return null;
+        } // This should be fine for now
         BlockPos pos = globalPos.getPos();
 
         boolean hasPower = this.tardis.fuel().hasPower();
@@ -344,7 +346,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
             this.queueFor(State.LANDED).thenRun(() -> this.setAnimationFor(State.MAT, finalRematPrevious.id()));
         }
 
-        this.tardis.getDesktop().playSoundAtEveryConsole(anim.getSound(), SoundCategory.BLOCKS, 2f, 1f);
+        this.tardis.getDesktop().forcePlaySoundAtEveryConsole(anim.getSoundIdOrDefault(), SoundCategory.BLOCKS);
 
         this.runAnimations();
 
@@ -428,12 +430,12 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         this.waiting = false;
         this.tardis.door().closeDoors();
 
-        SoundEvent sound = this.getAnimationFor(this.getState()).getSound();
+        Identifier sound = this.getAnimationFor(this.getState()).getSoundIdOrDefault();
 
         if (this.isCrashing())
-            sound = AITSounds.EMERG_MAT;
+            sound = AITSounds.EMERG_MAT.getId();
 
-        this.tardis.getDesktop().playSoundAtEveryConsole(sound, SoundCategory.BLOCKS, 2f, 1f);
+        this.tardis.getDesktop().forcePlaySoundAtEveryConsole(sound, SoundCategory.BLOCKS);
 
         this.destination(pos);
         this.forcePosition(this.destination());

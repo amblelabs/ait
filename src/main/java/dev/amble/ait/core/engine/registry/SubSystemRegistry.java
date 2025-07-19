@@ -1,15 +1,16 @@
 package dev.amble.ait.core.engine.registry;
 
-import com.google.gson.*;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.lib.register.Registry;
-
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import com.google.gson.*;
+import dev.amble.lib.register.Registry;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.engine.SubSystem;
 
 public class SubSystemRegistry implements Registry {
 

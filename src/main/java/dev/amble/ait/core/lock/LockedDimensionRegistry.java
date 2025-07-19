@@ -1,11 +1,11 @@
 package dev.amble.ait.core.lock;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.util.WorldUtil;
+import java.util.ArrayList;
+import java.util.List;
+
 import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.resource.ResourceType;
@@ -16,8 +16,10 @@ import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionTypes;
 
-import java.util.ArrayList;
-import java.util.List;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.util.WorldUtil;
 
 public class LockedDimensionRegistry extends SimpleDatapackRegistry<LockedDimension> {
     private static final LockedDimensionRegistry instance = new LockedDimensionRegistry();

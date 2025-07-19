@@ -1,10 +1,11 @@
 package dev.amble.ait.data.codec;
 
+import java.util.List;
+
 import com.mojang.serialization.Codec;
-import net.minecraft.util.Util;
 import org.joml.Vector3f;
 
-import java.util.List;
+import net.minecraft.util.Util;
 
 public class MoreCodec {
 

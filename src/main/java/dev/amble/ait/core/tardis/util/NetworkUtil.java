@@ -1,29 +1,38 @@
 package dev.amble.ait.core.tardis.util;
 
+import java.util.*;
+import java.util.stream.Stream;
+
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.link.LinkableItem;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.World;
 
-import java.util.*;
-import java.util.stream.Stream;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.Tardis;
 
 public class NetworkUtil {
 
@@ -113,6 +122,29 @@ public class NetworkUtil {
 
         ChunkPos chunkPos = new ChunkPos(exteriorPos.getPos());
         return Stream.concat(result, PlayerLookup.tracking(exteriorPos.getWorld(), chunkPos).stream());
+    }
+
+    /**
+     * plays a sound, ignoring whether it exists or not.
+     */
+    public static void playSound(RegistryKey<World> worldKey, BlockPos pos, Identifier soundId, SoundCategory category) {
+        if (!ServerLifecycleHooks.isServer()) return;
+
+        RegistryEntry<SoundEvent> soundEntry = RegistryEntry.of(SoundEvent.of(soundId));
+        long seed = ServerLifecycleHooks.get().getOverworld().getRandom().nextLong();
+
+        final float distance = 8f; // default distance for exterior sounds
+        ServerLifecycleHooks.get()
+                .getPlayerManager()
+                .sendToAround(
+                        null,
+                        pos.getX(),
+                        pos.getY(),
+                        pos.getZ(),
+                        distance,
+                        worldKey,
+                        new PlaySoundS2CPacket(soundEntry, category, pos.getX(), pos.getY(), pos.getZ(), 1f, 1f, seed)
+                );
     }
 
     @Environment(EnvType.CLIENT)

@@ -1,6 +1,21 @@
 package dev.amble.ait.client.renderers.exteriors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import org.joml.Vector3f;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.*;
+import net.minecraft.client.render.block.entity.BlockEntityRenderer;
+import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.*;
+import net.minecraft.util.profiler.Profiler;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.boti.BOTI;
@@ -10,6 +25,7 @@ import dev.amble.ait.client.models.machines.ShieldsModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientLightUtil;
+import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.tardis.Tardis;
@@ -19,24 +35,6 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.*;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.passive.SheepEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.RotationPropertyHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.profiler.Profiler;
-import org.joml.Vector3f;
 
 public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEntityRenderer<T> {
 
@@ -73,8 +71,11 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             this.renderExterior(profiler, tardis, entity, tickDelta, matrices, vertexConsumers, light, overlay);
 
         if ((tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) && !tardis.isGrowth() && tardis.travel().isLanded() &&
-        !tardis.siege().isActive())
-            BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
+        !tardis.siege().isActive()) {
+            if (!variant.equals(ClientExteriorVariantRegistry.DOOM)) {
+                BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
+            }
+        }
 
         profiler.pop();
 
@@ -120,6 +121,8 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         int k = blockState.get(ExteriorBlock.ROTATION);
         float h = RotationPropertyHelper.toDegrees(k);
 
+        boolean isDoom = this.variant.equals(ClientExteriorVariantRegistry.DOOM);
+
         matrices.push();
 
         // adjust based off animation position
@@ -144,21 +147,26 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             return;
         }
 
-        float wrappedDegrees = MathHelper.wrapDegrees(MinecraftClient.getInstance().player.getHeadYaw() + h);
+        int rotation = travel.position().getRotation();
+        boolean isDiagonal = rotation > 0 && rotation < 4 || rotation > 4 && rotation < 8 || rotation > 8 && rotation < 12
+                || rotation > 12 && rotation < 16;
+        float wrappedDegrees = MathHelper.wrapDegrees(MinecraftClient.getInstance().player.getHeadYaw() + h + (isDiagonal ? 90f : 0));
 
-        if (this.variant.equals(ClientExteriorVariantRegistry.DOOM)) {
+        if (isDoom) {
             texture = DoomConstants.getTextureForRotation(wrappedDegrees, tardis);
             emission = DoomConstants.getEmissionForRotation(DoomConstants.getTextureForRotation(wrappedDegrees, tardis),
                     tardis);
         }
 
-        matrices.multiply(
-                RotationAxis.NEGATIVE_Y.rotationDegrees(!this.variant.equals(ClientExteriorVariantRegistry.DOOM)
-                        ? h + 180f
-                        : MinecraftClient.getInstance().player.getHeadYaw() + 180f
-                                + ((wrappedDegrees > -135 && wrappedDegrees < 135) ? 180f : 0f)));
-
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
+
+        matrices.multiply(
+                RotationAxis.POSITIVE_Y.rotationDegrees(!isDoom
+                        ? h + 180f
+                        : MinecraftClient.getInstance().player.getHeadYaw()
+                        + ((wrappedDegrees > -135 && wrappedDegrees < 135) ? 180f : 0f)
+                + (travel.position().getRotationDirection() == Direction.EAST ||
+                        travel.position().getRotationDirection() == Direction.WEST ? 180f : 0f)));
 
         if (model == null) {
             profiler.pop();
@@ -175,27 +183,27 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
                 1, alpha);
 
         profiler.push("emission");
+
         boolean alarms = tardis.alarm().isEnabled();
+        boolean power = tardis.fuel().hasPower();
 
+        // the emission should only render IF
+        //  1) the alpha of the exterior is higher than a certain threshold
+        //  2) there is an emissive texture
+        //  3) there's power OR alarms on
+        if (alpha > 0.105f && emission != null && (power || alarms)
+                && !emission.equals(DatapackConsole.EMPTY)) {
+            float u = 1;
+            float t = 1;
+            float s = 1;
 
-        if (alpha > 0.105f && emission != null && !emission.equals(DatapackConsole.EMPTY)) {
-            float u;
-            float t;
-            float s;
+            if ("partytardis".equals(tardis.stats().getName()) ||
+                    !tardis.extra().getInsertedDisc().isEmpty()) {
+                final float[] rgb = ClientTardisUtil.getPartyColors();
 
-            if ((tardis.stats().getName() != null && "partytardis".equals(tardis.stats().getName().toLowerCase())) ||
-                    (!tardis.extra().getInsertedDisc().isEmpty())) {
-                int m = 25;
-                int n = MinecraftClient.getInstance().player.age / m + MinecraftClient.getInstance().player.getId();
-                int o = DyeColor.values().length;
-                int p = n % o;
-                int q = (n + 1) % o;
-                float r = ((float)(MinecraftClient.getInstance().player.age % m)) / m;
-                float[] fs = SheepEntity.getRgbColor(DyeColor.byId(p));
-                float[] gs = SheepEntity.getRgbColor(DyeColor.byId(q));
-                s = fs[0] * (1f - r) + gs[0] * r;
-                t = fs[1] * (1f - r) + gs[1] * r;
-                u = fs[2] * (1f - r) + gs[2] * r;
+                u = rgb[0];
+                t = rgb[1];
+                s = rgb[2];
             } else if (tardis.sonic().getExteriorSonic() != null) {
                 float time = MinecraftClient.getInstance().player.age + MinecraftClient.getInstance().getTickDelta();
                 float progress = (float)((Math.sin(time * 0.03) + 1) / 2.0f);
@@ -206,33 +214,26 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
                 s = FROM_R * (1f - progress) + TO_R * progress;
                 t = FROM_G * (1f - progress) + TO_G * progress;
                 u = FROM_B * (1f - progress) + TO_B * progress;
-            } else {
-                s = 1.0f;
-                t = 1.0f;
-                u = 1.0f;
             }
 
-
             float colorAlpha = 1 - alpha;
-            boolean power = tardis.fuel().hasPower();
 
             float red = alarms
-                    ? (!power ? 0.25f : s - colorAlpha)
-                    : (power ? s - colorAlpha : 0f);
+                    ? !power ? 0.25f : s - colorAlpha
+                    : s - colorAlpha;
 
             float green = alarms
-                    ? (!power ? 0.01f : 0.3f)
-                    : (power ? t - colorAlpha : 0f);
+                    ? !power ? 0.01f : 0.3f
+                    : t - colorAlpha;
 
             float blue = alarms
-                    ? (!power ? 0.01f : 0.3f)
-                    : (power ? u - colorAlpha : 0f);
+                    ? !power ? 0.01f : 0.3f
+                    : u - colorAlpha;
 
             ClientLightUtil.renderEmissive((v, l) -> model.renderWithAnimations(
                     tardis, entity, this.model.getPart(), matrices, v, l, overlay, red, green, blue, alpha
             ), emission, vertexConsumers);
         }
-
 
         profiler.swap("biome");
 

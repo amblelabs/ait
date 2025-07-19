@@ -1,9 +1,10 @@
 package dev.amble.ait.data.gson;
 
-import com.google.gson.*;
-import net.minecraft.util.Identifier;
-
 import java.lang.reflect.Type;
+
+import com.google.gson.*;
+
+import net.minecraft.util.Identifier;
 
 /**
  * A more compact identifier serializer.

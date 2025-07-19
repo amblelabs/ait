@@ -1,17 +1,19 @@
 package dev.amble.ait.data.schema.desktop;
 
+import java.lang.reflect.Type;
+import java.util.Optional;
+
 import com.google.gson.*;
+import dev.amble.lib.register.unlockable.Unlockable;
+
+import net.minecraft.structure.StructureTemplate;
+import net.minecraft.util.Identifier;
+
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.BasicSchema;
 import dev.amble.ait.data.schema.desktop.textures.DesktopPreviewTexture;
 import dev.amble.ait.registry.impl.DesktopRegistry;
-import dev.amble.lib.register.unlockable.Unlockable;
-import net.minecraft.structure.StructureTemplate;
-import net.minecraft.util.Identifier;
-
-import java.lang.reflect.Type;
-import java.util.Optional;
 
 public abstract class TardisDesktopSchema extends BasicSchema implements Unlockable {
 

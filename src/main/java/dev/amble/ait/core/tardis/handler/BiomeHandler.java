@@ -1,16 +1,15 @@
 package dev.amble.ait.core.tardis.handler;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.KeyedTardisComponent;
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
-import dev.amble.ait.data.enummap.Ordered;
-import dev.amble.ait.data.properties.Property;
-import dev.amble.ait.data.properties.Value;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.gaslighter.Gaslighter3000;
 import dev.drtheo.gaslighter.impl.FakeStructureWorldAccess;
 import net.fabricmc.fabric.api.tag.convention.v1.ConventionalBiomeTags;
+import org.apache.commons.lang3.StringUtils;
+
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -22,11 +21,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.gen.feature.*;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
+import dev.amble.ait.data.enummap.Ordered;
+import dev.amble.ait.data.properties.Property;
+import dev.amble.ait.data.properties.Value;
 
 /**
  * @author Loqor

@@ -1,8 +1,7 @@
 package dev.amble.ait.core.blocks;
 
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.blockentities.AITRadioBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -22,7 +21,10 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
+
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.blockentities.AITRadioBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 
 public class RadioBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
 

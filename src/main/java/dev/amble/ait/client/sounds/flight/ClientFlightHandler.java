@@ -1,10 +1,11 @@
 package dev.amble.ait.client.sounds.flight;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.sound.SoundCategory;
+
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.sound.SoundCategory;
 
 public class ClientFlightHandler extends SoundHandler {
 
@@ -85,7 +86,7 @@ public class ClientFlightHandler extends SoundHandler {
     }
 
     public boolean hasThrottleAndHandbrakeDown(ClientTardis tardis) {
-        return tardis != null && tardis.travel().speed() > 0 && tardis.travel().handbrake();
+        return tardis != null && tardis.travel().isLanded() && tardis.travel().speed() > 0 && tardis.travel().handbrake();
     }
 
     public void tick(MinecraftClient client) {

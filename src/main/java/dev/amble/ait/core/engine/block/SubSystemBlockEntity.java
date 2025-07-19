@@ -1,12 +1,6 @@
 package dev.amble.ait.core.engine.block;
 
 
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.engine.DurableSubSystem;
-import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
-import dev.amble.ait.core.engine.registry.SubSystemRegistry;
-import dev.amble.ait.core.util.SoundData;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -16,6 +10,13 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.engine.DurableSubSystem;
+import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
+import dev.amble.ait.core.engine.registry.SubSystemRegistry;
+import dev.amble.ait.core.util.SoundData;
 
 public class SubSystemBlockEntity extends FluidLinkBlockEntity {
     protected SubSystem.IdLike id;

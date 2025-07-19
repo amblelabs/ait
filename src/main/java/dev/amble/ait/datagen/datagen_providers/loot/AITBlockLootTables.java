@@ -1,12 +1,8 @@
 package dev.amble.ait.datagen.datagen_providers.loot;
 
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.module.ModuleRegistry;
-import dev.amble.ait.module.planet.core.PlanetBlocks;
 import dev.amble.lib.datagen.loot.AmbleBlockLootTable;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Items;
 import net.minecraft.loot.condition.MatchToolLootCondition;
@@ -15,6 +11,12 @@ import net.minecraft.loot.function.ApplyBonusLootFunction;
 import net.minecraft.loot.function.SetCountLootFunction;
 import net.minecraft.loot.provider.number.ConstantLootNumberProvider;
 import net.minecraft.predicate.item.ItemPredicate;
+
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.module.ModuleRegistry;
+import dev.amble.ait.module.planet.core.PlanetBlocks;
 
 public class AITBlockLootTables extends AmbleBlockLootTable {
 

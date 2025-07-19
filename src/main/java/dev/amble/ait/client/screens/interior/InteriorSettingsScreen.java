@@ -1,24 +1,16 @@
 package dev.amble.ait.client.screens.interior;
 
+import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.CHANGE_DESKTOP;
+
+import java.util.List;
+import java.util.function.Function;
+
 import com.google.common.collect.Lists;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.Nameable;
-import dev.amble.ait.api.tardis.TardisClientEvents;
-import dev.amble.ait.client.screens.ConsoleScreen;
-import dev.amble.ait.client.screens.SonicSettingsScreen;
-import dev.amble.ait.client.screens.TardisSecurityScreen;
-import dev.amble.ait.client.screens.widget.SwitcherManager;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.compat.DependencyChecker;
-import dev.amble.ait.core.tardis.TardisDesktop;
-import dev.amble.ait.core.tardis.handler.FuelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
-import dev.amble.ait.registry.impl.DesktopRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -34,10 +26,20 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.List;
-import java.util.function.Function;
-
-import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.CHANGE_DESKTOP;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.Nameable;
+import dev.amble.ait.api.tardis.TardisClientEvents;
+import dev.amble.ait.client.screens.ConsoleScreen;
+import dev.amble.ait.client.screens.SonicSettingsScreen;
+import dev.amble.ait.client.screens.TardisSecurityScreen;
+import dev.amble.ait.client.screens.widget.SwitcherManager;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.core.tardis.TardisDesktop;
+import dev.amble.ait.core.tardis.handler.FuelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
+import dev.amble.ait.registry.impl.DesktopRegistry;
 
 @Environment(EnvType.CLIENT)
 public class InteriorSettingsScreen extends ConsoleScreen {

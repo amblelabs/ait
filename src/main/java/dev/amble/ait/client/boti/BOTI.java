@@ -1,21 +1,23 @@
 package dev.amble.ait.client.boti;
 
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import com.mojang.blaze3d.platform.GlConst;
 import com.mojang.blaze3d.platform.GlStateManager;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
-import java.util.LinkedList;
-import java.util.Queue;
 
 
 public class BOTI {

@@ -1,12 +1,10 @@
 package dev.amble.ait.core.blocks;
 
-import dev.amble.ait.client.screens.LandingPadScreen;
-import dev.amble.ait.core.world.LandingPadManager;
-import dev.amble.ait.data.landing.LandingPadRegion;
-import dev.amble.ait.data.landing.LandingPadSpot;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -27,7 +25,11 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
+
+import dev.amble.ait.client.screens.LandingPadScreen;
+import dev.amble.ait.core.world.LandingPadManager;
+import dev.amble.ait.data.landing.LandingPadRegion;
+import dev.amble.ait.data.landing.LandingPadSpot;
 
 public class LandingPadBlock extends Block {
     private static final BooleanProperty ACTIVE = BooleanProperty.of("active"); // whether this block created a region

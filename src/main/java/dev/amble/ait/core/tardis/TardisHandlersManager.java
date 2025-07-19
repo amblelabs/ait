@@ -1,20 +1,22 @@
 package dev.amble.ait.core.tardis;
 
+import java.util.Map;
+import java.util.function.Consumer;
+
 import com.google.gson.*;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import org.jetbrains.annotations.ApiStatus;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.server.MinecraftServer;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.enummap.ConcurrentEnumMap;
 import dev.amble.ait.registry.impl.TardisComponentRegistry;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.server.MinecraftServer;
-import org.jetbrains.annotations.ApiStatus;
-
-import java.util.Map;
-import java.util.function.Consumer;
 
 public class TardisHandlersManager extends TardisComponent implements TardisTickable {
 

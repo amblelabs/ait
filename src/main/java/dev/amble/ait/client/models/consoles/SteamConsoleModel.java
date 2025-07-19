@@ -1,14 +1,15 @@
 package dev.amble.ait.client.models.consoles;
 
+import net.minecraft.client.model.*;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.entity.animation.Animation;
+import net.minecraft.client.util.math.MatrixStack;
+
 import dev.amble.ait.client.animation.console.steam.SteamAnimations;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import net.minecraft.client.model.*;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
-import net.minecraft.client.util.math.MatrixStack;
 
 public class SteamConsoleModel extends ConsoleModel {
     private final ModelPart steam;
@@ -1499,7 +1500,7 @@ public class SteamConsoleModel extends ConsoleModel {
 
         ModelPart alarms = steam.getChild("controls").getChild("panel_1").getChild("rot").getChild("lever4")
                 .getChild("bone22");
-        alarms.roll = tardis.alarm().enabled().get() ? 0.4363F : -0.5672F;
+        alarms.roll = tardis.alarm().isEnabled() ? 0.4363F : -0.5672F;
 
         ModelPart security = steam.getChild("controls").getChild("panel_1").getChild("rot").getChild("lever2")
                 .getChild("bone20");

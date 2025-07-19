@@ -1,15 +1,16 @@
 package dev.amble.ait.registry.impl;
 
+import java.util.Random;
+
+import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+
+import net.minecraft.resource.ResourceType;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.datapack.DatapackCategory;
 import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
 import dev.amble.ait.data.schema.exterior.category.*;
-import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.resource.ResourceType;
-
-import java.util.Random;
 
 public class CategoryRegistry extends SimpleDatapackRegistry<ExteriorCategorySchema> {
 
@@ -54,7 +55,6 @@ public class CategoryRegistry extends SimpleDatapackRegistry<ExteriorCategorySch
     public static ExteriorCategorySchema BOOTH;
     public static ExteriorCategorySchema EASTER_HEAD;
     public static ExteriorCategorySchema CORAL_GROWTH;
-    public static ExteriorCategorySchema DOOM;
     public static ExteriorCategorySchema PLINTH;
     public static ExteriorCategorySchema RENEGADE;
     public static ExteriorCategorySchema BOOKSHELF;
@@ -66,6 +66,8 @@ public class CategoryRegistry extends SimpleDatapackRegistry<ExteriorCategorySch
     //public static ExteriorCategorySchema PRESENT;
     public static ExteriorCategorySchema PIPE;
 
+    public static ExteriorCategorySchema EXCLUSIVE;
+
     @Override
     protected void defaults() {
         CLASSIC = register(new ClassicCategory());
@@ -75,7 +77,6 @@ public class CategoryRegistry extends SimpleDatapackRegistry<ExteriorCategorySch
         BOOTH = register(new BoothCategory());
         EASTER_HEAD = register(new EasterHeadCategory());
         CORAL_GROWTH = register(new GrowthCategory());
-        DOOM = register(new DoomCategory());
         PLINTH = register(new PlinthCategory());
         RENEGADE = register(new RenegadeCategory());
         BOOKSHELF = register(new BookshelfCategory());
@@ -86,5 +87,7 @@ public class CategoryRegistry extends SimpleDatapackRegistry<ExteriorCategorySch
         //JAKE = init(new JakeCategory());
         //PRESENT = register(new PresentCategory());
         PIPE = register(new PipeCategory());
+
+        EXCLUSIVE = register(new ExclusiveCategory());
     }
 }

@@ -1,5 +1,15 @@
 package dev.amble.ait.core.tardis;
 
+import java.util.Optional;
+
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
@@ -7,19 +17,12 @@ import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.core.util.StackUtil;
 import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
-
-import java.util.Optional;
 
 public class TardisExterior extends TardisComponent {
 
@@ -134,5 +137,14 @@ public class TardisExterior extends TardisComponent {
 
     public void playSound(SoundEvent sound) {
         this.playSound(sound, SoundCategory.BLOCKS);
+    }
+
+    /**
+     * Plays a sound at the tardis position, ignoring whether it exists on the server
+     * @author duzo
+     */
+    public void playSound(Identifier soundId, SoundCategory category) {
+        CachedDirectedGlobalPos pos = tardis.travel().position();
+        NetworkUtil.playSound(pos.getDimension(), pos.getPos(), soundId, category);
     }
 }

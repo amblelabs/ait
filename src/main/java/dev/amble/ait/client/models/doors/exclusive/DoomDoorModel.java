@@ -1,22 +1,24 @@
-package dev.amble.ait.client.models.doors;
+package dev.amble.ait.client.models.doors.exclusive;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.core.tardis.handler.DoorHandler;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.client.models.doors.DoorModel;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.tardis.handler.DoorHandler;
+
 public class DoomDoorModel extends DoorModel {
     private final ModelPart doom;
 
     public static final Identifier DOOM_DOOR = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_door.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_door.png");
     public static final Identifier DOOM_DOOR_OPEN = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_door_open.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_door_open.png");
 
     public DoomDoorModel(ModelPart root) {
         this.doom = root.getChild("doom");

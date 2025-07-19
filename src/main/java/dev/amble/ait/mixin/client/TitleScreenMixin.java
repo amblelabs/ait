@@ -1,18 +1,20 @@
 package dev.amble.ait.mixin.client;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.AITModClient;
-import net.minecraft.client.gui.CubeMapRenderer;
-import net.minecraft.client.gui.RotatingCubeMapRenderer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.TitleScreen;
-import net.minecraft.text.Text;
+import static dev.amble.ait.core.AITItems.isInAdvent;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-import static dev.amble.ait.core.AITItems.isInAdvent;
+import net.minecraft.client.gui.CubeMapRenderer;
+import net.minecraft.client.gui.RotatingCubeMapRenderer;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.TitleScreen;
+import net.minecraft.text.Text;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.AITModClient;
 
 @Mixin(value = TitleScreen.class, priority = 999)
 public abstract class TitleScreenMixin extends Screen {

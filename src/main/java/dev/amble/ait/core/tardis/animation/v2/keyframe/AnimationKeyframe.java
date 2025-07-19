@@ -2,11 +2,13 @@ package dev.amble.ait.core.tardis.animation.v2.keyframe;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import dev.amble.ait.api.tardis.Disposable;
-import dev.amble.ait.api.tardis.TardisTickable;
+import org.joml.Vector3f;
+
 import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.util.math.MathHelper;
-import org.joml.Vector3f;
+
+import dev.amble.ait.api.tardis.Disposable;
+import dev.amble.ait.api.tardis.TardisTickable;
 
 /**
  * Represents a keyframe in an animation.

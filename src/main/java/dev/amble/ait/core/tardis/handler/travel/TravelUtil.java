@@ -1,16 +1,18 @@
 package dev.amble.ait.core.tardis.handler.travel;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
+import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.Random;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
 
 public class TravelUtil {
 
@@ -23,15 +25,18 @@ public class TravelUtil {
             CachedDirectedGlobalPos dest = travel.destination();
             ServerWorld world = dest.getWorld();
 
+            int posX = dest.getPos().getX();
+            int posZ = dest.getPos().getZ();
+
             for (int i = 0; i <= limit; i++) {
                 dest = dest.pos(
                         world.random.nextBoolean()
-                                ? world.random.nextInt(max) == 0 ? 1 : world.random.nextInt(max)
-                                : world.random.nextInt(max) == -0 ? -1 : -world.random.nextInt(max),
+                                ? world.random.nextInt(max) == 0 ? posX + 1 : posX + world.random.nextInt(max)
+                                : world.random.nextInt(max) == -0 ? posX - 1 : posX - world.random.nextInt(max),
                         dest.getPos().getY(),
                         world.random.nextBoolean()
-                                ? world.random.nextInt(max) == 0 ? 1 : world.random.nextInt(max)
-                                : world.random.nextInt(max) == -0 ? -1 : -world.random.nextInt(max));
+                                ? world.random.nextInt(max) == 0 ? posZ + 1 : posZ + world.random.nextInt(max)
+                                : world.random.nextInt(max) == -0 ? posZ - 1 : posZ - world.random.nextInt(max));
             }
 
             return dest;

@@ -1,9 +1,10 @@
 package dev.amble.ait.data.schema.sonic;
 
-import dev.amble.ait.AITMod;
+import static dev.amble.ait.AITMod.MOD_ID;
+
 import net.minecraft.util.Identifier;
 
-import static dev.amble.ait.AITMod.MOD_ID;
+import dev.amble.ait.AITMod;
 
 public class BuiltinSonic extends SonicSchema {
 

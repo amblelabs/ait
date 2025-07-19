@@ -1,15 +1,11 @@
 package dev.amble.ait.client.renderers;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.engine.DurableSubSystem;
-import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
-import dev.amble.ait.core.engine.impl.EngineSystem;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.item.sonic.SonicMode;
-import dev.amble.ait.core.world.TardisServerWorld;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -25,12 +21,21 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL11;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.engine.DurableSubSystem;
+import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
+import dev.amble.ait.core.engine.impl.EngineSystem;
+import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.core.item.sonic.SonicMode;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
 
 public class SonicRendering {
     private static final Identifier SELECTED = AITMod.id("textures/marker/landing.png");
+    public static final Identifier SELECTED_RED = AITMod.id("textures/marker/landing_red.png");
 
     private final MinecraftClient client;
     private final Profiler profiler;
@@ -123,10 +128,31 @@ public class SonicRendering {
             profiler.pop();
             return;
         }
+
+        if (client.player == null || client.world == null) {
+            profiler.pop();
+            return;
+        }
+
         BlockPos targetPos = crosshair.getBlockPos();
         BlockState state = client.world.getBlockState(targetPos.down());
         if (state.isAir()) {
             profiler.pop();
+            return;
+        }
+
+        Tardis tardis = SonicItem.getTardisStatic(client.world, getSonicStack(client.player));
+
+        if (tardis == null) {
+            profiler.pop();
+            return;
+        }
+
+        double distance = TardisUtil.distanceFromTardis(client.player, tardis);
+        boolean hasEnoughFuel = tardis.fuel().getCurrentFuel() > TardisUtil.estimatedFuelCost(client.player, tardis, distance);
+
+        if(!hasEnoughFuel) {
+            renderFloorTexture(targetPos, SELECTED_RED, null, false);
             return;
         }
 

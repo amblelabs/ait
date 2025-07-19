@@ -1,8 +1,8 @@
 package dev.amble.ait.api.tardis.link.v2.entity;
 
-import dev.amble.ait.api.tardis.link.v2.Linkable;
-import dev.amble.ait.api.tardis.link.v2.TardisRef;
-import dev.amble.ait.core.tardis.Tardis;
+import java.util.Optional;
+import java.util.UUID;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -12,8 +12,9 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.world.World;
 
-import java.util.Optional;
-import java.util.UUID;
+import dev.amble.ait.api.tardis.link.v2.Linkable;
+import dev.amble.ait.api.tardis.link.v2.TardisRef;
+import dev.amble.ait.core.tardis.Tardis;
 
 public interface AbstractLinkableEntity extends Linkable {
 

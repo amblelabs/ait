@@ -1,6 +1,5 @@
 package dev.amble.ait.client.config;
 
-import dev.amble.ait.AITMod;
 import dev.isxander.yacl3.api.NameableEnum;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
@@ -9,7 +8,10 @@ import dev.isxander.yacl3.config.v2.api.autogen.Boolean;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import dev.isxander.yacl3.gui.ValueFormatters;
 import dev.isxander.yacl3.platform.YACLPlatform;
+
 import net.minecraft.text.Text;
+
+import dev.amble.ait.AITMod;
 
 public class AITClientConfig {
 
@@ -80,12 +82,21 @@ public class AITClientConfig {
         private final String key;
 
         TemperatureType() {
-            this.key = this.toString().toLowerCase();
+            String key1;
+            key1 = this.toString().toLowerCase();
+            key1 = key1.substring(0, 1).toUpperCase() + key1.substring(1);
+            key1 = switch (key1) {
+                case "Celsius" -> key1 + " (°C)";
+                case "Fahrenheit" -> key1 + " (°F)";
+                case "Kelvin" -> key1 + " (K)";
+                default -> key1;
+            };
+            this.key = key1;
         }
 
         @Override
         public Text getDisplayName() {
-            return Text.translatable("temperature." + key);
+            return Text.translatable(key);
         }
     }
 }

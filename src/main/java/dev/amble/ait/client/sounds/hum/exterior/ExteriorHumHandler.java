@@ -1,11 +1,12 @@
 package dev.amble.ait.client.sounds.hum.exterior;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.sound.SoundCategory;
+
 import dev.amble.ait.api.ClientWorldEvents;
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.sound.SoundCategory;
 
 public class ExteriorHumHandler extends SoundHandler {
 
