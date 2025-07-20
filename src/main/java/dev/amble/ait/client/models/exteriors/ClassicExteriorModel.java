@@ -10,6 +10,7 @@ import net.minecraft.entity.Entity;
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
@@ -152,8 +153,14 @@ public class ClassicExteriorModel extends ExteriorModel {
 
     @Override
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
+        DoorHandler door = tardis.door();
+        if (door.getRightRot() > 0.0F) {
+            this.classic.getChild("Doors").getChild("right_door").visible = !DependencyChecker.hasPortals();
+            if (door.getLeftRot() > 0.0F) {
+                this.classic.getChild("Doors").getChild("left_door").visible = !DependencyChecker.hasPortals();
+            }
+        }
         if (!AITModClient.CONFIG.animateDoors) {
-            DoorHandler door = tardis.door();
 
             this.classic.getChild("Doors").getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? -5F : 0.0F;
             this.classic.getChild("Doors").getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen())
@@ -162,7 +169,7 @@ public class ClassicExteriorModel extends ExteriorModel {
         } else {
             float maxRot = 90f;
 
-            DoorHandler door = tardis.door();
+
             this.classic.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot * door.getLeftRot());
             this.classic.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot * door.getRightRot());
         }

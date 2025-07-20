@@ -2,13 +2,13 @@ package dev.amble.ait.client.util;
 
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.compat.DependencyChecker;
 
 public class ClientLightUtil {
 
@@ -29,9 +29,7 @@ public class ClientLightUtil {
         if (emissive == null)
             return;
 
-        RenderLayer layer = DependencyChecker.hasIris()
-                ? AITRenderLayers.tardisEmissiveCullZOffset(emissive, true)
-                : AITRenderLayers.getText(emissive);
+        RenderLayer layer = AITRenderLayers.tardisEmissiveCullZOffset(emissive, true);
 
         ClientLightUtil.render(renderable, layer, vertices);
     }
@@ -44,7 +42,7 @@ public class ClientLightUtil {
     }
 
     private static <T> void render(Renderable<T> renderable, RenderLayer layer, VertexConsumerProvider vertices) {
-        renderable.render(vertices.getBuffer(layer), 0xf000f0);
+        renderable.render(vertices.getBuffer(layer), LightmapTextureManager.MAX_LIGHT_COORDINATE); // Default light value
     }
 
     @FunctionalInterface

@@ -86,6 +86,7 @@
 	"suggests": {
 		"k9-mod": "*",
 		"immersiveportals": "*",
+		"iris": "*",
 		"k9-mod": "*",
 		"fabric-permissions-api": "*"
 	},

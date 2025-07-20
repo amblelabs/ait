@@ -4,6 +4,7 @@ import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
@@ -88,7 +89,7 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 
         model.renderWithAnimations(tardis, entity, model.getPart(), matrices,
-                vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)), light, overlay, 1, 1,
+                vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucent(texture)), LightmapTextureManager.pack(1, 15), overlay, 1, 1,
                 1, 1);
 
         /*if (tardis.overgrown().overgrown().get())

@@ -102,6 +102,10 @@ dependencies {
         exclude(group: "net.fabricmc.fabric-api")
     }
 
+    /*modImplementation("maven.modrinth:iris:${project.iris_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }*/
+
     // immerisve poraltas
     modImplementation ("com.github.iPortalTeam.ImmersivePortalsMod:imm_ptl_core:${project.immersive_portals_version}"){
         exclude(group: "net.fabricmc.fabric-api")
