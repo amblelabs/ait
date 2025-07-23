@@ -4,25 +4,24 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import com.google.gson.*;
+import dev.amble.ait.core.ars.ArsStructure;
 import dev.amble.lib.register.unlockable.Unlockable;
 
-import net.minecraft.structure.StructureTemplate;
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.BasicSchema;
-import dev.amble.ait.data.schema.desktop.textures.DesktopPreviewTexture;
+import dev.amble.ait.data.schema.desktop.textures.StructurePreviewTexture;
 import dev.amble.ait.registry.impl.DesktopRegistry;
 
-public abstract class TardisDesktopSchema extends BasicSchema implements Unlockable {
+public abstract class TardisDesktopSchema extends BasicSchema implements Unlockable, ArsStructure {
 
     private final Identifier id;
 
-    private final DesktopPreviewTexture preview;
+    private final StructurePreviewTexture preview;
     private final Loyalty loyalty;
 
-    protected TardisDesktopSchema(Identifier id, DesktopPreviewTexture texture, Optional<Loyalty> loyalty) {
+    protected TardisDesktopSchema(Identifier id, StructurePreviewTexture texture, Optional<Loyalty> loyalty) {
         super("desktop");
         this.id = id;
 
@@ -30,11 +29,11 @@ public abstract class TardisDesktopSchema extends BasicSchema implements Unlocka
         this.loyalty = loyalty.orElse(null);
     }
 
-    protected TardisDesktopSchema(Identifier id, DesktopPreviewTexture texture, Loyalty loyalty) {
+    protected TardisDesktopSchema(Identifier id, StructurePreviewTexture texture, Loyalty loyalty) {
         this(id, texture, Optional.of(loyalty));
     }
 
-    protected TardisDesktopSchema(Identifier id, DesktopPreviewTexture texture) {
+    protected TardisDesktopSchema(Identifier id, StructurePreviewTexture texture) {
         this(id, texture, Optional.empty());
     }
 
@@ -53,19 +52,21 @@ public abstract class TardisDesktopSchema extends BasicSchema implements Unlocka
         return UnlockType.DESKTOP;
     }
 
-    public DesktopPreviewTexture previewTexture() {
+    @Override
+    public StructurePreviewTexture previewTexture() {
         return this.preview;
     }
 
-    public Optional<StructureTemplate> findTemplate() {
-        return WorldUtil.getOverworld().getStructureTemplateManager()
-                .getTemplate(this.getStructureLocation());
-    }
-
-    private Identifier getStructureLocation() {
+    @Override
+    public Identifier getStructureLocation() {
         Identifier id = this.id();
 
         return new Identifier(id.getNamespace(), "interiors/" + id.getPath());
+    }
+
+    @Override
+    public Identifier structureId() {
+        return getStructureLocation();
     }
 
     @Override

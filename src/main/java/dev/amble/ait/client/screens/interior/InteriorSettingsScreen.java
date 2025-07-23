@@ -377,9 +377,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
 
         context.getMatrices().push();
         context.drawTexture(
-                doesTextureExist(this.selectedDesktop.previewTexture().texture())
-                        ? this.selectedDesktop.previewTexture().texture()
-                        : MISSING_PREVIEW,
+                this.selectedDesktop.previewTexture().textureOrFallback(),
                 left + 151, top + 10, 95, 95, 0, 0, this.selectedDesktop.previewTexture().width * 2,
                 this.selectedDesktop.previewTexture().height * 2, this.selectedDesktop.previewTexture().width * 2,
                 this.selectedDesktop.previewTexture().height * 2);
