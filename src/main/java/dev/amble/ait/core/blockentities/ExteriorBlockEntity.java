@@ -121,6 +121,14 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
             }
 
             return;
+        } else if (hand.getItem() instanceof KeyItem key && tardis.siege().isActive()
+                && !tardis.interiorChangingHandler().queued().get()) {
+            if (hand.isOf(AITItems.SKELETON_KEY) || key.isOf(hand, tardis)) {
+                tardis.siege().setActive(false);
+                tardis.door().setLocked(false);
+                tardis.door().openDoors();
+            }
+            return;
         }
 
         if (hasSonic) {
