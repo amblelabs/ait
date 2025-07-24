@@ -126,7 +126,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
             return;
         } else if (keyStack.getItem() instanceof KeyItem key && tardis.siege().isActive()
                 && !tardis.interiorChangingHandler().queued().get()) {
-            if (keyStack.isOf(AITItems.SKELETON_KEY) || key.isOf(keyStack, tardis)) {
+            if (keyStack.isOf(AITItems.SKELETON_KEY)) {
                 tardis.siege().setActive(false);
                 tardis.door().setLocked(false);
                 tardis.door().openDoors();
