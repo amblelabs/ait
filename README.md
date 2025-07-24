@@ -30,6 +30,10 @@ Adventures In Time adds the TARDIS from Doctor Who that you can interact with in
 
 ## Compatibility
 
+### If you have [Immersive Portals](https://modrinth.com/mod/immersiveportals)
+- Your TARDIS will be Bigger on the Inside (BOTI)
+- When you open the doors from the exterior you will be able to see the interior and vice versa
+
 ### If you have [Gravity Changer (qouteall fork)](https://modrinth.com/mod/gravity-api-fork/versions)
 - You will be able to control your TARDIS interior gravity from the [TARDIS Monitor](https://loqor.dev/ait/Monitor/)
   

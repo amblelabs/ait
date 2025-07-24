@@ -455,6 +455,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void exteriorBOTI(WorldRenderContext context) {
+        if (DependencyChecker.hasPortals()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
@@ -486,6 +488,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void doorBOTI(WorldRenderContext context) {
+        if (DependencyChecker.hasPortals()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
@@ -572,6 +576,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void riftBOTI(WorldRenderContext context) {
+        if (DependencyChecker.hasPortals()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
