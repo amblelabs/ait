@@ -128,7 +128,7 @@ public abstract class ConsoleVariantSchema extends BasicSchema implements Unlock
             try {
                 id = new Identifier(json.getAsJsonPrimitive().getAsString());
             } catch (InvalidIdentifierException e) {
-                id = AITMod.id("console/borealis");
+                id = AITMod.id("console/hartnell");
             }
 
             return ConsoleVariantRegistry.getInstance().get(id);
