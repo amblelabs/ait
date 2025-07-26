@@ -50,7 +50,7 @@ Adventures In Time adds the TARDIS from Doctor Who that you can interact with in
 - [Loqor](https://loqor.dev/)
 - [duzo](https://duzo.is-a.dev/)
 - [Dr. Theo](https://theo.is-a.dev/)
-- Nitrogenesis
+- [nitrogenez](https://github.com/nitrogenez)
 - Maketendo
 - [AddieDaBaddie](https://addieastarr.carrd.co)
 - Saturn
@@ -83,7 +83,7 @@ Adventures In Time adds the TARDIS from Doctor Who that you can interact with in
 - Maggie (Help with texturing)
 - lavachefrancaise (French Translations)
 - hoooiii (German Translations)
-- Nitrogenesis (Ukrainian Translations)
+- nitrogenez (Ukrainian Translations)
 - Codiak (Help with code)
 
 

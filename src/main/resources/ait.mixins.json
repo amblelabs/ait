@@ -30,6 +30,7 @@
     "server.ServerPlayerMixin",
     "server.ServerWorldMixin",
     "server.StructureTemplateMixin",
+    "server.multidim.MultiDimLoadFix",
     "server.structure.StructureTemplateAccessor"
   ],
   "client": [

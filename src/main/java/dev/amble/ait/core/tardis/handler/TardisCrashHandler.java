@@ -100,7 +100,7 @@ public class TardisCrashHandler extends KeyedTardisComponent implements TardisTi
 
         int loyaltySubAmount = AITMod.RANDOM.nextInt(10, 25);
 
-        for (ServerPlayerEntity serverPlayerEntity : TardisUtil.getPlayersInsideInterior(tardis.asServer())) {
+        for (ServerPlayerEntity serverPlayerEntity : tardis.asServer().world().getPlayers()) {
             ItemStack stack = serverPlayerEntity.getEquippedStack(EquipmentSlot.HEAD);
 
             if (stack.isIn(AITTags.Items.FULL_RESPIRATORS) || stack.isIn(AITTags.Items.HALF_RESPIRATORS))

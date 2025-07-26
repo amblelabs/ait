@@ -7,6 +7,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
+import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
@@ -22,16 +23,18 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
 import dev.amble.ait.core.blockentities.MonitorBlockEntity;
+import dev.amble.ait.core.util.MonitorStateUtil;
 
 public class MonitorBlock extends BlockWithEntity implements BlockEntityProvider {
     public static final int MAX_ROTATION_INDEX = RotationPropertyHelper.getMax();
     private static final int MAX_ROTATIONS = MAX_ROTATION_INDEX + 1;
     public static final IntProperty ROTATION = Properties.ROTATION;
+    public static final EnumProperty<MonitorStateUtil> TEXTURE;
     protected static final VoxelShape SHAPE = Block.createCuboidShape(4.0, 0.0, 4.0, 12.0, 8.0, 12.0);
 
     public MonitorBlock(Settings settings) {
         super(settings);
-        this.setDefaultState(this.stateManager.getDefaultState().with(ROTATION, 0));
+        this.setDefaultState(this.stateManager.getDefaultState().with(ROTATION, 0).with(TEXTURE, MonitorStateUtil.DEFAULT));
     }
 
     @Override
@@ -56,7 +59,7 @@ public class MonitorBlock extends BlockWithEntity implements BlockEntityProvider
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
-            BlockHitResult hit) {
+                              BlockHitResult hit) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
 
         if (blockEntity instanceof MonitorBlockEntity monitorBlockEntity)
@@ -85,8 +88,14 @@ public class MonitorBlock extends BlockWithEntity implements BlockEntityProvider
         return state.with(ROTATION, mirror.mirror(state.get(ROTATION), MAX_ROTATIONS));
     }
 
+
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(ROTATION);
+        builder.add(ROTATION).add(TEXTURE);
     }
+
+    static {
+        TEXTURE = EnumProperty.of("skin", MonitorStateUtil.class);;
+    }
+
 }

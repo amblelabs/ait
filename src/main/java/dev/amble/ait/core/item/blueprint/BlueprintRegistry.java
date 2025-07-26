@@ -31,7 +31,7 @@ public class BlueprintRegistry extends SimpleDatapackRegistry<BlueprintSchema> {
 
     @Override
     public BlueprintSchema fallback() {
-        throw new IllegalStateException("No fallback blueprint found");
+        return null;
     }
 
     public static BlueprintRegistry getInstance() {

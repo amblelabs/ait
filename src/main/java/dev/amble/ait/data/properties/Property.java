@@ -2,7 +2,6 @@ package dev.amble.ait.data.properties;
 
 import java.util.HashSet;
 import java.util.UUID;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
@@ -22,19 +21,23 @@ import dev.amble.ait.api.tardis.KeyedTardisComponent;
 
 public class Property<T> {
 
-    private final Type<T> type;
+    private final PropertyType<T> type;
     private final String name;
 
     protected final Function<KeyedTardisComponent, T> def;
 
-    public Property(Type<T> type, String name, Function<KeyedTardisComponent, T> def) {
+    public Property(PropertyType<T> type, String name, Function<KeyedTardisComponent, T> def) {
         this.type = type;
         this.name = name;
         this.def = def;
     }
 
-    public Property(Type<T> type, String name, T def) {
+    public Property(PropertyType<T> type, String name, T def) {
         this(type, name, o -> def);
+    }
+
+    public Property(PropertyType.Nullable<T> type, String name) {
+        this(type, name, o -> null);
     }
 
     public Value<T> create(KeyedTardisComponent holder) {
@@ -53,7 +56,7 @@ public class Property<T> {
         return name;
     }
 
-    public Type<T> getType() {
+    public PropertyType<T> getType() {
         return type;
     }
 
@@ -66,97 +69,57 @@ public class Property<T> {
     }
 
     public static <T extends Enum<T>> Property<T> forEnum(String name, Class<T> clazz, T def) {
-        return new Property<>(Type.forEnum(clazz), name, def);
+        return new Property<>(PropertyType.forEnum(clazz), name, def);
     }
 
-    public static class Type<T> {
+    public static final PropertyType.Nullable<DirectedGlobalPos> DIRECTED_GLOBAL_POS = new PropertyType.Nullable<>(DirectedGlobalPos.class,
+            (buf, pos) -> pos.write(buf), DirectedGlobalPos::read);
 
-        public static final Type<DirectedGlobalPos> DIRECTED_GLOBAL_POS = new Type<>(DirectedGlobalPos.class,
-                (buf, pos) -> pos.write(buf), DirectedGlobalPos::read);
+    public static final PropertyType.Nullable<BlockPos> BLOCK_POS = new PropertyType.Nullable<>(BlockPos.class, PacketByteBuf::writeBlockPos,
+            PacketByteBuf::readBlockPos);
 
-        public static final Type<BlockPos> BLOCK_POS = new Type<>(BlockPos.class, PacketByteBuf::writeBlockPos,
-                PacketByteBuf::readBlockPos);
-        public static final Type<CachedDirectedGlobalPos> CDIRECTED_GLOBAL_POS = new Type<>(
-                CachedDirectedGlobalPos.class, (buf, pos) -> pos.write(buf), CachedDirectedGlobalPos::read);
-        public static final Type<Identifier> IDENTIFIER = new Type<>(Identifier.class, PacketByteBuf::writeIdentifier,
-                PacketByteBuf::readIdentifier);
-        public static final Type<Long> LONG = new Type<>(Long.class, PacketByteBuf::writeLong, PacketByteBuf::readLong);
+    public static final PropertyType.Nullable<CachedDirectedGlobalPos> CDIRECTED_GLOBAL_POS = new PropertyType.Nullable<>(
+            CachedDirectedGlobalPos.class, (buf, pos) -> pos.write(buf), CachedDirectedGlobalPos::read);
 
-        public static final Type<RegistryKey<World>> WORLD_KEY = new Type<>(RegistryKey.class,
-                PacketByteBuf::writeRegistryKey, buf -> buf.readRegistryKey(RegistryKeys.WORLD));
-        public static final Type<Direction> DIRECTION = Type.forEnum(Direction.class);
+    public static final PropertyType.Nullable<Identifier> IDENTIFIER = new PropertyType.Nullable<>(Identifier.class, PacketByteBuf::writeIdentifier,
+            PacketByteBuf::readIdentifier);
 
-        public static final Type<Vector2i> VEC2I = new Type<>(Vector2i.class, (buf, vector2i) -> {
-            buf.writeInt(vector2i.x);
-            buf.writeInt(vector2i.y);
-        }, buf -> new Vector2i(buf.readInt(), buf.readInt()));
+    public static final PropertyType.Nullable<Long> LONG = new PropertyType.Nullable<>(Long.class, PacketByteBuf::writeLong, PacketByteBuf::readLong);
 
-        public static final Type<String> STR = new Type<>(String.class, PacketByteBuf::writeString,
-                PacketByteBuf::readString);
+    public static final PropertyType.Nullable<RegistryKey<World>> WORLD_KEY = new PropertyType.Nullable<>(RegistryKey.class,
+            PacketByteBuf::writeRegistryKey, buf -> buf.readRegistryKey(RegistryKeys.WORLD));
 
-        public static final Type<UUID> UUID = new Type<>(UUID.class, PacketByteBuf::writeUuid, PacketByteBuf::readUuid);
+    public static final PropertyType<Direction> DIRECTION = PropertyType.forEnum(Direction.class);
 
-        public static final Type<Double> DOUBLE = new Type<>(Double.class, PacketByteBuf::writeDouble,
-                PacketByteBuf::readDouble);
+    public static final PropertyType.Nullable<Vector2i> VEC2I = new PropertyType.Nullable<>(Vector2i.class, (buf, vector2i) -> {
+        buf.writeInt(vector2i.x);
+        buf.writeInt(vector2i.y);
+    }, buf -> new Vector2i(buf.readInt(), buf.readInt()));
 
-        public static final Type<HashSet<String>> STR_SET = new Type<>(HashSet.class, (buf, strings) -> {
-            buf.writeVarInt(strings.size());
+    public static final PropertyType.Nullable<String> STR = new PropertyType.Nullable<>(String.class, PacketByteBuf::writeString,
+            PacketByteBuf::readString);
 
-            for (String str : strings)
-                buf.writeString(str);
-        }, buf -> {
-            HashSet<String> result = new HashSet<>();
-            int size = buf.readVarInt();
+    public static final PropertyType.Nullable<UUID> UUID = new PropertyType.Nullable<>(UUID.class, PacketByteBuf::writeUuid, PacketByteBuf::readUuid);
 
-            for (int i = 0; i < size; i++) {
-                result.add(buf.readString());
-            }
+    public static final PropertyType.Nullable<Double> DOUBLE = new PropertyType.Nullable<>(Double.class, PacketByteBuf::writeDouble,
+            PacketByteBuf::readDouble);
 
-            return result;
-        }, false);
+    public static final PropertyType.Nullable<HashSet<String>> STR_SET = new PropertyType.Nullable<>(HashSet.class, (buf, strings) -> {
+        buf.writeVarInt(strings.size());
 
-        public static final Type<ItemStack> ITEM_STACK = new Type<>(ItemStack.class, PacketByteBuf::writeItemStack,
-                PacketByteBuf::readItemStack);
+        for (String str : strings)
+            buf.writeString(str);
+    }, buf -> {
+        HashSet<String> result = new HashSet<>();
+        int size = buf.readVarInt();
 
-        private final Class<?> clazz;
-        private final BiConsumer<PacketByteBuf, T> encoder;
-        private final Function<PacketByteBuf, T> decoder;
-        private final boolean sameRef;
-
-        public Type(Class<?> clazz, BiConsumer<PacketByteBuf, T> encoder, Function<PacketByteBuf, T> decoder) {
-            this(clazz, encoder, decoder, true);
+        for (int i = 0; i < size; i++) {
+            result.add(buf.readString());
         }
 
-        public Type(Class<?> clazz, BiConsumer<PacketByteBuf, T> encoder, Function<PacketByteBuf, T> decoder, boolean sameRef) {
-            this.clazz = clazz;
-            this.encoder = encoder;
-            this.decoder = decoder;
-            this.sameRef = sameRef;
-        }
+        return result;
+    });
 
-        public void encode(PacketByteBuf buf, T value) {
-            this.encoder.accept(buf, value);
-        }
-
-        public T decode(PacketByteBuf buf) {
-            return this.decoder.apply(buf);
-        }
-
-        public Class<?> getClazz() {
-            return clazz;
-        }
-
-        public boolean isSameRef() {
-            return sameRef;
-        }
-
-        public static <T extends Enum<T>> Type<T> forEnum(Class<T> clazz) {
-            return new Type<>(clazz, PacketByteBuf::writeEnumConstant, buf -> buf.readEnumConstant(clazz));
-        }
-    }
-
-    public interface Mode {
-        byte UPDATE = 0;
-        byte NULL = 1;
-    }
+    public static final PropertyType.Nullable<ItemStack> ITEM_STACK = new PropertyType.Nullable<>(ItemStack.class, PacketByteBuf::writeItemStack,
+            PacketByteBuf::readItemStack);
 }

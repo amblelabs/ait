@@ -1500,7 +1500,7 @@ public class SteamConsoleModel extends ConsoleModel {
 
         ModelPart alarms = steam.getChild("controls").getChild("panel_1").getChild("rot").getChild("lever4")
                 .getChild("bone22");
-        alarms.roll = tardis.alarm().enabled().get() ? 0.4363F : -0.5672F;
+        alarms.roll = tardis.alarm().isEnabled() ? 0.4363F : -0.5672F;
 
         ModelPart security = steam.getChild("controls").getChild("panel_1").getChild("rot").getChild("lever2")
                 .getChild("bone20");

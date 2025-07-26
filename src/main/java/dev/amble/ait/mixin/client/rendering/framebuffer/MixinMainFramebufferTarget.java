@@ -1,6 +1,7 @@
 package dev.amble.ait.mixin.client.rendering.framebuffer;
 
-import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL30.GL_DEPTH32F_STENCIL8;
+import static org.lwjgl.opengl.GL30.GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
 
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.GL30;

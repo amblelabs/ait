@@ -11,6 +11,8 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.data.schema.door.ClientDoorSchema;
 import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.door.impl.*;
+import dev.amble.ait.data.schema.door.impl.exclusive.ClientBlueBoxDoorVariant;
+import dev.amble.ait.data.schema.door.impl.exclusive.ClientDoomDoorVariant;
 
 public class ClientDoorRegistry {
     public static final SimpleRegistry<ClientDoorSchema> REGISTRY = FabricRegistryBuilder
@@ -46,7 +48,6 @@ public class ClientDoorRegistry {
     public static ClientDoorSchema BOX_RENAISSANCE;
     public static ClientDoorSchema HEAD;
     public static ClientDoorSchema GROWTH;
-    public static ClientDoorSchema DOOM;
     public static ClientDoorSchema PLINTH;
     public static ClientDoorSchema RENEGADE;
     public static ClientDoorSchema BOOKSHELF;
@@ -54,9 +55,11 @@ public class ClientDoorRegistry {
     public static ClientDoorSchema STALLION;
     public static ClientDoorSchema ADAPTIVE;
     public static ClientDoorSchema DALEK_MOD;
-    //public static ClientDoorSchema JAKE;
     public static ClientDoorSchema PRESENT;
     public static ClientDoorSchema PIPE;
+
+    public static ClientDoorSchema DOOM;
+    public static ClientDoorSchema BLUE_BOX;
 
     public static void init() {
         TARDIM = register(new ClientTardimDoorVariant());
@@ -69,7 +72,6 @@ public class ClientDoorRegistry {
         BOX_RENAISSANCE = register(new ClientPoliceBoxRenaissanceDoorVariant());
         HEAD = register(new ClientEasterHeadDoorVariant());
         GROWTH = register(new ClientGrowthDoorVariant());
-        DOOM = register(new ClientDoomDoorVariant());
         PLINTH = register(new ClientPlinthDoorVariant());
         RENEGADE = register(new ClientRenegadeDoorVariant());
         BOOKSHELF = register(new ClientBookshelfDoorVariant());
@@ -77,8 +79,10 @@ public class ClientDoorRegistry {
         STALLION = register(new ClientStallionDoorVariant());
         ADAPTIVE = register(new ClientAdaptiveDoorVariant());
         DALEK_MOD = register(new ClientDalekModDoorVariant());
-        //JAKE = register(new ClientJakeDoorVariant());
         PRESENT = register(new ClientPresentDoorVariant());
         PIPE = register(new ClientPipeDoorVariant());
+
+        DOOM = register(new ClientDoomDoorVariant());
+        BLUE_BOX = register(new ClientBlueBoxDoorVariant());
     }
 }

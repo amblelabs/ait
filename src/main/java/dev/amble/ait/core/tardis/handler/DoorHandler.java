@@ -4,6 +4,8 @@ import dev.amble.lib.data.DirectedBlockPos;
 import net.fabricmc.fabric.api.util.TriState;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -11,6 +13,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -21,6 +24,7 @@ import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.Exclude;
@@ -33,6 +37,13 @@ import dev.amble.ait.data.properties.flt.FloatValue;
 import dev.amble.ait.data.schema.door.DoorSchema;
 
 public class DoorHandler extends KeyedTardisComponent implements TardisTickable {
+    private static final long KNOCK_RESET_TIME_MS = 2500;
+    private static final int KNOCKS_BEFORE_QUIET = 8;
+    private static final float KNOCK_VOLUME_FULL = 1f;
+    private static final float KNOCK_VOLUME_QUIET = 0.3f;
+
+    private int knockCount = 0;
+    private long lastKnockTime = 0;
 
     private static final BoolProperty LOCKED_DOORS = new BoolProperty("locked");
     private static final BoolProperty PREVIOUSLY_LOCKED = new BoolProperty("previously_locked");
@@ -115,6 +126,11 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
                     exteriorPosition.getY() + 0.1, exteriorPosition.getZ(), 25, 0.25D, 1.1,
                     0.25D, 0.025D);
         }
+
+        // Reset knock count if enough time has passed since last knock
+        if (System.currentTimeMillis() - lastKnockTime > KNOCK_RESET_TIME_MS && knockCount > 0) {
+            knockCount = 0;
+        }
     }
 
     private float tryUpdateRot(float rot, boolean opening) {
@@ -149,11 +165,11 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
                 .filter(entity -> !entity.isSpectator()) // Exclude spectators
                 .forEach(entity -> {
                     DirectedBlockPos directed = tardis.getDesktop().getDoorPos();
-                    if (!(tardis.asServer().worldRef().get().getBlockEntity(directed.getPos()) instanceof DoorBlockEntity))
+                    if (!(tardis.asServer().world().getBlockEntity(directed.getPos()) instanceof DoorBlockEntity))
                         return;
 
                     Vec3d pos = new Vec3d(directed.getPos().getX(), directed.getPos().getY(),
-                            directed.getPos().getZ()).offset(directed.toMinecraftDirection(), -0.5f);
+                            directed.getPos().getZ()).offset(directed.toMinecraftDirection(), -1f);
 
                     float suckValue = tardis.travel().position().getDimension().equals(AITDimensions.SPACE) ? 0.08f: 0.05f;
                     Vec3d motion = pos.subtract(entity.getPos()).normalize().multiply(suckValue);
@@ -225,6 +241,15 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         this.setDoorState(DoorState.CLOSED);
     }
 
+    public static boolean removeWaterlogged(Tardis tardis) {
+        BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
+        ServerWorld world = tardis.asServer().world();
+        BlockState blockState = world.getBlockState(pos);
+
+        return world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, false),
+                Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
+    }
+
     private void setDoorState(DoorState newState) {
         if (this.locked() && newState != DoorState.CLOSED)
             return;
@@ -237,8 +262,10 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
             if (oldState == DoorState.CLOSED)
                 TardisEvents.DOOR_OPEN.invoker().onOpen(tardis());
 
-            if (newState == DoorState.CLOSED)
+            if (newState == DoorState.CLOSED) {
+                removeWaterlogged(this.tardis);
                 TardisEvents.DOOR_CLOSE.invoker().onClose(tardis());
+            }
         }
 
         this.doorState.set(newState);
@@ -253,18 +280,25 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
     }
 
     public boolean interactAllDoors(ServerWorld world, @Nullable BlockPos pos, @Nullable ServerPlayerEntity player, boolean both) {
-        ServerWorld interior = tardis.asServer().worldRef().getOrDefault(() -> null);
-
+        ServerWorld interior = tardis.asServer().world();
         InteractionResult result = TardisEvents.USE_DOOR.invoker().onUseDoor(tardis, interior, world, player, pos);
 
         if (result == InteractionResult.KNOCK) {
+            long now = System.currentTimeMillis();
+            if (now - lastKnockTime > KNOCK_RESET_TIME_MS) {
+                knockCount = 0;
+            }
+            knockCount++;
+            lastKnockTime = now;
+            float knockVolume = knockCount > KNOCKS_BEFORE_QUIET ? KNOCK_VOLUME_QUIET : KNOCK_VOLUME_FULL;
+
             if (pos != null && world != interior)
-                world.playSound(null, pos, AITSounds.KNOCK, SoundCategory.BLOCKS, 3f,
+                world.playSound(null, pos, AITSounds.KNOCK, SoundCategory.BLOCKS, knockVolume,
                         world.getRandom().nextBoolean() ? 0.5f : 0.3f);
 
             if (interior != null)
                 interior.playSound(null, tardis.getDesktop().getDoorPos().getPos(), AITSounds.KNOCK,
-                        SoundCategory.BLOCKS, 3f, world.getRandom().nextBoolean() ? 0.5f : 0.3f);
+                        SoundCategory.BLOCKS, knockVolume, world.getRandom().nextBoolean() ? 0.5f : 0.3f);
         }
 
         if (result == InteractionResult.BANG) {
@@ -284,12 +318,21 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
             if (player != null && pos != null) {
                 player.sendMessage(Text.literal("\uD83D\uDD12"), true);
 
-                world.playSound(null, pos, AITSounds.KNOCK, SoundCategory.BLOCKS, 3f,
+                // Knock logic
+                long now = System.currentTimeMillis();
+                if (now - lastKnockTime > KNOCK_RESET_TIME_MS) {
+                    knockCount = 0;
+                }
+                knockCount++;
+                lastKnockTime = now;
+                float knockVolume = knockCount > KNOCKS_BEFORE_QUIET ? KNOCK_VOLUME_QUIET : KNOCK_VOLUME_FULL;
+
+                world.playSound(null, pos, AITSounds.KNOCK, SoundCategory.BLOCKS, knockVolume,
                         world.getRandom().nextBoolean() ? 0.5f : 0.3f);
 
                 if (interior != null)
                     interior.playSound(null, tardis.getDesktop().getDoorPos().getPos(), AITSounds.KNOCK,
-                            SoundCategory.BLOCKS, 3f, world.getRandom().nextBoolean() ? 0.5f : 0.3f);
+                            SoundCategory.BLOCKS, knockVolume, world.getRandom().nextBoolean() ? 0.5f : 0.3f);
             }
 
             return false;
@@ -355,10 +398,10 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         tardis.travel().position().getWorld().playSound(null, tardis.travel().position().getPos(),
                 keySound, SoundCategory.BLOCKS, 0.6F, 1F);
 
-        tardis.asServer().worldRef().ifPresent(interior -> {
-            interior.playSound(null, tardis.getDesktop().getDoorPos().getPos(),
-                    keySound, SoundCategory.BLOCKS, 0.6F, 1F);
-        });
+        ServerWorld interior = tardis.asServer().world();
+
+        interior.playSound(null, tardis.getDesktop().getDoorPos().getPos(),
+                keySound, SoundCategory.BLOCKS, 0.6F, 1F);
 
         return true;
     }

@@ -1,7 +1,8 @@
 package dev.amble.ait.core.tardis.control.impl;
 
-import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
 
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
@@ -40,7 +41,7 @@ public class FoodCreationControl extends Control {
 
             tardis.removeFuel(500);
             world.spawnEntity(coffeeEntity);
-        }, TimeUnit.TICKS, 45);
+        }, TaskStage.END_SERVER_TICK, TimeUnit.TICKS, 45);
 
         return Result.SUCCESS;
     }

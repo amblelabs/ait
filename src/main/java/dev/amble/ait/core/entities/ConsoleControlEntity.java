@@ -3,8 +3,9 @@ package dev.amble.ait.core.entities;
 import java.util.List;
 import java.util.Optional;
 
-import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -185,32 +186,11 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             return ActionResult.SUCCESS;
         }
 
-        if (handStack.isOf(AITBlocks.REDSTONE_CONTROL_BLOCK.asItem())) {
+        if (handStack.isOf(AITBlocks.REDSTONE_CONTROL_BLOCK.asItem()) && this.getControl() != null) {
             NbtCompound nbt = handStack.getOrCreateNbt();
             nbt.putString(ControlBlockItem.CONTROL_ID_KEY, this.getControl().id().toString());
             this.getConsole().ifPresent(be -> nbt.putString(ControlBlockItem.CONSOLE_TYPE_ID_KEY, be.getTypeSchema().id().toString()));
             return ActionResult.SUCCESS;
-        }
-
-        if (isSticky()) {
-            if (player.getMainHandStack().isOf(Items.SHEARS)) {
-                this.playSound(SoundEvents.ENTITY_SHEEP_SHEAR, 1, 1);
-                this.dataTracker.set(STICKY, false);
-                return ActionResult.FAIL;
-            }
-
-            this.playSound(SoundEvents.BLOCK_SLIME_BLOCK_BREAK, 0.4f, 1);
-            player.getWorld().addParticle(
-                    new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.SLIME_BLOCK.getDefaultState()),
-                    this.getX(), this.getY(), this.getZ(),
-                    0.2, 0.5, -0.1
-            );
-
-            return ActionResult.FAIL;
-        } else if (player.getMainHandStack().isOf(Items.SLIME_BALL)) {
-            this.playSound(SoundEvents.BLOCK_SLIME_BLOCK_BREAK, 1, 1);
-            this.dataTracker.set(STICKY, true);
-            return ActionResult.FAIL;
         }
 
         if (hand == Hand.MAIN_HAND && !this.run(player, player.getWorld(), false))
@@ -246,7 +226,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         // spawn particle above the control
         world.spawnParticles(AITMod.CORAL_PARTICLE, this.getX(), this.getY() + 0.25, this.getZ(), 1, 0.05, 0.05, 0.05, 0.025);
-        world.playSound(null, this.getBlockPos(), SoundEvents.ITEM_SHIELD_BREAK, SoundCategory.BLOCKS, 0.75F, AITMod.RANDOM.nextFloat(0.5F, 1.5F));
+        world.playSound(null, this.getBlockPos(), SoundEvents.ITEM_SHIELD_BREAK, SoundCategory.BLOCKS, 0.2F, AITMod.RANDOM.nextFloat(0.5F, 1.5F));
     }
 
     @Override
@@ -378,12 +358,29 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     }
 
     public boolean run(PlayerEntity player, World world, boolean leftClick) {
+        if (isSticky()) {
+            if (player.getMainHandStack().isOf(Items.SHEARS)) {
+                this.playSound(SoundEvents.ENTITY_SHEEP_SHEAR, 1, 1);
+                this.dataTracker.set(STICKY, false);
+                return true;
+            }
+
+            this.playSound(SoundEvents.BLOCK_SLIME_BLOCK_BREAK, 0.4f, 1);
+            player.getWorld().addParticle(
+                    new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.SLIME_BLOCK.getDefaultState()),
+                    this.getX(), this.getY(), this.getZ(),
+                    0.2, 0.5, -0.1
+            );
+
+            return true;
+        } else if (player.getMainHandStack().isOf(Items.SLIME_BALL)) {
+            this.playSound(SoundEvents.BLOCK_SLIME_BLOCK_BREAK, 1, 1);
+            this.dataTracker.set(STICKY, true);
+            return true;
+        }
+
         if (world.isClient())
             return false;
-
-        if (world.getRandom().nextBetween(1, 10_000) == 72)
-            this.getWorld().playSound(null, this.getBlockPos(), AITSounds.EVEN_MORE_SECRET_MUSIC, SoundCategory.MASTER,
-                    1F, 1F);
 
         if (player.getMainHandStack().isOf(AITItems.TARDIS_ITEM))
             this.discard();
@@ -415,6 +412,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         if (!this.control.canRun(tardis, (ServerPlayerEntity) player))
             return false;
+
+        if (world.getRandom().nextBetween(1, 10_000) == 72)
+            this.getWorld().playSound(null, this.getBlockPos(), AITSounds.EVEN_MORE_SECRET_MUSIC, SoundCategory.MASTER,
+                    1F, 1F);
 
         boolean hasMallet = player.getMainHandStack().isOf(AITItems.HAMMER);
 
@@ -455,7 +456,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         if (this.control.shouldHaveDelay(tardis) && !this.isOnDelay()) {
             this.dataTracker.set(ON_DELAY, true);
 
-            Scheduler.get().runTaskLater(() -> this.dataTracker.set(ON_DELAY, false), TimeUnit.TICKS, this.control.getDelayLength());
+            Scheduler.get().runTaskLater(() -> this.dataTracker.set(ON_DELAY, false),
+                    TaskStage.END_SERVER_TICK, TimeUnit.TICKS, this.control.getDelayLength());
         }
 
         Control.Result result = this.control.handleRun(tardis, (ServerPlayerEntity) player, (ServerWorld) world, this.consoleBlockPos, leftClick);

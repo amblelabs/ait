@@ -31,7 +31,9 @@ import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Hand;
 import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
@@ -123,7 +125,19 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
 
     @Override
     public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
-        return 15;
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof ExteriorBlockEntity exterior && exterior.isLinked()) {
+            Tardis tardis = exterior.tardis().get();
+            if (tardis != null && tardis.fuel().hasPower()) {
+                return 15;
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public int getStrongRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
+        return getWeakRedstonePower(state, world, pos, direction);
     }
 
     @Override

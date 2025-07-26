@@ -59,7 +59,7 @@ public class AITItems extends ItemContainer {
     // Functional Items
     @NoEnglish
     public static final Item REMOTE_ITEM = new RemoteItem(
-            new AItemSettings().group(AITItemGroups.MAIN).maxCount(1));
+            new AItemSettings().group(AITItemGroups.MAIN).maxCount(1).fireproof().maxDamageIfAbsent(300));
     @NoEnglish
     public static final Item ARTRON_COLLECTOR = new ArtronCollectorItem(
             new AItemSettings().group(AITItemGroups.MAIN).maxCount(1));

@@ -22,7 +22,10 @@ public class AITRecipeProvider extends FabricRecipeProvider {
     public HashMap<SmithingTransformRecipeJsonBuilder, Identifier> smithingTransformRecipes = new HashMap<>();
     public HashMap<ShapelessRecipeJsonBuilder, Identifier> shapelessRecipesWithNameHashMap = new HashMap<>();
     public HashMap<SingleItemRecipeJsonBuilder, Identifier> stonecutting = new HashMap<>();
-    public List<CookingRecipeJsonBuilder> blasting = new ArrayList<>();
+    public List<BlastFurnaceRecipeEntry> blasting = new ArrayList<>();
+    public List<FurnaceRecipeEntry> smelting = new ArrayList<>();
+    public record FurnaceRecipeEntry(CookingRecipeJsonBuilder builder, Identifier id) {}
+    public record BlastFurnaceRecipeEntry(CookingRecipeJsonBuilder builder, Identifier id) {}
 
 
     public AITRecipeProvider(FabricDataOutput output) {
@@ -48,9 +51,15 @@ public class AITRecipeProvider extends FabricRecipeProvider {
             stonecuttingRecipeJsonBuilder.offerTo(exporter, identifier);
         });
 
-        for (CookingRecipeJsonBuilder cookingRecipeJsonBuilder : blasting) {
-            cookingRecipeJsonBuilder.offerTo(exporter);
+        for (BlastFurnaceRecipeEntry entry : blasting) {
+            entry.builder().offerTo(exporter, entry.id());
         }
+
+        for (FurnaceRecipeEntry entry : smelting) {
+            entry.builder().offerTo(exporter, entry.id());
+        }
+
+
     }
 
     public void addShapelessRecipe(ShapelessRecipeJsonBuilder builder) {
@@ -90,9 +99,12 @@ public class AITRecipeProvider extends FabricRecipeProvider {
         return key.substring(key.lastIndexOf(".") + 1);
     }
 
-    public void addBlastFurnaceRecipe(CookingRecipeJsonBuilder cookingBuilder) {
-        if (!blasting.contains(cookingBuilder)) {
-            blasting.add(cookingBuilder);
-        }
+    public void addBlastFurnaceRecipe(CookingRecipeJsonBuilder cookingBuilder, Identifier id) {
+        blasting.add(new BlastFurnaceRecipeEntry(cookingBuilder, id));
     }
+
+    public void addFurnaceRecipe(CookingRecipeJsonBuilder cookingBuilder, Identifier id) {
+        smelting.add(new FurnaceRecipeEntry(cookingBuilder, id));
+    }
+
 }

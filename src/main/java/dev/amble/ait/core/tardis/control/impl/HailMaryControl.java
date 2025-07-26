@@ -26,7 +26,6 @@ public class HailMaryControl extends Control {
         super.runServer(tardis, player, world, console, leftClick);
 
         tardis.stats().hailMary().set(!tardis.stats().hailMary().get());
-        tardis.removeFuel(50 * tardis.travel().instability());
 
         player.sendMessage(tardis.stats().hailMary().get()
                 ? Text.translatable("tardis.message.control.hail_mary.engaged")

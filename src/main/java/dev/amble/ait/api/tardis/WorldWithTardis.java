@@ -28,7 +28,7 @@ public interface WorldWithTardis {
             if (!(player.getWorld() instanceof WorldWithTardis withTardis) || !withTardis.ait$hasLookup())
                 return;
 
-            Set<ServerTardis> tardisSet = withTardis.ait$lookup().get(chunk.getPos());
+            Set<ServerTardis> tardisSet = withTardis.ait$lookup().get(chunk);
 
             if (tardisSet == null)
                 return;

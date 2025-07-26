@@ -44,20 +44,20 @@ public class StatsHandler extends KeyedTardisComponent {
     private static final Identifier NAME_PATH = AITMod.id("tardis_names.json");
     private static List<String> NAME_CACHE;
 
-    private static final Property<String> NAME = new Property<>(Property.Type.STR, "name", "");
-    private static final Property<String> PLAYER_CREATOR_NAME = new Property<>(Property.Type.STR, "player_creator_name",
+    private static final Property<String> NAME = new Property<>(Property.STR, "name", "");
+    private static final Property<String> PLAYER_CREATOR_NAME = new Property<>(Property.STR, "player_creator_name",
             "");
-    private static final Property<Long> DATE = new Property<>(Property.Type.LONG, "date", 0L);
-    private static final Property<String> DATE_TIME_ZONE = new Property<>(Property.Type.STR, "date_time_zone", "");
-    private static final Property<RegistryKey<World>> SKYBOX = new Property<>(Property.Type.WORLD_KEY, "skybox",
+    private static final Property<Long> DATE = new Property<>(Property.LONG, "date", 0L);
+    private static final Property<String> DATE_TIME_ZONE = new Property<>(Property.STR, "date_time_zone", "");
+    private static final Property<RegistryKey<World>> SKYBOX = new Property<>(Property.WORLD_KEY, "skybox",
             World.END);
-    private static final Property<Direction> SKYBOX_DIRECTION = new Property<>(Property.Type.DIRECTION, "skybox_direction",
+    private static final Property<Direction> SKYBOX_DIRECTION = new Property<>(Property.DIRECTION, "skybox_direction",
             Direction.NORTH);
-    private static final Property<HashSet<String>> UNLOCKS = new Property<>(Property.Type.STR_SET, "unlocks",
+    private static final Property<HashSet<String>> UNLOCKS = new Property<>(Property.STR_SET, "unlocks",
             new HashSet<>());
 
-    private static final Property<Identifier> FLIGHT_FX = new Property<>(Property.Type.IDENTIFIER, "flight_fx", new Identifier(""));
-    private static final Property<Identifier> VORTEX_FX = new Property<>(Property.Type.IDENTIFIER, "vortex_fx", new Identifier(""));
+    private static final Property<Identifier> FLIGHT_FX = new Property<>(Property.IDENTIFIER, "flight_fx", new Identifier(""));
+    private static final Property<Identifier> VORTEX_FX = new Property<>(Property.IDENTIFIER, "vortex_fx", new Identifier(""));
     private static final BoolProperty SECURITY = new BoolProperty("security", false);
     private static final BoolProperty HAIL_MARY = new BoolProperty("hail_mary", false);
     private static final BoolProperty RECEIVE_CALLS = new BoolProperty("receive_calls", true);
@@ -293,6 +293,12 @@ public class StatsHandler extends KeyedTardisComponent {
 
     public void setZScale(double scale) {
         this.tardisZScale.set(scale);
+    }
+
+    public void setScale(double x, double y, double z) {
+        this.setXScale(x);
+        this.setYScale(y);
+        this.setZScale(z);
     }
 
     public String getCreationString() {

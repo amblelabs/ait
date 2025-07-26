@@ -2,8 +2,9 @@ package dev.amble.ait.core.blockentities.control;
 
 import java.util.Optional;
 
-import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
@@ -119,6 +120,6 @@ public abstract class ControlBlockEntity extends InteriorLinkableBlockEntity {
     public void createDelay(long ticks) {
         this.onDelay = true;
 
-        Scheduler.get().runTaskLater(() -> this.onDelay = false, TimeUnit.TICKS, ticks);
+        Scheduler.get().runTaskLater(() -> this.onDelay = false, TaskStage.END_SERVER_TICK, TimeUnit.TICKS, ticks);
     }
 }

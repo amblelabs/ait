@@ -5,6 +5,8 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.World;
 
 import dev.amble.ait.client.sounds.PositionedLoopingSound;
@@ -34,8 +36,34 @@ public class SonicSound extends PositionedLoopingSound {
             return;
         }
 
+        if (checkAndPlayDuelSound())
+            return;
+
+
         this.updatePosition();
         this.updatePitchBasedOnCameraMovement();
+    }
+
+    private boolean checkAndPlayDuelSound() {
+
+        HitResult hitResult = this.player.raycast(16, 0.0f, false);
+
+        if (hitResult.getType() != HitResult.Type.ENTITY) return false;
+
+        EntityHitResult entityHitResult = (EntityHitResult) hitResult;
+
+        if (!(entityHitResult.getEntity() instanceof AbstractClientPlayerEntity otherPlayer)) return false;
+
+        if (!shouldPlay(otherPlayer)) return false;
+
+        if (!hasPlayedOnSound) {
+            playSoundAtPlayer(AITSounds.SONIC_DUEL);
+            hasPlayedOnSound = true;
+            hasPlayedOffSound = false;
+            return true;
+        }
+
+        return false;
     }
 
     public static boolean shouldPlay(PlayerEntity player) {

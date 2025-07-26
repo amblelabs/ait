@@ -167,7 +167,7 @@ public class DetectorBlock extends WallMountedBlock implements BlockEntityProvid
                 }), DOOR_LOCKED(tardis -> tardis.door().locked() ? 15 : 0), DOOR_OPEN(
                         tardis -> tardis.door().isOpen() ? 15 : 0), SONIC(
                                 tardis -> tardis.sonic().getConsoleSonic() != null ? 15 : 0), ALARMS(
-                                        tardis -> tardis.alarm().enabled().get() ? 15 : 0);
+                                        tardis -> tardis.alarm().isEnabled() ? 15 : 0);
 
         private final String name;
         private final Function<Tardis, Integer> func;

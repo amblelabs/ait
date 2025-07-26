@@ -14,12 +14,12 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.consoles.ConsoleModel;
 import dev.amble.ait.client.models.consoles.HartnellConsoleModel;
 import dev.amble.ait.client.models.items.HandlesModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientLightUtil;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.item.HandlesItem;
@@ -49,9 +49,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
             HartnellConsoleModel model = new HartnellConsoleModel(HartnellConsoleModel.getTexturedModelData().createModel());
             model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(ClientConsoleVariantRegistry.HARTNELL.texture())),
                     light, overlay, 1, 1, 1, 1);
-            RenderLayer layer = DependencyChecker.hasIris()
-                    ? AITRenderLayers.tardisEmissiveCullZOffset(ClientConsoleVariantRegistry.HARTNELL.emission(), true)
-                    : AITRenderLayers.getBeaconBeam(ClientConsoleVariantRegistry.HARTNELL.emission(), true);
+            RenderLayer layer = AITRenderLayers.tardisEmissiveCullZOffset(ClientConsoleVariantRegistry.HARTNELL.emission(), true);
             model.render(matrices, vertexConsumers.getBuffer(layer),
                     0xf000f0, overlay, 1, 1, 1, 1);
             matrices.pop();
@@ -115,35 +113,43 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         matrices.push();
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 
-        profiler.swap("animate");
-        model.animateBlockEntity(entity, tardis.travel().getState(), hasPower);
-
-        profiler.swap("render");
-        model.renderWithAnimations(entity, tardis, model.getPart(),
-                matrices, vertexConsumers.getBuffer(variant.equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(variant.texture()) :
-                        RenderLayer.getEntityTranslucentCull(variant.texture())), light, overlay,
-                1, 1, 1, 1);
-
-        matrices.pop();
-        matrices.push();
-
-        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
+        if (!DependencyChecker.hasIris()) {
+            model.renderWithAnimations(entity, tardis, model.getPart(),
+                    matrices, vertexConsumers.getBuffer(variant.equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(variant.texture()) :
+                            RenderLayer.getEntityTranslucentCull(variant.texture())), light, overlay,
+                    1, 1, 1, 1);
+        }
 
         if (hasPower) {
             profiler.swap("emission"); // emission {
 
             if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
-                ClientLightUtil.renderEmissive((vertices, l) -> model.renderWithAnimations(
-                        entity, tardis, model.getPart(), matrices, vertices, l, overlay, 1, 1, 1,
-                        1), variant.emission(), vertexConsumers);
+                model.renderWithAnimations(entity, tardis, model.getPart(),
+                        matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xF000F0, overlay,
+                        1, 1, 1, 1);
             }
         }
+
+        profiler.swap("animate");
+        model.animateBlockEntity(entity, tardis.travel().getState(), hasPower);
+
+        profiler.swap("render");
+        if (DependencyChecker.hasIris()) {
+            model.renderWithAnimations(entity, tardis, model.getPart(),
+                    matrices, vertexConsumers.getBuffer(variant.equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(variant.texture()) :
+                            RenderLayer.getEntityTranslucentCull(variant.texture())), light, overlay,
+                    1, 1, 1, 1);
+        }
+        matrices.pop();
+        matrices.push();
+
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 
         matrices.pop();
 
         profiler.swap("monitor");
 
-        if (hasPower) {
+        if (hasPower && AITModClient.CONFIG.showConsoleMonitorText) {
             model.renderMonitorText(tardis, entity, matrices, vertexConsumers, light, overlay);
         }
 

@@ -19,8 +19,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 import dev.amble.ait.data.schema.door.DoorSchema;
@@ -88,11 +86,6 @@ public class DatapackExterior extends ExteriorVariantSchema {
 
     public Identifier getParentId() {
         return this.parent;
-    }
-
-    @Override
-    public ExteriorAnimation animation(ExteriorBlockEntity exterior) {
-        return this.getParent().animation(exterior);
     }
 
     @Override

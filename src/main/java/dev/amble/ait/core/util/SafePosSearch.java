@@ -6,6 +6,7 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.queue.api.util.Value;
 import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.TaskStage;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
@@ -70,7 +71,7 @@ public class SafePosSearch {
         };
     }
 
-    private static ActionQueue findSafeCeiling(ActionQueue queue, Value<BlockPos> result, World world, BlockPos original) {
+    private static ActionQueue findSafeCeiling(ActionQueue queue, Value<BlockPos> result, ServerWorld world, BlockPos original) {
         return queue.thenRun(() -> {
             if (result.value != null)
                 return;
@@ -82,7 +83,7 @@ public class SafePosSearch {
         });
     }
 
-    private static ActionQueue findSafeFloor(ActionQueue queue, Value<BlockPos> result, World world, BlockPos original) {
+    private static ActionQueue findSafeFloor(ActionQueue queue, Value<BlockPos> result, ServerWorld world, BlockPos original) {
         final SafeFloorHolder holder = new SafeFloorHolder(world, original);
 
         return queue.thenRunSteps(() -> {
@@ -95,10 +96,10 @@ public class SafePosSearch {
                 result.value = holder.cursor;
 
             return state != Iter.CONTINUE;
-        }, TimeUnit.TICKS, 1, 3);
+        }, TaskStage.startWorldTick(world), TimeUnit.TICKS, 1, 3);
     }
 
-    private static ActionQueue findSafeMedian(ActionQueue queue, Value<BlockPos> result, World world, BlockPos original) {
+    private static ActionQueue findSafeMedian(ActionQueue queue, Value<BlockPos> result, ServerWorld world, BlockPos original) {
         final SafeMedianHolder holder = new SafeMedianHolder(world, original);
 
         return queue.thenRunSteps(() -> {
@@ -114,10 +115,10 @@ public class SafePosSearch {
             }
 
             return state != DoubleIter.CONTINUE;
-        }, TimeUnit.TICKS, 1, 3);
+        }, TaskStage.startWorldTick(world), TimeUnit.TICKS, 1, 3);
     }
 
-    private static ActionQueue findSafeXZ(ActionQueue queue, Value<BlockPos> result, World world, BlockPos original, int radius) {
+    private static ActionQueue findSafeXZ(ActionQueue queue, Value<BlockPos> result, ServerWorld world, BlockPos original, int radius) {
         BlockPos.Mutable pos = original.mutableCopy();
 
         int minX = pos.getX() - radius;
@@ -135,7 +136,7 @@ public class SafePosSearch {
                 result.value = holder.pos.toImmutable();
 
             return state != Iter.CONTINUE;
-        }, TimeUnit.TICKS, 1, 3); // every tick, while the taken time is less than 3ms (1tick = 50ms, 2/50 of a tick, which is 4%)
+        }, TaskStage.startWorldTick(world), TimeUnit.TICKS, 1, 3); // every tick, while the taken time is less than 3ms (1tick = 50ms, 2/50 of a tick, which is 4%)
     }
 
     @SuppressWarnings("deprecation")

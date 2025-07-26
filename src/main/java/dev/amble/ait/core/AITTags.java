@@ -52,6 +52,7 @@ public class AITTags {
 
     public static class GameEvents {
         public static final TagKey<GameEvent> MATRIX_CAN_LISTEN = createTag("matrix_can_listen");
+
         public static TagKey<GameEvent> createTag(String name) {
             return TagKey.of(RegistryKeys.GAME_EVENT, AITMod.id(name));
         }

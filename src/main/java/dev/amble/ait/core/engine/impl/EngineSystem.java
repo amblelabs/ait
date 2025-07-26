@@ -19,6 +19,7 @@ import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.engine.DurableSubSystem;
+import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
@@ -63,7 +64,7 @@ public class EngineSystem extends DurableSubSystem {
 
     @Override
     protected int changeFrequency() {
-        return 1200; // drain 0.05 durability every minute
+        return 24000; // drain 0.05 durability every minute
     }
 
     @Override
@@ -96,7 +97,7 @@ public class EngineSystem extends DurableSubSystem {
 
     private void tickForDurability() {
         if (this.durability() <= 5) {
-            this.tardis.alarm().enabled().set(true);
+            this.tardis.alarm().enable();
         }
     }
 
@@ -230,13 +231,21 @@ public class EngineSystem extends DurableSubSystem {
         CRITICAL(250, 33, 22) {
             @Override
             public boolean isViable(EngineSystem system) {
-                return system.phaser().isPhasing() || system.tardis.subsystems().findBrokenSubsystem().isPresent();
+                if (system.phaser().isPhasing())
+                    return true;
+
+                for (SubSystem next : system.tardis().subsystems()) {
+                    if (next instanceof DurableSubSystem durable && next.isEnabled() && durable.durability() <= 5)
+                        return true;
+                }
+
+                return false;
             }
         },
         ERROR(250, 242, 22) {
             @Override
             public boolean isViable(EngineSystem system) {
-                return system.tardis.alarm().enabled().get() || system.tardis.sequence().hasActiveSequence();
+                return system.tardis.alarm().isEnabled() || system.tardis.sequence().hasActiveSequence();
             }
         },
         LEAKAGE(114, 255, 33) {

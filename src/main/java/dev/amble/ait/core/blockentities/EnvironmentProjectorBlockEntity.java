@@ -122,7 +122,7 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
     }
 
     private static ServerWorld findNext(RegistryKey<World> last) {
-        Iterator<ServerWorld> iter = WorldUtil.getOpenWorlds().iterator();
+        Iterator<ServerWorld> iter = WorldUtil.getProjectorWorlds().iterator();
 
         ServerWorld first = iter.next();
         ServerWorld found = first;

@@ -8,7 +8,8 @@ import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITTags;
 
 public abstract class DurableSubSystem extends SubSystem {
-    private float durability = 1250;
+    public static final int MAX_DURABILITY = 1250;
+    private float durability = MAX_DURABILITY;
 
     protected DurableSubSystem(IdLike id) {
         super(id);
@@ -25,10 +26,10 @@ public abstract class DurableSubSystem extends SubSystem {
         return durability;
     }
 
-    private void setDurability(float durability) {
+    public void setDurability(float durability) {
         float before = this.durability;
 
-        this.durability = Math.max(0, Math.min(durability, 1250));
+        this.durability = Math.max(0, Math.min(durability, MAX_DURABILITY));
 
         this.onDurabilityChange(before, this.durability);
     }

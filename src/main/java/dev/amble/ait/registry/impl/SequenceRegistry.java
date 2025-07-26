@@ -16,6 +16,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
@@ -71,30 +72,30 @@ public class SequenceRegistry {
                 finishedTardis -> finishedTardis.travel().decreaseFlightTime(120), missedTardis -> {
                     missedTardis.removeFuel(-random.nextBetween(45, 125));
                     missedTardis.door().openDoors();
+
                     List<Explosion> explosions = new ArrayList<>();
+                    ServerWorld world = missedTardis.asServer().world();
 
-                    missedTardis.asServer().worldRef().ifPresent(world -> {
-                        missedTardis.getDesktop().getConsolePos().forEach(console -> {
-                            Explosion explosion = world.createExplosion(null, null, null,
-                                    console.toCenterPos(), 3f * 2, false, World.ExplosionSourceType.BLOCK);
+                    missedTardis.getDesktop().getConsolePos().forEach(console -> {
+                        Explosion explosion = world.createExplosion(null, null, null,
+                                console.toCenterPos(), 3f * 2, false, World.ExplosionSourceType.BLOCK);
 
-                            explosions.add(explosion);
-                        });
-
-                        for (ServerPlayerEntity player : world.getPlayers()) {
-                            float xVel = AITMod.RANDOM.nextFloat(-2f, 3f);
-                            float yVel = AITMod.RANDOM.nextFloat(-1f, 2f);
-                            float zVel = AITMod.RANDOM.nextFloat(-2f, 3f);
-
-                            player.setVelocity(xVel * 2, yVel * 2, zVel * 2);
-
-                            if (!explosions.isEmpty()) {
-                                player.damage(world.getDamageSources().explosion(explosions.get(0)), 0);
-                            } else {
-                                player.damage(WorldUtil.getOverworld().getDamageSources().generic(), 0);
-                            }
-                        }
+                        explosions.add(explosion);
                     });
+
+                    for (ServerPlayerEntity player : world.getPlayers()) {
+                        float xVel = AITMod.RANDOM.nextFloat(-2f, 3f);
+                        float yVel = AITMod.RANDOM.nextFloat(-1f, 2f);
+                        float zVel = AITMod.RANDOM.nextFloat(-2f, 3f);
+
+                        player.setVelocity(xVel * 2, yVel * 2, zVel * 2);
+
+                        if (!explosions.isEmpty()) {
+                            player.damage(world.getDamageSources().explosion(explosions.get(0)), 0);
+                        } else {
+                            player.damage(WorldUtil.getOverworld().getDamageSources().generic(), 0);
+                        }
+                    }
                 }, 100L, Text.translatable("sequence.ait.avoid_debris").formatted(Formatting.ITALIC, Formatting.YELLOW),
                 new DirectionControl(), new RandomiserControl()));
 
@@ -189,14 +190,14 @@ public class SequenceRegistry {
                     if (finishedTardis.door().isOpen() || !(finishedTardis instanceof ServerTardis))
                         return;
 
-                    finishedTardis.asServer().worldRef().ifPresent(world -> {
-                        ItemEntity rewardForCloaking = new ItemEntity(EntityType.ITEM, world);
-                        rewardForCloaking.setPosition(doorPos.toCenterPos());
+                    ServerWorld world = finishedTardis.asServer().world();
 
-                        rewardForCloaking.setStack(
-                                random.nextBoolean() ? Items.COOKIE.getDefaultStack() : Items.POPPY.getDefaultStack());
-                        world.spawnEntity(rewardForCloaking);
-                    });
+                    ItemEntity rewardForCloaking = new ItemEntity(EntityType.ITEM, world);
+                    rewardForCloaking.setPosition(doorPos.toCenterPos());
+
+                    rewardForCloaking.setStack(
+                            random.nextBoolean() ? Items.COOKIE.getDefaultStack() : Items.POPPY.getDefaultStack());
+                    world.spawnEntity(rewardForCloaking);
                 }), (missedTardis -> {
                     DirectedBlockPos directedDoorPos = missedTardis.getDesktop().getDoorPos();
 
@@ -209,22 +210,21 @@ public class SequenceRegistry {
                     if (missedTardis.door().isOpen() || !(missedTardis instanceof ServerTardis))
                         return;
 
-                    missedTardis.asServer().worldRef().ifPresent(interior -> {
-                        Vec3d centered = doorPos.toCenterPos();
+                    ServerWorld interior = missedTardis.asServer().world();
+                    Vec3d centered = doorPos.toCenterPos();
 
-                        ZombieEntity zombieEntity = new ZombieEntity(EntityType.ZOMBIE, interior);
-                        zombieEntity.setPosition(centered);
+                    ZombieEntity zombieEntity = new ZombieEntity(EntityType.ZOMBIE, interior);
+                    zombieEntity.setPosition(centered);
 
-                        DrownedEntity drownedEntity = new DrownedEntity(EntityType.DROWNED,
-                                interior);
-                        drownedEntity.setPosition(centered);
+                    DrownedEntity drownedEntity = new DrownedEntity(EntityType.DROWNED,
+                            interior);
+                    drownedEntity.setPosition(centered);
 
-                        PhantomEntity phantomEntity = new PhantomEntity(EntityType.PHANTOM,
-                                interior);
-                        phantomEntity.setPosition(centered);
+                    PhantomEntity phantomEntity = new PhantomEntity(EntityType.PHANTOM,
+                            interior);
+                    phantomEntity.setPosition(centered);
 
-                        interior.spawnEntity(random.nextBoolean() ? random.nextBoolean() ? drownedEntity : zombieEntity : phantomEntity);
-                    });
+                    interior.spawnEntity(random.nextBoolean() ? random.nextBoolean() ? drownedEntity : zombieEntity : phantomEntity);
                 }), 80L, Text.translatable("sequence.ait.cloak_to_avoid_vortex_trapped_mobs").formatted(Formatting.ITALIC, Formatting.YELLOW),
                         new CloakControl(), new RandomiserControl()));
 

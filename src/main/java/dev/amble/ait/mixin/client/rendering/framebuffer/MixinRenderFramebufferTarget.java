@@ -1,7 +1,8 @@
 package dev.amble.ait.mixin.client.rendering.framebuffer;
 
 import static org.lwjgl.opengl.GL11.GL_DEPTH_COMPONENT;
-import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL30.GL_DEPTH24_STENCIL8;
+import static org.lwjgl.opengl.GL30.GL_UNSIGNED_INT_24_8;
 
 import java.util.Objects;
 

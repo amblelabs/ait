@@ -12,13 +12,6 @@ public abstract class TardisMap<T> extends ConcurrentHashMap<UUID, T> {
 
     private TardisMap() { }
 
-    @Nullable public T get(UUID id) {
-        if (id == null)
-            return null;
-
-        return super.get(id);
-    }
-
     public static class Direct<T extends Tardis> extends TardisMap<T> {
 
         public T put(T t) {
@@ -26,6 +19,14 @@ public abstract class TardisMap<T> extends ConcurrentHashMap<UUID, T> {
         }
     }
 
+    /**
+     * This type of tardis map has a {@link UUID} for a key and a {@link Either}<{@link Tardis}, {@link Exception}> for a value.
+     * The map will return {@link null} when no value is associated with the id and the {@link Either} if there is.
+     * <p>
+     * In case a tardis has failed to load, the {@link Either} will wrap an {@link Exception}.
+     *
+     * @param <T>
+     */
     public static class Optional<T extends Tardis> extends TardisMap<Either<T, Exception>> {
 
         private Either<T, Exception> wrap(T t) {

@@ -96,7 +96,6 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
     /**
      * TEMPORARY - will be removed when ARS is implemented
      */
-    @Deprecated(forRemoval = true)
     public List<ItemStack> toStacks() {
         List<ItemStack> stacks = new ArrayList<>();
 

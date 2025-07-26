@@ -2,6 +2,7 @@ package dev.amble.ait.client.util;
 
 import static dev.amble.ait.core.tardis.util.TardisUtil.*;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -14,8 +15,11 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.entity.passive.SheepEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -44,16 +48,15 @@ public class ClientTardisUtil {
 
     static {
         ClientWorldEvents.CHANGE_WORLD.register((client, world) -> {
-            UUID id = TardisServerWorld.getClientTardisId(world);
+            UUID id = TardisServerWorld.getTardisId(world);
             currentTardis = new TardisRef(id, uuid -> ClientTardisManager.getInstance().demandTardis(uuid));
         });
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            UUID id = TardisServerWorld.getClientTardisId(client.world);
+            UUID id = TardisServerWorld.getTardisId(client.world);
             currentTardis = new TardisRef(id, uuid -> ClientTardisManager.getInstance().demandTardis(uuid));
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            if (currentTardis != null)
-                currentTardis = null;
+            currentTardis = null;
         });
     }
 
@@ -180,10 +183,15 @@ public class ClientTardisUtil {
         if (tardis == null)
             return 0;
 
+        Collection<BlockPos> consoles = tardis.getDesktop().getConsolePos();
+
+        if (consoles.isEmpty())
+            return 0;
+
         BlockPos pos = player.getBlockPos();
         double lowest = Double.MAX_VALUE;
 
-        for (BlockPos console : tardis.getDesktop().getConsolePos()) {
+        for (BlockPos console : consoles) {
             double distance = Math.sqrt(pos.getSquaredDistance(console));
 
             if (distance < lowest)
@@ -249,7 +257,7 @@ public class ClientTardisUtil {
     public static void tickAlarmDelta() {
         Tardis tardis = getCurrentTardis();
 
-        if (tardis == null || !tardis.alarm().enabled().get()) {
+        if (tardis == null || !tardis.alarm().isEnabled()) {
             alarmDeltaTick = MAX_ALARM_DELTA_TICKS;
             return;
         }
@@ -276,5 +284,24 @@ public class ClientTardisUtil {
 
     public static float getAlarmDeltaForLerp() {
         return (float) getAlarmDelta() / MAX_ALARM_DELTA_TICKS;
+    }
+
+    public static float[] getPartyColors() {
+        final int m = 25;
+        final PlayerEntity player = MinecraftClient.getInstance().player;
+
+        int n = player.age / m + player.getId();
+        int o = DyeColor.values().length;
+        int p = n % o;
+        int q = (n + 1) % o;
+        float r = ((float)(player.age % m)) / m;
+        float[] fs = SheepEntity.getRgbColor(DyeColor.byId(p));
+        float[] gs = SheepEntity.getRgbColor(DyeColor.byId(q));
+
+        float s = fs[0] * (1f - r) + gs[0] * r;
+        float t = fs[1] * (1f - r) + gs[1] * r;
+        float u = fs[2] * (1f - r) + gs[2] * r;
+
+        return new float[] { s, t, u };
     }
 }

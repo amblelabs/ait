@@ -6,8 +6,6 @@ import java.util.function.Function;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.drtheo.scheduler.api.Scheduler;
-import dev.drtheo.scheduler.api.TimeUnit;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.dynamic.Codecs;
@@ -35,11 +33,11 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
     private static final BoolProperty LEAVE_BEHIND = new BoolProperty("leave_behind", false);
 
     private static final Property<CachedDirectedGlobalPos> POSITION = new Property<>(
-            Property.Type.CDIRECTED_GLOBAL_POS, "position", (CachedDirectedGlobalPos) null);
+            Property.CDIRECTED_GLOBAL_POS, "position", (CachedDirectedGlobalPos) null);
     private static final Property<CachedDirectedGlobalPos> DESTINATION = new Property<>(
-            Property.Type.CDIRECTED_GLOBAL_POS, "destination", (CachedDirectedGlobalPos) null);
+            Property.CDIRECTED_GLOBAL_POS, "destination", (CachedDirectedGlobalPos) null);
     private static final Property<CachedDirectedGlobalPos> PREVIOUS_POSITION = new Property<>(
-            Property.Type.CDIRECTED_GLOBAL_POS, "previous_position", (CachedDirectedGlobalPos) null);
+            Property.CDIRECTED_GLOBAL_POS, "previous_position", (CachedDirectedGlobalPos) null);
 
     private static final BoolProperty CRASHING = new BoolProperty("crashing", false);
     private static final BoolProperty ANTIGRAVS = new BoolProperty("antigravs", false);
@@ -100,16 +98,9 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
         this.position.ifPresent(cached -> cached.init(current), false);
         this.destination.ifPresent(cached -> cached.init(current), false);
         this.previousPosition.ifPresent(cached -> cached.init(current), false);
-    }
 
-    @Override
-    protected void onInit(InitContext ctx) {
-        super.onInit(ctx);
-
-        Scheduler.get().runTaskTimer(task -> {
-            if (this.hammerUses > 0)
-                this.hammerUses--;
-        }, TimeUnit.TICKS, 200);
+        // fix a bug of old versions having negative hammer uses.
+        this.hammerUses = Math.max(this.hammerUses, 1);
     }
 
     @Override
@@ -118,6 +109,9 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
 
         if (crash.getState() != TardisCrashHandler.State.NORMAL)
             crash.addRepairTicks(2 * this.speed());
+
+        if (server.getTicks() % 200 == 0 && this.hammerUses > 0)
+            this.hammerUses--;
     }
 
     public BoolValue leaveBehind() {

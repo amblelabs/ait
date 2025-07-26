@@ -20,6 +20,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 
 import dev.amble.ait.api.ArtronHolder;
+import dev.amble.ait.api.ArtronHolderItem;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITItems;
@@ -56,6 +57,9 @@ public class ArtronCollectorBlockEntity extends BlockEntity implements BlockEnti
             ItemStack stack = player.getMainHandStack();
             if (stack.getItem() instanceof ArtronCollectorItem) {
                 double residual = ArtronCollectorItem.addFuel(stack, this.getCurrentFuel());
+                this.setCurrentFuel(residual);
+            } else if (stack.getItem() instanceof ArtronHolderItem) {
+                double residual = ((ArtronHolderItem) stack.getItem()).addFuel(this.getCurrentFuel(), stack);
                 this.setCurrentFuel(residual);
             } else if (stack.getItem() instanceof ChargedZeitonCrystalItem crystal) {
                 double residual = crystal.addFuel(this.getCurrentFuel(), stack);

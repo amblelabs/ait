@@ -24,6 +24,7 @@ import net.minecraft.recipe.book.RecipeCategory;
 import net.minecraft.registry.RegistryBuilder;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
@@ -116,9 +117,34 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .input('C', AITItems.CORAL_FRAGMENT)
                     .criterion(hasItem(AITItems.CORAL_FRAGMENT), conditionsFromItem(AITItems.CORAL_FRAGMENT)));
 
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, AITBlocks.TARDIS_CORAL_BLOCK, 1)
+                    .pattern("##")
+                    .pattern("##")
+                    .input('#', AITItems.CORAL_FRAGMENT)
+                    .criterion(hasItem(AITItems.CORAL_FRAGMENT), conditionsFromItem(AITItems.CORAL_FRAGMENT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, AITBlocks.TARDIS_CORAL_SLAB, 6)
+                    .pattern("###")
+                    .input('#', AITBlocks.TARDIS_CORAL_BLOCK)
+                    .criterion(hasItem(AITBlocks.TARDIS_CORAL_BLOCK), conditionsFromItem(AITBlocks.TARDIS_CORAL_BLOCK)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, AITBlocks.TARDIS_CORAL_STAIRS, 4)
+                    .pattern("#  ")
+                    .pattern("## ")
+                    .pattern("###")
+                    .input('#', AITBlocks.TARDIS_CORAL_BLOCK)
+                    .criterion(hasItem(AITBlocks.TARDIS_CORAL_BLOCK), conditionsFromItem(AITBlocks.TARDIS_CORAL_BLOCK)));
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, AITBlocks.TARDIS_CORAL_FAN, 3)
+                    .pattern(" # ")
+                    .pattern("###")
+                    .pattern(" # ")
+                    .input('#', AITItems.CORAL_FRAGMENT)
+                    .criterion(hasItem(AITItems.CORAL_FRAGMENT), conditionsFromItem(AITItems.CORAL_FRAGMENT)));
+
             provider.addBlastFurnaceRecipe(CookingRecipeJsonBuilder.createBlasting(Ingredient.ofItems(AITItems.ZEITON_SHARD),
                             RecipeCategory.MISC, AITItems.SUPERHEATED_ZEITON, 0.2f, 500)
-                    .criterion(hasItem(AITItems.ZEITON_SHARD), conditionsFromItem(AITItems.ZEITON_SHARD)));
+                    .criterion(hasItem(AITItems.ZEITON_SHARD), conditionsFromItem(AITItems.ZEITON_SHARD)),
+            new Identifier("ait", "superheated_zeiton_from_zeiton_shard_blasting"));
 
             provider.addShapedRecipe(
                     ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, AITBlocks.ZEITON_BLOCK, 1)
@@ -502,8 +528,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .pattern("OPO")
                     .input('O', Blocks.ORANGE_WOOL)
                     .criterion(hasItem(Blocks.ORANGE_WOOL), conditionsFromItem(Blocks.ORANGE_WOOL))
-                    .input('S', Items.NETHER_STAR)
-                    .criterion(hasItem(Items.NETHER_STAR), conditionsFromItem(Items.NETHER_STAR))
+                    .input('S', AITItems.CHARGED_ZEITON_CRYSTAL)
+                    .criterion(hasItem(AITItems.CHARGED_ZEITON_CRYSTAL), conditionsFromItem(AITItems.CHARGED_ZEITON_CRYSTAL))
                     .input('P', Items.PAINTING)
                     .criterion(hasItem(Items.PAINTING), conditionsFromItem(Items.PAINTING))
                     .input('B', Blocks.BLACK_WOOL)
@@ -515,8 +541,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .pattern("OPO")
                     .input('O', Blocks.PURPLE_WOOL)
                     .criterion(hasItem(Blocks.PURPLE_WOOL), conditionsFromItem(Blocks.PURPLE_WOOL))
-                    .input('S', Items.NETHER_STAR)
-                    .criterion(hasItem(Items.NETHER_STAR), conditionsFromItem(Items.NETHER_STAR))
+                    .input('S', AITItems.CHARGED_ZEITON_CRYSTAL)
+                    .criterion(hasItem(AITItems.CHARGED_ZEITON_CRYSTAL), conditionsFromItem(AITItems.CHARGED_ZEITON_CRYSTAL))
                     .input('P', Items.PAINTING)
                     .criterion(hasItem(Items.PAINTING), conditionsFromItem(Items.PAINTING))
                     .input('B', Blocks.BLACK_WOOL)
@@ -741,23 +767,23 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.antigravs", "Antigravs");
         provider.addTranslation("control.ait.refreshment_control", "Refreshment Selector");
         provider.addTranslation("control.ait.food_creation", "Refreshment Dispenser");
-        provider.addTranslation("control.ait.protocol_116", "Protocol 116");
-        provider.addTranslation("control.ait.protocol_3", "Protocol 3");
+        provider.addTranslation("control.ait.protocol_116", "Stabiliser");
+        provider.addTranslation("control.ait.protocol_3", "Shell Cloaking");
         provider.addTranslation("control.ait.dimension", "Dimension");
         provider.addTranslation("control.ait.direction", "Direction");
         provider.addTranslation("control.ait.door_control", "Door Control");
         provider.addTranslation("control.ait.door_lock", "Door Lock");
         provider.addTranslation("control.ait.fast_return", "Fast Return");
         provider.addTranslation("control.ait.alarms", "Alarms");
-        provider.addTranslation("control.ait.protocol_813", "Protocol 813");
+        provider.addTranslation("control.ait.protocol_813", "Hail Mary");
         provider.addTranslation("control.ait.handbrake", "Handbrake");
         provider.addTranslation("control.ait.land_type", "Land Type");
         provider.addTranslation("control.ait.monitor", "Monitor");
         provider.addTranslation("control.ait.power", "Power");
         provider.addTranslation("control.ait.randomiser", "Randomiser");
         provider.addTranslation("control.ait.refueler", "Refueler");
-        provider.addTranslation("control.ait.protocol_19", "Protocol 19");
-        provider.addTranslation("control.ait.protocol_1913", "Protocol 1913");
+        provider.addTranslation("control.ait.protocol_19", "Isomorphic Security");
+        provider.addTranslation("control.ait.protocol_1913", "Siege Mode");
         provider.addTranslation("control.ait.sonic_port", "Sonic Port");
         provider.addTranslation("control.ait.telepathic_circuit", "Telepathic Circuit");
         provider.addTranslation("control.ait.throttle", "Throttle");
@@ -773,8 +799,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.y", "Y");
         provider.addTranslation("control.ait.z", "Z");
         provider.addTranslation("control.ait.shields", "Shields");
-        provider.addTranslation("control.ait.engine_overload", "Protocol 515");
-        provider.addTranslation("control.ait.electrical_discharge", "Protocol 54");
+        provider.addTranslation("control.ait.engine_overload", "Engine Overload");
+        provider.addTranslation("control.ait.electrical_discharge", "Shell Repellent");
         provider.addTranslation("control.ait.hammer_hanger", "Hammer Hanger");
 
         // Tabs
@@ -792,6 +818,16 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("text.autoconfig.aitconfig.option.SERVER.SEND_BULK", "Send Bulk");
         provider.addTranslation("text.autoconfig.aitconfig.option.SERVER.MAX_TARDISES", "Max TARDISES (-1 = Infinite)");
         provider.addTranslation("text.autoconfig.aitconfig.option.SERVER.TNT_CAN_TELEPORT_THROUGH_DOOR", "Tnt Can Teleport Through Doors");
+        provider.addTranslation("yacl3.config.ait:server.hypercubesEnabled", "Enable Hypercubes?");
+        provider.addTranslation("yacl3.config.ait:server.travelPerTick", "Travel Per Tick");
+        provider.addTranslation("yacl3.config.ait:server.sendBulk", "Send Bulk?");
+        provider.addTranslation("yacl3.config.ait:server.maxTardises", "Max Amount Of Tardises");
+        provider.addTranslation("yacl3.config.ait:client.showConsoleMonitorText", "Show text on console monitors?");
+        provider.addTranslation("yacl3.config.ait:client.showCRTMonitorText", "Show text on CRT monitors?");
+        provider.addTranslation("yacl3.config.ait:client.renderDematParticles", "Render demat particles?");
+        provider.addTranslation("yacl3.config.ait:client.animateConsole", "Animate console?");
+        provider.addTranslation("yacl3.config.ait:client.animateDoors", "Animate doors?");
+        provider.addTranslation("yacl3.config.ait:client.temperatureType", "Temperature type");
 
         provider.addTranslation("text.autoconfig.aitconfig.category.client", "Client");
         provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.SHOW_EXPERIMENTAL_WARNING", "Show Experimental Warning");
@@ -812,6 +848,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.GREEN_SCREEN_BOTI", "Enable Green Screen Boti");
 
         provider.addTranslation(AITMod.TARDIS_GRIEFING.getTranslationKey(), "TARDIS Griefing");
+        provider.addTranslation(AITMod.TARDIS_FIRE_GRIEFING.getTranslationKey(), "TARDIS Fire Griefing");
         provider.addTranslation("entity.minecraft.villager.fabricator_engineer", "Fabricator Engineer");
 
         // Entitys
@@ -862,6 +899,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("exterior.ait.booth", "Booth");
         provider.addTranslation("exterior.ait.renegade", "Renegade");
         provider.addTranslation("exterior.ait.doom", "DOOM");
+        provider.addTranslation("exterior.ait.wanderer", "Wanderer");
         provider.addTranslation("exterior.ait.geometric", "Geometric");
         provider.addTranslation("exterior.ait.tardim", "TARDIM");
         provider.addTranslation("exterior.ait.easter_head", "Moyai");
@@ -926,6 +964,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("sonic.ait.crystalline", "Crystalline");
         provider.addTranslation("sonic.ait.renaissance", "Renaissance");
         provider.addTranslation("sonic.ait.coral", "Coral");
+        provider.addTranslation("sonic.ait.charon", "Charon");
         provider.addTranslation("sonic.ait.fob", "Fob");
         provider.addTranslation("sonic.ait.copper", "Copper");
         provider.addTranslation("sonic.ait.mechanical", "Mechanical");
@@ -935,9 +974,11 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("sonic.ait.type_100", "Frontier");
 
         // Consoles
+        provider.addTranslation("console.ait.variant_label", "Console Type: ");
         provider.addTranslation("console.ait.alnico", "Alnico");
         provider.addTranslation("console.ait.steam_steel", "Steel Steam");
         provider.addTranslation("console.ait.toyota", "Toyota");
+        provider.addTranslation("console.ait.hartnell", "Hartnell");
         provider.addTranslation("console.ait.hartnell_wooden", "Wooden Hartnell");
         provider.addTranslation("console.ait.coral", "Coral");
         provider.addTranslation("console.ait.coral_blue", "Blue Coral");
@@ -948,6 +989,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("console.ait.renaissance_fire", "Fire Renaissance");
         provider.addTranslation("console.ait.steam_gilded", "Gilded Steam");
         provider.addTranslation("console.ait.coral_sith", "Sith Coral");
+        provider.addTranslation("console.ait.hudolin", "Hudolin");
+        provider.addTranslation("console.ait.hudolin_nature", "Human Nature");
         provider.addTranslation("console.ait.crystalline", "Crystalline");
         provider.addTranslation("console.ait.steam_playpal", "Playpal Steam");
         provider.addTranslation("console.ait.renaissance_tokamak", "Tokamak Renaissance");
@@ -956,6 +999,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("console.ait.steam_cherry", "Cherry Steam");
         provider.addTranslation("console.ait.renaissance_industrious", "Industrious Renaissance");
         provider.addTranslation("console.ait.hartnell_mint", "Mint Hartnell");
+        provider.addTranslation("console.ait.hartnell_mint_green_console", "Mint Green Hartnell");
+        provider.addTranslation("console.ait.exile", "Exile");
         provider.addTranslation("console.ait.crystalline_zeiton", "Zeiton Crystalline");
         provider.addTranslation("console.ait.steam_copper", "Copper Steam");
         provider.addTranslation("console.ait.toyota_blue", "Blue Toyota");
@@ -1028,11 +1073,11 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.loyalty.message.owner", "The TARDIS hums you a song, as if to show it will always be here for you. [OWNER]");
 
         // TARDIS Control Actionbar Title
-        provider.addTranslation("tardis.message.protocol_813.travel", "Hail Mary: Protocol 813 is active, please prepare for departure.");
-        provider.addTranslation("tardis.message.control.protocol_116.active", "Protocol 116: ENGAGED");
-        provider.addTranslation("tardis.message.control.hail_mary.engaged", "Protocol 813: ENGAGED");
-        provider.addTranslation("tardis.message.control.hail_mary.disengaged", "Protocol 813: DISENGAGED");
-        provider.addTranslation("tardis.message.control.protocol_116.inactive", "Protocol 116: DISENGAGED");
+        provider.addTranslation("tardis.message.protocol_813.travel", "Hail Mary is active, please prepare for departure.");
+        provider.addTranslation("tardis.message.control.protocol_116.active", "Stabiliser: ENGAGED");
+        provider.addTranslation("tardis.message.control.hail_mary.engaged", "Hail Mary: ENGAGED");
+        provider.addTranslation("tardis.message.control.hail_mary.disengaged", "Hail Mary: DISENGAGED");
+        provider.addTranslation("tardis.message.control.protocol_116.inactive", "Stabilisers: DISENGAGED");
         provider.addTranslation("tardis.message.console.has_sonic_in_port", "Cannot cache console with sonic in port");
         provider.addTranslation("tardis.message.control.antigravs.active", "Antigravs: ENGAGED");
         provider.addTranslation("tardis.message.control.antigravs.inactive", "Antigravs: DISENGAGED");
@@ -1044,8 +1089,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.fast_return.last_position", "Fast Return: LAST POSITION SET");
         provider.addTranslation("tardis.message.control.fast_return.current_position",
                 "Fast Return: CURRENT POSITION SET");
-        provider.addTranslation("tardis.message.control.protocol_813.active", "Protocol 813: ENGAGED");
-        provider.addTranslation("tardis.message.control.protocol_813.inactive", "Protocol 813: DISENGAGED");
+        provider.addTranslation("tardis.message.control.protocol_813.active", "Hail Mary: ENGAGED");
+        provider.addTranslation("tardis.message.control.protocol_813.inactive", "Hail Mary: DISENGAGED");
         provider.addTranslation("tardis.message.control.handbrake.on", "Handbrake: ON");
         provider.addTranslation("tardis.message.control.handbrake.off", "Handbrake: OFF");
         provider.addTranslation("tardis.message.control.randomiser.destination", "Destination: ");
@@ -1070,6 +1115,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("warning.ait.needs_subsystem", "ERROR, REQUIRES ACTIVE SUBSYSTEM: %s");
         provider.addTranslation("tardis.message.growth.hint", "Throw the Personality Matrix into the water to give it life...");
         provider.addTranslation("tardis.message.growth.no_cage", "Cage the TARDIS Coral to begin Plasmic coating process!");
+        provider.addTranslation("message.ait.hypercubes.disabled", "Hypercubes are disabled in SERVER config.");
 
         provider.addTranslation("message.ait.control.ylandtype", "Vertical Search Mode: %s");
         provider.addTranslation("message.ait.loyalty_amount", "Loyalty Level: %s");
@@ -1086,6 +1132,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.sonic_casing", "Sonic Casing");
         provider.addTranslation("sonic.ait.mode.tardis.location_summon", "Summoned TARDIS To Your Location, Please Wait...");
         provider.addTranslation("sonic.ait.mode.tardis.is_not_in_range",  "TARDIS is out of range!");
+        provider.addTranslation("sonic.ait.mode.tardis.insufficient_fuel",  "TARDIS doesn't have enough fuel!");
         provider.addTranslation("sonic.ait.mode.tardis.does_not_have_stabilisers",  "Remote Summoning Requires Stabilisers!");
         provider.addTranslation("sonic.ait.mode.tardis.refuel", "Engaged Handbrake, TARDIS Refueling...");
         provider.addTranslation("sonic.ait.mode.tardis.flight", "Disengaged Handbrake, TARDIS Dematerialising...");
@@ -1098,7 +1145,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.cage.void_hint", "(Throw this into the END void)");
         provider.addTranslation("message.ait.cage.empty", "(Place this in a rift chunk)");
         provider.addTranslation("tardis.message.engine.system_is_weakened", "This System Is Showing Signs Of Weakness, But Is Still Functional!");
-        provider.addTranslation("tardis.message.subsystem.requires_link", "LINK TO ENGINE VIA FLUID LINKS");
+        provider.addTranslation("tardis.message.subsystem.requires_link", "LINK TO ENGINE VIA ARTRON CABLES");
         provider.addTranslation("tardis.message.engine.no_space", "Engine requires a 3x3 space to function!");
 
         provider.addTranslation("ait.title.roundel_fabricator", "Roundel Fabricator");
@@ -1130,6 +1177,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("achievement.ait.description.ultimate_counter", "Attempt to use the sonic screwdriver on wood.");
         provider.addTranslation("achievement.ait.title.forced_entry", "That Won't Have Consequences...");
         provider.addTranslation("achievement.ait.description.forced_entry", "Forcefully enter a TARDIS.");
+        provider.addTranslation("achievement.ait.title.feed_power_converter", "What are you doing, Doc?");
+        provider.addTranslation("achievement.ait.description.feed_power_converter", "Use food on the power converter.");
+        provider.addTranslation("achievement.ait.title.attack_eyebrows", "Attack Eyebrows");
+        provider.addTranslation("achievement.ait.description.attack_eyebrows", "Its a elevator!");
         provider.addTranslation("achievement.ait.title.pui", "Piloting under the influence");
         provider.addTranslation("achievement.ait.description.pui", "Consume Zeiton Dust while the TARDIS is in flight.");
         provider.addTranslation("achievement.ait.title.bonding", "I think it's starting to trust you.");
@@ -1228,7 +1279,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.monitor.on", "ON");
         provider.addTranslation("screen.ait.monitor.off", "OFF");
         provider.addTranslation("screen.ait.monitor.apply", "Apply");
-        provider.addTranslation("screen.ait.monitor.gear_icon", "⚙");
         provider.addTranslation("screen.ait.monitor.fuel", "Fuel");
         provider.addTranslation("screen.ait.monitor.traveltime", "Travel Time");
         provider.addTranslation("screen.ait.interiorsettings.title", "Interior Settings");

@@ -140,10 +140,7 @@ public record DistressCall(Sender sender, String message, int lifetime, int crea
         if (!target.stats().receiveCalls().get()) return; // ignore if doesnt want to receive
 
         // spawn distress item at door
-        ServerWorld world = target.worldRef().getOrDefault(() -> null);
-
-        // womp womp
-        if (world == null) return;
+        ServerWorld world = target.world();
 
         Vec3d pos = TardisUtil.offsetInteriorDoorPosition(target);
 

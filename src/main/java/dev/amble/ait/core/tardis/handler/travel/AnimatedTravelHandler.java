@@ -23,8 +23,8 @@ import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
 
 public abstract class AnimatedTravelHandler extends ProgressiveTravelHandler {
-    private static final Property<Identifier> DEMAT_FX = new Property<>(Property.Type.IDENTIFIER, "demat_fx", TardisAnimationRegistry.DEFAULT_DEMAT);
-    private static final Property<Identifier> MAT_FX = new Property<>(Property.Type.IDENTIFIER, "mat_fx", TardisAnimationRegistry.DEFAULT_MAT);
+    private static final Property<Identifier> DEMAT_FX = new Property<>(Property.IDENTIFIER, "demat_fx", TardisAnimationRegistry.DEFAULT_DEMAT);
+    private static final Property<Identifier> MAT_FX = new Property<>(Property.IDENTIFIER, "mat_fx", TardisAnimationRegistry.DEFAULT_MAT);
     private final Value<Identifier> dematId = DEMAT_FX.create(this);
     private final Value<Identifier> matId = MAT_FX.create(this);
 

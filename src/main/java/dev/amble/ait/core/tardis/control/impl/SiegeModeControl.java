@@ -13,7 +13,6 @@ import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.data.schema.console.variant.renaissance.*;
 
 public class SiegeModeControl extends Control {
     public static final Identifier ID = AITMod.id("protocol_1913");
@@ -33,7 +32,7 @@ public class SiegeModeControl extends Control {
             return Result.FAILURE;
 
         tardis.siege().setActive(!tardis.siege().isActive());
-        tardis.alarm().enabled().set(false);
+        tardis.alarm().disable();
         player.sendMessage(tardis.siege().isActive() ? ENABLED : DISABLED, true);
 
         return tardis.siege().isActive() ? Result.SUCCESS : Result.SUCCESS_ALT;

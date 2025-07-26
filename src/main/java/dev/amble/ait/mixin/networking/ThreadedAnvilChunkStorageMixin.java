@@ -18,6 +18,6 @@ public abstract class ThreadedAnvilChunkStorageMixin {
 
     @Inject(method = "sendChunkDataPackets", at = @At("RETURN"))
     public void sendChunkDataPackets(ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk, CallbackInfo ci) {
-        TardisEvents.SYNC_TARDIS.invoker().sync(player, chunk);
+        TardisEvents.SYNC_TARDIS.invoker().sync(player, chunk.getPos());
     }
 }

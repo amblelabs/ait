@@ -4,9 +4,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
-import dev.amble.ait.core.tardis.animation.PulsatingAnimation;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.door.impl.ClassicDoorVariant;
@@ -25,11 +22,6 @@ public abstract class ClassicBoxVariant extends ExteriorVariantSchema {
 
     protected ClassicBoxVariant(String name) {
         this(name, AITMod.MOD_ID);
-    }
-
-    @Override
-    public ExteriorAnimation animation(ExteriorBlockEntity exterior) {
-        return new PulsatingAnimation(exterior);
     }
 
     @Override

@@ -3,9 +3,6 @@ package dev.amble.ait.data.schema.exterior.variant.tardim;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
-import dev.amble.ait.core.tardis.animation.PulsatingAnimation;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.door.impl.TardimDoorVariant;
@@ -20,11 +17,6 @@ public abstract class TardimVariant extends ExteriorVariantSchema {
     protected TardimVariant(String name) {
         super(TardimCategory.REFERENCE, AITMod.id("exterior/tardim/" + name),
                 new Loyalty(Loyalty.Type.OWNER));
-    }
-
-    @Override
-    public ExteriorAnimation animation(ExteriorBlockEntity exterior) {
-        return new PulsatingAnimation(exterior);
     }
 
     @Override

@@ -67,7 +67,7 @@ public class StaserBoltEntity extends PersistentProjectileEntity implements ISpa
             if (block instanceof IceBlock || block instanceof LanternBlock || block instanceof TorchBlock || this.getWorld().getBlockState(result.getBlockPos()).isReplaceable() || block instanceof GlassBlock || block instanceof PaneBlock || block instanceof StainedGlassBlock) {
                 this.getWorld().breakBlock(result.getBlockPos(), false);
             }
-            this.getWorld().playSound(null, result.getBlockPos(), AITSounds.STASER, SoundCategory.BLOCKS, 1.0f, 0.5f);
+            this.getWorld().playSound(null, result.getBlockPos(), AITSounds.STASER, SoundCategory.BLOCKS, 0.25f, 0.5f);
             this.remove(RemovalReason.DISCARDED);
         }
         if (getOwner() instanceof PlayerEntity player) {

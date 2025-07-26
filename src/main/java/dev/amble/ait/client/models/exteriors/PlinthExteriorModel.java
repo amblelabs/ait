@@ -6,8 +6,8 @@ import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.v2.Linkable;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
@@ -62,7 +62,7 @@ public class PlinthExteriorModel extends ExteriorModel {
         matrices.push();
         matrices.translate(0, -1.5f, 0);
 
-        if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS)
+        if (!AITModClient.CONFIG.animateDoors)
             plinth.getChild("door").yaw = falling.tardis().get().door().isOpen() ? -1.75f : 0f;
         else {
             float maxRot = 90f;
@@ -81,7 +81,7 @@ public class PlinthExteriorModel extends ExteriorModel {
 
     @Override
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
-        if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS)
+        if (!AITModClient.CONFIG.animateDoors)
             plinth.getChild("door").yaw = tardis.door().isOpen() ? -1.75f : 0f;
         else {
             float maxRot = 90f;

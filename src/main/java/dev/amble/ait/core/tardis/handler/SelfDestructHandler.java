@@ -45,7 +45,7 @@ public class SelfDestructHandler extends KeyedTardisComponent implements TardisT
             return;
 
         this.queued.set(true);
-        this.tardis.alarm().enabled().set(true);
+        this.tardis.alarm().enable();
     }
 
     private void complete() {
@@ -81,7 +81,7 @@ public class SelfDestructHandler extends KeyedTardisComponent implements TardisT
     }
 
     private void warnPlayers() {
-        for (PlayerEntity player : TardisUtil.getPlayersInsideInterior(this.tardis.asServer())) {
+        for (PlayerEntity player : this.tardis.asServer().world().getPlayers()) {
             player.sendMessage(Text.translatable("tardis.message.self_destruct.warning").formatted(Formatting.RED),
                     true);
         }
@@ -95,7 +95,7 @@ public class SelfDestructHandler extends KeyedTardisComponent implements TardisT
         if (!this.canSelfDestruct()) {
             this.queued.set(false);
 
-            tardis.alarm().enabled().set(false);
+            tardis.alarm().disable();
             return;
         }
 

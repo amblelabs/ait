@@ -11,6 +11,9 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.random.ChunkRandom;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.StructureWorldAccess;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.ProtoChunk;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.events.ServerChunkEvents;
@@ -50,16 +53,24 @@ public record RiftChunkManager(ServerWorld world) {
         if (!this.isRiftChunk(pos))
             return 0;
 
-        return this.world.getChunk(pos.x, pos.z).getAttachedOrCreate(ARTRON,
-                () -> (double) world.getRandom().nextBetween(100, 800));
+        Chunk shouldBeProtoChunk = this.world.getChunkManager().getChunk(pos.x, pos.z, ChunkStatus.STRUCTURE_STARTS, true);
+
+        if (!(shouldBeProtoChunk instanceof ProtoChunk protoChunk))
+            return 0;
+
+        return protoChunk.getAttachedOrCreate(ARTRON, () -> (double) world.getRandom().nextBetween(100, 800));
     }
 
     public double getMaxArtron(ChunkPos pos) {
         if (!this.isRiftChunk(pos))
             return 0;
 
-        return this.world.getChunk(pos.x, pos.z).getAttachedOrCreate(MAX_ARTRON,
-                () -> (double) world.getRandom().nextBetween(300, 1000));
+        Chunk shouldBeProtoChunk = this.world.getChunkManager().getChunk(pos.x, pos.z, ChunkStatus.STRUCTURE_STARTS, true);
+
+        if (!(shouldBeProtoChunk instanceof ProtoChunk protoChunk))
+            return 0;
+
+        return protoChunk.getAttachedOrCreate(ARTRON, () -> (double) world.getRandom().nextBetween(300, 1000));
     }
 
     public double removeFuel(ChunkPos pos, double amount) {
@@ -69,7 +80,10 @@ public record RiftChunkManager(ServerWorld world) {
         double artron = this.getArtron(pos);
         artron -= artron < amount ? 0 : amount;
 
-        this.world.getChunk(pos.x, pos.z).setAttached(ARTRON, artron);
+        Chunk shouldBeProtoChunk = this.world.getChunkManager().getChunk(pos.x, pos.z, ChunkStatus.STRUCTURE_STARTS, true);
+        if (shouldBeProtoChunk instanceof ProtoChunk protoChunk) {
+            protoChunk.setAttached(ARTRON, artron);
+        }
         return artron - amount;
     }
 
@@ -81,7 +95,11 @@ public record RiftChunkManager(ServerWorld world) {
     }
 
     public void setCurrentFuel(ChunkPos pos, double amount) {
-        this.world.getChunk(pos.x, pos.z).modifyAttached(ARTRON, d -> amount);
+        Chunk shouldBeProtoChunk = this.world.getChunkManager().getChunk(pos.x, pos.z, ChunkStatus.STRUCTURE_STARTS, true);
+
+        if (shouldBeProtoChunk instanceof ProtoChunk protoChunk) {
+            protoChunk.modifyAttached(ARTRON, d -> amount);
+        }
     }
 
     public boolean isRiftChunk(ChunkPos chunkPos) {
@@ -107,22 +125,34 @@ public record RiftChunkManager(ServerWorld world) {
     }
 
     private static void addFuel(ServerWorldAccess world, ChunkPos pos, double amount) {
-        world.getChunk(pos.x, pos.z).modifyAttached(ARTRON, d -> d + amount);
+        Chunk shouldBeProtoChunk = world.getChunkManager().getChunk(pos.x, pos.z, ChunkStatus.STRUCTURE_STARTS, true);
+
+        if (shouldBeProtoChunk instanceof ProtoChunk protoChunk) {
+            protoChunk.modifyAttached(ARTRON, d -> d + amount);
+        }
     }
 
     public static double getFuel(ServerWorld world, ChunkPos pos) {
         if (!isRiftChunk(world, pos))
             return 0;
 
-        return world.getChunk(pos.x, pos.z).getAttachedOrCreate(ARTRON,
-                () -> (double) world.getRandom().nextBetween(100, 800));
+        Chunk shouldBeProtoChunk = world.getChunkManager().getChunk(pos.x, pos.z, ChunkStatus.STRUCTURE_STARTS, true);
+
+        if (!(shouldBeProtoChunk instanceof ProtoChunk protoChunk))
+            return 0;
+
+        return protoChunk.getAttachedOrCreate(ARTRON, () -> (double) world.getRandom().nextBetween(100, 800));
     }
 
     public static double getMaxFuel(ServerWorld world, ChunkPos pos) {
         if (!isRiftChunk(world, pos))
             return 0;
 
-        return world.getChunk(pos.x, pos.z).getAttachedOrCreate(MAX_ARTRON,
-                () -> (double) world.getRandom().nextBetween(300, 1000));
+        Chunk shouldBeProtoChunk = world.getChunkManager().getChunk(pos.x, pos.z, ChunkStatus.STRUCTURE_STARTS, true);
+
+        if (!(shouldBeProtoChunk instanceof ProtoChunk protoChunk))
+            return 0;
+
+        return protoChunk.getAttachedOrCreate(MAX_ARTRON, () -> (double) world.getRandom().nextBetween(300, 1000));
     }
 }

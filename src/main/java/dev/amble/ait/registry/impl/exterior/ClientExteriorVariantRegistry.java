@@ -26,10 +26,11 @@ import dev.amble.ait.data.schema.exterior.variant.capsule.client.ClientCapsuleFi
 import dev.amble.ait.data.schema.exterior.variant.capsule.client.ClientCapsuleSoulVariant;
 import dev.amble.ait.data.schema.exterior.variant.classic.client.*;
 import dev.amble.ait.data.schema.exterior.variant.dalek_mod.client.*;
-import dev.amble.ait.data.schema.exterior.variant.doom.client.ClientDoomVariant;
 import dev.amble.ait.data.schema.exterior.variant.easter_head.client.ClientEasterHeadDefaultVariant;
 import dev.amble.ait.data.schema.exterior.variant.easter_head.client.ClientEasterHeadFireVariant;
 import dev.amble.ait.data.schema.exterior.variant.easter_head.client.ClientEasterHeadSoulVariant;
+import dev.amble.ait.data.schema.exterior.variant.exclusive.doom.client.ClientDoomVariant;
+import dev.amble.ait.data.schema.exterior.variant.exclusive.wanderer.client.ClientBoothWandererVariant;
 import dev.amble.ait.data.schema.exterior.variant.geometric.client.ClientGeometricDefaultVariant;
 import dev.amble.ait.data.schema.exterior.variant.geometric.client.ClientGeometricFireVariant;
 import dev.amble.ait.data.schema.exterior.variant.geometric.client.ClientGeometricGildedVariant;
@@ -180,7 +181,6 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
     public static ClientExteriorVariantSchema HEAD_SOUL;
     public static ClientExteriorVariantSchema HEAD_FIRE;
     public static ClientExteriorVariantSchema CORAL_GROWTH;
-    public static ClientExteriorVariantSchema DOOM;
     public static ClientExteriorVariantSchema PLINTH_DEFAULT;
     public static ClientExteriorVariantSchema PLINTH_SOUL;
     public static ClientExteriorVariantSchema PLINTH_FIRE;
@@ -202,14 +202,12 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
     public static ClientExteriorVariantSchema DALEK_MOD_1970;
     public static ClientExteriorVariantSchema DALEK_MOD_1976;
     public static ClientExteriorVariantSchema DALEK_MOD_1980;
-    //public static ClientExteriorVariantSchema JAKE_DEFAULT;
-    //public static ClientExteriorVariantSchema PRESENT_DEFAULT;
-    //public static ClientExteriorVariantSchema PRESENT_GREEN;
-    //public static ClientExteriorVariantSchema PRESENT_BLUE;
     public static ClientExteriorVariantSchema PIPE_DEFAULT;
-    //public static ClientExteriorVariantSchema PIPE_YELLOW;
     public static ClientExteriorVariantSchema PIPE_RED;
     public static ClientExteriorVariantSchema PIPE_BLUE;
+
+    public static ClientExteriorVariantSchema DOOM;
+    public static ClientExteriorVariantSchema BOOTH_WANDERER;
 
     @Override
     public void onClientInit() {
@@ -258,8 +256,9 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
         // Coral
         CORAL_GROWTH = register(new ClientGrowthVariant());
 
-        // Doom
+        // Dev Exclusives
         DOOM = register(new ClientDoomVariant());
+        BOOTH_WANDERER = register(new ClientBoothWandererVariant());
 
         // Plinth
         PLINTH_DEFAULT = register(new ClientPlinthDefaultVariant());

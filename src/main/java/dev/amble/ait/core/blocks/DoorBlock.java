@@ -14,6 +14,7 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
@@ -61,15 +62,14 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
     }
 
     private static void setDoorLight(Tardis tardis, int level) {
-        tardis.asServer().worldRef().ifPresent(world -> {
-            BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
+        ServerWorld world = tardis.asServer().world();
+        BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
 
-            BlockState state = world.getBlockState(pos);
-            if (!(state.getBlock() instanceof DoorBlock))
-                return;
+        BlockState state = world.getBlockState(pos);
+        if (!(state.getBlock() instanceof DoorBlock))
+            return;
 
-            world.setBlockState(pos, state.with(LEVEL_4, level));
-        });
+        world.setBlockState(pos, state.with(LEVEL_4, level));
     }
 
     public DoorBlock(Settings settings) {

@@ -1,6 +1,8 @@
 package dev.amble.ait.core.tardis.animation.v2.keyframe;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.NoSuchElementException;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

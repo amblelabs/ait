@@ -3,9 +3,6 @@ package dev.amble.ait.data.schema.exterior.variant.bookshelf;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
-import dev.amble.ait.core.tardis.animation.PulsatingAnimation;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.door.impl.BookshelfDoorVariant;
@@ -20,11 +17,6 @@ public abstract class BookshelfVariant extends ExteriorVariantSchema {
     protected BookshelfVariant(String name) { // idk why i added the modid bit i dont use it later lol
         super(BookshelfCategory.REFERENCE, AITMod.id("exterior/bookshelf/" + name),
                 new Loyalty(Loyalty.Type.COMPANION));
-    }
-
-    @Override
-    public ExteriorAnimation animation(ExteriorBlockEntity exterior) {
-        return new PulsatingAnimation(exterior);
     }
 
     @Override

@@ -258,6 +258,8 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
             }
         }
 
+        world.updateNeighborsAlways(pos, state.getBlock());
+
         ServerTardis tardis = (ServerTardis) this.tardis().get();
         boolean isRiftChunk = RiftChunkManager.isRiftChunk(tardis.travel().position());
 
@@ -301,27 +303,38 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
                     pos.getX() + 0.5f, pos.getY() + 1.25, pos.getZ() + 0.5f, 1, 0, 0, 0,
                     (isRiftChunk) ? 0.05f : 0.025f);
         }
+
+    }
+
+    public static ConsoleTypeSchema previousConsole(ConsoleTypeSchema current) {
+        List<ConsoleTypeSchema> list = ConsoleRegistry.REGISTRY.stream().toList();
+        int idx = list.indexOf(current);
+        int size = list.size();
+
+        return list.get((size + idx - 1) % size);
     }
 
     public static ConsoleTypeSchema nextConsole(ConsoleTypeSchema current) {
         List<ConsoleTypeSchema> list = ConsoleRegistry.REGISTRY.stream().toList();
-
         int idx = list.indexOf(current);
+        int size = list.size();
 
-        if (idx < 0 || idx + 1 == list.size())
-            return list.get(0);
+        return list.get((idx + 1) % size);
+    }
 
-        return list.get(idx + 1);
+    public static ConsoleVariantSchema previousVariant(ConsoleVariantSchema current) {
+        List<ConsoleVariantSchema> list = ConsoleVariantRegistry.withParent(current.parent());
+        int idx = list.indexOf(current);
+        int size = list.size();
+
+        return list.get((size + idx - 1) % size);
     }
 
     public static ConsoleVariantSchema nextVariant(ConsoleVariantSchema current) {
         List<ConsoleVariantSchema> list = ConsoleVariantRegistry.withParent(current.parent());
-
         int idx = list.indexOf(current);
+        int size = list.size();
 
-        if (idx < 0 || idx + 1 == list.size())
-            return list.get(0);
-
-        return list.get(idx + 1);
+        return list.get((idx + 1) % size);
     }
 }

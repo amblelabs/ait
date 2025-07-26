@@ -3,9 +3,6 @@ package dev.amble.ait.data.schema.exterior.variant.pipe;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
-import dev.amble.ait.core.tardis.animation.PulsatingAnimation;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.door.impl.PipeDoorVariant;
@@ -19,11 +16,6 @@ public abstract class PipeVariant extends ExteriorVariantSchema {
     protected PipeVariant(String name) {
         super(PipeCategory.REFERENCE, AITMod.id("exterior/pipe/" + name),
                 new Loyalty(Loyalty.Type.NEUTRAL));
-    }
-
-    @Override
-    public ExteriorAnimation animation(ExteriorBlockEntity exterior) {
-        return new PulsatingAnimation(exterior);
     }
 
     @Override

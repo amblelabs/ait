@@ -31,6 +31,9 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
             "textures/blockentities/consoles/console_generator/console_generator.png");
 
+    private static final int VARIANT_TEXT_COLOR_TURQUOISE = ColorHelper.Argb.getArgb(1, 0, 175, 235);
+    private static final int VARIANT_TEXT_COLOR_YELLOW = ColorHelper.Argb.getArgb(1, 255, 205, 0);
+
     public ConsoleGeneratorRenderer(BlockEntityRendererFactory.Context ctx) {
         this.dispatcher = ctx.getEntityRenderDispatcher();
         this.generator = new ConsoleGeneratorModel(ConsoleGeneratorModel.getTexturedModelData().createModel());
@@ -57,40 +60,6 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
         //boolean powered = entity.isPowered();
 
         Tardis tardis = entity.tardis().get();
-        if (/*powered && */!tardis.isUnlocked(entity.getConsoleVariant())) {
-            matrices.push();
-
-            matrices.translate(0.5F, 2.75F, 0.5F);
-            matrices.multiply(this.dispatcher.getRotation());
-            matrices.scale(-0.1F, -0.1F, 0.1F);
-
-            Text text = Text.literal("\uD83D\uDD12");
-            Text type = Text.literal("Console Type: " + entity.getConsoleVariant().id().getPath().replace("console/", "").replace("_", " ").toUpperCase());
-            Text requirement = Text.literal("Requires Loyalty Level: " + (entity.getConsoleVariant().requirement().isPresent() ?
-                            entity.getConsoleVariant().requirement().get().type() : "None"));
-            TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-            float h = (float) (-textRenderer.getWidth(text) / 2);
-            float p = (float) (-textRenderer.getWidth(requirement) / 2);
-            float l = (float) (-textRenderer.getWidth(type) / 2);
-
-            Matrix4f matrix4f = matrices.peek().getPositionMatrix();
-
-            textRenderer.draw(text, h + 0.35f, 0.0F, 0xFFFFFFFF, false, matrix4f, vertexConsumers,
-                    TextRenderer.TextLayerType.SEE_THROUGH, 0x000000, 0xf000f0);
-            matrices.push();
-            matrices.scale(0.2f, 0.2f, 0.2f);
-            Matrix4f matrixcf = matrices.peek().getPositionMatrix();
-            textRenderer.draw(type, l - 0.35f, 42.5F, ColorHelper.Argb.getArgb(1, 0, 175, 235), false, matrixcf, vertexConsumers,
-                    TextRenderer.TextLayerType.SEE_THROUGH, 0x000000, 0xf000f0);
-            matrices.pop();
-            matrices.push();
-            matrices.scale(0.2f, 0.2f, 0.2f);
-            Matrix4f matrixdf = matrices.peek().getPositionMatrix();
-            textRenderer.draw(requirement, p - 0.35f, 55F, ColorHelper.Argb.getArgb(1, 255, 205, 0), false, matrixdf, vertexConsumers,
-                    TextRenderer.TextLayerType.SEE_THROUGH, 0x000000, 0xf000f0);
-            matrices.pop();
-            matrices.pop();
-        }
 
         matrices.push();
 
@@ -127,5 +96,46 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
             }
         //}
         matrices.pop();
+
+        matrices.push();
+        matrices.translate(0.5F, 2.75F, 0.5F);
+        matrices.multiply(this.dispatcher.getRotation());
+        matrices.scale(-0.1F, -0.1F, 0.1F);
+
+        Text type = Text.translatable("console.ait.variant_label").append(entity.getConsoleVariant().text());
+        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        float l = (float) (-textRenderer.getWidth(type) / 2);
+
+        if (/*powered && */!tardis.isUnlocked(entity.getConsoleVariant())) {
+            Text text = Text.literal("\uD83D\uDD12");
+            Text requirement = Text.literal("Requires Loyalty Level: " + (entity.getConsoleVariant().requirement().isPresent() ?
+                    entity.getConsoleVariant().requirement().get().type() : "None"));
+            float h = (float) (-textRenderer.getWidth(text) / 2);
+            float p = (float) (-textRenderer.getWidth(requirement) / 2);
+
+            Matrix4f matrix4f = matrices.peek().getPositionMatrix();
+
+            textRenderer.draw(text, h + 0.35f, 0.0F, 0xFFFFFFFF, false, matrix4f, vertexConsumers,
+                    TextRenderer.TextLayerType.SEE_THROUGH, 0x000000, 0xf000f0);
+            matrices.push();
+            matrices.scale(0.2f, 0.2f, 0.2f);
+            Matrix4f matrixcf = matrices.peek().getPositionMatrix();
+            textRenderer.draw(type, l - 0.35f, 42.5F, VARIANT_TEXT_COLOR_TURQUOISE, false, matrixcf, vertexConsumers,
+                    TextRenderer.TextLayerType.SEE_THROUGH, 0x000000, 0xf000f0);
+            matrices.pop();
+            matrices.push();
+            matrices.scale(0.2f, 0.2f, 0.2f);
+            Matrix4f matrixdf = matrices.peek().getPositionMatrix();
+            textRenderer.draw(requirement, p - 0.35f, 55F, VARIANT_TEXT_COLOR_YELLOW, false, matrixdf, vertexConsumers,
+                    TextRenderer.TextLayerType.SEE_THROUGH, 0x000000, 0xf000f0);
+            matrices.pop();
+            matrices.pop();
+        } else {
+            matrices.scale(0.2f, 0.2f, 0.2f);
+            Matrix4f matrixcf = matrices.peek().getPositionMatrix();
+            textRenderer.draw(type, l - 0.35f, 42.5F, VARIANT_TEXT_COLOR_YELLOW, false, matrixcf, vertexConsumers,
+                    TextRenderer.TextLayerType.SEE_THROUGH, 0x000000, 0xf000f0);
+            matrices.pop();
+        }
     }
 }

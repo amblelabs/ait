@@ -364,6 +364,113 @@ public class HandlesResponseRegistry {
                 return AITMod.id("progress");
             }
         });
+
+        HandlesResponseRegistry.register(new HandlesResponse() {
+            @Override
+            public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
+                sendChat(player, Text.literal("Toggled Shields."));
+                tardis.shields().visuallyShielded().toggle();
+                return success(source);
+            }
+
+            @Override
+            public List<String> getCommandWords() {
+                return List.of("toggle shields", "shields");
+            }
+
+            @Override
+            public Identifier id() {
+                return AITMod.id("toggle_shields");
+            }
+        });
+
+        HandlesResponseRegistry.register(new HandlesResponse() {
+            @Override
+            public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
+                if (tardis.isRefueling()) {
+                    sendChat(player, Text.literal("Refueling is already enabled."));
+                    return failure(source);
+                }
+
+                sendChat(player, Text.literal("Enabling Refueling."));
+                tardis.travel().handbrake(true);
+                tardis.setRefueling(true);
+                return success(source);
+            }
+
+            @Override
+            public List<String> getCommandWords() {
+                return List.of("refuel");
+            }
+
+            @Override
+            public Identifier id() {
+                return AITMod.id("enable_refuel");
+            }
+        });
+
+        HandlesResponseRegistry.register(new HandlesResponse() {
+            @Override
+            public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
+                if (!tardis.isRefueling()) {
+                    sendChat(player, Text.literal("Refueling is already disabled."));
+                    return failure(source);
+                }
+
+                sendChat(player, Text.literal("Disabling Refueling."));
+                tardis.travel().handbrake(false);
+                tardis.setRefueling(false);
+                return success(source);
+            }
+
+            @Override
+            public List<String> getCommandWords() {
+                return List.of("stop refuel");
+            }
+
+            @Override
+            public Identifier id() {
+                return AITMod.id("disable_refuel");
+            }
+        });
+
+        HandlesResponseRegistry.register(new HandlesResponse() {
+            @Override
+            public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
+                sendChat(player, Text.literal("Protocol 3 Toggled."));
+                tardis.cloak().cloaked().toggle();
+                return success(source);
+            }
+
+            @Override
+            public List<String> getCommandWords() {
+                return List.of("p3");
+            }
+
+            @Override
+            public Identifier id() {
+                return AITMod.id("toggle_cloak");
+            }
+        });
+
+        HandlesResponseRegistry.register(new HandlesResponse() {
+            @Override
+            public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
+                sendChat(player, Text.literal("Anti-Gravs Toggled."));
+                tardis.travel().antigravs().toggle();
+                return success(source);
+            }
+
+            @Override
+            public List<String> getCommandWords() {
+                return List.of("antigravs");
+            }
+
+            @Override
+            public Identifier id() {
+                return AITMod.id("toggle_antigravs");
+            }
+        });
     }
 
 

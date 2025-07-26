@@ -23,18 +23,19 @@ public class PlayerEntityModelMixin<T extends LivingEntity> {
         boolean noPants = !(livingEntity.getEquippedStack(EquipmentSlot.LEGS).getItem() instanceof SpacesuitItem);
 
         // i hate this just as much as everyone else seeing this block of code.
-        model.head.visible = noHelmet;
-        model.hat.visible = noHelmet;
-        model.body.visible = noChestplate;
-        model.jacket.visible = noChestplate;
-        model.leftArm.visible = noChestplate;
-        model.leftSleeve.visible = noChestplate;
-        model.rightArm.visible = noChestplate;
-        model.rightSleeve.visible = noChestplate;
-        model.leftLeg.visible = noPants;
-        model.rightLeg.visible = noPants;
-        model.leftPants.visible = noPants;
-        model.rightPants.visible = noPants;
+        // the &&'s were added because mods that use playeranimator may change visibility
+        //  of certain player model parts
+        model.head.visible = noHelmet && model.head.visible;
+        model.hat.visible = noHelmet && model.hat.visible;
+        model.body.visible = noChestplate && model.body.visible;
+        model.jacket.visible = noChestplate && model.jacket.visible;
+        model.leftArm.visible = noChestplate && model.leftArm.visible;
+        model.leftSleeve.visible = noChestplate && model.leftSleeve.visible;
+        model.rightArm.visible = noChestplate && model.rightArm.visible;
+        model.rightSleeve.visible = noChestplate && model.rightSleeve.visible;
+        model.leftLeg.visible = noPants && model.leftLeg.visible;
+        model.rightLeg.visible = noPants && model.rightLeg.visible;
+        model.leftPants.visible = noPants && model.leftPants.visible;
+        model.rightPants.visible = noPants && model.rightPants.visible;
     }
-
 }

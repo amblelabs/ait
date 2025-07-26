@@ -1,12 +1,12 @@
 package dev.amble.ait.core.util;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.amble.lib.util.TeleportUtil;
-import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
@@ -37,6 +37,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.api.AITWorldOptions;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.world.TardisServerWorld;
@@ -45,12 +46,11 @@ import dev.amble.ait.mixin.server.EnderDragonFightAccessor;
 @SuppressWarnings("deprecation")
 public class WorldUtil {
 
-    private static final Set<Identifier> OPEN_BLACKLIST = new HashSet<>();
-    private static final List<ServerWorld> OPEN_WORLDS = new ArrayList<>();
-
-    private static final Set<Identifier> TRAVEL_BLACKLIST = new HashSet<>();
+    private static final List<ServerWorld> PROJECTOR_WORLDS = new ArrayList<>();
     private static final List<ServerWorld> TRAVEL_WORLDS = new ArrayList<>();
-    private static final int SAFE_RADIUS = 3;
+
+    private static final Set<ServerWorld> RIFT_SPAWN_WORLDS = new HashSet<>();
+    private static final List<ServerWorld> RIFT_DROP_WORLDS = new ArrayList<>();
 
     private static ServerWorld OVERWORLD;
     private static ServerWorld TIME_VORTEX;
@@ -92,12 +92,13 @@ public class WorldUtil {
     }
 
     private static void scheduleVortexFall(LivingEntity entity) {
-        int worldIndex = TIME_VORTEX.getRandom().nextInt(OPEN_WORLDS.size());
+        int worldIndex = TIME_VORTEX.getRandom().nextInt(RIFT_DROP_WORLDS.size());
 
         Scheduler.get().runTaskLater(() -> {
             if (entity.getWorld() == TIME_VORTEX)
-                TeleportUtil.teleport(entity, OPEN_WORLDS.get(worldIndex), entity.getPos(), entity.getYaw());
-        }, TimeUnit.SECONDS, 5);
+                TeleportUtil.teleport(entity, RIFT_DROP_WORLDS.get(worldIndex),
+                        entity.getPos().add(2, 10, -2), entity.getYaw());
+        }, TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 5);
     }
 
     public static ServerWorld getOverworld() {
@@ -109,55 +110,55 @@ public class WorldUtil {
     }
 
     private static void generateWorldCache(MinecraftServer server) {
-        generateWorldCache(server, AITMod.CONFIG.SERVER.WORLDS_BLACKLIST, OPEN_BLACKLIST, OPEN_WORLDS, WorldUtil::isOpen);
-        generateWorldCache(server, AITMod.CONFIG.SERVER.TRAVEL_BLACKLIST, TRAVEL_BLACKLIST, TRAVEL_WORLDS, WorldUtil::isTravelValid);
+        generateWorldCache(server, AITMod.CONFIG.projectorBlacklist, PROJECTOR_WORLDS);
+        generateWorldCache(server, AITMod.CONFIG.travelBlacklist, TRAVEL_WORLDS);
+
+        generateWorldCache(server, AITMod.CONFIG.riftSpawnBlacklist, RIFT_SPAWN_WORLDS);
+        generateWorldCache(server, AITMod.CONFIG.riftDropBlacklist, RIFT_DROP_WORLDS);
+
+        for (ServerWorld riftSpawnable : RIFT_SPAWN_WORLDS) {
+            if (riftSpawnable instanceof AITWorldOptions options)
+                options.ait$setCanRiftsSpawn(true);
+        }
     }
 
-    private static void generateWorldCache(MinecraftServer server, List<String> raw, Set<Identifier> blacklist, List<ServerWorld> worlds, Predicate<ServerWorld> predicate) {
+    private static void generateWorldCache(MinecraftServer server, List<String> raw, Collection<ServerWorld> worlds) {
         worlds.clear();
-        blacklist.clear();
+
+        Set<Identifier> ids = new HashSet<>();
+        boolean blocksTardis = false;
 
         for (String rawId : raw) {
+            if (rawId.equals("ait-tardis")) {
+                blocksTardis = true;
+                continue;
+            }
+
             Identifier id = Identifier.tryParse(rawId);
 
             if (id == null)
                 continue;
 
-            blacklist.add(id);
+            ids.add(id);
         }
 
         for (ServerWorld world : server.getWorlds()) {
-            if (predicate.test(world))
+            if (blocksTardis && TardisServerWorld.isTardisDimension(world))
+                continue;
+
+            Identifier worldId = world.getRegistryKey().getValue();
+
+            if (!ids.contains(worldId))
                 worlds.add(world);
         }
     }
 
     private static void clearWorldCache(MinecraftServer server) {
-        OPEN_WORLDS.clear();
+        PROJECTOR_WORLDS.clear();
         TRAVEL_WORLDS.clear();
-    }
 
-    public static boolean isOpen(ServerWorld world) {
-        return !TardisServerWorld.isTardisDimension(world)
-                && !OPEN_BLACKLIST.contains(world.getRegistryKey().getValue());
-    }
-
-    public static boolean isTravelValid(ServerWorld world) {
-        return !TardisServerWorld.isTardisDimension(world)
-                && !TRAVEL_BLACKLIST.contains(world.getRegistryKey().getValue());
-    }
-
-    /**
-     * @implNote This method uses a reference check (by `==`), instead of
-     * {@link Object#equals(Object)}, as its {@link List} counterpart does.
-     */
-    public static int openWorldIndex(ServerWorld world) {
-        for (int i = 0; i < OPEN_WORLDS.size(); i++) {
-            if (world == OPEN_WORLDS.get(i))
-                return i;
-        }
-
-        return -1;
+        RIFT_DROP_WORLDS.clear();
+        RIFT_SPAWN_WORLDS.clear();
     }
 
     /**
@@ -173,8 +174,12 @@ public class WorldUtil {
         return -1;
     }
 
-    public static List<ServerWorld> getOpenWorlds() {
-        return OPEN_WORLDS;
+    public static boolean canRiftsSpawn(ServerWorld world) {
+        return world instanceof AITWorldOptions options && options.ait$canRiftsSpawn();
+    }
+
+    public static List<ServerWorld> getProjectorWorlds() {
+        return PROJECTOR_WORLDS;
     }
 
     public static List<ServerWorld> getTravelWorlds() {

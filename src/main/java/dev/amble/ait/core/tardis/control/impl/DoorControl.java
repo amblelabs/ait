@@ -10,7 +10,6 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.data.schema.console.variant.renaissance.*;
 
 public class DoorControl extends Control {
     public static final Identifier ID = AITMod.id("door_control");

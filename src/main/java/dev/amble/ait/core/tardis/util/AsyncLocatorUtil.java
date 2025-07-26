@@ -28,9 +28,12 @@ public class AsyncLocatorUtil {
 
     public static ExecutorService LOCATING_EXECUTOR_SERVICE = null;
 
-    static {
+    public static void init() {
         ServerLifecycleEvents.SERVER_STOPPING.register(
-                (server) -> AsyncLocatorUtil.shutdownExecutorService());
+                server -> AsyncLocatorUtil.shutdownExecutorService());
+
+        ServerLifecycleEvents.SERVER_STARTING.register(
+                server -> AsyncLocatorUtil.setupExecutorService());
     }
 
     public static void setupExecutorService() {
@@ -39,7 +42,7 @@ public class AsyncLocatorUtil {
         int threads = Runtime.getRuntime().availableProcessors() / 2;
         AITMod.LOGGER.trace("Starting locating executor service with thread pool size of {}", threads);
 
-        if (threads <= 0) {
+        if (threads <= 0 && !AITMod.CONFIG.disableSafeguards) {
             AITMod.LOGGER.error("Failed to start locating executor service: thread pool size is 0 or less - {}. Available Processors {}", threads, Runtime.getRuntime().availableProcessors());
             return;
         }

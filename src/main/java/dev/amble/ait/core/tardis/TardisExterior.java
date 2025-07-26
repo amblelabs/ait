@@ -17,6 +17,7 @@ import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.core.util.StackUtil;
 import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
@@ -136,5 +137,14 @@ public class TardisExterior extends TardisComponent {
 
     public void playSound(SoundEvent sound) {
         this.playSound(sound, SoundCategory.BLOCKS);
+    }
+
+    /**
+     * Plays a sound at the tardis position, ignoring whether it exists on the server
+     * @author duzo
+     */
+    public void playSound(Identifier soundId, SoundCategory category) {
+        CachedDirectedGlobalPos pos = tardis.travel().position();
+        NetworkUtil.playSound(pos.getDimension(), pos.getPos(), soundId, category);
     }
 }

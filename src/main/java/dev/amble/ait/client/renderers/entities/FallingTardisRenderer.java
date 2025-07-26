@@ -82,7 +82,7 @@ public class FallingTardisRenderer extends EntityRenderer<FallingTardisEntity> {
 
         if (emission != null)
             model.renderEntity(entity, model.getPart(), matrices,
-                    vertexConsumers.getBuffer(DependencyChecker.hasIris() ? AITRenderLayers.tardisEmissiveCullZOffset(emission, true) : AITRenderLayers.getTextPolygonOffset(emission)),
+                    vertexConsumers.getBuffer(DependencyChecker.hasIris() ? AITRenderLayers.tardisEmissiveCullZOffset(emission, true) : AITRenderLayers.getText(emission)),
                     0xf000f0, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 
         if (!exteriorVariant.equals(ClientExteriorVariantRegistry.CORAL_GROWTH)) {

@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.consoles;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedGlobalPos;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -1342,13 +1341,10 @@ public class CrystallineConsoleModel extends ConsoleModel {
         MinecraftClient client = MinecraftClient.getInstance();
         TextRenderer renderer = client.textRenderer;
         TravelHandler travel = tardis.travel();
-        DirectedGlobalPos abpd = travel.getState() == TravelHandlerBase.State.FLIGHT
-                ? travel.getProgress()
-                : travel.position();
-        CachedDirectedGlobalPos dabpd = travel.destination();
-        CachedDirectedGlobalPos abpp = travel.isLanded() || travel.getState() != TravelHandlerBase.State.MAT
-                ? travel.getProgress()
-                : travel.position();
+        CachedDirectedGlobalPos abpd = travel.destination();
+        CachedDirectedGlobalPos abpp = travel.isLanded() || travel.getState() == TravelHandlerBase.State.MAT
+                ? travel.position()
+                : travel.getProgress();
 
         BlockPos abppPos = abpp.getPos();
         BlockPos abpdPos = abpd.getPos();

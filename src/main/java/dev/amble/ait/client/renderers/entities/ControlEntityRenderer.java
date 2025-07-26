@@ -22,6 +22,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.consoles.ControlModel;
 import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
@@ -43,7 +44,7 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
             VertexConsumerProvider vertexConsumerProvider, int light) {
         super.render(entity, yaw, tickDelta, matrixStack, vertexConsumerProvider, light);
 
-        if (SonicRendering.isPlayerHoldingScanningSonic() && AITMod.CONFIG.CLIENT.SHOW_CONTROL_HITBOXES) {
+        if (SonicRendering.isPlayerHoldingScanningSonic() && AITModClient.CONFIG.showControlHitboxes) {
             renderOutline(entity, matrixStack, vertexConsumerProvider);
         }
     }

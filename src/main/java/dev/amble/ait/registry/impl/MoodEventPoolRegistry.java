@@ -13,7 +13,6 @@ import net.minecraft.util.math.random.Random;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.handler.mood.MoodDictatedEvent;
 import dev.amble.ait.core.tardis.handler.mood.TardisMood;
-import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.util.WorldUtil;
 
 public class MoodEventPoolRegistry {
@@ -99,7 +98,7 @@ public class MoodEventPoolRegistry {
 
         RANDOM_ALARM_ACTIVATION = register(
                 MoodDictatedEvent.Builder.create(AITMod.id("random_alarm_activation"),
-                        tardis -> tardis.alarm().enabled().set(true), 1, TardisMood.Alignment.NEGATIVE));
+                        tardis -> tardis.alarm().enable(), 1, TardisMood.Alignment.NEGATIVE));
 
         FORCE_DEMAT = register(
                 MoodDictatedEvent.Builder.create(AITMod.id("force_demat"),
@@ -147,12 +146,12 @@ public class MoodEventPoolRegistry {
 
         ADD_LOYALTY = register(
                 MoodDictatedEvent.Builder.create(AITMod.id("add_loyalty"),
-                        tardis -> TardisUtil.getPlayersInsideInterior(tardis)
+                        tardis -> tardis.world().getPlayers()
                                 .forEach(player -> tardis.loyalty().get(player).add(7)),
                         1, TardisMood.Alignment.POSITIVE));
 
         RANDOM_XP_GRANT = register(MoodDictatedEvent.Builder.create(AITMod.id("random_xp_grant"),
-                tardis -> TardisUtil.getPlayersInsideInterior(tardis)
+                tardis -> tardis.world().getPlayers()
                         .forEach(player -> player
                                 .addExperience((int) (player.getNextLevelExperience() + player.experienceProgress))),
                 1, TardisMood.Alignment.POSITIVE));

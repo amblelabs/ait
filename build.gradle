@@ -25,9 +25,10 @@ repositories {
 
     // Dependency for GravityAPI
     maven { url "https://maven.ladysnake.org/releases" }
-
-    // Cloth Config
     maven { url "https://maven.shedaniel.me/" }
+
+    // YACL
+    maven { url 'https://maven.isxander.dev/releases' }
 
     // ModMenu
     maven { url "https://maven.terraformersmc.com/releases/" }
@@ -72,23 +73,21 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    include (implementation "net.objecthunter:exp4j:0.4.8")
+    include(implementation "net.objecthunter:exp4j:0.4.8")
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     implementation 'com.google.code.gson:gson:2.8.9'
 
-    modCompileOnlyApi("com.github.qouteall:GravityChanger:${project.gravity_version}") {
+    modApi("com.github.qouteall:GravityChanger:${project.gravity_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
 
-    modApi("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_version}") {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
-
-    modApi("com.terraformersmc:modmenu:${project.modmenu_version}")
+    modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+    modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 
     modCompileOnlyApi "maven.modrinth:k9-mod:${project.k9_version}"
+    modCompileOnlyApi "me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"
 
     include(modImplementation("dev.drtheo:multidim:${project.multidim_version}")) {
         exclude(group: "net.fabricmc.fabric-api")
@@ -99,7 +98,7 @@ dependencies {
     include(modImplementation("dev.drtheo:queue:${project.queue_version}")) {
         exclude(group: "net.fabricmc.fabric-api")
     }
-    modImplementation("com.github.amblelabs:modkit:${project.amblekit_version}") {
+    modImplementation("com.github.amblelabs:modkit:v${project.amblekit_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
 }
@@ -109,12 +108,16 @@ processResources {
     inputs.property "version", project.version
     inputs.property "minecraft_version", project.minecraft_version
     inputs.property "loader_version", project.loader_version
+    inputs.property "amblekit_version", project.amblekit_version
+    inputs.property "yacl_version", project.yacl_version
     filteringCharset "UTF-8"
 
     filesMatching("fabric.mod.json") {
         expand "version": project.version,
                 "minecraft_version": project.minecraft_version,
-                "loader_version": project.loader_version
+                "loader_version": project.loader_version,
+                "amblekit_version": project.amblekit_version,
+                "yacl_version": project.yacl_version
     }
 }
 

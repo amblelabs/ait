@@ -18,9 +18,6 @@ import net.minecraft.util.math.Vec3d;
 import dev.amble.ait.client.models.doors.DoorModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.screens.interior.InteriorSettingsScreen;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
-import dev.amble.ait.core.tardis.animation.PulsatingAnimation;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 import dev.amble.ait.data.schema.door.ClientDoorSchema;
@@ -43,7 +40,7 @@ import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
  * Now in a client-sided init ( eg your client initializer ), you can set the client versions <br>
  * setting exterior model - <code>MyMod.MY_EXTERIOR.setModel(new MyExteriorModel()).toClient().register()</code> <br>
  * setting door model - <code>MyMod.MY_EXTERIOR.toDoor().setModel(new MyDoorModel()).toClient().register()</code> <br>
- * and then you place your textures in assets/my_mod/textures/blockentites/exteriors/my_exterior/my_exterior.png and assets/my_mod/textures/blockentites/exteriors/my_exterior/my_exterior_emission.png
+ * and then you place your textures in assets/my_mod/textures/blockentities/exteriors/my_exterior/my_exterior.png and assets/my_mod/textures/blockentities/exteriors/my_exterior/my_exterior_emission.png
  *
  * @see ExteriorModel
  * @see DoorModel
@@ -130,11 +127,6 @@ public class AddonExterior extends ExteriorVariantSchema {
     @Override
     public Vec3d seatTranslations() {
         return this.seatTranslations = seatTranslations();
-    }
-
-    @Override
-    public ExteriorAnimation animation(ExteriorBlockEntity exterior) {
-        return new PulsatingAnimation(exterior);
     }
 
     @Override

@@ -14,6 +14,7 @@ import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.text.Text;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.client.AITModClient;
 
 @Mixin(value = TitleScreen.class, priority = 999)
 public abstract class TitleScreenMixin extends Screen {
@@ -34,7 +35,7 @@ public abstract class TitleScreenMixin extends Screen {
     // This modifies the panorama in the background
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/RotatingCubeMapRenderer;render(FF)V", ordinal = 0))
     private void something(RotatingCubeMapRenderer instance, float delta, float alpha) {
-        boolean isConfigEnabled = AITMod.CONFIG.CLIENT.CUSTOM_MENU;
+        boolean isConfigEnabled = AITModClient.CONFIG.customMenu;
 
         if (isConfigEnabled)
             NEWPANO.render(delta, alpha);

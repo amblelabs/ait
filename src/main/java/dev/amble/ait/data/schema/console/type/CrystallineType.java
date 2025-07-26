@@ -8,7 +8,6 @@ import net.minecraft.util.Identifier;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.core.tardis.control.impl.*;
-import dev.amble.ait.core.tardis.control.impl.ConsolePortControl;
 import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
 import dev.amble.ait.core.tardis.control.impl.pos.XControl;
 import dev.amble.ait.core.tardis.control.impl.pos.YControl;

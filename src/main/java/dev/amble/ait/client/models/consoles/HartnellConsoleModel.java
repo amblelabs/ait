@@ -1519,7 +1519,7 @@ public class HartnellConsoleModel extends ConsoleModel {
                 .getChild("bone133").getChild("bone134").getChild("sym_lamp4").getChild("bone145");
         ModelPart hadsAlarmsLightsTwo = this.bone.getChild("panels").getChild("p_6").getChild("bone132")
                 .getChild("bone133").getChild("bone134").getChild("sym_lamp5").getChild("bone141");
-        if (tardis.alarm().enabled().get()) {
+        if (tardis.alarm().isEnabled()) {
             hadsAlarms.roll = hadsAlarms.roll + 1.75f;
         } else {
             hadsAlarmsLightsOne.pivotY = hadsAlarmsLightsOne.pivotY + 1;

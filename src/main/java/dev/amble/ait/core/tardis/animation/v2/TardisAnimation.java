@@ -16,6 +16,7 @@ import org.joml.Vector3f;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 
@@ -83,14 +84,6 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
     @Override
     public void tick(MinecraftServer server) {
         this.tickCommon();
-
-        this.alpha.tick(server);
-        this.scale.tick(server);
-        this.position.tick(server);
-        this.rotation.tick(server);
-    }
-
-    protected void tickCommon() {
         if (!this.isLinked()) return;
 
         Tardis tardis = this.tardis().get();
@@ -101,9 +94,18 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
         playSound = playSound && this.tryStart(this.rotation, new Vector3f());
 
         if (playSound) {
-            tardis.getExterior().playSound(this.getSound());
+            tardis.getExterior().playSound(this.getSoundIdOrDefault(), SoundCategory.BLOCKS);
         }
 
+        this.alpha.tick(server);
+        this.scale.tick(server);
+        this.position.tick(server);
+        this.rotation.tick(server);
+
+        this.isServer = true;
+    }
+
+    protected void tickCommon() {
         if (this.isAged() && this.doneQueue != null) {
             this.doneQueue.execute();
             this.doneQueue = null;
@@ -127,6 +129,11 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
         return true;
     }
 
+    /**
+     * Gets the sound event for this animation.
+     * If the sound event is not found, it will log an error and return a default error sound.
+     * @return the sound event
+     */
     public SoundEvent getSound() {
         SoundEvent sfx = null;
 
@@ -137,7 +144,6 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
         if (sfx == null) {
             AITMod.LOGGER.error("Unknown sound event: {} in tardis animation {}", this.soundId, this.id());
             sfx = AITSounds.ERROR;
-            this.soundId = sfx.getId();
         }
 
         return sfx;
@@ -149,6 +155,10 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
 
     public Optional<Identifier> getSoundId() {
         return Optional.ofNullable(this.soundId);
+    }
+
+    public Identifier getSoundIdOrDefault() {
+        return this.getSoundId().orElse(AITSounds.ERROR.getId());
     }
 
     @Override

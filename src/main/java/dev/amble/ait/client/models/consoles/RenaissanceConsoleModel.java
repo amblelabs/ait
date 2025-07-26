@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.consoles;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedGlobalPos;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -1390,7 +1389,7 @@ public class RenaissanceConsoleModel extends ConsoleModel {
 
         // Alarm Control and Lights
         ModelPart alarms = this.console.getChild("panelf5").getChild("alarms");
-        alarms.yaw = tardis.alarm().enabled().get() ? alarms.yaw + 0.2f : alarms.yaw;
+        alarms.yaw = tardis.alarm().isEnabled() ? alarms.yaw + 0.2f : alarms.yaw;
 
         // Shields
         ModelPart shields = this.console.getChild("panelf5").getChild("rwf").getChild("bone56");
@@ -1446,13 +1445,10 @@ public class RenaissanceConsoleModel extends ConsoleModel {
         MinecraftClient client = MinecraftClient.getInstance();
         TextRenderer renderer = client.textRenderer;
         TravelHandler travel = tardis.travel();
-        DirectedGlobalPos abpd = travel.getState() == TravelHandlerBase.State.FLIGHT
-                ? travel.getProgress()
-                : travel.position();
-        CachedDirectedGlobalPos dabpd = travel.destination();
-        CachedDirectedGlobalPos abpp = travel.isLanded() || travel.getState() != TravelHandlerBase.State.MAT
-                ? travel.getProgress()
-                : travel.position();
+        CachedDirectedGlobalPos abpd = travel.destination();
+        CachedDirectedGlobalPos abpp = travel.isLanded() || travel.getState() == TravelHandlerBase.State.MAT
+                ? travel.position()
+                : travel.getProgress();
 
         BlockPos abppPos = abpp.getPos();
         BlockPos abpdPos = abpd.getPos();

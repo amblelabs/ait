@@ -1,6 +1,9 @@
 package dev.amble.ait.core.util;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
