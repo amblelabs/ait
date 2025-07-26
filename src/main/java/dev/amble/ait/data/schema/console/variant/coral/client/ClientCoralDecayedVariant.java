@@ -15,6 +15,8 @@ public class ClientCoralDecayedVariant extends ClientConsoleVariantSchema {
             ("textures/blockentities/consoles/coral/coral_decayed.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
             ("textures/blockentities/consoles/coral/coral_decayed_emission.png"));
+    public static final Identifier TINT = new Identifier(AITMod.MOD_ID,
+            ("textures/blockentities/consoles/coral/coral_decayed_tint.png"));
 
     public ClientCoralDecayedVariant() {
         super(CoralDecayedVariant.REFERENCE, CoralDecayedVariant.REFERENCE);
@@ -28,6 +30,11 @@ public class ClientCoralDecayedVariant extends ClientConsoleVariantSchema {
     @Override
     public Identifier emission() {
         return EMISSION;
+    }
+
+    @Override
+    public Identifier tint() {
+        return TINT;
     }
 
     @Override

@@ -15,6 +15,8 @@ public class ClientCrystallineVariant extends ClientConsoleVariantSchema {
             ("textures/blockentities/consoles/crystalline/crystalline.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
             ("textures/blockentities/consoles/crystalline/crystalline_emission.png"));
+    public static final Identifier TINT = new Identifier(AITMod.MOD_ID,
+            ("textures/blockentities/consoles/crystalline/crystalline_tint.png"));
 
     public ClientCrystallineVariant() {
         super(CrystallineVariant.REFERENCE, CrystallineVariant.REFERENCE);
@@ -28,6 +30,11 @@ public class ClientCrystallineVariant extends ClientConsoleVariantSchema {
     @Override
     public Identifier emission() {
         return EMISSION;
+    }
+
+    @Override
+    public Identifier tint() {
+        return TINT;
     }
 
     @Override

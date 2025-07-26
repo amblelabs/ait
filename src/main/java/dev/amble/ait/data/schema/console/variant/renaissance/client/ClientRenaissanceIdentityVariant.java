@@ -16,6 +16,8 @@ public class ClientRenaissanceIdentityVariant extends ClientConsoleVariantSchema
             ("textures/blockentities/consoles/renaissance/renaissance_identity.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
             ("textures/blockentities/consoles/renaissance/renaissance_identity_emission.png"));
+    public static final Identifier TINT = new Identifier(AITMod.MOD_ID,
+            ("textures/blockentities/consoles/renaissance/renaissance_identity_tint.png"));
 
     public ClientRenaissanceIdentityVariant() {
         super(RenaissanceIdentityVariant.REFERENCE, RenaissanceIdentityVariant.REFERENCE);
@@ -30,6 +32,9 @@ public class ClientRenaissanceIdentityVariant extends ClientConsoleVariantSchema
     public Identifier emission() {
         return EMISSION;
     }
+
+    @Override
+    public Identifier tint() { return TINT; }
 
     @Override
     public ConsoleModel model() {

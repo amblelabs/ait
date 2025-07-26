@@ -15,6 +15,8 @@ public class ClientToyotaVariant extends ClientConsoleVariantSchema {
             ("textures/blockentities/consoles/toyota/toyota_default.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
             ("textures/blockentities/consoles/toyota/toyota_orange_emission.png"));
+    public static final Identifier TINT = new Identifier(AITMod.MOD_ID,
+            ("textures/blockentities/consoles/toyota/toyota_orange_tint.png"));
 
     public ClientToyotaVariant() {
         super(ToyotaVariant.REFERENCE, ToyotaVariant.REFERENCE);
@@ -28,6 +30,11 @@ public class ClientToyotaVariant extends ClientConsoleVariantSchema {
     @Override
     public Identifier emission() {
         return EMISSION;
+    }
+
+    @Override
+    public Identifier tint() {
+        return TINT;
     }
 
     @Override

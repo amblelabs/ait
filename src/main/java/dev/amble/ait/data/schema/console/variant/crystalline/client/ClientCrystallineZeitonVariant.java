@@ -16,6 +16,8 @@ public class ClientCrystallineZeitonVariant extends ClientConsoleVariantSchema {
             ("textures/blockentities/consoles/crystalline/crystalline_zeiton.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
             ("textures/blockentities/consoles/crystalline/crystalline_zeiton_emission.png"));
+    public static final Identifier TINT = new Identifier(AITMod.MOD_ID,
+            ("textures/blockentities/consoles/crystalline/crystalline_zeiton_tint.png"));
 
     public ClientCrystallineZeitonVariant() {
         super(CrystallineZeitonVariant.REFERENCE, CrystallineZeitonVariant.REFERENCE);
@@ -29,6 +31,11 @@ public class ClientCrystallineZeitonVariant extends ClientConsoleVariantSchema {
     @Override
     public Identifier emission() {
         return EMISSION;
+    }
+
+    @Override
+    public Identifier tint() {
+        return TINT;
     }
 
     @Override

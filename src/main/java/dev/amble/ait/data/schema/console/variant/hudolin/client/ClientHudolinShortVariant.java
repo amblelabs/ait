@@ -17,6 +17,8 @@ public class ClientHudolinShortVariant extends ClientConsoleVariantSchema {
             ("textures/blockentities/consoles/hudolin/hudolin_console_short.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
             ("textures/blockentities/consoles/hudolin/hudolin_console_short_emission.png"));
+    public static final Identifier TINT = new Identifier(AITMod.MOD_ID,
+            ("textures/blockentities/consoles/hudolin/hudolin_console_short_tint.png"));
 
     public ClientHudolinShortVariant() {
         super(HudolinShortVariant.REFERENCE, HudolinShortVariant.REFERENCE);
@@ -31,6 +33,9 @@ public class ClientHudolinShortVariant extends ClientConsoleVariantSchema {
     public Identifier emission() {
         return EMISSION;
     }
+
+    @Override
+    public Identifier tint() { return TINT; }
 
     @Override
     public ConsoleModel model() {

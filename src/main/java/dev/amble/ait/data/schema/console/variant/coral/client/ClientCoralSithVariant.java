@@ -15,6 +15,8 @@ public class ClientCoralSithVariant extends ClientConsoleVariantSchema {
             ("textures/blockentities/consoles/coral/coral_sith.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
             ("textures/blockentities/consoles/coral/coral_sith_emission.png"));
+    public static final Identifier TINT = new Identifier(AITMod.MOD_ID,
+            ("textures/blockentities/consoles/coral/coral_sith_tint.png"));
 
     public ClientCoralSithVariant() {
         super(CoralSithVariant.REFERENCE, CoralSithVariant.REFERENCE);
@@ -28,6 +30,11 @@ public class ClientCoralSithVariant extends ClientConsoleVariantSchema {
     @Override
     public Identifier emission() {
         return EMISSION;
+    }
+
+    @Override
+    public Identifier tint() {
+        return TINT;
     }
 
     @Override

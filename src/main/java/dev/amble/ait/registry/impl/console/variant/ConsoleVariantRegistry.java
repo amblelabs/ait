@@ -155,8 +155,7 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
         HARTNELL = registerStatic(new HartnellVariant());
         HARTNELL_KELT = registerStatic(new KeltHartnellVariant());
         HARTNELL_MINT = registerStatic(new MintHartnellVariant());
-        HARTNELL_WOOD = registerStatic(new WoodenHartnellVariant()); // fixme this texture is awful - make tright remake
-                                                                        // it
+        HARTNELL_WOOD = registerStatic(new WoodenHartnellVariant());
 
         // Coral variants
         CORAL = registerStatic(new CoralVariant());

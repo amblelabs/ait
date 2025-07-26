@@ -13,6 +13,9 @@ public class ClientMintHartnellVariant extends ClientConsoleVariantSchema {
             ("textures/blockentities/consoles/hartnell/hartnell_mint_console.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
             ("textures/blockentities/consoles/hartnell/hartnell_console_emission.png"));
+    public static final Identifier TINT = new Identifier(AITMod.MOD_ID,
+            ("textures/blockentities/consoles/hartnell/hartnell_console_tint.png"));
+
 
     public ClientMintHartnellVariant() {
         super(MintHartnellVariant.REFERENCE, MintHartnellVariant.REFERENCE);
@@ -26,6 +29,11 @@ public class ClientMintHartnellVariant extends ClientConsoleVariantSchema {
     @Override
     public Identifier emission() {
         return EMISSION;
+    }
+
+    @Override
+    public Identifier tint() {
+        return TINT;
     }
 
     @Override

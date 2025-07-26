@@ -15,6 +15,8 @@ public class ClientGreenCoralVariant extends ClientConsoleVariantSchema {
             ("textures/blockentities/consoles/coral/coral.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
             ("textures/blockentities/consoles/coral/coral_emission.png"));
+    public static final Identifier TINT = new Identifier(AITMod.MOD_ID,
+            ("textures/blockentities/consoles/coral/coral_tint.png"));
 
     public ClientGreenCoralVariant() {
         super(CoralVariant.REFERENCE, CoralVariant.REFERENCE);
@@ -28,6 +30,11 @@ public class ClientGreenCoralVariant extends ClientConsoleVariantSchema {
     @Override
     public Identifier emission() {
         return EMISSION;
+    }
+
+    @Override
+    public Identifier tint() {
+        return TINT;
     }
 
     @Override
