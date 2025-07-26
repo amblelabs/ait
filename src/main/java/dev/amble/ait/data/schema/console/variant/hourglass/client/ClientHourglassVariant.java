@@ -4,9 +4,9 @@ package dev.amble.ait.data.schema.console.variant.hourglass.client;
 
 public class ClientHourglassVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/hourglass_default.png"));
+            ("textures/blockentities/consoles/hourglass/hourglass_default.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/hourglass_default_emission.png"));
+            ("textures/blockentities/consoles/hourglass/hourglass_default_emission.png"));
 
     public ClientHourglassVariant() {
         super(HourglassVariant.REFERENCE, HourglassVariant.REFERENCE);

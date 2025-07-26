@@ -51,6 +51,7 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
     private ConsoleTypeSchema type;
     private ConsoleVariantSchema variant;
 
+    private int color = 0x00FF00;
     public int age;
 
     public ConsoleBlockEntity(BlockPos pos, BlockState state) {
@@ -79,6 +80,7 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
 
         nbt.putString("type", this.getTypeSchema().id().toString());
         nbt.putString("variant", this.getVariant().id().toString());
+        nbt.putInt("color", color);
     }
 
     @Override
@@ -86,8 +88,8 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
         super.readNbt(nbt);
 
         this.setType(ConsoleRegistry.REGISTRY.get(Identifier.tryParse(nbt.getString("type"))));
-
         this.setVariant(ConsoleVariantRegistry.getInstance().get(Identifier.tryParse(nbt.getString("variant"))));
+        color = nbt.getInt("color");
     }
 
     @Override
@@ -125,6 +127,15 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
 
     public int getAge() {
         return age;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
+        markDirty();
     }
 
     public void useOn(World world, boolean sneaking, PlayerEntity player) {

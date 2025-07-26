@@ -57,6 +57,8 @@ public abstract class ClientExteriorVariantSchema implements Identifiable {
 
     public abstract Identifier emission();
 
+    public Identifier tint() { return null; }
+
     public abstract ExteriorModel model();
 
     public abstract Vector3f sonicItemTranslations();

@@ -57,20 +57,4 @@ public class LandTypeControl extends Control {
         Text off = Text.translatable("message.ait.control.xlandtype.off");
         player.sendMessage(var ? on : off, true);
     }
-
-    private boolean isRenaissanceVariant(ConsoleBlockEntity consoleBlockEntity) {
-        return consoleBlockEntity.getVariant() instanceof RenaissanceTokamakVariant ||
-                consoleBlockEntity.getVariant() instanceof RenaissanceVariant ||
-                consoleBlockEntity.getVariant() instanceof RenaissanceIdentityVariant ||
-                consoleBlockEntity.getVariant() instanceof RenaissanceIndustriousVariant ||
-                consoleBlockEntity.getVariant() instanceof RenaissanceFireVariant;
-    }
-
-    private boolean isCoralVariant(ConsoleBlockEntity consoleBlockEntity) {
-        return consoleBlockEntity.getVariant() instanceof CoralVariant ||
-                consoleBlockEntity.getVariant() instanceof WhiteCoralVariant ||
-                consoleBlockEntity.getVariant() instanceof CoralSithVariant ||
-                consoleBlockEntity.getVariant() instanceof BlueCoralVariant ||
-                consoleBlockEntity.getVariant() instanceof CoralDecayedVariant;
-    }
 }

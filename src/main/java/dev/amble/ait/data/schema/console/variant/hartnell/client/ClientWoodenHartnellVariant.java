@@ -10,9 +10,9 @@ import dev.amble.ait.data.schema.console.variant.hartnell.WoodenHartnellVariant;
 
 public class ClientWoodenHartnellVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/hartnell_wooden_console.png"));
+            ("textures/blockentities/consoles/hartnell/hartnell_wooden_console.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/hartnell_console_emission.png"));
+            ("textures/blockentities/consoles/hartnell/hartnell_console_emission.png"));
 
     public ClientWoodenHartnellVariant() {
         super(WoodenHartnellVariant.REFERENCE, WoodenHartnellVariant.REFERENCE);

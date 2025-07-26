@@ -12,9 +12,9 @@ import dev.amble.ait.data.schema.console.variant.renaissance.RenaissanceTokamakV
 
 public class ClientRenaissanceTokamakVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/renaissance_tokamak.png"));
+            ("textures/blockentities/consoles/renaissance/renaissance_tokamak.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/renaissance_tokamak_emission.png"));
+            ("textures/blockentities/consoles/renaissance/renaissance_tokamak_emission.png"));
 
     public ClientRenaissanceTokamakVariant() {
         super(RenaissanceTokamakVariant.REFERENCE, RenaissanceTokamakVariant.REFERENCE);

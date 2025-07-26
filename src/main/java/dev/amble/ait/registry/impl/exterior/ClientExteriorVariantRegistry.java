@@ -113,6 +113,9 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
             }
 
             @Override
+            public Identifier tint() { return variant.tint(); }
+
+            @Override
             public Identifier emission() {
                 return variant.emission();
             }

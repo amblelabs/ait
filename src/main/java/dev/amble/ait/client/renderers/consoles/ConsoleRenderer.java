@@ -126,14 +126,43 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         }
 
         if (hasPower) {
-            profiler.swap("emission"); // emission {
+            profiler.swap("emission");
 
             if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
-                model.renderWithAnimations(entity, tardis, model.getPart(),
-                        matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xF000F0, overlay,
-                        1, 1, 1, 1);
+                model.renderWithAnimations(
+                        entity, tardis, model.getPart(),
+                        matrices,
+                        vertexConsumers.getBuffer(
+                                AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)
+                        ),
+                        0xF000F0, overlay,
+                        1, 1, 1, 1.0f
+                );
             }
+
+            profiler.swap("tint");
+
+            if (variant.tint() != null && !variant.tint().equals(DatapackConsole.EMPTY)) {
+
+                // if the alarms is on then it becomes red but else then it becomes the tinted color
+                int color = tardis.alarm().isEnabled() ? 0xFF0000 : entity.getColor();
+                float red = ((color >> 16) & 0xFF) / 255.0f;
+                float green = ((color >> 8) & 0xFF) / 255.0f;
+                float blue = (color & 0xFF) / 255.0f;
+
+                model.renderWithAnimations(
+                        entity, tardis, model.getPart(),
+                        matrices,
+                        vertexConsumers.getBuffer(
+                                AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)
+                        ),
+                        0xF000F0, overlay,
+                        red, blue, green, 1.0f
+                );
+            }
+
         }
+
 
         profiler.swap("render");
         if (DependencyChecker.hasIris()) {

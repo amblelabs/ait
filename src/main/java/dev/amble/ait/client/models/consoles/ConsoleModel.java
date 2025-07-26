@@ -45,6 +45,7 @@ public abstract class ConsoleModel extends SinglePartEntityModel {
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
         root.render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
+
     }
 
     @Override

@@ -12,9 +12,9 @@ import dev.amble.ait.data.schema.console.variant.toyota.ToyotaLegacyVariant;
 
 public class ClientToyotaLegacyVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/toyota_legacy_default.png"));
+            ("textures/blockentities/consoles/toyota/toyota_legacy_default.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/toyota_legacy_emission.png"));
+            ("textures/blockentities/consoles/toyota/toyota_legacy_emission.png"));
 
     public ClientToyotaLegacyVariant() {
         super(ToyotaLegacyVariant.REFERENCE, ToyotaLegacyVariant.REFERENCE);

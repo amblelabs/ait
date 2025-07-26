@@ -13,7 +13,6 @@ import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.data.schema.console.variant.alnico.client.ClientAlnicoVariant;
-import dev.amble.ait.data.schema.console.variant.alnico.client.ClientBlueAlnicoVariant;
 import dev.amble.ait.data.schema.console.variant.copper.client.ClientCopperVariant;
 import dev.amble.ait.data.schema.console.variant.coral.client.*;
 import dev.amble.ait.data.schema.console.variant.crystalline.client.ClientCrystallineVariant;
@@ -28,7 +27,6 @@ import dev.amble.ait.data.schema.console.variant.hudolin.client.ClientHudolinTal
 import dev.amble.ait.data.schema.console.variant.hudolin.client.ClientHudolinVariant;
 import dev.amble.ait.data.schema.console.variant.renaissance.client.*;
 import dev.amble.ait.data.schema.console.variant.steam.client.*;
-import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaBlueVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaLegacyVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaVariant;
 
@@ -188,15 +186,11 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
     public static ClientConsoleVariantSchema HARTNELL_KELT;
     public static ClientConsoleVariantSchema HARTNELL_MINT;
     public static ClientConsoleVariantSchema CORAL_GREEN;
-    public static ClientConsoleVariantSchema CORAL_BLUE;
-    public static ClientConsoleVariantSchema CORAL_WHITE;
     public static ClientConsoleVariantSchema CORAL_DECAYED;
     public static ClientConsoleVariantSchema CORAL_SITH;
     public static ClientConsoleVariantSchema TOYOTA;
-    public static ClientConsoleVariantSchema TOYOTA_BLUE;
     public static ClientConsoleVariantSchema TOYOTA_LEGACY;
     public static ClientConsoleVariantSchema ALNICO;
-    public static ClientConsoleVariantSchema ALNICO_BLUE;
     public static ClientConsoleVariantSchema STEAM;
     public static ClientConsoleVariantSchema STEAM_CHERRY;
     public static ClientConsoleVariantSchema STEAM_STEEL;
@@ -215,7 +209,6 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
     public static ClientConsoleVariantSchema RENAISSANCE_TOKAMAK;
     public static ClientConsoleVariantSchema RENAISSANCE_IDENTITY;
     public static ClientConsoleVariantSchema RENAISSANCE_INDUSTRIOUS;
-    //public static ClientConsoleVariantSchema HOURGLASS;
 
 
 
@@ -229,19 +222,15 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
 
         // Coral variants
         CORAL_GREEN = register(new ClientGreenCoralVariant());
-        CORAL_BLUE = register(new ClientBlueCoralVariant());
-        CORAL_WHITE = register(new ClientWhiteCoralVariant());
         CORAL_DECAYED = register(new ClientCoralDecayedVariant());
         CORAL_SITH = register(new ClientCoralSithVariant());
 
         // Toyota variants
         TOYOTA = register(new ClientToyotaVariant());
-        TOYOTA_BLUE = register(new ClientToyotaBlueVariant());
         TOYOTA_LEGACY = register(new ClientToyotaLegacyVariant());
 
         // Alnico variants
         ALNICO = register(new ClientAlnicoVariant());
-        ALNICO_BLUE = register(new ClientBlueAlnicoVariant());
 
         // Steam variants
         STEAM = register(new ClientSteamVariant());
@@ -270,8 +259,5 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
         RENAISSANCE_FIRE = register(new ClientRenaissanceFireVariant());
         RENAISSANCE_IDENTITY = register(new ClientRenaissanceIdentityVariant());
         RENAISSANCE_INDUSTRIOUS = register(new ClientRenaissanceIndustriousVariant());
-
-        // Hourglass variants
-        //HOURGLASS = register(new ClientHourglassVariant());
     }
 }

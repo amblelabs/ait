@@ -12,9 +12,9 @@ import dev.amble.ait.data.schema.console.variant.coral.CoralDecayedVariant;
 
 public class ClientCoralDecayedVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/coral_decayed.png"));
+            ("textures/blockentities/consoles/coral/coral_decayed.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/coral_decayed_emission.png"));
+            ("textures/blockentities/consoles/coral/coral_decayed_emission.png"));
 
     public ClientCoralDecayedVariant() {
         super(CoralDecayedVariant.REFERENCE, CoralDecayedVariant.REFERENCE);

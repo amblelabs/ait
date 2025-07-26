@@ -12,9 +12,9 @@ import dev.amble.ait.data.schema.console.variant.crystalline.CrystallineVariant;
 
 public class ClientCrystallineVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/crystalline.png"));
+            ("textures/blockentities/consoles/crystalline/crystalline.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/crystalline_emission.png"));
+            ("textures/blockentities/consoles/crystalline/crystalline_emission.png"));
 
     public ClientCrystallineVariant() {
         super(CrystallineVariant.REFERENCE, CrystallineVariant.REFERENCE);

@@ -12,9 +12,9 @@ import dev.amble.ait.data.schema.console.variant.steam.SteamCopperVariant;
 
 public class ClientSteamCopperVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/steam_copper.png"));
+            ("textures/blockentities/consoles/steam/steam_copper.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/steam_copper_emission.png"));
+            ("textures/blockentities/consoles/steam/steam_copper_emission.png"));
 
     public ClientSteamCopperVariant() {
         super(SteamCopperVariant.REFERENCE, SteamCopperVariant.REFERENCE);

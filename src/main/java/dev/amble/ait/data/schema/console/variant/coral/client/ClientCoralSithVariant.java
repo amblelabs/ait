@@ -12,9 +12,9 @@ import dev.amble.ait.data.schema.console.variant.coral.CoralSithVariant;
 
 public class ClientCoralSithVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/coral_sith.png"));
+            ("textures/blockentities/consoles/coral/coral_sith.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/coral_sith_emission.png"));
+            ("textures/blockentities/consoles/coral/coral_sith_emission.png"));
 
     public ClientCoralSithVariant() {
         super(CoralSithVariant.REFERENCE, CoralSithVariant.REFERENCE);

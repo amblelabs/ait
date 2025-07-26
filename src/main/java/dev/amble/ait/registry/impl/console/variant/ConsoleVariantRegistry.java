@@ -19,7 +19,6 @@ import dev.amble.ait.data.datapack.DatapackExterior;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.data.schema.console.variant.alnico.AlnicoVariant;
-import dev.amble.ait.data.schema.console.variant.alnico.BlueAlnicoVariant;
 import dev.amble.ait.data.schema.console.variant.copper.CopperVariant;
 import dev.amble.ait.data.schema.console.variant.coral.*;
 import dev.amble.ait.data.schema.console.variant.crystalline.CrystallineVariant;
@@ -34,7 +33,6 @@ import dev.amble.ait.data.schema.console.variant.hudolin.HudolinTallVariant;
 import dev.amble.ait.data.schema.console.variant.hudolin.HudolinVariant;
 import dev.amble.ait.data.schema.console.variant.renaissance.*;
 import dev.amble.ait.data.schema.console.variant.steam.*;
-import dev.amble.ait.data.schema.console.variant.toyota.ToyotaBlueVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.ToyotaLegacyVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.ToyotaVariant;
 
@@ -66,7 +64,7 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
             }
 
             buf.encodeAsJson(DatapackConsole.CODEC, new DatapackConsole(schema.id(), schema.parent().id(),
-                    DatapackExterior.DEFAULT_TEXTURE, DatapackExterior.DEFAULT_TEXTURE, List.of(), new Vector3f(), List.of(), new Vector3f(),
+                    DatapackExterior.DEFAULT_TEXTURE, DatapackExterior.DEFAULT_TEXTURE, DatapackExterior.DEFAULT_TEXTURE, List.of(), new Vector3f(), List.of(), new Vector3f(),
                     false));
         }
 
@@ -126,15 +124,11 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
     public static ConsoleVariantSchema HARTNELL_KELT;
     public static ConsoleVariantSchema HARTNELL_MINT;
     public static ConsoleVariantSchema CORAL;
-    public static ConsoleVariantSchema CORAL_BLUE;
-    public static ConsoleVariantSchema CORAL_WHITE;
     public static ConsoleVariantSchema CORAL_SITH;
     public static ConsoleVariantSchema CORAL_DECAYED;
     public static ConsoleVariantSchema TOYOTA;
-    public static ConsoleVariantSchema TOYOTA_BLUE;
     public static ConsoleVariantSchema TOYOTA_LEGACY;
     public static ConsoleVariantSchema ALNICO;
-    public static ConsoleVariantSchema ALNICO_BLUE;
     public static ConsoleVariantSchema STEAM;
     public static ConsoleVariantSchema STEAM_CHERRY;
     public static ConsoleVariantSchema STEAM_STEEL;
@@ -146,7 +140,6 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
     public static ConsoleVariantSchema HUDOLIN_TALL;
     public static ConsoleVariantSchema HUDOLIN_SHORT;
     public static ConsoleVariantSchema COPPER;
-    public static ConsoleVariantSchema BOREALIS;
     public static ConsoleVariantSchema CRYSTALLINE;
     public static ConsoleVariantSchema CRYSTALLINE_ZEITON;
     public static ConsoleVariantSchema RENAISSANCE;
@@ -154,7 +147,6 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
     public static ConsoleVariantSchema RENAISSANCE_FIRE;
     public static ConsoleVariantSchema RENAISSANCE_IDENTITY;
     public static ConsoleVariantSchema RENAISSANCE_INDUSTRIOUS;
-    //public static ConsoleVariantSchema HOURGLASS;
 
 
     @Override
@@ -168,19 +160,15 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
 
         // Coral variants
         CORAL = registerStatic(new CoralVariant());
-        CORAL_BLUE = registerStatic(new BlueCoralVariant());
-        CORAL_WHITE = registerStatic(new WhiteCoralVariant());
         CORAL_SITH = registerStatic(new CoralSithVariant());
         CORAL_DECAYED = registerStatic(new CoralDecayedVariant());
 
         // Toyota variants
         TOYOTA = registerStatic(new ToyotaVariant());
-        TOYOTA_BLUE = registerStatic(new ToyotaBlueVariant());
         TOYOTA_LEGACY = registerStatic(new ToyotaLegacyVariant());
 
         // Alnico variants
         ALNICO = registerStatic(new AlnicoVariant());
-        ALNICO_BLUE = registerStatic(new BlueAlnicoVariant());
 
         // Steam variants
         STEAM = registerStatic(new SteamVariant());
@@ -199,9 +187,6 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
         // Copper variants
         COPPER = registerStatic(new CopperVariant());
 
-        // Borealis variants
-        // BOREALIS = registerStatic(new BorealisVariant());
-
         // Crystalline variants
         CRYSTALLINE = registerStatic(new CrystallineVariant());
         CRYSTALLINE_ZEITON = registerStatic(new CrystallineZeitonVariant());
@@ -212,9 +197,6 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
         RENAISSANCE_FIRE = registerStatic(new RenaissanceFireVariant());
         RENAISSANCE_IDENTITY = registerStatic(new RenaissanceIdentityVariant());
         RENAISSANCE_INDUSTRIOUS = registerStatic(new RenaissanceIndustriousVariant());
-
-        // Hourglass variants
-        //HOURGLASS = registerStatic(new HourglassVariant());
 
     }
 }

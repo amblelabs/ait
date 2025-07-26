@@ -34,6 +34,7 @@ public class DatapackExterior extends ExteriorVariantSchema {
     protected final Identifier parent;
     protected final Identifier texture;
     protected final Identifier emission;
+    protected final Identifier tint;
     protected final BiomeOverrides overrides;
     protected final Vec3d seatTranslations;
     protected final boolean initiallyDatapack;
@@ -45,6 +46,7 @@ public class DatapackExterior extends ExteriorVariantSchema {
                     Identifier.CODEC.fieldOf("parent").forGetter(DatapackExterior::getParentId),
                     Identifier.CODEC.fieldOf("texture").forGetter(DatapackExterior::texture),
                     Identifier.CODEC.optionalFieldOf("emission", EMPTY).forGetter(DatapackExterior::emission),
+                    Identifier.CODEC.optionalFieldOf("tint", EMPTY).forGetter(DatapackExterior::tint),
                     Loyalty.CODEC.optionalFieldOf("loyalty").forGetter(DatapackExterior::requirement),
                     BiomeOverrides.CODEC.fieldOf("overrides").orElse(BiomeOverrides.EMPTY)
                             .forGetter(DatapackExterior::overrides),
@@ -54,11 +56,12 @@ public class DatapackExterior extends ExteriorVariantSchema {
             .apply(instance, DatapackExterior::new));
 
     public DatapackExterior(Identifier id, Identifier category, Identifier parent, Identifier texture,
-                            Identifier emission, Optional<Loyalty> loyalty, BiomeOverrides overrides, Vec3d seatTranslations, boolean hasTransparentDoors, boolean isDatapack) {
+                            Identifier emission, Identifier tint, Optional<Loyalty> loyalty, BiomeOverrides overrides, Vec3d seatTranslations, boolean hasTransparentDoors, boolean isDatapack) {
         super(category, id, loyalty);
         this.parent = parent;
         this.texture = texture;
         this.emission = emission;
+        this.tint = tint;
         this.seatTranslations = seatTranslations;
         this.hasTransparentDoors = hasTransparentDoors;
         this.initiallyDatapack = isDatapack;
@@ -141,5 +144,9 @@ public class DatapackExterior extends ExteriorVariantSchema {
 
     public Identifier emission() {
         return this.emission;
+    }
+
+    public Identifier tint() {
+        return this.tint;
     }
 }

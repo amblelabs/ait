@@ -12,9 +12,9 @@ import dev.amble.ait.data.schema.console.variant.renaissance.RenaissanceVariant;
 
 public class ClientRenaissanceVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/renaissance_default.png"));
+            ("textures/blockentities/consoles/renaissance/renaissance_default.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/renaissance_default_emission.png"));
+            ("textures/blockentities/consoles/renaissance/renaissance_default_emission.png"));
 
     public ClientRenaissanceVariant() {
         super(RenaissanceVariant.REFERENCE, RenaissanceVariant.REFERENCE);

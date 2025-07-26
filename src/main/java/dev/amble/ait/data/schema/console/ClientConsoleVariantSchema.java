@@ -52,6 +52,8 @@ public abstract class ClientConsoleVariantSchema implements Identifiable {
 
     public abstract Identifier emission();
 
+    public Identifier tint() { return null; }
+
     @Environment(EnvType.CLIENT)
     public abstract ConsoleModel model();
 

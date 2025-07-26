@@ -14,9 +14,9 @@ import dev.amble.ait.data.schema.console.variant.hudolin.HudolinShortVariant;
 
 public class ClientHudolinShortVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/hudolin_console_short.png"));
+            ("textures/blockentities/consoles/hudolin/hudolin_console_short.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/hudolin_console_short_emission.png"));
+            ("textures/blockentities/consoles/hudolin/hudolin_console_short_emission.png"));
 
     public ClientHudolinShortVariant() {
         super(HudolinShortVariant.REFERENCE, HudolinShortVariant.REFERENCE);

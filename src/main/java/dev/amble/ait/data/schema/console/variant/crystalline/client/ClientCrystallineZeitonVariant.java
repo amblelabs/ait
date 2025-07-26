@@ -13,9 +13,9 @@ import dev.amble.ait.data.schema.console.variant.crystalline.CrystallineZeitonVa
 
 public class ClientCrystallineZeitonVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/crystalline_zeiton.png"));
+            ("textures/blockentities/consoles/crystalline/crystalline_zeiton.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/crystalline_zeiton_emission.png"));
+            ("textures/blockentities/consoles/crystalline/crystalline_zeiton_emission.png"));
 
     public ClientCrystallineZeitonVariant() {
         super(CrystallineZeitonVariant.REFERENCE, CrystallineZeitonVariant.REFERENCE);

@@ -12,9 +12,9 @@ import dev.amble.ait.data.schema.console.variant.renaissance.RenaissanceIndustri
 
 public class ClientRenaissanceIndustriousVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/renaissance_industrious.png"));
+            ("textures/blockentities/consoles/renaissance/renaissance_industrious.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/renaissance_industrious_emission.png"));
+            ("textures/blockentities/consoles/renaissance/renaissance_industrious_emission.png"));
 
     public ClientRenaissanceIndustriousVariant() {
         super(RenaissanceIndustriousVariant.REFERENCE, RenaissanceIndustriousVariant.REFERENCE);

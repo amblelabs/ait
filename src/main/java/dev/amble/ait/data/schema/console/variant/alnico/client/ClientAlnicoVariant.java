@@ -12,9 +12,9 @@ import dev.amble.ait.data.schema.console.variant.alnico.AlnicoVariant;
 
 public class ClientAlnicoVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/alnico.png"));
+            ("textures/blockentities/consoles/alnico/alnico.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/alnico_emission.png"));
+            ("textures/blockentities/consoles/alnico/alnico_emission.png"));
 
     public ClientAlnicoVariant() {
         super(AlnicoVariant.REFERENCE, AlnicoVariant.REFERENCE);

@@ -14,9 +14,9 @@ import dev.amble.ait.data.schema.console.variant.hudolin.HudolinTallVariant;
 
 public class ClientHudolinTallVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/hudolin_console_tall.png"));
+            ("textures/blockentities/consoles/hudolin/hudolin_console_tall.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/hudolin_console_tall_emission.png"));
+            ("textures/blockentities/consoles/hudolin/hudolin_console_tall_emission.png"));
 
     public ClientHudolinTallVariant() {
         super(HudolinTallVariant.REFERENCE, HudolinTallVariant.REFERENCE);

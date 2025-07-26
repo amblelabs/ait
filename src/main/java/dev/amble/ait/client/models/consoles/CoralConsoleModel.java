@@ -2428,9 +2428,6 @@ public class CoralConsoleModel extends ConsoleModel {
 
         ModelPart controls = this.console.getChild("controls");
 
-        this.console.getChild("rotor").getChild("top7").visible = !console.getVariant()
-                .equals(ConsoleVariantRegistry.CORAL_WHITE);
-
         // Fuel Gauge
         controls.getChild("ctrl_1").getChild("bone13").getChild("compass")
                 .getChild("needle").pitch = -(float) (((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 2) - 1);

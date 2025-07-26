@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.UUID;
 
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -19,6 +20,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
+import net.minecraft.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.DoorBlock;

@@ -12,9 +12,9 @@ import dev.amble.ait.data.schema.console.variant.steam.SteamCherryVariant;
 
 public class ClientSteamCherryVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/steam_console_cherry.png"));
+            ("textures/blockentities/consoles/steam/steam_console_cherry.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/steam_console_cherry_emission.png"));
+            ("textures/blockentities/consoles/steam/steam_console_cherry_emission.png"));
 
     public ClientSteamCherryVariant() {
         super(SteamCherryVariant.REFERENCE, SteamCherryVariant.REFERENCE);

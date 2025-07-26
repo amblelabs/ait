@@ -12,9 +12,9 @@ import dev.amble.ait.data.schema.console.variant.steam.SteamSteelVariant;
 
 public class ClientSteamSteelVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/steam_console_steel.png"));
+            ("textures/blockentities/consoles/steam/steam_console_steel.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/steam_console_steel_emission.png"));
+            ("textures/blockentities/consoles/steam/steam_console_steel_emission.png"));
 
     public ClientSteamSteelVariant() {
         super(SteamSteelVariant.REFERENCE, SteamSteelVariant.REFERENCE);

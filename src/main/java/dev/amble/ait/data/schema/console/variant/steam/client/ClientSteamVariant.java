@@ -12,9 +12,9 @@ import dev.amble.ait.data.schema.console.variant.steam.SteamVariant;
 
 public class ClientSteamVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/steam_console.png"));
+            ("textures/blockentities/consoles/steam/steam_console.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/steam_console_emission.png"));
+            ("textures/blockentities/consoles/steam/steam_console_emission.png"));
 
     public ClientSteamVariant() {
         super(SteamVariant.REFERENCE, SteamVariant.REFERENCE);

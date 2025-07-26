@@ -32,6 +32,7 @@ public class DatapackConsole extends ConsoleVariantSchema {
 
     protected final Identifier texture;
     protected final Identifier emission;
+    protected final Identifier tint;
     protected final Identifier id;
     protected final List<Float> sonicRotation;
     protected final Vector3f sonicTranslation;
@@ -44,6 +45,7 @@ public class DatapackConsole extends ConsoleVariantSchema {
                     Identifier.CODEC.fieldOf("parent").forGetter(ConsoleVariantSchema::parentId),
                     Identifier.CODEC.fieldOf("texture").forGetter(DatapackConsole::texture),
                     Identifier.CODEC.optionalFieldOf("emission", EMPTY).forGetter(DatapackConsole::emission),
+                    Identifier.CODEC.optionalFieldOf("tint", EMPTY).forGetter(DatapackConsole::tint),
                     Codec.list(Codec.FLOAT).optionalFieldOf("sonic_rotation", List.of())
                             .forGetter(DatapackConsole::sonicRotation),
                     MoreCodec.VECTOR3F.optionalFieldOf("sonic_translation", new Vector3f()).forGetter(DatapackConsole::sonicTranslation),
@@ -57,6 +59,7 @@ public class DatapackConsole extends ConsoleVariantSchema {
                            Identifier category,
                            Identifier texture,
                            Identifier emission,
+                           Identifier tint,
                            List<Float> sonicRot,
                            Vector3f sonicTranslation,
                            List<Float> handlesRot,
@@ -66,6 +69,7 @@ public class DatapackConsole extends ConsoleVariantSchema {
         this.id = id;
         this.texture = texture;
         this.emission = emission;
+        this.tint = tint;
         this.initiallyDatapack = isDatapack;
         this.sonicRotation = sonicRot;
         this.sonicTranslation = sonicTranslation;
@@ -83,6 +87,10 @@ public class DatapackConsole extends ConsoleVariantSchema {
 
     public Identifier emission() {
         return this.emission;
+    }
+
+    public Identifier tint() {
+        return this.tint;
     }
 
     public Identifier id() {

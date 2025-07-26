@@ -12,9 +12,9 @@ import dev.amble.ait.data.schema.console.variant.steam.SteamPlaypalVariant;
 
 public class ClientSteamPlaypalVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/steam_playpal.png"));
+            ("textures/blockentities/consoles/steam/steam_playpal.png"));
     public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/steam_playpal_emission.png"));
+            ("textures/blockentities/consoles/steam/steam_playpal_emission.png"));
 
     public ClientSteamPlaypalVariant() {
         super(SteamPlaypalVariant.REFERENCE, SteamPlaypalVariant.REFERENCE);
