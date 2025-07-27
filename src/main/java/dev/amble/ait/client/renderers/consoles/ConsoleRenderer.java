@@ -154,7 +154,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
                         entity, tardis, model.getPart(),
                         matrices,
                         vertexConsumers.getBuffer(
-                                AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)
+                                AITRenderLayers.tardisEmissiveCullZOffset(variant.tint(), true)
                         ),
                         0xF000F0, overlay,
                         red, blue, green, 1.0f
