@@ -3,6 +3,8 @@ package dev.amble.ait.core.blockentities;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.item.DyeItem;
+import net.minecraft.item.Items;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -41,6 +43,8 @@ import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 
+import static dev.amble.ait.core.util.ColorUtil.blendColorsSoft;
+
 public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements BlockEntityTicker<ConsoleBlockEntity> {
 
     public final List<ConsoleControlEntity> controlEntities = new ArrayList<>();
@@ -51,7 +55,7 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
     private ConsoleTypeSchema type;
     private ConsoleVariantSchema variant;
 
-    private int color = 0x00FF00;
+    private int color = 0xFFFFFF;
     public int age;
 
     public ConsoleBlockEntity(BlockPos pos, BlockState state) {
@@ -146,6 +150,24 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
             return;
 
         ItemStack itemStack = player.getMainHandStack();
+
+        if (itemStack.getItem() instanceof DyeItem dye) {
+            int dyeColor = dye.getColor().getFireworkColor();
+            int currentColor = this.getColor();
+
+            int blended = blendColorsSoft(currentColor, dyeColor);
+            this.setColor(blended);
+
+            if (!player.isCreative()) itemStack.decrement(1);
+
+            return;
+        }
+
+        if (itemStack.isOf(Items.SHEARS)) {
+            this.setColor(0xFFFFFF);
+            return;
+        }
+
         if (itemStack.getItem() == AITBlocks.ZEITON_CLUSTER.asItem()) {
             this.tardis().get().addFuel(15);
 
@@ -165,6 +187,7 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
             nbt.putDouble(ChargedZeitonCrystalItem.FUEL_KEY, 0);
         }
     }
+
 
     @Override
     public void markRemoved() {

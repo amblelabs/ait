@@ -157,7 +157,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
                                 AITRenderLayers.tardisEmissiveCullZOffset(variant.tint(), true)
                         ),
                         0xF000F0, overlay,
-                        red, blue, green, 1.0f
+                        red, blue, green, 0.8f
                 );
             }
 
