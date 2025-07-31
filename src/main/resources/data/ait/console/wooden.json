@@ -1,0 +1,24 @@
+{
+  "id": "ait:wooden",
+  "type": {
+    "id": "ait:wooden",
+    "name": "Wooden",
+    "controls": [
+      {
+        "id": "ait:throttle",
+        "width": 0.125,
+        "height": 0.01,
+        "offset": [-0.37109375, 0.4999998565763235, 0.9755859375]
+      }
+    ]
+  },
+  "texture": "ait:textures/blockentities/consoles/wooden.png",
+  "model": "ait:wooden",
+  "offset": [0.5, 0.5, -0.5],
+  "animations": {
+    "landed": "wooden:idle",
+    "demat": "wooden:flight",
+    "flight": "wooden:flight",
+    "mat": "wooden:flight"
+  }
+}

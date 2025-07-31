@@ -18,6 +18,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.entity.animation.Keyframe;
+import net.minecraft.entity.AnimationState;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
@@ -73,6 +74,20 @@ public class BedrockAnimation {
 				AITMod.LOGGER.error("Failed apply animation to {} in model. Skipping animation application for this bone.", boneName, e);
 			}
 		});
+	}
+
+	@Environment(EnvType.CLIENT)
+	public void apply(ModelPart root, AnimationState state, float progress, float speedMultiplier) {
+		state.update(progress, speedMultiplier);
+
+		float ticks;
+		if (this.shouldLoop) {
+			ticks = (float) ((state.getTimeRunning() / 1000F) % (this.animationLength)) * 20;
+		} else {
+			ticks = state.getTimeRunning();
+		}
+
+		state.run(s -> apply(root, (int) ticks, 0));
 	}
 
 	public static class Group {

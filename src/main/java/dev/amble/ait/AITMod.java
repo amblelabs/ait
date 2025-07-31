@@ -139,7 +139,6 @@ public class AITMod implements ModInitializer {
         AsyncLocatorUtil.init();
         MultiDim.init();
 
-        ConsoleRegistry.init();
         CreakRegistry.init();
         SequenceRegistry.init();
         MoodEventPoolRegistry.init();
@@ -148,6 +147,7 @@ public class AITMod implements ModInitializer {
         RiftChunkManager.init();
 
         AmbleRegistries.getInstance().registerAll(
+                ConsoleRegistry.getInstance(),
                 SonicRegistry.getInstance(),
                 DesktopRegistry.getInstance(),
                 ConsoleVariantRegistry.getInstance(),

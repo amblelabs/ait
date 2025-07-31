@@ -1,7 +1,9 @@
 package dev.amble.ait.registry.impl.console;
 
+import dev.amble.lib.register.datapack.DatapackRegistry;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;
@@ -9,15 +11,28 @@ import net.minecraft.registry.SimpleRegistry;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.type.*;
+import net.minecraft.server.network.ServerPlayerEntity;
 
-public class ConsoleRegistry {
+public class ConsoleRegistry extends DatapackRegistry<ConsoleTypeSchema> {
+    private static final ConsoleRegistry INSTANCE = new ConsoleRegistry();
 
-    public static final SimpleRegistry<ConsoleTypeSchema> REGISTRY = FabricRegistryBuilder
-            .createSimple(RegistryKey.<ConsoleTypeSchema>ofRegistry(AITMod.id("console")))
-            .buildAndRegister();
+    public static ConsoleRegistry getInstance() {
+        return INSTANCE;
+    }
 
-    public static ConsoleTypeSchema register(ConsoleTypeSchema schema) {
-        return Registry.register(REGISTRY, schema.id(), schema);
+    @Override
+    public ConsoleTypeSchema fallback() {
+        return HARTNELL;
+    }
+
+    @Override
+    public void syncToClient(ServerPlayerEntity player) {
+
+    }
+
+    @Override
+    public void readFromServer(PacketByteBuf buf) {
+
     }
 
     public static ConsoleTypeSchema CORAL;
@@ -31,7 +46,8 @@ public class ConsoleRegistry {
     public static ConsoleTypeSchema RENAISSANCE;
     public static ConsoleTypeSchema HOURGLASS;
 
-    public static void init() {
+    @Override
+    public void onCommonInit() {
         HARTNELL = register(new HartnellType());
         CORAL = register(new CoralType());
         COPPER = register(new CopperType());
@@ -41,6 +57,5 @@ public class ConsoleRegistry {
         HUDOLIN = register(new HudolinType());
         CRYSTALLINE = register(new CrystallineType());
         RENAISSANCE = register(new RenaissanceType());
-        //HOURGLASS = register(new HourglassType());
     }
 }

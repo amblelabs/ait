@@ -226,7 +226,7 @@ public class AITModClient implements ClientModInitializer {
                         return;
 
                     String id = buf.readString();
-                    ConsoleTypeSchema type = ConsoleRegistry.REGISTRY.get(Identifier.tryParse(id));
+                    ConsoleTypeSchema type = ConsoleRegistry.getInstance().get(Identifier.tryParse(id));
                     BlockPos consolePos = buf.readBlockPos();
 
                     if (client.world.getBlockEntity(consolePos) instanceof ConsoleGeneratorBlockEntity console)

@@ -14,7 +14,7 @@ import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
 import dev.amble.ait.core.tardis.handler.CloakHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
-public class HudolinConsoleModel extends ConsoleModel {
+public class HudolinConsoleModel extends SimpleConsoleModel {
     public final ModelPart console;
     public final ModelPart pannel4;
     public final ModelPart fix;

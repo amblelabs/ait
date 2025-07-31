@@ -20,7 +20,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 // Made with Blockbench 4.9.2
 // Exported for Minecraft version 1.17+ for Yarn
 // Paste this class into your mod and generate all required imports
-public class HartnellConsoleModel extends ConsoleModel {
+public class HartnellConsoleModel extends SimpleConsoleModel {
 
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
             "textures/blockentities/consoles/hartnell_console.png");

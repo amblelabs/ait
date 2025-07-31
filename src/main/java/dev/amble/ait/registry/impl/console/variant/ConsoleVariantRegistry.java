@@ -2,11 +2,14 @@ package dev.amble.ait.registry.impl.console.variant;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import dev.amble.lib.register.unlockable.UnlockableRegistry;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
+import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3f;
 
 import net.minecraft.network.PacketByteBuf;
@@ -65,9 +68,8 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
                 continue;
             }
 
-            buf.encodeAsJson(DatapackConsole.CODEC, new DatapackConsole(schema.id(), schema.parent().id(),
-                    DatapackExterior.DEFAULT_TEXTURE, DatapackExterior.DEFAULT_TEXTURE, List.of(), new Vector3f(), List.of(), new Vector3f(),
-                    false));
+            buf.encodeAsJson(DatapackConsole.CODEC, new DatapackConsole(schema.id(), Optional.of(schema.parent().id()),
+                    DatapackExterior.DEFAULT_TEXTURE, DatapackExterior.DEFAULT_TEXTURE, List.of(), new Vector3f(), List.of(), new Vector3f(), Optional.empty(), Vec3d.ZERO, Vec3d.ZERO, null, Optional.empty(), false));
         }
 
         ServerPlayNetworking.send(player, this.packet, buf);

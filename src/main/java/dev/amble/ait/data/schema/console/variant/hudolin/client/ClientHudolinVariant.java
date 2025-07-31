@@ -6,7 +6,7 @@ import org.joml.Vector3f;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.consoles.ConsoleModel;
+import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
 import dev.amble.ait.client.models.consoles.HudolinConsoleModel;
 import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
 import dev.amble.ait.data.schema.console.variant.hudolin.HudolinVariant;
@@ -32,7 +32,7 @@ public class ClientHudolinVariant extends ClientConsoleVariantSchema {
     }
 
     @Override
-    public ConsoleModel model() {
+    public SimpleConsoleModel model() {
         return new HudolinConsoleModel(HudolinConsoleModel.getTexturedModelData().createModel());
     }
 

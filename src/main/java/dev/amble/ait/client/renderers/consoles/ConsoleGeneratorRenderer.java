@@ -1,5 +1,6 @@
 package dev.amble.ait.client.renderers.consoles;
 
+import dev.amble.ait.client.models.consoles.ConsoleModel;
 import org.joml.Matrix4f;
 
 import net.minecraft.client.MinecraftClient;
@@ -18,7 +19,7 @@ import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.consoles.ConsoleGeneratorModel;
-import dev.amble.ait.client.models.consoles.ConsoleModel;
+import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
