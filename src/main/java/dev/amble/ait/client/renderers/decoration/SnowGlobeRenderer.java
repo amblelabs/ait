@@ -1,5 +1,6 @@
 package dev.amble.ait.client.renderers.decoration;
 
+import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -38,9 +39,12 @@ public class SnowGlobeRenderer<T extends SnowGlobeBlockEntity> implements BlockE
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(225f));
         matrices.scale(0.055f, 0.055f, 0.055f);
         ClientExteriorVariantSchema schema = ClientExteriorVariantRegistry.BOX_DEFAULT;
-        schema.model().render(matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(schema.texture())), light, overlay, 1, 1, 1, 1);
-        schema.model().render(matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(schema.emission(), true)), 0xf000f0, overlay, 1, 1, 1, 1);
-        schema.model().render(matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityCutoutNoCullZOffset(schema.overrides().get(BiomeHandler.BiomeType.SNOWY), false)), light, overlay, 1, 1, 1, 1);
+        SimpleExteriorModel model = (SimpleExteriorModel) schema.model(); // Please ensure that whatever the variant you change it to is a SimpleExteriorModel
+
+        model.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(schema.texture())), light, overlay, 1, 1, 1, 1);
+        model.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(schema.emission(), true)), 0xf000f0, overlay, 1, 1, 1, 1);
+        model.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityCutoutNoCullZOffset(schema.overrides().get(BiomeHandler.BiomeType.SNOWY), false)), light, overlay, 1, 1, 1, 1);
+
         matrices.pop();
         matrices.pop();
     }

@@ -5,7 +5,7 @@ import org.joml.Vector3f;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.client.models.exteriors.GeometricExteriorModel;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
@@ -32,7 +32,7 @@ public abstract class ClientGeometricVariant extends ClientExteriorVariantSchema
     }
 
     @Override
-    public ExteriorModel model() {
+    public SimpleExteriorModel model() {
         return new GeometricExteriorModel(GeometricExteriorModel.getTexturedModelData().createModel());
     }
 

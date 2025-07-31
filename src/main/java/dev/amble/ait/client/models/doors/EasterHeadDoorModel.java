@@ -3,12 +3,10 @@ package dev.amble.ait.client.models.doors;
 
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.core.tardis.handler.DoorHandler;
 
 public class EasterHeadDoorModel extends DoorModel {
     private final ModelPart bottom;
@@ -40,13 +38,13 @@ public class EasterHeadDoorModel extends DoorModel {
 
     @Override
     public void renderWithAnimations(ClientTardis tardis, AbstractLinkableBlockEntity linkableBlockEntity, ModelPart root, MatrixStack matrices,
-                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
+                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, float tickDelta) {
         matrices.push();
         matrices.translate(0, -1.5f, 0);
 
         this.bottom.pivotY = tardis.door().isOpen() ? 22 : 54;
 
-        super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);
 
         matrices.pop();
     }
@@ -56,8 +54,4 @@ public class EasterHeadDoorModel extends DoorModel {
         return bottom;
     }
 
-    @Override
-    public Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state) {
-        return Animation.Builder.create(0).build();
-    }
 }

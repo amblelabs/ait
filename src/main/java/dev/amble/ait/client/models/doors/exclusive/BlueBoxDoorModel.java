@@ -2,7 +2,6 @@ package dev.amble.ait.client.models.doors.exclusive;
 
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
 
@@ -102,7 +101,7 @@ public class BlueBoxDoorModel extends DoorModel {
 
     @Override
     public void renderWithAnimations(ClientTardis tardis, AbstractLinkableBlockEntity doorEntity, ModelPart root, MatrixStack matrices,
-                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
+                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, float tickDelta) {
         if (!AITModClient.CONFIG.animateDoors) {
             DoorHandler door = tardis.door();
 
@@ -121,16 +120,11 @@ public class BlueBoxDoorModel extends DoorModel {
         matrices.translate(0, -1.5, 0.1);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180));
 
-        super.renderWithAnimations(tardis, doorEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(tardis, doorEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);
         matrices.pop();
     }
 
-    @Override
-    public Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state) {
-        return Animation.Builder.create(0).build();
-    }
-
-    @Override
+	@Override
     public ModelPart getPart() {
         return box;
     }

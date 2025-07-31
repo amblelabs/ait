@@ -1,26 +1,33 @@
 package dev.amble.ait.registry.impl.door;
 
 
-import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.client.models.AnimatedModel;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.tardis.animation.v2.bedrock.*;
+import dev.amble.ait.core.tardis.handler.DoorHandler;
+import dev.amble.ait.data.schema.door.AnimatedDoor;
+import dev.amble.ait.data.schema.door.DatapackDoor;
+import dev.amble.lib.register.datapack.DatapackRegistry;
 
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.SimpleRegistry;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.network.PacketByteBuf;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.data.schema.door.ClientDoorSchema;
 import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.door.impl.*;
 import dev.amble.ait.data.schema.door.impl.exclusive.ClientBlueBoxDoorVariant;
 import dev.amble.ait.data.schema.door.impl.exclusive.ClientDoomDoorVariant;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.Vec3d;
 
-public class ClientDoorRegistry {
-    public static final SimpleRegistry<ClientDoorSchema> REGISTRY = FabricRegistryBuilder
-            .createSimple(RegistryKey.<ClientDoorSchema>ofRegistry(AITMod.id("client_door")))
-            .buildAndRegister();
+public class ClientDoorRegistry extends DatapackRegistry<ClientDoorSchema> {
+    private static final ClientDoorRegistry INSTANCE = new ClientDoorRegistry();
 
-    public static ClientDoorSchema register(ClientDoorSchema schema) {
-        return Registry.register(REGISTRY, schema.id(), schema);
+    public static ClientDoorRegistry getInstance() {
+        return INSTANCE;
     }
 
     /**
@@ -30,8 +37,11 @@ public class ClientDoorRegistry {
      * @return the first variant found as there should only be one client version
      */
     public static ClientDoorSchema withParent(DoorSchema parent) {
-        for (ClientDoorSchema schema : REGISTRY) {
-            if (schema.parent().equals(parent))
+        for (ClientDoorSchema schema : ClientDoorRegistry.getInstance().toList()) {
+            if (schema.parent() == null)
+                continue;
+
+            if (schema.parent().id().equals(parent.id()))
                 return schema;
         }
 
@@ -61,7 +71,8 @@ public class ClientDoorRegistry {
     public static ClientDoorSchema DOOM;
     public static ClientDoorSchema BLUE_BOX;
 
-    public static void init() {
+    @Override
+    public void onClientInit() {
         TARDIM = register(new ClientTardimDoorVariant());
         CLASSIC = register(new ClientClassicDoorVariant());
         CLASSIC_HUDOLIN = register(new ClientClassicHudolinDoorVariant());
@@ -84,5 +95,90 @@ public class ClientDoorRegistry {
 
         DOOM = register(new ClientDoomDoorVariant());
         BLUE_BOX = register(new ClientBlueBoxDoorVariant());
+    }
+
+    @Override
+    public ClientDoorSchema fallback() {
+        return CAPSULE;
+    }
+
+    @Override
+    public void syncToClient(ServerPlayerEntity player) {
+        // do not call
+    }
+
+    @Override
+    public void readFromServer(PacketByteBuf buf) {
+        int size = buf.readInt();
+
+        for (int i = 0; i < size; i++) {
+            this.register(convertDatapack(buf.decodeAsJson(DatapackDoor.CODEC)));
+        }
+    }
+
+    public static ClientDoorSchema convertDatapack(DatapackDoor variant) {
+        if (!variant.wasDatapack())
+            return convertNonDatapack(variant);
+
+        return new ClientDoorSchema(variant.id()) {
+            @Override
+            public AnimatedModel model() {
+                BedrockModel model = BedrockModelRegistry.getInstance().get(variant.getModelId());
+                ModelPart root = model.create().createModel();
+
+                return new AnimatedModel() {
+                    @Override
+                    public void renderWithAnimations(ClientTardis tardis, AbstractLinkableBlockEntity be, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, float tickDelta) {
+                        matrices.push();
+
+                        DoorHandler doors = tardis.door();
+                        DoorSchema schema = tardis.getExterior().getVariant().door();
+
+                        if (schema instanceof AnimatedDoor animDoor) {
+                            Vec3d offset = animDoor.getOffset().multiply(-1);
+                            matrices.translate(offset.x, offset.y, offset.z);
+
+                            Vec3d scale = animDoor.getScale();
+                            matrices.scale((float) scale.x, (float) scale.y, (float) scale.z);
+
+                            float leftProgress = doors.getLeftRot();
+                            float rightProgress = doors.getRightRot();
+
+                            float leftDelta;
+                            if (leftProgress == 1 || leftProgress == 0) {
+                                leftDelta = 0;
+                            } else {
+                                leftDelta = tickDelta;
+                            }
+
+                            float rightDelta;
+                            if (rightProgress == 1 || rightProgress == 0) {
+                                rightDelta = 0;
+                            } else {
+                                rightDelta = tickDelta;
+                            }
+
+                            animDoor.getLeftAnimation().flatMap(BedrockAnimationRegistry.Reference::get).ifPresent(anim -> anim.apply(root, (int) (leftProgress * anim.animationLength * 20), leftDelta));
+                            animDoor.getRightAnimation().flatMap(BedrockAnimationRegistry.Reference::get).ifPresent(anim -> anim.apply(root, (int) (rightProgress * anim.animationLength * 20), rightDelta));
+                        }
+                        root.render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
+
+                        matrices.pop();
+                    }
+
+                    @Override
+                    public ModelPart getPart() {
+                        return root;
+                    }
+                };
+            }
+        };
+    }
+
+    private static ClientDoorSchema convertNonDatapack(DatapackDoor variant) {
+        if (variant.wasDatapack())
+            return convertDatapack(variant);
+
+        return getInstance().get(variant.id());
     }
 }

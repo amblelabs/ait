@@ -2,6 +2,7 @@ package dev.amble.ait.data.schema.exterior.variant.addon;
 
 import java.util.function.BiFunction;
 
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.apache.commons.lang3.NotImplementedException;
@@ -16,7 +17,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.client.models.doors.DoorModel;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.client.screens.interior.InteriorSettingsScreen;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
@@ -42,7 +43,7 @@ import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
  * setting door model - <code>MyMod.MY_EXTERIOR.toDoor().setModel(new MyDoorModel()).toClient().register()</code> <br>
  * and then you place your textures in assets/my_mod/textures/blockentities/exteriors/my_exterior/my_exterior.png and assets/my_mod/textures/blockentities/exteriors/my_exterior/my_exterior_emission.png
  *
- * @see ExteriorModel
+ * @see SimpleExteriorModel
  * @see DoorModel
  */
 public class AddonExterior extends ExteriorVariantSchema {
@@ -136,7 +137,7 @@ public class AddonExterior extends ExteriorVariantSchema {
     }
 
     @Environment(EnvType.CLIENT)
-    public AddonExterior setModel(ExteriorModel model) {
+    public AddonExterior setModel(SimpleExteriorModel model) {
         this.client = new ClientExterior(this, model);
 
         return this;
@@ -362,7 +363,7 @@ public class AddonExterior extends ExteriorVariantSchema {
         }
 
         public Door register() {
-            DoorRegistry.register(this);
+            DoorRegistry.getInstance().register(this);
 
             return this;
         }
@@ -405,7 +406,7 @@ public class AddonExterior extends ExteriorVariantSchema {
         }
 
         public ClientDoor register() {
-            ClientDoorRegistry.register(this);
+            ClientDoorRegistry.getInstance().register(this);
 
             return this;
         }

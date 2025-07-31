@@ -6,7 +6,7 @@ import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.exteriors.CapsuleExteriorModel;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 
@@ -21,7 +21,7 @@ public class ClientAdaptiveVariant extends ClientExteriorVariantSchema {
     }
 
     @Override
-    public ExteriorModel model() {
+    public SimpleExteriorModel model() {
         return new CapsuleExteriorModel(CapsuleExteriorModel.getTexturedModelData().createModel());
     }
 

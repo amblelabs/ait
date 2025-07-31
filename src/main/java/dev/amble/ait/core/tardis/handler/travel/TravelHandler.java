@@ -131,7 +131,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
     @Override
     public boolean shouldTickAnimation() {
-        return !this.waiting && this.getState().animated();
+        return true/* !this.waiting && this.getState().animated()*/;
     }
 
     @Override

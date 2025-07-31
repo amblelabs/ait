@@ -3,7 +3,6 @@ package dev.amble.ait.client.models.doors;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
 
@@ -88,24 +87,14 @@ public class CapsuleDoorModel extends DoorModel {
         body.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
-    @Override
-    public Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state) {
-        return Animation.Builder.create(0).build();/*return switch (state) {
-            case CLOSED -> DoorAnimations.INTERIOR_BOTH_CLOSE_ANIMATION;
-            case FIRST -> DoorAnimations.INTERIOR_FIRST_OPEN_ANIMATION;
-            case SECOND -> DoorAnimations.INTERIOR_SECOND_OPEN_ANIMATION;
-            case BOTH -> DoorAnimations.INTERIOR_BOTH_OPEN_ANIMATION;
-        };*/
-    }
-
-    @Override
+	@Override
     public ModelPart getPart() {
         return body;
     }
 
     @Override
     public void renderWithAnimations(ClientTardis tardis, AbstractLinkableBlockEntity linkableBlockEntity, ModelPart root, MatrixStack matrices,
-                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
+                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, float tickDelta) {
         matrices.push();
 
         matrices.translate(0, -1.5f, 0);
@@ -127,7 +116,7 @@ public class CapsuleDoorModel extends DoorModel {
         if (AITModClient.CONFIG.enableTardisBOTI)
             this.getPart().getChild("middle").getChild("back").visible = false;
 
-        super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);
 
         matrices.pop();
     }

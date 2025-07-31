@@ -21,7 +21,7 @@ public abstract class PlinthVariant extends ExteriorVariantSchema {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(PlinthDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(PlinthDoorVariant.REFERENCE);
     }
 
     @Override

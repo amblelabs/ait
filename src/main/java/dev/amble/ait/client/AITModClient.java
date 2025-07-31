@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.UUID;
 
+import dev.amble.ait.client.models.AnimatedModel;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.core.tardis.animation.v2.bedrock.BedrockAnimationRegistry;
+import dev.amble.ait.core.tardis.animation.v2.bedrock.BedrockModelRegistry;
 import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -50,7 +54,6 @@ import dev.amble.ait.client.models.decoration.PaintingFrameModel;
 import dev.amble.ait.client.models.decoration.RiftModel;
 import dev.amble.ait.client.models.decoration.TrenzalorePaintingModel;
 import dev.amble.ait.client.models.doors.DoorModel;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.overlays.ExteriorAxeOverlay;
 import dev.amble.ait.client.overlays.FabricatorOverlay;
 import dev.amble.ait.client.overlays.RWFOverlay;
@@ -116,10 +119,13 @@ public class AITModClient implements ClientModInitializer {
                 SonicRegistry.getInstance(),
                 DrinkRegistry.getInstance(),
                 ClientExteriorVariantRegistry.getInstance(),
-                ClientConsoleVariantRegistry.getInstance()
+                ClientConsoleVariantRegistry.getInstance(),
+                BedrockModelRegistry.getInstance(),
+                ClientDoorRegistry.getInstance()
         );
 
-        ClientDoorRegistry.init();
+        BedrockAnimationRegistry.getInstance();
+
         ClientTardisManager.init();
 
         ModuleRegistry.instance().onClientInit();
@@ -495,7 +501,7 @@ public class AITModClient implements ClientModInitializer {
             ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
             if (tardis == null || tardis.getDesktop() == null) return;
             ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
-            DoorModel model = variant.getDoor().model();
+            AnimatedModel model = variant.getDoor().model();
             for (DoorBlockEntity door : BOTI.DOOR_RENDER_QUEUE) {
                 if (door == null) continue;
                 BlockPos pos = door.getPos();
@@ -509,7 +515,7 @@ public class AITModClient implements ClientModInitializer {
                     light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
                     TardisDoorBOTI.renderInteriorDoorBoti(tardis, door, variant, stack,
                             AITMod.id("textures/environment/tardis_sky.png"), model,
-                            BotiPortalModel.getTexturedModelData().createModel(), light);
+                            BotiPortalModel.getTexturedModelData().createModel(), light, context.tickDelta());
                 }
                 stack.pop();
             }

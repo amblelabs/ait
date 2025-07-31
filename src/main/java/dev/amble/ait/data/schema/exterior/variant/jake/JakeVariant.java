@@ -20,7 +20,7 @@ public abstract class JakeVariant extends ExteriorVariantSchema {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(JakeDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(JakeDoorVariant.REFERENCE);
     }
 
     @Override

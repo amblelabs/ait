@@ -2,8 +2,10 @@ package dev.amble.ait.registry.impl.exterior;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
+import dev.amble.ait.core.util.PortalOffsets;
 import dev.amble.lib.register.datapack.DatapackRegistry;
 import dev.amble.lib.register.unlockable.UnlockableRegistry;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -89,7 +91,7 @@ public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantS
             buf.encodeAsJson(DatapackExterior.CODEC,
                     new DatapackExterior(schema.id(), schema.categoryId(), schema.id(),
                             DatapackExterior.DEFAULT_TEXTURE, DatapackExterior.DEFAULT_TEXTURE, schema.requirement(),
-                            BiomeOverrides.EMPTY,new Vec3d(0.5, 1, 0.5), false, false));
+                            BiomeOverrides.EMPTY,new Vec3d(0.5, 1, 0.5), false, Optional.empty(), Optional.empty(), new PortalOffsets(1, 2), Optional.empty(), Optional.empty(), Vec3d.ZERO, false));
         }
 
         ServerPlayNetworking.send(player, this.packet, buf);
