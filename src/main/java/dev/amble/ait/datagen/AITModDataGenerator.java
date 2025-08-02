@@ -1029,6 +1029,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         // Block Tooltips
         provider.addTranslation("block.ait.fabricator.tooltip.use", "(Place on top of a Smithing Table)");
+        provider.addTranslation("block.ait.roundel", "Roundel");
+        provider.addTranslation("block.ait.roundel_fabricator.tooltip.use", "(Place on top of a Loom)");
         provider.addTranslation("tooltip.ait.use_in_tardis", "(Place inside a TARDIS)");
         provider.addTranslation("block.ait.artron_collector_block.tooltip.use", "(Charges inside of Rift Chunks)");
         provider.addTranslation("tooltip.ait.power_converter", "(Convert zeiton, lava, coal and wood into Artron)");
@@ -1148,6 +1150,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.engine.system_is_weakened", "This System Is Showing Signs Of Weakness, But Is Still Functional!");
         provider.addTranslation("tardis.message.subsystem.requires_link", "LINK TO ENGINE VIA ARTRON CABLES");
         provider.addTranslation("tardis.message.engine.no_space", "Engine requires a 3x3 space to function!");
+
+        provider.addTranslation("ait.title.roundel_fabricator", "Roundel Fabricator");
 
         // Achievements
         provider.addTranslation("achievement.ait.title.root", "Adventures in Time");

@@ -141,7 +141,8 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
     }
 
     public double getFuel() {
-        return this.<FuelHandler>handler(TardisComponent.Id.FUEL).getCurrentFuel();
+        FuelHandler fuel = this.handler(TardisComponent.Id.FUEL);
+        return fuel.getCurrentFuel();
     }
 
     public void setFuelCount(double i) {
