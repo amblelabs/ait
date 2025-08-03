@@ -211,6 +211,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
             travel.crash();
 
         restorationChestContents = new ArrayList<>();
+        restorationChestContents.add(new ItemStack(AITBlocks.ENGINE_BLOCK.asItem()));
 
         for (SubSystem system : tardis.subsystems()) {
             if (!system.isReal())
