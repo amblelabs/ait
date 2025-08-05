@@ -19,6 +19,8 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
+import net.minecraft.client.network.ServerInfo;
+import net.minecraft.client.option.ServerList;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.DoorBlock;
@@ -134,6 +136,7 @@ public class AITModClient implements ClientModInitializer {
         adventItemPredicates();
         registerItemColors();
         registerParticles();
+        tryAddServer("Adventures In Time Server", "AIT-server.mcserver.us");
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             ConfigCommand.register(dispatcher);
@@ -264,6 +267,24 @@ public class AITModClient implements ClientModInitializer {
             default -> null;
         };
     }
+
+    private void tryAddServer(String name, String address) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        ServerList serverList = new ServerList(client);
+        serverList.loadFile();
+
+        for (int i = 0; i < serverList.size(); i++) {
+            ServerInfo server = serverList.get(i);
+            if (server.address.equalsIgnoreCase(address)) {
+                return;
+            }
+        }
+
+        ServerInfo newServer = new ServerInfo(name, address, false);
+        serverList.add(newServer, false);
+        serverList.saveFile();
+    }
+
 
     public void chargedZeitonCrystalPredicate() {
         ModelPredicateProviderRegistry.register(AITItems.CHARGED_ZEITON_CRYSTAL, new Identifier("fuel"),
