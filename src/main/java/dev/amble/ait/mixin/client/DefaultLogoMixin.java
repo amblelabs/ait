@@ -46,7 +46,7 @@ public class DefaultLogoMixin {
         if (isChristmas) {
             context.drawTexture(currentLogo, centerX, y - 18, 0.0f, 0.0f, 266,  74, 266, 74);
         } else {
-            context.drawTexture(currentLogo, centerX, y - 18, 0.0f, 0.0f, 266, 94, 266, 94);
+            context.drawTexture(currentLogo, centerX, y - 18, 0.0f, 0.0f, 266, 74, 266, 74);
         }
     }
 
@@ -65,7 +65,7 @@ public class DefaultLogoMixin {
             if (isChristmas) {
                 warningMessage =  "HO HO HO!: You are using an experimental branch (" + AITMod.BRANCH + "), please be cautious when testing or the grinch will smell you toes!";
             } else {
-                warningMessage =  "WARNING!: You are using an experimental version (" + AITMod.BRANCH + "), please be cautious when testing!";
+                warningMessage =  "⚠ WARNING: You are using an experimental version (" + AITMod.BRANCH + "), please be cautious when testing!";
             }
 
             screenWidth = this.client.getWindow().getScaledWidth();
@@ -73,8 +73,8 @@ public class DefaultLogoMixin {
 
 
             int x = (screenWidth - textWidth) / 2;
-            y = 10;
-            int padding = 7;
+            y = 5;
+            int padding = 4;
 
 
             context.fill(0, y - padding, screenWidth, y + this.client.textRenderer.fontHeight + padding, 0xAA000000);
