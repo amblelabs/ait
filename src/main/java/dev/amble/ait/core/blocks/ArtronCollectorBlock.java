@@ -4,6 +4,11 @@ import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 import java.util.List;
 
+import dev.amble.ait.core.world.RiftChunkManager;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,6 +74,27 @@ public class ArtronCollectorBlock extends HorizontalDirectionalBlock implements 
     }
 
     @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        super.onPlaced(world, pos, state, placer, itemStack);
+
+        if (!world.isClient && world instanceof ServerWorld serverWorld) {
+            if (RiftChunkManager.isRiftChunk(serverWorld, pos)) {
+
+                serverWorld.playSound(
+                        null,
+                        pos,
+                        SoundEvents.BLOCK_BEACON_ACTIVATE,
+                        SoundCategory.BLOCKS,
+                        1.0f,
+                        1.0f
+                );
+
+            }
+        }
+    }
+
+
+    @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
             BlockHitResult hit) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
@@ -81,6 +107,8 @@ public class ArtronCollectorBlock extends HorizontalDirectionalBlock implements 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
         super.appendTooltip(stack, world, tooltip, options);
+
+        tooltip.add(Text.translatable("block.ait.artron_collector_block.tooltip").formatted(Formatting.GRAY, Formatting.ITALIC));
 
         addShiftHiddenTooltip(stack, tooltip, tooltips -> {
             tooltip.add(Text.translatable("block.ait.artron_collector_block.tooltip.use").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));

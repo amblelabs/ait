@@ -1027,6 +1027,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITBlocks.GENERIC_SUBSYSTEM, "Generalized Subsystem Core");
 
         // Block Tooltips
+        provider.addTranslation("block.ait.artron_collector_block.tooltip", "Clashed together from random junks and bits, this item can collect Artron Units from Artron Chunks!");
+
+
         provider.addTranslation("block.ait.fabricator.tooltip.use", "(Place on top of a Smithing Table)");
         provider.addTranslation("tooltip.ait.use_in_tardis", "(Place inside a TARDIS)");
         provider.addTranslation("block.ait.artron_collector_block.tooltip.use", "(Charges inside of Rift Chunks)");

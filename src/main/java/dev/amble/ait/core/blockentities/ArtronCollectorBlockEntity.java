@@ -1,5 +1,8 @@
 package dev.amble.ait.core.blockentities;
 
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -32,6 +35,8 @@ import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
 public class ArtronCollectorBlockEntity extends BlockEntity implements BlockEntityTicker<ArtronCollectorBlockEntity>, ArtronHolder {
 
     public double artronAmount = 0;
+    public boolean maxFuelSoundPlayed = false;
+
 
     public ArtronCollectorBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.ARTRON_COLLECTOR_BLOCK_ENTITY_TYPE, pos, state);
@@ -52,8 +57,9 @@ public class ArtronCollectorBlockEntity extends BlockEntity implements BlockEnti
 
     public void useOn(World world, boolean sneaking, PlayerEntity player) {
         if (!world.isClient()) {
-            player.sendMessage(Text.literal(this.getCurrentFuel() + "/" + ArtronCollectorItem.COLLECTOR_MAX_FUEL)
-                    .formatted(Formatting.GOLD));
+            player.sendMessage(Text.literal("Stored Artron: " + Math.round(this.getCurrentFuel())
+                            + "/" + ArtronCollectorItem.COLLECTOR_MAX_FUEL)
+                    .formatted(Formatting.GOLD), true);
             ItemStack stack = player.getMainHandStack();
             if (stack.getItem() instanceof ArtronCollectorItem) {
                 double residual = ArtronCollectorItem.addFuel(stack, this.getCurrentFuel());
@@ -85,8 +91,14 @@ public class ArtronCollectorBlockEntity extends BlockEntity implements BlockEnti
     @Override
     public void setCurrentFuel(double artronAmount) {
         this.artronAmount = artronAmount;
+
+        if (this.artronAmount < getMaxFuel()) {
+            maxFuelSoundPlayed = false;
+        }
+
         this.updateListeners(this.getCachedState());
     }
+
 
     @Override
     public double getMaxFuel() {
@@ -124,6 +136,33 @@ public class ArtronCollectorBlockEntity extends BlockEntity implements BlockEnti
         if (shouldDrain(manager, chunk)) {
             manager.removeFuel(chunk, 3);
             this.addFuel(3);
+
+            Vec3d centre = pos.toCenterPos();
+
+            if (world instanceof ServerWorld serverWorld) {
+                serverWorld.spawnParticles(
+                        ParticleTypes.WAX_ON,
+                        centre.getX(), centre.getY() - 0.5, centre.getZ(),
+                        1,
+                        0.2, 0.6, 0.2,
+                        0.0
+                );
+            }
+
+            if (!maxFuelSoundPlayed && getCurrentFuel() >= getMaxFuel()) {
+                if (world instanceof ServerWorld serverWorld) {
+                    serverWorld.playSound(
+                            null,
+                            pos,
+                            SoundEvents.BLOCK_BEACON_DEACTIVATE,
+                            net.minecraft.sound.SoundCategory.BLOCKS,
+                            1.0f,
+                            1.0f
+                    );
+                }
+
+                maxFuelSoundPlayed = true;
+            }
 
             this.updateListeners(state);
         }
