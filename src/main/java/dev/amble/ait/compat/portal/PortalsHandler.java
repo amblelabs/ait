@@ -96,18 +96,18 @@ public class PortalsHandler extends KeyedTardisComponent {
 		);
 
 		DQuaternion quat = DQuaternion.rotationByDegrees(new Vec3d(0, -1, 0),
-				180 + RotationPropertyHelper.toDegrees(from.getRotation()));
+				RotationPropertyHelper.toDegrees(from.getRotation()) + (exterior ? 180 : 0));
 		DQuaternion toQuat = DQuaternion.rotationByDegrees(new Vec3d(0, -1, 0),
-				RotationPropertyHelper.toDegrees(to.getRotation()));
+				RotationPropertyHelper.toDegrees(to.getRotation()) + (exterior ? 0 : 180));
 
 		PortalAPI.setPortalOrientationQuaternion(portal, quat);
 		portal.setOtherSideOrientation(toQuat);
 
 		portal.setOriginPos(
-				new Vec3d(fromAdjusted.getX() + 0.5, fromAdjusted.getY() + 1.205f, fromAdjusted.getZ() + 0.5));
-		portal.setDestinationDimension(tardis.asServer().world().getRegistryKey());
+				new Vec3d(fromAdjusted.getX() + 0.5, fromAdjusted.getY() + 1.2, fromAdjusted.getZ() + 0.5));
+		portal.setDestinationDimension(to.getWorld().getRegistryKey());
 		portal.setDestination(
-				new Vec3d(toAdjusted.getX() + 0.5, toAdjusted.getY() + 1, toAdjusted.getZ() + 0.5));
+				new Vec3d(toAdjusted.getX() + 0.5, toAdjusted.getY() + 1.2, toAdjusted.getZ() + 0.5));
 
 		portal.renderingMergable = true;
 		portal.getWorld().spawnEntity(portal);
@@ -116,8 +116,10 @@ public class PortalsHandler extends KeyedTardisComponent {
 	}
 
 	private Vec3d adjustPosition(boolean exterior, CachedDirectedGlobalPos pos) {
+		float multiplier = exterior ? 0.1F : 0.05F;
+
 		ExteriorVariantSchema variant = this.tardis().getExterior().getVariant();
-		Vec3d vec = pos.getPos().toCenterPos().subtract(0.5, 0.5, 0.5);
+		Vec3d vec = pos.getPos().toCenterPos().subtract(0.5, 0.5, 0.5).add(Vec3d.of(pos.getVector()).multiply(-multiplier, 1, multiplier));
 
 		if (exterior) {
 			return variant.adjustPortalPos(vec, pos.getRotation());
