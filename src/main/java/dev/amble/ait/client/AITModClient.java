@@ -1,44 +1,5 @@
 package dev.amble.ait.client;
 
-import static dev.amble.ait.AITMod.*;
-import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
-import static dev.amble.ait.core.item.PersonalityMatrixItem.colorToInt;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.UUID;
-
-import dev.amble.lib.register.AmbleRegistries;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.*;
-import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.DoorBlock;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.item.ModelPredicateProviderRegistry;
-import net.minecraft.client.particle.EndRodParticle;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
-import net.minecraft.client.render.entity.model.SinglePartEntityModel;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.RotationPropertyHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.LightType;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.boti.*;
 import dev.amble.ait.client.commands.ConfigCommand;
@@ -90,6 +51,7 @@ import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.*;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
@@ -100,6 +62,43 @@ import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
+import dev.amble.lib.register.AmbleRegistries;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.*;
+import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
+import net.minecraft.block.DoorBlock;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.item.ModelPredicateProviderRegistry;
+import net.minecraft.client.particle.EndRodParticle;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.minecraft.client.render.entity.model.SinglePartEntityModel;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.RotationPropertyHelper;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.LightType;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.UUID;
+
+import static dev.amble.ait.AITMod.*;
+import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
+import static dev.amble.ait.core.item.PersonalityMatrixItem.colorToInt;
 
 @Environment(value = EnvType.CLIENT)
 public class AITModClient implements ClientModInitializer {
@@ -238,6 +237,10 @@ public class AITModClient implements ClientModInitializer {
                     if (client.world.getBlockEntity(consolePos) instanceof ConsoleGeneratorBlockEntity console)
                         console.setVariant(id);
                 });
+
+        ClientPlayNetworking.registerGlobalReceiver(AITMod.id("world_keys_sync"), (client, handler, buf, responseSender) -> {
+            WorldUtil.readWorldKeys(buf);
+        });
 
         WorldRenderEvents.END.register((context) -> SonicRendering.getInstance().renderWorld(context));
         HudRenderCallback.EVENT.register((context, delta) -> SonicRendering.getInstance().renderGui(context, delta));
@@ -455,6 +458,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void exteriorBOTI(WorldRenderContext context) {
+        if (DependencyChecker.hasPortals()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
@@ -486,6 +491,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void doorBOTI(WorldRenderContext context) {
+        if (DependencyChecker.hasPortals()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
@@ -518,6 +525,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void gallifreyanBOTI(WorldRenderContext context) {
+        if (DependencyChecker.hasPortals()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         SinglePartEntityModel contents = new GallifreyFallsModel(GallifreyFallsModel.getTexturedModelData().createModel());
         Identifier frameTex = GallifreyanPaintingEntityRenderer.GALLIFREY_FRAME_TEXTURE;
@@ -545,6 +554,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void trenzaloreBOTI(WorldRenderContext context) {
+        if (DependencyChecker.hasPortals()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         SinglePartEntityModel contents = new TrenzalorePaintingModel(TrenzalorePaintingModel.getTexturedModelData().createModel());
         Identifier frameTex = TrenzalorePaintingEntityRenderer.TRENZALORE_FRAME_TEXTURE;
@@ -572,6 +583,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void riftBOTI(WorldRenderContext context) {
+        if (DependencyChecker.hasPortals()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;

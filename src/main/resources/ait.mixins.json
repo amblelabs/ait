@@ -34,6 +34,7 @@
     "server.structure.StructureTemplateAccessor"
   ],
   "client": [
+    "client.ClientPlayNetworkHandlerMixin",
     "client.DefaultLogoMixin",
     "client.ItemRendererMixin",
     "client.MinecraftClientMixin",
