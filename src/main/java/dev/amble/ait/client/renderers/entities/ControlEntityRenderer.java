@@ -25,6 +25,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.consoles.ControlModel;
 import dev.amble.ait.client.renderers.SonicRendering;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.tardis.Tardis;
 
@@ -97,7 +98,7 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
         if (hitresult == null)
             return;
 
-        boolean sonicInConsole = isScanningSonicInConsole(tardis);
+        boolean sonicInConsole = isScanningSonicInConsole(entity);
 
         if (!sonicInConsole || !entity.isPartOfSequence())
             return;
@@ -156,12 +157,18 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
         return hitEntity.equals(entity) && SonicRendering.isScanningSonic(sonic);
     }
 
-    private static boolean isScanningSonicInConsole(Tardis tardis) {
-        if (tardis.sonic() == null) return false;
-        ItemStack sonic = tardis.sonic().getConsoleSonic();
+    private static boolean isScanningSonicInConsole(ConsoleControlEntity entity) {
+        if (entity.getConsole() == null) return false;
 
-        if (sonic == null)
+        ConsoleBlockEntity console = entity.getConsole();
+
+        if (console.getSonicScrewdriver() == null || console.getSonicScrewdriver().isEmpty()) return false;
+
+        ItemStack sonic = console.getSonicScrewdriver();
+
+        if (sonic == null) {
             return false;
+        }
 
         return SonicRendering.isScanningSonic(sonic);
     }

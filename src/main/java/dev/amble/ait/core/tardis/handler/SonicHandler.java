@@ -17,6 +17,7 @@ import dev.amble.ait.api.ArtronHolderItem;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
@@ -28,22 +29,24 @@ public class SonicHandler extends KeyedTardisComponent implements ArtronHolderIt
 
     public static final Identifier CHANGE_SONIC = AITMod.id("change_sonic");
 
-    private static final Property<ItemStack> CONSOLE_SONIC = new Property<>(Property.ITEM_STACK, "console_sonic");
     private static final Property<ItemStack> EXTERIOR_SONIC = new Property<>(Property.ITEM_STACK, "exterior_sonic");
 
-    private final Value<ItemStack> consoleSonic = CONSOLE_SONIC.create(this); // The current sonic in the console
     private final Value<ItemStack> exteriorSonic = EXTERIOR_SONIC.create(this); // The current sonic in the exterior's
                                                                                 // keyhole
     static {
         ServerPlayNetworking.registerGlobalReceiver(CHANGE_SONIC,
                 ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
                     Identifier id = buf.readIdentifier();
-                    if (!tardis.isUnlocked(SonicRegistry.getInstance().get(id))) return;
+                    BlockPos pos = buf.readBlockPos();
+                    server.execute(() -> {
+                        if (!tardis.isUnlocked(SonicRegistry.getInstance().get(id))) return;
 
-                    SonicItem.setSchema(tardis.sonic().getConsoleSonic(), id);
+                        if (!(tardis.world().getBlockEntity(pos) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
+
+                        SonicItem.setSchema(consoleBlockEntity.getSonicScrewdriver(), id);});
                 }));
         TardisEvents.DEMAT.register(tardis ->
-                !tardis.sonic().getExteriorSonic().isEmpty() ? TardisEvents.Interaction.FAIL : TardisEvents.Interaction.PASS);
+                tardis.sonic().getExteriorSonic() != null ? TardisEvents.Interaction.FAIL : TardisEvents.Interaction.PASS);
     }
 
     public SonicHandler() {
@@ -52,29 +55,16 @@ public class SonicHandler extends KeyedTardisComponent implements ArtronHolderIt
 
     @Override
     public void onLoaded() {
-        consoleSonic.of(this, CONSOLE_SONIC);
         exteriorSonic.of(this, EXTERIOR_SONIC);
-    }
-
-    public ItemStack getConsoleSonic() {
-        return this.consoleSonic.get();
     }
 
     public ItemStack getExteriorSonic() {
         return this.exteriorSonic.get();
     }
 
-    public void insertConsoleSonic(ItemStack sonic, BlockPos consolePos) {
-        insertAnySonic(this.consoleSonic, sonic,
-                stack -> spawnItem(tardis.asServer().world(), consolePos, stack));
-    }
 
     public void insertExteriorSonic(ItemStack sonic) {
         insertAnySonic(this.exteriorSonic, sonic, stack -> spawnItem(this.tardis.travel().position(), stack));
-    }
-
-    public ItemStack takeConsoleSonic() {
-        return takeAnySonic(this.consoleSonic);
     }
 
     public ItemStack takeExteriorSonic() {
@@ -116,22 +106,7 @@ public class SonicHandler extends KeyedTardisComponent implements ArtronHolderIt
         if (server.getTicks() % 10 != 0)
             return;
 
-        ItemStack consoleSonic = this.consoleSonic.get();
         ItemStack exteriorSonic = this.exteriorSonic.get();
-
-        if (consoleSonic != null) {
-            if (this.hasMaxFuel(consoleSonic))
-                return;
-
-            // Safe to get as ^ that method runs the check for us
-            ServerTardis tardis = this.tardis.asServer();
-
-            if (!tardis.fuel().hasPower())
-                return;
-
-            this.addFuel(10, consoleSonic);
-            tardis.fuel().removeFuel(10);
-        }
 
         if (exteriorSonic != null) {
             ServerTardis tardis = this.tardis.asServer();

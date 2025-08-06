@@ -1,5 +1,7 @@
 package dev.amble.ait.data.schema.console.type;
 
+import dev.amble.ait.core.tardis.control.impl.waypoint.LoadWaypointControl;
+import dev.amble.ait.core.tardis.control.impl.waypoint.SaveWaypointControl;
 import org.joml.Vector3f;
 
 import net.minecraft.entity.EntityDimensions;
@@ -12,8 +14,6 @@ import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
 import dev.amble.ait.core.tardis.control.impl.pos.XControl;
 import dev.amble.ait.core.tardis.control.impl.pos.YControl;
 import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.MarkWaypointControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
@@ -71,9 +71,9 @@ public class CoralType extends ConsoleTypeSchema {
                     new Vector3f(-1.258593762293458f, 0.24999980442225933f, 0.5769531261175871f)),
             new ControlTypes(new HADSControl(), EntityDimensions.changing(0.125f, 0.125f),
                     new Vector3f(-0.3843750134110451f, 0.5750000923871994f, -0.5351562639698386f)),
-            new ControlTypes(new MarkWaypointControl(), EntityDimensions.changing(0.07499999f, 0.074999996f),
+            new ControlTypes(new SaveWaypointControl(), EntityDimensions.changing(0.07499999f, 0.074999996f),
                     new Vector3f(0.80078125f, 0.537500761449337f, 0.07656250149011612f)),
-            new ControlTypes(new SetWaypointControl(), EntityDimensions.changing(0.07499999f, 0.074999996f),
+            new ControlTypes(new LoadWaypointControl(), EntityDimensions.changing(0.07499999f, 0.074999996f),
                     new Vector3f(0.8007812770083547f, 0.5375005733221769f, -0.02343749813735485f)),
             new ControlTypes(new ConsolePortControl(), EntityDimensions.changing(0.1375f, 0.1125f),
                     new Vector3f(0.7257812488824129f, 0.5875006653368473f, 0.2390625039115548f)),

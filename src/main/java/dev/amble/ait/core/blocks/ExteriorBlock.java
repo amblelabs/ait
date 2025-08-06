@@ -51,7 +51,6 @@ import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.ShapeUtil;
-import dev.amble.ait.data.schema.exterior.variant.adaptive.AdaptiveVariant;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
@@ -217,8 +216,6 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         if (!(blockEntity instanceof ExteriorBlockEntity exterior) || !exterior.isLinked())
             return getNormalShape(state, false);
 
-
-
         if (!exterior.isLinked())
             return getNormalShape(state, false);
 
@@ -233,7 +230,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         if (DependencyChecker.hasPortals() && !tardis.door().isOpen() && tardis.getExterior().getVariant().hasPortals())
             return getNormalShape(state, true);
 
-        if (tardis.getExterior().getVariant() instanceof AdaptiveVariant)
+        if (tardis.chameleon().isApplied())
             return VoxelShapes.empty();
 
         TravelHandler travel = tardis.travel();
@@ -347,36 +344,29 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
     public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
         Tardis tardis = this.findTardis(world, pos);
 
-        if (tardis == null || tardis.travel().getState() == TravelHandlerBase.State.LANDED)
-            this.tryFall(state, world, pos);
-    }
-
-    @Override
-    public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
-        world.scheduleBlockTick(pos, this, 2);
-    }
-
-    public void tryFall(BlockState state, ServerWorld world, BlockPos pos) {
-        if (!canFallThrough(world, pos.down()))
+        if (tardis == null)
             return;
 
-        Tardis tardis = this.findTardis(world, pos);
-
-        if (tardis == null || (tardis.travel().antigravs().get() && tardis.fuel().hasPower()))
+        if (tardis.travel().getState() != TravelHandlerBase.State.LANDED
+                || !canFallThrough(world, pos.down())) {
+            tardis.flight().shouldFall().set(false);
             return;
+        }
 
-        if (tardis.travel().getState() != TravelHandlerBase.State.LANDED)
-            return;
+        tardis.flight().shouldFall().set(true);
 
-        Planet planet = PlanetRegistry.getInstance().get(world);
-
-        if (planet != null && planet.zeroGravity())
+        if (tardis.travel().antigravs().get() && tardis.fuel().hasPower())
             return;
 
         tardis.flight().onStartFalling(world, state, pos);
 
         if (state.get(WATERLOGGED))
             state.with(WATERLOGGED, false);
+    }
+
+    @Override
+    public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
+        world.scheduleBlockTick(pos, this, 2);
     }
 
     @Override
@@ -396,6 +386,11 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
     }
 
     private static boolean canFallThrough(World world, BlockPos pos) {
+        Planet planet = PlanetRegistry.getInstance().get(world);
+
+        if (planet != null && planet.zeroGravity())
+            return false;
+
         BlockState state = world.getBlockState(pos);
 
         if (world.getBlockState(pos.down()).getBlock() == AITBlocks.EXTERIOR_BLOCK)

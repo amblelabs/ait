@@ -277,7 +277,7 @@ public class HandlesResponseRegistry {
                 }
 
                 sendChat(player, Text.literal("Setting course for waypoint."));
-                tardis.waypoint().gotoWaypoint();
+                tardis.waypoint().loadWaypoint();
                 return success(source);
             }
 

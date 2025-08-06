@@ -20,16 +20,19 @@ public class DevTeam {
     public static final UUID PAN = UUID.fromString("70c90ff6-46e7-4481-987b-53dd79595a4a");
     public static final UUID SATURN = UUID.fromString("2a3ed4e8-40e8-44a3-9ed7-dcfe88a8badf");
     public static final UUID MAGGIE = UUID.fromString("162fe408-5e3e-4a88-a04e-ab8f468484eb");
+    public static final UUID TENDO = UUID.fromString("ef5d5b56-85da-454f-8125-6bbbe0bcade7");
+    public static final UUID DIAN = UUID.fromString("7f001733-90b1-4cd7-87a1-42c97b2c3275");
+    public static final UUID RHYNO = UUID.fromString("d892f861-dd01-4047-981c-c26b5d75990b"); // im not sure about rhyno but he has the team role - monke
 
     // junior devs not sure about these ones
     public static final UUID CROW = UUID.fromString("d6ec02fa-f335-47cb-8081-80270bd5f5ab"); // crow
     public static final UUID K_KING = UUID.fromString("73df41fb-7ffb-417e-beab-f9589aaffe74"); // K_king
 
 
-    // WOW NOT EVEN ME :SOB: - Tendo
+    // WOW NOT EVEN ME :SOB: - Tendo // sorry - monke
 
     public static final Set<UUID> PLAYERS = Set.of(
-            LOQOR, DUZO, THEO, OURO, CLASSIC, KRANG, ADDIE, VENWHOVIAN, MONKE, PAN, SATURN, MAGGIE, CROW, K_KING
+            LOQOR, DUZO, THEO, OURO, CLASSIC, KRANG, ADDIE, VENWHOVIAN, MONKE, PAN, SATURN, MAGGIE, CROW, K_KING, TENDO, DIAN, RHYNO
     );
 
     public static boolean isDev(UUID uuid) {

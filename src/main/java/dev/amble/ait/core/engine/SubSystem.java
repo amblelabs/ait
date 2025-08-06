@@ -33,6 +33,7 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
     @Exclude(strategy = Exclude.Strategy.NETWORK)
     private final IdLike id;
     private boolean enabled = false;
+    private boolean isReal = false;
 
     protected SubSystem(IdLike id) {
         this.id = id;
@@ -67,6 +68,11 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
         return enabled;
     }
 
+    // TODO this is such a patch fix but this subsystem implementation is not real bro its just not real (its bad) - Loqor
+    public boolean isReal() {
+        return isReal;
+    }
+
     public boolean isUsable() {
         return this.isEnabled();
     }
@@ -82,6 +88,9 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
     }
 
     protected void onEnable() {
+        if (!this.isReal) {
+            this.isReal = true;
+        }
         TardisEvents.SUBSYSTEM_ENABLE.invoker().onEnable(this);
     }
 

@@ -183,7 +183,7 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
 
     // FIXME: this needs to be changed.
     public boolean isGrowth() {
-        return hasGrowthExterior() || hasGrowthDesktop();
+        return hasGrowthExterior();
     }
 
     public boolean hasGrowthExterior() {

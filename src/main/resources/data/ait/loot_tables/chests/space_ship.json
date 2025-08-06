@@ -16,6 +16,11 @@
         },
         {
           "type": "minecraft:item",
+          "name": "ait:chronology_music_disc",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
           "name": "minecraft:gold_nugget",
           "weight": 21
         },

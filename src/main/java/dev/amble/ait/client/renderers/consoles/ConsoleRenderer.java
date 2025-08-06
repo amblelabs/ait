@@ -113,33 +113,44 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         matrices.push();
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 
-        if (!DependencyChecker.hasIris()) {
-            model.renderWithAnimations(entity, tardis, model.getPart(),
-                    matrices, vertexConsumers.getBuffer(variant.equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(variant.texture()) :
-                            RenderLayer.getEntityTranslucentCull(variant.texture())), light, overlay,
-                    1, 1, 1, 1);
-        }
-
-        if (hasPower) {
-            profiler.swap("emission"); // emission {
-
-            if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
-                model.renderWithAnimations(entity, tardis, model.getPart(),
-                        matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xF000F0, overlay,
-                        1, 1, 1, 1);
-            }
-        }
-
         profiler.swap("animate");
         model.animateBlockEntity(entity, tardis.travel().getState(), hasPower);
 
-        profiler.swap("render");
         if (DependencyChecker.hasIris()) {
-            model.renderWithAnimations(entity, tardis, model.getPart(),
-                    matrices, vertexConsumers.getBuffer(variant.equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(variant.texture()) :
-                            RenderLayer.getEntityTranslucentCull(variant.texture())), light, overlay,
-                    1, 1, 1, 1);
+            if (hasPower) {
+                profiler.swap("emission");
+
+                matrices.push();
+                matrices.translate(0.5, -1.5f, -0.5);
+                if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
+                    model.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xF000F0, overlay,
+                            1, 1, 1, 1);
+                }
+                matrices.pop();
+            }
         }
+
+        profiler.swap("render");
+        model.renderWithAnimations(entity, tardis, model.getPart(),
+                matrices, vertexConsumers.getBuffer(variant.equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(variant.texture()) :
+                        RenderLayer.getItemEntityTranslucentCull(variant.texture())), light, overlay,
+                1, 1, 1, 1);
+
+
+        if (!DependencyChecker.hasIris()) {
+            if (hasPower) {
+                profiler.swap("emission");
+
+                matrices.push();
+                matrices.translate(0.5, -1.5f, -0.5);
+                if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
+                    model.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xF000F0, overlay,
+                            1, 1, 1, 1);
+                }
+                matrices.pop();
+            }
+        }
+
         matrices.pop();
         matrices.push();
 
@@ -155,8 +166,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
 
         profiler.swap("sonic_port"); // } emission / sonic {
 
-        ItemStack stack = tardis.sonic().getConsoleSonic() == null ?
-                tardis.butler().getHandles() : tardis.sonic().getConsoleSonic();
+        ItemStack stack = entity.getSonicScrewdriver() == null || entity.getSonicScrewdriver().isEmpty() ? tardis.butler().getHandles() : entity.getSonicScrewdriver();
 
         if (stack == null) {
             profiler.pop(); // } sonic
@@ -185,7 +195,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
             matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(variant.sonicItemRotations()[0]));
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(variant.sonicItemRotations()[1]));
             matrices.scale(0.9f, 0.9f, 0.9f);
-            MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformationMode.GROUND, lightAbove,
+            MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformationMode.GROUND, light,
                     overlay, matrices, vertexConsumers, entity.getWorld(), 0);
             matrices.pop();
         }

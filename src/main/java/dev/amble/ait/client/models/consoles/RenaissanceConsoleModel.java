@@ -671,43 +671,43 @@ public class RenaissanceConsoleModel extends ConsoleModel {
 
         ModelPartData cube_r183 = thing.addChild("cube_r183", ModelPartBuilder.create().uv(26, 74).cuboid(-0.5F, -0.5F, -1.75F, 1.0F, 1.0F, 2.0F, new Dilation(-0.25F)), ModelTransform.of(7.0F, 19.0694F, -21.1382F, 1.0472F, 0.0F, 3.1416F));
 
-        ModelPartData mark_waypoint = panelf6.addChild("mark_waypoint", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, -37.517F, 0.0F));
+        ModelPartData save_waypoint = panelf6.addChild("save_waypoint", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, -37.517F, 0.0F));
 
-        ModelPartData cube_r184 = mark_waypoint.addChild("cube_r184", ModelPartBuilder.create().uv(101, 112).cuboid(-1.25F, 1.25F, -1.1F, 2.0F, 1.0F, 0.0F, new Dilation(0.001F))
+        ModelPartData cube_r184 = save_waypoint.addChild("cube_r184", ModelPartBuilder.create().uv(101, 112).cuboid(-1.25F, 1.25F, -1.1F, 2.0F, 1.0F, 0.0F, new Dilation(0.001F))
                 .uv(100, 113).cuboid(-1.0F, 1.0F, -1.0F, 2.0F, 2.0F, 1.0F, new Dilation(0.001F))
                 .uv(107, 117).cuboid(-1.0F, -1.5F, -0.5F, 2.0F, 4.0F, 2.0F, new Dilation(0.001F)), ModelTransform.of(-3.8F, 19.1276F, -15.9462F, 0.9163F, 0.0F, 3.1416F));
 
-        ModelPartData cube_r185 = mark_waypoint.addChild("cube_r185", ModelPartBuilder.create().uv(101, 107).cuboid(-1.0F, 0.0F, 0.0F, 1.0F, 2.0F, 1.0F, new Dilation(0.001F)), ModelTransform.of(-4.3797F, 17.7701F, -10.251F, 2.9228F, -0.0435F, 3.1226F));
+        ModelPartData cube_r185 = save_waypoint.addChild("cube_r185", ModelPartBuilder.create().uv(101, 107).cuboid(-1.0F, 0.0F, 0.0F, 1.0F, 2.0F, 1.0F, new Dilation(0.001F)), ModelTransform.of(-4.3797F, 17.7701F, -10.251F, 2.9228F, -0.0435F, 3.1226F));
 
-        ModelPartData cube_r186 = mark_waypoint.addChild("cube_r186", ModelPartBuilder.create().uv(101, 110).cuboid(-1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F, new Dilation(0.0F)), ModelTransform.of(-4.4261F, 17.1978F, -11.0697F, 2.1811F, -0.0435F, 3.1226F));
+        ModelPartData cube_r186 = save_waypoint.addChild("cube_r186", ModelPartBuilder.create().uv(101, 110).cuboid(-1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F, new Dilation(0.0F)), ModelTransform.of(-4.4261F, 17.1978F, -11.0697F, 2.1811F, -0.0435F, 3.1226F));
 
-        ModelPartData cube_r187 = mark_waypoint.addChild("cube_r187", ModelPartBuilder.create().uv(101, 110).cuboid(-1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F, new Dilation(0.001F)), ModelTransform.of(-4.4711F, 17.1121F, -12.065F, 1.6575F, -0.0435F, 3.1226F));
+        ModelPartData cube_r187 = save_waypoint.addChild("cube_r187", ModelPartBuilder.create().uv(101, 110).cuboid(-1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F, new Dilation(0.001F)), ModelTransform.of(-4.4711F, 17.1121F, -12.065F, 1.6575F, -0.0435F, 3.1226F));
 
-        ModelPartData cube_r188 = mark_waypoint.addChild("cube_r188", ModelPartBuilder.create().uv(101, 110).cuboid(-0.5F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F, new Dilation(0.0F)), ModelTransform.of(-3.8872F, 17.0208F, -13.014F, 1.6577F, 0.0869F, 3.134F));
+        ModelPartData cube_r188 = save_waypoint.addChild("cube_r188", ModelPartBuilder.create().uv(101, 110).cuboid(-0.5F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F, new Dilation(0.0F)), ModelTransform.of(-3.8872F, 17.0208F, -13.014F, 1.6577F, 0.0869F, 3.134F));
 
-        ModelPartData cube_r189 = mark_waypoint.addChild("cube_r189", ModelPartBuilder.create().uv(101, 110).cuboid(-0.5F, 0.0F, -0.5F, 1.0F, 1.0F, 1.0F, new Dilation(0.001F)), ModelTransform.of(-3.8F, 17.6057F, -13.9628F, 1.4832F, 0.0869F, 3.134F));
+        ModelPartData cube_r189 = save_waypoint.addChild("cube_r189", ModelPartBuilder.create().uv(101, 110).cuboid(-0.5F, 0.0F, -0.5F, 1.0F, 1.0F, 1.0F, new Dilation(0.001F)), ModelTransform.of(-3.8F, 17.6057F, -13.9628F, 1.4832F, 0.0869F, 3.134F));
 
-        ModelPartData bone63 = mark_waypoint.addChild("bone63", ModelPartBuilder.create(), ModelTransform.pivot(-3.8F, 18.7309F, -16.2506F));
+        ModelPartData bone63 = save_waypoint.addChild("bone63", ModelPartBuilder.create(), ModelTransform.pivot(-3.8F, 18.7309F, -16.2506F));
 
         ModelPartData cube_r190 = bone63.addChild("cube_r190", ModelPartBuilder.create().uv(26, 17).cuboid(-0.5F, -0.5F, -1.0F, 1.0F, 1.0F, 1.0F, new Dilation(0.001F)), ModelTransform.of(0.0F, 0.3967F, 0.3044F, 0.9163F, 0.0F, 3.1416F));
 
-        ModelPartData set_waypoint = panelf6.addChild("set_waypoint", ModelPartBuilder.create(), ModelTransform.pivot(1.3755F, -19.6406F, -14.0295F));
+        ModelPartData load_waypoint = panelf6.addChild("load_waypoint", ModelPartBuilder.create(), ModelTransform.pivot(1.3755F, -19.6406F, -14.0295F));
 
-        ModelPartData cube_r191 = set_waypoint.addChild("cube_r191", ModelPartBuilder.create().uv(101, 112).cuboid(-1.25F, 1.25F, -1.1F, 2.0F, 1.0F, 0.0F, new Dilation(0.001F))
+        ModelPartData cube_r191 = load_waypoint.addChild("cube_r191", ModelPartBuilder.create().uv(101, 112).cuboid(-1.25F, 1.25F, -1.1F, 2.0F, 1.0F, 0.0F, new Dilation(0.001F))
                 .uv(100, 113).cuboid(-1.0F, 1.0F, -1.0F, 2.0F, 2.0F, 1.0F, new Dilation(0.001F))
                 .uv(99, 117).cuboid(-1.0F, -1.5F, -0.5F, 2.0F, 4.0F, 2.0F, new Dilation(0.001F)), ModelTransform.of(2.4245F, 1.2512F, -1.9167F, 0.9163F, 0.0F, 3.1416F));
 
-        ModelPartData cube_r192 = set_waypoint.addChild("cube_r192", ModelPartBuilder.create().uv(101, 107).cuboid(-1.0F, 0.0F, 0.0F, 1.0F, 2.0F, 1.0F, new Dilation(0.001F)), ModelTransform.of(1.8448F, -0.1063F, 3.7786F, 2.9228F, -0.0435F, 3.1226F));
+        ModelPartData cube_r192 = load_waypoint.addChild("cube_r192", ModelPartBuilder.create().uv(101, 107).cuboid(-1.0F, 0.0F, 0.0F, 1.0F, 2.0F, 1.0F, new Dilation(0.001F)), ModelTransform.of(1.8448F, -0.1063F, 3.7786F, 2.9228F, -0.0435F, 3.1226F));
 
-        ModelPartData cube_r193 = set_waypoint.addChild("cube_r193", ModelPartBuilder.create().uv(101, 110).cuboid(-1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F, new Dilation(0.0F)), ModelTransform.of(1.7983F, -0.6786F, 2.9598F, 2.1811F, -0.0435F, 3.1226F));
+        ModelPartData cube_r193 = load_waypoint.addChild("cube_r193", ModelPartBuilder.create().uv(101, 110).cuboid(-1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F, new Dilation(0.0F)), ModelTransform.of(1.7983F, -0.6786F, 2.9598F, 2.1811F, -0.0435F, 3.1226F));
 
-        ModelPartData cube_r194 = set_waypoint.addChild("cube_r194", ModelPartBuilder.create().uv(101, 110).cuboid(-1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F, new Dilation(0.001F)), ModelTransform.of(1.7534F, -0.7644F, 1.9645F, 1.6575F, -0.0435F, 3.1226F));
+        ModelPartData cube_r194 = load_waypoint.addChild("cube_r194", ModelPartBuilder.create().uv(101, 110).cuboid(-1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F, new Dilation(0.001F)), ModelTransform.of(1.7534F, -0.7644F, 1.9645F, 1.6575F, -0.0435F, 3.1226F));
 
-        ModelPartData cube_r195 = set_waypoint.addChild("cube_r195", ModelPartBuilder.create().uv(101, 110).cuboid(-0.5F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F, new Dilation(0.0F)), ModelTransform.of(2.3373F, -0.8557F, 1.0155F, 1.6577F, 0.0869F, 3.134F));
+        ModelPartData cube_r195 = load_waypoint.addChild("cube_r195", ModelPartBuilder.create().uv(101, 110).cuboid(-0.5F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F, new Dilation(0.0F)), ModelTransform.of(2.3373F, -0.8557F, 1.0155F, 1.6577F, 0.0869F, 3.134F));
 
-        ModelPartData cube_r196 = set_waypoint.addChild("cube_r196", ModelPartBuilder.create().uv(101, 110).cuboid(-0.5F, 0.0F, -0.5F, 1.0F, 1.0F, 1.0F, new Dilation(0.001F)), ModelTransform.of(2.4245F, -0.2707F, 0.0667F, 1.4832F, 0.0869F, 3.134F));
+        ModelPartData cube_r196 = load_waypoint.addChild("cube_r196", ModelPartBuilder.create().uv(101, 110).cuboid(-0.5F, 0.0F, -0.5F, 1.0F, 1.0F, 1.0F, new Dilation(0.001F)), ModelTransform.of(2.4245F, -0.2707F, 0.0667F, 1.4832F, 0.0869F, 3.134F));
 
-        ModelPartData bone62 = set_waypoint.addChild("bone62", ModelPartBuilder.create(), ModelTransform.pivot(2.4245F, 0.8545F, -2.2211F));
+        ModelPartData bone62 = load_waypoint.addChild("bone62", ModelPartBuilder.create(), ModelTransform.pivot(2.4245F, 0.8545F, -2.2211F));
 
         ModelPartData cube_r197 = bone62.addChild("cube_r197", ModelPartBuilder.create().uv(26, 17).cuboid(-0.5F, -0.5F, -1.0F, 1.0F, 1.0F, 1.0F, new Dilation(0.001F)), ModelTransform.of(0.0F, 0.3967F, 0.3044F, 0.9163F, 0.0F, 3.1416F));
 

@@ -1,7 +1,6 @@
 package dev.amble.ait.core.entities;
 
 import java.util.List;
-import java.util.Optional;
 
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
@@ -10,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import net.minecraft.block.Blocks;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
@@ -70,8 +70,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             TrackedDataHandlerRegistry.FLOAT);
     private static final TrackedData<Boolean> STICKY = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.BOOLEAN);
-
-    private BlockPos consoleBlockPos;
+    private static final TrackedData<BlockPos> CONSOLE_BLOCK_POS = DataTracker.registerData(ConsoleControlEntity.class,
+            TrackedDataHandlerRegistry.BLOCK_POS);
     private Control control;
     private static final float MAX_DURABILITY = 1.0f;
 
@@ -90,12 +90,12 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
     @Override
     public void onRemoved() {
-        if (this.consoleBlockPos == null) {
+        if (this.getConsoleBlockPos() == null) {
             super.onRemoved();
             return;
         }
 
-        if (this.getWorld().getBlockEntity(this.consoleBlockPos) instanceof ConsoleBlockEntity console)
+        if (this.getWorld().getBlockEntity(this.getConsoleBlockPos()) instanceof ConsoleBlockEntity console)
             console.markNeedsControl();
     }
 
@@ -113,14 +113,14 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         this.dataTracker.startTracking(ON_DELAY, false);
         this.dataTracker.startTracking(DURABILITY, MAX_DURABILITY);
         this.dataTracker.startTracking(STICKY, false);
+        this.dataTracker.startTracking(CONSOLE_BLOCK_POS, BlockPos.ORIGIN);
     }
 
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
 
-        if (consoleBlockPos != null)
-            nbt.put("console", NbtHelper.fromBlockPos(this.consoleBlockPos));
+        nbt.put("console", NbtHelper.fromBlockPos(this.getConsoleBlockPos()));
 
         nbt.putFloat("width", this.getControlWidth());
         nbt.putFloat("height", this.getControlHeight());
@@ -140,8 +140,9 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         NbtCompound console = nbt.getCompound("console");
 
-        if (console != null)
-            this.consoleBlockPos = NbtHelper.toBlockPos(console);
+        if (nbt.contains("console")) {
+            this.setConsolePos(NbtHelper.toBlockPos(console));
+        }
 
         if (nbt.contains("width") && nbt.contains("height")) {
             this.setControlWidth(nbt.getFloat("width"));
@@ -167,6 +168,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             this.setSticky(nbt.getBoolean("sticky"));
     }
 
+    public void setConsolePos(BlockPos consoleBlockPos) {
+        this.dataTracker.set(CONSOLE_BLOCK_POS, consoleBlockPos);
+    }
+
     @Override
     public void onDataTrackerUpdate(List<DataTracker.SerializedEntry<?>> dataEntries) {
         this.setScaleAndCalculate(this.getDataTracker().get(WIDTH), this.getDataTracker().get(HEIGHT));
@@ -189,7 +194,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         if (handStack.isOf(AITBlocks.REDSTONE_CONTROL_BLOCK.asItem()) && this.getControl() != null) {
             NbtCompound nbt = handStack.getOrCreateNbt();
             nbt.putString(ControlBlockItem.CONTROL_ID_KEY, this.getControl().id().toString());
-            this.getConsole().ifPresent(be -> nbt.putString(ControlBlockItem.CONSOLE_TYPE_ID_KEY, be.getTypeSchema().id().toString()));
+            ConsoleBlockEntity consoleBlockEntity = this.getConsole();
+            nbt.putString(ControlBlockItem.CONSOLE_TYPE_ID_KEY, consoleBlockEntity.getTypeSchema().id().toString());
             return ActionResult.SUCCESS;
         }
 
@@ -247,7 +253,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         if (this.getWorld().isClient())
             return;
 
-        if (this.control == null && this.consoleBlockPos != null)
+        if (this.control == null && this.getConsoleBlockPos() != null)
             this.discard();
 
         switch (this.getDurabilityState(this.getDurability())) {
@@ -387,7 +393,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         if (!this.isLinked()) {
             AITMod.LOGGER.warn("Discarding invalid control entity at {}; console pos: {}", this.getPos(),
-                    this.consoleBlockPos);
+                    this.getConsoleBlockPos());
 
             this.discard();
             return false;
@@ -460,7 +466,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
                     TaskStage.END_SERVER_TICK, TimeUnit.TICKS, this.control.getDelayLength());
         }
 
-        Control.Result result = this.control.handleRun(tardis, (ServerPlayerEntity) player, (ServerWorld) world, this.consoleBlockPos, leftClick);
+        Control.Result result = this.control.handleRun(tardis, (ServerPlayerEntity) player, (ServerWorld) world, this.getConsoleBlockPos(), leftClick);
 
         if (result == Control.Result.SEQUENCE) {
             // THIS IS LITERALLY A FEATURE DON'T REMOVE UNLESS I SAY SO DAMMIT - Loqor
@@ -470,10 +476,25 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             }
         }
 
-        this.getConsole().ifPresent(console -> this.getWorld().playSound(null, this.getBlockPos(), this.control.getSound(console.getTypeSchema(), result), SoundCategory.BLOCKS, 0.7f,
-                1f));
+        ConsoleBlockEntity console = this.getConsole();
+        if (console != null) {
+            this.getWorld().playSound(null, this.getBlockPos(), this.control.getSound(console.getTypeSchema(), result), SoundCategory.BLOCKS, 0.7f,
+                    1f);
+        }
 
         return result.isSuccess();
+    }
+
+    public ConsoleBlockEntity getConsole() {
+        if (this.getConsoleBlockPos() == null)
+            return null;
+
+        BlockEntity blockEntity = this.getWorld().getBlockEntity(this.getConsoleBlockPos());
+        if (blockEntity instanceof ConsoleBlockEntity console)
+            return console;
+
+        AITMod.LOGGER.warn("Control entity at {} has no console block entity at {}", this.getPos(), this.getConsoleBlockPos());
+        return null;
     }
 
     private void spark() {
@@ -496,17 +517,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.SMALL_FLAME, pos.getX(), pos.getY() + 0.2f, pos.getZ(), 1, 0, 0.075f, 0, 0);
     }
 
-    /**
-     * Get the console block entity this control is linked to
-     * @return The console block entity
-     */
-    public Optional<ConsoleBlockEntity> getConsole() {
-        if (this.consoleBlockPos == null)
-            return Optional.empty();
-
-        if (!(this.getWorld().getBlockEntity(this.consoleBlockPos) instanceof ConsoleBlockEntity be)) return Optional.empty();
-
-        return Optional.of(be);
+    public BlockPos getConsoleBlockPos() {
+        return this.dataTracker.get(CONSOLE_BLOCK_POS);
     }
 
     public void setScaleAndCalculate(float width, float height) {
@@ -516,7 +528,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     }
 
     public void setControlData(ConsoleTypeSchema consoleType, ControlTypes type, BlockPos consoleBlockPosition) {
-        this.consoleBlockPos = consoleBlockPosition;
+        this.setConsolePos(consoleBlockPosition);
         this.control = type.getControl();
 
         super.setCustomName(Text.translatable(this.control.id().toTranslationKey("control")));
@@ -549,8 +561,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
                             ? this.getDataTracker().get(HEIGHT) - increment
                             : this.getDataTracker().get(HEIGHT) + increment);
 
-        if (this.consoleBlockPos != null) {
-            Vec3d centered = this.getPos().subtract(this.consoleBlockPos.toCenterPos());
+        if (this.getConsoleBlockPos() != null) {
+            Vec3d centered = this.getPos().subtract(this.getConsoleBlockPos().toCenterPos());
             if (this.control != null)
                 player.sendMessage(Text.literal("EntityDimensions.changing(" + this.getControlWidth() + "f, "
                         + this.getControlHeight() + "f), new Vector3f(" + centered.getX() + "f, " + centered.getY()

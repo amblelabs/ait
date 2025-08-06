@@ -114,6 +114,9 @@ public abstract class LivingEntityMixin extends Entity {
         if (entity instanceof ISpaceImmune)
             return;
 
+        if (entity instanceof PlayerEntity player && player.isCreative())
+            return;
+
         if (planet.isFreezing() && !Planet.hasFullSuit(entity)) {
             if (entity.getType().isIn(EntityTypeTags.FREEZE_IMMUNE_ENTITY_TYPES))
                 return;

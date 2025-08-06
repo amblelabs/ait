@@ -3,6 +3,7 @@ package dev.amble.ait.registry.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.core.tardis.control.impl.waypoint.LoadWaypointControl;
 import dev.amble.lib.data.DirectedBlockPos;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 
@@ -32,7 +33,6 @@ import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
 import dev.amble.ait.core.tardis.control.impl.pos.XControl;
 import dev.amble.ait.core.tardis.control.impl.pos.YControl;
 import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
 import dev.amble.ait.core.tardis.control.sequences.Sequence;
 import dev.amble.ait.core.util.WorldUtil;
 
@@ -275,7 +275,7 @@ public class SequenceRegistry {
                 }), (missedTardis -> {
                     missedTardis.removeFuel(random.nextBetween(45, 125));
                 }), 110L, Text.translatable("sequence.ait.ground_unstable").formatted(Formatting.ITALIC, Formatting.YELLOW),
-                        new LandTypeControl(), new YControl(), new SetWaypointControl()));
+                        new LandTypeControl(), new YControl(), new LoadWaypointControl()));
 
         INCREMENT_SCALE_RECALCULATION_NECESSARY = register(Sequence.Builder
                 .create(AITMod.id("increment_scale_recalculation_necessary"), (finishedTardis -> {

@@ -16,10 +16,10 @@ import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Waypoint;
 
-public class MarkWaypointControl extends Control {
+public class SaveWaypointControl extends Control {
 
-    public MarkWaypointControl() {
-        super(AITMod.id("mark_waypoint"));
+    public SaveWaypointControl() {
+        super(AITMod.id("save_waypoint"));
     }
 
     @Override
@@ -35,6 +35,6 @@ public class MarkWaypointControl extends Control {
 
     @Override
     public SoundEvent getFallbackSound() {
-        return AITSounds.MARK_WAYPOINT;
+        return AITSounds.SAVE_WAYPOINT;
     }
 }

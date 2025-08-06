@@ -3,6 +3,7 @@ package dev.amble.ait.core.blockentities;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.lib.util.ServerLifecycleHooks;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -10,22 +11,30 @@ import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.entity.AnimationState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.DustColorTransitionParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.screen.GenericContainerScreenHandler;
+import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
+import dev.amble.ait.api.ArtronHolderItem;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.item.ChargedZeitonCrystalItem;
+import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisDesktop;
@@ -41,7 +50,10 @@ import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 
-public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements BlockEntityTicker<ConsoleBlockEntity> {
+public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements BlockEntityTicker<ConsoleBlockEntity>, ArtronHolderItem {
+
+    private ItemStack sonicScrewdriver = ItemStack.EMPTY;
+    private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(54, ItemStack.EMPTY);
 
     public final List<ConsoleControlEntity> controlEntities = new ArrayList<>();
     public final AnimationState ANIM_STATE = new AnimationState();
@@ -79,6 +91,20 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
 
         nbt.putString("type", this.getTypeSchema().id().toString());
         nbt.putString("variant", this.getVariant().id().toString());
+        Inventories.writeNbt(nbt, this.inventory);
+        if (this.sonicScrewdriver != null) {
+            nbt.put("sonic_screwdriver", this.sonicScrewdriver.writeNbt(new NbtCompound()));
+        }
+    }
+
+    @Override
+    protected Text getContainerName() {
+        return Text.translatable(tardis().isPresent() ? tardis().get().stats().getName() : "ait.console.inventory");
+    }
+
+    @Override
+    protected ScreenHandler createScreenHandler(int syncId, PlayerInventory playerInventory) {
+        return GenericContainerScreenHandler.createGeneric9x6(syncId, playerInventory, this);
     }
 
     @Override
@@ -88,6 +114,12 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
         this.setType(ConsoleRegistry.REGISTRY.get(Identifier.tryParse(nbt.getString("type"))));
 
         this.setVariant(ConsoleVariantRegistry.getInstance().get(Identifier.tryParse(nbt.getString("variant"))));
+
+        this.inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
+        Inventories.readNbt(nbt, this.inventory);
+        if (nbt.contains("sonic_screwdriver")) {
+            this.sonicScrewdriver = ItemStack.fromNbt(nbt.getCompound("sonic_screwdriver"));
+        }
     }
 
     @Override
@@ -304,6 +336,19 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
                     (isRiftChunk) ? 0.05f : 0.025f);
         }
 
+        if (ServerLifecycleHooks.get().getTicks() % 10 != 0)
+            return;
+
+        if (sonicScrewdriver != null) {
+            if (this.hasMaxFuel(sonicScrewdriver))
+                return;
+
+            if (!tardis.fuel().hasPower())
+                return;
+
+            this.addFuel(10, sonicScrewdriver);
+            tardis.fuel().removeFuel(10);
+        }
     }
 
     public static ConsoleTypeSchema previousConsole(ConsoleTypeSchema current) {
@@ -336,5 +381,76 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
         int size = list.size();
 
         return list.get((idx + 1) % size);
+    }
+
+    @Override
+    public int size() {
+        return this.getInventory().size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        for (ItemStack itemStack : this.getInventory()) {
+            if (itemStack.isEmpty()) continue;
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public ItemStack getStack(int slot) {
+        return this.inventory.get(slot);
+    }
+
+    public DefaultedList<ItemStack> getInventory() {
+        return this.inventory;
+    }
+
+    @Override
+    public ItemStack removeStack(int slot, int amount) {
+        return Inventories.splitStack(this.getInventory(), slot, amount);
+    }
+
+    @Override
+    public ItemStack removeStack(int slot) {
+        return this.getInventory().remove(slot);
+    }
+
+    @Override
+    public void setStack(int slot, ItemStack stack) {
+        this.getInventory().set(slot, stack);
+        if (stack.getCount() > this.getMaxCountPerStack()) {
+            stack.setCount(this.getMaxCountPerStack());
+        }
+    }
+
+    @Override
+    public boolean canTransferTo(Inventory hopperInventory, int slot, ItemStack stack) {
+        return false;
+    }
+
+    @Override
+    public boolean canPlayerUse(PlayerEntity player) {
+        return Inventory.canPlayerUse(this, player) && !this.isEmpty();
+    }
+
+    @Override
+    public void clear() {
+        this.getInventory().clear();
+    }
+
+    public void setSonicScrewdriver(ItemStack stack) {
+        this.sonicScrewdriver = stack;
+        this.sync();
+        this.markDirty();
+    }
+
+    public ItemStack getSonicScrewdriver() {
+        return this.sonicScrewdriver;
+    }
+
+    @Override
+    public double getMaxFuel(ItemStack stack) {
+        return SonicItem.MAX_FUEL;
     }
 }
