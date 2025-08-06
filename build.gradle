@@ -37,7 +37,7 @@ repositories {
     maven { url "https://api.modrinth.com/maven" }
 
     // Scheduler, Queue, MultiDim, AutoJSON
-    maven { url "https://theo.is-a.dev/maven-repo/" }
+    maven { url "https://theo.is-a.dev/maven/" }
 }
 
 loom {
