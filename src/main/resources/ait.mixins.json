@@ -13,6 +13,7 @@
     "client.experimental_screen.LevelSummaryMixin",
     "client.rendering.EntityMixin",
     "compat.gravity.EntityTagsMixin",
+    "compat.portals.MultiDimMixin",
     "compat.portals.TardisServerWorldMixin",
     "lookup.EntityTrackingSectionAccessor",
     "lookup.SectionedEntityCacheAccessor",

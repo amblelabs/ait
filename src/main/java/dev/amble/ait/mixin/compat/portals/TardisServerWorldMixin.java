@@ -44,8 +44,9 @@ public class TardisServerWorldMixin {
         RegistryKey<World> key = world.getRegistryKey();
 
         // An excerpt from `qouteall.q_misc_util.dimension.DynamicDimensionsImpl#addDimensionDynamically`
-        DimensionAPI.saveDimensionConfiguration(key);
+        //DimensionAPI.saveDimensionConfiguration(key);
         DimensionIdManagement.updateAndSaveServerDimIdRecord();
+
         Packet<?> dimSyncPacket = MiscNetworking.createDimSyncPacket();
 
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
