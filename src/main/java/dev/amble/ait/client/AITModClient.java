@@ -51,7 +51,6 @@ import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.*;
 import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
@@ -245,7 +244,7 @@ public class AITModClient implements ClientModInitializer {
 
         AstralMapBlock.registerSyncListener();
 
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn());
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn(client));
     }
     public static Screen screenFromId(int id) {
         return screenFromId(id, null, null);
