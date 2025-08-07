@@ -55,7 +55,6 @@
     "client.rendering.framebuffer.MixinRenderFramebufferTarget",
     "client.sonic.SonicItemRendererMixin",
     "client.sonic.SonicModelLoaderWrapperMixin",
-    "compat.portals.ClientPlayNetworkHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
