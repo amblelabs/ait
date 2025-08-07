@@ -23,7 +23,7 @@ import qouteall.q_misc_util.dimension.DimensionIdManagement;
 @Mixin(TardisServerWorld.class)
 public class TardisServerWorldMixin {
 
-    @Inject(method = "create", at = @At("RETURN"))
+    @Inject(method = "create", at = @At("RETURN"), remap = false)
     private static void create(ServerTardis tardis, CallbackInfoReturnable<TardisServerWorld> cir) {
         aitportals$handleWorld(cir.getReturnValue());
     }
