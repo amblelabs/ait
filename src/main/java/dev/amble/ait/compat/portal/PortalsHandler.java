@@ -2,18 +2,19 @@ package dev.amble.ait.compat.portal;
 
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.data.Exclude;
+import dev.amble.ait.core.util.EntityRef;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.TardisComponentRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.util.Pair;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.api.PortalAPI;
+import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
@@ -21,24 +22,38 @@ public class PortalsHandler extends KeyedTardisComponent {
 
 	public static final IdLike ID = new AbstractId<>("PORTALS", PortalsHandler::new, PortalsHandler.class);
 
-	// FIXME: dont hold direct references, mem leak & inconsistency ahead!
+	@Nullable
+	private EntityRef<TardisPortal> interiorRef;
 
 	@Nullable
-	@Exclude
-	private TardisPortal interior;
-
-	@Nullable
-	@Exclude
-	private TardisPortal exterior;
+	private EntityRef<TardisPortal> exteriorRef;
 
 	public PortalsHandler() {
 		super(ID);
+	}
+
+	@Override
+	public void postInit(InitContext ctx) {
+		if (this.isClient() || ctx.created())
+			return;
+
+		if (this.exteriorRef != null) {
+			ServerWorld exteriorWorld = tardis.travel().position().getWorld();
+			this.exteriorRef.setWorld(exteriorWorld);
+		}
+
+		if (this.interiorRef != null) {
+			ServerWorld interiorWorld = tardis.asServer().world();
+			this.interiorRef.setWorld(interiorWorld);
+		}
 	}
 
 	public static void init() {
 		TardisComponentRegistry.getInstance().register(ID);
 
 		// TODO: re-use the same two portal entities
+		//  for exterior changing this could be achieved by moving the portals & changing their size
+		//  for opening and closing doors, portals' rendering can be turned off
 
 		TardisEvents.DOOR_OPEN.register((tdis) -> {
 			PortalsHandler handler = tdis.handler(ID);
@@ -76,15 +91,15 @@ public class PortalsHandler extends KeyedTardisComponent {
 		//  > ...idk, need to discuss this - Theo
 	}
 
-	public @Nullable TardisPortal getExterior() {
-		return exterior;
+	public TardisPortal getInterior() {
+		return this.interiorRef != null ? this.interiorRef.get() : null;
 	}
 
-	public @Nullable TardisPortal getInterior() {
-		return interior;
+	public TardisPortal getExterior() {
+		return this.exteriorRef != null ? this.exteriorRef.get() : null;
 	}
 
-	private Pair<TardisPortal, TardisPortal> generatePortals() {
+	private void generatePortals() {
 		CachedDirectedGlobalPos exteriorPos = this.tardis().travel().position();
 
 		DirectedBlockPos tempPos = this.tardis().getDesktop().getDoorPos();
@@ -92,10 +107,8 @@ public class PortalsHandler extends KeyedTardisComponent {
 
 		removePortals();
 
-		this.exterior = createPortal(exteriorPos, interiorPos, true);
-		this.interior = createPortal(interiorPos, exteriorPos, false);
-
-		return new Pair<>(exterior, interior);
+		this.exteriorRef = new EntityRef<>(exteriorPos.getWorld(), createPortal(exteriorPos, interiorPos, true));
+		this.interiorRef = new EntityRef<>(interiorPos.getWorld(), createPortal(interiorPos, exteriorPos, false));
 	}
 
 	private TardisPortal createPortal(CachedDirectedGlobalPos from, CachedDirectedGlobalPos to, boolean exterior) {
@@ -121,6 +134,7 @@ public class PortalsHandler extends KeyedTardisComponent {
 		PortalAPI.setPortalOrientationQuaternion(portal, quat);
 		portal.setOtherSideOrientation(toQuat);
 
+		// wow
 		portal.setOriginPos(
 				new Vec3d(fromAdjusted.getX() + 0.5, fromAdjusted.getY() + 1.2, fromAdjusted.getZ() + 0.5));
 		portal.setDestinationDimension(to.getWorld().getRegistryKey());
@@ -139,26 +153,22 @@ public class PortalsHandler extends KeyedTardisComponent {
 		ExteriorVariantSchema variant = this.tardis().getExterior().getVariant();
 		Vec3d vec = pos.getPos().toCenterPos().subtract(0.5, 0.5, 0.5).add(Vec3d.of(pos.getVector()).multiply(-multiplier, 1, multiplier));
 
-		if (exterior) {
+		if (exterior)
 			return variant.adjustPortalPos(vec, pos.getRotation());
-		}
 
 		return variant.door().adjustPortalPos(vec, pos.getRotationDirection());
 	}
 
 	private void removePortals() {
-		if (interior != null) {
-			PortalManipulation.removeConnectedPortals(interior, (p) -> {
-			});
-			interior.discard();
-		}
-
-		if (exterior != null) {
-			PortalManipulation.removeConnectedPortals(exterior, (p) -> {
-			});
-			exterior.discard();
-		}
+		removePortal(this.getInterior());
+		removePortal(this.getExterior());
 	}
 
+	private static void removePortal(Portal portal) {
+		if (portal == null)
+			return;
 
+		PortalManipulation.removeConnectedPortals(portal, (p) -> {});
+		portal.discard();
+	}
 }

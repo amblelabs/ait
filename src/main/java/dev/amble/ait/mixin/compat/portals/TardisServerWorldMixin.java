@@ -44,6 +44,16 @@ public class TardisServerWorldMixin {
         RegistryKey<World> key = world.getRegistryKey();
 
         // An excerpt from `qouteall.q_misc_util.dimension.DynamicDimensionsImpl#addDimensionDynamically`
+        // FIXME: this line MAY be causing issues with the relogs
+        //  basically, the game crashes because it's trying to load a tardis world
+        //  which shouldn't have been loaded, but fails miserably because it finds
+        //  out that it's a normal server world, resulting in a cast exception.
+        //  if commenting out this line wont work (still have to hear back from QA),
+        //  then we should mixin into wherever it saves the world metadata and lobotomize it
+        //    - Theo
+
+        // UPDATE: commenting out this line DOES NOT fix the issue stated above.?
+        // maybe? im lost.
         //DimensionAPI.saveDimensionConfiguration(key);
         DimensionIdManagement.updateAndSaveServerDimIdRecord();
 
