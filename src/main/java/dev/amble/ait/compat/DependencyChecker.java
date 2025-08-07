@@ -51,7 +51,7 @@ public class DependencyChecker {
     public static boolean hasMacOs() {
         if (MAC_OS == null) {
             String os = System.getProperty("os.name");
-            MAC_OS = os.contains("mac") || os.contains("darwin");
+            MAC_OS = os != null && (os.contains("mac") || os.contains("darwin"));
         }
 
         return MAC_OS;
