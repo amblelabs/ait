@@ -34,6 +34,9 @@ public class AITMixinPlugin implements IMixinConfigPlugin {
         if (id.equals("gravity"))
             return DependencyChecker.hasGravity();
 
+        if (id.equals("portals"))
+            return DependencyChecker.hasPortals();
+
         return true;
     }
 

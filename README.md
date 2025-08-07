@@ -100,6 +100,11 @@ We also have some extra compatibility but for this you would have to install a s
 ### If you have [Adventures in Space](https://github.com/DrTheodor/adventures-in-space) and [Ad Astra](https://modrinth.com/mod/ad-astra)
 - Special compatibility with the TARDIS when playing with Ad Astra
 
+### If you have [Immersive Portals](https://modrinth.com/mod/immersiveportals)
+
+- Your TARDIS will be Bigger on the Inside (BOTI)
+- When you open the doors from the exterior you will be able to see the interior and vice versa
+
 <h2>
   <img src="https://cdn.modrinth.com/data/cached_images/7412fc34a0142c5cc1ec9eee18c68c81fbbb4d81.png"
        alt="Credits"
