@@ -206,8 +206,6 @@ public class AITMod implements ModInitializer {
 
         entityAttributeRegister();
 
-        SpaceUtils.init();
-
         BiomeModifications.addFeature(BiomeSelectors.foundInOverworld(), GenerationStep.Feature.UNDERGROUND_ORES,
                 CUSTOM_GEODE_PLACED_KEY);
 

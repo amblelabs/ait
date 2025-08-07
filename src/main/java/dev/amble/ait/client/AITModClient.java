@@ -238,10 +238,6 @@ public class AITModClient implements ClientModInitializer {
                         console.setVariant(id);
                 });
 
-        ClientPlayNetworking.registerGlobalReceiver(AITMod.id("world_keys_sync"), (client, handler, buf, responseSender) -> {
-            WorldUtil.readWorldKeys(buf);
-        });
-
         WorldRenderEvents.END.register((context) -> SonicRendering.getInstance().renderWorld(context));
         HudRenderCallback.EVENT.register((context, delta) -> SonicRendering.getInstance().renderGui(context, delta));
 

@@ -7,6 +7,8 @@ import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.TardisComponentRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec3d;
@@ -16,18 +18,27 @@ import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 public class PortalsHandler extends KeyedTardisComponent {
+
+	public static final IdLike ID = new AbstractId<>("PORTALS", PortalsHandler::new, PortalsHandler.class);
+
+	// FIXME: dont hold direct references, mem leak & inconsistency ahead!
+
 	@Nullable
 	@Exclude
-	private TardisPortal interior;	static final IdLike ID = new AbstractId<>("PORTALS", PortalsHandler::new, PortalsHandler.class);
+	private TardisPortal interior;
+
 	@Nullable
 	@Exclude
 	private TardisPortal exterior;
+
 	public PortalsHandler() {
 		super(ID);
 	}
 
 	public static void init() {
 		TardisComponentRegistry.getInstance().register(ID);
+
+		// TODO: re-use the same two portal entities
 
 		TardisEvents.DOOR_OPEN.register((tdis) -> {
 			PortalsHandler handler = tdis.handler(ID);
@@ -56,6 +67,13 @@ public class PortalsHandler extends KeyedTardisComponent {
 
 			if (tdis.door().isOpen()) handler.generatePortals();
 		});
+	}
+
+	@Environment(EnvType.CLIENT)
+	public static void clientInit() {
+		// TODO: make it so doors don't render twice.
+		//  > maybe we should just cancel door rendering when there's BOTI present?
+		//  > ...idk, need to discuss this - Theo
 	}
 
 	public @Nullable TardisPortal getExterior() {

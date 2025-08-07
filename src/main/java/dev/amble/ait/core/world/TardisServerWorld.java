@@ -31,6 +31,7 @@ import net.minecraft.world.level.ServerWorldProperties;
 import net.minecraft.world.level.storage.LevelStorage;
 import net.minecraft.world.spawner.Spawner;
 import org.jetbrains.annotations.Nullable;
+import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.dimension.DimensionIdManagement;
 
 import java.util.List;
@@ -116,12 +117,6 @@ public class TardisServerWorld extends MultiDimServerWorld {
         } else {
             result.setTardis(tardis);
         }
-
-        if (DependencyChecker.hasPortals()) {
-            DimensionIdManagement.updateAndSaveServerDimIdRecord();
-        }
-
-        WorldUtil.syncWorldKeys();
 
         MultiDimMod.LOGGER.info("Time taken to load sub-world: {}", System.currentTimeMillis() - start);
         return result;

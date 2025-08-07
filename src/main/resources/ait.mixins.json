@@ -13,6 +13,7 @@
     "client.experimental_screen.LevelSummaryMixin",
     "client.rendering.EntityMixin",
     "compat.gravity.EntityTagsMixin",
+    "compat.portals.TardisServerWorldMixin",
     "lookup.EntityTrackingSectionAccessor",
     "lookup.SectionedEntityCacheAccessor",
     "lookup.SimpleEntityLookupAccessor",
@@ -34,7 +35,6 @@
     "server.structure.StructureTemplateAccessor"
   ],
   "client": [
-    "client.ClientPlayNetworkHandlerMixin",
     "client.DefaultLogoMixin",
     "client.ItemRendererMixin",
     "client.MinecraftClientMixin",
@@ -54,7 +54,8 @@
     "client.rendering.framebuffer.MixinMainFramebufferTarget",
     "client.rendering.framebuffer.MixinRenderFramebufferTarget",
     "client.sonic.SonicItemRendererMixin",
-    "client.sonic.SonicModelLoaderWrapperMixin"
+    "client.sonic.SonicModelLoaderWrapperMixin",
+    "compat.portals.ClientPlayNetworkHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

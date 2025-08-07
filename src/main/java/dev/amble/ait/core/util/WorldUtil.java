@@ -4,9 +4,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.AITWorldOptions;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.mixin.client.ClientPlayNetworkHandlerMixin;
 import dev.amble.ait.mixin.server.EnderDragonFightAccessor;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.amble.lib.util.TeleportUtil;
@@ -18,7 +16,6 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -28,10 +25,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntityStatusEffectS2CPacket;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -46,7 +41,6 @@ import net.minecraft.world.WorldEvents;
 
 import java.util.*;
 
-@SuppressWarnings("deprecation")
 public class WorldUtil {
 
     private static final List<ServerWorld> PROJECTOR_WORLDS = new ArrayList<>();
@@ -294,37 +288,5 @@ public class WorldUtil {
 
         player.getStatusEffects().forEach(effect -> player.networkHandler.sendPacket(
                 new EntityStatusEffectS2CPacket(player.getId(), effect)));
-    }
-
-    public static void syncWorldKeys() {
-        MinecraftServer server = ServerLifecycleHooks.get();
-        if (server == null) return;
-
-        Set<RegistryKey<World>> keys = server.getWorldRegistryKeys();
-
-        PacketByteBuf buf = PacketByteBufs.create();
-
-        buf.writeInt(keys.size());
-
-        for (RegistryKey<World> key : keys) {
-            buf.writeIdentifier(key.getValue());
-        }
-
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            NetworkUtil.send(player, AITMod.id("world_keys_sync"), buf);
-        }
-    }
-
-    @Environment(EnvType.CLIENT)
-    public static void readWorldKeys(PacketByteBuf buf) {
-        int size = buf.readInt();
-        Set<RegistryKey<World>> keys = new HashSet<>();
-
-        for (int i = 0; i < size; i++) {
-            keys.add(RegistryKey.of(RegistryKeys.WORLD, buf.readIdentifier()));
-        }
-
-        AITMod.LOGGER.info("Received {} world keys from server: {}", size, keys);
-        ((ClientPlayNetworkHandlerMixin) MinecraftClient.getInstance().player.networkHandler).setWorldKeys(keys);
     }
 }

@@ -12,14 +12,16 @@ public class Compat implements AITModInitializer, ClientModInitializer {
         if (DependencyChecker.hasGravity())
             GravityHandler.init();
 
-        if (DependencyChecker.hasPortals()) {
+        if (DependencyChecker.hasPortals())
             PortalsHandler.init();
-        }
     }
 
     @Override
     public void onInitializeClient() {
         if (DependencyChecker.hasGravity())
             GravityHandler.clientInit();
+
+        if (DependencyChecker.hasPortals())
+            PortalsHandler.clientInit();
     }
 }
