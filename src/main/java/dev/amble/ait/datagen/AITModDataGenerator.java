@@ -762,6 +762,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         provider.addTranslation("ait.tardis.likes_item", "The TARDIS may like this item...");
         provider.addTranslation("tooltip.ait.remoteitem.holdformoreinfo", "Hold shift for more info");
+        provider.addTranslation("soundCategory.hums", "Interior HUM");
 
         // Control entities
         provider.addTranslation("control.ait.antigravs", "Antigravs");
@@ -1028,7 +1029,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         // Block Tooltips
         provider.addTranslation("block.ait.artron_collector_block.tooltip", "Clashed together from random junks and bits, this item can collect Artron Units from Artron Chunks!");
-
 
         provider.addTranslation("block.ait.fabricator.tooltip.use", "(Place on top of a Smithing Table)");
         provider.addTranslation("tooltip.ait.use_in_tardis", "(Place inside a TARDIS)");
