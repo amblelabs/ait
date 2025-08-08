@@ -1,11 +1,15 @@
 package dev.amble.ait.client.screens;
 
-import java.util.List;
-import java.util.UUID;
-
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.data.schema.sonic.SonicSchema;
+import dev.amble.ait.registry.impl.SonicRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -22,13 +26,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.link.LinkableItem;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientTardisUtil;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.data.schema.sonic.SonicSchema;
-import dev.amble.ait.registry.impl.SonicRegistry;
+import java.util.List;
+import java.util.UUID;
 
 public class SonicSettingsScreen extends ConsoleScreen {
     private static final Identifier BACKGROUND = new Identifier(AITMod.MOD_ID,
@@ -44,9 +43,11 @@ public class SonicSettingsScreen extends ConsoleScreen {
     private final int APPLY_BAR_BUTTON_HEIGHT = 12;
     private final int SMALL_ARROW_BUTTON_WIDTH = 20;
     private final int SMALL_ARROW_BUTTON_HEIGHT = 12;
+    private final BlockPos console;
 
     public SonicSettingsScreen(ClientTardis tardis, BlockPos console, Screen parent) {
         super(Text.translatable("screen." + AITMod.MOD_ID + ".sonicsettings.title"), tardis, console);
+        this.console = console;
         this.parent = parent;
     }
 
@@ -57,7 +58,8 @@ public class SonicSettingsScreen extends ConsoleScreen {
 
     @Override
     protected void init() {
-        SonicSchema schema = SonicItem.schema(tardis().sonic().getConsoleSonic());
+        if (!(MinecraftClient.getInstance().world.getBlockEntity(this.console) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
+        SonicSchema schema = SonicItem.schema(consoleBlockEntity.getSonicScrewdriver()/*tardis().sonic().getConsoleSonic()*/);
 
         this.selectedSonic = SonicRegistry.getInstance().toList().indexOf(schema);
         this.top = (this.height - this.bgHeight) / 2; // this means everythings centered and scaling, same for below
@@ -96,7 +98,8 @@ public class SonicSettingsScreen extends ConsoleScreen {
     }
 
     public void sendSonicChangePacket() {
-        if (this.tardis().sonic().getConsoleSonic() == null)
+        if (!(MinecraftClient.getInstance().world.getBlockEntity(this.console) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
+        if (consoleBlockEntity.getSonicScrewdriver()/*this.tardis().sonic().getConsoleSonic()*/ == null)
             return;
 
         SonicSchema schema = SonicRegistry.getInstance().toList().get(this.selectedSonic);
@@ -104,8 +107,8 @@ public class SonicSettingsScreen extends ConsoleScreen {
         if (!this.tardis().isUnlocked(schema))
             return;
 
-        SonicItem.setSchema(tardis().sonic().getConsoleSonic(), schema);
-        ClientTardisUtil.changeSonicWithScreen(this.tardis().getUuid(), schema);
+        SonicItem.setSchema(consoleBlockEntity.getSonicScrewdriver()/*tardis().sonic().getConsoleSonic()*/, schema);
+        ClientTardisUtil.changeSonicWithScreen(this.tardis().getUuid(), schema, this.console);
     }
 
     private <T extends ClickableWidget> void addButton(T button) {
@@ -132,10 +135,13 @@ public class SonicSettingsScreen extends ConsoleScreen {
         if (this.tardis() == null)
             return;
 
-        if (this.tardis().sonic().getConsoleSonic() == null)
+        if (!(MinecraftClient.getInstance().world.getBlockEntity(this.console) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
+
+        if (consoleBlockEntity.getSonicScrewdriver()/*this.tardis().sonic().getConsoleSonic()*/ == null)
             return;
 
-        ItemStack sonic = this.tardis().sonic().getConsoleSonic();
+        ItemStack sonic = consoleBlockEntity.getSonicScrewdriver(); //this.tardis().sonic().getConsoleSonic();
+        if (sonic.isEmpty()) return;
         NbtCompound nbt = sonic.getOrCreateNbt();
 
         if (this.tardis() != null) {

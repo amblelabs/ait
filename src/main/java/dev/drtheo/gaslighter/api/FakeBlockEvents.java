@@ -6,14 +6,33 @@ import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 
 public class FakeBlockEvents {
 
-    public static final Event<Check> CHECK = EventFactory.createArrayBacked(Check.class, callbacks -> (player, state, pos) -> {
-        for (Check check : callbacks) {
-            check.check(player, state, pos);
+    public static final Event<Interact> INTERACT = EventFactory.createArrayBacked(Interact.class, callbacks -> (player, hand, pos) -> {
+        Action action = Action.CONTINUE;
+        for (Interact check : callbacks) {
+            action = check.check(player, hand, pos);
+
+            if (action != Action.CONTINUE)
+                break;
         }
+
+        return action.asResult();
+    });
+
+    public static final Event<Check> CHECK = EventFactory.createArrayBacked(Check.class, callbacks -> (player, hand, state, pos) -> {
+        Action action = Action.CONTINUE;
+        for (Check check : callbacks) {
+            action = check.check(player, hand, state, pos);
+
+            if (action != Action.CONTINUE)
+                break;
+        }
+
+        return action.asResult();
     });
 
     public static final Event<Place> PLACED = EventFactory.createArrayBacked(Place.class, callbacks -> (world, state, pos) -> {
@@ -29,8 +48,13 @@ public class FakeBlockEvents {
     });
 
     @FunctionalInterface
+    public interface Interact {
+        Action check(ServerPlayerEntity player, Hand hand, BlockPos pos);
+    }
+
+    @FunctionalInterface
     public interface Check {
-        void check(ServerPlayerEntity player, BlockState state, BlockPos pos);
+        Action check(ServerPlayerEntity player, Hand hand, BlockState state, BlockPos pos);
     }
 
     @FunctionalInterface
@@ -41,5 +65,19 @@ public class FakeBlockEvents {
     @FunctionalInterface
     public interface Remove {
         void onRemove(ServerWorld world, BlockPos pos);
+    }
+
+    public enum Action {
+        REMOVE,
+        STAY,
+        CONTINUE;
+
+        public boolean shouldRemove() {
+            return this == REMOVE;
+        }
+
+        public Action asResult() {
+            return this == CONTINUE ? STAY : this;
+        }
     }
 }

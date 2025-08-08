@@ -1,15 +1,25 @@
-/*
+
 package dev.amble.ait.data.schema.console.variant.hudolin.client;
 
 
-public class ClientHudolinShalkaVariant extends ClientConsoleVariantSchema {
-    public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/hudolin_console_shalka.png"));
-    public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/consoles/hudolin_console_shalka_emission.png"));
+import org.joml.Vector3f;
 
-    public ClientHudolinShalkaVariant() {
-        super(HudolinShalkaVariant.REFERENCE, HudolinShalkaVariant.REFERENCE);
+import net.minecraft.util.Identifier;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
+import dev.amble.ait.client.models.consoles.HudolinConsoleModel;
+import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
+import dev.amble.ait.data.schema.console.variant.hudolin.HudolinTallVariant;
+
+public class ClientHudolinTallVariant extends ClientConsoleVariantSchema {
+    public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
+            ("textures/blockentities/consoles/hudolin_console_tall.png"));
+    public static final Identifier EMISSION = new Identifier(AITMod.MOD_ID,
+            ("textures/blockentities/consoles/hudolin_console_tall_emission.png"));
+
+    public ClientHudolinTallVariant() {
+        super(HudolinTallVariant.REFERENCE, HudolinTallVariant.REFERENCE);
     }
 
     @Override
@@ -23,17 +33,17 @@ public class ClientHudolinShalkaVariant extends ClientConsoleVariantSchema {
     }
 
     @Override
-    public ConsoleModel model() {
+    public SimpleConsoleModel model() {
         return new HudolinConsoleModel(HudolinConsoleModel.getTexturedModelData().createModel());
     }
     @Override
     public Vector3f sonicItemTranslations() {
-        return new Vector3f(-0.495f, 1.05f, 0.225f);
+        return new Vector3f(-0.055f, 1.03f, -0.09f);
     }
 
     @Override
     public float[] sonicItemRotations() {
-        return new float[]{29f, 46.25f};
+        return new float[]{120f, 170f};
     }
     @Override
     public Vector3f handlesTranslations() {
@@ -45,4 +55,3 @@ public class ClientHudolinShalkaVariant extends ClientConsoleVariantSchema {
         return new float[]{29f, 46.25f};
     }
 }
-*/

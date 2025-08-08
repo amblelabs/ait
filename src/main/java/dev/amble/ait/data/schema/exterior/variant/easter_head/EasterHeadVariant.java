@@ -22,7 +22,7 @@ public abstract class EasterHeadVariant extends ExteriorVariantSchema {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(EasterHeadDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(EasterHeadDoorVariant.REFERENCE);
     }
 
 

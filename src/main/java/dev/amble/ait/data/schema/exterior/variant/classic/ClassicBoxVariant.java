@@ -26,7 +26,7 @@ public abstract class ClassicBoxVariant extends ExteriorVariantSchema {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(ClassicDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(ClassicDoorVariant.REFERENCE);
     }
 
     @Override

@@ -1,22 +1,25 @@
 package dev.amble.ait.data.datapack;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.control.ControlTypes;
+import dev.amble.ait.data.codec.MoreCodec;
+import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
+import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
+import dev.amble.ait.registry.impl.console.ConsoleRegistry;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3f;
 
-import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.data.codec.MoreCodec;
-import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 // Example usage
 /*
@@ -27,7 +30,7 @@ import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
   "emission": "ait:textures/console/alnico_emission.png"
 }
  */
-public class DatapackConsole extends ConsoleVariantSchema {
+public class DatapackConsole extends ConsoleVariantSchema implements TravelAnimationMap.Holder {
     public static final Identifier EMPTY = AITMod.id("intentionally_empty");
 
     protected final Identifier texture;
@@ -37,11 +40,12 @@ public class DatapackConsole extends ConsoleVariantSchema {
     protected final Vector3f sonicTranslation;
     protected final List<Float> handlesRotation;
     protected final Vector3f handlesTranslation;
-    protected boolean initiallyDatapack;
-
+    protected final Identifier model;
+    protected final Vec3d scale;
+    protected final Vec3d offset;
     public static final Codec<DatapackConsole> CODEC = RecordCodecBuilder.create(instance -> instance
             .group(Identifier.CODEC.fieldOf("id").forGetter(ConsoleVariantSchema::id),
-                    Identifier.CODEC.fieldOf("parent").forGetter(ConsoleVariantSchema::parentId),
+                    Identifier.CODEC.optionalFieldOf("parent").forGetter(c -> Optional.ofNullable(c.parentId())),
                     Identifier.CODEC.fieldOf("texture").forGetter(DatapackConsole::texture),
                     Identifier.CODEC.optionalFieldOf("emission", EMPTY).forGetter(DatapackConsole::emission),
                     Codec.list(Codec.FLOAT).optionalFieldOf("sonic_rotation", List.of())
@@ -50,19 +54,32 @@ public class DatapackConsole extends ConsoleVariantSchema {
                     Codec.list(Codec.FLOAT).optionalFieldOf("handles_rotation", List.of())
                             .forGetter(DatapackConsole::handlesRotation),
                     MoreCodec.VECTOR3F.optionalFieldOf("handles_translation", new Vector3f()).forGetter(DatapackConsole::handlesTranslation),
+                    Identifier.CODEC.optionalFieldOf("model").forGetter(DatapackConsole::model),
+                    Vec3d.CODEC.optionalFieldOf("scale", new Vec3d(1, 1, 1)).forGetter(DatapackConsole::getScale),
+                    Vec3d.CODEC.optionalFieldOf("offset", new Vec3d(0, 0, 0)).forGetter(DatapackConsole::getOffset),
+                    TravelAnimationMap.CODEC.optionalFieldOf("animations", new TravelAnimationMap())
+                            .forGetter(DatapackConsole::getAnimations),
+                    SimpleType.CODEC.optionalFieldOf("type").forGetter(DatapackConsole::getCustomType),
                     Codec.BOOL.optionalFieldOf("isDatapack", true).forGetter(DatapackConsole::wasDatapack))
             .apply(instance, DatapackConsole::new));
+    protected boolean initiallyDatapack;
+    protected final TravelAnimationMap animations;
 
     public DatapackConsole(Identifier id,
-                           Identifier category,
+                           Optional<Identifier> category,
                            Identifier texture,
                            Identifier emission,
                            List<Float> sonicRot,
                            Vector3f sonicTranslation,
                            List<Float> handlesRot,
                            Vector3f handlesTranslation,
+                           Optional<Identifier> model,
+                           Vec3d scale,
+                           Vec3d offset,
+                           TravelAnimationMap animations,
+                           Optional<SimpleType> type,
                            boolean isDatapack) {
-        super(category, id);
+        super(resolveParentId(category, type), id);
         this.id = id;
         this.texture = texture;
         this.emission = emission;
@@ -71,6 +88,21 @@ public class DatapackConsole extends ConsoleVariantSchema {
         this.sonicTranslation = sonicTranslation;
         this.handlesRotation = handlesRot;
         this.handlesTranslation = handlesTranslation;
+        this.model = model.orElse(null);
+        this.scale = scale;
+        this.offset = offset;
+        this.animations = animations != null ? animations : new TravelAnimationMap();
+    }
+
+    private static Identifier resolveParentId(Optional<Identifier> parent, Optional<SimpleType> type) {
+        if (parent.isPresent()) {
+            return parent.get();
+        } else if (type.isPresent()) {
+            type.get().register();
+            return type.get().id();
+        } else {
+            throw new IllegalArgumentException("DatapackConsole must have a parent or a type defined");
+        }
     }
 
     public boolean wasDatapack() {
@@ -103,6 +135,30 @@ public class DatapackConsole extends ConsoleVariantSchema {
         return this.handlesTranslation;
     }
 
+    public Optional<Identifier> model() {
+        return Optional.ofNullable(model);
+    }
+
+    public Vec3d getScale() {
+        return scale;
+    }
+
+    public Vec3d getOffset() {
+        return offset;
+    }
+
+    @Override
+    public TravelAnimationMap getAnimations() {
+        return animations;
+    }
+
+    public Optional<SimpleType> getCustomType() {
+        if (this.parent() instanceof SimpleType simpleType) {
+            return Optional.of(simpleType);
+        }
+        return Optional.empty();
+    }
+
     public static DatapackConsole fromInputStream(InputStream stream) {
         return fromJson(JsonParser.parseReader(new InputStreamReader(stream)).getAsJsonObject());
     }
@@ -116,5 +172,30 @@ public class DatapackConsole extends ConsoleVariantSchema {
         });
 
         return created.get();
+    }
+
+    public static class SimpleType extends ConsoleTypeSchema {
+        public static final Codec<SimpleType> CODEC = RecordCodecBuilder.create(instance -> instance
+                .group(Identifier.CODEC.fieldOf("id").forGetter(SimpleType::id),
+                        Codec.STRING.fieldOf("name").forGetter(SimpleType::name),
+                        ControlTypes.CODEC.listOf().fieldOf("controls").forGetter(c -> c.controls))
+                .apply(instance, SimpleType::new));
+
+        private final List<ControlTypes> controls;
+
+        protected SimpleType(Identifier id, String name, List<ControlTypes> controls) {
+            super(id, name);
+
+            this.controls = controls;
+        }
+
+        @Override
+        public ControlTypes[] getControlTypes() {
+            return controls.toArray(new ControlTypes[0]);
+        }
+
+        public void register() {
+            ConsoleRegistry.getInstance().register(this);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package dev.amble.ait.data.schema.console.type;
 
+import dev.amble.ait.core.tardis.control.impl.waypoint.LoadWaypointControl;
 import org.joml.Vector3f;
 
 import net.minecraft.entity.EntityDimensions;
@@ -12,8 +13,7 @@ import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
 import dev.amble.ait.core.tardis.control.impl.pos.XControl;
 import dev.amble.ait.core.tardis.control.impl.pos.YControl;
 import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.MarkWaypointControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
+import dev.amble.ait.core.tardis.control.impl.waypoint.SaveWaypointControl;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
@@ -77,9 +77,9 @@ public class AlnicoType extends ConsoleTypeSchema {
                     new Vector3f(1.6171875046566129f, 0.3249999061226845f, 0.004687516950070858f)),
             new ControlTypes(new HADSControl(), EntityDimensions.changing(0.18750001f, 0.18750001f),
                     new Vector3f(0.6902343910187483f, 0.49999980814754963f, 1.7648437842726707f)),
-            new ControlTypes(new MarkWaypointControl(), EntityDimensions.changing(0.099999994f, 0.29999998f),
+            new ControlTypes(new SaveWaypointControl(), EntityDimensions.changing(0.099999994f, 0.29999998f),
                     new Vector3f(-1.0492187775671482f, 0.4625003803521395f, 0.5886718826368451f)),
-            new ControlTypes(new SetWaypointControl(), EntityDimensions.changing(0.099999994f, 0.29999998f),
+            new ControlTypes(new LoadWaypointControl(), EntityDimensions.changing(0.099999994f, 0.29999998f),
                     new Vector3f(-1.1242187786847353f, 0.4625003803521395f, 0.45156250707805157f)),
             new ControlTypes(new ConsolePortControl(), EntityDimensions.changing(0.22500002f, 0.22500002f),
                     new Vector3f(0.701562499627471f, 0.3625005688518286f, 1.2007812643423676f)),

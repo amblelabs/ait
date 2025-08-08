@@ -1,5 +1,6 @@
 package dev.amble.ait.data.schema.console.type;
 
+import dev.amble.ait.core.tardis.control.impl.waypoint.LoadWaypointControl;
 import org.joml.Vector3f;
 
 import net.minecraft.entity.EntityDimensions;
@@ -12,8 +13,7 @@ import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
 import dev.amble.ait.core.tardis.control.impl.pos.XControl;
 import dev.amble.ait.core.tardis.control.impl.pos.YControl;
 import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.MarkWaypointControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
+import dev.amble.ait.core.tardis.control.impl.waypoint.SaveWaypointControl;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
@@ -75,9 +75,9 @@ public class SteamType extends ConsoleTypeSchema {
                     new Vector3f(-0.3109375163912773f, 0.4875005716457963f, -0.5468750149011612f)),
             new ControlTypes(new ConsolePortControl(), EntityDimensions.changing(0.16250001f, 0.0875f),
                     new Vector3f(-0.838281256146729f, 0.4000003784894943f, 0.0046874964609742165f)),
-            new ControlTypes(new MarkWaypointControl(), EntityDimensions.changing(0.074999996f, 0.1f),
+            new ControlTypes(new SaveWaypointControl(), EntityDimensions.changing(0.074999996f, 0.1f),
                     new Vector3f(-0.7125000134110451f, 0.47500038146972656f, 0.1789062386378646f)),
-            new ControlTypes(new SetWaypointControl(), EntityDimensions.changing(0.07499999f, 0.1f),
+            new ControlTypes(new LoadWaypointControl(), EntityDimensions.changing(0.07499999f, 0.1f),
                     new Vector3f(-0.7109374962747097f, 0.47500057239085436f, -0.17265624925494194f)),
             new ControlTypes(new SonicPortControl(), EntityDimensions.changing(0.125f, 0.1125f),
                     new Vector3f(0.35234375298023224f, 0.4624999947845936f, -0.5992187550291419f)),

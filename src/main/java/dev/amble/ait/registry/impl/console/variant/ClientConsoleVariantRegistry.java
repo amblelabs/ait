@@ -1,13 +1,7 @@
 package dev.amble.ait.registry.impl.console.variant;
 
-import dev.amble.lib.register.datapack.DatapackRegistry;
-import org.joml.Vector3f;
-
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.consoles.BedrockConsoleModel;
 import dev.amble.ait.client.models.consoles.ConsoleModel;
 import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
@@ -23,12 +17,20 @@ import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientKeltHartn
 import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientMintHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientWoodenHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hudolin.client.ClientHudolinNatureVariant;
+import dev.amble.ait.data.schema.console.variant.hudolin.client.ClientHudolinShortVariant;
+import dev.amble.ait.data.schema.console.variant.hudolin.client.ClientHudolinTallVariant;
 import dev.amble.ait.data.schema.console.variant.hudolin.client.ClientHudolinVariant;
 import dev.amble.ait.data.schema.console.variant.renaissance.client.*;
 import dev.amble.ait.data.schema.console.variant.steam.client.*;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaBlueVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaLegacyVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaVariant;
+import dev.amble.lib.client.bedrock.BedrockModelRegistry;
+import dev.amble.lib.register.datapack.DatapackRegistry;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
+import org.joml.Vector3f;
 
 public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsoleVariantSchema> {
     private static ClientConsoleVariantRegistry INSTANCE;
@@ -121,12 +123,18 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
 
             @Override
             public ConsoleModel model() {
+                if (variant.model().isPresent()) {
+                    return new BedrockConsoleModel(BedrockModelRegistry.getInstance().get(variant.model().get()));
+                }
+
                 return getSameParent().model();
             }
 
             @Override
             public float[] sonicItemRotations() {
                 if (variant.sonicRotation().isEmpty()) {
+                    if (getSameParent() == null) return new float[]{0, 0};
+
                     return getSameParent().sonicItemRotations();
                 }
 
@@ -142,6 +150,8 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
             @Override
             public Vector3f sonicItemTranslations() {
                 if (variant.sonicTranslation().equals(0,0,0)) {
+                    if (getSameParent() == null) return new Vector3f(0,0,0);
+
                     return getSameParent().sonicItemTranslations();
                 }
 
@@ -151,6 +161,8 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
             @Override
             public float[] handlesRotations() {
                 if (variant.handlesRotation().isEmpty()) {
+                    if (getSameParent() == null) return new float[]{0, 0};
+
                     return getSameParent().handlesRotations();
                 }
 
@@ -166,6 +178,8 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
             @Override
             public Vector3f handlesTranslations() {
                 if (variant.handlesTranslation().equals(0,0,0)) {
+                    if (getSameParent() == null) return new Vector3f(0,0,0);
+
                     return getSameParent().handlesTranslations();
                 }
 
@@ -203,7 +217,8 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
     public static ClientConsoleVariantSchema STEAM_COPPER;
     public static ClientConsoleVariantSchema HUDOLIN;
     public static ClientConsoleVariantSchema HUDOLIN_NATURE;
-   // public static ClientConsoleVariantSchema HUDOLIN_SHALKA;
+    public static ClientConsoleVariantSchema HUDOLIN_TALL;
+    public static ClientConsoleVariantSchema HUDOLIN_SHORT;
     public static ClientConsoleVariantSchema COPPER;
     public static ClientConsoleVariantSchema CRYSTALLINE;
     public static ClientConsoleVariantSchema CRYSTALLINE_ZEITON;
@@ -250,8 +265,9 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
 
         // Hudolin variants
         HUDOLIN = register(new ClientHudolinVariant());
-        // HUDOLIN_SHALKA = register(new ClientHudolinShalkaVariant());
         HUDOLIN_NATURE = register(new ClientHudolinNatureVariant());
+        HUDOLIN_TALL = register(new ClientHudolinTallVariant());
+        HUDOLIN_SHORT = register(new ClientHudolinShortVariant());
 
         // Copper variants
         COPPER = register(new ClientCopperVariant());

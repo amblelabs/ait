@@ -24,7 +24,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.WorldUtil;
 
-public class CrystallineConsoleModel extends ConsoleModel {
+public class CrystallineConsoleModel extends SimpleConsoleModel {
     private final ModelPart console;
     public CrystallineConsoleModel(ModelPart root) {
         this.console = root.getChild("console");

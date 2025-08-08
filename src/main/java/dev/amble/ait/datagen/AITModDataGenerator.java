@@ -1,31 +1,5 @@
 package dev.amble.ait.datagen;
 
-import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
-import static net.minecraft.data.server.recipe.RecipeProvider.*;
-
-import java.util.Calendar;
-import java.util.concurrent.CompletableFuture;
-
-import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
-import dev.amble.lib.datagen.lang.LanguageType;
-import dev.amble.lib.datagen.sound.AmbleSoundProvider;
-import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-
-import net.minecraft.block.Blocks;
-import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryBuilder;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITEntityTypes;
@@ -40,6 +14,30 @@ import dev.amble.ait.module.planet.core.PlanetBlocks;
 import dev.amble.ait.module.planet.core.PlanetItems;
 import dev.amble.ait.module.planet.core.world.PlanetConfiguredFeatures;
 import dev.amble.ait.module.planet.core.world.PlanetPlacedFeatures;
+import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
+import dev.amble.lib.datagen.lang.LanguageType;
+import dev.amble.lib.datagen.sound.AmbleSoundProvider;
+import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.minecraft.block.Blocks;
+import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
+import net.minecraft.item.Items;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.book.RecipeCategory;
+import net.minecraft.registry.RegistryBuilder;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.Identifier;
+
+import java.util.Calendar;
+import java.util.concurrent.CompletableFuture;
+
+import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
+import static net.minecraft.data.server.recipe.RecipeProvider.*;
 
 public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
@@ -791,9 +789,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.eject_waypoint", "Eject Waypoint");
         provider.addTranslation("control.ait.goto_waypoint", "Goto Waypoint");
         provider.addTranslation("control.ait.console_port", "Console Port");
-        provider.addTranslation("control.ait.mark_waypoint", "Save Waypoint");
-        provider.addTranslation("control.ait.set_waypoint", "Load Waypoint");
-        provider.addTranslation("control.ait.set_waypoint.error", "Cannot travel to waypoint with handbrake engaged");
+        provider.addTranslation("control.ait.save_waypoint", "Save Waypoint");
+        provider.addTranslation("control.ait.load_waypoint", "Load Waypoint");
+        provider.addTranslation("control.ait.load_waypoint.error", "Cartridge contains no waypoint");
         provider.addTranslation("control.ait.increment", "Increment");
         provider.addTranslation("control.ait.x", "X");
         provider.addTranslation("control.ait.y", "Y");
@@ -825,6 +823,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.showConsoleMonitorText", "Show text on console monitors?");
         provider.addTranslation("yacl3.config.ait:client.showCRTMonitorText", "Show text on CRT monitors?");
         provider.addTranslation("yacl3.config.ait:client.renderDematParticles", "Render demat particles?");
+        provider.addTranslation("yacl3.config.ait:client.powerOffDarkness", "Darkness effect when TARDIS powers off?");
         provider.addTranslation("yacl3.config.ait:client.animateConsole", "Animate console?");
         provider.addTranslation("yacl3.config.ait:client.animateDoors", "Animate doors?");
         provider.addTranslation("yacl3.config.ait:client.temperatureType", "Temperature type");
@@ -875,6 +874,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItems.VENUS_MUSIC_DISC.getTranslationKey() + ".desc", "Nitrogenez - Venus");
         provider.addTranslation(AITItems.GOOD_MAN_MUSIC_DISC, "Music Disc");
         provider.addTranslation(AITItems.GOOD_MAN_MUSIC_DISC.getTranslationKey() + ".desc", "Dian - Good Man? [CUT EDITION]");
+        provider.addTranslation(AITItems.CHRONOLOGY_MUSIC_DISC, "Music Disc");
+        provider.addTranslation(AITItems.CHRONOLOGY_MUSIC_DISC.getTranslationKey() + ".desc", "PianoinFlames - Chronology [MAIN THEME]");
         provider.addTranslation(AITItems.GOLD_KEY_UPGRADE_SMITHING_TEMPLATE, "Smithing Template");
         provider.addTranslation(AITItems.NETHERITE_KEY_UPGRADE_SMITHING_TEMPLATE, "Smithing Template");
         provider.addTranslation(AITItems.CLASSIC_KEY_UPGRADE_SMITHING_TEMPLATE, "Smithing Template");
@@ -972,6 +973,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("sonic.ait.singularity", "Singularity");
         provider.addTranslation("sonic.ait.candy_cane", "Candy Cane");
         provider.addTranslation("sonic.ait.type_100", "Frontier");
+        provider.addTranslation("sonic.ait.portal_gun", "Portal Gun");
 
         // Consoles
         provider.addTranslation("console.ait.variant_label", "Console Type: ");
@@ -1062,7 +1064,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("item.sonic.scanning.locator_message.title", "TARDIS location: %s");
         provider.addTranslation("item.sonic.scanning.locator_message.coordinates", "Coordinates: %s %s %s");
 
-
         // Loyalty Messages In Bed
         provider.addTranslation("tardis.loyalty.message.reject","You hear whispers all around you, you are not welcome. [REJECT]");
         provider.addTranslation("tardis.loyalty.message.neutral", "The TARDIS hums, neither welcoming nor dismissing your presence. [NEUTRAL]");
@@ -1077,6 +1078,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.hail_mary.disengaged", "Hail Mary: DISENGAGED");
         provider.addTranslation("tardis.message.control.protocol_116.inactive", "Stabilisers: DISENGAGED");
         provider.addTranslation("tardis.message.console.has_sonic_in_port", "Cannot cache console with sonic in port");
+        provider.addTranslation("ait.tardis.control.throttle.stabilisers_disabled", "Stabilisers not connected to engine, speed limited!");
         provider.addTranslation("tardis.message.control.antigravs.active", "Antigravs: ENGAGED");
         provider.addTranslation("tardis.message.control.antigravs.inactive", "Antigravs: DISENGAGED");
         provider.addTranslation("tardis.message.control.electric.fail", "System Error: Not enough fuel present! Requires %sAU");
@@ -1110,9 +1112,11 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.interiorchange.success", "%s has grown to %d");
         provider.addTranslation("tardis.message.landingpad.adjust", "Adjusting to landing pad..");
         provider.addTranslation("tardis.message.self_destruct.warning", "SELF DESTRUCT INITIATED | ABORT SHIP");
+        provider.addTranslation("tardis.message.chameleon.failed", "Failed to find a suitable disguise!");
         provider.addTranslation("warning.ait.needs_subsystem", "ERROR, REQUIRES ACTIVE SUBSYSTEM: %s");
         provider.addTranslation("tardis.message.growth.hint", "Throw the Personality Matrix into the water to give it life...");
         provider.addTranslation("tardis.message.growth.no_cage", "Cage the TARDIS Coral to begin Plasmic coating process!");
+        provider.addTranslation("tardis.message.growth.in_progress", "Coral growth still in progress...");
         provider.addTranslation("message.ait.hypercubes.disabled", "Hypercubes are disabled in SERVER config.");
 
         provider.addTranslation("message.ait.control.ylandtype", "Vertical Search Mode: %s");
@@ -1131,6 +1135,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("sonic.ait.mode.tardis.location_summon", "Summoned TARDIS To Your Location, Please Wait...");
         provider.addTranslation("sonic.ait.mode.tardis.is_not_in_range",  "TARDIS is out of range!");
         provider.addTranslation("sonic.ait.mode.tardis.insufficient_fuel",  "TARDIS doesn't have enough fuel!");
+        provider.addTranslation("sonic.ait.mode.tardis.does_not_have_power",  "TARDIS is powered off!");
         provider.addTranslation("sonic.ait.mode.tardis.does_not_have_stabilisers",  "Remote Summoning Requires Stabilisers!");
         provider.addTranslation("sonic.ait.mode.tardis.refuel", "Engaged Handbrake, TARDIS Refueling...");
         provider.addTranslation("sonic.ait.mode.tardis.flight", "Disengaged Handbrake, TARDIS Dematerialising...");

@@ -1,7 +1,9 @@
 package dev.amble.ait.core.item.sonic;
 
+import dev.amble.ait.core.AITTags;
 import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Properties;
@@ -36,16 +38,18 @@ public class InteractionSonicMode extends SonicMode {
     }
 
     private void process(ServerWorld world, LivingEntity user, int ticks) {
-        HitResult hitResult = SonicMode.getHitResult(user);
+        HitResult hitResult = SonicMode.getHitResultForOutline(user);
 
         if (hitResult instanceof BlockHitResult blockHit) {
-            this.interactBlock(blockHit.getBlockPos(), world, user, ticks);
+            this.interactBlock(blockHit.getBlockPos(), world, user, ticks, blockHit);
         }
     }
 
-    private void interactBlock(BlockPos pos, ServerWorld world, LivingEntity user, int ticks) {
+    private void interactBlock(BlockPos pos, ServerWorld world, LivingEntity user, int ticks, BlockHitResult blockHit) {
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
+
+        if (!state.isIn(AITTags.Blocks.SONIC_INTERACTABLE)) return;
 
         if (block == Blocks.IRON_DOOR && state.contains(Properties.OPEN)) {
             boolean isOpen = state.get(Properties.OPEN);
@@ -76,6 +80,11 @@ public class InteractionSonicMode extends SonicMode {
         if (block instanceof DaylightDetectorBlock && state.contains(Properties.INVERTED)) {
             world.setBlockState(pos, state.cycle(Properties.INVERTED), 3);
             world.emitGameEvent(user, GameEvent.BLOCK_CHANGE, pos);
+            return;
+        }
+
+        if (user instanceof PlayerEntity player && block instanceof ButtonBlock button) {
+            button.onUse(state, world, pos, player, player.getActiveHand(), blockHit);
             return;
         }
     }

@@ -56,6 +56,10 @@ public class AnimationHolder implements TardisTickable, Disposable, Linkable {
         this.link(tardis);
     }
 
+    public int getTicks() {
+        return this.current == null ? 0 : this.current.getTicks();
+    }
+
     protected TardisAnimation getCurrent() {
         return this.current;
     }

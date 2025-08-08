@@ -26,7 +26,7 @@ public abstract class StallionVariant extends ExteriorVariantSchema {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(StallionDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(StallionDoorVariant.REFERENCE);
     }
 
     @Override

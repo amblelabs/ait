@@ -1,5 +1,6 @@
 package dev.amble.ait.data.schema.console.type;
 
+import dev.amble.ait.core.tardis.control.impl.waypoint.LoadWaypointControl;
 import org.joml.Vector3f;
 
 import net.minecraft.entity.EntityDimensions;
@@ -12,8 +13,7 @@ import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
 import dev.amble.ait.core.tardis.control.impl.pos.XControl;
 import dev.amble.ait.core.tardis.control.impl.pos.YControl;
 import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.MarkWaypointControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
+import dev.amble.ait.core.tardis.control.impl.waypoint.SaveWaypointControl;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
@@ -104,10 +104,10 @@ public class CrystallineType extends ConsoleTypeSchema {
             new ControlTypes(new HADSControl(), EntityDimensions.changing(0.125f, 0.16250001f),
                     new Vector3f(-0.2718746168538928f, 0.9250002913177013f, -0.4726562490686774f)),
             // done
-            new ControlTypes(new MarkWaypointControl(), EntityDimensions.changing(0.07499999f, 0.074999996f),
+            new ControlTypes(new SaveWaypointControl(), EntityDimensions.changing(0.07499999f, 0.074999996f),
                     new Vector3f(0.6382812475785613f, 0.7250008611008525f, 0.10156288184225559f)),
             // done
-            new ControlTypes(new SetWaypointControl(), EntityDimensions.changing(0.07499999f, 0.074999996f),
+            new ControlTypes(new LoadWaypointControl(), EntityDimensions.changing(0.07499999f, 0.074999996f),
                     new Vector3f(0.6382812475785613f, 0.7250003842636943f, -0.09843750111758709f)),
             // done
             new ControlTypes(new ConsolePortControl(), EntityDimensions.changing(0.07499999f, 0.07499999f),

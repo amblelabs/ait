@@ -213,7 +213,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         restorationChestContents = new ArrayList<>();
 
         for (SubSystem system : tardis.subsystems()) {
-            if (system.isEnabled())
+            if (!system.isReal())
                 continue;
 
             restorationChestContents.addAll(system.toStacks());
@@ -238,7 +238,17 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                     }
 
                     TardisUtil.sendMessageToLinked(tardis.asServer(), Text.translatable("tardis.message.interiorchange.success", tardis.stats().getName(), tardis.getDesktop().getSchema().name()));
-                    createChestAtInteriorDoor(restorationChestContents);
+                    this.tardis.getDesktop().getConsolePos().stream().findFirst().ifPresent(blockPos -> {
+                        if (restorationChestContents == null || restorationChestContents.isEmpty()) {
+                            AITMod.LOGGER.debug("No contents to save in recovery inventory in console for {}", this.tardis);
+                            return;
+                        }
+                        if (this.tardis.asServer().world().getBlockEntity(blockPos) instanceof ConsoleBlockEntity consoleBlockEntity) {
+                            for (int i = 0; i < restorationChestContents.size() && i < consoleBlockEntity.getInventory().size(); i++) {
+                                consoleBlockEntity.getInventory().set(i, restorationChestContents.get(i));
+                            }
+                        }
+                    });//createChestAtInteriorDoor(restorationChestContents);
 
                     ParticleEffect particle = ParticleTypes.CLOUD;
                     tardis.door().setDoorParticles(particle);

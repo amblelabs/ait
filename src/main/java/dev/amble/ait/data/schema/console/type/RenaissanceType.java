@@ -1,5 +1,6 @@
 package dev.amble.ait.data.schema.console.type;
 
+import dev.amble.ait.core.tardis.control.impl.waypoint.SaveWaypointControl;
 import org.joml.Vector3f;
 
 import net.minecraft.entity.EntityDimensions;
@@ -12,8 +13,7 @@ import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
 import dev.amble.ait.core.tardis.control.impl.pos.XControl;
 import dev.amble.ait.core.tardis.control.impl.pos.YControl;
 import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.MarkWaypointControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
+import dev.amble.ait.core.tardis.control.impl.waypoint.LoadWaypointControl;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
@@ -106,10 +106,10 @@ public class RenaissanceType extends ConsoleTypeSchema {
             new ControlTypes(new HADSControl(), EntityDimensions.changing(0.16250001f, 0.099999994f),
                     new Vector3f(-0.8859382709488273f, 0.5500005697831511f, 0.8382808724418283f)),
 
-            new ControlTypes(new MarkWaypointControl(), EntityDimensions.changing(0.07499999f, 0.099999994f),
+            new ControlTypes(new SaveWaypointControl(), EntityDimensions.changing(0.07499999f, 0.099999994f),
                     new Vector3f(-0.7617179919034243f, 0.599999618716538f, -0.717967982403934f)),
 
-            new ControlTypes(new SetWaypointControl(), EntityDimensions.changing(0.07499999f, 0.099999994f),
+            new ControlTypes(new LoadWaypointControl(), EntityDimensions.changing(0.07499999f, 0.099999994f),
                     new Vector3f(-0.9867179952561855f, 0.599999618716538f, -0.2929679760709405f)),
 
             new ControlTypes(new ConsolePortControl(), EntityDimensions.changing(0.1375f, 0.125f),
