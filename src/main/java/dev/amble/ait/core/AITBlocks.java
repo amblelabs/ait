@@ -176,6 +176,12 @@ public class AITBlocks extends BlockContainer {
             .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).nonOpaque()
             .requiresTool().instrument(Instrument.COW_BELL).strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
 
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
+    @NoEnglish
+    public static final Block FOOD_MACHINE = new FoodMachineBlock(ABlockSettings.create()
+            .itemSettings(new AItemSettings().group(AITItemGroups.MAIN)).nonOpaque()
+            .requiresTool().instrument(Instrument.COW_BELL).strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
+
     @NoBlockItem
     public static final Block RADIO = new RadioBlock(FabricBlockSettings.create().nonOpaque());
 

@@ -883,6 +883,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItems.GALLIFREY_FALLS_PAINTING, "Painting");
         provider.addTranslation(AITItems.TRENZALORE_PAINTING, "Painting");
         provider.addTranslation(AITItems.HAMMER, "Mallet");
+        provider.addTranslation(AITItems.FOOD_CUBE, "Food Cube");
+        provider.addTranslation(AITItems.OVERCHARGED_FOOD_CUBE, "§dOvercharged Food Cube");
         provider.addTranslation("ait.item.drink.mug_empty", "Empty Mug");
         provider.addTranslation("ait.item.drink.hot_cocoa", "Hot Cocoa");
         provider.addTranslation("ait.item.drink.tea", "Tea");
@@ -1027,6 +1029,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITBlocks.CABLE_BLOCK, "Artron Cable");
         provider.addTranslation(AITBlocks.FULL_CABLE_BLOCK, "Full Artron Cable");
         provider.addTranslation(AITBlocks.GENERIC_SUBSYSTEM, "Generalized Subsystem Core");
+        provider.addTranslation(AITBlocks.FOOD_MACHINE, "Food Machine");
 
         // Block Tooltips
         provider.addTranslation("block.ait.fabricator.tooltip.use", "(Place on top of a Smithing Table)");

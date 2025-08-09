@@ -385,6 +385,8 @@ public class AITModClient implements ClientModInitializer {
                 GenericSubSystemRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.POWER_CONVERTER_BLOCK_TYPE,
                 PowerConverterRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.FOOD_MACHINE_BLOCK_ENTITY_TYPE,
+                FoodMachineRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ASTRAL_MAP, AstralMapRenderer::new);
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             BlockEntityRendererFactories.register(AITBlockEntityTypes.SNOW_GLOBE_BLOCK_ENTITY_TYPE,
