@@ -6,6 +6,7 @@ import dev.amble.ait.core.blockentities.FoodMachineBlockEntity;
 import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.drinks.DrinkUtil;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -51,7 +52,9 @@ public class FoodMachineBlock extends BlockWithEntity implements BlockEntityProv
     }
 
     public FoodMachineBlock(Settings settings) {
-        super(settings);
+        super(FabricBlockSettings.of()
+                .strength(3.0F, 6.0F)
+                .requiresTool());
         this.setDefaultState(this.stateManager.getDefaultState().with(ROTATION, 0));
     }
 
@@ -64,7 +67,7 @@ public class FoodMachineBlock extends BlockWithEntity implements BlockEntityProv
 
         // cycle through different modes
         if (player.isSneaking() && stack.isEmpty()) {
-            world.playSound(null, pos, AITSounds.SET_WAYPOINT, SoundCategory.BLOCKS, 1.0F, 1.0F);
+            world.playSound(null, pos, AITSounds.LOAD_WAYPOINT, SoundCategory.BLOCKS, 1.0F, 1.0F);
             switch (machine.getMode()) {
                 case FOOD_CUBES -> {
                     machine.setMode(FoodMachineBlockEntity.Mode.DRINKS);
