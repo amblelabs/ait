@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import dev.amble.ait.core.AITSoundCategories;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundInstance;
@@ -47,11 +46,8 @@ public class ClientCreakHandler extends SoundHandler {
         List<SoundInstance> list = new ArrayList<>();
 
         for (CreakSound sound : CreakRegistry.REGISTRY) {
-            list.add(new PlayerFollowingLoopingSound(
-                    sound.sound(),
-                    AITSoundCategories.HUMS,
-                    MinecraftClient.getInstance().options.getSoundVolume(AITSoundCategories.HUMS)
-            ));
+            list.add(new PlayerFollowingLoopingSound(sound.sound(), SoundCategory.AMBIENT,
+                    AITModClient.CONFIG.interiorHumVolume));
         }
 
         return list;
@@ -75,13 +71,8 @@ public class ClientCreakHandler extends SoundHandler {
             return;
         }
 
-        PlayerFollowingSound following = new PlayerFollowingSound(
-                chosen.sound(),
-                AITSoundCategories.getHums(),
-                MinecraftClient.getInstance().options.getSoundVolume(AITSoundCategories.getHums())
-        );
-
-
+        PlayerFollowingSound following = new PlayerFollowingSound(chosen.sound(), SoundCategory.AMBIENT,
+                AITModClient.CONFIG.interiorHumVolume);
         startIfNotPlaying(following);
     }
 

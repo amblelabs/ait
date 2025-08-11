@@ -3,7 +3,6 @@ package dev.amble.ait.client.sounds.hum.interior;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.amble.ait.core.AITSoundCategories;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 
@@ -106,11 +105,8 @@ public class ClientHumHandler extends SoundHandler {
         List<SoundInstance> list = new ArrayList<>();
 
         for (Hum sound : HumRegistry.getInstance().toList()) {
-            list.add(new PlayerFollowingLoopingSound(
-                    sound.sound(),
-                    AITSoundCategories.HUMS,
-                    MinecraftClient.getInstance().options.getSoundVolume(AITSoundCategories.HUMS)
-            ));
+            list.add(new PlayerFollowingLoopingSound(sound.sound(), SoundCategory.AMBIENT,
+                    AITModClient.CONFIG.interiorHumVolume));
         }
 
         return list;
