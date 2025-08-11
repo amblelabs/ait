@@ -29,7 +29,7 @@ public class DevTeam {
     public static final UUID K_KING = UUID.fromString("73df41fb-7ffb-417e-beab-f9589aaffe74"); // K_king
 
 
-    // WOW NOT EVEN ME :SOB: - Tendo // sorry - monke
+    // WOW NOT EVEN ME :SOB: - Tendo // sorry - monke // lmao all jokes and funnies
 
     public static final Set<UUID> PLAYERS = Set.of(
             LOQOR, DUZO, THEO, OURO, CLASSIC, KRANG, ADDIE, VENWHOVIAN, MONKE, PAN, SATURN, MAGGIE, CROW, K_KING, TENDO, DIAN, RHYNO
