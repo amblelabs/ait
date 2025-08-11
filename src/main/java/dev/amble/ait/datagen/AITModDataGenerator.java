@@ -838,6 +838,34 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .input('C', Blocks.PINK_CARPET)
                     .criterion(hasItem(Blocks.PINK_CARPET), conditionsFromItem(Blocks.PINK_CARPET)));
 
+            // Extra Seats
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.CORAL_SEAT)
+                    .pattern(" C ")
+                    .pattern("CSC")
+                    .pattern(" I ")
+                    .input('I', Blocks.IRON_BARS)
+                    .criterion(hasItem(Blocks.IRON_BARS), conditionsFromItem(Blocks.IRON_BARS))
+                    .input('C', Blocks.CUT_SANDSTONE_SLAB)
+                    .criterion(hasItem(Blocks.CUT_SANDSTONE_SLAB), conditionsFromItem(Blocks.CUT_SANDSTONE_SLAB))
+                    .input('S', Blocks.SANDSTONE)
+                    .criterion(hasItem(Blocks.SANDSTONE), conditionsFromItem(Blocks.SANDSTONE)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.TOYOTA_SEAT)
+                    .pattern(" BA")
+                    .pattern(" SA")
+                    .pattern(" DC")
+                    .input('A', Blocks.ANDESITE)
+                    .criterion(hasItem(Blocks.ANDESITE), conditionsFromItem(Blocks.ANDESITE))
+                    .input('S', Blocks.ANDESITE_SLAB)
+                    .criterion(hasItem(Blocks.ANDESITE_SLAB), conditionsFromItem(Blocks.ANDESITE_SLAB))
+                    .input('B', Blocks.BLACK_CARPET)
+                    .criterion(hasItem(Blocks.BLACK_CARPET), conditionsFromItem(Blocks.BLACK_CARPET))
+                    .input('D', Items.BLUE_DYE)
+                    .criterion(hasItem(Items.BLUE_DYE), conditionsFromItem(Items.BLUE_DYE))
+                    .input('C', Blocks.ANDESITE_STAIRS)
+                    .criterion(hasItem(Blocks.ANDESITE_STAIRS), conditionsFromItem(Blocks.ANDESITE_STAIRS)));
+
             //Jukebox
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.JUKEBOX)
@@ -904,6 +932,113 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.REDSTONE_LAMP), conditionsFromItem(Blocks.REDSTONE_LAMP))
                     .input('S', Blocks.WARPED_SLAB)
                     .criterion(hasItem(Blocks.WARPED_SLAB), conditionsFromItem(Blocks.WARPED_SLAB)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.STEVE_BRASS_STATUE)
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.BLUE_DYE)
+                    .criterion(hasItem(Items.BLUE_DYE), conditionsFromItem(Items.BLUE_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.ALEX_BRASS_STATUE)
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.LIME_DYE)
+                    .criterion(hasItem(Items.LIME_DYE), conditionsFromItem(Items.LIME_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.ARI_BRASS_STATUE)
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.ORANGE_DYE)
+                    .criterion(hasItem(Items.ORANGE_DYE), conditionsFromItem(Items.ORANGE_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.KAI_BRASS_STATUE)
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.PURPLE_DYE)
+                    .criterion(hasItem(Items.PURPLE_DYE), conditionsFromItem(Items.PURPLE_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.NOOR_BRASS_STATUE)
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.BLACK_DYE)
+                    .criterion(hasItem(Items.BLACK_DYE), conditionsFromItem(Items.BLACK_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.SUNNY_BRASS_STATUE)
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.GREEN_DYE)
+                    .criterion(hasItem(Items.GREEN_DYE), conditionsFromItem(Items.GREEN_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.ZURI_BRASS_STATUE)
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.RED_DYE)
+                    .criterion(hasItem(Items.RED_DYE), conditionsFromItem(Items.RED_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.EFE_BRASS_STATUE)
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.LIGHT_BLUE_DYE)
+                    .criterion(hasItem(Items.LIGHT_BLUE_DYE), conditionsFromItem(Items.LIGHT_BLUE_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.MAKENA_BRASS_STATUE)
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.YELLOW_DYE)
+                    .criterion(hasItem(Items.YELLOW_DYE), conditionsFromItem(Items.YELLOW_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.COPPER_RINGS)
+                    .pattern("III")
+                    .pattern("I I")
+                    .pattern("III")
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
 
             generateSmithingRecipes(provider);
             return provider;
@@ -1367,6 +1502,22 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITBlocks.WARPED_JUKEBOX, "Warped Jukebox");
         provider.addTranslation(AITBlocks.BAMBOO_JUKEBOX, "Bamboo Jukebox");
         provider.addTranslation(AITBlocks.ACACIA_JUKEBOX, "Acacia Jukebox");
+
+        provider.addTranslation(AITBlocks.CORAL_SEAT, "Coral Seat");
+        provider.addTranslation(AITBlocks.TOYOTA_SEAT, "Toyota Seat");
+
+        provider.addTranslation(AITBlocks.STEVE_BRASS_STATUE, "Steve Brass Statue");
+        provider.addTranslation(AITBlocks.ALEX_BRASS_STATUE, "Alex Brass Statue");
+        provider.addTranslation(AITBlocks.SUNNY_BRASS_STATUE, "Sunny Brass Statue");
+        provider.addTranslation(AITBlocks.ARI_BRASS_STATUE, "Ari Brass Statue");
+        provider.addTranslation(AITBlocks.EFE_BRASS_STATUE, "Efe Brass Statue");
+        provider.addTranslation(AITBlocks.KAI_BRASS_STATUE, "Kai Brass Statue");
+        provider.addTranslation(AITBlocks.MAKENA_BRASS_STATUE, "Makena Brass Statue");
+        provider.addTranslation(AITBlocks.NOOR_BRASS_STATUE, "Noor Brass Statue");
+        provider.addTranslation(AITBlocks.ZURI_BRASS_STATUE, "Zuri Brass Statue");
+
+        provider.addTranslation(AITBlocks.COPPER_RINGS, "Copper Rings");
+
 
         // Block Tooltips
         provider.addTranslation("block.ait.fabricator.tooltip.use", "(Place on top of a Smithing Table)");

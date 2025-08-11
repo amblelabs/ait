@@ -5,11 +5,13 @@ import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
 
 import java.util.Calendar;
 
-import dev.amble.ait.core.blockentities.decoration.WoodenSeatBlockEntity;
+import dev.amble.ait.core.blockentities.decoration.*;
+import dev.amble.ait.core.blocks.decoration.BrassStatueBlock;
 import dev.amble.ait.core.blocks.decoration.WoodenSeatBlock;
 import dev.amble.lib.container.impl.BlockEntityContainer;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 
+import net.minecraft.block.JukeboxBlock;
 import net.minecraft.block.entity.BlockEntityType;
 
 import dev.amble.ait.core.blockentities.*;
@@ -19,6 +21,7 @@ import dev.amble.ait.core.engine.block.generic.GenericStructureSystemBlockEntity
 import dev.amble.ait.core.engine.link.block.CableBlockEntity;
 import dev.amble.ait.core.engine.link.block.FullCableBlockEntity;
 import dev.amble.ait.module.planet.core.PlanetBlocks;
+import net.minecraft.block.entity.JukeboxBlockEntity;
 
 public class AITBlockEntityTypes implements BlockEntityContainer {
     public static BlockEntityType<SnowGlobeBlockEntity> SNOW_GLOBE_BLOCK_ENTITY_TYPE;
@@ -126,6 +129,50 @@ public class AITBlockEntityTypes implements BlockEntityContainer {
                     AITBlocks.PINK_WOODEN_SEAT
             ).build();
 
+    public static BlockEntityType<CoralSeatBlockEntity> CORAL_SEAT = FabricBlockEntityTypeBuilder
+            .create(CoralSeatBlockEntity::new, AITBlocks.CORAL_SEAT).build();
+
+    public static final BlockEntityType<JukeboxBlockEntity> JUKEBOX =
+            FabricBlockEntityTypeBuilder.create(
+                    (pos, state) -> {
+                        if (state.getBlock() instanceof JukeboxBlock seatBlock) {
+                            return new JukeboxBlockEntity(pos, state);
+                        }
+                        return null;
+                    },
+                    AITBlocks.JUKEBOX,
+                    AITBlocks.ACACIA_JUKEBOX,
+                    AITBlocks.BAMBOO_JUKEBOX,
+                    AITBlocks.CHERRY_JUKEBOX,
+                    AITBlocks.WARPED_JUKEBOX,
+                    AITBlocks.PALE_OAK_JUKEBOX
+            ).build();
+
+    public static final BlockEntityType<BrassStatueBlockEntity> BRASS_STATUE =
+            FabricBlockEntityTypeBuilder.create(
+                    (pos, state) -> {
+                        if (state.getBlock() instanceof BrassStatueBlock seatBlock) {
+                            return new BrassStatueBlockEntity(pos, state, seatBlock.getVariant());
+                        }
+                        return null;
+                    },
+                    AITBlocks.ALEX_BRASS_STATUE,
+                    AITBlocks.ARI_BRASS_STATUE,
+                    AITBlocks.STEVE_BRASS_STATUE,
+                    AITBlocks.ZURI_BRASS_STATUE,
+                    AITBlocks.SUNNY_BRASS_STATUE,
+                    AITBlocks.EFE_BRASS_STATUE,
+                    AITBlocks.ARI_BRASS_STATUE,
+                    AITBlocks.MAKENA_BRASS_STATUE,
+                    AITBlocks.KAI_BRASS_STATUE,
+                    AITBlocks.NOOR_BRASS_STATUE
+            ).build();
+
+    public static BlockEntityType<ToyotaSeatBlockEntity> TOYOTA_SEAT = FabricBlockEntityTypeBuilder
+            .create(ToyotaSeatBlockEntity::new, AITBlocks.TOYOTA_SEAT).build();
+
+    public static BlockEntityType<CopperRingsBlockEntity> COPPER_RINGS = FabricBlockEntityTypeBuilder
+            .create(CopperRingsBlockEntity::new, AITBlocks.COPPER_RINGS).build();
 
 
     // TODO ADVENT might have to make this work like the block as well

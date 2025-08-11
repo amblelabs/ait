@@ -19,10 +19,7 @@ import dev.amble.ait.client.renderers.TardisStar;
 import dev.amble.ait.client.renderers.consoles.ConsoleGeneratorRenderer;
 import dev.amble.ait.client.renderers.consoles.ConsoleRenderer;
 import dev.amble.ait.client.renderers.coral.CoralRenderer;
-import dev.amble.ait.client.renderers.decoration.FlagBlockEntityRenderer;
-import dev.amble.ait.client.renderers.decoration.PlaqueRenderer;
-import dev.amble.ait.client.renderers.decoration.SnowGlobeRenderer;
-import dev.amble.ait.client.renderers.decoration.WoodenSeatRenderer;
+import dev.amble.ait.client.renderers.decoration.*;
 import dev.amble.ait.client.renderers.doors.DoorRenderer;
 import dev.amble.ait.client.renderers.entities.*;
 import dev.amble.ait.client.renderers.exteriors.ExteriorRenderer;
@@ -390,6 +387,14 @@ public class AITModClient implements ClientModInitializer {
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ASTRAL_MAP, AstralMapRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.WOODEN_SEAT,
                 WoodenSeatRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.BRASS_STATUE,
+                BrassStatueRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.CORAL_SEAT,
+                CoralSeatRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.TOYOTA_SEAT,
+                ToyotaSeatRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.COPPER_RINGS,
+                CopperRingsRenderer::new);
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             BlockEntityRendererFactories.register(AITBlockEntityTypes.SNOW_GLOBE_BLOCK_ENTITY_TYPE,
                     SnowGlobeRenderer::new);
@@ -420,6 +425,12 @@ public class AITModClient implements ClientModInitializer {
         map.putBlock(AITBlocks.SMALL_ZEITON_BUD, RenderLayer.getCutout());
         map.putBlock(AITBlocks.MACHINE_CASING, RenderLayer.getCutout());
         map.putBlock(AITBlocks.FABRICATOR, RenderLayer.getTranslucent());
+        map.putBlock(AITBlocks.JUKEBOX, RenderLayer.getTranslucent());
+        map.putBlock(AITBlocks.ACACIA_JUKEBOX, RenderLayer.getTranslucent());
+        map.putBlock(AITBlocks.PALE_OAK_JUKEBOX, RenderLayer.getTranslucent());
+        map.putBlock(AITBlocks.CHERRY_JUKEBOX, RenderLayer.getTranslucent());
+        map.putBlock(AITBlocks.BAMBOO_JUKEBOX, RenderLayer.getTranslucent());
+        map.putBlock(AITBlocks.WARPED_JUKEBOX, RenderLayer.getTranslucent());
         map.putBlock(AITBlocks.ENVIRONMENT_PROJECTOR, RenderLayer.getTranslucent());
         map.putBlock(AITBlocks.WAYPOINT_BANK, RenderLayer.getCutout());
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {

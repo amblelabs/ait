@@ -1,7 +1,8 @@
 {
 	"texture_size": [64, 64],
 	"textures": {
-		"all": "ait:block/decoration/jukebox/default"
+		"0": "ait:block/decoration/jukebox/default",
+		"particle": "minecraft:block/stripped_dark_oak_log"
 	},
 	"elements": [
 		{

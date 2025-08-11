@@ -1,6 +1,3 @@
 {
-  "parent": "ait:block/jukebox_model",
-  "textures": {
-    "all": "ait:block/decoration/jukebox/acacia"
-  }
+  "parent": "ait:block/acacia_jukebox"
 }
