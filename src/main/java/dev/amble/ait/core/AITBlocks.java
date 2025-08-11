@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import dev.amble.ait.core.blocks.decoration.WoodenSeatBlock;
 import dev.amble.lib.block.ABlockSettings;
 import dev.amble.lib.container.impl.BlockContainer;
 import dev.amble.lib.container.impl.NoBlockItem;
@@ -206,6 +207,104 @@ public class AITBlocks extends BlockContainer {
             FabricBlockSettings.create().nonOpaque().strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
 
     public static final Block ENVIRONMENT_PROJECTOR = new EnvironmentProjectorBlock(FabricBlockSettings.create());
+
+    //Decoration
+    @AutomaticModel(justItem = true)
+    public static final Block WHITE_WOODEN_SEAT = new WoodenSeatBlock(
+            FabricBlockSettings.create().nonOpaque().strength(1.5F, 6.0F),
+            "white"
+    );
+
+    @AutomaticModel(justItem = true)
+    public static final Block LIGHT_GRAY_WOODEN_SEAT = new WoodenSeatBlock(
+            FabricBlockSettings.create().nonOpaque().strength(1.5F, 6.0F),
+            "light_gray"
+    );
+
+    @AutomaticModel(justItem = true)
+    public static final Block GRAY_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "gray"
+    );
+
+    @AutomaticModel(justItem = true)
+    public static final Block BLACK_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "black"
+    );
+
+    @AutomaticModel(justItem = true)
+    public static final Block BROWN_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "brown"
+    );
+
+    @AutomaticModel(justItem = true)
+    public static final Block RED_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "red"
+    );
+
+    @AutomaticModel(justItem = true)
+    public static final Block ORANGE_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "orange"
+    );
+
+    @AutomaticModel(justItem = true)
+    public static final Block YELLOW_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "yellow"
+    );
+
+    @AutomaticModel(justItem = true)
+    public static final Block LIME_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "lime"
+    );
+
+    @AutomaticModel(justItem = true)
+    public static final Block GREEN_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "green"
+    );
+
+    @AutomaticModel(justItem = true)
+    public static final Block CYAN_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "cyan"
+    );
+
+    @AutomaticModel(justItem = true)
+    public static final Block LIGHT_BLUE_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "light_blue"
+    );
+
+    @AutomaticModel(justItem = true)
+    public static final Block BLUE_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "blue"
+    );
+
+    @AutomaticModel(justItem = true)
+    public static final Block PURPLE_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "purple"
+    );
+
+    @AutomaticModel(justItem = true)
+    public static final Block MAGENTA_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "magenta"
+    );
+
+    @AutomaticModel(justItem = true)
+    public static final Block PINK_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "pink"
+    );
+
 
     // TODO ADVENT
     static {

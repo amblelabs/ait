@@ -7,15 +7,13 @@ import dev.amble.ait.client.config.AITClientConfig;
 import dev.amble.ait.client.data.ClientLandingManager;
 import dev.amble.ait.client.models.AnimatedModel;
 import dev.amble.ait.client.models.boti.BotiPortalModel;
-import dev.amble.ait.client.models.decoration.GallifreyFallsModel;
-import dev.amble.ait.client.models.decoration.PaintingFrameModel;
-import dev.amble.ait.client.models.decoration.RiftModel;
-import dev.amble.ait.client.models.decoration.TrenzalorePaintingModel;
+import dev.amble.ait.client.models.decoration.*;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.overlays.ExteriorAxeOverlay;
 import dev.amble.ait.client.overlays.FabricatorOverlay;
 import dev.amble.ait.client.overlays.RWFOverlay;
 import dev.amble.ait.client.overlays.SonicOverlay;
+import dev.amble.ait.client.renderers.SeatEntityRenderer;
 import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.client.renderers.TardisStar;
 import dev.amble.ait.client.renderers.consoles.ConsoleGeneratorRenderer;
@@ -24,6 +22,7 @@ import dev.amble.ait.client.renderers.coral.CoralRenderer;
 import dev.amble.ait.client.renderers.decoration.FlagBlockEntityRenderer;
 import dev.amble.ait.client.renderers.decoration.PlaqueRenderer;
 import dev.amble.ait.client.renderers.decoration.SnowGlobeRenderer;
+import dev.amble.ait.client.renderers.decoration.WoodenSeatRenderer;
 import dev.amble.ait.client.renderers.doors.DoorRenderer;
 import dev.amble.ait.client.renderers.entities.*;
 import dev.amble.ait.client.renderers.exteriors.ExteriorRenderer;
@@ -43,6 +42,7 @@ import dev.amble.ait.core.*;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.blockentities.decoration.WoodenSeatBlockEntity;
 import dev.amble.ait.core.blocks.AstralMapBlock;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.drinks.DrinkRegistry;
@@ -388,6 +388,8 @@ public class AITModClient implements ClientModInitializer {
         BlockEntityRendererFactories.register(AITBlockEntityTypes.FOOD_MACHINE_BLOCK_ENTITY_TYPE,
                 FoodMachineRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ASTRAL_MAP, AstralMapRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.WOODEN_SEAT,
+                WoodenSeatRenderer::new);
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             BlockEntityRendererFactories.register(AITBlockEntityTypes.SNOW_GLOBE_BLOCK_ENTITY_TYPE,
                     SnowGlobeRenderer::new);
@@ -398,6 +400,7 @@ public class AITModClient implements ClientModInitializer {
         EntityRendererRegistry.register(AITEntityTypes.CONTROL_ENTITY_TYPE, ControlEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.FALLING_TARDIS_TYPE, FallingTardisRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.FLIGHT_TARDIS_TYPE, FlightTardisRenderer::new);
+        EntityRendererRegistry.register(AITEntityTypes.SEAT, SeatEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.GALLIFREY_FALLS_PAINTING_ENTITY_TYPE, GallifreyanPaintingEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.TRENZALORE_PAINTING_ENTITY_TYPE, TrenzalorePaintingEntityRenderer::new);
 //        if (isUnlockedOnThisDay(Calendar.DECEMBER, 26)) {
