@@ -1,15 +1,19 @@
 package dev.amble.ait.client.models.decoration;
 
 import net.minecraft.client.model.*;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.RotationAxis;
 
-public class WoodenSeatModel extends SinglePartEntityModel {
+public class WoodenSeatModel extends Model {
     private final ModelPart chair;
 
     public WoodenSeatModel(ModelPart root) {
+        super(RenderLayer::getEntityCutout);
         this.chair = root.getChild("chair");
     }
     public static TexturedModelData getTexturedModelData() {
@@ -37,17 +41,29 @@ public class WoodenSeatModel extends SinglePartEntityModel {
         ModelPartData cube_r7 = chair.addChild("cube_r7", ModelPartBuilder.create().uv(0, 55).cuboid(-1.0F, -2.5F, -1.0F, 2.0F, 5.0F, 2.0F, new Dilation(0.0F)), ModelTransform.of(6.4F, 12.1617F, -14.2373F, 0.0F, -0.7854F, 0.0F));
         return TexturedModelData.of(modelData, 128, 128);
     }
-    @Override
-    public void setAngles(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+
+    public void setAngles(MatrixStack matrices, ModelTransformationMode renderMode, boolean left) {
+        if (renderMode == ModelTransformationMode.FIXED)
+            return;
+        matrices.translate(0.5, -1.25f, -0.5);
+        matrices.scale(0.6f, 0.6f, 0.6f);
+
+        if (renderMode == ModelTransformationMode.GUI) {
+            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(22.5f));
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(45f));
+            matrices.translate(-0.1, 0.85f, 0);
+            matrices.scale(0.8f, 0.8f, 0.8f);
+        }
+
+        if (renderMode == ModelTransformationMode.HEAD) {
+            matrices.translate(0, -0.725f, 0);
+            matrices.scale(2.725f, 2.725f, 2.725f);
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
+        }
     }
+
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
         chair.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
-
-    @Override
-    public ModelPart getPart() {
-        return chair;
-    }
-
 }

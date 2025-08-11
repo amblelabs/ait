@@ -596,6 +596,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .input('B', Items.NETHERITE_INGOT)
                     .criterion(hasItem(Items.NETHERITE_INGOT), conditionsFromItem(Items.NETHERITE_INGOT)));
 
+            // Decoration (Wooden Seat)
+
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.WHITE_WOODEN_SEAT)
                     .pattern(" CP")
                     .pattern("TST")
@@ -835,6 +837,73 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.SPRUCE_FENCE), conditionsFromItem(Blocks.SPRUCE_FENCE))
                     .input('C', Blocks.PINK_CARPET)
                     .criterion(hasItem(Blocks.PINK_CARPET), conditionsFromItem(Blocks.PINK_CARPET)));
+
+            //Jukebox
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.JUKEBOX)
+                    .pattern(" S ")
+                    .pattern("LJL")
+                    .pattern("LRL")
+                    .input('J', Blocks.JUKEBOX)
+                    .criterion(hasItem(Blocks.JUKEBOX), conditionsFromItem(Blocks.JUKEBOX))
+                    .input('R', Blocks.REDSTONE_BLOCK)
+                    .criterion(hasItem(Blocks.REDSTONE_BLOCK), conditionsFromItem(Blocks.REDSTONE_BLOCK))
+                    .input('L', Blocks.REDSTONE_LAMP)
+                    .criterion(hasItem(Blocks.REDSTONE_LAMP), conditionsFromItem(Blocks.REDSTONE_LAMP))
+                    .input('S', Blocks.DARK_OAK_SLAB)
+                    .criterion(hasItem(Blocks.DARK_OAK_SLAB), conditionsFromItem(Blocks.DARK_OAK_SLAB)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.ACACIA_JUKEBOX)
+                    .pattern(" S ")
+                    .pattern("LJL")
+                    .pattern("LRL")
+                    .input('J', Blocks.JUKEBOX)
+                    .criterion(hasItem(Blocks.JUKEBOX), conditionsFromItem(Blocks.JUKEBOX))
+                    .input('R', Blocks.REDSTONE_BLOCK)
+                    .criterion(hasItem(Blocks.REDSTONE_BLOCK), conditionsFromItem(Blocks.REDSTONE_BLOCK))
+                    .input('L', Blocks.REDSTONE_LAMP)
+                    .criterion(hasItem(Blocks.REDSTONE_LAMP), conditionsFromItem(Blocks.REDSTONE_LAMP))
+                    .input('S', Blocks.ACACIA_SLAB)
+                    .criterion(hasItem(Blocks.ACACIA_SLAB), conditionsFromItem(Blocks.ACACIA_SLAB)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.BAMBOO_JUKEBOX)
+                    .pattern(" S ")
+                    .pattern("LJL")
+                    .pattern("LRL")
+                    .input('J', Blocks.JUKEBOX)
+                    .criterion(hasItem(Blocks.JUKEBOX), conditionsFromItem(Blocks.JUKEBOX))
+                    .input('R', Blocks.REDSTONE_BLOCK)
+                    .criterion(hasItem(Blocks.REDSTONE_BLOCK), conditionsFromItem(Blocks.REDSTONE_BLOCK))
+                    .input('L', Blocks.REDSTONE_LAMP)
+                    .criterion(hasItem(Blocks.REDSTONE_LAMP), conditionsFromItem(Blocks.REDSTONE_LAMP))
+                    .input('S', Blocks.BAMBOO_SLAB)
+                    .criterion(hasItem(Blocks.BAMBOO_SLAB), conditionsFromItem(Blocks.BAMBOO_SLAB)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.CHERRY_JUKEBOX)
+                    .pattern(" S ")
+                    .pattern("LJL")
+                    .pattern("LRL")
+                    .input('J', Blocks.JUKEBOX)
+                    .criterion(hasItem(Blocks.JUKEBOX), conditionsFromItem(Blocks.JUKEBOX))
+                    .input('R', Blocks.REDSTONE_BLOCK)
+                    .criterion(hasItem(Blocks.REDSTONE_BLOCK), conditionsFromItem(Blocks.REDSTONE_BLOCK))
+                    .input('L', Blocks.REDSTONE_LAMP)
+                    .criterion(hasItem(Blocks.REDSTONE_LAMP), conditionsFromItem(Blocks.REDSTONE_LAMP))
+                    .input('S', Blocks.CHERRY_SLAB)
+                    .criterion(hasItem(Blocks.CHERRY_SLAB), conditionsFromItem(Blocks.CHERRY_SLAB)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.WARPED_JUKEBOX)
+                    .pattern(" S ")
+                    .pattern("LJL")
+                    .pattern("LRL")
+                    .input('J', Blocks.JUKEBOX)
+                    .criterion(hasItem(Blocks.JUKEBOX), conditionsFromItem(Blocks.JUKEBOX))
+                    .input('R', Blocks.REDSTONE_BLOCK)
+                    .criterion(hasItem(Blocks.REDSTONE_BLOCK), conditionsFromItem(Blocks.REDSTONE_BLOCK))
+                    .input('L', Blocks.REDSTONE_LAMP)
+                    .criterion(hasItem(Blocks.REDSTONE_LAMP), conditionsFromItem(Blocks.REDSTONE_LAMP))
+                    .input('S', Blocks.WARPED_SLAB)
+                    .criterion(hasItem(Blocks.WARPED_SLAB), conditionsFromItem(Blocks.WARPED_SLAB)));
 
             generateSmithingRecipes(provider);
             return provider;
@@ -1292,6 +1361,12 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITBlocks.MAGENTA_WOODEN_SEAT, "Magenta Wooden Seat");
         provider.addTranslation(AITBlocks.PINK_WOODEN_SEAT, "Pink Wooden Seat");
 
+        provider.addTranslation(AITBlocks.JUKEBOX, "Jukebox");
+        provider.addTranslation(AITBlocks.CHERRY_JUKEBOX, "Cherry Jukebox");
+        provider.addTranslation(AITBlocks.PALE_OAK_JUKEBOX, "Pale Oak Jukebox (wait... what.)");
+        provider.addTranslation(AITBlocks.WARPED_JUKEBOX, "Warped Jukebox");
+        provider.addTranslation(AITBlocks.BAMBOO_JUKEBOX, "Bamboo Jukebox");
+        provider.addTranslation(AITBlocks.ACACIA_JUKEBOX, "Acacia Jukebox");
 
         // Block Tooltips
         provider.addTranslation("block.ait.fabricator.tooltip.use", "(Place on top of a Smithing Table)");

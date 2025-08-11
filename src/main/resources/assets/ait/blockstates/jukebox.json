@@ -1,0 +1,6 @@
+{
+	"parent": "ait:block/jukebox",
+	"textures": {
+		"all": "ait:block/decoration/jukebox/default"
+	}
+}

@@ -306,6 +306,24 @@ public class AITBlocks extends BlockContainer {
     );
 
 
+    public static final Block JUKEBOX = new JukeboxBlock(ABlockSettings.create().mapColor(MapColor.DIRT_BROWN).instrument(Instrument.BASS).strength(2.0F, 6.0F).burnable().itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)));
+
+    @AutomaticModel
+    public static final Block ACACIA_JUKEBOX = new JukeboxBlock(ABlockSettings.create().mapColor(MapColor.DIRT_BROWN).instrument(Instrument.BASS).strength(2.0F, 6.0F).burnable().itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)));
+
+    @AutomaticModel
+    public static final Block PALE_OAK_JUKEBOX = new JukeboxBlock(ABlockSettings.create().mapColor(MapColor.DIRT_BROWN).instrument(Instrument.BASS).strength(2.0F, 6.0F).burnable().itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)));
+
+    @AutomaticModel
+    public static final Block BAMBOO_JUKEBOX = new JukeboxBlock(ABlockSettings.create().mapColor(MapColor.DIRT_BROWN).instrument(Instrument.BASS).strength(2.0F, 6.0F).burnable().itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)));
+
+    @AutomaticModel
+    public static final Block CHERRY_JUKEBOX = new JukeboxBlock(ABlockSettings.create().mapColor(MapColor.DIRT_BROWN).instrument(Instrument.BASS).strength(2.0F, 6.0F).burnable().itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)));
+
+    @AutomaticModel
+    public static final Block WARPED_JUKEBOX = new JukeboxBlock(ABlockSettings.create().mapColor(MapColor.DIRT_BROWN).instrument(Instrument.BASS).strength(2.0F, 6.0F).burnable().itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)));
+
+
     // TODO ADVENT
     static {
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {

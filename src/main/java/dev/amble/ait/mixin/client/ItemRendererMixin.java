@@ -1,5 +1,13 @@
 package dev.amble.ait.mixin.client;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.decoration.WoodenSeatModel;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.blocks.decoration.WoodenSeatBlock;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.item.BlockItem;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -29,6 +37,8 @@ public class ItemRendererMixin {
     @Unique private final RiftScannerModel riftScannerModel = new RiftScannerModel(RiftScannerModel.getTexturedModelData().createModel());
     @Unique private final GeigerCounterModel geigerCounterModel = new GeigerCounterModel(GeigerCounterModel.getTexturedModelData().createModel());
     @Unique private final HandlesModel handlesModel = new HandlesModel(HandlesModel.getTexturedModelData().createModel());
+    @Unique private final WoodenSeatModel chairModel = new WoodenSeatModel(WoodenSeatModel.getTexturedModelData().createModel());
+
 
     @Inject(method = "renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformationMode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/world/World;III)V", at = @At("HEAD"), cancellable = true)
     public void renderItem(LivingEntity entity, ItemStack stack, ModelTransformationMode renderMode, boolean leftHanded, MatrixStack matrices, VertexConsumerProvider vertexConsumers, @Nullable World world, int light, int overlay, int seed, CallbackInfo ci) {
@@ -45,6 +55,12 @@ public class ItemRendererMixin {
         if (stack.isOf(PlanetItems.HANDLES)) {
             this.ait$handleHandlesRendering(entity, stack, renderMode, leftHanded, matrices, vertexConsumers, world, light, overlay, seed, ci);
         }
+
+        if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof WoodenSeatBlock seatBlock) {
+            this.ait$handleChairRendering(entity, stack, renderMode, leftHanded, matrices, vertexConsumers, world, light, overlay, seed, ci);
+        }
+
+
     }
 
     @Inject(method = "renderItem(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformationMode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;IILnet/minecraft/client/render/model/BakedModel;)V", at = @At("HEAD"), cancellable = true)
@@ -60,6 +76,10 @@ public class ItemRendererMixin {
         }
         if (stack.isOf(PlanetItems.HANDLES)) {
             this.ait$handleHandlesRendering(null, stack, renderMode, leftHanded, matrices, vertexConsumers, null, light, overlay, 0, ci);
+        }
+
+        if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof WoodenSeatBlock seatBlock) {
+            this.ait$handleChairRendering(null, stack, renderMode, leftHanded, matrices, vertexConsumers, null, light, overlay, 0, ci);
         }
     }
 
@@ -110,7 +130,6 @@ public class ItemRendererMixin {
         matrices.translate(-0.5f, -0.5f, -0.5f);
         matrices.scale(1.0f, -1.0f, -1.0f);
 
-        // render model here
         handlesModel.setAngles(matrices, renderMode, leftHanded);
 
         ClientWorld clientWorld = world instanceof ClientWorld ? (ClientWorld) world : null;
@@ -119,4 +138,47 @@ public class ItemRendererMixin {
         matrices.pop();
         ci.cancel();
     }
+
+    @Unique
+    private void ait$handleChairRendering(
+            LivingEntity entity,
+            ItemStack stack,
+            ModelTransformationMode renderMode,
+            boolean leftHanded,
+            MatrixStack matrices,
+            VertexConsumerProvider vertexConsumers,
+            @Nullable World world,
+            int light,
+            int overlay,
+            int seed,
+            CallbackInfo ci
+    ) {
+        if (!(stack.getItem() instanceof BlockItem blockItem) ||
+                !(blockItem.getBlock() instanceof WoodenSeatBlock woodenSeatBlock)) {
+            return;
+        }
+
+        String variant = woodenSeatBlock.getVariant();
+
+        matrices.push();
+
+
+        matrices.translate(-0.5f, -0.5f, -0.5f);
+        matrices.scale(1.0f, -1.0f, -1.0f);
+
+        chairModel.setAngles(matrices, renderMode, leftHanded);
+
+        Identifier texture = new Identifier(
+                AITMod.MOD_ID,
+                "textures/blockentities/decoration/wooden_seat/" + variant + ".png"
+        );
+
+        VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(texture));
+        chairModel.render(matrices, buffer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+
+        matrices.pop();
+        ci.cancel();
+    }
+
+
 }
