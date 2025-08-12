@@ -57,9 +57,12 @@ public class ArtronCollectorBlockEntity extends BlockEntity implements BlockEnti
 
     public void useOn(World world, boolean sneaking, PlayerEntity player) {
         if (!world.isClient()) {
-            player.sendMessage(Text.literal("Stored Artron: " + Math.round(this.getCurrentFuel())
-                            + "/" + ArtronCollectorItem.COLLECTOR_MAX_FUEL)
-                    .formatted(Formatting.GOLD), true);
+            player.sendMessage(
+                    Text.translatable(
+                            "message.ait.stored_artron", // your custom key
+                            Math.round(this.getCurrentFuel()),
+                            ArtronCollectorItem.COLLECTOR_MAX_FUEL
+                    ).formatted(Formatting.GOLD), true);
             ItemStack stack = player.getMainHandStack();
             if (stack.getItem() instanceof ArtronCollectorItem) {
                 double residual = ArtronCollectorItem.addFuel(stack, this.getCurrentFuel());
