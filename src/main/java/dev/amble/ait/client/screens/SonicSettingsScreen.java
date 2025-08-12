@@ -1,11 +1,15 @@
 package dev.amble.ait.client.screens;
 
-import java.util.List;
-import java.util.UUID;
-
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.data.schema.sonic.SonicSchema;
+import dev.amble.ait.registry.impl.SonicRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -22,14 +26,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.link.LinkableItem;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientTardisUtil;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.data.schema.sonic.SonicSchema;
-import dev.amble.ait.registry.impl.SonicRegistry;
+import java.util.List;
+import java.util.UUID;
 
 public class SonicSettingsScreen extends ConsoleScreen {
     private static final Identifier BACKGROUND = new Identifier(AITMod.MOD_ID,
@@ -45,7 +43,7 @@ public class SonicSettingsScreen extends ConsoleScreen {
     private final int APPLY_BAR_BUTTON_HEIGHT = 12;
     private final int SMALL_ARROW_BUTTON_WIDTH = 20;
     private final int SMALL_ARROW_BUTTON_HEIGHT = 12;
-    private BlockPos console;
+    private final BlockPos console;
 
     public SonicSettingsScreen(ClientTardis tardis, BlockPos console, Screen parent) {
         super(Text.translatable("screen." + AITMod.MOD_ID + ".sonicsettings.title"), tardis, console);
@@ -110,7 +108,6 @@ public class SonicSettingsScreen extends ConsoleScreen {
             return;
 
         SonicItem.setSchema(consoleBlockEntity.getSonicScrewdriver()/*tardis().sonic().getConsoleSonic()*/, schema);
-        System.out.println(this.console);
         ClientTardisUtil.changeSonicWithScreen(this.tardis().getUuid(), schema, this.console);
     }
 

@@ -1,5 +1,6 @@
 package dev.amble.ait.client.renderers.consoles;
 
+import dev.amble.ait.client.models.consoles.ConsoleModel;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -15,7 +16,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.models.consoles.ConsoleModel;
+import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
 import dev.amble.ait.client.models.consoles.HartnellConsoleModel;
 import dev.amble.ait.client.models.items.HandlesModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
@@ -59,7 +60,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         ClientTardis tardis = entity.tardis().get().asClient();
         Profiler profiler = entity.getWorld().getProfiler();
 
-        this.renderConsole(profiler, tardis, entity, matrices, vertexConsumers, light, overlay);
+        this.renderConsole(profiler, tardis, entity, matrices, vertexConsumers, light, overlay, tickDelta);
 
         if (variant instanceof ClientCrystallineVariant)
             this.renderPanes(tardis, entity, matrices, vertexConsumers, light, overlay);
@@ -103,7 +104,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
     }
 
     private void renderConsole(Profiler profiler, ClientTardis tardis, T entity, MatrixStack matrices,
-                               VertexConsumerProvider vertexConsumers, int light, int overlay) {
+                               VertexConsumerProvider vertexConsumers, int light, int overlay, float tickDelta) {
         profiler.push("model");
 
         this.updateModel(entity);
@@ -121,20 +122,20 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
                 profiler.swap("emission");
 
                 matrices.push();
-                matrices.translate(0.5, -1.5f, -0.5);
                 if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
-                    model.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xF000F0, overlay,
-                            1, 1, 1, 1);
+                    model.renderWithAnimations(tardis, entity, model.getPart(),
+                            matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), light, overlay,
+                            1, 1, 1, 1, tickDelta);
                 }
                 matrices.pop();
             }
         }
 
         profiler.swap("render");
-        model.renderWithAnimations(entity, tardis, model.getPart(),
+        model.renderWithAnimations(tardis, entity, model.getPart(),
                 matrices, vertexConsumers.getBuffer(variant.equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(variant.texture()) :
                         RenderLayer.getItemEntityTranslucentCull(variant.texture())), light, overlay,
-                1, 1, 1, 1);
+                1, 1, 1, 1, tickDelta);
 
 
         if (!DependencyChecker.hasIris()) {
@@ -142,10 +143,10 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
                 profiler.swap("emission");
 
                 matrices.push();
-                matrices.translate(0.5, -1.5f, -0.5);
                 if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
-                    model.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xF000F0, overlay,
-                            1, 1, 1, 1);
+                    model.renderWithAnimations(tardis, entity, model.getPart(),
+                            matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), light, overlay,
+                            1, 1, 1, 1, tickDelta);
                 }
                 matrices.pop();
             }
@@ -160,8 +161,8 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
 
         profiler.swap("monitor");
 
-        if (hasPower && AITModClient.CONFIG.showConsoleMonitorText) {
-            model.renderMonitorText(tardis, entity, matrices, vertexConsumers, light, overlay);
+        if (hasPower && AITModClient.CONFIG.showConsoleMonitorText && model instanceof SimpleConsoleModel simplez) {
+            simplez.renderMonitorText(tardis, entity, matrices, vertexConsumers, light, overlay);
         }
 
         profiler.swap("sonic_port"); // } emission / sonic {

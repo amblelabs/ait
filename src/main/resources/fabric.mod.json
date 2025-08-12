@@ -81,7 +81,7 @@
 		"java": ">=17",
 		"fabric-api": "*",
 		"yet_another_config_lib_v3": ">=${yacl_version}",
-		"amblekit": "<1.1.11-1.20.1-beta"
+		"amblekit": ">=1.1.12-1.20.1-beta"
 	},
 	"suggests": {
 		"k9-mod": "*",

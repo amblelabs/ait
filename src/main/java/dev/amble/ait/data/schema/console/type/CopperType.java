@@ -12,8 +12,8 @@ import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
 import dev.amble.ait.core.tardis.control.impl.pos.XControl;
 import dev.amble.ait.core.tardis.control.impl.pos.YControl;
 import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.MarkWaypointControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
+import dev.amble.ait.core.tardis.control.impl.waypoint.SaveWaypointControl;
+import dev.amble.ait.core.tardis.control.impl.waypoint.LoadWaypointControl;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 
 public class CopperType extends ConsoleTypeSchema {
@@ -67,9 +67,9 @@ public class CopperType extends ConsoleTypeSchema {
                     new Vector3f(1.017181414179504f, 0.6000000443309546f, -0.18436888977885246f)),
             new ControlTypes(new HADSControl(), EntityDimensions.changing(0.125f, 0.125f),
                     new Vector3f(-0.85780946072191f, 0.7249998077750206f, 0.18124390859156847f)),
-            new ControlTypes(new MarkWaypointControl(), EntityDimensions.changing(0.16250001f, 0.125f),
+            new ControlTypes(new SaveWaypointControl(), EntityDimensions.changing(0.16250001f, 0.125f),
                     new Vector3f(-0.32421875f, 0.7375003350898623f, 0.8281219471246004f)),
-            new ControlTypes(new SetWaypointControl(), EntityDimensions.changing(0.099999994f, 0.0875f),
+            new ControlTypes(new LoadWaypointControl(), EntityDimensions.changing(0.099999994f, 0.0875f),
                     new Vector3f(-0.48671875055879354f, 0.5250004287809134f, 1.176565553061664f)),
             new ControlTypes(new ConsolePortControl(), EntityDimensions.changing(0.22500002f, 0.1375f),
                     new Vector3f(-0.0109405517578125f, 0.7125006690621376f, 0.8796844482421875f)),

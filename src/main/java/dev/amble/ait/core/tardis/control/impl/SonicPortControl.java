@@ -43,6 +43,9 @@ public class SonicPortControl extends Control {
                 item = butler.takeHandles();
             }
 
+            if (item == null)
+                return Result.FAILURE;
+
             player.getInventory().offerOrDrop(item);
             consoleBlockEntity.setSonicScrewdriver(ItemStack.EMPTY);
             return Result.SUCCESS;

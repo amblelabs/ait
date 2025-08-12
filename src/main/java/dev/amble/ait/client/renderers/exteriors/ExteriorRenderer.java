@@ -1,6 +1,7 @@
 package dev.amble.ait.client.renderers.exteriors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.joml.Vector3f;
 
@@ -19,7 +20,6 @@ import net.minecraft.util.profiler.Profiler;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.boti.BOTI;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.models.exteriors.SiegeModeModel;
 import dev.amble.ait.client.models.machines.ShieldsModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
@@ -101,7 +101,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             matrices.translate(0.5f, 0.5f, 0.5f);
             SIEGE_MODEL.renderWithAnimations(tardis, entity, SIEGE_MODEL.getPart(),
                     matrices,
-                    vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(siege.texture().get())), light, overlay, 1, 1, 1, 1);
+                    vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(siege.texture().get())), light, overlay, 1, 1, 1, 1, tickDelta);
 
             matrices.pop();
             profiler.pop();
@@ -181,7 +181,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         if (!DependencyChecker.hasIris()) {
             model.renderWithAnimations(tardis, entity, this.model.getPart(),
                     matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)), light, overlay, 1, 1,
-                    1, alpha);
+                    1, alpha, tickDelta);
         }
 
         profiler.push("emission");
@@ -235,12 +235,12 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             //System.out.println(emission);
 
            model.renderWithAnimations(tardis, entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)),
-                   0xF000F0, OverlayTexture.DEFAULT_UV, red, green, blue, alpha);
+                   0xF000F0, OverlayTexture.DEFAULT_UV, red, green, blue, alpha, tickDelta);
         }
         if (DependencyChecker.hasIris()) {
             model.renderWithAnimations(tardis, entity, this.model.getPart(),
                     matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)), light, overlay, 1, 1,
-                    1, alpha);
+                    1, alpha, tickDelta);
         }
 
         profiler.swap("biome");
@@ -253,7 +253,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
                 if (alpha > 0.105f && (biomeTexture != null && !texture.equals(biomeTexture))) {
                     model.renderWithAnimations(tardis, entity, this.model.getPart(),
                             matrices,
-                            vertexConsumers.getBuffer(AITRenderLayers.getEntityCutoutNoCullZOffset(biomeTexture)), light, overlay, 1, 1, 1, alpha);
+                            vertexConsumers.getBuffer(AITRenderLayers.getEntityCutoutNoCullZOffset(biomeTexture)), light, overlay, 1, 1, 1, alpha, tickDelta);
                 }
 
             }

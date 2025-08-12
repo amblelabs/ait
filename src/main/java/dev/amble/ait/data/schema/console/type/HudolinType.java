@@ -1,5 +1,6 @@
 package dev.amble.ait.data.schema.console.type;
 
+import dev.amble.ait.core.tardis.control.impl.waypoint.LoadWaypointControl;
 import org.joml.Vector3f;
 
 import net.minecraft.entity.EntityDimensions;
@@ -12,8 +13,7 @@ import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
 import dev.amble.ait.core.tardis.control.impl.pos.XControl;
 import dev.amble.ait.core.tardis.control.impl.pos.YControl;
 import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.MarkWaypointControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
+import dev.amble.ait.core.tardis.control.impl.waypoint.SaveWaypointControl;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
@@ -73,9 +73,9 @@ public class HudolinType extends ConsoleTypeSchema {
                     new Vector3f(-0.5359386596828699f, 0.3750006640329957f, 0.5656257756054401f)),
             new ControlTypes(new ConsolePortControl(), EntityDimensions.changing(0.15f, 0.125f), // fin
                     new Vector3f(-0.10078201442956924f, 0.3250004705041647f, 0.7671871352940798f)),
-            new ControlTypes(new MarkWaypointControl(), EntityDimensions.changing(0.06249999f, 0.074999996f), // fin
+            new ControlTypes(new SaveWaypointControl(), EntityDimensions.changing(0.06249999f, 0.074999996f), // fin
                     new Vector3f(0.08749961853027344f, 0.37499961629509926f, -0.8210933683440089f)),
-            new ControlTypes(new SetWaypointControl(), EntityDimensions.changing(0.06249999f, 0.07499999f), // fin
+            new ControlTypes(new LoadWaypointControl(), EntityDimensions.changing(0.06249999f, 0.07499999f), // fin
                     new Vector3f(0.02656326163560152f, 0.3750002831220627f, -0.8226570151746273f)),
             new ControlTypes(new SonicPortControl(),EntityDimensions.changing(0.1375f, 0.15f), // fin
                     new Vector3f(-0.535156624391675f, 0.3375000460073352f, -0.586719136685133f)),

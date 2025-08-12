@@ -1,26 +1,15 @@
 package dev.amble.ait.core.tardis.handler;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.drtheo.gaslighter.Gaslighter3000;
-import dev.drtheo.gaslighter.impl.FakeStructureWorldAccess;
 import net.fabricmc.fabric.api.tag.convention.v1.ConventionalBiomeTags;
 import org.apache.commons.lang3.StringUtils;
 
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
-import net.minecraft.world.gen.feature.*;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
@@ -77,73 +66,6 @@ public class BiomeHandler extends KeyedTardisComponent {
     public void forceTypeDefault() {
         this.type.set(BiomeType.DEFAULT);
         this.sync();
-    }
-
-    public Gaslighter3000 testBiome(ServerWorld world, BlockPos pos) {
-        RegistryEntry<Biome> biome = world.getBiome(pos);
-        List<ConfiguredFeature<?, ?>> trees = this.findTrees(world, biome);
-
-        if (trees.isEmpty())
-            return null;
-
-        Gaslighter3000 gaslighter = new Gaslighter3000(world);
-
-        ConfiguredFeature<?, ?> tree = trees.get(world.random.nextInt(trees.size()));
-        FakeStructureWorldAccess access = new FakeStructureWorldAccess(world, gaslighter);
-
-        tree.generate(access, world.getChunkManager().getChunkGenerator(), world.random, pos);
-        return gaslighter;
-    }
-
-    private static final Set<Class<? extends Feature<?>>> TREES = Set.of(
-            TreeFeature.class, HugeMushroomFeature.class, HugeFungusFeature.class, DesertWellFeature.class, ChorusPlantFeature.class
-    );
-
-    private static final Identifier CACTUS = AITMod.id("cactus");
-
-    private List<ConfiguredFeature<?, ?>> findTrees(ServerWorld world, RegistryEntry<Biome> biome) {
-        if (this.type.get() == BiomeType.SANDY && world.random.nextInt(5) != 0)
-            return List.of(world.getRegistryManager().get(RegistryKeys.CONFIGURED_FEATURE).get(CACTUS));
-
-        List<ConfiguredFeature<?, ?>> trees = new ArrayList<>();
-
-        for (RegistryEntryList<PlacedFeature> feature : biome.value().getGenerationSettings().getFeatures()) {
-            for (RegistryEntry<PlacedFeature> entry : feature) {
-                ConfiguredFeature<?, ?> configured = entry.value().feature().value();
-
-                if (isTree(configured, biome)) {
-                    trees.add(configured);
-                    break;
-                } else {
-                    boolean shouldBreak = false;
-
-                    for (ConfiguredFeature<?, ?> configuredFeature : configured.config().getDecoratedFeatures().toList()) {
-                        if (!isTree(configuredFeature, biome))
-                            continue;
-
-                        trees.add(configured);
-                        shouldBreak = true;
-                        break;
-                    }
-
-                    if (shouldBreak)
-                        break;
-                }
-            }
-        }
-
-        return trees;
-    }
-
-    private static boolean isTree(ConfiguredFeature<?, ?> configured, RegistryEntry<Biome> biome) {
-        Feature<?> feature = configured.feature();
-
-        for (Class<?> clazz : TREES) {
-            if (clazz.isInstance(feature))
-                return true;
-        }
-
-        return false;
     }
 
     public BiomeType getBiomeKey() {

@@ -3,6 +3,7 @@ package dev.amble.ait.datagen.datagen_providers;
 
 import java.util.concurrent.CompletableFuture;
 
+import dev.amble.ait.module.planet.core.PlanetItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +33,7 @@ public class AITItemTagProvider extends FabricTagProvider<Item> {
 
         getOrCreateTagBuilder(ItemTags.CREEPER_DROP_MUSIC_DISCS).add(AITItems.DRIFTING_MUSIC_DISC)
                .add(AITItems.WONDERFUL_TIME_IN_SPACE_MUSIC_DISC)
-                .add(AITItems.GOOD_MAN_MUSIC_DISC)
+                .add(AITItems.GOOD_MAN_MUSIC_DISC).add(AITItems.CHRONOLOGY_MUSIC_DISC)
                 .add(AITItems.EARTH_MUSIC_DISC).add(AITItems.VENUS_MUSIC_DISC);
 
         getOrCreateTagBuilder(AITTags.Items.CLUSTER_MAX_HARVESTABLES).add(AITItems.ZEITON_SHARD);
@@ -62,6 +63,15 @@ public class AITItemTagProvider extends FabricTagProvider<Item> {
         getOrCreateTagBuilder(AITTags.Items.IS_TARDIS_FUEL).forceAddTag(ItemTags.LOGS_THAT_BURN);
         getOrCreateTagBuilder(AITTags.Items.IS_TARDIS_FUEL).forceAddTag(ItemTags.COALS);
         getOrCreateTagBuilder(AITTags.Items.IS_TARDIS_FUEL).add(Items.LAVA_BUCKET);
+
+        // Rifts
+
+        getOrCreateTagBuilder(AITTags.Items.RIFT_SUCCESS_EXTRA_ITEM).add(AITItems.ZEITON_SHARD);
+        getOrCreateTagBuilder(AITTags.Items.RIFT_FAIL_ITEM).add(Items.PAPER);
+
+        //Linkable
+
+        getOrCreateTagBuilder(AITTags.Items.LINK).add(AITItems.SONIC_SCREWDRIVER, AITItems.CLASSIC_KEY, AITItems.GOLD_KEY, AITItems.IRON_KEY, AITItems.REMOTE_ITEM,AITItems.NETHERITE_KEY, PlanetItems.HANDLES);
 
         ModuleRegistry.instance().iterator().forEachRemaining(module -> {
             module.getDataGenerator().ifPresent(generator -> {

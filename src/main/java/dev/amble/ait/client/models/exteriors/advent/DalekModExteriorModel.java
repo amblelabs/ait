@@ -2,18 +2,17 @@ package dev.amble.ait.client.models.exteriors.advent;
 
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
-public class DalekModExteriorModel extends ExteriorModel {
+public class DalekModExteriorModel extends SimpleExteriorModel {
     private final ModelPart dalekmod;
 
     public DalekModExteriorModel(ModelPart root) {
@@ -74,12 +73,7 @@ public class DalekModExteriorModel extends ExteriorModel {
         matrices.pop();
     }
 
-    @Override
-    public Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state) {
-        return Animation.Builder.create(0).build();
-    }
-
-    @Override
+	@Override
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
         DoorHandler door = tardis.door();
 

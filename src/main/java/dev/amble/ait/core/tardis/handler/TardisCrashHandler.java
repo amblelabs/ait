@@ -69,7 +69,7 @@ public class TardisCrashHandler extends KeyedTardisComponent implements TardisTi
             return;
         }
 
-        if (state == State.TOXIC)
+        if (state == State.TOXIC && tardis.sonic().getExteriorSonic() == null)
             this.tardis().alarm().enable();
 
         if (repairTicks < UNSTABLE_TICK_START_THRESHOLD && state != State.UNSTABLE) {

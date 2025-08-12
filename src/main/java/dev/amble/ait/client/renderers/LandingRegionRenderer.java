@@ -79,7 +79,7 @@ public class LandingRegionRenderer {
 
     private void renderSpot(LandingPadSpot spot, boolean forceRender) {
         Identifier text = getTexture(spot);
-        SonicRendering.renderFloorTexture(spot.getPos().add(1, 0, 1), text, forceRender ? null : this.previous, true);
+        SonicRendering.renderFloorTexture(spot.getPos().add(0, -1, 0), text, forceRender ? null : this.previous, true);
 
         forceRender = forceRender || !text.equals(this.previous);
 

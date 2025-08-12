@@ -5,6 +5,7 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.AxeItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -64,7 +65,7 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
             }
 
             // if holding an axe then break open the door RAHHH
-            if (stack.getItem() instanceof AxeItem) {
+            if (stack.getItem() instanceof AxeItem axeItem && axeItem.getAttackDamage()>=8 && stack.getItem() != Items.STONE_AXE) {
                 if (tardis.siege().isActive())
                     return DoorHandler.InteractionResult.CANCEL;
 

@@ -149,6 +149,8 @@ public class SiegeHandler extends KeyedTardisComponent implements TardisTickable
 
         this.tardis.removeFuel(0.01 * FuelHandler.TARDIS_MAX_FUEL * this.tardis.travel().instability());
         this.active.set(siege);
+
+        TardisEvents.TOGGLE_SIEGE.invoker().onSiege(this.tardis, siege);
     }
 
     @Override

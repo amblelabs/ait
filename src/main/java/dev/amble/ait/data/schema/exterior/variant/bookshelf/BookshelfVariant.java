@@ -21,7 +21,7 @@ public abstract class BookshelfVariant extends ExteriorVariantSchema {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(BookshelfDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(BookshelfDoorVariant.REFERENCE);
     }
 
     @Override

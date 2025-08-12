@@ -109,6 +109,18 @@ public class ScanningSonicMode extends SonicMode {
             user.sendMessage(fullMessage);
         }
 
+        LandingPadRegion region = LandingPadManager.getInstance((ServerWorld) world).getRegionAt(pos);
+        if (region != null) {
+            if (world.getBlockState(pos).isAir()) return true;
+
+            boolean wasSpotCreated = modifyRegion(null, (ServerWorld) world, pos.up(), user, stack, region);
+
+            float pitch = wasSpotCreated ? 1.1f : 0.75f;
+            world.playSound(null, pos, AITSounds.SONIC_SWITCH, SoundCategory.PLAYERS, 1f, pitch);
+
+            return true;
+        }
+
         String toolRequirement = "item.sonic.scanning.any_tool";
         if (block instanceof ICantBreak) {
             toolRequirement = "item.sonic.scanning.cant_break";
@@ -139,18 +151,6 @@ public class ScanningSonicMode extends SonicMode {
 
         if (user == null)
             return false;
-
-        LandingPadRegion region = LandingPadManager.getInstance((ServerWorld) world).getRegionAt(pos);
-        if (region != null) {
-            if (world.getBlockState(pos).isAir()) return true;
-
-            boolean wasSpotCreated = modifyRegion(null, (ServerWorld) world, pos.up(), user, stack, region);
-
-            float pitch = wasSpotCreated ? 1.1f : 0.75f;
-            world.playSound(null, pos, AITSounds.SONIC_SWITCH, SoundCategory.PLAYERS, 1f, pitch);
-
-            return true;
-        }
 
         if (!TardisServerWorld.isTardisDimension(world)) {
             sendRiftInfo(null, (ServerWorld) world, pos, user, stack);

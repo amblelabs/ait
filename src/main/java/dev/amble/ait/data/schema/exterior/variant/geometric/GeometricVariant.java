@@ -24,7 +24,7 @@ public abstract class GeometricVariant extends ExteriorVariantSchema {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(GeometricDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(GeometricDoorVariant.REFERENCE);
     }
 
     @Override

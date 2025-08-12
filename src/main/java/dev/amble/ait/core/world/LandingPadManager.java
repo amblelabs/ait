@@ -43,7 +43,7 @@ public class LandingPadManager {
     }
 
     @Nullable public LandingPadRegion getRegion(ChunkPos pos) {
-        Chunk chunk = this.world.getChunk(pos.x, pos.z, ChunkStatus.FULL, false);
+        Chunk chunk = this.world.getChunk(pos.x, pos.z, ChunkStatus.FULL, true);
 
         if (chunk == null)
             return null;

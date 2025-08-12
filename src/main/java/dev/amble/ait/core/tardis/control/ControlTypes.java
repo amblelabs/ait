@@ -1,5 +1,10 @@
 package dev.amble.ait.core.tardis.control;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.amble.ait.data.codec.MoreCodec;
+import dev.amble.ait.registry.impl.ControlRegistry;
+import net.minecraft.util.Identifier;
 import org.joml.Vector3f;
 
 import net.minecraft.entity.EntityDimensions;
@@ -20,6 +25,13 @@ import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
  * @see ConsoleControlEntity
  */
 public class ControlTypes {
+    public static final Codec<ControlTypes> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Identifier.CODEC.fieldOf("id").forGetter(c -> c.getControl().id()),
+            Codec.FLOAT.fieldOf("width").forGetter(c -> c.getScale().width),
+            Codec.FLOAT.fieldOf("height").forGetter(c -> c.getScale().height),
+            MoreCodec.VECTOR3F.fieldOf("offset").forGetter(ControlTypes::getOffset)
+    ).apply(instance, ControlTypes::new));
+
     private final Control control;
     private EntityDimensions scale;
     private Vector3f offset;
@@ -28,6 +40,10 @@ public class ControlTypes {
         this.control = control;
         this.scale = scaling;
         this.offset = offset;
+    }
+
+    public ControlTypes(Identifier controlId, float width, float height, Vector3f offset) {
+        this(ControlRegistry.REGISTRY.get(controlId), EntityDimensions.fixed(width, height), offset);
     }
 
     @Override

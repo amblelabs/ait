@@ -1,5 +1,6 @@
 package dev.amble.ait.client.sounds.hum.exterior;
 
+import dev.amble.ait.core.tardis.handler.ChameleonHandler;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundCategory;
 
@@ -80,7 +81,7 @@ public class ExteriorHumHandler extends SoundHandler {
     public void tick(MinecraftClient client) {
         ClientTardis tardis = ClientTardisUtil.getNearestTardis(MAX_DISTANCE).orElse(null);
 
-        if (tardis == null) {
+        if (tardis == null || ChameleonHandler.isDisguised(tardis)) {
             this.stopSounds();
             return;
         }

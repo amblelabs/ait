@@ -158,9 +158,9 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
     }
 
     private static boolean isScanningSonicInConsole(ConsoleControlEntity entity) {
-        if (entity.getConsole().isEmpty()) return false;
+        if (entity.getConsole() == null) return false;
 
-        ConsoleBlockEntity console = entity.getConsole().get();
+        ConsoleBlockEntity console = entity.getConsole();
 
         if (console.getSonicScrewdriver() == null || console.getSonicScrewdriver().isEmpty()) return false;
 

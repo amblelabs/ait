@@ -140,7 +140,6 @@ public class AITMod implements ModInitializer {
         AsyncLocatorUtil.init();
         MultiDim.init();
 
-        ConsoleRegistry.init();
         CreakRegistry.init();
         SequenceRegistry.init();
         MoodEventPoolRegistry.init();
@@ -149,6 +148,7 @@ public class AITMod implements ModInitializer {
         RiftChunkManager.init();
 
         AmbleRegistries.getInstance().registerAll(
+                ConsoleRegistry.getInstance(),
                 SonicRegistry.getInstance(),
                 DesktopRegistry.getInstance(),
                 ConsoleVariantRegistry.getInstance(),
@@ -165,7 +165,8 @@ public class AITMod implements ModInitializer {
                 SubSystemRegistry.getInstance(),
                 ItemOpinionRegistry.getInstance(),
                 DrinkRegistry.getInstance(),
-                TardisAnimationRegistry.getInstance()
+                TardisAnimationRegistry.getInstance(),
+                DoorRegistry.getInstance()
         );
         ControlSoundRegistry.init();
         BlockbenchParser.init();
@@ -176,7 +177,6 @@ public class AITMod implements ModInitializer {
         FabricLoader.getInstance().invokeEntrypoints("ait-main", AITModInitializer.class,
                 AITModInitializer::onInitializeAIT);
 
-        DoorRegistry.init();
         HandlesResponseRegistry.init();
 
         AITStatusEffects.init();
