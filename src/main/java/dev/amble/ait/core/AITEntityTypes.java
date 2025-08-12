@@ -8,7 +8,6 @@ import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.SpawnRestriction;
-import net.minecraft.registry.Registries;
 import net.minecraft.world.Heightmap;
 
 import dev.amble.ait.core.entities.*;
