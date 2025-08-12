@@ -146,21 +146,22 @@ public class CopperRingsModel extends Model {
     public void setAngles(MatrixStack matrices, ModelTransformationMode renderMode, boolean left) {
         if (renderMode == ModelTransformationMode.FIXED)
             return;
-        matrices.translate(0.5, -1.25f, -0.5);
-        matrices.scale(0.6f, 0.6f, 0.6f);
+        matrices.translate(0.5, -0.7f, -0.5);
+        matrices.scale(0.1f, 0.1f, 0.1f);
 
         if (renderMode == ModelTransformationMode.GUI) {
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(22.5f));
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(45f));
-            matrices.translate(0, 1f, 0);
-            matrices.scale(0.17f, 0.17f, 0.17f);
+            matrices.translate(0, 0f, 0);
+            matrices.scale(1f, 1f, 1f);
         }
 
         if (renderMode == ModelTransformationMode.HEAD) {
             matrices.translate(0, -0.725f, 0);
-            matrices.scale(2.725f, 2.725f, 2.725f);
+            matrices.scale(0.1f, 10f, 0.1f);
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
         }
+
     }
 
     @Override
