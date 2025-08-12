@@ -3,6 +3,7 @@ package dev.amble.ait.core.blockentities;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.block.Block;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.Items;
 import org.joml.Vector3f;
@@ -140,7 +141,11 @@ public class ConsoleBlockEntity extends InteriorLinkableBlockEntity implements B
     public void setColor(int color) {
         this.color = color;
         markDirty();
+        if (world != null && !world.isClient) {
+            world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_ALL);
+        }
     }
+
 
     public void useOn(World world, boolean sneaking, PlayerEntity player) {
         if (world.isClient())
