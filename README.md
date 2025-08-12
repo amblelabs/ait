@@ -27,7 +27,7 @@
 
 **Versions `1.2.5.2812-1.20.1-release` and above will require [YACL](https://modrinth.com/mod/yacl/versions?g=1.20.1&l=fabric).**
 
-**Versions `1.0.5-1.20.1-release` and it's Forge releace is known to be extremely buggy especially in singleplayer worlds too please be cautious when playing.**
+**Versions `1.0.5-1.20.1-release` and it's Forge release is known to be extremely buggy especially in singleplayer worlds too please be cautious when playing.**
 
 ## Summary
 **Apparatus Vivi. Living machine. The TARDIS. Whatever you wish to call it, it grows, learns, with you. It will learn things from you, so make sure to behave yourself around it, or else it might learn something you wish it wouldn't have learnt. In addition the mod adds space, mars, moon and more all for you to explore with your TARDIS. But remember, it is alive, and it will make choices of its own, you are not the one in full control.**

@@ -11,6 +11,7 @@ on:
       - gradlew
       - gradlew.bat
       - versioning.gradle
+      - .github/workflows/publish-devbuilds.yml
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,7 +31,7 @@ jobs:
     - name: Build
       run: ./gradlew build
     - name: Publish artifacts
-      uses: DrTheodor/discord-webhook-upload-action@v2.0
+      uses: drtheodor/discord-webhook-upload-action@v0.2
       with:
         url: ${{ secrets.DEV_BUILDS }}
         username: george washington
@@ -39,3 +40,5 @@ jobs:
         message_commit: '> :sparkles: [${commitMessage}](<${commitUrl}>) by [${authorName}](<${authorUrl}>)'
         message_header: |
           <:new1:1253371736510959636><:new2:1253371805734015006> New `Adventures in Time` dev build `#${{ github.run_number }}`:
+
+        file: 'build/libs/*'

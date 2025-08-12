@@ -179,9 +179,9 @@ public class OverloadSonicMode extends SonicMode {
                 world.setBlockState(blockPos2, AbstractFireBlock.getState(world, blockPos2), Block.NOTIFY_ALL);
                 world.emitGameEvent(user, GameEvent.BLOCK_PLACE, pos);
             }
+        } else if(state.isOf(Blocks.BRICKS)){
+            breakBlock(world, pos, user, state, blockHit);
         }
-
-
         playFx(world, pos);
     }
 
