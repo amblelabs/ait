@@ -112,11 +112,11 @@ public class AITJukeboxBlockEntity extends BlockEntity implements Clearable, Sin
     }
 
     private boolean isSongFinished(MusicDiscItem musicDisc) {
-        return this.tickCount >= this.recordStartTick + (long)musicDisc.getSongLengthInTicks() + 20L;
+        return this.tickCount >= this.recordStartTick + (long)musicDisc.getSongLengthInTicks() + SECOND_PER_TICK;
     }
 
     private boolean hasSecondPassed() {
-        return this.ticksThisSecond >= 20;
+        return this.ticksThisSecond >= SECOND_PER_TICK;
     }
 
     @Override
