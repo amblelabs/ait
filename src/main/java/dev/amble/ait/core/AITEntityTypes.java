@@ -8,6 +8,7 @@ import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.SpawnRestriction;
+import net.minecraft.registry.Registries;
 import net.minecraft.world.Heightmap;
 
 import dev.amble.ait.core.entities.*;
@@ -38,16 +39,6 @@ public class AITEntityTypes implements EntityContainer {
             .disableSaving()
             .disableSummon()
             .build();
-
-//    public static final EntityType<SeatEntity> SEAT = Registry.register(
-//            Registries.ENTITY_TYPE,
-//            new Identifier("ait", "seat"),
-//            FabricEntityTypeBuilder.<SeatEntity>create(SpawnGroup.MISC, SeatEntity::new)
-//                    .dimensions(EntityDimensions.fixed(0.0F, 0.0F))
-//                    .disableSaving()
-//                    .disableSummon()
-//                    .build()
-//    );
 
 
     public static final EntityType<GallifreyFallsPaintingEntity> GALLIFREY_FALLS_PAINTING_ENTITY_TYPE = FabricEntityTypeBuilder

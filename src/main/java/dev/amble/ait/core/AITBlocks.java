@@ -212,13 +212,13 @@ public class AITBlocks extends BlockContainer {
     //Decorations
     @PickaxeMineable
     public static final Block WHITE_WOODEN_SEAT = new WoodenSeatBlock(
-            FabricBlockSettings.create().nonOpaque().strength(1.5F, 6.0F),
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
             "white"
     );
 
     @PickaxeMineable
     public static final Block LIGHT_GRAY_WOODEN_SEAT = new WoodenSeatBlock(
-            FabricBlockSettings.create().nonOpaque().strength(1.5F, 6.0F),
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
             "light_gray"
     );
 
