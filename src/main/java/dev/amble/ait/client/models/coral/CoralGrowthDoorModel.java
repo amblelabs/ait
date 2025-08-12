@@ -107,7 +107,7 @@ public class CoralGrowthDoorModel extends DoorModel {
         matrices.pop();
     }
 
-	@Override
+    @Override
     public ModelPart getPart() {
         return coral;
     }

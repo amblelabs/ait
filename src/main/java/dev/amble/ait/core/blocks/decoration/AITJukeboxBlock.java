@@ -1,7 +1,7 @@
 package dev.amble.ait.core.blocks.decoration;
 
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.blockentities.decoration.AITJukeboxBlockEntity;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -26,7 +26,9 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
+
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.blockentities.decoration.AITJukeboxBlockEntity;
 
 public class AITJukeboxBlock extends BlockWithEntity {
     public static final BooleanProperty HAS_RECORD = Properties.HAS_RECORD;
@@ -152,8 +154,7 @@ public class AITJukeboxBlock extends BlockWithEntity {
         return BlockRenderType.MODEL;
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
         return state.get(HAS_RECORD) ? checkType(type, AITBlockEntityTypes.JUKEBOX, JukeboxBlockEntity::tick) : null;
     }

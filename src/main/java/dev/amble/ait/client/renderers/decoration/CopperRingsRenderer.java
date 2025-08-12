@@ -1,11 +1,6 @@
 package dev.amble.ait.client.renderers.decoration;
 
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.decoration.CopperRingsModel;
-import dev.amble.ait.client.models.decoration.CoralSeatModel;
-import dev.amble.ait.core.blockentities.decoration.CopperRingsBlockEntity;
-import dev.amble.ait.core.blockentities.decoration.CoralSeatBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SkullBlock;
 import net.minecraft.client.render.RenderLayer;
@@ -16,6 +11,10 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.RotationPropertyHelper;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.decoration.CopperRingsModel;
+import dev.amble.ait.core.blockentities.decoration.CopperRingsBlockEntity;
 
 public class CopperRingsRenderer implements BlockEntityRenderer<CopperRingsBlockEntity> {
 

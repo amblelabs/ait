@@ -66,7 +66,7 @@ public class ClassicDoorModel extends DoorModel {
         classic.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
-	@Override
+    @Override
     public ModelPart getPart() {
         return classic;
     }

@@ -66,9 +66,9 @@ public class BoothDoorModel extends DoorModel {
         part.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
-	@Override
+    @Override
     public void renderWithAnimations(ClientTardis tardis, AbstractLinkableBlockEntity linkableBlockEntity, ModelPart root, MatrixStack matrices,
-	                                 VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, float tickDelta) {
+                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, float tickDelta) {
         matrices.push();
         if (!AITModClient.CONFIG.animateDoors)
             this.k2.getChild("Door").yaw = tardis.door().isOpen() ? 1.575F : 0.0F;

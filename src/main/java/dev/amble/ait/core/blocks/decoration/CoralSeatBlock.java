@@ -1,9 +1,9 @@
 package dev.amble.ait.core.blocks.decoration;
 
-import dev.amble.ait.core.AITEntityTypes;
-import dev.amble.ait.core.blockentities.decoration.CoralSeatBlockEntity;
-import dev.amble.ait.core.blockentities.decoration.WoodenSeatBlockEntity;
-import dev.amble.ait.core.entities.SeatEntity;
+import java.util.List;
+
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,9 +21,10 @@ import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import dev.amble.ait.core.AITEntityTypes;
+import dev.amble.ait.core.blockentities.decoration.CoralSeatBlockEntity;
+import dev.amble.ait.core.entities.SeatEntity;
 
 public class CoralSeatBlock extends BlockWithEntity {
 
@@ -119,8 +120,7 @@ public class CoralSeatBlock extends BlockWithEntity {
     }
 
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new CoralSeatBlockEntity(pos, state);
     }

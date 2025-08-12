@@ -1,14 +1,14 @@
 package dev.amble.ait.core.blockentities.decoration;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.Objects;
 
-import dev.amble.ait.core.AITBlockEntityTypes;
+import com.google.common.annotations.VisibleForTesting;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.JukeboxBlock;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -29,7 +29,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
 import net.minecraft.world.event.GameEvent;
-import org.jetbrains.annotations.Nullable;
+
+import dev.amble.ait.core.AITBlockEntityTypes;
 
 public class AITJukeboxBlockEntity extends BlockEntity implements Clearable, SingleStackInventory {
     private static final int SECOND_PER_TICK = 20;
@@ -198,4 +199,3 @@ public class AITJukeboxBlockEntity extends BlockEntity implements Clearable, Sin
         this.markDirty();
     }
 }
-

@@ -1,6 +1,5 @@
 package dev.amble.ait.core.item.sonic;
 
-import dev.amble.ait.core.AITTags;
 import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -16,6 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
+import dev.amble.ait.core.AITTags;
 import dev.amble.ait.data.schema.sonic.SonicSchema;
 
 public class InteractionSonicMode extends SonicMode {

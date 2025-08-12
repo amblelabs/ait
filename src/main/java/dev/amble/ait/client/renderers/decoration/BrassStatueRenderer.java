@@ -1,11 +1,6 @@
 package dev.amble.ait.client.renderers.decoration;
 
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.decoration.BrassStatueModel;
-import dev.amble.ait.client.models.decoration.WoodenSeatModel;
-import dev.amble.ait.core.blockentities.decoration.BrassStatueBlockEntity;
-import dev.amble.ait.core.blockentities.decoration.WoodenSeatBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SkullBlock;
 import net.minecraft.client.render.RenderLayer;
@@ -16,6 +11,10 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.RotationPropertyHelper;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.decoration.BrassStatueModel;
+import dev.amble.ait.core.blockentities.decoration.BrassStatueBlockEntity;
 
 public class BrassStatueRenderer implements BlockEntityRenderer<BrassStatueBlockEntity> {
 

@@ -1,14 +1,5 @@
 package dev.amble.ait.mixin.client;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.decoration.*;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.blocks.decoration.BrassStatueBlock;
-import dev.amble.ait.core.blocks.decoration.WoodenSeatBlock;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.item.BlockItem;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -16,6 +7,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.BakedModel;
@@ -23,13 +16,20 @@ import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.decoration.*;
 import dev.amble.ait.client.models.items.GeigerCounterModel;
 import dev.amble.ait.client.models.items.HandlesModel;
 import dev.amble.ait.client.models.items.RiftScannerModel;
+import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.blocks.decoration.BrassStatueBlock;
+import dev.amble.ait.core.blocks.decoration.WoodenSeatBlock;
 import dev.amble.ait.module.planet.core.PlanetItems;
 
 @Mixin(ItemRenderer.class)
@@ -168,8 +168,7 @@ public class ItemRendererMixin {
         ci.cancel();
     }
 
-    @Unique
-    private void ait$handleChairRendering(
+    @Unique private void ait$handleChairRendering(
             LivingEntity entity,
             ItemStack stack,
             ModelTransformationMode renderMode,
@@ -209,8 +208,7 @@ public class ItemRendererMixin {
         ci.cancel();
     }
 
-    @Unique
-    private void ait$handleBrassStatueRendering(
+    @Unique private void ait$handleBrassStatueRendering(
             LivingEntity entity,
             ItemStack stack,
             ModelTransformationMode renderMode,
@@ -250,8 +248,7 @@ public class ItemRendererMixin {
         ci.cancel();
     }
 
-    @Unique
-    private void ait$handleCoralChairRendering(
+    @Unique private void ait$handleCoralChairRendering(
             LivingEntity entity,
             ItemStack stack,
             ModelTransformationMode renderMode,
@@ -285,8 +282,7 @@ public class ItemRendererMixin {
         ci.cancel();
     }
 
-    @Unique
-    private void ait$handleCopperRingsRendering(
+    @Unique private void ait$handleCopperRingsRendering(
             LivingEntity entity,
             ItemStack stack,
             ModelTransformationMode renderMode,
@@ -320,8 +316,7 @@ public class ItemRendererMixin {
         ci.cancel();
     }
 
-    @Unique
-    private void ait$handleToyotaChairRendering(
+    @Unique private void ait$handleToyotaChairRendering(
             LivingEntity entity,
             ItemStack stack,
             ModelTransformationMode renderMode,

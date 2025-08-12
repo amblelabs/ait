@@ -59,7 +59,7 @@ public class ClassicHudolinDoorModel extends DoorModel {
         hudolin.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
-	@Override
+    @Override
     public ModelPart getPart() {
         return hudolin;
     }

@@ -124,7 +124,7 @@ public class BlueBoxDoorModel extends DoorModel {
         matrices.pop();
     }
 
-	@Override
+    @Override
     public ModelPart getPart() {
         return box;
     }

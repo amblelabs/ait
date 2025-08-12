@@ -1,6 +1,16 @@
 package dev.amble.ait.registry.impl.door;
 
 
+import dev.amble.lib.client.bedrock.BedrockModel;
+import dev.amble.lib.client.bedrock.BedrockModelRegistry;
+import dev.amble.lib.register.datapack.DatapackRegistry;
+
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
+
 import dev.amble.ait.client.models.AnimatedModel;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -11,14 +21,6 @@ import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.door.impl.*;
 import dev.amble.ait.data.schema.door.impl.exclusive.ClientBlueBoxDoorVariant;
 import dev.amble.ait.data.schema.door.impl.exclusive.ClientDoomDoorVariant;
-import dev.amble.lib.client.bedrock.BedrockModel;
-import dev.amble.lib.client.bedrock.BedrockModelRegistry;
-import dev.amble.lib.register.datapack.DatapackRegistry;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
 
 public class ClientDoorRegistry extends DatapackRegistry<ClientDoorSchema> {
     private static final ClientDoorRegistry INSTANCE = new ClientDoorRegistry();
@@ -128,25 +130,25 @@ public class ClientDoorRegistry extends DatapackRegistry<ClientDoorSchema> {
                 ModelPart root = model.create().createModel();
 
                 return new AnimatedModel<>() {
-	                @Override
-	                public void renderWithAnimations(ClientTardis tardis, DoorBlockEntity be, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, float tickDelta) {
-		                matrices.push();
+                    @Override
+                    public void renderWithAnimations(ClientTardis tardis, DoorBlockEntity be, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, float tickDelta) {
+                        matrices.push();
 
-		                DoorSchema schema = tardis.getExterior().getVariant().door();
+                        DoorSchema schema = tardis.getExterior().getVariant().door();
 
-		                if (schema instanceof AnimatedDoor animDoor) {
+                        if (schema instanceof AnimatedDoor animDoor) {
                             this.getPart().traverse().forEach(ModelPart::resetTransform);
-							animDoor.runAnimations(root, matrices, tickDelta, tardis);
-		                }
-		                root.render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
+                            animDoor.runAnimations(root, matrices, tickDelta, tardis);
+                        }
+                        root.render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
 
-		                matrices.pop();
-	                }
+                        matrices.pop();
+                    }
 
-	                @Override
-	                public ModelPart getPart() {
-		                return root;
-	                }
+                    @Override
+                    public ModelPart getPart() {
+                        return root;
+                    }
                 };
             }
         };

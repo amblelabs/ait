@@ -1,29 +1,21 @@
 package dev.amble.ait.core.blocks.decoration;
 
-import dev.amble.ait.core.AITEntityTypes;
-import dev.amble.ait.core.blockentities.decoration.BrassStatueBlockEntity;
-import dev.amble.ait.core.blockentities.decoration.WoodenSeatBlockEntity;
-import dev.amble.ait.core.entities.SeatEntity;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import dev.amble.ait.core.blockentities.decoration.BrassStatueBlockEntity;
+
 
 public class BrassStatueBlock extends BlockWithEntity {
 
@@ -77,8 +69,7 @@ public class BrassStatueBlock extends BlockWithEntity {
     }
 
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new BrassStatueBlockEntity(pos, state, variant);
     }

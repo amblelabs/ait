@@ -1,9 +1,10 @@
 package dev.amble.ait.client.renderers;
 
-import dev.amble.ait.core.entities.SeatEntity;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.util.Identifier;
+
+import dev.amble.ait.core.entities.SeatEntity;
 
 public class SeatEntityRenderer extends EntityRenderer<SeatEntity> {
     public SeatEntityRenderer(EntityRendererFactory.Context ctx) {
@@ -15,4 +16,3 @@ public class SeatEntityRenderer extends EntityRenderer<SeatEntity> {
         return null;
     }
 }
-

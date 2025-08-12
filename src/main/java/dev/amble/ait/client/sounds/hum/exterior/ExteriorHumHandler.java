@@ -1,6 +1,5 @@
 package dev.amble.ait.client.sounds.hum.exterior;
 
-import dev.amble.ait.core.tardis.handler.ChameleonHandler;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundCategory;
 
@@ -8,6 +7,7 @@ import dev.amble.ait.api.ClientWorldEvents;
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.tardis.handler.ChameleonHandler;
 
 public class ExteriorHumHandler extends SoundHandler {
 
