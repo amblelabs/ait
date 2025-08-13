@@ -3,6 +3,7 @@ package dev.amble.ait.datagen.datagen_providers;
 
 import java.util.concurrent.CompletableFuture;
 
+import dev.amble.ait.module.planet.core.PlanetItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import org.jetbrains.annotations.Nullable;
@@ -62,6 +63,15 @@ public class AITItemTagProvider extends FabricTagProvider<Item> {
         getOrCreateTagBuilder(AITTags.Items.IS_TARDIS_FUEL).forceAddTag(ItemTags.LOGS_THAT_BURN);
         getOrCreateTagBuilder(AITTags.Items.IS_TARDIS_FUEL).forceAddTag(ItemTags.COALS);
         getOrCreateTagBuilder(AITTags.Items.IS_TARDIS_FUEL).add(Items.LAVA_BUCKET);
+
+        // Rifts
+
+        getOrCreateTagBuilder(AITTags.Items.RIFT_SUCCESS_EXTRA_ITEM).add(AITItems.ZEITON_SHARD);
+        getOrCreateTagBuilder(AITTags.Items.RIFT_FAIL_ITEM).add(Items.PAPER);
+
+        //Linkable
+
+        getOrCreateTagBuilder(AITTags.Items.LINK).add(AITItems.SONIC_SCREWDRIVER, AITItems.CLASSIC_KEY, AITItems.GOLD_KEY, AITItems.IRON_KEY, AITItems.REMOTE_ITEM,AITItems.NETHERITE_KEY, PlanetItems.HANDLES);
 
         ModuleRegistry.instance().iterator().forEachRemaining(module -> {
             module.getDataGenerator().ifPresent(generator -> {

@@ -21,7 +21,7 @@ public abstract class PoliceBoxVariant extends ExteriorVariantSchema {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(PoliceBoxDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(PoliceBoxDoorVariant.REFERENCE);
     }
 
     @Override

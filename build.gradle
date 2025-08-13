@@ -73,34 +73,40 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    include(implementation "net.objecthunter:exp4j:0.4.8")
-
-    // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    implementation 'com.google.code.gson:gson:2.8.9'
 
-    modApi("com.github.qouteall:GravityChanger:${project.gravity_version}") {
+    // Misc (non-MC) libraries
+    include(implementation "net.objecthunter:exp4j:${project.exp4j_version}")
+    implementation "com.google.code.gson:gson:${project.gson_version}"
+
+    // MC libraries
+    modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+
+    // TODO: move these 3 to modkit so we don't have to re-export so many dependencies
+    include(modApi("dev.drtheo:multidim:${project.multidim_version}")) {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+    include(modApi("dev.drtheo:scheduler:${project.scheduler_version}")) {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+    include(modApi("dev.drtheo:queue:${project.queue_version}")) {
         exclude(group: "net.fabricmc.fabric-api")
     }
 
-    modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+    modApi("com.github.amblelabs:modkit:v${project.amblekit_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+
+    // Compat
     modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 
-    modCompileOnlyApi "maven.modrinth:k9-mod:${project.k9_version}"
-    modCompileOnlyApi "me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"
+    modCompileOnly "maven.modrinth:k9-mod:${project.k9_version}"
 
-    include(modImplementation("dev.drtheo:multidim:${project.multidim_version}")) {
+    modCompileOnly("com.github.qouteall:GravityChanger:${project.gravity_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
-    include(modImplementation("dev.drtheo:scheduler:${project.scheduler_version}")) {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
-    include(modImplementation("dev.drtheo:queue:${project.queue_version}")) {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
-    modImplementation("com.github.amblelabs:modkit:v${project.amblekit_version}") {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
+
+    modCompileOnly "me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"
 }
 
 processResources {

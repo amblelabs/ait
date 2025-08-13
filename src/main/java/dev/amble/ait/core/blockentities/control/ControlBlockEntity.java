@@ -84,7 +84,7 @@ public abstract class ControlBlockEntity extends InteriorLinkableBlockEntity {
     }
 
     public void setConsoleId(Identifier id) {
-        Optional<ConsoleTypeSchema> found = ConsoleRegistry.REGISTRY.getOrEmpty(id);
+        Optional<ConsoleTypeSchema> found = ConsoleRegistry.getInstance().getOptional(id);
 
         if (found.isEmpty())
             return;

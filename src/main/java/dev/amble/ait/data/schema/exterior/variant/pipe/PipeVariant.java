@@ -20,7 +20,7 @@ public abstract class PipeVariant extends ExteriorVariantSchema {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(PipeDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(PipeDoorVariant.REFERENCE);
     }
 
 

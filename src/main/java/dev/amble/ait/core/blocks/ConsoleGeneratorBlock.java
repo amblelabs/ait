@@ -1,11 +1,17 @@
 package dev.amble.ait.core.blocks;
 
+import static dev.amble.ait.core.blockentities.ConsoleBlockEntity.previousConsole;
+import static dev.amble.ait.core.blockentities.ConsoleBlockEntity.previousVariant;
+
+import dev.amble.lib.api.ICantBreak;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -17,8 +23,9 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlock;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
+import dev.amble.ait.core.world.TardisServerWorld;
 
-public class ConsoleGeneratorBlock extends FluidLinkBlock implements BlockEntityProvider {
+public class ConsoleGeneratorBlock extends FluidLinkBlock implements BlockEntityProvider, ICantBreak {
 
     public ConsoleGeneratorBlock(Settings settings) {
         super(settings);
@@ -84,9 +91,31 @@ public class ConsoleGeneratorBlock extends FluidLinkBlock implements BlockEntity
         }
     }
 
+    // Triggers instead of onTryBreak when punching in survival mode.
     @Override
     public void onBlockBreakStart(BlockState state, World world, BlockPos pos, PlayerEntity player) {
         if (world.getBlockEntity(pos) instanceof ConsoleGeneratorBlockEntity be)
             be.useOn(world, player.isSneaking(), true, player);
+    }
+
+    // Triggers instead of onBlockBreakStart when punching in creative mode.
+    @Override
+    public void onTryBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+        if (player == null)
+            return;
+
+        if (!TardisServerWorld.isTardisDimension(world) || !player.getMainHandStack().isEmpty()) {
+            world.breakBlock(pos, true);
+            return;
+        }
+
+        if (world.getBlockEntity(pos) instanceof ConsoleGeneratorBlockEntity be) {
+            world.playSound(null, pos, SoundEvents.BLOCK_SCULK_CHARGE, SoundCategory.BLOCKS, 0.5f, 1.0f);
+
+            if (player.isSneaking())
+                be.changeConsole(previousVariant(be.getConsoleVariant()));
+            else
+                be.changeConsole(previousConsole(be.getConsoleSchema()));
+        }
     }
 }

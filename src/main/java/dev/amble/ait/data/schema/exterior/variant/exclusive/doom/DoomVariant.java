@@ -19,7 +19,7 @@ public class DoomVariant extends ExteriorVariantSchema {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(DoomDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(DoomDoorVariant.REFERENCE);
     }
 
     @Override

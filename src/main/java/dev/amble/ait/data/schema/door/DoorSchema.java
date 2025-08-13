@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 
 import com.google.gson.*;
 
+import dev.amble.lib.api.Identifiable;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
@@ -20,15 +21,15 @@ import dev.amble.ait.registry.impl.door.DoorRegistry;
  * <br>
  * It's information should be final and set once during creation. <br>
  * <br>
- * It should be registered in {@link DoorRegistry#REGISTRY} and only obtained
+ * It should be registered in {@link DoorRegistry#OLD_REGISTRY} and only obtained
  * from there. <br>
  * <br>
  * This should be referenced by a {@link ExteriorVariantSchema} to be used
  *
  * @author duzo
- * @see DoorRegistry#REGISTRY
+ * @see DoorRegistry#OLD_REGISTRY
  */
-public abstract class DoorSchema {
+public abstract class DoorSchema implements Identifiable {
     private final Identifier id;
 
     protected DoorSchema(Identifier id) {
@@ -43,6 +44,7 @@ public abstract class DoorSchema {
         return o instanceof DoorSchema that && id.equals(that.id);
     }
 
+    @Override
     public Identifier id() {
         return id;
     }
@@ -80,7 +82,7 @@ public abstract class DoorSchema {
                 id = CapsuleDoorVariant.REFERENCE;
             }
 
-            return DoorRegistry.REGISTRY.get(id);
+            return DoorRegistry.getInstance().get(id);
         }
 
         @Override

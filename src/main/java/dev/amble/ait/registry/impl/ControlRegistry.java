@@ -66,6 +66,7 @@ public class ControlRegistry {
         register(new VisualiserControl());
         register(new EngineOverloadControl());
         register(new ElectricalDischargeControl());
+        register(new ShieldsControl());
 
         // Waypoints
         register(new ConsolePortControl());

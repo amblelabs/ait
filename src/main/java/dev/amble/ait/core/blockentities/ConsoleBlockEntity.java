@@ -111,7 +111,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
 
-        this.setType(ConsoleRegistry.REGISTRY.get(Identifier.tryParse(nbt.getString("type"))));
+        this.setType(ConsoleRegistry.getInstance().get(Identifier.tryParse(nbt.getString("type"))));
 
         this.setVariant(ConsoleVariantRegistry.getInstance().get(Identifier.tryParse(nbt.getString("variant"))));
 
@@ -352,7 +352,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
     }
 
     public static ConsoleTypeSchema previousConsole(ConsoleTypeSchema current) {
-        List<ConsoleTypeSchema> list = ConsoleRegistry.REGISTRY.stream().toList();
+        List<ConsoleTypeSchema> list = ConsoleRegistry.getInstance().toList();
         int idx = list.indexOf(current);
         int size = list.size();
 
@@ -360,7 +360,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
     }
 
     public static ConsoleTypeSchema nextConsole(ConsoleTypeSchema current) {
-        List<ConsoleTypeSchema> list = ConsoleRegistry.REGISTRY.stream().toList();
+        List<ConsoleTypeSchema> list = ConsoleRegistry.getInstance().toList();
         int idx = list.indexOf(current);
         int size = list.size();
 

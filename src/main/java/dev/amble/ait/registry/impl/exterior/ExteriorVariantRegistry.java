@@ -1,27 +1,11 @@
 package dev.amble.ait.registry.impl.exterior;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-import dev.amble.ait.data.schema.exterior.variant.adaptive.AdaptiveVariant;
-import dev.amble.lib.register.datapack.DatapackRegistry;
-import dev.amble.lib.register.unlockable.UnlockableRegistry;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.Vec3d;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.AITRegistryEvents;
 import dev.amble.ait.data.datapack.DatapackExterior;
-import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.data.schema.exterior.variant.adaptive.AdaptiveVariant;
 import dev.amble.ait.data.schema.exterior.variant.bookshelf.BookshelfDefaultVariant;
 import dev.amble.ait.data.schema.exterior.variant.booth.*;
 import dev.amble.ait.data.schema.exterior.variant.box.*;
@@ -56,6 +40,18 @@ import dev.amble.ait.data.schema.exterior.variant.stallion.StallionSteelVariant;
 import dev.amble.ait.data.schema.exterior.variant.tardim.TardimDefaultVariant;
 import dev.amble.ait.data.schema.exterior.variant.tardim.TardimFireVariant;
 import dev.amble.ait.data.schema.exterior.variant.tardim.TardimSoulVariant;
+import dev.amble.lib.register.datapack.DatapackRegistry;
+import dev.amble.lib.register.unlockable.UnlockableRegistry;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.resource.ResourceType;
+import net.minecraft.server.network.ServerPlayerEntity;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantSchema> {
     private static ExteriorVariantRegistry INSTANCE;
@@ -79,19 +75,18 @@ public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantS
     @Override
     public void syncToClient(ServerPlayerEntity player) {
         PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeInt(REGISTRY.size());
+        PacketByteBuf secondary = PacketByteBufs.create();
 
-        for (ExteriorVariantSchema schema : REGISTRY.values()) {
-            if (schema instanceof DatapackExterior variant) {
-                buf.encodeAsJson(DatapackExterior.CODEC, variant);
-                continue;
-            }
+        int counter = 0;
+        for (ExteriorVariantSchema schema : this.toList()) {
+            if (!(schema instanceof DatapackExterior type)) continue;
 
-            buf.encodeAsJson(DatapackExterior.CODEC,
-                    new DatapackExterior(schema.id(), schema.categoryId(), schema.id(),
-                            DatapackExterior.DEFAULT_TEXTURE, DatapackExterior.DEFAULT_TEXTURE, schema.requirement(),
-                            BiomeOverrides.EMPTY,new Vec3d(0.5, 1, 0.5), false, false));
+            counter++;
+            secondary.encodeAsJson(DatapackExterior.CODEC, type);
         }
+
+        buf.writeInt(counter);
+        buf.writeBytes(secondary);
 
         ServerPlayNetworking.send(player, this.packet, buf);
     }
@@ -99,22 +94,21 @@ public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantS
     @Override
     public void readFromServer(PacketByteBuf buf) {
         PacketByteBuf copy = PacketByteBufs.copy(buf);
-        ClientExteriorVariantRegistry.getInstance().readFromServer(copy);
 
-        this.defaults();
+        for (ExteriorVariantSchema schema : this.toList()) {
+            if (!(schema instanceof DatapackExterior type)) continue;
+
+            this.REGISTRY.remove(type.id());
+        }
 
         int size = buf.readInt();
 
         for (int i = 0; i < size; i++) {
-            DatapackExterior variant = buf.decodeAsJson(DatapackExterior.CODEC);
-
-            if (!variant.wasDatapack())
-                continue;
-
-            register(variant);
+            DatapackExterior type = buf.decodeAsJson(DatapackExterior.CODEC);
+            this.register(type);
         }
 
-        AITMod.LOGGER.info("Read {} exterior variants from server", size);
+        ClientExteriorVariantRegistry.getInstance().readFromServer(copy);
     }
 
     public static ExteriorVariantRegistry getInstance() {

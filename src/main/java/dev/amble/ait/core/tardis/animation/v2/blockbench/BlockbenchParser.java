@@ -13,6 +13,7 @@ import dev.amble.lib.AmbleKit;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -36,12 +37,13 @@ import dev.amble.ait.core.tardis.animation.v2.keyframe.AnimationKeyframe;
 import dev.amble.ait.core.tardis.animation.v2.keyframe.KeyframeTracker;
 
 
+// TODO - replace this with the better BedrockAnimation stuff when i can be bothered.
 public class BlockbenchParser implements
         SimpleSynchronousResourceReloadListener {
     private static final Identifier SYNC = AITMod.id("blockbench_sync");
 
-    private final HashMap<Identifier, Result> lookup = new HashMap<>();
-    private final ConcurrentHashMap<String, List<JsonObject>> rawLookup = new ConcurrentHashMap<>();
+    private final HashMap<Identifier, Result> tardisAnimations = new HashMap<>();
+    private final ConcurrentHashMap<String, List<JsonObject>> tardisAnimationsRaw = new ConcurrentHashMap<>();
     private static final BlockbenchParser instance = new BlockbenchParser();
 
     private BlockbenchParser() {
@@ -67,8 +69,8 @@ public class BlockbenchParser implements
     private PacketByteBuf toBuf() {
         PacketByteBuf buf = PacketByteBufs.create();
 
-        buf.writeInt(this.rawLookup.size());
-        for (Map.Entry<String, List<JsonObject>> entry : this.rawLookup.entrySet()) {
+        buf.writeInt(this.tardisAnimationsRaw.size());
+        for (Map.Entry<String, List<JsonObject>> entry : this.tardisAnimationsRaw.entrySet()) {
             buf.writeString(entry.getKey());
 
             buf.writeInt(entry.getValue().size());
@@ -97,8 +99,8 @@ public class BlockbenchParser implements
     }
 
     private void receive(PacketByteBuf buf) {
-        this.rawLookup.clear();
-        this.lookup.clear();
+        this.tardisAnimationsRaw.clear();
+        this.tardisAnimations.clear();
 
         int size = buf.readInt();
         for (int i = 0; i < size; i++) {
@@ -113,12 +115,12 @@ public class BlockbenchParser implements
                 jsons.add(json);
             }
 
-            this.rawLookup.put(namespace, jsons);
+            this.tardisAnimationsRaw.put(namespace, jsons);
         }
 
         this.parseRawLookup();
 
-        AITMod.LOGGER.info("Received {} blockbench animation files", this.rawLookup.size());
+        AITMod.LOGGER.info("Received {} blockbench animation files", this.tardisAnimationsRaw.size());
     }
 
     @Override
@@ -128,8 +130,8 @@ public class BlockbenchParser implements
 
     @Override
     public void reload(ResourceManager manager) {
-        this.rawLookup.clear();
-        this.lookup.clear();
+        this.tardisAnimationsRaw.clear();
+        this.tardisAnimations.clear();
 
         for (Identifier id : manager
                 .findResources("fx/animation/keyframes", filename -> filename.getPath().endsWith("animation.json")).keySet()) {
@@ -151,7 +153,7 @@ public class BlockbenchParser implements
     }
 
     public static Result getOrThrow(Identifier id) {
-        Result result = getInstance().lookup.get(id);
+        Result result = getInstance().tardisAnimations.get(id);
 
         if (result == null) {
             throw new IllegalStateException("No blockbench animation found for " + id);
@@ -165,21 +167,21 @@ public class BlockbenchParser implements
             return getOrThrow(id);
         } catch (IllegalStateException e) {
             AITMod.LOGGER.error(String.valueOf(e));
-            return getInstance().lookup.values().iterator().next();
+            return getInstance().tardisAnimations.values().iterator().next();
         }
     }
 
     private void parseRawLookup() {
-        this.lookup.clear();
+        this.tardisAnimations.clear();
 
-        for (Map.Entry<String, List<JsonObject>> entry : this.rawLookup.entrySet()) {
+        for (Map.Entry<String, List<JsonObject>> entry : this.tardisAnimationsRaw.entrySet()) {
             String namespace = entry.getKey();
 
             List<JsonObject> animations = entry.getValue();
 
             for (JsonObject json : animations) {
                 HashMap<Identifier, Result> map = parse(json, namespace);
-                this.lookup.putAll(map);
+                this.tardisAnimations.putAll(map);
             }
         }
     }
@@ -187,12 +189,12 @@ public class BlockbenchParser implements
     private void parseAndStore(JsonObject json, String namespace) {
         // store in raw lookup
         // namespace -> raw json source
-        this.rawLookup.computeIfAbsent(namespace, k -> new ArrayList<>());
-        this.rawLookup.get(namespace).add(json);
+        this.tardisAnimationsRaw.computeIfAbsent(namespace, k -> new ArrayList<>());
+        this.tardisAnimationsRaw.get(namespace).add(json);
 
         // parse and store in lookup
         HashMap<Identifier, Result> map = parse(json, namespace);
-        this.lookup.putAll(map);
+        this.tardisAnimations.putAll(map);
     }
 
     public static HashMap<Identifier, Result> parse(JsonObject json, String namespace) {
@@ -369,7 +371,7 @@ public class BlockbenchParser implements
         }
     }
 
-    private static float parseMath(String data) {
+    public static float parseMath(String data) {
         // parses math expressions like "1 + 2 * 3" or "1 - 2 / 3"
         // using net.objecthunter.exp4j
         Expression expression = new ExpressionBuilder(data).build();

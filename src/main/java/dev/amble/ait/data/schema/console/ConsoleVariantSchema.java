@@ -92,7 +92,7 @@ public abstract class ConsoleVariantSchema extends BasicSchema implements Unlock
      * @return The parent {@link ConsoleTypeSchema} of this variant
      */
     public ConsoleTypeSchema parent() {
-        return ConsoleRegistry.REGISTRY.get(this.parentId());
+        return ConsoleRegistry.getInstance().get(this.parentId());
     }
 
     @Environment(EnvType.CLIENT)

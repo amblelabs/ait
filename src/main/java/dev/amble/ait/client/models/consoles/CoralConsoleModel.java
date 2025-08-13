@@ -27,7 +27,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 
-public class CoralConsoleModel extends ConsoleModel {
+public class CoralConsoleModel extends SimpleConsoleModel {
     public static final Animation EMPTY_ANIM = Animation.Builder.create(1).build(); // temporary animation bc rn we have
                                                                                     // none
 

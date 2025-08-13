@@ -20,7 +20,7 @@ public abstract class PresentVariant extends ExteriorVariantSchema {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(PresentDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(PresentDoorVariant.REFERENCE);
     }
 
     @Override

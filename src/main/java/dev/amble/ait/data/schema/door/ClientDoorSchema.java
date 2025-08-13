@@ -3,19 +3,20 @@ package dev.amble.ait.data.schema.door;
 import java.lang.reflect.Type;
 
 import com.google.gson.*;
+import dev.amble.ait.client.models.AnimatedModel;
+import dev.amble.lib.api.Identifiable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 
-import dev.amble.ait.client.models.doors.DoorModel;
 import dev.amble.ait.data.schema.door.impl.CapsuleDoorVariant;
 import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
 
 @Environment(EnvType.CLIENT)
-public abstract class ClientDoorSchema {
+public abstract class ClientDoorSchema implements Identifiable {
     private final Identifier parent;
     private final Identifier id;
 
@@ -42,16 +43,17 @@ public abstract class ClientDoorSchema {
     }
 
     public DoorSchema parent() {
-        return DoorRegistry.REGISTRY.get(this.parent);
+        return DoorRegistry.getInstance().get(this.parent);
     }
 
+    @Override
     public Identifier id() {
         return id;
     }
 
     // public abstract Identifier texture();
     // public abstract Identifier emission();
-    public abstract DoorModel model();
+    public abstract AnimatedModel model();
 
     public static Object serializer() {
         return new Serializer();
@@ -70,7 +72,7 @@ public abstract class ClientDoorSchema {
                 id = CapsuleDoorVariant.REFERENCE;
             }
 
-            return ClientDoorRegistry.REGISTRY.get(id);
+            return ClientDoorRegistry.getInstance().get(id);
         }
 
         @Override
