@@ -75,18 +75,7 @@ public class StaserBoltEntity extends PersistentProjectileEntity implements ISpa
                 this.setDamage(10d);
             } else {
                 this.setDamage(6.5d);
-        if (hitResult.getType() == HitResult.Type.ENTITY) {
-            EntityHitResult result = (EntityHitResult) hitResult;
-            if (getOwner() instanceof PlayerEntity player) {
-                if (player.getMainHandStack().getItem() == GunItems.CULT_STASER_RIFLE) {
-                    this.setDamage(3d);
-                } else {
-                    this.setDamage(1.5d);
-                }
             }
-            this.getWorld().playSound(null, result.getPos().getX(), result.getPos().getY(), result.getPos().getZ(),
-                    AITSounds.STASER, SoundCategory.BLOCKS, 1.0f, 0.5f);
-            this.remove(RemovalReason.DISCARDED);
         }
 
         super.onCollision(hitResult);

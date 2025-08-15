@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
@@ -36,10 +37,7 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.LocalDifficulty;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.world.*;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
@@ -121,6 +119,19 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
         if (this.getWorld().isClient()) return;
         if (!this.getWorld().isChunkLoaded(this.getBlockPos())) return;
         if (this.isRemoved() || !this.isAlive()) return;
+
+        // TODO make a goal for them to float
+        /*// Sine wave hovering logic
+        double hoverHeight = 5.0;
+        double amplitude = 0.5;
+        double frequency = 0.1;
+        double yOffset = hoverHeight + Math.sin(this.age * frequency) * amplitude;
+
+        BlockPos groundPos = this.getBlockPos().down();
+        double groundY = 72;
+        double targetY = groundY + yOffset;
+
+        this.setPosition(this.getX(), targetY, this.getZ());*/
 
         if (this.ambianceTimer-- <= 0) {
             playSound(
@@ -313,7 +324,7 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
             } else {
                 handleRandomFalse();
             }
-        }, TimeUnit.TICKS, 20);
+        }, TaskStage.END_SERVER_TICK, TimeUnit.TICKS, 20);
     }
 
     private void handleRandomTrue() {
