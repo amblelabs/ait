@@ -1,8 +1,6 @@
 package dev.amble.ait.client.renderers.machines;
 
 
-import dev.amble.ait.client.models.machines.FoodMachineModel;
-import dev.amble.ait.core.blockentities.FoodMachineBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SkullBlock;
 import net.minecraft.client.render.RenderLayer;
@@ -12,9 +10,11 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.RotationPropertyHelper;
 
 import dev.amble.ait.AITMod;
-import net.minecraft.util.math.RotationPropertyHelper;
+import dev.amble.ait.client.models.machines.FoodMachineModel;
+import dev.amble.ait.core.blockentities.FoodMachineBlockEntity;
 
 public class FoodMachineRenderer<T extends FoodMachineBlockEntity> implements BlockEntityRenderer<T> {
 

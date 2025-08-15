@@ -1,6 +1,5 @@
 package dev.amble.ait.client.renderers.entities;
 
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -13,7 +12,7 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.RotationPropertyHelper;
 
 import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.models.exteriors.SiegeModeModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.compat.DependencyChecker;

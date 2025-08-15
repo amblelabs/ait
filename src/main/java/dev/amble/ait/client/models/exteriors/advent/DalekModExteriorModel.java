@@ -73,7 +73,7 @@ public class DalekModExteriorModel extends SimpleExteriorModel {
         matrices.pop();
     }
 
-	@Override
+    @Override
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
         DoorHandler door = tardis.door();
 

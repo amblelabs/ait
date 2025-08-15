@@ -1,1 +1,7 @@
 accessWidener v2 named
+accessible class net/minecraft/client/render/block/BlockModelRenderer$AmbientOcclusionCalculator
+accessible field net/minecraft/client/render/block/BlockModelRenderer$AmbientOcclusionCalculator brightness [F
+accessible field net/minecraft/client/render/block/BlockModelRenderer$AmbientOcclusionCalculator light [I
+accessible method net/minecraft/client/render/block/BlockModelRenderer renderQuadsSmooth (Lnet/minecraft/world/BlockRenderView;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;Ljava/util/List;[FLjava/util/BitSet;Lnet/minecraft/client/render/block/BlockModelRenderer$AmbientOcclusionCalculator;I)V
+accessible method net/minecraft/client/render/block/BlockModelRenderer getQuadDimensions (Lnet/minecraft/world/BlockRenderView;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;[ILnet/minecraft/util/math/Direction;[FLjava/util/BitSet;)V
+accessible method net/minecraft/text/TextColor <init> (ILjava/lang/String;)V

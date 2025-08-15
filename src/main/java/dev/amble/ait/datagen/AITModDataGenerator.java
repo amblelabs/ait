@@ -1,5 +1,31 @@
 package dev.amble.ait.datagen;
 
+import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
+import static net.minecraft.data.server.recipe.RecipeProvider.*;
+
+import java.util.Calendar;
+import java.util.concurrent.CompletableFuture;
+
+import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
+import dev.amble.lib.datagen.lang.LanguageType;
+import dev.amble.lib.datagen.sound.AmbleSoundProvider;
+import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+
+import net.minecraft.block.Blocks;
+import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
+import net.minecraft.item.Items;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.book.RecipeCategory;
+import net.minecraft.registry.RegistryBuilder;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.Identifier;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITEntityTypes;
@@ -14,30 +40,6 @@ import dev.amble.ait.module.planet.core.PlanetBlocks;
 import dev.amble.ait.module.planet.core.PlanetItems;
 import dev.amble.ait.module.planet.core.world.PlanetConfiguredFeatures;
 import dev.amble.ait.module.planet.core.world.PlanetPlacedFeatures;
-import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
-import dev.amble.lib.datagen.lang.LanguageType;
-import dev.amble.lib.datagen.sound.AmbleSoundProvider;
-import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.minecraft.block.Blocks;
-import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryBuilder;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.Identifier;
-
-import java.util.Calendar;
-import java.util.concurrent.CompletableFuture;
-
-import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
-import static net.minecraft.data.server.recipe.RecipeProvider.*;
 
 public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
@@ -1037,6 +1039,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         // Block Tooltips
         provider.addTranslation("block.ait.fabricator.tooltip.use", "(Place on top of a Smithing Table)");
+        provider.addTranslation("block.ait.roundel", "Roundel");
+        provider.addTranslation("block.ait.roundel_fabricator.tooltip.use", "(Place on top of a Loom)");
         provider.addTranslation("tooltip.ait.use_in_tardis", "(Place inside a TARDIS)");
         provider.addTranslation("block.ait.artron_collector_block.tooltip.use", "(Charges inside of Rift Chunks)");
         provider.addTranslation("tooltip.ait.power_converter", "(Convert zeiton, lava, coal and wood into Artron)");
@@ -1157,6 +1161,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.engine.system_is_weakened", "This System Is Showing Signs Of Weakness, But Is Still Functional!");
         provider.addTranslation("tardis.message.subsystem.requires_link", "LINK TO ENGINE VIA ARTRON CABLES");
         provider.addTranslation("tardis.message.engine.no_space", "Engine requires a 3x3 space to function!");
+
+        provider.addTranslation("ait.title.roundel_fabricator", "Roundel Fabricator");
 
         // Achievements
         provider.addTranslation("achievement.ait.title.root", "Adventures in Time");

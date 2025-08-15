@@ -39,6 +39,8 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.resource.featuretoggle.FeatureSet;
+import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -64,6 +66,8 @@ import dev.amble.ait.core.item.part.MachineItem;
 import dev.amble.ait.core.likes.ItemOpinionRegistry;
 import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.ait.core.loot.SetBlueprintLootFunction;
+import dev.amble.ait.core.roundels.RoundelPatterns;
+import dev.amble.ait.core.screens.RoundelFabricatorScreenHandler;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
 import dev.amble.ait.core.sounds.travel.TravelSoundRegistry;
 import dev.amble.ait.core.tardis.animation.v2.blockbench.BlockbenchParser;
@@ -90,7 +94,6 @@ import dev.amble.ait.registry.impl.door.DoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 
 public class AITMod implements ModInitializer {
-
     public static final String MOD_ID = "ait";
     public static final Logger LOGGER = LoggerFactory.getLogger("ait");
     public static final Random RANDOM = new Random();
@@ -101,6 +104,11 @@ public class AITMod implements ModInitializer {
 
     public static final GameRules.Key<GameRules.BooleanRule> TARDIS_FIRE_GRIEFING = GameRuleRegistry.register("tardisFireGriefing",
             GameRules.Category.MISC, GameRuleFactory.createBooleanRule(false));
+
+    // Screens
+    public static final ScreenHandlerType<RoundelFabricatorScreenHandler> ROUNDEL_FABRICATOR_HANDLER = Registry.register(Registries.SCREEN_HANDLER,
+            AITMod.id("roundel_fabricator"),
+            new ScreenHandlerType<>(RoundelFabricatorScreenHandler::new, FeatureSet.empty()));
 
 
     public static final RegistryKey<PlacedFeature> CUSTOM_GEODE_PLACED_KEY = RegistryKey.of(RegistryKeys.PLACED_FEATURE,
@@ -162,6 +170,8 @@ public class AITMod implements ModInitializer {
                 HumRegistry.getInstance(),
                 SubSystemRegistry.getInstance(),
                 ItemOpinionRegistry.getInstance(),
+                DrinkRegistry.getInstance(),
+                RoundelPatterns.getInstance(),
                 DrinkRegistry.getInstance(),
                 TardisAnimationRegistry.getInstance(),
                 DoorRegistry.getInstance()

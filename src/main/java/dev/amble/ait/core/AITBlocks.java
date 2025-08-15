@@ -26,6 +26,7 @@ import net.minecraft.item.ItemGroups;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.util.DyeColor;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blocks.*;
@@ -170,6 +171,11 @@ public class AITBlocks extends BlockContainer {
             .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).nonOpaque()
             .requiresTool().instrument(Instrument.COW_BELL).strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
 
+    @NoBlockItem
+    public static final Block ROUNDEL = new RoundelBlock(DyeColor.WHITE.getSignColor(), ABlockSettings.create().itemSettings(new AItemSettings()
+                    .group(AITItemGroups.FABRICATOR)).burnable().dropsLike(Blocks.BLACK_BANNER).nonOpaque()
+            .requiresTool().strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.NORMAL).luminance(AbstractRoundelBlock.STATE_TO_LUMINANCE));
+
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     @NoEnglish
     public static final Block GENERIC_SUBSYSTEM = new GenericSubSystemBlock(ABlockSettings.create()
@@ -192,6 +198,11 @@ public class AITBlocks extends BlockContainer {
 
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     public static final Block FABRICATOR = new FabricatorBlock(ABlockSettings.create()
+            .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).nonOpaque()
+            .requiresTool().instrument(Instrument.COW_BELL).strength(1.5F, 6.0F));
+
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
+    public static final Block ROUNDEL_FABRICATOR = new RoundelFabricatorBlock(ABlockSettings.create()
             .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).nonOpaque()
             .requiresTool().instrument(Instrument.COW_BELL).strength(1.5F, 6.0F));
 

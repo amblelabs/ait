@@ -1,7 +1,6 @@
 package dev.amble.ait.core.entities;
 
 
-import dev.amble.ait.core.util.TagsUtil;
 import dev.amble.lib.util.TeleportUtil;
 
 import net.minecraft.block.*;
@@ -10,7 +9,6 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -32,6 +30,7 @@ import dev.amble.ait.core.*;
 import dev.amble.ait.core.entities.base.DummyAmbientEntity;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.util.StackUtil;
+import dev.amble.ait.core.util.TagsUtil;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.module.planet.core.util.ISpaceImmune;

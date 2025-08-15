@@ -2,7 +2,6 @@ package dev.amble.ait.data.schema.exterior.variant.addon;
 
 import java.util.function.BiFunction;
 
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.apache.commons.lang3.NotImplementedException;
@@ -17,6 +16,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.client.models.doors.DoorModel;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.client.screens.interior.InteriorSettingsScreen;
 import dev.amble.ait.data.Loyalty;
