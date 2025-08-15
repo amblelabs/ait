@@ -1,17 +1,19 @@
 package dev.amble.ait.registry.impl.door;
 
 
+import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.schema.door.DatapackDoor;
 import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.door.impl.*;
 import dev.amble.ait.data.schema.door.impl.exclusive.BlueBoxDoorVariant;
 import dev.amble.ait.data.schema.door.impl.exclusive.DoomDoorVariant;
-import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
 
 public class DoorRegistry extends SimpleDatapackRegistry<DoorSchema> {
     private static DoorRegistry INSTANCE;

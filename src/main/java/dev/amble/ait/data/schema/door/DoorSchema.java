@@ -3,8 +3,8 @@ package dev.amble.ait.data.schema.door;
 import java.lang.reflect.Type;
 
 import com.google.gson.*;
-
 import dev.amble.lib.api.Identifiable;
+
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;

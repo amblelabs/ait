@@ -1,5 +1,7 @@
 package dev.amble.ait.core.util;
 
+import java.util.Optional;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
@@ -9,10 +11,7 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
-
-import java.util.Optional;
 
 public class TagsUtil {
     public static Item getRandomItemFromTag(World world, TagKey<Item> tag) {

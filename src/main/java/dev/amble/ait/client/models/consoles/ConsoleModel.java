@@ -5,5 +5,5 @@ import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
 public interface ConsoleModel extends AnimatedModel<ConsoleBlockEntity> {
-	void animateBlockEntity(ConsoleBlockEntity console, TravelHandlerBase.State state, boolean hasPower);
+    void animateBlockEntity(ConsoleBlockEntity console, TravelHandlerBase.State state, boolean hasPower);
 }

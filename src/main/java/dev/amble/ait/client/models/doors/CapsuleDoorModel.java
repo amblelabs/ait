@@ -87,7 +87,7 @@ public class CapsuleDoorModel extends DoorModel {
         body.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
-	@Override
+    @Override
     public ModelPart getPart() {
         return body;
     }

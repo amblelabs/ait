@@ -100,7 +100,7 @@ public class PoliceBoxDoorModel extends DoorModel {
         matrices.pop();
     }
 
-	@Override
+    @Override
     public ModelPart getPart() {
         return TARDIS;
     }

@@ -1,6 +1,5 @@
 package dev.amble.ait.client.renderers.consoles;
 
-import dev.amble.ait.client.models.consoles.ConsoleModel;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -16,8 +15,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
+import dev.amble.ait.client.models.consoles.ConsoleModel;
 import dev.amble.ait.client.models.consoles.HartnellConsoleModel;
+import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
 import dev.amble.ait.client.models.items.HandlesModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
