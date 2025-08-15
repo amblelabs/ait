@@ -12,7 +12,7 @@ import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-import dev.amble.ait.AITMod;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
@@ -25,7 +25,8 @@ public class BOTI {
     public static BOTIInit BOTI_HANDLER = new BOTIInit();
     public static AITBufferBuilderStorage AIT_BUF_BUILDER_STORAGE = new AITBufferBuilderStorage();
     public static Queue<DoorBlockEntity> DOOR_RENDER_QUEUE = new LinkedList<>();
-    public static Queue<BOTIPaintingEntity> PAINTING_RENDER_QUEUE = new LinkedList<>();
+    public static Queue<BOTIPaintingEntity> GALLIFREYAN_RENDER_QUEUE = new LinkedList<>();
+    public static Queue<BOTIPaintingEntity> TRENZALORE_PAINTING_QUEUE = new LinkedList<>();
     public static Queue<ExteriorBlockEntity> EXTERIOR_RENDER_QUEUE = new LinkedList<>();
     private static boolean HAS_BEEN_WARNED = false;
 
@@ -63,7 +64,7 @@ public class BOTI {
 
             if (invalid) {
                 MinecraftClient.getInstance().player.sendMessage(Text.literal("You appear to have an AMD GPU. Indium is required, but is not found. This may cause issues with the mod - BOTI has been disabled!").formatted(DependencyChecker.hasIndium() ? Formatting.GREEN : Formatting.RED), false);
-                AITMod.CONFIG.CLIENT.ENABLE_TARDIS_BOTI = false;
+                AITModClient.CONFIG.enableTardisBOTI = false;
             }
         }
 

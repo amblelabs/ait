@@ -13,12 +13,12 @@ import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
 
-import dev.amble.ait.AITMod;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.renderers.VortexUtil;
 
 public class RiftBOTI extends BOTI {
     public static void renderRiftBoti(MatrixStack stack, SinglePartEntityModel frame, int pack) {
-        if (!AITMod.CONFIG.CLIENT.ENABLE_TARDIS_BOTI)
+        if (!AITModClient.CONFIG.enableTardisBOTI)
             return;
 
         if (MinecraftClient.getInstance().world == null

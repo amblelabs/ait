@@ -2,8 +2,9 @@ package dev.amble.ait.core.tardis.handler;
 
 import static dev.amble.ait.core.engine.SubSystem.Id.GRAVITATIONAL;
 
-import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
@@ -35,9 +36,11 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
 
     private static final BoolProperty IS_FALLING = new BoolProperty("falling", false);
     private static final BoolProperty FLYING = new BoolProperty("flying", false);
+    private static final BoolProperty SHOULD_FALL = new BoolProperty("should_fall", false);
 
     private final BoolValue falling = IS_FALLING.create(this);
     private final BoolValue flying = FLYING.create(this);
+    private final BoolValue shouldFall = SHOULD_FALL.create(this);
 
     static {
         TardisEvents.DEMAT.register(tardis -> {
@@ -54,6 +57,7 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
     public void onLoaded() {
         falling.of(this, IS_FALLING);
         flying.of(this, FLYING);
+        shouldFall.of(this, SHOULD_FALL);
     }
 
     public boolean isFlying() {
@@ -98,7 +102,7 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
     }
 
     public void enterFlight(ServerPlayerEntity player) {
-        if (!AITMod.CONFIG.SERVER.RWF_ENABLED) return;
+        if (!AITMod.CONFIG.rwfEnabled) return;
         this.tardis.door().closeDoors();
         this.tardis().travel().autopilot(false);
         this.tardis.travel().handbrake(true);
@@ -112,13 +116,13 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
         Scheduler.get().runTaskLater(() -> {
             player.startRiding(entity);
             this.sendEnterFlightPacket(player);
-        }, TimeUnit.TICKS, 2);
+        }, TaskStage.END_SERVER_TICK, TimeUnit.TICKS, 2);
 
         tardis.travel().finishDemat();
     }
 
     private void sendEnterFlightPacket(ServerPlayerEntity player) {
-        if (!AITMod.CONFIG.SERVER.RWF_ENABLED) return;
+        if (!AITMod.CONFIG.rwfEnabled) return;
         ServerPlayNetworking.send(player, ENTER_FLIGHT, PacketByteBufs.create());
   }
 
@@ -145,5 +149,9 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
 
     public BoolValue flying() {
         return flying;
+    }
+
+    public BoolValue shouldFall() {
+        return shouldFall;
     }
 }

@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Either;
+import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.WorldSavePath;
@@ -47,9 +48,6 @@ public class TardisFileManager<T extends Tardis> {
     }
 
     public Either<T, Exception> loadTardis(MinecraftServer server, TardisManager<T, ?> manager, UUID uuid, TardisLoader<T> function) {
-        if (this.locked)
-            return null;
-
         long start = System.currentTimeMillis();
 
         try {
@@ -82,18 +80,18 @@ public class TardisFileManager<T extends Tardis> {
              * if (version == 0) new JsonObjectTransform(object).transform();
              */
 
-            T tardis = function.apply(manager.getFileGson(), object);
+            T tardis = function.readTardis(manager.getFileGson(), object);
 
             AITMod.LOGGER.info("Deserialized {} in {}ms", tardis, System.currentTimeMillis() - start);
             return Either.left(tardis);
-        } catch (IOException e) {
+        } catch (Exception e) {
             AITMod.LOGGER.warn("Failed to load {}!", uuid);
             AITMod.LOGGER.warn(e.getMessage());
             return Either.right(e);
         }
     }
 
-    public void saveTardis(MinecraftServer server, TardisManager<T, ?> manager, T tardis) {
+    public void saveTardis(MinecraftServer server, TardisManager<T, ?> manager, @NotNull T tardis) {
         try {
             Path savePath = TardisFileManager.getSavePath(server, tardis.getUuid(), "json");
             Files.writeString(savePath, manager.getFileGson().toJson(tardis, ServerTardis.class));
@@ -125,6 +123,6 @@ public class TardisFileManager<T extends Tardis> {
 
     @FunctionalInterface
     public interface TardisLoader<T> {
-        T apply(Gson gson, JsonObject object);
+        T readTardis(Gson gson, JsonObject object);
     }
 }

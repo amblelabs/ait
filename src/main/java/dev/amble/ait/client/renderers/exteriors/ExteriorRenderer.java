@@ -11,14 +11,9 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.RotationPropertyHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.AITMod;
@@ -29,7 +24,8 @@ import dev.amble.ait.client.models.exteriors.SiegeModeModel;
 import dev.amble.ait.client.models.machines.ShieldsModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientLightUtil;
+import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.tardis.Tardis;
@@ -75,8 +71,11 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             this.renderExterior(profiler, tardis, entity, tickDelta, matrices, vertexConsumers, light, overlay);
 
         if ((tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) && !tardis.isGrowth() && tardis.travel().isLanded() &&
-        !tardis.siege().isActive())
-            BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
+        !tardis.siege().isActive()) {
+            if (!variant.equals(ClientExteriorVariantRegistry.DOOM)) {
+                BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
+            }
+        }
 
         profiler.pop();
 
@@ -102,7 +101,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             matrices.translate(0.5f, 0.5f, 0.5f);
             SIEGE_MODEL.renderWithAnimations(tardis, entity, SIEGE_MODEL.getPart(),
                     matrices,
-                    vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(siege.texture().get())), light, overlay, 1, 1, 1, 1);
+                    vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(siege.texture().get())), light, overlay, 1, 1, 1, 1, tickDelta);
 
             matrices.pop();
             profiler.pop();
@@ -121,6 +120,8 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         BlockState blockState = entity.getCachedState();
         int k = blockState.get(ExteriorBlock.ROTATION);
         float h = RotationPropertyHelper.toDegrees(k);
+
+        boolean isDoom = this.variant.equals(ClientExteriorVariantRegistry.DOOM);
 
         matrices.push();
 
@@ -146,21 +147,26 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             return;
         }
 
-        float wrappedDegrees = MathHelper.wrapDegrees(MinecraftClient.getInstance().player.getHeadYaw() + h);
+        int rotation = travel.position().getRotation();
+        boolean isDiagonal = rotation > 0 && rotation < 4 || rotation > 4 && rotation < 8 || rotation > 8 && rotation < 12
+                || rotation > 12 && rotation < 16;
+        float wrappedDegrees = MathHelper.wrapDegrees(MinecraftClient.getInstance().player.getHeadYaw() + h + (isDiagonal ? 90f : 0));
 
-        if (this.variant.equals(ClientExteriorVariantRegistry.DOOM)) {
+        if (isDoom) {
             texture = DoomConstants.getTextureForRotation(wrappedDegrees, tardis);
             emission = DoomConstants.getEmissionForRotation(DoomConstants.getTextureForRotation(wrappedDegrees, tardis),
                     tardis);
         }
 
-        matrices.multiply(
-                RotationAxis.NEGATIVE_Y.rotationDegrees(!this.variant.equals(ClientExteriorVariantRegistry.DOOM)
-                        ? h + 180f
-                        : MinecraftClient.getInstance().player.getHeadYaw() + 180f
-                                + ((wrappedDegrees > -135 && wrappedDegrees < 135) ? 180f : 0f)));
-
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
+
+        matrices.multiply(
+                RotationAxis.POSITIVE_Y.rotationDegrees(!isDoom
+                        ? h + 180f
+                        : MinecraftClient.getInstance().player.getHeadYaw()
+                        + ((wrappedDegrees > -135 && wrappedDegrees < 135) ? 180f : 0f)
+                + (travel.position().getRotationDirection() == Direction.EAST ||
+                        travel.position().getRotationDirection() == Direction.WEST ? 180f : 0f)));
 
         if (model == null) {
             profiler.pop();
@@ -172,32 +178,34 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             matrices.translate(0, sinFunc, 0);
         }
 
-        model.renderWithAnimations(tardis, entity, this.model.getPart(),
-                matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)), light, overlay, 1, 1,
-                1, alpha);
+        if (!DependencyChecker.hasIris()) {
+            model.renderWithAnimations(tardis, entity, this.model.getPart(),
+                    matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)), light, overlay, 1, 1,
+                    1, alpha, tickDelta);
+        }
 
         profiler.push("emission");
+
         boolean alarms = tardis.alarm().isEnabled();
+        boolean power = tardis.fuel().hasPower();
 
+        // the emission should only render IF
+        //  1) the alpha of the exterior is higher than a certain threshold
+        //  2) there is an emissive texture
+        //  3) there's power OR alarms on
+        if (alpha > 0.105f && emission != null && (power || alarms)
+                && !emission.equals(DatapackConsole.EMPTY)) {
+            float u = 1;
+            float t = 1;
+            float s = 1;
 
-        if (alpha > 0.105f && emission != null && !emission.equals(DatapackConsole.EMPTY)) {
-            float u;
-            float t;
-            float s;
+            if ("partytardis".equals(tardis.stats().getName()) ||
+                    !tardis.extra().getInsertedDisc().isEmpty()) {
+                final float[] rgb = ClientTardisUtil.getPartyColors();
 
-            if ((tardis.stats().getName() != null && "partytardis".equals(tardis.stats().getName().toLowerCase())) ||
-                    (!tardis.extra().getInsertedDisc().isEmpty())) {
-                int m = 25;
-                int n = MinecraftClient.getInstance().player.age / m + MinecraftClient.getInstance().player.getId();
-                int o = DyeColor.values().length;
-                int p = n % o;
-                int q = (n + 1) % o;
-                float r = ((float)(MinecraftClient.getInstance().player.age % m)) / m;
-                float[] fs = SheepEntity.getRgbColor(DyeColor.byId(p));
-                float[] gs = SheepEntity.getRgbColor(DyeColor.byId(q));
-                s = fs[0] * (1f - r) + gs[0] * r;
-                t = fs[1] * (1f - r) + gs[1] * r;
-                u = fs[2] * (1f - r) + gs[2] * r;
+                u = rgb[0];
+                t = rgb[1];
+                s = rgb[2];
             } else if (tardis.sonic().getExteriorSonic() != null) {
                 float time = MinecraftClient.getInstance().player.age + MinecraftClient.getInstance().getTickDelta();
                 float progress = (float)((Math.sin(time * 0.03) + 1) / 2.0f);
@@ -208,33 +216,32 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
                 s = FROM_R * (1f - progress) + TO_R * progress;
                 t = FROM_G * (1f - progress) + TO_G * progress;
                 u = FROM_B * (1f - progress) + TO_B * progress;
-            } else {
-                s = 1.0f;
-                t = 1.0f;
-                u = 1.0f;
             }
 
-
             float colorAlpha = 1 - alpha;
-            boolean power = tardis.fuel().hasPower();
 
             float red = alarms
-                    ? (!power ? 0.25f : s - colorAlpha)
-                    : (power ? s - colorAlpha : 0f);
+                    ? !power ? 0.25f : s - colorAlpha
+                    : s - colorAlpha;
 
             float green = alarms
-                    ? (!power ? 0.01f : 0.3f)
-                    : (power ? t - colorAlpha : 0f);
+                    ? !power ? 0.01f : 0.3f
+                    : t - colorAlpha;
 
             float blue = alarms
-                    ? (!power ? 0.01f : 0.3f)
-                    : (power ? u - colorAlpha : 0f);
+                    ? !power ? 0.01f : 0.3f
+                    : u - colorAlpha;
 
-            ClientLightUtil.renderEmissive((v, l) -> model.renderWithAnimations(
-                    tardis, entity, this.model.getPart(), matrices, v, l, overlay, red, green, blue, alpha
-            ), emission, vertexConsumers);
+            //System.out.println(emission);
+
+           model.renderWithAnimations(tardis, entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)),
+                   0xF000F0, OverlayTexture.DEFAULT_UV, red, green, blue, alpha, tickDelta);
         }
-
+        if (DependencyChecker.hasIris()) {
+            model.renderWithAnimations(tardis, entity, this.model.getPart(),
+                    matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)), light, overlay, 1, 1,
+                    1, alpha, tickDelta);
+        }
 
         profiler.swap("biome");
 
@@ -246,7 +253,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
                 if (alpha > 0.105f && (biomeTexture != null && !texture.equals(biomeTexture))) {
                     model.renderWithAnimations(tardis, entity, this.model.getPart(),
                             matrices,
-                            vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(biomeTexture, false)), light, overlay, 1, 1, 1, alpha);
+                            vertexConsumers.getBuffer(AITRenderLayers.getEntityCutoutNoCullZOffset(biomeTexture)), light, overlay, 1, 1, 1, alpha, tickDelta);
                 }
 
             }

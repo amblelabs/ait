@@ -4,7 +4,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.google.gson.*;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

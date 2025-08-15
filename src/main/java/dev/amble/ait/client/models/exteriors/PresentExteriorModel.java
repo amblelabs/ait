@@ -2,17 +2,16 @@ package dev.amble.ait.client.models.exteriors;
 
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.v2.Linkable;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
-public class PresentExteriorModel extends ExteriorModel {
+public class PresentExteriorModel extends SimpleExteriorModel {
     private final ModelPart present;
     public PresentExteriorModel(ModelPart root) {
         this.present = root.getChild("present");
@@ -57,7 +56,7 @@ public class PresentExteriorModel extends ExteriorModel {
         matrices.push();
         matrices.translate(0, -1.5f, 0);
 
-        if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS) {
+        if (!AITModClient.CONFIG.animateDoors) {
             DoorHandler door = falling.tardis().get().door();
 
             this.present.getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? 8F : 0.0F;
@@ -80,13 +79,8 @@ public class PresentExteriorModel extends ExteriorModel {
     }
 
     @Override
-    public Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state) {
-        return Animation.Builder.create(0).build();
-    }
-
-    @Override
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
-        if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS) {
+        if (!AITModClient.CONFIG.animateDoors) {
             DoorHandler door = tardis.door();
 
             this.present.getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? 8F : 0.0F;

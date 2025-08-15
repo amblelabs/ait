@@ -46,7 +46,6 @@ import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.entities.base.LinkableDummyEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import dev.amble.ait.module.planet.core.util.ISpaceImmune;
@@ -163,7 +162,7 @@ public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceIm
 
         boolean isCrashing = travel.isCrashing();
 
-        TardisUtil.getPlayersInsideInterior(tardis.asServer()).forEach(player -> {
+        tardis.asServer().world().getPlayers().forEach(player -> {
             SoundEvent sound = isCrashing ? SoundEvents.ENTITY_GENERIC_EXPLODE : AITSounds.LAND_CRASH;
             float volume = isCrashing ? 1.0F : 3.0F;
 

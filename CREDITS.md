@@ -7,5 +7,5 @@ Steam Console Original Design: DocArcane
 Translations: 
 - French: lavachefrancaise
 - German: hoooiii
-- Ukrainian: Nitrogenesis
+- Ukrainian: nitrogenez
 - Russian: Theo

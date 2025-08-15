@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
@@ -16,7 +15,6 @@ import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.LoyaltyHandler;
 import dev.amble.ait.core.tardis.handler.StatsHandler;
-import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
@@ -92,10 +90,6 @@ public class TardisBuilder {
         this.validate();
 
         ServerTardis tardis = new ServerTardis(this.uuid, this.desktop, this.exterior);
-
-        long worldStart = System.currentTimeMillis();
-        ServerWorld world = TardisServerWorld.create(tardis);
-        AITMod.LOGGER.info("Created world {} in {}ms", world, System.currentTimeMillis() - worldStart);
 
         Tardis.init(tardis, TardisComponent.InitContext.createdAt(this.pos));
 

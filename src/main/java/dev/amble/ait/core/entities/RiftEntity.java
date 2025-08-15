@@ -4,10 +4,11 @@ package dev.amble.ait.core.entities;
 import dev.amble.lib.util.TeleportUtil;
 
 import net.minecraft.block.*;
-import net.minecraft.entity.*;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -18,7 +19,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.*;
+import net.minecraft.world.Heightmap;
+import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.world.StructureWorldAccess;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
 import dev.amble.ait.AITMod;
@@ -26,6 +30,7 @@ import dev.amble.ait.core.*;
 import dev.amble.ait.core.entities.base.DummyAmbientEntity;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.util.StackUtil;
+import dev.amble.ait.core.util.TagsUtil;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.module.planet.core.util.ISpaceImmune;
@@ -82,10 +87,22 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
 
             player.damage(this.getWorld().getDamageSources().hotFloor(), 7);
             if (gotFragment) {
+
+                Item randomItem = TagsUtil.getRandomItemFromTag(
+                        this.getWorld(),
+                        AITTags.Items.RIFT_SUCCESS_EXTRA_ITEM
+                );
+
                 StackUtil.spawn(this.getWorld(), this.getBlockPos(), new ItemStack(AITItems.CORAL_FRAGMENT));
+                StackUtil.spawn(this.getWorld(), this.getBlockPos(), new ItemStack(randomItem));
                 this.getWorld().playSound(null, player.getBlockPos(), AITSounds.RIFT_SUCCESS, SoundCategory.AMBIENT, 1f, 1f);
             } else {
-                StackUtil.spawn(this.getWorld(), this.getBlockPos(), new ItemStack(Items.PAPER));
+                Item randomItem = TagsUtil.getRandomItemFromTag(
+                        this.getWorld(),
+                        AITTags.Items.RIFT_FAIL_ITEM
+                );
+
+                StackUtil.spawn(this.getWorld(), this.getBlockPos(), new ItemStack(randomItem));
                 this.getWorld().playSound(null, this.getBlockPos(), AITSounds.RIFT_FAIL, SoundCategory.AMBIENT, 1f, 1f);
                 spreadTardisCoral(this.getWorld(), this.getBlockPos());
             }
@@ -182,8 +199,13 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
         if (!(serverWorldAccess instanceof StructureWorldAccess worldAccess))
             return false;
 
-        if (serverWorldAccess.toServerWorld().getRegistryKey().equals(AITDimensions.SPACE) ||
-                serverWorldAccess.toServerWorld().getRegistryKey().equals(AITDimensions.TIME_VORTEX_WORLD))
+        if (!WorldUtil.canRiftsSpawn(serverWorldAccess.toServerWorld()))
+            return false;
+
+        boolean canSpawn = spawnReason == SpawnReason.STRUCTURE || (random.nextBoolean()
+                && RiftChunkManager.isRiftChunk(worldAccess, pos));
+
+        if (!canSpawn)
             return false;
 
         Chunk chunk = worldAccess.getChunk(pos);
@@ -192,12 +214,7 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
         BlockPos endPos = new BlockPos(chunkPos.getEndX(), worldAccess.getHeight(), chunkPos.getEndZ());
         Box box = new Box(startPos, endPos);
 
-        if (spawnReason == SpawnReason.STRUCTURE && serverWorldAccess.getEntitiesByType(rift, box,
-                predicate -> true).isEmpty())
-            return worldAccess.getBlockState(pos).isAir() && worldAccess.getBlockState(pos.down()).isAir();
-
-        if (random.nextBoolean() && serverWorldAccess.getEntitiesByType(rift, box,
-                predicate -> true).isEmpty() && RiftChunkManager.isRiftChunk(worldAccess, pos))
+        if (serverWorldAccess.getEntitiesByType(rift, box, predicate -> true).isEmpty())
             return worldAccess.getBlockState(pos).isAir() && worldAccess.getBlockState(pos.down()).isAir();
 
         return false;

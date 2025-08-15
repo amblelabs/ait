@@ -67,7 +67,7 @@ public class LockedDimensionRegistry extends SimpleDatapackRegistry<LockedDimens
 
     public static boolean tryUnlockDimension(ServerPlayerEntity player, ItemStack held, ServerTardis tardis) {
         if (held.isEmpty()) return false;
-        if (!AITMod.CONFIG.SERVER.LOCK_DIMENSIONS) return false;
+        if (!AITMod.CONFIG.lockDimensions) return false;
 
         List<LockedDimension> dims = getInstance().forStack(held);
 
@@ -88,7 +88,7 @@ public class LockedDimensionRegistry extends SimpleDatapackRegistry<LockedDimens
     }
 
     public boolean isUnlocked(Tardis tardis, World world) {
-        if (!AITMod.CONFIG.SERVER.LOCK_DIMENSIONS)
+        if (!AITMod.CONFIG.lockDimensions)
             return true;
 
         if (isEnd(world))

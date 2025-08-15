@@ -119,7 +119,7 @@ public class KeyItem extends LinkableItem {
         if (tardis == null)
             return;
 
-        tardis.loyalty().subLevel(player, 35);
+        tardis.loyalty().subLevel(player, 10);
         tardis.getDesktop().playSoundAtEveryConsole(AITSounds.CLOISTER);
     }
 
@@ -164,7 +164,7 @@ public class KeyItem extends LinkableItem {
         travel.rematerialize();
         tardis.shields().enable();
         tardis.shields().enableVisuals();
-        tardis.removeFuel(4250);
+        tardis.removeFuel(4250 + 50 * tardis.travel().instability());
 
 
         player.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 80, 3));

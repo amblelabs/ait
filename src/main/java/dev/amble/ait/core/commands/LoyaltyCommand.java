@@ -17,6 +17,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.handler.LoyaltyHandler;
@@ -26,7 +27,7 @@ public class LoyaltyCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(literal(AITMod.MOD_ID).then(literal("loyalty")
-                .requires(source -> source.hasPermissionLevel(2))
+                .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.loyalty", 2))
                 .then(argument("tardis", TardisArgumentType.tardis())
                         .then(argument("player", EntityArgumentType.player()).executes(LoyaltyCommand::get).then(
                                 argument("value", IntegerArgumentType.integer()).executes(LoyaltyCommand::set))))));

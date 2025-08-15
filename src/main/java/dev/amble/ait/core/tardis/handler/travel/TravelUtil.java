@@ -25,15 +25,18 @@ public class TravelUtil {
             CachedDirectedGlobalPos dest = travel.destination();
             ServerWorld world = dest.getWorld();
 
+            int posX = dest.getPos().getX();
+            int posZ = dest.getPos().getZ();
+
             for (int i = 0; i <= limit; i++) {
                 dest = dest.pos(
                         world.random.nextBoolean()
-                                ? world.random.nextInt(max) == 0 ? 1 : world.random.nextInt(max)
-                                : world.random.nextInt(max) == -0 ? -1 : -world.random.nextInt(max),
+                                ? world.random.nextInt(max) == 0 ? posX + 1 : posX + world.random.nextInt(max)
+                                : world.random.nextInt(max) == -0 ? posX - 1 : posX - world.random.nextInt(max),
                         dest.getPos().getY(),
                         world.random.nextBoolean()
-                                ? world.random.nextInt(max) == 0 ? 1 : world.random.nextInt(max)
-                                : world.random.nextInt(max) == -0 ? -1 : -world.random.nextInt(max));
+                                ? world.random.nextInt(max) == 0 ? posZ + 1 : posZ + world.random.nextInt(max)
+                                : world.random.nextInt(max) == -0 ? posZ - 1 : posZ - world.random.nextInt(max));
             }
 
             return dest;

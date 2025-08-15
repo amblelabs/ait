@@ -5,44 +5,45 @@ import net.minecraft.util.Identifier;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.Tardis;
 
+// TODO: move to client exterior schema or sum
 public class DoomConstants {
 
     public static final Identifier DOOM_FRONT_BACK = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_front_back.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_front_back.png");
     public static final Identifier DOOM_LEFT_SIDE = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_left_side.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_left_side.png");
     public static final Identifier DOOM_RIGHT_SIDE = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_right_side.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_right_side.png");
     public static final Identifier DOOM_LEFT_DIAGONAL = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_left_diagonal.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_left_diagonal.png");
     public static final Identifier DOOM_RIGHT_DIAGONAL = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_right_diagonal.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_right_diagonal.png");
     public static final Identifier DOOM_BLANK_DIAGONAL = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_blank_diagonal.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_blank_diagonal.png");
     public static final Identifier DOOM_TEXTURE_EMISSION = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_emission.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_emission.png");
     public static final Identifier DOOM_LEFT_SIDE_EMISSION = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_left_side_emission.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_left_side_emission.png");
     public static final Identifier DOOM_RIGHT_SIDE_EMISSION = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_right_side_emission.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_right_side_emission.png");
     public static final Identifier DOOM_DIAGONAL_EMISSION = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_diagonal_emission.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_diagonal_emission.png");
     public static final Identifier DOOM_LEFT_DIAGONAL_OPEN = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_left_diagonal_open.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_left_diagonal_open.png");
     public static final Identifier DOOM_RIGHT_DIAGONAL_OPEN = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_right_diagonal_open.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_right_diagonal_open.png");
     public static final Identifier DOOM_LEFT_SIDE_OPEN = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_left_side_open.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_left_side_open.png");
     public static final Identifier DOOM_RIGHT_SIDE_OPEN = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_right_side_open.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_right_side_open.png");
     public static final Identifier DOOM_FRONT_BACK_OPEN = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_front_back_open.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_front_back_open.png");
     public static final Identifier DOOM_LEFT_DIAGONAL_OPEN_EMISSION = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_left_diagonal_open_emission.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_left_diagonal_open_emission.png");
     public static final Identifier DOOM_RIGHT_DIAGONAL_OPEN_EMISSION = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_right_diagonal_open_emission.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_right_diagonal_open_emission.png");
     public static final Identifier DOOM_FRONT_BACK_OPEN_EMISSION = new Identifier(AITMod.MOD_ID,
-            "textures/blockentities/exteriors/doom/doom_front_back_open_emission.png");
+            "textures/blockentities/exteriors/exclusive/doom/doom_front_back_open_emission.png");
 
     public static Identifier getTextureForRotation(float rotation, Tardis tardis) {
         boolean bl = tardis.door().isOpen();

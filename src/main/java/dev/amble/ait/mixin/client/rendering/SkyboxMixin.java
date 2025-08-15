@@ -29,7 +29,7 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-import dev.amble.ait.AITMod;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.client.util.SkyboxUtil;
 import dev.amble.ait.core.AITDimensions;
@@ -113,7 +113,7 @@ public abstract class SkyboxMixin {
 
     @Unique private void renderSkyDynamically(MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, Camera camera,
             Runnable fogCallback, CallbackInfo ci) {
-        if (!AITMod.CONFIG.CLIENT.ENVIRONMENT_PROJECTOR || context == null) {
+        if (!AITModClient.CONFIG.environmentProjector || context == null) {
             SkyboxUtil.renderTardisSky(matrices);
             ci.cancel();
 

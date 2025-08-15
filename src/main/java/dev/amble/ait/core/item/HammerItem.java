@@ -78,6 +78,7 @@ public class HammerItem extends SwordItem {
                 int hammerUses = travel.getHammerUses();
                 world.playSound(null, consoleBlockEntity.getPos(), AITSounds.HAMMER_HIT, SoundCategory.BLOCKS,
                         1f, 1.0f);
+                tardis.loyalty().subLevel((ServerPlayerEntity) player, 10); // safe cast since its on server already
 
                 if (hammerUses > 3) {
                     world.playSoundFromEntity(null, player, AITSounds.HAMMER_STRIKE, SoundCategory.PLAYERS, 0.5f, 0.2f);
@@ -88,7 +89,7 @@ public class HammerItem extends SwordItem {
                     travel.handbrake(false);
                     tardis.addFuel(10);
                     travel.dematerialize();
-                    tardis.alarm().enabled();
+                    tardis.alarm().isEnabled();
 
                     world.spawnParticles(ParticleTypes.SMALL_FLAME, pos.getX() + 0.5f, pos.getY() + 1.25, pos.getZ() + 0.5f,
                             5 * hammerUses, 0, 0, 0, 0.1f * hammerUses);
@@ -104,7 +105,7 @@ public class HammerItem extends SwordItem {
                     world.createExplosion(null, world.getDamageSources().outOfWorld(), null, pos.toCenterPos(), 5, true,
                             World.ExplosionSourceType.MOB);
 
-                    tardis.loyalty().subLevel((ServerPlayerEntity) player, 35); // safe cast since its on server already
+                    tardis.loyalty().subLevel((ServerPlayerEntity) player, 50); // safe cast since its on server already
                     player.getItemCooldownManager().set(stack.getItem(), 10 * 20);
                     return ActionResult.SUCCESS;
                 }

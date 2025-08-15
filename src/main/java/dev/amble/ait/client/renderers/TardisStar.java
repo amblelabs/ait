@@ -25,7 +25,7 @@ public class TardisStar {
     public static void render(WorldRenderContext context, Tardis tardis) {
         renderShine(context, tardis);
         renderStar(context, tardis);
-        if (!tardis.isGrowth() && !tardis.alarm().enabled().get() && tardis.fuel().hasPower())
+        if (!tardis.isGrowth() && !tardis.alarm().isEnabled() && tardis.fuel().hasPower())
             RenderSystem.setShaderFogColor(1, 1, 1, 0);
     }
 

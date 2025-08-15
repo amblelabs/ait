@@ -3,12 +3,11 @@ package dev.amble.ait.client.models.doors;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
@@ -78,10 +77,10 @@ public class PoliceBoxDoorModel extends DoorModel {
 
     @Override
     public void renderWithAnimations(ClientTardis tardis, AbstractLinkableBlockEntity doorEntity, ModelPart root, MatrixStack matrices,
-                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
+                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, float tickDelta) {
         DoorHandler door = tardis.door();
 
-        if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS) {
+        if (!AITModClient.CONFIG.animateDoors) {
             this.TARDIS.getChild("Doors").getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? -5F : 0.0F;
             this.TARDIS.getChild("Doors").getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen())
                     ? 5F
@@ -97,18 +96,8 @@ public class PoliceBoxDoorModel extends DoorModel {
         matrices.translate(0, -1.5, 0.35);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180));
 
-        super.renderWithAnimations(tardis, doorEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(tardis, doorEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);
         matrices.pop();
-    }
-
-    @Override
-    public Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state) {
-        return Animation.Builder.create(0).build();/*return switch (state) {
-            case CLOSED -> DoorAnimations.INTERIOR_BOTH_CLOSE_ANIMATION;
-            case FIRST -> DoorAnimations.INTERIOR_FIRST_OPEN_ANIMATION;
-            case SECOND -> DoorAnimations.INTERIOR_SECOND_OPEN_ANIMATION;
-            case BOTH -> DoorAnimations.INTERIOR_BOTH_OPEN_ANIMATION;
-        };*/
     }
 
     @Override

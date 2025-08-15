@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.consoles;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedGlobalPos;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -24,7 +23,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.WorldUtil;
 
-public class CopperConsoleModel extends ConsoleModel {
+public class CopperConsoleModel extends SimpleConsoleModel {
     private final ModelPart copper;
     public CopperConsoleModel(ModelPart root) {
         this.copper = root.getChild("copper");
@@ -1836,13 +1835,10 @@ public class CopperConsoleModel extends ConsoleModel {
         MinecraftClient client = MinecraftClient.getInstance();
         TextRenderer renderer = client.textRenderer;
         TravelHandler travel = tardis.travel();
-        DirectedGlobalPos abpd = travel.getState() == TravelHandlerBase.State.FLIGHT
-                ? travel.getProgress()
-                : travel.position();
-        CachedDirectedGlobalPos dabpd = travel.destination();
-        CachedDirectedGlobalPos abpp = travel.isLanded() || travel.getState() != TravelHandlerBase.State.MAT
-                ? travel.getProgress()
-                : travel.position();
+        CachedDirectedGlobalPos abpd = travel.destination();
+        CachedDirectedGlobalPos abpp = travel.isLanded() || travel.getState() == TravelHandlerBase.State.MAT
+                ? travel.position()
+                : travel.getProgress();
 
         BlockPos abppPos = abpp.getPos();
         BlockPos abpdPos = abpd.getPos();

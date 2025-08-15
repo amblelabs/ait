@@ -13,7 +13,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.chunk.WorldChunk;
 
 import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.SubSystem;
@@ -207,10 +206,17 @@ public final class TardisEvents {
                 }
             });
 
+    public static final Event<Siege> TOGGLE_SIEGE = EventFactory.createArrayBacked(Siege.class,
+            callbacks -> (tardis, active) -> {
+                for (Siege callback : callbacks) {
+                    callback.onSiege(tardis, active);
+                }
+            });
+
     public static final Event<SyncTardis> SYNC_TARDIS = EventFactory.createArrayBacked(SyncTardis.class,
-            callbacks -> (tardis, chunk) -> {
+            callbacks -> (player, chunk) -> {
                 for (SyncTardis callback : callbacks) {
-                    callback.sync(tardis, chunk);
+                    callback.sync(player, chunk);
                 }
             });
 
@@ -474,8 +480,13 @@ public final class TardisEvents {
     }
 
     @FunctionalInterface
+    public interface Siege {
+        void onSiege(Tardis tardis, boolean active);
+    }
+
+    @FunctionalInterface
     public interface SyncTardis {
-        void sync(ServerPlayerEntity player, WorldChunk chunk);
+        void sync(ServerPlayerEntity player, ChunkPos chunk);
     }
 
     @FunctionalInterface

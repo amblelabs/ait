@@ -14,12 +14,13 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.consoles.ConsoleModel;
 import dev.amble.ait.client.models.consoles.HartnellConsoleModel;
+import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
 import dev.amble.ait.client.models.items.HandlesModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientLightUtil;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.item.HandlesItem;
@@ -49,9 +50,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
             HartnellConsoleModel model = new HartnellConsoleModel(HartnellConsoleModel.getTexturedModelData().createModel());
             model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(ClientConsoleVariantRegistry.HARTNELL.texture())),
                     light, overlay, 1, 1, 1, 1);
-            RenderLayer layer = DependencyChecker.hasIris()
-                    ? AITRenderLayers.tardisEmissiveCullZOffset(ClientConsoleVariantRegistry.HARTNELL.emission(), true)
-                    : AITRenderLayers.getBeaconBeam(ClientConsoleVariantRegistry.HARTNELL.emission(), true);
+            RenderLayer layer = AITRenderLayers.tardisEmissiveCullZOffset(ClientConsoleVariantRegistry.HARTNELL.emission(), true);
             model.render(matrices, vertexConsumers.getBuffer(layer),
                     0xf000f0, overlay, 1, 1, 1, 1);
             matrices.pop();
@@ -61,7 +60,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         ClientTardis tardis = entity.tardis().get().asClient();
         Profiler profiler = entity.getWorld().getProfiler();
 
-        this.renderConsole(profiler, tardis, entity, matrices, vertexConsumers, light, overlay);
+        this.renderConsole(profiler, tardis, entity, matrices, vertexConsumers, light, overlay, tickDelta);
 
         if (variant instanceof ClientCrystallineVariant)
             this.renderPanes(tardis, entity, matrices, vertexConsumers, light, overlay);
@@ -105,7 +104,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
     }
 
     private void renderConsole(Profiler profiler, ClientTardis tardis, T entity, MatrixStack matrices,
-                               VertexConsumerProvider vertexConsumers, int light, int overlay) {
+                               VertexConsumerProvider vertexConsumers, int light, int overlay, float tickDelta) {
         profiler.push("model");
 
         this.updateModel(entity);
@@ -118,39 +117,57 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         profiler.swap("animate");
         model.animateBlockEntity(entity, tardis.travel().getState(), hasPower);
 
+        if (DependencyChecker.hasIris()) {
+            if (hasPower) {
+                profiler.swap("emission");
+
+                matrices.push();
+                if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
+                    model.renderWithAnimations(tardis, entity, model.getPart(),
+                            matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), light, overlay,
+                            1, 1, 1, 1, tickDelta);
+                }
+                matrices.pop();
+            }
+        }
+
         profiler.swap("render");
-        model.renderWithAnimations(entity, tardis, model.getPart(),
+        model.renderWithAnimations(tardis, entity, model.getPart(),
                 matrices, vertexConsumers.getBuffer(variant.equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(variant.texture()) :
-                        RenderLayer.getEntityTranslucentCull(variant.texture())), light, overlay,
-                1, 1, 1, 1);
+                        RenderLayer.getItemEntityTranslucentCull(variant.texture())), light, overlay,
+                1, 1, 1, 1, tickDelta);
+
+
+        if (!DependencyChecker.hasIris()) {
+            if (hasPower) {
+                profiler.swap("emission");
+
+                matrices.push();
+                if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
+                    model.renderWithAnimations(tardis, entity, model.getPart(),
+                            matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), light, overlay,
+                            1, 1, 1, 1, tickDelta);
+                }
+                matrices.pop();
+            }
+        }
 
         matrices.pop();
         matrices.push();
 
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 
-        if (hasPower) {
-            profiler.swap("emission"); // emission {
-
-            if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
-                ClientLightUtil.renderEmissive((vertices, l) -> model.renderWithAnimations(
-                        entity, tardis, model.getPart(), matrices, vertices, l, overlay, 1, 1, 1,
-                        1), variant.emission(), vertexConsumers);
-            }
-        }
-
         matrices.pop();
 
         profiler.swap("monitor");
 
-        if (hasPower) {
-            model.renderMonitorText(tardis, entity, matrices, vertexConsumers, light, overlay);
+        if (hasPower && AITModClient.CONFIG.showConsoleMonitorText && model instanceof SimpleConsoleModel simplez) {
+            simplez.renderMonitorText(tardis, entity, matrices, vertexConsumers, light, overlay);
         }
 
         profiler.swap("sonic_port"); // } emission / sonic {
 
-        ItemStack stack = tardis.sonic().getConsoleSonic() == null ?
-                tardis.butler().getHandles() : tardis.sonic().getConsoleSonic();
+        ItemStack stack = entity.getSonicScrewdriver() == null || entity.getSonicScrewdriver().isEmpty() ? tardis.butler().getHandles() : entity.getSonicScrewdriver();
 
         if (stack == null) {
             profiler.pop(); // } sonic
@@ -179,7 +196,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
             matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(variant.sonicItemRotations()[0]));
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(variant.sonicItemRotations()[1]));
             matrices.scale(0.9f, 0.9f, 0.9f);
-            MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformationMode.GROUND, lightAbove,
+            MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformationMode.GROUND, light,
                     overlay, matrices, vertexConsumers, entity.getWorld(), 0);
             matrices.pop();
         }

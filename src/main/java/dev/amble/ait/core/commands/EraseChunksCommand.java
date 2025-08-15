@@ -14,11 +14,12 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.math.ColumnPos;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 
 public class EraseChunksCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher.register(literal(AITMod.MOD_ID).then(literal("erase-chunks").requires(source -> source.hasPermissionLevel(2))
+        dispatcher.register(literal(AITMod.MOD_ID).then(literal("erase-chunks").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.erase-chunks", 2))
                 .then(argument("from", ColumnPosArgumentType.columnPos())
                         .then(argument("to", ColumnPosArgumentType.columnPos())
                                 .executes(EraseChunksCommand::execute)))));

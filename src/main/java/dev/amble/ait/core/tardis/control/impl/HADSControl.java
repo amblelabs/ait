@@ -24,7 +24,7 @@ public class HADSControl extends Control {
         super.runServer(tardis, player, world, console, leftClick);
 
         tardis.alarm().toggle();
-        return tardis.alarm().enabled().get() ? Result.SUCCESS_ALT : Result.SUCCESS;
+        return tardis.alarm().isEnabled() ? Result.SUCCESS_ALT : Result.SUCCESS;
     }
 
     @Override

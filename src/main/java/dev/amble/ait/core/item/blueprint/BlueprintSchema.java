@@ -65,18 +65,18 @@ public record BlueprintSchema(Identifier id, Text text, InputList inputs, ItemSt
     public static class Input {
         public static Codec<Input> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Identifier.CODEC.fieldOf("item").forGetter(input -> Registries.ITEM.getId(input.item)),
-                Codec.INT.fieldOf("maxCount").forGetter(Input::minimum),
-                Codec.INT.fieldOf("minCount").forGetter(Input::maximum)
+                Codec.INT.fieldOf("minCount").forGetter(Input::minimum),
+                Codec.INT.fieldOf("maxCount").forGetter(Input::maximum)
         ).apply(instance, Input::new));
 
         private final Item item;
         private final int maxCount;
         private final int minCount;
 
-        public Input(Item item, int maxCount, int minCount) {
+        public Input(Item item, int minCount, int maxCount) {
             this.item = item;
-            this.maxCount = maxCount;
             this.minCount = minCount;
+            this.maxCount = maxCount;
         }
         public Input(Item item, int count) {
             this(item, count, count);
@@ -92,10 +92,10 @@ public record BlueprintSchema(Identifier id, Text text, InputList inputs, ItemSt
             this(Registries.ITEM.get(item), min, max);
         }
 
-        protected int minimum() {
+        public int minimum() {
             return minCount;
         }
-        protected int maximum() {
+        public int maximum() {
             return maxCount;
         }
 
@@ -106,12 +106,16 @@ public record BlueprintSchema(Identifier id, Text text, InputList inputs, ItemSt
             return new ItemStack(item, minCount + (int) (Math.random() * (maxCount - minCount)));
         }
 
+        public ItemStack maxCountStack() {
+            return new ItemStack(item, maxCount);
+        }
+
         @Override
         public String toString() {
             return "Input{" +
                     "item=" + item +
-                    ", maxCount=" + maxCount +
                     ", minCount=" + minCount +
+                    ", maxCount=" + maxCount +
                     '}';
         }
 

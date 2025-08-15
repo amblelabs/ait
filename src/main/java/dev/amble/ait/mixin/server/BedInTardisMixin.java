@@ -19,7 +19,6 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.Tardis;
@@ -36,7 +35,7 @@ public class BedInTardisMixin {
     @Unique @Environment(EnvType.CLIENT)
     private void onClientSleep(PlayerEntity player) {
         Tardis tardis = ClientTardisUtil.getCurrentTardis();
-        if (tardis == null || AITMod.CONFIG.CLIENT.DISABLE_LOYALTY_BED_MESSAGE) return;
+        if (tardis == null) return;
 
         Loyalty loyalty = tardis.loyalty().get(player);
 

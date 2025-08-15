@@ -13,6 +13,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
@@ -96,22 +97,26 @@ public abstract class LinkableItem extends Item {
 
         // convert old string data
         if (element.getType() == NbtElement.STRING_TYPE) {
-            nbt.remove(path);
             UUID converted = UUID.fromString(element.asString());
 
             nbt.putUuid(path, converted);
             return converted;
         }
 
-        return nbt.getUuid(path);
+        return NbtHelper.toUuid(element);
     }
 
     public Tardis getTardis(World world, ItemStack stack) {
         if (world == null)
             return null;
 
+        UUID tardisId = this.getTardisId(stack);
+
+        if (tardisId == null)
+            return null;
+
         return TardisManager.with(world, (o, manager) ->
-                manager.demandTardis(o, this.getTardisId(stack)));
+                manager.demandTardis(o, tardisId));
     }
 
     public static <T> T apply(ItemStack stack, BiFunction<LinkableItem, ItemStack, T> f) {

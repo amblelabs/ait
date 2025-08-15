@@ -3,17 +3,16 @@ package dev.amble.ait.client.models.exteriors;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.v2.Linkable;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
-public class PoliceBoxCoralModel extends ExteriorModel {
+public class PoliceBoxCoralModel extends SimpleExteriorModel {
     private final ModelPart TARDIS;
 
     public PoliceBoxCoralModel(ModelPart root) {
@@ -158,8 +157,7 @@ public class PoliceBoxCoralModel extends ExteriorModel {
 
         DoorHandler door = falling.tardis().get().door();
 
-        if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS) {
-
+        if (!AITModClient.CONFIG.animateDoors) {
             this.TARDIS.getChild("Doors").getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? -5F : 0.0F;
             this.TARDIS.getChild("Doors").getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen())
                     ? 5F
@@ -175,15 +173,10 @@ public class PoliceBoxCoralModel extends ExteriorModel {
     }
 
     @Override
-    public Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state) {
-        return Animation.Builder.create(0).build();
-    }
-
-    @Override
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
         DoorHandler door = tardis.door();
 
-        if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS) {
+        if (!AITModClient.CONFIG.animateDoors) {
 
             this.TARDIS.getChild("Doors").getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? -5F : 0.0F;
             this.TARDIS.getChild("Doors").getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen())

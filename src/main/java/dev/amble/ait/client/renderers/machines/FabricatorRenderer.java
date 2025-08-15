@@ -19,7 +19,7 @@ import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.machines.FabricatorModel;
-import dev.amble.ait.client.util.ClientLightUtil;
+import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.core.blockentities.FabricatorBlockEntity;
 import dev.amble.ait.core.blocks.FabricatorBlock;
 import dev.amble.ait.core.item.blueprint.Blueprint;
@@ -53,9 +53,9 @@ public class FabricatorRenderer<T extends FabricatorBlockEntity> implements Bloc
                 1.0F, 1.0F, 1.0F);
 
         if (entity.isValid()) {
-            ClientLightUtil.renderEmissive((v, l) -> fabricatorModel.render(
-                    matrices, v, l, overlay, 1, 1, 1, 1
-            ), EMISSIVE_FABRICATOR_TEXTURE, vertexConsumers);
+            this.fabricatorModel.render(matrices,
+                    vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(EMISSIVE_FABRICATOR_TEXTURE, true)), 0xf000f0, overlay, 1.0F,
+                    1.0F, 1.0F, 1.0F);
         }
 
         matrices.pop();

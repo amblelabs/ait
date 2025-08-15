@@ -21,7 +21,6 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
 // @TODO better variable names
-@Deprecated(forRemoval = true, since = "1.3.0")
 public record TravelSound(TravelHandlerBase.State target, Identifier id, Identifier soundId, int timeLeft, int maxTime, int startTime, int length, float frequency,
                           float intensity, String name) implements Identifiable, Nameable {
     public static final Codec<TravelSound> CODEC = RecordCodecBuilder.create(instance -> instance

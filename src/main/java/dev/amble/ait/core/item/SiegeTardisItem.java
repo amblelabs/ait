@@ -49,7 +49,6 @@ public class SiegeTardisItem extends LinkableItem {
 
         if (!tardis.siege().isActive()) {
             tardis.setSiegeBeingHeld(null);
-            stack = ItemStack.EMPTY;
             return;
         }
 
@@ -67,7 +66,7 @@ public class SiegeTardisItem extends LinkableItem {
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
         if (context.getHand() != Hand.MAIN_HAND || context.getPlayer() == null)
-            return ActionResult.PASS; // bc i cba
+            return ActionResult.PASS;
 
         context.getPlayer().getInventory().setStack(context.getPlayer().getInventory().selectedSlot, Items.AIR.getDefaultStack());
 

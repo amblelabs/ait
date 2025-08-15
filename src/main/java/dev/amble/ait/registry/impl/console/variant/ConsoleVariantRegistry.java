@@ -2,6 +2,7 @@ package dev.amble.ait.registry.impl.console.variant;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import dev.amble.lib.register.unlockable.UnlockableRegistry;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -12,6 +13,7 @@ import org.joml.Vector3f;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.datapack.DatapackConsole;
@@ -28,6 +30,10 @@ import dev.amble.ait.data.schema.console.variant.hartnell.HartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.KeltHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.MintHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.WoodenHartnellVariant;
+import dev.amble.ait.data.schema.console.variant.hudolin.HudolinNatureVariant;
+import dev.amble.ait.data.schema.console.variant.hudolin.HudolinShortVariant;
+import dev.amble.ait.data.schema.console.variant.hudolin.HudolinTallVariant;
+import dev.amble.ait.data.schema.console.variant.hudolin.HudolinVariant;
 import dev.amble.ait.data.schema.console.variant.renaissance.*;
 import dev.amble.ait.data.schema.console.variant.steam.*;
 import dev.amble.ait.data.schema.console.variant.toyota.ToyotaBlueVariant;
@@ -61,9 +67,8 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
                 continue;
             }
 
-            buf.encodeAsJson(DatapackConsole.CODEC, new DatapackConsole(schema.id(), schema.parent().id(),
-                    DatapackExterior.DEFAULT_TEXTURE, DatapackExterior.DEFAULT_TEXTURE, List.of(), new Vector3f(), List.of(), new Vector3f(),
-                    false));
+            buf.encodeAsJson(DatapackConsole.CODEC, new DatapackConsole(schema.id(), Optional.of(schema.parent().id()),
+                    DatapackExterior.DEFAULT_TEXTURE, DatapackExterior.DEFAULT_TEXTURE, List.of(), new Vector3f(), List.of(), new Vector3f(), Optional.empty(), Vec3d.ZERO, Vec3d.ZERO, null, Optional.empty(), false));
         }
 
         ServerPlayNetworking.send(player, this.packet, buf);
@@ -110,6 +115,11 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
         List<ConsoleVariantSchema> list = new ArrayList<>();
 
         for (ConsoleVariantSchema schema : ConsoleVariantRegistry.getInstance().REGISTRY.values()) {
+            if (schema.parent() == null) {
+                AITMod.LOGGER.warn("Console variant {} has no parent, skipping", schema.id());
+                continue;
+            }
+
             if (schema.parent().equals(parent))
                 list.add(schema);
         }
@@ -138,8 +148,9 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
     public static ConsoleVariantSchema STEAM_COPPER;
     public static ConsoleVariantSchema STEAM_PLAYPAL;
     public static ConsoleVariantSchema HUDOLIN;
-    public static ConsoleVariantSchema HUDOLIN_SHALKA;
     public static ConsoleVariantSchema HUDOLIN_NATURE;
+    public static ConsoleVariantSchema HUDOLIN_TALL;
+    public static ConsoleVariantSchema HUDOLIN_SHORT;
     public static ConsoleVariantSchema COPPER;
     public static ConsoleVariantSchema BOREALIS;
     public static ConsoleVariantSchema CRYSTALLINE;
@@ -186,9 +197,10 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
         STEAM_COPPER = registerStatic(new SteamCopperVariant());
 
         // Hudolin variants
-   /*     HUDOLIN = registerStatic(new HudolinVariant());
+        HUDOLIN = registerStatic(new HudolinVariant());
         HUDOLIN_NATURE = registerStatic(new HudolinNatureVariant());
-        HUDOLIN_SHALKA = registerStatic(new HudolinShalkaVariant());*/
+        HUDOLIN_TALL = registerStatic(new HudolinTallVariant());
+        HUDOLIN_SHORT = registerStatic(new HudolinShortVariant());
 
         // Copper variants
         COPPER = registerStatic(new CopperVariant());

@@ -23,6 +23,7 @@ import net.minecraft.world.World;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.tardis.control.impl.DirectionControl;
 import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Waypoint;
 
 public class WaypointItem extends Item implements DyeableItem {
@@ -98,12 +99,21 @@ public class WaypointItem extends Item implements DyeableItem {
         if (!nbt.contains(POS_KEY))
             return null;
 
-        return CachedDirectedGlobalPos.fromNbt(nbt.getCompound(POS_KEY));
+        CachedDirectedGlobalPos cached = CachedDirectedGlobalPos.fromNbt(nbt.getCompound(POS_KEY));
+        if (cached.getWorld() instanceof TardisServerWorld) {
+            cached = CachedDirectedGlobalPos.create(TardisServerWorld.OVERWORLD, cached.getPos(), cached.getRotation());
+        }
+
+        return cached;
     }
 
     public static void setPos(ItemStack stack, DirectedGlobalPos pos) {
         NbtCompound nbt = stack.getOrCreateNbt();
         if (pos == null) return;
-        nbt.put(POS_KEY, pos.toNbt());
+        CachedDirectedGlobalPos cached = CachedDirectedGlobalPos.create(pos.getDimension(), pos.getPos(), pos.getRotation());
+        if (cached.getWorld() instanceof TardisServerWorld) {
+            cached = CachedDirectedGlobalPos.create(TardisServerWorld.OVERWORLD, cached.getPos(), cached.getRotation());
+        }
+        nbt.put(POS_KEY, cached.toNbt());
     }
 }

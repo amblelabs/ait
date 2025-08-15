@@ -9,6 +9,7 @@ import java.util.UUID;
 import dev.amble.lib.container.RegistryContainer;
 import dev.amble.lib.register.AmbleRegistries;
 import dev.amble.lib.util.ServerLifecycleHooks;
+import dev.drtheo.multidim.MultiDim;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
@@ -49,7 +50,7 @@ import net.minecraft.world.gen.ProbabilityConfig;
 import net.minecraft.world.gen.feature.PlacedFeature;
 
 import dev.amble.ait.api.AITModInitializer;
-import dev.amble.ait.config.AITConfig;
+import dev.amble.ait.config.AITServerConfig;
 import dev.amble.ait.core.*;
 import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.commands.*;
@@ -70,10 +71,8 @@ import dev.amble.ait.core.sounds.travel.TravelSoundRegistry;
 import dev.amble.ait.core.tardis.animation.v2.blockbench.BlockbenchParser;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
-import dev.amble.ait.core.tardis.handler.SeatHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
-import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
 import dev.amble.ait.core.util.CustomTrades;
@@ -98,7 +97,7 @@ public class AITMod implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("ait");
     public static final Random RANDOM = new Random();
 
-    public static AITConfig CONFIG;
+    public static AITServerConfig CONFIG;
     public static final GameRules.Key<GameRules.BooleanRule> TARDIS_GRIEFING = GameRuleRegistry.register("tardisGriefing",
             GameRules.Category.MISC, GameRuleFactory.createBooleanRule(true));
 
@@ -112,8 +111,7 @@ public class AITMod implements ModInitializer {
     // This DefaultParticleType gets called when you want to use your particle in code.
     public static final DefaultParticleType CORAL_PARTICLE = FabricParticleTypes.simple();
 
-    // Register our custom particle type in the mod initializer.
-
+    // This is the Crater feature that generates in the world. It's made with AI so it sucks lol
     public static final Crater CRATER = new Crater(ProbabilityConfig.CODEC);
 
     public static final String BRANCH;
@@ -135,14 +133,13 @@ public class AITMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        CONFIG = AITConfig.createAndLoad();
+        AITServerConfig.INSTANCE.load();
+        CONFIG = AITServerConfig.INSTANCE.instance();
 
         ServerLifecycleHooks.init();
-        NetworkUtil.init();
-        AsyncLocatorUtil.setupExecutorService();
-        SeatHandler.init();
+        AsyncLocatorUtil.init();
+        MultiDim.init();
 
-        ConsoleRegistry.init();
         CreakRegistry.init();
         SequenceRegistry.init();
         MoodEventPoolRegistry.init();
@@ -151,6 +148,7 @@ public class AITMod implements ModInitializer {
         RiftChunkManager.init();
 
         AmbleRegistries.getInstance().registerAll(
+                ConsoleRegistry.getInstance(),
                 SonicRegistry.getInstance(),
                 DesktopRegistry.getInstance(),
                 ConsoleVariantRegistry.getInstance(),
@@ -167,7 +165,8 @@ public class AITMod implements ModInitializer {
                 SubSystemRegistry.getInstance(),
                 ItemOpinionRegistry.getInstance(),
                 DrinkRegistry.getInstance(),
-                TardisAnimationRegistry.getInstance()
+                TardisAnimationRegistry.getInstance(),
+                DoorRegistry.getInstance()
         );
         ControlSoundRegistry.init();
         BlockbenchParser.init();
@@ -178,7 +177,6 @@ public class AITMod implements ModInitializer {
         FabricLoader.getInstance().invokeEntrypoints("ait-main", AITModInitializer.class,
                 AITModInitializer::onInitializeAIT);
 
-        DoorRegistry.init();
         HandlesResponseRegistry.init();
 
         AITStatusEffects.init();
@@ -233,6 +231,7 @@ public class AITMod implements ModInitializer {
             FuelCommand.register(dispatcher);
             SetRepairTicksCommand.register(dispatcher);
             RiftChunkCommand.register(dispatcher);
+            ScaleCommand.register(dispatcher);
             TriggerMoodRollCommand.register(dispatcher);
             SetNameCommand.register(dispatcher);
             GetNameCommand.register(dispatcher);

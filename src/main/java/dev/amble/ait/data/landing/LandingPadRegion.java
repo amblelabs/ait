@@ -1,6 +1,8 @@
 package dev.amble.ait.data.landing;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import com.google.common.collect.ImmutableCollection;
 import com.mojang.serialization.Codec;

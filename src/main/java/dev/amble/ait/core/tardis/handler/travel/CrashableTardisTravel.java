@@ -8,8 +8,8 @@ import dev.drtheo.queue.api.ActionQueue;
 
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
@@ -64,29 +64,29 @@ public sealed interface CrashableTardisTravel permits TravelHandler {
         if (tardis.sequence().hasActiveSequence())
             tardis.sequence().setActiveSequence(null, true);
 
-        tardis.asServer().worldRef().ifPresent(world -> {
-            tardis.getDesktop().getConsolePos().forEach(console -> {
-                TardisDesktop.playSoundAtConsole(world, console, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 3f, 1f);
+        ServerWorld world = tardis.asServer().world();
 
-                startCrashEffects(tardis, console);
-            });
+        tardis.getDesktop().getConsolePos().forEach(console -> {
+            TardisDesktop.playSoundAtConsole(world, console, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 3f, 1f);
 
-            Random random = AITMod.RANDOM;
-
-            for (ServerPlayerEntity player : world.getPlayers()) {
-                float xVel = random.nextFloat(-2f, 3f);
-                float yVel = random.nextFloat(-1f, 2f);
-                float zVel = random.nextFloat(-2f, 3f);
-
-                player.setVelocity(xVel * power, yVel * power, zVel * power);
-                player.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, 40 * power, 1, true, false, false));
-                player.addStatusEffect(new StatusEffectInstance(StatusEffects.WEAKNESS, 40 * power, 1, true, false, false));
-                player.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 40 * power, 2, true, false, false));
-
-                int damage = (int) Math.round(0.5 * power);
-                player.damage(world.getDamageSources().generic(), damage);
-            }
+            startCrashEffects(tardis, console);
         });
+
+        Random random = AITMod.RANDOM;
+
+        for (ServerPlayerEntity player : world.getPlayers()) {
+            float xVel = random.nextFloat(-2f, 3f);
+            float yVel = random.nextFloat(-1f, 2f);
+            float zVel = random.nextFloat(-2f, 3f);
+
+            player.setVelocity(xVel * power, yVel * power, zVel * power);
+            player.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, 40 * power, 1, true, false, false));
+            player.addStatusEffect(new StatusEffectInstance(StatusEffects.WEAKNESS, 40 * power, 1, true, false, false));
+            player.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 40 * power, 2, true, false, false));
+
+            int damage = (int) Math.round(0.5 * power);
+            player.damage(world.getDamageSources().generic(), damage);
+        }
 
         tardis.door().setLocked(true);
         tardis.alarm().enable(ServerAlarmHandler.AlarmType.CRASHING);
@@ -109,17 +109,13 @@ public sealed interface CrashableTardisTravel permits TravelHandler {
         TardisEvents.CRASH.invoker().onCrash(tardis);
     }
 
-
     default void startCrashEffects(Tardis tardis, BlockPos console) {
-        tardis.asServer().worldRef().ifPresent(world -> {
-            MinecraftServer server = world.getServer();
+        ServerWorld world = tardis.asServer().world();
 
-            if (!server.getGameRules().getBoolean(AITMod.TARDIS_FIRE_GRIEFING)) {
-                return;
-            }
+        if (!world.getGameRules().getBoolean(AITMod.TARDIS_FIRE_GRIEFING))
+            return;
 
-            world.playSound(null, console, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 3.0f, 1.0f);
-            world.playSound(null, console, SoundEvents.ENTITY_WITHER_HURT, SoundCategory.BLOCKS, 3.0f, 1.0f);
-        });
+        world.playSound(null, console, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 3.0f, 1.0f);
+        world.playSound(null, console, SoundEvents.ENTITY_WITHER_HURT, SoundCategory.BLOCKS, 3.0f, 1.0f);
     }
 }

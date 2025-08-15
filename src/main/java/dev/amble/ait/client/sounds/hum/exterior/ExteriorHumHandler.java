@@ -7,6 +7,7 @@ import dev.amble.ait.api.ClientWorldEvents;
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.tardis.handler.ChameleonHandler;
 
 public class ExteriorHumHandler extends SoundHandler {
 
@@ -80,7 +81,7 @@ public class ExteriorHumHandler extends SoundHandler {
     public void tick(MinecraftClient client) {
         ClientTardis tardis = ClientTardisUtil.getNearestTardis(MAX_DISTANCE).orElse(null);
 
-        if (tardis == null) {
+        if (tardis == null || ChameleonHandler.isDisguised(tardis)) {
             this.stopSounds();
             return;
         }

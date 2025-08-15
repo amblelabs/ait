@@ -5,11 +5,14 @@ import java.util.List;
 import org.joml.Matrix4f;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.AITMod;
@@ -76,7 +79,7 @@ public class LandingRegionRenderer {
 
     private void renderSpot(LandingPadSpot spot, boolean forceRender) {
         Identifier text = getTexture(spot);
-        SonicRendering.renderFloorTexture(spot.getPos().add(1, 0, 1), text, forceRender ? null : this.previous, true);
+        SonicRendering.renderFloorTexture(spot.getPos().add(0, -1, 0), text, forceRender ? null : this.previous, true);
 
         forceRender = forceRender || !text.equals(this.previous);
 

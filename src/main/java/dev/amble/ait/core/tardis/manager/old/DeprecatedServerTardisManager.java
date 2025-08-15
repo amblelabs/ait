@@ -1,6 +1,7 @@
 package dev.amble.ait.core.tardis.manager.old;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -15,6 +16,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.network.PacketByteBuf;
@@ -37,12 +39,13 @@ import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.manager.TardisBuilder;
 import dev.amble.ait.core.tardis.manager.TardisFileManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.TardisMap;
 import dev.amble.ait.data.properties.Value;
 
-public abstract class DeprecatedServerTardisManager extends TardisManager<ServerTardis, MinecraftServer> {
+public abstract class DeprecatedServerTardisManager extends TardisManager<ServerTardis, MinecraftServer> implements TardisFileManager.TardisLoader<ServerTardis> {
 
     protected final TardisMap.Optional<ServerTardis> lookup = new TardisMap.Optional<>();
     protected final TardisFileManager<ServerTardis> fileManager = new TardisFileManager<>();
@@ -54,7 +57,11 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
         ServerLifecycleEvents.SERVER_STOPPING.register(this::saveAndReset);
 
         ServerCrashEvent.EVENT.register(((server, report) -> this.reset())); // just panic and reset
-        WorldSaveEvent.EVENT.register(world -> this.save(world.getServer(), false));
+
+        WorldSaveEvent.EVENT.register(world -> {
+            if (world == WorldUtil.getOverworld())
+                this.save(world.getServer(), false);
+        });
 
         ServerTickEvents.START_SERVER_TICK.register(server -> {
             this.forEach(tardis -> {
@@ -73,6 +80,8 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
     }
 
     public ServerTardis create(TardisBuilder builder) {
+        Objects.requireNonNull(builder);
+
         ServerTardis tardis = builder.build();
         this.lookup.put(tardis);
 
@@ -107,49 +116,38 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
     public abstract void markPropertyDirty(ServerTardis tardis, Value<?> value);
 
     @Override
-    public @Nullable ServerTardis demandTardis(MinecraftServer server, UUID uuid) {
-        if (uuid == null)
-            return null; // ugh - ong bro
+    public @Nullable ServerTardis demandTardis(@NotNull MinecraftServer server, @NotNull UUID uuid) {
+        Objects.requireNonNull(uuid);
+
+        if (this.fileManager.isLocked())
+            return null;
 
         Either<ServerTardis, ?> either = this.lookup.get(uuid);
 
         if (either == null)
             either = this.loadTardis(server, uuid);
 
-        if (either == null)
-            return null;
-
         return either.map(tardis -> tardis, o -> null);
     }
 
     @Override
-    public void loadTardis(MinecraftServer server, UUID uuid, @Nullable Consumer<ServerTardis> consumer) {
-        if (consumer == null) return;
+    public void getTardis(MinecraftServer server, @NotNull UUID uuid, @NotNull Consumer<ServerTardis> consumer) {
+        Objects.requireNonNull(uuid);
+        Objects.requireNonNull(consumer);
 
-        Either<ServerTardis,Exception> either = this.loadTardis(server, uuid);
-
-        if (either == null) return;
-
-        either.ifLeft(consumer);
-    }
-
-    @Override
-    public void getTardis(MinecraftServer server, UUID uuid, Consumer<ServerTardis> consumer)  {
-        if (uuid == null)
-            return; // ugh
+        if (this.fileManager.isLocked())
+            return;
 
         Either<ServerTardis, ?> either = this.lookup.get(uuid);
 
-        if (either == null) {
-            this.loadTardis(server, uuid, consumer);
-            return;
-        }
+        if (either == null)
+            either = this.loadTardis(server, uuid);
 
         either.ifLeft(consumer);
     }
 
     @Override
-    protected TardisMap.Optional<ServerTardis> lookup() {
+    public TardisMap.Optional<ServerTardis> lookup() {
         return lookup;
     }
 
@@ -158,11 +156,8 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
         this.lookup.forEach((uuid, either) -> either.ifLeft(consumer));
     }
 
-    @Nullable private Either<ServerTardis, Exception> loadTardis(MinecraftServer server, UUID uuid) {
-        if (this.fileManager.isLocked())
-            return null;
-
-        Either<ServerTardis, Exception> result = this.fileManager.loadTardis(server, this, uuid, this::readTardis);
+    @NotNull public Either<ServerTardis, Exception> loadTardis(MinecraftServer server, UUID uuid) {
+        Either<ServerTardis, Exception> result = this.fileManager.loadTardis(server, this, uuid, this);
 
         this.lookup.put(uuid, result);
         return result;
@@ -175,12 +170,15 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
     }
 
     public void remove(MinecraftServer server, ServerTardis tardis) {
+        Objects.requireNonNull(tardis);
+
         tardis.setRemoved(true);
 
         CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
 
         if (exteriorPos != null) {
-            TardisUtil.getPlayersInsideInterior(tardis).forEach(player -> TardisUtil.teleportOutside(tardis, player));
+            tardis.world().getPlayers().forEach(player
+                    -> TardisUtil.teleportOutside(tardis, player));
 
             World world = exteriorPos.getWorld();
             BlockPos pos = exteriorPos.getPos();
@@ -189,7 +187,7 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
             world.removeBlockEntity(pos);
         }
 
-        MultiDim.get(server).remove(TardisServerWorld.keyForTardis(tardis));
+        MultiDim.get(server).queueRemove(TardisServerWorld.keyForTardis(tardis));
 
         this.sendTardisRemoval(server, tardis);
 
@@ -197,15 +195,15 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
         this.fileManager.delete(server, tardis.getUuid());
     }
 
-    private void save(MinecraftServer server, boolean clean) {
-        if (clean)
+    private void save(MinecraftServer server, boolean close) {
+        if (close)
             this.fileManager.setLocked(true);
 
         this.forEach(tardis -> {
-            if (clean) {
-                if (tardis == null)
-                    return;
+            if (tardis == null)
+                return;
 
+            if (close) {
                 // TODO move this into some method like #dispose
                 TravelHandlerBase.State state = tardis.travel().getState();
 
@@ -214,14 +212,12 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
                 } else if (state == TravelHandlerBase.State.MAT) {
                     tardis.travel().finishRemat();
                 }
-
-                tardis.door().closeDoors();
             }
 
             this.fileManager.saveTardis(server, this, tardis);
         });
 
-        if (!clean)
+        if (!close)
             return;
 
         for (ServerWorld world : server.getWorlds()) {
@@ -237,7 +233,8 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
     /**
      * @return An initialized {@link ServerTardis} without attachments.
      */
-    protected ServerTardis readTardis(Gson gson, JsonObject json) {
+    @Override
+    public ServerTardis readTardis(Gson gson, JsonObject json) {
         ServerTardis tardis = gson.fromJson(json, ServerTardis.class);
         Tardis.init(tardis, TardisComponent.InitContext.deserialize());
 

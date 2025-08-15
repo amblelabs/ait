@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.server.integrated.IntegratedServerLoader;
 
-import dev.amble.ait.AITMod;
+import dev.amble.ait.client.AITModClient;
 
 @Mixin(value = IntegratedServerLoader.class)
 public abstract class WorldOpenFlowsMixin {
@@ -18,7 +18,7 @@ public abstract class WorldOpenFlowsMixin {
 
     @Inject(method = "start(Lnet/minecraft/client/gui/screen/Screen;Ljava/lang/String;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/integrated/IntegratedServerLoader;start(Lnet/minecraft/client/gui/screen/Screen;Ljava/lang/String;ZZ)V"), cancellable = true)
     private void skipBackupScreen(Screen parent, String levelName, CallbackInfo ci) {
-        if (!AITMod.CONFIG.CLIENT.SHOW_EXPERIMENTAL_WARNING) {
+        if (!AITModClient.CONFIG.showExperimentalWarning) {
             this.start(parent, levelName, false, false);
             ci.cancel();
         }

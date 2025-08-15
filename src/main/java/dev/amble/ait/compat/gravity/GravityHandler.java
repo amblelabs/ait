@@ -33,7 +33,7 @@ import dev.amble.ait.registry.impl.TardisComponentRegistry;
 public class GravityHandler extends KeyedTardisComponent implements TardisTickable {
 
     private static final Identifier SYNC = AITMod.id("sync_gravity");
-    private static final Property<Direction> DIRECTION = new Property<>(Property.Type.DIRECTION, "direction",
+    private static final Property<Direction> DIRECTION = new Property<>(Property.DIRECTION, "direction",
             Direction.DOWN);
 
     private final Value<Direction> direction = DIRECTION.create(this);
@@ -58,11 +58,9 @@ public class GravityHandler extends KeyedTardisComponent implements TardisTickab
     }
 
     private void onTick() {
-        this.tardis.asServer().worldRef().ifPresent(world -> {
-            for (Entity entity : world.getEntitiesByType(TypeFilter.instanceOf(LivingEntity.class), EntityTags::canChangeGravity)) {
-                GravityChangerAPI.getGravityComponent(entity).setBaseGravityDirection(this.direction.get());
-            }
-        });
+        for (Entity entity : this.tardis.asServer().world().getEntitiesByType(TypeFilter.instanceOf(LivingEntity.class), EntityTags::canChangeGravity)) {
+            GravityChangerAPI.getGravityComponent(entity).setBaseGravityDirection(this.direction.get());
+        }
     }
 
     private static void syncToServer(Tardis tardis, Direction direction) {

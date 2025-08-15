@@ -21,7 +21,6 @@ import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.likes.ItemOpinion;
 import dev.amble.ait.core.likes.ItemOpinionRegistry;
 import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
@@ -74,7 +73,7 @@ public class LoyaltyHandler extends TardisComponent implements TardisTickable {
         if (server.getTicks() % 40 != 0)
             return;
 
-        for (ServerPlayerEntity player : TardisUtil.getPlayersInsideInterior((ServerTardis) tardis)) {
+        for (ServerPlayerEntity player : tardis.asServer().world().getPlayers()) {
             Loyalty loyalty = this.get(player);
 
             if (!loyalty.isOf(Loyalty.Type.NEUTRAL))
@@ -163,7 +162,7 @@ public class LoyaltyHandler extends TardisComponent implements TardisTickable {
         ServerPlayerEntity highest = null;
         int highestLoyalty = 0;
 
-        for (ServerPlayerEntity player : TardisUtil.getPlayersInsideInterior(serverTardis)) {
+        for (ServerPlayerEntity player : serverTardis.world().getPlayers()) {
             if (highest == null) {
                 highest = player;
                 highestLoyalty = this.get(highest).level();

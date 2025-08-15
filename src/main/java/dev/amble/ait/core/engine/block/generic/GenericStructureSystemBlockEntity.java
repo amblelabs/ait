@@ -45,13 +45,13 @@ public class GenericStructureSystemBlockEntity extends StructureSystemBlockEntit
     public ActionResult useOn(BlockState state, World world, boolean sneaking, PlayerEntity player, ItemStack hand) {
         if (hand.isEmpty()) {
             if (this.system() != null && this.idSource != null) {
-                if (this.system() instanceof DurableSubSystem durable && (durable.isBroken() || durable.durability() < 1250)) {
+                if (this.system() instanceof DurableSubSystem durable && (durable.isBroken() || durable.durability() < DurableSubSystem.MAX_DURABILITY)) {
                     player.sendMessage(Text.translatable("tardis.message.engine.system_is_weakened"), true);
                     return ActionResult.SUCCESS;
                 }
                 StackUtil.spawn(world, pos, this.idSource.copyAndEmpty());
                 if (this.tardis().isPresent() && this.id() != null) {
-                    this.tardis().get().subsystems().remove(this.id(), false);
+                    system().setEnabled(false);
                 }
                 world.playSound(null, this.getPos(), AITSounds.WAYPOINT_ACTIVATE, SoundCategory.BLOCKS, 1.0f, 0.1f);
                 this.markDirty();
@@ -66,7 +66,7 @@ public class GenericStructureSystemBlockEntity extends StructureSystemBlockEntit
         if (hand.getItem() instanceof SubSystemItem link) {
             if (this.system() != null && this.idSource != null) {
                 if (tardis() != null) {
-                    tardis().get().subsystems().get(this.id()).setEnabled(false);
+                    system().setEnabled(false);
                 }
                 StackUtil.spawn(world, pos, this.idSource.copyAndEmpty());
             }

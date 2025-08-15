@@ -20,7 +20,7 @@ public class EmergencyPower extends SubSystem implements ArtronHolder, Structure
 
     static {
         TardisEvents.USE_BACKUP_POWER.register((tdis, power) -> {
-            tdis.alarm().enabled().set(true);
+            tdis.alarm().enable();
 
             // if power is below 200, find the nearest rift and head there
             if (power > 200) return;

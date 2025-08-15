@@ -91,13 +91,14 @@ public class ScanningSonicMode extends SonicMode {
 
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
+        Tardis tardis = SonicItem.getTardisStatic(world, stack);
 
         String blastRes = String.format("%.2f", block.getBlastResistance());
 
-        if (state.isIn(AITTags.Blocks.SONIC_CAN_LOCATE)) {
-            Tardis tardis = SonicItem.getTardisStatic(world, stack);
+        if (tardis != null && state.isIn(AITTags.Blocks.SONIC_CAN_LOCATE)) {
             BlockPos tPos = tardis.travel().position().getPos();
-            String dimensionText = MonitorUtil.truncateDimensionName(WorldUtil.worldText(world.getRegistryKey()).getString(), 20);
+            World tardisWorld = tardis.travel().position().getWorld();
+            String dimensionText = MonitorUtil.truncateDimensionName(WorldUtil.worldText(tardisWorld.getRegistryKey()).getString(), 20);
 
             Text coordinatesMessage = Text.translatable("item.sonic.scanning.locator_message.coordinates", tPos.getX(), tPos.getY(), tPos.getZ());
             Text fullMessage = Text.translatable("item.sonic.scanning.locator_message.title", dimensionText).append("\n").append(coordinatesMessage);
@@ -106,6 +107,18 @@ public class ScanningSonicMode extends SonicMode {
             // TARDIS Location: {DIMENSION}
             // Coordinates: {X} {Y} {Z}
             user.sendMessage(fullMessage);
+        }
+
+        LandingPadRegion region = LandingPadManager.getInstance((ServerWorld) world).getRegionAt(pos);
+        if (region != null) {
+            if (world.getBlockState(pos).isAir()) return true;
+
+            boolean wasSpotCreated = modifyRegion(null, (ServerWorld) world, pos.up(), user, stack, region);
+
+            float pitch = wasSpotCreated ? 1.1f : 0.75f;
+            world.playSound(null, pos, AITSounds.SONIC_SWITCH, SoundCategory.PLAYERS, 1f, pitch);
+
+            return true;
         }
 
         String toolRequirement = "item.sonic.scanning.any_tool";
@@ -138,18 +151,6 @@ public class ScanningSonicMode extends SonicMode {
 
         if (user == null)
             return false;
-
-        LandingPadRegion region = LandingPadManager.getInstance((ServerWorld) world).getRegionAt(pos);
-        if (region != null) {
-            if (world.getBlockState(pos).isAir()) return true;
-
-            boolean wasSpotCreated = modifyRegion(null, (ServerWorld) world, pos.up(), user, stack, region);
-
-            float pitch = wasSpotCreated ? 1.1f : 0.75f;
-            world.playSound(null, pos, AITSounds.SONIC_SWITCH, SoundCategory.PLAYERS, 1f, pitch);
-
-            return true;
-        }
 
         if (!TardisServerWorld.isTardisDimension(world)) {
             sendRiftInfo(null, (ServerWorld) world, pos, user, stack);

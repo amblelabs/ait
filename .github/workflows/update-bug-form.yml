@@ -1,0 +1,61 @@
+name: Update Bug Report Form
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  update-form:
+    name: Update Bug Report Version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Extract mod_version from gradle.properties
+        id: version
+        run: |
+          VERSION=$(grep "^mod_version\s*=" gradle.properties | cut -d '=' -f2 | xargs)
+          echo "MOD_VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Append version to issue form if missing
+        run: |
+          FILE=".github/ISSUE_TEMPLATE/1-bug-report.yaml"
+          VERSION_LINE="    - $MOD_VERSION"
+
+          if grep -qF "$VERSION_LINE" "$FILE"; then
+            echo "Version $MOD_VERSION already exists in 1_bug_report.yaml"
+          else
+            echo "Adding version $MOD_VERSION to the bottom of the version list..."
+            awk -v new_version="$VERSION_LINE" '
+              BEGIN { done = 0 }
+              /id: version/ { in_block = 1 }
+              in_block && /options:/ {
+                print
+                next
+              }
+              in_block && /^[ ]+- / {
+                last = NR
+              }
+              { lines[NR] = $0 }
+              END {
+                for (i = 1; i <= NR; i++) {
+                  print lines[i]
+                  if (i == last && !done) {
+                    print new_version
+                    done = 1
+                  }
+                }
+              }
+            ' "$FILE" > tmp.yml && mv tmp.yml "$FILE"
+          fi
+
+      - name: Commit and Push Changes
+        run: |
+          git config user.name "AIT Updater"
+          git config user.email "github-actions@github.com"
+          git add .github/ISSUE_TEMPLATE/1-bug-report.yaml
+          git commit -m "Update bug report template with mod version $MOD_VERSION"
+          git push

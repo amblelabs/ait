@@ -18,6 +18,7 @@ import net.minecraft.text.Text;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.commands.argument.JsonElementArgumentType;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.ServerTardis;
@@ -47,7 +48,8 @@ public class DataCommand {
     };
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher.register(literal(AITMod.MOD_ID).then(literal("data").requires(source -> source.hasPermissionLevel(2))
+        dispatcher.register(literal(AITMod.MOD_ID).then(literal("data").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.data", 2))
+
                 .then(argument("tardis", TardisArgumentType.tardis()).then(argument("component",
                         StringArgumentType.word())
                         .suggests(COMPONENT_SUGGESTION)

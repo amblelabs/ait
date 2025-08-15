@@ -95,6 +95,18 @@ public class TardisSonicMode extends SonicMode {
         World tardisWorld = tardis.travel().position().getWorld();
         boolean inSameWorld = player.getWorld().equals(tardisWorld);
         boolean isNearTardis = TardisUtil.isNearTardis(player, tardis, 256);
+        double distance = TardisUtil.distanceFromTardis(player, tardis);
+
+        if (!tardis.fuel().hasPower()){
+            player.sendMessage(Text.translatable("sonic.ait.mode.tardis.does_not_have_power"), true);
+            return false;
+        }
+
+        if (tardis.fuel().getCurrentFuel() <= TardisUtil.estimatedFuelCost(player, tardis, distance)) {
+            player.sendMessage(Text.translatable("sonic.ait.mode.tardis.insufficient_fuel"), true);
+            return false;
+        }
+
         if (!inSameWorld || !isNearTardis) {
             player.sendMessage(Text.translatable("sonic.ait.mode.tardis.is_not_in_range"), true);
             return false;

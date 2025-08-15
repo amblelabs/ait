@@ -8,6 +8,7 @@ import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 
@@ -29,6 +30,7 @@ public class PowerControl extends Control {
             boolean refueling = !tardis.isRefueling();
 
             if (inRange && doorLocked && refueling) {
+                TardisCriterions.ATTACK_EYEBROWS.trigger((ServerPlayerEntity) player);
                 world.playSound(null, console, AITSounds.MAD_MAN_MUSIC, SoundCategory.BLOCKS, 1.0f, 1.0f);
             }
         }

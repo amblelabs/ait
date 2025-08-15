@@ -10,14 +10,14 @@ import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.AITMod;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.decoration.PaintingFrameModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 
 public class PaintingBOTI extends BOTI {
     public static void renderBOTIPainting(MatrixStack stack, PaintingFrameModel frame,
                                           int light, SinglePartEntityModel paintingContents, Identifier frameTexture, Identifier paintingContentsTexture) {
-        if (!AITMod.CONFIG.CLIENT.ENABLE_TARDIS_BOTI)
+        if (!AITModClient.CONFIG.enableTardisBOTI)
             return;
 
         if (MinecraftClient.getInstance().world == null

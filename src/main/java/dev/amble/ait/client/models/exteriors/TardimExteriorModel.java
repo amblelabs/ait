@@ -3,12 +3,11 @@ package dev.amble.ait.client.models.exteriors;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.v2.Linkable;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
@@ -16,7 +15,7 @@ import dev.amble.ait.core.tardis.handler.DoorHandler;
 // Made with Blockbench 4.9.1
 // Exported for Minecraft version 1.17+ for Yarn
 // Paste this class into your mod and generate all required imports
-public class TardimExteriorModel extends ExteriorModel {
+public class TardimExteriorModel extends SimpleExteriorModel {
     private final ModelPart tardis;
 
     public TardimExteriorModel(ModelPart root) {
@@ -77,13 +76,8 @@ public class TardimExteriorModel extends ExteriorModel {
     }
 
     @Override
-    public Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state) {
-        return Animation.Builder.create(0).build();
-    }
-
-    @Override
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
-        if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS) {
+        if (!AITModClient.CONFIG.animateDoors) {
             DoorHandler handler = tardis.door();
 
             this.tardis.getChild("left_door").yaw = (handler.isLeftOpen() || handler.isOpen()) ? -1.575f : 0.0F;
@@ -112,7 +106,7 @@ public class TardimExteriorModel extends ExteriorModel {
         matrices.push();
         matrices.translate(0, -1.5f, 0);
 
-        if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS) {
+        if (!AITModClient.CONFIG.animateDoors) {
             DoorHandler handler = falling.tardis().get().door();
 
             this.tardis.getChild("left_door").yaw = (handler.isLeftOpen() || handler.isOpen()) ? -1.575f : 0.0F;

@@ -69,7 +69,7 @@ public class TardisCrashHandler extends KeyedTardisComponent implements TardisTi
             return;
         }
 
-        if (state == State.TOXIC)
+        if (state == State.TOXIC && tardis.sonic().getExteriorSonic() == null)
             this.tardis().alarm().enable();
 
         if (repairTicks < UNSTABLE_TICK_START_THRESHOLD && state != State.UNSTABLE) {
@@ -100,7 +100,7 @@ public class TardisCrashHandler extends KeyedTardisComponent implements TardisTi
 
         int loyaltySubAmount = AITMod.RANDOM.nextInt(10, 25);
 
-        for (ServerPlayerEntity serverPlayerEntity : TardisUtil.getPlayersInsideInterior(tardis.asServer())) {
+        for (ServerPlayerEntity serverPlayerEntity : tardis.asServer().world().getPlayers()) {
             ItemStack stack = serverPlayerEntity.getEquippedStack(EquipmentSlot.HEAD);
 
             if (stack.isIn(AITTags.Items.FULL_RESPIRATORS) || stack.isIn(AITTags.Items.HALF_RESPIRATORS))

@@ -1,6 +1,8 @@
 package dev.amble.ait.core.tardis.handler;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Optional;
+import java.util.Queue;
 
 import dev.drtheo.queue.api.ActionQueue;
 
@@ -128,7 +130,7 @@ public class ServerAlarmHandler extends KeyedTardisComponent implements TardisTi
                 if (entity instanceof TntEntity || (entity instanceof HostileEntity && !entity.hasCustomName())
                         || entity instanceof ServerPlayerEntity player
                         && tardis.loyalty().get(player).level() == Loyalty.Type.REJECT.level) {
-                    tardis.alarm().enabled().set(true);
+                    tardis.alarm().enable();
                 }
             }
 
@@ -157,7 +159,7 @@ public class ServerAlarmHandler extends KeyedTardisComponent implements TardisTi
                     AITSounds.CLOISTER, SoundCategory.AMBIENT, volume, pitch);
 
             if (currentAlarm != null) {
-                TardisUtil.getPlayersInsideInterior(tardis.asServer()).forEach(player -> {
+                tardis.asServer().world().getPlayers().forEach(player -> {
                     currentAlarm.sendMessage(player);
                 });
             }

@@ -10,7 +10,6 @@ import net.minecraft.util.Identifier;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.hum.Hum;
 import dev.amble.ait.registry.impl.HumRegistry;
 
@@ -53,7 +52,7 @@ public class ServerHumHandler extends TardisComponent {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeIdentifier(this.current.sound().getId());
 
-        for (ServerPlayerEntity player : TardisUtil.getPlayersInsideInterior(this.tardis.asServer())) {
+        for (ServerPlayerEntity player : this.tardis.asServer().world().getPlayers()) {
             ServerPlayNetworking.send(player, SEND, buf);
         }
     }

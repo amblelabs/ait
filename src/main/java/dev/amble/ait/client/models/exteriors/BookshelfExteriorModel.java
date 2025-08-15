@@ -4,17 +4,16 @@ package dev.amble.ait.client.models.exteriors; // Made with Blockbench 4.10.1
 
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.v2.Linkable;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
-public class BookshelfExteriorModel extends ExteriorModel {
+public class BookshelfExteriorModel extends SimpleExteriorModel {
     private final ModelPart bookshelf;
 
     public BookshelfExteriorModel(ModelPart root) {
@@ -175,7 +174,7 @@ public class BookshelfExteriorModel extends ExteriorModel {
         matrices.scale(1F, 1F, 1F);
         matrices.translate(0, -1.5f, 0);
 
-        if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS) {
+        if (!AITModClient.CONFIG.animateDoors) {
             DoorHandler door = falling.tardis().get().door();
 
             this.bookshelf.getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? -4.75F : 0.0F;
@@ -191,15 +190,10 @@ public class BookshelfExteriorModel extends ExteriorModel {
     }
 
     @Override
-    public Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state) {
-        return Animation.Builder.create(0).build();
-    }
-
-    @Override
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
         DoorHandler door = tardis.door();
 
-        if (!AITMod.CONFIG.CLIENT.ANIMATE_DOORS) {
+        if (!AITModClient.CONFIG.animateDoors) {
             this.bookshelf.getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? -4.75F : 0.0F;
             this.bookshelf.getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen()) ? 4.75F : 0.0F;
         } else {

@@ -97,7 +97,7 @@ public class WaypointBankBlockEntity extends InteriorLinkableBlockEntity {
     private ActionResult insert(BlockState state, ItemStack stack, int slot) {
         WaypointData inserted = WaypointData.fromStack(stack);
 
-        if (inserted == null)
+        if (inserted == null || this.waypoints[slot] != null)
             return ActionResult.FAIL;
 
         stack.decrement(1);

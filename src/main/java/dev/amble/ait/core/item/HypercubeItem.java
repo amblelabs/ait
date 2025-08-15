@@ -17,6 +17,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.tardis.handler.distress.DistressCall;
 
@@ -27,6 +28,10 @@ public class HypercubeItem extends Item {
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+        if (!AITMod.CONFIG.hypercubesEnabled) {
+            user.sendMessage(Text.translatable("message.ait.hypercubes.disabled").formatted(Formatting.RED), true);
+            return TypedActionResult.fail(new ItemStack(this));
+        }
         if (hand != Hand.MAIN_HAND) return TypedActionResult.fail(user.getStackInHand(hand));
 
         ItemStack held = user.getMainHandStack();

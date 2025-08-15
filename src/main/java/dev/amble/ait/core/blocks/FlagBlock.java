@@ -2,12 +2,15 @@ package dev.amble.ait.core.blocks;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.*;
+import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.BlockRenderType;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.*;
+import net.minecraft.world.BlockView;
 
 import dev.amble.ait.core.blockentities.FlagBlockEntity;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
