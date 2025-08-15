@@ -760,6 +760,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         provider.addTranslation("ait.tardis.likes_item", "The TARDIS may like this item...");
         provider.addTranslation("tooltip.ait.remoteitem.holdformoreinfo", "Hold shift for more info");
+        provider.addTranslation("soundCategory.hums", "Interior HUM");
+        provider.addTranslation("text.ait.config.title", "AIT Config");
 
         // Control entities
         provider.addTranslation("control.ait.antigravs", "Antigravs");
@@ -1036,6 +1038,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITBlocks.FOOD_MACHINE, "Food Machine");
 
         // Block Tooltips
+        provider.addTranslation("block.ait.artron_collector_block.tooltip", "Clashed together from random junks and bits, this item can collect Artron Units from Artron Chunks!");
+
         provider.addTranslation("block.ait.fabricator.tooltip.use", "(Place on top of a Smithing Table)");
         provider.addTranslation("tooltip.ait.use_in_tardis", "(Place inside a TARDIS)");
         provider.addTranslation("block.ait.artron_collector_block.tooltip.use", "(Charges inside of Rift Chunks)");
@@ -1079,6 +1083,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.loyalty.message.owner", "The TARDIS hums you a song, as if to show it will always be here for you. [OWNER]");
 
         // TARDIS Control Actionbar Title
+        provider.addTranslation("message.ait.stored_artron", "Stored Artron: %s/%");
         provider.addTranslation("tardis.message.protocol_813.travel", "Hail Mary is active, please prepare for departure.");
         provider.addTranslation("tardis.message.control.protocol_116.active", "Stabiliser: ENGAGED");
         provider.addTranslation("tardis.message.control.hail_mary.engaged", "Hail Mary: ENGAGED");

@@ -106,6 +106,7 @@ public class AITMod implements ModInitializer {
     public static final RegistryKey<PlacedFeature> CUSTOM_GEODE_PLACED_KEY = RegistryKey.of(RegistryKeys.PLACED_FEATURE,
             new Identifier(MOD_ID, "zeiton_geode"));
 
+
     // This DefaultParticleType gets called when you want to use your particle in code.
     public static final DefaultParticleType CORAL_PARTICLE = FabricParticleTypes.simple();
 
