@@ -116,7 +116,7 @@ We also have some extra compatibility but for this you would have to install a s
 - [duzo](https://duzo.is-a.dev/)
 - [Dr. Theo](https://theo.is-a.dev/)
 - [Maketendo](https://github.com/MaketendoDev)
-- [AddieDaBaddie](https://addieastarr.carrd.co)
+- [AddieDaBaddie](https://addi3.github.io/)
 - [Saturn](https://github.com/Saturnorsomthing)
 - [Monke](https://github.com/rapbattlegod32)
 - [Pan](https://github.com/Mansarde)

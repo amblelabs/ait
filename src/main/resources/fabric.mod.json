@@ -61,6 +61,9 @@
 		"modmenu": [
           "dev.amble.ait.client.config.AITModMenu"
 		],
+        "jei_mod_plugin": [
+          "dev.amble.ait.compat.jei.AITJeiPlugin"
+        ],
 		"amblekit-main": [
 			"dev.amble.ait.init.AmbleInitializer"
 		],

@@ -1192,7 +1192,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("achievement.ait.title.feed_power_converter", "What are you doing, Doc?");
         provider.addTranslation("achievement.ait.description.feed_power_converter", "Use food on the power converter.");
         provider.addTranslation("achievement.ait.title.attack_eyebrows", "Attack Eyebrows");
-        provider.addTranslation("achievement.ait.description.attack_eyebrows", "Its a elevator!");
+        provider.addTranslation("achievement.ait.description.attack_eyebrows", "It's an elevator!");
         provider.addTranslation("achievement.ait.title.pui", "Piloting under the influence");
         provider.addTranslation("achievement.ait.description.pui", "Consume Zeiton Dust while the TARDIS is in flight.");
         provider.addTranslation("achievement.ait.title.bonding", "I think it's starting to trust you.");
