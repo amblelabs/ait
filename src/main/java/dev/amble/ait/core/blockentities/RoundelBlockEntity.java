@@ -48,13 +48,13 @@ public class RoundelBlockEntity
 
     {
         TardisEvents.LOSE_POWER.register(tardis -> {
-            ServerWorld world = tardis.asServer().worldRef().get();
+            ServerWorld world = tardis.asServer().world();
             if (world == null) return;
             if (world.getBlockState(this.getPos()).getBlock() instanceof AbstractRoundelBlock)
                 world.setBlockState(this.getPos(), world.getBlockState(this.getPos()).with(AbstractRoundelBlock.LEVEL_15, 0));
         });
         TardisEvents.REGAIN_POWER.register(tardis -> {
-            ServerWorld world = tardis.asServer().worldRef().get();
+            ServerWorld world = tardis.asServer().world();
             if (world == null) return;
             if (world.getBlockState(this.getPos()).getBlock() instanceof AbstractRoundelBlock)
                 world.setBlockState(this.getPos(), world.getBlockState(this.getPos()).with(AbstractRoundelBlock.LEVEL_15, 11));

@@ -10,8 +10,9 @@ import java.util.stream.Stream;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.drtheo.scheduler.api.Scheduler;
 import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
 import me.shedaniel.clothconfig2.gui.widget.ColorDisplayWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -179,7 +180,7 @@ public class RoundelFabricatorScreen
             PacketByteBuf buf = PacketByteBufs.create();
             buf.writeInt(insertMouseColorHere);
             ClientPlayNetworking.send(AITMod.id("update_roundel_color"), buf);
-        }, TimeUnit.TICKS, 1);
+        }, TaskStage.END_SERVER_TICK, TimeUnit.TICKS, 1);
     }
 
     @Override
