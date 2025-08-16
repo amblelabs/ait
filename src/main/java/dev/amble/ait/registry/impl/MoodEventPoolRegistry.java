@@ -106,7 +106,7 @@ public class MoodEventPoolRegistry {
 
         FLY_TO_WAYPOINT = register(
                 MoodDictatedEvent.Builder.create(AITMod.id("fly_to_waypoint"),
-                        tardis -> tardis.waypoint().gotoWaypoint(), 1, TardisMood.Alignment.NEUTRAL));
+                        tardis -> tardis.waypoint().loadWaypoint(), 1, TardisMood.Alignment.NEUTRAL));
 
         //TODO: Fix
         //KICK_PLAYER_OUT = init(

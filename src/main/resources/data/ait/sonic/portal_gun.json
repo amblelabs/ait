@@ -1,0 +1,10 @@
+{
+  "id": "ait:portal_gun",
+  "models": {
+    "inactive": "ait:item/sonic/portal_gun/inactive",
+    "interaction": "ait:item/sonic/portal_gun/interaction",
+    "overload": "ait:item/sonic/portal_gun/overload",
+    "scanning": "ait:item/sonic/portal_gun/scanning",
+    "tardis": "ait:item/sonic/portal_gun/tardis"
+  }
+}

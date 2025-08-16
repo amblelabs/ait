@@ -1,6 +1,7 @@
 package dev.amble.ait.registry.impl.exterior;
 
 
+import dev.amble.lib.client.bedrock.BedrockModelRegistry;
 import dev.amble.lib.register.datapack.DatapackRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
@@ -13,11 +14,13 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.exteriors.BedrockExteriorModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.data.datapack.DatapackExterior;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.data.schema.exterior.variant.adaptive.client.ClientAdaptiveVariant;
 import dev.amble.ait.data.schema.exterior.variant.bookshelf.client.ClientBookshelfDefaultVariant;
 import dev.amble.ait.data.schema.exterior.variant.booth.client.*;
 import dev.amble.ait.data.schema.exterior.variant.box.client.*;
@@ -92,13 +95,15 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
 
     @Override
     public void readFromServer(PacketByteBuf buf) {
-        int size = buf.readInt();
+        for (ExteriorVariantSchema schema : ExteriorVariantRegistry.getInstance().toList()) {
+            if (!(schema instanceof DatapackExterior variant)) continue;
 
-        for (int i = 0; i < size; i++) {
-            this.register(convertDatapack(buf.decodeAsJson(DatapackExterior.CODEC)));
+            ClientExteriorVariantSchema clientSchema = convertDatapack(variant);
+
+            if (clientSchema == null) continue;
+
+            this.register(clientSchema);
         }
-
-        AITMod.LOGGER.info("Read {} client exterior variants from server", size);
     }
 
     public static ClientExteriorVariantSchema convertDatapack(DatapackExterior variant) {
@@ -119,6 +124,10 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
 
             @Override
             public ExteriorModel model() {
+                if (variant.model().isPresent()) {
+                    return new BedrockExteriorModel(BedrockModelRegistry.getInstance().get(variant.model().get()));
+                }
+
                 var parent = getInstance().get(variant.getParentId());
 
                 if (parent == null) return ClientExteriorVariantRegistry.CAPSULE_DEFAULT.model();
@@ -196,7 +205,7 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
     public static ClientExteriorVariantSchema STALLION_FIRE;
     public static ClientExteriorVariantSchema STALLION_SOUL;
     public static ClientExteriorVariantSchema STALLION_STEEL;
-    //public static ClientExteriorVariantSchema ADAPTIVE;
+    public static ClientExteriorVariantSchema ADAPTIVE;
     public static ClientExteriorVariantSchema DALEK_MOD_1963;
     public static ClientExteriorVariantSchema DALEK_MOD_1967;
     public static ClientExteriorVariantSchema DALEK_MOD_1970;
@@ -285,7 +294,7 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
         STALLION_SOUL = register(new ClientStallionSoulVariant());
         STALLION_STEEL = register(new ClientStallionSteelVariant());
 
-        //ADAPTIVE = register(new ClientAdaptiveVariant());
+        ADAPTIVE = register(new ClientAdaptiveVariant());
 
         // Dalek Mod
         DALEK_MOD_1963 = register(new ClientDalekMod1963Variant());

@@ -23,7 +23,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.WorldUtil;
 
-public class HourglassConsoleModel extends ConsoleModel {
+public class HourglassConsoleModel extends SimpleConsoleModel {
 
     private final ModelPart console;
 

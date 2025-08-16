@@ -1,22 +1,53 @@
-ext.getCurrentVersion = {
-    var patch = System.getenv("GITHUB_RUN_NUMBER")
+// MAJOR.MINOR.PATCH-build.BUILD-DASH-SEPARATED-BRANCH+mc.MCVER (CI + custom branch)
+// or
+// MAJOR.MINOR.PATCH-build.BUILD+mc.MCVER (CI + main branch)
+// or
+// MAJOR.MINOR.PATCH-release+mc.MCVER (CI + release branch)
+// or
+// MAJOR.MINOR.PATCH-testbuild+mc.MCVER (no CI + no branch = local)
+
+private static def getBranch() {
+    // groovy is very bad at globals, apparently.
+    final REFS_PREFIX = "refs/heads/"
     var branch = System.getenv("GITHUB_REF")
-    var qualifier = project.mod_version_qualifier
 
-    if (branch != null && branch.startsWith("refs/heads/")) {
-        branch = branch.substring("refs/heads/".length())
-        // replace / with _
-        branch = branch.replaceAll("/", "_")
+    if (branch == null || !branch.startsWith(REFS_PREFIX))
+        return null
 
-        if (branch == "release") {
-            qualifier = null
-        }
+    branch = branch.substring(REFS_PREFIX.length())
+    branch = branch.replaceAll("/", "-")
 
-        if (branch == "main") {
-            branch = null
-        }
+    return branch;
+}
+
+private static def getBuildNumber() {
+    return System.getenv("GITHUB_RUN_NUMBER")
+}
+
+ext.getCurrentVersion = {
+    var qualifier = "build"
+
+    var branch = getBranch()
+    var build = getBuildNumber()
+
+    if (branch == "main") {
+        branch = null
+    } else if (branch == "release") {
+        branch = null
+        build = null
+        qualifier = "release"
+    } else if (build == null) {
+        // No CI
+        qualifier = "testbuild"
     }
 
-    return project.mod_version + (patch != null ? ("." + patch) : "")\
-        + "-" + project.minecraft_version + (qualifier != null ? ("-" + qualifier) : "") + (branch != null ? ("-" + branch) : "")
+    var version = project.mod_version + "-" + qualifier
+
+    if (build != null)
+        version += "." + build
+
+    if (branch != null)
+        version += "-" + branch
+
+    return version + "+mc." + project.minecraft_version
 }

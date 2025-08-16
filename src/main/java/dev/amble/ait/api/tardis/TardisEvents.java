@@ -206,10 +206,17 @@ public final class TardisEvents {
                 }
             });
 
+    public static final Event<Siege> TOGGLE_SIEGE = EventFactory.createArrayBacked(Siege.class,
+            callbacks -> (tardis, active) -> {
+                for (Siege callback : callbacks) {
+                    callback.onSiege(tardis, active);
+                }
+            });
+
     public static final Event<SyncTardis> SYNC_TARDIS = EventFactory.createArrayBacked(SyncTardis.class,
-            callbacks -> (tardis, chunk) -> {
+            callbacks -> (player, chunk) -> {
                 for (SyncTardis callback : callbacks) {
-                    callback.sync(tardis, chunk);
+                    callback.sync(player, chunk);
                 }
             });
 
@@ -470,6 +477,11 @@ public final class TardisEvents {
     @FunctionalInterface
     public interface Shields {
         void onShields(Tardis tardis, boolean active, boolean visual);
+    }
+
+    @FunctionalInterface
+    public interface Siege {
+        void onSiege(Tardis tardis, boolean active);
     }
 
     @FunctionalInterface

@@ -171,7 +171,7 @@ public abstract class AnimatedTravelHandler extends ProgressiveTravelHandler {
         return this.getAlpha() > 0.5F && this.getScale().equals(1, 1, 1) && this.getAnimationPosition().equals(0, 0, 0) && this.getAnimationRotation().equals(0, 0, 0);
     }
 
-    protected AnimationHolder getAnimations() {
+    public AnimationHolder getAnimations() {
         if (this.animations == null) {
             if (this.tardis() != null) { // Ask loqor how this happened, because I dont know.
                 this.animations = new AnimationHolder(this.tardis());

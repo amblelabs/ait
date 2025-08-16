@@ -44,12 +44,12 @@ import dev.amble.ait.client.boti.*;
 import dev.amble.ait.client.commands.ConfigCommand;
 import dev.amble.ait.client.config.AITClientConfig;
 import dev.amble.ait.client.data.ClientLandingManager;
+import dev.amble.ait.client.models.AnimatedModel;
 import dev.amble.ait.client.models.boti.BotiPortalModel;
 import dev.amble.ait.client.models.decoration.GallifreyFallsModel;
 import dev.amble.ait.client.models.decoration.PaintingFrameModel;
 import dev.amble.ait.client.models.decoration.RiftModel;
 import dev.amble.ait.client.models.decoration.TrenzalorePaintingModel;
-import dev.amble.ait.client.models.doors.DoorModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.overlays.ExteriorAxeOverlay;
 import dev.amble.ait.client.overlays.FabricatorOverlay;
@@ -116,10 +116,10 @@ public class AITModClient implements ClientModInitializer {
                 SonicRegistry.getInstance(),
                 DrinkRegistry.getInstance(),
                 ClientExteriorVariantRegistry.getInstance(),
-                ClientConsoleVariantRegistry.getInstance()
+                ClientConsoleVariantRegistry.getInstance(),
+                ClientDoorRegistry.getInstance()
         );
 
-        ClientDoorRegistry.init();
         ClientTardisManager.init();
 
         ModuleRegistry.instance().onClientInit();
@@ -220,7 +220,7 @@ public class AITModClient implements ClientModInitializer {
                         return;
 
                     String id = buf.readString();
-                    ConsoleTypeSchema type = ConsoleRegistry.REGISTRY.get(Identifier.tryParse(id));
+                    ConsoleTypeSchema type = ConsoleRegistry.getInstance().get(Identifier.tryParse(id));
                     BlockPos consolePos = buf.readBlockPos();
 
                     if (client.world.getBlockEntity(consolePos) instanceof ConsoleGeneratorBlockEntity console)
@@ -387,6 +387,8 @@ public class AITModClient implements ClientModInitializer {
                 GenericSubSystemRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.POWER_CONVERTER_BLOCK_TYPE,
                 PowerConverterRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.FOOD_MACHINE_BLOCK_ENTITY_TYPE,
+                FoodMachineRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ASTRAL_MAP, AstralMapRenderer::new);
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             BlockEntityRendererFactories.register(AITBlockEntityTypes.SNOW_GLOBE_BLOCK_ENTITY_TYPE,
@@ -495,7 +497,7 @@ public class AITModClient implements ClientModInitializer {
             ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
             if (tardis == null || tardis.getDesktop() == null) return;
             ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
-            DoorModel model = variant.getDoor().model();
+            AnimatedModel model = variant.getDoor().model();
             for (DoorBlockEntity door : BOTI.DOOR_RENDER_QUEUE) {
                 if (door == null) continue;
                 BlockPos pos = door.getPos();
@@ -509,7 +511,7 @@ public class AITModClient implements ClientModInitializer {
                     light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
                     TardisDoorBOTI.renderInteriorDoorBoti(tardis, door, variant, stack,
                             AITMod.id("textures/environment/tardis_sky.png"), model,
-                            BotiPortalModel.getTexturedModelData().createModel(), light);
+                            BotiPortalModel.getTexturedModelData().createModel(), light, context.tickDelta());
                 }
                 stack.pop();
             }

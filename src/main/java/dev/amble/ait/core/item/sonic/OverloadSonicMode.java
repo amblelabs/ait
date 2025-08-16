@@ -52,7 +52,7 @@ public class OverloadSonicMode extends SonicMode {
     }
 
     private void process(ServerWorld world, LivingEntity user, int ticks) {
-        HitResult hitResult = SonicMode.getHitResult(user);
+        HitResult hitResult = SonicMode.getHitResultForOutline(user);
 
         if (hitResult instanceof BlockHitResult blockHit) {
             this.overloadBlock(blockHit.getBlockPos(), world, user, ticks, blockHit);
@@ -148,7 +148,7 @@ public class OverloadSonicMode extends SonicMode {
             return;
         }
 
-        if (block instanceof DaylightDetectorBlock || block instanceof ButtonBlock) {
+        if (block instanceof DaylightDetectorBlock) {
             activateBlock(world, pos, user, state, blockHit);
         }
         else if (block instanceof RedstoneLampBlock) {
@@ -157,7 +157,10 @@ public class OverloadSonicMode extends SonicMode {
         else if (block instanceof RedstoneWireBlock || block instanceof AbstractRedstoneGateBlock) {
             forceRedstonePower(world, pos, state, 5 * 20);
         }
-        else if (block instanceof GlassBlock || block instanceof StainedGlassPaneBlock) {
+        else if (block instanceof LeverBlock lever) {
+            lever.togglePower(state, world, pos);
+        }
+        else if (block instanceof AbstractGlassBlock || block instanceof PaneBlock) {
             breakBlock(world, pos, user, state, blockHit);
         }
         else if (canLight(ticks) && block instanceof TntBlock) {
@@ -176,9 +179,9 @@ public class OverloadSonicMode extends SonicMode {
                 world.setBlockState(blockPos2, AbstractFireBlock.getState(world, blockPos2), Block.NOTIFY_ALL);
                 world.emitGameEvent(user, GameEvent.BLOCK_PLACE, pos);
             }
+        } else if(state.isOf(Blocks.BRICKS)){
+            breakBlock(world, pos, user, state, blockHit);
         }
-
-
         playFx(world, pos);
     }
 

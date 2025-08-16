@@ -74,7 +74,7 @@ public abstract class ConsoleTypeSchema implements Identifiable, Nameable {
                 id = CapsuleCategory.REFERENCE;
             }
 
-            return ConsoleRegistry.REGISTRY.get(id);
+            return ConsoleRegistry.getInstance().get(id);
         }
 
         @Override

@@ -15,10 +15,10 @@ import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.handler.WaypointHandler;
 
-public class SetWaypointControl extends Control {
+public class LoadWaypointControl extends Control {
 
-    public SetWaypointControl() {
-        super(AITMod.id("set_waypoint"));
+    public LoadWaypointControl() {
+        super(AITMod.id("load_waypoint"));
     }
 
     @Override
@@ -29,11 +29,10 @@ public class SetWaypointControl extends Control {
 
 
 
-        if (!tardis.travel().handbrake()) {
-            waypoints.gotoWaypoint();
+        if (waypoints.loadWaypoint()) {
             TardisDesktop.playSoundAtConsole(world, console, AITSounds.NAV_NOTIFICATION, SoundCategory.PLAYERS, 6f, 1);
         } else {
-            player.sendMessage(Text.translatable("control.ait.set_waypoint.error"), true);
+            player.sendMessage(Text.translatable("control.ait.load_waypoint.error"), true);
             TardisDesktop.playSoundAtConsole(world, console, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.PLAYERS, 6f, 0.1f);
         }
 
@@ -44,6 +43,6 @@ public class SetWaypointControl extends Control {
     }
     @Override
     public SoundEvent getFallbackSound() {
-        return AITSounds.SET_WAYPOINT;
+        return AITSounds.LOAD_WAYPOINT;
     }
 }

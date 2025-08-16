@@ -145,6 +145,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
                 if (sonic.isOf(hand, tardis)) {
                     handler.insertExteriorSonic(hand);
                     player.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
+                    tardis.alarm().disable();
                     world.playSound(null, pos, AITSounds.SONIC_ON, SoundCategory.BLOCKS, 1F, 1F);
                     world.playSound(null, pos, AITSounds.SONIC_MENDING, SoundCategory.BLOCKS, 1F, 1F);
                     Scheduler.get().runTaskLater(() -> {
@@ -292,6 +293,12 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         if (!tardis.door().isClosed()
                 && (!DependencyChecker.hasPortals() || !tardis.getExterior().getVariant().hasPortals()))
             TardisUtil.teleportInside(tardis, entity);
+
+        if (tardis.door().isClosed()
+                && entity instanceof PlayerEntity player
+                && tardis.isGrowth()) {
+            player.sendMessage(Text.translatable("tardis.message.growth.in_progress").formatted(Formatting.RED), true);
+        }
     }
 
     @Override

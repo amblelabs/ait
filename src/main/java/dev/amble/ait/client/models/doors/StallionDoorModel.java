@@ -2,14 +2,12 @@ package dev.amble.ait.client.models.doors;
 
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.core.tardis.handler.DoorHandler;
 
 public class StallionDoorModel extends DoorModel {
     private final ModelPart body;
@@ -71,7 +69,7 @@ public class StallionDoorModel extends DoorModel {
 
     @Override
     public void renderWithAnimations(ClientTardis tardis, AbstractLinkableBlockEntity linkableBlockEntity, ModelPart root, MatrixStack matrices,
-                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
+                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, float tickDelta) {
         matrices.push();
         matrices.scale(0.95f, 0.95f, 0.95f);
         matrices.translate(0, -1.5f, 0);
@@ -88,13 +86,9 @@ public class StallionDoorModel extends DoorModel {
             body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(maxRightRot*tardis.door().getLeftRot());
         }
 
-        super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);
 
         matrices.pop();
     }
 
-    @Override
-    public Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state) {
-        return Animation.Builder.create(0).build();
-    }
 }

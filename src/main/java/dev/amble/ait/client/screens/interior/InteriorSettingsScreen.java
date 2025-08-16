@@ -35,6 +35,7 @@ import dev.amble.ait.client.screens.TardisSecurityScreen;
 import dev.amble.ait.client.screens.widget.SwitcherManager;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
@@ -68,11 +69,12 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private final int BIG_ARROW_BUTTON_HEIGHT = 20;
     private final int MAIN_SETTINGS_BUTTON_WIDTH = 20;
     private final int MAIN_SETTINGS_BUTTON_HEIGHT = 20;
+    private BlockPos console;
 
     public InteriorSettingsScreen(ClientTardis tardis, BlockPos console, Screen parent) {
         super(Text.translatable("screen." + AITMod.MOD_ID + ".interiorsettings.title"), tardis, console);
-
         this.parent = parent;
+        this.console = console;
     }
 
     @Override
@@ -112,9 +114,11 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         createTextButton(Text.translatable("screen.ait.interiorsettings.cacheconsole")
                 .formatted(this.console != null ? Formatting.WHITE : Formatting.GRAY), button -> sendCachePacket());
         createTextButton(Text.translatable("screen.ait.security.button"), (button -> toSecurityScreen()));
+        if (!(MinecraftClient.getInstance().world.getBlockEntity(console) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
+        boolean bl = consoleBlockEntity.getSonicScrewdriver() != null && !consoleBlockEntity.getSonicScrewdriver().isEmpty();
         createTextButton(Text.translatable("screen.ait.sonic.button")
-                .formatted(tardis().sonic().getConsoleSonic() != null ? Formatting.WHITE : Formatting.GRAY), button -> {
-                    if (tardis().sonic().getConsoleSonic() != null)
+                .formatted(bl ? Formatting.WHITE : Formatting.GRAY), button -> {
+                    if (bl)
                         toSonicScreen();
                 });
 

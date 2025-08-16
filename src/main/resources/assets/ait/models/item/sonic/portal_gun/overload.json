@@ -1,0 +1,6 @@
+{
+  "parent": "ait:item/sonic/portal_gun",
+  "textures": {
+    "4": "ait:item/sonic_tools/portal_gun_overload"
+  }
+}

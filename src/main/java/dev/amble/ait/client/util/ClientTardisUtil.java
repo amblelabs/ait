@@ -2,6 +2,7 @@ package dev.amble.ait.client.util;
 
 import static dev.amble.ait.core.tardis.util.TardisUtil.*;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -71,10 +72,11 @@ public class ClientTardisUtil {
         changeExteriorWithScreen(tardis.getUuid(), variant, variantchange);
     }
 
-    public static void changeSonicWithScreen(UUID uuid, SonicSchema schema) {
+    public static void changeSonicWithScreen(UUID uuid, SonicSchema schema, BlockPos consolePos) {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeUuid(uuid);
         buf.writeIdentifier(schema.id());
+        buf.writeBlockPos(consolePos);
         ClientPlayNetworking.send(SonicHandler.CHANGE_SONIC, buf);
     }
 
@@ -182,10 +184,15 @@ public class ClientTardisUtil {
         if (tardis == null)
             return 0;
 
+        Collection<BlockPos> consoles = tardis.getDesktop().getConsolePos();
+
+        if (consoles.isEmpty())
+            return 0;
+
         BlockPos pos = player.getBlockPos();
         double lowest = Double.MAX_VALUE;
 
-        for (BlockPos console : tardis.getDesktop().getConsolePos()) {
+        for (BlockPos console : consoles) {
             double distance = Math.sqrt(pos.getSquaredDistance(console));
 
             if (distance < lowest)

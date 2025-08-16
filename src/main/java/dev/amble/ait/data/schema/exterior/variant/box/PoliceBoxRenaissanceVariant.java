@@ -13,7 +13,7 @@ public class PoliceBoxRenaissanceVariant extends PoliceBoxVariant {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(PoliceBoxRenaissanceDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(PoliceBoxRenaissanceDoorVariant.REFERENCE);
     }
 
     @Override

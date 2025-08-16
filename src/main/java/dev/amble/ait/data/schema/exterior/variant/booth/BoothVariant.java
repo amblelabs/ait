@@ -26,7 +26,7 @@ public abstract class BoothVariant extends ExteriorVariantSchema {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(BoothDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(BoothDoorVariant.REFERENCE);
     }
 
     @Override
