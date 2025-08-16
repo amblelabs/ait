@@ -88,7 +88,6 @@ import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.drinks.DrinkUtil;
 import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
-import dev.amble.ait.core.entities.TrenzalorePaintingEntity;
 import dev.amble.ait.core.entities.daleks.DalekRegistry;
 import dev.amble.ait.core.item.*;
 import dev.amble.ait.core.tardis.Tardis;
