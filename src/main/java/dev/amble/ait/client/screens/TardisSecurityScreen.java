@@ -63,6 +63,7 @@ public class TardisSecurityScreen extends ConsoleScreen {
         createTextButton(Text.translatable("screen.ait.security.hostile_alarms"), (button -> toggleHostileAlarms()));
         createTextButton(Text.translatable("screen.ait.security.minimum_loyalty"), (button -> changeMinimumLoyalty()));
         createTextButton(Text.translatable("screen.ait.security.receive_distress_calls"), (button -> receiveDistressCalls()));
+        createTextButton(Text.literal("> Database"), (button -> toDatabaseScreen()));
 
         this.landingCodeInput = new TextFieldWidget(this.textRenderer, (int) (left + (bgWidth * 0.06f)), this.top + 85, 120, this.textRenderer.fontHeight + 4,
                 Text.translatable("message.ait.landing_code"));
@@ -81,6 +82,10 @@ public class TardisSecurityScreen extends ConsoleScreen {
             this.landingCodeInput.setText(this.tardis().landingPad().code().get());
 
         this.addSelectableChild(this.landingCodeInput);
+    }
+
+    private void toDatabaseScreen() {
+        MinecraftClient.getInstance().setScreen(new TardisDatabaseScreen(this.tardis(), this.console, this));
     }
 
     private void receiveDistressCalls() {
