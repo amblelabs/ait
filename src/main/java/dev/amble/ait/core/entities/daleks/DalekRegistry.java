@@ -10,17 +10,18 @@ import dev.amble.ait.AITMod;
 
 public class DalekRegistry extends SimpleDatapackRegistry<Dalek> {
     private static final DalekRegistry instance = new DalekRegistry();
-    public static final Identifier TEXTURE = AITMod.id("textures/entity/daleks/imperial/imperial_dalek.png");
-    public static final Identifier EMISSION = AITMod.id( "textures/entity/daleks/imperial/imperial_dalek_emission.png");
+    public static final Identifier TEXTURE = AITMod.id("textures/entity/daleks/commander/commander_dalek.png");
+    public static final Identifier EMISSION = AITMod.id( "textures/entity/daleks/commander/commander_dalek_emission.png");
+
     public DalekRegistry() {
         super(Dalek::fromInputStream, Dalek.CODEC, "entities/dalek/variants", "entities/dalek/variants", true, AITMod.MOD_ID);
     }
 
-    public static Dalek IMPERIAL;
+    public static Dalek COMMANDER;
 
     @Override
     protected void defaults() {
-        IMPERIAL = register(new Dalek(AITMod.id("dalek/imperial"), TEXTURE,
+        COMMANDER = register(new Dalek(AITMod.id("dalek/commander"), TEXTURE,
                 EMISSION));
     }
 
@@ -33,7 +34,7 @@ public class DalekRegistry extends SimpleDatapackRegistry<Dalek> {
 
     @Override
     public Dalek fallback() {
-        return IMPERIAL;
+        return COMMANDER;
     }
 
     public static DalekRegistry getInstance() {

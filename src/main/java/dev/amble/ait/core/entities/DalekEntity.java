@@ -1,9 +1,9 @@
 package dev.amble.ait.core.entities;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
+import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -26,7 +26,6 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.PathAwareEntity;
-import net.minecraft.entity.passive.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.raid.RaiderEntity;
@@ -75,15 +74,16 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
     }
 
     public void randomizeDalekType() {
-        Identifier commander = AITMod.id("dalek/commander");
-        List<Dalek> dalekList = new ArrayList<>(DalekRegistry.getInstance().toList());
-        Dalek commanderDalek = DalekRegistry.getInstance().get(commander);
-        dalekList.remove(commanderDalek);
-        Dalek dalek = dalekList.get(this.getRandom().nextBetween(0, dalekList.size() - 1));
+        Dalek dalek = DalekRegistry.getInstance().getRandom();
+
+        while (dalek == DalekRegistry.COMMANDER || dalek == null) {
+            dalek = DalekRegistry.getInstance().getRandom();
+        }
+
         if (!this.isPatrolLeader()) {
             this.setDalek(dalek);
         } else {
-            this.setDalek(commanderDalek);
+            this.setDalek(DalekRegistry.COMMANDER);
         }
     }
 
@@ -120,18 +120,23 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
         if (!this.getWorld().isChunkLoaded(this.getBlockPos())) return;
         if (this.isRemoved() || !this.isAlive()) return;
 
-        // TODO make a goal for them to float
-        /*// Sine wave hovering logic
-        double hoverHeight = 5.0;
-        double amplitude = 0.5;
-        double frequency = 0.1;
-        double yOffset = hoverHeight + Math.sin(this.age * frequency) * amplitude;
+        // TODO make a goal for them to float if their pathfounded block is outside of their walkable range (block distance)
+        /*this.setNoGravity(this.isAttacking());
 
-        BlockPos groundPos = this.getBlockPos().down();
-        double groundY = 72;
-        double targetY = groundY + yOffset;
+        if (this.isAttacking()) {
+            this.fallDistance = 0;
+            // Sine wave hovering logic
+            double hoverHeight = 5.0;
+            double amplitude = 0.5;
+            double frequency = 0.1;
+            double yOffset = hoverHeight + Math.sin(this.age * frequency) * amplitude;
 
-        this.setPosition(this.getX(), targetY, this.getZ());*/
+            double groundY = this.getWorld().getTopY(Heightmap.Type.MOTION_BLOCKING, this.getBlockPos().getX(), this.getBlockPos().getZ());
+            double targetY = groundY + yOffset;
+
+            double newY = this.getY() == targetY ? targetY : MathHelper.lerp(0.5, this.getY(), targetY);
+            this.setPosition(this.getX(), newY, this.getZ());
+        }*/
 
         if (this.ambianceTimer-- <= 0) {
             playSound(
@@ -140,6 +145,13 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
                     1.0f
             );
             this.ambianceTimer = 40;
+        }
+
+        // Should hurt the daleks in water :)))))
+        if (this.isInsideWaterOrBubbleColumn()) {
+            if (ServerLifecycleHooks.get().getTicks() % 40 == 0) {
+                this.damage(this.getWorld().getDamageSources().drown(), 5.0f);
+            }
         }
     }
 
@@ -172,7 +184,7 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
     protected void initDataTracker() {
         super.initDataTracker();
         this.dataTracker.startTracking(STATE, DalekState.DEFAULT);
-        this.dataTracker.startTracking(DALEK, DalekRegistry.IMPERIAL.id().toString());
+        this.dataTracker.startTracking(DALEK, DalekRegistry.COMMANDER.id().toString());
     }
 
     public void setDalek(Dalek dalek) {
@@ -246,41 +258,36 @@ public class DalekEntity extends RaiderEntity implements RangedAttackMob {
             DalekState state = this.getDalekState();
             this.stopAnimations();
             switch (state) {
-                case EXTERMINATE:
+                case EXTERMINATE -> {
                     this.exterminateAltAnimationState.stop();
                     this.yellStayAnimationState.stop();
                     this.yellDoNotMoveAnimationState.stop();
                     this.exterminateAnimationState.start(this.age);
-                    break;
-                case EXTERMINATE_ALT:
+                }
+                case EXTERMINATE_ALT -> {
                     this.exterminateAnimationState.stop();
                     this.yellStayAnimationState.stop();
                     this.yellDoNotMoveAnimationState.stop();
                     this.exterminateAltAnimationState.start(this.age);
-                    break;
-                case YELL_STAY:
+                }
+                case YELL_STAY -> {
                     this.exterminateAnimationState.stop();
                     this.exterminateAltAnimationState.stop();
                     this.yellDoNotMoveAnimationState.stop();
                     this.yellStayAnimationState.start(this.age);
-                    break;
-                case YELL_DONT_MOVE:
+                }
+                case YELL_DONT_MOVE -> {
                     this.exterminateAnimationState.stop();
                     this.exterminateAltAnimationState.stop();
                     this.yellStayAnimationState.stop();
                     this.yellDoNotMoveAnimationState.start(this.age);
-                    break;
-                case ATTACK:
+                }
+                case ATTACK -> {
                     this.aimAnimationState.start(this.age);
-                    break;
-                default:
-                    break;
+                }
+                default -> {}
             }
         }
-        /*if (DALEK.equals(data)) {
-            this.setDalek(DalekRegistry.getInstance()
-                    .get(Identifier.tryParse(this.getDalekData())));
-        }*/
         super.onTrackedDataSet(data);
     }
 
