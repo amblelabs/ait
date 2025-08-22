@@ -76,7 +76,7 @@ public class RoundelFabricatorScreen
     private static final int PATTERN_LIST_OFFSET_X = 60;
     private static final int PATTERN_LIST_OFFSET_Y = 13;
     @Nullable private List<RoundelType> roundelPatterns;
-    private static final Map<Formatting, TextColor> FORMATTING_TO_COLOR = Stream.of(Formatting.values()).filter(Formatting::isColor).collect(ImmutableMap.toImmutableMap(Function.identity(), formatting -> new TextColor(formatting.getColorValue(), formatting.getName())));
+    private static final Map<Formatting, TextColor> FORMATTING_TO_COLOR = Stream.of(Formatting.values()).filter(Formatting::isColor).collect(ImmutableMap.toImmutableMap(Function.identity(), formatting -> TextColor.fromFormatting(formatting)));
     private static final Map<String, TextColor> BY_NAME = FORMATTING_TO_COLOR.values().stream().collect(ImmutableMap.toImmutableMap(TextColor::getName, Function.identity()));
     private ItemStack roundel = ItemStack.EMPTY;
     private ItemStack dye = ItemStack.EMPTY;
@@ -334,8 +334,12 @@ public class RoundelFabricatorScreen
         {
             stack.push();
             stack.translate(-2, -3, 30);
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.ONE_MINUS_DST_COLOR, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ZERO);
             context.drawText(this.textRenderer, Text.literal("+"),
                     this.cursorVec.x(), -this.cursorVec.y(), Color.WHITE.getRGB(), false);
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.disableBlend();
             stack.pop();
         }
         stack.push();
