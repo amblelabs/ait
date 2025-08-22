@@ -392,6 +392,8 @@ public class AITModClient implements ClientModInitializer {
                 BrassStatueRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.CORAL_SEAT,
                 CoralSeatRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.COPPER_SEAT,
+                CopperSeatRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.TOYOTA_SEAT,
                 ToyotaSeatRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.COPPER_RINGS,

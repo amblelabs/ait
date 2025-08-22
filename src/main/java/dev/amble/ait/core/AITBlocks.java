@@ -311,6 +311,11 @@ public class AITBlocks extends BlockContainer {
             ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION))
     );
 
+    @PickaxeMineable
+    public static final Block COPPER_SEAT = new CopperSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION))
+    );
+
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     public static final Block TOYOTA_SEAT = new ToyotaSeatBlock(
             ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION))

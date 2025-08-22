@@ -601,6 +601,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
             // Decoration (Wooden Seat)
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.WHITE_WOODEN_SEAT)
+                            .group("wooden_seat")
                     .pattern(" CP")
                     .pattern("TST")
                     .pattern("F F")
@@ -616,6 +617,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.WHITE_CARPET), conditionsFromItem(Blocks.WHITE_CARPET)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.LIGHT_GRAY_WOODEN_SEAT)
+                    .group("wooden_seat")
                     .pattern(" CP")
                     .pattern("TST")
                     .pattern("F F")
@@ -631,6 +633,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.LIGHT_GRAY_CARPET), conditionsFromItem(Blocks.LIGHT_GRAY_CARPET)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.GRAY_WOODEN_SEAT)
+                    .group("wooden_seat")
                     .pattern(" CP")
                     .pattern("TST")
                     .pattern("F F")
@@ -646,6 +649,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.GRAY_CARPET), conditionsFromItem(Blocks.GRAY_CARPET)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.BLACK_WOODEN_SEAT)
+                    .group("wooden_seat")
                     .pattern(" CP")
                     .pattern("TST")
                     .pattern("F F")
@@ -661,6 +665,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.BLACK_CARPET), conditionsFromItem(Blocks.BLACK_CARPET)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.BROWN_WOODEN_SEAT)
+                    .group("wooden_seat")
                     .pattern(" CP")
                     .pattern("TST")
                     .pattern("F F")
@@ -676,6 +681,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.BROWN_CARPET), conditionsFromItem(Blocks.BROWN_CARPET)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.RED_WOODEN_SEAT)
+                    .group("wooden_seat")
                     .pattern(" CP")
                     .pattern("TST")
                     .pattern("F F")
@@ -691,6 +697,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.RED_CARPET), conditionsFromItem(Blocks.RED_CARPET)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.ORANGE_WOODEN_SEAT)
+                    .group("wooden_seat")
                     .pattern(" CP")
                     .pattern("TST")
                     .pattern("F F")
@@ -706,6 +713,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.ORANGE_CARPET), conditionsFromItem(Blocks.ORANGE_CARPET)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.YELLOW_WOODEN_SEAT)
+                    .group("wooden_seat")
                     .pattern(" CP")
                     .pattern("TST")
                     .pattern("F F")
@@ -721,6 +729,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.YELLOW_CARPET), conditionsFromItem(Blocks.YELLOW_CARPET)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.LIME_WOODEN_SEAT)
+                    .group("wooden_seat")
                     .pattern(" CP")
                     .pattern("TST")
                     .pattern("F F")
@@ -736,6 +745,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.LIME_CARPET), conditionsFromItem(Blocks.LIME_CARPET)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.GREEN_WOODEN_SEAT)
+                    .group("wooden_seat")
                     .pattern(" CP")
                     .pattern("TST")
                     .pattern("F F")
@@ -751,6 +761,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.GREEN_CARPET), conditionsFromItem(Blocks.GREEN_CARPET)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.CYAN_WOODEN_SEAT)
+                    .group("wooden_seat")
                     .pattern(" CP")
                     .pattern("TST")
                     .pattern("F F")
@@ -766,6 +777,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.CYAN_CARPET), conditionsFromItem(Blocks.CYAN_CARPET)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.LIGHT_BLUE_WOODEN_SEAT)
+                    .group("wooden_seat")
                     .pattern(" CP")
                     .pattern("TST")
                     .pattern("F F")
@@ -781,6 +793,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.LIGHT_BLUE_CARPET), conditionsFromItem(Blocks.LIGHT_BLUE_CARPET)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.BLUE_WOODEN_SEAT)
+                    .group("wooden_seat")
                     .pattern(" CP")
                     .pattern("TST")
                     .pattern("F F")
@@ -796,6 +809,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.BLUE_CARPET), conditionsFromItem(Blocks.BLUE_CARPET)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.PURPLE_WOODEN_SEAT)
+                    .group("wooden_seat")
                     .pattern(" CP")
                     .pattern("TST")
                     .pattern("F F")
@@ -811,6 +825,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.PURPLE_CARPET), conditionsFromItem(Blocks.PURPLE_CARPET)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.MAGENTA_WOODEN_SEAT)
+                    .group("wooden_seat")
                     .pattern(" CP")
                     .pattern("TST")
                     .pattern("F F")
@@ -826,6 +841,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.MAGENTA_CARPET), conditionsFromItem(Blocks.MAGENTA_CARPET)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.PINK_WOODEN_SEAT)
+                    .group("wooden_seat")
                     .pattern(" CP")
                     .pattern("TST")
                     .pattern("F F")
@@ -868,9 +884,19 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .input('C', Blocks.ANDESITE_STAIRS)
                     .criterion(hasItem(Blocks.ANDESITE_STAIRS), conditionsFromItem(Blocks.ANDESITE_STAIRS)));
 
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.COPPER_SEAT)
+                    .pattern(" CC")
+                    .pattern(" CC")
+                    .pattern(" D ")
+                    .input('D', Blocks.POLISHED_DEEPSLATE)
+                    .criterion(hasItem(Blocks.POLISHED_DEEPSLATE), conditionsFromItem(Blocks.POLISHED_DEEPSLATE))
+                    .input('C', Blocks.CUT_SANDSTONE_SLAB)
+                    .criterion(hasItem(Blocks.CUT_SANDSTONE_SLAB), conditionsFromItem(Blocks.CUT_SANDSTONE_SLAB)));
+
             //Jukebox
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.JUKEBOX)
+                            .group("jukebox")
                     .pattern(" S ")
                     .pattern("LJL")
                     .pattern("LRL")
@@ -884,6 +910,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.DARK_OAK_SLAB), conditionsFromItem(Blocks.DARK_OAK_SLAB)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.ACACIA_JUKEBOX)
+                    .group("jukebox")
                     .pattern(" S ")
                     .pattern("LJL")
                     .pattern("LRL")
@@ -897,6 +924,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.ACACIA_SLAB), conditionsFromItem(Blocks.ACACIA_SLAB)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.BAMBOO_JUKEBOX)
+                    .group("jukebox")
                     .pattern(" S ")
                     .pattern("LJL")
                     .pattern("LRL")
@@ -910,6 +938,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.BAMBOO_SLAB), conditionsFromItem(Blocks.BAMBOO_SLAB)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.CHERRY_JUKEBOX)
+                    .group("jukebox")
                     .pattern(" S ")
                     .pattern("LJL")
                     .pattern("LRL")
@@ -923,6 +952,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.CHERRY_SLAB), conditionsFromItem(Blocks.CHERRY_SLAB)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.WARPED_JUKEBOX)
+                    .group("jukebox")
                     .pattern(" S ")
                     .pattern("LJL")
                     .pattern("LRL")
@@ -936,6 +966,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Blocks.WARPED_SLAB), conditionsFromItem(Blocks.WARPED_SLAB)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.STEVE_BRASS_STATUE)
+                    .group("statue")
                     .pattern("IDI")
                     .pattern("IAI")
                     .pattern("III")
@@ -947,6 +978,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.ALEX_BRASS_STATUE)
+                    .group("statue")
                     .pattern("IDI")
                     .pattern("IAI")
                     .pattern("III")
@@ -958,6 +990,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.ARI_BRASS_STATUE)
+                    .group("statue")
                     .pattern("IDI")
                     .pattern("IAI")
                     .pattern("III")
@@ -969,6 +1002,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.KAI_BRASS_STATUE)
+                    .group("statue")
                     .pattern("IDI")
                     .pattern("IAI")
                     .pattern("III")
@@ -980,6 +1014,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.NOOR_BRASS_STATUE)
+                    .group("statue")
                     .pattern("IDI")
                     .pattern("IAI")
                     .pattern("III")
@@ -991,6 +1026,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.SUNNY_BRASS_STATUE)
+                    .group("statue")
                     .pattern("IDI")
                     .pattern("IAI")
                     .pattern("III")
@@ -1002,6 +1038,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.ZURI_BRASS_STATUE)
+                    .group("statue")
                     .pattern("IDI")
                     .pattern("IAI")
                     .pattern("III")
@@ -1013,6 +1050,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.EFE_BRASS_STATUE)
+                    .group("statue")
                     .pattern("IDI")
                     .pattern("IAI")
                     .pattern("III")
@@ -1024,6 +1062,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.MAKENA_BRASS_STATUE)
+                    .group("statue")
                     .pattern("IDI")
                     .pattern("IAI")
                     .pattern("III")
@@ -1507,6 +1546,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         provider.addTranslation(AITBlocks.CORAL_SEAT, "Coral Seat");
         provider.addTranslation(AITBlocks.TOYOTA_SEAT, "Toyota Seat");
+        provider.addTranslation(AITBlocks.COPPER_SEAT, "Copper Seat");
 
         provider.addTranslation(AITBlocks.STEVE_BRASS_STATUE, "Steve Brass Statue");
         provider.addTranslation(AITBlocks.ALEX_BRASS_STATUE, "Alex Brass Statue");

@@ -40,6 +40,7 @@ public class ItemRendererMixin {
     @Unique private final HandlesModel handlesModel = new HandlesModel(HandlesModel.getTexturedModelData().createModel());
     @Unique private final WoodenSeatModel chairModel = new WoodenSeatModel(WoodenSeatModel.getTexturedModelData().createModel());
     @Unique private final CoralSeatModel coralSeatModel = new CoralSeatModel(CoralSeatModel.getTexturedModelData().createModel());
+    @Unique private final CopperSeatModel copperSeatModel = new CopperSeatModel(CopperSeatModel.getTexturedModelData().createModel());
     @Unique private final ToyotaSeatModel toyotaSeatModel = new ToyotaSeatModel(ToyotaSeatModel.getTexturedModelData().createModel());
     @Unique private final BrassStatueModel brassStatueModel = new BrassStatueModel(BrassStatueModel.getTexturedModelData().createModel());
     @Unique private final CopperRingsModel copperRingsModel = new CopperRingsModel(CopperRingsModel.getTexturedModelData().createModel());
@@ -66,6 +67,10 @@ public class ItemRendererMixin {
 
         if (stack.isOf(AITBlocks.TOYOTA_SEAT.asItem())) {
             this.ait$handleToyotaChairRendering(entity, stack, renderMode, leftHanded, matrices, vertexConsumers, world, light, overlay, seed, ci);
+        }
+
+        if (stack.isOf(AITBlocks.COPPER_SEAT.asItem())) {
+            this.ait$handleCopperChairRendering(entity, stack, renderMode, leftHanded, matrices, vertexConsumers, world, light, overlay, seed, ci);
         }
 
         if (stack.isOf(AITBlocks.COPPER_RINGS.asItem())) {
@@ -100,6 +105,9 @@ public class ItemRendererMixin {
         }
         if (stack.isOf(AITBlocks.TOYOTA_SEAT.asItem())) {
             this.ait$handleToyotaChairRendering(null, stack, renderMode, leftHanded, matrices, vertexConsumers, null, light, overlay, 0, ci);
+        }
+        if (stack.isOf(AITBlocks.COPPER_SEAT.asItem())) {
+            this.ait$handleCopperChairRendering(null, stack, renderMode, leftHanded, matrices, vertexConsumers, null, light, overlay, 0, ci);
         }
         if (stack.isOf(AITBlocks.COPPER_RINGS.asItem())) {
             this.ait$handleCopperRingsRendering(null, stack, renderMode, leftHanded, matrices, vertexConsumers, null, light, overlay, 0, ci);
@@ -311,6 +319,40 @@ public class ItemRendererMixin {
 
         VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(texture));
         copperRingsModel.render(matrices, buffer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+
+        matrices.pop();
+        ci.cancel();
+    }
+
+    @Unique private void ait$handleCopperChairRendering(
+            LivingEntity entity,
+            ItemStack stack,
+            ModelTransformationMode renderMode,
+            boolean leftHanded,
+            MatrixStack matrices,
+            VertexConsumerProvider vertexConsumers,
+            @Nullable World world,
+            int light,
+            int overlay,
+            int seed,
+            CallbackInfo ci
+    ) {
+
+        matrices.push();
+
+
+        matrices.translate(-0.5f, -0.5f, -0.5f);
+        matrices.scale(1.0f, -1.0f, -1.0f);
+
+        copperSeatModel.setAngles(matrices, renderMode, leftHanded);
+
+        Identifier texture = new Identifier(
+                AITMod.MOD_ID,
+                "textures/blockentities/decoration/copper_seat.png"
+        );
+
+        VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(texture));
+        copperSeatModel.render(matrices, buffer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
 
         matrices.pop();
         ci.cancel();

@@ -132,6 +132,9 @@ public class AITBlockEntityTypes implements BlockEntityContainer {
     public static BlockEntityType<CoralSeatBlockEntity> CORAL_SEAT = FabricBlockEntityTypeBuilder
             .create(CoralSeatBlockEntity::new, AITBlocks.CORAL_SEAT).build();
 
+    public static BlockEntityType<CopperSeatBlockEntity> COPPER_SEAT = FabricBlockEntityTypeBuilder
+            .create(CopperSeatBlockEntity::new, AITBlocks.COPPER_SEAT).build();
+
     public static final BlockEntityType<JukeboxBlockEntity> JUKEBOX =
             FabricBlockEntityTypeBuilder.create(
                     (pos, state) -> {
