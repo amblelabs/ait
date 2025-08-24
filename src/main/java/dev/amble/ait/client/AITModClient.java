@@ -55,6 +55,9 @@ import dev.amble.ait.client.overlays.SonicOverlay;
 import dev.amble.ait.client.renderers.SeatEntityRenderer;
 import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.client.renderers.TardisStar;
+import dev.amble.ait.client.renderers.builtin.CopperRingsBuiltInRenderer;
+import dev.amble.ait.client.renderers.builtin.CoralSeatBuiltInRenderer;
+import dev.amble.ait.client.renderers.builtin.ToyotaSeatBuiltInRenderer;
 import dev.amble.ait.client.renderers.consoles.ConsoleGeneratorRenderer;
 import dev.amble.ait.client.renderers.consoles.ConsoleRenderer;
 import dev.amble.ait.client.renderers.coral.CoralRenderer;
@@ -121,6 +124,7 @@ public class AITModClient implements ClientModInitializer {
         ModuleRegistry.instance().onClientInit();
 
         setupBlockRendering();
+        registerBuiltInItemRenderers();
         blockEntityRendererRegister();
         entityRenderRegister();
         chargedZeitonCrystalPredicate();
@@ -428,12 +432,12 @@ public class AITModClient implements ClientModInitializer {
         map.putBlock(AITBlocks.SMALL_ZEITON_BUD, RenderLayer.getCutout());
         map.putBlock(AITBlocks.MACHINE_CASING, RenderLayer.getCutout());
         map.putBlock(AITBlocks.FABRICATOR, RenderLayer.getTranslucent());
-        map.putBlock(AITBlocks.JUKEBOX, RenderLayer.getTranslucent());
-        map.putBlock(AITBlocks.ACACIA_JUKEBOX, RenderLayer.getTranslucent());
-        map.putBlock(AITBlocks.PALE_OAK_JUKEBOX, RenderLayer.getTranslucent());
-        map.putBlock(AITBlocks.CHERRY_JUKEBOX, RenderLayer.getTranslucent());
-        map.putBlock(AITBlocks.BAMBOO_JUKEBOX, RenderLayer.getTranslucent());
-        map.putBlock(AITBlocks.WARPED_JUKEBOX, RenderLayer.getTranslucent());
+        map.putBlock(AITBlocks.JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.ACACIA_JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.PALE_OAK_JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.CHERRY_JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.BAMBOO_JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.WARPED_JUKEBOX, RenderLayer.getCutout());
         map.putBlock(AITBlocks.ENVIRONMENT_PROJECTOR, RenderLayer.getTranslucent());
         map.putBlock(AITBlocks.WAYPOINT_BANK, RenderLayer.getCutout());
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
@@ -608,5 +612,14 @@ public class AITModClient implements ClientModInitializer {
             stack.pop();
         }
         BOTI.RIFT_RENDERING_QUEUE.clear();
+    }
+
+    public void registerBuiltInItemRenderers() {
+        BuiltinItemRendererRegistry.INSTANCE.register(AITBlocks.TOYOTA_SEAT.asItem(),
+                new ToyotaSeatBuiltInRenderer());
+        BuiltinItemRendererRegistry.INSTANCE.register(AITBlocks.CORAL_SEAT.asItem(),
+                new CoralSeatBuiltInRenderer());
+        BuiltinItemRendererRegistry.INSTANCE.register(AITBlocks.COPPER_RINGS.asItem(),
+                new CopperRingsBuiltInRenderer());
     }
 }

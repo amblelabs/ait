@@ -143,7 +143,7 @@ public class CopperRingsModel extends Model {
         return TexturedModelData.of(modelData, 1024, 1024);
     }
 
-    public void setAngles(MatrixStack matrices, ModelTransformationMode renderMode, boolean left) {
+    public void setAngles(MatrixStack matrices, ModelTransformationMode renderMode) {
         if (renderMode == ModelTransformationMode.FIXED)
             return;
         matrices.translate(0.5, -0.7f, -0.5);

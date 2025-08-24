@@ -61,20 +61,8 @@ public class ItemRendererMixin {
             this.ait$handleHandlesRendering(entity, stack, renderMode, leftHanded, matrices, vertexConsumers, world, light, overlay, seed, ci);
         }
 
-        if (stack.isOf(AITBlocks.CORAL_SEAT.asItem())) {
-            this.ait$handleCoralChairRendering(entity, stack, renderMode, leftHanded, matrices, vertexConsumers, world, light, overlay, seed, ci);
-        }
-
-        if (stack.isOf(AITBlocks.TOYOTA_SEAT.asItem())) {
-            this.ait$handleToyotaChairRendering(entity, stack, renderMode, leftHanded, matrices, vertexConsumers, world, light, overlay, seed, ci);
-        }
-
         if (stack.isOf(AITBlocks.COPPER_SEAT.asItem())) {
             this.ait$handleCopperChairRendering(entity, stack, renderMode, leftHanded, matrices, vertexConsumers, world, light, overlay, seed, ci);
-        }
-
-        if (stack.isOf(AITBlocks.COPPER_RINGS.asItem())) {
-            this.ait$handleCopperRingsRendering(entity, stack, renderMode, leftHanded, matrices, vertexConsumers, world, light, overlay, seed, ci);
         }
 
         if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof WoodenSeatBlock) {
@@ -100,17 +88,8 @@ public class ItemRendererMixin {
         if (stack.isOf(PlanetItems.HANDLES)) {
             this.ait$handleHandlesRendering(null, stack, renderMode, leftHanded, matrices, vertexConsumers, null, light, overlay, 0, ci);
         }
-        if (stack.isOf(AITBlocks.CORAL_SEAT.asItem())) {
-            this.ait$handleCoralChairRendering(null, stack, renderMode, leftHanded, matrices, vertexConsumers, null, light, overlay, 0, ci);
-        }
-        if (stack.isOf(AITBlocks.TOYOTA_SEAT.asItem())) {
-            this.ait$handleToyotaChairRendering(null, stack, renderMode, leftHanded, matrices, vertexConsumers, null, light, overlay, 0, ci);
-        }
         if (stack.isOf(AITBlocks.COPPER_SEAT.asItem())) {
             this.ait$handleCopperChairRendering(null, stack, renderMode, leftHanded, matrices, vertexConsumers, null, light, overlay, 0, ci);
-        }
-        if (stack.isOf(AITBlocks.COPPER_RINGS.asItem())) {
-            this.ait$handleCopperRingsRendering(null, stack, renderMode, leftHanded, matrices, vertexConsumers, null, light, overlay, 0, ci);
         }
         if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof WoodenSeatBlock seatBlock) {
             this.ait$handleChairRendering(null, stack, renderMode, leftHanded, matrices, vertexConsumers, null, light, overlay, 0, ci);
@@ -256,74 +235,6 @@ public class ItemRendererMixin {
         ci.cancel();
     }
 
-    @Unique private void ait$handleCoralChairRendering(
-            LivingEntity entity,
-            ItemStack stack,
-            ModelTransformationMode renderMode,
-            boolean leftHanded,
-            MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers,
-            @Nullable World world,
-            int light,
-            int overlay,
-            int seed,
-            CallbackInfo ci
-    ) {
-
-        matrices.push();
-
-
-        matrices.translate(-0.5f, -0.5f, -0.5f);
-        matrices.scale(1.0f, -1.0f, -1.0f);
-
-        coralSeatModel.setAngles(matrices, renderMode, leftHanded);
-
-        Identifier texture = new Identifier(
-                AITMod.MOD_ID,
-                "textures/blockentities/decoration/coral_seat.png"
-        );
-
-        VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(texture));
-        coralSeatModel.render(matrices, buffer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
-
-        matrices.pop();
-        ci.cancel();
-    }
-
-    @Unique private void ait$handleCopperRingsRendering(
-            LivingEntity entity,
-            ItemStack stack,
-            ModelTransformationMode renderMode,
-            boolean leftHanded,
-            MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers,
-            @Nullable World world,
-            int light,
-            int overlay,
-            int seed,
-            CallbackInfo ci
-    ) {
-
-        matrices.push();
-
-
-        matrices.translate(-0.5f, -0.5f, -0.5f);
-        matrices.scale(1.0f, -1.0f, -1.0f);
-
-        copperRingsModel.setAngles(matrices, renderMode, leftHanded);
-
-        Identifier texture = new Identifier(
-                AITMod.MOD_ID,
-                "textures/blockentities/decoration/copper_rings.png"
-        );
-
-        VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(texture));
-        copperRingsModel.render(matrices, buffer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
-
-        matrices.pop();
-        ci.cancel();
-    }
-
     @Unique private void ait$handleCopperChairRendering(
             LivingEntity entity,
             ItemStack stack,
@@ -357,40 +268,4 @@ public class ItemRendererMixin {
         matrices.pop();
         ci.cancel();
     }
-
-    @Unique private void ait$handleToyotaChairRendering(
-            LivingEntity entity,
-            ItemStack stack,
-            ModelTransformationMode renderMode,
-            boolean leftHanded,
-            MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers,
-            @Nullable World world,
-            int light,
-            int overlay,
-            int seed,
-            CallbackInfo ci
-    ) {
-
-        matrices.push();
-
-
-        matrices.translate(-0.5f, -0.5f, -0.5f);
-        matrices.scale(1.0f, -1.0f, -1.0f);
-
-        toyotaSeatModel.setAngles(matrices, renderMode, leftHanded);
-
-        Identifier texture = new Identifier(
-                AITMod.MOD_ID,
-                "textures/blockentities/decoration/toyota_seat.png"
-        );
-
-        VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(texture));
-        toyotaSeatModel.render(matrices, buffer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
-
-        matrices.pop();
-        ci.cancel();
-    }
-
-
 }

@@ -24,7 +24,7 @@ public class ToyotaSeatModel extends Model {
         return TexturedModelData.of(modelData, 128, 128);
     }
 
-    public void setAngles(MatrixStack matrices, ModelTransformationMode renderMode, boolean left) {
+    public void setAngles(MatrixStack matrices, ModelTransformationMode renderMode) {
         if (renderMode == ModelTransformationMode.FIXED)
             return;
         matrices.translate(0.5, -1.25f, -0.5);
