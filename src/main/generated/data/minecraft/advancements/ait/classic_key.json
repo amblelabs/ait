@@ -1,0 +1,38 @@
+{
+  "parent": "minecraft:ait/netherite_key",
+  "criteria": {
+    "classic_key": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ait:classic_key"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "achievement.ait.description.classic_key"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "ait:classic_key"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.classic_key"
+    }
+  },
+  "requirements": [
+    [
+      "classic_key"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

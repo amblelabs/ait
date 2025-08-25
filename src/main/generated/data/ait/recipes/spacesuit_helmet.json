@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": {
+      "item": "ait:fabric"
+    },
+    "G": {
+      "item": "minecraft:yellow_stained_glass_pane"
+    },
+    "H": {
+      "item": "minecraft:iron_helmet"
+    }
+  },
+  "pattern": [
+    "FHF",
+    "FGF",
+    "FFF"
+  ],
+  "result": {
+    "item": "ait:spacesuit_helmet"
+  },
+  "show_notification": true
+}

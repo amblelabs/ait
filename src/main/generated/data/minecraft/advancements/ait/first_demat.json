@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:ait/enter_tardis",
+  "criteria": {
+    "first_demat": {
+      "conditions": {},
+      "trigger": "ait:takeoff"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "achievement.ait.description.first_demat"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "item": "minecraft:ender_eye"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.first_demat"
+    }
+  },
+  "requirements": [
+    [
+      "first_demat"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

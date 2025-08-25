@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "A": {
+      "item": "minecraft:iron_axe"
+    },
+    "D": {
+      "item": "minecraft:dried_kelp"
+    },
+    "S": {
+      "item": "minecraft:string"
+    },
+    "T": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "DSD",
+    " A ",
+    " T "
+  ],
+  "result": {
+    "item": "ait:hammer"
+  },
+  "show_notification": true
+}

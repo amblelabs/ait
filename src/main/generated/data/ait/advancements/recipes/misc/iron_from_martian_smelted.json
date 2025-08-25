@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_martian_iron_ore": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ait:martian_iron_ore"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "ait:iron_from_martian_smelted"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_martian_iron_ore",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "ait:iron_from_martian_smelted"
+    ]
+  },
+  "sends_telemetry_event": false
+}

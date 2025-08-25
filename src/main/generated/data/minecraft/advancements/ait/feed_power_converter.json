@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:ait/enter_tardis",
+  "criteria": {
+    "feed_power_converter": {
+      "conditions": {},
+      "trigger": "ait:feed_power_converter"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "achievement.ait.description.feed_power_converter"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "ait:power_converter"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.feed_power_converter"
+    }
+  },
+  "requirements": [
+    [
+      "feed_power_converter"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

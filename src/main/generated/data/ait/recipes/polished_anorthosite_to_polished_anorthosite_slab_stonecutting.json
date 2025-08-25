@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 1,
+  "ingredient": {
+    "item": "ait:polished_anorthosite"
+  },
+  "result": "ait:polished_anorthosite_slab"
+}

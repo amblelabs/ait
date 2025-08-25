@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:ait/enter_tardis",
+  "criteria": {
+    "brand_new": {
+      "conditions": {},
+      "trigger": "ait:brand_new"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "achievement.ait.description.brand_new"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "item": "ait:mug"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.brand_new"
+    }
+  },
+  "requirements": [
+    [
+      "brand_new"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

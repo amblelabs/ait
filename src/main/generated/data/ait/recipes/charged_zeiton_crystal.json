@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "ait:artron_collector"
+    },
+    "C": {
+      "item": "ait:zeiton_cluster"
+    },
+    "Z": {
+      "item": "ait:zeiton_shard"
+    }
+  },
+  "pattern": [
+    "ZZZ",
+    "CAC",
+    "ZZZ"
+  ],
+  "result": {
+    "item": "ait:charged_zeiton_crystal"
+  },
+  "show_notification": true
+}

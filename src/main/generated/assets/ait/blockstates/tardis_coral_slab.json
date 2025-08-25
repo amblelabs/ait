@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "ait:block/tardis_coral_slab"
+    },
+    "type=double": {
+      "model": "ait:block/tardis_coral_block"
+    },
+    "type=top": {
+      "model": "ait:block/tardis_coral_slab_top"
+    }
+  }
+}

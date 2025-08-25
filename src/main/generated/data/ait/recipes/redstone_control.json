@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "E": {
+      "item": "minecraft:ender_eye"
+    },
+    "O": {
+      "item": "minecraft:obsidian"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "Z": {
+      "item": "ait:zeiton_shard"
+    }
+  },
+  "pattern": [
+    "OEO",
+    "ZRZ",
+    "OOO"
+  ],
+  "result": {
+    "item": "ait:redstone_control"
+  },
+  "show_notification": true
+}

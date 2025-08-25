@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "minecraft:iron_boots"
+    },
+    "F": {
+      "item": "ait:fabric"
+    }
+  },
+  "pattern": [
+    "   ",
+    "F F",
+    "FBF"
+  ],
+  "result": {
+    "item": "ait:spacesuit_boots"
+  },
+  "show_notification": true
+}

@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:ait/root",
+  "criteria": {
+    "place_energizer": {
+      "conditions": {},
+      "trigger": "ait:place_energizer"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "achievement.ait.description.place_energizer"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "ait:matrix_energizer"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.place_energizer"
+    }
+  },
+  "requirements": [
+    [
+      "place_energizer"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,38 @@
+{
+  "parent": "minecraft:ait/enter_tardis",
+  "criteria": {
+    "iron_key": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ait:iron_key"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "achievement.ait.description.iron_key"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "ait:iron_key"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.iron_key"
+    }
+  },
+  "requirements": [
+    [
+      "iron_key"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

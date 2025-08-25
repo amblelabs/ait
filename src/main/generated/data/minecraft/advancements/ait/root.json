@@ -1,0 +1,30 @@
+{
+  "criteria": {
+    "root": {
+      "conditions": {},
+      "trigger": "ait:root"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "background": "minecraft:textures/entity/end_portal.png",
+    "description": {
+      "translate": "achievement.ait.description.root"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "ait:charged_zeiton_crystal"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "achievement.ait.title.root"
+    }
+  },
+  "requirements": [
+    [
+      "root"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

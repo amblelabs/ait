@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:ait/place_energizer",
+  "criteria": {
+    "place_coral": {
+      "conditions": {},
+      "trigger": "ait:place_coral"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "achievement.ait.description.place_coral"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "ait:coral_plant"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.place_coral"
+    }
+  },
+  "requirements": [
+    [
+      "place_coral"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

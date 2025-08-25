@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "item": "minecraft:iron_bars"
+    },
+    "I": {
+      "item": "minecraft:blackstone"
+    },
+    "T": {
+      "item": "ait:superheated_zeiton"
+    },
+    "W": {
+      "item": "minecraft:water_bucket"
+    }
+  },
+  "pattern": [
+    "IWI",
+    "BTB",
+    "IWI"
+  ],
+  "result": {
+    "item": "ait:oxygenator_block"
+  },
+  "show_notification": true
+}

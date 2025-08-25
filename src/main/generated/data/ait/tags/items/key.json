@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "ait:iron_key",
+    "ait:gold_key",
+    "ait:classic_key",
+    "ait:netherite_key",
+    "ait:skeleton_key"
+  ]
+}

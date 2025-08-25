@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "ait:spacesuit_boots",
+    "ait:spacesuit_leggings",
+    "ait:spacesuit_chestplate",
+    "ait:spacesuit_helmet"
+  ]
+}

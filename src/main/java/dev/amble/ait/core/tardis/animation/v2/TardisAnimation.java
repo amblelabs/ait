@@ -68,6 +68,10 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
         this(id, soundId, result.alpha().instantiate(), result.scale().instantiate(), result.translation().instantiate(), result.rotation().instantiate());
     }
 
+    public int getTicks() {
+        return this.alpha.getCurrent().ticks();
+    }
+
     @Override
     @Environment(EnvType.CLIENT)
     public void tick(MinecraftClient client) {
@@ -94,7 +98,8 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
         playSound = playSound && this.tryStart(this.rotation, new Vector3f());
 
         if (playSound) {
-            tardis.getExterior().playSound(this.getSoundIdOrDefault(), SoundCategory.BLOCKS);
+            tardis.getExterior().playSound(this.getSoundIdOrDefault(), SoundCategory.BLOCKS,
+                    AITMod.CONFIG.flightSoundVolume);
         }
 
         this.alpha.tick(server);

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": {
+      "item": "ait:fabric"
+    },
+    "L": {
+      "item": "minecraft:iron_leggings"
+    }
+  },
+  "pattern": [
+    "FLF",
+    "F F",
+    "F F"
+  ],
+  "result": {
+    "item": "ait:spacesuit_leggings"
+  },
+  "show_notification": true
+}

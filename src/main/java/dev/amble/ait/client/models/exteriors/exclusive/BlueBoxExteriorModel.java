@@ -2,18 +2,17 @@ package dev.amble.ait.client.models.exteriors.exclusive;
 
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
-public class BlueBoxExteriorModel extends ExteriorModel {
+public class BlueBoxExteriorModel extends SimpleExteriorModel {
     private final ModelPart box;
     private final ModelPart base;
     private final ModelPart left_door2;
@@ -111,11 +110,6 @@ public class BlueBoxExteriorModel extends ExteriorModel {
 
         ModelPartData cube_r10 = right_door2.addChild("cube_r10", ModelPartBuilder.create().uv(0, 0).cuboid(-0.75F, -3.0F, -2.5F, 1.0F, 5.0F, 1.0F, new Dilation(0.0F)), ModelTransform.of(-12.5F, -10.0F, -1.5F, 0.0F, 3.1416F, 0.0F));
         return TexturedModelData.of(modelData, 512, 512);
-    }
-
-    @Override
-    public Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state) {
-        return Animation.Builder.create(0).build();
     }
 
     @Override

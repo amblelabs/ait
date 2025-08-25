@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "ait:superheated_zeiton_from_zeiton_shard_blasting"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_zeiton_shard": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ait:zeiton_shard"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_zeiton_shard",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "ait:superheated_zeiton_from_zeiton_shard_blasting"
+    ]
+  },
+  "sends_telemetry_event": false
+}

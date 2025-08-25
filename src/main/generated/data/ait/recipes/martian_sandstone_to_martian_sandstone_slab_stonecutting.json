@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 1,
+  "ingredient": {
+    "item": "ait:martian_sandstone"
+  },
+  "result": "ait:martian_sandstone_slab"
+}

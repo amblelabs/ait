@@ -1,5 +1,6 @@
 package dev.amble.ait.client.sounds;
 
+import dev.amble.ait.client.sounds.engine.ClientEngineLoopSoundHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -37,6 +38,7 @@ public class ClientSoundManager {
     private static ClientFallSoundHandler fallSound;
     private static ClientDriftingSoundHandler driftingSound;
     private static ClientConsoleAmbientSoundsHandler ambientSound;
+    private static ClientEngineLoopSoundHandler engineLoopSound;
     private static ExteriorHumHandler exteriorHum;
 
     public static ClientHumHandler getHum() {
@@ -80,6 +82,14 @@ public class ClientSoundManager {
 
         return ambientSound;
     }
+
+    public static ClientEngineLoopSoundHandler getEngineLoopSounds() {
+        if (engineLoopSound == null)
+            engineLoopSound = ClientEngineLoopSoundHandler.create();
+
+        return engineLoopSound;
+    }
+
 
     public static ClientRainSoundHandler getRainSound() {
         if (rainSound == null)
@@ -148,6 +158,9 @@ public class ClientSoundManager {
 
         if (getAmbientSounds() != null)
             getAmbientSounds().tick(client);
+
+        if (getEngineLoopSounds() != null)
+            getEngineLoopSounds().tick(client);
 
         if (getRainSound() != null)
             getRainSound().tick(client);

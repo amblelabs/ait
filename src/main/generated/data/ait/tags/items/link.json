@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "ait:sonic_screwdriver",
+    "ait:classic_key",
+    "ait:gold_key",
+    "ait:iron_key",
+    "ait:remote_item",
+    "ait:netherite_key",
+    "ait:handles"
+  ]
+}

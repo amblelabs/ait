@@ -68,6 +68,12 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
             TravelHandler travel = tardis.travel();
 
+            // Destination world locked, diverting TARDIS back to previous world (but preserving the destination coordinates).
+            if (!LockedDimensionRegistry.getInstance().isUnlocked(tardis, travel.destination().getWorld())) {
+                CachedDirectedGlobalPos newCoordsButPreviousWorld = travel.destination().world(travel.previousPosition().getWorld());
+                travel.forceDestination(newCoordsButPreviousWorld);
+            }
+
             return (TardisUtil.isInteriorEmpty(tardis) && !travel.leaveBehind().get()) || travel.autopilot() || travel.speed() == 0
                     ? TardisEvents.Interaction.SUCCESS : TardisEvents.Interaction.PASS;
         });
@@ -378,7 +384,8 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         this.finishRemat();
 
         this.position().getWorld().playSound(null, this.position().getPos(), AITSounds.LAND_CRASH,
-                SoundCategory.AMBIENT);
+                SoundCategory.AMBIENT, AITMod.CONFIG.crashSoundVolume, 1f);
+
         this.tardis.getDesktop().playSoundAtEveryConsole(AITSounds.ABORT_FLIGHT, SoundCategory.AMBIENT);
 
         PacketByteBuf buf = PacketByteBufs.create();

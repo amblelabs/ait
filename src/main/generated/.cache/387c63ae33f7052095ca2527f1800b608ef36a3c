@@ -1,0 +1,14 @@
+// 1.20.1	2025-08-25T11:54:51.2141604	Adventures In Time/Tags for minecraft:item
+968ee9c191a1c7caf4e67e346fbd8188acef55a3 data\ait\tags\items\rift_success_extra_item.json
+a1626fcf9a2e170548c2b5be8a7f7d97f7aa5e44 data\ait\tags\items\sonic_item.json
+2df883a6df50ba0d5e18f61ad60724d78b4261aa data\ait\tags\items\link.json
+a1626fcf9a2e170548c2b5be8a7f7d97f7aa5e44 data\ait\tags\items\no_bop.json
+968ee9c191a1c7caf4e67e346fbd8188acef55a3 data\ait\tags\items\cluster_max_harvestables.json
+4716f27ab2e12f82936b650b2f244e2af3af8177 data\minecraft\tags\items\trimmable_armor.json
+7a85457ff26657a707464e26ace4713691aa049f data\ait\tags\items\full_respirators.json
+b92a22949537c44d4bd9bc2d6add723a1b06c4b0 data\ait\tags\items\key.json
+d0deb85779d02afbb28301b4c34e91697cf75a4e data\ait\tags\items\half_respirators.json
+c4d39aa1feddb4ccb43f396b6e31956685701bdb data\ait\tags\items\is_tardis_fuel.json
+efe690eca7cf20d4e6b473c4fa11dd5b578e1158 data\ait\tags\items\rift_fail_item.json
+0147e5bb9ea46a451ddba1073a4bc941f11a2404 data\minecraft\tags\items\creeper_drop_music_discs.json
+498880187171623c67e57597388e802626014b0b data\ait\tags\items\repairs_subsystem.json

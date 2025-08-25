@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:ait/enter_tardis",
+  "criteria": {
+    "enable_subsystem": {
+      "conditions": {},
+      "trigger": "ait:enable_subsystem"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "achievement.ait.description.enable_subsystem"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "item": "ait:generic_subsystem"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.enable_subsystem"
+    }
+  },
+  "requirements": [
+    [
+      "enable_subsystem"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

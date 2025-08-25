@@ -1,0 +1,16 @@
+{
+  "replace": false,
+  "values": [
+    "ait:zeiton_dust",
+    "ait:zeiton_shard",
+    "ait:tardis_coral_block",
+    "ait:tardis_coral_slab",
+    "ait:tardis_coral_fan",
+    "minecraft:air",
+    "ait:tardis_coral_stairs",
+    "ait:coral_fragment",
+    "#minecraft:logs_that_burn",
+    "#minecraft:coals",
+    "minecraft:lava_bucket"
+  ]
+}

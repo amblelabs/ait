@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:ait/planet_root",
+  "criteria": {
+    "enter_mars": {
+      "conditions": {
+        "to": "ait:mars"
+      },
+      "trigger": "minecraft:changed_dimension"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "achievements.ait.description.enter_mars"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "ait:martian_stone"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievements.ait.title.enter_mars"
+    }
+  },
+  "requirements": [
+    [
+      "enter_mars"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

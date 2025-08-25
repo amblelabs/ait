@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "minecraft:black_wool"
+    },
+    "O": {
+      "item": "minecraft:orange_wool"
+    },
+    "P": {
+      "item": "minecraft:painting"
+    },
+    "S": {
+      "item": "ait:charged_zeiton_crystal"
+    }
+  },
+  "pattern": [
+    "OBO",
+    "BSB",
+    "OPO"
+  ],
+  "result": {
+    "item": "ait:gallifrey_falls_painting"
+  },
+  "show_notification": true
+}

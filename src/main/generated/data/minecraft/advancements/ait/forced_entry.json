@@ -1,0 +1,31 @@
+{
+  "parent": "minecraft:ait/enter_tardis",
+  "criteria": {
+    "forced_entry": {
+      "conditions": {},
+      "trigger": "ait:forced_entry"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "achievement.ait.description.forced_entry"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "minecraft:iron_axe",
+      "nbt": "{Damage:0}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.forced_entry"
+    }
+  },
+  "requirements": [
+    [
+      "forced_entry"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

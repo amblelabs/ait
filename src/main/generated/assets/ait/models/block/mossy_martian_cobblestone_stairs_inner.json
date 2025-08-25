@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "ait:block/mossy_martian_cobblestone",
+    "side": "ait:block/mossy_martian_cobblestone",
+    "top": "ait:block/mossy_martian_cobblestone"
+  }
+}

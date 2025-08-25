@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_anorthosite": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ait:anorthosite"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "ait:smooth_anorthosite_from_anorthosite_smelted"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_anorthosite",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "ait:smooth_anorthosite_from_anorthosite_smelted"
+    ]
+  },
+  "sends_telemetry_event": false
+}

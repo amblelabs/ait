@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "minecraft:iron_bars"
+    },
+    "C": {
+      "item": "ait:coral_fragment"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "P": {
+      "item": "ait:plasmic_material"
+    }
+  },
+  "pattern": [
+    "BPB",
+    "ICI",
+    "BPB"
+  ],
+  "result": {
+    "item": "ait:coral_cage"
+  },
+  "show_notification": true
+}

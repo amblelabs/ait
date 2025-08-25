@@ -6,7 +6,7 @@ import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.coral.CoralGrowthExteriorModel;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.client.renderers.coral.CoralRenderer;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
@@ -18,7 +18,7 @@ public class ClientGrowthVariant extends ClientExteriorVariantSchema {
     }
 
     @Override
-    public ExteriorModel model() {
+    public SimpleExteriorModel model() {
         return new CoralGrowthExteriorModel(CoralGrowthExteriorModel.getTexturedModelData().createModel());
     }
 

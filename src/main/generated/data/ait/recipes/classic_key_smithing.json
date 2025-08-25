@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "item": "minecraft:amethyst_shard"
+  },
+  "base": {
+    "item": "ait:netherite_key"
+  },
+  "result": {
+    "item": "ait:classic_key"
+  },
+  "template": {
+    "item": "ait:classic_key_upgrade_smithing_template"
+  }
+}

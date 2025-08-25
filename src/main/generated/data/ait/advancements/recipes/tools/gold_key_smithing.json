@@ -1,0 +1,74 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_gold_key": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ait:gold_key"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_gold_key_upgrade_smithing_template": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ait:gold_key_upgrade_smithing_template"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_gold_nugget": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:gold_nugget"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_iron_key": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ait:iron_key"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "ait:gold_key_smithing"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_gold_key_upgrade_smithing_template",
+      "has_iron_key",
+      "has_gold_nugget",
+      "has_gold_key",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "ait:gold_key_smithing"
+    ]
+  },
+  "sends_telemetry_event": false
+}

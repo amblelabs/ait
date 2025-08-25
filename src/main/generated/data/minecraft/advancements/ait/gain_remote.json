@@ -1,0 +1,39 @@
+{
+  "parent": "minecraft:ait/iron_key",
+  "criteria": {
+    "gain_remote": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ait:remote_item"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "achievement.ait.description.remote"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "item": "ait:remote_item",
+      "nbt": "{Damage:0}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.remote"
+    }
+  },
+  "requirements": [
+    [
+      "gain_remote"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

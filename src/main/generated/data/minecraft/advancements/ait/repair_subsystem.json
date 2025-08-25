@@ -1,0 +1,31 @@
+{
+  "parent": "minecraft:ait/enter_tardis",
+  "criteria": {
+    "repair_subsystem": {
+      "conditions": {},
+      "trigger": "ait:repair_subsystem"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "achievement.ait.description.repair_subsystem"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "ait:hammer",
+      "nbt": "{Damage:0}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.repair_subsystem"
+    }
+  },
+  "requirements": [
+    [
+      "repair_subsystem"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

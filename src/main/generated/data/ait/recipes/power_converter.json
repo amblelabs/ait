@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "item": "minecraft:iron_bars"
+    },
+    "F": {
+      "item": "ait:cable_block"
+    },
+    "G": {
+      "item": "ait:generic_subsystem"
+    },
+    "I": {
+      "item": "minecraft:iron_block"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "pattern": [
+    "RFR",
+    "BGB",
+    "IFI"
+  ],
+  "result": {
+    "item": "ait:power_converter"
+  },
+  "show_notification": true
+}

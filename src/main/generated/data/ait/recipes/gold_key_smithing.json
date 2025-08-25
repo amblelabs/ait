@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "item": "minecraft:gold_nugget"
+  },
+  "base": {
+    "item": "ait:iron_key"
+  },
+  "result": {
+    "item": "ait:gold_key"
+  },
+  "template": {
+    "item": "ait:gold_key_upgrade_smithing_template"
+  }
+}

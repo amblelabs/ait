@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "ingredients": [
+    {
+      "item": "ait:cable_block"
+    },
+    {
+      "item": "ait:cable_block"
+    },
+    {
+      "item": "ait:cable_block"
+    },
+    {
+      "item": "ait:cable_block"
+    }
+  ],
+  "result": {
+    "count": 2,
+    "item": "ait:full_cable_block"
+  }
+}

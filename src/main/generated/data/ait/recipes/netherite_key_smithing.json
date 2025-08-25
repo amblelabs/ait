@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "item": "minecraft:netherite_scrap"
+  },
+  "base": {
+    "item": "ait:gold_key"
+  },
+  "result": {
+    "item": "ait:netherite_key"
+  },
+  "template": {
+    "item": "ait:netherite_key_upgrade_smithing_template"
+  }
+}

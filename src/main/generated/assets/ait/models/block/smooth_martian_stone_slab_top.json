@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "ait:block/smooth_martian_stone",
+    "side": "ait:block/smooth_martian_stone",
+    "top": "ait:block/smooth_martian_stone"
+  }
+}

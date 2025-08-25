@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:ait/enter_tardis",
+  "criteria": {
+    "break_growth": {
+      "conditions": {},
+      "trigger": "ait:break_vegetation"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "achievement.ait.description.break_growth"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "minecraft:oak_leaves"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.break_growth"
+    }
+  },
+  "requirements": [
+    [
+      "break_growth"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

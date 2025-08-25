@@ -1,0 +1,61 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_artron_collector": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ait:artron_collector"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "ait:charged_zeiton_crystal"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_zeiton_cluster": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ait:zeiton_cluster"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_zeiton_shard": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ait:zeiton_shard"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_zeiton_shard",
+      "has_zeiton_cluster",
+      "has_artron_collector",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "ait:charged_zeiton_crystal"
+    ]
+  },
+  "sends_telemetry_event": false
+}

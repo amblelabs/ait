@@ -1,0 +1,84 @@
+{
+  "type": "minecraft:ore",
+  "config": {
+    "discard_chance_on_air_exposure": 0.0,
+    "size": 3,
+    "targets": [
+      {
+        "state": {
+          "Name": "ait:martian_coal_ore"
+        },
+        "target": {
+          "block": "ait:martian_stone",
+          "predicate_type": "minecraft:block_match"
+        }
+      },
+      {
+        "state": {
+          "Name": "ait:martian_copper_ore"
+        },
+        "target": {
+          "block": "ait:martian_stone",
+          "predicate_type": "minecraft:block_match"
+        }
+      },
+      {
+        "state": {
+          "Name": "ait:martian_iron_ore"
+        },
+        "target": {
+          "block": "ait:martian_stone",
+          "predicate_type": "minecraft:block_match"
+        }
+      },
+      {
+        "state": {
+          "Name": "ait:martian_gold_ore"
+        },
+        "target": {
+          "block": "ait:martian_stone",
+          "predicate_type": "minecraft:block_match"
+        }
+      },
+      {
+        "state": {
+          "Name": "ait:martian_redstone_ore",
+          "Properties": {
+            "lit": "false"
+          }
+        },
+        "target": {
+          "block": "ait:martian_stone",
+          "predicate_type": "minecraft:block_match"
+        }
+      },
+      {
+        "state": {
+          "Name": "ait:martian_lapis_ore"
+        },
+        "target": {
+          "block": "ait:martian_stone",
+          "predicate_type": "minecraft:block_match"
+        }
+      },
+      {
+        "state": {
+          "Name": "ait:martian_diamond_ore"
+        },
+        "target": {
+          "block": "ait:martian_stone",
+          "predicate_type": "minecraft:block_match"
+        }
+      },
+      {
+        "state": {
+          "Name": "ait:martian_emerald_ore"
+        },
+        "target": {
+          "block": "ait:martian_stone",
+          "predicate_type": "minecraft:block_match"
+        }
+      }
+    ]
+  }
+}

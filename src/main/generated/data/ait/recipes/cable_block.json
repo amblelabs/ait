@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "D": {
+      "item": "minecraft:polished_deepslate"
+    },
+    "Z": {
+      "item": "ait:zeiton_shard"
+    }
+  },
+  "pattern": [
+    "DDD",
+    "CZC",
+    "DDD"
+  ],
+  "result": {
+    "count": 8,
+    "item": "ait:cable_block"
+  },
+  "show_notification": true
+}

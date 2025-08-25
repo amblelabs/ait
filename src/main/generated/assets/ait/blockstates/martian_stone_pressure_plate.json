@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "powered=false": {
+      "model": "ait:block/martian_stone_pressure_plate"
+    },
+    "powered=true": {
+      "model": "ait:block/martian_stone_pressure_plate_down"
+    }
+  }
+}

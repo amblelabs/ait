@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "minecraft:slime_ball"
+    },
+    "C": {
+      "item": "minecraft:light_gray_concrete_powder"
+    },
+    "S": {
+      "item": "ait:superheated_zeiton"
+    }
+  },
+  "pattern": [
+    "CCC",
+    "SBS",
+    "CCC"
+  ],
+  "result": {
+    "count": 4,
+    "item": "ait:plasmic_material"
+  },
+  "show_notification": true
+}

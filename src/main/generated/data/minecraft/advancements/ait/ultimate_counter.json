@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:ait/root",
+  "criteria": {
+    "ultimate_counter": {
+      "conditions": {},
+      "trigger": "ait:sonic_wood"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "achievement.ait.description.ultimate_counter"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "ait:sonic_screwdriver"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.ultimate_counter"
+    }
+  },
+  "requirements": [
+    [
+      "ultimate_counter"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

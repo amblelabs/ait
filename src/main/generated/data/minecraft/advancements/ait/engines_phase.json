@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:ait/first_demat",
+  "criteria": {
+    "engines_phase": {
+      "conditions": {},
+      "trigger": "ait:engines_phase"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "achievement.ait.description.engines_phase"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "item": "ait:dematerialization_circuit"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.engines_phase"
+    }
+  },
+  "requirements": [
+    [
+      "engines_phase"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

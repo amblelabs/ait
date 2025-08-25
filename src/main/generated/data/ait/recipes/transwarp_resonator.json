@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "Z": {
+      "item": "ait:zeiton_shard"
+    }
+  },
+  "pattern": [
+    "III",
+    "IZI",
+    "III"
+  ],
+  "result": {
+    "item": "ait:transwarp_resonator"
+  },
+  "show_notification": true
+}

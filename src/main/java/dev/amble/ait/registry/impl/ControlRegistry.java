@@ -16,8 +16,8 @@ import dev.amble.ait.core.tardis.control.impl.pos.IncrementControl;
 import dev.amble.ait.core.tardis.control.impl.pos.XControl;
 import dev.amble.ait.core.tardis.control.impl.pos.YControl;
 import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.MarkWaypointControl;
-import dev.amble.ait.core.tardis.control.impl.waypoint.SetWaypointControl;
+import dev.amble.ait.core.tardis.control.impl.waypoint.LoadWaypointControl;
+import dev.amble.ait.core.tardis.control.impl.waypoint.SaveWaypointControl;
 
 public class ControlRegistry {
 
@@ -66,11 +66,12 @@ public class ControlRegistry {
         register(new VisualiserControl());
         register(new EngineOverloadControl());
         register(new ElectricalDischargeControl());
+        register(new ShieldsControl());
 
         // Waypoints
         register(new ConsolePortControl());
-        register(new MarkWaypointControl());
-        register(new SetWaypointControl());
+        register(new SaveWaypointControl());
+        register(new LoadWaypointControl());
 
         // Pos
         register(new IncrementControl());

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "ait:block/moon_sandstone_bricks",
+    "side": "ait:block/moon_sandstone_bricks",
+    "top": "ait:block/moon_sandstone_bricks"
+  }
+}

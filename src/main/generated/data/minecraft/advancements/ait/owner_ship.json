@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:ait/enter_tardis",
+  "criteria": {
+    "owner_ship": {
+      "conditions": {},
+      "trigger": "ait:reach_owner"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "achievement.ait.description.owner_ship"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "item": "ait:tardis_item"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.owner_ship"
+    }
+  },
+  "requirements": [
+    [
+      "owner_ship"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:ait/planet_root",
+  "criteria": {
+    "enter_moon": {
+      "conditions": {
+        "to": "ait:moon"
+      },
+      "trigger": "minecraft:changed_dimension"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "achievements.ait.description.enter_moon"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "ait:anorthosite"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievements.ait.title.enter_moon"
+    }
+  },
+  "requirements": [
+    [
+      "enter_moon"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:ait/enter_tardis",
+  "criteria": {
+    "redecorate": {
+      "conditions": {},
+      "trigger": "ait:redecorate"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "achievement.ait.description.redecorate"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "minecraft:painting"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.redecorate"
+    }
+  },
+  "requirements": [
+    [
+      "redecorate"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

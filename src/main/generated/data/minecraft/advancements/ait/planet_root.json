@@ -1,0 +1,31 @@
+{
+  "criteria": {
+    "enter_tardis": {
+      "conditions": {},
+      "trigger": "ait:enter_tardis"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "background": "ait:textures/block/martian_stone.png",
+    "description": {
+      "translate": "achievements.ait.description.planet_root"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "ait:spacesuit_helmet",
+      "nbt": "{Damage:0}"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "achievements.ait.title.planet_root"
+    }
+  },
+  "requirements": [
+    [
+      "enter_tardis"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

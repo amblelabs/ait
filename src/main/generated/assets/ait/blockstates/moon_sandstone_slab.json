@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "ait:block/moon_sandstone_slab"
+    },
+    "type=double": {
+      "model": "ait:block/moon_sandstone"
+    },
+    "type=top": {
+      "model": "ait:block/moon_sandstone_slab_top"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "x": 0
+      },
+      "when": {
+        "facing": "north"
+      }
+    }
+  ]
+}

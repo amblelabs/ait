@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 1,
+  "ingredient": {
+    "item": "ait:mossy_martian_cobblestone"
+  },
+  "result": "ait:mossy_martian_cobblestone_slab"
+}

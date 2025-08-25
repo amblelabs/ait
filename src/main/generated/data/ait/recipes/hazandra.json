@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "A": {
+      "item": "minecraft:amethyst_shard"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "E": {
+      "item": "minecraft:ender_eye"
+    },
+    "R": {
+      "item": "minecraft:end_crystal"
+    },
+    "Z": {
+      "item": "ait:zeiton_shard"
+    }
+  },
+  "pattern": [
+    "CEC",
+    "ZRZ",
+    "CAC"
+  ],
+  "result": {
+    "item": "ait:hazandra"
+  },
+  "show_notification": true
+}

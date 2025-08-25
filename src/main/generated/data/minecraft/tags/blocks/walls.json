@@ -1,0 +1,16 @@
+{
+  "replace": false,
+  "values": [
+    "ait:martian_brick_wall",
+    "ait:martian_cobblestone_wall",
+    "ait:martian_sandstone_wall",
+    "ait:martian_stone_wall",
+    "ait:mossy_martian_cobblestone_wall",
+    "ait:martian_brick_wall",
+    "ait:martian_sandstone_brick_wall",
+    "ait:anorthosite_brick_wall",
+    "ait:anorthosite_wall",
+    "ait:moon_sandstone_brick_wall",
+    "ait:moon_sandstone_wall"
+  ]
+}

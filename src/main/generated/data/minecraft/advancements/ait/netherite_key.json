@@ -1,0 +1,38 @@
+{
+  "parent": "minecraft:ait/gold_key",
+  "criteria": {
+    "netherite_key": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ait:netherite_key"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "achievement.ait.description.netherite_key"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "ait:netherite_key"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.netherite_key"
+    }
+  },
+  "requirements": [
+    [
+      "netherite_key"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

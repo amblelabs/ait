@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "item": "minecraft:iron_bars"
+    },
+    "E": {
+      "item": "minecraft:ender_chest"
+    },
+    "I": {
+      "item": "minecraft:iron_block"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "T": {
+      "item": "minecraft:tinted_glass"
+    },
+    "W": {
+      "item": "ait:waypoint_cartridge"
+    }
+  },
+  "pattern": [
+    "RTR",
+    "BWB",
+    "IEI"
+  ],
+  "result": {
+    "item": "ait:waypoint_bank"
+  },
+  "show_notification": true
+}

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "A": {
+      "item": "ait:photon_accelerator"
+    },
+    "B": {
+      "item": "ait:superheated_zeiton"
+    },
+    "C": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "ACB"
+  ],
+  "result": {
+    "item": "ait:hyperion_core_shaft"
+  },
+  "show_notification": true
+}

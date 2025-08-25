@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 1,
+  "ingredient": {
+    "item": "ait:anorthosite_bricks"
+  },
+  "result": "ait:anorthosite_brick_wall"
+}

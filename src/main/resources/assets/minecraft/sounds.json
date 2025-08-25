@@ -1,0 +1,11 @@
+{
+  "music.menu": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "ait:music/chronology",
+        "stream": true
+      }
+    ]
+  }
+}

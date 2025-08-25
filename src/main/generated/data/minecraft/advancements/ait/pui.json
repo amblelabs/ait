@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:ait/first_demat",
+  "criteria": {
+    "pui": {
+      "conditions": {},
+      "trigger": "ait:pilot_high"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "achievement.ait.description.pui"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "ait:zeiton_dust"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.pui"
+    }
+  },
+  "requirements": [
+    [
+      "pui"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

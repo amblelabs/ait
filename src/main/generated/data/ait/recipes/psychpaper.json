@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "item": "minecraft:ender_eye"
+    },
+    "O": {
+      "item": "minecraft:black_dye"
+    },
+    "P": {
+      "item": "minecraft:paper"
+    },
+    "S": {
+      "item": "minecraft:leather"
+    }
+  },
+  "pattern": [
+    "SOS",
+    "BPB",
+    "SOS"
+  ],
+  "result": {
+    "item": "ait:psychpaper"
+  },
+  "show_notification": true
+}

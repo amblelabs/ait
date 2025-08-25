@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "K": {
+      "item": "minecraft:redstone_block"
+    },
+    "O": {
+      "item": "minecraft:netherite_scrap"
+    },
+    "P": {
+      "item": "minecraft:nether_star"
+    },
+    "S": {
+      "item": "minecraft:stone_button"
+    }
+  },
+  "pattern": [
+    "OPO",
+    "BSB",
+    "OKO"
+  ],
+  "result": {
+    "item": "ait:remote_item"
+  },
+  "show_notification": true
+}

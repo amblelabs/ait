@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "G": {
+      "item": "minecraft:glass_pane"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "P": {
+      "item": "minecraft:ender_pearl"
+    },
+    "S": {
+      "item": "minecraft:sea_lantern"
+    }
+  },
+  "pattern": [
+    "IGI",
+    "GPG",
+    "ISI"
+  ],
+  "result": {
+    "item": "ait:environment_projector"
+  },
+  "show_notification": true
+}

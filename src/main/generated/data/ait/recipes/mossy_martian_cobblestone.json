@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": {
+      "item": "ait:martian_cobblestone"
+    },
+    "M": [
+      {
+        "item": "minecraft:moss_block"
+      },
+      {
+        "item": "minecraft:vine"
+      }
+    ]
+  },
+  "pattern": [
+    "#M"
+  ],
+  "result": {
+    "item": "ait:mossy_martian_cobblestone"
+  },
+  "show_notification": true
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "item": "ait:martian_cobblestone"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    " MM",
+    " SM",
+    " S "
+  ],
+  "result": {
+    "item": "ait:martian_stone_axe"
+  },
+  "show_notification": true
+}

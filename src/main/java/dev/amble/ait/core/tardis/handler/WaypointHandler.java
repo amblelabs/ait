@@ -10,7 +10,6 @@ import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.core.item.WaypointItem;
-import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Waypoint;
 import dev.amble.ait.data.properties.bool.BoolProperty;
@@ -36,7 +35,7 @@ public class WaypointHandler extends KeyedTardisComponent {
         return hasCartridge.get();
     }
 
-    public void markHasCartridge() {
+    public void setHasCartridge() {
         hasCartridge.set(true);
     }
 
@@ -47,7 +46,7 @@ public class WaypointHandler extends KeyedTardisComponent {
     /**
      * Sets the new waypoint
      *
-     * @return The optional of the previous waypoiint
+     * @return The optional of the previous waypoint
      */
     public Optional<Waypoint> set(Waypoint var, BlockPos console, boolean spawnItem) {
         Optional<Waypoint> prev = Optional.ofNullable(this.current);
@@ -69,26 +68,24 @@ public class WaypointHandler extends KeyedTardisComponent {
 
     public void clear(BlockPos console, boolean spawnItem) {
         this.set(null, console, spawnItem);
+        this.clearCartridge();
     }
 
-    public void gotoWaypoint() {
+    public boolean loadWaypoint() {
         if (!this.hasWaypoint())
-            return; // todo move this check to the DEMAT event so the fail to takeoff happens
+            return false;
 
-        //this.tardis.travel().autopilot(true);
-        CachedDirectedGlobalPos cached = this.get().getPos();
-        if (cached.getWorld() instanceof TardisServerWorld) {
-            cached = CachedDirectedGlobalPos.create(TardisServerWorld.OVERWORLD, cached.getPos(), cached.getRotation());
+        CachedDirectedGlobalPos cachedPos = this.get().getPos();
+
+        if (cachedPos == null || !this.hasWaypoint())
+            return false;
+
+        if (cachedPos.getWorld() instanceof TardisServerWorld) {
+            cachedPos = CachedDirectedGlobalPos.create(TardisServerWorld.OVERWORLD, cachedPos.getPos(), cachedPos.getRotation());
         }
-        TravelUtil.travelTo(tardis, cached);
-    }
 
-    public void setDestination() {
-        if (!this.hasWaypoint())
-            return;
-
-        this.tardis.travel().forceDestination(this.get().getPos());
-
+        tardis.travel().destination(cachedPos);
+        return true;
     }
 
     public void spawnItem(BlockPos console) {
@@ -107,7 +104,6 @@ public class WaypointHandler extends KeyedTardisComponent {
                 console.getZ(), createWaypointItem(waypoint));
 
         tardis.asServer().world().spawnEntity(entity);
-        this.clearCartridge();
     }
 
     public static ItemStack createWaypointItem(Waypoint waypoint) {

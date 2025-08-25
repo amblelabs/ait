@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "ait:block/martian_sandstone",
+    "side": "ait:block/martian_sandstone",
+    "top": "ait:block/martian_sandstone"
+  }
+}

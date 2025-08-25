@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "ait:block/martian_sandstone_slab"
+    },
+    "type=double": {
+      "model": "ait:block/martian_sandstone"
+    },
+    "type=top": {
+      "model": "ait:block/martian_sandstone_slab_top"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:ait/enter_tardis",
+  "criteria": {
+    "bonding": {
+      "conditions": {},
+      "trigger": "ait:reach_pilot"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "achievement.ait.description.bonding"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "ait:coral_plant"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.bonding"
+    }
+  },
+  "requirements": [
+    [
+      "bonding"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

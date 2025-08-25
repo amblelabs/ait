@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "O": {
+      "item": "minecraft:obsidian"
+    },
+    "Z": {
+      "item": "ait:zeiton_shard"
+    }
+  },
+  "pattern": [
+    " O ",
+    "OZO",
+    "OZO"
+  ],
+  "result": {
+    "item": "ait:fabricator"
+  },
+  "show_notification": true
+}

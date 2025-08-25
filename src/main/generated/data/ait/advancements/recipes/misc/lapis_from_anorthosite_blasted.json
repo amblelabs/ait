@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_anorthosite_lapis_ore": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ait:anorthosite_lapis_ore"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "ait:lapis_from_anorthosite_blasted"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_anorthosite_lapis_ore",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "ait:lapis_from_anorthosite_blasted"
+    ]
+  },
+  "sends_telemetry_event": false
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "Z": {
+      "item": "ait:zeiton_shard"
+    }
+  },
+  "pattern": [
+    "ZZ ",
+    "ZZ ",
+    "   "
+  ],
+  "result": {
+    "item": "ait:zeiton_block"
+  },
+  "show_notification": true
+}

@@ -19,13 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/release'
     steps:
-      - name: Check Environment Variables
-        run: env
-
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          submodules: true
+          fetch-depth: 0 # For PackSquash
 
       - name: Setup Java
         uses: actions/setup-java@v2
@@ -33,16 +30,21 @@ jobs:
           distribution: "temurin"
           java-version: 17
 
-      - name: Make Gradle Wrapper Executable
-        if: ${{ runner.os != 'Windows' }}
-        run: chmod +x ./gradlew
-
-      - name: Run Datagen
-        run: ./gradlew runDatagen
-
       - name: Build
-        run: ./gradlew clean build
+        run: ./gradlew build
 
+      - name: Run PackSquash
+        uses: drtheodor/PackSquash-action@9df4689ee0fdb105de4d16ee9fb319fbbd81ec28
+        with:
+          packsquash_version: latest
+          quiet_logs: true
+          options: |
+            pack_directory = './build/resources/main/'
+            output_file_path = '/tmp/pack.zip'
+
+      - name: Combine
+        run: ./scripts/merge_jar ./build/libs/ /tmp/pack.zip
+    
       - name: Publish (CurseForge/Modrinth/GitHub)
         uses: Kir-Antipov/mc-publish@v3.3                                   #The specified MC-Publish GitHub Action in the version 3.2
         with:

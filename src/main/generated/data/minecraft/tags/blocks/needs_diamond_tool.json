@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "ait:tardis_coral_fan",
+    "ait:tardis_coral_slab",
+    "ait:tardis_coral_stairs",
+    "ait:tardis_coral_block",
+    "ait:tardis_coral_wall_fan"
+  ]
+}

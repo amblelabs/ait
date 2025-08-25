@@ -1,0 +1,1043 @@
+{
+  "controls/alarm_flick": {
+    "sounds": [
+      "ait:controls/alarm_flick"
+    ]
+  },
+  "controls/anti_gravs": {
+    "sounds": [
+      "ait:controls/anti_gravs"
+    ]
+  },
+  "controls/bweep": {
+    "sounds": [
+      "ait:controls/bweep"
+    ]
+  },
+  "controls/copper_alarm": {
+    "sounds": [
+      "ait:controls/copper_alarm"
+    ]
+  },
+  "controls/copper_alarm_alt": {
+    "sounds": [
+      "ait:controls/copper_alarm_alt"
+    ]
+  },
+  "controls/copper_hail_mary": {
+    "sounds": [
+      "ait:controls/copper_hail_mary"
+    ]
+  },
+  "controls/copper_telepathic_circuit": {
+    "sounds": [
+      "ait:controls/copper_telepathic_circuit"
+    ]
+  },
+  "controls/coral_dimension": {
+    "sounds": [
+      "ait:controls/coral_dimension"
+    ]
+  },
+  "controls/coral_increment": {
+    "sounds": [
+      "ait:controls/coral_increment"
+    ]
+  },
+  "controls/coral_land_type": {
+    "sounds": [
+      "ait:controls/coral_land_type"
+    ]
+  },
+  "controls/coral_monitor": {
+    "sounds": [
+      "ait:controls/coral_monitor"
+    ]
+  },
+  "controls/coral_shields": {
+    "sounds": [
+      "ait:controls/coral_shields"
+    ]
+  },
+  "controls/coral_shields_alt": {
+    "sounds": [
+      "ait:controls/coral_shields_alt"
+    ]
+  },
+  "controls/coral_telepathic_circuits": {
+    "sounds": [
+      "ait:controls/coral_telepathic_circuits"
+    ]
+  },
+  "controls/coral_throttle": {
+    "sounds": [
+      "ait:controls/coral_throttle"
+    ]
+  },
+  "controls/coral_xyz": {
+    "sounds": [
+      "ait:controls/coral_xyz"
+    ]
+  },
+  "controls/crank": {
+    "sounds": [
+      "ait:controls/crank"
+    ]
+  },
+  "controls/demat_lever_pull": {
+    "sounds": [
+      "ait:controls/demat_lever_pull"
+    ]
+  },
+  "controls/dimension": {
+    "sounds": [
+      "ait:controls/dimension"
+    ]
+  },
+  "controls/direction": {
+    "sounds": [
+      "ait:controls/direction"
+    ]
+  },
+  "controls/door_control": {
+    "sounds": [
+      "ait:controls/door_control"
+    ]
+  },
+  "controls/door_controlalt": {
+    "sounds": [
+      "ait:controls/door_controlalt"
+    ]
+  },
+  "controls/door_lock": {
+    "sounds": [
+      "ait:controls/door_lock"
+    ]
+  },
+  "controls/engine_overload": {
+    "sounds": [
+      "ait:controls/engine_overload"
+    ]
+  },
+  "controls/engine_refuel_crank": {
+    "sounds": [
+      "ait:controls/engine_refuel_crank"
+    ]
+  },
+  "controls/fast_return": {
+    "sounds": [
+      "ait:controls/fast_return"
+    ]
+  },
+  "controls/hail_mary": {
+    "sounds": [
+      "ait:controls/hail_mary"
+    ]
+  },
+  "controls/handbrake_down": {
+    "sounds": [
+      "ait:controls/handbrake_down"
+    ]
+  },
+  "controls/handbrake_lever_pull": {
+    "sounds": [
+      "ait:controls/handbrake_lever_pull"
+    ]
+  },
+  "controls/handbrake_up": {
+    "sounds": [
+      "ait:controls/handbrake_up"
+    ]
+  },
+  "controls/increment": {
+    "sounds": [
+      "ait:controls/increment"
+    ]
+  },
+  "controls/knock": {
+    "sounds": [
+      "ait:controls/knock"
+    ]
+  },
+  "controls/land_type": {
+    "sounds": [
+      "ait:controls/land_type"
+    ]
+  },
+  "controls/monitor": {
+    "sounds": [
+      "ait:controls/monitor"
+    ]
+  },
+  "controls/power_flick": {
+    "sounds": [
+      "ait:controls/power_flick"
+    ]
+  },
+  "controls/protocol_": {
+    "sounds": [
+      "ait:controls/protocol_3",
+      "ait:controls/protocol_19"
+    ]
+  },
+  "controls/protocol_116_off": {
+    "sounds": [
+      "ait:controls/protocol_116_off"
+    ]
+  },
+  "controls/protocol_116_on": {
+    "sounds": [
+      "ait:controls/protocol_116_on"
+    ]
+  },
+  "controls/protocol_19": {
+    "sounds": [
+      "ait:controls/protocol_19"
+    ]
+  },
+  "controls/protocol_3": {
+    "sounds": [
+      "ait:controls/protocol_3"
+    ]
+  },
+  "controls/protocol_3alt": {
+    "sounds": [
+      "ait:controls/protocol_3alt"
+    ]
+  },
+  "controls/randomize": {
+    "sounds": [
+      "ait:controls/randomize"
+    ]
+  },
+  "controls/renaissance_anti_grav": {
+    "sounds": [
+      "ait:controls/renaissance_anti_grav"
+    ]
+  },
+  "controls/renaissance_dimension": {
+    "sounds": [
+      "ait:controls/renaissance_dimension"
+    ]
+  },
+  "controls/renaissance_door": {
+    "sounds": [
+      "ait:controls/renaissance_door"
+    ]
+  },
+  "controls/renaissance_door_alt": {
+    "sounds": [
+      "ait:controls/renaissance_door_alt"
+    ]
+  },
+  "controls/renaissance_handbrake": {
+    "sounds": [
+      "ait:controls/renaissance_handbrake"
+    ]
+  },
+  "controls/renaissance_handbrake_alt": {
+    "sounds": [
+      "ait:controls/renaissance_handbrake_alt"
+    ]
+  },
+  "controls/renaissance_land_type": {
+    "sounds": [
+      "ait:controls/renaissance_land_type"
+    ]
+  },
+  "controls/renaissance_lock": {
+    "sounds": [
+      "ait:controls/renaissance_lock"
+    ]
+  },
+  "controls/renaissance_power_siege": {
+    "sounds": [
+      "ait:controls/renaissance_power_siege"
+    ]
+  },
+  "controls/renaissance_shields": {
+    "sounds": [
+      "ait:controls/renaissance_shields"
+    ]
+  },
+  "controls/renaissance_shields_alt": {
+    "sounds": [
+      "ait:controls/renaissance_shields_alt"
+    ]
+  },
+  "controls/save_waypoint": {
+    "sounds": [
+      "ait:controls/save_waypoint"
+    ]
+  },
+  "controls/shield": {
+    "sounds": [
+      "ait:controls/shield"
+    ]
+  },
+  "controls/siege": {
+    "sounds": [
+      "ait:controls/siege"
+    ]
+  },
+  "controls/slot_in": {
+    "sounds": [
+      "ait:controls/slot_in"
+    ]
+  },
+  "controls/snap": {
+    "sounds": [
+      "ait:controls/snap"
+    ]
+  },
+  "controls/sonic_port": {
+    "sounds": [
+      "ait:controls/sonic_port"
+    ]
+  },
+  "controls/telepathic_circuits": {
+    "sounds": [
+      "ait:controls/telepathic_circuits"
+    ]
+  },
+  "controls/throttle_snap": {
+    "sounds": [
+      "ait:controls/throttle_snap"
+    ]
+  },
+  "controls/waypoint_load": {
+    "sounds": [
+      "ait:controls/waypoint_load"
+    ]
+  },
+  "controls/xyz": {
+    "sounds": [
+      "ait:controls/xyz"
+    ]
+  },
+  "controls/zap": {
+    "sounds": [
+      "ait:controls/zap"
+    ]
+  },
+  "error": {
+    "sounds": [
+      "ait:error"
+    ]
+  },
+  "mobs/cybermen/2005/cyber_fire": {
+    "sounds": [
+      "ait:mobs/cybermen/2005/cyber_fire"
+    ]
+  },
+  "mobs/cybermen/2005/cyber_stun": {
+    "sounds": [
+      "ait:mobs/cybermen/2005/cyber_stun"
+    ]
+  },
+  "mobs/cybermen/2005/delete": {
+    "sounds": [
+      "ait:mobs/cybermen/2005/delete"
+    ]
+  },
+  "mobs/cybermen/2005/deleted": {
+    "sounds": [
+      "ait:mobs/cybermen/2005/deleted"
+    ]
+  },
+  "mobs/cybermen/2005/electric_hit": {
+    "sounds": [
+      "ait:mobs/cybermen/2005/electric_hit"
+    ]
+  },
+  "mobs/cybermen/2005/stomp": {
+    "sounds": [
+      "ait:mobs/cybermen/2005/stomp2",
+      "ait:mobs/cybermen/2005/stomp1",
+      "ait:mobs/cybermen/2005/stomp4",
+      "ait:mobs/cybermen/2005/stomp3"
+    ]
+  },
+  "mobs/cybermen/2005/stomp1": {
+    "sounds": [
+      "ait:mobs/cybermen/2005/stomp1"
+    ]
+  },
+  "mobs/cybermen/2005/stomp2": {
+    "sounds": [
+      "ait:mobs/cybermen/2005/stomp2"
+    ]
+  },
+  "mobs/cybermen/2005/stomp3": {
+    "sounds": [
+      "ait:mobs/cybermen/2005/stomp3"
+    ]
+  },
+  "mobs/cybermen/2005/stomp4": {
+    "sounds": [
+      "ait:mobs/cybermen/2005/stomp4"
+    ]
+  },
+  "mobs/cybermen/2005/superior": {
+    "sounds": [
+      "ait:mobs/cybermen/2005/superior"
+    ]
+  },
+  "mobs/cybermen/2005/unnecessary": {
+    "sounds": [
+      "ait:mobs/cybermen/2005/unnecessary"
+    ]
+  },
+  "mobs/cybermen/nightmare/silver_stomp_loop": {
+    "sounds": [
+      "ait:mobs/cybermen/nightmare/silver_stomp_loop"
+    ]
+  },
+  "mobs/cybermen/nightmare/silver_stomp_start_finish": {
+    "sounds": [
+      "ait:mobs/cybermen/nightmare/silver_stomp_start_finish"
+    ]
+  },
+  "mobs/cybermen/nightmare/upgrade_in_progress": {
+    "sounds": [
+      "ait:mobs/cybermen/nightmare/upgrade_in_progress"
+    ]
+  },
+  "mobs/cybermen/nightmare/upgrade_in_progress_alt": {
+    "sounds": [
+      "ait:mobs/cybermen/nightmare/upgrade_in_progress_alt"
+    ]
+  },
+  "music/chronology": {
+    "sounds": [
+      "ait:music/chronology"
+    ]
+  },
+  "music/drifting_by_radio": {
+    "sounds": [
+      "ait:music/drifting_by_radio"
+    ]
+  },
+  "music/earth_nitrogenez": {
+    "sounds": [
+      "ait:music/earth_nitrogenez"
+    ]
+  },
+  "music/even_more_secret_music": {
+    "sounds": [
+      "ait:music/even_more_secret_music"
+    ]
+  },
+  "music/good_man_dian": {
+    "sounds": [
+      "ait:music/good_man_dian"
+    ]
+  },
+  "music/mad_man_dian": {
+    "sounds": [
+      "ait:music/mad_man_dian"
+    ]
+  },
+  "music/space": {
+    "sounds": [
+      "ait:music/space"
+    ]
+  },
+  "music/venus_nitrogenez": {
+    "sounds": [
+      "ait:music/venus_nitrogenez"
+    ]
+  },
+  "music/wonderful_time_in_space": {
+    "sounds": [
+      "ait:music/wonderful_time_in_space"
+    ]
+  },
+  "rift/ambient": {
+    "sounds": [
+      "ait:rift/ambient1",
+      "ait:rift/ambient3",
+      "ait:rift/ambient2"
+    ]
+  },
+  "rift/ambient1": {
+    "sounds": [
+      "ait:rift/ambient1"
+    ]
+  },
+  "rift/ambient2": {
+    "sounds": [
+      "ait:rift/ambient2"
+    ]
+  },
+  "rift/ambient3": {
+    "sounds": [
+      "ait:rift/ambient3"
+    ]
+  },
+  "rift/fail": {
+    "sounds": [
+      "ait:rift/fail"
+    ]
+  },
+  "rift/sonic_charge": {
+    "sounds": [
+      "ait:rift/sonic_charge"
+    ]
+  },
+  "rift/success": {
+    "sounds": [
+      "ait:rift/success"
+    ]
+  },
+  "sonic/sonic_duel": {
+    "sounds": [
+      "ait:sonic/sonic_duel"
+    ]
+  },
+  "sonic/sonic_mending": {
+    "sounds": [
+      "ait:sonic/sonic_mending"
+    ]
+  },
+  "sonic/sonic_off": {
+    "sounds": [
+      "ait:sonic/sonic_off"
+    ]
+  },
+  "sonic/sonic_on": {
+    "sounds": [
+      "ait:sonic/sonic_on"
+    ]
+  },
+  "sonic/sonic_tweak": {
+    "sounds": [
+      "ait:sonic/sonic_tweak"
+    ]
+  },
+  "sonic/switch": {
+    "sounds": [
+      "ait:sonic/switch"
+    ]
+  },
+  "sonic/use": {
+    "sounds": [
+      "ait:sonic/use"
+    ]
+  },
+  "tardis/abort_flight": {
+    "sounds": [
+      "ait:tardis/abort_flight"
+    ]
+  },
+  "tardis/bed/companion": {
+    "sounds": [
+      "ait:tardis/bed/companion"
+    ]
+  },
+  "tardis/bed/neutral": {
+    "sounds": [
+      "ait:tardis/bed/neutral"
+    ]
+  },
+  "tardis/bed/owner": {
+    "sounds": [
+      "ait:tardis/bed/owner"
+    ]
+  },
+  "tardis/bed/pilot": {
+    "sounds": [
+      "ait:tardis/bed/pilot"
+    ]
+  },
+  "tardis/bed/reject": {
+    "sounds": [
+      "ait:tardis/bed/reject"
+    ]
+  },
+  "tardis/bling": {
+    "sounds": [
+      "ait:tardis/bling"
+    ]
+  },
+  "tardis/bnt/demat": {
+    "sounds": [
+      "ait:tardis/bnt/demat"
+    ]
+  },
+  "tardis/bnt/mat": {
+    "sounds": [
+      "ait:tardis/bnt/mat"
+    ]
+  },
+  "tardis/cloister": {
+    "sounds": [
+      "ait:tardis/cloister"
+    ]
+  },
+  "tardis/coffee_machine": {
+    "sounds": [
+      "ait:tardis/coffee_machine"
+    ]
+  },
+  "tardis/console_ambient": {
+    "sounds": [
+      "ait:tardis/console_ambient"
+    ]
+  },
+  "tardis/console_bootup": {
+    "sounds": [
+      "ait:tardis/console_bootup"
+    ]
+  },
+  "tardis/console_powerup": {
+    "sounds": [
+      "ait:tardis/console_powerup"
+    ]
+  },
+  "tardis/console_shutdown": {
+    "sounds": [
+      "ait:tardis/console_shutdown"
+    ]
+  },
+  "tardis/creaks/creak_five": {
+    "sounds": [
+      "ait:tardis/creaks/creak_five"
+    ]
+  },
+  "tardis/creaks/creak_four": {
+    "sounds": [
+      "ait:tardis/creaks/creak_four"
+    ]
+  },
+  "tardis/creaks/creak_one": {
+    "sounds": [
+      "ait:tardis/creaks/creak_one"
+    ]
+  },
+  "tardis/creaks/creak_seven": {
+    "sounds": [
+      "ait:tardis/creaks/creak_seven"
+    ]
+  },
+  "tardis/creaks/creak_six": {
+    "sounds": [
+      "ait:tardis/creaks/creak_six"
+    ]
+  },
+  "tardis/creaks/creak_three": {
+    "sounds": [
+      "ait:tardis/creaks/creak_three"
+    ]
+  },
+  "tardis/creaks/creak_two": {
+    "sounds": [
+      "ait:tardis/creaks/creak_two"
+    ]
+  },
+  "tardis/creaks/whisper": {
+    "sounds": [
+      "ait:tardis/creaks/whisper"
+    ]
+  },
+  "tardis/demat": {
+    "sounds": [
+      "ait:tardis/demat"
+    ]
+  },
+  "tardis/drill/demat": {
+    "sounds": [
+      "ait:tardis/drill/demat"
+    ]
+  },
+  "tardis/drill/mat": {
+    "sounds": [
+      "ait:tardis/drill/mat"
+    ]
+  },
+  "tardis/eighth_demat": {
+    "sounds": [
+      "ait:tardis/eighth_demat"
+    ]
+  },
+  "tardis/eighth_flight": {
+    "sounds": [
+      "ait:tardis/eighth_flight"
+    ]
+  },
+  "tardis/eighth_mat": {
+    "sounds": [
+      "ait:tardis/eighth_mat"
+    ]
+  },
+  "tardis/emergency_land": {
+    "sounds": [
+      "ait:tardis/emergency_land"
+    ]
+  },
+  "tardis/engine_loop": {
+    "sounds": [
+      "ait:tardis/engine_loop"
+    ]
+  },
+  "tardis/engine_phasing_demat": {
+    "sounds": [
+      "ait:tardis/engine_phasing_demat"
+    ]
+  },
+  "tardis/engine_phasing_remat": {
+    "sounds": [
+      "ait:tardis/engine_phasing_remat"
+    ]
+  },
+  "tardis/engine_refuel": {
+    "sounds": [
+      "ait:tardis/engine_refuel"
+    ]
+  },
+  "tardis/exterior/rain": {
+    "sounds": [
+      "ait:tardis/exterior/rain"
+    ]
+  },
+  "tardis/exterior/thunder": {
+    "sounds": [
+      "ait:tardis/exterior/thunder"
+    ]
+  },
+  "tardis/fail_land": {
+    "sounds": [
+      "ait:tardis/fail_land"
+    ]
+  },
+  "tardis/fail_takeoff": {
+    "sounds": [
+      "ait:tardis/fail_takeoff"
+    ]
+  },
+  "tardis/flight_loop": {
+    "sounds": [
+      "ait:tardis/flight_loop"
+    ]
+  },
+  "tardis/ghost_mat": {
+    "sounds": [
+      "ait:tardis/ghost_mat"
+    ]
+  },
+  "tardis/groan": {
+    "sounds": [
+      "ait:tardis/groan"
+    ]
+  },
+  "tardis/hammer_strike": {
+    "sounds": [
+      "ait:tardis/hammer_strike"
+    ]
+  },
+  "tardis/handles/affirmative": {
+    "sounds": [
+      "ait:tardis/handles/affirmative"
+    ]
+  },
+  "tardis/handles/denied": {
+    "sounds": [
+      "ait:tardis/handles/denied"
+    ]
+  },
+  "tardis/handles/fault_developed": {
+    "sounds": [
+      "ait:tardis/handles/fault_developed"
+    ]
+  },
+  "tardis/handles/pardon": {
+    "sounds": [
+      "ait:tardis/handles/pardon"
+    ]
+  },
+  "tardis/handles/please_ask_again": {
+    "sounds": [
+      "ait:tardis/handles/please_ask_again"
+    ]
+  },
+  "tardis/handles/when": {
+    "sounds": [
+      "ait:tardis/handles/when"
+    ]
+  },
+  "tardis/hop_land": {
+    "sounds": [
+      "ait:tardis/hop_land"
+    ]
+  },
+  "tardis/hop_takeoff": {
+    "sounds": [
+      "ait:tardis/hop_takeoff"
+    ]
+  },
+  "tardis/hums/advent/christmas_hum": {
+    "sounds": [
+      "ait:tardis/hums/advent/christmas_hum"
+    ]
+  },
+  "tardis/hums/copper_hum": {
+    "sounds": [
+      "ait:tardis/hums/copper_hum"
+    ]
+  },
+  "tardis/hums/coral_hum": {
+    "sounds": [
+      "ait:tardis/hums/coral_hum"
+    ]
+  },
+  "tardis/hums/eight_hum": {
+    "sounds": [
+      "ait:tardis/hums/eight_hum"
+    ]
+  },
+  "tardis/hums/exile_hum": {
+    "sounds": [
+      "ait:tardis/hums/exile_hum"
+    ]
+  },
+  "tardis/hums/prime_hum": {
+    "sounds": [
+      "ait:tardis/hums/prime_hum"
+    ]
+  },
+  "tardis/hums/renaissance_hum": {
+    "sounds": [
+      "ait:tardis/hums/renaissance_hum"
+    ]
+  },
+  "tardis/hums/toyota_hum": {
+    "sounds": [
+      "ait:tardis/hums/toyota_hum"
+    ]
+  },
+  "tardis/key_lock": {
+    "sounds": [
+      "ait:tardis/key_lock"
+    ]
+  },
+  "tardis/key_unlock": {
+    "sounds": [
+      "ait:tardis/key_unlock"
+    ]
+  },
+  "tardis/land_crash": {
+    "sounds": [
+      "ait:tardis/land_crash"
+    ]
+  },
+  "tardis/land_thud": {
+    "sounds": [
+      "ait:tardis/land_thud"
+    ]
+  },
+  "tardis/master_demat": {
+    "sounds": [
+      "ait:tardis/master_demat"
+    ]
+  },
+  "tardis/master_mat": {
+    "sounds": [
+      "ait:tardis/master_mat"
+    ]
+  },
+  "tardis/mat": {
+    "sounds": [
+      "ait:tardis/mat"
+    ]
+  },
+  "tardis/ml": {
+    "sounds": [
+      "ait:tardis/ml"
+    ]
+  },
+  "tardis/monitor_idle": {
+    "sounds": [
+      "ait:tardis/monitor_idle"
+    ]
+  },
+  "tardis/moody/loyalty_up": {
+    "sounds": [
+      "ait:tardis/moody/loyalty_up"
+    ]
+  },
+  "tardis/moody/moody": {
+    "sounds": [
+      "ait:tardis/moody/moody5",
+      "ait:tardis/moody/moody3",
+      "ait:tardis/moody/moody4",
+      "ait:tardis/moody/moody",
+      "ait:tardis/moody/moody1",
+      "ait:tardis/moody/moody2"
+    ]
+  },
+  "tardis/moody/moody1": {
+    "sounds": [
+      "ait:tardis/moody/moody1"
+    ]
+  },
+  "tardis/moody/moody2": {
+    "sounds": [
+      "ait:tardis/moody/moody2"
+    ]
+  },
+  "tardis/moody/moody3": {
+    "sounds": [
+      "ait:tardis/moody/moody3"
+    ]
+  },
+  "tardis/moody/moody4": {
+    "sounds": [
+      "ait:tardis/moody/moody4"
+    ]
+  },
+  "tardis/moody/moody5": {
+    "sounds": [
+      "ait:tardis/moody/moody5"
+    ]
+  },
+  "tardis/nav_notification": {
+    "sounds": [
+      "ait:tardis/nav_notification"
+    ]
+  },
+  "tardis/police_box_door_close": {
+    "sounds": [
+      "ait:tardis/police_box_door_close"
+    ]
+  },
+  "tardis/police_box_door_open": {
+    "sounds": [
+      "ait:tardis/police_box_door_open"
+    ]
+  },
+  "tardis/power_convert": {
+    "sounds": [
+      "ait:tardis/power_convert"
+    ]
+  },
+  "tardis/proton_demat": {
+    "sounds": [
+      "ait:tardis/proton_demat"
+    ]
+  },
+  "tardis/proton_flight": {
+    "sounds": [
+      "ait:tardis/proton_flight"
+    ]
+  },
+  "tardis/proton_mat": {
+    "sounds": [
+      "ait:tardis/proton_mat"
+    ]
+  },
+  "tardis/remote_lock": {
+    "sounds": [
+      "ait:tardis/remote_lock"
+    ]
+  },
+  "tardis/remote_unlock": {
+    "sounds": [
+      "ait:tardis/remote_unlock"
+    ]
+  },
+  "tardis/secret/doom_door_close": {
+    "sounds": [
+      "ait:tardis/secret/doom_door_close"
+    ]
+  },
+  "tardis/secret/doom_door_open": {
+    "sounds": [
+      "ait:tardis/secret/doom_door_open"
+    ]
+  },
+  "tardis/shield_ambiance": {
+    "sounds": [
+      "ait:tardis/shield_ambiance"
+    ]
+  },
+  "tardis/siege_disable": {
+    "sounds": [
+      "ait:tardis/siege_disable"
+    ]
+  },
+  "tardis/siege_enable": {
+    "sounds": [
+      "ait:tardis/siege_enable"
+    ]
+  },
+  "tardis/stabilize_flight": {
+    "sounds": [
+      "ait:tardis/stabilize_flight"
+    ]
+  },
+  "tardis/tardis_rejection_sfx": {
+    "sounds": [
+      "ait:tardis/tardis_rejection_sfx"
+    ]
+  },
+  "tardis/unstable_flight_loop": {
+    "sounds": [
+      "ait:tardis/unstable_flight_loop"
+    ]
+  },
+  "tardis/vortex_sound": {
+    "sounds": [
+      "ait:tardis/vortex_sound"
+    ]
+  },
+  "tardis/waypoint_activate": {
+    "sounds": [
+      "ait:tardis/waypoint_activate"
+    ]
+  },
+  "tools/fabricator/end": {
+    "sounds": [
+      "ait:tools/fabricator/end"
+    ]
+  },
+  "tools/fabricator/loop": {
+    "sounds": [
+      "ait:tools/fabricator/loop"
+    ]
+  },
+  "tools/fabricator/start": {
+    "sounds": [
+      "ait:tools/fabricator/start"
+    ]
+  },
+  "tools/fluid_link_connect": {
+    "sounds": [
+      "ait:tools/fluid_link_connect"
+    ]
+  },
+  "tools/goes_ding": {
+    "sounds": [
+      "ait:tools/goes_ding"
+    ]
+  },
+  "tools/hammer_hit": {
+    "sounds": [
+      "ait:tools/hammer_hit"
+    ]
+  },
+  "tools/redstone_control_switcharoo": {
+    "sounds": [
+      "ait:tools/redstone_control_switcharoo"
+    ]
+  },
+  "tools/remote": {
+    "sounds": [
+      "ait:tools/remote"
+    ]
+  },
+  "tools/staser": {
+    "sounds": [
+      "ait:tools/staser"
+    ]
+  }
+}

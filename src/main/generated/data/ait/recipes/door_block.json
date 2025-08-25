@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "minecraft:light_gray_concrete"
+    },
+    "D": {
+      "item": "minecraft:iron_door"
+    },
+    "G": {
+      "item": "minecraft:glass_pane"
+    }
+  },
+  "pattern": [
+    "GCG",
+    "CDC",
+    "CCC"
+  ],
+  "result": {
+    "item": "ait:door_block"
+  },
+  "show_notification": true
+}

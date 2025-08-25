@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "item": "ait:zeiton_shard"
+    },
+    "E": {
+      "item": "minecraft:end_crystal"
+    }
+  },
+  "pattern": [
+    "BBB",
+    "BEB",
+    "BBB"
+  ],
+  "result": {
+    "item": "ait:hypercube"
+  },
+  "show_notification": true
+}

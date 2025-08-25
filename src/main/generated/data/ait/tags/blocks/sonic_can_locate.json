@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "ait:zeiton_block",
+    "ait:zeiton_cobble",
+    "ait:budding_zeiton",
+    "ait:compact_zeiton",
+    "ait:small_zeiton_bud",
+    "ait:medium_zeiton_bud",
+    "ait:large_zeiton_bud",
+    "ait:zeiton_cluster",
+    "minecraft:bell"
+  ]
+}

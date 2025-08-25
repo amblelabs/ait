@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_anorthosite_copper_ore": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ait:anorthosite_copper_ore"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "ait:copper_from_anorthosite_blasted"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_anorthosite_copper_ore",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "ait:copper_from_anorthosite_blasted"
+    ]
+  },
+  "sends_telemetry_event": false
+}

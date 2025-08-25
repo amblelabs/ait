@@ -1,10 +1,6 @@
 package dev.amble.ait.client.sounds;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-
+import dev.amble.ait.AITMod;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.sound.SoundCategory;
@@ -12,7 +8,10 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.AITMod;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 public class SoundHandler {
 
@@ -65,13 +64,16 @@ public class SoundHandler {
      */
     public void startSound(SoundEvent event) {
         SoundInstance sound = findSoundByEvent(event);
+        if (sound == null || sound.getId() == null) {
+            return;
+        }
 
         MinecraftClient.getInstance().getSoundManager().play(sound);
     }
 
     public void startSound(SoundInstance sound) {
-        if (sound == null)
-            return;
+if (sound == null || sound.getId() == null)
+return;
         MinecraftClient.getInstance().getSoundManager().play(sound);
     }
 

@@ -1,0 +1,20 @@
+// 1.20.1	2025-08-25T11:54:51.213161	Adventures In Time/Tags for minecraft:block
+32eb4778733525b7122559337a50c4fb2548b9ae data\minecraft\tags\blocks\copper_ores.json
+e0b1cd3ee7e16c9469fc32e769e6150d51dcf7b2 data\minecraft\tags\blocks\dirt.json
+7c985322f071a0b4bf9d5822a75708e02880717d data\ait\tags\blocks\sonic_interactable.json
+32eb4778733525b7122559337a50c4fb2548b9ae data\minecraft\tags\blocks\gold_ores.json
+32eb4778733525b7122559337a50c4fb2548b9ae data\minecraft\tags\blocks\iron_ores.json
+a56ee50cbfb6a361224cd0b2198c2a054df78d37 data\ait\tags\blocks\sonic_can_locate.json
+4e58100f4776f9b113c0e1462babfe7812e9564c data\minecraft\tags\blocks\diamond_ores.json
+4de58a1e9038a251909faa0bf2c26792bc1b0be9 data\minecraft\tags\blocks\lapis_ores.json
+9a551f9e8b80aa9abb8d9bfc51e9a3c1382d867d data\ait\tags\blocks\fluid_link_can_connect.json
+90888c32d91ce0d508b8c7c66a5818eda0cc03f0 data\minecraft\tags\blocks\needs_stone_tool.json
+c902666d5e8de1526a278ad42e99b80a19f63f12 data\minecraft\tags\blocks\coal_ores.json
+5a9406a3a4d2a6cf98e7764bc9095da491f9d0a0 data\minecraft\tags\blocks\needs_iron_tool.json
+9c99cfc3a4b019d5b7fa03a979a9b89d3f392635 data\minecraft\tags\blocks\walls.json
+8a119e451749a82fabf736b5d8583da21c6782bc data\minecraft\tags\blocks\dragon_immune.json
+57bf92b85b0b0007de1aa5f2424bde363ee608ef data\minecraft\tags\blocks\emerald_ores.json
+9491fbda0c0c6bc8803a525a5983fb3ee9f27b32 data\minecraft\tags\blocks\redstone_ores.json
+0cda79749253196ce604bb55bbadb91f87c08861 data\minecraft\tags\blocks\needs_diamond_tool.json
+8a119e451749a82fabf736b5d8583da21c6782bc data\minecraft\tags\blocks\wither_immune.json
+ed586a19b7ad52b2439006efc5f3e3316be171d3 data\minecraft\tags\blocks\mineable\pickaxe.json

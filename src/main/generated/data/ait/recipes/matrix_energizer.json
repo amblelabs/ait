@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": {
+      "item": "ait:artron_collector_block"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "S": {
+      "item": "minecraft:sculk"
+    },
+    "Z": {
+      "item": "ait:superheated_zeiton"
+    }
+  },
+  "pattern": [
+    "IRI",
+    "SCS",
+    "IZI"
+  ],
+  "result": {
+    "item": "ait:matrix_energizer"
+  },
+  "show_notification": true
+}

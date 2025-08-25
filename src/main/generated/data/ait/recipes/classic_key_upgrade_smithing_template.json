@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:amethyst_shard"
+    },
+    "I": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "N": {
+      "item": "ait:netherite_key_upgrade_smithing_template"
+    },
+    "S": {
+      "item": "minecraft:netherite_scrap"
+    }
+  },
+  "pattern": [
+    "SAS",
+    "INI",
+    "SAS"
+  ],
+  "result": {
+    "item": "ait:classic_key_upgrade_smithing_template"
+  },
+  "show_notification": true
+}

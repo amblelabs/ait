@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:ait/enter_tardis",
+  "criteria": {
+    "attack_eyebrows": {
+      "conditions": {},
+      "trigger": "ait:attack_eyebrows"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "achievement.ait.description.attack_eyebrows"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "ait:sonic_screwdriver"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.attack_eyebrows"
+    }
+  },
+  "requirements": [
+    [
+      "attack_eyebrows"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

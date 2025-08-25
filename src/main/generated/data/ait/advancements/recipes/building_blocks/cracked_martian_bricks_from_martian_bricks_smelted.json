@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_martian_bricks": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ait:martian_bricks"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "ait:cracked_martian_bricks_from_martian_bricks_smelted"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_martian_bricks",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "ait:cracked_martian_bricks_from_martian_bricks_smelted"
+    ]
+  },
+  "sends_telemetry_event": false
+}

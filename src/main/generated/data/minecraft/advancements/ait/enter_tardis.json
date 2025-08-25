@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:ait/place_coral",
+  "criteria": {
+    "enter_tardis": {
+      "conditions": {},
+      "trigger": "ait:enter_tardis"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "achievement.ait.description.enter_tardis"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "icon": {
+      "item": "ait:tardis_item"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "achievement.ait.title.enter_tardis"
+    }
+  },
+  "requirements": [
+    [
+      "enter_tardis"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

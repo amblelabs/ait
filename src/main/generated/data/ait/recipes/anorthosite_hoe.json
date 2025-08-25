@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "item": "ait:anorthosite"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    " MM",
+    " S ",
+    " S "
+  ],
+  "result": {
+    "item": "ait:anorthosite_hoe"
+  },
+  "show_notification": true
+}
