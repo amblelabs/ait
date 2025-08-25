@@ -1,0 +1,7 @@
+{
+	"parent": "ait:block/jukebox_model",
+	"textures": {
+		"0": "ait:block/decoration/jukebox/default",
+		"particle": "minecraft:block/stripped_dark_oak_log"
+	}
+}
