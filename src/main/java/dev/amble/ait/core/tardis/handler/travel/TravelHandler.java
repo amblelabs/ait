@@ -1,13 +1,17 @@
 package dev.amble.ait.core.tardis.handler.travel;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Optional;
+import java.util.UUID;
 
+import dev.amble.ait.core.tardis.control.impl.EngineOverloadControl;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
+import dev.drtheo.scheduler.api.task.Task;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -49,6 +53,10 @@ import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.data.Exclude;
 
 public final class TravelHandler extends AnimatedTravelHandler implements CrashableTardisTravel {
+
+    private static final HashMap<UUID, Boolean> ENGINE_OVERLOAD_ARMED = new HashMap<>();
+    private static final HashMap<UUID, Task<?>> ENGINE_OVERLOAD_CONFIRMATION_TIMER = new HashMap<>();
+    private static final long CONFIRMATION_TIME = 20 * 5;   //in ticks
 
     @Exclude
     private boolean travelCooldown;
@@ -114,6 +122,12 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
                 tardis.travel().setCrashing(false);
         });
 
+        TardisEvents.USE_CONTROL.register((control, tardis, player, world, console, leftClick) -> {
+            if (!(control instanceof EngineOverloadControl)) {
+                disarmEngineOverload(tardis.getUuid());
+            }
+        });
+
         if (EnvType.CLIENT == FabricLoader.getInstance().getEnvironmentType()) initializeClient();
     }
 
@@ -129,6 +143,26 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
                 });
             });
         });
+    }
+
+    public static void armEngineOverload(UUID tardisID, ServerWorld serverWorld) {
+        ENGINE_OVERLOAD_ARMED.put(tardisID, true);
+        ENGINE_OVERLOAD_CONFIRMATION_TIMER.put(
+                tardisID,
+                Scheduler.get().runTaskLater(() -> ENGINE_OVERLOAD_ARMED.put(tardisID, false), TaskStage.endWorldTick(serverWorld), TimeUnit.TICKS, CONFIRMATION_TIME)
+        );
+    }
+
+    public static void disarmEngineOverload(UUID tardisID) {
+        ENGINE_OVERLOAD_ARMED.remove(tardisID);
+        Task<?> confirmationTimer = ENGINE_OVERLOAD_CONFIRMATION_TIMER.get(tardisID);
+
+        if (confirmationTimer != null)
+            confirmationTimer.cancel();
+    }
+
+    public static boolean isEngineOverloadArmed(UUID tardisID) {
+        return ENGINE_OVERLOAD_ARMED.getOrDefault(tardisID, false);
     }
 
     public TravelHandler() {

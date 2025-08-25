@@ -470,7 +470,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             this.dataTracker.set(ON_DELAY, true);
 
             Scheduler.get().runTaskLater(() -> this.dataTracker.set(ON_DELAY, false),
-                    TaskStage.END_SERVER_TICK, TimeUnit.TICKS, this.control.getDelayLength());
+                    TaskStage.END_SERVER_TICK, TimeUnit.TICKS, this.control.getDelayLength(tardis));
         }
 
         Control.Result result = this.control.handleRun(tardis, (ServerPlayerEntity) player, (ServerWorld) world, this.getConsoleBlockPos(), leftClick);
