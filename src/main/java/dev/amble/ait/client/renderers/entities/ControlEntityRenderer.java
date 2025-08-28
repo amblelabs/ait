@@ -180,7 +180,7 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
         if (!console.isLinked()) return false;
 
         Tardis tardis = console.tardis().get();
-        return (tardis != null && tardis.butler().getHandles() != null)
+        return (tardis != null && tardis.butler().getHandles() != null);
     }
 
     @Override
