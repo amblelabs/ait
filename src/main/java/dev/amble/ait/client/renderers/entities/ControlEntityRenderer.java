@@ -174,14 +174,13 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
     }
 
     private static boolean isHandlesInConsole(ConsoleControlEntity entity) {
-        if (entity.getConsole() == null) return false;
-
         ConsoleBlockEntity console = entity.getConsole();
+        if (console  == null) return false;
 
         if (!console.isLinked()) return false;
 
         Tardis tardis = console.tardis().get();
-        return tardis.butler().getHandles() != null;
+        return (tardis != null && tardis.butler().getHandles() != null)
     }
 
     @Override
