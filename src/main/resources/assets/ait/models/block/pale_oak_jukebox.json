@@ -1,0 +1,6 @@
+{
+	"parent": "ait:block/jukebox_model",
+	"textures": {
+		"0": "ait:block/decoration/jukebox/pale_oak"
+	}
+}
