@@ -4,7 +4,7 @@ import org.joml.Vector3f;
 
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.client.models.exteriors.exclusive.DoomExteriorModel;
 import dev.amble.ait.client.renderers.exteriors.DoomConstants;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
@@ -18,7 +18,7 @@ public class ClientDoomVariant extends ClientExteriorVariantSchema {
     }
 
     @Override
-    public ExteriorModel model() {
+    public SimpleExteriorModel model() {
         return new DoomExteriorModel(DoomExteriorModel.getTexturedModelData().createModel());
     }
 

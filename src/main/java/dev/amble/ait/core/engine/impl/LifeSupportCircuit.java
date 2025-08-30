@@ -17,6 +17,9 @@ import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 
 public class LifeSupportCircuit extends DurableSubSystem implements StructureHolder {
+
+    private static final int TICK_RATE = 20;
+    
     private static final MultiBlockStructure STRUCTURE = createStructure();
     private static MultiBlockStructure createStructure() {
         MultiBlockStructure made = new MultiBlockStructure();
@@ -55,13 +58,13 @@ public class LifeSupportCircuit extends DurableSubSystem implements StructureHol
         ServerTardis tardis = this.tardis().asServer();
 
         if (!this.isEnabled()) return;
-        if (ServerLifecycleHooks.get().getTicks() % 20 != 0)
+        if (ServerLifecycleHooks.get().getTicks() % TICK_RATE != 0)
             return;
 
         List<LivingEntity> entities = TardisUtil.getLivingEntitiesInInterior(tardis);
 
         for (LivingEntity entity : entities) {
-            entity.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 20, 1, true, false));
+            entity.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, TICK_RATE * 2, 1, true, false));
         }
     }
 }

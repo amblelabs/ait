@@ -2,6 +2,7 @@ package dev.amble.ait.api.tardis;
 
 import java.util.Optional;
 
+import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import net.fabricmc.fabric.api.event.Event;
@@ -153,6 +154,13 @@ public final class TardisEvents {
                 }
             });
 
+    public static final Event<MoveEngine> ENGINE_MOVE = EventFactory.createArrayBacked(MoveEngine.class,
+            callbacks -> (tardis, newPos, oldPos) -> {
+                for (MoveEngine callback : callbacks) {
+                    callback.onMove(tardis, newPos, oldPos);
+                }
+            });
+
     public static final Event<UseDoor> USE_DOOR = EventFactory.createArrayBacked(UseDoor.class,
             callbacks -> (tardis, interior, world, player, pos) -> {
                 for (UseDoor callback : callbacks) {
@@ -206,10 +214,17 @@ public final class TardisEvents {
                 }
             });
 
+    public static final Event<Siege> TOGGLE_SIEGE = EventFactory.createArrayBacked(Siege.class,
+            callbacks -> (tardis, active) -> {
+                for (Siege callback : callbacks) {
+                    callback.onSiege(tardis, active);
+                }
+            });
+
     public static final Event<SyncTardis> SYNC_TARDIS = EventFactory.createArrayBacked(SyncTardis.class,
-            callbacks -> (tardis, chunk) -> {
+            callbacks -> (player, chunk) -> {
                 for (SyncTardis callback : callbacks) {
-                    callback.sync(tardis, chunk);
+                    callback.sync(player, chunk);
                 }
             });
 
@@ -277,6 +292,12 @@ public final class TardisEvents {
             callbacks -> system -> {
                 for (OnEnginesPhase callback : callbacks) {
                     callback.onPhase(system);
+                }
+            });
+    public static final Event<UseControl> USE_CONTROL = EventFactory.createArrayBacked(UseControl.class,
+            callbacks -> (control, tardis, player, world, console, leftClick) -> {
+                for (UseControl callback : callbacks) {
+                    callback.onUse(control, tardis, player, world, console, leftClick);
                 }
             });
 
@@ -453,6 +474,11 @@ public final class TardisEvents {
     }
 
     @FunctionalInterface
+    public interface MoveEngine {
+        void onMove(ServerTardis tardis, @Nullable BlockPos newPos, @Nullable BlockPos oldPos);
+    }
+
+    @FunctionalInterface
     public interface EnterTardis {
         void onEnter(Tardis tardis, Entity entity);
     }
@@ -470,6 +496,11 @@ public final class TardisEvents {
     @FunctionalInterface
     public interface Shields {
         void onShields(Tardis tardis, boolean active, boolean visual);
+    }
+
+    @FunctionalInterface
+    public interface Siege {
+        void onSiege(Tardis tardis, boolean active);
     }
 
     @FunctionalInterface
@@ -521,6 +552,17 @@ public final class TardisEvents {
     @FunctionalInterface
     public interface OnEnginesPhase {
         void onPhase(EngineSystem system);
+    }
+
+    @FunctionalInterface
+    public interface UseControl {
+        /**
+         * Called when a console control is used.
+         *
+         * @param control
+         *            the control that was used
+         */
+        void onUse(Control control, Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick);
     }
 
 

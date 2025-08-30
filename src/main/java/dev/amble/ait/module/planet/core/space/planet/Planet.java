@@ -75,8 +75,8 @@ public record Planet(Identifier dimension, float gravity, boolean hasOxygen, boo
         return this.dimension();
     }
 
-    // Use Celcius since it's more accurate in terms of water temperature
-    public float celcius() {
+    // Use Celsius since it's more accurate in terms of water temperature
+    public float celsius() {
         return this.temperature() - 273.15f;
     }
 
@@ -85,13 +85,13 @@ public record Planet(Identifier dimension, float gravity, boolean hasOxygen, boo
         return this.temperature();
     }
 
-    // Celcius -> Fahrenheit conversion isn't always the most accurate but oh well cope harder I guess
+    // Celsius -> Fahrenheit conversion isn't always the most accurate but oh well cope harder I guess
     public float fahrenheit() {
-        return celcius() * 1.8f + 32f;
+        return celsius() * 1.8f + 32f;
     }
 
     public boolean isFreezing() {
-        return this.celcius() <= 0;
+        return this.celsius() <= 0;
     }
 
     public boolean zeroGravity() {

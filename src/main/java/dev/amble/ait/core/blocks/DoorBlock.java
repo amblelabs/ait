@@ -72,6 +72,11 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
         world.setBlockState(pos, state.with(LEVEL_4, level));
     }
 
+    @Override
+    public float getBlastResistance() {
+        return 10000f;
+    }
+
     public DoorBlock(Settings settings) {
         super(settings);
 

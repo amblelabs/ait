@@ -1,0 +1,17 @@
+{
+  "values": [
+    "ait:exterior_block",
+    "ait:console_block",
+    "ait:waypoint_bank", 
+    "ait:engine_block",
+    "ait:door_block",
+    "ait:detector_block",
+    "ait:landing_pad",
+    "ait:food_machine",
+    "ait:astral_map",
+    "ait:redstone_control_block",
+    "ait:environment_projector",
+    "ait:generic_subsystem",
+    "ait:power_converter"
+  ]
+}

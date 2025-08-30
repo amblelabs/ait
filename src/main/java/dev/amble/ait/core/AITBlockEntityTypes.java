@@ -64,6 +64,8 @@ public class AITBlockEntityTypes implements BlockEntityContainer {
             .create(FullCableBlockEntity::new, AITBlocks.FULL_CABLE_BLOCK).build();
     public static BlockEntityType<PowerConverterBlock.BlockEntity> POWER_CONVERTER_BLOCK_TYPE = FabricBlockEntityTypeBuilder
             .create(PowerConverterBlock.BlockEntity::new, AITBlocks.POWER_CONVERTER).build();
+    public static BlockEntityType<FoodMachineBlockEntity> FOOD_MACHINE_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
+            .create(FoodMachineBlockEntity::new, AITBlocks.FOOD_MACHINE).build();
     public static BlockEntityType<GenericStructureSystemBlockEntity> GENERIC_SUBSYSTEM_BLOCK_TYPE = FabricBlockEntityTypeBuilder
             .create(GenericStructureSystemBlockEntity::new, AITBlocks.GENERIC_SUBSYSTEM).build();
     public static BlockEntityType<AstralMapBlockEntity> ASTRAL_MAP = FabricBlockEntityTypeBuilder

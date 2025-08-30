@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.google.common.collect.Lists;
+import dev.amble.ait.data.schema.exterior.category.GrowthCategory;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedGlobalPos;
 
@@ -194,8 +195,8 @@ public class MonitorScreen extends ConsoleScreen {
         else
             setCategory(previousCategory());
 
-        if ((this.category instanceof ExclusiveCategory && ExclusiveCategory.isUnlocked(player.getUuid()))
-                || CategoryRegistry.CORAL_GROWTH.equals(this.category))
+        if ((this.category instanceof ExclusiveCategory && !ExclusiveCategory.isUnlocked(player.getUuid()))
+                || this.category instanceof GrowthCategory)
             changeCategory(direction);
     }
 

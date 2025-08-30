@@ -36,9 +36,11 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
 
     private static final BoolProperty IS_FALLING = new BoolProperty("falling", false);
     private static final BoolProperty FLYING = new BoolProperty("flying", false);
+    private static final BoolProperty SHOULD_FALL = new BoolProperty("should_fall", false);
 
     private final BoolValue falling = IS_FALLING.create(this);
     private final BoolValue flying = FLYING.create(this);
+    private final BoolValue shouldFall = SHOULD_FALL.create(this);
 
     static {
         TardisEvents.DEMAT.register(tardis -> {
@@ -55,6 +57,7 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
     public void onLoaded() {
         falling.of(this, IS_FALLING);
         flying.of(this, FLYING);
+        shouldFall.of(this, SHOULD_FALL);
     }
 
     public boolean isFlying() {
@@ -146,5 +149,9 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
 
     public BoolValue flying() {
         return flying;
+    }
+
+    public BoolValue shouldFall() {
+        return shouldFall;
     }
 }

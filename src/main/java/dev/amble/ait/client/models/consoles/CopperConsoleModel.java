@@ -23,7 +23,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.WorldUtil;
 
-public class CopperConsoleModel extends ConsoleModel {
+public class CopperConsoleModel extends SimpleConsoleModel {
     private final ModelPart copper;
     public CopperConsoleModel(ModelPart root) {
         this.copper = root.getChild("copper");

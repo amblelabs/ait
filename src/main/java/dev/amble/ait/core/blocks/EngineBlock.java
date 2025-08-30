@@ -14,12 +14,14 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blockentities.EngineBlockEntity;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.block.SubSystemBlock;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
+import dev.amble.ait.core.world.TardisServerWorld;
 
 public class EngineBlock extends SubSystemBlock implements BlockEntityProvider {
     public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
@@ -59,6 +61,11 @@ public class EngineBlock extends SubSystemBlock implements BlockEntityProvider {
     @Nullable @Override
     public FluidLinkBlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new EngineBlockEntity(pos, state);
+    }
+
+    @Override
+    public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
+        return world instanceof World world1 && TardisServerWorld.isTardisDimension(world1);
     }
 
     @Override

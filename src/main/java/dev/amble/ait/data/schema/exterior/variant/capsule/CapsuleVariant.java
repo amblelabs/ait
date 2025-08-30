@@ -24,7 +24,7 @@ public abstract class CapsuleVariant extends ExteriorVariantSchema {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(CapsuleDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(CapsuleDoorVariant.REFERENCE);
     }
 
     @Override
