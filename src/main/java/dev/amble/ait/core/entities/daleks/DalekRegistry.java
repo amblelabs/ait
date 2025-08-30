@@ -1,0 +1,43 @@
+package dev.amble.ait.core.entities.daleks;
+
+import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+
+import net.minecraft.resource.ResourceType;
+import net.minecraft.util.Identifier;
+
+import dev.amble.ait.AITMod;
+
+public class DalekRegistry extends SimpleDatapackRegistry<Dalek> {
+    private static final DalekRegistry instance = new DalekRegistry();
+    public static final Identifier TEXTURE = AITMod.id("textures/entity/daleks/commander/commander_dalek.png");
+    public static final Identifier EMISSION = AITMod.id( "textures/entity/daleks/commander/commander_dalek_emission.png");
+
+    public DalekRegistry() {
+        super(Dalek::fromInputStream, Dalek.CODEC, "entities/dalek/variants", "entities/dalek/variants", true, AITMod.MOD_ID);
+    }
+
+    public static Dalek COMMANDER;
+
+    @Override
+    protected void defaults() {
+        COMMANDER = register(new Dalek(AITMod.id("dalek/commander"), TEXTURE,
+                EMISSION));
+    }
+
+    @Override
+    public void onCommonInit() {
+        super.onCommonInit();
+        this.defaults();
+        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(this);
+    }
+
+    @Override
+    public Dalek fallback() {
+        return COMMANDER;
+    }
+
+    public static DalekRegistry getInstance() {
+        return instance;
+    }
+}

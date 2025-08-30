@@ -273,6 +273,19 @@ public class AITSounds {
     public static final SoundEvent SILVER_STOMP_LOOP = register("mobs/cybermen/nightmare/silver_stomp_loop");
     public static final SoundEvent SILVER_STOMP_START_FINISH = register("mobs/cybermen/nightmare/silver_stomp_start_finish");
 
+    // Daleks
+    public static final SoundEvent DALEK_MOVE = register("mobs/daleks/dalek_move");
+    public static final SoundEvent DALEK_PLUNGER = register("mobs/daleks/plunger");
+    public static final SoundEvent DALEK_AMBIANCE = register("mobs/daleks/dalek_ambiance");
+    public static final SoundEvent DALEK_DEATH = register("mobs/daleks/dalek_death");
+
+    // Imperial
+    public static final SoundEvent IMPERIAL_DO_NOT_MOVE = register("mobs/daleks/imperial/imperial_do_not_move");
+    public static final SoundEvent IMPERIAL_EXTERMINATE = register("mobs/daleks/imperial/imperial_exterminate");
+    public static final SoundEvent IMPERIAL_EXTERMINATE_ALT = register("mobs/daleks/imperial/imperial_exterminate_alt");
+    public static final SoundEvent IMPERIAL_FIRE = register("mobs/daleks/imperial/imperial_fire");
+    public static final SoundEvent IMPERIAL_STAY = register("mobs/daleks/imperial/imperial_stay");
+
 
 
     public static void init() {
