@@ -2,10 +2,14 @@ package dev.amble.ait.core.item.sonic;
 
 import java.util.function.Function;
 
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.advancement.TardisCriterions;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -17,6 +21,8 @@ import net.minecraft.world.World;
 
 import dev.amble.ait.data.enummap.Ordered;
 import dev.amble.ait.data.schema.sonic.SonicSchema;
+
+import static dev.amble.ait.core.item.SonicItem.mode;
 
 public abstract class SonicMode implements Ordered {
 
@@ -101,6 +107,7 @@ public abstract class SonicMode implements Ordered {
     public abstract int maxTime();
 
     public boolean startUsing(ItemStack stack, World world, PlayerEntity user, Hand hand) {
+        checkSonicWoodAdvancementConditions(stack, world, user);
         return true;
     }
 
@@ -138,6 +145,26 @@ public abstract class SonicMode implements Ordered {
     }
     public static HitResult getHitResult(LivingEntity user, double distance) {
         return ProjectileUtil.getCollision(user, entity -> !entity.isSpectator() && entity.canHit(), distance);
+    }
+    private static void checkSonicWoodAdvancementConditions(ItemStack stack, World world, PlayerEntity user) {
+        if (!(user instanceof ServerPlayerEntity player))
+            return;
+
+        SonicMode mode = mode(stack);
+        boolean isMainHand = user.getMainHandStack().getItem() == stack.getItem();
+        if (mode == SonicMode.Modes.INTERACTION
+                || mode == SonicMode.Modes.OVERLOAD
+                || (isMainHand && mode == SonicMode.Modes.SCANNING)
+        ) {
+            HitResult hitResultForOutline = SonicMode.getHitResultForOutline(user);
+
+            if (hitResultForOutline instanceof BlockHitResult blockHit) {
+                BlockState state = world.getBlockState(blockHit.getBlockPos());
+
+                if (state.isIn(AITTags.Blocks.WOODEN_BLOCKS))
+                    TardisCriterions.SONIC_WOOD.trigger(player);
+            }
+        }
     }
 
     @Override
