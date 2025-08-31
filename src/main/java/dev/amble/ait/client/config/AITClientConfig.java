@@ -83,6 +83,10 @@ public class AITClientConfig {
     @SerialEntry public boolean animateDoors = true;
 
     @AutoGen(category = CATEGORY)
+    @IntField(min = 0)
+    @SerialEntry public int handlesLevenshteinDistance = 2;
+
+    @AutoGen(category = CATEGORY)
     @EnumCycler
     @SerialEntry public TemperatureType temperatureType = TemperatureType.CELSIUS;
 
