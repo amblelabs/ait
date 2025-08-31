@@ -4,7 +4,6 @@ import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.MAX_PLAS
 
 import java.util.UUID;
 
-import dev.amble.ait.core.item.sonic.SonicMode;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
@@ -47,6 +46,7 @@ import dev.amble.ait.core.engine.impl.EngineSystem;
 import dev.amble.ait.core.item.KeyItem;
 import dev.amble.ait.core.item.SiegeTardisItem;
 import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.core.item.sonic.SonicMode;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;

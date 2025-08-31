@@ -130,8 +130,8 @@ public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceIm
                     SoundEvents.ITEM_ELYTRA_FLYING, SoundCategory.BLOCKS, 0.25F, 1.0F));
 
         Planet planet = PlanetRegistry.getInstance().get(this.getWorld());
-        boolean canFall = this.tardis().get().travel().antigravs().get() || planet != null && planet.zeroGravity();
-        if (canFall) {
+        boolean cannotFall = this.tardis().get().travel().antigravs().get() || planet != null && planet.zeroGravity();
+        if (cannotFall) {
             this.stopFalling(true);
             return;
         }
@@ -140,6 +140,14 @@ public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceIm
 
         if (blockPos == null)
             return;
+
+        // If it falls on top of an exterior whose collision shape is smaller than the exterior's blockspace itself,
+        // (which is the case for a siege cube exterior), then make it stop 2 blocks above, so the door won't be blocked when un-sieged.
+        if (this.getWorld().getBlockEntity(blockPos) instanceof ExteriorBlockEntity) {
+            this.setPosition(blockPos.toCenterPos().add(0, 2, 0));
+            this.stopFalling(false);
+            return;
+        }
 
         tardis.travel().forcePosition(cached -> cached.pos(blockPos).world(this.getWorld().getRegistryKey()));
 

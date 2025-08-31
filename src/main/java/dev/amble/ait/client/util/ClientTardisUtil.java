@@ -5,7 +5,6 @@ import static dev.amble.ait.core.tardis.util.TardisUtil.*;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

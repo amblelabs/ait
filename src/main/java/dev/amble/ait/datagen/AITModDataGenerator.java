@@ -829,6 +829,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.animateConsole", "Animate console?");
         provider.addTranslation("yacl3.config.ait:client.animateDoors", "Animate doors?");
         provider.addTranslation("yacl3.config.ait:client.temperatureType", "Temperature type");
+        provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.celsius", "Celsius (°C)");
+        provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.fahrenheit", "Fahrenheit (°F)");
+        provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.kelvin", "Kelvin (K)");
         provider.addTranslation("yacl3.config.ait:client.handlesLevenshteinDistance", "Levenshtein distance for handles");
 
         provider.addTranslation("text.autoconfig.aitconfig.category.client", "Client");
@@ -1119,6 +1122,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.telepathic.success", "Destination Found");
         provider.addTranslation("tardis.message.control.telepathic.failed", "Destination Not Found");
         provider.addTranslation("tardis.message.control.telepathic.choosing", "The TARDIS is choosing...");
+        provider.addTranslation("tardis.message.control.engine_overdrive.primed", "Dump Artron? Press again to confirm.");
+        provider.addTranslation("tardis.message.control.engine_overdrive.insufficient_fuel", "ERROR, TARDIS REQUIRES AT LEAST 25K ARTRON TO EXECUTE THIS ACTION.");
+        provider.addTranslation("tardis.message.control.engine_overdrive.dumping_artron", "DUMPING ARTRON");
+        provider.addTranslation("tardis.message.control.engine_overdrive.engines_overloaded", "ARTRON DUMPED, ENGINES OVERLOADED, TRIGGERING EMERGENCY ARTRON RELEASE");
         provider.addTranslation("tardis.message.interiorchange.success", "%s has grown to %d");
         provider.addTranslation("tardis.message.landingpad.adjust", "Adjusting to landing pad..");
         provider.addTranslation("tardis.message.self_destruct.warning", "SELF DESTRUCT INITIATED | ABORT SHIP");
@@ -1459,6 +1466,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("command.ait.data.set", "Set value %s to '%s'");
         provider.addTranslation("command.ait.data.fail",
                 "Can't get value of a property named %s, because component %s is not keyed!");
+        provider.addTranslation("command.ait.list.tardises", "TARDISes");
+        provider.addTranslation("command.ait.list.pattern.error", "Bad pattern '%s'!");
 
         // Rift Chunk Tracking
         provider.addTranslation("riftchunk.ait.tracking", "Rift Tracking");

@@ -58,8 +58,8 @@ public class AITItemTagProvider extends FabricTagProvider<Item> {
 
         getOrCreateTagBuilder(AITTags.Items.IS_TARDIS_FUEL).add(AITItems.ZEITON_DUST, AITItems.ZEITON_SHARD,
                 AITBlocks.TARDIS_CORAL_BLOCK.asItem(), AITBlocks.TARDIS_CORAL_SLAB.asItem(),
-                AITBlocks.TARDIS_CORAL_FAN.asItem(), AITBlocks.TARDIS_CORAL_WALL_FAN.asItem(),
-        AITBlocks.TARDIS_CORAL_STAIRS.asItem(), AITItems.CORAL_FRAGMENT);
+                AITBlocks.TARDIS_CORAL_FAN.asItem(), AITBlocks.TARDIS_CORAL_STAIRS.asItem(),
+                AITItems.CORAL_FRAGMENT);
         getOrCreateTagBuilder(AITTags.Items.IS_TARDIS_FUEL).forceAddTag(ItemTags.LOGS_THAT_BURN);
         getOrCreateTagBuilder(AITTags.Items.IS_TARDIS_FUEL).forceAddTag(ItemTags.COALS);
         getOrCreateTagBuilder(AITTags.Items.IS_TARDIS_FUEL).add(Items.LAVA_BUCKET);

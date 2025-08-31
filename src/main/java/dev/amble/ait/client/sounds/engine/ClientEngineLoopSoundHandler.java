@@ -1,11 +1,10 @@
 package dev.amble.ait.client.sounds.engine;
 
+import net.minecraft.client.MinecraftClient;
+
 import dev.amble.ait.client.sounds.SoundHandler;
-import dev.amble.ait.client.sounds.console.ClientConsoleAmbientSoundsHandler;
-import dev.amble.ait.client.sounds.console.ConsoleAmbienceSound;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
-import net.minecraft.client.MinecraftClient;
 
 public class ClientEngineLoopSoundHandler extends SoundHandler {
     public static EngineLoopSound ENGINE_LOOP;

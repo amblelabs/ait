@@ -1,6 +1,5 @@
 package dev.amble.ait.client.sounds;
 
-import dev.amble.ait.client.sounds.engine.ClientEngineLoopSoundHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -9,6 +8,7 @@ import net.minecraft.client.MinecraftClient;
 import dev.amble.ait.client.sounds.alarm.ClientAlarmHandler;
 import dev.amble.ait.client.sounds.console.ClientConsoleAmbientSoundsHandler;
 import dev.amble.ait.client.sounds.drifting.ClientDriftingSoundHandler;
+import dev.amble.ait.client.sounds.engine.ClientEngineLoopSoundHandler;
 import dev.amble.ait.client.sounds.fall.ClientFallSoundHandler;
 import dev.amble.ait.client.sounds.flight.ClientFlightHandler;
 import dev.amble.ait.client.sounds.hum.exterior.ExteriorHumHandler;

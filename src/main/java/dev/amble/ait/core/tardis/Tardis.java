@@ -111,7 +111,7 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
     public InteriorChangingHandler interiorChanging() {
         return this.handler(TardisComponent.Id.INTERIOR);
     }
-    
+
     public ServerHumHandler hum() {
         return this.handler(TardisComponent.Id.HUM);
     }
