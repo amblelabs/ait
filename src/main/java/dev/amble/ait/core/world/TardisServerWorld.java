@@ -15,8 +15,6 @@ import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -57,22 +55,16 @@ public class TardisServerWorld extends MultiDimServerWorld {
     }
 
     public boolean shouldTick() {
-        return this.tardis != null && (!MultiDim.get(this.getServer()).isWorldUnloaded(this) 
-                                       || this.tardis.interiorChanging().queued().get() 
-                                       || this.tardis.getDesktop().isChanging());
+        return this.tardis != null && (
+                !MultiDim.get(this.getServer()).isWorldUnloaded(this)
+                || this.tardis.interiorChanging().queued().get()
+                || this.tardis.getDesktop().isChanging()
+        );
     }
 
     @Override
     public String toString() {
         return "Tardis" + super.toString();
-    }
-
-    @Override
-    public boolean spawnEntity(Entity entity) {
-        if (entity instanceof ItemEntity && this.tardis.interiorChangingHandler().regenerating().get())
-            return false;
-
-        return super.spawnEntity(entity);
     }
 
     @Override

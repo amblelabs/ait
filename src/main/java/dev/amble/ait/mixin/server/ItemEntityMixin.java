@@ -6,38 +6,25 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 
-import dev.amble.ait.core.item.SiegeTardisItem;
-import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 
-// mmm mixin i love mixin
 @Mixin(ItemEntity.class)
 public abstract class ItemEntityMixin {
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void ait$tick(CallbackInfo ci) {
         ItemEntity entity = (ItemEntity) (Object) this;
-        ItemStack stack = entity.getStack();
+        World world = entity.getWorld();
 
-        if (entity.getWorld().isClient())
+        if (world.isClient())
             return;
 
-        if (stack.getItem() instanceof SiegeTardisItem item) {
-            Tardis found = item.getTardis(entity.getWorld(), stack);
-
-            if (found == null)
-                return;
-
-            // kill ourselves and place down the exterior
-            SiegeTardisItem.placeTardis(found, SiegeTardisItem.fromEntity(entity));
-            entity.kill();
-        }
-
         // if entity is in tardis and y is less than -100 save them
-        if (entity.getY() <= -100 && entity.getWorld() instanceof TardisServerWorld tardisWorld)
+        if (entity.getY() < -entity.getWorld().getBottomY() && world instanceof TardisServerWorld tardisWorld
+                && !tardisWorld.getTardis().interiorChanging().regenerating().get())
             TardisUtil.teleportInside(tardisWorld.getTardis(), entity);
     }
 }

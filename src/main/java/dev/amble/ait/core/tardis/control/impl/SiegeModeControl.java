@@ -49,7 +49,7 @@ public class SiegeModeControl extends Control {
     }
 
     @Override
-    public long getDelayLength() {
+    public long getDelayLength(Tardis tardis) {
         return 200;
     }
 

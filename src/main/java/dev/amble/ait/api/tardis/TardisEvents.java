@@ -2,6 +2,7 @@ package dev.amble.ait.api.tardis;
 
 import java.util.Optional;
 
+import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import net.fabricmc.fabric.api.event.Event;
@@ -293,6 +294,12 @@ public final class TardisEvents {
                     callback.onPhase(system);
                 }
             });
+    public static final Event<UseControl> USE_CONTROL = EventFactory.createArrayBacked(UseControl.class,
+            callbacks -> (control, tardis, player, world, console, leftClick) -> {
+                for (UseControl callback : callbacks) {
+                    callback.onUse(control, tardis, player, world, console, leftClick);
+                }
+            });
 
     /**
      * Called when a TARDIS successfully ( passed all checks ) starts to take off,
@@ -545,6 +552,17 @@ public final class TardisEvents {
     @FunctionalInterface
     public interface OnEnginesPhase {
         void onPhase(EngineSystem system);
+    }
+
+    @FunctionalInterface
+    public interface UseControl {
+        /**
+         * Called when a console control is used.
+         *
+         * @param control
+         *            the control that was used
+         */
+        void onUse(Control control, Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick);
     }
 
 
