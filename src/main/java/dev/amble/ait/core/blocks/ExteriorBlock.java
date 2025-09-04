@@ -490,7 +490,11 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
     }
 
     public static void tryTriggerFall(ServerWorld world, BlockPos pos, boolean now) {
-        world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, now ? 0 : 2);
+        if (now) {
+            AITBlocks.EXTERIOR_BLOCK.scheduledTick(world.getBlockState(pos), world, pos, world.random);
+        } else {
+            world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, now ? 0 : 2);
+        }
     }
 
     public static void tryTriggerFall(ServerWorld world, BlockPos pos) {

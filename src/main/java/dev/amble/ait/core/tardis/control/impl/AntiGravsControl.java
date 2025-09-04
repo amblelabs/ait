@@ -33,7 +33,7 @@ public class AntiGravsControl extends Control {
         BlockPos pos = globalPos.getPos();
 
         targetWorld.getChunkManager().markForUpdate(pos);
-        ExteriorBlock.tryTriggerFall(world, pos);
+        ExteriorBlock.tryTriggerFall(world, pos, true);
 
         return tardis.travel().antigravs().get() ? Result.SUCCESS : Result.SUCCESS_ALT;
     }
