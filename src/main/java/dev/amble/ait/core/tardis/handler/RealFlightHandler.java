@@ -99,8 +99,8 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
     public void onStartFalling(ServerWorld world, BlockState state, BlockPos pos) {
         this.falling.set(true);
 
-        if (world instanceof WorldWithTardis wwt)
-            wwt.ait$withLookup(pos, WorldWithTardis.ChunkData::forceLoad);
+        //if (world instanceof WorldWithTardis wwt)
+        //    wwt.ait$withLookup(pos, WorldWithTardis.ChunkData::forceLoad);
 
         TardisEvents.START_FALLING.invoker().onStartFall(tardis);
         FallingTardisEntity.spawnFromBlock(world, pos, state);

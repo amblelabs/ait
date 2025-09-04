@@ -27,7 +27,11 @@ public interface WorldWithTardis {
     }
 
     default void ait$withLookup(ChunkPos pos, Consumer<ChunkData> consumer) {
-        this.ait$withLookup(lookup -> consumer.accept(lookup.get(pos)));
+        this.ait$withLookup(lookup -> {
+            ChunkData data = lookup.get(pos);
+
+            if (data != null) consumer.accept(data);
+        });
     }
 
     default void ait$withLookup(BlockPos pos, Consumer<ChunkData> consumer) {

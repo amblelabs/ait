@@ -3,7 +3,11 @@ package dev.amble.ait.core.entities;
 import java.util.function.Predicate;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.WorldWithTardis;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
+import net.minecraft.util.math.ChunkPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -74,13 +78,17 @@ public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceIm
         this.setVelocity(Vec3d.ZERO);
     }
 
-    public static void spawnFromBlock(World world, BlockPos pos, BlockState state) {
+    public static void spawnFromBlock(ServerWorld world, BlockPos pos, BlockState state) {
         if (!(world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior)) {
             AITMod.LOGGER.warn("Couldn't spawn the falling TARDIS at {}", pos);
             return;
         }
 
-        Tardis tardis = exterior.tardis().get();
+        ServerTardis tardis = exterior.tardis().get().asServer();
+        ServerTardisManager.getInstance().mark(world, tardis, new ChunkPos(pos));
+
+        if (world instanceof WorldWithTardis wwt)
+            wwt.ait$withLookup(pos, WorldWithTardis.ChunkData::forceLoad);
 
         FallingTardisEntity fallingBlockEntity = new FallingTardisEntity(world, pos.toCenterPos(),
                 state.contains(Properties.WATERLOGGED) ? state.with(Properties.WATERLOGGED, false) : state, tardis);
