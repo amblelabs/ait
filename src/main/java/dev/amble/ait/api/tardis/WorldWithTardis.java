@@ -151,7 +151,9 @@ public interface WorldWithTardis {
         public String toString() {
             return "ChunkData[" +
                     "chunkPos=" + chunkPos + ", " +
-                    "tardisSet=" + tardisSet + ']';
+                    "tardisSet=" + tardisSet + ", " +
+                    "forceLoaded=" + forceLoaded
+                    + ']';
         }
     }
 }

@@ -2,6 +2,7 @@ package dev.amble.ait.core.entities;
 
 import java.util.function.Predicate;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -74,8 +75,10 @@ public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceIm
     }
 
     public static void spawnFromBlock(World world, BlockPos pos, BlockState state) {
-        if (!(world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior))
+        if (!(world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior)) {
+            AITMod.LOGGER.warn("Couldn't spawn the falling TARDIS at {}", pos);
             return;
+        }
 
         Tardis tardis = exterior.tardis().get();
 
