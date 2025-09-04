@@ -2,6 +2,7 @@ package dev.amble.ait.core.tardis.handler;
 
 import static dev.amble.ait.core.engine.SubSystem.Id.GRAVITATIONAL;
 
+import dev.amble.ait.api.tardis.WorldWithTardis;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -84,20 +85,24 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
     public void onLanding(ServerWorld world, BlockPos pos) {
         this.tardis.travel().forcePosition(cached -> cached.world(world.getRegistryKey()).pos(pos));
 
+        if (this.falling.get() && world instanceof WorldWithTardis wwt)
+            wwt.ait$withLookup(pos, WorldWithTardis.ChunkData::unforceLoad);
+
         this.falling.set(false);
-        this.tardis.door().setLocked(this.tardis.door().previouslyLocked().get());
-        this.tardis.door().setDeadlocked(false);
 
         world.playSound(null, pos, AITSounds.LAND_THUD, SoundCategory.BLOCKS);
-
         tardis.getDesktop().playSoundAtEveryConsole(AITSounds.LAND_THUD, SoundCategory.BLOCKS);
+
         TardisEvents.LANDED.invoker().onLanded(tardis);
     }
 
     public void onStartFalling(ServerWorld world, BlockState state, BlockPos pos) {
         this.falling.set(true);
-        TardisEvents.START_FALLING.invoker().onStartFall(tardis);
 
+        if (world instanceof WorldWithTardis wwt)
+            wwt.ait$withLookup(pos, WorldWithTardis.ChunkData::forceLoad);
+
+        TardisEvents.START_FALLING.invoker().onStartFall(tardis);
         FallingTardisEntity.spawnFromBlock(world, pos, state);
     }
 

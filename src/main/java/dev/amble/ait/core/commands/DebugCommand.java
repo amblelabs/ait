@@ -46,9 +46,8 @@ public class DebugCommand {
         if (region != null)
             source.sendMessage(Text.literal("LP in chunk: " + region));
 
-        ((WorldWithTardis) context.getSource().getWorld()).ait$withLookup(lookup -> {
-            source.sendMessage(Text.empty());
-            source.sendMessage(Text.literal("TARDIS in chunk: " + lookup.get(source.getPlayer().getChunkPos())));
+        ((WorldWithTardis) context.getSource().getWorld()).ait$withLookup(player.getChunkPos(), data -> {
+            source.sendMessage(Text.literal("TARDIS in chunk: " + data));
         });
 
         return Command.SINGLE_SUCCESS;

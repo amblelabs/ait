@@ -8,14 +8,14 @@ import net.minecraft.server.world.ServerWorld;
 import dev.amble.ait.api.tardis.WorldWithTardis;
 
 @Mixin(ServerWorld.class)
-public abstract class ServerWorldMixin implements WorldWithTardis {
+public class ServerWorldMixin implements WorldWithTardis {
 
     @Unique private Lookup tardisLookup;
 
     @Override
     public Lookup ait$lookup() {
         if (tardisLookup == null)
-            tardisLookup = new Lookup();
+            tardisLookup = new Lookup((ServerWorld) (Object) this);
 
         return tardisLookup;
     }

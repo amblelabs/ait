@@ -2,6 +2,7 @@ package dev.amble.ait.core.blocks;
 
 import java.util.function.ToIntFunction;
 
+import dev.amble.ait.AITMod;
 import dev.amble.lib.api.ICantBreak;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -264,10 +265,10 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
 
     public Direction approximateDirection(int rotation) {
         return switch (rotation) {
-            default -> Direction.NORTH;
             case 1, 2, 3 -> Direction.EAST;
             case 5, 6, 7 -> Direction.SOUTH;
             case 9, 10, 11 -> Direction.WEST;
+            default -> Direction.NORTH;
         };
     }
 
@@ -342,6 +343,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
 
     @Override
     public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+        AITMod.LOGGER.warn("scheduled tick");
         Tardis tardis = this.findTardis(world, pos);
 
         if (tardis == null)
@@ -366,7 +368,8 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
 
     @Override
     public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
-        world.scheduleBlockTick(pos, this, 2);
+        if (world instanceof ServerWorld serverWorld)
+            ExteriorBlock.tryTriggerFall(serverWorld, pos);
     }
 
     @Override
@@ -430,7 +433,9 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         if (state.get(WATERLOGGED))
             world.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
 
-        world.scheduleBlockTick(pos, this, 2);
+        if (world instanceof ServerWorld serverWorld)
+            ExteriorBlock.tryTriggerFall(serverWorld, pos);
+
         return super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
     }
 
@@ -450,7 +455,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
             return;
 
         tardis.flight().onLanding(world, pos);
-        world.scheduleBlockTick(pos, this, 2);
+        ExteriorBlock.tryTriggerFall(world, pos);
     }
 
     public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
@@ -484,4 +489,11 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         super.onBreak(world, pos, state, player);
     }
 
+    public static void tryTriggerFall(ServerWorld world, BlockPos pos, boolean now) {
+        world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, now ? 0 : 2);
+    }
+
+    public static void tryTriggerFall(ServerWorld world, BlockPos pos) {
+        tryTriggerFall(world, pos, false);
+    }
 }

@@ -314,12 +314,8 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         TravelHandlerBase travel = tardis.travel();
         TravelHandlerBase.State state = travel.getState();
 
-        if (!world.isClient()) {
-            if (tardis.travel().isLanded())
-                world.scheduleBlockTick(this.getPos(), AITBlocks.EXTERIOR_BLOCK, 2);
-
+        if (!world.isClient())
             return;
-        }
 
         if (AITModClient.CONFIG.renderDematParticles && !tardis.travel().isLanded() && tardis.travel().isHitboxShown()) {
             for (int ji = 0; ji < 4; ji++) {

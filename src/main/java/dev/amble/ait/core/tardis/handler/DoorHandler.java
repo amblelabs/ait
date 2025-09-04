@@ -89,7 +89,10 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
             return TardisEvents.Interaction.PASS;
         });
 
-        TardisEvents.LANDED.register(tardis -> tardis.door().setDeadlocked(false));
+        TardisEvents.LANDED.register(tardis ->{
+            tardis.door().setLocked(tardis.door().previouslyLocked().get());
+            tardis.door().setDeadlocked(false);
+        });
     }
 
     public DoorHandler() {

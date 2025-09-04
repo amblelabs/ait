@@ -268,7 +268,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
             this.runAnimations(exterior);
 
         if (schedule && !this.antigravs.get())
-            world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, 2);
+            ExteriorBlock.tryTriggerFall(world, pos);
 
         return exterior;
     }
