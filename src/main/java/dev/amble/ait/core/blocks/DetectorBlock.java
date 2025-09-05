@@ -27,6 +27,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
 import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.blockentities.DetectorBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
@@ -164,10 +165,17 @@ public class DetectorBlock extends WallMountedBlock implements BlockEntityProvid
                         return 0;
 
                     return state == TardisCrashHandler.State.UNSTABLE ? 7 : 15;
-                }), DOOR_LOCKED(tardis -> tardis.door().locked() ? 15 : 0), DOOR_OPEN(
-                        tardis -> tardis.door().isOpen() ? 15 : 0), SONIC(
-                                tardis -> tardis.sonic().getConsoleSonic() != null ? 15 : 0), ALARMS(
-                                        tardis -> tardis.alarm().isEnabled() ? 15 : 0);
+        }),
+        DOOR_LOCKED(tardis -> tardis.door().locked() ? 15 : 0),
+        DOOR_OPEN(tardis -> tardis.door().isOpen() ? 15 : 0),
+        SONIC(tardis -> tardis.getDesktop().getConsolePos().stream().anyMatch(pos -> {
+            BlockEntity entity = tardis.asServer().world().getBlockEntity(pos);
+            if (entity instanceof ConsoleBlockEntity consoleBlock) {
+                return consoleBlock.isLinked() && consoleBlock.getSonicScrewdriver() != null && !consoleBlock.getSonicScrewdriver().isEmpty();
+            }
+            return false;
+        }) ? 15 : 0),
+        ALARMS(tardis -> tardis.alarm().isEnabled() ? 15 : 0);
 
         private final String name;
         private final Function<Tardis, Integer> func;

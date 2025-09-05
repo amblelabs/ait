@@ -11,7 +11,7 @@ import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
-public class SteamConsoleModel extends ConsoleModel {
+public class SteamConsoleModel extends SimpleConsoleModel {
     private final ModelPart steam;
 
     public SteamConsoleModel(ModelPart root) {

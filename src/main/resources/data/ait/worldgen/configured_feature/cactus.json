@@ -12,7 +12,7 @@
         "height": {
           "type": "minecraft:biased_to_bottom",
           "value": {
-            "min_inclusive": 1,
+            "min_inclusive": 2,
             "max_inclusive": 3
           }
         },

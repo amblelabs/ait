@@ -1,0 +1,33 @@
+{
+  "output": {
+    "id": "ait:food_machine",
+    "Count": 1
+  },
+  "inputs": [
+    {
+      "item": "redstone",
+      "maxCount": 2,
+      "minCount": 2
+    },
+    {
+      "item": "stone_button",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "chest",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "ait:plasmic_material",
+      "maxCount": 2,
+      "minCount": 2
+    },
+    {
+      "item": "light_gray_concrete",
+      "maxCount": 3,
+      "minCount": 3
+    }
+  ]
+}

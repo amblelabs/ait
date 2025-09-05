@@ -21,6 +21,9 @@ public class DummyAmbientEntity extends AmbientEntity {
     }
 
     @Override
+    public void tickMovement() { }
+
+    @Override
     public Iterable<ItemStack> getArmorItems() {
         return DummyLivingEntity.ARMOR;
     }

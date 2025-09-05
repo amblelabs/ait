@@ -57,9 +57,9 @@ public class SpaceSuitOverlay implements HudRenderCallback {
 
     public String getTemperatureType(AITClientConfig config, Planet planet) {
         return switch(config.temperatureType) {
-            case CELSIUS -> ("" + planet.fahrenheit()).substring(0, 5) + "°C";
-            case FAHRENHEIT -> ("" + planet.fahrenheit()).substring(0, 5) + "°F";
-            case KELVIN -> planet.kelvin() + "K";
+            case CELSIUS -> ("" + planet.celsius()).substring(0, 5) + " °C";
+            case FAHRENHEIT -> ("" + planet.fahrenheit()).substring(0, 5) + " °F";
+            case KELVIN -> planet.kelvin() + " K";
         };
     }
 }

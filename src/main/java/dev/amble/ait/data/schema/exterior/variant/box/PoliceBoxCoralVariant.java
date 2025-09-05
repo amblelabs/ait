@@ -13,7 +13,7 @@ public class PoliceBoxCoralVariant extends PoliceBoxVariant {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(PoliceBoxCoralDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(PoliceBoxCoralDoorVariant.REFERENCE);
     }
 
     @Override

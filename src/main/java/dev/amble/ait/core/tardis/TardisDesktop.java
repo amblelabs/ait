@@ -34,6 +34,7 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
+import dev.amble.ait.core.blockentities.EngineBlockEntity;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -47,6 +48,7 @@ public class TardisDesktop extends TardisComponent {
     public static final Identifier CACHE_CONSOLE = AITMod.id("cache_console");
     private TardisDesktopSchema schema;
     private DirectedBlockPos doorPos;
+    private BlockPos enginePos;
     private final Corners corners;
     private final Set<BlockPos> consolePos;
     public static final int RADIUS = 500;
@@ -61,10 +63,12 @@ public class TardisDesktop extends TardisComponent {
                     BlockPos console = buf.readBlockPos();
 
                     server.execute(() -> {
+                        if (!(player.getWorld().getBlockEntity(console) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
+
                         if (tardis == null)
                             return;
 
-                        if (tardis.sonic() != null && tardis.sonic().getConsoleSonic() != null) {
+                        if (consoleBlockEntity.isLinked() && consoleBlockEntity.getSonicScrewdriver() != null && !consoleBlockEntity.getSonicScrewdriver().isEmpty()) {
                             player.getWorld().playSound(null, player.getBlockPos(), AITSounds.BWEEP,
                                     SoundCategory.PLAYERS, 1f, 1f);
                             player.sendMessage(Text.translatable("tardis.message.console.has_sonic_in_port"), true);
@@ -75,6 +79,8 @@ public class TardisDesktop extends TardisComponent {
                     });
                 }));
     }
+
+    private boolean changingDesktop = false;
 
     public TardisDesktop(TardisDesktopSchema schema) {
         super(Id.DESKTOP);
@@ -110,6 +116,19 @@ public class TardisDesktop extends TardisComponent {
         TardisEvents.DOOR_MOVE.invoker().onMove(tardis.asServer(), pos, this.doorPos);
     }
 
+    public void setEnginePos(EngineBlockEntity engine) {
+        if (engine == null || engine.getWorld() == null || engine.getWorld().isClient())
+            return;
+
+        BlockPos pos = engine.getPos();
+
+        if (pos.equals(this.enginePos))
+            return;
+
+        this.enginePos = pos;
+        TardisEvents.ENGINE_MOVE.invoker().onMove(tardis.asServer(), pos, this.enginePos);
+    }
+
     public void removeDoor(DoorBlockEntity door) {
         if (this.doorPos == null)
             return;
@@ -133,6 +152,10 @@ public class TardisDesktop extends TardisComponent {
         }
 
         return doorPos;
+    }
+
+    public BlockPos getEnginePos() {
+        return enginePos;
     }
 
     // TODO this is strictly for clearing the interior now
@@ -201,9 +224,12 @@ public class TardisDesktop extends TardisComponent {
         this.tardis.door().setLocked(false);
         this.tardis.door().setDeadlocked(false);
         this.tardis.alarm().disable();
+
+        this.changingDesktop = false;
     }
 
     public ActionQueue changeInterior(TardisDesktopSchema schema, boolean clear, boolean sendEvent) {
+        this.changingDesktop = true;
         ActionQueue queue = new ActionQueue()
                 .thenRun(() -> this.startQueue(sendEvent));
 
@@ -252,7 +278,7 @@ public class TardisDesktop extends TardisComponent {
 
         RegistryKey<World> worldKey = this.tardis.asServer().world().getRegistryKey();
         this.getConsolePos().forEach(consolePos -> {
-            NetworkUtil.playSound(worldKey, consolePos, soundId, category);
+            NetworkUtil.playSound(worldKey, consolePos, soundId, category, 1);
         });
     }
 
@@ -266,5 +292,9 @@ public class TardisDesktop extends TardisComponent {
 
     public Set<BlockPos> getConsolePos() {
         return consolePos;
+    }
+
+    public boolean isChanging() {
+        return changingDesktop;
     }
 }

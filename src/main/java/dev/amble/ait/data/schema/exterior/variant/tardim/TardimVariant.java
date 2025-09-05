@@ -21,7 +21,7 @@ public abstract class TardimVariant extends ExteriorVariantSchema {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(TardimDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(TardimDoorVariant.REFERENCE);
     }
 
     @Override

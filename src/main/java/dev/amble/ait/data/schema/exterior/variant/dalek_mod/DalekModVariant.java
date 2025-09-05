@@ -48,7 +48,7 @@ public abstract class DalekModVariant extends ExteriorVariantSchema {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(DalekModDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(DalekModDoorVariant.REFERENCE);
     }
 
     @Override

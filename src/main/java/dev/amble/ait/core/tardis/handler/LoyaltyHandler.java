@@ -120,11 +120,10 @@ public class LoyaltyHandler extends TardisComponent implements TardisTickable {
             player.getServerWorld().playSound(null, player.getBlockPos(), AITSounds.LOYALTY_UP,
                     SoundCategory.PLAYERS, 0.2F, 1.0F);
 
-        if (loyalty.isOf(Loyalty.Type.PILOT)) {
-            TardisCriterions.REACH_PILOT.trigger(player);
-        } else if (loyalty.isOf(Loyalty.Type.OWNER)) {
+        if (loyalty.isOf(Loyalty.Type.OWNER))
             TardisCriterions.REACH_OWNER.trigger(player);
-        }
+        else if (loyalty.isOf(Loyalty.Type.PILOT))
+            TardisCriterions.REACH_PILOT.trigger(player);
     }
 
     private void playUnlockEffects(ServerPlayerEntity player, Nameable nameable) {

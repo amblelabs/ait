@@ -20,7 +20,7 @@ public abstract class RenegadeVariant extends ExteriorVariantSchema {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(RenegadeDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(RenegadeDoorVariant.REFERENCE);
     }
 
     @Override

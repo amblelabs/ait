@@ -47,7 +47,7 @@ public record ControlSound(Identifier controlId, Identifier consoleId, Identifie
     }
 
     public ConsoleTypeSchema console() {
-        return ConsoleRegistry.REGISTRY.get(this.consoleId());
+        return ConsoleRegistry.getInstance().get(this.consoleId());
     }
     public Control control() {
         return ControlRegistry.REGISTRY.get(this.controlId());
