@@ -69,6 +69,34 @@ public interface HandlesResponse extends Identifiable {
         return getCommandWords().contains(command.toLowerCase());
     }
 
+    // i have no idea how this shit fucking works
+    default int distance(String command, String input) {
+        int[][] dp = new int[command.length() + 1][input.length() + 1];
+
+        for (int i = 0; i <= command.length(); i++) {
+            dp[i][0] = i;
+        }
+        for (int j = 0; j <= input.length(); j++) {
+            dp[0][j] = j;
+        }
+
+        for (int i = 1; i <= command.length(); i++) {
+            for (int j = 1; j <= input.length(); j++) {
+                int cost = (command.charAt(i - 1) == input.charAt(j - 1)) ? 0 : 1;
+
+                dp[i][j] = Math.min(
+                        Math.min(
+                                dp[i - 1][j] + 1,
+                                dp[i][j - 1] + 1
+                        ),
+                        dp[i - 1][j - 1] + cost
+                );
+            }
+        }
+
+        return dp[command.length()][input.length()];
+    }
+
     /**
      * @return Whether a non-secure person can run the command when P19 is on.
      */
