@@ -1,0 +1,5 @@
+{
+  "id": "ait:dalek/imperial",
+  "texture": "ait:textures/entity/daleks/imperial/imperial_dalek.png",
+  "emission": "ait:textures/entity/daleks/imperial/imperial_dalek_emission.png"
+}
