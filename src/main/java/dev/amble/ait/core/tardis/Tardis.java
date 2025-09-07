@@ -103,9 +103,15 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
         return this.handler(TardisComponent.Id.STATS);
     }
 
+    @Deprecated(forRemoval = true)
     public InteriorChangingHandler interiorChangingHandler() {
+        return interiorChanging();
+    }
+
+    public InteriorChangingHandler interiorChanging() {
         return this.handler(TardisComponent.Id.INTERIOR);
     }
+
     public ServerHumHandler hum() {
         return this.handler(TardisComponent.Id.HUM);
     }

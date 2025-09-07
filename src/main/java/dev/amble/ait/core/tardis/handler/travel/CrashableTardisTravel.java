@@ -67,8 +67,6 @@ public sealed interface CrashableTardisTravel permits TravelHandler {
         ServerWorld world = tardis.asServer().world();
 
         tardis.getDesktop().getConsolePos().forEach(console -> {
-            TardisDesktop.playSoundAtConsole(world, console, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 3f, 1f);
-
             startCrashEffects(tardis, console);
         });
 
@@ -111,11 +109,6 @@ public sealed interface CrashableTardisTravel permits TravelHandler {
 
     default void startCrashEffects(Tardis tardis, BlockPos console) {
         ServerWorld world = tardis.asServer().world();
-
-        if (!world.getGameRules().getBoolean(AITMod.TARDIS_FIRE_GRIEFING))
-            return;
-
-        world.playSound(null, console, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 3.0f, 1.0f);
-        world.playSound(null, console, SoundEvents.ENTITY_WITHER_HURT, SoundCategory.BLOCKS, 3.0f, 1.0f);
+        TardisDesktop.playSoundAtConsole(world, console, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS, 3f, 1f);
     }
 }

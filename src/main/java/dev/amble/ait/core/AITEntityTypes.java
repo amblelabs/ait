@@ -31,9 +31,19 @@ public class AITEntityTypes implements EntityContainer {
             .create(SpawnGroup.MISC, FlightTardisEntity::new).dimensions(EntityDimensions.changing(0.98f, 0.98f))
             .disableSummon()
             .build();
+
+    @AssignedName("seat")
+    public static final EntityType<SeatEntity> SEAT = FabricEntityTypeBuilder
+            .create(SpawnGroup.MISC, SeatEntity::new).dimensions(EntityDimensions.changing(1f, 0.5f))
+            .disableSaving()
+            .disableSummon()
+            .build();
+
+
     public static final EntityType<GallifreyFallsPaintingEntity> GALLIFREY_FALLS_PAINTING_ENTITY_TYPE = FabricEntityTypeBuilder
             .create(SpawnGroup.MISC, GallifreyFallsPaintingEntity::new)
             .dimensions(EntityDimensions.fixed(0.5f, 0.5f)).build();
+
     public static final EntityType<TrenzalorePaintingEntity> TRENZALORE_PAINTING_ENTITY_TYPE = FabricEntityTypeBuilder
             .create(SpawnGroup.MISC, TrenzalorePaintingEntity::new)
             .dimensions(EntityDimensions.fixed(0.5f, 0.5f)).build();
@@ -41,9 +51,17 @@ public class AITEntityTypes implements EntityContainer {
 //    public static final EntityType<CobbledSnowballEntity> COBBLED_SNOWBALL_TYPE = FabricEntityTypeBuilder
 //            .<CobbledSnowballEntity>create(SpawnGroup.MISC, CobbledSnowballEntity::new)
 //            .dimensions(EntityDimensions.fixed(0.25f, 0.25f)).trackRangeBlocks(4).trackedUpdateRate(10).build();
+public static final EntityType<DalekShipEntity> DALEK_SHIP_ENTITY_TYPE = FabricEntityTypeBuilder
+        .create(SpawnGroup.MISC, DalekShipEntity::new)
+        .dimensions(EntityDimensions.fixed(15f, 4f)).build();
 
     public static final EntityType<RiftEntity> RIFT_ENTITY = FabricEntityTypeBuilder.Mob.createMob()
             .spawnGroup(SpawnGroup.AMBIENT).entityFactory(RiftEntity::new)
             .dimensions(EntityDimensions.fixed(1f, 1f)).spawnRestriction(SpawnRestriction.Location.NO_RESTRICTIONS,
                     Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, RiftEntity::canSpawn).spawnableFarFromPlayer().build();
+
+    // Daleks
+    public static EntityType<DalekEntity> DALEK_ENTITY = FabricEntityTypeBuilder.Mob.createMob()
+            .spawnGroup(SpawnGroup.MONSTER).entityFactory(DalekEntity::new).spawnableFarFromPlayer()
+            .dimensions(EntityDimensions.fixed(0.8f, 2.1f)).build();
 }

@@ -5,13 +5,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import dev.amble.ait.api.tardis.KeyedTardisComponent;
-import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.gaslighter.Gaslighter3000;
 import dev.drtheo.gaslighter.api.FakeBlockEvents;
-
 import dev.drtheo.gaslighter.impl.FakeStructureWorldAccess;
+import org.jetbrains.annotations.NotNull;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
@@ -29,18 +28,19 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.feature.*;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.schema.exterior.variant.adaptive.AdaptiveVariant;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.feature.*;
-import org.jetbrains.annotations.NotNull;
 
 public class ChameleonHandler extends KeyedTardisComponent {
 
@@ -365,13 +365,11 @@ public class ChameleonHandler extends KeyedTardisComponent {
         return false;
     }
 
-    @NotNull
-    private static Registry<ConfiguredFeature<?, ?>> getRegistry(World world) {
+    @NotNull private static Registry<ConfiguredFeature<?, ?>> getRegistry(World world) {
         return world.getRegistryManager().get(RegistryKeys.CONFIGURED_FEATURE);
     }
 
-    @NotNull
-    private static RegistryKey<ConfiguredFeature<?, ?>> asFeature(Identifier id) {
+    @NotNull private static RegistryKey<ConfiguredFeature<?, ?>> asFeature(Identifier id) {
         return RegistryKey.of(RegistryKeys.CONFIGURED_FEATURE, id);
     }
 }

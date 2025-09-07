@@ -21,6 +21,7 @@ import dev.amble.ait.client.models.consoles.ConsoleGeneratorModel;
 import dev.amble.ait.client.models.consoles.ConsoleModel;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 
 public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> implements BlockEntityRenderer<T> {
@@ -83,10 +84,12 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
                         vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleTexture) :
                                 RenderLayer.getEntityTranslucentCull(consoleTexture)), 0xf000f0, overlay, 0.3607843137f,
                         0.9450980392f, 1, entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
-                console.render(matrices,
-                        vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleTexture) :
-                                RenderLayer.getEntityTranslucentCull(consoleEmission)), 0xf000f0, overlay, 0.3607843137f,
-                        0.9450980392f, 1, entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
+                if (consoleEmission != null && !consoleEmission.equals(DatapackConsole.EMPTY)) {
+                    console.render(matrices,
+                            vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleTexture) :
+                                    RenderLayer.getEntityTranslucentCull(consoleEmission)), 0xf000f0, overlay, 0.3607843137f,
+                            0.9450980392f, 1, entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
+                }
             } else {
                 console.render(matrices,
                         vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleTexture) :

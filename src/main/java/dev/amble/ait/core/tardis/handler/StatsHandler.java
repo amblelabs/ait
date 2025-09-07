@@ -24,7 +24,6 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.core.sounds.flight.FlightSound;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
-import dev.amble.ait.core.sounds.travel.map.TravelSoundMap;
 import dev.amble.ait.core.tardis.handler.travel.AnimatedTravelHandler;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
@@ -65,7 +64,6 @@ public class StatsHandler extends KeyedTardisComponent {
     private static final DoubleProperty TARDIS_Y_SCALE = new DoubleProperty("tardis_y_scale", 1);
     private static final DoubleProperty TARDIS_Z_SCALE = new DoubleProperty("tardis_z_scale", 1);
 
-
     private final Value<String> tardisName = NAME.create(this);
     private final Value<String> playerCreatorName = PLAYER_CREATOR_NAME.create(this);
     private final Value<Long> dateCreated = DATE.create(this);
@@ -82,8 +80,6 @@ public class StatsHandler extends KeyedTardisComponent {
     private final DoubleValue tardisYScale = TARDIS_Y_SCALE.create(this);
     private final DoubleValue tardisZScale = TARDIS_Z_SCALE.create(this);
 
-    @Exclude
-    private Lazy<TravelSoundMap> travelFxCache;
     @Exclude
     private Lazy<FlightSound> flightFxCache;
     @Exclude

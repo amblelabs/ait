@@ -45,7 +45,7 @@ public class SonicSettingsScreen extends ConsoleScreen {
     private final int APPLY_BAR_BUTTON_HEIGHT = 12;
     private final int SMALL_ARROW_BUTTON_WIDTH = 20;
     private final int SMALL_ARROW_BUTTON_HEIGHT = 12;
-    private BlockPos console;
+    private final BlockPos console;
 
     public SonicSettingsScreen(ClientTardis tardis, BlockPos console, Screen parent) {
         super(Text.translatable("screen." + AITMod.MOD_ID + ".sonicsettings.title"), tardis, console);
@@ -110,7 +110,6 @@ public class SonicSettingsScreen extends ConsoleScreen {
             return;
 
         SonicItem.setSchema(consoleBlockEntity.getSonicScrewdriver()/*tardis().sonic().getConsoleSonic()*/, schema);
-        System.out.println(this.console);
         ClientTardisUtil.changeSonicWithScreen(this.tardis().getUuid(), schema, this.console);
     }
 

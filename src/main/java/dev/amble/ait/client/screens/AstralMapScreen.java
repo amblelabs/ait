@@ -51,7 +51,7 @@ public class AstralMapScreen extends Screen {
 
         super.init();
 
-        this.addDrawableChild(new PressableTextWidget((width / 2 - 30), (height / 2 + 12),
+         this.addDrawableChild(new PressableTextWidget((width / 2 - 30), (height / 2 + 12),
                 this.textRenderer.getWidth("<"), 10, Text.literal("<"), button -> this.switcher.previous(), this.textRenderer));
         this.addDrawableChild(new PressableTextWidget((width / 2 + 25), (height / 2 + 12),
                 this.textRenderer.getWidth(">"), 10, Text.literal(">"), button -> this.switcher.next(), this.textRenderer));

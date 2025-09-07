@@ -31,6 +31,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blocks.*;
 import dev.amble.ait.core.blocks.DoorBlock;
 import dev.amble.ait.core.blocks.control.RedstoneControlBlock;
+import dev.amble.ait.core.blocks.decoration.*;
 import dev.amble.ait.core.engine.block.generic.GenericSubSystemBlock;
 
 
@@ -176,6 +177,12 @@ public class AITBlocks extends BlockContainer {
             .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).nonOpaque()
             .requiresTool().instrument(Instrument.COW_BELL).strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
 
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
+    @NoEnglish
+    public static final Block FOOD_MACHINE = new FoodMachineBlock(ABlockSettings.create()
+            .itemSettings(new AItemSettings().group(AITItemGroups.MAIN)).nonOpaque()
+            .requiresTool().instrument(Instrument.COW_BELL).strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
+
     @NoBlockItem
     public static final Block RADIO = new RadioBlock(FabricBlockSettings.create().nonOpaque());
 
@@ -199,7 +206,187 @@ public class AITBlocks extends BlockContainer {
     public static final Block REDSTONE_CONTROL_BLOCK = new RedstoneControlBlock(
             FabricBlockSettings.create().nonOpaque().strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
 
+    @PickaxeMineable
     public static final Block ENVIRONMENT_PROJECTOR = new EnvironmentProjectorBlock(FabricBlockSettings.create());
+
+    //Decorations
+    @PickaxeMineable
+    public static final Block WHITE_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "white"
+    );
+
+    @PickaxeMineable
+    public static final Block LIGHT_GRAY_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "light_gray"
+    );
+
+    @PickaxeMineable
+    public static final Block GRAY_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "gray"
+    );
+
+    @PickaxeMineable
+    public static final Block BLACK_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "black"
+    );
+
+    @PickaxeMineable
+    public static final Block BROWN_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "brown"
+    );
+
+    @PickaxeMineable
+    public static final Block RED_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "red"
+    );
+
+    @PickaxeMineable
+    public static final Block ORANGE_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "orange"
+    );
+
+    @PickaxeMineable
+    public static final Block YELLOW_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "yellow"
+    );
+
+    @PickaxeMineable
+    public static final Block LIME_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "lime"
+    );
+
+    @PickaxeMineable
+    public static final Block GREEN_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "green"
+    );
+
+    @PickaxeMineable
+    public static final Block CYAN_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "cyan"
+    );
+
+    @PickaxeMineable
+    public static final Block LIGHT_BLUE_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "light_blue"
+    );
+
+    @PickaxeMineable
+    public static final Block BLUE_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "blue"
+    );
+
+    @PickaxeMineable
+    public static final Block PURPLE_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "purple"
+    );
+
+    @PickaxeMineable
+    public static final Block MAGENTA_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "magenta"
+    );
+
+    @PickaxeMineable
+    public static final Block PINK_WOODEN_SEAT = new WoodenSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)),
+            "pink"
+    );
+
+    @PickaxeMineable
+    public static final Block CORAL_SEAT = new CoralSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION))
+    );
+
+    @PickaxeMineable
+    public static final Block COPPER_SEAT = new CopperSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION))
+    );
+
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
+    public static final Block TOYOTA_SEAT = new ToyotaSeatBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION))
+    );
+
+    @PickaxeMineable
+    public static final Block JUKEBOX = new AITJukeboxBlock(ABlockSettings.create().nonOpaque().mapColor(MapColor.DIRT_BROWN).instrument(Instrument.BASS).strength(2.0F, 6.0F).burnable().itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)));
+
+    @PickaxeMineable
+    public static final Block ACACIA_JUKEBOX = new AITJukeboxBlock(ABlockSettings.create().nonOpaque().mapColor(MapColor.DIRT_BROWN).instrument(Instrument.BASS).strength(2.0F, 6.0F).burnable().itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)));
+
+    @PickaxeMineable
+    public static final Block PALE_OAK_JUKEBOX = new AITJukeboxBlock(ABlockSettings.create().nonOpaque().mapColor(MapColor.WHITE).instrument(Instrument.BASS).strength(2.0F, 6.0F).burnable().itemSettings(new AItemSettings()));
+
+    @PickaxeMineable
+    public static final Block BAMBOO_JUKEBOX = new AITJukeboxBlock(ABlockSettings.create().nonOpaque().mapColor(MapColor.PALE_YELLOW).instrument(Instrument.BASS).strength(2.0F, 6.0F).burnable().itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)));
+
+    @PickaxeMineable
+    public static final Block CHERRY_JUKEBOX = new AITJukeboxBlock(ABlockSettings.create().nonOpaque().mapColor(MapColor.DIRT_BROWN).instrument(Instrument.BASS).strength(2.0F, 6.0F).burnable().itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)));
+
+    @PickaxeMineable
+    public static final Block WARPED_JUKEBOX = new AITJukeboxBlock(ABlockSettings.create().nonOpaque().mapColor(MapColor.DIRT_BROWN).instrument(Instrument.BASS).strength(2.0F, 6.0F).burnable().itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)));
+
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
+    public static final Block STEVE_BRASS_STATUE = new BrassStatueBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)), "steve"
+    );
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
+    public static final Block ALEX_BRASS_STATUE = new BrassStatueBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)), "alex"
+    );
+
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
+    public static final Block MAKENA_BRASS_STATUE = new BrassStatueBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)), "makena"
+    );
+
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
+    public static final Block NOOR_BRASS_STATUE = new BrassStatueBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)), "noor"
+    );
+
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
+    public static final Block SUNNY_BRASS_STATUE = new BrassStatueBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)), "sunny"
+    );
+
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
+    public static final Block EFE_BRASS_STATUE = new BrassStatueBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)), "efe"
+    );
+
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
+    public static final Block ARI_BRASS_STATUE = new BrassStatueBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)), "ari"
+    );
+
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
+    public static final Block ZURI_BRASS_STATUE = new BrassStatueBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)), "zuri"
+    );
+
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
+    public static final Block KAI_BRASS_STATUE = new BrassStatueBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION)), "kai"
+    );
+
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
+    public static final Block COPPER_RINGS = new CopperRingsBlock(
+            ABlockSettings.create().nonOpaque().strength(1.5F, 6.0F).itemSettings(new AItemSettings().group(AITItemGroups.DECORATION))
+    );
 
     // TODO ADVENT
     static {

@@ -7,8 +7,8 @@ import net.minecraft.block.*;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -30,6 +30,7 @@ import dev.amble.ait.core.*;
 import dev.amble.ait.core.entities.base.DummyAmbientEntity;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.util.StackUtil;
+import dev.amble.ait.core.util.TagsUtil;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.module.planet.core.util.ISpaceImmune;
@@ -86,10 +87,22 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
 
             player.damage(this.getWorld().getDamageSources().hotFloor(), 7);
             if (gotFragment) {
+
+                Item randomItem = TagsUtil.getRandomItemFromTag(
+                        this.getWorld(),
+                        AITTags.Items.RIFT_SUCCESS_EXTRA_ITEM
+                );
+
                 StackUtil.spawn(this.getWorld(), this.getBlockPos(), new ItemStack(AITItems.CORAL_FRAGMENT));
+                StackUtil.spawn(this.getWorld(), this.getBlockPos(), new ItemStack(randomItem));
                 this.getWorld().playSound(null, player.getBlockPos(), AITSounds.RIFT_SUCCESS, SoundCategory.AMBIENT, 1f, 1f);
             } else {
-                StackUtil.spawn(this.getWorld(), this.getBlockPos(), new ItemStack(Items.PAPER));
+                Item randomItem = TagsUtil.getRandomItemFromTag(
+                        this.getWorld(),
+                        AITTags.Items.RIFT_FAIL_ITEM
+                );
+
+                StackUtil.spawn(this.getWorld(), this.getBlockPos(), new ItemStack(randomItem));
                 this.getWorld().playSound(null, this.getBlockPos(), AITSounds.RIFT_FAIL, SoundCategory.AMBIENT, 1f, 1f);
                 spreadTardisCoral(this.getWorld(), this.getBlockPos());
             }
@@ -190,7 +203,7 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
             return false;
 
         boolean canSpawn = spawnReason == SpawnReason.STRUCTURE || (random.nextBoolean()
-                && RiftChunkManager.isRiftChunk(worldAccess, pos));
+                && random.nextBoolean() && RiftChunkManager.isRiftChunk(worldAccess, pos));
 
         if (!canSpawn)
             return false;

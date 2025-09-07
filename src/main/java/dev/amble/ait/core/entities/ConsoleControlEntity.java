@@ -2,9 +2,14 @@ package dev.amble.ait.core.entities;
 
 import java.util.List;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
+import io.netty.handler.codec.EncoderException;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -30,6 +35,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -45,6 +51,7 @@ import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.item.control.ControlBlockItem;
 import dev.amble.ait.core.item.sonic.SonicMode;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
@@ -463,7 +470,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             this.dataTracker.set(ON_DELAY, true);
 
             Scheduler.get().runTaskLater(() -> this.dataTracker.set(ON_DELAY, false),
-                    TaskStage.END_SERVER_TICK, TimeUnit.TICKS, this.control.getDelayLength());
+                    TaskStage.END_SERVER_TICK, TimeUnit.TICKS, this.control.getDelayLength(tardis));
         }
 
         Control.Result result = this.control.handleRun(tardis, (ServerPlayerEntity) player, (ServerWorld) world, this.getConsoleBlockPos(), leftClick);
@@ -536,11 +543,40 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         if (consoleType != null) {
             this.setControlWidth(type.getScale().width);
             this.setControlHeight(type.getScale().height);
+            this.setOffset(type.getOffset());
         }
     }
 
+    public void logConsoleJson() {
+        // convert all controls into json
+        JsonArray root = new JsonArray();
+
+        for (ConsoleControlEntity entity : this.getConsole().controlEntities) {
+            if (entity == null) continue;
+
+            ControlTypes type = new ControlTypes(entity.getControl(), entity.getDimensions(EntityPose.STANDING), entity.getOffset());
+            DataResult<JsonElement> dataResult = ControlTypes.CODEC.encodeStart(JsonOps.INSTANCE, type);
+            JsonElement typeData = Util.getResult(dataResult, error -> new EncoderException("Failed to encode: " + error + " " + type));
+
+            root.add(typeData);
+        }
+
+        AITMod.LOGGER.info(TardisManager.getInstance(this).getFileGson().toJson(root));
+    }
+
     public void controlEditorHandler(PlayerEntity player) {
+        if (!player.isCreativeLevelTwoOp()) return;
+
         float increment = 0.0125f;
+
+        if (player.getMainHandStack().getItem() == Items.PAPER && !player.getWorld().isClient()) {
+            logConsoleJson();
+
+            player.sendMessage(Text.literal("JSON Data logged to Java Console!"));
+
+            return;
+        }
+
         if (player.getMainHandStack().getItem() == Items.EMERALD_BLOCK)
             this.setPosition(this.getPos().add(player.isSneaking() ? -increment : increment, 0, 0));
 
@@ -563,6 +599,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         if (this.getConsoleBlockPos() != null) {
             Vec3d centered = this.getPos().subtract(this.getConsoleBlockPos().toCenterPos());
+            this.setOffset(centered.toVector3f());
             if (this.control != null)
                 player.sendMessage(Text.literal("EntityDimensions.changing(" + this.getControlWidth() + "f, "
                         + this.getControlHeight() + "f), new Vector3f(" + centered.getX() + "f, " + centered.getY()

@@ -13,7 +13,7 @@
   "text.config.aitconfig.option.DISABLE_LOYALTY_SLEEPING_ACTIONBAR": "Вимкнути панель дій довіри під час сну",
   "text.config.aitconfig.option.TEMPERATURE_TYPE": "Тип температури",
   "text.config.aitconfig.option.ENABLE_TARDIS_BOTI": "Ввімкнути TARDIS BOTI (Більше всередині)",
-  "text.config.aitconfig.enum.temperatureType.celcius": "Цельсій (°C)",
+  "text.config.aitconfig.enum.temperatureType.celsius": "Цельсій (°C)",
   "text.config.aitconfig.enum.temperatureType.fahrenheit": "Фаренгейт (°F)",
   "text.config.aitconfig.enum.temperatureType.kelvin": "Кельвін (K)",
   "gamerule.tardisGriefing": "Сумування TARDIS",

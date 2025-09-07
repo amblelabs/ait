@@ -2,19 +2,17 @@ package dev.amble.ait.client.models.exteriors;
 
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.handler.DoorHandler;
 
 // Made with Blockbench 4.9.2
 // Exported for Minecraft version 1.17+ for Yarn
 // Paste this class into your mod and generate all required imports
-public class SiegeModeModel extends ExteriorModel {
+public class SiegeModeModel extends SimpleExteriorModel {
     private final ModelPart body;
 
     public SiegeModeModel(ModelPart root) {
@@ -60,11 +58,6 @@ public class SiegeModeModel extends ExteriorModel {
     @Override
     public ModelPart getPart() {
         return body;
-    }
-
-    @Override
-    public Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state) {
-        return Animation.Builder.create(0).build();
     }
 
     @Override

@@ -4,7 +4,6 @@ package dev.amble.ait.client.models.exteriors; // Made with Blockbench 4.10.1
 
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 
@@ -14,7 +13,7 @@ import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
-public class BookshelfExteriorModel extends ExteriorModel {
+public class BookshelfExteriorModel extends SimpleExteriorModel {
     private final ModelPart bookshelf;
 
     public BookshelfExteriorModel(ModelPart root) {
@@ -188,11 +187,6 @@ public class BookshelfExteriorModel extends ExteriorModel {
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
         matrices.pop();
-    }
-
-    @Override
-    public Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state) {
-        return Animation.Builder.create(0).build();
     }
 
     @Override

@@ -15,6 +15,7 @@ public class AITTags {
         public static final TagKey<Block> SONIC_INTERACTABLE = createTag("sonic_interactable");
         public static final TagKey<Block> SONIC_CAN_LOCATE = createTag("sonic_can_locate");
         public static final TagKey<Block> FLUID_LINK_CAN_CONNECT = createTag("fluid_link_can_connect");
+        public static final TagKey<Block> WOODEN_BLOCKS = createTag("wooden_blocks");
 
         private static TagKey<Block> createTag(String name) {
             return TagKey.of(RegistryKeys.BLOCK, AITMod.id(name));
@@ -29,11 +30,14 @@ public class AITTags {
 
         public static final TagKey<Item> NO_BOP = createTag("no_bop");
         public static final TagKey<Item> KEY = createTag("key");
-        public static final TagKey<Item> GOAT_HORN = createTag("goat_horn");
+        // public static final TagKey<Item> GOAT_HORN = createTag("goat_horn");
         public static final TagKey<Item> LINK = createTag("link"); // TODO use the tag instead of the item instanceof
         public static final TagKey<Item> IS_TARDIS_FUEL = createTag("is_tardis_fuel");
         public static final TagKey<Item> REPAIRS_SUBSYSTEM = createTag("repairs_subsystem");
         public static final TagKey<Item> INSERTABLE_DISCS = createTag("insertable_discs");
+
+        public static final TagKey<Item> RIFT_SUCCESS_EXTRA_ITEM = createTag("rift_success_extra_item");
+        public static final TagKey<Item> RIFT_FAIL_ITEM = createTag("rift_fail_item");
 
         private static TagKey<Item> createTag(String name) {
             return TagKey.of(RegistryKeys.ITEM, AITMod.id(name));

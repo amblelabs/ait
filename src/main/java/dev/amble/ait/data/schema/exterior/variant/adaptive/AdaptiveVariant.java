@@ -22,7 +22,7 @@ public class AdaptiveVariant extends ExteriorVariantSchema {
 
     @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(AdaptiveDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(AdaptiveDoorVariant.REFERENCE);
     }
 
     @Override

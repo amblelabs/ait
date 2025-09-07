@@ -71,6 +71,8 @@ public class ScanningSonicMode extends SonicMode {
         boolean isMainHand = user.getMainHandStack().getItem() == stack.getItem();
 
         if (isMainHand) {
+            SonicMode.checkSonicWoodAdvancementConditions(world, user, hitResult);
+
             if (hitResult instanceof BlockHitResult blockHit && !world.getBlockState(blockHit.getBlockPos()).isAir()) {
                 return this.scanBlocks(stack, world, user, blockHit.getBlockPos());
             }

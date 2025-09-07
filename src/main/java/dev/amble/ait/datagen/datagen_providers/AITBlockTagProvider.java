@@ -42,18 +42,16 @@ public class AITBlockTagProvider extends AmbleBlockTagProvider {
                 .add(Blocks.PURPLE_CANDLE_CAKE).add(Blocks.BLUE_CANDLE_CAKE).add(Blocks.BROWN_CANDLE_CAKE)
                 .add(Blocks.GREEN_CANDLE_CAKE).add(Blocks.RED_CANDLE_CAKE).add(Blocks.BLACK_CANDLE_CAKE)
                 .add(Blocks.REDSTONE_LAMP).add(AITBlocks.EXTERIOR_BLOCK).add(AITBlocks.CONSOLE_GENERATOR)
-                .add(Blocks.IRON_ORE, Blocks.DEEPSLATE_IRON_ORE).add(Blocks.GOLD_ORE, Blocks.DEEPSLATE_GOLD_ORE, Blocks.NETHER_GOLD_ORE, Blocks.LAPIS_ORE,Blocks.DEEPSLATE_LAPIS_ORE, Blocks.DIAMOND_ORE, Blocks.DEEPSLATE_DIAMOND_ORE, Blocks.DEEPSLATE_COAL_ORE, Blocks.COAL_ORE, Blocks.COPPER_ORE, Blocks.DEEPSLATE_COPPER_ORE)
-                .forceAddTag(TagKey.of(RegistryKeys.BLOCK, new Identifier("c", "ores")))
                 .forceAddTag(TagKey.of(RegistryKeys.BLOCK, new Identifier("c", "glass_panes")))
                 .forceAddTag(TagKey.of(RegistryKeys.BLOCK, new Identifier("c", "glass_blocks")))
                 .forceAddTag(BlockTags.ICE).forceAddTag(BlockTags.SNOW).forceAddTag(BlockTags.SAND).forceAddTag(BlockTags.LEAVES).forceAddTag(BlockTags.DOORS)
                 .add(Blocks.NETHER_BRICKS, Blocks.RED_NETHER_BRICKS, Blocks.NETHER_BRICK_WALL, Blocks.RED_NETHER_BRICK_WALL)
-                .add(PlanetBlocks.ANORTHOSITE_IRON_ORE, PlanetBlocks.MARTIAN_IRON_ORE, PlanetBlocks.ANORTHOSITE_GOLD_ORE, PlanetBlocks.MARTIAN_GOLD_ORE, PlanetBlocks.ANORTHOSITE_COAL_ORE, PlanetBlocks.MARTIAN_COAL_ORE, PlanetBlocks.ANORTHOSITE_LAPIS_ORE, PlanetBlocks.MARTIAN_LAPIS_ORE, PlanetBlocks.ANORTHOSITE_DIAMOND_ORE, PlanetBlocks.MARTIAN_DIAMOND_ORE, PlanetBlocks.ANORTHOSITE_COPPER_ORE, PlanetBlocks.MARTIAN_COPPER_ORE)
                 .add(AITBlocks.MACHINE_CASING, AITBlocks.CONSOLE).forceAddTag(BlockTags.STONE_BRICKS)
                 .add(Blocks.BLACK_CONCRETE,Blocks.CYAN_CONCRETE,Blocks.BLUE_CONCRETE,Blocks.BROWN_CONCRETE,Blocks.GRAY_CONCRETE,Blocks.GREEN_CONCRETE,Blocks.MAGENTA_CONCRETE,Blocks.ORANGE_CONCRETE,Blocks.PINK_CONCRETE,Blocks.RED_CONCRETE,Blocks.WHITE_CONCRETE,Blocks.PURPLE_CONCRETE,Blocks.LIGHT_GRAY_CONCRETE,Blocks.LIGHT_BLUE_CONCRETE,Blocks.LIME_CONCRETE)
                 .add(Blocks.BRICKS, Blocks.BRICK_WALL, Blocks.REDSTONE_TORCH, Blocks.DEEPSLATE_BRICKS)
                 .add(Blocks.BARREL)
-                .add(Blocks.REDSTONE_WIRE, Blocks.COMPARATOR, Blocks.REPEATER)
+                .add(Blocks.REDSTONE_WIRE, Blocks.COMPARATOR, Blocks.REPEATER, Blocks.LEVER)
+                .forceAddTag(BlockTags.BUTTONS)
                 .add(Blocks.BELL, Blocks.JUKEBOX, Blocks.TRAPPED_CHEST)
                 .add(Blocks.DAYLIGHT_DETECTOR)
                 .add(Blocks.OBSIDIAN);
@@ -62,6 +60,17 @@ public class AITBlockTagProvider extends AmbleBlockTagProvider {
                 .add(AITBlocks.BUDDING_ZEITON).add(AITBlocks.COMPACT_ZEITON).add(AITBlocks.SMALL_ZEITON_BUD)
                 .add(AITBlocks.MEDIUM_ZEITON_BUD).add(AITBlocks.LARGE_ZEITON_BUD).add(AITBlocks.ZEITON_CLUSTER)
                 .add(Blocks.BELL);
+
+        getOrCreateTagBuilder(AITTags.Blocks.WOODEN_BLOCKS)
+                .forceAddTag(BlockTags.LOGS)
+                .forceAddTag(BlockTags.PLANKS)
+                .forceAddTag(BlockTags.WOODEN_BUTTONS)
+                .forceAddTag(BlockTags.WOODEN_PRESSURE_PLATES)
+                .forceAddTag(BlockTags.WOODEN_DOORS)
+                .forceAddTag(BlockTags.WOODEN_TRAPDOORS)
+                .forceAddTag(BlockTags.WOODEN_FENCES)
+                .forceAddTag(BlockTags.WOODEN_SLABS)
+                .forceAddTag(BlockTags.WOODEN_STAIRS);
 
         getOrCreateTagBuilder(BlockTags.COAL_ORES).add(PlanetBlocks.ANORTHOSITE_COAL_ORE, PlanetBlocks.MARTIAN_COAL_ORE);
         getOrCreateTagBuilder(BlockTags.COPPER_ORES).add(PlanetBlocks.ANORTHOSITE_COPPER_ORE, PlanetBlocks.MARTIAN_COPPER_ORE);

@@ -25,7 +25,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.WorldUtil;
 
-public class ToyotaConsoleModel extends ConsoleModel {
+public class ToyotaConsoleModel extends SimpleConsoleModel {
     private final ModelPart toyota;
 
     public ToyotaConsoleModel(ModelPart root) {

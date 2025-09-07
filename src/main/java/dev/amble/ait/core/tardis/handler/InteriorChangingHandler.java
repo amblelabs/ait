@@ -3,6 +3,7 @@ package dev.amble.ait.core.tardis.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import dev.amble.lib.data.DirectedGlobalPos;
@@ -135,6 +136,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                     if (tardis.travel().getState() != TravelHandler.State.LANDED)
                         return;
 
+                    TardisCriterions.REDECORATE.trigger(player);
                     tardis.interiorChangingHandler().queueInteriorChange(desktop);
                     tardis.alarm().enable();
                 })));

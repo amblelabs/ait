@@ -24,6 +24,7 @@ import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
+import dev.amble.ait.core.blocks.DoorBlock;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -241,12 +242,14 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         this.setDoorState(DoorState.CLOSED);
     }
 
-    public static boolean removeWaterlogged(Tardis tardis) {
+    public static void removeWaterlogged(Tardis tardis) {
         BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
         ServerWorld world = tardis.asServer().world();
         BlockState blockState = world.getBlockState(pos);
 
-        return world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, false),
+        if (!(blockState.getBlock() instanceof DoorBlock)) return;
+
+        world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, false),
                 Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
     }
 

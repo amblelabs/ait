@@ -3,7 +3,6 @@ package dev.amble.ait.client.models.exteriors;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 
@@ -16,7 +15,7 @@ import dev.amble.ait.core.tardis.handler.DoorHandler;
 // Made with Blockbench 4.9.1
 // Exported for Minecraft version 1.17+ for Yarn
 // Paste this class into your mod and generate all required imports
-public class TardimExteriorModel extends ExteriorModel {
+public class TardimExteriorModel extends SimpleExteriorModel {
     private final ModelPart tardis;
 
     public TardimExteriorModel(ModelPart root) {
@@ -74,11 +73,6 @@ public class TardimExteriorModel extends ExteriorModel {
         super.renderWithAnimations(tardis, exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
 
         matrices.pop();
-    }
-
-    @Override
-    public Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state) {
-        return Animation.Builder.create(0).build();
     }
 
     @Override
