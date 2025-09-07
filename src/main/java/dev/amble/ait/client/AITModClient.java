@@ -1,5 +1,44 @@
 package dev.amble.ait.client;
 
+import static dev.amble.ait.AITMod.*;
+import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
+import static dev.amble.ait.core.item.PersonalityMatrixItem.colorToInt;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.UUID;
+
+import dev.amble.lib.register.AmbleRegistries;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.*;
+import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.block.DoorBlock;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.item.ModelPredicateProviderRegistry;
+import net.minecraft.client.particle.EndRodParticle;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.minecraft.client.render.entity.model.SinglePartEntityModel;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.RotationPropertyHelper;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.LightType;
+
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.boti.*;
@@ -9,23 +48,22 @@ import dev.amble.ait.client.config.AITClientConfig;
 import dev.amble.ait.client.data.ClientLandingManager;
 import dev.amble.ait.client.models.AnimatedModel;
 import dev.amble.ait.client.models.boti.BotiPortalModel;
-import dev.amble.ait.client.models.decoration.GallifreyFallsModel;
-import dev.amble.ait.client.models.decoration.PaintingFrameModel;
-import dev.amble.ait.client.models.decoration.RiftModel;
-import dev.amble.ait.client.models.decoration.TrenzalorePaintingModel;
+import dev.amble.ait.client.models.decoration.*;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.overlays.ExteriorAxeOverlay;
 import dev.amble.ait.client.overlays.FabricatorOverlay;
 import dev.amble.ait.client.overlays.RWFOverlay;
 import dev.amble.ait.client.overlays.SonicOverlay;
+import dev.amble.ait.client.renderers.SeatEntityRenderer;
 import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.client.renderers.TardisStar;
+import dev.amble.ait.client.renderers.builtin.CopperRingsBuiltInRenderer;
+import dev.amble.ait.client.renderers.builtin.CoralSeatBuiltInRenderer;
+import dev.amble.ait.client.renderers.builtin.ToyotaSeatBuiltInRenderer;
 import dev.amble.ait.client.renderers.consoles.ConsoleGeneratorRenderer;
 import dev.amble.ait.client.renderers.consoles.ConsoleRenderer;
 import dev.amble.ait.client.renderers.coral.CoralRenderer;
-import dev.amble.ait.client.renderers.decoration.FlagBlockEntityRenderer;
-import dev.amble.ait.client.renderers.decoration.PlaqueRenderer;
-import dev.amble.ait.client.renderers.decoration.SnowGlobeRenderer;
+import dev.amble.ait.client.renderers.decoration.*;
 import dev.amble.ait.client.renderers.doors.DoorRenderer;
 import dev.amble.ait.client.renderers.entities.*;
 import dev.amble.ait.client.renderers.exteriors.ExteriorRenderer;
@@ -64,43 +102,6 @@ import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
-import dev.amble.lib.register.AmbleRegistries;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.*;
-import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
-import net.minecraft.block.DoorBlock;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.item.ModelPredicateProviderRegistry;
-import net.minecraft.client.particle.EndRodParticle;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
-import net.minecraft.client.render.entity.model.SinglePartEntityModel;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.RotationPropertyHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.LightType;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.UUID;
-
-import static dev.amble.ait.AITMod.*;
-import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
-import static dev.amble.ait.core.item.PersonalityMatrixItem.colorToInt;
 
 @Environment(value = EnvType.CLIENT)
 public class AITModClient implements ClientModInitializer {
@@ -126,6 +127,7 @@ public class AITModClient implements ClientModInitializer {
         ModuleRegistry.instance().onClientInit();
 
         setupBlockRendering();
+        registerBuiltInItemRenderers();
         blockEntityRendererRegister();
         entityRenderRegister();
         chargedZeitonCrystalPredicate();
@@ -394,6 +396,18 @@ public class AITModClient implements ClientModInitializer {
         BlockEntityRendererFactories.register(AITBlockEntityTypes.FOOD_MACHINE_BLOCK_ENTITY_TYPE,
                 FoodMachineRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ASTRAL_MAP, AstralMapRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.WOODEN_SEAT,
+                WoodenSeatRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.BRASS_STATUE,
+                BrassStatueRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.CORAL_SEAT,
+                CoralSeatRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.COPPER_SEAT,
+                CopperSeatRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.TOYOTA_SEAT,
+                ToyotaSeatRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.COPPER_RINGS,
+                CopperRingsRenderer::new);
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             BlockEntityRendererFactories.register(AITBlockEntityTypes.SNOW_GLOBE_BLOCK_ENTITY_TYPE,
                     SnowGlobeRenderer::new);
@@ -404,6 +418,7 @@ public class AITModClient implements ClientModInitializer {
         EntityRendererRegistry.register(AITEntityTypes.CONTROL_ENTITY_TYPE, ControlEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.FALLING_TARDIS_TYPE, FallingTardisRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.FLIGHT_TARDIS_TYPE, FlightTardisRenderer::new);
+        EntityRendererRegistry.register(AITEntityTypes.SEAT, SeatEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.GALLIFREY_FALLS_PAINTING_ENTITY_TYPE, GallifreyanPaintingEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.TRENZALORE_PAINTING_ENTITY_TYPE, TrenzalorePaintingEntityRenderer::new);
 //        if (isUnlockedOnThisDay(Calendar.DECEMBER, 26)) {
@@ -423,6 +438,12 @@ public class AITModClient implements ClientModInitializer {
         map.putBlock(AITBlocks.SMALL_ZEITON_BUD, RenderLayer.getCutout());
         map.putBlock(AITBlocks.MACHINE_CASING, RenderLayer.getCutout());
         map.putBlock(AITBlocks.FABRICATOR, RenderLayer.getTranslucent());
+        map.putBlock(AITBlocks.JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.ACACIA_JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.PALE_OAK_JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.CHERRY_JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.BAMBOO_JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.WARPED_JUKEBOX, RenderLayer.getCutout());
         map.putBlock(AITBlocks.ENVIRONMENT_PROJECTOR, RenderLayer.getTranslucent());
         map.putBlock(AITBlocks.WAYPOINT_BANK, RenderLayer.getCutout());
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
@@ -597,5 +618,14 @@ public class AITModClient implements ClientModInitializer {
             stack.pop();
         }
         BOTI.RIFT_RENDERING_QUEUE.clear();
+    }
+
+    public void registerBuiltInItemRenderers() {
+        BuiltinItemRendererRegistry.INSTANCE.register(AITBlocks.TOYOTA_SEAT.asItem(),
+                new ToyotaSeatBuiltInRenderer());
+        BuiltinItemRendererRegistry.INSTANCE.register(AITBlocks.CORAL_SEAT.asItem(),
+                new CoralSeatBuiltInRenderer());
+        BuiltinItemRendererRegistry.INSTANCE.register(AITBlocks.COPPER_RINGS.asItem(),
+                new CopperRingsBuiltInRenderer());
     }
 }

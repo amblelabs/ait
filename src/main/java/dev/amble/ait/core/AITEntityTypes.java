@@ -31,9 +31,19 @@ public class AITEntityTypes implements EntityContainer {
             .create(SpawnGroup.MISC, FlightTardisEntity::new).dimensions(EntityDimensions.changing(0.98f, 0.98f))
             .disableSummon()
             .build();
+
+    @AssignedName("seat")
+    public static final EntityType<SeatEntity> SEAT = FabricEntityTypeBuilder
+            .create(SpawnGroup.MISC, SeatEntity::new).dimensions(EntityDimensions.changing(1f, 0.5f))
+            .disableSaving()
+            .disableSummon()
+            .build();
+
+
     public static final EntityType<GallifreyFallsPaintingEntity> GALLIFREY_FALLS_PAINTING_ENTITY_TYPE = FabricEntityTypeBuilder
             .create(SpawnGroup.MISC, GallifreyFallsPaintingEntity::new)
             .dimensions(EntityDimensions.fixed(0.5f, 0.5f)).build();
+
     public static final EntityType<TrenzalorePaintingEntity> TRENZALORE_PAINTING_ENTITY_TYPE = FabricEntityTypeBuilder
             .create(SpawnGroup.MISC, TrenzalorePaintingEntity::new)
             .dimensions(EntityDimensions.fixed(0.5f, 0.5f)).build();
