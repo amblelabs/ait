@@ -3,7 +3,6 @@ package dev.amble.ait.datagen.datagen_providers;
 
 import java.util.concurrent.CompletableFuture;
 
-import dev.amble.ait.module.planet.core.PlanetItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import org.jetbrains.annotations.Nullable;
@@ -19,6 +18,7 @@ import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITTags;
 import dev.amble.ait.module.ModuleRegistry;
+import dev.amble.ait.module.planet.core.PlanetItems;
 
 public class AITItemTagProvider extends FabricTagProvider<Item> {
     public AITItemTagProvider(FabricDataOutput output,
@@ -58,8 +58,8 @@ public class AITItemTagProvider extends FabricTagProvider<Item> {
 
         getOrCreateTagBuilder(AITTags.Items.IS_TARDIS_FUEL).add(AITItems.ZEITON_DUST, AITItems.ZEITON_SHARD,
                 AITBlocks.TARDIS_CORAL_BLOCK.asItem(), AITBlocks.TARDIS_CORAL_SLAB.asItem(),
-                AITBlocks.TARDIS_CORAL_FAN.asItem(), AITBlocks.TARDIS_CORAL_WALL_FAN.asItem(),
-        AITBlocks.TARDIS_CORAL_STAIRS.asItem(), AITItems.CORAL_FRAGMENT);
+                AITBlocks.TARDIS_CORAL_FAN.asItem(), AITBlocks.TARDIS_CORAL_STAIRS.asItem(),
+                AITItems.CORAL_FRAGMENT);
         getOrCreateTagBuilder(AITTags.Items.IS_TARDIS_FUEL).forceAddTag(ItemTags.LOGS_THAT_BURN);
         getOrCreateTagBuilder(AITTags.Items.IS_TARDIS_FUEL).forceAddTag(ItemTags.COALS);
         getOrCreateTagBuilder(AITTags.Items.IS_TARDIS_FUEL).add(Items.LAVA_BUCKET);

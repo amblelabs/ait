@@ -2,6 +2,7 @@ package dev.amble.ait.core.tardis.control.impl;
 
 import java.util.Random;
 
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
@@ -13,6 +14,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
@@ -40,11 +42,18 @@ public class EngineOverloadControl extends Control {
 
 
         if (tardis.fuel().getCurrentFuel() < 25000) {
-            player.sendMessage(Text.literal("§cERROR, TARDIS REQUIRES AT LEAST 25K ARTRON TO EXECUTE THIS ACTION."), true);
+            player.sendMessage(Text.translatable("tardis.message.control.engine_overdrive.insufficient_fuel").formatted(Formatting.RED), true);
             world.playSound(null, player.getBlockPos(), AITSounds.CLOISTER, SoundCategory.BLOCKS, 1.0F, 1.0F);
             return Result.FAILURE;
         }
 
+
+        if (!TravelHandler.isEngineOverloadArmed(tardis.getUuid())) {
+            player.sendMessage(Text.translatable("tardis.message.control.engine_overdrive.primed").formatted(Formatting.RED), true);
+            TravelHandler.armEngineOverload(tardis.getUuid(), world);
+            return Result.SUCCESS_ALT;
+        }
+        TravelHandler.disarmEngineOverload(tardis.getUuid());
 
         boolean isInFlight = tardis.travel().getState() == TravelHandlerBase.State.FLIGHT;
 
@@ -55,21 +64,14 @@ public class EngineOverloadControl extends Control {
         runDumpingArtronSequence(player, () -> {
             world.playSound(null, player.getBlockPos(), AITSounds.ENGINE_OVERLOAD, SoundCategory.BLOCKS, 1.0F, 1.0F);
             world.getServer().execute(() -> {
-                tardis.travel().decreaseFlightTime(999999999);
                 tardis.travel().handbrake(false);
-                tardis.setRefueling(false);
-                tardis.setFuelCount(0);
 
-                if (!isInFlight) {
+                if (!isInFlight)
                     tardis.travel().finishDemat();
-                    tardis.setFuelCount(0);
-                    tardis.travel().decreaseFlightTime(999999999);
-                    tardis.setRefueling(false);
-                } else {
-                    tardis.travel().decreaseFlightTime(999999999);
-                    tardis.setFuelCount(0);
-                    tardis.setRefueling(false);
-                }
+
+                tardis.setFuelCount(0);
+                tardis.travel().decreaseFlightTime(999999999);
+                tardis.setRefueling(false);
 
                 Scheduler.get().runTaskLater(() -> triggerExplosion(world, console, tardis, 4), TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 0);
             });
@@ -103,9 +105,7 @@ public class EngineOverloadControl extends Control {
             Scheduler.get().runTaskLater(() -> {
                 String frame = SPINNER[delay % SPINNER.length];
 
-                // FIXME: use translations
-                // FIXME: use `#formatted`
-                player.sendMessage(Text.literal("§6DUMPING ARTRON " + frame), true);
+                player.sendMessage(Text.translatable("tardis.message.control.engine_overdrive.dumping_artron").append(" " + frame).formatted(Formatting.GOLD), true);
             }, TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, delay);
         }
 
@@ -116,9 +116,8 @@ public class EngineOverloadControl extends Control {
         for (int i = 0; i < 6; i++) {
             int delay = i + 1;
             Scheduler.get().runTaskLater(() -> {
-                // FIXME: use `#formatted`
-                String flashColor = (delay % 2 == 0) ? "§c" : "§f";
-                player.sendMessage(Text.literal(flashColor + "ARTRON DUMPED, ENGINES OVERLOADED, TRIGGERING EMERGENCY ARTRON RELEASE"), true);
+                Formatting flashColor = (delay % 2 == 0) ? Formatting.RED : Formatting.WHITE;
+                player.sendMessage(Text.translatable("tardis.message.control.engine_overdrive.engines_overloaded").formatted(flashColor), true);
             }, TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, delay);
         }
 
@@ -156,8 +155,11 @@ public class EngineOverloadControl extends Control {
     }
 
     @Override
-    public long getDelayLength() {
-        return 360000;
+    public long getDelayLength(Tardis tardis) {
+        if (TravelHandler.isEngineOverloadArmed(tardis.getUuid()))
+            return 360000;
+
+        return 5;
     }
 
     @Override

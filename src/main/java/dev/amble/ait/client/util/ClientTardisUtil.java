@@ -5,7 +5,6 @@ import static dev.amble.ait.core.tardis.util.TardisUtil.*;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -139,6 +138,9 @@ public class ClientTardisUtil {
 
         // doesnt find nearest, only finds if within radius.
         // could be more performant though
+        //
+        // ya dont say
+        //  - Theo
         /*
         return ClientTardisManager.getInstance().find(tardis -> {
             if (!tardis.travel().position().getDimension().equals(dimension))
@@ -151,23 +153,25 @@ public class ClientTardisUtil {
         });
         */
 
-        AtomicReference<ClientTardis> nearestTardis = new AtomicReference<>();
-        AtomicReference<Double> nearestDistance = new AtomicReference<>(Double.MAX_VALUE);
+        double radiusSquared = Math.pow(radius, 2);
+
+        final ClientTardis[] nearestTardis = new ClientTardis[1];
+        final double[] nearestDistanceSquared = {Double.MAX_VALUE};
 
         ClientTardisManager.getInstance().forEach(tardis -> {
             if (!tardis.travel().position().getDimension().equals(dimension))
                 return;
 
             BlockPos tPos = tardis.travel().position().getPos();
-            double distance = Math.sqrt(pos.getSquaredDistance(tPos));
+            double distanceSquared = pos.getSquaredDistance(tPos);
 
-            if (distance < radius && distance < nearestDistance.get()) {
-                nearestDistance.set(distance);
-                nearestTardis.set(tardis);
+            if (radiusSquared > distanceSquared && distanceSquared < nearestDistanceSquared[0]) {
+                nearestDistanceSquared[0] = distanceSquared;
+                nearestTardis[0] = tardis;
             }
         });
 
-        return Optional.ofNullable(nearestTardis.get());
+        return Optional.ofNullable(nearestTardis[0]);
     }
 
     public static double distanceFromConsole() {
@@ -226,6 +230,37 @@ public class ClientTardisUtil {
             if (distance < lowest) {
                 lowest = distance;
                 nearest = console;
+            }
+        }
+
+        return nearest;
+    }
+
+    public static BlockPos getNearestEngine() {
+        if (!isPlayerInATardis())
+            return null;
+
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+
+        if (player == null)
+            return null;
+
+        Tardis tardis = getCurrentTardis();
+
+        if (tardis == null)
+            return null;
+
+        BlockPos pos = player.getBlockPos();
+        double lowest = Double.MAX_VALUE;
+        BlockPos nearest = BlockPos.ORIGIN;
+
+        BlockPos engine = tardis.getDesktop().getEnginePos();
+        if (engine != null) {
+            double distance = Math.sqrt(pos.getSquaredDistance(engine));
+
+            if (distance < lowest) {
+                lowest = distance;
+                nearest = engine;
             }
         }
 

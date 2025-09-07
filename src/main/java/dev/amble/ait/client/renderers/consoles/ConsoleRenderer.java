@@ -1,6 +1,5 @@
 package dev.amble.ait.client.renderers.consoles;
 
-import dev.amble.ait.client.models.consoles.ConsoleModel;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -16,8 +15,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
+import dev.amble.ait.client.models.consoles.ConsoleModel;
 import dev.amble.ait.client.models.consoles.HartnellConsoleModel;
+import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
 import dev.amble.ait.client.models.items.HandlesModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
@@ -114,9 +114,6 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         matrices.push();
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 
-        profiler.swap("animate");
-        model.animateBlockEntity(entity, tardis.travel().getState(), hasPower);
-
         if (DependencyChecker.hasIris()) {
             if (hasPower) {
                 profiler.swap("emission");
@@ -128,8 +125,11 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
                             1, 1, 1, 1, tickDelta);
                 }
                 matrices.pop();
-            }
+            }   
         }
+
+        profiler.swap("animate");
+        model.animateBlockEntity(entity, tardis.travel().getState(), hasPower);
 
         profiler.swap("render");
         model.renderWithAnimations(tardis, entity, model.getPart(),

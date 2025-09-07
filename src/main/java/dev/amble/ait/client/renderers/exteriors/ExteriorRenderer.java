@@ -1,7 +1,6 @@
 package dev.amble.ait.client.renderers.exteriors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.joml.Vector3f;
 
@@ -20,6 +19,7 @@ import net.minecraft.util.profiler.Profiler;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.boti.BOTI;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.models.exteriors.SiegeModeModel;
 import dev.amble.ait.client.models.machines.ShieldsModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;

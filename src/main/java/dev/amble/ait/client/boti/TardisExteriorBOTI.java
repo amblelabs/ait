@@ -2,7 +2,6 @@ package dev.amble.ait.client.boti;
 
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
@@ -11,7 +10,6 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.util.DyeColor;
@@ -21,7 +19,7 @@ import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;

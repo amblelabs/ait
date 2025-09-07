@@ -61,6 +61,17 @@ public class AITBlockTagProvider extends AmbleBlockTagProvider {
                 .add(AITBlocks.MEDIUM_ZEITON_BUD).add(AITBlocks.LARGE_ZEITON_BUD).add(AITBlocks.ZEITON_CLUSTER)
                 .add(Blocks.BELL);
 
+        getOrCreateTagBuilder(AITTags.Blocks.WOODEN_BLOCKS)
+                .forceAddTag(BlockTags.LOGS)
+                .forceAddTag(BlockTags.PLANKS)
+                .forceAddTag(BlockTags.WOODEN_BUTTONS)
+                .forceAddTag(BlockTags.WOODEN_PRESSURE_PLATES)
+                .forceAddTag(BlockTags.WOODEN_DOORS)
+                .forceAddTag(BlockTags.WOODEN_TRAPDOORS)
+                .forceAddTag(BlockTags.WOODEN_FENCES)
+                .forceAddTag(BlockTags.WOODEN_SLABS)
+                .forceAddTag(BlockTags.WOODEN_STAIRS);
+
         getOrCreateTagBuilder(BlockTags.COAL_ORES).add(PlanetBlocks.ANORTHOSITE_COAL_ORE, PlanetBlocks.MARTIAN_COAL_ORE);
         getOrCreateTagBuilder(BlockTags.COPPER_ORES).add(PlanetBlocks.ANORTHOSITE_COPPER_ORE, PlanetBlocks.MARTIAN_COPPER_ORE);
         getOrCreateTagBuilder(BlockTags.IRON_ORES).add(PlanetBlocks.ANORTHOSITE_COPPER_ORE, PlanetBlocks.MARTIAN_COPPER_ORE);

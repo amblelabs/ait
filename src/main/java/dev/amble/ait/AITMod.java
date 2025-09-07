@@ -110,8 +110,7 @@ public class AITMod implements ModInitializer {
     // This DefaultParticleType gets called when you want to use your particle in code.
     public static final DefaultParticleType CORAL_PARTICLE = FabricParticleTypes.simple();
 
-    // Register our custom particle type in the mod initializer.
-
+    // This is the Crater feature that generates in the world. It's made with AI so it sucks lol
     public static final Crater CRATER = new Crater(ProbabilityConfig.CODEC);
 
     public static final String BRANCH;
@@ -239,6 +238,7 @@ public class AITMod implements ModInitializer {
             SetMaxSpeedCommand.register(dispatcher);
             SetSiegeCommand.register(dispatcher);
             LinkCommand.register(dispatcher);
+            UnLinkCommand.register(dispatcher);
             RemoveCommand.register(dispatcher);
             PermissionCommand.register(dispatcher);
             LoyaltyCommand.register(dispatcher);

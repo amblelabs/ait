@@ -46,7 +46,7 @@ public class DoomDoorModel extends DoorModel {
         matrices.pop();
     }
 
-	@Override
+    @Override
     public ModelPart getPart() {
         return doom;
     }

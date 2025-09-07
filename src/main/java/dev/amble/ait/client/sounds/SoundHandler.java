@@ -65,13 +65,16 @@ public class SoundHandler {
      */
     public void startSound(SoundEvent event) {
         SoundInstance sound = findSoundByEvent(event);
+        if (sound == null || sound.getId() == null) {
+            return;
+        }
 
         MinecraftClient.getInstance().getSoundManager().play(sound);
     }
 
     public void startSound(SoundInstance sound) {
-        if (sound == null)
-            return;
+if (sound == null || sound.getId() == null)
+return;
         MinecraftClient.getInstance().getSoundManager().play(sound);
     }
 

@@ -4,6 +4,7 @@ package dev.amble.ait.client;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.boti.*;
 import dev.amble.ait.client.commands.ConfigCommand;
+import dev.amble.ait.client.commands.DebugCommand;
 import dev.amble.ait.client.config.AITClientConfig;
 import dev.amble.ait.client.data.ClientLandingManager;
 import dev.amble.ait.client.models.AnimatedModel;
@@ -139,6 +140,7 @@ public class AITModClient implements ClientModInitializer {
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             ConfigCommand.register(dispatcher);
+            DebugCommand.register(dispatcher);
         });
 
         AITKeyBinds.init();

@@ -150,6 +150,11 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
     }
 
     @Override
+    public void onLinked() {
+        this.tardis().ifPresent(tardis -> tardis.getDesktop().setEnginePos(this));
+    }
+
+    @Override
     public Tardis getTardisForFluid() {
         return this.tardis().get();
     }

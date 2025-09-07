@@ -1,7 +1,5 @@
 package dev.amble.ait.client.renderers.decoration;
 
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
-import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -12,6 +10,7 @@ import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.decoration.SnowGlobeModel;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.core.blockentities.SnowGlobeBlockEntity;
 import dev.amble.ait.core.blocks.SnowGlobeBlock;

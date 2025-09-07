@@ -54,6 +54,8 @@ public class OverloadSonicMode extends SonicMode {
     private void process(ServerWorld world, LivingEntity user, int ticks) {
         HitResult hitResult = SonicMode.getHitResultForOutline(user);
 
+        SonicMode.checkSonicWoodAdvancementConditions(world, user, hitResult);
+
         if (hitResult instanceof BlockHitResult blockHit) {
             this.overloadBlock(blockHit.getBlockPos(), world, user, ticks, blockHit);
         }

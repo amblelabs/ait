@@ -291,7 +291,7 @@ public class TelepathicControl extends Control {
     }
 
     @Override
-    public long getDelayLength() {
+    public long getDelayLength(Tardis tardis) {
         return 120;
     }
 

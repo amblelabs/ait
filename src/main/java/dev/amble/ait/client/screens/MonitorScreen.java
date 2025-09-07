@@ -1,33 +1,9 @@
 package dev.amble.ait.client.screens;
 
-import java.util.List;
-import java.util.Objects;
-
 import com.google.common.collect.Lists;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedGlobalPos;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.PressableTextWidget;
-import net.minecraft.client.gui.widget.TextWidget;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RotationAxis;
-
 import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
+import dev.amble.ait.client.models.exteriors.BedrockExteriorModel;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.screens.interior.InteriorSettingsScreen;
 import dev.amble.ait.client.tardis.ClientTardis;
@@ -47,6 +23,27 @@ import dev.amble.ait.data.schema.exterior.category.PoliceBoxCategory;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedGlobalPos;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.widget.PressableTextWidget;
+import net.minecraft.client.gui.widget.TextWidget;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RotationAxis;
+
+import java.util.List;
 
 public class MonitorScreen extends ConsoleScreen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
@@ -101,9 +98,6 @@ public class MonitorScreen extends ConsoleScreen {
     }
 
     public ClientExteriorVariantSchema getCurrentVariant() {
-        if (Objects.equals(currentVariant, ClientExteriorVariantRegistry.CORAL_GROWTH))
-            changeCategory(true);
-
         if (currentVariant == null)
             if (!this.tardis().getExterior().getCategory().equals(getCategory())) {
                 setCurrentVariant(this.getCategory().getDefaultVariant());
@@ -195,7 +189,7 @@ public class MonitorScreen extends ConsoleScreen {
         else
             setCategory(previousCategory());
 
-        if ((this.category instanceof ExclusiveCategory && ExclusiveCategory.isUnlocked(player.getUuid()))
+        if ((CategoryRegistry.EXCLUSIVE.equals(this.category) && !ExclusiveCategory.isUnlocked(player.getUuid()))
                 || CategoryRegistry.CORAL_GROWTH.equals(this.category))
             changeCategory(direction);
     }
@@ -397,6 +391,11 @@ public class MonitorScreen extends ConsoleScreen {
             stack.scale(-12, 12, 12);
         } else {
             stack.scale(-scale, scale, scale);
+        }
+
+        // datapack models float for some reason
+        if (variant.model() instanceof BedrockExteriorModel) {
+            stack.translate(0, 1.25f, 0);
         }
 
         stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(((float) tickForSpin / 1200L) * 360.0f));

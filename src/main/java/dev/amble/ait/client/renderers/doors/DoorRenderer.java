@@ -1,6 +1,5 @@
 package dev.amble.ait.client.renderers.doors;
 
-import dev.amble.ait.client.models.AnimatedModel;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -19,6 +18,7 @@ import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.boti.BOTI;
+import dev.amble.ait.client.models.AnimatedModel;
 import dev.amble.ait.client.models.doors.CapsuleDoorModel;
 import dev.amble.ait.client.models.doors.exclusive.DoomDoorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;

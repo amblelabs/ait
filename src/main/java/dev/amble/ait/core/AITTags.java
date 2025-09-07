@@ -15,6 +15,7 @@ public class AITTags {
         public static final TagKey<Block> SONIC_INTERACTABLE = createTag("sonic_interactable");
         public static final TagKey<Block> SONIC_CAN_LOCATE = createTag("sonic_can_locate");
         public static final TagKey<Block> FLUID_LINK_CAN_CONNECT = createTag("fluid_link_can_connect");
+        public static final TagKey<Block> WOODEN_BLOCKS = createTag("wooden_blocks");
 
         private static TagKey<Block> createTag(String name) {
             return TagKey.of(RegistryKeys.BLOCK, AITMod.id(name));

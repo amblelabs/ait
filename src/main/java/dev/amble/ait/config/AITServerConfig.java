@@ -110,6 +110,14 @@ public class AITServerConfig {
     @CustomDescription(value = "Turns off safeguards for when running the mod.")
     @SerialEntry public boolean disableSafeguards = false;
 
+    @AutoGen(category = CATEGORY)
+    @FloatSlider(min = 0, max = 16, step = 0.1f)
+    @SerialEntry public float crashSoundVolume = 1f;
+
+    @AutoGen(category = CATEGORY)
+    @FloatSlider(min = 0, max = 16, step = 0.1f)
+    @SerialEntry public float flightSoundVolume = 2f;
+
     public static class StringListFactory implements ListGroup.ValueFactory<String>, ListGroup.ControllerFactory<String> {
 
         // used by the reflections

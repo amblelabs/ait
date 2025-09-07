@@ -1,7 +1,6 @@
 package dev.amble.ait.client.boti;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.amble.ait.client.models.AnimatedModel;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
@@ -17,6 +16,7 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.models.AnimatedModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.renderers.VortexUtil;
 import dev.amble.ait.client.tardis.ClientTardis;

@@ -239,6 +239,7 @@ public class AITSounds {
 
     // Engine
     public static final SoundEvent ENGINE_REFUEL = register("tardis/engine_refuel");
+    public static final SoundEvent ENGINE_LOOP = register("tardis/engine_loop");
 
     // Engine related stuff
     public static final SoundEvent POWER_CONVERT = register("tardis/power_convert");

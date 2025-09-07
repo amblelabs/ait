@@ -3,8 +3,8 @@ package dev.amble.ait.data.schema.exterior.variant.box.client;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.client.models.exteriors.PoliceBoxCoralModel;
+import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 

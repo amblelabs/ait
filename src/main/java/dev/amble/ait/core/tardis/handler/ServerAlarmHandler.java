@@ -130,7 +130,7 @@ public class ServerAlarmHandler extends KeyedTardisComponent implements TardisTi
                 if (entity instanceof TntEntity || (entity instanceof HostileEntity && !entity.hasCustomName())
                         || entity instanceof ServerPlayerEntity player
                         && tardis.loyalty().get(player).level() == Loyalty.Type.REJECT.level) {
-                    tardis.alarm().enable();
+                    tardis.alarm().enable(AlarmType.HOSTILE_PRESENCE);
                 }
             }
 
@@ -308,6 +308,7 @@ public class ServerAlarmHandler extends KeyedTardisComponent implements TardisTi
 
     public enum AlarmType implements Alarm {
         CRASHING,
+        HOSTILE_PRESENCE,
         HAIL_MARY("tardis.message.protocol_813.travel");
 
         private final String translation;

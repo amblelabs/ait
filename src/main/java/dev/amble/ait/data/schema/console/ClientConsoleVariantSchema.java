@@ -3,7 +3,6 @@ package dev.amble.ait.data.schema.console;
 import java.lang.reflect.Type;
 
 import com.google.gson.*;
-import dev.amble.ait.client.models.consoles.ConsoleModel;
 import dev.amble.lib.api.Identifiable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -12,7 +11,7 @@ import org.joml.Vector3f;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 
-import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
+import dev.amble.ait.client.models.consoles.ConsoleModel;
 import dev.amble.ait.data.schema.console.variant.hartnell.HartnellVariant;
 import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;

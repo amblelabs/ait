@@ -1,5 +1,31 @@
 package dev.amble.ait.datagen;
 
+import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
+import static net.minecraft.data.server.recipe.RecipeProvider.*;
+
+import java.util.Calendar;
+import java.util.concurrent.CompletableFuture;
+
+import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
+import dev.amble.lib.datagen.lang.LanguageType;
+import dev.amble.lib.datagen.sound.AmbleSoundProvider;
+import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+
+import net.minecraft.block.Blocks;
+import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
+import net.minecraft.item.Items;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.book.RecipeCategory;
+import net.minecraft.registry.RegistryBuilder;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.Identifier;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITEntityTypes;
@@ -14,30 +40,6 @@ import dev.amble.ait.module.planet.core.PlanetBlocks;
 import dev.amble.ait.module.planet.core.PlanetItems;
 import dev.amble.ait.module.planet.core.world.PlanetConfiguredFeatures;
 import dev.amble.ait.module.planet.core.world.PlanetPlacedFeatures;
-import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
-import dev.amble.lib.datagen.lang.LanguageType;
-import dev.amble.lib.datagen.sound.AmbleSoundProvider;
-import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.minecraft.block.Blocks;
-import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryBuilder;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.Identifier;
-
-import java.util.Calendar;
-import java.util.concurrent.CompletableFuture;
-
-import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
-import static net.minecraft.data.server.recipe.RecipeProvider.*;
 
 public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
@@ -829,6 +831,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.animateConsole", "Animate console?");
         provider.addTranslation("yacl3.config.ait:client.animateDoors", "Animate doors?");
         provider.addTranslation("yacl3.config.ait:client.temperatureType", "Temperature type");
+        provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.celsius", "Celsius (°C)");
+        provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.fahrenheit", "Fahrenheit (°F)");
+        provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.kelvin", "Kelvin (K)");
+        provider.addTranslation("yacl3.config.ait:client.handlesLevenshteinDistance", "Levenshtein distance for handles");
 
         provider.addTranslation("text.autoconfig.aitconfig.category.client", "Client");
         provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.SHOW_EXPERIMENTAL_WARNING", "Show Experimental Warning");
@@ -1121,6 +1127,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.telepathic.success", "Destination Found");
         provider.addTranslation("tardis.message.control.telepathic.failed", "Destination Not Found");
         provider.addTranslation("tardis.message.control.telepathic.choosing", "The TARDIS is choosing...");
+        provider.addTranslation("tardis.message.control.engine_overdrive.primed", "Dump Artron? Press again to confirm.");
+        provider.addTranslation("tardis.message.control.engine_overdrive.insufficient_fuel", "ERROR, TARDIS REQUIRES AT LEAST 25K ARTRON TO EXECUTE THIS ACTION.");
+        provider.addTranslation("tardis.message.control.engine_overdrive.dumping_artron", "DUMPING ARTRON");
+        provider.addTranslation("tardis.message.control.engine_overdrive.engines_overloaded", "ARTRON DUMPED, ENGINES OVERLOADED, TRIGGERING EMERGENCY ARTRON RELEASE");
         provider.addTranslation("tardis.message.interiorchange.success", "%s has grown to %d");
         provider.addTranslation("tardis.message.landingpad.adjust", "Adjusting to landing pad..");
         provider.addTranslation("tardis.message.self_destruct.warning", "SELF DESTRUCT INITIATED | ABORT SHIP");
@@ -1193,7 +1203,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("achievement.ait.title.feed_power_converter", "What are you doing, Doc?");
         provider.addTranslation("achievement.ait.description.feed_power_converter", "Use food on the power converter.");
         provider.addTranslation("achievement.ait.title.attack_eyebrows", "Attack Eyebrows");
-        provider.addTranslation("achievement.ait.description.attack_eyebrows", "Its a elevator!");
+        provider.addTranslation("achievement.ait.description.attack_eyebrows", "It's an elevator!");
         provider.addTranslation("achievement.ait.title.pui", "Piloting under the influence");
         provider.addTranslation("achievement.ait.description.pui", "Consume Zeiton Dust while the TARDIS is in flight.");
         provider.addTranslation("achievement.ait.title.bonding", "I think it's starting to trust you.");
@@ -1425,6 +1435,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         // Alarms
         provider.addTranslation("tardis.message.alarm.crashing", "System Alert: TARDIS is experiencing a critical failure.");
+        provider.addTranslation("tardis.message.alarm.hostile_presence", "System Alert: Hostile presence detected.");
 
         // Security Settings Menu
         provider.addTranslation("screen.ait.sonic.button", "> Sonic Settings");
@@ -1460,6 +1471,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("command.ait.data.set", "Set value %s to '%s'");
         provider.addTranslation("command.ait.data.fail",
                 "Can't get value of a property named %s, because component %s is not keyed!");
+        provider.addTranslation("command.ait.list.tardises", "TARDISes");
+        provider.addTranslation("command.ait.list.pattern.error", "Bad pattern '%s'!");
 
         // Rift Chunk Tracking
         provider.addTranslation("riftchunk.ait.tracking", "Rift Tracking");

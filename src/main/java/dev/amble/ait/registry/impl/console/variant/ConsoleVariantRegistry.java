@@ -8,13 +8,12 @@ import dev.amble.lib.register.unlockable.UnlockableRegistry;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
-import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3f;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.datapack.DatapackConsole;
