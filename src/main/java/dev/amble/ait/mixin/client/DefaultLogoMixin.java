@@ -1,7 +1,12 @@
 package dev.amble.ait.mixin.client;
 
-import static dev.amble.ait.core.AITItems.isInAdvent;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.AITModClient;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.LogoDrawer;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -9,13 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.LogoDrawer;
-import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.AITModClient;
+import static dev.amble.ait.core.AITItems.isInAdvent;
 
 @Mixin(LogoDrawer.class)
 public class DefaultLogoMixin {
@@ -61,12 +60,8 @@ public class DefaultLogoMixin {
     private void renderWarningMessage(DrawContext context, int screenWidth, float alpha, int y, CallbackInfo ci) {
         if (AITMod.isUnsafeBranch()) {
 
-            String warningMessage;
-            if (isChristmas) {
-                warningMessage =  "HO HO HO!: You are using an experimental branch (" + AITMod.BRANCH + "), please be cautious when testing or the grinch will smell you toes!";
-            } else {
-                warningMessage =  "⚠ WARNING: You are using an experimental version (" + AITMod.BRANCH + "), please be cautious when testing!";
-            }
+            String warningKey = "menu." + AITMod.MOD_ID + "." + (isChristmas ? "christmas" : "main");
+            Text warningMessage = Text.translatable(warningKey);
 
             screenWidth = this.client.getWindow().getScaledWidth();
             int textWidth = this.client.textRenderer.getWidth(warningMessage);

@@ -1,17 +1,8 @@
 package dev.amble.ait.core.blocks;
 
-import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
-
-import java.util.List;
-
+import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 import dev.amble.ait.core.world.RiftChunkManager;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -20,8 +11,12 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
@@ -31,9 +26,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
+import java.util.List;
+
+import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 public class ArtronCollectorBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
 
@@ -77,19 +75,15 @@ public class ArtronCollectorBlock extends HorizontalDirectionalBlock implements 
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         super.onPlaced(world, pos, state, placer, itemStack);
 
-        if (!world.isClient && world instanceof ServerWorld serverWorld) {
-            if (RiftChunkManager.isRiftChunk(serverWorld, pos)) {
-
-                serverWorld.playSound(
-                        null,
-                        pos,
-                        SoundEvents.BLOCK_BEACON_ACTIVATE,
-                        SoundCategory.BLOCKS,
-                        1.0f,
-                        1.0f
-                );
-
-            }
+        if (world instanceof ServerWorld serverWorld && RiftChunkManager.isRiftChunk(serverWorld, pos)) {
+            serverWorld.playSound(
+                    null,
+                    pos,
+                    SoundEvents.BLOCK_BEACON_ACTIVATE,
+                    SoundCategory.BLOCKS,
+                    1.0f,
+                    1.0f
+            );
         }
     }
 

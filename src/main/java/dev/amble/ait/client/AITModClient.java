@@ -40,6 +40,7 @@ import dev.amble.ait.client.sonic.SonicModelLoader;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.client.util.MultiplayerUtil;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.*;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
@@ -78,8 +79,6 @@ import net.minecraft.block.DoorBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
-import net.minecraft.client.network.ServerInfo;
-import net.minecraft.client.option.ServerList;
 import net.minecraft.client.particle.EndRodParticle;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
@@ -136,7 +135,8 @@ public class AITModClient implements ClientModInitializer {
         adventItemPredicates();
         registerItemColors();
         registerParticles();
-        tryAddServer("Adventures In Time Server", "AIT-server.mcserver.us");
+        MultiplayerUtil.tryAddServer("Adventures In Time Server", "AIT-server.mcserver.us");
+        MultiplayerUtil.tryAddServer("Adventures In Time Server (Alt)", "199.115.73.46:25565");
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             ConfigCommand.register(dispatcher);
@@ -268,24 +268,6 @@ public class AITModClient implements ClientModInitializer {
             default -> null;
         };
     }
-
-    private void tryAddServer(String name, String address) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        ServerList serverList = new ServerList(client);
-        serverList.loadFile();
-
-        for (int i = 0; i < serverList.size(); i++) {
-            ServerInfo server = serverList.get(i);
-            if (server.address.equalsIgnoreCase(address)) {
-                return;
-            }
-        }
-
-        ServerInfo newServer = new ServerInfo(name, address, false);
-        serverList.add(newServer, false);
-        serverList.saveFile();
-    }
-
 
     public void chargedZeitonCrystalPredicate() {
         ModelPredicateProviderRegistry.register(AITItems.CHARGED_ZEITON_CRYSTAL, new Identifier("fuel"),
