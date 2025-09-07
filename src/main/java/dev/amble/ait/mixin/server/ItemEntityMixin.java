@@ -22,8 +22,8 @@ public abstract class ItemEntityMixin {
         if (world.isClient())
             return;
 
-        // if entity is in tardis and y is less than -100 save them
-        if (entity.getY() < -entity.getWorld().getBottomY() && world instanceof TardisServerWorld tardisWorld
+        // if entity is in tardis and y is less than the TARDIS' bottom coordinate (currently -64), teleport it to the door
+        if (entity.getY() < entity.getWorld().getBottomY() && world instanceof TardisServerWorld tardisWorld
                 && !tardisWorld.getTardis().interiorChanging().regenerating().get())
             TardisUtil.teleportInside(tardisWorld.getTardis(), entity);
     }

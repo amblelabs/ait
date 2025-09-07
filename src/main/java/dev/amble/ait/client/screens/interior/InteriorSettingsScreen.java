@@ -114,14 +114,16 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         createTextButton(Text.translatable("screen.ait.interiorsettings.cacheconsole")
                 .formatted(this.console != null ? Formatting.WHITE : Formatting.GRAY), button -> sendCachePacket());
         createTextButton(Text.translatable("screen.ait.security.button"), (button -> toSecurityScreen()));
-        if (!(MinecraftClient.getInstance().world.getBlockEntity(console) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
-        boolean bl = consoleBlockEntity.getSonicScrewdriver() != null && !consoleBlockEntity.getSonicScrewdriver().isEmpty();
+
+        boolean showSonicButton = console != null && MinecraftClient.getInstance().world.getBlockEntity(console) instanceof ConsoleBlockEntity consoleBlock 
+                && consoleBlock.getSonicScrewdriver() != null && !consoleBlock.getSonicScrewdriver().isEmpty();
+        
         createTextButton(Text.translatable("screen.ait.sonic.button")
-                .formatted(bl ? Formatting.WHITE : Formatting.GRAY), button -> {
-                    if (bl)
+                .formatted(showSonicButton ? Formatting.WHITE : Formatting.GRAY), button -> {
+                    if (showSonicButton)
                         toSonicScreen();
                 });
-
+        
         this.createCompatButtons();
         TardisClientEvents.SETTINGS_SETUP.invoker().onSetup(this);
 

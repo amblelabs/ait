@@ -78,8 +78,8 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
             // Destination world locked, diverting TARDIS back to previous world (but preserving the destination coordinates).
             if (!LockedDimensionRegistry.getInstance().isUnlocked(tardis, travel.destination().getWorld())) {
-                CachedDirectedGlobalPos newCoordsButPreviousWorld = travel.destination().world(travel.previousPosition().getWorld());
-                travel.forceDestination(newCoordsButPreviousWorld);
+                CachedDirectedGlobalPos destinationCoordsButPreviousWorld = travel.destination().world(travel.previousPosition().getWorld());
+                travel.forceDestination(destinationCoordsButPreviousWorld);
             }
 
             return (TardisUtil.isInteriorEmpty(tardis) && !travel.leaveBehind().get()) || travel.autopilot() || travel.speed() == 0
@@ -456,7 +456,11 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
             return Optional.of(this.queueFor(State.LANDED));
         }
 
-        final CachedDirectedGlobalPos finalPos = result.value().orElse(initialPos);
+        // If the destination world is locked, crash in previous world.
+        boolean isDestinationUnlocked = LockedDimensionRegistry.getInstance().isUnlocked(this.tardis, this.destination().getWorld());
+        final CachedDirectedGlobalPos finalPos = isDestinationUnlocked
+                ? result.value().orElse(initialPos)
+                : this.tardis.travel().destination().world(this.tardis.travel().previousPosition().getWorld());
 
         this.setState(State.MAT);
         this.waiting = true;

@@ -1,7 +1,7 @@
 {
   "values": [
     "ait:exterior_block",
-    "ait:console_block",
+    "ait:console",
     "ait:waypoint_bank", 
     "ait:engine_block",
     "ait:door_block",

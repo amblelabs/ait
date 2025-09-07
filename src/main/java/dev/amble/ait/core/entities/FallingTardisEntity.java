@@ -2,7 +2,7 @@ package dev.amble.ait.core.entities;
 
 import java.util.function.Predicate;
 
-import dev.amble.lib.util.ServerLifecycleHooks;
+import dev.amble.ait.core.tardis.util.TardisUtil;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -20,7 +20,6 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -30,12 +29,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion;
-import net.minecraft.world.explosion.ExplosionBehavior;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITDamageTypes;
@@ -178,16 +173,7 @@ public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceIm
         });
 
         if (isCrashing) {
-            this.getWorld().createExplosion(this, null, new ExplosionBehavior() {
-                        @Override
-                        public boolean canDestroyBlock(Explosion explosion, BlockView world, BlockPos pos, BlockState state, float power) {
-                            MinecraftServer server = ServerLifecycleHooks.get();
-                            if (server == null) return false;
-                            if (!server.getGameRules().getBoolean(AITMod.TARDIS_GRIEFING)) return false;
-
-                            return super.canDestroyBlock(explosion, world, pos, state, power);
-                        }
-                    }, this.getPos(), 10, true,
+            this.getWorld().createExplosion(this, null, TardisUtil.EXPLOSION_BEHAVIOR, this.getPos(), 10, TardisUtil.doCreateFire(this.getWorld()),
                     World.ExplosionSourceType.TNT);
 
             travel.setCrashing(false);

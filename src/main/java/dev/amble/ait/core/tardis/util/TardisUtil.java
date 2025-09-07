@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
+import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.amble.lib.util.TeleportUtil;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
@@ -12,6 +13,11 @@ import dev.drtheo.scheduler.api.common.TaskStage;
 import it.unimi.dsi.fastutil.longs.LongBidirectionalIterator;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.util.TriState;
+import net.minecraft.block.BlockState;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.explosion.Explosion;
+import net.minecraft.world.explosion.ExplosionBehavior;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.Entity;
@@ -63,6 +69,20 @@ public class TardisUtil {
     public static final Identifier FLYING_SPEED = AITMod.id("flying_speed");
     public static final Identifier TOGGLE_ANTIGRAVS = AITMod.id("toggle_antigravs");
     public static final Identifier FIND_PLAYER = AITMod.id("find_player");
+    public static final ExplosionBehavior EXPLOSION_BEHAVIOR = new ExplosionBehavior() {
+        @Override
+        public boolean canDestroyBlock(Explosion explosion, BlockView world, BlockPos pos, BlockState state, float power) {
+            MinecraftServer server = ServerLifecycleHooks.get();
+            if (server == null) return false;
+            if (!server.getGameRules().getBoolean(AITMod.TARDIS_GRIEFING)) return false;
+
+            return super.canDestroyBlock(explosion, world, pos, state, power);
+        }
+    };
+
+    public static boolean doCreateFire(World world) {
+        return world.getGameRules().getBoolean(AITMod.TARDIS_FIRE_GRIEFING);
+    }
 
     public static void init() {
         ServerPlayNetworking.registerGlobalReceiver(SNAP, (server, player, handler, buf, responseSender) -> {
