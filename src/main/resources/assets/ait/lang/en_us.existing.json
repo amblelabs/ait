@@ -16,6 +16,7 @@
   "yacl3.config.ait:server.riftSpawnBlacklist": "Rift spawn world blacklist",
   "yacl3.config.ait:server.riftDropBlacklist": "Rift drop world blacklist",
   "yacl3.config.ait:server.disableSafeguards": "Disable Safeguards",
+  "yacl3.config.ait:server.crashSoundVolume": "TARDIS Crash Sound Volume",
 
   "yacl3.config.ait:client.interiorHumVolume": "Interior hum volume",
   "yacl3.config.ait:client.customMenu": "Use custom main menu?",
@@ -29,6 +30,7 @@
   "yacl3.config.ait:client.animateConsole": "Animate console?",
   "yacl3.config.ait:client.animateDoors": "Animate doors?",
   "yacl3.config.ait:client.temperatureType": "Temperature type",
+  "yacl3.config.ait:client.flightSoundVolume": "Flight Sound Volume",
 
   "screen.ait.security.title": "Security"
 }

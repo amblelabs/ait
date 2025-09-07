@@ -10,6 +10,7 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.sounds.travel.map.TravelSoundMap;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
+@Deprecated(since = "1.3.0", forRemoval = true)
 public class TravelSoundRegistry extends SimpleDatapackRegistry<TravelSound> {
     private static final TravelSoundRegistry instance = new TravelSoundRegistry();
 

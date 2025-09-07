@@ -1244,6 +1244,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         provider.addTranslation("ait.tardis.likes_item", "The TARDIS may like this item...");
         provider.addTranslation("tooltip.ait.remoteitem.holdformoreinfo", "Hold shift for more info");
+        provider.addTranslation("soundCategory.hums", "Interior HUM");
+        provider.addTranslation("text.ait.config.title", "AIT Config");
 
         // Control entities
         provider.addTranslation("control.ait.antigravs", "Antigravs");
@@ -1312,6 +1314,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.animateConsole", "Animate console?");
         provider.addTranslation("yacl3.config.ait:client.animateDoors", "Animate doors?");
         provider.addTranslation("yacl3.config.ait:client.temperatureType", "Temperature type");
+        provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.celsius", "Celsius (°C)");
+        provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.fahrenheit", "Fahrenheit (°F)");
+        provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.kelvin", "Kelvin (K)");
+        provider.addTranslation("yacl3.config.ait:client.handlesLevenshteinDistance", "Levenshtein distance for handles");
 
         provider.addTranslation("text.autoconfig.aitconfig.category.client", "Client");
         provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.SHOW_EXPERIMENTAL_WARNING", "Show Experimental Warning");
@@ -1562,6 +1568,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
 
         // Block Tooltips
+        provider.addTranslation("block.ait.artron_collector_block.tooltip", "Clashed together from random junks and bits, this item can collect Artron Units from Artron Chunks!");
+
         provider.addTranslation("block.ait.fabricator.tooltip.use", "(Place on top of a Smithing Table)");
         provider.addTranslation("tooltip.ait.use_in_tardis", "(Place inside a TARDIS)");
         provider.addTranslation("block.ait.artron_collector_block.tooltip.use", "(Charges inside of Rift Chunks)");
@@ -1605,6 +1613,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.loyalty.message.owner", "The TARDIS hums you a song, as if to show it will always be here for you. [OWNER]");
 
         // TARDIS Control Actionbar Title
+        provider.addTranslation("message.ait.stored_artron", "Stored Artron: %s/%");
         provider.addTranslation("tardis.message.protocol_813.travel", "Hail Mary is active, please prepare for departure.");
         provider.addTranslation("tardis.message.control.protocol_116.active", "Stabiliser: ENGAGED");
         provider.addTranslation("tardis.message.control.hail_mary.engaged", "Hail Mary: ENGAGED");
@@ -1642,6 +1651,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.telepathic.success", "Destination Found");
         provider.addTranslation("tardis.message.control.telepathic.failed", "Destination Not Found");
         provider.addTranslation("tardis.message.control.telepathic.choosing", "The TARDIS is choosing...");
+        provider.addTranslation("tardis.message.control.engine_overdrive.primed", "Dump Artron? Press again to confirm.");
+        provider.addTranslation("tardis.message.control.engine_overdrive.insufficient_fuel", "ERROR, TARDIS REQUIRES AT LEAST 25K ARTRON TO EXECUTE THIS ACTION.");
+        provider.addTranslation("tardis.message.control.engine_overdrive.dumping_artron", "DUMPING ARTRON");
+        provider.addTranslation("tardis.message.control.engine_overdrive.engines_overloaded", "ARTRON DUMPED, ENGINES OVERLOADED, TRIGGERING EMERGENCY ARTRON RELEASE");
         provider.addTranslation("tardis.message.interiorchange.success", "%s has grown to %d");
         provider.addTranslation("tardis.message.landingpad.adjust", "Adjusting to landing pad..");
         provider.addTranslation("tardis.message.self_destruct.warning", "SELF DESTRUCT INITIATED | ABORT SHIP");
@@ -1714,7 +1727,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("achievement.ait.title.feed_power_converter", "What are you doing, Doc?");
         provider.addTranslation("achievement.ait.description.feed_power_converter", "Use food on the power converter.");
         provider.addTranslation("achievement.ait.title.attack_eyebrows", "Attack Eyebrows");
-        provider.addTranslation("achievement.ait.description.attack_eyebrows", "Its a elevator!");
+        provider.addTranslation("achievement.ait.description.attack_eyebrows", "It's an elevator!");
         provider.addTranslation("achievement.ait.title.pui", "Piloting under the influence");
         provider.addTranslation("achievement.ait.description.pui", "Consume Zeiton Dust while the TARDIS is in flight.");
         provider.addTranslation("achievement.ait.title.bonding", "I think it's starting to trust you.");
@@ -1946,6 +1959,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         // Alarms
         provider.addTranslation("tardis.message.alarm.crashing", "System Alert: TARDIS is experiencing a critical failure.");
+        provider.addTranslation("tardis.message.alarm.hostile_presence", "System Alert: Hostile presence detected.");
 
         // Security Settings Menu
         provider.addTranslation("screen.ait.sonic.button", "> Sonic Settings");
@@ -1981,6 +1995,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("command.ait.data.set", "Set value %s to '%s'");
         provider.addTranslation("command.ait.data.fail",
                 "Can't get value of a property named %s, because component %s is not keyed!");
+        provider.addTranslation("command.ait.list.tardises", "TARDISes");
+        provider.addTranslation("command.ait.list.pattern.error", "Bad pattern '%s'!");
 
         // Rift Chunk Tracking
         provider.addTranslation("riftchunk.ait.tracking", "Rift Tracking");
@@ -2045,6 +2061,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("animation." + AITMod.MOD_ID + ".proton_mat", "Proton");
         provider.addTranslation("animation." + AITMod.MOD_ID + ".proton_demat", "Proton");
 
+        // Main Menu
+        provider.addTranslation("menu." + AITMod.MOD_ID + ".main", "⚠ WARNING: You are using an experimental version (" + AITMod.BRANCH + "), please be cautious when testing!");
+        provider.addTranslation("menu." + AITMod.MOD_ID + ".christmas", "HO HO HO!: You are using an experimental branch (" + AITMod.BRANCH + "), please be cautious when testing or the grinch will smell you toes!");
 
         return provider;
     }

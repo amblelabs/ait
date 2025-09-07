@@ -1,4 +1,7 @@
-import os, json, re, argparse
+import argparse
+import json
+import os
+import re
 import requests
 
 parser = argparse.ArgumentParser()
@@ -45,11 +48,21 @@ def extract_entries(title: str, body: str) -> list[str]:
         return [ln.strip() for ln in last.splitlines() if ln.strip()]
     return [title]
 
+
+# Determine if a PR should be ignored based on body content
+def should_ignore(body: str) -> bool:
+    cleaned = re.sub(r"<!--.*?-->", "", body or "", flags=re.S)
+    return bool(re.search(r"(?:\:cl-ignore\:|🆑-ignore|:nocl:|no🆑)", cleaned))
+
 # Process one PR into changelog lines, including authors hyperlinked
 def process_pr(pr):
     num = pr["number"]
     title = pr["title"].strip()
     body = pr.get("body") or ""
+
+    if should_ignore(body):
+        return []
+
     entries = extract_entries(title, body)
     # Build markdown link to PR
     link = f"https://github.com/{repo}/pull/{num}"
@@ -79,5 +92,9 @@ else:
     pr = ev["pull_request"]
     all_lines = process_pr(pr)
 
-with open("CHANGELOG.md", "a") as fh:
-    fh.write("\n".join(all_lines) + "\n")
+# check if any lines were generated
+if not all_lines:
+    print("No changelog entries found.")
+else:
+    with open("CHANGELOG.md", "a") as fh:
+        fh.write("\n".join(all_lines) + "\n")

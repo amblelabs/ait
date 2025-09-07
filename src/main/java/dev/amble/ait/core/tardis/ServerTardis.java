@@ -8,13 +8,10 @@ import java.util.function.Consumer;
 
 import com.google.gson.InstanceCreator;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.util.ServerLifecycleHooks;
-import dev.drtheo.multidim.MultiDim;
 
 import net.minecraft.server.MinecraftServer;
 
 import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
@@ -101,17 +98,13 @@ public class ServerTardis extends Tardis {
         if (world == null)
             return false;
 
-        if (!MultiDim.get(ServerLifecycleHooks.get()).isWorldUnloaded(world))
-            return true;
+        return !this.travel().isLanded() || world.shouldTick() || this.shouldTickExterior();
+    }
 
-        TravelHandler travel = this.travel();
-
-        if (!travel.isLanded())
-            return true;
-
-        CachedDirectedGlobalPos pos = travel.position();
+    public boolean shouldTickExterior() {
+        CachedDirectedGlobalPos pos = this.travel().position();
         return pos.getWorld() != null && pos.getWorld()
-                .shouldTickEntity(travel.position().getPos());
+                .shouldTickEntity(pos.getPos());
     }
 
     public static Object creator() {

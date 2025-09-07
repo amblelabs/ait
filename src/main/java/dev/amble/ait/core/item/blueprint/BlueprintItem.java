@@ -40,11 +40,11 @@ public class BlueprintItem extends Item {
 
     @Override
     public void postProcessNbt(NbtCompound nbt) {
-        super.postProcessNbt(nbt);
-
         if (!nbt.contains("Blueprint")) {
             nbt.putString("Blueprint", BlueprintRegistry.getInstance().getRandom().id().toString());
         }
+        
+        super.postProcessNbt(nbt);
     }
 
     @Override

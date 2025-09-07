@@ -39,9 +39,11 @@ import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
 
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.boti.*;
 import dev.amble.ait.client.commands.ConfigCommand;
+import dev.amble.ait.client.commands.DebugCommand;
 import dev.amble.ait.client.config.AITClientConfig;
 import dev.amble.ait.client.data.ClientLandingManager;
 import dev.amble.ait.client.models.AnimatedModel;
@@ -76,6 +78,7 @@ import dev.amble.ait.client.sonic.SonicModelLoader;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.client.util.MultiplayerUtil;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.*;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
@@ -134,9 +137,12 @@ public class AITModClient implements ClientModInitializer {
         adventItemPredicates();
         registerItemColors();
         registerParticles();
+        MultiplayerUtil.tryAddServer("Adventures In Time Server", "AIT-server.mcserver.us");
+        MultiplayerUtil.tryAddServer("Adventures In Time Server (Alt)", "199.115.73.46:25565");
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             ConfigCommand.register(dispatcher);
+            DebugCommand.register(dispatcher);
         });
 
         AITKeyBinds.init();

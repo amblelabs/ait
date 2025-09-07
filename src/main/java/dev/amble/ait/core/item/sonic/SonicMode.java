@@ -2,10 +2,14 @@ package dev.amble.ait.core.item.sonic;
 
 import java.util.function.Function;
 
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.advancement.TardisCriterions;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -138,6 +142,18 @@ public abstract class SonicMode implements Ordered {
     }
     public static HitResult getHitResult(LivingEntity user, double distance) {
         return ProjectileUtil.getCollision(user, entity -> !entity.isSpectator() && entity.canHit(), distance);
+    }
+    public static void checkSonicWoodAdvancementConditions(World world, LivingEntity user, HitResult hitResult) {
+        if (!(user instanceof ServerPlayerEntity player))
+            return;
+
+        if (hitResult instanceof BlockHitResult blockHit) {
+            BlockState state = world.getBlockState(blockHit.getBlockPos());
+
+            if (state.isIn(AITTags.Blocks.WOODEN_BLOCKS)) {
+                TardisCriterions.SONIC_WOOD.trigger(player);
+            }
+        }
     }
 
     @Override
