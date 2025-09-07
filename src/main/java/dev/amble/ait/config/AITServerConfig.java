@@ -31,62 +31,83 @@ public class AITServerConfig {
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @CustomDescription(value = "Shrinks down the JSON exported from TARDIS Data")
     @SerialEntry public boolean minifyJson = false;
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @CustomDescription(value = "Allows the TARDIS to constantly dematerialise and rematerialize in the same spot when taking off without a pilot inside.")
+    @CustomImage(value = "textures/yacl3/server/tardis-demat.webp", width = 854, height = 480)
     @SerialEntry public boolean ghostMonument = true;
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @CustomDescription(value = "Adds more progression into the game by locking dimensions until you get an specific item or by being inside the dimension to unlock it.")
+    @CustomImage(value = "textures/yacl3/server/locked-dim.webp", width = 854, height = 480)
     @SerialEntry public boolean lockDimensions = true;
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @CustomDescription(value = "Allows the TARDIS feature of Real World Flight where you can travel manually. [BETA FEATURE]")
+    @CustomImage(value = "textures/yacl3/server/rwf.webp", width = 854, height = 480)
     @SerialEntry public boolean rwfEnabled = false;
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @CustomDescription(value = "Allow the TNT (when ignited) to be able to enter through the TARDIS Doors.")
+    @CustomImage(value = "textures/yacl3/server/disable-tnt.webp", width = 854, height = 480)
     @SerialEntry public boolean tntCanTeleportThroughDoors = true;
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @CustomDescription(value = "Allows the Hypercube Item to be used.")
+    @CustomImage(value = "textures/yacl3/server/distress-cube.webp", width = 854, height = 480)
     @SerialEntry public boolean hypercubesEnabled = true;
 
     @AutoGen(category = CATEGORY)
     @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
+    @CustomDescription(value = "Blacklist dimensions that the Environment Projector can display.")
     @SerialEntry public List<String> projectorBlacklist = Lists.newArrayList(
             "ait-tardis");
 
     @AutoGen(category = CATEGORY)
     @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
+    @CustomDescription(value = "Blacklist dimensions that the TARDIS can travel to.")
     @SerialEntry public List<String> travelBlacklist = Lists.newArrayList(
             "ait-tardis", "ait:tardis_dimension_type", AITDimensions.TIME_VORTEX_WORLD.getValue().toString(), "ait:space");
 
     @AutoGen(category = CATEGORY)
     @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
+    @CustomDescription(value = "Blacklist dimensions that Rifts can spawn in.")
     @SerialEntry public List<String> riftSpawnBlacklist = Lists.newArrayList(
             "ait-tardis", "ait:tardis_dimension_type", AITDimensions.TIME_VORTEX_WORLD.getValue().toString(), "minecraft:the_end", "ait:space");
 
     @AutoGen(category = CATEGORY)
     @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
+    @CustomDescription(value = "Blacklist dimensions that Rifts can drop.")
     @SerialEntry public List<String> riftDropBlacklist = Lists.newArrayList(
             "ait-tardis", "ait:tardis_dimension_type", AITDimensions.TIME_VORTEX_WORLD.getValue().toString(), "minecraft:the_end", "ait:space");
 
     @AutoGen(category = CATEGORY)
     @IntField(min = 1)
+    @CustomDescription(value = "How fast the TARDIS can travel per tick.")
+    @CustomImage(value = "textures/yacl3/server/tardis-speed.webp", width = 854, height = 480)
     @SerialEntry public int travelPerTick = 2;
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @CustomDescription(value = "Sends AIT packets in bulk.")
     @SerialEntry public boolean sendBulk = true;
 
     @AutoGen(category = CATEGORY)
     @IntField(min = -1)
+    @CustomDescription(value = "The maximum TARDIS allowed in a world.")
+    @CustomImage(value = "textures/yacl3/server/multi-tardis.webp", width = 854, height = 480)
     @SerialEntry public int maxTardises = -1;
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @CustomDescription(value = "Turns off safeguards for when running the mod.")
     @SerialEntry public boolean disableSafeguards = false;
 
     @AutoGen(category = CATEGORY)

@@ -1,31 +1,5 @@
 package dev.amble.ait.datagen;
 
-import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
-import static net.minecraft.data.server.recipe.RecipeProvider.*;
-
-import java.util.Calendar;
-import java.util.concurrent.CompletableFuture;
-
-import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
-import dev.amble.lib.datagen.lang.LanguageType;
-import dev.amble.lib.datagen.sound.AmbleSoundProvider;
-import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-
-import net.minecraft.block.Blocks;
-import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryBuilder;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITEntityTypes;
@@ -40,6 +14,30 @@ import dev.amble.ait.module.planet.core.PlanetBlocks;
 import dev.amble.ait.module.planet.core.PlanetItems;
 import dev.amble.ait.module.planet.core.world.PlanetConfiguredFeatures;
 import dev.amble.ait.module.planet.core.world.PlanetPlacedFeatures;
+import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
+import dev.amble.lib.datagen.lang.LanguageType;
+import dev.amble.lib.datagen.sound.AmbleSoundProvider;
+import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.minecraft.block.Blocks;
+import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
+import net.minecraft.item.Items;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.book.RecipeCategory;
+import net.minecraft.registry.RegistryBuilder;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.Identifier;
+
+import java.util.Calendar;
+import java.util.concurrent.CompletableFuture;
+
+import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
+import static net.minecraft.data.server.recipe.RecipeProvider.*;
 
 public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
@@ -762,6 +760,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         provider.addTranslation("ait.tardis.likes_item", "The TARDIS may like this item...");
         provider.addTranslation("tooltip.ait.remoteitem.holdformoreinfo", "Hold shift for more info");
+        provider.addTranslation("soundCategory.hums", "Interior HUM");
+        provider.addTranslation("text.ait.config.title", "AIT Config");
 
         // Control entities
         provider.addTranslation("control.ait.antigravs", "Antigravs");
@@ -1042,6 +1042,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITBlocks.FOOD_MACHINE, "Food Machine");
 
         // Block Tooltips
+        provider.addTranslation("block.ait.artron_collector_block.tooltip", "Clashed together from random junks and bits, this item can collect Artron Units from Artron Chunks!");
+
         provider.addTranslation("block.ait.fabricator.tooltip.use", "(Place on top of a Smithing Table)");
         provider.addTranslation("tooltip.ait.use_in_tardis", "(Place inside a TARDIS)");
         provider.addTranslation("block.ait.artron_collector_block.tooltip.use", "(Charges inside of Rift Chunks)");
@@ -1085,6 +1087,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.loyalty.message.owner", "The TARDIS hums you a song, as if to show it will always be here for you. [OWNER]");
 
         // TARDIS Control Actionbar Title
+        provider.addTranslation("message.ait.stored_artron", "Stored Artron: %s/%");
         provider.addTranslation("tardis.message.protocol_813.travel", "Hail Mary is active, please prepare for departure.");
         provider.addTranslation("tardis.message.control.protocol_116.active", "Stabiliser: ENGAGED");
         provider.addTranslation("tardis.message.control.hail_mary.engaged", "Hail Mary: ENGAGED");
@@ -1532,6 +1535,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("animation." + AITMod.MOD_ID + ".proton_mat", "Proton");
         provider.addTranslation("animation." + AITMod.MOD_ID + ".proton_demat", "Proton");
 
+        // Main Menu
+        provider.addTranslation("menu." + AITMod.MOD_ID + ".main", "⚠ WARNING: You are using an experimental version (" + AITMod.BRANCH + "), please be cautious when testing!");
+        provider.addTranslation("menu." + AITMod.MOD_ID + ".christmas", "HO HO HO!: You are using an experimental branch (" + AITMod.BRANCH + "), please be cautious when testing or the grinch will smell you toes!");
 
         return provider;
     }
