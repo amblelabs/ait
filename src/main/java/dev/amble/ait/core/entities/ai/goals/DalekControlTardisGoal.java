@@ -1,7 +1,9 @@
 package dev.amble.ait.core.entities.ai.goals;
 
-import org.jetbrains.annotations.Nullable;
-
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
@@ -14,18 +16,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.WorldView;
+import net.minecraft.world.*;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
-
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
-import dev.amble.ait.core.world.TardisServerWorld;
+import org.jetbrains.annotations.Nullable;
 
 public class DalekControlTardisGoal
         extends MoveToTargetPosGoal {
@@ -90,7 +84,7 @@ public class DalekControlTardisGoal
         if (blockPos2 == null) return;
         BlockEntity be = world.getBlockEntity(blockPos2);
         if (!(be instanceof ConsoleBlockEntity console)) return;
-        if (console.tardis() == null) return;
+        if (!console.isLinked()) return;
         Tardis tardis = console.tardis().get();
         if (!tardis.travel().hasFinishedFlight() && !tardis.travel().isLanded() ||
                 !tardis.fuel().hasPower() || tardis.stats().security().get()) return;

@@ -1,7 +1,7 @@
 package dev.amble.ait.core.entities.ai.goals;
 
-import org.jetbrains.annotations.Nullable;
-
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.ai.goal.MoveToTargetPosGoal;
@@ -15,9 +15,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.*;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
-
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
+import org.jetbrains.annotations.Nullable;
 
 public class DalekNavTardisGoal
         extends MoveToTargetPosGoal {
@@ -80,7 +78,7 @@ public class DalekNavTardisGoal
         if (blockPos2 == null) return;
         BlockEntity be = world.getBlockEntity(blockPos2);
         if (!(be instanceof ExteriorBlockEntity exteriorBlockEntity)) return;
-        if (exteriorBlockEntity.tardis() == null) return;
+        if (!exteriorBlockEntity.isLinked()) return;
         Tardis tardis = exteriorBlockEntity.tardis().get();
         if (!tardis.travel().isLanded() || tardis.cloak().cloaked().get()) return;
         if (this.hasReached()) {
