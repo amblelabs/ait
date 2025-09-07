@@ -598,6 +598,488 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .input('B', Items.NETHERITE_INGOT)
                     .criterion(hasItem(Items.NETHERITE_INGOT), conditionsFromItem(Items.NETHERITE_INGOT)));
 
+            // Decoration (Wooden Seat)
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.WHITE_WOODEN_SEAT)
+                            .group("wooden_seat")
+                    .pattern(" CP")
+                    .pattern("TST")
+                    .pattern("F F")
+                    .input('P', Blocks.SPRUCE_PLANKS)
+                    .criterion(hasItem(Blocks.SPRUCE_PLANKS), conditionsFromItem(Blocks.SPRUCE_PLANKS))
+                    .input('T', Blocks.SPRUCE_TRAPDOOR)
+                    .criterion(hasItem(Blocks.SPRUCE_TRAPDOOR), conditionsFromItem(Blocks.SPRUCE_TRAPDOOR))
+                    .input('S', Blocks.SPRUCE_SLAB)
+                    .criterion(hasItem(Blocks.SPRUCE_SLAB), conditionsFromItem(Blocks.SPRUCE_SLAB))
+                    .input('F', Blocks.SPRUCE_FENCE)
+                    .criterion(hasItem(Blocks.SPRUCE_FENCE), conditionsFromItem(Blocks.SPRUCE_FENCE))
+                    .input('C', Blocks.WHITE_CARPET)
+                    .criterion(hasItem(Blocks.WHITE_CARPET), conditionsFromItem(Blocks.WHITE_CARPET)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.LIGHT_GRAY_WOODEN_SEAT)
+                    .group("wooden_seat")
+                    .pattern(" CP")
+                    .pattern("TST")
+                    .pattern("F F")
+                    .input('P', Blocks.SPRUCE_PLANKS)
+                    .criterion(hasItem(Blocks.SPRUCE_PLANKS), conditionsFromItem(Blocks.SPRUCE_PLANKS))
+                    .input('T', Blocks.SPRUCE_TRAPDOOR)
+                    .criterion(hasItem(Blocks.SPRUCE_TRAPDOOR), conditionsFromItem(Blocks.SPRUCE_TRAPDOOR))
+                    .input('S', Blocks.SPRUCE_SLAB)
+                    .criterion(hasItem(Blocks.SPRUCE_SLAB), conditionsFromItem(Blocks.SPRUCE_SLAB))
+                    .input('F', Blocks.SPRUCE_FENCE)
+                    .criterion(hasItem(Blocks.SPRUCE_FENCE), conditionsFromItem(Blocks.SPRUCE_FENCE))
+                    .input('C', Blocks.LIGHT_GRAY_CARPET)
+                    .criterion(hasItem(Blocks.LIGHT_GRAY_CARPET), conditionsFromItem(Blocks.LIGHT_GRAY_CARPET)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.GRAY_WOODEN_SEAT)
+                    .group("wooden_seat")
+                    .pattern(" CP")
+                    .pattern("TST")
+                    .pattern("F F")
+                    .input('P', Blocks.SPRUCE_PLANKS)
+                    .criterion(hasItem(Blocks.SPRUCE_PLANKS), conditionsFromItem(Blocks.SPRUCE_PLANKS))
+                    .input('T', Blocks.SPRUCE_TRAPDOOR)
+                    .criterion(hasItem(Blocks.SPRUCE_TRAPDOOR), conditionsFromItem(Blocks.SPRUCE_TRAPDOOR))
+                    .input('S', Blocks.SPRUCE_SLAB)
+                    .criterion(hasItem(Blocks.SPRUCE_SLAB), conditionsFromItem(Blocks.SPRUCE_SLAB))
+                    .input('F', Blocks.SPRUCE_FENCE)
+                    .criterion(hasItem(Blocks.SPRUCE_FENCE), conditionsFromItem(Blocks.SPRUCE_FENCE))
+                    .input('C', Blocks.GRAY_CARPET)
+                    .criterion(hasItem(Blocks.GRAY_CARPET), conditionsFromItem(Blocks.GRAY_CARPET)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.BLACK_WOODEN_SEAT)
+                    .group("wooden_seat")
+                    .pattern(" CP")
+                    .pattern("TST")
+                    .pattern("F F")
+                    .input('P', Blocks.SPRUCE_PLANKS)
+                    .criterion(hasItem(Blocks.SPRUCE_PLANKS), conditionsFromItem(Blocks.SPRUCE_PLANKS))
+                    .input('T', Blocks.SPRUCE_TRAPDOOR)
+                    .criterion(hasItem(Blocks.SPRUCE_TRAPDOOR), conditionsFromItem(Blocks.SPRUCE_TRAPDOOR))
+                    .input('S', Blocks.SPRUCE_SLAB)
+                    .criterion(hasItem(Blocks.SPRUCE_SLAB), conditionsFromItem(Blocks.SPRUCE_SLAB))
+                    .input('F', Blocks.SPRUCE_FENCE)
+                    .criterion(hasItem(Blocks.SPRUCE_FENCE), conditionsFromItem(Blocks.SPRUCE_FENCE))
+                    .input('C', Blocks.BLACK_CARPET)
+                    .criterion(hasItem(Blocks.BLACK_CARPET), conditionsFromItem(Blocks.BLACK_CARPET)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.BROWN_WOODEN_SEAT)
+                    .group("wooden_seat")
+                    .pattern(" CP")
+                    .pattern("TST")
+                    .pattern("F F")
+                    .input('P', Blocks.SPRUCE_PLANKS)
+                    .criterion(hasItem(Blocks.SPRUCE_PLANKS), conditionsFromItem(Blocks.SPRUCE_PLANKS))
+                    .input('T', Blocks.SPRUCE_TRAPDOOR)
+                    .criterion(hasItem(Blocks.SPRUCE_TRAPDOOR), conditionsFromItem(Blocks.SPRUCE_TRAPDOOR))
+                    .input('S', Blocks.SPRUCE_SLAB)
+                    .criterion(hasItem(Blocks.SPRUCE_SLAB), conditionsFromItem(Blocks.SPRUCE_SLAB))
+                    .input('F', Blocks.SPRUCE_FENCE)
+                    .criterion(hasItem(Blocks.SPRUCE_FENCE), conditionsFromItem(Blocks.SPRUCE_FENCE))
+                    .input('C', Blocks.BROWN_CARPET)
+                    .criterion(hasItem(Blocks.BROWN_CARPET), conditionsFromItem(Blocks.BROWN_CARPET)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.RED_WOODEN_SEAT)
+                    .group("wooden_seat")
+                    .pattern(" CP")
+                    .pattern("TST")
+                    .pattern("F F")
+                    .input('P', Blocks.SPRUCE_PLANKS)
+                    .criterion(hasItem(Blocks.SPRUCE_PLANKS), conditionsFromItem(Blocks.SPRUCE_PLANKS))
+                    .input('T', Blocks.SPRUCE_TRAPDOOR)
+                    .criterion(hasItem(Blocks.SPRUCE_TRAPDOOR), conditionsFromItem(Blocks.SPRUCE_TRAPDOOR))
+                    .input('S', Blocks.SPRUCE_SLAB)
+                    .criterion(hasItem(Blocks.SPRUCE_SLAB), conditionsFromItem(Blocks.SPRUCE_SLAB))
+                    .input('F', Blocks.SPRUCE_FENCE)
+                    .criterion(hasItem(Blocks.SPRUCE_FENCE), conditionsFromItem(Blocks.SPRUCE_FENCE))
+                    .input('C', Blocks.RED_CARPET)
+                    .criterion(hasItem(Blocks.RED_CARPET), conditionsFromItem(Blocks.RED_CARPET)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.ORANGE_WOODEN_SEAT)
+                    .group("wooden_seat")
+                    .pattern(" CP")
+                    .pattern("TST")
+                    .pattern("F F")
+                    .input('P', Blocks.SPRUCE_PLANKS)
+                    .criterion(hasItem(Blocks.SPRUCE_PLANKS), conditionsFromItem(Blocks.SPRUCE_PLANKS))
+                    .input('T', Blocks.SPRUCE_TRAPDOOR)
+                    .criterion(hasItem(Blocks.SPRUCE_TRAPDOOR), conditionsFromItem(Blocks.SPRUCE_TRAPDOOR))
+                    .input('S', Blocks.SPRUCE_SLAB)
+                    .criterion(hasItem(Blocks.SPRUCE_SLAB), conditionsFromItem(Blocks.SPRUCE_SLAB))
+                    .input('F', Blocks.SPRUCE_FENCE)
+                    .criterion(hasItem(Blocks.SPRUCE_FENCE), conditionsFromItem(Blocks.SPRUCE_FENCE))
+                    .input('C', Blocks.ORANGE_CARPET)
+                    .criterion(hasItem(Blocks.ORANGE_CARPET), conditionsFromItem(Blocks.ORANGE_CARPET)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.YELLOW_WOODEN_SEAT)
+                    .group("wooden_seat")
+                    .pattern(" CP")
+                    .pattern("TST")
+                    .pattern("F F")
+                    .input('P', Blocks.SPRUCE_PLANKS)
+                    .criterion(hasItem(Blocks.SPRUCE_PLANKS), conditionsFromItem(Blocks.SPRUCE_PLANKS))
+                    .input('T', Blocks.SPRUCE_TRAPDOOR)
+                    .criterion(hasItem(Blocks.SPRUCE_TRAPDOOR), conditionsFromItem(Blocks.SPRUCE_TRAPDOOR))
+                    .input('S', Blocks.SPRUCE_SLAB)
+                    .criterion(hasItem(Blocks.SPRUCE_SLAB), conditionsFromItem(Blocks.SPRUCE_SLAB))
+                    .input('F', Blocks.SPRUCE_FENCE)
+                    .criterion(hasItem(Blocks.SPRUCE_FENCE), conditionsFromItem(Blocks.SPRUCE_FENCE))
+                    .input('C', Blocks.YELLOW_CARPET)
+                    .criterion(hasItem(Blocks.YELLOW_CARPET), conditionsFromItem(Blocks.YELLOW_CARPET)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.LIME_WOODEN_SEAT)
+                    .group("wooden_seat")
+                    .pattern(" CP")
+                    .pattern("TST")
+                    .pattern("F F")
+                    .input('P', Blocks.SPRUCE_PLANKS)
+                    .criterion(hasItem(Blocks.SPRUCE_PLANKS), conditionsFromItem(Blocks.SPRUCE_PLANKS))
+                    .input('T', Blocks.SPRUCE_TRAPDOOR)
+                    .criterion(hasItem(Blocks.SPRUCE_TRAPDOOR), conditionsFromItem(Blocks.SPRUCE_TRAPDOOR))
+                    .input('S', Blocks.SPRUCE_SLAB)
+                    .criterion(hasItem(Blocks.SPRUCE_SLAB), conditionsFromItem(Blocks.SPRUCE_SLAB))
+                    .input('F', Blocks.SPRUCE_FENCE)
+                    .criterion(hasItem(Blocks.SPRUCE_FENCE), conditionsFromItem(Blocks.SPRUCE_FENCE))
+                    .input('C', Blocks.LIME_CARPET)
+                    .criterion(hasItem(Blocks.LIME_CARPET), conditionsFromItem(Blocks.LIME_CARPET)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.GREEN_WOODEN_SEAT)
+                    .group("wooden_seat")
+                    .pattern(" CP")
+                    .pattern("TST")
+                    .pattern("F F")
+                    .input('P', Blocks.SPRUCE_PLANKS)
+                    .criterion(hasItem(Blocks.SPRUCE_PLANKS), conditionsFromItem(Blocks.SPRUCE_PLANKS))
+                    .input('T', Blocks.SPRUCE_TRAPDOOR)
+                    .criterion(hasItem(Blocks.SPRUCE_TRAPDOOR), conditionsFromItem(Blocks.SPRUCE_TRAPDOOR))
+                    .input('S', Blocks.SPRUCE_SLAB)
+                    .criterion(hasItem(Blocks.SPRUCE_SLAB), conditionsFromItem(Blocks.SPRUCE_SLAB))
+                    .input('F', Blocks.SPRUCE_FENCE)
+                    .criterion(hasItem(Blocks.SPRUCE_FENCE), conditionsFromItem(Blocks.SPRUCE_FENCE))
+                    .input('C', Blocks.GREEN_CARPET)
+                    .criterion(hasItem(Blocks.GREEN_CARPET), conditionsFromItem(Blocks.GREEN_CARPET)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.CYAN_WOODEN_SEAT)
+                    .group("wooden_seat")
+                    .pattern(" CP")
+                    .pattern("TST")
+                    .pattern("F F")
+                    .input('P', Blocks.SPRUCE_PLANKS)
+                    .criterion(hasItem(Blocks.SPRUCE_PLANKS), conditionsFromItem(Blocks.SPRUCE_PLANKS))
+                    .input('T', Blocks.SPRUCE_TRAPDOOR)
+                    .criterion(hasItem(Blocks.SPRUCE_TRAPDOOR), conditionsFromItem(Blocks.SPRUCE_TRAPDOOR))
+                    .input('S', Blocks.SPRUCE_SLAB)
+                    .criterion(hasItem(Blocks.SPRUCE_SLAB), conditionsFromItem(Blocks.SPRUCE_SLAB))
+                    .input('F', Blocks.SPRUCE_FENCE)
+                    .criterion(hasItem(Blocks.SPRUCE_FENCE), conditionsFromItem(Blocks.SPRUCE_FENCE))
+                    .input('C', Blocks.CYAN_CARPET)
+                    .criterion(hasItem(Blocks.CYAN_CARPET), conditionsFromItem(Blocks.CYAN_CARPET)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.LIGHT_BLUE_WOODEN_SEAT)
+                    .group("wooden_seat")
+                    .pattern(" CP")
+                    .pattern("TST")
+                    .pattern("F F")
+                    .input('P', Blocks.SPRUCE_PLANKS)
+                    .criterion(hasItem(Blocks.SPRUCE_PLANKS), conditionsFromItem(Blocks.SPRUCE_PLANKS))
+                    .input('T', Blocks.SPRUCE_TRAPDOOR)
+                    .criterion(hasItem(Blocks.SPRUCE_TRAPDOOR), conditionsFromItem(Blocks.SPRUCE_TRAPDOOR))
+                    .input('S', Blocks.SPRUCE_SLAB)
+                    .criterion(hasItem(Blocks.SPRUCE_SLAB), conditionsFromItem(Blocks.SPRUCE_SLAB))
+                    .input('F', Blocks.SPRUCE_FENCE)
+                    .criterion(hasItem(Blocks.SPRUCE_FENCE), conditionsFromItem(Blocks.SPRUCE_FENCE))
+                    .input('C', Blocks.LIGHT_BLUE_CARPET)
+                    .criterion(hasItem(Blocks.LIGHT_BLUE_CARPET), conditionsFromItem(Blocks.LIGHT_BLUE_CARPET)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.BLUE_WOODEN_SEAT)
+                    .group("wooden_seat")
+                    .pattern(" CP")
+                    .pattern("TST")
+                    .pattern("F F")
+                    .input('P', Blocks.SPRUCE_PLANKS)
+                    .criterion(hasItem(Blocks.SPRUCE_PLANKS), conditionsFromItem(Blocks.SPRUCE_PLANKS))
+                    .input('T', Blocks.SPRUCE_TRAPDOOR)
+                    .criterion(hasItem(Blocks.SPRUCE_TRAPDOOR), conditionsFromItem(Blocks.SPRUCE_TRAPDOOR))
+                    .input('S', Blocks.SPRUCE_SLAB)
+                    .criterion(hasItem(Blocks.SPRUCE_SLAB), conditionsFromItem(Blocks.SPRUCE_SLAB))
+                    .input('F', Blocks.SPRUCE_FENCE)
+                    .criterion(hasItem(Blocks.SPRUCE_FENCE), conditionsFromItem(Blocks.SPRUCE_FENCE))
+                    .input('C', Blocks.BLUE_CARPET)
+                    .criterion(hasItem(Blocks.BLUE_CARPET), conditionsFromItem(Blocks.BLUE_CARPET)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.PURPLE_WOODEN_SEAT)
+                    .group("wooden_seat")
+                    .pattern(" CP")
+                    .pattern("TST")
+                    .pattern("F F")
+                    .input('P', Blocks.SPRUCE_PLANKS)
+                    .criterion(hasItem(Blocks.SPRUCE_PLANKS), conditionsFromItem(Blocks.SPRUCE_PLANKS))
+                    .input('T', Blocks.SPRUCE_TRAPDOOR)
+                    .criterion(hasItem(Blocks.SPRUCE_TRAPDOOR), conditionsFromItem(Blocks.SPRUCE_TRAPDOOR))
+                    .input('S', Blocks.SPRUCE_SLAB)
+                    .criterion(hasItem(Blocks.SPRUCE_SLAB), conditionsFromItem(Blocks.SPRUCE_SLAB))
+                    .input('F', Blocks.SPRUCE_FENCE)
+                    .criterion(hasItem(Blocks.SPRUCE_FENCE), conditionsFromItem(Blocks.SPRUCE_FENCE))
+                    .input('C', Blocks.PURPLE_CARPET)
+                    .criterion(hasItem(Blocks.PURPLE_CARPET), conditionsFromItem(Blocks.PURPLE_CARPET)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.MAGENTA_WOODEN_SEAT)
+                    .group("wooden_seat")
+                    .pattern(" CP")
+                    .pattern("TST")
+                    .pattern("F F")
+                    .input('P', Blocks.SPRUCE_PLANKS)
+                    .criterion(hasItem(Blocks.SPRUCE_PLANKS), conditionsFromItem(Blocks.SPRUCE_PLANKS))
+                    .input('T', Blocks.SPRUCE_TRAPDOOR)
+                    .criterion(hasItem(Blocks.SPRUCE_TRAPDOOR), conditionsFromItem(Blocks.SPRUCE_TRAPDOOR))
+                    .input('S', Blocks.SPRUCE_SLAB)
+                    .criterion(hasItem(Blocks.SPRUCE_SLAB), conditionsFromItem(Blocks.SPRUCE_SLAB))
+                    .input('F', Blocks.SPRUCE_FENCE)
+                    .criterion(hasItem(Blocks.SPRUCE_FENCE), conditionsFromItem(Blocks.SPRUCE_FENCE))
+                    .input('C', Blocks.MAGENTA_CARPET)
+                    .criterion(hasItem(Blocks.MAGENTA_CARPET), conditionsFromItem(Blocks.MAGENTA_CARPET)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.PINK_WOODEN_SEAT)
+                    .group("wooden_seat")
+                    .pattern(" CP")
+                    .pattern("TST")
+                    .pattern("F F")
+                    .input('P', Blocks.SPRUCE_PLANKS)
+                    .criterion(hasItem(Blocks.SPRUCE_PLANKS), conditionsFromItem(Blocks.SPRUCE_PLANKS))
+                    .input('T', Blocks.SPRUCE_TRAPDOOR)
+                    .criterion(hasItem(Blocks.SPRUCE_TRAPDOOR), conditionsFromItem(Blocks.SPRUCE_TRAPDOOR))
+                    .input('S', Blocks.SPRUCE_SLAB)
+                    .criterion(hasItem(Blocks.SPRUCE_SLAB), conditionsFromItem(Blocks.SPRUCE_SLAB))
+                    .input('F', Blocks.SPRUCE_FENCE)
+                    .criterion(hasItem(Blocks.SPRUCE_FENCE), conditionsFromItem(Blocks.SPRUCE_FENCE))
+                    .input('C', Blocks.PINK_CARPET)
+                    .criterion(hasItem(Blocks.PINK_CARPET), conditionsFromItem(Blocks.PINK_CARPET)));
+
+            // Extra Seats
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.CORAL_SEAT)
+                    .pattern(" C ")
+                    .pattern("CSC")
+                    .pattern(" I ")
+                    .input('I', Blocks.IRON_BARS)
+                    .criterion(hasItem(Blocks.IRON_BARS), conditionsFromItem(Blocks.IRON_BARS))
+                    .input('C', Blocks.CUT_SANDSTONE_SLAB)
+                    .criterion(hasItem(Blocks.CUT_SANDSTONE_SLAB), conditionsFromItem(Blocks.CUT_SANDSTONE_SLAB))
+                    .input('S', Blocks.SANDSTONE)
+                    .criterion(hasItem(Blocks.SANDSTONE), conditionsFromItem(Blocks.SANDSTONE)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.TOYOTA_SEAT)
+                    .pattern(" BA")
+                    .pattern(" SA")
+                    .pattern(" DC")
+                    .input('A', Blocks.ANDESITE)
+                    .criterion(hasItem(Blocks.ANDESITE), conditionsFromItem(Blocks.ANDESITE))
+                    .input('S', Blocks.ANDESITE_SLAB)
+                    .criterion(hasItem(Blocks.ANDESITE_SLAB), conditionsFromItem(Blocks.ANDESITE_SLAB))
+                    .input('B', Blocks.BLACK_CARPET)
+                    .criterion(hasItem(Blocks.BLACK_CARPET), conditionsFromItem(Blocks.BLACK_CARPET))
+                    .input('D', Items.BLUE_DYE)
+                    .criterion(hasItem(Items.BLUE_DYE), conditionsFromItem(Items.BLUE_DYE))
+                    .input('C', Blocks.ANDESITE_STAIRS)
+                    .criterion(hasItem(Blocks.ANDESITE_STAIRS), conditionsFromItem(Blocks.ANDESITE_STAIRS)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.COPPER_SEAT)
+                    .pattern(" CC")
+                    .pattern(" CC")
+                    .pattern(" D ")
+                    .input('D', Blocks.POLISHED_DEEPSLATE)
+                    .criterion(hasItem(Blocks.POLISHED_DEEPSLATE), conditionsFromItem(Blocks.POLISHED_DEEPSLATE))
+                    .input('C', Blocks.CUT_SANDSTONE_SLAB)
+                    .criterion(hasItem(Blocks.CUT_SANDSTONE_SLAB), conditionsFromItem(Blocks.CUT_SANDSTONE_SLAB)));
+
+            //Jukebox
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.JUKEBOX)
+                            .group("jukebox")
+                    .pattern(" S ")
+                    .pattern("LJL")
+                    .pattern("LRL")
+                    .input('J', Blocks.JUKEBOX)
+                    .criterion(hasItem(Blocks.JUKEBOX), conditionsFromItem(Blocks.JUKEBOX))
+                    .input('R', Blocks.REDSTONE_BLOCK)
+                    .criterion(hasItem(Blocks.REDSTONE_BLOCK), conditionsFromItem(Blocks.REDSTONE_BLOCK))
+                    .input('L', Blocks.REDSTONE_LAMP)
+                    .criterion(hasItem(Blocks.REDSTONE_LAMP), conditionsFromItem(Blocks.REDSTONE_LAMP))
+                    .input('S', Blocks.DARK_OAK_SLAB)
+                    .criterion(hasItem(Blocks.DARK_OAK_SLAB), conditionsFromItem(Blocks.DARK_OAK_SLAB)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.ACACIA_JUKEBOX)
+                    .group("jukebox")
+                    .pattern(" S ")
+                    .pattern("LJL")
+                    .pattern("LRL")
+                    .input('J', Blocks.JUKEBOX)
+                    .criterion(hasItem(Blocks.JUKEBOX), conditionsFromItem(Blocks.JUKEBOX))
+                    .input('R', Blocks.REDSTONE_BLOCK)
+                    .criterion(hasItem(Blocks.REDSTONE_BLOCK), conditionsFromItem(Blocks.REDSTONE_BLOCK))
+                    .input('L', Blocks.REDSTONE_LAMP)
+                    .criterion(hasItem(Blocks.REDSTONE_LAMP), conditionsFromItem(Blocks.REDSTONE_LAMP))
+                    .input('S', Blocks.ACACIA_SLAB)
+                    .criterion(hasItem(Blocks.ACACIA_SLAB), conditionsFromItem(Blocks.ACACIA_SLAB)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.BAMBOO_JUKEBOX)
+                    .group("jukebox")
+                    .pattern(" S ")
+                    .pattern("LJL")
+                    .pattern("LRL")
+                    .input('J', Blocks.JUKEBOX)
+                    .criterion(hasItem(Blocks.JUKEBOX), conditionsFromItem(Blocks.JUKEBOX))
+                    .input('R', Blocks.REDSTONE_BLOCK)
+                    .criterion(hasItem(Blocks.REDSTONE_BLOCK), conditionsFromItem(Blocks.REDSTONE_BLOCK))
+                    .input('L', Blocks.REDSTONE_LAMP)
+                    .criterion(hasItem(Blocks.REDSTONE_LAMP), conditionsFromItem(Blocks.REDSTONE_LAMP))
+                    .input('S', Blocks.BAMBOO_SLAB)
+                    .criterion(hasItem(Blocks.BAMBOO_SLAB), conditionsFromItem(Blocks.BAMBOO_SLAB)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.CHERRY_JUKEBOX)
+                    .group("jukebox")
+                    .pattern(" S ")
+                    .pattern("LJL")
+                    .pattern("LRL")
+                    .input('J', Blocks.JUKEBOX)
+                    .criterion(hasItem(Blocks.JUKEBOX), conditionsFromItem(Blocks.JUKEBOX))
+                    .input('R', Blocks.REDSTONE_BLOCK)
+                    .criterion(hasItem(Blocks.REDSTONE_BLOCK), conditionsFromItem(Blocks.REDSTONE_BLOCK))
+                    .input('L', Blocks.REDSTONE_LAMP)
+                    .criterion(hasItem(Blocks.REDSTONE_LAMP), conditionsFromItem(Blocks.REDSTONE_LAMP))
+                    .input('S', Blocks.CHERRY_SLAB)
+                    .criterion(hasItem(Blocks.CHERRY_SLAB), conditionsFromItem(Blocks.CHERRY_SLAB)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.WARPED_JUKEBOX)
+                    .group("jukebox")
+                    .pattern(" S ")
+                    .pattern("LJL")
+                    .pattern("LRL")
+                    .input('J', Blocks.JUKEBOX)
+                    .criterion(hasItem(Blocks.JUKEBOX), conditionsFromItem(Blocks.JUKEBOX))
+                    .input('R', Blocks.REDSTONE_BLOCK)
+                    .criterion(hasItem(Blocks.REDSTONE_BLOCK), conditionsFromItem(Blocks.REDSTONE_BLOCK))
+                    .input('L', Blocks.REDSTONE_LAMP)
+                    .criterion(hasItem(Blocks.REDSTONE_LAMP), conditionsFromItem(Blocks.REDSTONE_LAMP))
+                    .input('S', Blocks.WARPED_SLAB)
+                    .criterion(hasItem(Blocks.WARPED_SLAB), conditionsFromItem(Blocks.WARPED_SLAB)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.STEVE_BRASS_STATUE)
+                    .group("statue")
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.BLUE_DYE)
+                    .criterion(hasItem(Items.BLUE_DYE), conditionsFromItem(Items.BLUE_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.ALEX_BRASS_STATUE)
+                    .group("statue")
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.LIME_DYE)
+                    .criterion(hasItem(Items.LIME_DYE), conditionsFromItem(Items.LIME_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.ARI_BRASS_STATUE)
+                    .group("statue")
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.ORANGE_DYE)
+                    .criterion(hasItem(Items.ORANGE_DYE), conditionsFromItem(Items.ORANGE_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.KAI_BRASS_STATUE)
+                    .group("statue")
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.PURPLE_DYE)
+                    .criterion(hasItem(Items.PURPLE_DYE), conditionsFromItem(Items.PURPLE_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.NOOR_BRASS_STATUE)
+                    .group("statue")
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.BLACK_DYE)
+                    .criterion(hasItem(Items.BLACK_DYE), conditionsFromItem(Items.BLACK_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.SUNNY_BRASS_STATUE)
+                    .group("statue")
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.GREEN_DYE)
+                    .criterion(hasItem(Items.GREEN_DYE), conditionsFromItem(Items.GREEN_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.ZURI_BRASS_STATUE)
+                    .group("statue")
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.RED_DYE)
+                    .criterion(hasItem(Items.RED_DYE), conditionsFromItem(Items.RED_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.EFE_BRASS_STATUE)
+                    .group("statue")
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.LIGHT_BLUE_DYE)
+                    .criterion(hasItem(Items.LIGHT_BLUE_DYE), conditionsFromItem(Items.LIGHT_BLUE_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.MAKENA_BRASS_STATUE)
+                    .group("statue")
+                    .pattern("IDI")
+                    .pattern("IAI")
+                    .pattern("III")
+                    .input('D', Items.YELLOW_DYE)
+                    .criterion(hasItem(Items.YELLOW_DYE), conditionsFromItem(Items.YELLOW_DYE))
+                    .input('A', Items.ARMOR_STAND)
+                    .criterion(hasItem(Items.ARMOR_STAND), conditionsFromItem(Items.ARMOR_STAND))
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
+            provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.COPPER_RINGS)
+                    .pattern("III")
+                    .pattern("I I")
+                    .pattern("III")
+                    .input('I', Items.IRON_INGOT)
+                    .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT)));
+
 
             generateSmithingRecipes(provider);
             return provider;
@@ -762,6 +1244,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         provider.addTranslation("ait.tardis.likes_item", "The TARDIS may like this item...");
         provider.addTranslation("tooltip.ait.remoteitem.holdformoreinfo", "Hold shift for more info");
+        provider.addTranslation("soundCategory.hums", "Interior HUM");
+        provider.addTranslation("text.ait.config.title", "AIT Config");
 
         // Control entities
         provider.addTranslation("control.ait.antigravs", "Antigravs");
@@ -806,6 +1290,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         // Tabs
         provider.addTranslation(AITItemGroups.MAIN, "Adventures In Time");
         provider.addTranslation(AITItemGroups.FABRICATOR, "AIT: Fabrication");
+        provider.addTranslation(AITItemGroups.DECORATION, "AIT: Decoration");
 
         // Config
         provider.addTranslation("text.autoconfig.aitconfig.category.server", "Server");
@@ -832,6 +1317,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.celsius", "Celsius (°C)");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.fahrenheit", "Fahrenheit (°F)");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.kelvin", "Kelvin (K)");
+        provider.addTranslation("yacl3.config.ait:client.handlesLevenshteinDistance", "Levenshtein distance for handles");
 
         provider.addTranslation("text.autoconfig.aitconfig.category.client", "Client");
         provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.SHOW_EXPERIMENTAL_WARNING", "Show Experimental Warning");
@@ -1040,7 +1526,50 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITBlocks.GENERIC_SUBSYSTEM, "Generalized Subsystem Core");
         provider.addTranslation(AITBlocks.FOOD_MACHINE, "Food Machine");
 
+        provider.addTranslation(AITBlocks.WHITE_WOODEN_SEAT, "White Wooden Seat");
+        provider.addTranslation(AITBlocks.LIGHT_GRAY_WOODEN_SEAT, "Light Gray Wooden Seat");
+        provider.addTranslation(AITBlocks.GRAY_WOODEN_SEAT, "Gray Wooden Seat");
+        provider.addTranslation(AITBlocks.BLACK_WOODEN_SEAT, "Black Wooden Seat");
+        provider.addTranslation(AITBlocks.BROWN_WOODEN_SEAT, "Brown Wooden Seat");
+        provider.addTranslation(AITBlocks.RED_WOODEN_SEAT, "Red Wooden Seat");
+        provider.addTranslation(AITBlocks.ORANGE_WOODEN_SEAT, "Orange Wooden Seat");
+        provider.addTranslation(AITBlocks.YELLOW_WOODEN_SEAT, "Yellow Wooden Seat");
+        provider.addTranslation(AITBlocks.LIME_WOODEN_SEAT, "Lime Wooden Seat");
+        provider.addTranslation(AITBlocks.GREEN_WOODEN_SEAT, "Green Wooden Seat");
+        provider.addTranslation(AITBlocks.CYAN_WOODEN_SEAT, "Cyan Wooden Seat");
+        provider.addTranslation(AITBlocks.LIGHT_BLUE_WOODEN_SEAT, "Light Blue Wooden Seat");
+        provider.addTranslation(AITBlocks.BLUE_WOODEN_SEAT, "Blue Wooden Seat");
+        provider.addTranslation(AITBlocks.PURPLE_WOODEN_SEAT, "Purple Wooden Seat");
+        provider.addTranslation(AITBlocks.MAGENTA_WOODEN_SEAT, "Magenta Wooden Seat");
+        provider.addTranslation(AITBlocks.PINK_WOODEN_SEAT, "Pink Wooden Seat");
+
+        provider.addTranslation(AITBlocks.JUKEBOX, "Jukebox");
+        provider.addTranslation(AITBlocks.CHERRY_JUKEBOX, "Cherry Jukebox");
+        provider.addTranslation(AITBlocks.PALE_OAK_JUKEBOX, "Pale Oak Jukebox (wait... what.)");
+        provider.addTranslation(AITBlocks.WARPED_JUKEBOX, "Warped Jukebox");
+        provider.addTranslation(AITBlocks.BAMBOO_JUKEBOX, "Bamboo Jukebox");
+        provider.addTranslation(AITBlocks.ACACIA_JUKEBOX, "Acacia Jukebox");
+
+        provider.addTranslation(AITBlocks.CORAL_SEAT, "Coral Seat");
+        provider.addTranslation(AITBlocks.TOYOTA_SEAT, "Toyota Seat");
+        provider.addTranslation(AITBlocks.COPPER_SEAT, "Copper Seat");
+
+        provider.addTranslation(AITBlocks.STEVE_BRASS_STATUE, "Steve Brass Statue");
+        provider.addTranslation(AITBlocks.ALEX_BRASS_STATUE, "Alex Brass Statue");
+        provider.addTranslation(AITBlocks.SUNNY_BRASS_STATUE, "Sunny Brass Statue");
+        provider.addTranslation(AITBlocks.ARI_BRASS_STATUE, "Ari Brass Statue");
+        provider.addTranslation(AITBlocks.EFE_BRASS_STATUE, "Efe Brass Statue");
+        provider.addTranslation(AITBlocks.KAI_BRASS_STATUE, "Kai Brass Statue");
+        provider.addTranslation(AITBlocks.MAKENA_BRASS_STATUE, "Makena Brass Statue");
+        provider.addTranslation(AITBlocks.NOOR_BRASS_STATUE, "Noor Brass Statue");
+        provider.addTranslation(AITBlocks.ZURI_BRASS_STATUE, "Zuri Brass Statue");
+
+        provider.addTranslation(AITBlocks.COPPER_RINGS, "Copper Rings");
+
+
         // Block Tooltips
+        provider.addTranslation("block.ait.artron_collector_block.tooltip", "Clashed together from random junks and bits, this item can collect Artron Units from Artron Chunks!");
+
         provider.addTranslation("block.ait.fabricator.tooltip.use", "(Place on top of a Smithing Table)");
         provider.addTranslation("tooltip.ait.use_in_tardis", "(Place inside a TARDIS)");
         provider.addTranslation("block.ait.artron_collector_block.tooltip.use", "(Charges inside of Rift Chunks)");
@@ -1084,6 +1613,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.loyalty.message.owner", "The TARDIS hums you a song, as if to show it will always be here for you. [OWNER]");
 
         // TARDIS Control Actionbar Title
+        provider.addTranslation("message.ait.stored_artron", "Stored Artron: %s/%");
         provider.addTranslation("tardis.message.protocol_813.travel", "Hail Mary is active, please prepare for departure.");
         provider.addTranslation("tardis.message.control.protocol_116.active", "Stabiliser: ENGAGED");
         provider.addTranslation("tardis.message.control.hail_mary.engaged", "Hail Mary: ENGAGED");
@@ -1531,6 +2061,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("animation." + AITMod.MOD_ID + ".proton_mat", "Proton");
         provider.addTranslation("animation." + AITMod.MOD_ID + ".proton_demat", "Proton");
 
+        // Main Menu
+        provider.addTranslation("menu." + AITMod.MOD_ID + ".main", "⚠ WARNING: You are using an experimental version (" + AITMod.BRANCH + "), please be cautious when testing!");
+        provider.addTranslation("menu." + AITMod.MOD_ID + ".christmas", "HO HO HO!: You are using an experimental branch (" + AITMod.BRANCH + "), please be cautious when testing or the grinch will smell you toes!");
 
         return provider;
     }
