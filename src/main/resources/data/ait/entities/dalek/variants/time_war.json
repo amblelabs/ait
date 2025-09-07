@@ -1,0 +1,5 @@
+{
+  "id": "ait:dalek/time_war",
+  "texture": "ait:textures/entity/daleks/time_war/time_war_dalek.png",
+  "emission": "ait:textures/entity/daleks/time_war/time_war_dalek_emission.png"
+}

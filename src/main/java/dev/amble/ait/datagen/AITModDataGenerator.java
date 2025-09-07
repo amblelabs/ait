@@ -1,31 +1,5 @@
 package dev.amble.ait.datagen;
 
-import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
-import static net.minecraft.data.server.recipe.RecipeProvider.*;
-
-import java.util.Calendar;
-import java.util.concurrent.CompletableFuture;
-
-import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
-import dev.amble.lib.datagen.lang.LanguageType;
-import dev.amble.lib.datagen.sound.AmbleSoundProvider;
-import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-
-import net.minecraft.block.Blocks;
-import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryBuilder;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITEntityTypes;
@@ -40,6 +14,30 @@ import dev.amble.ait.module.planet.core.PlanetBlocks;
 import dev.amble.ait.module.planet.core.PlanetItems;
 import dev.amble.ait.module.planet.core.world.PlanetConfiguredFeatures;
 import dev.amble.ait.module.planet.core.world.PlanetPlacedFeatures;
+import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
+import dev.amble.lib.datagen.lang.LanguageType;
+import dev.amble.lib.datagen.sound.AmbleSoundProvider;
+import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.minecraft.block.Blocks;
+import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
+import net.minecraft.item.Items;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.book.RecipeCategory;
+import net.minecraft.registry.RegistryBuilder;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.Identifier;
+
+import java.util.Calendar;
+import java.util.concurrent.CompletableFuture;
+
+import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
+import static net.minecraft.data.server.recipe.RecipeProvider.*;
 
 public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
@@ -1349,6 +1347,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITEntityTypes.GALLIFREY_FALLS_PAINTING_ENTITY_TYPE.getTranslationKey(), "Gallifrey Falls Painting");
         provider.addTranslation(AITEntityTypes.TRENZALORE_PAINTING_ENTITY_TYPE.getTranslationKey(), "Trenzalore Painting");
         provider.addTranslation(GunEntityTypes.STASER_BOLT_ENTITY_TYPE.getTranslationKey(), "Stazer Bolt Projectile");
+        provider.addTranslation(AITEntityTypes.DALEK_ENTITY.getTranslationKey(), "Dalek");
+
 
         // Items
         provider.addTranslation(AITItems.TARDIS_ITEM, "TARDIS");
@@ -1758,6 +1758,25 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         // Get TARDIS ID
         provider.addTranslation("message.ait.id", "TARDIS id: ");
         provider.addTranslation("message.ait.click_to_copy", "Click to copy");
+
+        // Dalek Raid Command
+        provider.addTranslation("message." + AITMod.MOD_ID + ".dalek_raid.command_omen_error", "Sorry, the max bad omen level you can set is %s");
+        provider.addTranslation("message." + AITMod.MOD_ID + ".dalek_raid.command_omen_success", "Changed village's bad omen level from %s to %s");
+        provider.addTranslation("message." + AITMod.MOD_ID + ".dalek_raid.command_omen_missing", "No raid found here");
+
+        provider.addTranslation("message." + AITMod.MOD_ID + ".dalek_raid.command_leader_success", "Spawned a raid captain");
+        provider.addTranslation("message." + AITMod.MOD_ID + ".dalek_raid.command_leader_error", "Dalek failed to spawn");
+
+        provider.addTranslation("message." + AITMod.MOD_ID + ".dalek_raid.command_start_error_close", "Raid already started close by");
+        provider.addTranslation("message." + AITMod.MOD_ID + ".dalek_raid.command_start_success", "Created a raid in your local village");
+        provider.addTranslation("message." + AITMod.MOD_ID + ".dalek_raid.command_start_error", "Failed to create a raid in your local village");
+
+        provider.addTranslation("message." + AITMod.MOD_ID + ".dalek_raid.command_stop_success", "Stopped raid");
+        provider.addTranslation("message." + AITMod.MOD_ID + ".dalek_raid.command_stop_error", "No raid here");
+
+        provider.addTranslation("message." + AITMod.MOD_ID + ".dalek_raid.command_check_found", "Found a started raid!");
+        provider.addTranslation("message." + AITMod.MOD_ID + ".dalek_raid.command_check_info", "Num groups spawned: %s | Bad omen level: %s | Num mobs: %s | Raid health: %s / %s ");
+        provider.addTranslation("message." + AITMod.MOD_ID + ".dalek_raid.command_check_error", "Found no started raids");
 
         // Sonic (TARDIS Mode)
         provider.addTranslation("message.ait.sonic.riftfound", "RIFT CHUNK FOUND");

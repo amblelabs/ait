@@ -90,6 +90,7 @@ import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.drinks.DrinkUtil;
 import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
+import dev.amble.ait.core.entities.daleks.DalekRegistry;
 import dev.amble.ait.core.item.*;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.world.TardisServerWorld;
@@ -117,6 +118,7 @@ public class AITModClient implements ClientModInitializer {
         AmbleRegistries.getInstance().registerAll(
                 SonicRegistry.getInstance(),
                 DrinkRegistry.getInstance(),
+                DalekRegistry.getInstance(),
                 ClientExteriorVariantRegistry.getInstance(),
                 ClientConsoleVariantRegistry.getInstance(),
                 ClientDoorRegistry.getInstance()
@@ -425,6 +427,8 @@ public class AITModClient implements ClientModInitializer {
 //            EntityRendererRegistry.register(AITEntityTypes.COBBLED_SNOWBALL_TYPE, FlyingItemEntityRenderer::new);
 //        }
         EntityRendererRegistry.register(AITEntityTypes.RIFT_ENTITY, RiftEntityRenderer::new);
+        EntityRendererRegistry.register(AITEntityTypes.DALEK_ENTITY, DalekEntityRenderer::new);
+        EntityRendererRegistry.register(AITEntityTypes.DALEK_SHIP_ENTITY_TYPE, DalekShipEntityRenderer::new);
     }
 
     public static void setupBlockRendering() {

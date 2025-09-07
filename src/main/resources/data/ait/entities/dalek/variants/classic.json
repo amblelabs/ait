@@ -1,0 +1,5 @@
+{
+  "id": "ait:dalek/classic",
+  "texture": "ait:textures/entity/daleks/classic/classic_dalek.png",
+  "emission": "ait:textures/entity/daleks/classic/classic_dalek_emission.png"
+}
