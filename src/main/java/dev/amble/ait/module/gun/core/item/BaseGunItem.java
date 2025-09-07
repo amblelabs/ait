@@ -186,7 +186,7 @@ public class BaseGunItem extends RangedWeaponItem {
         gun.damage(3, shooter, e -> e.sendToolBreakStatus(hand));
         projectileEntity.setPos(shooter.getX(), shooter.getY() + 1.2f, shooter.getZ());
         world.spawnEntity(projectileEntity);
-        world.playSound(null, shooter.getX(), shooter.getY(), shooter.getZ(), AITSounds.STASER, SoundCategory.PLAYERS, 1.0f, soundPitch);
+        world.playSound(null, shooter.getX(), shooter.getY(), shooter.getZ(), AITSounds.STASER, SoundCategory.PLAYERS, 0.25f, soundPitch);
     }
 
     private static PersistentProjectileEntity createBolt(World world, LivingEntity entity, ItemStack gun, ItemStack bolt) {

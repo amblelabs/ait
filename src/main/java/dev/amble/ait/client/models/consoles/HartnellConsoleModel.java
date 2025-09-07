@@ -20,7 +20,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 // Made with Blockbench 4.9.2
 // Exported for Minecraft version 1.17+ for Yarn
 // Paste this class into your mod and generate all required imports
-public class HartnellConsoleModel extends ConsoleModel {
+public class HartnellConsoleModel extends SimpleConsoleModel {
 
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
             "textures/blockentities/consoles/hartnell_console.png");
@@ -1519,7 +1519,7 @@ public class HartnellConsoleModel extends ConsoleModel {
                 .getChild("bone133").getChild("bone134").getChild("sym_lamp4").getChild("bone145");
         ModelPart hadsAlarmsLightsTwo = this.bone.getChild("panels").getChild("p_6").getChild("bone132")
                 .getChild("bone133").getChild("bone134").getChild("sym_lamp5").getChild("bone141");
-        if (tardis.alarm().enabled().get()) {
+        if (tardis.alarm().isEnabled()) {
             hadsAlarms.roll = hadsAlarms.roll + 1.75f;
         } else {
             hadsAlarmsLightsOne.pivotY = hadsAlarmsLightsOne.pivotY + 1;

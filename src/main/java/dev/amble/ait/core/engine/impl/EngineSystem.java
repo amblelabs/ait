@@ -64,7 +64,7 @@ public class EngineSystem extends DurableSubSystem {
 
     @Override
     protected int changeFrequency() {
-        return 1200; // drain 0.05 durability every minute
+        return 24000; // drain 0.05 durability every minute
     }
 
     @Override
@@ -97,7 +97,7 @@ public class EngineSystem extends DurableSubSystem {
 
     private void tickForDurability() {
         if (this.durability() <= 5) {
-            this.tardis.alarm().enabled().set(true);
+            this.tardis.alarm().enable();
         }
     }
 
@@ -245,7 +245,7 @@ public class EngineSystem extends DurableSubSystem {
         ERROR(250, 242, 22) {
             @Override
             public boolean isViable(EngineSystem system) {
-                return system.tardis.alarm().enabled().get() || system.tardis.sequence().hasActiveSequence();
+                return system.tardis.alarm().isEnabled() || system.tardis.sequence().hasActiveSequence();
             }
         },
         LEAKAGE(114, 255, 33) {

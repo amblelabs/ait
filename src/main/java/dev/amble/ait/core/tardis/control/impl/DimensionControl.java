@@ -3,7 +3,6 @@ package dev.amble.ait.core.tardis.control.impl;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import dev.amble.ait.core.tardis.control.impl.pos.PosType;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -20,6 +19,7 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.core.tardis.control.impl.pos.PosType;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
 import dev.amble.ait.core.util.WorldUtil;

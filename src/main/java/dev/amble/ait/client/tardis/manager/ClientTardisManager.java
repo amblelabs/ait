@@ -155,12 +155,31 @@ public class ClientTardisManager extends TardisManager<ClientTardis, MinecraftCl
 
         ClientTardis tardis = this.demandTardis(id);
 
+        TardisComponent[] components = new TardisComponent[count];
+        TardisComponent.IdLike[] ids = new TardisComponent.IdLike[count];
+
         if (tardis == null)
             return; // wait 'till the server sends a full update
 
         for (int i = 0; i < count; i++) {
-            this.syncComponent(tardis, buf);
+            String rawId = buf.readString();
+            TardisComponent.IdLike idLike = TardisComponentRegistry.getInstance().get(rawId);
+            ids[i] = idLike;
+            TardisComponent component = this.networkGson.fromJson(buf.readString(), idLike.clazz());
+            if (component == null) {
+                AITMod.LOGGER.error("Received null component for id {} in TARDIS {}", rawId, tardis.getUuid());
+                continue;
+            }
+            components[i] = component;
         }
+        MinecraftClient.getInstance().execute(() -> {
+            for (int p = 0; p < components.length; p++) {
+                TardisComponent component = components[p];
+                TardisComponent.IdLike idLike = ids[p];
+                idLike.set(tardis, component);
+                TardisComponent.init(component, tardis, TardisComponent.InitContext.deserialize());
+            }
+        });
     }
 
     @Override

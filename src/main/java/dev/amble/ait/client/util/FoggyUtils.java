@@ -12,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.MathHelper;
 
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITTags;
 import dev.amble.ait.core.tardis.Tardis;
@@ -61,13 +62,13 @@ public class FoggyUtils {
         }
 
         if (tardis.isGrowth()
-                && ClientTardisUtil.getPowerDelta() != ClientTardisUtil.MAX_POWER_DELTA_TICKS) {
+                || ClientTardisUtil.getPowerDelta() != ClientTardisUtil.MAX_POWER_DELTA_TICKS) {
+            if (!AITModClient.CONFIG.powerOffDarkness) return;
             RenderSystem.setShaderFogStart(MathHelper.lerp(ClientTardisUtil.getPowerDeltaForLerp(), -8, 24));
             RenderSystem.setShaderFogEnd(MathHelper.lerp(ClientTardisUtil.getPowerDeltaForLerp(), 11, 32));
             RenderSystem.setShaderFogShape(FogShape.SPHERE);
             RenderSystem.setShaderFogColor(0, 0, 0, tardis.siege().isActive() ? 0.85f : 1f);
         }
-
         if (tardis.crash().isToxic() && tardis.fuel().hasPower()) {
             RenderSystem
                     .setShaderFogStart(MathHelper.lerp(MinecraftClient.getInstance().getTickDelta() / 100f, -8, 24));

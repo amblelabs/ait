@@ -147,7 +147,7 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
     }
 
     @Override
-    protected TardisMap.Optional<ServerTardis> lookup() {
+    public TardisMap.Optional<ServerTardis> lookup() {
         return lookup;
     }
 

@@ -2,9 +2,9 @@ package dev.amble.ait.client.util;
 
 import static dev.amble.ait.core.tardis.util.TardisUtil.*;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -71,10 +71,11 @@ public class ClientTardisUtil {
         changeExteriorWithScreen(tardis.getUuid(), variant, variantchange);
     }
 
-    public static void changeSonicWithScreen(UUID uuid, SonicSchema schema) {
+    public static void changeSonicWithScreen(UUID uuid, SonicSchema schema, BlockPos consolePos) {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeUuid(uuid);
         buf.writeIdentifier(schema.id());
+        buf.writeBlockPos(consolePos);
         ClientPlayNetworking.send(SonicHandler.CHANGE_SONIC, buf);
     }
 
@@ -137,6 +138,9 @@ public class ClientTardisUtil {
 
         // doesnt find nearest, only finds if within radius.
         // could be more performant though
+        //
+        // ya dont say
+        //  - Theo
         /*
         return ClientTardisManager.getInstance().find(tardis -> {
             if (!tardis.travel().position().getDimension().equals(dimension))
@@ -149,23 +153,25 @@ public class ClientTardisUtil {
         });
         */
 
-        AtomicReference<ClientTardis> nearestTardis = new AtomicReference<>();
-        AtomicReference<Double> nearestDistance = new AtomicReference<>(Double.MAX_VALUE);
+        double radiusSquared = Math.pow(radius, 2);
+
+        final ClientTardis[] nearestTardis = new ClientTardis[1];
+        final double[] nearestDistanceSquared = {Double.MAX_VALUE};
 
         ClientTardisManager.getInstance().forEach(tardis -> {
             if (!tardis.travel().position().getDimension().equals(dimension))
                 return;
 
             BlockPos tPos = tardis.travel().position().getPos();
-            double distance = Math.sqrt(pos.getSquaredDistance(tPos));
+            double distanceSquared = pos.getSquaredDistance(tPos);
 
-            if (distance < radius && distance < nearestDistance.get()) {
-                nearestDistance.set(distance);
-                nearestTardis.set(tardis);
+            if (radiusSquared > distanceSquared && distanceSquared < nearestDistanceSquared[0]) {
+                nearestDistanceSquared[0] = distanceSquared;
+                nearestTardis[0] = tardis;
             }
         });
 
-        return Optional.ofNullable(nearestTardis.get());
+        return Optional.ofNullable(nearestTardis[0]);
     }
 
     public static double distanceFromConsole() {
@@ -182,10 +188,15 @@ public class ClientTardisUtil {
         if (tardis == null)
             return 0;
 
+        Collection<BlockPos> consoles = tardis.getDesktop().getConsolePos();
+
+        if (consoles.isEmpty())
+            return 0;
+
         BlockPos pos = player.getBlockPos();
         double lowest = Double.MAX_VALUE;
 
-        for (BlockPos console : tardis.getDesktop().getConsolePos()) {
+        for (BlockPos console : consoles) {
             double distance = Math.sqrt(pos.getSquaredDistance(console));
 
             if (distance < lowest)
@@ -225,6 +236,37 @@ public class ClientTardisUtil {
         return nearest;
     }
 
+    public static BlockPos getNearestEngine() {
+        if (!isPlayerInATardis())
+            return null;
+
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+
+        if (player == null)
+            return null;
+
+        Tardis tardis = getCurrentTardis();
+
+        if (tardis == null)
+            return null;
+
+        BlockPos pos = player.getBlockPos();
+        double lowest = Double.MAX_VALUE;
+        BlockPos nearest = BlockPos.ORIGIN;
+
+        BlockPos engine = tardis.getDesktop().getEnginePos();
+        if (engine != null) {
+            double distance = Math.sqrt(pos.getSquaredDistance(engine));
+
+            if (distance < lowest) {
+                lowest = distance;
+                nearest = engine;
+            }
+        }
+
+        return nearest;
+    }
+
     public static void tickPowerDelta() {
         Tardis tardis = getCurrentTardis();
 
@@ -251,7 +293,7 @@ public class ClientTardisUtil {
     public static void tickAlarmDelta() {
         Tardis tardis = getCurrentTardis();
 
-        if (tardis == null || !tardis.alarm().enabled().get()) {
+        if (tardis == null || !tardis.alarm().isEnabled()) {
             alarmDeltaTick = MAX_ALARM_DELTA_TICKS;
             return;
         }

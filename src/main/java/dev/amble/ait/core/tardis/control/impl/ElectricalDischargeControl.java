@@ -83,7 +83,7 @@ public class ElectricalDischargeControl extends Control {
     }
 
     @Override
-    public long getDelayLength() {
+    public long getDelayLength(Tardis tardis) {
         return 800;
     }
 

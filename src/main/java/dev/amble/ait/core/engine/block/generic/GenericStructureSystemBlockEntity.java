@@ -45,7 +45,7 @@ public class GenericStructureSystemBlockEntity extends StructureSystemBlockEntit
     public ActionResult useOn(BlockState state, World world, boolean sneaking, PlayerEntity player, ItemStack hand) {
         if (hand.isEmpty()) {
             if (this.system() != null && this.idSource != null) {
-                if (this.system() instanceof DurableSubSystem durable && (durable.isBroken() || durable.durability() < 1250)) {
+                if (this.system() instanceof DurableSubSystem durable && (durable.isBroken() || durable.durability() < DurableSubSystem.MAX_DURABILITY)) {
                     player.sendMessage(Text.translatable("tardis.message.engine.system_is_weakened"), true);
                     return ActionResult.SUCCESS;
                 }

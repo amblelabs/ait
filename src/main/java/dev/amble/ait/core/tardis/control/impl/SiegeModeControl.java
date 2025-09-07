@@ -32,7 +32,7 @@ public class SiegeModeControl extends Control {
             return Result.FAILURE;
 
         tardis.siege().setActive(!tardis.siege().isActive());
-        tardis.alarm().enabled().set(false);
+        tardis.alarm().disable();
         player.sendMessage(tardis.siege().isActive() ? ENABLED : DISABLED, true);
 
         return tardis.siege().isActive() ? Result.SUCCESS : Result.SUCCESS_ALT;
@@ -49,7 +49,7 @@ public class SiegeModeControl extends Control {
     }
 
     @Override
-    public long getDelayLength() {
+    public long getDelayLength(Tardis tardis) {
         return 200;
     }
 

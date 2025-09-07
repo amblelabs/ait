@@ -15,8 +15,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.BasicSchema;
 import dev.amble.ait.data.schema.door.DoorSchema;
@@ -26,7 +24,7 @@ import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 
 /**
  * A variant for a {@link ExteriorCategorySchema} which provides a model,
- * texture, emission, {@link ExteriorAnimation} and {@link DoorSchema} <br>
+ * texture, emission, and {@link DoorSchema} <br>
  * <br>
  * This should be registered in {@link ExteriorVariantRegistry} <br>
  * <br>
@@ -110,9 +108,6 @@ public abstract class ExteriorVariantSchema extends BasicSchema implements Unloc
     public VoxelShape bounding(Direction dir) {
         return null;
     }
-
-    @Deprecated(forRemoval = true, since = "1.3.0")
-    public abstract ExteriorAnimation animation(ExteriorBlockEntity exterior);
 
     public abstract DoorSchema door();
 

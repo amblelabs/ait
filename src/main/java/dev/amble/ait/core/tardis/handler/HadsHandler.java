@@ -85,7 +85,7 @@ public class HadsHandler extends KeyedTardisComponent implements TardisTickable 
             if (state == TravelHandlerBase.State.LANDED)
                 travel.dematerialize();
 
-            alarm.enabled().set(true);
+            alarm.enable();
             return;
         }
 
@@ -94,7 +94,7 @@ public class HadsHandler extends KeyedTardisComponent implements TardisTickable 
             travel.rematerialize();
 
         if (state == TravelHandlerBase.State.MAT)
-            alarm.enabled().set(false);
+            alarm.disable();
     }
 
     public BoolValue enabled() {

@@ -73,8 +73,6 @@ public class DecorationModule extends Module {
         return Optional.of(new DataGenerator() {
             @Override
             public void lang(AmbleLanguageProvider provider) {
-                provider.addTranslation(getItemGroup(), "AIT: Decoration");
-                provider.addTranslation("itemGroup.ait.decoration", "AIT: Decoration");
 
             }
 

@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
+import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.amble.lib.util.TeleportUtil;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
@@ -12,6 +13,11 @@ import dev.drtheo.scheduler.api.common.TaskStage;
 import it.unimi.dsi.fastutil.longs.LongBidirectionalIterator;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.util.TriState;
+import net.minecraft.block.BlockState;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.explosion.Explosion;
+import net.minecraft.world.explosion.ExplosionBehavior;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.Entity;
@@ -44,6 +50,7 @@ import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisDesktop;
+import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.tardis.handler.permissions.PermissionHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.util.WorldUtil;
@@ -62,6 +69,20 @@ public class TardisUtil {
     public static final Identifier FLYING_SPEED = AITMod.id("flying_speed");
     public static final Identifier TOGGLE_ANTIGRAVS = AITMod.id("toggle_antigravs");
     public static final Identifier FIND_PLAYER = AITMod.id("find_player");
+    public static final ExplosionBehavior EXPLOSION_BEHAVIOR = new ExplosionBehavior() {
+        @Override
+        public boolean canDestroyBlock(Explosion explosion, BlockView world, BlockPos pos, BlockState state, float power) {
+            MinecraftServer server = ServerLifecycleHooks.get();
+            if (server == null) return false;
+            if (!server.getGameRules().getBoolean(AITMod.TARDIS_GRIEFING)) return false;
+
+            return super.canDestroyBlock(explosion, world, pos, state, power);
+        }
+    };
+
+    public static boolean doCreateFire(World world) {
+        return world.getGameRules().getBoolean(AITMod.TARDIS_FIRE_GRIEFING);
+    }
 
     public static void init() {
         ServerPlayNetworking.registerGlobalReceiver(SNAP, (server, player, handler, buf, responseSender) -> {
@@ -313,7 +334,7 @@ public class TardisUtil {
     }
 
     public static void giveEffectToInteriorPlayers(ServerTardis tardis, StatusEffectInstance effect) {
-        for (PlayerEntity player : getPlayersInsideInterior(tardis)) {
+        for (PlayerEntity player : tardis.world().getPlayers()) {
             player.addStatusEffect(effect);
         }
     }
@@ -323,14 +344,6 @@ public class TardisUtil {
             return player;
         }
         return null;
-    }
-
-    /**
-     * @deprecated Use the {@link ServerTardis#world()} instead.
-     */
-    @Deprecated(forRemoval = true)
-    public static List<ServerPlayerEntity> getPlayersInsideInterior(ServerTardis tardis) {
-        return tardis.world().getPlayers();
     }
 
     public static <T extends Entity> List<T> getEntitiesInBox(Class<T> clazz, World world, Box box,
@@ -446,7 +459,7 @@ public class TardisUtil {
     }
 
     public static void sendMessageToInterior(ServerTardis tardis, Text text) {
-        for (ServerPlayerEntity player : getPlayersInsideInterior(tardis)) {
+        for (ServerPlayerEntity player : tardis.world().getPlayers()) {
             player.sendMessage(text, true);
         }
     }
@@ -480,5 +493,12 @@ public class TardisUtil {
         BlockPos pPos = player.getBlockPos();
         BlockPos tPos = tardis.travel().position().getPos();
         return Math.sqrt(tPos.getSquaredDistance(pPos));
+    }
+
+    public static double estimatedFuelCost(PlayerEntity player, Tardis tardis, double distance){
+        int speed = Math.max(tardis.travel().speed(), 1);
+        double ticksRequired = distance / speed;
+        double perTick = FuelHandler.getPerTickFuelCost(speed, tardis.travel().instability());
+        return perTick * ticksRequired;
     }
 }

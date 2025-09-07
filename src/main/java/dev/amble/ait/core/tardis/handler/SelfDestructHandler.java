@@ -45,7 +45,7 @@ public class SelfDestructHandler extends KeyedTardisComponent implements TardisT
             return;
 
         this.queued.set(true);
-        this.tardis.alarm().enabled().set(true);
+        this.tardis.alarm().enable();
     }
 
     private void complete() {
@@ -58,7 +58,7 @@ public class SelfDestructHandler extends KeyedTardisComponent implements TardisT
         AITMod.LOGGER.warn("Tardis {} has self destructed, expect lag.", tardis.getUuid());
         world.getServer().executeSync(() -> ServerTardisManager.getInstance().remove(world.getServer(), tardis.asServer()));
 
-        world.createExplosion(null, pos.getX(), pos.getY(), pos.getZ(), 50, true,
+        world.createExplosion(null, null, TardisUtil.EXPLOSION_BEHAVIOR, pos.getX(), pos.getY(), pos.getZ(), 50, TardisUtil.doCreateFire(world),
                 World.ExplosionSourceType.MOB);
         world.spawnParticles(ParticleTypes.EXPLOSION_EMITTER, pos.getX(), pos.getY(), pos.getZ(), 10, 1, 1, 1, 1);
         world.spawnParticles(ParticleTypes.CLOUD, pos.getX(), pos.getY(), pos.getZ(), 100, 1, 1, 1, 1);
@@ -81,7 +81,7 @@ public class SelfDestructHandler extends KeyedTardisComponent implements TardisT
     }
 
     private void warnPlayers() {
-        for (PlayerEntity player : TardisUtil.getPlayersInsideInterior(this.tardis.asServer())) {
+        for (PlayerEntity player : this.tardis.asServer().world().getPlayers()) {
             player.sendMessage(Text.translatable("tardis.message.self_destruct.warning").formatted(Formatting.RED),
                     true);
         }
@@ -95,7 +95,7 @@ public class SelfDestructHandler extends KeyedTardisComponent implements TardisT
         if (!this.canSelfDestruct()) {
             this.queued.set(false);
 
-            tardis.alarm().enabled().set(false);
+            tardis.alarm().disable();
             return;
         }
 

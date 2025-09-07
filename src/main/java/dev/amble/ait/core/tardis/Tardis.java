@@ -108,9 +108,15 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
         return this.handler(TardisComponent.Id.DATABASE);
     }
 
+    @Deprecated(forRemoval = true)
     public InteriorChangingHandler interiorChangingHandler() {
+        return interiorChanging();
+    }
+
+    public InteriorChangingHandler interiorChanging() {
         return this.handler(TardisComponent.Id.INTERIOR);
     }
+
     public ServerHumHandler hum() {
         return this.handler(TardisComponent.Id.HUM);
     }
@@ -187,7 +193,7 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
 
     // FIXME: this needs to be changed.
     public boolean isGrowth() {
-        return hasGrowthExterior() || hasGrowthDesktop();
+        return hasGrowthExterior();
     }
 
     public boolean hasGrowthExterior() {

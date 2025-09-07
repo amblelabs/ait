@@ -123,6 +123,8 @@ public class AITItems extends ItemContainer {
             new AItemSettings().group(AITItemGroups.MAIN).maxCount(1));
     public static final Item ZEITON_DUST = new Item(
             new AItemSettings().food(ZEITON_DUST_FOOD));
+    public static final Item FOOD_CUBE = new Item(new AItemSettings().food(AITFoodComponents.FOOD_CUBE));
+    public static final Item OVERCHARGED_FOOD_CUBE = new GlintItem(new AItemSettings().food(AITFoodComponents.OVERCHARGED_FOOD_CUBE).rarity(Rarity.EPIC));
     public static final Item SUPERHEATED_ZEITON = new Item(new AItemSettings().group(AITItemGroups.MAIN));
     public static final Item PLASMIC_MATERIAL = new Item(new AItemSettings().group(AITItemGroups.MAIN));
     public static final Item CORAL_FRAGMENT = new Item(new AItemSettings().group(AITItemGroups.MAIN));
@@ -174,10 +176,10 @@ public class AITItems extends ItemContainer {
 
     @NoEnglish
     public static final Item GALLIFREY_FALLS_PAINTING = new AITDecorationItem(AITEntityTypes.GALLIFREY_FALLS_PAINTING_ENTITY_TYPE,
-            new AItemSettings().group(AITItemGroups.MAIN));
+            new AItemSettings().group(AITItemGroups.DECORATION));
     @NoEnglish
     public static final Item TRENZALORE_PAINTING = new AITDecorationItem(AITEntityTypes.TRENZALORE_PAINTING_ENTITY_TYPE,
-            new AItemSettings().group(AITItemGroups.MAIN));
+            new AItemSettings().group(AITItemGroups.DECORATION));
 
     // Blueprint
     public static final Item BLUEPRINT = new BlueprintItem(
@@ -204,6 +206,10 @@ public class AITItems extends ItemContainer {
     @NoEnglish
     public static final Item GOOD_MAN_MUSIC_DISC = new MusicDiscItem(1, AITSounds.GOOD_MAN_MUSIC,
             new AItemSettings().maxCount(1).rarity(Rarity.RARE), 342);
+
+    @NoEnglish
+    public static final Item CHRONOLOGY_MUSIC_DISC = new MusicDiscItem(1, AITSounds.CHRONOLOGY_MUSIC,
+            new AItemSettings().maxCount(1).rarity(Rarity.RARE), 180);
 
     @NoEnglish
     public static final Item EARTH_MUSIC_DISC = new MusicDiscItem(1, AITSounds.EARTH_MUSIC,
@@ -259,11 +265,14 @@ public class AITItems extends ItemContainer {
             entries.addAfter(Items.MUSIC_DISC_RELIC, DRIFTING_MUSIC_DISC);
             entries.addAfter(DRIFTING_MUSIC_DISC, WONDERFUL_TIME_IN_SPACE_MUSIC_DISC);
             entries.addAfter(WONDERFUL_TIME_IN_SPACE_MUSIC_DISC, EARTH_MUSIC_DISC);
-            entries.addAfter(EARTH_MUSIC_DISC, VENUS_MUSIC_DISC, GOOD_MAN_MUSIC_DISC);
+            entries.addAfter(EARTH_MUSIC_DISC, VENUS_MUSIC_DISC, GOOD_MAN_MUSIC_DISC, CHRONOLOGY_MUSIC_DISC);
         });
+
+
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.FOOD_AND_DRINK).register(entries -> {
             addDrinks(entries);
+            entries.addAfter(Items.SPIDER_EYE, FOOD_CUBE);
         });
 
         /*ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {

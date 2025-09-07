@@ -4,9 +4,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.animation.ExteriorAnimation;
-import dev.amble.ait.core.tardis.animation.PulsatingAnimation;
 import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.door.impl.CapsuleDoorVariant;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
@@ -26,13 +23,8 @@ public abstract class CapsuleVariant extends ExteriorVariantSchema {
     }
 
     @Override
-    public ExteriorAnimation animation(ExteriorBlockEntity exterior) {
-        return new PulsatingAnimation(exterior);
-    }
-
-    @Override
     public DoorSchema door() {
-        return DoorRegistry.REGISTRY.get(CapsuleDoorVariant.REFERENCE);
+        return DoorRegistry.getInstance().get(CapsuleDoorVariant.REFERENCE);
     }
 
     @Override

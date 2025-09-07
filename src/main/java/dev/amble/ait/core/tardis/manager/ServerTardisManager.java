@@ -185,6 +185,9 @@ public class ServerTardisManager extends DeprecatedServerTardisManager {
 
     public void mark(ServerWorld world, ServerTardis tardis, ChunkPos chunk) {
         ((WorldWithTardis) world).ait$lookup().put(chunk, tardis);
+
+        NetworkUtil.getSubscribedPlayers(tardis).forEach(player ->
+                TardisEvents.SYNC_TARDIS.invoker().sync(player, chunk));
     }
 
     public void unmark(ServerWorld world, ServerTardis tardis, ChunkPos chunk) {

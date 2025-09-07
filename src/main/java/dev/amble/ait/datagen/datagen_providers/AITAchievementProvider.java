@@ -70,6 +70,14 @@ public class AITAchievementProvider extends FabricAdvancementProvider {
                 .criterion("feed_power_converter", TardisCriterions.FEED_POWER_CONVERTER.conditions())
                 .build(consumer, AITMod.MOD_ID + "/feed_power_converter");
 
+        Advancement attackEyebrows = Advancement.Builder.create().parent(firstEnter)
+                .display(AITItems.SONIC_SCREWDRIVER, Text.translatable("achievement.ait.title.attack_eyebrows"),
+                        Text.translatable("achievement.ait.description.attack_eyebrows"),
+                        null,
+                        AdvancementFrame.TASK, true, true, true)
+                .criterion("attack_eyebrows", TardisCriterions.ATTACK_EYEBROWS.conditions())
+                .build(consumer, AITMod.MOD_ID + "/attack_eyebrows");
+
         Advancement brandNew = Advancement.Builder.create().parent(firstEnter)
                 .display(AITItems.MUG, Text.translatable("achievement.ait.title.brand_new"),
                         Text.translatable("achievement.ait.description.brand_new"),

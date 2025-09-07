@@ -17,6 +17,7 @@ public class AITSounds {
     public static final SoundEvent EARTH_MUSIC = register("music/earth_nitrogenez");
     public static final SoundEvent VENUS_MUSIC = register("music/venus_nitrogenez");
     public static final SoundEvent GOOD_MAN_MUSIC = register("music/good_man_dian");
+    public static final SoundEvent CHRONOLOGY_MUSIC = register("music/chronology");
     public static final SoundEvent MAD_MAN_MUSIC = register("music/mad_man_dian");
     public static final SoundEvent SPACE = register("music/space");
 
@@ -114,7 +115,7 @@ public class AITSounds {
     public static final SoundEvent DOOR_CONTROLALT = register("controls/door_controlalt");
     public static final SoundEvent POWER_FLICK = register("controls/power_flick");
     public static final SoundEvent PROTOCOL_19 = register("controls/protocol_19");
-    public static final SoundEvent MARK_WAYPOINT = register("controls/mark_waypoint");
+    public static final SoundEvent SAVE_WAYPOINT = register("controls/save_waypoint");
     public static final SoundEvent ANTI_GRAVS = register("controls/anti_gravs");
     public static final SoundEvent FAST_RETURN = register("controls/fast_return");
     public static final SoundEvent PROTOCOL_116_ON = register("controls/protocol_116_on");
@@ -127,7 +128,7 @@ public class AITSounds {
     public static final SoundEvent SIEGE = register("controls/siege");
     public static final SoundEvent DIRECTION = register("controls/direction");
     public static final SoundEvent THROTTLE_SNAP = register("controls/throttle_snap");
-    public static final SoundEvent SET_WAYPOINT = register("controls/waypoint_set");
+    public static final SoundEvent LOAD_WAYPOINT = register("controls/waypoint_load");
     public static final SoundEvent XYZ = register("controls/xyz");
     public static final SoundEvent RANDOMIZE = register("controls/randomize");
     public static final SoundEvent INCREMENT = register("controls/increment");
@@ -238,6 +239,7 @@ public class AITSounds {
 
     // Engine
     public static final SoundEvent ENGINE_REFUEL = register("tardis/engine_refuel");
+    public static final SoundEvent ENGINE_LOOP = register("tardis/engine_loop");
 
     // Engine related stuff
     public static final SoundEvent POWER_CONVERT = register("tardis/power_convert");

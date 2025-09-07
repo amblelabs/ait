@@ -3,6 +3,7 @@ package dev.amble.ait.core.tardis.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import dev.amble.lib.data.DirectedGlobalPos;
@@ -60,6 +61,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
     private static final Property<Identifier> QUEUED_INTERIOR_PROPERTY = new Property<>(Property.IDENTIFIER, "queued_interior", new Identifier(""));
     private static final BoolProperty QUEUED = new BoolProperty("queued");
     private static final BoolProperty REGENERATING = new BoolProperty("regenerating");
+    private static final int MIN_FUEL_COST = 5000;
 
     public static final int MAX_PLASMIC_MATERIAL_AMOUNT = 8;
     private static final Text HINT_TEXT = Text.translatable("tardis.message.growth.hint").formatted(Formatting.DARK_GRAY, Formatting.ITALIC);
@@ -134,6 +136,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                     if (tardis.travel().getState() != TravelHandler.State.LANDED)
                         return;
 
+                    TardisCriterions.REDECORATE.trigger(player);
                     tardis.interiorChangingHandler().queueInteriorChange(desktop);
                     tardis.alarm().enable();
                 })));
@@ -175,7 +178,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         if (!this.canQueue())
             return;
 
-        if (tardis.fuel().getCurrentFuel() < 5000) {
+        if (tardis.fuel().getCurrentFuel() < (MIN_FUEL_COST * tardis.travel().instability())) {
             tardis.asServer().world().getPlayers().forEach(player -> {
                 player.sendMessage(
                         Text.translatable("tardis.message.interiorchange.not_enough_fuel").formatted(Formatting.RED),
@@ -212,7 +215,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         restorationChestContents = new ArrayList<>();
 
         for (SubSystem system : tardis.subsystems()) {
-            if (system.isEnabled())
+            if (!system.isReal())
                 continue;
 
             restorationChestContents.addAll(system.toStacks());
@@ -233,11 +236,21 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                         travel.forceDemat();
                         this.replaceAllConsolesWithGrowth();
                     } else {
-                        tardis.removeFuel(5000 * tardis.travel().instability());
+                        tardis.removeFuel(MIN_FUEL_COST * tardis.travel().instability());
                     }
 
                     TardisUtil.sendMessageToLinked(tardis.asServer(), Text.translatable("tardis.message.interiorchange.success", tardis.stats().getName(), tardis.getDesktop().getSchema().name()));
-                    createChestAtInteriorDoor(restorationChestContents);
+                    this.tardis.getDesktop().getConsolePos().stream().findFirst().ifPresent(blockPos -> {
+                        if (restorationChestContents == null || restorationChestContents.isEmpty()) {
+                            AITMod.LOGGER.debug("No contents to save in recovery inventory in console for {}", this.tardis);
+                            return;
+                        }
+                        if (this.tardis.asServer().world().getBlockEntity(blockPos) instanceof ConsoleBlockEntity consoleBlockEntity) {
+                            for (int i = 0; i < restorationChestContents.size() && i < consoleBlockEntity.getInventory().size(); i++) {
+                                consoleBlockEntity.getInventory().set(i, restorationChestContents.get(i));
+                            }
+                        }
+                    });//createChestAtInteriorDoor(restorationChestContents);
 
                     ParticleEffect particle = ParticleTypes.CLOUD;
                     tardis.door().setDoorParticles(particle);

@@ -1,12 +1,30 @@
 package dev.amble.ait.client.screens;
 
-import java.util.List;
-import java.util.Objects;
-
 import com.google.common.collect.Lists;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.exteriors.BedrockExteriorModel;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.screens.interior.InteriorSettingsScreen;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.FuelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.data.datapack.DatapackConsole;
+import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.data.schema.exterior.category.ClassicCategory;
+import dev.amble.ait.data.schema.exterior.category.ExclusiveCategory;
+import dev.amble.ait.data.schema.exterior.category.PoliceBoxCategory;
+import dev.amble.ait.registry.impl.CategoryRegistry;
+import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
+import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedGlobalPos;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -25,28 +43,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
-import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.client.screens.interior.InteriorSettingsScreen;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientLightUtil;
-import dev.amble.ait.client.util.ClientTardisUtil;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.FuelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.data.datapack.DatapackConsole;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
-import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
-import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
-import dev.amble.ait.data.schema.exterior.category.ClassicCategory;
-import dev.amble.ait.data.schema.exterior.category.ExclusiveCategory;
-import dev.amble.ait.data.schema.exterior.category.PoliceBoxCategory;
-import dev.amble.ait.registry.impl.CategoryRegistry;
-import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
-import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import java.util.List;
 
 public class MonitorScreen extends ConsoleScreen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
@@ -101,9 +98,6 @@ public class MonitorScreen extends ConsoleScreen {
     }
 
     public ClientExteriorVariantSchema getCurrentVariant() {
-        if (Objects.equals(currentVariant, ClientExteriorVariantRegistry.CORAL_GROWTH))
-            changeCategory(true);
-
         if (currentVariant == null)
             if (!this.tardis().getExterior().getCategory().equals(getCategory())) {
                 setCurrentVariant(this.getCategory().getDefaultVariant());
@@ -195,7 +189,7 @@ public class MonitorScreen extends ConsoleScreen {
         else
             setCategory(previousCategory());
 
-        if ((this.category instanceof ExclusiveCategory && ExclusiveCategory.isUnlocked(player.getUuid()))
+        if ((CategoryRegistry.EXCLUSIVE.equals(this.category) && !ExclusiveCategory.isUnlocked(player.getUuid()))
                 || CategoryRegistry.CORAL_GROWTH.equals(this.category))
             changeCategory(direction);
     }
@@ -399,6 +393,11 @@ public class MonitorScreen extends ConsoleScreen {
             stack.scale(-scale, scale, scale);
         }
 
+        // datapack models float for some reason
+        if (variant.model() instanceof BedrockExteriorModel) {
+            stack.translate(0, 1.25f, 0);
+        }
+
         stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(((float) tickForSpin / 1200L) * 360.0f));
 
         Identifier texture = variant.texture();
@@ -411,9 +410,8 @@ public class MonitorScreen extends ConsoleScreen {
                 LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, base, base, base, 1f);
 
         if (hasPower && emissive != null && !(emissive.equals(DatapackConsole.EMPTY))) {
-            ClientLightUtil.renderEmissive((v, l) -> model.render(
-                    stack, v, l, OverlayTexture.DEFAULT_UV, base, tinted, tinted, 1
-            ), emissive, context.getVertexConsumers());
+            model.render(stack, context.getVertexConsumers().getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(emissive, true)),
+                    LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, base, base, base, 1f);
         }
 
         stack.pop();

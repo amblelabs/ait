@@ -16,7 +16,6 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.registry.impl.MoodEventPoolRegistry;
 
@@ -89,7 +88,7 @@ public class MoodHandler extends TardisComponent implements TardisTickable {
             return;
 
         this.moodEvent = moodEvent;
-        TardisUtil.getPlayersInsideInterior(this.tardis.asServer()).forEach(player -> player
+        this.tardis.asServer().world().getPlayers().forEach(player -> player
                 .sendMessage(Text.literal(this.moodEvent.id().getPath()).formatted(Formatting.BOLD), true));
 
         raceMoods();

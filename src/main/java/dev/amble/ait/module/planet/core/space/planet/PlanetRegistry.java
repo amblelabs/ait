@@ -39,6 +39,9 @@ public class PlanetRegistry extends SimpleDatapackRegistry<Planet> {
         return OVERWORLD;
     }
 
+    /**
+     * @implNote O(N) - worst scenario (cache miss), O(1) otherwise.
+     */
     public Planet get(World world) {
         // all worlds implement PlanetWorld
         if (!(world instanceof PlanetWorld planetWorld))

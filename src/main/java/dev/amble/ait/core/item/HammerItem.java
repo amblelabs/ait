@@ -1,5 +1,6 @@
 package dev.amble.ait.core.item;
 
+import dev.amble.ait.core.tardis.util.TardisUtil;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -44,13 +45,9 @@ public class HammerItem extends SwordItem {
 
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
-
-
         BlockPos pos = context.getBlockPos();
         PlayerEntity player = context.getPlayer();
         ItemStack stack = context.getStack();
-
-
 
         if (!(context.getWorld() instanceof ServerWorld world))
             return ActionResult.SUCCESS;
@@ -78,6 +75,7 @@ public class HammerItem extends SwordItem {
                 int hammerUses = travel.getHammerUses();
                 world.playSound(null, consoleBlockEntity.getPos(), AITSounds.HAMMER_HIT, SoundCategory.BLOCKS,
                         1f, 1.0f);
+                tardis.loyalty().subLevel((ServerPlayerEntity) player, 10); // safe cast since its on server already
 
                 if (hammerUses > 3) {
                     world.playSoundFromEntity(null, player, AITSounds.HAMMER_STRIKE, SoundCategory.PLAYERS, 0.5f, 0.2f);
@@ -88,7 +86,7 @@ public class HammerItem extends SwordItem {
                     travel.handbrake(false);
                     tardis.addFuel(10);
                     travel.dematerialize();
-                    tardis.alarm().enabled();
+                    tardis.alarm().isEnabled();
 
                     world.spawnParticles(ParticleTypes.SMALL_FLAME, pos.getX() + 0.5f, pos.getY() + 1.25, pos.getZ() + 0.5f,
                             5 * hammerUses, 0, 0, 0, 0.1f * hammerUses);
@@ -101,10 +99,10 @@ public class HammerItem extends SwordItem {
                                     1),
                             pos.getX() + 0.5f, pos.getY() + 1.25, pos.getZ() + 0.5f, 5 * hammerUses, 0, 0, 0, 0.1f * hammerUses);
 
-                    world.createExplosion(null, world.getDamageSources().outOfWorld(), null, pos.toCenterPos(), 5, true,
+                    world.createExplosion(null, world.getDamageSources().outOfWorld(), TardisUtil.EXPLOSION_BEHAVIOR, pos.toCenterPos(), 5, TardisUtil.doCreateFire(world),
                             World.ExplosionSourceType.MOB);
 
-                    tardis.loyalty().subLevel((ServerPlayerEntity) player, 35); // safe cast since its on server already
+                    tardis.loyalty().subLevel((ServerPlayerEntity) player, 50); // safe cast since its on server already
                     player.getItemCooldownManager().set(stack.getItem(), 10 * 20);
                     return ActionResult.SUCCESS;
                 }

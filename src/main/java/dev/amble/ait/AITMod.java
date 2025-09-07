@@ -106,11 +106,11 @@ public class AITMod implements ModInitializer {
     public static final RegistryKey<PlacedFeature> CUSTOM_GEODE_PLACED_KEY = RegistryKey.of(RegistryKeys.PLACED_FEATURE,
             new Identifier(MOD_ID, "zeiton_geode"));
 
+
     // This DefaultParticleType gets called when you want to use your particle in code.
     public static final DefaultParticleType CORAL_PARTICLE = FabricParticleTypes.simple();
 
-    // Register our custom particle type in the mod initializer.
-
+    // This is the Crater feature that generates in the world. It's made with AI so it sucks lol
     public static final Crater CRATER = new Crater(ProbabilityConfig.CODEC);
 
     public static final String BRANCH;
@@ -139,7 +139,6 @@ public class AITMod implements ModInitializer {
         AsyncLocatorUtil.init();
         MultiDim.init();
 
-        ConsoleRegistry.init();
         CreakRegistry.init();
         SequenceRegistry.init();
         MoodEventPoolRegistry.init();
@@ -148,6 +147,7 @@ public class AITMod implements ModInitializer {
         RiftChunkManager.init();
 
         AmbleRegistries.getInstance().registerAll(
+                ConsoleRegistry.getInstance(),
                 SonicRegistry.getInstance(),
                 DesktopRegistry.getInstance(),
                 ConsoleVariantRegistry.getInstance(),
@@ -164,7 +164,8 @@ public class AITMod implements ModInitializer {
                 SubSystemRegistry.getInstance(),
                 ItemOpinionRegistry.getInstance(),
                 DrinkRegistry.getInstance(),
-                TardisAnimationRegistry.getInstance()
+                TardisAnimationRegistry.getInstance(),
+                DoorRegistry.getInstance()
         );
         ControlSoundRegistry.init();
         BlockbenchParser.init();
@@ -175,7 +176,6 @@ public class AITMod implements ModInitializer {
         FabricLoader.getInstance().invokeEntrypoints("ait-main", AITModInitializer.class,
                 AITModInitializer::onInitializeAIT);
 
-        DoorRegistry.init();
         HandlesResponseRegistry.init();
 
         AITStatusEffects.init();
@@ -238,6 +238,7 @@ public class AITMod implements ModInitializer {
             SetMaxSpeedCommand.register(dispatcher);
             SetSiegeCommand.register(dispatcher);
             LinkCommand.register(dispatcher);
+            UnLinkCommand.register(dispatcher);
             RemoveCommand.register(dispatcher);
             PermissionCommand.register(dispatcher);
             LoyaltyCommand.register(dispatcher);

@@ -36,6 +36,7 @@ public class TardisCriterions {
     public static SimpleCriterion REPAIR_SUBSYSTEM = SimpleCriterion.create("repair_subsystem").register();
     public static SimpleCriterion ENGINES_PHASE = SimpleCriterion.create("engines_phase").register();
     public static SimpleCriterion BRAND_NEW = SimpleCriterion.create("brand_new").register();
+    public static SimpleCriterion ATTACK_EYEBROWS = SimpleCriterion.create("attack_eyebrows").register();
 
     public static void init() {
         AITMod.LOGGER.info("Initializing Tardis Criterions");

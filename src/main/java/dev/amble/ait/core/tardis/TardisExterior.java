@@ -115,7 +115,7 @@ public class TardisExterior extends TardisComponent {
 
         if (pos.getWorld() == null || pos.getWorld().isClient()) return Optional.empty();
 
-        BlockEntity found = tardis.travel().position().getWorld().getBlockEntity(tardis.travel().position().getPos());
+        BlockEntity found = pos.getWorld().getBlockEntity(pos.getPos());
 
         if (!(found instanceof ExteriorBlockEntity exterior))
             return Optional.empty();
@@ -143,8 +143,8 @@ public class TardisExterior extends TardisComponent {
      * Plays a sound at the tardis position, ignoring whether it exists on the server
      * @author duzo
      */
-    public void playSound(Identifier soundId, SoundCategory category) {
+    public void playSound(Identifier soundId, SoundCategory category, float volume) {
         CachedDirectedGlobalPos pos = tardis.travel().position();
-        NetworkUtil.playSound(pos.getDimension(), pos.getPos(), soundId, category);
+        NetworkUtil.playSound(pos.getDimension(), pos.getPos(), soundId, category, volume);
     }
 }

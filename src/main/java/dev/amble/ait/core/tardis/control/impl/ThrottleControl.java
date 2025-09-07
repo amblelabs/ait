@@ -3,6 +3,7 @@ package dev.amble.ait.core.tardis.control.impl;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
@@ -36,7 +37,11 @@ public class ThrottleControl extends Control {
             if (player.isSneaking()) {
                 travel.speed(travel.maxSpeed().get());
             } else {
-                travel.increaseSpeed();
+                if (!tardis.subsystems().stabilisers().isEnabled() && travel.speed() >= 3) {
+                    player.sendMessage(Text.translatable("ait.tardis.control.throttle.stabilisers_disabled"), true);
+                } else {
+                    travel.increaseSpeed();
+                }
             }
         } else {
             if (player.isSneaking()) {

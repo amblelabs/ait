@@ -27,7 +27,7 @@ public class OxygenatorBlockEntity extends BlockEntity {
         Planet planet = PlanetRegistry.getInstance().get(world);
         if (planet == null) return;
         if (planet.hasOxygen()) return;
-        Predicate<Entity> predicate = EntityPredicates.EXCEPT_CREATIVE_OR_SPECTATOR
+        Predicate<Entity> predicate = EntityPredicates.EXCEPT_SPECTATOR
                 .and(EntityPredicates.VALID_LIVING_ENTITY);
         world.getOtherEntities(null, new Box(blockPos).expand(20), predicate).forEach(entity -> {
             if  (entity instanceof LivingEntity livingEntity) {

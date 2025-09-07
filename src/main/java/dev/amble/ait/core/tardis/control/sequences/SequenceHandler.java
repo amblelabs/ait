@@ -20,7 +20,6 @@ import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.registry.impl.SequenceRegistry;
 
@@ -99,7 +98,7 @@ public class SequenceHandler extends TardisComponent implements TardisTickable {
         if (this.activeSequence == null)
             return;
 
-        this.activeSequence.sendMessageToInteriorPlayers(TardisUtil.getPlayersInsideInterior(tardis.asServer()));
+        this.activeSequence.sendMessageToInteriorPlayers(tardis.asServer().world().getPlayers());
     }
 
     public void triggerRandomSequence(boolean setTicksTo0) {
@@ -113,7 +112,7 @@ public class SequenceHandler extends TardisComponent implements TardisTickable {
             return;
 
         this.activeSequence = sequence;
-        this.activeSequence.sendMessageToInteriorPlayers(TardisUtil.getPlayersInsideInterior(this.tardis.asServer()));
+        this.activeSequence.sendMessageToInteriorPlayers(tardis.asServer().world().getPlayers());
 
         this.tardis().getDesktop().playSoundAtEveryConsole(SoundEvents.BLOCK_BEACON_POWER_SELECT);
     }

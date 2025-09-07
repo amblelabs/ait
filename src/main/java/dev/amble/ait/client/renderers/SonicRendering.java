@@ -29,10 +29,13 @@ import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
 import dev.amble.ait.core.engine.impl.EngineSystem;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.item.sonic.SonicMode;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 
 public class SonicRendering {
     private static final Identifier SELECTED = AITMod.id("textures/marker/landing.png");
+    public static final Identifier SELECTED_RED = AITMod.id("textures/marker/landing_red.png");
 
     private final MinecraftClient client;
     private final Profiler profiler;
@@ -125,10 +128,31 @@ public class SonicRendering {
             profiler.pop();
             return;
         }
+
+        if (client.player == null || client.world == null) {
+            profiler.pop();
+            return;
+        }
+
         BlockPos targetPos = crosshair.getBlockPos();
         BlockState state = client.world.getBlockState(targetPos.down());
         if (state.isAir()) {
             profiler.pop();
+            return;
+        }
+
+        Tardis tardis = SonicItem.getTardisStatic(client.world, getSonicStack(client.player));
+
+        if (tardis == null) {
+            profiler.pop();
+            return;
+        }
+
+        double distance = TardisUtil.distanceFromTardis(client.player, tardis);
+        boolean hasEnoughFuel = tardis.fuel().getCurrentFuel() > TardisUtil.estimatedFuelCost(client.player, tardis, distance);
+
+        if(!hasEnoughFuel) {
+            renderFloorTexture(targetPos, SELECTED_RED, null, false);
             return;
         }
 
@@ -185,7 +209,7 @@ public class SonicRendering {
         Text text = Text.empty();
 
         if (system instanceof DurableSubSystem) {
-            text = Text.literal((Math.round(((DurableSubSystem) be.system()).durability())) + " / 1250");
+            text = Text.literal((Math.round(((DurableSubSystem) be.system()).durability())) + " / " + DurableSubSystem.MAX_DURABILITY);
         }
         if (!system.isEnabled() && !(system instanceof EngineSystem)) {
             text = Text.translatable("tardis.message.subsystem.requires_link");

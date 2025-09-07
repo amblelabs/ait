@@ -14,14 +14,18 @@ import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.drinks.DrinkUtil;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
+import dev.amble.ait.data.properties.bool.BoolProperty;
+import dev.amble.ait.data.properties.bool.BoolValue;
 
 public class ExtraHandler extends KeyedTardisComponent {
     private static final Property<ItemStack> SET_REFRESHMENT_ITEM = new Property<>(Property.ITEM_STACK, "set_refreshment_item", (ItemStack) null);
     private static final Property<ItemStack> INSERTED_DISC = new Property<>(Property.ITEM_STACK, "inserted_disc", (ItemStack) null);
     private static final Property<ItemStack> CONSOLE_HAMMER = new Property<>(Property.ITEM_STACK, "console_hammer",
             (ItemStack) null);
+    private static final BoolProperty TOOLBOX_OPEN = new BoolProperty("toolbox_open", false);
 
     private final Value<ItemStack> consoleHammer = CONSOLE_HAMMER.create(this);
+    private final BoolValue toolbox_open = TOOLBOX_OPEN.create(this);
     private final Value<ItemStack> setRefreshmentItemValue = SET_REFRESHMENT_ITEM.create(this);
     private final Value<ItemStack> setInsertedDiscValue = INSERTED_DISC.create(this);
 
@@ -42,11 +46,21 @@ public class ExtraHandler extends KeyedTardisComponent {
         setRefreshmentItemValue.of(this, SET_REFRESHMENT_ITEM);
         setInsertedDiscValue.of(this, INSERTED_DISC);
         consoleHammer.of(this, CONSOLE_HAMMER);
+        toolbox_open.of(this, TOOLBOX_OPEN);
     }
 
     public ItemStack getConsoleHammer() {
         return this.consoleHammer.get();
     }
+
+    public Boolean isToolboxOpen() {
+        return this.toolbox_open.get();
+    }
+
+    public void setToolboxOpen(Boolean open) {
+        toolbox_open.set(open);
+    }
+
     public ItemStack consoleHammerInserted() {
         ItemStack itemStack = consoleHammer.get();
         return itemStack != null ? itemStack : ItemStack.EMPTY;

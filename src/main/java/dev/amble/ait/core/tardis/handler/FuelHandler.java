@@ -5,6 +5,7 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.AxeItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -64,7 +65,7 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
             }
 
             // if holding an axe then break open the door RAHHH
-            if (stack.getItem() instanceof AxeItem) {
+            if (stack.getItem() instanceof AxeItem axeItem && axeItem.getAttackDamage()>=8 && stack.getItem() != Items.STONE_AXE) {
                 if (tardis.siege().isActive())
                     return DoorHandler.InteractionResult.CANCEL;
 
@@ -161,12 +162,20 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
         this.removeFuel(20 * 5 * tardis.travel().instability());
     }
 
+    public static double getPerTickFuelCost(int speed, int instability) {
+        return speed + instability - 1;
+    }
+
+    public static double getPerTickFuelCost(TravelHandler travel) {
+        return getPerTickFuelCost(Math.max(travel.speed(), 1), travel.instability());
+    }
+
     private void tickFlight() {
         if (tardis.isGrowth())
             return;
 
         TravelHandler travel = this.tardis.travel();
-        this.removeFuel(20 * (4 ^ (Math.max(travel.speed(), 1))) * travel.instability());
+        this.removeFuel(20 * FuelHandler.getPerTickFuelCost(travel));
 
         if (!tardis.fuel().hasPower())
             travel.crash();
@@ -191,7 +200,6 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
 
             this.addFuel(20 * toAdd);
         }
-
 
         if (!this.refueling().get() && tardis.fuel().hasPower() && !tardis.isGrowth()) {
             double instability = tardis.travel().instability();

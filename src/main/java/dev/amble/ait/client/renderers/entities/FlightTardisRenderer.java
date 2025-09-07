@@ -19,7 +19,6 @@ import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.models.machines.ShieldsModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.renderers.VortexUtil;
-import dev.amble.ait.client.util.ClientLightUtil;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.tardis.Tardis;
@@ -98,13 +97,11 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
         this.model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(getTexture(entity))), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 
         if (variant.emission() != null && tardis.fuel().hasPower()) {
-            boolean alarms = tardis.alarm().enabled().get();
+            boolean alarms = tardis.alarm().isEnabled();
 
             float color = alarms ? 0.3f : 1f;
 
-            ClientLightUtil.renderEmissivable(tardis.fuel().hasPower(), (v, l) -> model.renderEntity(
-                    entity, this.model.getPart(), matrices, v, l, OverlayTexture.DEFAULT_UV, color, color, color, 1
-            ), variant.emission(), vertexConsumers);
+            model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xf000f0, OverlayTexture.DEFAULT_UV, color, color, color, 1);
         }
 
         BiomeHandler biome = tardis.handler(TardisComponent.Id.BIOME);

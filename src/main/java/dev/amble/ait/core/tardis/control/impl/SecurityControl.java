@@ -47,7 +47,7 @@ public class SecurityControl extends Control {
         List<ServerPlayerEntity> forRemoval = new ArrayList<>();
 
         if (leaveBehind) {
-            for (ServerPlayerEntity player : TardisUtil.getPlayersInsideInterior(tardis.asServer())) {
+            for (ServerPlayerEntity player : tardis.asServer().world().getPlayers()) {
                 if (!hasMatchingKey(player, tardis)) {
                     forRemoval.add(player);
                 }
@@ -90,7 +90,7 @@ public class SecurityControl extends Control {
     }
 
     @Override
-    public long getDelayLength() {
+    public long getDelayLength(Tardis tardis) {
         return 50;
     }
 }
