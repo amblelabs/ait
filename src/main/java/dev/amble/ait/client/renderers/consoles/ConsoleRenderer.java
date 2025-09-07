@@ -114,9 +114,6 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         matrices.push();
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 
-        profiler.swap("animate");
-        model.animateBlockEntity(entity, tardis.travel().getState(), hasPower);
-
         if (DependencyChecker.hasIris()) {
             if (hasPower) {
                 profiler.swap("emission");
@@ -128,8 +125,11 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
                             1, 1, 1, 1, tickDelta);
                 }
                 matrices.pop();
-            }
+            }   
         }
+
+        profiler.swap("animate");
+        model.animateBlockEntity(entity, tardis.travel().getState(), hasPower);
 
         profiler.swap("render");
         model.renderWithAnimations(tardis, entity, model.getPart(),

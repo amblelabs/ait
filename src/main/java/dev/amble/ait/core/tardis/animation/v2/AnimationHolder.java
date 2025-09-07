@@ -182,7 +182,7 @@ public class AnimationHolder implements TardisTickable, Disposable, Linkable {
             this.current.dispose();
         }
 
-        animation.dispose();;
+        animation.dispose();
         this.current = animation.instantiate();
 
         if (this.isLinked()) {
@@ -260,7 +260,8 @@ public class AnimationHolder implements TardisTickable, Disposable, Linkable {
 
     @Environment(EnvType.CLIENT)
     private float getHandbrakeAlpha(Tardis tardis) {
-        FlightSoundPlayer sfx = ClientSoundManager.getFlight().getExteriorLoop(tardis.asClient());
+        // sobbing
+        FlightSoundPlayer sfx = ClientSoundManager.getFlight().getFlightLoop(tardis.asClient());
         if (sfx == null) {
             return 0.5F;
         }

@@ -15,8 +15,6 @@ import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -46,26 +44,27 @@ public class TardisServerWorld extends MultiDimServerWorld {
 
     public TardisServerWorld(WorldBlueprint blueprint, MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey<World> worldKey, DimensionOptions dimensionOptions, WorldGenerationProgressListener worldGenerationProgressListener, List<Spawner> spawners, @Nullable RandomSequencesState randomSequencesState, boolean created) {
         super(blueprint, server, workerExecutor, session, properties, worldKey, dimensionOptions, worldGenerationProgressListener, spawners, randomSequencesState, created);
+        this.setMobSpawnOptions(false, false);
     }
 
     @Override
     public void tick(BooleanSupplier shouldKeepTicking) {
-        if (this.tardis != null && this.tardis.shouldTick()) {
+        if (this.shouldTick()) {
             super.tick(shouldKeepTicking);
         }
+    }
+
+    public boolean shouldTick() {
+        return this.tardis != null && (
+                !MultiDim.get(this.getServer()).isWorldUnloaded(this)
+                || this.tardis.interiorChanging().queued().get()
+                || this.tardis.getDesktop().isChanging()
+        );
     }
 
     @Override
     public String toString() {
         return "Tardis" + super.toString();
-    }
-
-    @Override
-    public boolean spawnEntity(Entity entity) {
-        if (entity instanceof ItemEntity && this.tardis.interiorChangingHandler().regenerating().get())
-            return false;
-
-        return super.spawnEntity(entity);
     }
 
     @Override

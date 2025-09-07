@@ -29,6 +29,12 @@ public class DoorRegistry extends SimpleDatapackRegistry<DoorSchema> {
         return INSTANCE;
     }
 
+    @Override
+    public void onCommonInit() {
+        super.onCommonInit();
+        this.defaults();
+    }
+
     public static DoorSchema TARDIM;
     public static DoorSchema CLASSIC;
     public static DoorSchema CLASSIC_HUDOLIN;

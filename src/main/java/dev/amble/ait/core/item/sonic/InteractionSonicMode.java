@@ -40,6 +40,8 @@ public class InteractionSonicMode extends SonicMode {
     private void process(ServerWorld world, LivingEntity user, int ticks) {
         HitResult hitResult = SonicMode.getHitResultForOutline(user);
 
+        SonicMode.checkSonicWoodAdvancementConditions(world, user, hitResult);
+
         if (hitResult instanceof BlockHitResult blockHit) {
             this.interactBlock(blockHit.getBlockPos(), world, user, ticks, blockHit);
         }

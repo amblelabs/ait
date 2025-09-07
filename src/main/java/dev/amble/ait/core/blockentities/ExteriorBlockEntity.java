@@ -46,6 +46,7 @@ import dev.amble.ait.core.engine.impl.EngineSystem;
 import dev.amble.ait.core.item.KeyItem;
 import dev.amble.ait.core.item.SiegeTardisItem;
 import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.core.item.sonic.SonicMode;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
@@ -162,9 +163,9 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
             // try to stop phasing
             EngineSystem.Phaser phasing = tardis.subsystems().engine().phaser();
 
-            if (phasing.isPhasing()) {
-                world.playSound(null, pos, AITSounds.SONIC_USE, SoundCategory.PLAYERS, 1F, 1F);
-                phasing.cancel();
+            if (phasing.isPhasing() && SonicItem.mode(hand) == SonicMode.Modes.TARDIS) {
+                    world.playSound(null, pos, AITSounds.SONIC_USE, SoundCategory.PLAYERS, 1F, 1F);
+                    phasing.cancel();
                 return;
             }
         }
