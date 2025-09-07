@@ -116,14 +116,14 @@ public class AITMod implements ModInitializer {
     public static final String BRANCH;
 
     static {
-        // ait-1.x.x.xxx-1.20.1-xxxx-xxxx
+        // ait-1.x.xx-BRANCH+mc.1.20.1
         String version = FabricLoader.getInstance().getModContainer(MOD_ID).get().getMetadata().getVersion().getFriendlyString();
-        // get the last part of the version string after the -
-        BRANCH = version.substring(version.lastIndexOf("-") + 1);
+        // get the part of the version string between the - and +
+        BRANCH = version.substring(version.lastIndexOf("-") + 1, version.lastIndexOf("+"));
     }
 
     public static boolean isUnsafeBranch() {
-        return !BRANCH.equals("release");
+        return !BRANCH.contains("release");
     }
 
     public void registerParticles() {

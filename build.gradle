@@ -160,7 +160,7 @@ jar {
     def archivesNameValue = project.base.archivesName
 
     from("LICENSE") {
-        rename { "${it}_${archivesNameValue}" }
+        rename { "${it}_${archivesNameValue.get()}" }
     }
 }
 
