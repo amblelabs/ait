@@ -1,6 +1,5 @@
 package dev.amble.ait.client.boti;
 
-
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -18,7 +17,6 @@ import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
-
 
 public class BOTI {
     public static final Queue<RiftEntity> RIFT_RENDERING_QUEUE = new LinkedList<>();
@@ -54,24 +52,41 @@ public class BOTI {
 
     /**
      * Warns the user if they are missing Indium and have a non-Nvidia card.
-     * @return true if the user is missing Indium and have a non-Nvidia card.
      */
-    public static boolean tryWarn() {
-        boolean invalid = isInvalidSetup();
+    public static void tryWarn(MinecraftClient client) {
+        if (HAS_BEEN_WARNED)
+            return;
 
-        if (!HAS_BEEN_WARNED) {
-            HAS_BEEN_WARNED = true;
+        if (warn(client)) AITModClient.CONFIG.enableTardisBOTI = false;
 
-            if (invalid) {
-                MinecraftClient.getInstance().player.sendMessage(Text.literal("You appear to have an AMD GPU. Indium is required, but is not found. This may cause issues with the mod - BOTI has been disabled!").formatted(DependencyChecker.hasIndium() ? Formatting.GREEN : Formatting.RED), false);
-                AITModClient.CONFIG.enableTardisBOTI = false;
-            }
-        }
-
-        return invalid;
+        HAS_BEEN_WARNED = true;
     }
 
-    private static boolean isInvalidSetup() {
-        return !DependencyChecker.hasNvidiaCard() && !DependencyChecker.hasIndium();
+    /**
+     * @return {@code true} if successfully warned the player, {@code false} otherwise
+     */
+    private static boolean warn(MinecraftClient client) {
+        if (DependencyChecker.hasMacOs()) {
+            tryWarnMac(client);
+            return true;
+        }
+
+        if (DependencyChecker.hasIndium())
+            return false;
+
+        if (!DependencyChecker.hasNvidiaCard()) {
+            tryWarnAmd(client);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static void tryWarnMac(MinecraftClient client) {
+        client.player.sendMessage(Text.literal("You appear to be playing on a Mac. Indium is required, but is not found. This may cause issues with the mod - BOTI has been disabled!").formatted(Formatting.RED), false);
+    }
+
+    private static void tryWarnAmd(MinecraftClient client) {
+        client.player.sendMessage(Text.literal("You appear to have an AMD GPU. Indium is required, but is not found. This may cause issues with the mod - BOTI has been disabled!").formatted(Formatting.RED), false);
     }
 }

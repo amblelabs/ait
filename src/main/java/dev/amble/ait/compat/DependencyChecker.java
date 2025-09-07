@@ -14,6 +14,7 @@ public class DependencyChecker {
     private static final boolean HAS_PERMISSION_API = doesModExist("fabric-permissions-api");
 
     private static Boolean NVIDIA_CARD;
+    private static Boolean MAC_OS;
 
     public static boolean doesModExist(String modid) {
         return FabricLoader.getInstance().isModLoaded(modid);
@@ -45,5 +46,14 @@ public class DependencyChecker {
             NVIDIA_CARD = GlDebugInfo.getVendor().toLowerCase().contains("nvidia");
 
         return NVIDIA_CARD;
+    }
+
+    public static boolean hasMacOs() {
+        if (MAC_OS == null) {
+            String os = System.getProperty("os.name");
+            MAC_OS = os != null && (os.contains("mac") || os.contains("darwin"));
+        }
+
+        return MAC_OS;
     }
 }

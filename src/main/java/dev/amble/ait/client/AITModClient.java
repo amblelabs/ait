@@ -1,14 +1,71 @@
 package dev.amble.ait.client;
 
-import static dev.amble.ait.AITMod.*;
-import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
-import static dev.amble.ait.core.item.PersonalityMatrixItem.colorToInt;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.UUID;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.boti.*;
+import dev.amble.ait.client.commands.ConfigCommand;
 import dev.amble.ait.client.commands.DebugCommand;
+import dev.amble.ait.client.config.AITClientConfig;
+import dev.amble.ait.client.data.ClientLandingManager;
+import dev.amble.ait.client.models.AnimatedModel;
+import dev.amble.ait.client.models.boti.BotiPortalModel;
+import dev.amble.ait.client.models.decoration.GallifreyFallsModel;
+import dev.amble.ait.client.models.decoration.PaintingFrameModel;
+import dev.amble.ait.client.models.decoration.RiftModel;
+import dev.amble.ait.client.models.decoration.TrenzalorePaintingModel;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.overlays.ExteriorAxeOverlay;
+import dev.amble.ait.client.overlays.FabricatorOverlay;
+import dev.amble.ait.client.overlays.RWFOverlay;
+import dev.amble.ait.client.overlays.SonicOverlay;
+import dev.amble.ait.client.renderers.SeatEntityRenderer;
+import dev.amble.ait.client.renderers.SonicRendering;
+import dev.amble.ait.client.renderers.TardisStar;
+import dev.amble.ait.client.renderers.builtin.CopperRingsBuiltInRenderer;
+import dev.amble.ait.client.renderers.builtin.CoralSeatBuiltInRenderer;
+import dev.amble.ait.client.renderers.builtin.ToyotaSeatBuiltInRenderer;
+import dev.amble.ait.client.renderers.consoles.ConsoleGeneratorRenderer;
+import dev.amble.ait.client.renderers.consoles.ConsoleRenderer;
+import dev.amble.ait.client.renderers.coral.CoralRenderer;
+import dev.amble.ait.client.renderers.decoration.*;
+import dev.amble.ait.client.renderers.doors.DoorRenderer;
+import dev.amble.ait.client.renderers.entities.*;
+import dev.amble.ait.client.renderers.exteriors.ExteriorRenderer;
+import dev.amble.ait.client.renderers.machines.*;
+import dev.amble.ait.client.renderers.monitors.MonitorRenderer;
+import dev.amble.ait.client.renderers.monitors.WallMonitorRenderer;
+import dev.amble.ait.client.renderers.sky.MarsSkyProperties;
+import dev.amble.ait.client.screens.AstralMapScreen;
+import dev.amble.ait.client.screens.BlueprintFabricatorScreen;
+import dev.amble.ait.client.screens.MonitorScreen;
+import dev.amble.ait.client.sonic.SonicModelLoader;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.tardis.manager.ClientTardisManager;
+import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.client.util.MultiplayerUtil;
+import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.core.*;
+import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
+import dev.amble.ait.core.blockentities.DoorBlockEntity;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.blocks.AstralMapBlock;
+import dev.amble.ait.core.blocks.ExteriorBlock;
+import dev.amble.ait.core.drinks.DrinkRegistry;
+import dev.amble.ait.core.drinks.DrinkUtil;
+import dev.amble.ait.core.entities.BOTIPaintingEntity;
+import dev.amble.ait.core.entities.RiftEntity;
+import dev.amble.ait.core.entities.daleks.DalekRegistry;
+import dev.amble.ait.core.item.*;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
+import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import dev.amble.ait.module.ModuleRegistry;
+import dev.amble.ait.module.gun.core.item.BaseGunItem;
+import dev.amble.ait.registry.impl.SonicRegistry;
+import dev.amble.ait.registry.impl.console.ConsoleRegistry;
+import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
+import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
+import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -20,8 +77,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
-import org.jetbrains.annotations.Nullable;
-
 import net.minecraft.block.DoorBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -39,68 +94,15 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
+import org.jetbrains.annotations.Nullable;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.boti.*;
-import dev.amble.ait.client.commands.ConfigCommand;
-import dev.amble.ait.client.config.AITClientConfig;
-import dev.amble.ait.client.data.ClientLandingManager;
-import dev.amble.ait.client.models.AnimatedModel;
-import dev.amble.ait.client.models.boti.BotiPortalModel;
-import dev.amble.ait.client.models.decoration.GallifreyFallsModel;
-import dev.amble.ait.client.models.decoration.PaintingFrameModel;
-import dev.amble.ait.client.models.decoration.RiftModel;
-import dev.amble.ait.client.models.decoration.TrenzalorePaintingModel;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
-import dev.amble.ait.client.overlays.ExteriorAxeOverlay;
-import dev.amble.ait.client.overlays.FabricatorOverlay;
-import dev.amble.ait.client.overlays.RWFOverlay;
-import dev.amble.ait.client.overlays.SonicOverlay;
-import dev.amble.ait.client.renderers.SonicRendering;
-import dev.amble.ait.client.renderers.TardisStar;
-import dev.amble.ait.client.renderers.consoles.ConsoleGeneratorRenderer;
-import dev.amble.ait.client.renderers.consoles.ConsoleRenderer;
-import dev.amble.ait.client.renderers.coral.CoralRenderer;
-import dev.amble.ait.client.renderers.decoration.FlagBlockEntityRenderer;
-import dev.amble.ait.client.renderers.decoration.PlaqueRenderer;
-import dev.amble.ait.client.renderers.decoration.SnowGlobeRenderer;
-import dev.amble.ait.client.renderers.doors.DoorRenderer;
-import dev.amble.ait.client.renderers.entities.*;
-import dev.amble.ait.client.renderers.exteriors.ExteriorRenderer;
-import dev.amble.ait.client.renderers.machines.*;
-import dev.amble.ait.client.renderers.monitors.MonitorRenderer;
-import dev.amble.ait.client.renderers.monitors.WallMonitorRenderer;
-import dev.amble.ait.client.renderers.sky.MarsSkyProperties;
-import dev.amble.ait.client.screens.AstralMapScreen;
-import dev.amble.ait.client.screens.BlueprintFabricatorScreen;
-import dev.amble.ait.client.screens.MonitorScreen;
-import dev.amble.ait.client.sonic.SonicModelLoader;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.tardis.manager.ClientTardisManager;
-import dev.amble.ait.client.util.ClientTardisUtil;
-import dev.amble.ait.compat.DependencyChecker;
-import dev.amble.ait.core.*;
-import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
-import dev.amble.ait.core.blockentities.DoorBlockEntity;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.blocks.AstralMapBlock;
-import dev.amble.ait.core.blocks.ExteriorBlock;
-import dev.amble.ait.core.drinks.DrinkRegistry;
-import dev.amble.ait.core.drinks.DrinkUtil;
-import dev.amble.ait.core.entities.BOTIPaintingEntity;
-import dev.amble.ait.core.entities.RiftEntity;
-import dev.amble.ait.core.item.*;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
-import dev.amble.ait.module.ModuleRegistry;
-import dev.amble.ait.module.gun.core.item.BaseGunItem;
-import dev.amble.ait.registry.impl.SonicRegistry;
-import dev.amble.ait.registry.impl.console.ConsoleRegistry;
-import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
-import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
-import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.UUID;
+
+import static dev.amble.ait.AITMod.*;
+import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
+import static dev.amble.ait.core.item.PersonalityMatrixItem.colorToInt;
 
 @Environment(value = EnvType.CLIENT)
 public class AITModClient implements ClientModInitializer {
@@ -116,6 +118,7 @@ public class AITModClient implements ClientModInitializer {
         AmbleRegistries.getInstance().registerAll(
                 SonicRegistry.getInstance(),
                 DrinkRegistry.getInstance(),
+                DalekRegistry.getInstance(),
                 ClientExteriorVariantRegistry.getInstance(),
                 ClientConsoleVariantRegistry.getInstance(),
                 ClientDoorRegistry.getInstance()
@@ -126,6 +129,7 @@ public class AITModClient implements ClientModInitializer {
         ModuleRegistry.instance().onClientInit();
 
         setupBlockRendering();
+        registerBuiltInItemRenderers();
         blockEntityRendererRegister();
         entityRenderRegister();
         chargedZeitonCrystalPredicate();
@@ -135,6 +139,8 @@ public class AITModClient implements ClientModInitializer {
         adventItemPredicates();
         registerItemColors();
         registerParticles();
+        MultiplayerUtil.tryAddServer("Adventures In Time Server", "AIT-server.mcserver.us");
+        MultiplayerUtil.tryAddServer("Adventures In Time Server (Alt)", "199.115.73.46:25565");
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             ConfigCommand.register(dispatcher);
@@ -248,7 +254,7 @@ public class AITModClient implements ClientModInitializer {
 
         AstralMapBlock.registerSyncListener();
 
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn());
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn(client));
     }
     public static Screen screenFromId(int id) {
         return screenFromId(id, null, null);
@@ -392,6 +398,18 @@ public class AITModClient implements ClientModInitializer {
         BlockEntityRendererFactories.register(AITBlockEntityTypes.FOOD_MACHINE_BLOCK_ENTITY_TYPE,
                 FoodMachineRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ASTRAL_MAP, AstralMapRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.WOODEN_SEAT,
+                WoodenSeatRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.BRASS_STATUE,
+                BrassStatueRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.CORAL_SEAT,
+                CoralSeatRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.COPPER_SEAT,
+                CopperSeatRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.TOYOTA_SEAT,
+                ToyotaSeatRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.COPPER_RINGS,
+                CopperRingsRenderer::new);
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             BlockEntityRendererFactories.register(AITBlockEntityTypes.SNOW_GLOBE_BLOCK_ENTITY_TYPE,
                     SnowGlobeRenderer::new);
@@ -402,12 +420,15 @@ public class AITModClient implements ClientModInitializer {
         EntityRendererRegistry.register(AITEntityTypes.CONTROL_ENTITY_TYPE, ControlEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.FALLING_TARDIS_TYPE, FallingTardisRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.FLIGHT_TARDIS_TYPE, FlightTardisRenderer::new);
+        EntityRendererRegistry.register(AITEntityTypes.SEAT, SeatEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.GALLIFREY_FALLS_PAINTING_ENTITY_TYPE, GallifreyanPaintingEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.TRENZALORE_PAINTING_ENTITY_TYPE, TrenzalorePaintingEntityRenderer::new);
 //        if (isUnlockedOnThisDay(Calendar.DECEMBER, 26)) {
 //            EntityRendererRegistry.register(AITEntityTypes.COBBLED_SNOWBALL_TYPE, FlyingItemEntityRenderer::new);
 //        }
         EntityRendererRegistry.register(AITEntityTypes.RIFT_ENTITY, RiftEntityRenderer::new);
+        EntityRendererRegistry.register(AITEntityTypes.DALEK_ENTITY, DalekEntityRenderer::new);
+        EntityRendererRegistry.register(AITEntityTypes.DALEK_SHIP_ENTITY_TYPE, DalekShipEntityRenderer::new);
     }
 
     public static void setupBlockRendering() {
@@ -421,6 +442,12 @@ public class AITModClient implements ClientModInitializer {
         map.putBlock(AITBlocks.SMALL_ZEITON_BUD, RenderLayer.getCutout());
         map.putBlock(AITBlocks.MACHINE_CASING, RenderLayer.getCutout());
         map.putBlock(AITBlocks.FABRICATOR, RenderLayer.getTranslucent());
+        map.putBlock(AITBlocks.JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.ACACIA_JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.PALE_OAK_JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.CHERRY_JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.BAMBOO_JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.WARPED_JUKEBOX, RenderLayer.getCutout());
         map.putBlock(AITBlocks.ENVIRONMENT_PROJECTOR, RenderLayer.getTranslucent());
         map.putBlock(AITBlocks.WAYPOINT_BANK, RenderLayer.getCutout());
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
@@ -459,6 +486,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void exteriorBOTI(WorldRenderContext context) {
+        if (DependencyChecker.hasPortals()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
@@ -490,6 +519,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void doorBOTI(WorldRenderContext context) {
+        if (DependencyChecker.hasPortals()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
@@ -522,6 +553,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void gallifreyanBOTI(WorldRenderContext context) {
+        if (DependencyChecker.hasPortals()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         SinglePartEntityModel contents = new GallifreyFallsModel(GallifreyFallsModel.getTexturedModelData().createModel());
         Identifier frameTex = GallifreyanPaintingEntityRenderer.GALLIFREY_FRAME_TEXTURE;
@@ -549,6 +582,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void trenzaloreBOTI(WorldRenderContext context) {
+        if (DependencyChecker.hasPortals()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         SinglePartEntityModel contents = new TrenzalorePaintingModel(TrenzalorePaintingModel.getTexturedModelData().createModel());
         Identifier frameTex = TrenzalorePaintingEntityRenderer.TRENZALORE_FRAME_TEXTURE;
@@ -576,6 +611,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void riftBOTI(WorldRenderContext context) {
+        if (DependencyChecker.hasPortals()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
@@ -595,5 +632,14 @@ public class AITModClient implements ClientModInitializer {
             stack.pop();
         }
         BOTI.RIFT_RENDERING_QUEUE.clear();
+    }
+
+    public void registerBuiltInItemRenderers() {
+        BuiltinItemRendererRegistry.INSTANCE.register(AITBlocks.TOYOTA_SEAT.asItem(),
+                new ToyotaSeatBuiltInRenderer());
+        BuiltinItemRendererRegistry.INSTANCE.register(AITBlocks.CORAL_SEAT.asItem(),
+                new CoralSeatBuiltInRenderer());
+        BuiltinItemRendererRegistry.INSTANCE.register(AITBlocks.COPPER_RINGS.asItem(),
+                new CopperRingsBuiltInRenderer());
     }
 }
