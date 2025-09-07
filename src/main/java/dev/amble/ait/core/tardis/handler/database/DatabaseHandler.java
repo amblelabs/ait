@@ -1,7 +1,8 @@
 package dev.amble.ait.core.tardis.handler.database;
 
-import java.util.*;
-
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.module.gun.core.item.BaseGunItem;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
@@ -9,11 +10,7 @@ import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.api.tardis.TardisTickable;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.module.gun.core.item.BaseGunItem;
+import java.util.*;
 
 public class DatabaseHandler extends TardisComponent implements TardisTickable {
     private final Map<UUID, PersonalData> personalData;
@@ -48,7 +45,7 @@ public class DatabaseHandler extends TardisComponent implements TardisTickable {
         if (server.getTicks() % 200 != 0)
             return;
 
-        for (ServerPlayerEntity player : TardisUtil.getPlayersInsideInterior((ServerTardis) tardis)) {
+        for (ServerPlayerEntity player : tardis().asServer().world().getPlayers()) {
             this.checkPlayer(player, false);
         }
     }
