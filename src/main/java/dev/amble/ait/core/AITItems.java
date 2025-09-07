@@ -1,24 +1,5 @@
 package dev.amble.ait.core;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
-import dev.amble.lib.container.impl.ItemContainer;
-import dev.amble.lib.datagen.util.NoEnglish;
-import dev.amble.lib.item.AItemSettings;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.item.*;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.Rarity;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.LinkableItem;
 import dev.amble.ait.core.drinks.DrinkRegistry;
@@ -34,6 +15,23 @@ import dev.amble.ait.core.item.link.AbstractLinkItem;
 import dev.amble.ait.core.item.link.FluidLinkItem;
 import dev.amble.ait.core.item.link.MercurialLinkItem;
 import dev.amble.ait.core.item.part.MachinePartItem;
+import dev.amble.lib.container.impl.ItemContainer;
+import dev.amble.lib.datagen.util.NoEnglish;
+import dev.amble.lib.item.AItemSettings;
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.item.*;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.util.Rarity;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 public class AITItems extends ItemContainer {
 
@@ -215,6 +213,8 @@ public class AITItems extends ItemContainer {
     public static final Item EARTH_MUSIC_DISC = new MusicDiscItem(1, AITSounds.EARTH_MUSIC,
             new AItemSettings().maxCount(1).rarity(Rarity.RARE), 315);
 
+    public static final Item DALEK = new SpawnEggItem(AITEntityTypes.DALEK_ENTITY, 0xcc9412, 0xf0e1c0, new AItemSettings());
+    public static final Item DALEK_SHIP = new SpawnEggItem(AITEntityTypes.DALEK_SHIP_ENTITY_TYPE, 0xcc9412, 0xf28fa6, new AItemSettings());
 
     // Block controls
 
