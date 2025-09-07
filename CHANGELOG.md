@@ -90,3 +90,5 @@
 - fix crashing still allowing to land in locked dimensions | by [@Mansarde](https://github.com/Mansarde) ([#1867](https://github.com/amblelabs/ait/pull/1867))
 - fix: handles in item frame | by [@duzos](https://github.com/duzos) ([#1869](https://github.com/amblelabs/ait/pull/1869))
 - fix: datapack exteriors floating in screen | by [@duzos](https://github.com/duzos) ([#1870](https://github.com/amblelabs/ait/pull/1870))
+- feat: Added handles flight indicators when in sonic port! | by [@rapbattlegod32](https://github.com/rapbattlegod32), [@Mansarde](https://github.com/Mansarde), [@duzos](https://github.com/duzos) ([#1856](https://github.com/amblelabs/ait/pull/1856))
+- tweak: Added levenshtein distance when calling handles! | by [@rapbattlegod32](https://github.com/rapbattlegod32), [@Mansarde](https://github.com/Mansarde), [@duzos](https://github.com/duzos) ([#1856](https://github.com/amblelabs/ait/pull/1856))
