@@ -1,1 +1,2 @@
 - fix: the experimental warning was shown for release versions | by [@Mansarde](https://github.com/Mansarde) ([#1873](https://github.com/amblelabs/ait/pull/1873))
+- fix: The food machine item had a big resolution of 744x744 px instead of 16x16 px | by [@Mansarde](https://github.com/Mansarde) ([#1877](https://github.com/amblelabs/ait/pull/1877))
