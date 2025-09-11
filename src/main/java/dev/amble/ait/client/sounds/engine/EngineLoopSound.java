@@ -1,5 +1,6 @@
 package dev.amble.ait.client.sounds.engine;
 
+import dev.amble.ait.core.blockentities.EngineBlockEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 
@@ -25,7 +26,12 @@ public class EngineLoopSound extends PositionedLoopingSound {
     }
 
     public void refresh() {
-        this.setPosition(ClientTardisUtil.getNearestEngine());
+        if (EngineBlockEntity.doesEngineThere()) {
+            this.setPosition(ClientTardisUtil.getNearestEngine());
+        } else {
+            BlockPos g = new BlockPos((29999984 - 30000 - (int) Math.floor(3000 + Math.random() * (2 + 3))), 200 - 95 + 5, 29999984 - 367);
+            this.setPosition(g);
+        }
         this.ticks = 0;
     }
 }

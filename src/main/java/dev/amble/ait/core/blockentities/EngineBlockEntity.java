@@ -25,6 +25,8 @@ import dev.amble.ait.core.engine.link.ITardisSource;
 import dev.amble.ait.core.tardis.Tardis;
 
 public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSource {
+    private static boolean doesEngineExist = false;
+
     public EngineBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.ENGINE_BLOCK_ENTITY_TYPE, pos, state, SubSystem.Id.ENGINE);
 
@@ -58,6 +60,7 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
     public void onBroken(World world, BlockPos pos) {
         this.onLoseFluid(); // always.
         this.tryRemoveFillBlocks();
+        doesEngineExist = false;
 
         super.onBroken(world, pos);
     }
@@ -152,6 +155,11 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
     @Override
     public void onLinked() {
         this.tardis().ifPresent(tardis -> tardis.getDesktop().setEnginePos(this));
+        doesEngineExist = true;
+    }
+
+    public static boolean doesEngineThere(){
+        return doesEngineExist;
     }
 
     @Override
