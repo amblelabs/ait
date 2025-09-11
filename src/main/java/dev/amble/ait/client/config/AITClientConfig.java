@@ -89,12 +89,6 @@ public class AITClientConfig {
     @SerialEntry public boolean animateDoors = true;
 
     @AutoGen(category = CATEGORY)
-    @IntField(min = 0)
-    @CustomDescription(value = "The levenshtein distance allows for typos when using handles. Distances lower to 0 are stricter while higher values like 5 are more lenient.")
-    @CustomImage(value = "textures/yacl3/server/levenshtein.webp", width = 1909, height = 349)
-    @SerialEntry public int handlesLevenshteinDistance = 2;
-
-    @AutoGen(category = CATEGORY)
     @EnumCycler
     @SerialEntry public TemperatureType temperatureType = TemperatureType.CELSIUS;
 
