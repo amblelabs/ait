@@ -20,9 +20,7 @@ public class EngineLoopSound extends PositionedLoopingSound {
         super.tick();
         this.ticks++;
 
-        if (this.getVolume() != AITModClient.CONFIG.engineLoopVolume) {
-            this.setVolume(AITModClient.CONFIG.engineLoopVolume);
-        }
+        this.setVolume(AITModClient.CONFIG.engineLoopVolume);
 
         if (this.ticks >= (40)) {
             this.refresh();
