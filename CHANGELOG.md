@@ -1,2 +1,3 @@
 - fix: the experimental warning was shown for release versions | by [@Mansarde](https://github.com/Mansarde) ([#1873](https://github.com/amblelabs/ait/pull/1873))
 - fix: The food machine item had a big resolution of 744x744 px instead of 16x16 px | by [@Mansarde](https://github.com/Mansarde) ([#1877](https://github.com/amblelabs/ait/pull/1877))
+- fix: When an interior door was closed or the shields activated, only the last placed/interacted door would no longer be waterlogged, all the others would remain waterlogged (and continue to reduce loyalty). | by [@Mansarde](https://github.com/Mansarde) ([#1876](https://github.com/amblelabs/ait/pull/1876))
