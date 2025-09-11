@@ -56,7 +56,6 @@ public class ShieldHandler extends KeyedTardisComponent implements TardisTickabl
 
     public void enable() {
         this.shielded().set(true);
-        DoorHandler.removeWaterlogged(this.tardis);
         TardisEvents.TOGGLE_SHIELDS.invoker().onShields(this.tardis, true, this.visuallyShielded().get());
     }
 

@@ -61,7 +61,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
         Tardis tardis = door.tardis().get();
 
-        if (tardis.areShieldsActive() || world.getServer().getTicks() % 20 != 0)
+        if (world.getServer().getTicks() % 20 != 0)
             return;
 
         CachedDirectedGlobalPos globalExteriorPos = tardis.travel().position();
@@ -75,12 +75,15 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
         if (exteriorWorld == null)
             return;
 
+        if (!tardis.door().isOpen() || tardis.areShieldsActive()) {
+            world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, false),
+                Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
+            return;
+        }
+
         if (blockState.get(Properties.WATERLOGGED) && world.getRandom().nextBoolean()) {
             serverWorld.getPlayers().forEach(player -> tardis.loyalty().subLevel(player, 2));
         }
-
-        if (!tardis.door().isOpen())
-            return;
 
         ChunkPos exteriorChunkPos = new ChunkPos(exteriorPos);
         Chunk exteriorChunk = exteriorWorld.getChunk(exteriorChunkPos.x, exteriorChunkPos.z, ChunkStatus.EMPTY, false);
