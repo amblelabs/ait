@@ -32,6 +32,11 @@ public class AITClientConfig {
     @SerialEntry public float interiorHumVolume = 0.5f;
 
     @AutoGen(category = CATEGORY)
+    @CustomFormat(ValueFormatters.PercentFormatter.class)
+    @FloatSlider(min = 0f, max = 1f, step = 0.01f)
+    @SerialEntry public float engineLoopVolume = 0.35f;
+
+    @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean customMenu = true;
 
@@ -82,6 +87,12 @@ public class AITClientConfig {
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean animateDoors = true;
+
+    @AutoGen(category = CATEGORY)
+    @IntField(min = 0)
+    @CustomDescription(value = "The levenshtein distance allows for typos when using handles. Distances lower to 0 are stricter while higher values like 5 are more lenient.")
+    @CustomImage(value = "textures/yacl3/server/levenshtein.webp", width = 1909, height = 349)
+    @SerialEntry public int handlesLevenshteinDistance = 2;
 
     @AutoGen(category = CATEGORY)
     @EnumCycler

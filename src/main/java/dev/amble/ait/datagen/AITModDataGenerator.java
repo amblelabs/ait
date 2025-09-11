@@ -828,6 +828,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.powerOffDarkness", "Darkness effect when TARDIS powers off?");
         provider.addTranslation("yacl3.config.ait:client.animateConsole", "Animate console?");
         provider.addTranslation("yacl3.config.ait:client.animateDoors", "Animate doors?");
+        provider.addTranslation("yacl3.config.ait:client.engineLoopVolume", "Engine Loop Volume");
         provider.addTranslation("yacl3.config.ait:client.temperatureType", "Temperature type");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.celsius", "Celsius (°C)");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.fahrenheit", "Fahrenheit (°F)");
