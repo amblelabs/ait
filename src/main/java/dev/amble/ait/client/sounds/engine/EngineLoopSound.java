@@ -11,8 +11,6 @@ import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITSounds;
 import net.minecraft.world.World;
 
-import java.util.UUID;
-
 public class EngineLoopSound extends PositionedLoopingSound {
     private int ticks = 0;
 

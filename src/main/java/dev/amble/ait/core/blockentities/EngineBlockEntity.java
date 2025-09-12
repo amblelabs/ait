@@ -24,9 +24,6 @@ import dev.amble.ait.core.engine.link.IFluidSource;
 import dev.amble.ait.core.engine.link.ITardisSource;
 import dev.amble.ait.core.tardis.Tardis;
 
-import java.util.HashMap;
-import java.util.UUID;
-
 public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSource {
     public EngineBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.ENGINE_BLOCK_ENTITY_TYPE, pos, state, SubSystem.Id.ENGINE);
