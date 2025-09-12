@@ -31,6 +31,7 @@
     "server.ServerWorldMixin",
     "server.StructureTemplateMixin",
     "server.multidim.MultiDimLoadFix",
+    "server.multidim.ShutUpMultiDim",
     "server.structure.StructureTemplateAccessor"
   ],
   "client": [
