@@ -9,3 +9,4 @@
 - force groundsearch | by [@drtheodor](https://github.com/drtheodor) ([#1890](https://github.com/amblelabs/ait/pull/1890))
 - fix: you can respawn in your tardis now, even if it wasn't loaded | by [@drtheodor](https://github.com/drtheodor) ([#1889](https://github.com/amblelabs/ait/pull/1889))
 - fix: console emissions work properly with shaders now | by [@drtheodor](https://github.com/drtheodor)
+- fix: breaking the engine and setting tardis power to true will no longer make the engine loop sound | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#1881](https://github.com/amblelabs/ait/pull/1881))
