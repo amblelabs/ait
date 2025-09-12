@@ -19,9 +19,9 @@ public class FoodMachineBlockEntity extends InteriorLinkableBlockEntity {
     }
 
     public enum Mode {
-        FOOD_CUBES(139),
-        DRINKS(193),
-        OVERCHARGED_FOOD_CUBES(437);
+        FOOD_CUBES(278),
+        DRINKS(386),
+        OVERCHARGED_FOOD_CUBES(1328); // (FOOD_CUBES + DRINKS) * 2
 
         private final int fuelCost;
 
