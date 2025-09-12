@@ -24,8 +24,11 @@ import dev.amble.ait.core.engine.link.IFluidSource;
 import dev.amble.ait.core.engine.link.ITardisSource;
 import dev.amble.ait.core.tardis.Tardis;
 
+import java.util.HashMap;
+import java.util.UUID;
+
 public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSource {
-    private static boolean doesEngineExist = false;
+    private static HashMap<UUID, Boolean> ENGINE_PLACED = new HashMap<UUID, Boolean>();
 
     public EngineBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.ENGINE_BLOCK_ENTITY_TYPE, pos, state, SubSystem.Id.ENGINE);
@@ -60,7 +63,7 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
     public void onBroken(World world, BlockPos pos) {
         this.onLoseFluid(); // always.
         this.tryRemoveFillBlocks();
-        doesEngineExist = false;
+        ENGINE_PLACED.put(this.tardis().getId(), false);
 
         super.onBroken(world, pos);
     }
@@ -155,11 +158,11 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
     @Override
     public void onLinked() {
         this.tardis().ifPresent(tardis -> tardis.getDesktop().setEnginePos(this));
-        doesEngineExist = true;
+        ENGINE_PLACED.put(this.tardis().getId(), true);
     }
 
-    public static boolean doesEngineThere(){
-        return doesEngineExist;
+    public static boolean doesEngineBlockExist(UUID tardisId){
+        return ENGINE_PLACED.getOrDefault(tardisId, false);
     }
 
     @Override
