@@ -4,7 +4,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
@@ -118,7 +117,13 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         profiler.swap("animate");
         model.animateBlockEntity(entity, tardis.travel().getState(), hasPower);
 
-        this.renderEmissions(profiler, matrices, vertexConsumers, tardis, entity, hasPower, light, overlay, tickDelta);
+        if (!DependencyChecker.hasIris()) {
+            this.renderEmissions(profiler, matrices, vertexConsumers, tardis, entity, hasPower, overlay, tickDelta);
+
+            // unfortunately, the console rendering in this mod is ass
+            profiler.swap("animate");
+            model.animateBlockEntity(entity, tardis.travel().getState(), true);
+        }
 
         profiler.swap("render");
         model.renderWithAnimations(tardis, entity, model.getPart(),
@@ -126,7 +131,8 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
                         RenderLayer.getItemEntityTranslucentCull(variant.texture())), light, overlay,
                 1, 1, 1, 1, tickDelta);
 
-        this.renderEmissions(profiler, matrices, vertexConsumers, tardis, entity, hasPower, light, overlay, tickDelta);
+        if (DependencyChecker.hasIris())
+            this.renderEmissions(profiler, matrices, vertexConsumers, tardis, entity, hasPower, overlay, tickDelta);
 
         matrices.pop();
         matrices.push();
@@ -178,7 +184,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         profiler.pop(); // } sonic
     }
 
-    private void renderEmissions(Profiler profiler, MatrixStack matrices, VertexConsumerProvider vertexConsumers, ClientTardis tardis, T entity, boolean hasPower, int light, int overlay, float tickDelta) {
+    private void renderEmissions(Profiler profiler, MatrixStack matrices, VertexConsumerProvider vertexConsumers, ClientTardis tardis, T entity, boolean hasPower, int overlay, float tickDelta) {
         if (!hasPower) return;
 
         profiler.swap("emission");
@@ -190,9 +196,6 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
                     1, 1, 1, 1, tickDelta);
         }
         matrices.pop();
-
-        profiler.swap("animate");
-        model.animateBlockEntity(entity, tardis.travel().getState(), true);
     }
 
     private void updateModel(T entity) {
