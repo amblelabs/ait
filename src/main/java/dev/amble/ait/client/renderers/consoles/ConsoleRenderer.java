@@ -177,7 +177,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         profiler.pop(); // } sonic
     }
 
-    private void renderEmissions(Profiler profiler, MatrixStack matrices, VertexConsumerProvider vertexConsumers, ClientTardis tardis, T entity, boolean hasPower, float light, float overlay, float tickDelta) {
+    private void renderEmissions(Profiler profiler, MatrixStack matrices, VertexConsumerProvider vertexConsumers, ClientTardis tardis, T entity, boolean hasPower, int light, int overlay, float tickDelta) {
         if (hasPower) {
             profiler.swap("emission");
 
