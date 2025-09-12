@@ -114,7 +114,7 @@ public class NetworkUtil {
     }
 
     public static Stream<ServerPlayerEntity> getSubscribedPlayers(ServerTardis tardis) {
-        Stream<ServerPlayerEntity> result = tardis.world().getPlayers().stream();
+        Stream<ServerPlayerEntity> result = tardis.hasWorld() ? tardis.world().getPlayers().stream() : Stream.empty();
         CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
 
         if (exteriorPos == null || exteriorPos.getWorld() == null)
