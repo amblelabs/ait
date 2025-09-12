@@ -9,10 +9,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(MultiDim.class)
+@Mixin(value = MultiDim.class)
 public class ShutUpMultiDim {
 
-    @Redirect(method = "addOrLoad(Ldev/drtheo/multidim/api/WorldBlueprint;Lnet/minecraft/registry/RegistryKey;Z)Ldev/drtheo/multidim/api/MultiDimServerWorld;", remap = false, at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;getWorld(Lnet/minecraft/registry/RegistryKey;)Lnet/minecraft/server/world/ServerWorld;"))
+    @Redirect(method = "addOrLoad(Ldev/drtheo/multidim/api/WorldBlueprint;Lnet/minecraft/registry/RegistryKey;Z)Ldev/drtheo/multidim/api/MultiDimServerWorld;", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;getWorld(Lnet/minecraft/registry/RegistryKey;)Lnet/minecraft/server/world/ServerWorld;"))
     public ServerWorld shutUp(MinecraftServer instance, RegistryKey<World> key) {
         return null;
     }
