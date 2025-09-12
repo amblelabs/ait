@@ -114,20 +114,6 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         matrices.push();
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 
-        if (DependencyChecker.hasIris()) {
-            if (hasPower) {
-                profiler.swap("emission");
-
-                matrices.push();
-                if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
-                    model.renderWithAnimations(tardis, entity, model.getPart(),
-                            matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), light, overlay,
-                            1, 1, 1, 1, tickDelta);
-                }
-                matrices.pop();
-            }   
-        }
-
         profiler.swap("animate");
         model.animateBlockEntity(entity, tardis.travel().getState(), hasPower);
 
@@ -137,19 +123,16 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
                         RenderLayer.getItemEntityTranslucentCull(variant.texture())), light, overlay,
                 1, 1, 1, 1, tickDelta);
 
+        if (hasPower) {
+            profiler.swap("emission");
 
-        if (!DependencyChecker.hasIris()) {
-            if (hasPower) {
-                profiler.swap("emission");
-
-                matrices.push();
-                if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
-                    model.renderWithAnimations(tardis, entity, model.getPart(),
-                            matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), light, overlay,
-                            1, 1, 1, 1, tickDelta);
-                }
-                matrices.pop();
+            matrices.push();
+            if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
+                model.renderWithAnimations(tardis, entity, model.getPart(),
+                        matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), light, overlay,
+                        1, 1, 1, 1, tickDelta);
             }
+            matrices.pop();
         }
 
         matrices.pop();
