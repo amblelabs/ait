@@ -27,7 +27,7 @@ public class MultiDimLoadFix {
     public void getWorld(RegistryKey<World> key, CallbackInfoReturnable<ServerWorld> cir) {
         if (cir.getReturnValue() != null || TardisServerWorld.isTardisDimension(key))
             return;
-
+        
         cir.setReturnValue(ait$loadTardisFromWorld((MinecraftServer) (Object) this, key));
     }
 
