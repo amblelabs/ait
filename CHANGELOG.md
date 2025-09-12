@@ -8,3 +8,4 @@
 - perf: dont load the interior needlessly | by [@drtheodor](https://github.com/drtheodor) ([#1887](https://github.com/amblelabs/ait/pull/1887))
 - force groundsearch | by [@drtheodor](https://github.com/drtheodor) ([#1890](https://github.com/amblelabs/ait/pull/1890))
 - fix: you can respawn in your tardis now, even if it wasn't loaded | by [@drtheodor](https://github.com/drtheodor) ([#1889](https://github.com/amblelabs/ait/pull/1889))
+- fix: console emissions work properly with shaders now | by [@drtheodor](https://github.com/drtheodor)
