@@ -1,12 +1,15 @@
 package dev.amble.ait.client.sounds.engine;
 
 import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.core.blockentities.EngineBlockEntity;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.client.sounds.PositionedLoopingSound;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITSounds;
+import net.minecraft.world.World;
 
 public class EngineLoopSound extends PositionedLoopingSound {
     private int ticks = 0;
@@ -20,15 +23,24 @@ public class EngineLoopSound extends PositionedLoopingSound {
         super.tick();
         this.ticks++;
 
-        this.setVolume(AITModClient.CONFIG.engineLoopVolume);
-
         if (this.ticks >= (40)) {
             this.refresh();
         }
     }
 
     public void refresh() {
-        this.setPosition(ClientTardisUtil.getNearestEngine());
+
+        BlockPos nearestEngine = ClientTardisUtil.getNearestEngine();
+        World world = MinecraftClient.getInstance().world;
+        boolean isEngineBlockEntity = world != null && world.getBlockEntity(nearestEngine) instanceof EngineBlockEntity;
+
+        this.setPosition(nearestEngine);
+
+        if (isEngineBlockEntity) {
+            this.setVolume(AITModClient.CONFIG.engineLoopVolume);
+        } else {
+            this.setVolume(0);
+        }
         this.ticks = 0;
     }
 }
