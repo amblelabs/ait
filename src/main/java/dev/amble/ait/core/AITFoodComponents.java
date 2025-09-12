@@ -16,7 +16,7 @@ public class AITFoodComponents  {
             .alwaysEdible()
             .statusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 50, 1), 1.0f)
             .statusEffect(new StatusEffectInstance(StatusEffects.ABSORPTION, 1200, 3), 1.0f)
-            .statusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 3000, 0), 1.0f)
-            .statusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 3000, 0), 1.0f)
+            .statusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 1500, 0), 1.0f)
+            .statusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 1500, 0), 1.0f)
             .build();
 }
