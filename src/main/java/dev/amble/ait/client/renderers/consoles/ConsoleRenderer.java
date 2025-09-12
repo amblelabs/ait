@@ -126,6 +126,8 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
                         RenderLayer.getItemEntityTranslucentCull(variant.texture())), light, overlay,
                 1, 1, 1, 1, tickDelta);
 
+        this.renderEmissions(profiler, matrices, vertexConsumers, tardis, entity, hasPower, light, overlay, tickDelta);
+
         matrices.pop();
         matrices.push();
 
@@ -177,17 +179,20 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
     }
 
     private void renderEmissions(Profiler profiler, MatrixStack matrices, VertexConsumerProvider vertexConsumers, ClientTardis tardis, T entity, boolean hasPower, int light, int overlay, float tickDelta) {
-        if (hasPower) {
-            profiler.swap("emission");
+        if (!hasPower) return;
 
-            matrices.push();
-            if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
-                model.renderWithAnimations(tardis, entity, model.getPart(),
-                        matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), LightmapTextureManager.MAX_LIGHT_COORDINATE, overlay,
-                        1, 1, 1, 1, tickDelta);
-            }
-            matrices.pop();
+        profiler.swap("emission");
+
+        matrices.push();
+        if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
+            model.renderWithAnimations(tardis, entity, model.getPart(),
+                    matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), LightmapTextureManager.MAX_LIGHT_COORDINATE, overlay,
+                    1, 1, 1, 1, tickDelta);
         }
+        matrices.pop();
+
+        profiler.swap("animate");
+        model.animateBlockEntity(entity, tardis.travel().getState(), true);
     }
 
     private void updateModel(T entity) {
