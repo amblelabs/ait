@@ -24,7 +24,7 @@ public class EngineLoopSound extends PositionedLoopingSound {
     public void tick() {
         super.tick();
         this.ticks++;
-
+      
         this.setVolume(EngineBlockEntity.doesEngineBlockExist(getTardisUuid()) ? AITModClient.CONFIG.engineLoopVolume : 0);
 
         if (this.ticks >= (40)) {

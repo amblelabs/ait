@@ -11,6 +11,42 @@
     },
     "facing=north,powered=true,mode=1": {
       "model": "ait:block/redstone_control/punch_on"
+    },
+    "facing=east,powered=false,mode=0": {
+      "model": "ait:block/redstone_control/use_off"
+    },
+    "facing=east,powered=true,mode=0": {
+      "model": "ait:block/redstone_control/use_on"
+    },
+    "facing=east,powered=false,mode=1": {
+      "model": "ait:block/redstone_control/punch_off"
+    },
+    "facing=east,powered=true,mode=1": {
+      "model": "ait:block/redstone_control/punch_on"
+    },
+    "facing=south,powered=false,mode=0": {
+      "model": "ait:block/redstone_control/use_off"
+    },
+    "facing=south,powered=true,mode=0": {
+      "model": "ait:block/redstone_control/use_on"
+    },
+    "facing=south,powered=false,mode=1": {
+      "model": "ait:block/redstone_control/punch_off"
+    },
+    "facing=south,powered=true,mode=1": {
+      "model": "ait:block/redstone_control/punch_on"
+    },
+    "facing=west,powered=false,mode=0": {
+      "model": "ait:block/redstone_control/use_off"
+    },
+    "facing=west,powered=true,mode=0": {
+      "model": "ait:block/redstone_control/use_on"
+    },
+    "facing=west,powered=false,mode=1": {
+      "model": "ait:block/redstone_control/punch_off"
+    },
+    "facing=west,powered=true,mode=1": {
+      "model": "ait:block/redstone_control/punch_on"
     }
   }
 }
