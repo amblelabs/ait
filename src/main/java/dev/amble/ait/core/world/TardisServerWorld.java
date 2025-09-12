@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.function.BooleanSupplier;
 
+import dev.amble.ait.api.ServerWithTardis;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.drtheo.multidim.MultiDim;
 import dev.drtheo.multidim.MultiDimMod;
@@ -99,7 +100,7 @@ public class TardisServerWorld extends MultiDimServerWorld {
         MultiDim multidim = MultiDim.get(server);
 
         RegistryKey<World> key = keyForTardis(tardis);
-        TardisServerWorld result = (TardisServerWorld) server.getWorld(key);
+        TardisServerWorld result = (TardisServerWorld) ((ServerWithTardis) server).ait$getRealWorld(key);
 
         if (result != null) {
             result.setTardis(tardis);

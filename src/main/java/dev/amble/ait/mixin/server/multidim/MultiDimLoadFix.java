@@ -1,10 +1,14 @@
 package dev.amble.ait.mixin.server.multidim;
 
+import java.util.Map;
 import java.util.UUID;
 
 import com.mojang.datafixers.util.Either;
+import dev.amble.ait.api.ServerWithTardis;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,7 +25,9 @@ import dev.amble.ait.core.world.TardisServerWorld;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(MinecraftServer.class)
-public class MultiDimLoadFix {
+public class MultiDimLoadFix implements ServerWithTardis {
+
+    @Shadow @Final private Map<RegistryKey<World>, ServerWorld> worlds;
 
     @Inject(method = "getWorld", at = @At("RETURN"), cancellable = true)
     public void getWorld(RegistryKey<World> key, CallbackInfoReturnable<ServerWorld> cir) {
@@ -64,5 +70,10 @@ public class MultiDimLoadFix {
         }
 
         return tardis.world();
+    }
+
+    @Override
+    public ServerWorld ait$getRealWorld(RegistryKey<World> key) {
+        return worlds.get(key);
     }
 }
