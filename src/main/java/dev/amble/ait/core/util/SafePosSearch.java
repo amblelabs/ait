@@ -344,7 +344,7 @@ public class SafePosSearch {
         MEDIAN {
             @Override
             public Kind next() {
-                return NONE;
+                return FLOOR; // NONE; FIXME: exterior falling issues :(
             }
         };
 

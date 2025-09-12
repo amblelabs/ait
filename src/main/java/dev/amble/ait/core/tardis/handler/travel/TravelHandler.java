@@ -220,8 +220,14 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     public void postInit(InitContext context) {
         super.postInit(context);
 
-        if (this.isServer() && context.created())
+        if (!this.isServer()) return;
+
+        if (context.created())
             this.placeExterior(true);
+
+        // FIXME: exterior falling issues :(
+        if (this.vGroundSearch.get() == SafePosSearch.Kind.NONE)
+            this.vGroundSearch.set(SafePosSearch.Kind.MEDIAN);
     }
 
     public void deleteExterior() {
