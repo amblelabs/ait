@@ -38,6 +38,10 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
         TardisComponent.init(exterior, this, ctx);
         TardisComponent.init(handlers, this, ctx);
 
+        this.postInit();
+    }
+
+    protected void postInit() {
         TardisComponent.postInit(desktop, ctx);
         TardisComponent.postInit(exterior, ctx);
         TardisComponent.postInit(handlers, ctx);
