@@ -25,17 +25,14 @@ public class MultiDimLoadFix {
 
     @Inject(method = "getWorld", at = @At("RETURN"), cancellable = true)
     public void getWorld(RegistryKey<World> key, CallbackInfoReturnable<ServerWorld> cir) {
-        if (cir.getReturnValue() != null || TardisServerWorld.isTardisDimension(key))
+        if (cir.getReturnValue() != null || !TardisServerWorld.isTardisDimension(key))
             return;
-        
+
         cir.setReturnValue(ait$loadTardisFromWorld((MinecraftServer) (Object) this, key));
     }
 
     @Unique
     public ServerWorld ait$loadTardisFromWorld(MinecraftServer server, RegistryKey<World> key) {
-        if (!TardisServerWorld.isTardisDimension(key))
-            return null;
-
         ServerTardisManager manager = ServerTardisManager.getInstance();
         UUID id = TardisServerWorld.getTardisId(key);
 
@@ -45,6 +42,9 @@ public class MultiDimLoadFix {
             either = manager.loadTardis(server, id);
 
         ServerTardis tardis = either.map(t -> t, o -> null);
+
+        if (tardis == null)
+            return null;
 
         TravelHandler travel = tardis.travel();
         CachedDirectedGlobalPos pos = travel.position();
