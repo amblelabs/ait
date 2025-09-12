@@ -117,23 +117,15 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         profiler.swap("animate");
         model.animateBlockEntity(entity, tardis.travel().getState(), hasPower);
 
+        this.renderEmissions(profiler, matrices, vertexConsumers, tardis, entity, hasPower, light, overlay, tickDelta);
+
         profiler.swap("render");
         model.renderWithAnimations(tardis, entity, model.getPart(),
                 matrices, vertexConsumers.getBuffer(variant.equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(variant.texture()) :
                         RenderLayer.getItemEntityTranslucentCull(variant.texture())), light, overlay,
                 1, 1, 1, 1, tickDelta);
 
-        if (hasPower) {
-            profiler.swap("emission");
 
-            matrices.push();
-            if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
-                model.renderWithAnimations(tardis, entity, model.getPart(),
-                        matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), light, overlay,
-                        1, 1, 1, 1, tickDelta);
-            }
-            matrices.pop();
-        }
 
         matrices.pop();
         matrices.push();
@@ -156,8 +148,6 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
             profiler.pop(); // } sonic
             return;
         }
-
-        int lightAbove = WorldRenderer.getLightmapCoordinates(entity.getWorld(), entity.getPos().up());
 
         if (stack.getItem() instanceof HandlesItem) {
             matrices.push();
@@ -185,6 +175,20 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         }
 
         profiler.pop(); // } sonic
+    }
+
+    private void renderEmissions(Profiler profiler, MatrixStack matrices, VertexConsumerProvider vertexConsumers, ClientTardis tardis, T entity, boolean hasPower, float light, float overlay, float tickDelta) {
+        if (hasPower) {
+            profiler.swap("emission");
+
+            matrices.push();
+            if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
+                model.renderWithAnimations(tardis, entity, model.getPart(),
+                        matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), light, overlay,
+                        1, 1, 1, 1, tickDelta);
+            }
+            matrices.pop();
+        }
     }
 
     private void updateModel(T entity) {
