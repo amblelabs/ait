@@ -1,6 +1,7 @@
 package dev.amble.ait.client.renderers.consoles;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.WorldRenderer;
@@ -125,8 +126,6 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
                         RenderLayer.getItemEntityTranslucentCull(variant.texture())), light, overlay,
                 1, 1, 1, 1, tickDelta);
 
-
-
         matrices.pop();
         matrices.push();
 
@@ -184,7 +183,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
             matrices.push();
             if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
                 model.renderWithAnimations(tardis, entity, model.getPart(),
-                        matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), light, overlay,
+                        matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), LightmapTextureManager.MAX_LIGHT_COORDINATE, overlay,
                         1, 1, 1, 1, tickDelta);
             }
             matrices.pop();
