@@ -6,3 +6,4 @@
 - fix: spelling for advancement | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#1884](https://github.com/amblelabs/ait/pull/1884))
 - tweak: nerfed the food machine and overcharged food cubes | by [@drtheodor](https://github.com/drtheodor) ([#1886](https://github.com/amblelabs/ait/pull/1886))
 - perf: dont load the interior needlessly | by [@drtheodor](https://github.com/drtheodor) ([#1887](https://github.com/amblelabs/ait/pull/1887))
+- force groundsearch | by [@drtheodor](https://github.com/drtheodor) ([#1890](https://github.com/amblelabs/ait/pull/1890))
