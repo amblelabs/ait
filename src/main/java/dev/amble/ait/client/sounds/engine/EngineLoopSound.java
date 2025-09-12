@@ -24,8 +24,6 @@ public class EngineLoopSound extends PositionedLoopingSound {
     public void tick() {
         super.tick();
         this.ticks++;
-      
-        this.setVolume(EngineBlockEntity.doesEngineBlockExist(getTardisUuid()) ? AITModClient.CONFIG.engineLoopVolume : 0);
 
         if (this.ticks >= (40)) {
             this.refresh();
@@ -33,21 +31,18 @@ public class EngineLoopSound extends PositionedLoopingSound {
     }
 
     public void refresh() {
-        if (EngineBlockEntity.doesEngineBlockExist(getTardisUuid())) {
-            this.setPosition(ClientTardisUtil.getNearestEngine());
+
+        BlockPos nearestEngine = ClientTardisUtil.getNearestEngine();
+        World world = MinecraftClient.getInstance().world;
+        boolean isEngineBlockEntity = world != null && world.getBlockEntity(nearestEngine) instanceof EngineBlockEntity;
+
+        this.setPosition(nearestEngine);
+
+        if (isEngineBlockEntity) {
+            this.setVolume(AITModClient.CONFIG.engineLoopVolume);
         } else {
             this.setVolume(0);
-            
         }
         this.ticks = 0;
-    }
-
-    public UUID getTardisUuid() {
-        BlockPos pos = ClientTardisUtil.getNearestEngine();
-        World world = MinecraftClient.getInstance().world;
-        if (world != null && world.getBlockEntity(pos) instanceof EngineBlockEntity engine) {
-            return engine.tardis().getId();
-        }
-        return null;
     }
 }
