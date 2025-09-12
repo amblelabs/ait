@@ -32,6 +32,9 @@ public class ServerTardis extends Tardis {
     @Exclude
     private TardisServerWorld world;
 
+    @Exclude
+    private boolean fullyInitialized;
+
     public ServerTardis(UUID uuid, TardisDesktopSchema schema, ExteriorVariantSchema variantType) {
         super(uuid, new TardisDesktop(schema), new TardisExterior(variantType));
     }
@@ -45,6 +48,14 @@ public class ServerTardis extends Tardis {
         this.world = TardisServerWorld.create(this);
     }
 
+    @Override    
+    protected void postInit(TardisComponent.InitContext ctx) {
+        Scheduler.get().runTaskLater(() -> {
+            this.fullyInitialized = true;
+            super.postInit(ctx);
+        }, TaskStage.END_SERVER_TICK, TimeUnit.TICKS, 1);
+    }
+
     public void setRemoved(boolean removed) {
         this.removed = removed;
     }
@@ -54,6 +65,7 @@ public class ServerTardis extends Tardis {
     }
 
     public void tick(MinecraftServer server) {
+        if (!this.fullyInitialized) return;
         this.getHandlers().tick(server);
     }
 
