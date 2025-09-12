@@ -56,7 +56,7 @@ public class TardisServerWorld extends MultiDimServerWorld {
 
     public boolean shouldTick() {
         return this.tardis != null && (
-                !MultiDim.get(this.getServer()).isWorldUnloaded(this)
+                !this.getPlayers().isEmpty()
                 || this.tardis.interiorChanging().queued().get()
                 || this.tardis.getDesktop().isChanging()
         );
@@ -93,12 +93,10 @@ public class TardisServerWorld extends MultiDimServerWorld {
         return created;
     }
 
-    public static TardisServerWorld load(ServerTardis tardis) {
-        long start = System.currentTimeMillis();
+    public static TardisServerWorld getOrLoad(ServerTardis tardis) {
         MinecraftServer server = ServerLifecycleHooks.get();
-        MultiDim multidim = MultiDim.get(server);
-
         RegistryKey<World> key = keyForTardis(tardis);
+
         TardisServerWorld result = (TardisServerWorld) server.getWorld(key);
 
         if (result != null) {
@@ -106,7 +104,14 @@ public class TardisServerWorld extends MultiDimServerWorld {
             return result;
         }
 
-        result = (TardisServerWorld) multidim.load(AITDimensions.TARDIS_WORLD_BLUEPRINT, key);
+        return load(server, tardis);
+    }
+
+    public static TardisServerWorld load(MinecraftServer server, ServerTardis tardis) {
+        MultiDim multidim = MultiDim.get(server);
+
+        RegistryKey<World> key = keyForTardis(tardis);
+        TardisServerWorld result = (TardisServerWorld) multidim.load(AITDimensions.TARDIS_WORLD_BLUEPRINT, key);
 
         if (result == null) {
             MultiDimMod.LOGGER.info("Failed to load the sub-world, creating a new one instead");
@@ -115,7 +120,6 @@ public class TardisServerWorld extends MultiDimServerWorld {
             result.setTardis(tardis);
         }
 
-        MultiDimMod.LOGGER.info("Time taken to load sub-world: {}", System.currentTimeMillis() - start);
         return result;
     }
 
