@@ -320,8 +320,7 @@ public class AITMod implements ModInitializer {
                     || id.equals(LootTables.SIMPLE_DUNGEON_CHEST) || id.equals(LootTables.STRONGHOLD_LIBRARY_CHEST)) {
 
 
-                NbtCompound nbt = new NbtCompound();
-                LootPool.Builder poolBuilder = LootPool.builder().with(ItemEntry.builder(AITItems.BLUEPRINT).apply(SetNbtLootFunction.builder(nbt)).weight(10));
+                LootPool.Builder poolBuilder = LootPool.builder().with(ItemEntry.builder(AITItems.BLUEPRINT).apply(SetBlueprintLootFunction.random()).weight(10));
 
                 tableBuilder.pool(poolBuilder);
             }
