@@ -22,14 +22,17 @@ import dev.amble.ait.core.item.blueprint.BlueprintRegistry;
 import dev.amble.ait.core.item.blueprint.BlueprintSchema;
 
 public class SetBlueprintLootFunction extends ConditionalLootFunction {
-    final BlueprintSchema blueprint;
-    public Random random = AITMod.RANDOM;
+    private final Supplier<BlueprintSchema> blueprint;
 
     SetBlueprintLootFunction(LootCondition[] conditions, BlueprintSchema blueprint) {
+        this(conditions, () -> blueprint);
+    }
+
+    SetBlueprintLootFunction(LootCondition[] conditions, Supplier<BlueprintSchema> blueprint) {
         super(conditions);
         this.blueprint = blueprint;
     }
-
+    
     @Override
     public LootFunctionType getType() {
         return BlueprintRegistry.BLUEPRINT_TYPE;
@@ -46,6 +49,11 @@ public class SetBlueprintLootFunction extends ConditionalLootFunction {
                 .builder((LootCondition[] conditions) -> new SetBlueprintLootFunction(conditions, blueprint));
     }
 
+    public static ConditionalLootFunction.Builder<?> random() {
+        return SetBlueprintLootFunction
+                .builder((LootCondition[] conditions) -> new SetBlueprintLootFunction(conditions, () -> BlueprintRegistry.getInstance().getRandom()));
+    }
+    
     public static class Serializer extends ConditionalLootFunction.Serializer<SetBlueprintLootFunction> {
         @Override
         public void toJson(JsonObject jsonObject, SetBlueprintLootFunction setBlueprintLootFunction,
