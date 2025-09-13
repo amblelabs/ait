@@ -85,7 +85,7 @@ public class DrinkUtil {
             return nbtCompound.getInt(CUSTOM_DRINK_COLOR_KEY);
         }
         Drink drink = DrinkUtil.getDrink(stack);
-        return Objects.equals(drink, EMPTY) ? DEFAULT_COLOR : DrinkUtil.getColor(drink, DrinkUtil.getDrinkEffects(stack));
+        return drink == null || Objects.equals(drink, EMPTY) ? DEFAULT_COLOR : DrinkUtil.getColor(drink, DrinkUtil.getDrinkEffects(stack));
     }
 
     public static int getColor(Drink drink, Collection<StatusEffectInstance> effects) {
