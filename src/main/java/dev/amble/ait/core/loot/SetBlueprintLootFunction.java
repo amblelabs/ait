@@ -40,7 +40,7 @@ public class SetBlueprintLootFunction extends ConditionalLootFunction {
 
     @Override
     public ItemStack process(ItemStack stack, LootContext context) {
-        BlueprintItem.setSchema(stack, this.blueprint);
+        BlueprintItem.setSchema(stack, this.blueprint.get());
         return stack;
     }
 
