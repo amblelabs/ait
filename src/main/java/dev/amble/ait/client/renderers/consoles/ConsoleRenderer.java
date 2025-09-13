@@ -118,11 +118,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         model.animateBlockEntity(entity, tardis.travel().getState(), hasPower);
 
         if (!DependencyChecker.hasIris()) {
-            this.renderEmissions(profiler, matrices, vertexConsumers, tardis, entity, hasPower, overlay, tickDelta);
-
-            // unfortunately, the console rendering in this mod is ass
-            profiler.swap("animate");
-            model.animateBlockEntity(entity, tardis.travel().getState(), true);
+            this.renderEmissions(profiler, matrices, vertexConsumers, tardis, entity, hasPower, light, overlay, tickDelta);
         }
 
         profiler.swap("render");
@@ -132,7 +128,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
                 1, 1, 1, 1, tickDelta);
 
         if (DependencyChecker.hasIris())
-            this.renderEmissions(profiler, matrices, vertexConsumers, tardis, entity, hasPower, overlay, tickDelta);
+            this.renderEmissions(profiler, matrices, vertexConsumers, tardis, entity, hasPower, light, overlay, tickDelta);
 
         matrices.pop();
         matrices.push();
@@ -184,7 +180,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         profiler.pop(); // } sonic
     }
 
-    private void renderEmissions(Profiler profiler, MatrixStack matrices, VertexConsumerProvider vertexConsumers, ClientTardis tardis, T entity, boolean hasPower, int overlay, float tickDelta) {
+    private void renderEmissions(Profiler profiler, MatrixStack matrices, VertexConsumerProvider vertexConsumers, ClientTardis tardis, T entity, boolean hasPower, int light, int overlay, float tickDelta) {
         if (!hasPower) return;
 
         profiler.swap("emission");
@@ -192,7 +188,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         matrices.push();
         if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
             model.renderWithAnimations(tardis, entity, model.getPart(),
-                    matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), LightmapTextureManager.MAX_LIGHT_COORDINATE, overlay,
+                    matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), DependencyChecker.hasIris() ? LightmapTextureManager.MAX_LIGHT_COORDINATE : light, overlay,
                     1, 1, 1, 1, tickDelta);
         }
         matrices.pop();
