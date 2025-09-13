@@ -117,9 +117,9 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         profiler.swap("animate");
         model.animateBlockEntity(entity, tardis.travel().getState(), hasPower);
 
-        if (!DependencyChecker.hasIris()) {
+        /*if (!DependencyChecker.hasIris()) {
             this.renderEmissions(profiler, matrices, vertexConsumers, tardis, entity, hasPower, light, overlay, tickDelta);
-        }
+        }*/
 
         profiler.swap("render");
         model.renderWithAnimations(tardis, entity, model.getPart(),
@@ -127,7 +127,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
                         RenderLayer.getItemEntityTranslucentCull(variant.texture())), light, overlay,
                 1, 1, 1, 1, tickDelta);
 
-        if (DependencyChecker.hasIris())
+        //if (DependencyChecker.hasIris())
             this.renderEmissions(profiler, matrices, vertexConsumers, tardis, entity, hasPower, light, overlay, tickDelta);
 
         matrices.pop();
