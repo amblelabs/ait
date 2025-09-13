@@ -87,11 +87,11 @@ public class ServerTardis extends Tardis {
     }
 
     public TardisServerWorld world() {
-        if (this.world == null) {
-            this.world = TardisServerWorld.load(this);
-        }
+        return this.hasWorld() ? world : TardisServerWorld.getOrLoad(this);
+    }
 
-        return world;
+    public boolean hasWorld() {
+        return world != null;
     }
 
     public boolean shouldTick() {
