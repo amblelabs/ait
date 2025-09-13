@@ -25,6 +25,8 @@ public class MultiDimLoadFix {
 
     @Inject(method = "getWorld", at = @At("RETURN"), cancellable = true)
     public void getWorld(RegistryKey<World> key, CallbackInfoReturnable<ServerWorld> cir) {
+        // we only override the default behaviour if we couldn't find an already loaded world 
+        //  and the world we're trying to load is indeed a tardis dim
         if (cir.getReturnValue() != null || !TardisServerWorld.isTardisDimension(key))
             return;
 
@@ -49,10 +51,14 @@ public class MultiDimLoadFix {
         TravelHandler travel = tardis.travel();
         CachedDirectedGlobalPos pos = travel.position();
 
+        // reads & loads the world, lv is used in handling recursion later on
+        ServerWorld loadedWorld = TardisServerWorld.load(server, tardis);
+        
+        // handles situations where a tardis is inside a tardis
         if (TardisServerWorld.isTardisDimension(pos.getDimension())) {
             ServerWorld targetWorld;
             if (pos.getDimension().equals(key)) {
-                targetWorld = tardis.world();
+                targetWorld = loadedWorld;
             } else {
                 targetWorld = this.ait$loadTardisFromWorld(
                     server, pos.getDimension());
@@ -63,6 +69,7 @@ public class MultiDimLoadFix {
             }
         }
 
-        return TardisServerWorld.load(server, tardis);
+        // makes sure the tardis actually saves the world instance
+        return tardis.world();
     }
 }

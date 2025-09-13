@@ -87,7 +87,7 @@ public class ServerTardis extends Tardis {
     }
 
     public TardisServerWorld world() {
-        return this.hasWorld() ? world : TardisServerWorld.getOrLoad(this);
+        return this.hasWorld() ? world : (world = TardisServerWorld.getOrLoad(this));
     }
 
     public boolean hasWorld() {
