@@ -1,7 +1,12 @@
 package dev.amble.ait.mixin.client;
 
-import static dev.amble.ait.core.AITItems.isInAdvent;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.AITModClient;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.LogoDrawer;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -9,13 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.LogoDrawer;
-import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.AITModClient;
+import static dev.amble.ait.core.AITItems.isInAdvent;
 
 @Mixin(LogoDrawer.class)
 public class DefaultLogoMixin {
@@ -46,7 +45,7 @@ public class DefaultLogoMixin {
         if (isChristmas) {
             context.drawTexture(currentLogo, centerX, y - 18, 0.0f, 0.0f, 266,  74, 266, 74);
         } else {
-            context.drawTexture(currentLogo, centerX, y - 18, 0.0f, 0.0f, 266, 94, 266, 94);
+            context.drawTexture(currentLogo, centerX, y - 18, 0.0f, 0.0f, 266, 74, 266, 74);
         }
     }
 
@@ -61,20 +60,16 @@ public class DefaultLogoMixin {
     private void renderWarningMessage(DrawContext context, int screenWidth, float alpha, int y, CallbackInfo ci) {
         if (AITMod.isUnsafeBranch()) {
 
-            String warningMessage;
-            if (isChristmas) {
-                warningMessage =  "HO HO HO!: You are using an experimental branch (" + AITMod.BRANCH + "), please be cautious when testing or the grinch will smell you toes!";
-            } else {
-                warningMessage =  "WARNING!: You are using an experimental version (" + AITMod.BRANCH + "), please be cautious when testing!";
-            }
+            String warningKey = "menu." + AITMod.MOD_ID + "." + (isChristmas ? "christmas" : "main");
+            Text warningMessage = Text.translatable(warningKey);
 
             screenWidth = this.client.getWindow().getScaledWidth();
             int textWidth = this.client.textRenderer.getWidth(warningMessage);
 
 
             int x = (screenWidth - textWidth) / 2;
-            y = 10;
-            int padding = 7;
+            y = 5;
+            int padding = 4;
 
 
             context.fill(0, y - padding, screenWidth, y + this.client.textRenderer.fontHeight + padding, 0xAA000000);

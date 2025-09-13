@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.UUID;
 
-import dev.amble.ait.client.commands.DebugCommand;
 import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -40,30 +39,31 @@ import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
 
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.boti.*;
 import dev.amble.ait.client.commands.ConfigCommand;
+import dev.amble.ait.client.commands.DebugCommand;
 import dev.amble.ait.client.config.AITClientConfig;
 import dev.amble.ait.client.data.ClientLandingManager;
 import dev.amble.ait.client.models.AnimatedModel;
 import dev.amble.ait.client.models.boti.BotiPortalModel;
-import dev.amble.ait.client.models.decoration.GallifreyFallsModel;
-import dev.amble.ait.client.models.decoration.PaintingFrameModel;
-import dev.amble.ait.client.models.decoration.RiftModel;
-import dev.amble.ait.client.models.decoration.TrenzalorePaintingModel;
+import dev.amble.ait.client.models.decoration.*;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.overlays.ExteriorAxeOverlay;
 import dev.amble.ait.client.overlays.FabricatorOverlay;
 import dev.amble.ait.client.overlays.RWFOverlay;
 import dev.amble.ait.client.overlays.SonicOverlay;
+import dev.amble.ait.client.renderers.SeatEntityRenderer;
 import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.client.renderers.TardisStar;
+import dev.amble.ait.client.renderers.builtin.CopperRingsBuiltInRenderer;
+import dev.amble.ait.client.renderers.builtin.CoralSeatBuiltInRenderer;
+import dev.amble.ait.client.renderers.builtin.ToyotaSeatBuiltInRenderer;
 import dev.amble.ait.client.renderers.consoles.ConsoleGeneratorRenderer;
 import dev.amble.ait.client.renderers.consoles.ConsoleRenderer;
 import dev.amble.ait.client.renderers.coral.CoralRenderer;
-import dev.amble.ait.client.renderers.decoration.FlagBlockEntityRenderer;
-import dev.amble.ait.client.renderers.decoration.PlaqueRenderer;
-import dev.amble.ait.client.renderers.decoration.SnowGlobeRenderer;
+import dev.amble.ait.client.renderers.decoration.*;
 import dev.amble.ait.client.renderers.doors.DoorRenderer;
 import dev.amble.ait.client.renderers.entities.*;
 import dev.amble.ait.client.renderers.exteriors.ExteriorRenderer;
@@ -78,6 +78,7 @@ import dev.amble.ait.client.sonic.SonicModelLoader;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.client.util.MultiplayerUtil;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.*;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
@@ -126,6 +127,7 @@ public class AITModClient implements ClientModInitializer {
         ModuleRegistry.instance().onClientInit();
 
         setupBlockRendering();
+        registerBuiltInItemRenderers();
         blockEntityRendererRegister();
         entityRenderRegister();
         chargedZeitonCrystalPredicate();
@@ -135,6 +137,8 @@ public class AITModClient implements ClientModInitializer {
         adventItemPredicates();
         registerItemColors();
         registerParticles();
+        MultiplayerUtil.tryAddServer("Adventures In Time Server", "AIT-server.mcserver.us");
+        MultiplayerUtil.tryAddServer("Adventures In Time Server (Alt)", "199.115.73.46:25565");
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             ConfigCommand.register(dispatcher);
@@ -392,6 +396,18 @@ public class AITModClient implements ClientModInitializer {
         BlockEntityRendererFactories.register(AITBlockEntityTypes.FOOD_MACHINE_BLOCK_ENTITY_TYPE,
                 FoodMachineRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ASTRAL_MAP, AstralMapRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.WOODEN_SEAT,
+                WoodenSeatRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.BRASS_STATUE,
+                BrassStatueRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.CORAL_SEAT,
+                CoralSeatRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.COPPER_SEAT,
+                CopperSeatRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.TOYOTA_SEAT,
+                ToyotaSeatRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.COPPER_RINGS,
+                CopperRingsRenderer::new);
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             BlockEntityRendererFactories.register(AITBlockEntityTypes.SNOW_GLOBE_BLOCK_ENTITY_TYPE,
                     SnowGlobeRenderer::new);
@@ -402,6 +418,7 @@ public class AITModClient implements ClientModInitializer {
         EntityRendererRegistry.register(AITEntityTypes.CONTROL_ENTITY_TYPE, ControlEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.FALLING_TARDIS_TYPE, FallingTardisRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.FLIGHT_TARDIS_TYPE, FlightTardisRenderer::new);
+        EntityRendererRegistry.register(AITEntityTypes.SEAT, SeatEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.GALLIFREY_FALLS_PAINTING_ENTITY_TYPE, GallifreyanPaintingEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.TRENZALORE_PAINTING_ENTITY_TYPE, TrenzalorePaintingEntityRenderer::new);
 //        if (isUnlockedOnThisDay(Calendar.DECEMBER, 26)) {
@@ -421,6 +438,12 @@ public class AITModClient implements ClientModInitializer {
         map.putBlock(AITBlocks.SMALL_ZEITON_BUD, RenderLayer.getCutout());
         map.putBlock(AITBlocks.MACHINE_CASING, RenderLayer.getCutout());
         map.putBlock(AITBlocks.FABRICATOR, RenderLayer.getTranslucent());
+        map.putBlock(AITBlocks.JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.ACACIA_JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.PALE_OAK_JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.CHERRY_JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.BAMBOO_JUKEBOX, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.WARPED_JUKEBOX, RenderLayer.getCutout());
         map.putBlock(AITBlocks.ENVIRONMENT_PROJECTOR, RenderLayer.getTranslucent());
         map.putBlock(AITBlocks.WAYPOINT_BANK, RenderLayer.getCutout());
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
@@ -595,5 +618,14 @@ public class AITModClient implements ClientModInitializer {
             stack.pop();
         }
         BOTI.RIFT_RENDERING_QUEUE.clear();
+    }
+
+    public void registerBuiltInItemRenderers() {
+        BuiltinItemRendererRegistry.INSTANCE.register(AITBlocks.TOYOTA_SEAT.asItem(),
+                new ToyotaSeatBuiltInRenderer());
+        BuiltinItemRendererRegistry.INSTANCE.register(AITBlocks.CORAL_SEAT.asItem(),
+                new CoralSeatBuiltInRenderer());
+        BuiltinItemRendererRegistry.INSTANCE.register(AITBlocks.COPPER_RINGS.asItem(),
+                new CopperRingsBuiltInRenderer());
     }
 }
