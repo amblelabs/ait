@@ -101,6 +101,7 @@ public abstract class SonicMode implements Ordered {
     }
 
     public abstract Text text();
+    public abstract String name();
 
     public abstract int maxTime();
 

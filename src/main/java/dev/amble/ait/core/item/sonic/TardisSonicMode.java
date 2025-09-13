@@ -36,6 +36,11 @@ public class TardisSonicMode extends SonicMode {
         this.process(stack, world, player);
     }
 
+    @Override
+    public String name() {
+        return "tardis";
+    }
+
     public boolean process(ItemStack stack, World world, PlayerEntity user) {
         if (!(user instanceof ServerPlayerEntity player))
             return false;

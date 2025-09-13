@@ -51,6 +51,11 @@ public class ScanningSonicMode extends SonicMode {
     }
 
     @Override
+    public String name() {
+        return "scanning";
+    }
+
+    @Override
     public int maxTime() {
         return 5 * 60 * 20;
     }

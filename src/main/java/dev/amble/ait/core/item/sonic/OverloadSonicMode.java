@@ -46,6 +46,11 @@ public class OverloadSonicMode extends SonicMode {
     }
 
     @Override
+    public String name() {
+        return "overload";
+    }
+
+    @Override
     public void tick(ItemStack stack, World world, LivingEntity user, int ticks, int ticksLeft) {
         if (!(world instanceof ServerWorld serverWorld) || ticks % 10 != 0) return;
         this.process(serverWorld, user, ticks);

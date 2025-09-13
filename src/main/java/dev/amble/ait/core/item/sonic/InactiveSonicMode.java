@@ -18,6 +18,11 @@ public class InactiveSonicMode extends SonicMode {
     }
 
     @Override
+    public String name() {
+        return "inactive";
+    }
+
+    @Override
     public int maxTime() {
         return 0;
     }
