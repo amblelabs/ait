@@ -14,3 +14,4 @@
 - fix: Structure searches via the Telepathic Circuits for the Nether and the End did not cost any Artron (when the console had not been hit yet with the mallet). | by [@Mansarde](https://github.com/Mansarde) ([#1892](https://github.com/amblelabs/ait/pull/1892))
 - fix: Waypoint cartridges could be duped when saving a waypoint before putting a cartridge in. | by [@Mansarde](https://github.com/Mansarde) ([#1891](https://github.com/amblelabs/ait/pull/1891))
 - fix: portal rendering should be fixed now | by [@drtheodor](https://github.com/drtheodor) ([#1894](https://github.com/amblelabs/ait/pull/1894))
+- fix: no more chunk deadlocks with a lot of optimization mods | by [@drtheodor](https://github.com/drtheodor) ([#1888](https://github.com/amblelabs/ait/pull/1888))
