@@ -76,7 +76,7 @@ public class DrinkItem extends Item {
         }
         if (playerEntity == null || !playerEntity.getAbilities().creativeMode) {
             if (stack.isEmpty()) {
-                return new ItemStack(AITItems.MUG);
+                return this.getDefaultStack();
             }
             if (playerEntity != null) {
                 playerEntity.getInventory().insertStack(this.getDefaultStack());
