@@ -48,6 +48,10 @@ public class DrinkUtil {
 
     public static List<StatusEffectInstance> getDrinkEffects(NbtCompound nbt) {
         ArrayList<StatusEffectInstance> list = Lists.newArrayList();
+        Drink drink = DrinkUtil.getDrink(nbt);
+
+        if (drink == null) return list;
+
         list.addAll(DrinkUtil.getDrink(nbt).getEffects());
         DrinkUtil.getCustomDrinkEffects(nbt, list);
         return list;
