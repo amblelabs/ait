@@ -1,7 +1,7 @@
 
 package dev.amble.ait.core.loot;
 
-import java.util.Random;
+import java.util.function.Supplier;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
