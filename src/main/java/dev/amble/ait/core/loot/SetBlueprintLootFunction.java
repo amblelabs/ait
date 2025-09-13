@@ -60,7 +60,7 @@ public class SetBlueprintLootFunction extends ConditionalLootFunction {
                 JsonSerializationContext jsonSerializationContext) {
             super.toJson(jsonObject, setBlueprintLootFunction, jsonSerializationContext);
             jsonObject.addProperty("id",
-                    setBlueprintLootFunction.blueprint.id().toString());
+                    setBlueprintLootFunction.blueprint.get().id().toString());
         }
 
         @Override
