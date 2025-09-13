@@ -12,3 +12,4 @@
 - fix: breaking the engine and setting tardis power to true will no longer make the engine loop sound | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#1881](https://github.com/amblelabs/ait/pull/1881))
 - fix: Travel destinations could have the TARDIS exterior doorway be facing too close to the worldborder, preventing (re-)entry. | by [@Mansarde](https://github.com/Mansarde) ([#1885](https://github.com/amblelabs/ait/pull/1885))
 - fix: Structure searches via the Telepathic Circuits for the Nether and the End did not cost any Artron (when the console had not been hit yet with the mallet). | by [@Mansarde](https://github.com/Mansarde) ([#1892](https://github.com/amblelabs/ait/pull/1892))
+- fix: Waypoint cartridges could be duped when saving a waypoint before putting a cartridge in. | by [@Mansarde](https://github.com/Mansarde) ([#1891](https://github.com/amblelabs/ait/pull/1891))
