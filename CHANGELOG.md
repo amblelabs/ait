@@ -15,3 +15,4 @@
 - fix: Waypoint cartridges could be duped when saving a waypoint before putting a cartridge in. | by [@Mansarde](https://github.com/Mansarde) ([#1891](https://github.com/amblelabs/ait/pull/1891))
 - fix: portal rendering should be fixed now | by [@drtheodor](https://github.com/drtheodor) ([#1894](https://github.com/amblelabs/ait/pull/1894))
 - fix: no more chunk deadlocks with a lot of optimization mods | by [@drtheodor](https://github.com/drtheodor) ([#1888](https://github.com/amblelabs/ait/pull/1888))
+- fix: Police Boxes had slight gaps between the open doors and the frame. | by [@Mansarde](https://github.com/Mansarde) ([#1897](https://github.com/amblelabs/ait/pull/1897))
