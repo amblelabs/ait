@@ -63,13 +63,16 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
 
     private static void setDoorLight(Tardis tardis, int level) {
         ServerWorld world = tardis.asServer().world();
-        BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
 
-        BlockState state = world.getBlockState(pos);
-        if (!(state.getBlock() instanceof DoorBlock))
-            return;
-
-        world.setBlockState(pos, state.with(LEVEL_4, level));
+        world.getServer().execute(() -> {
+            BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
+    
+            BlockState state = world.getBlockState(pos);
+            if (!(state.getBlock() instanceof DoorBlock))
+                return;
+    
+            world.setBlockState(pos, state.with(LEVEL_4, level));
+        });
     }
 
     @Override
