@@ -53,16 +53,17 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
             World exteriorWorld = globalPos.getWorld();
 
             BlockState exteriorState = exteriorWorld.getBlockState(exteriorPos);
-            if (!tardis.travel().inFlight())
-                if ((exteriorState.getBlock() instanceof ExteriorBlock))
-                    setDoorLight(tardis, exteriorState.get(ExteriorBlock.LEVEL_4));
+            if (!tardis.travel().inFlight() && exteriorState.getBlock() instanceof ExteriorBlock)
+                setDoorLight(tardis.asServer(), exteriorState.get(ExteriorBlock.LEVEL_4));
         });
 
-        TardisEvents.DOOR_CLOSE.register(tardis -> setDoorLight(tardis, 0));
+        TardisEvents.DOOR_CLOSE.register(tardis -> setDoorLight(tardis.asServer(), 0));
     }
 
-    private static void setDoorLight(Tardis tardis, int level) {
-        ServerWorld world = tardis.asServer().world();
+    private static void setDoorLight(ServerTardis tardis, int level) {
+        if (!tardis.hasWorld()) return;
+        
+        ServerWorld world = tardis.world();
 
         // FIXME: ensure the DOOR_OPEN and DOOR_CLOSE events always get called on the main thread instead of doing this
         world.getServer().execute(() -> {
