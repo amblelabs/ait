@@ -64,6 +64,7 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
     private static void setDoorLight(Tardis tardis, int level) {
         ServerWorld world = tardis.asServer().world();
 
+        // FIXME: ensure the DOOR_OPEN and DOOR_CLOSE events always get called on the main thread instead of doing this
         world.getServer().execute(() -> {
             BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
     
