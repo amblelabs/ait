@@ -62,7 +62,7 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
     }
 
     private static void setDoorLight(ServerTardis tardis, int level) {
-        if (!tardis.hasWorld()) return;
+        if (!tardis.hasWorld() || !tardis.world().shouldTick()) return;
         
         ServerWorld world = tardis.world();
 
