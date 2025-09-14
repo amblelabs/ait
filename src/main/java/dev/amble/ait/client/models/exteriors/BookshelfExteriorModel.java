@@ -6,6 +6,7 @@ import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.client.AITModClient;
@@ -205,7 +206,8 @@ public class BookshelfExteriorModel extends SimpleExteriorModel {
       if (isBOTI) {
           matrices.push();
             matrices.scale(1F, 1F, 1F);
-           matrices.translate(0.04, -1.26f, -0.36);
+           matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180f));
+           matrices.translate(0.04f, -1.28f, -0.10f);
            this.bookshelf.getChild("left_door").render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
            this.bookshelf.getChild("right_door").render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
             matrices.pop();
