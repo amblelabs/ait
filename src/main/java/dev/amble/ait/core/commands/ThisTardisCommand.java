@@ -36,8 +36,15 @@ public class ThisTardisCommand {
             try {
                 UUID id = LinkableItem.getTardisIdStatic(stack);
 
-                player.sendMessage(Text.translatable("message.ait.id").append(TextUtil.forTardis(id)));
-            } catch (IllegalArgumentException ignored) { }
+                if (id == null || id.toString().isEmpty()) {
+                    // Since an IllegalArgumentException is automatically thrown when the held item is not linkable,
+                    // we want to show the same error message when a held linkable item is not linked.
+                    throw new IllegalArgumentException();
+                } else
+                    player.sendMessage(Text.translatable("message.ait.id").append(TextUtil.forTardis(id)));
+            } catch (IllegalArgumentException ignored) {
+                player.sendMessage(Text.translatable("command.ait.this.not_found"));
+            }
         }
 
         return Command.SINGLE_SUCCESS;
