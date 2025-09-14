@@ -17,3 +17,4 @@
 - fix: no more chunk deadlocks with a lot of optimization mods | by [@drtheodor](https://github.com/drtheodor) ([#1888](https://github.com/amblelabs/ait/pull/1888))
 - fix: Police Boxes had slight gaps between the open doors and the frame. | by [@Mansarde](https://github.com/Mansarde) ([#1897](https://github.com/amblelabs/ait/pull/1897))
 - fix: Bookshelf exterior BOTI showed the doors rotated by 180 degrees and floating. | by [@Mansarde](https://github.com/Mansarde) ([#1899](https://github.com/amblelabs/ait/pull/1899))
+- add: Fail notification for `/ait this` command | by [@Mansarde](https://github.com/Mansarde) ([#1898](https://github.com/amblelabs/ait/pull/1898))
