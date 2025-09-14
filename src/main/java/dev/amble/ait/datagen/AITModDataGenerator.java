@@ -1469,6 +1469,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                 "Can't get value of a property named %s, because component %s is not keyed!");
         provider.addTranslation("command.ait.list.tardises", "TARDISes");
         provider.addTranslation("command.ait.list.pattern.error", "Bad pattern '%s'!");
+        provider.addTranslation("command.ait.this.not_found", "Not in TARDIS interior, or no linked item.");
 
         // Rift Chunk Tracking
         provider.addTranslation("riftchunk.ait.tracking", "Rift Tracking");
