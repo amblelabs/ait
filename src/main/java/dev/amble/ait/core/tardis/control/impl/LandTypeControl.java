@@ -49,8 +49,7 @@ public class LandTypeControl extends Control {
     }
 
     public void messageYPlayer(ServerPlayerEntity player, SafePosSearch.Kind value) {
-        Text yLandType = Text.translatable("message.ait.control.ylandtype." + value.asString());
-        player.sendMessage(Text.translatable("message.ait.control.ylandtype", yLandType), true);
+        player.sendMessage(Text.translatable("message.ait.control.ylandtype", value.getTranslated()), true);
     }
 
     public void messageXPlayer(ServerPlayerEntity player, boolean var) {
