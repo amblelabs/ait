@@ -39,6 +39,7 @@ import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
+import dev.amble.ait.core.util.ServerLifecycleHooks;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.schema.exterior.variant.adaptive.AdaptiveVariant;
 
@@ -85,11 +86,13 @@ public class ChameleonHandler extends KeyedTardisComponent {
         });
 
         TardisEvents.EXTERIOR_CHANGE.register(tardis -> {
+            ServerLifecycleHooks.get().execute(() ->
             if (shouldNotBeDisguised(tardis)) {
                 tardis.chameleon().clearDisguise();
             } else {
                 tardis.chameleon().applyDisguise();
             }
+            );
         });
 
         TardisEvents.DOOR_USED.register((tardis,  player) -> {
