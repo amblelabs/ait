@@ -4,6 +4,8 @@ import java.util.Optional;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 
 public record Loyalty(int level, Type type) {
 
@@ -100,6 +102,15 @@ public record Loyalty(int level, Type type) {
                 case PILOT -> OWNER;
                 case OWNER -> REJECT;
             };
+        }
+
+        @Override
+        public String toString() {
+            return this.name().toLowerCase();
+        }
+
+        public MutableText getTranslated() {
+            return Text.translatable("tardis.loyalty.name." + this);
         }
     }
 }

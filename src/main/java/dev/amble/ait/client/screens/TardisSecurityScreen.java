@@ -150,7 +150,7 @@ public class TardisSecurityScreen extends ConsoleScreen {
 
 
         context.drawText(this.textRenderer,
-                Text.literal(": " + getMinimumLoyalty(tardis)),
+                Text.literal(": ").append(getMinimumLoyalty(tardis).getTranslated()),
                 (int) (left + (bgWidth * 0.51f)), (int) (top + (bgHeight * (0.1f * 4))), 0xffA500, false);
 
 
