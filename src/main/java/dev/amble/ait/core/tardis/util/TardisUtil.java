@@ -41,7 +41,6 @@ import net.minecraft.world.entity.EntityTrackingSection;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.ExtraPushableEntity;
-import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.AITTags;
@@ -51,7 +50,6 @@ import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
-import dev.amble.ait.core.tardis.handler.permissions.PermissionHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
@@ -88,18 +86,21 @@ public class TardisUtil {
         ServerPlayNetworking.registerGlobalReceiver(SNAP, (server, player, handler, buf, responseSender) -> {
             UUID uuid = buf.readUuid();
             ServerTardisManager.getInstance().getTardis(server, uuid, tardis -> {
-                PermissionHandler permissions = tardis.handler(TardisComponent.Id.PERMISSIONS);
+                Loyalty loyalty = tardis.loyalty().get(player);
 
                 if (tardis.flight().isFlying()) {
-                    if (!player.isSneaking()) {
-                        tardis.door().interactAllDoors(player.getServerWorld(), null, player, true);
-                    } else {
-                        tardis.door().interactToggleLock(player);
-                    }
+                    server.execute(() -> {
+                        if (!player.isSneaking()) {
+                            tardis.door().interactAllDoors(player.getServerWorld(), null, player, true);
+                        } else {
+                            tardis.door().interactToggleLock(player);
+                        }
+                    });
+
                     return;
                 }
 
-                if (!tardis.loyalty().get(player).isOf(Loyalty.Type.PILOT))
+                if (!loyalty.isOf(Loyalty.Type.PILOT))
                     return;
 
                 player.getWorld().playSound(null, player.getBlockPos(), AITSounds.SNAP, SoundCategory.PLAYERS, 4f, 1f);
@@ -111,25 +112,25 @@ public class TardisUtil {
                         : exteriorPos;
 
                 if ((player.squaredDistanceTo(exteriorPos.getX(), exteriorPos.getY(), exteriorPos.getZ())) > 200
-                        && player.getWorld() != tardis.world())
+                        && (tardis.hasWorld() && player.getWorld() != tardis.world()))
                     return;
 
-                if (!player.isSneaking()) {
-                    tardis.door().interact(player.getServerWorld(), null, player);
-                } else {
-                    boolean isLocked = tardis.door().locked();
-                    tardis.door().interactToggleLock(player);
-                    player.getWorld().playSound(
-                            null,
-                            pos,
-                            isLocked ? AITSounds.REMOTE_UNLOCK : AITSounds.REMOTE_LOCK,
-                            SoundCategory.BLOCKS,
-                            1.0F,
-                            1.0F
-                    );
-                }
-
-
+                server.execute(() -> {
+                    if (!player.isSneaking()) {
+                        tardis.door().interact(player.getServerWorld(), null, player);
+                    } else {
+                        boolean isLocked = tardis.door().locked();
+                        tardis.door().interactToggleLock(player);
+                        player.getWorld().playSound(
+                                null,
+                                pos,
+                                isLocked ? AITSounds.REMOTE_UNLOCK : AITSounds.REMOTE_LOCK,
+                                SoundCategory.BLOCKS,
+                                1.0F,
+                                1.0F
+                        );
+                    }
+                });
             });
         });
 

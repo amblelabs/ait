@@ -86,13 +86,11 @@ public class ChameleonHandler extends KeyedTardisComponent {
         });
 
         TardisEvents.EXTERIOR_CHANGE.register(tardis -> {
-            ServerLifecycleHooks.get().execute(() -> {
             if (shouldNotBeDisguised(tardis)) {
                 tardis.chameleon().clearDisguise();
             } else {
                 tardis.chameleon().applyDisguise();
             }
-            });
         });
 
         TardisEvents.DOOR_USED.register((tardis,  player) -> {
