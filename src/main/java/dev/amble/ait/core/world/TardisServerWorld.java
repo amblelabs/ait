@@ -47,6 +47,7 @@ public class TardisServerWorld extends MultiDimServerWorld {
         this.setMobSpawnOptions(false, false);
 
         AITMod.LOGGER.warn("TSW created {}", Thread.currentThread().getName());
+        AITMod.LOGGER.warn("Trace", new Throwable());
     }
 
     @Override
