@@ -207,7 +207,8 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         if (this.tardis.crash().getState() == TardisCrashHandler.State.UNSTABLE)
             this.forceDestination(cached -> TravelUtil.jukePos(cached, 1, 10));
 
-        this.rematerialize();
+        if (this.getState() != State.LANDED)
+            this.rematerialize();
     }
 
     @Override
@@ -437,8 +438,10 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     }
 
     public Optional<ActionQueue> rematerialize() {
-        if (TardisEvents.MAT.invoker().onMat(tardis.asServer()) == TardisEvents.Interaction.FAIL
-                || this.travelCooldown) {
+        if (this.getState() != State.FLIGHT || this.travelCooldown)
+            return Optional.empty();
+
+        if (TardisEvents.MAT.invoker().onMat(tardis.asServer()) == TardisEvents.Interaction.FAIL) {
             this.failRemat();
             return Optional.empty();
         }
@@ -447,9 +450,6 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     }
 
     public Optional<ActionQueue> forceRemat() {
-        if (this.getState() != State.FLIGHT)
-            return Optional.empty();
-
         if (this.tardis.sequence().hasActiveSequence())
             this.tardis.sequence().setActiveSequence(null, true);
 
