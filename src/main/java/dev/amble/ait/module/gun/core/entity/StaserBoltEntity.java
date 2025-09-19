@@ -64,13 +64,11 @@ public class StaserBoltEntity extends PersistentProjectileEntity implements ISpa
     @Override
     protected void onCollision(HitResult hitResult) {
         if (hitResult.getType() == HitResult.Type.BLOCK && this.getWorld() instanceof ServerWorld world) {
-            boolean allowGriefing = world.getServer().getGameRules().getBoolean(AITMod.STASER_GRIEFING))
+            boolean allowGriefing = world.getServer().getGameRules().getBoolean(AITMod.STASER_GRIEFING));
             BlockHitResult result = (BlockHitResult) hitResult;
             Block block = this.getWorld().getBlockState(result.getBlockPos()).getBlock();
-            if (allowGriefing) {
-                if (block instanceof IceBlock || block instanceof LanternBlock || block instanceof TorchBlock || this.getWorld().getBlockState(result.getBlockPos()).isReplaceable() || block instanceof GlassBlock || block instanceof PaneBlock || block instanceof StainedGlassBlock) {
-                    this.getWorld().breakBlock(result.getBlockPos(), false);
-                }
+            if (allowGriefing && block instanceof IceBlock || block instanceof LanternBlock || block instanceof TorchBlock || this.getWorld().getBlockState(result.getBlockPos()).isReplaceable() || block instanceof GlassBlock || block instanceof PaneBlock || block instanceof StainedGlassBlock) {
+                this.getWorld().breakBlock(result.getBlockPos(), false);
             }
             this.getWorld().playSound(null, result.getBlockPos(), AITSounds.STASER, SoundCategory.BLOCKS, 0.25f, 0.5f);
             this.remove(RemovalReason.DISCARDED);
