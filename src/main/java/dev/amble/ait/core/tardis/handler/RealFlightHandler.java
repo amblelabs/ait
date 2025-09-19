@@ -95,7 +95,6 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
     }
 
     public void onStartFalling(ServerWorld world, BlockState state, BlockPos pos) {
-        if (true) return;   //FIXME: remove this line after the exterior falling issues are resolved :(
         this.falling.set(true);
         TardisEvents.START_FALLING.invoker().onStartFall(tardis);
 

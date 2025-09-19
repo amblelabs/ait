@@ -358,7 +358,8 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         if (tardis.travel().antigravs().get() && tardis.fuel().hasPower())
             return;
 
-        tardis.flight().onStartFalling(world, state, pos);
+        //FIXME: re-enable this line after the exterior falling issues are resolved :(
+//        tardis.flight().onStartFalling(world, state, pos);
 
         if (state.get(WATERLOGGED))
             state.with(WATERLOGGED, false);
