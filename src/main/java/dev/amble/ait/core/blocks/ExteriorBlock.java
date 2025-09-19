@@ -342,6 +342,8 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
 
     @Override
     public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+        //FIXME: re-enable this block after the exterior falling issues are resolved :(
+        /*
         Tardis tardis = this.findTardis(world, pos);
 
         if (tardis == null)
@@ -358,11 +360,11 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         if (tardis.travel().antigravs().get() && tardis.fuel().hasPower())
             return;
 
-        //FIXME: re-enable this line after the exterior falling issues are resolved :(
-//        tardis.flight().onStartFalling(world, state, pos);
+        tardis.flight().onStartFalling(world, state, pos);
 
         if (state.get(WATERLOGGED))
             state.with(WATERLOGGED, false);
+        */
     }
 
     @Override
