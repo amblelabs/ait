@@ -96,6 +96,9 @@ public class AITMod implements ModInitializer {
     public static final Random RANDOM = new Random();
 
     public static AITServerConfig CONFIG;
+    public static final GameRules.Key<GameRules.BooleanRule> STASER_GRIEFING = GameRuleRegistry.register("staserGriefing",
+            GameRules.Category.MISC, GameRuleFactory.createBooleanRule(true));
+
     public static final GameRules.Key<GameRules.BooleanRule> TARDIS_GRIEFING = GameRuleRegistry.register("tardisGriefing",
             GameRules.Category.MISC, GameRuleFactory.createBooleanRule(true));
 
