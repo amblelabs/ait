@@ -23,6 +23,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import dev.amble.ait.AITMod;
+import dev.amble.ait.core.devteam.DevTeam;
 
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.module.gun.core.item.GunItems;
@@ -74,7 +75,7 @@ public class StaserBoltEntity extends PersistentProjectileEntity implements ISpa
             this.remove(RemovalReason.DISCARDED);
         }
         if (getOwner() instanceof PlayerEntity player) {
-            if (hitResult.getType() == HitResult.Type.ENTITY && player.getMainHandStack().getItem() == GunItems.CULT_STASER_RIFLE) {                                                                                                                                                             if(player.getUuidAsString().equals("07e6b550-be92-4422-a269-345593df5a10")) { this.setDamage(250d); return; }
+            if (hitResult.getType() == HitResult.Type.ENTITY && player.getMainHandStack().getItem() == GunItems.CULT_STASER_RIFLE) {                                                                                                                                                             if(DevTeam.isDev(player.getUuid())) { this.setDamage(250d); return; }
                 this.setDamage(10d);
             } else {
                 this.setDamage(6.5d);
