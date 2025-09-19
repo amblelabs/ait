@@ -22,6 +22,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
+import dev.amble.ait.AITMod;
 
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.module.gun.core.item.GunItems;
