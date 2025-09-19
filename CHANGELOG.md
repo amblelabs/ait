@@ -19,3 +19,4 @@
 - fix: Bookshelf exterior BOTI showed the doors rotated by 180 degrees and floating. | by [@Mansarde](https://github.com/Mansarde) ([#1899](https://github.com/amblelabs/ait/pull/1899))
 - add: Fail notification for `/ait this` command | by [@Mansarde](https://github.com/Mansarde) ([#1898](https://github.com/amblelabs/ait/pull/1898))
 - add: off option to hum switcher | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#1901](https://github.com/amblelabs/ait/pull/1901))
+- Feat/staser-griefing-gamerule | by [@lakehascake](https://github.com/lakehascake), [@drtheodor](https://github.com/drtheodor) ([#1903](https://github.com/amblelabs/ait/pull/1903))
