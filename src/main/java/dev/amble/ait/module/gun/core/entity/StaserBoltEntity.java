@@ -63,8 +63,8 @@ public class StaserBoltEntity extends PersistentProjectileEntity implements ISpa
 
     @Override
     protected void onCollision(HitResult hitResult) {
-        MinecraftServer server = ServerLifecycleHooks.get();
-        if (hitResult.getType() == HitResult.Type.BLOCK) {
+        if (hitResult.getType() == HitResult.Type.BLOCK && this.getWorld() instanceof ServerWorld world) {
+            boolean allowGriefing = world.getServer().getGameRules().getBoolean(AITMod.STASER_GRIEFING))
             BlockHitResult result = (BlockHitResult) hitResult;
             Block block = this.getWorld().getBlockState(result.getBlockPos()).getBlock();
             if (server.getGameRules().getBoolean(AITMod.STASER_GRIEFING)) {
