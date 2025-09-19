@@ -8,6 +8,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -64,8 +65,10 @@ public class StaserBoltEntity extends PersistentProjectileEntity implements ISpa
         if (hitResult.getType() == HitResult.Type.BLOCK) {
             BlockHitResult result = (BlockHitResult) hitResult;
             Block block = this.getWorld().getBlockState(result.getBlockPos()).getBlock();
-            if (block instanceof IceBlock || block instanceof LanternBlock || block instanceof TorchBlock || this.getWorld().getBlockState(result.getBlockPos()).isReplaceable() || block instanceof GlassBlock || block instanceof PaneBlock || block instanceof StainedGlassBlock) {
-                this.getWorld().breakBlock(result.getBlockPos(), false);
+            if (server.getGameRules().getBoolean(AITMod.STASER_GRIEFING)) {
+                if (block instanceof IceBlock || block instanceof LanternBlock || block instanceof TorchBlock || this.getWorld().getBlockState(result.getBlockPos()).isReplaceable() || block instanceof GlassBlock || block instanceof PaneBlock || block instanceof StainedGlassBlock) {
+                    this.getWorld().breakBlock(result.getBlockPos(), false);
+                }
             }
             this.getWorld().playSound(null, result.getBlockPos(), AITSounds.STASER, SoundCategory.BLOCKS, 0.25f, 0.5f);
             this.remove(RemovalReason.DISCARDED);
