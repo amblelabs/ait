@@ -67,7 +67,7 @@ public class StaserBoltEntity extends PersistentProjectileEntity implements ISpa
             boolean allowGriefing = world.getServer().getGameRules().getBoolean(AITMod.STASER_GRIEFING))
             BlockHitResult result = (BlockHitResult) hitResult;
             Block block = this.getWorld().getBlockState(result.getBlockPos()).getBlock();
-            if (server.getGameRules().getBoolean(AITMod.STASER_GRIEFING)) {
+            if (allowGriefing) {
                 if (block instanceof IceBlock || block instanceof LanternBlock || block instanceof TorchBlock || this.getWorld().getBlockState(result.getBlockPos()).isReplaceable() || block instanceof GlassBlock || block instanceof PaneBlock || block instanceof StainedGlassBlock) {
                     this.getWorld().breakBlock(result.getBlockPos(), false);
                 }
