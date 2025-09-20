@@ -8,6 +8,7 @@
     "EntityMixin",
     "HopperBlockEntityMixin",
     "LivingEntityMixin",
+    "LootableContainerBlockEntityMixin",
     "UseActionMixin",
     "artron.ServerWorldMixin",
     "client.experimental_screen.LevelSummaryMixin",
