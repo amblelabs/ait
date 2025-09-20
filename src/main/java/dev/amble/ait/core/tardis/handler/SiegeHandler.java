@@ -144,16 +144,6 @@ public class SiegeHandler extends KeyedTardisComponent implements TardisTickable
             if (this.tardis.getExterior().findExteriorBlock().isEmpty()) {
                 World world = this.tardis.travel().position().getWorld();
 
-                BlockEntity be = world.getBlockEntity(tardis.travel().position().getPos());
-                if (be instanceof Inventory inv) {
-                    for (int i = 0; i < inv.size(); i++) {
-                        ItemStack stack = inv.getStack(i);
-                        if (!stack.isEmpty() && stack.isOf(AITItems.SIEGE_ITEM)) {
-                            inv.setStack(i, ItemStack.EMPTY);
-                        }
-                    }
-                    be.markDirty();
-                }
 
                 world.breakBlock(tardis.travel().position().getPos(), true);
                 this.tardis.travel().placeExterior(false);
