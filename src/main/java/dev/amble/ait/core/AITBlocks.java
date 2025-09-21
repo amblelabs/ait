@@ -244,7 +244,7 @@ public class AITBlocks extends BlockContainer {
             .instrument(Instrument.GUITAR).strength(1.5F, 6.0F));
 
     @NoEnglish
-    public static final Block FULL_CABLE_BLOCK = new FullCableBlock(ABlockSettings.create()
+    public static final Block CABLE_CONNECTOR_BLOCK = new FullCableBlock(ABlockSettings.create()
             .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).nonOpaque()
             .instrument(Instrument.GUITAR).strength(1.5F, 6.0F));
 
