@@ -96,6 +96,9 @@ public class AITMod implements ModInitializer {
     public static final Random RANDOM = new Random();
 
     public static AITServerConfig CONFIG;
+    public static final GameRules.Key<GameRules.BooleanRule> STASER_GRIEFING = GameRuleRegistry.register("staserGriefing",
+            GameRules.Category.MISC, GameRuleFactory.createBooleanRule(true));
+
     public static final GameRules.Key<GameRules.BooleanRule> TARDIS_GRIEFING = GameRuleRegistry.register("tardisGriefing",
             GameRules.Category.MISC, GameRuleFactory.createBooleanRule(true));
 
@@ -115,14 +118,14 @@ public class AITMod implements ModInitializer {
     public static final String BRANCH;
 
     static {
-        // ait-1.x.x.xxx-1.20.1-xxxx-xxxx
+        // ait-1.x.xx-BRANCH+mc.1.20.1
         String version = FabricLoader.getInstance().getModContainer(MOD_ID).get().getMetadata().getVersion().getFriendlyString();
-        // get the last part of the version string after the -
-        BRANCH = version.substring(version.lastIndexOf("-") + 1);
+        // get the part of the version string between the - and +
+        BRANCH = version.substring(version.lastIndexOf("-") + 1, version.lastIndexOf("+"));
     }
 
     public static boolean isUnsafeBranch() {
-        return !BRANCH.equals("release");
+        return !BRANCH.contains("release");
     }
 
     public void registerParticles() {
@@ -237,6 +240,7 @@ public class AITMod implements ModInitializer {
             SetMaxSpeedCommand.register(dispatcher);
             SetSiegeCommand.register(dispatcher);
             LinkCommand.register(dispatcher);
+            UnLinkCommand.register(dispatcher);
             RemoveCommand.register(dispatcher);
             PermissionCommand.register(dispatcher);
             LoyaltyCommand.register(dispatcher);
@@ -319,8 +323,7 @@ public class AITMod implements ModInitializer {
                     || id.equals(LootTables.SIMPLE_DUNGEON_CHEST) || id.equals(LootTables.STRONGHOLD_LIBRARY_CHEST)) {
 
 
-                NbtCompound nbt = new NbtCompound();
-                LootPool.Builder poolBuilder = LootPool.builder().with(ItemEntry.builder(AITItems.BLUEPRINT).apply(SetNbtLootFunction.builder(nbt)).weight(10));
+                LootPool.Builder poolBuilder = LootPool.builder().with(ItemEntry.builder(AITItems.BLUEPRINT).apply(SetBlueprintLootFunction.random()).weight(10));
 
                 tableBuilder.pool(poolBuilder);
             }

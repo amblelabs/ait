@@ -1,5 +1,6 @@
 package dev.amble.ait.core.item;
 
+import dev.amble.ait.core.tardis.util.TardisUtil;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -44,13 +45,9 @@ public class HammerItem extends SwordItem {
 
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
-
-
         BlockPos pos = context.getBlockPos();
         PlayerEntity player = context.getPlayer();
         ItemStack stack = context.getStack();
-
-
 
         if (!(context.getWorld() instanceof ServerWorld world))
             return ActionResult.SUCCESS;
@@ -102,7 +99,7 @@ public class HammerItem extends SwordItem {
                                     1),
                             pos.getX() + 0.5f, pos.getY() + 1.25, pos.getZ() + 0.5f, 5 * hammerUses, 0, 0, 0, 0.1f * hammerUses);
 
-                    world.createExplosion(null, world.getDamageSources().outOfWorld(), null, pos.toCenterPos(), 5, true,
+                    world.createExplosion(null, world.getDamageSources().outOfWorld(), TardisUtil.EXPLOSION_BEHAVIOR, pos.toCenterPos(), 5, TardisUtil.doCreateFire(world),
                             World.ExplosionSourceType.MOB);
 
                     tardis.loyalty().subLevel((ServerPlayerEntity) player, 50); // safe cast since its on server already

@@ -38,6 +38,10 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
         TardisComponent.init(exterior, this, ctx);
         TardisComponent.init(handlers, this, ctx);
 
+        this.postInit(ctx);
+    }
+
+    protected void postInit(TardisComponent.InitContext ctx) {
         TardisComponent.postInit(desktop, ctx);
         TardisComponent.postInit(exterior, ctx);
         TardisComponent.postInit(handlers, ctx);
@@ -103,9 +107,15 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
         return this.handler(TardisComponent.Id.STATS);
     }
 
+    @Deprecated(forRemoval = true)
     public InteriorChangingHandler interiorChangingHandler() {
+        return interiorChanging();
+    }
+
+    public InteriorChangingHandler interiorChanging() {
         return this.handler(TardisComponent.Id.INTERIOR);
     }
+
     public ServerHumHandler hum() {
         return this.handler(TardisComponent.Id.HUM);
     }

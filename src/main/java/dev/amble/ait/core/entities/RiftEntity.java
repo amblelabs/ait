@@ -203,7 +203,7 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
             return false;
 
         boolean canSpawn = spawnReason == SpawnReason.STRUCTURE || (random.nextBoolean()
-                && RiftChunkManager.isRiftChunk(worldAccess, pos));
+                && random.nextBoolean() && RiftChunkManager.isRiftChunk(worldAccess, pos));
 
         if (!canSpawn)
             return false;

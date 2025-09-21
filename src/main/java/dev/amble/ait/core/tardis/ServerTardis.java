@@ -8,18 +8,18 @@ import java.util.function.Consumer;
 
 import com.google.gson.InstanceCreator;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.util.ServerLifecycleHooks;
-import dev.drtheo.multidim.MultiDim;
 
 import net.minecraft.server.MinecraftServer;
 
 import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 
+import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
 
 public class ServerTardis extends Tardis {
 
@@ -35,6 +35,9 @@ public class ServerTardis extends Tardis {
     @Exclude
     private TardisServerWorld world;
 
+    @Exclude
+    private boolean fullyInitialized;
+
     public ServerTardis(UUID uuid, TardisDesktopSchema schema, ExteriorVariantSchema variantType) {
         super(uuid, new TardisDesktop(schema), new TardisExterior(variantType));
     }
@@ -48,6 +51,14 @@ public class ServerTardis extends Tardis {
         this.world = TardisServerWorld.create(this);
     }
 
+    @Override    
+    protected void postInit(TardisComponent.InitContext ctx) {
+        Scheduler.get().runTaskLater(() -> {
+            this.fullyInitialized = true;
+            super.postInit(ctx);
+        }, TaskStage.END_SERVER_TICK, TimeUnit.TICKS, 1);
+    }
+
     public void setRemoved(boolean removed) {
         this.removed = removed;
     }
@@ -57,6 +68,7 @@ public class ServerTardis extends Tardis {
     }
 
     public void tick(MinecraftServer server) {
+        if (!this.fullyInitialized) return;
         this.getHandlers().tick(server);
     }
 
@@ -90,28 +102,24 @@ public class ServerTardis extends Tardis {
     }
 
     public TardisServerWorld world() {
-        if (this.world == null) {
-            this.world = TardisServerWorld.load(this);
-        }
+        return this.hasWorld() ? world : (world = TardisServerWorld.getOrLoad(this));
+    }
 
-        return world;
+    public boolean hasWorld() {
+        return world != null;
     }
 
     public boolean shouldTick() {
         if (world == null)
             return false;
 
-        if (!MultiDim.get(ServerLifecycleHooks.get()).isWorldUnloaded(world))
-            return true;
+        return !this.travel().isLanded() || world.shouldTick() || this.shouldTickExterior();
+    }
 
-        TravelHandler travel = this.travel();
-
-        if (!travel.isLanded())
-            return true;
-
-        CachedDirectedGlobalPos pos = travel.position();
+    public boolean shouldTickExterior() {
+        CachedDirectedGlobalPos pos = this.travel().position();
         return pos.getWorld() != null && pos.getWorld()
-                .shouldTickEntity(travel.position().getPos());
+                .shouldTickEntity(pos.getPos());
     }
 
     public static Object creator() {

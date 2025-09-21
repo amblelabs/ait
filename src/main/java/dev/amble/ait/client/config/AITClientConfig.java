@@ -12,6 +12,7 @@ import dev.isxander.yacl3.platform.YACLPlatform;
 import net.minecraft.text.Text;
 
 import dev.amble.ait.AITMod;
+import org.apache.commons.lang3.StringUtils;
 
 public class AITClientConfig {
 
@@ -29,6 +30,11 @@ public class AITClientConfig {
     @CustomFormat(ValueFormatters.PercentFormatter.class)
     @FloatSlider(min = 0f, max = 1f, step = 0.05f)
     @SerialEntry public float interiorHumVolume = 0.5f;
+
+    @AutoGen(category = CATEGORY)
+    @CustomFormat(ValueFormatters.PercentFormatter.class)
+    @FloatSlider(min = 0f, max = 1f, step = 0.01f)
+    @SerialEntry public float engineLoopVolume = 0.35f;
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
@@ -94,16 +100,7 @@ public class AITClientConfig {
         private final String key;
 
         TemperatureType() {
-            String key1;
-            key1 = this.toString().toLowerCase();
-            key1 = key1.substring(0, 1).toUpperCase() + key1.substring(1);
-            key1 = switch (key1) {
-                case "Celsius" -> key1 + " (°C)";
-                case "Fahrenheit" -> key1 + " (°F)";
-                case "Kelvin" -> key1 + " (K)";
-                default -> key1;
-            };
-            this.key = key1;
+            this.key = "yacl3.config.ait:client.temperatureType.unit." + this.toString().toLowerCase();
         }
 
         @Override
