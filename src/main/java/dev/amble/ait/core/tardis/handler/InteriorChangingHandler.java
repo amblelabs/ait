@@ -3,7 +3,6 @@ package dev.amble.ait.core.tardis.handler;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import dev.amble.lib.data.DirectedGlobalPos;
@@ -38,8 +37,11 @@ import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.AITDamageTypes;
 import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.lock.LockedDimension;
+import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -233,6 +235,11 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                         TravelHandler travel = tardis.travel();
 
                         travel.autopilot(true);
+                        // To fix landing error when you grow a TARDIS in a different dimension. - Loqor
+                        LockedDimension worldID = LockedDimensionRegistry.getInstance().get(travel.position().getDimension().getRegistry());
+                        if (worldID != null) {
+                            tardis.stats().unlock(worldID);
+                        }
                         travel.forceDemat();
                         this.replaceAllConsolesWithGrowth();
                     } else {
