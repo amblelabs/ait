@@ -349,6 +349,11 @@ public class SafePosSearch {
         };
 
         @Override
+        public String toString() {
+            return this.name().toLowerCase();
+        }
+
+        @Override
         public String asString() {
             return toString();
         }
