@@ -22,3 +22,4 @@
 - Feat/staser-griefing-gamerule | by [@lakehascake](https://github.com/lakehascake), [@drtheodor](https://github.com/drtheodor) ([#1903](https://github.com/amblelabs/ait/pull/1903))
 - fix: removed .nonopaque property from blocks that dont need it | by [@Addi3](https://github.com/Addi3) ([#1905](https://github.com/amblelabs/ait/pull/1905))
 - fix: crumple demat sound | by [@Addi3](https://github.com/Addi3) ([#1912](https://github.com/amblelabs/ait/pull/1912))
+- fix: self destruct sound | by [@Addi3](https://github.com/Addi3) ([#1914](https://github.com/amblelabs/ait/pull/1914))
