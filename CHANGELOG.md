@@ -21,3 +21,4 @@
 - add: off option to hum switcher | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#1901](https://github.com/amblelabs/ait/pull/1901))
 - Feat/staser-griefing-gamerule | by [@lakehascake](https://github.com/lakehascake), [@drtheodor](https://github.com/drtheodor) ([#1903](https://github.com/amblelabs/ait/pull/1903))
 - fix: removed .nonopaque property from blocks that dont need it | by [@Addi3](https://github.com/Addi3) ([#1905](https://github.com/amblelabs/ait/pull/1905))
+- fix: crumple demat sound | by [@Addi3](https://github.com/Addi3) ([#1912](https://github.com/amblelabs/ait/pull/1912))
