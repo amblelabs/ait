@@ -1,4 +1,5 @@
 {
   "id": "ait:self_destruct",
-  "expected_state": "landed"
+  "expected_state": "landed",
+  "sound": "ait:tardis/crumple"
 }
