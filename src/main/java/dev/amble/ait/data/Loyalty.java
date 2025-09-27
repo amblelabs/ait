@@ -104,13 +104,8 @@ public record Loyalty(int level, Type type) {
             };
         }
 
-        @Override
-        public String toString() {
-            return this.name().toLowerCase();
-        }
-
-        public MutableText getTranslated() {
-            return Text.translatable("tardis.loyalty.name." + this);
+        public MutableText text() {
+            return Text.translatable("tardis.loyalty.name." + this.name().toLowerCase());
         }
     }
 }
