@@ -1,16 +1,15 @@
 package dev.amble.ait.core.handles;
 
-import java.util.List;
-
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.lib.api.Identifiable;
-
+import dev.amble.lib.util.Levenshtein;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.tardis.ServerTardis;
+import java.util.List;
 
 /**
  * For Handles the robot, this is used to handle responses.
@@ -67,6 +66,11 @@ public interface HandlesResponse extends Identifiable {
      */
     default boolean isCommand(String command) {
         return getCommandWords().contains(command.toLowerCase());
+    }
+
+    // i have no idea how this shit fucking works
+    default int distance(String command, String input) {
+        return Levenshtein.distance(command, input);
     }
 
     /**

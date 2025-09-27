@@ -99,9 +99,9 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
             return;
 
         boolean sonicInConsole = isScanningSonicInConsole(entity);
+        boolean handlesInConsole = isHandlesInConsole(entity);
 
-        if (!sonicInConsole || !entity.isPartOfSequence())
-            return;
+        if (!entity.isPartOfSequence() || (!sonicInConsole && !handlesInConsole)) return;
 
         matrices.push();
         matrices.scale(0.4f, 0.4f, 0.4f);
@@ -171,6 +171,16 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
         }
 
         return SonicRendering.isScanningSonic(sonic);
+    }
+
+    private static boolean isHandlesInConsole(ConsoleControlEntity entity) {
+        ConsoleBlockEntity console = entity.getConsole();
+        if (console  == null) return false;
+
+        if (!console.isLinked()) return false;
+
+        Tardis tardis = console.tardis().get();
+        return (tardis != null && tardis.butler().getHandles() != null);
     }
 
     @Override
