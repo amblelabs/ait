@@ -1138,6 +1138,12 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.hypercubes.disabled", "Hypercubes are disabled in SERVER config.");
 
         provider.addTranslation("message.ait.control.ylandtype", "Vertical Search Mode: %s");
+        provider.addTranslation("message.ait.control.ylandtype.floor", "FLOOR");
+        provider.addTranslation("message.ait.control.ylandtype.ceiling", "CEILING");
+        provider.addTranslation("message.ait.control.ylandtype.median", "MEDIAN");
+        provider.addTranslation("message.ait.control.ylandtype.none", "NONE");
+        provider.addTranslation("message.ait.control.xlandtype.on", "Horizontal Search: ENGAGED");
+        provider.addTranslation("message.ait.control.xlandtype.off", "Horizontal Search: DISENGAGED");
         provider.addTranslation("message.ait.loyalty_amount", "Loyalty Level: %s");
         provider.addTranslation("message.ait.landing_code", "Landing Code...");
         provider.addTranslation("message.ait.enter_landing_code", "Enter Landing Code...");
@@ -1159,8 +1165,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("sonic.ait.mode.tardis.flight", "Disengaged Handbrake, TARDIS Dematerialising...");
         provider.addTranslation("screen.ait.current_au", "Current AU");
         provider.addTranslation("screen.ait.linked_tardis", "Linked TARDIS");
-        provider.addTranslation("message.ait.control.xlandtype.on", "Horizontal Search: ENGAGED");
-        provider.addTranslation("message.ait.control.xlandtype.off", "Horizontal Search: DISENGAGED");
         provider.addTranslation("tardis.message.engine.phasing", "ENGINES PHASING");
         provider.addTranslation("message.ait.cage.full", "It calls for the void..");
         provider.addTranslation("message.ait.cage.void_hint", "(Throw this into the END void)");
