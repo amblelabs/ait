@@ -1078,6 +1078,12 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("item.sonic.scanning.locator_message.title", "TARDIS location: %s");
         provider.addTranslation("item.sonic.scanning.locator_message.coordinates", "Coordinates: %s %s %s");
 
+        provider.addTranslation("tardis.loyalty.name.reject","REJECT");
+        provider.addTranslation("tardis.loyalty.name.neutral","NEUTRAL");
+        provider.addTranslation("tardis.loyalty.name.companion","COMPANION");
+        provider.addTranslation("tardis.loyalty.name.pilot","PILOT");
+        provider.addTranslation("tardis.loyalty.name.owner","OWNER");
+
         // Loyalty Messages In Bed
         provider.addTranslation("tardis.loyalty.message.reject","You hear whispers all around you, you are not welcome. [REJECT]");
         provider.addTranslation("tardis.loyalty.message.neutral", "The TARDIS hums, neither welcoming nor dismissing your presence. [NEUTRAL]");
