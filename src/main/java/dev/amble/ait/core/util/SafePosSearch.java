@@ -351,17 +351,12 @@ public class SafePosSearch {
         };
 
         @Override
-        public String toString() {
-            return this.name().toLowerCase();
-        }
-
-        @Override
         public String asString() {
             return toString();
         }
 
-        public MutableText getTranslated() {
-            return Text.translatable("message.ait.control.ylandtype." + this.asString());
+        public MutableText text() {
+            return Text.translatable("message.ait.control.ylandtype." + this.asString().toLowerCase());
         }
 
         public abstract Kind next();
