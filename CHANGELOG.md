@@ -23,3 +23,4 @@
 - fix: removed .nonopaque property from blocks that dont need it | by [@Addi3](https://github.com/Addi3) ([#1905](https://github.com/amblelabs/ait/pull/1905))
 - fix: crumple demat sound | by [@Addi3](https://github.com/Addi3) ([#1912](https://github.com/amblelabs/ait/pull/1912))
 - fix: self destruct sound | by [@Addi3](https://github.com/Addi3) ([#1914](https://github.com/amblelabs/ait/pull/1914))
+- add: When leave-behind is on, then players falling into the TARDIS void without a key (and valid loyalty level) will be evicted from the TARDIS. | by [@Mansarde](https://github.com/Mansarde) ([#1915](https://github.com/amblelabs/ait/pull/1915))
