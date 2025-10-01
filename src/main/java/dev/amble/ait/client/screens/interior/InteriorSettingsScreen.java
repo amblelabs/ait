@@ -425,7 +425,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private static TardisDesktopSchema nextDesktop(TardisDesktopSchema current) {
         List<TardisDesktopSchema> list = DesktopRegistry.getInstance().toList();
 
-        int idx = list.indexOf(current);
+        int idx = current == null -1 : list.indexOf(current);
         idx = (idx + 1) % list.size();
         return list.get(idx);
     }
@@ -440,7 +440,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private static TardisDesktopSchema previousDesktop(TardisDesktopSchema current) {
         List<TardisDesktopSchema> list = DesktopRegistry.getInstance().toList();
 
-        int idx = list.indexOf(current);
+        int idx = current == null ? -1 : list.indexOf(current);
         idx = (idx - 1 + list.size()) % list.size();
         return list.get(idx);
     }
