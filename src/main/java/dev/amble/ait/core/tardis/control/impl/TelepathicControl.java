@@ -1,10 +1,15 @@
 package dev.amble.ait.core.tardis.control.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.core.tardis.handler.mood.v2.Emotion;
+import dev.amble.ait.core.tardis.handler.mood.v2.MoodHandler2;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.queue.api.ActionQueue;
+import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.item.Item;
@@ -158,6 +163,24 @@ public class TelepathicControl extends Control {
             player.getServerWorld().playSound(null, console, AITSounds.TARDIS_BLING, SoundCategory.AMBIENT, 0.25f, 1f);
             player.getServerWorld().spawnParticles((opinion.likes()) ? ParticleTypes.HEART : ParticleTypes.ANGRY_VILLAGER, console.toCenterPos().getX(),
                     console.toCenterPos().getY() + 1, console.toCenterPos().getZ(), 1, 0f, 1F, 0f, 5.0F);
+
+            return Result.SUCCESS;
+        }
+
+        if (player.isSneaking()) {
+            MoodHandler2 mood = tardis.handler(TardisComponent.Id.MOOD);
+
+            List<Emotion> list = Arrays.stream(mood.container.emotions)
+                    .sorted((o1, o2) -> Float.compare(o1.value, o2.value))
+                    .toList();
+
+            for (int i = 0; i < 3; i++) {
+                player.sendMessage(Text.literal("Your tardis is feeling " + list.get(i).type).formatted(Formatting.GREEN));
+            }
+
+            for (int i = list.size() - 4; i < list.size(); i++) {
+                player.sendMessage(Text.literal("Your tardis is feeling " + list.get(i).type).formatted(Formatting.RED));
+            }
 
             return Result.SUCCESS;
         }

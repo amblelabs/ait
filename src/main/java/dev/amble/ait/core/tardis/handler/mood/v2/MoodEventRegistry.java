@@ -1,5 +1,6 @@
 package dev.amble.ait.core.tardis.handler.mood.v2;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.ServerTardis;
 import it.unimi.dsi.fastutil.floats.FloatPredicate;
 import net.minecraft.text.Text;
@@ -13,15 +14,16 @@ import java.util.function.Predicate;
 public class MoodEventRegistry {
 
     private static final List<MoodEvent> events = new ArrayList<>();
+    private static final Predicate<ServerTardis> WORLD_LOADED = ServerTardis::hasWorld;
 
     static {
         events.add(new MoodEvent(tardis -> tardis.world().getPlayers().forEach(player -> {
             player.sendMessage(Text.literal("yippe, content >0.5!"));
-        }), 1, Requires.biggerThan(Emotion.Type.CONTENT, 0.5f, 0.01f)));
+        }), WORLD_LOADED, 1, Requires.biggerThan(Emotion.Type.CONTENT, 0.5f, 0.01f)));
 
         events.add(new MoodEvent(tardis -> tardis.world().getPlayers().forEach(player -> {
             tardis.loyalty().subLevel(player, 1);
-        }), 7, Requires.biggerThan(Emotion.Type.UPSET, 0.75f, 0.01f)));
+        }), WORLD_LOADED, 7, Requires.biggerThan(Emotion.Type.UPSET, 0.75f, 0.01f)));
 
         events.add(new MoodEvent(
                 tardis -> tardis.door().setLocked(true),
@@ -30,8 +32,10 @@ public class MoodEventRegistry {
         )));
 
         events.add(new MoodEvent(
-                tardis -> tardis.selfDestruct().boom(),
-                15, Requires.biggerThan(Emotion.Type.DEPRESSED, 0.99f, 1f)
+                tardis -> {
+                    if (tardis.world().getGameRules().getBoolean(AITMod.TARDIS_SUICIDAL))
+                        tardis.selfDestruct().boom();
+                }, WORLD_LOADED, 15, Requires.biggerThan(Emotion.Type.DEPRESSED, 0.99f, 1f)
         ));
     }
 

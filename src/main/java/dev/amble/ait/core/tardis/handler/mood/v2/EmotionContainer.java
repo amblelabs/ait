@@ -1,8 +1,10 @@
 package dev.amble.ait.core.tardis.handler.mood.v2;
 
+import java.util.function.Consumer;
+
 public class EmotionContainer {
 
-    private final Emotion[] emotions;
+    public final Emotion[] emotions;
 
     public EmotionContainer(Emotion[] emotions) {
         this.emotions = emotions;
