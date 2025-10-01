@@ -13,6 +13,7 @@ import java.util.function.Predicate;
 
 public class MoodEventRegistry {
 
+    // TODO: proper registry
     private static final List<MoodEvent> events = new ArrayList<>();
     private static final Predicate<ServerTardis> WORLD_LOADED = ServerTardis::hasWorld;
 
@@ -60,6 +61,7 @@ public class MoodEventRegistry {
         return true;
     }
 
+    // TODO: turn into an interface maybe?
     public record MoodEvent(Consumer<ServerTardis> consumer, Predicate<ServerTardis> canRun, int cost, Requires... requirements) {
 
         public MoodEvent(Consumer<ServerTardis> consumer, int cost, Requires... requirements) {
