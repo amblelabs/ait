@@ -57,19 +57,16 @@ public class PortalsHandler extends KeyedTardisComponent {
 
 		TardisEvents.DOOR_OPEN.register((tdis) -> {
 			PortalsHandler handler = tdis.handler(ID);
-
 			handler.generatePortals();
 		});
 
 		TardisEvents.DOOR_CLOSE.register((tdis) -> {
 			PortalsHandler handler = tdis.handler(ID);
-
 			handler.removePortals();
 		});
 
 		TardisEvents.DOOR_MOVE.register((tdis, newPos, oldPos) -> {
 			PortalsHandler handler = tdis.handler(ID);
-
 			handler.removePortals();
 
 			if (tdis.door().isOpen()) handler.generatePortals();
@@ -77,7 +74,6 @@ public class PortalsHandler extends KeyedTardisComponent {
 
 		TardisEvents.EXTERIOR_CHANGE.register((tdis) -> {
 			PortalsHandler handler = tdis.handler(ID);
-
 			handler.removePortals();
 
 			if (tdis.door().isOpen()) handler.generatePortals();

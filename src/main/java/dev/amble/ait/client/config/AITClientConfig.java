@@ -62,6 +62,10 @@ public class AITClientConfig {
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    public boolean allowPortalsBoti = false;
+
+    @AutoGen(category = CATEGORY)
+    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean showControlHitboxes = false;
 
     @AutoGen(category = CATEGORY)
