@@ -6,14 +6,11 @@ import java.util.Set;
 
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.ServerTardis;
 
 public interface MoodDictatedEvent {
 
-    default Identifier id() {
-        return AITMod.id("mood_dictated_event");
-    }
+    Identifier id();
 
     void execute(ServerTardis tardis);
 
@@ -56,6 +53,7 @@ public interface MoodDictatedEvent {
 
         @Override
         public void execute(ServerTardis tardis) {
+            System.out.println("executing mood event");
             this.execute.run(tardis);
         }
 

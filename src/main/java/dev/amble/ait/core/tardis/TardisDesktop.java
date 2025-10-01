@@ -265,7 +265,7 @@ public class TardisDesktop extends TardisComponent {
     }
 
     public void playSoundAtEveryConsole(SoundEvent sound, SoundCategory category, float volume, float pitch) {
-        if (!this.isServer()) return;
+        if (!this.isServer() || !this.tardis.asServer().hasWorld()) return;
 
         ServerWorld world = this.tardis.asServer().world();
 
@@ -274,12 +274,11 @@ public class TardisDesktop extends TardisComponent {
     }
 
     public void forcePlaySoundAtEveryConsole(Identifier soundId, SoundCategory category) {
-        if (!this.isServer()) return;
+        if (!this.isServer() || !this.tardis.asServer().hasWorld()) return;
 
         RegistryKey<World> worldKey = this.tardis.asServer().world().getRegistryKey();
-        this.getConsolePos().forEach(consolePos -> {
-            NetworkUtil.playSound(worldKey, consolePos, soundId, category, 1);
-        });
+        this.getConsolePos().forEach(consolePos ->
+                NetworkUtil.playSound(worldKey, consolePos, soundId, category, 1));
     }
 
     public void playSoundAtEveryConsole(SoundEvent sound, SoundCategory category) {
