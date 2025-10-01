@@ -44,6 +44,7 @@ public class AITSounds {
     public static final SoundEvent TARDIS_BLING = register("tardis/bling");
     public static final SoundEvent NAV_NOTIFICATION = register("tardis/nav_notification");
     public static final SoundEvent SHIELD_AMBIANCE = register("tardis/shield_ambiance");
+    public static final SoundEvent CRUMPLE = register("tardis/crumple");
 
 
     public static final SoundEvent SIEGE_ENABLE = register("tardis/siege_enable");
@@ -239,6 +240,7 @@ public class AITSounds {
 
     // Engine
     public static final SoundEvent ENGINE_REFUEL = register("tardis/engine_refuel");
+    public static final SoundEvent ENGINE_LOOP = register("tardis/engine_loop");
 
     // Engine related stuff
     public static final SoundEvent POWER_CONVERT = register("tardis/power_convert");

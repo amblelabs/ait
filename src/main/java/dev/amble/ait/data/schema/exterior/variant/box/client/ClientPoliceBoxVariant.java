@@ -5,8 +5,8 @@ import org.joml.Vector3f;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.models.exteriors.PoliceBoxModel;
+import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
@@ -31,7 +31,7 @@ public abstract class ClientPoliceBoxVariant extends ClientExteriorVariantSchema
     }
 
     @Override
-    public ExteriorModel model() {
+    public SimpleExteriorModel model() {
         return new PoliceBoxModel(PoliceBoxModel.getTexturedModelData().createModel());
     }
 

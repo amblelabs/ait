@@ -8,7 +8,6 @@ public interface ITardisSource extends IFluidSource {
     @Override
     default double level() {
         if (getTardisForFluid() == null) return 0;
-        if (!getTardisForFluid().fuel().hasPower()) return 0;
 
         return getTardisForFluid().fuel().getCurrentFuel();
     }

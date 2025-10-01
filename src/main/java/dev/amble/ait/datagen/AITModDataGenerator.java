@@ -794,6 +794,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.save_waypoint", "Save Waypoint");
         provider.addTranslation("control.ait.load_waypoint", "Load Waypoint");
         provider.addTranslation("control.ait.load_waypoint.error", "Cartridge contains no waypoint");
+        provider.addTranslation("control.ait.load_waypoint.no_cartridge", "No cartridge in port");
         provider.addTranslation("control.ait.increment", "Increment");
         provider.addTranslation("control.ait.x", "X");
         provider.addTranslation("control.ait.y", "Y");
@@ -829,6 +830,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.animateConsole", "Animate console?");
         provider.addTranslation("yacl3.config.ait:client.animateDoors", "Animate doors?");
         provider.addTranslation("yacl3.config.ait:client.temperatureType", "Temperature type");
+        provider.addTranslation("yacl3.config.ait:client.engineLoopVolume", "Engine Loop Volume");
+        provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.celsius", "Celsius (°C)");
+        provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.fahrenheit", "Fahrenheit (°F)");
+        provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.kelvin", "Kelvin (K)");
 
         provider.addTranslation("text.autoconfig.aitconfig.category.client", "Client");
         provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.SHOW_EXPERIMENTAL_WARNING", "Show Experimental Warning");
@@ -885,6 +890,12 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItems.GALLIFREY_FALLS_PAINTING, "Painting");
         provider.addTranslation(AITItems.TRENZALORE_PAINTING, "Painting");
         provider.addTranslation(AITItems.HAMMER, "Mallet");
+        provider.addTranslation(AITItems.FOOD_CUBE, "Food Cube");
+        provider.addTranslation(AITItems.OVERCHARGED_FOOD_CUBE, "Overcharged Food Cube");
+        provider.addTranslation("ait.foodmachine.mode.food_cubes", "Food Cubes");
+        provider.addTranslation("ait.foodmachine.mode.drinks", "Drinks");
+        provider.addTranslation("ait.foodmachine.mode.overcharged_food_cubes", "Overcharged Food Cubes");
+        provider.addTranslation("ait.foodmachine.mode.refreshement_set_to", "Refreshment set to: %s!");
         provider.addTranslation("ait.item.drink.mug_empty", "Empty Mug");
         provider.addTranslation("ait.item.drink.hot_cocoa", "Hot Cocoa");
         provider.addTranslation("ait.item.drink.tea", "Tea");
@@ -975,6 +986,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("sonic.ait.singularity", "Singularity");
         provider.addTranslation("sonic.ait.candy_cane", "Candy Cane");
         provider.addTranslation("sonic.ait.type_100", "Frontier");
+        provider.addTranslation("sonic.ait.portal_gun", "Portal Gun");
 
         // Consoles
         provider.addTranslation("console.ait.variant_label", "Console Type: ");
@@ -1028,6 +1040,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITBlocks.CABLE_BLOCK, "Artron Cable");
         provider.addTranslation(AITBlocks.FULL_CABLE_BLOCK, "Full Artron Cable");
         provider.addTranslation(AITBlocks.GENERIC_SUBSYSTEM, "Generalized Subsystem Core");
+        provider.addTranslation(AITBlocks.FOOD_MACHINE, "Food Machine");
 
         // Block Tooltips
         provider.addTranslation("block.ait.fabricator.tooltip.use", "(Place on top of a Smithing Table)");
@@ -1110,6 +1123,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.telepathic.success", "Destination Found");
         provider.addTranslation("tardis.message.control.telepathic.failed", "Destination Not Found");
         provider.addTranslation("tardis.message.control.telepathic.choosing", "The TARDIS is choosing...");
+        provider.addTranslation("tardis.message.control.engine_overdrive.primed", "Dump Artron? Press again to confirm.");
+        provider.addTranslation("tardis.message.control.engine_overdrive.insufficient_fuel", "ERROR, TARDIS REQUIRES AT LEAST 25K ARTRON TO EXECUTE THIS ACTION.");
+        provider.addTranslation("tardis.message.control.engine_overdrive.dumping_artron", "DUMPING ARTRON");
+        provider.addTranslation("tardis.message.control.engine_overdrive.engines_overloaded", "ARTRON DUMPED, ENGINES OVERLOADED, TRIGGERING EMERGENCY ARTRON RELEASE");
         provider.addTranslation("tardis.message.interiorchange.success", "%s has grown to %d");
         provider.addTranslation("tardis.message.landingpad.adjust", "Adjusting to landing pad..");
         provider.addTranslation("tardis.message.self_destruct.warning", "SELF DESTRUCT INITIATED | ABORT SHIP");
@@ -1182,12 +1199,12 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("achievement.ait.title.feed_power_converter", "What are you doing, Doc?");
         provider.addTranslation("achievement.ait.description.feed_power_converter", "Use food on the power converter.");
         provider.addTranslation("achievement.ait.title.attack_eyebrows", "Attack Eyebrows");
-        provider.addTranslation("achievement.ait.description.attack_eyebrows", "Its a elevator!");
+        provider.addTranslation("achievement.ait.description.attack_eyebrows", "It's an elevator!");
         provider.addTranslation("achievement.ait.title.pui", "Piloting under the influence");
         provider.addTranslation("achievement.ait.description.pui", "Consume Zeiton Dust while the TARDIS is in flight.");
         provider.addTranslation("achievement.ait.title.bonding", "I think it's starting to trust you.");
         provider.addTranslation("achievement.ait.description.bonding", "Reach 'Pilot' loyalty for the first time.");
-        provider.addTranslation("achievement.ait.title.owner_ship", "It trusts you now worth it right?");
+        provider.addTranslation("achievement.ait.title.owner_ship", "It trusts you now. Worth it, right?");
         provider.addTranslation("achievement.ait.description.owner_ship", "Reach 'Owner' loyalty for the first time.");
         provider.addTranslation("achievement.ait.title.enable_subsystem", "Time-Space Engineer");
         provider.addTranslation("achievement.ait.description.enable_subsystem", "Enable a subsystem.");
@@ -1414,6 +1431,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         // Alarms
         provider.addTranslation("tardis.message.alarm.crashing", "System Alert: TARDIS is experiencing a critical failure.");
+        provider.addTranslation("tardis.message.alarm.hostile_presence", "System Alert: Hostile presence detected.");
 
         // Security Settings Menu
         provider.addTranslation("screen.ait.sonic.button", "> Sonic Settings");
@@ -1449,6 +1467,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("command.ait.data.set", "Set value %s to '%s'");
         provider.addTranslation("command.ait.data.fail",
                 "Can't get value of a property named %s, because component %s is not keyed!");
+        provider.addTranslation("command.ait.list.tardises", "TARDISes");
+        provider.addTranslation("command.ait.list.pattern.error", "Bad pattern '%s'!");
+        provider.addTranslation("command.ait.this.not_found", "Not in TARDIS interior, or no linked item.");
 
         // Rift Chunk Tracking
         provider.addTranslation("riftchunk.ait.tracking", "Rift Tracking");

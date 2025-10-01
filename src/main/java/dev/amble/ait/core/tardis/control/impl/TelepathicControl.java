@@ -291,7 +291,7 @@ public class TelepathicControl extends Control {
     }
 
     @Override
-    public long getDelayLength() {
+    public long getDelayLength(Tardis tardis) {
         return 120;
     }
 
@@ -306,7 +306,7 @@ public class TelepathicControl extends Control {
             BlockPos newPos = pos != null ? pos.getFirst() : null;
             if (newPos != null) {
                 tardis.travel().forceDestination(cached -> cached.pos(newPos.withY(75)));
-                tardis.removeFuel(500 * tardis.travel().getHammerUses());
+                tardis.removeFuel(500 * tardis.travel().instability());
                 player.sendMessage(Text.translatable("tardis.message.control.telepathic.success"), true);
             } else {
                 player.sendMessage(Text.translatable("tardis.message.control.telepathic.failed"), true);

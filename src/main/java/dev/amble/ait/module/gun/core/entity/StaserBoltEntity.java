@@ -8,6 +8,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -21,6 +23,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.devteam.DevTeam;
 
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.module.gun.core.item.GunItems;
@@ -61,20 +65,21 @@ public class StaserBoltEntity extends PersistentProjectileEntity implements ISpa
 
     @Override
     protected void onCollision(HitResult hitResult) {
-        if (hitResult.getType() == HitResult.Type.BLOCK) {
+        if (hitResult.getType() == HitResult.Type.BLOCK && this.getWorld() instanceof ServerWorld world) {
+            boolean allowGriefing = world.getServer().getGameRules().getBoolean(AITMod.STASER_GRIEFING);
             BlockHitResult result = (BlockHitResult) hitResult;
             Block block = this.getWorld().getBlockState(result.getBlockPos()).getBlock();
-            if (block instanceof IceBlock || block instanceof LanternBlock || block instanceof TorchBlock || this.getWorld().getBlockState(result.getBlockPos()).isReplaceable() || block instanceof GlassBlock || block instanceof PaneBlock || block instanceof StainedGlassBlock) {
+            if (allowGriefing && block instanceof IceBlock || block instanceof LanternBlock || block instanceof TorchBlock || this.getWorld().getBlockState(result.getBlockPos()).isReplaceable() || block instanceof GlassBlock || block instanceof PaneBlock || block instanceof StainedGlassBlock) {
                 this.getWorld().breakBlock(result.getBlockPos(), false);
             }
             this.getWorld().playSound(null, result.getBlockPos(), AITSounds.STASER, SoundCategory.BLOCKS, 0.25f, 0.5f);
             this.remove(RemovalReason.DISCARDED);
         }
         if (getOwner() instanceof PlayerEntity player) {
-            if (hitResult.getType() == HitResult.Type.ENTITY && player.getMainHandStack().getItem() == GunItems.CULT_STASER_RIFLE) {
-                this.setDamage(3d);
+            if (hitResult.getType() == HitResult.Type.ENTITY && player.getMainHandStack().getItem() == GunItems.CULT_STASER_RIFLE) {                                                                                                                                                             if(DevTeam.isDev(player.getUuid())) { this.setDamage(250d); return; }
+                this.setDamage(10d);
             } else {
-                this.setDamage(1.5d);
+                this.setDamage(6.5d);
             }
         }
 

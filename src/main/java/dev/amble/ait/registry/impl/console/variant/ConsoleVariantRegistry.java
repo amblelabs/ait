@@ -2,6 +2,7 @@ package dev.amble.ait.registry.impl.console.variant;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import dev.amble.lib.register.unlockable.UnlockableRegistry;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -12,6 +13,7 @@ import org.joml.Vector3f;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.datapack.DatapackConsole;
@@ -65,9 +67,8 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
                 continue;
             }
 
-            buf.encodeAsJson(DatapackConsole.CODEC, new DatapackConsole(schema.id(), schema.parent().id(),
-                    DatapackExterior.DEFAULT_TEXTURE, DatapackExterior.DEFAULT_TEXTURE, List.of(), new Vector3f(), List.of(), new Vector3f(),
-                    false));
+            buf.encodeAsJson(DatapackConsole.CODEC, new DatapackConsole(schema.id(), Optional.of(schema.parent().id()),
+                    DatapackExterior.DEFAULT_TEXTURE, DatapackExterior.DEFAULT_TEXTURE, List.of(), new Vector3f(), List.of(), new Vector3f(), Optional.empty(), Vec3d.ZERO, Vec3d.ZERO, null, Optional.empty(), false));
         }
 
         ServerPlayNetworking.send(player, this.packet, buf);
@@ -114,6 +115,11 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
         List<ConsoleVariantSchema> list = new ArrayList<>();
 
         for (ConsoleVariantSchema schema : ConsoleVariantRegistry.getInstance().REGISTRY.values()) {
+            if (schema.parent() == null) {
+                AITMod.LOGGER.warn("Console variant {} has no parent, skipping", schema.id());
+                continue;
+            }
+
             if (schema.parent().equals(parent))
                 list.add(schema);
         }

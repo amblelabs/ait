@@ -1,13 +1,17 @@
 package dev.amble.ait.core.tardis.handler.travel;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Optional;
+import java.util.UUID;
 
+import dev.amble.ait.core.tardis.control.impl.EngineOverloadControl;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
+import dev.drtheo.scheduler.api.task.Task;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -50,6 +54,10 @@ import dev.amble.ait.data.Exclude;
 
 public final class TravelHandler extends AnimatedTravelHandler implements CrashableTardisTravel {
 
+    private static final HashMap<UUID, Boolean> ENGINE_OVERLOAD_ARMED = new HashMap<>();
+    private static final HashMap<UUID, Task<?>> ENGINE_OVERLOAD_CONFIRMATION_TIMER = new HashMap<>();
+    private static final long CONFIRMATION_TIME = 20 * 5;   //in ticks
+
     @Exclude
     private boolean travelCooldown;
 
@@ -67,6 +75,12 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
                 return TardisEvents.Interaction.PASS;
 
             TravelHandler travel = tardis.travel();
+
+            // Destination world locked, diverting TARDIS back to previous world (but preserving the destination coordinates).
+            if (!LockedDimensionRegistry.getInstance().isUnlocked(tardis, travel.destination().getWorld())) {
+                CachedDirectedGlobalPos destinationCoordsButPreviousWorld = travel.destination().world(travel.previousPosition().getWorld());
+                travel.forceDestination(destinationCoordsButPreviousWorld);
+            }
 
             return (TardisUtil.isInteriorEmpty(tardis) && !travel.leaveBehind().get()) || travel.autopilot() || travel.speed() == 0
                     ? TardisEvents.Interaction.SUCCESS : TardisEvents.Interaction.PASS;
@@ -108,6 +122,12 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
                 tardis.travel().setCrashing(false);
         });
 
+        TardisEvents.USE_CONTROL.register((control, tardis, player, world, console, leftClick) -> {
+            if (!(control instanceof EngineOverloadControl)) {
+                disarmEngineOverload(tardis.getUuid());
+            }
+        });
+
         if (EnvType.CLIENT == FabricLoader.getInstance().getEnvironmentType()) initializeClient();
     }
 
@@ -123,6 +143,26 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
                 });
             });
         });
+    }
+
+    public static void armEngineOverload(UUID tardisID, ServerWorld serverWorld) {
+        ENGINE_OVERLOAD_ARMED.put(tardisID, true);
+        ENGINE_OVERLOAD_CONFIRMATION_TIMER.put(
+                tardisID,
+                Scheduler.get().runTaskLater(() -> ENGINE_OVERLOAD_ARMED.put(tardisID, false), TaskStage.endWorldTick(serverWorld), TimeUnit.TICKS, CONFIRMATION_TIME)
+        );
+    }
+
+    public static void disarmEngineOverload(UUID tardisID) {
+        ENGINE_OVERLOAD_ARMED.remove(tardisID);
+        Task<?> confirmationTimer = ENGINE_OVERLOAD_CONFIRMATION_TIMER.get(tardisID);
+
+        if (confirmationTimer != null)
+            confirmationTimer.cancel();
+    }
+
+    public static boolean isEngineOverloadArmed(UUID tardisID) {
+        return ENGINE_OVERLOAD_ARMED.getOrDefault(tardisID, false);
     }
 
     public TravelHandler() {
@@ -180,8 +220,14 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     public void postInit(InitContext context) {
         super.postInit(context);
 
-        if (this.isServer() && context.created())
+        if (!this.isServer()) return;
+
+        if (context.created())
             this.placeExterior(true);
+
+        // FIXME: exterior falling issues :(
+        if (this.vGroundSearch.get() == SafePosSearch.Kind.NONE)
+            this.vGroundSearch.set(SafePosSearch.Kind.MEDIAN);
     }
 
     public void deleteExterior() {
@@ -378,7 +424,8 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         this.finishRemat();
 
         this.position().getWorld().playSound(null, this.position().getPos(), AITSounds.LAND_CRASH,
-                SoundCategory.AMBIENT);
+                SoundCategory.AMBIENT, AITMod.CONFIG.crashSoundVolume, 1f);
+
         this.tardis.getDesktop().playSoundAtEveryConsole(AITSounds.ABORT_FLIGHT, SoundCategory.AMBIENT);
 
         PacketByteBuf buf = PacketByteBufs.create();
@@ -415,7 +462,11 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
             return Optional.of(this.queueFor(State.LANDED));
         }
 
-        final CachedDirectedGlobalPos finalPos = result.value().orElse(initialPos);
+        // If the destination world is locked, crash in previous world.
+        boolean isDestinationUnlocked = LockedDimensionRegistry.getInstance().isUnlocked(this.tardis, this.destination().getWorld());
+        final CachedDirectedGlobalPos finalPos = isDestinationUnlocked
+                ? result.value().orElse(initialPos)
+                : this.tardis.travel().destination().world(this.tardis.travel().previousPosition().getWorld());
 
         this.setState(State.MAT);
         this.waiting = true;

@@ -61,14 +61,14 @@ public class AITBlocks extends BlockContainer {
 
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     @NoEnglish
-    public static final Block LANDING_PAD = new LandingPadBlock(FabricBlockSettings.create().nonOpaque().requiresTool()
+    public static final Block LANDING_PAD = new LandingPadBlock(FabricBlockSettings.create().requiresTool()
             .instrument(Instrument.BASEDRUM).strength(0.5F, 6.0F).pistonBehavior(PistonBehavior.IGNORE));
 
     @NoEnglish
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     public static final Block ENGINE_BLOCK = new EngineBlock(ABlockSettings.create()
             .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).requiresTool()
-            .instrument(Instrument.BASEDRUM).strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.IGNORE));
+            .instrument(Instrument.BASEDRUM).nonOpaque().strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.IGNORE));
     @PickaxeMineable
     public static final Block CONSOLE_GENERATOR = new ConsoleGeneratorBlock(
             FabricBlockSettings.create().nonOpaque().noBlockBreakParticles().requiresTool().strength(1.5F)
@@ -76,7 +76,7 @@ public class AITBlocks extends BlockContainer {
     @PickaxeMineable
     @NoEnglish
     public static final Block ARTRON_COLLECTOR_BLOCK = new ArtronCollectorBlock(
-            FabricBlockSettings.create().nonOpaque().noBlockBreakParticles().requiresTool().strength(1F)
+            FabricBlockSettings.create().noBlockBreakParticles().requiresTool().strength(1F)
                     .instrument(Instrument.BANJO).pistonBehavior(PistonBehavior.IGNORE));
 
     // Coral Blocks
@@ -173,7 +173,13 @@ public class AITBlocks extends BlockContainer {
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     @NoEnglish
     public static final Block GENERIC_SUBSYSTEM = new GenericSubSystemBlock(ABlockSettings.create()
-            .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).nonOpaque()
+            .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR))
+            .requiresTool().instrument(Instrument.COW_BELL).strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
+
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
+    @NoEnglish
+    public static final Block FOOD_MACHINE = new FoodMachineBlock(ABlockSettings.create()
+            .itemSettings(new AItemSettings().group(AITItemGroups.MAIN)).nonOpaque()
             .requiresTool().instrument(Instrument.COW_BELL).strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
 
     @NoBlockItem
@@ -239,8 +245,8 @@ public class AITBlocks extends BlockContainer {
 
     @NoEnglish
     public static final Block FULL_CABLE_BLOCK = new FullCableBlock(ABlockSettings.create()
-            .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).nonOpaque()
-            .instrument(Instrument.GUITAR).strength(1.5F, 6.0F));
+            .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).instrument(Instrument.GUITAR)
+            .strength(1.5F, 6.0F));
 
     public static List<Block> get() {
         List<Block> list = new ArrayList<>();

@@ -23,7 +23,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.WorldUtil;
 
-public class RenaissanceConsoleModel extends ConsoleModel {
+public class RenaissanceConsoleModel extends SimpleConsoleModel {
 
     private final ModelPart console;
 

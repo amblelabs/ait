@@ -4,8 +4,6 @@ import dev.amble.lib.data.DirectedBlockPos;
 import net.fabricmc.fabric.api.util.TriState;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -13,7 +11,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -24,7 +21,6 @@ import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.Exclude;
@@ -241,15 +237,6 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         this.setDoorState(DoorState.CLOSED);
     }
 
-    public static boolean removeWaterlogged(Tardis tardis) {
-        BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
-        ServerWorld world = tardis.asServer().world();
-        BlockState blockState = world.getBlockState(pos);
-
-        return world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, false),
-                Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
-    }
-
     private void setDoorState(DoorState newState) {
         if (this.locked() && newState != DoorState.CLOSED)
             return;
@@ -263,7 +250,6 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
                 TardisEvents.DOOR_OPEN.invoker().onOpen(tardis());
 
             if (newState == DoorState.CLOSED) {
-                removeWaterlogged(this.tardis);
                 TardisEvents.DOOR_CLOSE.invoker().onClose(tardis());
             }
         }

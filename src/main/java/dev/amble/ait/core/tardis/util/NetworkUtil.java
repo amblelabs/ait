@@ -58,6 +58,8 @@ public class NetworkUtil {
     }
 
     public static void sendToInterior(ServerTardis tardis, Identifier id, PacketByteBuf buf) {
+        if (!tardis.hasWorld()) return;
+        
         for (ServerPlayerEntity player : tardis.world().getPlayers()) {
             send(player, id, buf);
         }
@@ -114,7 +116,7 @@ public class NetworkUtil {
     }
 
     public static Stream<ServerPlayerEntity> getSubscribedPlayers(ServerTardis tardis) {
-        Stream<ServerPlayerEntity> result = tardis.world().getPlayers().stream();
+        Stream<ServerPlayerEntity> result = tardis.hasWorld() ? tardis.world().getPlayers().stream() : Stream.empty();
         CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
 
         if (exteriorPos == null || exteriorPos.getWorld() == null)
@@ -127,13 +129,12 @@ public class NetworkUtil {
     /**
      * plays a sound, ignoring whether it exists or not.
      */
-    public static void playSound(RegistryKey<World> worldKey, BlockPos pos, Identifier soundId, SoundCategory category) {
+    public static void playSound(RegistryKey<World> worldKey, BlockPos pos, Identifier soundId, SoundCategory category, float volume) {
         if (!ServerLifecycleHooks.isServer()) return;
 
         RegistryEntry<SoundEvent> soundEntry = RegistryEntry.of(SoundEvent.of(soundId));
         long seed = ServerLifecycleHooks.get().getOverworld().getRandom().nextLong();
 
-        final float distance = 8f; // default distance for exterior sounds
         ServerLifecycleHooks.get()
                 .getPlayerManager()
                 .sendToAround(
@@ -141,9 +142,9 @@ public class NetworkUtil {
                         pos.getX(),
                         pos.getY(),
                         pos.getZ(),
-                        distance,
+                        volume > 1.0F ? 16.0F * volume : 16.0F,
                         worldKey,
-                        new PlaySoundS2CPacket(soundEntry, category, pos.getX(), pos.getY(), pos.getZ(), 1f, 1f, seed)
+                        new PlaySoundS2CPacket(soundEntry, category, pos.getX(), pos.getY(), pos.getZ(), volume, 1f, seed)
                 );
     }
 

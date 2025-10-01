@@ -13,8 +13,6 @@ import dev.drtheo.multidim.api.WorldBlueprint;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -48,26 +46,27 @@ public class TardisServerWorld extends MultiDimServerWorld {
 
     public TardisServerWorld(WorldBlueprint blueprint, MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey<World> worldKey, DimensionOptions dimensionOptions, WorldGenerationProgressListener worldGenerationProgressListener, List<Spawner> spawners, @Nullable RandomSequencesState randomSequencesState, boolean created) {
         super(blueprint, server, workerExecutor, session, properties, worldKey, dimensionOptions, worldGenerationProgressListener, spawners, randomSequencesState, created);
+        this.setMobSpawnOptions(false, false);
     }
 
     @Override
     public void tick(BooleanSupplier shouldKeepTicking) {
-        if (this.tardis != null && this.tardis.shouldTick()) {
+        if (this.shouldTick()) {
             super.tick(shouldKeepTicking);
         }
+    }
+
+    public boolean shouldTick() {
+        return this.tardis != null && (
+                !this.getPlayers().isEmpty()
+                || this.tardis.interiorChanging().queued().get()
+                || this.tardis.getDesktop().isChanging()
+        );
     }
 
     @Override
     public String toString() {
         return "Tardis" + super.toString();
-    }
-
-    @Override
-    public boolean spawnEntity(Entity entity) {
-        if (entity instanceof ItemEntity && this.tardis.interiorChangingHandler().regenerating().get())
-            return false;
-
-        return super.spawnEntity(entity);
     }
 
     @Override
@@ -96,12 +95,10 @@ public class TardisServerWorld extends MultiDimServerWorld {
         return created;
     }
 
-    public static TardisServerWorld load(ServerTardis tardis) {
-        long start = System.currentTimeMillis();
+    public static TardisServerWorld getOrLoad(ServerTardis tardis) {
         MinecraftServer server = ServerLifecycleHooks.get();
-        MultiDim multidim = MultiDim.get(server);
-
         RegistryKey<World> key = keyForTardis(tardis);
+
         TardisServerWorld result = (TardisServerWorld) server.getWorld(key);
 
         if (result != null) {
@@ -109,7 +106,14 @@ public class TardisServerWorld extends MultiDimServerWorld {
             return result;
         }
 
-        result = (TardisServerWorld) multidim.load(AITDimensions.TARDIS_WORLD_BLUEPRINT, key);
+        return load(server, tardis);
+    }
+
+    public static TardisServerWorld load(MinecraftServer server, ServerTardis tardis) {
+        MultiDim multidim = MultiDim.get(server);
+
+        RegistryKey<World> key = keyForTardis(tardis);
+        TardisServerWorld result = (TardisServerWorld) multidim.load(AITDimensions.TARDIS_WORLD_BLUEPRINT, key);
 
         if (result == null) {
             MultiDimMod.LOGGER.info("Failed to load the sub-world, creating a new one instead");
@@ -118,7 +122,6 @@ public class TardisServerWorld extends MultiDimServerWorld {
             result.setTardis(tardis);
         }
 
-        MultiDimMod.LOGGER.info("Time taken to load sub-world: {}", System.currentTimeMillis() - start);
         return result;
     }
 

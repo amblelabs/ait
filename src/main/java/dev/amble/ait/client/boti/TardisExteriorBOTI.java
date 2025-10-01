@@ -10,7 +10,6 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.util.DyeColor;
@@ -32,7 +31,7 @@ import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 
 
 public class TardisExteriorBOTI extends BOTI {
-    public void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, SinglePartEntityModel frame, ModelPart mask, int light) {
+    public void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, ExteriorModel frame, ModelPart mask, int light) {
         if (!AITModClient.CONFIG.enableTardisBOTI)
             return;
 
@@ -165,7 +164,7 @@ public class TardisExteriorBOTI extends BOTI {
             float green = power ? alarms ? 0.3f : t : 0;
             float blue = power ? alarms ? 0.3f : u : 0;
 
-            ((ExteriorModel) frame).renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xf000f0,
+            frame.renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xf000f0,
                     OverlayTexture.DEFAULT_UV, red, green, blue, 1, true);
             botiProvider.draw();
         }

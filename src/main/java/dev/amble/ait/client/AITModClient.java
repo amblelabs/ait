@@ -1,16 +1,56 @@
 package dev.amble.ait.client;
 
+import static dev.amble.ait.AITMod.*;
+import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
+import static dev.amble.ait.core.item.PersonalityMatrixItem.colorToInt;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.UUID;
+
+import dev.amble.ait.client.commands.DebugCommand;
+import dev.amble.lib.register.AmbleRegistries;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.*;
+import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.block.DoorBlock;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.item.ModelPredicateProviderRegistry;
+import net.minecraft.client.particle.EndRodParticle;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.minecraft.client.render.entity.model.SinglePartEntityModel;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.RotationPropertyHelper;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.LightType;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.boti.*;
 import dev.amble.ait.client.commands.ConfigCommand;
 import dev.amble.ait.client.config.AITClientConfig;
 import dev.amble.ait.client.data.ClientLandingManager;
+import dev.amble.ait.client.models.AnimatedModel;
 import dev.amble.ait.client.models.boti.BotiPortalModel;
 import dev.amble.ait.client.models.decoration.GallifreyFallsModel;
 import dev.amble.ait.client.models.decoration.PaintingFrameModel;
 import dev.amble.ait.client.models.decoration.RiftModel;
 import dev.amble.ait.client.models.decoration.TrenzalorePaintingModel;
-import dev.amble.ait.client.models.doors.DoorModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.overlays.ExteriorAxeOverlay;
 import dev.amble.ait.client.overlays.FabricatorOverlay;
@@ -114,10 +154,10 @@ public class AITModClient implements ClientModInitializer {
                 SonicRegistry.getInstance(),
                 DrinkRegistry.getInstance(),
                 ClientExteriorVariantRegistry.getInstance(),
-                ClientConsoleVariantRegistry.getInstance()
+                ClientConsoleVariantRegistry.getInstance(),
+                ClientDoorRegistry.getInstance()
         );
 
-        ClientDoorRegistry.init();
         ClientTardisManager.init();
 
         ModuleRegistry.instance().onClientInit();
@@ -135,6 +175,7 @@ public class AITModClient implements ClientModInitializer {
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             ConfigCommand.register(dispatcher);
+            DebugCommand.register(dispatcher);
         });
 
         AITKeyBinds.init();
@@ -218,7 +259,7 @@ public class AITModClient implements ClientModInitializer {
                         return;
 
                     String id = buf.readString();
-                    ConsoleTypeSchema type = ConsoleRegistry.REGISTRY.get(Identifier.tryParse(id));
+                    ConsoleTypeSchema type = ConsoleRegistry.getInstance().get(Identifier.tryParse(id));
                     BlockPos consolePos = buf.readBlockPos();
 
                     if (client.world.getBlockEntity(consolePos) instanceof ConsoleGeneratorBlockEntity console)
@@ -385,6 +426,8 @@ public class AITModClient implements ClientModInitializer {
                 GenericSubSystemRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.POWER_CONVERTER_BLOCK_TYPE,
                 PowerConverterRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.FOOD_MACHINE_BLOCK_ENTITY_TYPE,
+                FoodMachineRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ASTRAL_MAP, AstralMapRenderer::new);
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             BlockEntityRendererFactories.register(AITBlockEntityTypes.SNOW_GLOBE_BLOCK_ENTITY_TYPE,
@@ -497,7 +540,7 @@ public class AITModClient implements ClientModInitializer {
             ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
             if (tardis == null || tardis.getDesktop() == null) return;
             ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
-            DoorModel model = variant.getDoor().model();
+            AnimatedModel model = variant.getDoor().model();
             for (DoorBlockEntity door : BOTI.DOOR_RENDER_QUEUE) {
                 if (door == null) continue;
                 BlockPos pos = door.getPos();
@@ -511,7 +554,7 @@ public class AITModClient implements ClientModInitializer {
                     light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
                     TardisDoorBOTI.renderInteriorDoorBoti(tardis, door, variant, stack,
                             AITMod.id("textures/environment/tardis_sky.png"), model,
-                            BotiPortalModel.getTexturedModelData().createModel(), light);
+                            BotiPortalModel.getTexturedModelData().createModel(), light, context.tickDelta());
                 }
                 stack.pop();
             }

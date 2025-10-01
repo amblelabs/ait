@@ -7,11 +7,14 @@ import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
 
+// FIXME: god this is so stupid
+//   why does the client have to go through the trouble of finding every tardis in some radius
 public class ClientFlightHandler extends SoundHandler {
 
-    public static double MAX_DISTANCE = 16; // distance from console before the sound stops
+    public static final double MAX_DISTANCE = 16;
+
     public static FlightSoundPlayer FLIGHT;
-    public static FlightSoundPlayer EXTERIOR;
+    //public static FlightSoundPlayer EXTERIOR;
 
     public FlightSoundPlayer getFlightLoop(ClientTardis tardis) {
         if (FLIGHT == null)
@@ -20,12 +23,12 @@ public class ClientFlightHandler extends SoundHandler {
         return FLIGHT;
     }
 
-    public FlightSoundPlayer getExteriorLoop(ClientTardis tardis) {
+    /*public FlightSoundPlayer getExteriorLoop(ClientTardis tardis) {
         if (EXTERIOR == null)
             this.generate(tardis);
 
         return EXTERIOR;
-    }
+    }*/
 
     private InteriorFlightSound createFlightSound(ClientTardis tardis) {
         return new InteriorFlightSound(tardis.stats().getFlightEffects(), SoundCategory.BLOCKS);
@@ -38,24 +41,25 @@ public class ClientFlightHandler extends SoundHandler {
     private void generate(ClientTardis tardis) {
         if (FLIGHT == null)
             FLIGHT = createFlightSound(tardis);
-        if (EXTERIOR == null)
-            EXTERIOR = new ExteriorFlightSound(tardis.stats().getFlightEffects(), SoundCategory.BLOCKS);
+
+        //if (EXTERIOR == null)
+        //    EXTERIOR = new ExteriorFlightSound(tardis.stats().getFlightEffects(), SoundCategory.BLOCKS);
 
         FLIGHT.refresh();
-        EXTERIOR.refresh();
+        //EXTERIOR.refresh();
 
-        this.ofSounds(FLIGHT, EXTERIOR);
+        this.ofSounds(FLIGHT/*, EXTERIOR*/);
     }
 
     private void playFlightSound(ClientTardis tardis) {
         this.startIfNotPlaying(this.getFlightLoop(tardis));
-        this.startIfNotPlaying(this.getExteriorLoop(tardis));
+        //this.startIfNotPlaying(this.getExteriorLoop(tardis));
 
         FlightSoundPlayer interior = this.getFlightLoop(tardis);
         interior.tick();
 
-        FlightSoundPlayer exterior = this.getExteriorLoop(tardis);
-        exterior.tick();
+        //FlightSoundPlayer exterior = this.getExteriorLoop(tardis);
+        //exterior.tick();
 
         if (interior.isDirty()) {
             interior.setDirty(false);
@@ -68,7 +72,7 @@ public class ClientFlightHandler extends SoundHandler {
             this.generate(tardis);
         }
 
-        if (exterior.isDirty()) {
+        /*if (exterior.isDirty()) {
             exterior.setDirty(false);
 
             if (exterior.getData().id().equals(tardis.stats().getFlightEffects().id())) return;
@@ -77,7 +81,7 @@ public class ClientFlightHandler extends SoundHandler {
             MinecraftClient.getInstance().getSoundManager().stop(EXTERIOR);
             EXTERIOR = null;
             this.generate(tardis);
-        }
+        }*/
     }
 
     private boolean shouldPlaySounds(ClientTardis tardis) {
@@ -93,7 +97,7 @@ public class ClientFlightHandler extends SoundHandler {
         ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
 
         if (tardis == null)
-            tardis = ClientTardisUtil.getNearestTardis(ClientFlightHandler.MAX_DISTANCE).orElse(null);
+            tardis = ClientTardisUtil.getNearestTardis(MAX_DISTANCE).orElse(null);
 
         if (tardis == null) return;
 

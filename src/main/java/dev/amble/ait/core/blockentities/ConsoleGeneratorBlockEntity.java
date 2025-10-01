@@ -128,7 +128,7 @@ public class ConsoleGeneratorBlockEntity extends FluidLinkBlockEntity {
             this.setConsoleSchema(ConsoleRegistry.HARTNELL.id());
         }
 
-        return ConsoleRegistry.REGISTRY.get(type);
+        return ConsoleRegistry.getInstance().get(type);
     }
 
     public void setConsoleSchema(Identifier type) {

@@ -198,10 +198,11 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
 
         cached.init(TravelHandlerBase.server());
 
-        WorldBorder border = cached.getWorld().getWorldBorder();
         BlockPos pos = cached.getPos();
+        WorldBorder targetBorder = new WorldBorder();
+        targetBorder.setSize(cached.getWorld().getWorldBorder().getSize() - 3);
 
-        cached = border.contains(pos) ? cached : cached.pos(border.clamp(pos.getX(), pos.getY(), pos.getZ()));
+        cached = targetBorder.contains(pos) ? cached : cached.pos(targetBorder.clamp(pos.getX(), pos.getY(), pos.getZ()));
 
         // TODO what is the point of this? the only time this should be done is on landing - unless it gets optimized enough to run here. - Loqor
         //cached = WorldUtil.locateSafe(cached, this.vGroundSearch.get(), this.hGroundSearch.get());

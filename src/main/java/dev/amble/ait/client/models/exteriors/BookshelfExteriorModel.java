@@ -4,9 +4,9 @@ package dev.amble.ait.client.models.exteriors; // Made with Blockbench 4.10.1
 
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.client.AITModClient;
@@ -14,7 +14,7 @@ import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
-public class BookshelfExteriorModel extends ExteriorModel {
+public class BookshelfExteriorModel extends SimpleExteriorModel {
     private final ModelPart bookshelf;
 
     public BookshelfExteriorModel(ModelPart root) {
@@ -191,11 +191,6 @@ public class BookshelfExteriorModel extends ExteriorModel {
     }
 
     @Override
-    public Animation getAnimationForDoorState(DoorHandler.AnimationDoorState state) {
-        return Animation.Builder.create(0).build();
-    }
-
-    @Override
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
         DoorHandler door = tardis.door();
 
@@ -211,7 +206,8 @@ public class BookshelfExteriorModel extends ExteriorModel {
       if (isBOTI) {
           matrices.push();
             matrices.scale(1F, 1F, 1F);
-           matrices.translate(0.04, -1.26f, -0.36);
+           matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180f));
+           matrices.translate(0.04f, -1.28f, -0.10f);
            this.bookshelf.getChild("left_door").render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
            this.bookshelf.getChild("right_door").render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
             matrices.pop();

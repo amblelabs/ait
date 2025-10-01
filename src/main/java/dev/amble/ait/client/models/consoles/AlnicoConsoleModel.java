@@ -24,7 +24,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.WorldUtil;
 
-public class AlnicoConsoleModel extends ConsoleModel {
+public class AlnicoConsoleModel extends SimpleConsoleModel {
     private final ModelPart alnico;
 
     public AlnicoConsoleModel(ModelPart root) {

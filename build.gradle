@@ -1,5 +1,5 @@
 plugins {
-    id "fabric-loom" version "1.9-SNAPSHOT"
+    id "fabric-loom" version "$loom_version"
     id "maven-publish"
 
     id "com.diffplug.spotless" version "6.20.0"
@@ -35,6 +35,9 @@ repositories {
 
     // K9
     maven { url "https://api.modrinth.com/maven" }
+
+    // JEI
+    maven { url "https://maven.blamejared.com/" }
 
     // Scheduler, Queue, MultiDim, AutoJSON
     maven { url "https://theo.is-a.dev/maven/" }
@@ -73,38 +76,51 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    include(implementation "net.objecthunter:exp4j:0.4.8")
-
-    // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    implementation 'com.google.code.gson:gson:2.8.9'
 
-    modApi("com.github.qouteall:GravityChanger:${project.gravity_version}") {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
+    // Misc (non-MC) libraries
+    include(implementation "net.objecthunter:exp4j:${project.exp4j_version}")
+    implementation "com.google.code.gson:gson:${project.gson_version}"
 
+    // MC libraries
     modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
-    modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 
-    modCompileOnlyApi "maven.modrinth:k9-mod:${project.k9_version}"
-    modCompileOnlyApi "me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"
-
-    // ip
     modImplementation("com.github.iPortalTeam.ImmersivePortalsMod:imm_ptl_core:${project.immersive_portals_version}")
     modImplementation("com.github.iPortalTeam.ImmersivePortalsMod:q_misc_util:${project.immersive_portals_version}")
 
-    include(modImplementation("dev.drtheo:multidim:${project.multidim_version}")) {
+    // TODO: move these 3 to modkit so we don't have to re-export so many dependencies
+    modApi("dev.drtheo:multidim:${project.multidim_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+        transitive = true
+    }
+    modApi("dev.drtheo:scheduler:${project.scheduler_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+        transitive = true
+    }
+    modApi("dev.drtheo:queue:${project.queue_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+        transitive = true
+    }
+
+    modApi("com.github.amblelabs:modkit:v${project.amblekit_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+        transitive = true
+    }
+
+    // Compat
+    modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
+
+    modCompileOnly "maven.modrinth:k9-mod:${project.k9_version}"
+
+    modImplementation("mezz.jei:jei-${project.minecraft_version}-fabric-api:${project.jei_version}")
+    // Using Modrinth maven because JEI's official maven crashed with Yarn mappings
+    modRuntimeOnly("maven.modrinth:jei:${project.jei_version}")
+
+    modCompileOnly("com.github.qouteall:GravityChanger:${project.gravity_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
-    include(modImplementation("dev.drtheo:scheduler:${project.scheduler_version}")) {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
-    include(modImplementation("dev.drtheo:queue:${project.queue_version}")) {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
-    modImplementation("com.github.amblelabs:modkit:v${project.amblekit_version}") {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
+
+    modCompileOnly "me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"
 }
 
 processResources {
@@ -116,24 +132,38 @@ processResources {
     inputs.property "yacl_version", project.yacl_version
     filteringCharset "UTF-8"
 
+    exclude '.cache'
+
+    def expansionVars = [
+        "version": project.version,
+        "minecraft_version": project.minecraft_version,
+        "loader_version": project.loader_version,
+        "amblekit_version": project.amblekit_version,
+        "yacl_version": project.yacl_version
+    ]
+
     filesMatching("fabric.mod.json") {
-        expand "version": project.version,
-                "minecraft_version": project.minecraft_version,
-                "loader_version": project.loader_version,
-                "amblekit_version": project.amblekit_version,
-                "yacl_version": project.yacl_version
+        expand expansionVars
     }
 }
 
-def targetJavaVersion = 17
 tasks.withType(JavaCompile).configureEach {
-    // ensure that the encoding is set to UTF-8, no matter what the system default is
-    // this fixes some edge cases with sound characters not displaying correctly
-    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-    // If Javadoc is generated, this must be specified in that task too.
-    it.options.encoding = "UTF-8"
-    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible) {
-        it.options.release = targetJavaVersion
+    it.options.release = 17
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+jar {
+    inputs.property "archivesName", project.base.archivesName
+
+    // needed because inputs.properties.archivesName is not accessible configuration time
+    def archivesNameValue = project.base.archivesName
+
+    from("LICENSE") {
+        rename { "${it}_${archivesNameValue.get()}" }
     }
 }
 
@@ -151,8 +181,6 @@ spotless {
     }
 
     java {
-        //eclipse()
-
         removeUnusedImports()
         importOrder('java', 'javax', '', 'net.minecraft', group)
 
@@ -160,26 +188,6 @@ spotless {
         trimTrailingWhitespace()
 
         formatAnnotations()
-    }
-}
-
-java {
-    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
-    if (JavaVersion.current() < javaVersion) {
-        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-    }
-
-    archivesBaseName = project.base.archivesName.get()
-}
-
-jar {
-    from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}" }
-    }
-
-    // exclude assets if it's a beta dev build
-    if (System.hasProperty("BETA")) {
-        processResources.exclude("assets")
     }
 }
 
@@ -197,13 +205,5 @@ publishing {
         // Notice: This block does NOT have the same function as the block in the top level.
         // The repositories here will be used for publishing your artifact, not for
         // retrieving dependencies.
-    }
-}
-
-def gitBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
-
-tasks.processResources {
-    filesMatching("*.properties") {
-        expand(branch: gitBranch)
     }
 }
