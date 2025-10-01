@@ -19,10 +19,6 @@ public class MoodEventRegistry {
 
     static {
         events.add(new MoodEvent(tardis -> tardis.world().getPlayers().forEach(player -> {
-            player.sendMessage(Text.literal("yippe, content >0.5!"));
-        }), WORLD_LOADED, 1, Requires.biggerThan(Emotion.Type.CONTENT, 0.5f, 0.01f)));
-
-        events.add(new MoodEvent(tardis -> tardis.world().getPlayers().forEach(player -> {
             tardis.loyalty().subLevel(player, 1);
         }), WORLD_LOADED, 7, Requires.biggerThan(Emotion.Type.UPSET, 0.75f, 0.01f)));
 
