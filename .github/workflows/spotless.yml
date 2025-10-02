@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17 # adjust if needed
+          java-version: 21
 
       - name: Run Spotless Apply
         run: ./gradlew spotlessApply
