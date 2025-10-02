@@ -105,13 +105,13 @@ public class BOTIUtils {
             }
 
             for (BakedQuad quad : getModelFromBlock(container.state, pos, rand, chunkMap)) {
-                // Convert packed light into brightness factor (0.0–1.0)
-                float brightness = (float) container.light / 0xf000f0;
+                // Clamp brightness between 0.0 and 1.0
+                float brightness = Math.max(0.0f, Math.min(1.0f, (float) container.light / 0xf000f0));
 
-                // Apply brightness to base RGB values
-                float rLit = r - 1 + brightness;
-                float gLit = g - 1 + brightness;
-                float bLit = b - 1 + brightness;
+                // Apply brightness to base RGB values and clamp to [0, 1]
+                float rLit = Math.max(0.0f, Math.min(1.0f, r * brightness));
+                float gLit = Math.max(0.0f, Math.min(1.0f, g * brightness));
+                float bLit = Math.max(0.0f, Math.min(1.0f, b * brightness));
 
                 // putBulkData exists on BufferBuilder in Fabric mappings; parameters may vary by patch
                 buffer.quad(
@@ -121,7 +121,7 @@ public class BOTIUtils {
                         gLit,
                         bLit,
                         container.light,
-                        OverlayTexture.field_32953);
+                        OverlayTexture.DEFAULT_UV);
             }
 
             stack.pop();
@@ -136,73 +136,89 @@ public class BOTIUtils {
         return vbo;
     }
 
-    public static void updateChunkModel(AbstractPortalTile tileEntity) {
-        assert MinecraftClient.getInstance().world != null;
-        if (!MinecraftClient.getInstance().world.isClient()) return;
-        tileEntity.containers.clear();
-        tileEntity.blockEntities.clear();
+    public static void updateChunkModel(AbstractPortalBlockEntity blockEntity) {
+        if (blockEntity.getPos() == null) return;
+        if (blockEntity.getTargetWorld() == null) return;
+        if (blockEntity.getTargetPos() == null) return;
+        if (MinecraftClient.getInstance().world == null) return;
+
+        if(!blockEntity.containers.isEmpty()) blockEntity.containers.clear();
+        if(!blockEntity.blockEntities.isEmpty()) blockEntity.blockEntities.clear();
 
         PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeBlockPos(tileEntity.getPos());
-        buf.writeRegistryKey(tileEntity.targetWorld);
-        buf.writeBlockPos(tileEntity.getTargetPos());
+        buf.writeBlockPos(blockEntity.getPos());
+        buf.writeRegistryKey(blockEntity.getTargetWorld());
+        buf.writeBlockPos(blockEntity.getTargetPos());
+
         ClientPlayNetworking.send(TardisUtil.BOTI_REQUEST_CHUNK_C2S, buf);
 
-        tileEntity.lastRequestTime = MinecraftClient.getInstance().world.getTime();
+        blockEntity.lastRequestTime = MinecraftClient.getInstance().world.getTime();
     }
 
     public static boolean shouldRenderFace(
             BlockState state, BlockState neighbor, World level, BlockPos pos, Direction dir, BlockPos secondPos) {
-        if(state.isSolid() && neighbor.isSolid()) return false;
-        else return true;
+        return !state.isSolid() || !neighbor.isSolid();
     }
 
-    public static void Render(MatrixStack pose, VertexConsumerProvider buffer, AbstractPortalTile portal) {
-        long currentTime = MinecraftClient.getInstance().world.getTime();
+    public static void Render(MatrixStack matrixStack, VertexConsumerProvider buffer, AbstractPortalBlockEntity portal) {
 
-        pose.push();
+        matrixStack.push();
+        matrixStack.translate(-6, -6, -6);
 
-        // Move to center
-        pose.translate(-6, -6, -6);
-        if (currentTime - portal.lastUpdateTime >= 40) {
-            BOTIUtils.updateChunkModel(portal);
-            portal.lastUpdateTime = currentTime;
-        }
-
-        if (portal.MODEL_VBO == null) { // It'll be null the first time it's accessed, forcing a build
+        if (portal.MODEL_VBO == null) {
             portal.MODEL_VBO = BOTIUtils.buildModelVBO(portal.containers);
         } else {
-            pose.push();
+            matrixStack.push();
 
+            // Set up the correct shader
+            RenderSystem.setShader(GameRenderer::getPositionColorTexLightmapProgram);
+
+            // Set up shader lights
             assert GameRenderer.getPositionColorTexLightmapProgram() != null;
             RenderSystem.setupShaderLights(GameRenderer.getPositionColorTexLightmapProgram());
 
-            RenderSystem.setShader(GameRenderer::getPositionColorTexLightmapProgram);
-//            RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
-
+            // Enable depth test and disable culling
             RenderSystem.enableDepthTest();
             RenderSystem.disableCull();
 
-            portal.MODEL_VBO.bind();
-            portal.MODEL_VBO.draw(
-                    pose.peek().getPositionMatrix(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
-            VertexBuffer.unbind();
+            // Bind VBO and draw
+            try {
+                portal.MODEL_VBO.bind();
+                portal.MODEL_VBO.draw(matrixStack.peek().getPositionMatrix(),
+                        RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
+                VertexBuffer.unbind();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
-            pose.pop();
-        }
+            // Restore GL state
+            RenderSystem.enableCull();
+            RenderSystem.disableDepthTest();
+
+            matrixStack.pop();
+        };
 
         portal.blockEntities.forEach((pos, ent) -> {
-            pose.push();
-            pose.translate(pos.getX(), pos.getY(), pos.getZ());
+            matrixStack.push();
+            matrixStack.translate(pos.getX(), pos.getY(), pos.getZ());
             MinecraftClient.getInstance()
                     .getBlockEntityRenderDispatcher()
-                    .render(ent, MinecraftClient.getInstance().getTickDelta(), pose, buffer);
-            pose.pop();
+                    .render(ent, MinecraftClient.getInstance().getTickDelta(), matrixStack, buffer);
+            matrixStack.pop();
         });
-        pose.pop();
+        matrixStack.pop();
     }
 
-    public static void PortalChunkDataPacketS2C(ServerPlayerEntity player, AbstractPortalTile portalTile, World level) {
+    public static void updateMe(AbstractPortalBlockEntity portal) {
+        long currentTime = MinecraftClient.getInstance().world.getTime();
+
+        if (currentTime - portal.lastUpdateTime >= 120) {
+            BOTIUtils.updateChunkModel(portal);
+            portal.lastUpdateTime = currentTime;
+        }
+    }
+
+    public static void PortalChunkDataPacketS2C(ServerPlayerEntity player, AbstractPortalBlockEntity portalTile, World level) {
         BlockPos portalPos = portalTile.getPos();
         BlockPos targetPos = portalTile.getTargetPos();
 

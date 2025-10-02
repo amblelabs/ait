@@ -2,6 +2,7 @@ package dev.amble.ait.core.blockentities;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
+import dev.codiak.AbstractPortalBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -28,7 +29,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.event.GameEvent;
 
-import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITItems;
@@ -42,7 +42,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 
-public class DoorBlockEntity extends InteriorLinkableBlockEntity {
+public class DoorBlockEntity extends AbstractPortalBlockEntity {
 
     private DirectedBlockPos directedPos;
 
@@ -52,6 +52,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
     public static <T extends BlockEntity> void tick(World world, BlockPos pos, BlockState blockState, T tDoor) {
         DoorBlockEntity door = (DoorBlockEntity) tDoor;
+        door.tick();
 
         if (!(world instanceof ServerWorld serverWorld))
             return;

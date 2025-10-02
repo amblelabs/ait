@@ -1,5 +1,6 @@
 package dev.amble.ait.client.renderers.doors;
 
+import dev.codiak.BOTIUtils;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -80,6 +81,8 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
 
         if (this.variant.equals(ClientExteriorVariantRegistry.DOOM))
             texture = tardis.door().isOpen() ? DoomDoorModel.DOOM_DOOR_OPEN : DoomDoorModel.DOOM_DOOR;
+
+        BOTIUtils.Render(new MatrixStack(), vertexConsumers, entity);
 
         matrices.push();
         matrices.translate(0.5, 0, 0.5);

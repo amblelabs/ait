@@ -23,7 +23,7 @@ public class BotiChunkContainer {
     FluidState fluidState;
     final BlockPos pos;
     final int light;
-    boolean IsTile;
+    boolean isBlockEntity;
     boolean IsFluid;
     NbtCompound entityTag;
 
@@ -37,9 +37,9 @@ public class BotiChunkContainer {
     }
 
     public BotiChunkContainer(
-            World level, BlockState state, BlockPos pos, int light, boolean IsTile, NbtCompound tileTag) {
+            World level, BlockState state, BlockPos pos, int light, boolean isBlockEntity, NbtCompound tileTag) {
         this.state = state;
-        this.IsTile = IsTile;
+        this.isBlockEntity = isBlockEntity;
         this.entityTag = tileTag;
         this.pos = pos;
         this.light = light;
@@ -61,14 +61,14 @@ public class BotiChunkContainer {
         buf.writeVarInt(stateId);
         buf.writeVarInt(light);
         buf.writeBoolean(IsFluid);
-        buf.writeBoolean(IsTile);
+        buf.writeBoolean(isBlockEntity);
 
         if (IsFluid) {
             int fluidStateId = Fluid.STATE_IDS.getRawId(fluidState);
             buf.writeVarInt(fluidStateId);
         }
 
-        if (IsTile) {
+        if (isBlockEntity) {
             buf.writeNbt(level.getBlockEntity(pos).createNbtWithIdentifyingData());
         }
     }

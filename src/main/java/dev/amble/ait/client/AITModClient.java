@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 import dev.amble.lib.register.AmbleRegistries;
-import dev.codiak.AbstractPortalTile;
+import dev.codiak.AbstractPortalBlockEntity;
 import dev.codiak.BotiChunkContainer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -192,8 +192,9 @@ public class AITModClient implements ClientModInitializer {
                     BlockPos targetPos = buf.readBlockPos();
 
                     client.execute(() -> {
+
                         BlockEntity be = client.world.getBlockEntity(pos);
-                        if (be instanceof AbstractPortalTile portal) {
+                        if (be instanceof AbstractPortalBlockEntity portal) {
                             portal.setTargetWorld(level, targetPos, false);
                         }
                     });
@@ -206,7 +207,7 @@ public class AITModClient implements ClientModInitializer {
                     int index = buf.readInt();
                     int totalPackets = buf.readInt();
                     client.execute(() -> {
-                        if (client.world.getBlockEntity(pos) instanceof AbstractPortalTile portal)
+                        if (client.world.getBlockEntity(pos) instanceof AbstractPortalBlockEntity portal)
                             portal.updateChunkDataFromServer(data, index, totalPackets);
                     });
                 });

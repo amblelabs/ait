@@ -9,7 +9,7 @@ import java.util.UUID;
 import dev.amble.lib.container.RegistryContainer;
 import dev.amble.lib.register.AmbleRegistries;
 import dev.amble.lib.util.ServerLifecycleHooks;
-import dev.codiak.AbstractPortalTile;
+import dev.codiak.AbstractPortalBlockEntity;
 import dev.codiak.BOTIUtils;
 import dev.drtheo.multidim.MultiDim;
 import net.fabricmc.api.ModInitializer;
@@ -262,12 +262,12 @@ public class AITMod implements ModInitializer {
                     BlockPos targetPos = buf.readBlockPos();
                     server.execute(() -> {
                         if (player != null) {
-                            ServerWorld level = server.getWorld(targetDimension);
-                            if (level != null) {
+                            ServerWorld world = server.getWorld(targetDimension);
+                            if (world != null && player.getServerWorld().getBlockEntity(pos) instanceof AbstractPortalBlockEntity blockEntity) {
                                 BOTIUtils.PortalChunkDataPacketS2C(
                                         player,
-                                        (AbstractPortalTile) player.getServerWorld().getBlockEntity(pos),
-                                        level);
+                                        blockEntity,
+                                        world);
                             }
                         }
                     });
