@@ -6,13 +6,13 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.resource.ResourceType;
+import net.minecraft.sound.SoundEvents;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.sounds.ClientSoundManager;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.data.hum.DatapackHum;
 import dev.amble.ait.data.hum.Hum;
-import net.minecraft.sound.SoundEvents;
 
 public class HumRegistry extends SimpleDatapackRegistry<Hum> {
     private static final HumRegistry instance = new HumRegistry();

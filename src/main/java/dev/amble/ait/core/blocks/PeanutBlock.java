@@ -1,9 +1,10 @@
 package dev.amble.ait.core.blocks;
 
-import dev.amble.ait.core.tardis.util.TardisUtil;
 import net.minecraft.block.Block;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import dev.amble.ait.core.tardis.util.TardisUtil;
 
 public class PeanutBlock extends Block {
     private static final float EXPLOSION_POWER = 100;

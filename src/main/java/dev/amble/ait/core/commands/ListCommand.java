@@ -3,6 +3,10 @@ package dev.amble.ait.core.commands;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
+import java.util.Map;
+import java.util.function.Function;
+import java.util.regex.Pattern;
+
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -16,10 +20,6 @@ import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.util.TextUtil;
-
-import java.util.Map;
-import java.util.function.Function;
-import java.util.regex.Pattern;
 
 public class ListCommand {
 

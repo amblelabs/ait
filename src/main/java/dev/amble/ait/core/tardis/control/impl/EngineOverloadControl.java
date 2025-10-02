@@ -2,7 +2,6 @@ package dev.amble.ait.core.tardis.control.impl;
 
 import java.util.Random;
 
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
@@ -22,6 +21,7 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
 public class EngineOverloadControl extends Control {

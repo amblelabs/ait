@@ -1,6 +1,5 @@
 package dev.amble.ait.core.item;
 
-import dev.amble.ait.core.tardis.util.TardisUtil;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -28,6 +27,7 @@ import dev.amble.ait.core.blocks.PeanutBlock;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.tardis.util.TardisUtil;
 
 public class HammerItem extends SwordItem {
 
