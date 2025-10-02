@@ -9,6 +9,8 @@ import java.util.UUID;
 import dev.amble.lib.container.RegistryContainer;
 import dev.amble.lib.register.AmbleRegistries;
 import dev.amble.lib.util.ServerLifecycleHooks;
+import dev.codiak.AbstractPortalTile;
+import dev.codiak.BOTIUtils;
 import dev.drtheo.multidim.MultiDim;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
@@ -31,20 +33,16 @@ import net.minecraft.loot.LootPool;
 import net.minecraft.loot.LootTables;
 import net.minecraft.loot.entry.ItemEntry;
 import net.minecraft.loot.function.LootFunctionType;
-import net.minecraft.loot.function.SetNbtLootFunction;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.DefaultParticleType;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.*;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.GameRules;
+import net.minecraft.world.World;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.ProbabilityConfig;
 import net.minecraft.world.gen.feature.PlacedFeature;
@@ -256,6 +254,24 @@ public class AITMod implements ModInitializer {
             FlightCommand.register(dispatcher);
             SetDoorParticleCommand.register(dispatcher, registryAccess);
         }));
+
+        ServerPlayNetworking.registerGlobalReceiver(TardisUtil.BOTI_REQUEST_CHUNK_C2S,
+                (server, player, handler, buf, responseSender) -> {
+                    BlockPos pos = buf.readBlockPos();
+                    RegistryKey<World> targetDimension = RegistryKey.of(RegistryKeys.WORLD, buf.readIdentifier());
+                    BlockPos targetPos = buf.readBlockPos();
+                    server.execute(() -> {
+                        if (player != null) {
+                            ServerWorld level = server.getWorld(targetDimension);
+                            if (level != null) {
+                                BOTIUtils.PortalChunkDataPacketS2C(
+                                        player,
+                                        (AbstractPortalTile) player.getServerWorld().getBlockEntity(pos),
+                                        level);
+                            }
+                        }
+                    });
+                });
 
         ServerPlayNetworking.registerGlobalReceiver(TardisUtil.REGION_LANDING_CODE,
                 (server, player, handler, buf, responseSender) -> {

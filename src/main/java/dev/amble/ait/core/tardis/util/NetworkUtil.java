@@ -59,7 +59,7 @@ public class NetworkUtil {
 
     public static void sendToInterior(ServerTardis tardis, Identifier id, PacketByteBuf buf) {
         if (!tardis.hasWorld()) return;
-        
+
         for (ServerPlayerEntity player : tardis.world().getPlayers()) {
             send(player, id, buf);
         }

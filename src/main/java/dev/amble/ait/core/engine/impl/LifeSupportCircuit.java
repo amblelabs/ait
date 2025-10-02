@@ -19,7 +19,7 @@ import dev.amble.ait.core.tardis.util.TardisUtil;
 public class LifeSupportCircuit extends DurableSubSystem implements StructureHolder {
 
     private static final int TICK_RATE = 20;
-    
+
     private static final MultiBlockStructure STRUCTURE = createStructure();
     private static MultiBlockStructure createStructure() {
         MultiBlockStructure made = new MultiBlockStructure();

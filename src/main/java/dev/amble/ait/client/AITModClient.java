@@ -6,10 +6,12 @@ import static dev.amble.ait.core.item.PersonalityMatrixItem.colorToInt;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
-import dev.amble.ait.client.commands.DebugCommand;
 import dev.amble.lib.register.AmbleRegistries;
+import dev.codiak.AbstractPortalTile;
+import dev.codiak.BotiChunkContainer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -23,6 +25,7 @@ import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.DoorBlock;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
@@ -33,16 +36,20 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
+import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.boti.*;
 import dev.amble.ait.client.commands.ConfigCommand;
+import dev.amble.ait.client.commands.DebugCommand;
 import dev.amble.ait.client.config.AITClientConfig;
 import dev.amble.ait.client.data.ClientLandingManager;
 import dev.amble.ait.client.models.AnimatedModel;
@@ -91,6 +98,7 @@ import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.*;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
@@ -176,6 +184,32 @@ public class AITModClient implements ClientModInitializer {
 
             TardisStar.render(context, tardis);
         });
+
+        ClientPlayNetworking.registerGlobalReceiver(TardisUtil.PORTAL_SYNC_S2C,
+                (client, handler, buf, responseSender) -> {
+                    BlockPos pos = buf.readBlockPos();
+                    RegistryKey<World> level = RegistryKey.of(RegistryKeys.WORLD, buf.readIdentifier());
+                    BlockPos targetPos = buf.readBlockPos();
+
+                    client.execute(() -> {
+                        BlockEntity be = client.world.getBlockEntity(pos);
+                        if (be instanceof AbstractPortalTile portal) {
+                            portal.setTargetWorld(level, targetPos, false);
+                        }
+                    });
+                });
+
+        ClientPlayNetworking.registerGlobalReceiver(TardisUtil.BOTI_CHUNK_S2C,
+                (client, handler, buf, responseSender) -> {
+                    BlockPos pos = buf.readBlockPos();
+                    List<BotiChunkContainer> data = BotiChunkContainer.decodeList(buf);
+                    int index = buf.readInt();
+                    int totalPackets = buf.readInt();
+                    client.execute(() -> {
+                        if (client.world.getBlockEntity(pos) instanceof AbstractPortalTile portal)
+                            portal.updateChunkDataFromServer(data, index, totalPackets);
+                    });
+                });
 
         ClientPlayNetworking.registerGlobalReceiver(OPEN_SCREEN, (client, handler, buf, responseSender) -> {
             int id = buf.readInt();

@@ -13,19 +13,16 @@ import dev.drtheo.scheduler.api.common.TaskStage;
 import it.unimi.dsi.fastutil.longs.LongBidirectionalIterator;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.util.TriState;
-import net.minecraft.block.BlockState;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.explosion.Explosion;
-import net.minecraft.world.explosion.ExplosionBehavior;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -35,9 +32,12 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.function.LazyIterationConsumer;
 import net.minecraft.util.math.*;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.entity.EntityLike;
 import net.minecraft.world.entity.EntityTrackingSection;
+import net.minecraft.world.explosion.Explosion;
+import net.minecraft.world.explosion.ExplosionBehavior;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.ExtraPushableEntity;
@@ -63,7 +63,9 @@ import dev.amble.ait.mixin.lookup.WorldInvoker;
 
 @SuppressWarnings("unused")
 public class TardisUtil {
-
+    public static final Identifier BOTI_CHUNK_S2C = AITMod.id("boti_s2c");
+    public static final Identifier PORTAL_SYNC_S2C = AITMod.id("portal_sync_s2c");
+    public static final Identifier BOTI_REQUEST_CHUNK_C2S = AITMod.id("boti_request_c2s");
     public static final Identifier REGION_LANDING_CODE = AITMod.id("region_landing_code");
     public static final Identifier SNAP = AITMod.id("snap");
     public static final Identifier FLYING_SPEED = AITMod.id("flying_speed");

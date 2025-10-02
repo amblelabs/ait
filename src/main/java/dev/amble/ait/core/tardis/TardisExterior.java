@@ -27,7 +27,6 @@ import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 public class TardisExterior extends TardisComponent {
 
     public static final Identifier CHANGE_EXTERIOR = AITMod.id("change_exterior");
-
     private static final ExteriorCategorySchema MISSING_CATEGORY = CategoryRegistry.getInstance().fallback();
     private static final ExteriorVariantSchema MISSING_VARIANT = ExteriorVariantRegistry.getInstance().fallback();
 
