@@ -1,0 +1,42 @@
+name: Spotless Auto-Format
+
+on:
+  workflow_dispatch: # manual trigger
+  pull_request:
+    types: [closed]   # runs when PRs are closed
+    branches:
+      - main          # only if PR targeted main
+
+jobs:
+  spotless:
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.BOT_TOKEN }} # use bot token for pushing
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17 # adjust if needed
+
+      - name: Run Spotless Apply
+        run: ./gradlew spotlessApply
+
+      - name: Commit and Push changes if needed
+        run: |
+          git config --global user.name "spotless-bot"
+          git config --global user.email "spotless-bot@example.com"
+
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add .
+            git commit -m "chore: apply spotless formatting"
+            git push origin main
+          else
+            echo "No changes to commit."
+          fi
