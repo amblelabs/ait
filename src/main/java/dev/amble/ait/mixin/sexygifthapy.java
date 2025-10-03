@@ -29,29 +29,24 @@ public class sexygifthapy {
             )
     )
     private void ifforcookie(World world, ItemStack stack, CallbackInfoReturnable<ItemStack> cir){
-        if(stack.getItem() == Items.COOKIE) {
-            NbtCompound cookietag = stack.getNbt();
-            if (cookietag != null && cookietag.contains("Identifier")){
-                String id = cookietag.getString("Identifier");
+        NbtCompound cookietag = stack.getNbt();
+        boolean hasTagWithData = cookietag != null && cookietag.contains("Identifier") && cookietag.contains("Data", 10);
 
-                if (cookietag.contains("Data", 10)) {
-                    NbtCompound data = cookietag.getCompound("Data");
-                    UUID uuid = data.getUuid("Uuid");
+        if (stack.getItem() == Items.COOKIE && hasTagWithData){
+            NbtCompound data = cookietag.getCompound("Data");
+            UUID uuid = data.getUuid("Uuid");
 
-                    MinecraftServer server = world.getServer();
-                    if (server != null) {
-                        Either<ServerTardis, ?> either = ServerTardisManager.getInstance().lookup().get(uuid);
-                        if (either != null) {
-                            ServerTardis tardis = either.map(t -> t, o -> null);
-                            if (tardis != null) {
-                                MoodHandler2 mood = new MoodHandler2();
-                                mood.add(Emotion.Type.CONTENT, data.getFloat("Multiplier"));
-                            }
-                        }
-                        }
+            MinecraftServer server = world.getServer();
+            if (server != null) {
+                Either<ServerTardis, ?> either = ServerTardisManager.getInstance().lookup().get(uuid);
+                if (either != null) {
+                    ServerTardis tardis = either.map(t -> t, o -> null);
+                    if (tardis != null) {
+                        MoodHandler2 mood = new MoodHandler2();
+                        mood.add(Emotion.Type.CONTENT, data.getFloat("Multiplier"));
                     }
-
                 }
+            }
         }
     }
 }
