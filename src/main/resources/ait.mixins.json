@@ -8,7 +8,6 @@
     "EntityMixin",
     "HopperBlockEntityMixin",
     "LivingEntityMixin",
-    "sexygifthapy",
     "UseActionMixin",
     "artron.ServerWorldMixin",
     "client.experimental_screen.LevelSummaryMixin",
