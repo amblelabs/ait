@@ -25,3 +25,4 @@
 - fix: self destruct sound | by [@Addi3](https://github.com/Addi3) ([#1914](https://github.com/amblelabs/ait/pull/1914))
 - add: When leave-behind is on, then players falling into the TARDIS void without a key (and valid loyalty level) will be evicted from the TARDIS. | by [@Mansarde](https://github.com/Mansarde) ([#1915](https://github.com/amblelabs/ait/pull/1915))
 - add: translatables for the vertical land type | by [@Mansarde](https://github.com/Mansarde) ([#1910](https://github.com/amblelabs/ait/pull/1910))
+- add: translatables for the loyalty names | by [@Mansarde](https://github.com/Mansarde) ([#1911](https://github.com/amblelabs/ait/pull/1911))
