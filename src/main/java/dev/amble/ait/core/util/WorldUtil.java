@@ -1,7 +1,11 @@
 package dev.amble.ait.core.util;
 
-import java.util.*;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.AITWorldOptions;
+import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.mixin.server.EnderDragonFightAccessor;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.amble.lib.util.TeleportUtil;
 import dev.drtheo.scheduler.api.TimeUnit;
@@ -13,7 +17,6 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.loader.api.FabricLoader;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -36,14 +39,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.AITWorldOptions;
-import dev.amble.ait.client.util.ClientTardisUtil;
-import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.mixin.server.EnderDragonFightAccessor;
+import java.util.*;
 
-@SuppressWarnings("deprecation")
 public class WorldUtil {
 
     private static final List<ServerWorld> PROJECTOR_WORLDS = new ArrayList<>();
@@ -292,5 +289,4 @@ public class WorldUtil {
         player.getStatusEffects().forEach(effect -> player.networkHandler.sendPacket(
                 new EntityStatusEffectS2CPacket(player.getId(), effect)));
     }
-
 }

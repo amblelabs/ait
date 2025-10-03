@@ -5,6 +5,7 @@ import static net.minecraft.data.server.recipe.RecipeProvider.*;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import dev.amble.ait.core.util.SpaceUtils;
 import dev.amble.lib.container.RegistryContainer;
 import dev.amble.lib.container.impl.BlockContainer;
 import dev.amble.lib.container.impl.ItemContainer;
@@ -57,6 +58,8 @@ public class PlanetModule extends Module {
 
     @Override
     public void init() {
+        SpaceUtils.init();
+
         PlanetCustomTrades.registerCustomTrades();
         AmbleRegistries.getInstance().register(PlanetRegistry.getInstance());
 

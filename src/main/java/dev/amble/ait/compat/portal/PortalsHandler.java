@@ -1,0 +1,170 @@
+package dev.amble.ait.compat.portal;
+
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.core.util.EntityRef;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.registry.impl.TardisComponentRegistry;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedBlockPos;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.RotationPropertyHelper;
+import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.api.PortalAPI;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalManipulation;
+import qouteall.q_misc_util.my_util.DQuaternion;
+
+public class PortalsHandler extends KeyedTardisComponent {
+
+	public static final IdLike ID = new AbstractId<>("PORTALS", PortalsHandler::new, PortalsHandler.class);
+
+	@Nullable
+	private EntityRef<TardisPortal> interiorRef;
+
+	@Nullable
+	private EntityRef<TardisPortal> exteriorRef;
+
+	public PortalsHandler() {
+		super(ID);
+	}
+
+	@Override
+	public void postInit(InitContext ctx) {
+		if (this.isClient() || ctx.created())
+			return;
+
+		if (this.exteriorRef != null) {
+			ServerWorld exteriorWorld = tardis.travel().position().getWorld();
+			this.exteriorRef.setWorld(exteriorWorld);
+		}
+
+		if (this.interiorRef != null) {
+			ServerWorld interiorWorld = tardis.asServer().world();
+			this.interiorRef.setWorld(interiorWorld);
+		}
+	}
+
+	public static void init() {
+		TardisComponentRegistry.getInstance().register(ID);
+
+		// TODO: re-use the same two portal entities
+		//  for exterior changing this could be achieved by moving the portals & changing their size
+		//  for opening and closing doors, portals' rendering can be turned off
+
+		TardisEvents.DOOR_OPEN.register((tdis) -> {
+			PortalsHandler handler = tdis.handler(ID);
+			handler.generatePortals();
+		});
+
+		TardisEvents.DOOR_CLOSE.register((tdis) -> {
+			PortalsHandler handler = tdis.handler(ID);
+			handler.removePortals();
+		});
+
+		TardisEvents.DOOR_MOVE.register((tdis, newPos, oldPos) -> {
+			PortalsHandler handler = tdis.handler(ID);
+			handler.removePortals();
+
+			if (tdis.door().isOpen()) handler.generatePortals();
+		});
+
+		TardisEvents.EXTERIOR_CHANGE.register((tdis) -> {
+			PortalsHandler handler = tdis.handler(ID);
+			handler.removePortals();
+
+			if (tdis.door().isOpen()) handler.generatePortals();
+		});
+	}
+
+	@Environment(EnvType.CLIENT)
+	public static void clientInit() {
+		// TODO: make it so doors don't render twice.
+		//  > maybe we should just cancel door rendering when there's BOTI present?
+		//  > ...idk, need to discuss this - Theo
+	}
+
+	public TardisPortal getInterior() {
+		return this.interiorRef != null ? this.interiorRef.get() : null;
+	}
+
+	public TardisPortal getExterior() {
+		return this.exteriorRef != null ? this.exteriorRef.get() : null;
+	}
+
+	private void generatePortals() {
+		CachedDirectedGlobalPos exteriorPos = this.tardis().travel().position();
+
+		DirectedBlockPos tempPos = this.tardis().getDesktop().getDoorPos();
+		CachedDirectedGlobalPos interiorPos = CachedDirectedGlobalPos.create(tardis().asServer().world(), tempPos.getPos(), tempPos.getRotation());
+
+		removePortals();
+
+		this.exteriorRef = new EntityRef<>(exteriorPos.getWorld(), createPortal(exteriorPos, interiorPos, true));
+		this.interiorRef = new EntityRef<>(interiorPos.getWorld(), createPortal(interiorPos, exteriorPos, false));
+	}
+
+	private TardisPortal createPortal(CachedDirectedGlobalPos from, CachedDirectedGlobalPos to, boolean exterior) {
+		Vec3d fromAdjusted = adjustPosition(exterior, from);
+		Vec3d toAdjusted = adjustPosition(exterior, to);
+
+		TardisPortal portal = new TardisPortal(from.getWorld());
+		portal.link(this.tardis());
+
+		ExteriorVariantSchema variant = this.tardis().getExterior().getVariant();
+		portal.setOrientationAndSize(
+				new Vec3d(1, 0, 0),
+				new Vec3d(0, 1, 0),
+				variant.portalWidth(),
+				variant.portalHeight()
+		);
+
+		DQuaternion quat = DQuaternion.rotationByDegrees(new Vec3d(0, -1, 0),
+				RotationPropertyHelper.toDegrees(from.getRotation()) + (exterior ? 180 : 0));
+		DQuaternion toQuat = DQuaternion.rotationByDegrees(new Vec3d(0, -1, 0),
+				RotationPropertyHelper.toDegrees(to.getRotation()) + (exterior ? 0 : 180));
+
+		PortalAPI.setPortalOrientationQuaternion(portal, quat);
+		portal.setOtherSideOrientation(toQuat);
+
+		// wow
+		portal.setOriginPos(
+				new Vec3d(fromAdjusted.getX() + 0.5, fromAdjusted.getY() + 1.2, fromAdjusted.getZ() + 0.5));
+		portal.setDestinationDimension(to.getWorld().getRegistryKey());
+		portal.setDestination(
+				new Vec3d(toAdjusted.getX() + 0.5, toAdjusted.getY() + 1.2, toAdjusted.getZ() + 0.5));
+
+		portal.renderingMergable = true;
+		portal.getWorld().spawnEntity(portal);
+
+		return portal;
+	}
+
+	private Vec3d adjustPosition(boolean exterior, CachedDirectedGlobalPos pos) {
+		float multiplier = exterior ? 0.1F : 0.05F;
+
+		ExteriorVariantSchema variant = this.tardis().getExterior().getVariant();
+		Vec3d vec = pos.getPos().toCenterPos().subtract(0.5, 0.5, 0.5).add(Vec3d.of(pos.getVector()).multiply(-multiplier, 1, multiplier));
+
+		if (exterior)
+			return variant.adjustPortalPos(vec, pos.getRotation());
+
+		return variant.door().adjustPortalPos(vec, pos.getRotationDirection());
+	}
+
+	private void removePortals() {
+		removePortal(this.getInterior());
+		removePortal(this.getExterior());
+	}
+
+	private static void removePortal(Portal portal) {
+		if (portal == null)
+			return;
+
+		PortalManipulation.removeConnectedPortals(portal, (p) -> {});
+		portal.discard();
+	}
+}

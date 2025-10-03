@@ -47,6 +47,10 @@ public class AITServerConfig {
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    public boolean allowPortalsBoti = true;
+
+    @AutoGen(category = CATEGORY)
+    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean tntCanTeleportThroughDoors = true;
 
     @AutoGen(category = CATEGORY)

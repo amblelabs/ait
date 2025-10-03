@@ -85,6 +85,9 @@ dependencies {
     // MC libraries
     modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 
+    modImplementation("com.github.iPortalTeam.ImmersivePortalsMod:imm_ptl_core:${project.immersive_portals_version}")
+    modImplementation("com.github.iPortalTeam.ImmersivePortalsMod:q_misc_util:${project.immersive_portals_version}")
+
     // TODO: move these 3 to modkit so we don't have to re-export so many dependencies
     modApi("dev.drtheo:multidim:${project.multidim_version}") {
         exclude(group: "net.fabricmc.fabric-api")
