@@ -2,6 +2,7 @@ package dev.amble.ait.registry.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import dev.amble.lib.data.DirectedBlockPos;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
@@ -11,7 +12,9 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.mob.DrownedEntity;
 import net.minecraft.entity.mob.PhantomEntity;
 import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.SimpleRegistry;
@@ -195,8 +198,27 @@ public class SequenceRegistry {
                     ItemEntity rewardForCloaking = new ItemEntity(EntityType.ITEM, world);
                     rewardForCloaking.setPosition(doorPos.toCenterPos());
 
+                    ItemStack cookie = new ItemStack(Items.COOKIE);
+                    ItemStack poppy = new ItemStack(Items.POPPY);
+
+                    NbtCompound cookienbt = cookie.getOrCreateNbt();
+//                    NbtCompound poppynbt = poppy.getOrCreateNbt();
+
+                    cookienbt.putString("Identifier", "tardis_cookie");
+                    NbtCompound datatag = new NbtCompound();
+                    UUID tardis_uuid = finishedTardis.getUuid();
+                    float multiplier = 1f;
+
+                    datatag.putUuid("Uuid", tardis_uuid);
+                    datatag.putFloat("Multiplier", multiplier);
+
+                    cookienbt.put("Data", datatag);
+
+//                    poppynbt.putFloat(finishedTardis.getUuid().toString(), 1f);
+//                    poppy.setNbt(poppynbt);
+
                     rewardForCloaking.setStack(
-                            random.nextBoolean() ? Items.COOKIE.getDefaultStack() : Items.POPPY.getDefaultStack());
+                            random.nextBoolean() ? cookie : poppy);
                     world.spawnEntity(rewardForCloaking);
                 }), (missedTardis -> {
                     DirectedBlockPos directedDoorPos = missedTardis.getDesktop().getDoorPos();
