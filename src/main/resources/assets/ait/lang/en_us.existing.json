@@ -10,7 +10,7 @@
   "yacl3.config.ait:server.ghostMonument": "Ghost Monument",
   "yacl3.config.ait:server.lockDimensions": "Lock Dimensions?",
   "yacl3.config.ait:server.rwfEnabled": "Enable RWF?",
-  "yacl3.config.ait:server.allowPortalsBoti": "[EXPERIMENTAL] Allow IP BOTI?",
+  "yacl3.config.ait:server.allowPortalsBoti": "[EXPERIMENTAL] Allow IP BOTI? (restart required)",
   "yacl3.config.ait:server.tntCanTeleportThroughDoors": "Can TNT teleport through doors?",
   "yacl3.config.ait:server.projectorBlacklist": "Environment Projector world blacklist",
   "yacl3.config.ait:server.travelBlacklist": "TARDIS travel world blacklist",
