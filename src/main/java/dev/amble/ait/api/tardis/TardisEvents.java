@@ -2,7 +2,6 @@ package dev.amble.ait.api.tardis;
 
 import java.util.Optional;
 
-import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import net.fabricmc.fabric.api.event.Event;
@@ -20,6 +19,7 @@ import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.impl.EngineSystem;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 import dev.amble.ait.data.landing.LandingPadSpot;
 

@@ -8,7 +8,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -23,10 +22,10 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.devteam.DevTeam;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.devteam.DevTeam;
 import dev.amble.ait.module.gun.core.item.GunItems;
 import dev.amble.ait.module.planet.core.util.ISpaceImmune;
 

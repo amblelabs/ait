@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
-import dev.amble.ait.core.tardis.control.impl.EngineOverloadControl;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.scheduler.api.TimeUnit;
@@ -43,6 +42,7 @@ import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.control.impl.DirectionControl;
+import dev.amble.ait.core.tardis.control.impl.EngineOverloadControl;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
@@ -207,7 +207,8 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         if (this.tardis.crash().getState() == TardisCrashHandler.State.UNSTABLE)
             this.forceDestination(cached -> TravelUtil.jukePos(cached, 1, 10));
 
-        this.rematerialize();
+        if (this.getState() != State.LANDED)
+            this.rematerialize();
     }
 
     @Override
@@ -437,8 +438,10 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     }
 
     public Optional<ActionQueue> rematerialize() {
-        if (TardisEvents.MAT.invoker().onMat(tardis.asServer()) == TardisEvents.Interaction.FAIL
-                || this.travelCooldown) {
+        if (this.getState() != State.FLIGHT || this.travelCooldown)
+            return Optional.empty();
+
+        if (TardisEvents.MAT.invoker().onMat(tardis.asServer()) == TardisEvents.Interaction.FAIL) {
             this.failRemat();
             return Optional.empty();
         }
@@ -447,9 +450,6 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     }
 
     public Optional<ActionQueue> forceRemat() {
-        if (this.getState() != State.FLIGHT)
-            return Optional.empty();
-
         if (this.tardis.sequence().hasActiveSequence())
             this.tardis.sequence().setActiveSequence(null, true);
 

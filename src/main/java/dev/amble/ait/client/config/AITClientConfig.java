@@ -12,7 +12,6 @@ import dev.isxander.yacl3.platform.YACLPlatform;
 import net.minecraft.text.Text;
 
 import dev.amble.ait.AITMod;
-import org.apache.commons.lang3.StringUtils;
 
 public class AITClientConfig {
 

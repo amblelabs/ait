@@ -13,19 +13,16 @@ import dev.drtheo.scheduler.api.common.TaskStage;
 import it.unimi.dsi.fastutil.longs.LongBidirectionalIterator;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.util.TriState;
-import net.minecraft.block.BlockState;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.explosion.Explosion;
-import net.minecraft.world.explosion.ExplosionBehavior;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -35,13 +32,15 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.function.LazyIterationConsumer;
 import net.minecraft.util.math.*;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.entity.EntityLike;
 import net.minecraft.world.entity.EntityTrackingSection;
+import net.minecraft.world.explosion.Explosion;
+import net.minecraft.world.explosion.ExplosionBehavior;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.ExtraPushableEntity;
-import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.AITTags;
@@ -51,7 +50,6 @@ import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
-import dev.amble.ait.core.tardis.handler.permissions.PermissionHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
@@ -88,18 +86,21 @@ public class TardisUtil {
         ServerPlayNetworking.registerGlobalReceiver(SNAP, (server, player, handler, buf, responseSender) -> {
             UUID uuid = buf.readUuid();
             ServerTardisManager.getInstance().getTardis(server, uuid, tardis -> {
-                PermissionHandler permissions = tardis.handler(TardisComponent.Id.PERMISSIONS);
+                Loyalty loyalty = tardis.loyalty().get(player);
 
                 if (tardis.flight().isFlying()) {
-                    if (!player.isSneaking()) {
-                        tardis.door().interactAllDoors(player.getServerWorld(), null, player, true);
-                    } else {
-                        tardis.door().interactToggleLock(player);
-                    }
+                    server.execute(() -> {
+                        if (!player.isSneaking()) {
+                            tardis.door().interactAllDoors(player.getServerWorld(), null, player, true);
+                        } else {
+                            tardis.door().interactToggleLock(player);
+                        }
+                    });
+
                     return;
                 }
 
-                if (!tardis.loyalty().get(player).isOf(Loyalty.Type.PILOT))
+                if (!loyalty.isOf(Loyalty.Type.PILOT))
                     return;
 
                 player.getWorld().playSound(null, player.getBlockPos(), AITSounds.SNAP, SoundCategory.PLAYERS, 4f, 1f);
@@ -111,25 +112,25 @@ public class TardisUtil {
                         : exteriorPos;
 
                 if ((player.squaredDistanceTo(exteriorPos.getX(), exteriorPos.getY(), exteriorPos.getZ())) > 200
-                        && player.getWorld() != tardis.world())
+                        && (tardis.hasWorld() && player.getWorld() != tardis.world()))
                     return;
 
-                if (!player.isSneaking()) {
-                    tardis.door().interact(player.getServerWorld(), null, player);
-                } else {
-                    boolean isLocked = tardis.door().locked();
-                    tardis.door().interactToggleLock(player);
-                    player.getWorld().playSound(
-                            null,
-                            pos,
-                            isLocked ? AITSounds.REMOTE_UNLOCK : AITSounds.REMOTE_LOCK,
-                            SoundCategory.BLOCKS,
-                            1.0F,
-                            1.0F
-                    );
-                }
-
-
+                server.execute(() -> {
+                    if (!player.isSneaking()) {
+                        tardis.door().interact(player.getServerWorld(), null, player);
+                    } else {
+                        boolean isLocked = tardis.door().locked();
+                        tardis.door().interactToggleLock(player);
+                        player.getWorld().playSound(
+                                null,
+                                pos,
+                                isLocked ? AITSounds.REMOTE_UNLOCK : AITSounds.REMOTE_LOCK,
+                                SoundCategory.BLOCKS,
+                                1.0F,
+                                1.0F
+                        );
+                    }
+                });
             });
         });
 
