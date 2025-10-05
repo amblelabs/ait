@@ -14,6 +14,7 @@
     "client.rendering.EntityMixin",
     "compat.gravity.EntityTagsMixin",
     "compat.portals.MultiDimMixin",
+    "compat.portals.ServerTeleportationManagerMixin",
     "compat.portals.TardisServerWorldMixin",
     "lookup.EntityTrackingSectionAccessor",
     "lookup.SectionedEntityCacheAccessor",
