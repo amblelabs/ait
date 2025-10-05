@@ -459,8 +459,16 @@ public class AITModClient implements ClientModInitializer {
         ParticleFactoryRegistry.getInstance().register(CORAL_PARTICLE, EndRodParticle.Factory::new);
     }
 
+    private boolean skipBuiltInBOTI() {
+        return (DependencyChecker.hasPortals() && CONFIG.allowPortalsBoti) || !CONFIG.enableTardisBOTI;
+    }
+
+    private boolean skipPaintingBOTI() {
+        return DependencyChecker.hasPortals() || !CONFIG.enableTardisBOTI;
+    }
+
     public void exteriorBOTI(WorldRenderContext context) {
-        if (DependencyChecker.hasPortals() || !CONFIG.allowPortalsBoti) return;
+        if (skipBuiltInBOTI()) return;
 
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
@@ -493,7 +501,7 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void doorBOTI(WorldRenderContext context) {
-        if (DependencyChecker.hasPortals() || !CONFIG.allowPortalsBoti) return;
+        if (skipBuiltInBOTI()) return;
 
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
@@ -527,7 +535,7 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void gallifreyanBOTI(WorldRenderContext context) {
-        if (DependencyChecker.hasPortals() || !CONFIG.allowPortalsBoti) return;
+        if (skipPaintingBOTI()) return;
 
         MinecraftClient client = MinecraftClient.getInstance();
         SinglePartEntityModel contents = new GallifreyFallsModel(GallifreyFallsModel.getTexturedModelData().createModel());
@@ -556,7 +564,7 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void trenzaloreBOTI(WorldRenderContext context) {
-        if (DependencyChecker.hasPortals() || !CONFIG.allowPortalsBoti) return;
+        if (skipPaintingBOTI()) return;
 
         MinecraftClient client = MinecraftClient.getInstance();
         SinglePartEntityModel contents = new TrenzalorePaintingModel(TrenzalorePaintingModel.getTexturedModelData().createModel());
@@ -585,7 +593,7 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void riftBOTI(WorldRenderContext context) {
-        if (DependencyChecker.hasPortals() || !CONFIG.allowPortalsBoti) return;
+        if (skipPaintingBOTI()) return;
 
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;

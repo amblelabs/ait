@@ -292,7 +292,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
             TardisUtil.teleportInside(tardis, entity);
 
         if (!tardis.door().isClosed()
-                && (!DependencyChecker.hasPortals() || !tardis.getExterior().getVariant().hasPortals()))
+                && (!(DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti) || !tardis.getExterior().getVariant().hasPortals()))
             TardisUtil.teleportInside(tardis, entity);
 
         if (tardis.door().isClosed()

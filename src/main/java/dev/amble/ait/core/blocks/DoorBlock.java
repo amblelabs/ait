@@ -46,21 +46,6 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
     public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
     public static final IntProperty LEVEL_4 = ExteriorBlock.LEVEL_4;
 
-    static {
-        TardisEvents.DOOR_OPEN.register(tardis -> {
-            CachedDirectedGlobalPos globalPos = tardis.travel().position();
-            BlockPos exteriorPos = globalPos.getPos();
-            World exteriorWorld = globalPos.getWorld();
-
-            BlockState exteriorState = exteriorWorld.getBlockState(exteriorPos);
-            if (!tardis.travel().inFlight())
-                if ((exteriorState.getBlock() instanceof ExteriorBlock))
-                    setDoorLight(tardis, exteriorState.get(ExteriorBlock.LEVEL_4));
-        });
-
-        TardisEvents.DOOR_CLOSE.register(tardis -> setDoorLight(tardis, 0));
-    }
-
     private static void setDoorLight(Tardis tardis, int level) {
         ServerWorld world = tardis.asServer().world();
         BlockPos pos = tardis.getDesktop().getDoorPos().getPos();

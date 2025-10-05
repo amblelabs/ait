@@ -32,10 +32,6 @@ import dev.amble.ait.registry.impl.CategoryRegistry;
 public class TardisDoorBOTI extends BOTI {
     public static void renderInteriorDoorBoti(ClientTardis tardis, DoorBlockEntity door, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, AnimatedModel frame, ModelPart mask, int light, float tickDelta) {
         ExteriorVariantSchema parent = variant.parent();
-        if (!parent.hasPortals()) return;
-
-        if (!AITModClient.CONFIG.enableTardisBOTI)
-            return;
 
         if (MinecraftClient.getInstance().world == null
                 || MinecraftClient.getInstance().player == null) return;

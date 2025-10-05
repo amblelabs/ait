@@ -32,9 +32,6 @@ import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 
 public class TardisExteriorBOTI extends BOTI {
     public void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, ExteriorModel frame, ModelPart mask, int light) {
-        if (!AITModClient.CONFIG.enableTardisBOTI)
-            return;
-
         if (MinecraftClient.getInstance().world == null
                 || MinecraftClient.getInstance().player == null) return;
 
@@ -103,7 +100,7 @@ public class TardisExteriorBOTI extends BOTI {
         }
         stack.scale(scale.x(), scale.y(), scale.z());
 
-        ((ExteriorModel) frame).renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.getBotiInterior(variant.texture())), light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
+        frame.renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.getBotiInterior(variant.texture())), light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
         botiProvider.draw();
         stack.pop();
 
@@ -119,7 +116,7 @@ public class TardisExteriorBOTI extends BOTI {
             BiomeHandler handler = exterior.tardis().get().handler(TardisComponent.Id.BIOME);
             Identifier biomeTexture = handler.getBiomeKey().get(variant.overrides());
             if (biomeTexture != null)
-                ((ExteriorModel) frame).renderDoors(tardis, exterior, frame.getPart(), stack,
+                frame.renderDoors(tardis, exterior, frame.getPart(), stack,
                         botiProvider.getBuffer(AITRenderLayers.getEntityTranslucentCull(biomeTexture)),
                         light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
         }

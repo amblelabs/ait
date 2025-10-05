@@ -2,6 +2,8 @@ package dev.amble.ait.core.tardis.control.impl;
 
 import static dev.amble.ait.core.engine.SubSystem.Id.GRAVITATIONAL;
 
+import dev.amble.ait.compat.portal.PortalsAPI;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -28,8 +30,11 @@ public class VisualiserControl extends Control {
         super.runServer(tardis, player, world, console, rightClick);
 
         if (!AITMod.CONFIG.rwfEnabled) {
-            player.sendMessage(Text.translatable("tardis.message.control.rwf_disabled"), true);
-            return Result.FAILURE;
+            return PortalsAPI.VISUALIZER.map(visualizer -> {
+                CachedDirectedGlobalPos pos = tardis.travel().position();
+                visualizer.open(player, pos.getWorld(), pos.getPos().up(3));
+                return Result.SUCCESS;
+            }).orElse(Result.FAILURE);
         }
 
         if (!player.isCreative()) {

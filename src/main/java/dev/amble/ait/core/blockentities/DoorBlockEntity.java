@@ -1,5 +1,7 @@
 package dev.amble.ait.core.blockentities;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.blocks.DoorBlock;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -97,8 +99,9 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
             return;
 
         boolean waterlogged = exteriorWorld.getBlockState(exteriorPos).get(Properties.WATERLOGGED);
+        int light = exteriorWorld.getLightLevel(exteriorPos.up());
 
-        world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, waterlogged),
+        world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, waterlogged).with(DoorBlock.LEVEL_4, light),
                 Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
 
         world.emitGameEvent(null, GameEvent.BLOCK_CHANGE, pos);
@@ -164,7 +167,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
         if (tardis.door().isClosed())
             return;
 
-        if (DependencyChecker.hasPortals() && tardis.getExterior().getVariant().hasPortals())
+        if (DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti && tardis.getExterior().getVariant().hasPortals())
             return;
 
         TravelHandler travel = tardis.travel();
