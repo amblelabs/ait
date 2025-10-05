@@ -70,6 +70,11 @@ public class AITSounds {
     public static final SoundEvent DRILL_DEMAT = register("tardis/drill/demat");
     public static final SoundEvent DRILL_MAT = register("tardis/drill/mat");
 
+    // TICKING FOR THE ROTOR
+    public static final SoundEvent TICKING_LOOP = register("tardis/ticking_loop");
+    public static final SoundEvent TICKING_START = register("tardis/ticking_start");
+    public static final SoundEvent TICKING_STOP = register("tardis/ticking_stop");
+
     //STABILIZE
     public static final SoundEvent STABILIZE = register("tardis/stabilize_flight");
 
