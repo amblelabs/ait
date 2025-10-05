@@ -122,6 +122,8 @@ public class PortalsHandler extends KeyedTardisComponent {
 
 		removePortals();
 
+        if (!tardis.getExterior().getVariant().hasPortals()) return;
+
 		this.exteriorRef = new EntityRef<>(exteriorPos.getWorld(), createExteriorPortal());
 		this.interiorRef = new EntityRef<>(interiorPos.getWorld(), createInteriorPortal());
 	}
