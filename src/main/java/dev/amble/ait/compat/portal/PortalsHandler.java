@@ -147,7 +147,7 @@ public class PortalsHandler extends KeyedTardisComponent {
 		float multiplier = exterior ? 0.1F : 0.05F;
 
 		ExteriorVariantSchema variant = this.tardis().getExterior().getVariant();
-		Vec3d vec = pos.getPos().toCenterPos().subtract(0.5, 0.5, 0.5).add(Vec3d.of(pos.getVector()).multiply(-multiplier, 1, multiplier));
+		Vec3d vec = pos.getPos().toCenterPos().subtract(0.5, 0.5, 0.5).add(Vec3d.of(pos.getVector()));
 
 		if (exterior)
 			return variant.adjustPortalPos(vec, pos.getRotation());
