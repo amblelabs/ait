@@ -77,8 +77,10 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
         if (exteriorWorld == null)
             return;
 
+        blockState = blockState.with(DoorBlock.LEVEL_4, 0);
+
         if (!tardis.door().isOpen() || tardis.areShieldsActive()) {
-            world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, false).with(DoorBlock.LEVEL_4, 0),
+            world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, false),
                 Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
             return;
         }
