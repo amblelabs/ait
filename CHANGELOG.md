@@ -27,3 +27,4 @@
 - add: translatables for the vertical land type | by [@Mansarde](https://github.com/Mansarde) ([#1910](https://github.com/amblelabs/ait/pull/1910))
 - add: translatables for the loyalty names | by [@Mansarde](https://github.com/Mansarde) ([#1911](https://github.com/amblelabs/ait/pull/1911))
 - tweak: Updated some block textures / models | by [@Addi3](https://github.com/Addi3) ([#1906](https://github.com/amblelabs/ait/pull/1906))
+- fix: missing desktops no longer crash your game when you open the monitor | by [@drtheodor](https://github.com/drtheodor) ([#1916](https://github.com/amblelabs/ait/pull/1916))
