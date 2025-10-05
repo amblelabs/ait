@@ -156,7 +156,8 @@ public class PortalsHandler extends KeyedTardisComponent {
         portal.setDestinationDimension(tardis.asServer().world().getRegistryKey());
         portal.setDestination(doorAdjust);
 
-        portal.renderingMergable = true;
+        //portal.renderingMergable = true;
+        portal.setInteractable(false);
         portal.getWorld().spawnEntity(portal);
 
         return portal;
@@ -190,7 +191,8 @@ public class PortalsHandler extends KeyedTardisComponent {
         portal.setDestinationDimension(exteriorPos.getWorld().getRegistryKey());
         portal.setDestination(exteriorAdjust);
 
-        portal.renderingMergable = true;
+        //portal.renderingMergable = true;
+        portal.setInteractable(false);
         portal.getWorld().spawnEntity(portal);
 
         return portal;
