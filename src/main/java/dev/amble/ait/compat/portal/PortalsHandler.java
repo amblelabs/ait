@@ -3,8 +3,6 @@ package dev.amble.ait.compat.portal;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.client.renderers.entities.ControlEntityRenderer;
-import dev.amble.ait.core.AITEntityTypes;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.EntityRef;
 import dev.amble.ait.data.schema.door.DoorSchema;
@@ -59,7 +57,9 @@ public class PortalsHandler extends KeyedTardisComponent {
 	}
 
 	public static void init() {
-        Registry.register(Registries.ENTITY_TYPE, AITMod.id("ip/portal"), TardisPortal.entityType);
+        Registry.register(Registries.ENTITY_TYPE, AITMod.id("ip_portal"), TardisPortal.ENTITY_TYPE);
+
+        if (!AITMod.CONFIG.allowPortalsBoti) return;
 
 		TardisComponentRegistry.getInstance().register(ID);
 
@@ -102,7 +102,8 @@ public class PortalsHandler extends KeyedTardisComponent {
 
         PortalVisualizerUtil.clientInit();
 
-        EntityRendererRegistry.register(TardisPortal.entityType, PortalEntityRenderer::new);
+        if (TardisPortal.ENTITY_TYPE != null)
+            EntityRendererRegistry.register(TardisPortal.ENTITY_TYPE, PortalEntityRenderer::new);
 	}
 
 	public TardisPortal getInterior() {

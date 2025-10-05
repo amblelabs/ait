@@ -14,7 +14,7 @@ public class Compat implements AITModInitializer, ClientModInitializer {
         if (DependencyChecker.hasGravity())
             GravityHandler.init();
 
-        if (DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti)
+        if (DependencyChecker.hasPortals())
             PortalsHandler.init();
     }
 

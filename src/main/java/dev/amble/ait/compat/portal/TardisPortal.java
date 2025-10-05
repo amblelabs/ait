@@ -6,13 +6,13 @@ import net.minecraft.world.World;
 import qouteall.imm_ptl.core.portal.Portal;
 
 public class TardisPortal extends Portal {
-    public static final EntityType<TardisPortal> entityType = createPortalEntityType(TardisPortal::new);
+    public static EntityType<TardisPortal> ENTITY_TYPE = createPortalEntityType(TardisPortal::new);
 
 	public TardisPortal(World world) {
-		this(entityType, world);
+		this(ENTITY_TYPE, world);
 	}
 
-    private TardisPortal(EntityType<TardisPortal> type, World world) {
+    public TardisPortal(EntityType<TardisPortal> type, World world) {
         super(type, world);
     }
 
