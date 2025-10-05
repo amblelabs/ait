@@ -28,3 +28,4 @@
 - add: translatables for the loyalty names | by [@Mansarde](https://github.com/Mansarde) ([#1911](https://github.com/amblelabs/ait/pull/1911))
 - tweak: Updated some block textures / models | by [@Addi3](https://github.com/Addi3) ([#1906](https://github.com/amblelabs/ait/pull/1906))
 - fix: missing desktops no longer crash your game when you open the monitor | by [@drtheodor](https://github.com/drtheodor) ([#1916](https://github.com/amblelabs/ait/pull/1916))
+- fix: got rid of various multithreading issues causing dedicated servers to crash | by [@drtheodor](https://github.com/drtheodor) ([#1900](https://github.com/amblelabs/ait/pull/1900))
