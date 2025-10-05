@@ -7,13 +7,8 @@ import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.mixin.server.EnderDragonFightAccessor;
 import dev.amble.lib.util.ServerLifecycleHooks;
-import dev.amble.lib.util.TeleportUtil;
-import dev.drtheo.scheduler.api.TimeUnit;
-import dev.drtheo.scheduler.api.common.Scheduler;
-import dev.drtheo.scheduler.api.common.TaskStage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -22,7 +17,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.network.packet.s2c.play.EntityStatusEffectS2CPacket;
@@ -47,7 +41,7 @@ public class WorldUtil {
     private static final List<ServerWorld> TRAVEL_WORLDS = new ArrayList<>();
 
     private static final Set<ServerWorld> RIFT_SPAWN_WORLDS = new HashSet<>();
-    private static final List<ServerWorld> RIFT_DROP_WORLDS = new ArrayList<>();
+    public static final List<ServerWorld> RIFT_DROP_WORLDS = new ArrayList<>();
 
     private static ServerWorld OVERWORLD;
     private static ServerWorld TIME_VORTEX;
@@ -76,26 +70,6 @@ public class WorldUtil {
             OVERWORLD = server.getOverworld();
             TIME_VORTEX = server.getWorld(AITDimensions.TIME_VORTEX_WORLD);
         });
-
-        ServerEntityWorldChangeEvents.AFTER_ENTITY_CHANGE_WORLD.register((originalEntity, newEntity, origin, destination) -> {
-            if (destination == TIME_VORTEX && newEntity instanceof LivingEntity living)
-                scheduleVortexFall(living);
-        });
-
-        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
-            if (destination == TIME_VORTEX)
-                scheduleVortexFall(player);
-        });
-    }
-
-    private static void scheduleVortexFall(LivingEntity entity) {
-        int worldIndex = TIME_VORTEX.getRandom().nextInt(RIFT_DROP_WORLDS.size());
-
-        Scheduler.get().runTaskLater(() -> {
-            if (entity.getWorld() == TIME_VORTEX)
-                TeleportUtil.teleport(entity, RIFT_DROP_WORLDS.get(worldIndex),
-                        entity.getPos().add(2, 10, -2), entity.getYaw());
-        }, TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 5);
     }
 
     public static ServerWorld getOverworld() {

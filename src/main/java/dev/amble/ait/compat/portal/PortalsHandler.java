@@ -3,8 +3,10 @@ package dev.amble.ait.compat.portal;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.EntityRef;
+import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.TardisComponentRegistry;
@@ -136,7 +138,7 @@ public class PortalsHandler extends KeyedTardisComponent {
         Vec3d doorAdjust = adjustInteriorPos(tardis.getExterior().getVariant().door(), doorPos);
         Vec3d exteriorAdjust = adjustExteriorPos(tardis.getExterior().getVariant(), exteriorPos);
 
-        TardisPortal portal = new TardisPortal(exteriorPos.getWorld());
+        TardisPortal portal = new TardisPortal(tardis.travel().getState() == TravelHandlerBase.State.FLIGHT ? WorldUtil.getTimeVortex() : exteriorPos.getWorld());
 
         portal.setOrientationAndSize(
                 new Vec3d(1, 0, 0), // axisW
@@ -188,10 +190,10 @@ public class PortalsHandler extends KeyedTardisComponent {
 
         portal.setOriginPos(doorAdjust);
 
-        portal.setDestinationDimension(exteriorPos.getWorld().getRegistryKey());
+        portal.setDestinationDimension(tardis.travel().getState() == TravelHandlerBase.State.FLIGHT ? AITDimensions.TIME_VORTEX_WORLD : exteriorPos.getWorld().getRegistryKey());
         portal.setDestination(exteriorAdjust);
 
-        //portal.renderingMergable = true;
+        //portal.renderingMergable = true;w
         portal.setInteractable(false);
         portal.getWorld().spawnEntity(portal);
 

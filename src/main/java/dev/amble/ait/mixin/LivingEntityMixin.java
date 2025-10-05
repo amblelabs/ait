@@ -1,5 +1,8 @@
 package dev.amble.ait.mixin;
 
+import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.lib.util.TeleportUtil;
 import net.fabricmc.fabric.api.util.TriState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -74,5 +77,16 @@ public abstract class LivingEntityMixin extends Entity implements ExtraPushableE
             pushable = this.ait$pushable.get();
 
         cir.setReturnValue(pushable);
+    }
+
+    @Inject(method = "tickInVoid", at = @At("HEAD"))
+    public void tickVoid(CallbackInfo ci) {
+        if (!this.getWorld().isClient() && this.getWorld().getRegistryKey() == AITDimensions.TIME_VORTEX_WORLD) {
+            LivingEntity entity = (LivingEntity) (Object) this;
+            int worldIndex = this.getWorld().getRandom().nextInt(WorldUtil.RIFT_DROP_WORLDS.size());
+
+            TeleportUtil.teleport(entity, WorldUtil.RIFT_DROP_WORLDS.get(worldIndex),
+                    entity.getPos().add(2, -entity.getY(), -2), entity.getYaw());
+        }
     }
 }

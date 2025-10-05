@@ -30,9 +30,11 @@ public class VisualiserControl extends Control {
         super.runServer(tardis, player, world, console, rightClick);
 
         if (!AITMod.CONFIG.rwfEnabled) {
+            if (!tardis.travel().isLanded()) return Result.FAILURE;
+
             return PortalsAPI.VISUALIZER.map(visualizer -> {
                 CachedDirectedGlobalPos pos = tardis.travel().position();
-                visualizer.open(player, pos.getWorld(), pos.getPos().up(3));
+                visualizer.open(player, pos.getWorld(), pos.getPos().up((int) Math.ceil(tardis.getExterior().getVariant().portalHeight())));
                 return Result.SUCCESS;
             }).orElse(Result.FAILURE);
         }
