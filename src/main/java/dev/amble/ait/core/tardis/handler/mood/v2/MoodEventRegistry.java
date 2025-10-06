@@ -33,6 +33,15 @@ public class MoodEventRegistry {
 
         events.add(new MoodEvent(
                 tardis -> {
+                    tardis.door().setLocked(false);
+                    tardis.door().openDoors();
+                },
+                tardis -> !tardis.travel().isLanded(),
+                10, Requires.biggerThan(Emotion.Type.UPSET, 0.75f, 0.2f)
+        ));
+
+        events.add(new MoodEvent(
+                tardis -> {
                     tardis.selfDestruct().boom();
                 }, WORLD_LOADED.and(tardis -> tardis.world().getGameRules().getBoolean(AITMod.TARDIS_SUICIDAL)), 15, Requires.biggerThan(Emotion.Type.DEPRESSED, 0.99f, 1f)
         ));
