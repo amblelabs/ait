@@ -2,9 +2,7 @@ package dev.amble.ait.mixin.compat.portals;
 
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.world.TardisServerWorld;
-import dev.drtheo.multidim.MultiDim;
 import dev.drtheo.multidim.api.MultiDimServerWorld;
-import dev.drtheo.multidim.api.WorldBlueprint;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
@@ -29,9 +27,10 @@ public class TardisServerWorldMixin {
     }
 
     // makes sure that we don't handle the world twice in case it gets created
-    @Redirect(method = "load", at = @At(value = "INVOKE", target = "Ldev/drtheo/multidim/MultiDim;load(Ldev/drtheo/multidim/api/WorldBlueprint;Lnet/minecraft/registry/RegistryKey;)Ldev/drtheo/multidim/api/MultiDimServerWorld;"))
-    private static MultiDimServerWorld load(MultiDim instance, WorldBlueprint blueprint, RegistryKey<World> id) {
-        return aitportals$handleWorld(instance.load(blueprint, id));
+    @Redirect(method = "load", at = @At(value = "INVOKE", target = "Ldev/amble/ait/core/world/TardisServerWorld;setTardis(Ldev/amble/ait/core/tardis/ServerTardis;)V"))
+    private static void load(TardisServerWorld instance, ServerTardis tardis) {
+        instance.setTardis(tardis);
+        aitportals$handleWorld(instance);
     }
 
     @Unique
