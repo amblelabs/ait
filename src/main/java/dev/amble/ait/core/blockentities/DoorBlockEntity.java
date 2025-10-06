@@ -63,7 +63,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
         Tardis tardis = door.tardis().get();
 
-        if (world.getServer().getTicks() % 20 != 0)
+        if (world.getServer().getTicks() % 5 != 0)
             return;
 
         CachedDirectedGlobalPos globalExteriorPos = tardis.travel().position();
@@ -77,7 +77,13 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
         if (exteriorWorld == null)
             return;
 
-        blockState = blockState.with(DoorBlock.LEVEL_4, 0);
+        blockState = blockState.with(DoorBlock.LEVEL_4, exteriorWorld.getLightLevel(exteriorPos.up()));
+
+        // exit early for light updates
+        if (world.getServer().getTicks() % 20 != 0) {
+            world.setBlockState(pos, blockState, Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
+            return;
+        }
 
         if (!tardis.door().isOpen() || tardis.areShieldsActive()) {
             world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, false),
@@ -102,9 +108,8 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
         // TODO: performance sink. this should ideally be done in the exterior block code...
         boolean waterlogged = exteriorWorld.getBlockState(exteriorPos).get(Properties.WATERLOGGED);
-        int light = exteriorWorld.getLightLevel(exteriorPos.up());
 
-        world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, waterlogged).with(DoorBlock.LEVEL_4, light),
+        world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, waterlogged),
                 Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
 
         world.emitGameEvent(null, GameEvent.BLOCK_CHANGE, pos);
