@@ -53,10 +53,6 @@ public class AITClientConfig {
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
-    @SerialEntry public boolean shouldRenderBOTIInterior = false;
-
-    @AutoGen(category = CATEGORY)
-    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean greenScreenBOTI = false;
 
     @AutoGen(category = CATEGORY)

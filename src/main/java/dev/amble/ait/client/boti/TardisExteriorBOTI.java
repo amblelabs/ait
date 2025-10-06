@@ -1,6 +1,5 @@
 package dev.amble.ait.client.boti;
 
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
@@ -28,7 +27,6 @@ import dev.amble.ait.core.tardis.handler.StatsHandler;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
-
 
 public class TardisExteriorBOTI extends BOTI {
     public void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, ExteriorModel frame, ModelPart mask, int light) {
@@ -77,7 +75,7 @@ public class TardisExteriorBOTI extends BOTI {
                 (float) parent.portalHeight() * scale.y(), scale.z());
         Vec3d vec = parent.adjustPortalPos(new Vec3d(0, -0.4675f, 0), (byte) 0);
         stack.translate(vec.x, vec.y, vec.z);
-        RenderLayer whichOne = AITModClient.CONFIG.shouldRenderBOTIInterior || AITModClient.CONFIG.greenScreenBOTI ?
+        RenderLayer whichOne = AITModClient.CONFIG.greenScreenBOTI ?
                 RenderLayer.getDebugFilledBox() : RenderLayer.getEndGateway();
         float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0, 1} : new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
         mask.render(stack, botiProvider.getBuffer(whichOne), light, OverlayTexture.DEFAULT_UV, colorsForGreenScreen[0], colorsForGreenScreen[1], colorsForGreenScreen[2], 1);
