@@ -58,7 +58,6 @@ public abstract class DalekModVariant extends ExteriorVariantSchema {
 
     @Override
     public boolean hasPortals() {
-        return true;
+        return false;
     }
-
 }
