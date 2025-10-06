@@ -16,6 +16,8 @@ import dev.amble.lib.data.DirectedGlobalPos;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.world.ServerWorld;
@@ -26,6 +28,7 @@ import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.imm_ptl.core.render.PortalEntityRenderer;
+import qouteall.q_misc_util.MiscNetworking;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 public class PortalsHandler extends KeyedTardisComponent {
@@ -92,6 +95,11 @@ public class PortalsHandler extends KeyedTardisComponent {
 
 			if (tdis.door().isOpen()) handler.generatePortals();
 		});
+
+        ServerPlayConnectionEvents.JOIN.register((serverPlayNetworkHandler, packetSender, minecraftServer) -> {
+            Packet<?> dimSyncPacket = MiscNetworking.createDimSyncPacket();
+            serverPlayNetworkHandler.sendPacket(dimSyncPacket);
+        });
 
         PortalVisualizerUtil.init();
 	}
