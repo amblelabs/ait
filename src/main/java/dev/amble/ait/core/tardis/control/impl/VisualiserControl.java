@@ -34,7 +34,7 @@ public class VisualiserControl extends Control {
 
             return PortalsAPI.VISUALIZER.map(visualizer -> {
                 CachedDirectedGlobalPos pos = tardis.travel().position();
-                visualizer.open(player, pos.getWorld(), pos.getPos().up((int) Math.ceil(tardis.getExterior().getVariant().portalHeight())));
+                visualizer.open(player, pos.getWorld(), pos.getPos().up((int) Math.ceil(tardis.getExterior().getVariant().portalHeight()) + 1));
                 return Result.SUCCESS;
             }).orElse(Result.FAILURE);
         }
