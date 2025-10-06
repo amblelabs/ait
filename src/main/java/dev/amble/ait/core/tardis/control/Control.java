@@ -1,6 +1,9 @@
 package dev.amble.ait.core.tardis.control;
 
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.core.tardis.handler.mood.v2.Emotion;
+import dev.amble.ait.core.tardis.handler.mood.v2.MoodHandler2;
 import dev.amble.lib.api.Identifiable;
 
 import net.minecraft.particle.ParticleTypes;
@@ -64,6 +67,7 @@ public class Control implements Identifiable {
 
         if (AITMod.RANDOM.nextInt(0, 20) == 4) {
             tardis.loyalty().addLevel(player, 1);
+            tardis.<MoodHandler2>handler(TardisComponent.Id.MOOD).add(Emotion.Type.RELIEVED, 0.005f);
 
             player.getServerWorld().spawnParticles(ParticleTypes.HEART, pos.toCenterPos().getX(),
                     pos.toCenterPos().getY() + 1, pos.toCenterPos().getZ(), 1, 0f, 1F, 0f, 5.0F);
