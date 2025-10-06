@@ -86,6 +86,10 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     protected void init() {
         this.modeManager = new SwitcherManager.ModeManager(this.tardis());
         this.selectedDesktop = tardis().getDesktop().getSchema();
+
+        if (this.selectedDesktop == null)
+            this.nextDesktop();
+        
         this.top = (this.height - this.bgHeight) / 2; // this means everythings centered and scaling, same for below
         this.left = (this.width - this.bgWidth) / 2;
         this.createButtons();
@@ -115,15 +119,15 @@ public class InteriorSettingsScreen extends ConsoleScreen {
                 .formatted(this.console != null ? Formatting.WHITE : Formatting.GRAY), button -> sendCachePacket());
         createTextButton(Text.translatable("screen.ait.security.button"), (button -> toSecurityScreen()));
 
-        boolean showSonicButton = console != null && MinecraftClient.getInstance().world.getBlockEntity(console) instanceof ConsoleBlockEntity consoleBlock 
+        boolean showSonicButton = console != null && MinecraftClient.getInstance().world.getBlockEntity(console) instanceof ConsoleBlockEntity consoleBlock
                 && consoleBlock.getSonicScrewdriver() != null && !consoleBlock.getSonicScrewdriver().isEmpty();
-        
+
         createTextButton(Text.translatable("screen.ait.sonic.button")
                 .formatted(showSonicButton ? Formatting.WHITE : Formatting.GRAY), button -> {
                     if (showSonicButton)
                         toSonicScreen();
                 });
-        
+
         this.createCompatButtons();
         TardisClientEvents.SETTINGS_SETUP.invoker().onSetup(this);
 
@@ -421,7 +425,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private static TardisDesktopSchema nextDesktop(TardisDesktopSchema current) {
         List<TardisDesktopSchema> list = DesktopRegistry.getInstance().toList();
 
-        int idx = list.indexOf(current);
+        int idx = current == null ? -1 : list.indexOf(current);
         idx = (idx + 1) % list.size();
         return list.get(idx);
     }
@@ -436,7 +440,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private static TardisDesktopSchema previousDesktop(TardisDesktopSchema current) {
         List<TardisDesktopSchema> list = DesktopRegistry.getInstance().toList();
 
-        int idx = list.indexOf(current);
+        int idx = current == null ? -1 : list.indexOf(current);
         idx = (idx - 1 + list.size()) % list.size();
         return list.get(idx);
     }

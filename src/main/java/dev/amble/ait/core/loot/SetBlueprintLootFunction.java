@@ -16,7 +16,6 @@ import net.minecraft.loot.function.LootFunctionType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.core.item.blueprint.BlueprintItem;
 import dev.amble.ait.core.item.blueprint.BlueprintRegistry;
 import dev.amble.ait.core.item.blueprint.BlueprintSchema;
@@ -32,7 +31,7 @@ public class SetBlueprintLootFunction extends ConditionalLootFunction {
         super(conditions);
         this.blueprint = blueprint;
     }
-    
+
     @Override
     public LootFunctionType getType() {
         return BlueprintRegistry.BLUEPRINT_TYPE;
@@ -53,7 +52,7 @@ public class SetBlueprintLootFunction extends ConditionalLootFunction {
         return SetBlueprintLootFunction
                 .builder((LootCondition[] conditions) -> new SetBlueprintLootFunction(conditions, () -> BlueprintRegistry.getInstance().getRandom()));
     }
-    
+
     public static class Serializer extends ConditionalLootFunction.Serializer<SetBlueprintLootFunction> {
         @Override
         public void toJson(JsonObject jsonObject, SetBlueprintLootFunction setBlueprintLootFunction,

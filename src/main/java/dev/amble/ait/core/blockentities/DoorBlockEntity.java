@@ -102,6 +102,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
         if (!(exteriorState.getBlock() instanceof ExteriorBlock))
             return;
 
+        // TODO: performance sink. this should ideally be done in the exterior block code...
         boolean waterlogged = exteriorWorld.getBlockState(exteriorPos).get(Properties.WATERLOGGED);
 
         world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, waterlogged),

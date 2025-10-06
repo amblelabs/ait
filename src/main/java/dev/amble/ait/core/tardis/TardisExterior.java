@@ -42,10 +42,12 @@ public class TardisExterior extends TardisComponent {
             ExteriorVariantSchema schema = ExteriorVariantRegistry.getInstance()
                     .get(variantValue);
 
-            if (!tardis.getExterior().update(schema, variantChange))
-                return;
+            server.execute(() -> {
+                if (!tardis.getExterior().update(schema, variantChange))
+                    return;
 
-            server.execute(() -> StackUtil.playBreak(player));
+                StackUtil.playBreak(player);
+            });
         }));
     }
 
