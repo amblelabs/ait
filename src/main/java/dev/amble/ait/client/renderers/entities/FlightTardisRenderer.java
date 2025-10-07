@@ -1,5 +1,15 @@
 package dev.amble.ait.client.renderers.entities;
 
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.models.machines.ShieldsModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.renderers.VortexRender;
+import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.entities.FlightTardisEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.BiomeHandler;
+import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.OverlayTexture;
@@ -13,17 +23,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
-
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
-import dev.amble.ait.client.models.machines.ShieldsModel;
-import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.client.renderers.VortexUtil;
-import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.entities.FlightTardisEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.BiomeHandler;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 
 public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
@@ -62,13 +61,11 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
             matrices.translate(0, 0.25f * -vec3d2.getY(), 0);
 
         if (tardis.travel().position().getDimension() == AITDimensions.TIME_VORTEX_WORLD) {
-            VortexUtil vortexUtil = tardis.stats().getVortexEffects().toUtil();
+            VortexRender vortexRender = tardis.stats().getVortexEffects().toRender();
             matrices.push();
             matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) MinecraftClient.getInstance().player.age / 100 * 360f));
             matrices.translate(0, 0, 500);
-            vortexUtil.renderVortex(matrices);
-            vortexUtil.renderVortexLayer(matrices, 1.5f);
-            vortexUtil.renderVortexLayer(matrices, 2.5f);
+            vortexRender.render(matrices);
             matrices.pop();
         }
 

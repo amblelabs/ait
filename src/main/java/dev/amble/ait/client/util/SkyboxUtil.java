@@ -2,12 +2,16 @@ package dev.amble.ait.client.util;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
-import org.lwjgl.opengl.GL11;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.renderers.VortexRender;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.module.planet.client.renderers.CelestialBodyRenderer;
+import dev.amble.ait.module.planet.client.renderers.SpaceSkyRenderer;
+import dev.amble.ait.module.planet.core.space.planet.Planet;
+import dev.amble.ait.module.planet.core.space.planet.PlanetRenderInfo;
+import dev.amble.ait.module.planet.core.space.system.SolarSystem;
+import dev.amble.ait.module.planet.core.space.system.Space;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
@@ -20,17 +24,11 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.renderers.VortexUtil;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.module.planet.client.renderers.CelestialBodyRenderer;
-import dev.amble.ait.module.planet.client.renderers.SpaceSkyRenderer;
-import dev.amble.ait.module.planet.core.space.planet.Planet;
-import dev.amble.ait.module.planet.core.space.planet.PlanetRenderInfo;
-import dev.amble.ait.module.planet.core.space.system.SolarSystem;
-import dev.amble.ait.module.planet.core.space.system.Space;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+import org.lwjgl.opengl.GL11;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 
 
@@ -47,7 +45,7 @@ public class SkyboxUtil extends WorldRenderer {
     }
 
     public static void renderVortexSky(MatrixStack matrices, Tardis tardis) {
-        VortexUtil util = tardis.stats().getVortexEffects().toUtil();
+        VortexRender util = tardis.stats().getVortexEffects().toRender();
         matrices.push();
         float scale = 100f;
         float zOffset = 500 * scale;
@@ -59,14 +57,12 @@ public class SkyboxUtil extends WorldRenderer {
         matrices.translate(0, 0, zOffset);
         matrices.scale(scale, scale, scale);
 
-        util.renderVortex(matrices);
-        util.renderVortexLayer(matrices, 1.5f);
-        util.renderVortexLayer(matrices, 2.5f);
+        util.render(matrices);
         matrices.pop();
     }
 
     public static void renderVortexSky(MatrixStack matrices) {
-        VortexUtil util = new VortexUtil("darkness");
+        VortexRender util = VortexRender.getCurrentInstance();
         matrices.push();
         float scale = 100f;
         float zOffset = 500 * scale;
@@ -76,9 +72,7 @@ public class SkyboxUtil extends WorldRenderer {
         matrices.translate(0, 0, zOffset);
         matrices.scale(scale, scale, scale);
 
-        util.renderVortex(matrices);
-        util.renderVortexLayer(matrices, 1.5f);
-        util.renderVortexLayer(matrices, 2.5f);
+        util.render(matrices);
         matrices.pop();
     }
 
