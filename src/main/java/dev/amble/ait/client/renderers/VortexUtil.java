@@ -58,7 +58,7 @@ public class VortexUtil {
         buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
 
         for (int i = 0; i < 32; ++i) {
-            this.renderSection(buffer, i, (MinecraftClient.getInstance().player.age / 200.0f) * -this.speed, (float) Math.sin(i * Math.PI / 32),
+            this.renderSection(buffer, i, ((MinecraftClient.getInstance().player.age + MinecraftClient.getInstance().getTickDelta()) / 200.0f) * -this.speed, (float) Math.sin(i * Math.PI / 32),
                     (float) Math.sin((i + 1) * Math.PI / 32), matrixStack.peek().getNormalMatrix(), matrixStack.peek().getPositionMatrix());
         }
 
@@ -92,7 +92,7 @@ public class VortexUtil {
         buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL);
 
         for (int i = 0; i < 32; ++i) {
-            this.renderSection(buffer, i, (MinecraftClient.getInstance().player.age / 200.0f) * -this.speed, (float) Math.sin(i * Math.PI / 32),
+            this.renderSection(buffer, i, ((MinecraftClient.getInstance().player.age + MinecraftClient.getInstance().getTickDelta()) / 200.0f) * -this.speed, (float) Math.sin(i * Math.PI / 32),
                     (float) Math.sin((i + 1) * Math.PI / 32), matrixStack.peek().getNormalMatrix(), matrixStack.peek().getPositionMatrix());
         }
 
