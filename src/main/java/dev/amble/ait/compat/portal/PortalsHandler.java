@@ -21,6 +21,7 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
@@ -209,12 +210,12 @@ public class PortalsHandler extends KeyedTardisComponent {
     }
 
     private static Vec3d adjustExteriorPos(ExteriorVariantSchema exterior, DirectedGlobalPos directed) {
-        return exterior.adjustPortalPos(directed.getPos().toCenterPos(), directed.getRotation()).add(0, 0.75f, 0);
+        return exterior.getPortalPosition(directed.getPos().toCenterPos(), directed.getRotationDegrees()).add(0, 0.75f, 0);
     }
 
     private static Vec3d adjustInteriorPos(DoorSchema door, DirectedBlockPos directed) {
-        return door.adjustPortalPos(directed.getPos().toCenterPos(),
-                RotationPropertyHelper.toDirection(directed.getRotation()).get()
+        return door.getPortalPosition(directed.getPos().toCenterPos(),
+		        RotationPropertyHelper.toDegrees(directed.getRotation())
         ).add(0, 0.55f, 0);
     }
 
