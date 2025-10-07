@@ -11,6 +11,7 @@ public class PortalOffsets {
             Codec.BOOL.optionalFieldOf("enabled", true).forGetter(PortalOffsets::isEnabled),
             Codec.FLOAT.optionalFieldOf("width", 1F).forGetter(PortalOffsets::getWidth),
             Codec.FLOAT.optionalFieldOf("height", 2F).forGetter(PortalOffsets::getHeight),
+            Vec3d.CODEC.optionalFieldOf("offset", Vec3d.ZERO).forGetter(map -> map.get((byte) 0)),
             Vec3d.CODEC.optionalFieldOf("north", Vec3d.ZERO).forGetter(map -> map.get(Direction.NORTH)),
             Vec3d.CODEC.optionalFieldOf("south", Vec3d.ZERO).forGetter(map -> map.get(Direction.SOUTH)),
             Vec3d.CODEC.optionalFieldOf("east", Vec3d.ZERO).forGetter(map -> map.get(Direction.EAST)),
@@ -33,10 +34,12 @@ public class PortalOffsets {
         this.height = height;
     }
 
-    public PortalOffsets(boolean enabled, float width, float height, Vec3d north, Vec3d south, Vec3d east, Vec3d west,
+    public PortalOffsets(boolean enabled, float width, float height, Vec3d position, Vec3d north, Vec3d south, Vec3d east, Vec3d west,
             Vec3d northEast, Vec3d southEast, Vec3d southWest, Vec3d northWest) {
         this(width, height);
-        this.put(Direction.NORTH, north);
+
+        if (position.length() != 0) this.put(Direction.NORTH, position);
+        else this.put(Direction.NORTH, north);
         this.put(Direction.SOUTH, south);
         this.put(Direction.EAST, east);
         this.put(Direction.WEST, west);

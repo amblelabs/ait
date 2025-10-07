@@ -109,8 +109,14 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         if (this.shouldSucc())
             this.succ();
 
+        // blame loqor.
+        boolean wasClosed = this.isClosed();
+
         leftDoorRot.flatMap(rot -> this.tryUpdateRot(rot, this.getDoorState() != DoorState.CLOSED));
         rightDoorRot.flatMap(rot -> this.tryUpdateRot(rot, this.getDoorState() == DoorState.BOTH));
+
+        if (wasClosed != this.isClosed())
+            TardisEvents.REAL_DOOR_CLOSE.invoker().onClose(tardis);
 
         if (this.doorOpenParticles != null && !this.tardis().crash().isNormal() && server.getTicks() % 5 == 0 && tardis.door().isOpen()) {
             Vec3d exteriorPosition = TardisUtil.offsetPos(tardis.travel().position().toPos(), -0.15F);
@@ -342,12 +348,9 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
             } else {
                 this.openDoors();
             }
-
-            TardisEvents.DOOR_USED.invoker().onDoorUsed(tardis, player);
-            return true;
+        } else {
+            this.setDoorState(this.getDoorState().next(doorSchema.isDouble()));
         }
-
-        this.setDoorState(this.getDoorState().next(doorSchema.isDouble()));
 
         TardisEvents.DOOR_USED.invoker().onDoorUsed(tardis, player);
         return true;

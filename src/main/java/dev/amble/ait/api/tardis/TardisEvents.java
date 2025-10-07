@@ -147,6 +147,13 @@ public final class TardisEvents {
                 }
             });
 
+    public static final Event<CloseDoor> REAL_DOOR_CLOSE = EventFactory.createArrayBacked(CloseDoor.class,
+            callbacks -> (tardis) -> {
+                for (CloseDoor callback : callbacks) {
+                    callback.onClose(tardis);
+                }
+            });
+
     public static final Event<MoveDoor> DOOR_MOVE = EventFactory.createArrayBacked(MoveDoor.class,
             callbacks -> (tardis, newPos, oldPos) -> {
                 for (MoveDoor callback : callbacks) {

@@ -21,6 +21,7 @@ import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A variant for a {@link ExteriorCategorySchema} which provides a model,
@@ -115,8 +116,25 @@ public abstract class ExteriorVariantSchema extends BasicSchema implements Unloc
         return this.category().hasPortals();
     }
 
+    /**
+     * @deprecated {@link #getPortalPosition()}
+     */
+    @Deprecated(forRemoval = true)
     public Vec3d adjustPortalPos(Vec3d pos, byte direction) {
         return pos; // just cus some dont have portals
+    }
+
+    @Nullable
+    public Vec3d getPortalPosition() {
+        return adjustPortalPos(Vec3d.ZERO, (byte) 0);
+    }
+
+    @Nullable
+    public Vec3d getPortalPosition(Vec3d origin, float angle) {
+        Vec3d pos = getPortalPosition();
+        if (pos == null) return null;
+
+        return pos.rotateX((float) Math.toRadians(180)).rotateY((float) Math.toRadians(180 - angle)).multiply(1, -1, 1).add(origin);
     }
 
     public double portalWidth() {

@@ -46,7 +46,8 @@ public class AITBlocks extends BlockContainer {
     @PickaxeMineable
     @NoEnglish
     public static final Block DOOR_BLOCK = new DoorBlock(FabricBlockSettings.create().nonOpaque().noCollision()
-            .instrument(Instrument.BASEDRUM).requiresTool().strength(0.5F, 6.0F).pistonBehavior(PistonBehavior.IGNORE));
+            .instrument(Instrument.BASEDRUM).requiresTool().strength(0.5F, 6.0F).pistonBehavior(PistonBehavior.IGNORE).luminance(ExteriorBlock.STATE_TO_LUMINANCE));
+
     @NoBlockDrop
     @NoEnglish
     public static final Block CONSOLE = new ConsoleBlock(

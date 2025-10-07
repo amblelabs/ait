@@ -88,7 +88,8 @@
 	},
 	"suggests": {
 		"k9-mod": "*",
-		"fabric-permissions-api": "*"
+		"fabric-permissions-api": "*",
+		"immersiveportals": "~v3.3.9-mc1.20.1"
 	},
 	"custom": {
 		"modmenu": {

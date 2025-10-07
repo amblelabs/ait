@@ -15,6 +15,7 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.data.schema.door.impl.CapsuleDoorVariant;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This class provides information about a door for an exterior <br>
@@ -61,8 +62,25 @@ public abstract class DoorSchema implements Identifiable {
         return AITSounds.POLICE_BOX_DOOR_CLOSE;
     }
 
+    /**
+     * @deprecated {@link #getPortalPosition()}
+     */
+    @Deprecated(forRemoval = true)
     public Vec3d adjustPortalPos(Vec3d pos, Direction direction) {
         return pos; // just cus some dont have portals
+    }
+
+    @Nullable
+    public Vec3d getPortalPosition() {
+        return adjustPortalPos(Vec3d.ZERO, Direction.NORTH);
+    }
+
+    @Nullable
+    public Vec3d getPortalPosition(Vec3d origin, float angle) {
+        Vec3d pos = getPortalPosition();
+        if (pos == null) return null;
+
+        return pos.rotateX((float) Math.toRadians(180)).rotateY((float) Math.toRadians(180 - angle)).multiply(1, -1, 1).add(origin);
     }
 
     public static Object serializer() {

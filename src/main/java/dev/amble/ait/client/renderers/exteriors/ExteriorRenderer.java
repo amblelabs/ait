@@ -82,9 +82,14 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         profiler.pop();
     }
 
+    private boolean awesomeIPEmissionHack(Tardis tardis) {
+        return DependencyChecker.hasPortals() && ClientTardisUtil.getCurrentTardis() == tardis;
+    }
+
     private void renderExterior(Profiler profiler, ClientTardis tardis, T entity, float tickDelta, MatrixStack matrices,
                                 VertexConsumerProvider vertexConsumers, int light, int overlay) {
         final float alpha = tardis.travel().getAlpha(tickDelta);
+        // tf does even all of this do?
         RenderSystem.enableCull();
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
@@ -194,7 +199,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         //  2) there is an emissive texture
         //  3) there's power OR alarms on
         if (alpha > 0.105f && emission != null && (power || alarms)
-                && !emission.equals(DatapackConsole.EMPTY)) {
+                && !emission.equals(DatapackConsole.EMPTY) && !awesomeIPEmissionHack(tardis)) {
             float u = 1;
             float t = 1;
             float s = 1;

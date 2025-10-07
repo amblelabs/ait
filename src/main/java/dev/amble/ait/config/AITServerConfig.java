@@ -16,6 +16,7 @@ import dev.isxander.yacl3.platform.YACLPlatform;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITDimensions;
+import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
 public class AITServerConfig {
 
@@ -44,6 +45,11 @@ public class AITServerConfig {
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean rwfEnabled = false;
+
+    @AutoGen(category = CATEGORY)
+    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+
+    @SerialEntry public boolean allowPortalsBoti = false;
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)

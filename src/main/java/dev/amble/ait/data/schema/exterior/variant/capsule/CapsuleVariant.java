@@ -29,7 +29,7 @@ public abstract class CapsuleVariant extends ExteriorVariantSchema {
 
     @Override
     public boolean hasPortals() {
-        return true;
+        return false;
     }
 
     @Override

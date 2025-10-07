@@ -151,6 +151,7 @@ public class AITModClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register(new ExteriorAxeOverlay());
 
         ClientPreAttackCallback.EVENT.register((client, player, clickCount) -> (player.getMainHandStack().getItem() instanceof BaseGunItem));
+
         if (DependencyChecker.hasIris()) {
             WorldRenderEvents.END.register(this::exteriorBOTI);
             WorldRenderEvents.END.register(this::doorBOTI);
@@ -248,7 +249,7 @@ public class AITModClient implements ClientModInitializer {
 
         AstralMapBlock.registerSyncListener();
 
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn());
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn(client));
     }
     public static Screen screenFromId(int id) {
         return screenFromId(id, null, null);
@@ -458,7 +459,17 @@ public class AITModClient implements ClientModInitializer {
         ParticleFactoryRegistry.getInstance().register(CORAL_PARTICLE, EndRodParticle.Factory::new);
     }
 
+    private boolean skipBuiltInBOTI() {
+        return (DependencyChecker.hasPortals() && CONFIG.allowPortalsBoti) || !CONFIG.enableTardisBOTI;
+    }
+
+    private boolean skipPaintingBOTI() {
+        return DependencyChecker.hasPortals() || !CONFIG.enableTardisBOTI;
+    }
+
     public void exteriorBOTI(WorldRenderContext context) {
+        if (skipBuiltInBOTI()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
@@ -490,6 +501,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void doorBOTI(WorldRenderContext context) {
+        if (skipBuiltInBOTI()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
@@ -522,6 +535,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void gallifreyanBOTI(WorldRenderContext context) {
+        if (skipPaintingBOTI()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         SinglePartEntityModel contents = new GallifreyFallsModel(GallifreyFallsModel.getTexturedModelData().createModel());
         Identifier frameTex = GallifreyanPaintingEntityRenderer.GALLIFREY_FRAME_TEXTURE;
@@ -549,6 +564,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void trenzaloreBOTI(WorldRenderContext context) {
+        if (skipPaintingBOTI()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         SinglePartEntityModel contents = new TrenzalorePaintingModel(TrenzalorePaintingModel.getTexturedModelData().createModel());
         Identifier frameTex = TrenzalorePaintingEntityRenderer.TRENZALORE_FRAME_TEXTURE;
@@ -576,6 +593,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void riftBOTI(WorldRenderContext context) {
+        if (skipPaintingBOTI()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;

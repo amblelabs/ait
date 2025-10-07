@@ -18,9 +18,7 @@ public class PermissionAPICompat implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        if (DependencyChecker.hasPermissionApi()) {
-            CHECKER = (ctx, permission, level) -> Permissions.check(ctx, permission, level);
-        }
+        if (DependencyChecker.hasPermissionApi()) CHECKER = Permissions::check;
     }
 
     // Public static method to use the permission check lambda

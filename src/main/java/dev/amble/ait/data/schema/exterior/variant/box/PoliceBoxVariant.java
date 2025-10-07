@@ -51,7 +51,7 @@ public abstract class PoliceBoxVariant extends ExteriorVariantSchema {
 
     @Override
     public double portalHeight() {
-        return 2.28d;
+        return 2d;
     }
 
     @Override

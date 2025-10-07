@@ -1,6 +1,8 @@
 package dev.amble.ait.client.renderers;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.core.world.TardisServerWorld;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import org.joml.Matrix4f;
 
@@ -23,7 +25,11 @@ public class TardisStar {
     private static final float HALF_SQRT_3 = (float) (Math.sqrt(3.0) / 2.0);
 
     public static void render(WorldRenderContext context, Tardis tardis) {
+        if (DependencyChecker.hasPortals() && !TardisServerWorld.isTardisDimension(context.world()))
+            return;
+
         renderShine(context, tardis);
+
         renderStar(context, tardis);
         if (!tardis.isGrowth() && !tardis.alarm().isEnabled() && tardis.fuel().hasPower())
             RenderSystem.setShaderFogColor(1, 1, 1, 0);

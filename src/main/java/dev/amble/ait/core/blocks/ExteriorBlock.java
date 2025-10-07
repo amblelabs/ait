@@ -2,6 +2,7 @@ package dev.amble.ait.core.blocks;
 
 import java.util.function.ToIntFunction;
 
+import dev.amble.ait.AITMod;
 import dev.amble.lib.api.ICantBreak;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -193,7 +194,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         if (travelState == TravelHandlerBase.State.LANDED || tardis.travel().getAlpha() > 0.75)
             return normal;
 
-        if (DependencyChecker.hasPortals())
+        if (DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti)
             return PORTALS_SHAPE;
 
         return VoxelShapes.empty();
@@ -227,7 +228,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         if (tardis.getExterior().getVariant().equals(ExteriorVariantRegistry.DOOM))
             return LEDGE_DOOM;
 
-        if (DependencyChecker.hasPortals() && !tardis.door().isOpen() && tardis.getExterior().getVariant().hasPortals())
+        if (DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti && !tardis.door().isOpen() && tardis.getExterior().getVariant().hasPortals())
             return getNormalShape(state, true);
 
         if (tardis.chameleon().isApplied())
@@ -239,7 +240,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
                 || travel.isHitboxShown())
             return getNormalShape(state, false);
 
-        if (DependencyChecker.hasPortals())
+        if (DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti)
             return PORTALS_SHAPE;
 
         return VoxelShapes.empty();
@@ -253,10 +254,10 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         VoxelShape shape;
 
         if (direction == null) {
-            shape = DependencyChecker.hasPortals() && !ignorePortals ? PORTALS_SHAPE_DIAGONAL : DIAGONAL_SHAPE;
+            shape = DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti && !ignorePortals ? PORTALS_SHAPE_DIAGONAL : DIAGONAL_SHAPE;
             direction = approximateDirection(state.get(ROTATION));
         } else {
-            shape = DependencyChecker.hasPortals() && !ignorePortals ? PORTALS_SHAPE : CUBE_NORTH_SHAPE;
+            shape = DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti && !ignorePortals ? PORTALS_SHAPE : CUBE_NORTH_SHAPE;
         }
 
         return ShapeUtil.rotate(Direction.NORTH, direction, shape);
@@ -293,7 +294,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         if (tardis.getExterior().getVariant().equals(ExteriorVariantRegistry.DOOM))
             return LEDGE_DOOM;
 
-        if (DependencyChecker.hasPortals())
+        if (DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti)
             return PORTALS_SHAPE;
 
         return VoxelShapes.empty();
