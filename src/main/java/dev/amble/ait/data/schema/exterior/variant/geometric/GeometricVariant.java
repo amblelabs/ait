@@ -29,7 +29,7 @@ public abstract class GeometricVariant extends ExteriorVariantSchema {
 
     @Override
     public boolean hasPortals() {
-        return false;
+        return true;
     }
 
     @Override
