@@ -29,3 +29,4 @@
 - tweak: Updated some block textures / models | by [@Addi3](https://github.com/Addi3) ([#1906](https://github.com/amblelabs/ait/pull/1906))
 - fix: missing desktops no longer crash your game when you open the monitor | by [@drtheodor](https://github.com/drtheodor) ([#1916](https://github.com/amblelabs/ait/pull/1916))
 - fix: got rid of various multithreading issues causing dedicated servers to crash | by [@drtheodor](https://github.com/drtheodor) ([#1900](https://github.com/amblelabs/ait/pull/1900))
+- fix: tardises no longer collapse the universe if they're placed inside themselves | by [@drtheodor](https://github.com/drtheodor) ([#1924](https://github.com/amblelabs/ait/pull/1924))
