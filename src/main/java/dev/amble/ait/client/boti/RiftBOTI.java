@@ -1,10 +1,8 @@
 package dev.amble.ait.client.boti;
 
-import static dev.amble.ait.client.renderers.entities.RiftEntityRenderer.RIFT_TEXTURE;
-
 import com.mojang.blaze3d.systems.RenderSystem;
-import org.lwjgl.opengl.GL11;
-
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.renderers.VortexRender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
@@ -12,9 +10,9 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
+import org.lwjgl.opengl.GL11;
 
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.renderers.VortexUtil;
+import static dev.amble.ait.client.renderers.entities.RiftEntityRenderer.RIFT_TEXTURE;
 
 public class RiftBOTI extends BOTI {
     public static void renderRiftBoti(MatrixStack stack, SinglePartEntityModel frame, int pack) {
@@ -61,10 +59,8 @@ public class RiftBOTI extends BOTI {
         //stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90));
         stack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) MinecraftClient.getInstance().player.age / 50 * 360f));
         stack.translate(0, -1, 500);
-        VortexUtil util = new VortexUtil("darkness");
-        util.renderVortex(stack);
-        util.renderVortexLayer(stack, 1.5f);
-        util.renderVortexLayer(stack, 2.5f);
+        VortexRender util = VortexRender.getCurrentInstance();
+        util.render(stack);
         portalProvider.draw();
         stack.pop();
 
