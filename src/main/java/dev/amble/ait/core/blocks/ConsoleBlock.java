@@ -2,6 +2,9 @@ package dev.amble.ait.core.blocks;
 
 import java.util.Random;
 
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.core.tardis.handler.mood.v2.Emotion;
+import dev.amble.ait.core.tardis.handler.mood.v2.MoodHandler2;
 import dev.amble.lib.api.ICantBreak;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -174,16 +177,18 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
             player.addVelocity(0.15f * x_random * (is_x_negative ? -1 : 1), 0.1f * y_random,
                     0.15f * z_random * (is_z_negative ? -1 : 1));
 
-            if (player instanceof ServerPlayerEntity) {
+            if (world instanceof TardisServerWorld serverWorld) {
+                MoodHandler2 mood = serverWorld.getTardis().handler(TardisComponent.Id.MOOD);
+                mood.add(Emotion.Type.UPSET, 0.01f);
+
                 for (int i = 0; i < 100; i++) {
-                    ((ServerWorld) world).spawnParticles(ParticleTypes.ANGRY_VILLAGER,
+                    serverWorld.spawnParticles(ParticleTypes.ANGRY_VILLAGER,
                             pos.getX() + random.nextFloat(-2, 3), pos.getY() + random.nextFloat(2),
                             pos.getZ() + random.nextFloat(-2, 3), 1, random.nextFloat(-5, 5), random.nextFloat(-5, 5),
                             random.nextFloat(-5, 5), 1f);
                 }
             }
         }
-        super.onSteppedOn(world, pos, state, entity);
     }
 
     // This will literally never happen

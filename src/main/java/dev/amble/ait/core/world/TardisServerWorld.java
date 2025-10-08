@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.function.BooleanSupplier;
 
+import dev.amble.ait.core.tardis.handler.permissions.Permission;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.drtheo.multidim.MultiDim;
 import dev.drtheo.multidim.MultiDimMod;
@@ -12,6 +13,13 @@ import dev.drtheo.multidim.api.MultiDimServerWorld;
 import dev.drtheo.multidim.api.WorldBlueprint;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.EntityShapeContext;
+import net.minecraft.block.ShapeContext;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityInteraction;
+import net.minecraft.entity.InteractionObserver;
+import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.world.ClientWorld;
@@ -45,6 +53,22 @@ public class TardisServerWorld extends MultiDimServerWorld {
     public TardisServerWorld(WorldBlueprint blueprint, MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey<World> worldKey, DimensionOptions dimensionOptions, WorldGenerationProgressListener worldGenerationProgressListener, List<Spawner> spawners, @Nullable RandomSequencesState randomSequencesState, boolean created) {
         super(blueprint, server, workerExecutor, session, properties, worldKey, dimensionOptions, worldGenerationProgressListener, spawners, randomSequencesState, created);
         this.setMobSpawnOptions(false, false);
+    }
+
+    @Override
+    public boolean breakBlock(BlockPos pos, boolean drop, @Nullable Entity breakingEntity, int maxUpdateDepth) {
+        if (breakingEntity instanceof ServerPlayerEntity player && tardis != null && !tardis.permissions().check(player, Permission.MODIFY.BREAK.get()))
+            return false;
+
+        return super.breakBlock(pos, drop, breakingEntity, maxUpdateDepth);
+    }
+
+    @Override
+    public boolean canPlace(BlockState state, BlockPos pos, ShapeContext context) {
+        if (context instanceof EntityShapeContext ctx && ctx.getEntity() instanceof ServerPlayerEntity player && tardis != null && !tardis.permissions().check(player, Permission.MODIFY.PLACE.get()))
+            return false;
+
+        return super.canPlace(state, pos, context);
     }
 
     @Override

@@ -2,6 +2,9 @@ package dev.amble.ait.core.likes;
 
 import java.util.Optional;
 
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.core.tardis.handler.mood.v2.Emotion;
+import dev.amble.ait.core.tardis.handler.mood.v2.MoodHandler2;
 import dev.amble.lib.api.Identifiable;
 
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -18,6 +21,7 @@ public interface Opinion extends Identifiable {
     }
     default void apply(ServerTardis tardis, ServerPlayerEntity target) {
         tardis.loyalty().addLevel(target, loyalty());
+        tardis.<MoodHandler2>handler(TardisComponent.Id.MOOD).add(Emotion.Type.GRATEFUL, 0.001f);
     }
 
     enum Type {

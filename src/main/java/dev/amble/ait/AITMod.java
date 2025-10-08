@@ -103,6 +103,9 @@ public class AITMod implements ModInitializer {
     public static final GameRules.Key<GameRules.BooleanRule> TARDIS_FIRE_GRIEFING = GameRuleRegistry.register("tardisFireGriefing",
             GameRules.Category.MISC, GameRuleFactory.createBooleanRule(false));
 
+    public static final GameRules.Key<GameRules.BooleanRule> TARDIS_SUICIDAL = GameRuleRegistry.register("tardisCanBeSuicidal",
+            GameRules.Category.MISC, GameRuleFactory.createBooleanRule(false));
+
 
     public static final RegistryKey<PlacedFeature> CUSTOM_GEODE_PLACED_KEY = RegistryKey.of(RegistryKeys.PLACED_FEATURE,
             new Identifier(MOD_ID, "zeiton_geode"));

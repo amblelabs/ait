@@ -8,6 +8,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
+import dev.amble.ait.core.tardis.handler.mood.v2.MoodHandler2;
 import net.minecraft.server.command.ServerCommandSource;
 
 import dev.amble.ait.AITMod;
@@ -28,7 +29,8 @@ public class TriggerMoodRollCommand {
     private static int triggerMoodRollCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
 
-        tardis.<MoodHandler>handler(TardisComponent.Id.MOOD).rollForMoodDictatedEvent();
+        System.out.println(tardis.<MoodHandler2>handler(TardisComponent.Id.MOOD).container.toString());
+        //tardis.<MoodHandler2>handler(TardisComponent.Id.MOOD).runEvent();
 
         return Command.SINGLE_SUCCESS;
     }

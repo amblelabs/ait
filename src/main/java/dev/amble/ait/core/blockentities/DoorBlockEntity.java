@@ -1,5 +1,8 @@
 package dev.amble.ait.core.blockentities;
 
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.core.tardis.handler.mood.v2.Emotion;
+import dev.amble.ait.core.tardis.handler.mood.v2.MoodHandler2;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -82,7 +85,10 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
         }
 
         if (blockState.get(Properties.WATERLOGGED) && world.getRandom().nextBoolean()) {
-            serverWorld.getPlayers().forEach(player -> tardis.loyalty().subLevel(player, 2));
+            serverWorld.getPlayers().forEach(player -> {
+                tardis.loyalty().subLevel(player, 2);
+                tardis.<MoodHandler2>handler(TardisComponent.Id.MOOD).add(Emotion.Type.UPSET, 0.001f);
+            });
         }
 
         ChunkPos exteriorChunkPos = new ChunkPos(exteriorPos);

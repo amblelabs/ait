@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.core.tardis.handler.mood.v2.Emotion;
+import dev.amble.ait.core.tardis.handler.mood.v2.MoodHandler2;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -121,6 +126,8 @@ public class KeyItem extends LinkableItem {
             return;
 
         tardis.loyalty().subLevel(player, 10);
+        tardis.<MoodHandler2>handler(TardisComponent.Id.MOOD).add(Emotion.Type.UPSET, 0.01f);
+
         tardis.getDesktop().playSoundAtEveryConsole(AITSounds.CLOISTER);
     }
 
