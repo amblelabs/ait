@@ -62,7 +62,7 @@ public class LandingPadSpot {
 
     public void claim(Tardis tardis) {
         if (this.isOccupied() && !this.tardis.getId().equals(tardis.getUuid()) && !this.tardis.contains(tardis))
-            throw new IllegalStateException("Spot already occupied");
+            throw new IllegalStateException("Spot at %s already occupied by %s cannot be claimed by %s".formatted(this.pos, this.tardis.getId(), tardis.getUuid()));
 
         this.tardis = new TardisRef(tardis, uuid -> null);
         this.pos = tardis.travel().destination().getPos();
