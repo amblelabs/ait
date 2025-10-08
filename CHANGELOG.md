@@ -30,3 +30,5 @@
 - fix: missing desktops no longer crash your game when you open the monitor | by [@drtheodor](https://github.com/drtheodor) ([#1916](https://github.com/amblelabs/ait/pull/1916))
 - fix: got rid of various multithreading issues causing dedicated servers to crash | by [@drtheodor](https://github.com/drtheodor) ([#1900](https://github.com/amblelabs/ait/pull/1900))
 - fix: tardises no longer collapse the universe if they're placed inside themselves | by [@drtheodor](https://github.com/drtheodor) ([#1924](https://github.com/amblelabs/ait/pull/1924))
+- perf: reuse a singleton vortex renderer | by [@duzos](https://github.com/duzos) ([#1922](https://github.com/amblelabs/ait/pull/1922))
+- feat: vortex dim now shows last seen vortex | by [@duzos](https://github.com/duzos) ([#1922](https://github.com/amblelabs/ait/pull/1922))
