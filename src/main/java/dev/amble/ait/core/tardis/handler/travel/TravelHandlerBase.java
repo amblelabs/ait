@@ -105,7 +105,7 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
         this.destination.ifPresent(cached -> cached.init(current), false);
         this.previousPosition.ifPresent(cached -> cached.init(current), false);
     }
-    
+
     @Override
     public void tick(MinecraftServer server) {
         TardisCrashHandler crash = tardis.crash();

@@ -39,7 +39,6 @@ import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
-import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.schema.exterior.variant.adaptive.AdaptiveVariant;
 

@@ -1,16 +1,18 @@
 package dev.amble.ait.client.renderers;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
-import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
+import org.jetbrains.annotations.ApiStatus;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.ApiStatus;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
+import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
 
 public class VortexRender {
     private static VortexRender INSTANCE;

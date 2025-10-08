@@ -36,7 +36,6 @@ import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
-import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.util.ShapeUtil;
 
@@ -63,17 +62,17 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
 
     private static void setDoorLight(ServerTardis tardis, int level) {
         if (!tardis.hasWorld() || !tardis.world().shouldTick()) return;
-        
+
         ServerWorld world = tardis.world();
 
         // FIXME: ensure the DOOR_OPEN and DOOR_CLOSE events always get called on the main thread instead of doing this
         world.getServer().execute(() -> {
             BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
-    
+
             BlockState state = world.getBlockState(pos);
             if (!(state.getBlock() instanceof DoorBlock))
                 return;
-    
+
             world.setBlockState(pos, state.with(LEVEL_4, level));
         });
     }
