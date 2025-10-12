@@ -32,3 +32,4 @@
 - fix: tardises no longer collapse the universe if they're placed inside themselves | by [@drtheodor](https://github.com/drtheodor) ([#1924](https://github.com/amblelabs/ait/pull/1924))
 - perf: reuse a singleton vortex renderer | by [@duzos](https://github.com/duzos) ([#1922](https://github.com/amblelabs/ait/pull/1922))
 - feat: vortex dim now shows last seen vortex | by [@duzos](https://github.com/duzos) ([#1922](https://github.com/amblelabs/ait/pull/1922))
+- fix: landing pad spot claimed crash | by [@duzos](https://github.com/duzos) ([#1925](https://github.com/amblelabs/ait/pull/1925))
