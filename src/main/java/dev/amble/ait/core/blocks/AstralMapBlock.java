@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.mojang.datafixers.util.Pair;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -155,14 +156,14 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
                 return;
 
             ServerTardis tardis = ((TardisServerWorld) world).getTardis();
-            var curentPos = tardis.travel().position();
+            CachedDirectedGlobalPos curentPos = tardis.travel().position();
             ServerWorld targetWorld = curentPos.getWorld();
             BlockPos start = curentPos.getPos();
             RegistryKey<Biome> biomekey = RegistryKey.of(RegistryKeys.BIOME, target);
 
             Pair<BlockPos, RegistryEntry<Biome>> r = targetWorld.locateBiome(
                     entry -> entry.getKey().map(key -> key.equals(biomekey)).orElse(false),
-                    start, 6400, 32, 64);
+                    start, AITMod.CONFIG.astralMapBiomeLocatorRange, 32, 64);
 
             if (r != null) {
                 BlockPos locartedbiome = r.getFirst();

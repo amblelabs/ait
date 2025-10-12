@@ -823,6 +823,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.travelPerTick", "Travel Per Tick");
         provider.addTranslation("yacl3.config.ait:server.sendBulk", "Send Bulk?");
         provider.addTranslation("yacl3.config.ait:server.maxTardises", "Max Amount Of Tardises");
+        provider.addTranslation("yacl3.config.ait:server.astralMapBiomeLocatorRange", "Block Radius Of Biome Finder For Astral Map");
         provider.addTranslation("yacl3.config.ait:client.showConsoleMonitorText", "Show text on console monitors?");
         provider.addTranslation("yacl3.config.ait:client.showCRTMonitorText", "Show text on CRT monitors?");
         provider.addTranslation("yacl3.config.ait:client.renderDematParticles", "Render demat particles?");
