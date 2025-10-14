@@ -11,6 +11,8 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -351,6 +353,10 @@ public class SafePosSearch {
         @Override
         public String asString() {
             return toString();
+        }
+
+        public MutableText text() {
+            return Text.translatable("message.ait.control.ylandtype." + this.asString().toLowerCase());
         }
 
         public abstract Kind next();

@@ -8,6 +8,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import dev.amble.ait.core.entities.FlightTardisEntity;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 
@@ -19,8 +21,15 @@ public class ServerPlayerMixin {
         ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
 
         // if player is in tardis and y is less than -100 save them
+        // if leave-behind is on, and they do not have a key + enough loyalty, then evict them instead
         if (player.getY() <= -100 && player.getServerWorld() instanceof TardisServerWorld tardisWorld) {
-            TardisUtil.teleportInside(tardisWorld.getTardis(), player);
+            ServerTardis serverTardis = tardisWorld.getTardis();
+
+            if (!SecurityControl.hasMatchingKey(player, serverTardis) && serverTardis.travel().leaveBehind().get())
+                TardisUtil.teleportOutside(serverTardis, player);
+            else
+                TardisUtil.teleportInside(serverTardis, player);
+
             player.fallDistance = 0;
         }
     }

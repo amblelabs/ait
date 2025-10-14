@@ -76,10 +76,10 @@ public class DrinkItem extends Item {
         }
         if (playerEntity == null || !playerEntity.getAbilities().creativeMode) {
             if (stack.isEmpty()) {
-                return new ItemStack(AITItems.MUG);
+                return this.getDefaultStack();
             }
             if (playerEntity != null) {
-                playerEntity.getInventory().insertStack(new ItemStack(AITItems.MUG));
+                playerEntity.getInventory().insertStack(this.getDefaultStack());
             }
         }
         user.emitGameEvent(GameEvent.DRINK);

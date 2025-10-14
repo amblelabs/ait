@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.resource.ResourceType;
+import net.minecraft.sound.SoundEvents;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.sounds.ClientSoundManager;
@@ -26,6 +27,7 @@ public class HumRegistry extends SimpleDatapackRegistry<Hum> {
 
     public static Hum CORAL;
     public static Hum CHRISTMAS;
+    public static Hum OFF;
 
     @Override
     public void onCommonInit() {
@@ -38,6 +40,7 @@ public class HumRegistry extends SimpleDatapackRegistry<Hum> {
     protected void defaults() {
         CORAL = register(Hum.create(AITMod.MOD_ID, "coral", AITSounds.CORAL_HUM));
         CHRISTMAS = register(Hum.create(AITMod.MOD_ID, "christmas", AITSounds.CHRISTMAS_HUM));
+        OFF = register(Hum.create(AITMod.MOD_ID, "off", SoundEvents.INTENTIONALLY_EMPTY));
     }
 
     @Override

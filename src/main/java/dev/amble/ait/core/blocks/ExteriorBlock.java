@@ -342,6 +342,8 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
 
     @Override
     public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+        //FIXME: re-enable this block after the exterior falling issues are resolved :(
+        /*
         Tardis tardis = this.findTardis(world, pos);
 
         if (tardis == null)
@@ -362,6 +364,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
 
         if (state.get(WATERLOGGED))
             state.with(WATERLOGGED, false);
+        */
     }
 
     @Override

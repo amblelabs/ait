@@ -67,10 +67,10 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
         this.updateModel(tardis);
 
-        if (tardis.travel().getAlpha() > 0)
+        if (tardis.travel() != null && tardis.travel().getAlpha() > 0)
             this.renderExterior(profiler, tardis, entity, tickDelta, matrices, vertexConsumers, light, overlay);
 
-        if ((tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) && !tardis.isGrowth() && tardis.travel().isLanded() &&
+        if (tardis.door() != null && (tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) && !tardis.isGrowth() && tardis.travel().isLanded() &&
         !tardis.siege().isActive()) {
             if (!variant.equals(ClientExteriorVariantRegistry.DOOM)) {
                 BOTI.EXTERIOR_RENDER_QUEUE.add(entity);

@@ -11,11 +11,15 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
+import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
 
-public class VortexUtil {
-    public Identifier TEXTURE_LOCATION;
-    public Identifier SECOND_LAYER_LOCATION;
-    public Identifier THIRD_LAYER_LOCATION;
+public class VortexRender {
+    private static VortexRender INSTANCE;
+
+    public Identifier texture;
+    public Identifier secondLayer;
+    public Identifier thirdLayer;
     private final float distortionSpeed;
     private final float distortionSeparationFactor;
     private final float distortionFactor;
@@ -23,12 +27,8 @@ public class VortexUtil {
     private final float speed;
     private float time = 0;
 
-    public VortexUtil(Identifier texture) {
-        TEXTURE_LOCATION = texture;
-        SECOND_LAYER_LOCATION = new Identifier(texture.getNamespace(), texture.getPath().substring(0, texture.getPath().length() - 4) +
-                "_second" + ".png");
-        THIRD_LAYER_LOCATION =new Identifier(texture.getNamespace(), texture.getPath().substring(0, texture.getPath().length() - 4) +
-                "_third" + ".png");
+    public VortexRender(Identifier texture) {
+        replaceWith(texture);
         this.distortionSpeed = 0.5f;
         this.distortionSeparationFactor = 32f;
         this.distortionFactor = 2;
@@ -37,49 +37,63 @@ public class VortexUtil {
     }
     @ApiStatus.Internal
     //@Deprecated(forRemoval = true)
-    public VortexUtil(String name) {
+    public VortexRender(String name) {
         this(AITMod.id("textures/vortex/" + name + ".png"));
     }
 
-    public void renderVortex(MatrixStack matrixStack) {
-
-        time += MinecraftClient.getInstance().getTickDelta() / 360f;
-
-        matrixStack.push();
-        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-        RenderSystem.setShaderTexture(0, TEXTURE_LOCATION);
-
-        matrixStack.scale(scale, scale, scale);
-
-        MinecraftClient.getInstance().getTextureManager().bindTexture(TEXTURE_LOCATION);
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
-
-        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-
-        for (int i = 0; i < 32; ++i) {
-            this.renderSection(buffer, i, (MinecraftClient.getInstance().player.age / 200.0f) * -this.speed, (float) Math.sin(i * Math.PI / 32),
-                    (float) Math.sin((i + 1) * Math.PI / 32), matrixStack.peek().getNormalMatrix(), matrixStack.peek().getPositionMatrix());
+    /**
+     * Get the singleton instance of the VortexRender updated for the given reference.
+     */
+    public static VortexRender getInstance(VortexReference ref) {
+        if (INSTANCE == null) {
+            INSTANCE = new VortexRender(ref.texture());
+        } else if (!INSTANCE.isFor(ref.texture())) {
+            INSTANCE.replaceWith(ref.texture());
         }
-
-        tessellator.draw();
-        matrixStack.pop();
+        return INSTANCE;
     }
 
-    public void renderVortexLayer(MatrixStack matrixStack, float scaleFactor) {
-        Identifier currentTexture = scaleFactor == 1.5f ? SECOND_LAYER_LOCATION : THIRD_LAYER_LOCATION;
+    /**
+     * Get the instance of the renderer with the last reference seen.
+     */
+    public static VortexRender getCurrentInstance() {
+        if (INSTANCE == null) INSTANCE = new VortexRender(VortexReferenceRegistry.getInstance().getRandom().texture());
+        return INSTANCE;
+    }
+
+    public boolean isFor(Identifier texture) {
+        return this.texture.equals(texture);
+    }
+
+    public void replaceWith(Identifier texture) {
+        this.texture = texture;
+        secondLayer = new Identifier(texture.getNamespace(), texture.getPath().substring(0, texture.getPath().length() - 4) +
+                "_second" + ".png");
+        thirdLayer = new Identifier(texture.getNamespace(), texture.getPath().substring(0, texture.getPath().length() - 4) +
+                "_third" + ".png");
+    }
+
+    public void render(MatrixStack matrixStack) {
+
+        time += MinecraftClient.getInstance().getTickDelta() / 360F;
+
+        this.renderLayer(matrixStack, 1.0F, texture);
+        this.renderLayer(matrixStack, 1.5f);
+        this.renderLayer(matrixStack, 2.5f);
+    }
+
+    public void renderLayer(MatrixStack matrixStack, float scaleFactor) {
+        Identifier currentTexture = scaleFactor == 1.5f ? secondLayer : thirdLayer;
         if (MinecraftClient.getInstance().getResourceManager().getResource(currentTexture).isEmpty()) return;
-        this.renderVortexLayer(matrixStack, scaleFactor, currentTexture);
+        this.renderLayer(matrixStack, scaleFactor, currentTexture);
     }
 
-    private void renderVortexLayer(MatrixStack matrixStack, float scaleFactor, Identifier layer) {
+    private void renderLayer(MatrixStack matrixStack, float scaleFactor, Identifier layer) {
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getRenderTypeBeaconBeamProgram);
         RenderSystem.setShaderTexture(0, layer);
-
-        time += MinecraftClient.getInstance().getTickDelta() / 360f;
 
         matrixStack.push();
 
@@ -92,7 +106,7 @@ public class VortexUtil {
         buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL);
 
         for (int i = 0; i < 32; ++i) {
-            this.renderSection(buffer, i, (MinecraftClient.getInstance().player.age / 200.0f) * -this.speed, (float) Math.sin(i * Math.PI / 32),
+            this.renderSection(buffer, i, (((MinecraftClient.getInstance().player.age) * 0.005F) * -this.speed), (float) Math.sin(i * Math.PI / 32),
                     (float) Math.sin((i + 1) * Math.PI / 32), matrixStack.peek().getNormalMatrix(), matrixStack.peek().getPositionMatrix());
         }
 

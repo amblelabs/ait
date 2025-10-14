@@ -2,21 +2,21 @@ package dev.amble.ait.core.commands;
 
 import static net.minecraft.server.command.CommandManager.literal;
 
+import java.util.UUID;
+
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 
-import dev.amble.ait.api.tardis.link.LinkableItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.link.LinkableItem;
 import dev.amble.ait.core.util.TextUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
-
-import java.util.UUID;
 
 public class ThisTardisCommand {
 
@@ -36,8 +36,15 @@ public class ThisTardisCommand {
             try {
                 UUID id = LinkableItem.getTardisIdStatic(stack);
 
-                player.sendMessage(Text.translatable("message.ait.id").append(TextUtil.forTardis(id)));
-            } catch (IllegalArgumentException ignored) { }
+                if (id == null || id.toString().isEmpty()) {
+                    // Since an IllegalArgumentException is automatically thrown when the held item is not linkable,
+                    // we want to show the same error message when a held linkable item is not linked.
+                    throw new IllegalArgumentException();
+                } else
+                    player.sendMessage(Text.translatable("message.ait.id").append(TextUtil.forTardis(id)));
+            } catch (IllegalArgumentException ignored) {
+                player.sendMessage(Text.translatable("command.ait.this.not_found"));
+            }
         }
 
         return Command.SINGLE_SUCCESS;
