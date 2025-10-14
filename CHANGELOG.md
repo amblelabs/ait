@@ -33,3 +33,5 @@
 - perf: reuse a singleton vortex renderer | by [@duzos](https://github.com/duzos) ([#1922](https://github.com/amblelabs/ait/pull/1922))
 - feat: vortex dim now shows last seen vortex | by [@duzos](https://github.com/duzos) ([#1922](https://github.com/amblelabs/ait/pull/1922))
 - fix: landing pad spot claimed crash | by [@duzos](https://github.com/duzos) ([#1925](https://github.com/amblelabs/ait/pull/1925))
+- feat: Added handles flight indicators when in sonic port! | by [@rapbattlegod32](https://github.com/rapbattlegod32), [@Mansarde](https://github.com/Mansarde), [@duzos](https://github.com/duzos) ([#1930](https://github.com/amblelabs/ait/pull/1930))
+- tweak: Added levenshtein distance when calling handles! | by [@rapbattlegod32](https://github.com/rapbattlegod32), [@Mansarde](https://github.com/Mansarde), [@duzos](https://github.com/duzos) ([#1930](https://github.com/amblelabs/ait/pull/1930))
