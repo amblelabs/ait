@@ -82,6 +82,10 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
         }
         interactAmount += 1;
 
+        if (interactAmount == 1) {
+            TardisCriterions.FIRST_RIFT.trigger((ServerPlayerEntity) player);
+        }
+
         if (interactAmount >= 3) {
             boolean gotFragment = this.getWorld().getRandom().nextBoolean();
 
