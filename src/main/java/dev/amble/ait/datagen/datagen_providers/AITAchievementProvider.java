@@ -190,8 +190,8 @@ public class AITAchievementProvider extends FabricAdvancementProvider {
                 .build(consumer, AITMod.MOD_ID + "/gain_remote");
         
         Advancement firstRift = Advancement.Builder.create().parent(root)
-                .display(AITItems.CORAL_FRAGMENT, Text.translatable("achievement.ait.title.firstrift"),
-                        Text.translatable("achievement.ait.description.firstrift"), null, AdvancementFrame.TASK, true, true, false)
+                .display(AITItems.CORAL_FRAGMENT, Text.translatable("achievement.ait.title.first_rift"),
+                        Text.translatable("achievement.ait.description.first_rift"), null, AdvancementFrame.TASK, true, true, false)
                 .criterion("first_rift", TardisCriterions.FIRST_RIFT.conditions())
                 .build(consumer, AITMod.MOD_ID + "/first_rift");
     }
