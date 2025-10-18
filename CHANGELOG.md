@@ -37,3 +37,4 @@
 - tweak: Added levenshtein distance when calling handles! | by [@rapbattlegod32](https://github.com/rapbattlegod32), [@Mansarde](https://github.com/Mansarde), [@duzos](https://github.com/duzos) ([#1930](https://github.com/amblelabs/ait/pull/1930))
 - add: Added a new advancement when you first right click a rift. | by [@lakehascake](https://github.com/lakehascake), [@rapbattlegod32](https://github.com/rapbattlegod32), [@Mansarde](https://github.com/Mansarde) ([#1931](https://github.com/amblelabs/ait/pull/1931))
 - add: Added a way to disable the custom menu music through a built-in resource pack. | by [@lakehascake](https://github.com/lakehascake) ([#1932](https://github.com/amblelabs/ait/pull/1932))
+- fix: Fixed the BOTI paintings not dropping items when broken in survival. | by [@lakehascake](https://github.com/lakehascake) ([#1933](https://github.com/amblelabs/ait/pull/1933))
