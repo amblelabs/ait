@@ -31,7 +31,7 @@ public abstract class BOTIPaintingEntity extends AbstractDecorationEntity implem
     public static Optional<BOTIPaintingEntity> placePainting(EntityType<? extends BOTIPaintingEntity> entityType, World world, BlockPos pos, Direction facing) {
         BOTIPaintingEntity paintingEntity = entityType.create(world);
 
-        assert paintingEntity != null;
+        if (paintingEntity == null) return Optional.empty();
         paintingEntity.setPosition(pos.getX(), pos.getY(), pos.getZ());
         paintingEntity.setFacing(facing);
 
