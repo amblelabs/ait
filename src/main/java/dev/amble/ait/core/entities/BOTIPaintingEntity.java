@@ -2,6 +2,7 @@ package dev.amble.ait.core.entities;
 
 import java.util.Optional;
 
+import dev.amble.ait.core.AITItems;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.Entity;
@@ -19,7 +20,7 @@ import net.minecraft.world.World;
 
 import dev.amble.ait.module.planet.core.util.ISpaceImmune;
 
-public class BOTIPaintingEntity extends AbstractDecorationEntity implements ISpaceImmune {
+public abstract class BOTIPaintingEntity extends AbstractDecorationEntity implements ISpaceImmune {
     private static final int WIDTH = 48;
     private static final int HEIGHT = 32;
 
@@ -32,8 +33,10 @@ public class BOTIPaintingEntity extends AbstractDecorationEntity implements ISpa
     }
 
     public static Optional<BOTIPaintingEntity> placePainting(EntityType<? extends BOTIPaintingEntity> entityType, World world, BlockPos pos, Direction facing) {
-        BOTIPaintingEntity paintingEntity = new BOTIPaintingEntity(entityType, world, pos);
+        BOTIPaintingEntity paintingEntity = entityType.create(world);
 
+        assert paintingEntity != null;
+        paintingEntity.setPosition(pos.getX(), pos.getY(), pos.getZ());
         paintingEntity.setFacing(facing);
 
         if (paintingEntity.canStayAttached()) {
