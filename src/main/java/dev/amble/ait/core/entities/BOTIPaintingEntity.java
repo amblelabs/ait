@@ -2,7 +2,6 @@ package dev.amble.ait.core.entities;
 
 import java.util.Optional;
 
-import dev.amble.ait.core.AITItems;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.Entity;
@@ -28,9 +27,6 @@ public abstract class BOTIPaintingEntity extends AbstractDecorationEntity implem
         super(entityType, world);
     }
 
-    private BOTIPaintingEntity(EntityType<? extends BOTIPaintingEntity> entityType, World world, BlockPos pos) {
-        super(entityType, world, pos);
-    }
 
     public static Optional<BOTIPaintingEntity> placePainting(EntityType<? extends BOTIPaintingEntity> entityType, World world, BlockPos pos, Direction facing) {
         BOTIPaintingEntity paintingEntity = entityType.create(world);
