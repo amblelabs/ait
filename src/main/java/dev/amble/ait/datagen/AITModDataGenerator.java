@@ -1229,6 +1229,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("achievement." + AITMod.MOD_ID + ".description.brand_new", "OH MY GOD! IVE DONE IT AGAIN!");
         provider.addTranslation("achievement.ait.title.remote", "Grand Design");
         provider.addTranslation("achievement.ait.description.remote", "The Stattenheim Remote is yours. Fascinating. Now we shall observe precisely how you manipulate causality… and fracture under pressure.");
+        provider.addTranslation("achievement.ait.title.first_rift", "It's a crack");
+        provider.addTranslation("achievement.ait.description.first_rift", "Close your first spatio-temporal rift.");
 
         // Commands
         // Fuel
