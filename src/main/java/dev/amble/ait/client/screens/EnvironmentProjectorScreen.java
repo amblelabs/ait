@@ -5,52 +5,30 @@ import dev.amble.ait.core.blocks.EnvironmentProjectorBlock;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
 import java.util.Iterator;
 
-import static dev.amble.ait.core.blocks.EnvironmentProjectorBlock.ENABLED;
-
 public class EnvironmentProjectorScreen extends Screen {
-    public EnvironmentProjectorScreen(Tardis tardis, BlockState state, PlayerEntity player) {
-        // The parameter is the title of the screen,
-        // which will be narrated when you enter the screen.
-        super(Text.literal("Testing Screen"));
-    }
+    private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
+            "textures/gui/tardis/monitor/security_menu.png");
+    int bgHeight = 138;
+    int bgWidth = 216;
+    int left, top;
 
-    public ButtonWidget button1;
-    public ButtonWidget button2;
+    public EnvironmentProjectorScreen() {
+        super(Text.of("screen." + AITMod.MOD_ID + ".environment_projector"));
 
-    Tardis tardis;
-    BlockState state;
-    PlayerEntity player;
-
-    public void init() {
-        state = state.cycle(ENABLED);
-        BlockState finalState = state;
-        button1 = ButtonWidget.builder(Text.literal("Change Skybox"), button -> {
-                    System.out.println("Skybox Changed!");
-                    this.switchSkybox(tardis, finalState, player);
-                })
-                .dimensions(width / 2 - 205, 20, 200, 20)
-                .build();
-        button2 = ButtonWidget.builder(Text.literal("Button 2"), button -> {
-                    System.out.println("You clicked button2!");
-                })
-                .dimensions(width / 2 + 5, 20, 200, 20)
-                .build();
-
-        addDrawableChild(button1);
-        addDrawableChild(button2);
+        this.client = MinecraftClient.getInstance();
     }
 
     public void switchSkybox(Tardis tardis, BlockState state, PlayerEntity player) {
@@ -68,6 +46,7 @@ public class EnvironmentProjectorScreen extends Screen {
         if (state.get(EnvironmentProjectorBlock.ENABLED))
             this.apply(tardis, state);
     }
+
 
     private static ServerWorld findNext(RegistryKey<World> last) {
         Iterator<ServerWorld> iter = WorldUtil.getProjectorWorlds().iterator();
@@ -101,6 +80,41 @@ public class EnvironmentProjectorScreen extends Screen {
     private static final RegistryKey<World> DEFAULT = World.END;
     private RegistryKey<World> current = DEFAULT;
 
+    @Override
+    public boolean shouldPause() {
+        return false;
+    }
 
+    @Override
+    protected void init() {
+        this.top = (this.height - this.bgHeight) / 2; // this means everythings centered and scaling, same for below
+        this.left = (this.width - this.bgWidth) / 2;
+
+        super.init();
+
+//        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("SWITCH")) / 2), (height / 2 + 12),
+//                this.textRenderer.getWidth(Text.literal("SWITCH")), 10, Text.literal("SWITCH"), button -> this.switchSkybox(), this.textRenderer));
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (this.client.options.inventoryKey.matchesKey(keyCode, scanCode)) {
+            this.close();
+            return true;
+        }
+
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        this.drawBackground(context);
+
+        super.render(context, mouseX, mouseY, delta);
+    }
+
+    private void drawBackground(DrawContext context) {
+        context.drawTexture(TEXTURE, left, top, 0, 0, bgWidth, bgHeight);
+    }
 
 }

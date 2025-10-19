@@ -4,8 +4,8 @@ import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 import java.util.List;
 
-import dev.amble.ait.client.screens.EnvironmentProjectorScreen;
-import net.minecraft.screen.NamedScreenHandlerFactory;
+import dev.amble.ait.AITMod;
+import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -84,16 +84,15 @@ public class EnvironmentProjectorBlock extends HorizontalDirectionalBlock implem
         if (hand != Hand.MAIN_HAND)
             return ActionResult.PASS;
 
-        if (world.getBlockEntity(pos) instanceof EnvironmentProjectorBlockEntity projector)
-            return projector.onUse(state, world, pos, player);
+        if (world.getBlockEntity(pos) instanceof EnvironmentProjectorBlockEntity projector) {
+            player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 1.0F, 1.0F);
+            AITMod.openScreen((ServerPlayerEntity) player, 3);
+            return ActionResult.SUCCESS;
+        }
 
         if (world.isClient){
             return ActionResult.SUCCESS;
         }
-
-        NamedScreenHandlerFactory screenHandlerFactory = (EnvironmentProjectorBlockEntity)world.getBlockEntity(pos);
-        if (screenHandlerFactory != null)
-            player.openHandledScreen(screenHandlerFactory);
 
 
         return ActionResult.PASS;

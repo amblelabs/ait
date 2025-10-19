@@ -4,24 +4,13 @@ import static dev.amble.ait.core.blocks.EnvironmentProjectorBlock.*;
 
 import java.util.Iterator;
 
-import dev.amble.ait.client.screens.EnvironmentProjectorScreen;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -37,9 +26,8 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.properties.Value;
-import org.jetbrains.annotations.Nullable;
 
-public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity implements ExtendedScreenHandlerFactory<BlockPos> {
+public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity {
 
     private static final RegistryKey<World> DEFAULT = World.END;
     private RegistryKey<World> current = DEFAULT;
@@ -69,12 +57,12 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
         if (!this.isLinked())
             return ActionResult.FAIL;
 
-        Tardis tardis = this.tardis().get();
-
-        world.setBlockState(pos, state, Block.NOTIFY_LISTENERS);
-
-        EnvironmentProjectorBlock.toggle(tardis, null, world, pos, state, state.get(ENABLED));
-        state = state.cycle(ENABLED);
+//        Tardis tardis = this.tardis().get();
+//
+//        world.setBlockState(pos, state, Block.NOTIFY_LISTENERS);
+//
+//        EnvironmentProjectorBlock.toggle(tardis, null, world, pos, state, state.get(ENABLED));
+//        state = state.cycle(ENABLED);
 
         return ActionResult.SUCCESS;
     }
@@ -153,18 +141,4 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
         return a == b || a.getValue().equals(b.getValue());
     }
 
-    @Override
-    public void writeScreenOpeningData(ServerPlayerEntity serverPlayerEntity, PacketByteBuf packetByteBuf) {
-        return this.pos;
-    }
-
-    @Override
-    public Text getDisplayName() {
-        return Text.literal("Environment Projector");
-    }
-
-    @Override
-    public @Nullable ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-        return null;
-    }
 }
