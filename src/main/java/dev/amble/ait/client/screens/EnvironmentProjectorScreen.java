@@ -16,6 +16,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.PressableTextWidget;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -25,8 +26,8 @@ import java.util.Iterator;
 
 public class EnvironmentProjectorScreen extends TardisScreen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            "textures/gui/tardis/monitor/security_menu.png");
-    int bgHeight = 138;
+            "textures/gui/tardis/monitor/environment_menu_sky.png");
+    int bgHeight = 150;
     int bgWidth = 216;
     int left, top;
 
@@ -97,7 +98,10 @@ public class EnvironmentProjectorScreen extends TardisScreen {
         super.init();
 
         this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("SWITCH")) / 2), (height / 2 + 12),
-                this.textRenderer.getWidth(Text.literal("SWITCH")), 10, Text.literal("SWITCH"), button -> AITMod.LOGGER.debug("button"), this.textRenderer));
+                this.textRenderer.getWidth(Text.literal("SWITCH")), 10, Text.literal("SWITCH"), button -> AITMod.LOGGER.info("button"), this.textRenderer));
+
+        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("Direction")) / 2 - 35), (height / 2 - 71),
+                this.textRenderer.getWidth(Text.literal("Direction")), 10, Text.literal("Direction"), button -> new EnvironmentProjectorDirectionScreen(tardis()), this.textRenderer));
     }
 
     @Override

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.UUID;
 
-import dev.amble.ait.client.screens.EnvironmentProjectorScreen;
+import dev.amble.ait.client.screens.*;
 import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -75,9 +75,6 @@ import dev.amble.ait.client.renderers.machines.*;
 import dev.amble.ait.client.renderers.monitors.MonitorRenderer;
 import dev.amble.ait.client.renderers.monitors.WallMonitorRenderer;
 import dev.amble.ait.client.renderers.sky.MarsSkyProperties;
-import dev.amble.ait.client.screens.AstralMapScreen;
-import dev.amble.ait.client.screens.BlueprintFabricatorScreen;
-import dev.amble.ait.client.screens.MonitorScreen;
 import dev.amble.ait.client.sonic.SonicModelLoader;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
@@ -269,6 +266,7 @@ public class AITModClient implements ClientModInitializer {
             case 1 -> new BlueprintFabricatorScreen();
             case 2 -> new AstralMapScreen();
             case 3 -> new EnvironmentProjectorScreen(tardis);
+            case 4 -> new EnvironmentProjectorDirectionScreen(tardis);
             default -> null;
         };
     }
