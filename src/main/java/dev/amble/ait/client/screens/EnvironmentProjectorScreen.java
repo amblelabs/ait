@@ -1,8 +1,10 @@
 package dev.amble.ait.client.screens;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blocks.EnvironmentProjectorBlock;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.util.WorldUtil;
@@ -21,16 +23,15 @@ import net.minecraft.world.World;
 
 import java.util.Iterator;
 
-public class EnvironmentProjectorScreen extends Screen {
+public class EnvironmentProjectorScreen extends TardisScreen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
             "textures/gui/tardis/monitor/security_menu.png");
     int bgHeight = 138;
     int bgWidth = 216;
     int left, top;
 
-    public EnvironmentProjectorScreen() {
-        super(Text.of("screen." + AITMod.MOD_ID + ".environment_projector"));
-
+    public EnvironmentProjectorScreen(ClientTardis tardis) {
+        super(Text.of("screen." + AITMod.MOD_ID + ".environment_projector"), tardis);
         this.client = MinecraftClient.getInstance();
     }
 
@@ -95,8 +96,6 @@ public class EnvironmentProjectorScreen extends Screen {
 
         super.init();
 
-        Tardis tardis = this.tardis().get();
-
         this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("SWITCH")) / 2), (height / 2 + 12),
                 this.textRenderer.getWidth(Text.literal("SWITCH")), 10, Text.literal("SWITCH"), button -> AITMod.LOGGER.debug("button"), this.textRenderer));
     }
@@ -120,12 +119,6 @@ public class EnvironmentProjectorScreen extends Screen {
 
     private void drawBackground(DrawContext context) {
         context.drawTexture(TEXTURE, left, top, 0, 0, bgWidth, bgHeight);
-    }
-
-    TardisRef ref;
-
-    public TardisRef tardis() {
-        return ref;
     }
 
 }
