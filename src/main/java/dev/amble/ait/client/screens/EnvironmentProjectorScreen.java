@@ -1,6 +1,8 @@
 package dev.amble.ait.client.screens;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.link.v2.TardisRef;
+import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
 import dev.amble.ait.core.blocks.EnvironmentProjectorBlock;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.util.WorldUtil;
@@ -9,6 +11,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.PressableTextWidget;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.world.ServerWorld;
@@ -92,8 +95,10 @@ public class EnvironmentProjectorScreen extends Screen {
 
         super.init();
 
-//        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("SWITCH")) / 2), (height / 2 + 12),
-//                this.textRenderer.getWidth(Text.literal("SWITCH")), 10, Text.literal("SWITCH"), button -> this.switchSkybox(), this.textRenderer));
+        Tardis tardis = this.tardis().get();
+
+        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("SWITCH")) / 2), (height / 2 + 12),
+                this.textRenderer.getWidth(Text.literal("SWITCH")), 10, Text.literal("SWITCH"), button -> AITMod.LOGGER.debug("button"), this.textRenderer));
     }
 
     @Override
@@ -115,6 +120,12 @@ public class EnvironmentProjectorScreen extends Screen {
 
     private void drawBackground(DrawContext context) {
         context.drawTexture(TEXTURE, left, top, 0, 0, bgWidth, bgHeight);
+    }
+
+    TardisRef ref;
+
+    public TardisRef tardis() {
+        return ref;
     }
 
 }
