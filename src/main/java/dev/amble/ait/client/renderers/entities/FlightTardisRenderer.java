@@ -88,14 +88,14 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
         float maxDoorDeg = 45f;
         float deg = MathHelper.clamp(rawDeg, -maxDoorDeg, maxDoorDeg);
 
-        if (!entity.verticalCollision && !doorsClosed) {
+        if (!entity.isOnGround() && !doorsClosed) {
             this.model.getPart().setAngles(0f, 0, 0);
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180f));
-        } else if (!entity.verticalCollision) {
+        } else if (!entity.isOnGround()) {
             this.model.getPart().setAngles(0f, ((entity.getRotation(tickDelta)) * tardis.travel().speed()), 0);
         }
 
-        if (!entity.verticalCollision) {
+        if (!entity.isOnGround()) {
             float xRaw = (float) (2f * Math.cos(0.2f * (tickDelta + entity.age))) + deg;
             float maxXTilt = 30f;
             float xRot = MathHelper.clamp(xRaw, -maxXTilt, maxXTilt);
@@ -103,7 +103,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
         }
 
         float zRot;
-        if (entity.verticalCollision) {
+        if (entity.isOnGround()) {
             zRot = 180f;
         } else {
             float zRaw = (float) (2f * Math.sin(0.2f * (tickDelta + entity.age)));
