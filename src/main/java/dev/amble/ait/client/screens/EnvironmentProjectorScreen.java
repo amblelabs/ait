@@ -1,9 +1,6 @@
 package dev.amble.ait.client.screens;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.link.v2.Linkable;
-import dev.amble.ait.api.tardis.link.v2.TardisRef;
-import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blocks.EnvironmentProjectorBlock;
 import dev.amble.ait.core.tardis.Tardis;
@@ -12,11 +9,9 @@ import dev.amble.ait.core.world.TardisServerWorld;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.PressableTextWidget;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -25,8 +20,18 @@ import net.minecraft.world.World;
 import java.util.Iterator;
 
 public class EnvironmentProjectorScreen extends TardisScreen {
-    private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
+    private static final Identifier DEFAULT_TEXTURE = new Identifier(AITMod.MOD_ID,
             "textures/gui/tardis/monitor/environment_menu_sky.png");
+    private static final Identifier DIRECTION_TEXTURE = new Identifier(AITMod.MOD_ID,
+            "textures/gui/tardis/monitor/environment_menu_direction.png");
+
+    private enum GuiSelection {
+        SKY,
+        DIRECTION
+    }
+
+    private GuiSelection currentGuiSelection = GuiSelection.SKY;
+
     int bgHeight = 150;
     int bgWidth = 216;
     int left, top;
@@ -90,6 +95,28 @@ public class EnvironmentProjectorScreen extends TardisScreen {
         return false;
     }
 
+    private void switchToDirectionTab() {
+        this.currentGuiSelection = GuiSelection.DIRECTION;
+        this.clearChildren();
+
+        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("Sky")) / 2 - 85), (height / 2 - 71),
+                this.textRenderer.getWidth(Text.literal("Sky")), 10, Text.literal("Sky"), button -> switchToSkyTab(), this.textRenderer));
+
+        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("Direction")) / 2 - 35), (height / 2 - 71),
+                this.textRenderer.getWidth(Text.literal("Direction")), 10, Text.literal("Direction"), button -> switchToDirectionTab(), this.textRenderer));
+    }
+
+    private void switchToSkyTab(){
+        this.currentGuiSelection = GuiSelection.SKY;
+        this.clearChildren();
+
+        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("Sky")) / 2 - 85), (height / 2 - 71),
+                this.textRenderer.getWidth(Text.literal("Sky")), 10, Text.literal("Sky"), button -> switchToSkyTab(), this.textRenderer));
+
+        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("Direction")) / 2 - 35), (height / 2 - 71),
+                this.textRenderer.getWidth(Text.literal("Direction")), 10, Text.literal("Direction"), button -> switchToDirectionTab(), this.textRenderer));
+    }
+
     @Override
     protected void init() {
         this.top = (this.height - this.bgHeight) / 2; // this means everythings centered and scaling, same for below
@@ -97,11 +124,14 @@ public class EnvironmentProjectorScreen extends TardisScreen {
 
         super.init();
 
-        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("SWITCH")) / 2), (height / 2 + 12),
-                this.textRenderer.getWidth(Text.literal("SWITCH")), 10, Text.literal("SWITCH"), button -> AITMod.LOGGER.info("button"), this.textRenderer));
+//        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("SWITCH")) / 2), (height / 2 + 12),
+//                this.textRenderer.getWidth(Text.literal("SWITCH")), 10, Text.literal("SWITCH"), button -> AITMod.LOGGER.info("button"), this.textRenderer));
+
+        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("Sky")) / 2 - 85), (height / 2 - 71),
+                this.textRenderer.getWidth(Text.literal("Sky")), 10, Text.literal("Sky"), button -> switchToSkyTab(), this.textRenderer));
 
         this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("Direction")) / 2 - 35), (height / 2 - 71),
-                this.textRenderer.getWidth(Text.literal("Direction")), 10, Text.literal("Direction"), button -> new EnvironmentProjectorDirectionScreen(tardis()), this.textRenderer));
+                this.textRenderer.getWidth(Text.literal("Direction")), 10, Text.literal("Direction"), button -> switchToDirectionTab(), this.textRenderer));
     }
 
     @Override
@@ -116,13 +146,19 @@ public class EnvironmentProjectorScreen extends TardisScreen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.drawBackground(context);
-
+        this.drawBackground(context, currentGuiSelection);
+        if (this.client != null) {
+            super.render(context, mouseX, mouseY, delta);
+        }
         super.render(context, mouseX, mouseY, delta);
     }
 
-    private void drawBackground(DrawContext context) {
-        context.drawTexture(TEXTURE, left, top, 0, 0, bgWidth, bgHeight);
+    private void drawBackground(DrawContext context, GuiSelection current) {
+        if (current.equals(GuiSelection.SKY)) {
+            context.drawTexture(DEFAULT_TEXTURE, left, top, 0, 0, bgWidth, bgHeight);
+        } else {
+            context.drawTexture(DIRECTION_TEXTURE, left, top, 0, 0, bgWidth, bgHeight);
+        }
     }
 
 }

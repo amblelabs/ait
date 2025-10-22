@@ -266,7 +266,6 @@ public class AITModClient implements ClientModInitializer {
             case 1 -> new BlueprintFabricatorScreen();
             case 2 -> new AstralMapScreen();
             case 3 -> new EnvironmentProjectorScreen(tardis);
-            case 4 -> new EnvironmentProjectorDirectionScreen(tardis);
             default -> null;
         };
     }
