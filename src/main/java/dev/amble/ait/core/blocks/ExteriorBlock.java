@@ -3,9 +3,6 @@ package dev.amble.ait.core.blocks;
 import java.util.function.ToIntFunction;
 
 import dev.amble.lib.api.ICantBreak;
-import net.minecraft.server.world.ChunkTicketType;
-import net.minecraft.util.*;
-import net.minecraft.util.math.ChunkPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,6 +25,7 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.util.*;
 import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -341,7 +339,6 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
 
     @Override
     public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-        System.out.println("im ticking right now so hard im ticking so hard rn");
         //FIXME: re-enable this block after the exterior falling issues are resolved :(
         Tardis tardis = this.findTardis(world, pos);
 

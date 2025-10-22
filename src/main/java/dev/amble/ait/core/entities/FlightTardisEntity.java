@@ -2,13 +2,9 @@ package dev.amble.ait.core.entities;
 
 import java.util.List;
 
-import dev.amble.ait.client.sounds.flight.ExteriorFlightSound;
-import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.MinecraftClient;
@@ -21,9 +17,11 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Arm;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec2f;
@@ -32,6 +30,7 @@ import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.LinkableLivingEntity;
+import dev.amble.ait.client.sounds.flight.ExteriorFlightSound;
 import dev.amble.ait.client.util.ClientShakeUtil;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITEntityTypes;
@@ -40,6 +39,7 @@ import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.control.impl.DirectionControl;
+import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.mixin.rwf.LivingEntityAccessor;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
@@ -130,7 +130,9 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
             ExteriorFlightSound instance = ExteriorFlightSound.INSTANCES.computeIfAbsent(player, (playerEntity) -> new ExteriorFlightSound(tardis.stats().getFlightEffects(), SoundCategory.PLAYERS, playerEntity));
 
             if (!this.groundCollision) {
-                client.getSoundManager().play(instance);
+                if (!client.getSoundManager().isPlaying(instance)) {
+                    client.getSoundManager().play(instance);
+                }
             } else {
                 client.getSoundManager().stop(instance);
             }
