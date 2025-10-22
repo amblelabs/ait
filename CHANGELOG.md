@@ -38,3 +38,4 @@
 - add: Added a new advancement when you first right click a rift. | by [@lakehascake](https://github.com/lakehascake), [@rapbattlegod32](https://github.com/rapbattlegod32), [@Mansarde](https://github.com/Mansarde) ([#1931](https://github.com/amblelabs/ait/pull/1931))
 - add: Added a way to disable the custom menu music through a built-in resource pack. | by [@lakehascake](https://github.com/lakehascake) ([#1932](https://github.com/amblelabs/ait/pull/1932))
 - fix: Fixed the BOTI paintings not dropping items when broken in survival. | by [@lakehascake](https://github.com/lakehascake) ([#1933](https://github.com/amblelabs/ait/pull/1933))
+- fix: adaptive exterior no longer applies when it shouldnt | by [@drtheodor](https://github.com/drtheodor) ([#1935](https://github.com/amblelabs/ait/pull/1935))
