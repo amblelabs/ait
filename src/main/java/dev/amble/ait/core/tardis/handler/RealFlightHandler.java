@@ -2,7 +2,6 @@ package dev.amble.ait.core.tardis.handler;
 
 import static dev.amble.ait.core.engine.SubSystem.Id.GRAVITATIONAL;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;

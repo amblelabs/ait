@@ -11,6 +11,7 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 
@@ -36,7 +37,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
     @Override
     public void render(FlightTardisEntity entity, float yaw, float tickDelta, MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers, int light) {
+                       VertexConsumerProvider vertexConsumers, int light) {
         if (!entity.isLinked())
             return;
 
@@ -54,12 +55,17 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
         Vec3d vec3d = entity.getRotationVec(tickDelta);
         Vec3d vec3d2 = entity.lerpVelocity(tickDelta);
 
+        if (vec3d2.y < 0.0) {
+            vec3d2 = vec3d2.normalize();
+        }
+
         double d = vec3d2.horizontalLengthSquared();
         double e = vec3d.horizontalLengthSquared();
 
         matrices.push();
-        if (tardis.door().isClosed() && !entity.groundCollision)
+        if (tardis.door().isClosed() && !entity.isOnGround()) {
             matrices.translate(0, 0.25f * -vec3d2.getY(), 0);
+        }
 
         if (tardis.travel().position().getDimension() == AITDimensions.TIME_VORTEX_WORLD) {
             VortexRender vortexRender = tardis.stats().getVortexEffects().toRender();
@@ -78,19 +84,33 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
         }
 
         boolean doorsClosed = tardis.door().isClosed();
-        float deg = doorsClosed ? (float) (d * 22.5f) : (float) -d * 22.5f;
+        float rawDeg = doorsClosed ? (float) (d * 22.5f) : (float) (-d * 22.5f);
+        float maxDoorDeg = 45f;
+        float deg = MathHelper.clamp(rawDeg, -maxDoorDeg, maxDoorDeg);
 
         if (!entity.verticalCollision && !doorsClosed) {
-            this.model.getPart().setAngles((float) 0, 0, 0);
+            this.model.getPart().setAngles(0f, 0, 0);
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180f));
         } else if (!entity.verticalCollision) {
-            this.model.getPart().setAngles((float) 0, ((entity.getRotation(tickDelta)) * tardis.travel().speed()), 0);
+            this.model.getPart().setAngles(0f, ((entity.getRotation(tickDelta)) * tardis.travel().speed()), 0);
         }
 
-        /*if (!entity.verticalCollision)
-            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((float) (2f * Math.cos(0.2f * (tickDelta + entity.age))) + deg));*/
+        if (!entity.verticalCollision) {
+            float xRaw = (float) (2f * Math.cos(0.2f * (tickDelta + entity.age))) + deg;
+            float maxXTilt = 30f;
+            float xRot = MathHelper.clamp(xRaw, -maxXTilt, maxXTilt);
+            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(xRot));
+        }
 
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(entity.verticalCollision ? 180f : (float) (2f * Math.sin(0.2f * (tickDelta + entity.age)) + 180f)));
+        float zRot;
+        if (entity.verticalCollision) {
+            zRot = 180f;
+        } else {
+            float zRaw = (float) (2f * Math.sin(0.2f * (tickDelta + entity.age)));
+            float maxZTilt = 30f;
+            zRot = MathHelper.clamp(zRaw, -maxZTilt, maxZTilt);
+        }
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(zRot + (entity.isOnGround() ? 0 : 180)));
 
         this.model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(getTexture(entity))), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
 
@@ -105,8 +125,9 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
         BiomeHandler biome = tardis.handler(TardisComponent.Id.BIOME);
         Identifier biomeTexture = biome.getBiomeKey().get(variant.overrides());
 
-        if (biomeTexture != null && !this.getTexture(entity).equals(biomeTexture))
+        if (biomeTexture != null && !this.getTexture(entity).equals(biomeTexture)) {
             model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(biomeTexture)), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
+        }
 
         int maxLight = 0xF000F0;
 

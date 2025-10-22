@@ -1,12 +1,7 @@
 package dev.amble.ait.core.entities;
 
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
-import dev.amble.lib.util.ServerLifecycleHooks;
-import net.minecraft.server.world.ChunkTicketType;
-import net.minecraft.util.Unit;
-import net.minecraft.util.math.ChunkPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -24,6 +19,7 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -31,6 +27,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;

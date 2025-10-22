@@ -2,21 +2,19 @@ package dev.amble.ait.core.tardis.control.impl;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
-import dev.drtheo.scheduler.api.common.Scheduler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
-import net.minecraft.util.math.ChunkPos;
 
 public class AntiGravsControl extends Control {
     public static final Identifier ID = AITMod.id("antigravs");

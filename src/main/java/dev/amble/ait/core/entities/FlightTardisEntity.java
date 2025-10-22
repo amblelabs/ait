@@ -68,7 +68,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         this.interiorPos = riderPos;
 
         this.link(tardis);
-        this.setPosition(pos.getPos().toCenterPos());
+        this.setPosition(pos.getPos().toCenterPos().subtract(0, 0.5, 0));
         this.setVelocity(Vec3d.ZERO);
 
         this.setRotation(RotationPropertyHelper.toDegrees(
@@ -137,7 +137,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
                 client.getSoundManager().stop(instance);
             }
 
-            if (client.player == this.getControllingPassenger()) {
+            if (this.getPlayer() != null && client.player == this.getPlayer()) {
                 client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
 
                 if (!this.groundCollision)
@@ -210,8 +210,10 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     private void finishLand(Tardis tardis, PlayerEntity player) {
         if (this.getWorld().isClient()) {
             MinecraftClient client = MinecraftClient.getInstance();
-            client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
-            client.options.hudHidden = false;
+            if (player == client.player) {
+                client.options.setPerspective(Perspective.FIRST_PERSON);
+                client.options.hudHidden = false;
+            }
             return;
         }
 
@@ -278,7 +280,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         float f = controllingPlayer.sidewaysSpeed * this.tardis().get().travel().speed();
         float g = controllingPlayer.forwardSpeed * this.tardis().get().travel().speed();
 
-        float speedVal = this.isSubmergedInWater() ? 30f : 10f;
+        float speedVal = this.isSubmergedInWater() ? 20f : 10f;
 
         Planet planet = PlanetRegistry.getInstance().get(this.getWorld());
         boolean canFall = this.tardis().get().travel().antigravs().get() || planet != null && planet.zeroGravity();
