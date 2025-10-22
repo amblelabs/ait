@@ -51,8 +51,8 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     private static final ItemStack AIR = new ItemStack(Items.AIR);
     public static final Identifier STOP_FLIGHT_SOUND = AITMod.id("stop_flight_sound");
     public static final Identifier PLAY_FLIGHT_SOUND = AITMod.id("play_flight_sound");
-    public float speedPitch;
-    private Vec3d lastVelocity;
+    public Vec3d lerpVelocity;
+    public Vec3d lastVelocity;
     private BlockPos interiorPos;
 
     public FlightTardisEntity(EntityType<? extends LivingEntity> entityType, World world) {
@@ -104,6 +104,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     @Override
     public void tick() {
         this.lastVelocity = this.getVelocity();
+        this.lerpVelocity = this.getVelocity();
         this.setRotation(0, 0);
         super.tick();
 
@@ -132,6 +133,8 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
             if (!this.groundCollision) {
                 if (!client.getSoundManager().isPlaying(instance)) {
                     client.getSoundManager().play(instance);
+                } else {
+                    instance.setPosition(this.getPos());
                 }
             } else {
                 client.getSoundManager().stop(instance);
@@ -335,6 +338,14 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         } else {
             this.interiorPos = BlockPos.ORIGIN;
         }
+
+        if (nbt.contains("xLerpVelocity") && nbt.contains("yLerpVelocity") && nbt.contains("zLerpVelocity")) {
+            this.lerpVelocity = new Vec3d(nbt.getDouble("xLerpVelocity"), nbt.getDouble("yLerpVelocity"), nbt.getDouble("zLerpVelocity"));
+        }
+
+        if (nbt.contains("velX") && nbt.contains("velY") && nbt.contains("velZ")) {
+            this.lastVelocity = new Vec3d(nbt.getDouble("velX"), nbt.getDouble("velY"), nbt.getDouble("velZ"));
+        }
     }
 
     @Override
@@ -356,6 +367,13 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
             interiorPos = new BlockPos(0, 0, 0);
 
         nbt.putLong("InteriorPos", interiorPos.asLong());
+
+        nbt.putDouble("xLerpVelocity",lerpVelocity.x);
+        nbt.putDouble("yLerpVelocity",lerpVelocity.y);
+        nbt.putDouble("zLerpVelocity",lerpVelocity.z);
+        nbt.putDouble("velX",lastVelocity.x);
+        nbt.putDouble("velY",lastVelocity.y);
+        nbt.putDouble("velZ",lastVelocity.z);
     }
 
     public static DefaultAttributeContainer.Builder createDummyAttributes() {

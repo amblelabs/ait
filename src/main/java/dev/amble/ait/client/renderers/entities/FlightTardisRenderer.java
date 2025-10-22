@@ -53,7 +53,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
         if (player.getVehicle() == null || player.getVehicle() != entity) return;
 
         Vec3d vec3d = entity.getRotationVec(tickDelta);
-        Vec3d vec3d2 = entity.lerpVelocity(tickDelta);
+        Vec3d vec3d2 = entity.lastVelocity.lerp(entity.lerpVelocity, tickDelta);
 
         if (vec3d2.y < 0.0) {
             vec3d2 = vec3d2.normalize();

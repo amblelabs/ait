@@ -39,8 +39,6 @@ public class ExteriorFlightSound extends LoopingSound {
     public void tick() {
 
         if (player.getVehicle() instanceof FlightTardisEntity flight) {
-            this.setVolume((float)Math.max(0.0, Math.min(1.0, 1.0 - (player.distanceTo(flight) / 20.0))));
-            this.setPosition(player.getPos());
             ClientTardis tardis = tardis();
             if (tardis == null) {
                 MinecraftClient.getInstance().getSoundManager().stop(this);
@@ -51,6 +49,6 @@ public class ExteriorFlightSound extends LoopingSound {
             MinecraftClient.getInstance().getSoundManager().stop(this);
             return;
         }
-        //this.setDone();
+        this.setDone();
     }
 }
