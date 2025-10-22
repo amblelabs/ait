@@ -2,7 +2,13 @@ package dev.amble.ait.core.entities;
 
 import java.util.List;
 
+import dev.amble.ait.client.sounds.flight.ExteriorFlightSound;
+import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.MinecraftClient;
@@ -43,6 +49,8 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     private static final List<ItemStack> EMPTY = List.of();
     private static final ItemStack AIR = new ItemStack(Items.AIR);
+    public static final Identifier STOP_FLIGHT_SOUND = AITMod.id("stop_flight_sound");
+    public static final Identifier PLAY_FLIGHT_SOUND = AITMod.id("play_flight_sound");
     public float speedPitch;
     private Vec3d lastVelocity;
     private BlockPos interiorPos;
@@ -110,11 +118,22 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         Tardis tardis = this.tardis().get();
 
         if (player.isSneaking() && (this.isOnGround() || tardis.travel().antigravs().get())
-                && this.getWorld().isInBuildLimit(this.getBlockPos()))
+                && this.getWorld().isInBuildLimit(this.getBlockPos())) {
             this.finishLand(tardis, player);
+            if (!this.getWorld().isClient()) {
+                this.toggleFlightSound(true);
+            } // Insurance that it actually fucking stops
+        }
 
         if (this.getWorld().isClient()) {
             MinecraftClient client = MinecraftClient.getInstance();
+            ExteriorFlightSound instance = ExteriorFlightSound.INSTANCES.computeIfAbsent(player, (playerEntity) -> new ExteriorFlightSound(tardis.stats().getFlightEffects(), SoundCategory.PLAYERS, playerEntity));
+
+            if (!this.groundCollision) {
+                client.getSoundManager().play(instance);
+            } else {
+                client.getSoundManager().stop(instance);
+            }
 
             if (client.player == this.getControllingPassenger()) {
                 client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
@@ -132,7 +151,8 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         if (!player.isInvulnerable())
             player.setInvulnerable(true);
 
-        tardis.flight().tickFlight((ServerPlayerEntity) player);
+        if (player.getWorld().equals(this.getWorld()))
+            tardis.flight().tickFlight((ServerPlayerEntity) player);
 
         if (tardis.door().isOpen()) {
             this.getWorld().getOtherEntities(this, this.getBoundingBox(), entity
@@ -144,16 +164,39 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     @Override
     public void setOnGround(boolean onGround, Vec3d movement) {
-        if (!this.isOnGround() && onGround)
+        if (!this.isOnGround() && onGround) {
             this.playThud();
+            if (!this.getWorld().isClient()) {
+                this.toggleFlightSound(true);
+            }
+        } else {
+            if (!this.getWorld().isClient()) {
+                this.toggleFlightSound(false);
+            }
+        }
 
         super.setOnGround(onGround, movement);
     }
 
+    // Shit method its so bad don't use it!!! - Loqor
+    public void toggleFlightSound(boolean shouldStop) {
+        if (true) return;
+        if (this.tardis() == null || this.tardis().get() == null) return;
+
+        Tardis tardis = this.tardis().get();
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeUuid(this.getPlayer().getUuid());
+        buf.writeUuid(tardis.getUuid());
+        NetworkUtil.getSubscribedPlayers(tardis.asServer()).forEach(player -> {
+            ServerPlayNetworking.send(player, shouldStop ? STOP_FLIGHT_SOUND : PLAY_FLIGHT_SOUND, buf);
+        });
+    }
+
     @Override
     public void setOnGround(boolean onGround) {
-        if (!this.isOnGround() && onGround)
+        if (!this.isOnGround() && onGround) {
             this.playThud();
+        }
 
         super.setOnGround(onGround);
     }
@@ -180,6 +223,9 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         }
 
         tardis.flight().exitFlight(serverPlayer);
+        if (!this.getWorld().isClient()) {
+            this.toggleFlightSound(true);
+        }
         tardis.travel().speed(0);
         this.discard();
     }

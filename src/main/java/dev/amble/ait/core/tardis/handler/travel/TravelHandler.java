@@ -16,6 +16,9 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.server.world.ChunkTicketType;
+import net.minecraft.util.Unit;
+import net.minecraft.util.math.ChunkPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
@@ -60,6 +63,9 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
     @Exclude
     private boolean travelCooldown;
+
+    @Exclude
+    public static final ChunkTicketType<Unit> FALLING_TARDIS = ChunkTicketType.create("falling_tardis", (a, b) -> 0);
 
     @Exclude
     private boolean waiting;
@@ -270,6 +276,8 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
         ExteriorBlockEntity exterior = new ExteriorBlockEntity(pos, blockState, this.tardis);
         world.addBlockEntity(exterior);
+        world.getChunkManager().markForUpdate(pos);
+        world.getChunkManager().addTicket(ChunkTicketType.PLAYER, new ChunkPos(pos), 2,  new ChunkPos(pos));
 
         if (animate)
             this.runAnimations(exterior);

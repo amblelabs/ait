@@ -117,6 +117,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
             float delta = ((tickDelta + entity.age) * 0.03f);
             ShieldsModel shieldsModel = new ShieldsModel(ShieldsModel.getTexturedModelData().createModel());
             VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayer.getEnergySwirl(new Identifier("textures/misc/forcefield.png"), delta % 1.0F, (delta * 0.1F) % 1.0F));
+            matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(90 * delta));
             shieldsModel.render(matrices, vertexConsumer, maxLight, OverlayTexture.DEFAULT_UV, 0f, 0.25f, 0.5f, 1f);
             matrices.pop();
         }

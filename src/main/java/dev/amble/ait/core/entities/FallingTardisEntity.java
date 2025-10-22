@@ -1,7 +1,12 @@
 package dev.amble.ait.core.entities;
 
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
+import dev.amble.lib.util.ServerLifecycleHooks;
+import net.minecraft.server.world.ChunkTicketType;
+import net.minecraft.util.Unit;
+import net.minecraft.util.math.ChunkPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -74,6 +79,7 @@ public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceIm
     }
 
     public static void spawnFromBlock(World world, BlockPos pos, BlockState state) {
+        System.out.println("yup im falling");
         if (!(world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior))
             return;
 
@@ -83,7 +89,15 @@ public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceIm
                 state.contains(Properties.WATERLOGGED) ? state.with(Properties.WATERLOGGED, false) : state, tardis);
 
         world.setBlockState(pos, state.getFluidState().getBlockState(), 3);
-        world.spawnEntity(fallingBlockEntity);
+        world.markDirty(pos);
+        if (world instanceof ServerWorld serverWorld) {
+            ChunkPos chunkPos = new ChunkPos(pos);
+            serverWorld.getChunkManager().setChunkForced(chunkPos, true);
+            serverWorld.getChunk(chunkPos.x, chunkPos.z);
+            serverWorld.spawnEntity(fallingBlockEntity);
+        } else {
+            world.spawnEntity(fallingBlockEntity);
+        }
     }
 
     @Override
@@ -99,6 +113,7 @@ public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceIm
 
     @Override
     public void tick() {
+        System.out.println("TRON ONLINE - Enabling Master control.");
         this.timeFalling++;
 
         if (!this.hasNoGravity())
@@ -185,6 +200,13 @@ public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceIm
 
         if (block instanceof ExteriorBlock exterior)
             exterior.onLanding(tardis, (ServerWorld) this.getWorld(), blockPos);
+
+        if (this.getWorld() instanceof ServerWorld serverWorld) {
+            ChunkPos chunkPos = new ChunkPos(this.getBlockPos());
+            serverWorld.getChunkManager().setChunkForced(chunkPos, false);
+            serverWorld.getChunkManager().removeTicket(ChunkTicketType.PLAYER, chunkPos, 2,  chunkPos);
+            serverWorld.getChunk(chunkPos.x, chunkPos.z);
+        }
 
         travel.placeExterior(false);
         this.discard();

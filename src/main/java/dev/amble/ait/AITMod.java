@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
+import dev.amble.ait.api.tardis.link.v2.TardisRef;
+import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.lib.container.RegistryContainer;
 import dev.amble.lib.register.AmbleRegistries;
 import dev.amble.lib.util.ServerLifecycleHooks;
@@ -14,10 +16,12 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
@@ -305,6 +309,18 @@ public class AITMod implements ModInitializer {
                         StackUtil.playBreak(player);
                     });
                 });
+
+
+        // Rahhhh this is just to catch the player from logging out with the TARDIS in RWF
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+                    ServerPlayerEntity serverPlayer = handler.player;
+                    if (serverPlayer.getVehicle() instanceof FlightTardisEntity flight) {
+                        if (!flight.isLinked()) return;
+                        ServerTardis tardis = flight.tardis().get().asServer();
+
+                        tardis.flight().exitFlight(serverPlayer);
+                    }
+        });
 
         LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
             if (source.isBuiltin()

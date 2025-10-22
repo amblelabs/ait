@@ -2,7 +2,9 @@ package dev.amble.ait.core.tardis.control.impl;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
+import dev.drtheo.scheduler.api.common.Scheduler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
@@ -14,6 +16,7 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
+import net.minecraft.util.math.ChunkPos;
 
 public class AntiGravsControl extends Control {
     public static final Identifier ID = AITMod.id("antigravs");
@@ -33,7 +36,8 @@ public class AntiGravsControl extends Control {
         BlockPos pos = globalPos.getPos();
 
         targetWorld.getChunkManager().markForUpdate(pos);
-        world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, 2);
+        targetWorld.getChunkManager().addTicket(ChunkTicketType.PLAYER, new ChunkPos(pos), 2,  new ChunkPos(pos));
+        targetWorld.scheduleBlockTick(pos, targetWorld.getBlockState(pos).getBlock(), 2);
         return tardis.travel().antigravs().get() ? Result.SUCCESS : Result.SUCCESS_ALT;
     }
 

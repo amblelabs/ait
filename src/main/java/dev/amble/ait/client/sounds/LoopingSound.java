@@ -7,6 +7,7 @@ import net.minecraft.client.sound.MovingSoundInstance;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 
 // Referencing how music which loops is done but in our own way
@@ -32,6 +33,12 @@ public abstract class LoopingSound extends MovingSoundInstance {
         this.z = pos.getZ();
     }
 
+    public void setPosition(Vec3d pos) {
+        this.x = pos.getX();
+        this.y = pos.getY();
+        this.z = pos.getZ();
+    }
+
     public void setPitch(float pitch) {
         this.pitch = pitch;
     }
@@ -42,5 +49,9 @@ public abstract class LoopingSound extends MovingSoundInstance {
 
     public BlockPos getPosition() {
         return new BlockPos((int) this.x, (int) this.y, (int) this.z);
+    }
+
+    public Vec3d getPosition(LoopingSound sound) {
+        return sound.getPosition().toCenterPos();
     }
 }

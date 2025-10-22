@@ -1,6 +1,7 @@
 package dev.amble.ait.client.renderers.entities;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -23,6 +24,9 @@ import dev.amble.ait.core.tardis.TardisExterior;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
+import net.minecraft.world.LightType;
+import net.minecraft.world.chunk.light.ChunkBlockLightProvider;
+import net.minecraft.world.dimension.DimensionType;
 
 public class FallingTardisRenderer extends EntityRenderer<FallingTardisEntity> {
 

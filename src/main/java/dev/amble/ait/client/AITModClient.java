@@ -2,12 +2,15 @@ package dev.amble.ait.client;
 
 import static dev.amble.ait.AITMod.*;
 import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
+import static dev.amble.ait.core.entities.FlightTardisEntity.PLAY_FLIGHT_SOUND;
+import static dev.amble.ait.core.entities.FlightTardisEntity.STOP_FLIGHT_SOUND;
 import static dev.amble.ait.core.item.PersonalityMatrixItem.colorToInt;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.UUID;
 
+import dev.amble.ait.client.sounds.flight.ExteriorFlightSound;
 import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -22,6 +25,7 @@ import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.sound.SoundCategory;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.DoorBlock;
@@ -244,6 +248,38 @@ public class AITModClient implements ClientModInitializer {
                     if (client.world.getBlockEntity(consolePos) instanceof ConsoleGeneratorBlockEntity console)
                         console.setVariant(id);
                 });
+
+        ClientPlayNetworking.registerGlobalReceiver(PLAY_FLIGHT_SOUND, (client, handler, buf, responseSender) -> {
+            UUID id = buf.readUuid();
+            UUID tardisID = buf.readUuid();
+
+            ClientTardisManager.getInstance().getTardis(tardisID, tardis -> {
+                ExteriorFlightSound sound = ExteriorFlightSound.INSTANCES.get(client.world.getPlayerByUuid(id)) == null ?
+                        new ExteriorFlightSound(tardis.stats().getFlightEffects(), SoundCategory.PLAYERS, client.world.getPlayerByUuid(id)) :
+                        ExteriorFlightSound.INSTANCES.get(client.world.getPlayerByUuid(id));
+
+                client.execute(() -> {
+                            if (client.getSoundManager().isPlaying(sound)) return;
+                            client.getSoundManager().play(sound);
+                        }
+                );
+            });
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(STOP_FLIGHT_SOUND, (client, handler, buf, responseSender) -> {
+            UUID id = buf.readUuid();
+            UUID tardisID = buf.readUuid();
+
+            ExteriorFlightSound sound = ExteriorFlightSound.INSTANCES.get(client.world.getPlayerByUuid(id));
+
+            ClientTardisManager.getInstance().getTardis(tardisID, tardis -> {
+                client.execute(() -> {
+                            if (!client.getSoundManager().isPlaying(sound)) return;
+                            client.getSoundManager().stop(sound);
+                        }
+                );
+            });
+        });
 
         WorldRenderEvents.END.register((context) -> SonicRendering.getInstance().renderWorld(context));
         HudRenderCallback.EVENT.register((context, delta) -> SonicRendering.getInstance().renderGui(context, delta));
