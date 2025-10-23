@@ -15,14 +15,6 @@ base {
 }
 
 repositories {
-    maven {
-        url "https://jitpack.io"
-
-        metadataSources {
-            artifact() // Look directly for artifact
-        }
-    }
-
     // Dependency for GravityAPI
     maven { url "https://maven.ladysnake.org/releases" }
     maven { url "https://maven.shedaniel.me/" }
