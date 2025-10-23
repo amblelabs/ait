@@ -1,36 +1,31 @@
-name: Automated donator builds
+name: Automated Builds
+
 on:
   workflow_dispatch:
   push:
-    paths:
-      - src/**
-      - build.gradle
-      - gradle.properties
-      - settings.gradle
-      - gradle/**
-      - gradlew
-      - gradlew.bat
-      - versioning.gradle
-      
-      - .github/workflows/publish-devbuilds.yml
+
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+
     steps:
     - uses: actions/checkout@v4
-    - name: Set up JDK 21
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v5
+      with:
+        cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
+    - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '21'
         distribution: 'temurin'
-        cache: gradle
-    
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+        cache: 'gradle'
 
-    - name: Cache restore
+    - name: Restore DataGen cache
       id: cache-restore
       uses: actions/cache/restore@v4
       with:
@@ -38,12 +33,33 @@ jobs:
         key: datagen-${{ github.run_id }}
         restore-keys:
           datagen-
-    
+
+    - name: Run DataGen
+      run: ./gradlew --configuration-cache runDatagen
+
     - name: Build
-      run: |
-        ./gradlew --configuration-cache runDatagen
-        ./gradlew --configuration-cache build
-    
+      run: ./gradlew --configuration-cache build
+
+    - name: Build for Maven
+      env:
+        CI_MAVEN_PATH: ${{ runner.temp }}/maven
+      run: ./gradlew --configuration-cache publishMavenJavaPublicationToCiRepository
+
+    - name: Save DataGen cache
+      id: cache-save
+      uses: actions/cache/save@v4
+      with:
+        path: src/main/generated
+        key: ${{ steps.cache-restore.outputs.cache-primary-key }}
+
+    - name: Publish to Amble Maven
+      uses: drtheodor/static-file-server-actions/upload@main
+      with:
+        repo: amblelabs/maven
+        path: ${{ runner.temp }}/maven
+        token: ${{ secrets.BOT_TOKEN }}
+        message: "chore: publish AIT artifacts"
+
     - name: Publish artifacts
       uses: drtheodor/discord-webhook-upload-action@v0.2
       with:
@@ -56,10 +72,3 @@ jobs:
           <:new1:1253371736510959636><:new2:1253371805734015006> New `Adventures in Time` dev build `#${{ github.run_number }}`:
 
         file: 'build/libs/*'
-    
-    - name: Cache save
-      id: cache-save
-      uses: actions/cache/save@v4
-      with:
-        path: src/main/generated
-        key: ${{ steps.cache-restore.outputs.cache-primary-key }}
