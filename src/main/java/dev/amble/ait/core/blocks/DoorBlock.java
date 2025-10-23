@@ -33,6 +33,7 @@ import net.minecraft.world.WorldAccess;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
+import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.util.ShapeUtil;
 
 @SuppressWarnings("deprecation")
@@ -41,6 +42,37 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
     public static final VoxelShape NORTH_SHAPE = Block.createCuboidShape(0.0, 0.0, 12.1, 16.0, 32.0, 16.0);
     public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
     public static final IntProperty LEVEL_4 = ExteriorBlock.LEVEL_4;
+
+    static {
+        TardisEvents.DOOR_OPEN.register(tardis -> {
+            CachedDirectedGlobalPos globalPos = tardis.travel().position();
+            BlockPos exteriorPos = globalPos.getPos();
+            World exteriorWorld = globalPos.getWorld();
+
+            BlockState exteriorState = exteriorWorld.getBlockState(exteriorPos);
+            if (!tardis.travel().inFlight() && exteriorState.getBlock() instanceof ExteriorBlock)
+                setDoorLight(tardis.asServer(), exteriorState.get(ExteriorBlock.LEVEL_4));
+        });
+
+        TardisEvents.DOOR_CLOSE.register(tardis -> setDoorLight(tardis.asServer(), 0));
+    }
+
+    private static void setDoorLight(ServerTardis tardis, int level) {
+        if (!tardis.hasWorld() || !tardis.world().shouldTick()) return;
+
+        ServerWorld world = tardis.world();
+
+        // FIXME: ensure the DOOR_OPEN and DOOR_CLOSE events always get called on the main thread instead of doing this
+        world.getServer().execute(() -> {
+            BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
+
+            BlockState state = world.getBlockState(pos);
+            if (!(state.getBlock() instanceof DoorBlock))
+                return;
+
+            world.setBlockState(pos, state.with(LEVEL_4, level));
+        });
+    }
 
     @Override
     public float getBlastResistance() {

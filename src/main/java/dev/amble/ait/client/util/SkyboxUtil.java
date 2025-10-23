@@ -22,7 +22,7 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.client.renderers.VortexUtil;
+import dev.amble.ait.client.renderers.VortexRender;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.module.planet.client.renderers.CelestialBodyRenderer;
@@ -47,7 +47,7 @@ public class SkyboxUtil extends WorldRenderer {
     }
 
     public static void renderVortexSky(MatrixStack matrices, Tardis tardis) {
-        VortexUtil util = tardis.stats().getVortexEffects().toUtil();
+        VortexRender util = tardis.stats().getVortexEffects().toRender();
         matrices.push();
         float scale = 100f;
         float zOffset = 500 * scale;
@@ -59,14 +59,12 @@ public class SkyboxUtil extends WorldRenderer {
         matrices.translate(0, 0, zOffset);
         matrices.scale(scale, scale, scale);
 
-        util.renderVortex(matrices);
-        util.renderVortexLayer(matrices, 1.5f);
-        util.renderVortexLayer(matrices, 2.5f);
+        util.render(matrices);
         matrices.pop();
     }
 
     public static void renderVortexSky(MatrixStack matrices) {
-        VortexUtil util = new VortexUtil("darkness");
+        VortexRender util = VortexRender.getCurrentInstance();
         matrices.push();
         float scale = 100f;
         float zOffset = 500 * scale;
@@ -76,9 +74,7 @@ public class SkyboxUtil extends WorldRenderer {
         matrices.translate(0, 0, zOffset);
         matrices.scale(scale, scale, scale);
 
-        util.renderVortex(matrices);
-        util.renderVortexLayer(matrices, 1.5f);
-        util.renderVortexLayer(matrices, 2.5f);
+        util.render(matrices);
         matrices.pop();
     }
 

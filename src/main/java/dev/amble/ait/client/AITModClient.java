@@ -19,6 +19,9 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.DoorBlock;
@@ -109,6 +112,7 @@ public class AITModClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        resourcepackRegister();
         AITClientConfig.INSTANCE.load();
         CONFIG = AITClientConfig.INSTANCE.instance();
 
@@ -614,5 +618,18 @@ public class AITModClient implements ClientModInitializer {
             stack.pop();
         }
         BOTI.RIFT_RENDERING_QUEUE.clear();
+    }
+    public static void resourcepackRegister() {
+
+        // Register builtin resourcepacks (thank you addie for your help)
+        FabricLoader.getInstance().
+
+                getModContainer("ait").
+
+                ifPresent(modContainer ->
+
+                {
+                    ResourceManagerHelper.registerBuiltinResourcePack(id("aitmenu"), modContainer, ResourcePackActivationType.DEFAULT_ENABLED);
+                });
     }
 }

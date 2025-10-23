@@ -89,7 +89,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
 
         if (this.selectedDesktop == null)
             this.nextDesktop();
-        
+
         this.top = (this.height - this.bgHeight) / 2; // this means everythings centered and scaling, same for below
         this.left = (this.width - this.bgWidth) / 2;
         this.createButtons();

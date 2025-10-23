@@ -89,6 +89,12 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
         vGroundSearch.of(this, VGROUND_SEARCH);
         hGroundSearch.of(this, HGROUND_SEARCH);
 
+        // fix a bug of old versions having negative hammer uses.
+        this.hammerUses = Math.max(this.hammerUses, 1);
+    }
+
+    @Override
+    public void postInit(InitContext ctx) {
         if (this.isClient())
             return;
 
@@ -98,9 +104,6 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
         this.position.ifPresent(cached -> cached.init(current), false);
         this.destination.ifPresent(cached -> cached.init(current), false);
         this.previousPosition.ifPresent(cached -> cached.init(current), false);
-
-        // fix a bug of old versions having negative hammer uses.
-        this.hammerUses = Math.max(this.hammerUses, 1);
     }
 
     @Override

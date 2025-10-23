@@ -1,6 +1,7 @@
 package dev.amble.ait.core.tardis.handler;
 
 
+import dev.amble.ait.AITMod;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -155,10 +156,15 @@ public class LandingPadHandler extends KeyedTardisComponent {
     }
 
     public void claim(LandingPadSpot spot) {
-        this.current = spot;
-        this.current.claim(this.tardis);
+        try {
+            this.current = spot;
+            this.current.claim(this.tardis);
 
-        this.syncSpot();
+            this.syncSpot();
+        } catch (IllegalStateException e) {
+            this.current = null;
+            AITMod.LOGGER.error(String.valueOf(e));
+        }
     }
 
     private void syncSpot() {

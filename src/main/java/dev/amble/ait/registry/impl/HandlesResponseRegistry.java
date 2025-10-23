@@ -3,6 +3,7 @@ package dev.amble.ait.registry.impl;
 import java.util.HashMap;
 import java.util.List;
 
+import dev.amble.ait.client.AITModClient;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 
@@ -52,12 +53,27 @@ public class HandlesResponseRegistry {
         }
         HandlesResponse found = COMMANDS_CACHE.get(command);
 
-        if (found == null) {
-            return DEFAULT;
+        if (found != null) {
+            return found;
         }
 
-        return found;
+        int minDistance = Integer.MAX_VALUE;
+        HandlesResponse closest = null;
+        for (String key : COMMANDS_CACHE.keySet()) {
+            int distanc = COMMANDS_CACHE.get(key).distance(key, command);
+            if (distanc < minDistance) {
+                minDistance = distanc;
+                closest = COMMANDS_CACHE.get(key);
+            }
+        }
+
+        if (closest != null && minDistance <= AITModClient.CONFIG.handlesLevenshteinDistance) {
+            return closest;
+        }
+
+        return DEFAULT;
     }
+
     private static void fillCommands() {
         COMMANDS_CACHE = new HashMap<>();
         for (HandlesResponse response : REGISTRY) {
