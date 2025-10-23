@@ -98,7 +98,7 @@ dependencies {
     // MC libraries
     modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 
-    modApi("dev.amble:lib:v${project.amblekit_version}") {
+    modApi("dev.amble:lib:${project.amblekit_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
 
