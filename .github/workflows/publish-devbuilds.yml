@@ -3,6 +3,16 @@ name: Automated Builds
 on:
   workflow_dispatch:
   push:
+      paths:
+        - src/**
+        - build.gradle
+        - gradle.properties
+        - settings.gradle
+        - gradle/**
+        - gradlew
+        - gradlew.bat
+        - versioning.gradle
+        - .github/workflows/publish-devbuilds.yml
 
 jobs:
   build:
