@@ -17,10 +17,10 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
-public class VisualiserControl extends Control {
+public class ManualFlightControl extends Control {
 
-    public VisualiserControl() {
-        super(AITMod.id("visualiser"));
+    public ManualFlightControl() {
+        super(AITMod.id("manual_flight"));
     }
 
     @Override

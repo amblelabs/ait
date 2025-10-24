@@ -18,6 +18,7 @@ import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
@@ -64,6 +65,7 @@ import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.ait.core.loot.SetBlueprintLootFunction;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
 import dev.amble.ait.core.sounds.travel.TravelSoundRegistry;
+import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.animation.v2.blockbench.BlockbenchParser;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
@@ -305,6 +307,18 @@ public class AITMod implements ModInitializer {
                         StackUtil.playBreak(player);
                     });
                 });
+
+
+        // Rahhhh this is just to catch the player from logging out with the TARDIS in RWF
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+                    ServerPlayerEntity serverPlayer = handler.player;
+                    if (serverPlayer.getVehicle() instanceof FlightTardisEntity flight) {
+                        if (!flight.isLinked()) return;
+                        ServerTardis tardis = flight.tardis().get().asServer();
+
+                        tardis.flight().exitFlight(serverPlayer);
+                    }
+        });
 
         LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
             if (source.isBuiltin()

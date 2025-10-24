@@ -25,10 +25,7 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Hand;
+import net.minecraft.util.*;
 import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -343,17 +340,20 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
     @Override
     public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
         //FIXME: re-enable this block after the exterior falling issues are resolved :(
-        /*
         Tardis tardis = this.findTardis(world, pos);
 
         if (tardis == null)
             return;
+
 
         if (tardis.travel().getState() != TravelHandlerBase.State.LANDED
                 || !canFallThrough(world, pos.down())) {
             tardis.flight().shouldFall().set(false);
             return;
         }
+
+        world.getChunkManager().markForUpdate(pos);
+        world.scheduleBlockTick(pos, this, 20);
 
         tardis.flight().shouldFall().set(true);
 
@@ -364,7 +364,6 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
 
         if (state.get(WATERLOGGED))
             state.with(WATERLOGGED, false);
-        */
     }
 
     @Override

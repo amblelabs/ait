@@ -1,15 +1,17 @@
 package dev.amble.ait.core.handles;
 
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.tardis.ServerTardis;
+import java.util.List;
+
 import dev.amble.lib.api.Identifiable;
 import dev.amble.lib.util.Levenshtein;
+
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 
-import java.util.List;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.tardis.ServerTardis;
 
 /**
  * For Handles the robot, this is used to handle responses.

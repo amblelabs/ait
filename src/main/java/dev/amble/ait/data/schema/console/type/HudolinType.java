@@ -51,6 +51,7 @@ public class HudolinType extends ConsoleTypeSchema {
                     new Vector3f(-0.660937880165875f, 0.412500380538404f, 0.37695388682186604f)),
             new ControlTypes(new ZControl(), EntityDimensions.changing(0.06249999f, 0.074999996f), // fin
                     new Vector3f(-0.710936738178134f, 0.37499971222132444f, 0.4132820088416338f)),
+            // Add RWF control here!!!
             new ControlTypes(new ElectricalDischargeControl(), EntityDimensions.changing(0.125f, 0.15f), // fin
                     new Vector3f(0.08593673445284367f, 0.4125152602791786f, 0.7128898622468114f)),
             new ControlTypes(new RandomiserControl(), EntityDimensions.changing(0.21250002f, 0.1125f), // Fin

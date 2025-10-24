@@ -63,7 +63,7 @@ public class ControlRegistry {
         register(new SonicPortControl());
         register(new TelepathicControl());
         register(new ThrottleControl());
-        register(new VisualiserControl());
+        register(new ManualFlightControl());
         register(new EngineOverloadControl());
         register(new ElectricalDischargeControl());
         register(new ShieldsControl());

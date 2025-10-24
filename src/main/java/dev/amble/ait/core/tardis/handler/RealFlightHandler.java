@@ -45,7 +45,12 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
     static {
         TardisEvents.DEMAT.register(tardis -> {
             tardis.flight().flying.set(false);
-            return tardis.flight().falling().get() ? TardisEvents.Interaction.FAIL : TardisEvents.Interaction.PASS;
+            /*return tardis.flight().falling().get() ? TardisEvents.Interaction.FAIL : */ return TardisEvents.Interaction.PASS;
+        });
+
+        TardisEvents.MAT.register(tardis -> {
+            tardis.flight().flying.set(false);
+            return TardisEvents.Interaction.PASS;
         });
     }
 
@@ -73,6 +78,11 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
     public void tickFlight(ServerPlayerEntity player) {
         tardis.travel().forcePosition(cached -> cached.pos(player.getBlockPos())
                 .rotation((byte) RotationPropertyHelper.fromYaw(player.getYaw())));
+
+        if (!this.isFlying()) {
+            this.exitFlight(player);
+        }
+
         if (player.age % 20 != 0) {
             GravitationalCircuit circuit = tardis.subsystems().get(GRAVITATIONAL);
             if (circuit.isEnabled()) {
@@ -133,7 +143,8 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
         player.setInvulnerable(false);
         this.sendExitFlightPacket(player);
 
-        tardis.travel().forcePosition(cached -> cached.rotation((byte) RotationPropertyHelper.fromYaw(player.getYaw())));
+        tardis.travel().forcePosition(cached -> cached.rotation((byte)
+                RotationPropertyHelper.fromYaw(player.getYaw())));
         tardis.travel().placeExterior(false);
 
         tardis.travel().finishRemat();

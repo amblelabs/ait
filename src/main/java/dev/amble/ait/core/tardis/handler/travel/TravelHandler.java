@@ -22,12 +22,15 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Unit;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
@@ -60,6 +63,9 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
     @Exclude
     private boolean travelCooldown;
+
+    @Exclude
+    public static final ChunkTicketType<Unit> FALLING_TARDIS = ChunkTicketType.create("falling_tardis", (a, b) -> 0);
 
     @Exclude
     private boolean waiting;
@@ -270,6 +276,8 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
         ExteriorBlockEntity exterior = new ExteriorBlockEntity(pos, blockState, this.tardis);
         world.addBlockEntity(exterior);
+        world.getChunkManager().markForUpdate(pos);
+        world.getChunkManager().addTicket(ChunkTicketType.PLAYER, new ChunkPos(pos), 2,  new ChunkPos(pos));
 
         if (animate)
             this.runAnimations(exterior);
