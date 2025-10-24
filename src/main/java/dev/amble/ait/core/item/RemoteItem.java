@@ -91,10 +91,12 @@ public class RemoteItem extends LinkableItem {
         if (player.isSneaking()) {
             if (!tardis.fuel().hasPower()) {
                 tardis.fuel().enablePower();
+                player.sendMessage(Text.literal("TARDIS Systems Initializing"), true);
                 tardis.getExterior().playSound(AITSounds.POWERUP, SoundCategory.BLOCKS);
                 world.playSound(null, pos, AITSounds.REMOTE, SoundCategory.BLOCKS);
             } else {
                 tardis.fuel().disablePower();
+                player.sendMessage(Text.literal("TARDIS Systems Shutting Down"), true);
                 tardis.getExterior().playSound(AITSounds.SHUTDOWN, SoundCategory.BLOCKS);
                 world.playSound(null, pos, AITSounds.REMOTE, SoundCategory.BLOCKS);
             }
