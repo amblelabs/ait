@@ -218,6 +218,17 @@ public class AITModClient implements ClientModInitializer {
             });
         });
 
+        ClientPlayNetworking.registerGlobalReceiver(OPEN_SCREEN_PROJECTOR, (client, handler, buf, responseSender) -> {
+            int id = buf.readInt();
+            BlockPos projector = buf.readBlockPos();
+
+            client.execute(() -> {
+                ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
+                Screen screen = screenFromId(id, tardis, projector);
+                if (screen != null) client.setScreenAndRender(screen);
+            });
+        });
+
         ClientPlayNetworking.registerGlobalReceiver(ConsoleGeneratorBlockEntity.SYNC_TYPE,
                 (client, handler, buf, responseSender) -> {
                     if (client.world == null)
@@ -265,7 +276,7 @@ public class AITModClient implements ClientModInitializer {
             case 0 -> new MonitorScreen(tardis, console);
             case 1 -> new BlueprintFabricatorScreen();
             case 2 -> new AstralMapScreen();
-            case 3 -> new EnvironmentProjectorScreen(tardis);
+            case 3 -> new EnvironmentProjectorScreen(tardis, console);
             default -> null;
         };
     }
