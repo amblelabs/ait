@@ -93,9 +93,9 @@ public class RemoteItem extends LinkableItem {
                 temp = pos;
             tardis.travel().speed(tardis.travel().maxSpeed().get());
 
-                TravelUtil.travelTo(tardis, CachedDirectedGlobalPos.create(serverWorld, temp, DirectionControl
-                        .getGeneralizedRotation(RotationPropertyHelper.fromYaw(player.getBodyYaw()))));
-            } else {
+            TravelUtil.travelTo(tardis, CachedDirectedGlobalPos.create(serverWorld, temp, DirectionControl
+                    .getGeneralizedRotation(RotationPropertyHelper.fromYaw(player.getBodyYaw()))));
+        } else {
             world.playSound(null, pos, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.BLOCKS, 1F,
                     0.2F);
             player.sendMessage(Text.translatable("message.ait.remoteitem.warning3"), true);
