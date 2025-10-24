@@ -53,16 +53,20 @@ public class RemoteItem extends LinkableItem {
             return ActionResult.FAIL;
 
         if (player.isSneaking()) {
-            if (!tardis.fuel().hasPower()) {
-                tardis.fuel().enablePower();
-                player.sendMessage(Text.literal("TARDIS Powering Up..."), true);
-                tardis.getExterior().playSound(AITSounds.POWERUP, SoundCategory.BLOCKS);
-                world.playSound(null, pos, AITSounds.REMOTE, SoundCategory.BLOCKS);
-            } else {
-                tardis.fuel().disablePower();
-                player.sendMessage(Text.literal("TARDIS Powering Down..."), true);
-                tardis.getExterior().playSound(AITSounds.SHUTDOWN, SoundCategory.BLOCKS);
-                world.playSound(null, pos, AITSounds.REMOTE, SoundCategory.BLOCKS);
+            if (!tardis.travel().inFlight()) {
+                if (!tardis.fuel().hasPower()) {
+                    tardis.fuel().enablePower();
+                    player.sendMessage(Text.literal("TARDIS Powering Up..."), true);
+                    tardis.getExterior().playSound(AITSounds.POWERUP, SoundCategory.BLOCKS);
+                    world.playSound(null, pos, AITSounds.REMOTE, SoundCategory.BLOCKS);
+                } else {
+                    tardis.fuel().disablePower();
+                    player.sendMessage(Text.literal("TARDIS Powering Down..."), true);
+                    tardis.getExterior().playSound(AITSounds.SHUTDOWN, SoundCategory.BLOCKS);
+                    world.playSound(null, pos, AITSounds.REMOTE, SoundCategory.BLOCKS);
+                }
+            } else if (tardis.travel().inFlight() || !tardis.travel().isLanded()) {
+                player.sendMessage(Text.literal("TARDIS in flight. Power Switch Disabled."), true);
             }
             return ActionResult.PASS;
         }
@@ -91,11 +95,15 @@ public class RemoteItem extends LinkableItem {
 
             if (world.getBlockState(pos).isReplaceable())
                 temp = pos;
-            tardis.travel().speed(tardis.travel().maxSpeed().get());
+                if (tardis.fuel().hasPower()) {
+                    tardis.travel().speed(tardis.travel().maxSpeed().get());
 
-            TravelUtil.travelTo(tardis, CachedDirectedGlobalPos.create(serverWorld, temp, DirectionControl
-                    .getGeneralizedRotation(RotationPropertyHelper.fromYaw(player.getBodyYaw()))));
-        } else {
+                    TravelUtil.travelTo(tardis, CachedDirectedGlobalPos.create(serverWorld, temp, DirectionControl
+                            .getGeneralizedRotation(RotationPropertyHelper.fromYaw(player.getBodyYaw()))));
+                } else {
+                    player.sendMessage(Text.literal("Takeoff Failed, TARDIS powered off..."), true);
+                }
+            } else {
             world.playSound(null, pos, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.BLOCKS, 1F,
                     0.2F);
             player.sendMessage(Text.translatable("message.ait.remoteitem.warning3"), true);
