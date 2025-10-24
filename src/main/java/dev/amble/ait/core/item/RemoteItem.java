@@ -63,6 +63,7 @@ public class RemoteItem extends LinkableItem {
 
         // Check if the Tardis is already present at this location before moving
         // it there
+
         CachedDirectedGlobalPos currentPosition = tardis.travel().position();
 
         if (currentPosition.getPos().equals(pos))
@@ -75,15 +76,28 @@ public class RemoteItem extends LinkableItem {
 
             if (world.getBlockState(pos).isReplaceable())
                 temp = pos;
+            if (!player.isSneaking()) {
+                tardis.travel().speed(tardis.travel().maxSpeed().get());
 
-            tardis.travel().speed(tardis.travel().maxSpeed().get());
-
-            TravelUtil.travelTo(tardis, CachedDirectedGlobalPos.create(serverWorld, temp, DirectionControl
-                    .getGeneralizedRotation(RotationPropertyHelper.fromYaw(player.getBodyYaw()))));
+                TravelUtil.travelTo(tardis, CachedDirectedGlobalPos.create(serverWorld, temp, DirectionControl
+                        .getGeneralizedRotation(RotationPropertyHelper.fromYaw(player.getBodyYaw()))));
+            }
         } else {
             world.playSound(null, pos, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.BLOCKS, 1F,
                     0.2F);
             player.sendMessage(Text.translatable("message.ait.remoteitem.warning3"), true);
+        }
+
+        if (player.isSneaking()) {
+            if (!tardis.fuel().hasPower()) {
+                tardis.fuel().enablePower();
+                tardis.getExterior().playSound(AITSounds.POWERUP, SoundCategory.BLOCKS);
+                world.playSound(null, pos, AITSounds.REMOTE, SoundCategory.BLOCKS);
+            } else {
+                tardis.fuel().disablePower();
+                tardis.getExterior().playSound(AITSounds.SHUTDOWN, SoundCategory.BLOCKS);
+                world.playSound(null, pos, AITSounds.REMOTE, SoundCategory.BLOCKS);
+            }
         }
 
         return ActionResult.PASS;
