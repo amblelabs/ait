@@ -148,6 +148,10 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+sourcesJar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 jar {
     inputs.property "archivesName", project.base.archivesName
 
