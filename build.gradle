@@ -142,6 +142,8 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
+	withSourcesJar()
+	
     sourceCompatibility = JavaVersion.VERSION_22
     targetCompatibility = JavaVersion.VERSION_17
 }
