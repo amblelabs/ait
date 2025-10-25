@@ -36,6 +36,7 @@ import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.util.ShapeUtil;
 import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 @SuppressWarnings("deprecation")
 public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntityProvider, Waterloggable {
