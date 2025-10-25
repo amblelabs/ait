@@ -22,6 +22,8 @@ public class AITBlockEntityTypes implements BlockEntityContainer {
     public static BlockEntityType<SnowGlobeBlockEntity> SNOW_GLOBE_BLOCK_ENTITY_TYPE;
     public static BlockEntityType<ExteriorBlockEntity> EXTERIOR_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
             .create(ExteriorBlockEntity::new, AITBlocks.EXTERIOR_BLOCK).build();
+    public static BlockEntityType<ToyotaSpinningRotorBlockEntity> TOYOTA_SPINNING_ROTOR_ENTITY_TYPE = FabricBlockEntityTypeBuilder
+            .create(ToyotaSpinningRotorBlockEntity::new, AITBlocks.TOYOTA_SPINNING_ROTOR).build();
     public static BlockEntityType<DoorBlockEntity> DOOR_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
             .create(DoorBlockEntity::new, AITBlocks.DOOR_BLOCK).build();
     public static BlockEntityType<ConsoleBlockEntity> CONSOLE_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
