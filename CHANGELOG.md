@@ -41,3 +41,6 @@
 - fix: adaptive exterior no longer applies when it shouldnt | by [@drtheodor](https://github.com/drtheodor) ([#1935](https://github.com/amblelabs/ait/pull/1935))
 - AIT requires 1.1.15+ version of amblekit. | by [@drtheodor](https://github.com/drtheodor) ([#1936](https://github.com/amblelabs/ait/pull/1936))
 - add: Added toggling power via the Stattenheim Remote when shift right-clicking. | by [@lakehascake](https://github.com/lakehascake), [@Mansarde](https://github.com/Mansarde) ([#1937](https://github.com/amblelabs/ait/pull/1937))
+- fix: the door properly copies lighting from the exterior now | by [@duzos](https://github.com/duzos), [@drtheodor](https://github.com/drtheodor) ([#1792](https://github.com/amblelabs/ait/pull/1792))
+- add: BOTI is real with immersive portals now WOOO (with massive financial support from <@1264511380619268148>/JayJay). To turn it on install IP and enable the "experimental IP" options in both server and client config of AIT and then restart your game. | by [@duzos](https://github.com/duzos), [@drtheodor](https://github.com/drtheodor) ([#1792](https://github.com/amblelabs/ait/pull/1792))
+- fix: it shouldnt be possible to get stuck in the time vortex now | by [@duzos](https://github.com/duzos), [@drtheodor](https://github.com/drtheodor) ([#1792](https://github.com/amblelabs/ait/pull/1792))
