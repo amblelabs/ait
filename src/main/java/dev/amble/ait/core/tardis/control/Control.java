@@ -1,7 +1,5 @@
 package dev.amble.ait.core.tardis.control;
 
-import dev.amble.lib.api.Identifiable;
-
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -20,6 +18,7 @@ import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
+import dev.amble.lib.api.Identifiable;
 
 public class Control implements Identifiable {
 

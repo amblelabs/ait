@@ -1,7 +1,5 @@
 package dev.amble.ait.registry.impl.console.variant;
 
-import dev.amble.lib.client.bedrock.BedrockModelRegistry;
-import dev.amble.lib.register.datapack.DatapackRegistry;
 import org.joml.Vector3f;
 
 import net.minecraft.network.PacketByteBuf;
@@ -33,6 +31,8 @@ import dev.amble.ait.data.schema.console.variant.steam.client.*;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaBlueVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaLegacyVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaVariant;
+import dev.amble.lib.client.bedrock.BedrockModelRegistry;
+import dev.amble.lib.register.datapack.DatapackRegistry;
 
 public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsoleVariantSchema> {
     private static ClientConsoleVariantRegistry INSTANCE;

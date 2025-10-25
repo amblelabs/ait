@@ -5,8 +5,6 @@ import static net.minecraft.block.entity.BeaconBlockEntity.playSound;
 import java.util.Iterator;
 import java.util.Optional;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -31,6 +29,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.data.enummap.EnumSet;
 import dev.amble.ait.data.enummap.Ordered;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class TardisGoatHorn extends LinkableItem {
 

@@ -2,7 +2,6 @@ package dev.amble.ait.data.schema.door;
 
 import java.util.Optional;
 
-import dev.amble.lib.client.bedrock.BedrockAnimationReference;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -14,6 +13,7 @@ import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 import dev.amble.ait.data.schema.AnimatedFeature;
+import dev.amble.lib.client.bedrock.BedrockAnimationReference;
 
 public interface AnimatedDoor extends AnimatedFeature {
     default Optional<BedrockAnimationReference> getLeftAnimation() {

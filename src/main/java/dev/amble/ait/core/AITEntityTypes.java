@@ -1,7 +1,5 @@
 package dev.amble.ait.core;
 
-import dev.amble.lib.container.AssignedName;
-import dev.amble.lib.container.impl.EntityContainer;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 
 import net.minecraft.entity.EntityDimensions;
@@ -11,6 +9,8 @@ import net.minecraft.entity.SpawnRestriction;
 import net.minecraft.world.Heightmap;
 
 import dev.amble.ait.core.entities.*;
+import dev.amble.lib.container.AssignedName;
+import dev.amble.lib.container.impl.EntityContainer;
 
 public class AITEntityTypes implements EntityContainer {
 

@@ -6,9 +6,6 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
-import dev.amble.lib.container.RegistryContainer;
-import dev.amble.lib.register.AmbleRegistries;
-import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.drtheo.multidim.MultiDim;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
@@ -63,7 +60,6 @@ import dev.amble.ait.core.likes.ItemOpinionRegistry;
 import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.ait.core.loot.SetBlueprintLootFunction;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
-import dev.amble.ait.core.sounds.travel.TravelSoundRegistry;
 import dev.amble.ait.core.tardis.animation.v2.blockbench.BlockbenchParser;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
@@ -72,7 +68,6 @@ import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
 import dev.amble.ait.core.util.CustomTrades;
-import dev.amble.ait.core.util.SpaceUtils;
 import dev.amble.ait.core.util.StackUtil;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.LandingPadManager;
@@ -86,6 +81,9 @@ import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.container.RegistryContainer;
+import dev.amble.lib.register.AmbleRegistries;
+import dev.amble.lib.util.ServerLifecycleHooks;
 
 public class AITMod implements ModInitializer {
 
@@ -152,7 +150,6 @@ public class AITMod implements ModInitializer {
                 DesktopRegistry.getInstance(),
                 ConsoleVariantRegistry.getInstance(),
                 MachineRecipeRegistry.getInstance(),
-                TravelSoundRegistry.getInstance(),
                 FlightSoundRegistry.getInstance(),
                 VortexReferenceRegistry.getInstance(),
                 BlueprintRegistry.getInstance(),

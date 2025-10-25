@@ -1,6 +1,5 @@
 package dev.amble.ait.core.tardis.handler;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.joml.Vector3f;
 
 import net.minecraft.entity.EquipmentSlot;
@@ -21,6 +20,7 @@ import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
 import dev.amble.ait.data.properties.integer.IntProperty;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class TardisCrashHandler extends KeyedTardisComponent implements TardisTickable {
 

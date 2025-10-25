@@ -1,10 +1,10 @@
 package dev.amble.ait.core;
 
-import dev.amble.lib.datagen.util.NoEnglish;
-
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.FoodComponent;
+
+import dev.amble.lib.datagen.util.NoEnglish;
 
 public class AITFoodComponents  {
     @NoEnglish

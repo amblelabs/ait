@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import dev.amble.lib.data.DirectedBlockPos;
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.queue.api.util.block.ChunkEraser;
 import dev.drtheo.queue.api.util.structure.QueuedStructureTemplate;
@@ -41,6 +40,7 @@ import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.QueuedTardisStructureTemplate;
 import dev.amble.ait.data.Corners;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
+import dev.amble.lib.data.DirectedBlockPos;
 
 public class TardisDesktop extends TardisComponent {
 

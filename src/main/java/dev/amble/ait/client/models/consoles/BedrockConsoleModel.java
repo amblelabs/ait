@@ -1,9 +1,5 @@
 package dev.amble.ait.client.models.consoles;
 
-import dev.amble.lib.api.Identifiable;
-import dev.amble.lib.client.bedrock.BedrockAnimation;
-import dev.amble.lib.client.bedrock.BedrockModel;
-
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -16,6 +12,9 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.datapack.TravelAnimationMap;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
+import dev.amble.lib.api.Identifiable;
+import dev.amble.lib.client.bedrock.BedrockAnimation;
+import dev.amble.lib.client.bedrock.BedrockModel;
 
 public class BedrockConsoleModel implements ConsoleModel, Identifiable {
     private final BedrockModel model;

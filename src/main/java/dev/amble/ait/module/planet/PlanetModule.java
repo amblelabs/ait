@@ -5,14 +5,6 @@ import static net.minecraft.data.server.recipe.RecipeProvider.*;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import dev.amble.ait.core.util.SpaceUtils;
-import dev.amble.lib.container.RegistryContainer;
-import dev.amble.lib.container.impl.BlockContainer;
-import dev.amble.lib.container.impl.ItemContainer;
-import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
-import dev.amble.lib.datagen.model.AmbleModelProvider;
-import dev.amble.lib.itemgroup.AItemGroup;
-import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -40,6 +32,7 @@ import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.core.util.SpaceUtils;
 import dev.amble.ait.datagen.datagen_providers.AITBlockTagProvider;
 import dev.amble.ait.datagen.datagen_providers.AITItemTagProvider;
 import dev.amble.ait.datagen.datagen_providers.AITRecipeProvider;
@@ -50,6 +43,13 @@ import dev.amble.ait.module.planet.core.PlanetBlocks;
 import dev.amble.ait.module.planet.core.PlanetItems;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import dev.amble.ait.module.planet.core.util.PlanetCustomTrades;
+import dev.amble.lib.container.RegistryContainer;
+import dev.amble.lib.container.impl.BlockContainer;
+import dev.amble.lib.container.impl.ItemContainer;
+import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
+import dev.amble.lib.datagen.model.AmbleModelProvider;
+import dev.amble.lib.itemgroup.AItemGroup;
+import dev.amble.lib.register.AmbleRegistries;
 
 public class PlanetModule extends Module {
     private static final PlanetModule INSTANCE = new PlanetModule();

@@ -2,7 +2,6 @@ package dev.amble.ait.core.tardis.handler;
 
 import java.util.function.Consumer;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.entity.ItemEntity;
@@ -24,6 +23,7 @@ import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
 import dev.amble.ait.registry.impl.SonicRegistry;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class SonicHandler extends KeyedTardisComponent implements ArtronHolderItem, TardisTickable {
 

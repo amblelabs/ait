@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import com.google.gson.*;
-import dev.amble.lib.util.ArrayIterator;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,6 +20,7 @@ import dev.amble.ait.core.engine.impl.*;
 import dev.amble.ait.core.engine.registry.SubSystemRegistry;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.enummap.ConcurrentEnumMap;
+import dev.amble.lib.util.ArrayIterator;
 
 public class SubSystemHandler extends KeyedTardisComponent implements TardisTickable, Iterable<SubSystem> {
     @Exclude

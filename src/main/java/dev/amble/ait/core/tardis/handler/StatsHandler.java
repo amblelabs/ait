@@ -10,8 +10,6 @@ import java.util.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import dev.amble.lib.register.unlockable.Unlockable;
-import dev.amble.lib.util.ServerLifecycleHooks;
 import org.joml.Vector3f;
 
 import net.minecraft.registry.RegistryKey;
@@ -37,6 +35,8 @@ import dev.amble.ait.data.properties.dbl.DoubleProperty;
 import dev.amble.ait.data.properties.dbl.DoubleValue;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.registry.impl.DesktopRegistry;
+import dev.amble.lib.register.unlockable.Unlockable;
+import dev.amble.lib.util.ServerLifecycleHooks;
 
 public class StatsHandler extends KeyedTardisComponent {
 

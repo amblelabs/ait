@@ -3,7 +3,6 @@ package dev.amble.ait.core.tardis.control.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.queue.api.ActionQueue;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,6 +52,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
 import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
 import dev.amble.ait.data.Loyalty;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class TelepathicControl extends Control {
 

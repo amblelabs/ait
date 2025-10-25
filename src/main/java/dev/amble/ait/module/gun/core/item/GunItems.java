@@ -1,6 +1,5 @@
 package dev.amble.ait.module.gun.core.item;
 
-import dev.amble.lib.container.impl.ItemContainer;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 
@@ -8,6 +7,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.Items;
 import net.minecraft.util.Rarity;
+
+import dev.amble.lib.container.impl.ItemContainer;
 
 
 public class GunItems extends ItemContainer {

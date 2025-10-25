@@ -1,7 +1,5 @@
 package dev.amble.ait.core.item.sonic;
 
-import dev.amble.lib.api.ICantBreak;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -34,6 +32,7 @@ import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.landing.LandingPadRegion;
 import dev.amble.ait.data.landing.LandingPadSpot;
 import dev.amble.ait.data.schema.sonic.SonicSchema;
+import dev.amble.lib.api.ICantBreak;
 
 public class ScanningSonicMode extends SonicMode {
     private static final Text RIFT_FOUND = Text.translatable("message.ait.sonic.riftfound").formatted(Formatting.AQUA)

@@ -3,9 +3,6 @@ package dev.amble.ait.core.tardis.handler;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedBlockPos;
-import dev.amble.lib.data.DirectedGlobalPos;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -55,6 +52,9 @@ import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.DesktopRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedBlockPos;
+import dev.amble.lib.data.DirectedGlobalPos;
 
 public class InteriorChangingHandler extends KeyedTardisComponent implements TardisTickable {
     public static final Identifier CHANGE_DESKTOP = AITMod.id("change_desktop");
@@ -100,14 +100,14 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
             if (queued == null)
                 return;
 
-            tardis.interiorChangingHandler().queueInteriorChange(queued);
+            tardis.interiorChanging().queueInteriorChange(queued);
         }
     }
 
     static {
         TardisEvents.DEMAT.register(tardis -> {
             if (tardis.isGrowth()
-                    || tardis.interiorChangingHandler().queued().get())
+                    || tardis.interiorChanging().queued().get())
                 return TardisEvents.Interaction.FAIL;
 
             return TardisEvents.Interaction.PASS;
@@ -123,7 +123,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
             return TardisEvents.Interaction.SUCCESS; // force mat even if checks fail
         });
 
-        TardisEvents.LOSE_POWER.register(tardis -> tardis.interiorChangingHandler().queued.set(false));
+        TardisEvents.LOSE_POWER.register(tardis -> tardis.interiorChanging().queued.set(false));
 
         ServerPlayNetworking.registerGlobalReceiver(InteriorChangingHandler.CHANGE_DESKTOP,
                 ServerTardisManager.receiveTardis(((tardis, server, player, handler, buf, responseSender) -> {
@@ -137,7 +137,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                         return;
 
                     TardisCriterions.REDECORATE.trigger(player);
-                    tardis.interiorChangingHandler().queueInteriorChange(desktop);
+                    tardis.interiorChanging().queueInteriorChange(desktop);
                     tardis.alarm().enable();
                 })));
     }
