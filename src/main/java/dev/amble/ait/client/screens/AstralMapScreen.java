@@ -21,22 +21,70 @@ import dev.amble.ait.core.util.WorldUtil;
 
 public class AstralMapScreen extends Screen {
 
+    //    private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
+//            "textures/gui/tardis/monitor/security_menu.png");
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            "textures/gui/tardis/monitor/security_menu.png");
+            "textures/gui/tardis/monitor/astral_map_menu.png");
     int bgHeight = 138;
     int bgWidth = 216;
     int left, top;
-    final IdentifierSwitcher switcher;
+
+    private IdentifierSwitcher switcher;
+    private IdentifierSwitcher biomeSwitcher;
+
+    private enum View { ROOT, STRUCTURES, BIOMES }
+    private View currentView = View.ROOT;
 
     public AstralMapScreen() {
         super(Text.translatable("screen." + AITMod.MOD_ID + ".astral_map"));
-
         this.client = MinecraftClient.getInstance();
 
-        this.switcher = new IdentifierSwitcher(AstralMapBlock.structureIds, (id) -> {
-            ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, PacketByteBufs.create().writeIdentifier(id));
-            this.close();
+        List<Identifier> structList = (AstralMapBlock.structureIds != null && !AstralMapBlock.structureIds.isEmpty())
+                ? AstralMapBlock.structureIds
+                : List.of(AITMod.id("loading"));
+        List<Identifier> biomeList = (AstralMapBlock.biomeIds != null && !AstralMapBlock.biomeIds.isEmpty())
+                ? AstralMapBlock.biomeIds
+                : List.of(AITMod.id("loading"));
+
+        this.switcher = new IdentifierSwitcher(structList, (id) -> {
+            if (!"loading".equals(id.getPath())) {
+                ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, PacketByteBufs.create().writeIdentifier(id));
+                this.close();
+            }
         });
+
+        this.biomeSwitcher = new IdentifierSwitcher(biomeList, (id) -> {
+            if (!"loading".equals(id.getPath())) {
+                ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, PacketByteBufs.create().writeIdentifier(id));
+                this.close();
+            }
+        });
+    }
+
+    public void reloadData() {
+        boolean changed = false;
+
+        if (AstralMapBlock.structureIds != null && !AstralMapBlock.structureIds.isEmpty()
+                && "loading".equals(this.switcher.get().id().getPath())) {
+            this.switcher = new IdentifierSwitcher(AstralMapBlock.structureIds, (id) -> {
+                ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, PacketByteBufs.create().writeIdentifier(id));
+                this.close();
+            });
+            changed = true;
+        }
+
+        if (AstralMapBlock.biomeIds != null && !AstralMapBlock.biomeIds.isEmpty()
+                && "loading".equals(this.biomeSwitcher.get().id().getPath())) {
+            this.biomeSwitcher = new IdentifierSwitcher(AstralMapBlock.biomeIds, (id) -> {
+                ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, PacketByteBufs.create().writeIdentifier(id));
+                this.close();
+            });
+            changed = true;
+        }
+
+        if (changed) {
+            this.clearAndInit();
+        }
     }
 
     @Override
@@ -46,17 +94,65 @@ public class AstralMapScreen extends Screen {
 
     @Override
     protected void init() {
-        this.top = (this.height - this.bgHeight) / 2; // this means everythings centered and scaling, same for below
+        this.top = (this.height - this.bgHeight) / 2;
         this.left = (this.width - this.bgWidth) / 2;
-
+        currentView = View.ROOT;
         super.init();
 
-         this.addDrawableChild(new PressableTextWidget((width / 2 - 30), (height / 2 + 12),
-                this.textRenderer.getWidth("<"), 10, Text.literal("<"), button -> this.switcher.previous(), this.textRenderer));
-        this.addDrawableChild(new PressableTextWidget((width / 2 + 25), (height / 2 + 12),
-                this.textRenderer.getWidth(">"), 10, Text.literal(">"), button -> this.switcher.next(), this.textRenderer));
-        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("SEARCH")) / 2), (height / 2 + 12),
-                this.textRenderer.getWidth(Text.literal("SEARCH")), 10, Text.literal("SEARCH"), button -> this.switcher.sync(null), this.textRenderer));
+        this.addDrawableChild(new PressableTextWidget(
+                (width / 2 - this.textRenderer.getWidth(Text.literal("STRUCTURES")) / 2),
+                (height / 2 + 9),
+                this.textRenderer.getWidth(Text.literal("STRUCTURES")),
+                10,
+                Text.literal("STRUCTURES"),
+                button -> structureFinderButton(),
+                this.textRenderer
+        ));
+
+        this.addDrawableChild(new PressableTextWidget(
+                (width / 2 - this.textRenderer.getWidth(Text.literal("BIOMES")) / 2),
+                (height / 2 - 1),
+                this.textRenderer.getWidth(Text.literal("BIOMES")),
+                10,
+                Text.literal("BIOMES"),
+                button -> biomeFinderButton(),
+                this.textRenderer
+        ));
+    }
+
+    private void biomeFinderButton() {
+        this.clearChildren();
+        this.setFocused(null);
+        currentView = View.BIOMES;
+
+        if (!"loading".equals(this.biomeSwitcher.get().id().getPath())) {
+            this.addDrawableChild(new PressableTextWidget((width / 2 - 46), (height / 2 - 0),
+                    this.textRenderer.getWidth("<"), 10, Text.literal("<"), button -> this.biomeSwitcher.previous(), this.textRenderer));
+            this.addDrawableChild(new PressableTextWidget((width / 2 + 40), (height / 2 - 1),
+                    this.textRenderer.getWidth(">"), 10, Text.literal(">"), button -> this.biomeSwitcher.next(), this.textRenderer));
+
+            this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("SEARCH")) / 2), (height / 2 + 12),
+                    this.textRenderer.getWidth(Text.literal("SEARCH")), 10, Text.literal("SEARCH"), button -> this.biomeSwitcher.sync(null), this.textRenderer));
+        }
+    }
+
+    private void structureFinderButton() {
+        this.clearChildren();
+        this.setFocused(null);
+        currentView = View.STRUCTURES;
+
+        Text text = Text.literal(this.switcher != null ? this.switcher.get().name().toUpperCase() : "LOADING");
+        int w = this.textRenderer.getWidth(text);
+
+        if (!"loading".equals(this.switcher.get().id().getPath())) {
+            this.addDrawableChild(new PressableTextWidget((width / 2 - 46), (height / 2 - 0),
+                    this.textRenderer.getWidth("<"), 10, Text.literal("<"), button -> this.switcher.previous(), this.textRenderer));
+            this.addDrawableChild(new PressableTextWidget((width / 2 + 46), (height / 2 - 0),
+                    this.textRenderer.getWidth(">"), 10, Text.literal(">"), button -> this.switcher.next(), this.textRenderer));
+
+            this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("SEARCH")) / 2), (height / 2 + 12),
+                    this.textRenderer.getWidth(Text.literal("SEARCH")), 10, Text.literal("SEARCH"), button -> this.switcher.sync(null), this.textRenderer));
+        }
     }
 
     @Override
@@ -65,7 +161,6 @@ public class AstralMapScreen extends Screen {
             this.close();
             return true;
         }
-
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
@@ -75,9 +170,15 @@ public class AstralMapScreen extends Screen {
 
         super.render(context, mouseX, mouseY, delta);
 
-        Text currentText = Text.literal(switcher.get().name().toUpperCase());
-        context.drawText(this.textRenderer, currentText, (int) (left + (bgWidth * 0.5f)) - this.textRenderer.getWidth(currentText) / 2,
-                (int) (top + (bgHeight * 0.5)), 0xffffff, true);
+        if (currentView.equals(View.STRUCTURES) && this.switcher != null) {
+            Text currentText = Text.literal(this.switcher.get().name().toUpperCase());
+            context.drawText(this.textRenderer, currentText, (int) (left + (bgWidth * 0.5f)) - this.textRenderer.getWidth(currentText) / 2,
+                    (int) (top + (bgHeight * 0.5)), 0xffffff, true);
+        } else if (currentView.equals(View.BIOMES) && this.biomeSwitcher != null) {
+            Text currentText = Text.literal(this.biomeSwitcher.get().name().toUpperCase());
+            context.drawText(this.textRenderer, currentText, (int) (left + (bgWidth * 0.5f)) - this.textRenderer.getWidth(currentText) / 2,
+                    (int) (top + (bgHeight * 0.5)), 0xffffff, true);
+        }
     }
 
     private void drawBackground(DrawContext context) {
