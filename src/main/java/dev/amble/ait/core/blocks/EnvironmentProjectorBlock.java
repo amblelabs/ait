@@ -84,6 +84,13 @@ public class EnvironmentProjectorBlock extends HorizontalDirectionalBlock implem
         if (hand != Hand.MAIN_HAND)
             return ActionResult.PASS;
 
+        if(player.isSneaking()) {
+            if (world.getBlockEntity(pos) instanceof EnvironmentProjectorBlockEntity proj){
+                proj.onUse(state, world, pos, player);
+            }
+            return ActionResult.SUCCESS;
+        }
+
         if (world.getBlockEntity(pos) instanceof EnvironmentProjectorBlockEntity projector) {
             player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 1.0F, 1.0F);
             AITMod.openScreen((ServerPlayerEntity) player, 3, pos);

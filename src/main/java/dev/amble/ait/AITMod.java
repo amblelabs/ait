@@ -32,6 +32,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -345,6 +346,29 @@ public class AITMod implements ModInitializer {
             });
         });
 
+        ServerPlayNetworking.registerGlobalReceiver(PROJECTOR_SELECTION, (server, player, handler, buf, responseSender) -> {
+            BlockPos pos = buf.readBlockPos();
+            Identifier id = buf.readIdentifier();
+            server.execute(() -> {
+                ServerWorld world = player.getServerWorld();
+                if (world != null && world.getBlockEntity(pos) instanceof dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity projector) {
+                    RegistryKey<World> key = RegistryKey.of(RegistryKeys.WORLD, id);
+                    projector.setCurrentFromClient(key, player);
+                }
+            });
+        });
+
+        ServerPlayNetworking.registerGlobalReceiver(PROJECTOR_DIRECTION, (server, player, handler, buf, responseSender) -> {
+            BlockPos pos = buf.readBlockPos();
+            Direction direction = buf.readEnumConstant(Direction.class);
+            server.execute(() -> {
+                ServerWorld world = player.getServerWorld();
+                if (world != null && world.getBlockEntity(pos) instanceof dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity projector) {
+                    projector.setDirectionFromClient(direction, player);
+                }
+            });
+        });
+
         LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
             if (source.isBuiltin()
                     && (id.equals(LootTables.NETHER_BRIDGE_CHEST) || id.equals(LootTables.DESERT_PYRAMID_CHEST)
@@ -380,6 +404,8 @@ public class AITMod implements ModInitializer {
     public static final Identifier OPEN_SCREEN_CONSOLE = AITMod.id("open_screen_console");
     public static final Identifier OPEN_SCREEN_PROJECTOR = AITMod.id("open_screen_projector");
     public static final Identifier TOGGLE_PROJECTOR = AITMod.id("toggle_projector");
+    public static final Identifier PROJECTOR_SELECTION = new Identifier(MOD_ID, "projector_selection");
+    public static final Identifier PROJECTOR_DIRECTION = new Identifier(MOD_ID, "projector_direction");
 
     public static void openScreen(ServerPlayerEntity player, int id) {
         PacketByteBuf buf = PacketByteBufs.create();
@@ -417,6 +443,20 @@ public class AITMod implements ModInitializer {
         buf.writeBlockPos(pos);
         buf.writeBoolean(enabled);
         ClientPlayNetworking.send(TOGGLE_PROJECTOR, buf);
+    }
+
+    public static void sendProjectorSelection(BlockPos pos, Identifier worldId) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeBlockPos(pos);
+        buf.writeIdentifier(worldId);
+        ClientPlayNetworking.send(PROJECTOR_SELECTION, buf);
+    }
+
+    public static void sendProjectorDirection(BlockPos pos, Direction direction) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeBlockPos(pos);
+        buf.writeEnumConstant(direction);
+        ClientPlayNetworking.send(PROJECTOR_DIRECTION, buf);
     }
 
     public static Identifier id(String path) {

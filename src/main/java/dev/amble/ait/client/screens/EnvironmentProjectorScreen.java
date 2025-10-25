@@ -74,6 +74,8 @@ public class EnvironmentProjectorScreen extends TardisScreen {
         BlockState state = this.client.world.getBlockState(projectorPos);
         this.current = key;
 
+        AITMod.sendProjectorSelection(projectorPos, key.getValue());
+
         if (state.get(EnvironmentProjectorBlock.ENABLED)) {
             this.apply(tardis(), state);
         }
@@ -81,10 +83,7 @@ public class EnvironmentProjectorScreen extends TardisScreen {
     }
 
     public void switchDirectionRotation(Direction direction) {
-        BlockState state = this.client.world.getBlockState(projectorPos);
-        Tardis tardis = tardis();
-        BlockState modifiedState = state.with(EnvironmentProjectorBlock.FACING, direction);
-        tardis.stats().skyboxDirection().set(modifiedState.get(EnvironmentProjectorBlock.FACING));
+        AITMod.sendProjectorDirection(projectorPos, direction);
     }
 
     private void renderTabButtons(){
