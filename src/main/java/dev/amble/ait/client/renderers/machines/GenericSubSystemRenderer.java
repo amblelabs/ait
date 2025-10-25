@@ -20,7 +20,7 @@ import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.block.generic.GenericStructureSystemBlockEntity;
 
 public class GenericSubSystemRenderer<T extends GenericStructureSystemBlockEntity> implements BlockEntityRenderer<T> {
-    private GenericSubSystemModel model;
+    private final GenericSubSystemModel model;
 
     public GenericSubSystemRenderer(BlockEntityRendererFactory.Context ctx) {
         this.model = new GenericSubSystemModel();

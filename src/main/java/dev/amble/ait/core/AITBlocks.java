@@ -204,7 +204,7 @@ public class AITBlocks extends BlockContainer {
     @NoBlockItem
     @NoEnglish
     public static final Block REDSTONE_CONTROL_BLOCK = new RedstoneControlBlock(
-            FabricBlockSettings.create().nonOpaque().strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
+            new ABlockSettings().nonOpaque().strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
 
     public static final Block ENVIRONMENT_PROJECTOR = new EnvironmentProjectorBlock(FabricBlockSettings.create());
 

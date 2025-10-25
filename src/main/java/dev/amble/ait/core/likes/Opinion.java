@@ -29,7 +29,7 @@ public interface Opinion extends Identifiable {
         ;
 
         public abstract Opinion get(Identifier id);
-    };
+    }
 
     static Optional<Opinion> find(Identifier id) {
         for (Type type : Type.values()) {

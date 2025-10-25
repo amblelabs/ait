@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -33,7 +34,6 @@ import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.blocks.DoorBlock;
 import dev.amble.ait.core.blocks.ExteriorBlock;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 import dev.amble.ait.core.item.KeyItem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.SonicHandler;
@@ -155,7 +155,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
     }
 
     public Direction getFacing() {
-        return this.getCachedState().get(HorizontalDirectionalBlock.FACING);
+        return this.getCachedState().get(HorizontalFacingBlock.FACING);
     }
 
     @Nullable @Override

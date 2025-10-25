@@ -26,7 +26,7 @@ import net.minecraft.world.World;
 public abstract class DummyLivingEntity extends LivingEntity {
 
     protected static final Iterable<ItemStack> ARMOR = Collections.singleton(ItemStack.EMPTY);
-    private Brain<?> brain;
+    private final Brain<?> brain;
 
     protected DummyLivingEntity(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);

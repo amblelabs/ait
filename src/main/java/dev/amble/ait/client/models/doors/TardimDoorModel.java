@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.doors;
 
 import net.minecraft.client.model.*;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
@@ -16,7 +15,6 @@ public class TardimDoorModel extends DoorModel {
     private final ModelPart tardis;
 
     public TardimDoorModel(ModelPart root) {
-        super(RenderLayer::getEntityCutoutNoCull);
         this.tardis = root.getChild("tardis");
     }
 

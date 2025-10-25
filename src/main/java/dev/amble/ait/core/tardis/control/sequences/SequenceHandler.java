@@ -1,5 +1,7 @@
 package dev.amble.ait.core.tardis.control.sequences;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +27,7 @@ import dev.amble.ait.registry.impl.SequenceRegistry;
 
 public class SequenceHandler extends TardisComponent implements TardisTickable {
     @Exclude
-    private RecentControls recent;
+    private List<Control> recent;
 
     private int ticks = 0;
 
@@ -41,7 +43,7 @@ public class SequenceHandler extends TardisComponent implements TardisTickable {
 
     @Override
     protected void onInit(InitContext ctx) {
-        recent = new RecentControls(tardis.getUuid());
+        recent = new ArrayList<>();
         activeSequence = null;
     }
 
@@ -50,7 +52,7 @@ public class SequenceHandler extends TardisComponent implements TardisTickable {
     }
 
     public ServerPlayerEntity getActivePlayer() {
-        if (this.playerUUID == null)
+        if (this.playerUUID == null || !this.tardis.asServer().hasWorld())
             return null;
 
         ServerWorld world = this.tardis.asServer().world();
@@ -126,7 +128,7 @@ public class SequenceHandler extends TardisComponent implements TardisTickable {
             return;
 
         if (this.recent == null)
-            this.recent = new RecentControls(this.tardis().getUuid());
+            this.recent = new ArrayList<>();
 
         if (this.getActiveSequence().isFinished(this.recent)) {
             recent.clear();

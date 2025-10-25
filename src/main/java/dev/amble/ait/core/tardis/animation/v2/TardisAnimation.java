@@ -41,7 +41,7 @@ import dev.amble.lib.util.ServerLifecycleHooks;
  */
 public abstract class TardisAnimation implements TardisTickable, Disposable, Identifiable, Linkable, Nameable {
     private final Identifier id;
-    @Nullable private Identifier soundId;
+    @Nullable private final Identifier soundId;
 
     private TardisRef ref;
     private boolean isServer = true;

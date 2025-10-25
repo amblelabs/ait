@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.doors;
 
 import net.minecraft.client.model.*;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
@@ -15,7 +14,6 @@ public class CapsuleDoorModel extends DoorModel {
     private final ModelPart body;
 
     public CapsuleDoorModel(ModelPart root) {
-        super(RenderLayer::getEntityCutoutNoCull);
         this.body = root.getChild("body");
     }
 

@@ -36,7 +36,7 @@ public class Sequence {
      *            Compares the recent controls to this sequence, if everything
      *            matches then it is finished
      */
-    public boolean isFinished(RecentControls recent) {
+    public boolean isFinished(List<Control> recent) {
         return recent.equals(this.getControls());
     }
 
@@ -56,7 +56,7 @@ public class Sequence {
         return Text.of("");
     }
 
-    public boolean wasMissed(RecentControls recent, int ticks) {
+    public boolean wasMissed(List<Control> recent, int ticks) {
         if (recent.size() >= this.getControls().size() && recent != this.getControls()) {
             recent.clear();
         }

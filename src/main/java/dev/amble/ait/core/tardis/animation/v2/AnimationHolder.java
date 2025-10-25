@@ -316,7 +316,7 @@ public class AnimationHolder implements TardisTickable, Disposable, Linkable {
         buf.writeIdentifier(this.current.id());
         buf.writeUuid(tardis.getUuid());
 
-        NetworkUtil.getSubscribedPlayers(tardis).forEach(player -> {;
+        NetworkUtil.getSubscribedPlayers(tardis).forEach(player -> {
             NetworkUtil.send(player, UPDATE_PACKET, buf);
         });
     }

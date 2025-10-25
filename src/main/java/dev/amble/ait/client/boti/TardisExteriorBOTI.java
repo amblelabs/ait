@@ -36,7 +36,7 @@ public class TardisExteriorBOTI extends BOTI {
         if (!exterior.isLinked())
             return;
 
-        ClientTardis tardis = exterior.tardis().get().asClient();;
+        ClientTardis tardis = exterior.tardis().get().asClient();
 
         stack.push();
 

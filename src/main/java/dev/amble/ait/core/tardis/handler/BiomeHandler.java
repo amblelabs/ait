@@ -138,7 +138,7 @@ public class BiomeHandler extends KeyedTardisComponent {
 
             String path = texture.getPath();
             return AITMod.id(path.substring(0, path.length() - 4) + this.suffix + ".png");
-        };
+        }
 
         public Identifier get(BiomeOverrides overrides) {
             if (overrides == null)

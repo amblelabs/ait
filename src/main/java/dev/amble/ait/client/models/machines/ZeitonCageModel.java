@@ -8,10 +8,10 @@ import net.minecraft.entity.Entity;
 
 public class ZeitonCageModel extends SinglePartEntityModel {
     private final ModelPart cage;
-    private final ModelPart cube;
+
     public ZeitonCageModel(ModelPart root) {
         this.cage = root.getChild("cage");
-        this.cube = this.cage.getChild("cube");
+        ModelPart cube = this.cage.getChild("cube");
     }
     public static TexturedModelData getTexturedModelData() {
         ModelData modelData = new ModelData();

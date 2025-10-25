@@ -205,7 +205,7 @@ public class AnimationKeyframe<T> implements TardisTickable, Disposable {
                 return MathHelper.lerp(Math.min(progress, 1), start, end);
             }
         },
-        CUBIC {;
+        CUBIC {
             @Override
             public float interpolate(float progress, float previous, float start, float end, float next) {
                 return MathHelper.catmullRom(Math.min(progress, 1), previous, start, end, next);
