@@ -54,7 +54,7 @@ public class DalekModDoorModel extends DoorModel {
 
         matrices.push();
         matrices.scale(0.955F, 0.955F, 0.955F);
-        matrices.translate(0, -1.5, 0.1);
+        matrices.translate(0, -1.56, 0);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180));
 
         super.renderWithAnimations(tardis, doorEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);

@@ -100,21 +100,20 @@ public class LoyaltyHandler extends TardisComponent implements TardisTickable {
     }
 
     public void unlock(ServerPlayerEntity player, Loyalty loyalty) {
-
-        if (!messageEnabled) {
-            return;
-        }
-
         ServerTardis tardis = (ServerTardis) this.tardis;
 
-        boolean playSound = ConsoleVariantRegistry.getInstance().tryUnlock(tardis, loyalty,
-                schema -> this.playUnlockEffects(player, schema));
-        playSound = DesktopRegistry.getInstance().tryUnlock(tardis, loyalty,
-                schema -> this.playUnlockEffects(player, schema)) || playSound;
-        playSound = ExteriorVariantRegistry.getInstance().tryUnlock(tardis, loyalty,
-                schema -> this.playUnlockEffects(player, schema)) || playSound;
-        playSound = SonicRegistry.getInstance().tryUnlock(tardis, loyalty,
-                schema -> this.playUnlockEffects(player, schema)) || playSound;
+        boolean playSound = messageEnabled;
+
+        if (playSound) {
+            playSound = ConsoleVariantRegistry.getInstance().tryUnlock(tardis, loyalty,
+                    schema -> this.playUnlockEffects(player, schema));
+            playSound = DesktopRegistry.getInstance().tryUnlock(tardis, loyalty,
+                    schema -> this.playUnlockEffects(player, schema)) || playSound;
+            playSound = ExteriorVariantRegistry.getInstance().tryUnlock(tardis, loyalty,
+                    schema -> this.playUnlockEffects(player, schema)) || playSound;
+            playSound = SonicRegistry.getInstance().tryUnlock(tardis, loyalty,
+                    schema -> this.playUnlockEffects(player, schema)) || playSound;
+        }
 
         if (playSound)
             player.getServerWorld().playSound(null, player.getBlockPos(), AITSounds.LOYALTY_UP,

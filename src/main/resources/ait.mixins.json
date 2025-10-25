@@ -13,6 +13,9 @@
     "client.experimental_screen.LevelSummaryMixin",
     "client.rendering.EntityMixin",
     "compat.gravity.EntityTagsMixin",
+    "compat.portals.MultiDimMixin",
+    "compat.portals.ServerTeleportationManagerMixin",
+    "compat.portals.TardisServerWorldMixin",
     "lookup.EntityTrackingSectionAccessor",
     "lookup.SectionedEntityCacheAccessor",
     "lookup.SimpleEntityLookupAccessor",
@@ -54,7 +57,8 @@
     "client.rendering.framebuffer.MixinMainFramebufferTarget",
     "client.rendering.framebuffer.MixinRenderFramebufferTarget",
     "client.sonic.SonicItemRendererMixin",
-    "client.sonic.SonicModelLoaderWrapperMixin"
+    "client.sonic.SonicModelLoaderWrapperMixin",
+    "compat.portals.ClientTeleportationManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
