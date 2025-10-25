@@ -46,10 +46,7 @@ public class JsonEntityModel {
     private final List<ModelElement> elements;
 
     @Nullable private final JsonUnbakedModel.GuiLight guiLight;
-    @Nullable private final Boolean ambientOcclusion;
 
-    private final ModelTransformation transformations;
-    private final List<ModelOverride> overrides;
     public String id = "";
 
     protected final Map<String, Either<SpriteIdentifier, String>> textureMap;
@@ -59,12 +56,9 @@ public class JsonEntityModel {
 
     public JsonEntityModel(@Nullable Identifier parentId, List<ModelElement> elements, Map<String, Either<SpriteIdentifier, String>> textureMap, @Nullable Boolean ambientOcclusion, @Nullable JsonUnbakedModel.GuiLight guiLight, ModelTransformation transformations, List<ModelOverride> overrides) {
         this.elements = elements;
-        this.ambientOcclusion = ambientOcclusion;
         this.guiLight = guiLight;
         this.textureMap = textureMap;
         this.parentId = parentId;
-        this.transformations = transformations;
-        this.overrides = overrides;
     }
 
     public JsonEntityModel getRootModel() {

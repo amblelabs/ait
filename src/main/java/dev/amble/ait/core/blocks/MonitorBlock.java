@@ -88,14 +88,12 @@ public class MonitorBlock extends BlockWithEntity implements BlockEntityProvider
         return state.with(ROTATION, mirror.mirror(state.get(ROTATION), MAX_ROTATIONS));
     }
 
-
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(ROTATION).add(TEXTURE);
     }
 
     static {
-        TEXTURE = EnumProperty.of("skin", MonitorStateUtil.class);;
+        TEXTURE = EnumProperty.of("skin", MonitorStateUtil.class);
     }
-
 }

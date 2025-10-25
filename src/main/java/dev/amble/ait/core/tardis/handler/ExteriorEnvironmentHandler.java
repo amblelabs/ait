@@ -1,7 +1,5 @@
 package dev.amble.ait.core.tardis.handler;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.block.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
@@ -14,6 +12,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class ExteriorEnvironmentHandler extends KeyedTardisComponent implements TardisTickable {
 

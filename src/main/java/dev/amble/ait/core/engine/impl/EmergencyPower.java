@@ -1,7 +1,5 @@
 package dev.amble.ait.core.engine.impl;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.item.Item;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
@@ -14,6 +12,7 @@ import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
 import dev.amble.ait.core.item.RiftScannerItem;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class EmergencyPower extends SubSystem implements ArtronHolder, StructureHolder {
     private double fuel;

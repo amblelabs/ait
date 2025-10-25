@@ -3,7 +3,6 @@ package dev.amble.ait.core.tardis.handler.travel;
 import java.util.Optional;
 import java.util.Random;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.queue.api.ActionQueue;
 
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -21,6 +20,7 @@ import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.handler.ServerAlarmHandler;
 import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
 import dev.amble.ait.data.properties.bool.BoolValue;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public sealed interface CrashableTardisTravel permits TravelHandler {
 

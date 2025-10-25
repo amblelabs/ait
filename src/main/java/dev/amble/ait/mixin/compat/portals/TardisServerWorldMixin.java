@@ -1,13 +1,6 @@
 package dev.amble.ait.mixin.compat.portals;
 
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.world.TardisServerWorld;
 import dev.drtheo.multidim.api.MultiDimServerWorld;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,6 +10,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import qouteall.q_misc_util.MiscNetworking;
 import qouteall.q_misc_util.api.DimensionAPI;
 import qouteall.q_misc_util.dimension.DimensionIdManagement;
+
+import net.minecraft.network.packet.Packet;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.World;
+
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.world.TardisServerWorld;
 
 @Mixin(TardisServerWorld.class)
 public class TardisServerWorldMixin {
@@ -33,8 +35,7 @@ public class TardisServerWorldMixin {
         aitportals$handleWorld(instance);
     }
 
-    @Unique
-    private static MultiDimServerWorld aitportals$handleWorld(MultiDimServerWorld world) {
+    @Unique private static MultiDimServerWorld aitportals$handleWorld(MultiDimServerWorld world) {
         // may happen if this is called during #load and the world doesn't exist!
         if (world == null)
             return null;

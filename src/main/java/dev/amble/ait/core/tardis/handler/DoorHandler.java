@@ -1,6 +1,5 @@
 package dev.amble.ait.core.tardis.handler;
 
-import dev.amble.lib.data.DirectedBlockPos;
 import net.fabricmc.fabric.api.util.TriState;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,6 +30,7 @@ import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.ait.data.properties.flt.FloatProperty;
 import dev.amble.ait.data.properties.flt.FloatValue;
 import dev.amble.ait.data.schema.door.DoorSchema;
+import dev.amble.lib.data.DirectedBlockPos;
 
 public class DoorHandler extends KeyedTardisComponent implements TardisTickable {
     private static final long KNOCK_RESET_TIME_MS = 2500;

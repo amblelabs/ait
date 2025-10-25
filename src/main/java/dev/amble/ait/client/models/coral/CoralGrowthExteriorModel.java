@@ -571,14 +571,14 @@ public class CoralGrowthExteriorModel extends SimpleExteriorModel {
     @Override
     public void renderWithAnimations(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        boolean isNotLanded = tardis.interiorChangingHandler().queued().get() || tardis.travel().getState() != TravelHandlerBase.State.LANDED;
-        boolean hasCage = tardis.interiorChangingHandler().hasCage();
-        seven.getChild("corallybits").visible = !hasCage && tardis.interiorChangingHandler().plasmicMaterialAmount() == 0;
+        boolean isNotLanded = tardis.interiorChanging().queued().get() || tardis.travel().getState() != TravelHandlerBase.State.LANDED;
+        boolean hasCage = tardis.interiorChanging().hasCage();
+        seven.getChild("corallybits").visible = !hasCage && tardis.interiorChanging().plasmicMaterialAmount() == 0;
         six.getChild("sixcorallybits").visible = !hasCage;
 
         door.visible = isNotLanded;
 
-        float alpha = ((float) tardis.interiorChangingHandler().plasmicMaterialAmount() / 8f);
+        float alpha = ((float) tardis.interiorChanging().plasmicMaterialAmount() / 8f);
 
         super.renderWithAnimations(tardis, exterior, isNotLanded ? six : seven, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         if (hasCage) super.renderWithAnimations(tardis, exterior, cage, matrices, vertices, light, overlay, red, green, blue, pAlpha);

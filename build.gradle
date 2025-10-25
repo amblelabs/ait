@@ -32,20 +32,20 @@ repositories {
     maven { url "https://maven.blamejared.com/" }
 
     maven {
-		url "https://amblelabs.github.io/maven"
+        url "https://amblelabs.github.io/maven"
 
-		content {
-			includeGroup "dev.amble"
-		}
-	}
+        content {
+            includeGroup "dev.amble"
+        }
+    }
 
     maven {
-		url "https://theo.is-a.dev/maven/"
+        url "https://theo.is-a.dev/maven/"
 
-		content {
-			includeGroup "dev.drtheo"
-		}
-	}
+        content {
+            includeGroup "dev.drtheo"
+        }
+    }
 }
 
 loom {
@@ -142,8 +142,8 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
-	withSourcesJar()
-	
+    withSourcesJar()
+
     sourceCompatibility = JavaVersion.VERSION_22
     targetCompatibility = JavaVersion.VERSION_17
 }
@@ -188,17 +188,17 @@ spotless {
 }
 
 publishing {
-	publications {
-		create("mavenJava", MavenPublication) {
-			artifactId = project.archives_base_name
-			from components.java
-		}
-	}
+    publications {
+        create("mavenJava", MavenPublication) {
+            artifactId = project.archives_base_name
+            from components.java
+        }
+    }
 
-	repositories {
-		maven {
-			name = "ci"
-			url = providers.environmentVariable("CI_MAVEN_PATH")
-		}
-	}
+    repositories {
+        maven {
+            name = "ci"
+            url = providers.environmentVariable("CI_MAVEN_PATH")
+        }
+    }
 }

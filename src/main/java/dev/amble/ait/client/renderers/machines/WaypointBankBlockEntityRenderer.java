@@ -1,7 +1,5 @@
 package dev.amble.ait.client.renderers.machines;
 
-import dev.amble.lib.data.DirectedGlobalPos;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -22,6 +20,7 @@ import dev.amble.ait.core.blockentities.WaypointBankBlockEntity;
 import dev.amble.ait.core.blocks.WaypointBankBlock;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.lib.data.DirectedGlobalPos;
 
 public class WaypointBankBlockEntityRenderer<T extends WaypointBankBlockEntity> implements BlockEntityRenderer<T> {
 

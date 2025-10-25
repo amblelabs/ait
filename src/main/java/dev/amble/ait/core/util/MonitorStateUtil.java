@@ -8,7 +8,7 @@ public enum MonitorStateUtil implements StringIdentifiable {
 
     private final String name;
 
-    private MonitorStateUtil(String name) {
+    MonitorStateUtil(String name) {
         this.name = name;
     }
 

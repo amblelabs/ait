@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.UUID;
 
-import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -104,6 +103,7 @@ import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
+import dev.amble.lib.register.AmbleRegistries;
 
 @Environment(value = EnvType.CLIENT)
 public class AITModClient implements ClientModInitializer {

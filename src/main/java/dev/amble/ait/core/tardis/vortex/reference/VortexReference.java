@@ -9,7 +9,6 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.amble.lib.api.Identifiable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -18,6 +17,7 @@ import net.minecraft.util.Identifier;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.client.renderers.VortexRender;
+import dev.amble.lib.api.Identifiable;
 
 public record VortexReference(Identifier id, Identifier texture, String name) implements Identifiable, Nameable {
     public static final Codec<VortexReference> CODEC = RecordCodecBuilder.create(instance -> instance.group(

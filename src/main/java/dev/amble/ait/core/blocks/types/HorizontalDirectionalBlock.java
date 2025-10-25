@@ -10,6 +10,10 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.util.math.Direction;
 
+/**
+ * @deprecated Use {@link HorizontalFacingBlock} or {@link dev.amble.lib.block.ABlock} with {@link dev.amble.lib.block.behavior.horizontal.HorizontalBlockBehavior}.
+ */
+@Deprecated(forRemoval = true)
 public class HorizontalDirectionalBlock extends Block {
 
     public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;

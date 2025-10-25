@@ -18,7 +18,7 @@ import dev.amble.ait.core.blocks.PowerConverterBlock;
 public class PowerConverterRenderer<T extends PowerConverterBlock.BlockEntity> implements BlockEntityRenderer<T> {
 
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/machines/power_converter.png"));;
+            ("textures/blockentities/machines/power_converter.png"));
     private final PowerConverterModel model;
 
     public PowerConverterRenderer(BlockEntityRendererFactory.Context ctx) {

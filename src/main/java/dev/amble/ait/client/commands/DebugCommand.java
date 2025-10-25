@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
-import dev.amble.lib.api.Identifiable;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
 import net.minecraft.text.Text;
@@ -16,6 +15,7 @@ import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.api.Identifiable;
 
 public class DebugCommand {
     public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {

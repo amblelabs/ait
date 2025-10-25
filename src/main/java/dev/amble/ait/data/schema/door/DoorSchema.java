@@ -3,7 +3,7 @@ package dev.amble.ait.data.schema.door;
 import java.lang.reflect.Type;
 
 import com.google.gson.*;
-import dev.amble.lib.api.Identifiable;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
@@ -15,7 +15,7 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.data.schema.door.impl.CapsuleDoorVariant;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
-import org.jetbrains.annotations.Nullable;
+import dev.amble.lib.api.Identifiable;
 
 /**
  * This class provides information about a door for an exterior <br>
@@ -70,13 +70,11 @@ public abstract class DoorSchema implements Identifiable {
         return pos; // just cus some dont have portals
     }
 
-    @Nullable
-    public Vec3d getPortalPosition() {
+    @Nullable public Vec3d getPortalPosition() {
         return adjustPortalPos(Vec3d.ZERO, Direction.NORTH);
     }
 
-    @Nullable
-    public Vec3d getPortalPosition(Vec3d origin, float angle) {
+    @Nullable public Vec3d getPortalPosition(Vec3d origin, float angle) {
         Vec3d pos = getPortalPosition();
         if (pos == null) return null;
 

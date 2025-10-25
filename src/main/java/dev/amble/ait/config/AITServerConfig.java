@@ -16,7 +16,6 @@ import dev.isxander.yacl3.platform.YACLPlatform;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITDimensions;
-import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
 public class AITServerConfig {
 

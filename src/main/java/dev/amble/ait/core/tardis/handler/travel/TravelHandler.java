@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
@@ -51,6 +50,7 @@ import dev.amble.ait.core.util.SafePosSearch;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.data.Exclude;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public final class TravelHandler extends AnimatedTravelHandler implements CrashableTardisTravel {
 

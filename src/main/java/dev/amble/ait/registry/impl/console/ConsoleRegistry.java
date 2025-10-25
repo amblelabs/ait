@@ -1,6 +1,5 @@
 package dev.amble.ait.registry.impl.console;
 
-import dev.amble.lib.register.datapack.DatapackRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -15,6 +14,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.type.*;
+import dev.amble.lib.register.datapack.DatapackRegistry;
 
 public class ConsoleRegistry extends DatapackRegistry<ConsoleTypeSchema> {
     private static final ConsoleRegistry INSTANCE = new ConsoleRegistry();

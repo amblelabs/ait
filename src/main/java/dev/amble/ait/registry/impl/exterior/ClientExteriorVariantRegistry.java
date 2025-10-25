@@ -1,8 +1,6 @@
 package dev.amble.ait.registry.impl.exterior;
 
 
-import dev.amble.lib.client.bedrock.BedrockModelRegistry;
-import dev.amble.lib.register.datapack.DatapackRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import org.joml.Vector3f;
@@ -55,6 +53,8 @@ import dev.amble.ait.data.schema.exterior.variant.stallion.client.ClientStallion
 import dev.amble.ait.data.schema.exterior.variant.tardim.client.ClientTardimDefaultVariant;
 import dev.amble.ait.data.schema.exterior.variant.tardim.client.ClientTardimFireVariant;
 import dev.amble.ait.data.schema.exterior.variant.tardim.client.ClientTardimSoulVariant;
+import dev.amble.lib.client.bedrock.BedrockModelRegistry;
+import dev.amble.lib.register.datapack.DatapackRegistry;
 
 public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteriorVariantSchema> implements
         SimpleSynchronousResourceReloadListener {

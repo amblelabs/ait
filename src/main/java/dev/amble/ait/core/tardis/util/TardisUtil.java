@@ -3,10 +3,6 @@ package dev.amble.ait.core.tardis.util;
 import java.util.*;
 import java.util.function.Predicate;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedBlockPos;
-import dev.amble.lib.util.ServerLifecycleHooks;
-import dev.amble.lib.util.TeleportUtil;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -58,6 +54,10 @@ import dev.amble.ait.mixin.lookup.EntityTrackingSectionAccessor;
 import dev.amble.ait.mixin.lookup.SectionedEntityCacheAccessor;
 import dev.amble.ait.mixin.lookup.SimpleEntityLookupAccessor;
 import dev.amble.ait.mixin.lookup.WorldInvoker;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedBlockPos;
+import dev.amble.lib.util.ServerLifecycleHooks;
+import dev.amble.lib.util.TeleportUtil;
 
 @SuppressWarnings("unused")
 public class TardisUtil {

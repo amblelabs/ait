@@ -2,12 +2,11 @@ package dev.amble.ait.core.likes;
 
 import java.util.Optional;
 
-import dev.amble.lib.api.Identifiable;
-
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.lib.api.Identifiable;
 
 public interface Opinion extends Identifiable {
     int loyalty();
@@ -30,7 +29,7 @@ public interface Opinion extends Identifiable {
         ;
 
         public abstract Opinion get(Identifier id);
-    };
+    }
 
     static Optional<Opinion> find(Identifier id) {
         for (Type type : Type.values()) {

@@ -6,9 +6,6 @@ import static net.minecraft.data.server.recipe.RecipeProvider.*;
 import java.util.Calendar;
 import java.util.concurrent.CompletableFuture;
 
-import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
-import dev.amble.lib.datagen.lang.LanguageType;
-import dev.amble.lib.datagen.sound.AmbleSoundProvider;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
@@ -40,6 +37,9 @@ import dev.amble.ait.module.planet.core.PlanetBlocks;
 import dev.amble.ait.module.planet.core.PlanetItems;
 import dev.amble.ait.module.planet.core.world.PlanetConfiguredFeatures;
 import dev.amble.ait.module.planet.core.world.PlanetPlacedFeatures;
+import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
+import dev.amble.lib.datagen.lang.LanguageType;
+import dev.amble.lib.datagen.sound.AmbleSoundProvider;
 
 public class AITModDataGenerator implements DataGeneratorEntrypoint {
 

@@ -20,6 +20,7 @@ import net.minecraft.text.Text;
 /**
  * Renders inputs for Fabricator recipes in JEI with a range, rather than a specific number of items
  */
+@SuppressWarnings("removal")
 public class BlueprintInputItemStackRenderer implements IIngredientRenderer<ItemStack> {
 
     private final int minCount;
@@ -107,12 +108,10 @@ public class BlueprintInputItemStackRenderer implements IIngredientRenderer<Item
         return List.of();
     }
 
-
     public void getTooltip(ITooltipBuilder tooltip, ItemStack ingredient, TooltipContext tooltipFlag) {
         MinecraftClient minecraft = MinecraftClient.getInstance();
         PlayerEntity player = minecraft.player;
         List<Text> components = ingredient.getTooltip(player, tooltipFlag);
         tooltip.addAll(components);
     }
-
 }

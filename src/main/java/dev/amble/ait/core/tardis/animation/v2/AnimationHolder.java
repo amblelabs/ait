@@ -2,7 +2,6 @@ package dev.amble.ait.core.tardis.animation.v2;
 
 import java.util.UUID;
 
-import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.drtheo.queue.api.ActionQueue;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -34,6 +33,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.Loyalty;
+import dev.amble.lib.util.ServerLifecycleHooks;
 
 public class AnimationHolder implements TardisTickable, Disposable, Linkable {
     public static final Identifier UPDATE_PACKET = AITMod.id("sync/ext_anim");
@@ -316,7 +316,7 @@ public class AnimationHolder implements TardisTickable, Disposable, Linkable {
         buf.writeIdentifier(this.current.id());
         buf.writeUuid(tardis.getUuid());
 
-        NetworkUtil.getSubscribedPlayers(tardis).forEach(player -> {;
+        NetworkUtil.getSubscribedPlayers(tardis).forEach(player -> {
             NetworkUtil.send(player, UPDATE_PACKET, buf);
         });
     }

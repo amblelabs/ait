@@ -1,7 +1,5 @@
 package dev.amble.ait.client.models.consoles;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.model.*;
@@ -23,6 +21,7 @@ import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class CrystallineConsoleModel extends SimpleConsoleModel {
     private final ModelPart console;

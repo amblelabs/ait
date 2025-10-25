@@ -1,5 +1,24 @@
 package dev.amble.ait.compat.portal;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import org.jetbrains.annotations.Nullable;
+import qouteall.imm_ptl.core.api.PortalAPI;
+import qouteall.imm_ptl.core.portal.Portal;
+import qouteall.imm_ptl.core.portal.PortalManipulation;
+import qouteall.imm_ptl.core.render.PortalEntityRenderer;
+import qouteall.q_misc_util.MiscNetworking;
+import qouteall.q_misc_util.my_util.DQuaternion;
+
+import net.minecraft.network.packet.Packet;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.RotationPropertyHelper;
+import net.minecraft.util.math.Vec3d;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
@@ -13,89 +32,69 @@ import dev.amble.ait.registry.impl.TardisComponentRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import dev.amble.lib.data.DirectedGlobalPos;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.RotationPropertyHelper;
-import net.minecraft.util.math.Vec3d;
-import org.jetbrains.annotations.Nullable;
-import qouteall.imm_ptl.core.api.PortalAPI;
-import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.PortalManipulation;
-import qouteall.imm_ptl.core.render.PortalEntityRenderer;
-import qouteall.q_misc_util.MiscNetworking;
-import qouteall.q_misc_util.my_util.DQuaternion;
 
 public class PortalsHandler extends KeyedTardisComponent {
 
-	public static final IdLike ID = new AbstractId<>("PORTALS", PortalsHandler::new, PortalsHandler.class);
+    public static final IdLike ID = new AbstractId<>("PORTALS", PortalsHandler::new, PortalsHandler.class);
 
-	@Nullable
-	private EntityRef<TardisPortal> interiorRef;
+    @Nullable private EntityRef<TardisPortal> interiorRef;
 
-	@Nullable
-	private EntityRef<TardisPortal> exteriorRef;
+    @Nullable private EntityRef<TardisPortal> exteriorRef;
 
-	public PortalsHandler() {
-		super(ID);
-	}
+    public PortalsHandler() {
+        super(ID);
+    }
 
-	@Override
-	public void postInit(InitContext ctx) {
-		if (this.isClient() || ctx.created())
-			return;
+    @Override
+    public void postInit(InitContext ctx) {
+        if (this.isClient() || ctx.created())
+            return;
 
-		if (this.exteriorRef != null) {
-			ServerWorld exteriorWorld = tardis.travel().position().getWorld();
-			this.exteriorRef.setWorld(exteriorWorld);
-		}
+        if (this.exteriorRef != null) {
+            ServerWorld exteriorWorld = tardis.travel().position().getWorld();
+            this.exteriorRef.setWorld(exteriorWorld);
+        }
 
-		if (this.interiorRef != null) {
-			ServerWorld interiorWorld = tardis.asServer().world();
-			this.interiorRef.setWorld(interiorWorld);
-		}
-	}
+        if (this.interiorRef != null) {
+            ServerWorld interiorWorld = tardis.asServer().world();
+            this.interiorRef.setWorld(interiorWorld);
+        }
+    }
 
-	public static void init() {
+    public static void init() {
         Registry.register(Registries.ENTITY_TYPE, AITMod.id("ip_portal"), TardisPortal.ENTITY_TYPE);
 
         if (!AITMod.CONFIG.allowPortalsBoti) return;
 
-		TardisComponentRegistry.getInstance().register(ID);
+        TardisComponentRegistry.getInstance().register(ID);
 
-		// TODO: re-use the same two portal entities
-		//  for exterior changing this could be achieved by moving the portals & changing their size
-		//  for opening and closing doors, portals' rendering can be turned off
+        // TODO: re-use the same two portal entities
+        //  for exterior changing this could be achieved by moving the portals & changing their size
+        //  for opening and closing doors, portals' rendering can be turned off
 
-		TardisEvents.DOOR_OPEN.register((tdis) -> {
-			PortalsHandler handler = tdis.handler(ID);
-			handler.generatePortals();
-		});
+        TardisEvents.DOOR_OPEN.register((tdis) -> {
+            PortalsHandler handler = tdis.handler(ID);
+            handler.generatePortals();
+        });
 
-		TardisEvents.REAL_DOOR_CLOSE.register((tdis) -> {
-			PortalsHandler handler = tdis.handler(ID);
-			handler.removePortals();
-		});
+        TardisEvents.REAL_DOOR_CLOSE.register((tdis) -> {
+            PortalsHandler handler = tdis.handler(ID);
+            handler.removePortals();
+        });
 
-		TardisEvents.DOOR_MOVE.register((tdis, newPos, oldPos) -> {
-			PortalsHandler handler = tdis.handler(ID);
-			handler.removePortals();
+        TardisEvents.DOOR_MOVE.register((tdis, newPos, oldPos) -> {
+            PortalsHandler handler = tdis.handler(ID);
+            handler.removePortals();
 
-			if (tdis.door().isOpen()) handler.generatePortals();
-		});
+            if (tdis.door().isOpen()) handler.generatePortals();
+        });
 
-		TardisEvents.EXTERIOR_CHANGE.register((tdis) -> {
-			PortalsHandler handler = tdis.handler(ID);
-			handler.removePortals();
+        TardisEvents.EXTERIOR_CHANGE.register((tdis) -> {
+            PortalsHandler handler = tdis.handler(ID);
+            handler.removePortals();
 
-			if (tdis.door().isOpen()) handler.generatePortals();
-		});
+            if (tdis.door().isOpen()) handler.generatePortals();
+        });
 
         ServerPlayConnectionEvents.JOIN.register((serverPlayNetworkHandler, packetSender, minecraftServer) -> {
             Packet<?> dimSyncPacket = MiscNetworking.createDimSyncPacket();
@@ -103,41 +102,41 @@ public class PortalsHandler extends KeyedTardisComponent {
         });
 
         PortalVisualizerUtil.init();
-	}
+    }
 
-	@Environment(EnvType.CLIENT)
-	public static void clientInit() {
-		// TODO: make it so doors don't render twice.
-		//  > maybe we should just cancel door rendering when there's BOTI present?
-		//  > ...idk, need to discuss this - Theo
+    @Environment(EnvType.CLIENT)
+    public static void clientInit() {
+        // TODO: make it so doors don't render twice.
+        //  > maybe we should just cancel door rendering when there's BOTI present?
+        //  > ...idk, need to discuss this - Theo
 
         PortalVisualizerUtil.clientInit();
 
         if (TardisPortal.ENTITY_TYPE != null)
             EntityRendererRegistry.register(TardisPortal.ENTITY_TYPE, PortalEntityRenderer::new);
-	}
+    }
 
-	public TardisPortal getInterior() {
-		return this.interiorRef != null ? this.interiorRef.get() : null;
-	}
+    public TardisPortal getInterior() {
+        return this.interiorRef != null ? this.interiorRef.get() : null;
+    }
 
-	public TardisPortal getExterior() {
-		return this.exteriorRef != null ? this.exteriorRef.get() : null;
-	}
+    public TardisPortal getExterior() {
+        return this.exteriorRef != null ? this.exteriorRef.get() : null;
+    }
 
-	private void generatePortals() {
-		CachedDirectedGlobalPos exteriorPos = this.tardis().travel().position();
+    private void generatePortals() {
+        CachedDirectedGlobalPos exteriorPos = this.tardis().travel().position();
 
-		DirectedBlockPos tempPos = this.tardis().getDesktop().getDoorPos();
-		CachedDirectedGlobalPos interiorPos = CachedDirectedGlobalPos.create(tardis().asServer().world(), tempPos.getPos(), tempPos.getRotation());
+        DirectedBlockPos tempPos = this.tardis().getDesktop().getDoorPos();
+        CachedDirectedGlobalPos interiorPos = CachedDirectedGlobalPos.create(tardis().asServer().world(), tempPos.getPos(), tempPos.getRotation());
 
-		removePortals();
+        removePortals();
 
         if (!tardis.getExterior().getVariant().hasPortals()) return;
 
-		this.exteriorRef = new EntityRef<>(exteriorPos.getWorld(), createExteriorPortal());
-		this.interiorRef = new EntityRef<>(interiorPos.getWorld(), createInteriorPortal());
-	}
+        this.exteriorRef = new EntityRef<>(exteriorPos.getWorld(), createExteriorPortal());
+        this.interiorRef = new EntityRef<>(interiorPos.getWorld(), createInteriorPortal());
+    }
 
     private TardisPortal createExteriorPortal() {
         DirectedBlockPos doorPos = tardis.getDesktop().getDoorPos();
@@ -215,20 +214,20 @@ public class PortalsHandler extends KeyedTardisComponent {
 
     private static Vec3d adjustInteriorPos(DoorSchema door, DirectedBlockPos directed) {
         return door.getPortalPosition(directed.getPos().toCenterPos(),
-		        RotationPropertyHelper.toDegrees(directed.getRotation())
+                RotationPropertyHelper.toDegrees(directed.getRotation())
         ).add(0, 0.55f, 0);
     }
 
-	private void removePortals() {
-		removePortal(this.getInterior());
-		removePortal(this.getExterior());
-	}
+    private void removePortals() {
+        removePortal(this.getInterior());
+        removePortal(this.getExterior());
+    }
 
-	private static void removePortal(Portal portal) {
-		if (portal == null)
-			return;
+    private static void removePortal(Portal portal) {
+        if (portal == null)
+            return;
 
-		PortalManipulation.removeConnectedPortals(portal, (p) -> {});
-		portal.discard();
-	}
+        PortalManipulation.removeConnectedPortals(portal, (p) -> {});
+        portal.discard();
+    }
 }

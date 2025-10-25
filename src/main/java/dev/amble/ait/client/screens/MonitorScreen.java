@@ -3,8 +3,6 @@ package dev.amble.ait.client.screens;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedGlobalPos;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -46,6 +44,8 @@ import dev.amble.ait.data.schema.exterior.category.PoliceBoxCategory;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedGlobalPos;
 
 public class MonitorScreen extends ConsoleScreen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,

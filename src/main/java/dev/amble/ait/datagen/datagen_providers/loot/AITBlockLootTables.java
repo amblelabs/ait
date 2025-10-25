@@ -1,6 +1,5 @@
 package dev.amble.ait.datagen.datagen_providers.loot;
 
-import dev.amble.lib.datagen.loot.AmbleBlockLootTable;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 
 import net.minecraft.enchantment.Enchantments;
@@ -17,6 +16,7 @@ import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITTags;
 import dev.amble.ait.module.ModuleRegistry;
 import dev.amble.ait.module.planet.core.PlanetBlocks;
+import dev.amble.lib.datagen.loot.AmbleBlockLootTable;
 
 public class AITBlockLootTables extends AmbleBlockLootTable {
 

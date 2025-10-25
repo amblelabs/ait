@@ -4,7 +4,6 @@ import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.MAX_PLAS
 
 import java.util.UUID;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -55,6 +54,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements BlockEntityTicker<ExteriorBlockEntity> {
     private UUID seatEntityUUID = null;
@@ -78,11 +78,11 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         ItemStack hand = player.getMainHandStack();
 
         if (tardis.isGrowth()) {
-            if (tardis.interiorChangingHandler().hasCage()) {
+            if (tardis.interiorChanging().hasCage()) {
                 if (hand.getItem() == AITItems.PLASMIC_MATERIAL) {
-                    int plasmic = tardis.interiorChangingHandler().plasmicMaterialAmount();
+                    int plasmic = tardis.interiorChanging().plasmicMaterialAmount();
                     if (plasmic < MAX_PLASMIC_MATERIAL_AMOUNT) {
-                        tardis.interiorChangingHandler().addPlasmicMaterial(1);
+                        tardis.interiorChanging().addPlasmicMaterial(1);
                         world.playSound(null, pos, SoundEvents.ENTITY_MAGMA_CUBE_SQUISH, SoundCategory.BLOCKS, 1F, (float) plasmic / 8);
                         hand.decrement(1);
                     }
@@ -90,7 +90,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
             } else {
                 if (hand.getItem() == AITItems.CORAL_CAGE) {
                     world.playSound(null, pos, SoundEvents.BLOCK_CHAIN_HIT, SoundCategory.BLOCKS, 1F, 0.7f);
-                    tardis.interiorChangingHandler().setHasCage(true);
+                    tardis.interiorChanging().setHasCage(true);
                     hand.decrement(1);
                     return;
                 }
@@ -112,7 +112,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         }
 
         if (hand.getItem() instanceof KeyItem key && !tardis.siege().isActive()
-                && !tardis.interiorChangingHandler().queued().get()) {
+                && !tardis.interiorChanging().queued().get()) {
             if (hand.isOf(AITItems.SKELETON_KEY) || key.isOf(hand, tardis)) {
                 tardis.door().interactToggleLock((ServerPlayerEntity) player);
             } else {
@@ -141,7 +141,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
 
         if (hand.getItem() instanceof SonicItem sonic && sonic.isOf(hand, tardis)) {
             if (!tardis.siege().isActive()
-                    && !tardis.interiorChangingHandler().queued().get()
+                    && !tardis.interiorChanging().queued().get()
                     && tardis.door().isClosed() && tardis.crash().getRepairTicks() > 0) {
                 if (sonic.isOf(hand, tardis)) {
                     handler.insertExteriorSonic(hand);

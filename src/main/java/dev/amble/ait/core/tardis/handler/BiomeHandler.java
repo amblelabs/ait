@@ -1,6 +1,5 @@
 package dev.amble.ait.core.tardis.handler;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import net.fabricmc.fabric.api.tag.convention.v1.ConventionalBiomeTags;
 import org.apache.commons.lang3.StringUtils;
 
@@ -18,6 +17,7 @@ import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 import dev.amble.ait.data.enummap.Ordered;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 /**
  * @author Loqor
@@ -138,7 +138,7 @@ public class BiomeHandler extends KeyedTardisComponent {
 
             String path = texture.getPath();
             return AITMod.id(path.substring(0, path.length() - 4) + this.suffix + ".png");
-        };
+        }
 
         public Identifier get(BiomeOverrides overrides) {
             if (overrides == null)
