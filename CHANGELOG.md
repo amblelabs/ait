@@ -39,3 +39,5 @@
 - add: Added a way to disable the custom menu music through a built-in resource pack. | by [@lakehascake](https://github.com/lakehascake) ([#1932](https://github.com/amblelabs/ait/pull/1932))
 - fix: Fixed the BOTI paintings not dropping items when broken in survival. | by [@lakehascake](https://github.com/lakehascake) ([#1933](https://github.com/amblelabs/ait/pull/1933))
 - fix: adaptive exterior no longer applies when it shouldnt | by [@drtheodor](https://github.com/drtheodor) ([#1935](https://github.com/amblelabs/ait/pull/1935))
+- AIT requires 1.1.15+ version of amblekit. | by [@drtheodor](https://github.com/drtheodor) ([#1936](https://github.com/amblelabs/ait/pull/1936))
+- add: Added toggling power via the Stattenheim Remote when shift right-clicking. | by [@lakehascake](https://github.com/lakehascake), [@Mansarde](https://github.com/Mansarde) ([#1937](https://github.com/amblelabs/ait/pull/1937))
