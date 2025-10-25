@@ -81,4 +81,6 @@ jobs:
         message_header: |
           <:new1:1253371736510959636><:new2:1253371805734015006> New `Adventures in Time` dev build `#${{ github.run_number }}`:
 
-        file: 'build/libs/*'
+        file: |
+          build/libs/*.jar
+          !build/libs/*-sources.jar
