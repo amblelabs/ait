@@ -1,5 +1,9 @@
 package dev.amble.ait.core.item;
 
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.core.tardis.handler.mood.v2.Emotion;
+import dev.amble.ait.core.tardis.handler.mood.v2.MoodHandler2;
+import dev.amble.ait.core.tardis.util.TardisUtil;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -76,6 +80,7 @@ public class HammerItem extends SwordItem {
                 world.playSound(null, consoleBlockEntity.getPos(), AITSounds.HAMMER_HIT, SoundCategory.BLOCKS,
                         1f, 1.0f);
                 tardis.loyalty().subLevel((ServerPlayerEntity) player, 10); // safe cast since its on server already
+                tardis.<MoodHandler2>handler(TardisComponent.Id.MOOD).add(Emotion.Type.ANGER, 0.05f);
 
                 if (hammerUses > 3) {
                     world.playSoundFromEntity(null, player, AITSounds.HAMMER_STRIKE, SoundCategory.PLAYERS, 0.5f, 0.2f);
@@ -103,6 +108,7 @@ public class HammerItem extends SwordItem {
                             World.ExplosionSourceType.MOB);
 
                     tardis.loyalty().subLevel((ServerPlayerEntity) player, 50); // safe cast since its on server already
+                    tardis.<MoodHandler2>handler(TardisComponent.Id.MOOD).add(Emotion.Type.ANGER, 0.2f);
                     player.getItemCooldownManager().set(stack.getItem(), 10 * 20);
                     return ActionResult.SUCCESS;
                 }

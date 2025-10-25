@@ -11,6 +11,8 @@
   "yacl3.config.ait:server.lockDimensions": "Lock Dimensions?",
   "yacl3.config.ait:server.rwfEnabled": "Enable RWF?",
   "yacl3.config.ait:server.tntCanTeleportThroughDoors": "Can TNT teleport through doors?",
+  "yacl3.config.ait:server.moodEnabled": "[WIP] Enable Mood?",
+  "yacl3.config.ait:server.passiveEmotionMultiplier": "[WIP] Passive Emotion Multiplier",
   "yacl3.config.ait:server.projectorBlacklist": "Environment Projector world blacklist",
   "yacl3.config.ait:server.travelBlacklist": "TARDIS travel world blacklist",
   "yacl3.config.ait:server.riftSpawnBlacklist": "Rift spawn world blacklist",

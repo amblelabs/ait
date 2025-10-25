@@ -51,6 +51,14 @@ public class AITServerConfig {
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @SerialEntry public boolean moodEnabled = false;
+
+    @AutoGen(category = CATEGORY)
+    @FloatSlider(min = 0, max = 1, step = 0.0000001f)
+    @SerialEntry public float passiveEmotionMultiplier = 0.0000001f;
+
+    @AutoGen(category = CATEGORY)
+    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean hypercubesEnabled = true;
 
     @AutoGen(category = CATEGORY)

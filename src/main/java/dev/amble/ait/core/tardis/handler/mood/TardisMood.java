@@ -14,6 +14,10 @@ public record TardisMood(Moods moods, Alignment alignment, int weight) {
             Codec.INT.optionalFieldOf("weight").forGetter(tardisMood -> Optional.of(tardisMood.weight)))
             .apply(instance, (TardisMood::deserialize)));
 
+    public static TardisMood fromMoods(Moods mood, int weight) {
+        return new TardisMood(mood, mood.alignment(), weight);
+    }
+
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static TardisMood deserialize(Moods mood, Optional<Integer> weight) {
         return new TardisMood(mood, mood.alignment(), weight.orElse(mood.weight()));
@@ -55,16 +59,28 @@ public record TardisMood(Moods moods, Alignment alignment, int weight) {
                                 Alignment.NEGATIVE), ANXIOUS(0, Alignment.NEGATIVE),
 
         // 10 neutral moods
-        TOLERANT(0, Alignment.NEUTRAL, -20), BORED(0, Alignment.NEUTRAL, -20), IMPASSIVE(0, Alignment.NEUTRAL,
-                -20), CALM(0, Alignment.NEUTRAL, 20), MANIC(0, Alignment.NEUTRAL, -20), CURIOUS(0, Alignment.NEUTRAL,
+        TOLERANT(0, Alignment.NEUTRAL, -20),
+        BORED(0, Alignment.NEUTRAL, -20), IMPASSIVE(0, Alignment.NEUTRAL,
+                -20), CALM(0, Alignment.NEUTRAL, 20), MANIC(0, Alignment.NEUTRAL, -20),
+        CURIOUS(0, Alignment.NEUTRAL,
                         20), LONELY(0, Alignment.NEUTRAL, -20), INDIFFERENT(0, Alignment.NEUTRAL,
-                                0), MEDIOCRE(0, Alignment.NEUTRAL, 0), TIRED(0, Alignment.NEUTRAL, 10),
+                                0), MEDIOCRE(0, Alignment.NEUTRAL, 0),
+        TIRED(0, Alignment.NEUTRAL, 10),
 
         // 10 positive moods
-        HAPPY(0, Alignment.POSITIVE), EXCITED(0, Alignment.POSITIVE), COOPERATIVE(0, Alignment.POSITIVE), HOPEFUL(0,
-                Alignment.POSITIVE), GRATEFUL(0, Alignment.POSITIVE), ENTHUSIASTIC(0, Alignment.POSITIVE), RELIEVED(0,
-                        Alignment.POSITIVE), CONTENT(0,
-                                Alignment.POSITIVE), OPTIMISTIC(0, Alignment.POSITIVE), JOYFUL(0, Alignment.POSITIVE);
+        HAPPY(0, Alignment.POSITIVE),
+        EXCITED(0, Alignment.POSITIVE),
+        COOPERATIVE(0, Alignment.POSITIVE),
+        HOPEFUL(0,
+                Alignment.POSITIVE),
+        GRATEFUL(0, Alignment.POSITIVE),
+        ENTHUSIASTIC(0, Alignment.POSITIVE),
+        RELIEVED(0,
+                        Alignment.POSITIVE),
+        CONTENT(0,
+                                Alignment.POSITIVE),
+        OPTIMISTIC(0, Alignment.POSITIVE),
+        JOYFUL(0, Alignment.POSITIVE);
 
         public static final Moods[] VALUES = Moods.values();
 

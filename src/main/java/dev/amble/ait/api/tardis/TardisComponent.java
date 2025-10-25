@@ -2,6 +2,7 @@ package dev.amble.ait.api.tardis;
 
 import java.util.function.Supplier;
 
+import dev.amble.ait.core.tardis.handler.mood.v2.MoodHandler2;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -122,7 +123,8 @@ public abstract class TardisComponent extends Initializable<TardisComponent.Init
         ENVIRONMENT(ExteriorEnvironmentHandler.class, ExteriorEnvironmentHandler::new),
         INTERIOR(InteriorChangingHandler.class, InteriorChangingHandler::new),
         SEQUENCE(SequenceHandler.class, SequenceHandler::new),
-        MOOD(MoodHandler.class, MoodHandler::new),
+        //MOOD(MoodHandler.class, MoodHandler::new),
+        MOOD(MoodHandler2.class, MoodHandler2::new),
         FUEL(FuelHandler.class, FuelHandler::new),
         HADS(HadsHandler.class, HadsHandler::new),
         SIEGE(SiegeHandler.class, SiegeHandler::new),
