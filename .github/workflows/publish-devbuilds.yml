@@ -58,13 +58,14 @@ jobs:
       run: ./gradlew --configuration-cache build
 
     - name: Setup Amble Maven
+      id: setup-maven
       uses: drtheodor/static-file-server-actions/upload/setup@main
       with:
         repo: amblelabs/maven
 
     - name: Build for Maven
       env:
-        CI_MAVEN_PATH: ${{ runner.temp }}/maven
+        CI_MAVEN_PATH: ${{ steps.setup-maven.outputs.path }}
       run: ./gradlew --configuration-cache publishMavenJavaPublicationToCiRepository
 
     - name: Publish to Amble Maven
