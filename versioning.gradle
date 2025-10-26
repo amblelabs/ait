@@ -8,46 +8,60 @@
 
 private static def getBranch() {
     // groovy is very bad at globals, apparently.
-    final REFS_PREFIX = "refs/heads/"
-    var branch = System.getenv("GITHUB_REF")
+    final String REFS_PREFIX = "refs/heads/"
+    String branch = System.getenv("GITHUB_REF")
 
-    if (branch == null || !branch.startsWith(REFS_PREFIX))
+    if (!branch?.startsWith(REFS_PREFIX))
         return null
 
-    branch = branch.substring(REFS_PREFIX.length())
-    branch = branch.replaceAll("/", "-")
-
-    return branch;
+    return branch.substring(REFS_PREFIX.length()).replaceAll("/", "-")
 }
 
 private static def getBuildNumber() {
     return System.getenv("GITHUB_RUN_NUMBER")
 }
 
-ext.getCurrentVersion = {
-    var qualifier = "build"
+final String BUILD = "build"
+final String BUILD_RELEASE = "release"
+final String BUILD_LOCAL = "testbuild"
 
-    var branch = getBranch()
-    var build = getBuildNumber()
+final String BRANCH_RELEASE = "release"
+final String BRANCH_MAIN = "main"
 
-    if (branch == "main") {
+ext.getPublicVersion = {
+    String branch = getBranch()
+    String build = getBuildNumber()
+
+    String qualifier = BUILD
+
+    if (branch == BRANCH_MAIN) {
         branch = null
-    } else if (branch == "release") {
+    } else if (branch == BRANCH_RELEASE) {
         branch = null
         build = null
-        qualifier = "release"
+        qualifier = BUILD_RELEASE
     } else if (build == null) {
         // No CI
-        qualifier = "testbuild"
+        qualifier = BUILD_LOCAL
     }
 
-    var version = project.mod_version + "-" + qualifier
+    if (build)
+        qualifier += ".$build"
 
-    if (build != null)
-        version += "." + build
+    if (branch)
+        qualifier += "-$branch"
 
-    if (branch != null)
-        version += "-" + branch
+    return "$project.mod_version-$qualifier+mc.$project.minecraft_version"
+}
 
-    return version + "+mc." + project.minecraft_version
+ext.getArtifactVersion = {
+    String qualifier = getBranch()
+
+    if (qualifier == BRANCH_MAIN) {
+        qualifier = ""
+    } else {
+        qualifier = "-$qualifier"
+    }
+
+    return "$project.mod_version$qualifier+mc.$project.minecraft_version"
 }
