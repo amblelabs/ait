@@ -47,26 +47,29 @@ jobs:
     - name: Run DataGen
       run: ./gradlew --configuration-cache runDatagen
 
-    - name: Build
-      run: ./gradlew --configuration-cache build
-
-    - name: Build for Maven
-      env:
-        CI_MAVEN_PATH: ${{ runner.temp }}/maven
-      run: ./gradlew --configuration-cache publishMavenJavaPublicationToCiRepository
-
     - name: Save DataGen cache
       id: cache-save
       uses: actions/cache/save@v4
       with:
         path: src/main/generated
         key: ${{ steps.cache-restore.outputs.cache-primary-key }}
+    
+    - name: Build
+      run: ./gradlew --configuration-cache build
+
+    - name: Setup Amble Maven
+      uses: drtheodor/static-file-server-actions/upload/setup@main
+      with:
+        repo: amblelabs/maven
+
+    - name: Build for Maven
+      env:
+        CI_MAVEN_PATH: ${{ runner.temp }}/maven
+      run: ./gradlew --configuration-cache publishMavenJavaPublicationToCiRepository
 
     - name: Publish to Amble Maven
       uses: drtheodor/static-file-server-actions/upload@main
       with:
-        repo: amblelabs/maven
-        path: ${{ runner.temp }}/maven
         token: ${{ secrets.BOT_TOKEN }}
         message: "chore: publish AIT artifacts"
 
