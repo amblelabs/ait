@@ -1,11 +1,3 @@
-// MAJOR.MINOR.PATCH-build.BUILD-DASH-SEPARATED-BRANCH+mc.MCVER (CI + custom branch)
-// or
-// MAJOR.MINOR.PATCH-build.BUILD+mc.MCVER (CI + main branch)
-// or
-// MAJOR.MINOR.PATCH-release+mc.MCVER (CI + release branch)
-// or
-// MAJOR.MINOR.PATCH-testbuild+mc.MCVER (no CI + no branch = local)
-
 import java.util.Optional
 
 class CI {
@@ -51,15 +43,17 @@ class Versioning {
     }
 }
 
-private String createVer(boolean includeBuild) {
-    String qualifier = Versioning.qualifier
+String createVer(boolean includeBuild) {
+    String qualifier = ""
+
+    Versioning.branch.ifPresent { branch ->
+        qualifier += "$branch-"
+    }
+
+    qualifier += Versioning.qualifier
 
     Versioning.build.filter { includeBuild }.ifPresent {build ->
         qualifier += ".$build"
-    }
-
-    Versioning.branch.ifPresent { branch ->
-        qualifier += "-$branch"
     }
 
     return "$project.mod_version-$qualifier+mc.$project.minecraft_version"
