@@ -118,7 +118,7 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
     }
 
     private static void handleStructureRequest(ServerPlayerEntity player, Identifier target) {
-        player.sendMessage(Text.literal("SEARCHING FOR STRUCTURE..."), false);
+        player.sendMessage(Text.translatable("block.ait.astral_map.finder.searching_for_structure"), false);
 
         ServerWorld world = player.getServerWorld();
         BlockPos pos = player.getBlockPos();
@@ -139,17 +139,19 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
             AsyncLocatorUtil.locate(world, RegistryEntryList.of(targetStructure), pos, TelepathicControl.RADIUS, false).thenOnServerThread(pPos -> {
                 BlockPos newPos = pPos != null ? pPos.getFirst() : null;
                 if (newPos != null) {
-                    player.sendMessage(Text.literal("SUCCESS! FOUND AT " + newPos.getX() + ", " + newPos.getY() + ", " + newPos.getZ() + " ( " + Math.round(Math.sqrt(newPos.getSquaredDistance(player.getPos()))) + " blocks away )"), false);
+                    player.sendMessage(Text.translatable(
+                            "block.ait.astral_map.finder.found", newPos.getX(), newPos.getY(), newPos.getZ(),
+                            Math.round(Math.sqrt(newPos.getSquaredDistance(player.getPos())))), false);
                     tardis.travel().destination(destination -> destination.pos(newPos));
                 } else {
-                    player.sendMessage(Text.literal("404: STRUCTURE NOT FOUND"), false);
+                    player.sendMessage(Text.translatable("block.ait.astral_map.finder.not_found"), false);
                 }
             });
         }
     }
 
     private static void handleBiomeRequest(ServerPlayerEntity player, Identifier target) {
-        player.sendMessage(Text.literal("SEARCHING FOR BIOME..."), false);
+        player.sendMessage(Text.translatable("block.ait.astral_map.finder.searching_for_biome"), false);
         player.getServer().execute(() -> {
             ServerWorld world = player.getServerWorld();
             if (!TardisServerWorld.isTardisDimension(world))
@@ -168,10 +170,11 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
             if (r != null) {
                 BlockPos locartedbiome = r.getFirst();
                 int distance = (int) Math.round(Math.sqrt(locartedbiome.getSquaredDistance(player.getPos())));
-                player.sendMessage(Text.literal("SUCCESS! FOUND AT " + locartedbiome.getX() + ", " + locartedbiome.getY() + ", " + locartedbiome.getZ() + " ( " + distance + " blocks away )"), false);
+                player.sendMessage(Text.translatable("block.ait.astral_map.finder.found",
+                        locartedbiome.getX(), locartedbiome.getY(), locartedbiome.getZ(), distance), false);
                 tardis.travel().destination(destination -> destination.pos(locartedbiome));
             } else {
-                player.sendMessage(Text.literal("404: BIOME NOT FOUND"), false);
+                player.sendMessage(Text.translatable("block.ait.astral_map.finder.not_found"), false);
             }
         });
     }

@@ -98,21 +98,21 @@ public class AstralMapScreen extends Screen {
         super.init();
 
         this.addDrawableChild(new PressableTextWidget(
-                (width / 2 - this.textRenderer.getWidth(Text.literal("STRUCTURES")) / 2),
+                (width / 2 - this.textRenderer.getWidth(Text.translatable("screen.ait.astral_map.structures.button")) / 2),
                 (height / 2 + 9),
-                this.textRenderer.getWidth(Text.literal("STRUCTURES")),
+                this.textRenderer.getWidth(Text.translatable("screen.ait.astral_map.structures.button")),
                 10,
-                Text.literal("STRUCTURES"),
+                Text.translatable("screen.ait.astral_map.structures.button"),
                 button -> structureFinderButton(),
                 this.textRenderer
         ));
 
         this.addDrawableChild(new PressableTextWidget(
-                (width / 2 - this.textRenderer.getWidth(Text.literal("BIOMES")) / 2),
+                (width / 2 - this.textRenderer.getWidth(Text.translatable("screen.ait.astral_map.biomes.button")) / 2),
                 (height / 2 - 1),
-                this.textRenderer.getWidth(Text.literal("BIOMES")),
+                this.textRenderer.getWidth(Text.translatable("screen.ait.astral_map.biomes.button")),
                 10,
-                Text.literal("BIOMES"),
+                Text.translatable("screen.ait.astral_map.biomes.button"),
                 button -> biomeFinderButton(),
                 this.textRenderer
         ));
@@ -125,12 +125,12 @@ public class AstralMapScreen extends Screen {
 
         if (!"loading".equals(this.biomeSwitcher.get().id().getPath())) {
             this.addDrawableChild(new PressableTextWidget((width / 2 - 46), (height / 2 - 0),
-                    this.textRenderer.getWidth("<"), 10, Text.literal("<"), button -> this.biomeSwitcher.previous(), this.textRenderer));
+                    this.textRenderer.getWidth("<"), 10, Text.translatable("screen.ait.astral_map.switcher.left_arrow"), button -> this.biomeSwitcher.previous(), this.textRenderer));
             this.addDrawableChild(new PressableTextWidget((width / 2 + 40), (height / 2 - 1),
-                    this.textRenderer.getWidth(">"), 10, Text.literal(">"), button -> this.biomeSwitcher.next(), this.textRenderer));
+                    this.textRenderer.getWidth(">"), 10, Text.translatable("screen.ait.astral_map.switcher.right_arrow"), button -> this.biomeSwitcher.next(), this.textRenderer));
 
-            this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("SEARCH")) / 2), (height / 2 + 12),
-                    this.textRenderer.getWidth(Text.literal("SEARCH")), 10, Text.literal("SEARCH"), button -> this.biomeSwitcher.sync(null), this.textRenderer));
+            this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.translatable("screen.ait.astral_map.search.button")) / 2), (height / 2 + 12),
+                    this.textRenderer.getWidth(Text.translatable("screen.ait.astral_map.search.button")), 10, Text.translatable("screen.ait.astral_map.search.button"), button -> this.biomeSwitcher.sync(null), this.textRenderer));
         }
     }
 
@@ -144,12 +144,12 @@ public class AstralMapScreen extends Screen {
 
         if (!"loading".equals(this.switcher.get().id().getPath())) {
             this.addDrawableChild(new PressableTextWidget((width / 2 - 46), (height / 2 - 0),
-                    this.textRenderer.getWidth("<"), 10, Text.literal("<"), button -> this.switcher.previous(), this.textRenderer));
+                    this.textRenderer.getWidth("<"), 10, Text.translatable("screen.ait.astral_map.switcher.left_arrow"), button -> this.switcher.previous(), this.textRenderer));
             this.addDrawableChild(new PressableTextWidget((width / 2 + 46), (height / 2 - 0),
-                    this.textRenderer.getWidth(">"), 10, Text.literal(">"), button -> this.switcher.next(), this.textRenderer));
+                    this.textRenderer.getWidth(">"), 10, Text.translatable("screen.ait.astral_map.switcher.right_arrow"), button -> this.switcher.next(), this.textRenderer));
 
-            this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("SEARCH")) / 2), (height / 2 + 12),
-                    this.textRenderer.getWidth(Text.literal("SEARCH")), 10, Text.literal("SEARCH"), button -> this.switcher.sync(null), this.textRenderer));
+            this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.translatable("screen.ait.astral_map.search.button")) / 2), (height / 2 + 12),
+                    this.textRenderer.getWidth(Text.translatable("screen.ait.astral_map.search.button")), 10, Text.translatable("screen.ait.astral_map.search.button"), button -> this.switcher.sync(null), this.textRenderer));
         }
     }
 
