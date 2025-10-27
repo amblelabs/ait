@@ -30,6 +30,9 @@ public class AstralMapScreen extends Screen {
     private IdentifierSwitcher switcher;
     private IdentifierSwitcher biomeSwitcher;
 
+    private boolean waitingOnBiomes;
+    private boolean waitingOnStructures;
+
     private enum View { ROOT, STRUCTURES, BIOMES }
     private View currentView = View.ROOT;
 
@@ -37,46 +40,41 @@ public class AstralMapScreen extends Screen {
         super(Text.translatable("screen." + AITMod.MOD_ID + ".astral_map"));
         this.client = MinecraftClient.getInstance();
 
-        List<Identifier> structList = (AstralMapBlock.structureIds != null && !AstralMapBlock.structureIds.isEmpty())
-                ? AstralMapBlock.structureIds
-                : List.of(AITMod.id("loading"));
-        List<Identifier> biomeList = (AstralMapBlock.biomeIds != null && !AstralMapBlock.biomeIds.isEmpty())
-                ? AstralMapBlock.biomeIds
-                : List.of(AITMod.id("loading"));
-
-        this.switcher = new IdentifierSwitcher(structList, (id) -> {
-            if (!"loading".equals(id.getPath())) {
+        waitingOnStructures = (AstralMapBlock.structureIds == null || AstralMapBlock.structureIds.isEmpty());
+        waitingOnBiomes = (AstralMapBlock.biomeIds == null || AstralMapBlock.biomeIds.isEmpty());
+        if (!waitingOnStructures) {
+            this.switcher = new IdentifierSwitcher(AstralMapBlock.structureIds, (id) -> {
                 ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, PacketByteBufs.create().writeIdentifier(id));
                 this.close();
-            }
-        });
+            });
+        }
 
-        this.biomeSwitcher = new IdentifierSwitcher(biomeList, (id) -> {
-            if (!"loading".equals(id.getPath())) {
+        if (!waitingOnBiomes) {
+            this.biomeSwitcher = new IdentifierSwitcher(AstralMapBlock.biomeIds, (id) -> {
                 ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, PacketByteBufs.create().writeIdentifier(id));
                 this.close();
-            }
-        });
+            });
+        }
     }
 
     public void reloadData() {
         boolean changed = false;
 
-        if (AstralMapBlock.structureIds != null && !AstralMapBlock.structureIds.isEmpty()
-                && "loading".equals(this.switcher.get().id().getPath())) {
+        if (waitingOnStructures && AstralMapBlock.structureIds != null && !AstralMapBlock.structureIds.isEmpty()) {
             this.switcher = new IdentifierSwitcher(AstralMapBlock.structureIds, (id) -> {
                 ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, PacketByteBufs.create().writeIdentifier(id));
                 this.close();
             });
+            waitingOnStructures = false;
             changed = true;
         }
 
-        if (AstralMapBlock.biomeIds != null && !AstralMapBlock.biomeIds.isEmpty()
-                && "loading".equals(this.biomeSwitcher.get().id().getPath())) {
+        if (waitingOnBiomes && AstralMapBlock.biomeIds != null && !AstralMapBlock.biomeIds.isEmpty()) {
             this.biomeSwitcher = new IdentifierSwitcher(AstralMapBlock.biomeIds, (id) -> {
                 ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, PacketByteBufs.create().writeIdentifier(id));
                 this.close();
             });
+            waitingOnBiomes = false;
             changed = true;
         }
 
@@ -123,7 +121,7 @@ public class AstralMapScreen extends Screen {
         this.setFocused(null);
         currentView = View.BIOMES;
 
-        if (!"loading".equals(this.biomeSwitcher.get().id().getPath())) {
+        if (!waitingOnBiomes && this.biomeSwitcher != null) {
             this.addDrawableChild(new PressableTextWidget((width / 2 - 46), (height / 2 - 0),
                     this.textRenderer.getWidth("<"), 10, Text.translatable("screen.ait.astral_map.switcher.left_arrow"), button -> this.biomeSwitcher.previous(), this.textRenderer));
             this.addDrawableChild(new PressableTextWidget((width / 2 + 40), (height / 2 - 1),
@@ -142,7 +140,7 @@ public class AstralMapScreen extends Screen {
         Text text = Text.literal(this.switcher != null ? this.switcher.get().name().toUpperCase() : "LOADING");
         int w = this.textRenderer.getWidth(text);
 
-        if (!"loading".equals(this.switcher.get().id().getPath())) {
+        if (!waitingOnStructures && this.switcher != null) {
             this.addDrawableChild(new PressableTextWidget((width / 2 - 46), (height / 2 - 0),
                     this.textRenderer.getWidth("<"), 10, Text.translatable("screen.ait.astral_map.switcher.left_arrow"), button -> this.switcher.previous(), this.textRenderer));
             this.addDrawableChild(new PressableTextWidget((width / 2 + 46), (height / 2 - 0),
@@ -168,12 +166,12 @@ public class AstralMapScreen extends Screen {
 
         super.render(context, mouseX, mouseY, delta);
 
-        if (currentView.equals(View.STRUCTURES) && this.switcher != null) {
-            Text currentText = Text.literal(this.switcher.get().name().toUpperCase());
+        if (currentView.equals(View.STRUCTURES)) {
+            Text currentText = (!waitingOnStructures && this.switcher != null) ? Text.literal(this.switcher.get().name().toUpperCase()) : Text.translatable("screen.ait.astral_map.loading");
             context.drawText(this.textRenderer, currentText, (int) (left + (bgWidth * 0.5f)) - this.textRenderer.getWidth(currentText) / 2,
                     (int) (top + (bgHeight * 0.5)), 0xffffff, true);
-        } else if (currentView.equals(View.BIOMES) && this.biomeSwitcher != null) {
-            Text currentText = Text.literal(this.biomeSwitcher.get().name().toUpperCase());
+        } else if (currentView.equals(View.BIOMES)) {
+            Text currentText = (!waitingOnBiomes && this.biomeSwitcher != null) ? Text.literal(this.biomeSwitcher.get().name().toUpperCase()) : Text.translatable("screen.ait.astral_map.loading");
             context.drawText(this.textRenderer, currentText, (int) (left + (bgWidth * 0.5f)) - this.textRenderer.getWidth(currentText) / 2,
                     (int) (top + (bgHeight * 0.5)), 0xffffff, true);
         }

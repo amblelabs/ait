@@ -1069,6 +1069,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.astral_map.structures.button", "STRUCTURES");
         provider.addTranslation("screen.ait.astral_map.biomes.button", "BIOMES");
         provider.addTranslation("screen.ait.astral_map.search.button", "SEARCH");
+        provider.addTranslation("screen.ait.astral_map.loading", "LOADING");
         provider.addTranslation("screen.ait.astral_map.switcher.left_arrow", "<");
         provider.addTranslation("screen.ait.astral_map.switcher.right_arrow", ">");
         provider.addTranslation("block.ait.astral_map.finder.not_found", "404: BIOME NOT FOUND");
