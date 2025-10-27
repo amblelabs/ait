@@ -21,8 +21,6 @@ import dev.amble.ait.core.util.WorldUtil;
 
 public class AstralMapScreen extends Screen {
 
-    //    private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
-//            "textures/gui/tardis/monitor/security_menu.png");
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
             "textures/gui/tardis/monitor/astral_map_menu.png");
     int bgHeight = 138;
