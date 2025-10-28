@@ -71,6 +71,7 @@ jobs:
     - name: Publish to Amble Maven
       uses: drtheodor/static-file-server-actions/upload@main
       with:
+        published: dev/amble/ait
         token: ${{ secrets.BOT_TOKEN }}
         message: "chore: publish AIT artifacts"
 
