@@ -38,8 +38,6 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
             Property.CDIRECTED_GLOBAL_POS, "destination", (CachedDirectedGlobalPos) null);
     private static final Property<CachedDirectedGlobalPos> PREVIOUS_POSITION = new Property<>(
             Property.CDIRECTED_GLOBAL_POS, "previous_position", (CachedDirectedGlobalPos) null);
-    private static final Property<CachedDirectedGlobalPos> HOME = new Property<>(
-            Property.CDIRECTED_GLOBAL_POS, "home", (CachedDirectedGlobalPos) null);
 
     private static final BoolProperty CRASHING = new BoolProperty("crashing", false);
     private static final BoolProperty ANTIGRAVS = new BoolProperty("antigravs", false);
@@ -55,7 +53,6 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
     protected final Value<CachedDirectedGlobalPos> position = POSITION.create(this);
     protected final Value<CachedDirectedGlobalPos> destination = DESTINATION.create(this);
     protected final Value<CachedDirectedGlobalPos> previousPosition = PREVIOUS_POSITION.create(this);
-    protected final Value<CachedDirectedGlobalPos> home = HOME.create(this);
 
     private final BoolValue leaveBehind = LEAVE_BEHIND.create(this);
     protected final BoolValue crashing = CRASHING.create(this);
@@ -81,7 +78,6 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
         position.of(this, POSITION);
         destination.of(this, DESTINATION);
         previousPosition.of(this, PREVIOUS_POSITION);
-        home.of(this, HOME);
         leaveBehind.of(this, LEAVE_BEHIND);
 
         speed.of(this, SPEED);
@@ -105,13 +101,9 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
         @SuppressWarnings("resource")
         MinecraftServer current = TravelHandlerBase.server();
 
-        if (this.home.get() == null && this.position.get() != null)
-            this.setHome(this.position.get());
-
         this.position.ifPresent(cached -> cached.init(current), false);
         this.destination.ifPresent(cached -> cached.init(current), false);
         this.previousPosition.ifPresent(cached -> cached.init(current), false);
-        this.home.ifPresent(cached -> cached.init(current), false);
     }
 
     @Override
@@ -237,18 +229,6 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
 
     public CachedDirectedGlobalPos previousPosition() {
         return previousPosition.get();
-    }
-
-    public CachedDirectedGlobalPos home() {
-        return this.home.get();
-    }
-
-    public void setHome(CachedDirectedGlobalPos cached) {
-        if (cached == null)
-            return;
-
-        cached.init(TravelHandlerBase.server());
-        this.home.set(cached);
     }
 
     public BoolValue horizontalSearch() {

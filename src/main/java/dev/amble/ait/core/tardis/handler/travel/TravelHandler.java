@@ -545,9 +545,6 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
         if (this.previousPosition.get() == null)
             this.previousPosition.set(cached);
-
-        if (this.home.get() == null)
-            this.setHome(cached);
     }
 
     public boolean isLanded() {

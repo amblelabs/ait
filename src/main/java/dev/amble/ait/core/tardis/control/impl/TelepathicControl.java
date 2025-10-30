@@ -150,7 +150,7 @@ public class TelepathicControl extends Control {
                 return Result.FAILURE;
             }
 
-            tardis.travel().setHome(currentPos);
+            tardis.stats().setHome(currentPos);
 
             player.sendMessage(Text.translatable("tardis.message.control.telepathic.home_updated"), true);
 

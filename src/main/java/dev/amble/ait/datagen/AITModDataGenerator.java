@@ -1486,6 +1486,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("command.ait.list.tardises", "TARDISes");
         provider.addTranslation("command.ait.list.pattern.error", "Bad pattern '%s'!");
         provider.addTranslation("command.ait.this.not_found", "Not in TARDIS interior, or no linked item.");
+        provider.addTranslation("command.ait.home.dimension_locked", "Cannot set home in a dimension locked for this TARDIS.");
 
         // Rift Chunk Tracking
         provider.addTranslation("riftchunk.ait.tracking", "Rift Tracking");
@@ -1666,6 +1667,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.interiorchange.warning",
                 "Interior reconfiguration started! Please leave the interior.");
         provider.addTranslation("command.ait.realworld.responses", "Spawned a real world TARDIS at: ");
+        provider.addTranslation("command.ait.home.dimension_locked",
+                "Impossible de définir la base dans une dimension verrouillée pour cette TARDIS.");
 
         return provider;
     }
@@ -1768,6 +1771,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.interiorchange.warning",
                 "Interior reconfiguration started! Please leave the interior.");
         provider.addTranslation("command.ait.realworld.responses", "Spawned a real world TARDIS at: ");
+        provider.addTranslation("command.ait.home.dimension_locked",
+                "No se puede establecer el hogar en una dimensión bloqueada para esta TARDIS.");
 
         return provider;
     }
@@ -1870,6 +1875,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.interiorchange.warning",
                 "Interior reconfiguration started! Please leave the interior.");
         provider.addTranslation("command.ait.realworld.responses", "Spawned a real world TARDIS at:");
+        provider.addTranslation("command.ait.home.dimension_locked",
+                "Heimatposition kann nicht in einer für diese TARDIS gesperrten Dimension festgelegt werden.");
 
         return provider;
     }
@@ -1880,6 +1887,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.telepathic.home_updated", "Local de origem da TARDIS alterado.");
         provider.addTranslation("tardis.message.control.telepathic.home_denied", "A TARDIS recusa-se a mudar sua casa para você. Nível de lealdade PILOT necessário.");
         provider.addTranslation("tardis.message.control.telepathic.home_denied_nether", "A TARDIS rejeita o Nether como casa. Nível de lealdade OWNER necessário.");
+        provider.addTranslation("command.ait.home.dimension_locked", "Não é possível definir a casa em uma dimensão bloqueada para esta TARDIS.");
         return provider;
     }
 
