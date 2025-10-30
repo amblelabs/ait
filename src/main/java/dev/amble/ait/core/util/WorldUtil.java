@@ -4,8 +4,10 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.AITWorldOptions;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.mixin.server.EnderDragonFightAccessor;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -228,6 +230,40 @@ public class WorldUtil {
         };
 
         return Text.translatable(key);
+    }
+
+    public static byte tardis2Rot(ServerTardis tardis) {
+        if (tardis == null)
+            return 0;
+        CachedDirectedGlobalPos position = tardis.travel().position();
+        return position == null ? 0 : position.getRotation();
+    }
+
+    public static byte stringName2Rot(String name) {
+        String s = name == null ? "" : name.toLowerCase();
+        return switch (s) {
+            case "north_east" -> 2;     // group 1..3
+            case "east" -> 4;           // group 4
+            case "south_east" -> 6;     // group 5..7
+            case "south" -> 8;          // group 8
+            case "south_west" -> 10;    // group 9..11
+            case "west" -> 12;          // group 12
+            case "north_west" -> 14;    // group 13..15
+            default -> 0;               // group 0 (north)
+        };
+    }
+
+    public static String rot2StringName(int rotation) {
+        return switch (rotation) {
+            case 1, 2, 3 -> "north_east";
+            case 4 -> "east";
+            case 5, 6, 7 -> "south_east";
+            case 8 -> "south";
+            case 9, 10, 11 -> "south_west";
+            case 12 -> "west";
+            case 13, 14, 15 -> "north_west";
+            default -> "north";
+        };
     }
 
     public static void onBreakHalfInCreative(World world, BlockPos pos, BlockState state, PlayerEntity player) {
