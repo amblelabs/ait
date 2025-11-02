@@ -46,3 +46,4 @@
 - fix: it shouldnt be possible to get stuck in the time vortex now | by [@duzos](https://github.com/duzos), [@drtheodor](https://github.com/drtheodor) ([#1792](https://github.com/amblelabs/ait/pull/1792))
 - fix: Fixed /ait debug command permission being given to players without the proper permission. | by [@lakehascake](https://github.com/lakehascake) ([#1943](https://github.com/amblelabs/ait/pull/1943))
 - add: Ability to change disguise of adaptive exterior via sonic screwdriver. | by [@Mansarde](https://github.com/Mansarde) ([#1944](https://github.com/amblelabs/ait/pull/1944))
+- fix: fail mat playing at old pos instead of destination | by [@duzos](https://github.com/duzos) ([#1945](https://github.com/amblelabs/ait/pull/1945))
