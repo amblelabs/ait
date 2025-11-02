@@ -357,7 +357,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     }
 
     private void failRemat() {
-        // Play failure sound at the current position
+        // Play failure sound at the destination position where materialization was attempted
         this.destination().getWorld().playSound(null, this.destination().getPos(), AITSounds.FAIL_MAT, SoundCategory.BLOCKS,
                 2f, 1f);
 
