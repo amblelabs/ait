@@ -21,7 +21,6 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
@@ -72,6 +71,15 @@ public class PortalsHandler extends KeyedTardisComponent {
 		// TODO: re-use the same two portal entities
 		//  for exterior changing this could be achieved by moving the portals & changing their size
 		//  for opening and closing doors, portals' rendering can be turned off
+
+		TardisEvents.SAVE.register((server, tardis, close) -> {
+			if (!close) return;
+
+			tardis.door().closeDoors();
+
+			PortalsHandler handler = tardis.handler(ID);
+			handler.removePortals();
+		});
 
 		TardisEvents.DOOR_OPEN.register((tdis) -> {
 			PortalsHandler handler = tdis.handler(ID);

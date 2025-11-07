@@ -1,11 +1,13 @@
 package dev.amble.ait.api.tardis;
 
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
+import net.minecraft.server.MinecraftServer;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.Entity;
@@ -24,6 +26,12 @@ import dev.amble.ait.core.tardis.handler.DoorHandler;
 import dev.amble.ait.data.landing.LandingPadSpot;
 
 public final class TardisEvents {
+
+    public static final Event<Save> SAVE = EventFactory.createArrayBacked(Save.class, callbacks -> (server, tardis, close) -> {
+        for (Save callback : callbacks) {
+            callback.onSave(server, tardis, close);
+        }
+    });
 
     // Flight
     public static final Event<Demat> DEMAT = EventFactory.createArrayBacked(Demat.class, callbacks -> tardis -> {
@@ -307,6 +315,10 @@ public final class TardisEvents {
                     callback.onUse(control, tardis, player, world, console, leftClick);
                 }
             });
+
+    public interface Save {
+        void onSave(MinecraftServer server, ServerTardis tardis, boolean close);
+    }
 
     /**
      * Called when a TARDIS successfully ( passed all checks ) starts to take off,
