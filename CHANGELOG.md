@@ -47,3 +47,4 @@
 - fix: Fixed /ait debug command permission being given to players without the proper permission. | by [@lakehascake](https://github.com/lakehascake) ([#1943](https://github.com/amblelabs/ait/pull/1943))
 - add: Ability to change disguise of adaptive exterior via sonic screwdriver. | by [@Mansarde](https://github.com/Mansarde) ([#1944](https://github.com/amblelabs/ait/pull/1944))
 - fix: fail mat playing at old pos instead of destination | by [@duzos](https://github.com/duzos) ([#1945](https://github.com/amblelabs/ait/pull/1945))
+- fix: Fixed DevTeam list to better represent the current team. | by [@lakehascake](https://github.com/lakehascake) ([#1947](https://github.com/amblelabs/ait/pull/1947))
