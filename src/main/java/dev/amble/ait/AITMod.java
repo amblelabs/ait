@@ -115,7 +115,7 @@ public class AITMod implements ModInitializer {
     public static final String BRANCH;
 
     static {
-        // ait-1.x.xx-BRANCH+mc.1.20.1
+        // 1.x.xx-BRANCH+mc.1.20.1
         String version = FabricLoader.getInstance().getModContainer(MOD_ID).get().getMetadata().getVersion().getFriendlyString();
         // get the part of the version string between the - and +
         BRANCH = version.substring(version.indexOf("-") + 1, version.indexOf("+"));
