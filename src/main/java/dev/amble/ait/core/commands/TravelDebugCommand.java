@@ -26,8 +26,11 @@ public class TravelDebugCommand {
                 .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.travel", 2))
                 .then(argument("tardis", TardisArgumentType.tardis())
                         .then(literal("demat").executes(TravelDebugCommand::demat))
-                        .then(literal("destination").then(argument("dimension", DimensionArgumentType.dimension()).then(
-                                argument("pos", BlockPosArgumentType.blockPos()).executes(TravelDebugCommand::setPos))))
+                        .then(literal("destination")
+                                .then(literal("home").executes(TravelDebugCommand::setHome))
+                                .then(argument("dimension", DimensionArgumentType.dimension())
+                                        .then(argument("pos", BlockPosArgumentType.blockPos())
+                                                .executes(TravelDebugCommand::setPos))))
                         .then(literal("remat").executes(TravelDebugCommand::remat)))));
     }
 
@@ -44,6 +47,13 @@ public class TravelDebugCommand {
         BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
 
         tardis.travel().forceDestination(cached -> cached.world(world).pos(pos));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int setHome(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        Tardis tardis = TardisArgumentType.getTardis(context, "tardis");
+
+        tardis.travel().forceDestination(cached -> tardis.stats().getHome());
         return Command.SINGLE_SUCCESS;
     }
 

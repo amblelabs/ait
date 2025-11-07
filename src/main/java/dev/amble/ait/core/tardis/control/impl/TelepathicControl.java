@@ -133,6 +133,33 @@ public class TelepathicControl extends Control {
             return Result.SUCCESS;
         }
 
+        if (held.isOf(AITItems.CORAL_FRAGMENT)) {
+            Loyalty loyalty = tardis.loyalty().get(player);
+            CachedDirectedGlobalPos currentPos = tardis.travel().position();
+            boolean inNether = currentPos != null && currentPos.getDimension().equals(World.NETHER);
+            Loyalty.Type required = inNether ? Loyalty.Type.OWNER : Loyalty.Type.PILOT;
+
+            if (currentPos == null || !tardis.travel().isLanded())
+                return Result.FAILURE;
+
+            if (!loyalty.isOf(required)) {
+                player.sendMessage(Text.translatable(
+                                inNether ? "tardis.message.control.telepathic.home_denied_nether"
+                                        : "tardis.message.control.telepathic.home_denied"),
+                        true);
+                return Result.FAILURE;
+            }
+
+            tardis.stats().setHome(currentPos);
+
+            player.sendMessage(Text.translatable("tardis.message.control.telepathic.home_updated"), true);
+
+            if (!player.isCreative())
+                held.decrement(1);
+
+            return Result.SUCCESS;
+        }
+
         if (held.isOf(Items.NETHER_STAR) && tardis.loyalty().get(player).isOf(Loyalty.Type.PILOT)) {
             tardis.selfDestruct().boom();
 
