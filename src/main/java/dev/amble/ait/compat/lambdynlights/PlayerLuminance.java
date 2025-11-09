@@ -6,6 +6,7 @@ import dev.lambdaurora.lambdynlights.api.item.ItemLightSourceManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
@@ -22,12 +23,11 @@ public class PlayerLuminance implements EntityLuminance {
             ItemStack stack = player.getActiveItem();
             if (stack == null || stack.isEmpty()) return 0;
             if (stack.getItem() instanceof SonicItem sonic) {
-                if (sonic.getCurrentFuel(stack) > 0) {
-                    double current = sonic.getCurrentFuel(stack);
+                double current = sonic.getCurrentFuel(stack);
+                if (current > 0) {
                     double max = sonic.getMaxFuel(stack);
-                    if (max <= 0 || current <= 0) return 0;
-                    int lum = (int) Math.round((current / max) * 15.0);
-                    return Math.min(15, Math.max(0, lum));
+                    int lum = (int) Math.ceil((current / max) * 15.0);
+                    return MathHelper.clamp(lum, 0, 15);
                 }
             }
         }
