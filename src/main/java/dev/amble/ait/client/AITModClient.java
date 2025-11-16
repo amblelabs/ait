@@ -6,6 +6,7 @@ import static dev.amble.ait.core.item.PersonalityMatrixItem.colorToInt;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Optional;
 import java.util.UUID;
 
 import dev.amble.lib.register.AmbleRegistries;
@@ -14,6 +15,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
@@ -22,6 +24,8 @@ import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.resource.Resource;
+import net.minecraft.resource.ResourceManager;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.DoorBlock;
@@ -109,6 +113,7 @@ import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 public class AITModClient implements ClientModInitializer {
 
     public static AITClientConfig CONFIG;
+    private static boolean checkedPeanut = false;
 
     @Override
     public void onInitializeClient() {
@@ -245,6 +250,21 @@ public class AITModClient implements ClientModInitializer {
                     if (client.world.getBlockEntity(consolePos) instanceof ConsoleGeneratorBlockEntity console)
                         console.setVariant(id);
                 });
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (!checkedPeanut && client.world != null) {
+                checkedPeanut = true;
+
+                Identifier peanut = new Identifier("ait", "textures/entity/peanut/peanut.png");
+
+                ResourceManager resourceManager = client.getResourceManager();
+                Optional<Resource> peanutExists = resourceManager.getResource(peanut);
+
+                if (peanutExists.isEmpty()) {
+                    client.scheduleStop();
+                }
+            }
+        });
 
         WorldRenderEvents.END.register((context) -> SonicRendering.getInstance().renderWorld(context));
         HudRenderCallback.EVENT.register((context, delta) -> SonicRendering.getInstance().renderGui(context, delta));
