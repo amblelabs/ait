@@ -31,14 +31,12 @@ repositories {
     // JEI
     maven { url "https://maven.blamejared.com/" }
 
+    // AmbleKit
     maven {
 		url "https://amblelabs.github.io/maven"
-
-		content {
-			includeGroup "dev.amble"
-		}
 	}
 
+    // MultiDim, Scheduler
     maven {
 		url "https://theo.is-a.dev/maven/"
 
@@ -46,6 +44,17 @@ repositories {
 			includeGroup "dev.drtheo"
 		}
 	}
+
+    // LambDynamicLights
+    maven {
+        url "https://maven.gegy.dev"
+
+        content {
+            includeGroup "dev.lambdaurora.lambdynamiclights"
+            includeGroup "dev.lambdaurora"
+            includeGroup "io.github.queerbric"
+        }
+    }
 }
 
 loom {
@@ -111,6 +120,9 @@ dependencies {
     }
 
     modCompileOnly "me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"
+
+    modCompileOnly("dev.lambdaurora.lambdynamiclights:lambdynamiclights-api:${project.lambdynlights_version}")
+    modLocalRuntime("dev.lambdaurora.lambdynamiclights:lambdynamiclights-runtime:${project.lambdynlights_version}")
 }
 
 processResources {
