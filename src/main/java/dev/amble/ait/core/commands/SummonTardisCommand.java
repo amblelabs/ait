@@ -8,6 +8,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import dev.amble.ait.core.tardis.util.CommandUtil;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,14 +29,27 @@ import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
 public class SummonTardisCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher
-                .register(literal(AITMod.MOD_ID).then(literal("summon").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.summon", 2))
-                        .then(argument("tardis", TardisArgumentType.tardis())
-                                .executes(SummonTardisCommand::runCommand)
-                                .then(argument("pos", BlockPosArgumentType.blockPos())
-                                        .executes(SummonTardisCommand::runCommandWithPos))
-                                .then(argument("message", BoolArgumentType.bool())
-                                        .executes(SummonTardisCommand::runCommandWithPosAndMessage)))));
+        dispatcher.register(
+                literal(AITMod.MOD_ID)
+                        .then(literal("summon")
+                                .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.summon", 2))
+                                .then(argument("tardis", TardisArgumentType.tardis())
+                                        .executes(SummonTardisCommand::runCommand)
+                                        .then(literal("home")
+                                                .executes(SummonTardisCommand::runCommandWithHome)
+                                                .then(argument("showMessage", BoolArgumentType.bool())
+                                                        .executes(SummonTardisCommand::runCommandWithHomeAndMessage)
+                                                )
+                                        )
+                                        .then(argument("pos", BlockPosArgumentType.blockPos())
+                                                .executes(SummonTardisCommand::runCommandWithPos)
+                                                .then(argument("showMessage", BoolArgumentType.bool())
+                                                        .executes(SummonTardisCommand::runCommandWithPosAndMessage)
+                                                )
+                                        )
+                                )
+                        )
+        );
     }
 
     private static int runCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
@@ -53,15 +67,41 @@ public class SummonTardisCommand {
         return summonTardis(context, pos, showMessage);
     }
 
+    private static int runCommandWithHome(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
+
+        if (tardis == null)
+            throw TardisArgumentType.INVALID_UUID.create();
+
+        BlockPos pos = tardis.stats().getHome().getPos();
+        return summonTardis(context, pos, true);
+    }
+
+    private static int runCommandWithHomeAndMessage(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
+        boolean showMessage = BoolArgumentType.getBool(context, "showMessage");
+
+        if (tardis == null)
+            throw TardisArgumentType.INVALID_UUID.create();
+
+        BlockPos pos = tardis.stats().getHome().getPos();
+        return summonTardis(context, pos, showMessage);
+    }
+
     private static int summonTardis(CommandContext<ServerCommandSource> context, @Nullable BlockPos pos, boolean showMessage) throws CommandSyntaxException {
         Entity source = context.getSource().getEntity();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
+        CachedDirectedGlobalPos globalPos;
 
         if (pos == null)
             pos = source.getBlockPos();
 
-        CachedDirectedGlobalPos globalPos = CachedDirectedGlobalPos.create((ServerWorld) source.getWorld(), pos,
-                (byte) RotationPropertyHelper.fromYaw(source.getBodyYaw()));
+        if (CommandUtil.hasArgument(context, "home")) {
+            globalPos = tardis.stats().getHome();
+        }else {
+            globalPos = CachedDirectedGlobalPos.create((ServerWorld) source.getWorld(), pos,
+                    (byte) RotationPropertyHelper.fromYaw(source.getBodyYaw()));
+        }
 
         TravelUtil.travelTo(tardis, globalPos);
 
