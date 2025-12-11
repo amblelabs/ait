@@ -763,6 +763,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("ait.tardis.likes_item", "The TARDIS may like this item...");
         provider.addTranslation("tooltip.ait.remoteitem.holdformoreinfo", "Hold shift for more info");
 
+        provider.addTranslation("ait.control_disc.set_position", "Write to DVD-ROM");
+
         // Control entities
         provider.addTranslation("control.ait.antigravs", "Antigravs");
         provider.addTranslation("control.ait.refreshment_control", "Refreshment Selector");
@@ -794,6 +796,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.save_waypoint", "Save Waypoint");
         provider.addTranslation("control.ait.load_waypoint", "Load Waypoint");
         provider.addTranslation("control.ait.load_waypoint.error", "Cartridge contains no waypoint");
+        provider.addTranslation("control.ait.load_control_disc.loaded", "Control disc loaded. Ready for takeoff.");
         provider.addTranslation("control.ait.load_waypoint.no_cartridge", "No cartridge in port");
         provider.addTranslation("control.ait.increment", "Increment");
         provider.addTranslation("control.ait.x", "X");

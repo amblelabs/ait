@@ -72,7 +72,6 @@ import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
 import dev.amble.ait.core.util.CustomTrades;
-import dev.amble.ait.core.util.SpaceUtils;
 import dev.amble.ait.core.util.StackUtil;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.LandingPadManager;
