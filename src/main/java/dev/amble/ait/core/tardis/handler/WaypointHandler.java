@@ -81,7 +81,10 @@ public class WaypointHandler extends KeyedTardisComponent {
 
         // Insurance so discs don't get overwritten since they're only one-time use and one-time write (so technically it's
         // DVD-ROM but don't tell anyone that) - Loqor
-        if (this.isDisc()) return prev;
+        if (this.isDisc()) {
+            this.current = var;
+            return prev;
+        }
 
         if (spawnItem && this.current != null)
             this.spawnItem(console, prev.get());
