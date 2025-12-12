@@ -48,7 +48,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
             matrices.translate(0.5, 1.5, 0.5);
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
             HartnellConsoleModel model = new HartnellConsoleModel(HartnellConsoleModel.getTexturedModelData().createModel());
-            model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(ClientConsoleVariantRegistry.HARTNELL.texture())),
+            model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutout(ClientConsoleVariantRegistry.HARTNELL.texture())),
                     light, overlay, 1, 1, 1, 1);
             RenderLayer layer = AITRenderLayers.tardisEmissiveCullZOffset(ClientConsoleVariantRegistry.HARTNELL.emission(), true);
             model.render(matrices, vertexConsumers.getBuffer(layer),
@@ -120,7 +120,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         profiler.swap("render");
         model.renderWithAnimations(tardis, entity, model.getPart(),
                 matrices, vertexConsumers.getBuffer(variant.equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(variant.texture()) :
-                        RenderLayer.getItemEntityTranslucentCull(variant.texture())), light, overlay,
+                        RenderLayer.getEntityCutout(variant.texture())), light, overlay,
                 1, 1, 1, 1, tickDelta);
 
         this.renderEmissions(profiler, matrices, vertexConsumers, tardis, entity, hasPower, light, overlay, tickDelta);
@@ -183,7 +183,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         matrices.push();
         if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
             model.renderWithAnimations(tardis, entity, model.getPart(),
-                    matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), DependencyChecker.hasIris() ? LightmapTextureManager.MAX_LIGHT_COORDINATE : light, overlay,
+                    matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xf000f0, overlay,
                     1, 1, 1, 1, tickDelta);
         }
         matrices.pop();

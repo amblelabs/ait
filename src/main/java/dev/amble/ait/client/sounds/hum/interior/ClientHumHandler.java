@@ -3,6 +3,7 @@ package dev.amble.ait.client.sounds.hum.interior;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.core.tardis.Tardis;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 
@@ -59,7 +60,11 @@ public class ClientHumHandler extends SoundHandler {
             if (!(sound instanceof LoopingSound hum))
                 return; // it aint a hum.
 
-            this.setHum(ClientTardisUtil.getCurrentTardis(), hum);
+            ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
+
+            if (tardis == null) return;
+
+            this.setHum(tardis, hum);
         });
     }
 
