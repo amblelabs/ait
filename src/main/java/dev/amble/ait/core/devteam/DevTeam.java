@@ -14,17 +14,18 @@ public class DevTeam {
     public static final UUID OURO = UUID.fromString("07e6b550-be92-4422-a269-345593df5a10");
     public static final UUID CLASSIC = UUID.fromString("ba21f64b-35e3-4b4f-b04c-9ceb814ad533");
     public static final UUID ADDIE = UUID.fromString("ae93f403-bf4a-4fb9-89db-2826ae9a4508");
-    public static final UUID VENWHOVIAN = UUID.fromString("a77b585c-368d-4285-b536-42fd612a6e1e"); // Not sure if he should get one either - Loqor
+    public static final UUID VENWHOVIAN = UUID.fromString("a77b585c-368d-4285-b536-42fd612a6e1e");
     public static final UUID MONKE = UUID.fromString("b8d4a6f0-93be-4e8a-b521-a1906a737c1a");
     public static final UUID PAN = UUID.fromString("70c90ff6-46e7-4481-987b-53dd79595a4a");
     public static final UUID SATURN = UUID.fromString("2a3ed4e8-40e8-44a3-9ed7-dcfe88a8badf");
     public static final UUID MAGGIE = UUID.fromString("162fe408-5e3e-4a88-a04e-ab8f468484eb");
     public static final UUID DIAN = UUID.fromString("7f001733-90b1-4cd7-87a1-42c97b2c3275");
-    public static final UUID RHYNO = UUID.fromString("d892f861-dd01-4047-981c-c26b5d75990b"); // im not sure about rhyno but he has the team role - monke
+    public static final UUID RHYNO = UUID.fromString("d892f861-dd01-4047-981c-c26b5d75990b");
     public static final UUID TREE = UUID.fromString("eb9e8f5b-fc61-4cc6-bba8-6def3d84630a");
     public static final UUID ECHO = UUID.fromString("b74877fb-cc7a-4e89-b900-09ec522e0ca9");
     public static final UUID NYX = UUID.fromString("5a9bb737-ceb2-4d45-876c-b0e4531a811f");
     public static final UUID LAKE = UUID.fromString("12a4e062-da90-4797-a788-c42fd18c94d7");
+    public static final UUID EMBER = UUID.fromString("e7a7f770-0095-4df7-a4fc-295774c9355c");
 
 
 
@@ -38,7 +39,7 @@ public class DevTeam {
     // WOW NOT EVEN ME :SOB: - Tendo // sorry - monke // lmao all jokes and funnies
 
     public static final Set<UUID> PLAYERS = Set.of(
-            LOQOR, DUZO, THEO, OURO, CLASSIC, ADDIE, VENWHOVIAN, MONKE, PAN, SATURN, MAGGIE, CROW, K_KING, DIAN, RHYNO, TREE, ECHO, NYX, LAKE, COSMIC, NANO
+            LOQOR, DUZO, THEO, OURO, CLASSIC, ADDIE, VENWHOVIAN, MONKE, PAN, SATURN, MAGGIE, CROW, K_KING, DIAN, RHYNO, TREE, ECHO, NYX, LAKE, COSMIC, NANO, EMBER
     );
 
     public static boolean isDev(UUID uuid) {
