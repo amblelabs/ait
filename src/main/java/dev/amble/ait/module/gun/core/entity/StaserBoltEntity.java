@@ -147,14 +147,12 @@ public class StaserBoltEntity extends PersistentProjectileEntity implements ISpa
         this.setPitch((float)(MathHelper.atan2(f, l) * 57.2957763671875));
         this.setPitch(PersistentProjectileEntity.updateRotation(this.prevPitch, this.getPitch()));
         this.setYaw(PersistentProjectileEntity.updateRotation(this.prevYaw, this.getYaw()));
-        float m = 0.99f;
         if (this.isTouchingWater()) {
             for (int o = 0; o < 4; ++o) {
                 this.getWorld().addParticle(ParticleTypes.BUBBLE, h - e * 0.25, j - f * 0.25, k - g * 0.25, e, f, g);
             }
-            m = this.getDragInWater();
         }
-        this.setVelocity(vec3d.multiply(m));
+        this.setVelocity(vec3d);
         if (!this.hasNoGravity()) {
             Vec3d vec3d4 = this.getVelocity();
             this.setVelocity(vec3d4.x, vec3d4.y - (double)0.05f, vec3d4.z);
