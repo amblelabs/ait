@@ -14,7 +14,4 @@ public class AITItemGroups implements ItemGroupContainer {
 
     public static final AItemGroup FABRICATOR = AItemGroup.builder(AITMod.id("fabricator"))
             .icon(() -> new ItemStack(AITItems.BLUEPRINT)).build();
-
-    public static final AItemGroup DECORATION = AItemGroup.builder(AITMod.id("decoration"))
-            .icon(() -> new ItemStack(AITBlocks.BLUE_WOODEN_SEAT.asItem())).build();
 }

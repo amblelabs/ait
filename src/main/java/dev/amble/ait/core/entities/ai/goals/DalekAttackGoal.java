@@ -98,7 +98,7 @@ public class DalekAttackGoal<T extends HostileEntity>
             this.combatTicks = 0;
         }
         if (this.combatTicks > -1) {
-            if (d > (double)(this.squaredRange * 0.75f)) {
+            if (d > (double)(this.squaredRange * 0.26f)) {
                 this.backward = false;
             } else if (d < (double)(this.squaredRange * 0.25f)) {
                 this.backward = true;
@@ -107,11 +107,11 @@ public class DalekAttackGoal<T extends HostileEntity>
             Entity entity = this.actor.getControllingVehicle();
             if (entity instanceof MobEntity) {
                 MobEntity mobEntity = (MobEntity)entity;
-                mobEntity.lookAtEntity(livingEntity, 30.0f, 30.0f);
+                mobEntity.lookAtEntity(livingEntity, mobEntity.getMaxLookYawChange(), mobEntity.getMaxLookPitchChange());
             }
-            this.actor.lookAtEntity(livingEntity, 30.0f, 30.0f);
+            this.actor.lookAtEntity(livingEntity, actor.getMaxLookYawChange(), actor.getMaxLookPitchChange());
         } else {
-            this.actor.getLookControl().lookAt(livingEntity, 30.0f, 30.0f);
+            this.actor.getLookControl().lookAt(livingEntity, actor.getMaxLookYawChange(), actor.getMaxLookPitchChange());
         }
         cooldown--;
         if (bl && cooldown <= 0) {

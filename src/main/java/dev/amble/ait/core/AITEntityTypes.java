@@ -39,17 +39,16 @@ public class AITEntityTypes implements EntityContainer {
 //    public static final EntityType<CobbledSnowballEntity> COBBLED_SNOWBALL_TYPE = EntityType.Builder
 //            .<CobbledSnowballEntity>create(SpawnGroup.MISC, CobbledSnowballEntity::new)
 //            .dimensions(EntityDimensions.fixed(0.25f, 0.25f)).trackRangeBlocks(4).trackedUpdateRate(10).build();
-public static final EntityType<DalekShipEntity> DALEK_SHIP_ENTITY_TYPE = FabricEntityTypeBuilder
-        .create(SpawnGroup.MISC, DalekShipEntity::new)
-        .dimensions(EntityDimensions.fixed(15f, 4f)).build();
+public static final EntityType<DalekShipEntity> DALEK_SHIP_ENTITY_TYPE = EntityType.Builder
+        .create(DalekShipEntity::new, SpawnGroup.MISC)
+        .setDimensions(15f, 4f).build("dalek_ship_entity_type");
 
-    public static final EntityType<RiftEntity> RIFT_ENTITY = FabricEntityTypeBuilder.Mob.createMob()
-            .spawnGroup(SpawnGroup.AMBIENT).entityFactory(RiftEntity::new)
-            .dimensions(EntityDimensions.fixed(1f, 1f)).spawnRestriction(SpawnRestriction.Location.NO_RESTRICTIONS,
-                    Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, RiftEntity::canMobSpawn).spawnableFarFromPlayer().build();
+    public static final EntityType<RiftEntity> RIFT_ENTITY = EntityType.Builder
+            .create(RiftEntity::new, SpawnGroup.AMBIENT).disableSaving()
+            .setDimensions(1f, 1f).spawnableFarFromPlayer().build("rift_entity");
 
     // Daleks
-    public static EntityType<DalekEntity> DALEK_ENTITY = FabricEntityTypeBuilder.Mob.createMob()
-            .spawnGroup(SpawnGroup.MONSTER).entityFactory(DalekEntity::new).spawnableFarFromPlayer()
-            .dimensions(EntityDimensions.fixed(0.8f, 2.1f)).build();
+    public static EntityType<DalekEntity> DALEK_ENTITY = EntityType.Builder
+            .create(DalekEntity::new, SpawnGroup.MONSTER).spawnableFarFromPlayer()
+            .setDimensions(0.8f, 2.1f).build("dalek_entity");
 }
