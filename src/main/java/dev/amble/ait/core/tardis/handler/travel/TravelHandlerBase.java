@@ -89,6 +89,12 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
         vGroundSearch.of(this, VGROUND_SEARCH);
         hGroundSearch.of(this, HGROUND_SEARCH);
 
+        // fix a bug of old versions having negative hammer uses.
+        this.hammerUses = Math.max(this.hammerUses, 1);
+    }
+
+    @Override
+    public void postInit(InitContext ctx) {
         if (this.isClient())
             return;
 
@@ -98,9 +104,6 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
         this.position.ifPresent(cached -> cached.init(current), false);
         this.destination.ifPresent(cached -> cached.init(current), false);
         this.previousPosition.ifPresent(cached -> cached.init(current), false);
-
-        // fix a bug of old versions having negative hammer uses.
-        this.hammerUses = Math.max(this.hammerUses, 1);
     }
 
     @Override
@@ -198,10 +201,11 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
 
         cached.init(TravelHandlerBase.server());
 
-        WorldBorder border = cached.getWorld().getWorldBorder();
         BlockPos pos = cached.getPos();
+        WorldBorder targetBorder = new WorldBorder();
+        targetBorder.setSize(cached.getWorld().getWorldBorder().getSize() - 3);
 
-        cached = border.contains(pos) ? cached : cached.pos(border.clamp(pos.getX(), pos.getY(), pos.getZ()));
+        cached = targetBorder.contains(pos) ? cached : cached.pos(targetBorder.clamp(pos.getX(), pos.getY(), pos.getZ()));
 
         // TODO what is the point of this? the only time this should be done is on landing - unless it gets optimized enough to run here. - Loqor
         //cached = WorldUtil.locateSafe(cached, this.vGroundSearch.get(), this.hGroundSearch.get());

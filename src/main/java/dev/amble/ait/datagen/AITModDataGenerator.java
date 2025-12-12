@@ -372,6 +372,16 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                             .criterion(hasItem(Items.GREEN_DYE), conditionsFromItem(Items.GREEN_DYE))
                             .criterion(hasItem(Items.GOLD_NUGGET), conditionsFromItem(Items.GOLD_NUGGET)));
 
+            provider.addShapedRecipe(
+                    ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, AITItems.CONTROL_DISC, 1)
+                            .pattern(" I ")
+                            .pattern("IZI")
+                            .pattern(" I ")
+                            .input('I', Items.IRON_INGOT)
+                            .input('Z', AITItems.CHARGED_ZEITON_CRYSTAL)
+                            .criterion(hasItem(Items.IRON_INGOT), conditionsFromItem(Items.IRON_INGOT))
+                            .criterion(hasItem(AITItems.CHARGED_ZEITON_CRYSTAL), conditionsFromItem(AITItems.CHARGED_ZEITON_CRYSTAL)));
+
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, AITItems.HAMMER, 1)
                     .pattern("DSD").pattern(" A ").pattern(" T ").input('D', Items.DRIED_KELP).input('S', Items.STRING)
                     .input('A', Items.IRON_AXE).input('T', Items.STICK)
@@ -498,11 +508,11 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                     .input('C', Items.COPPER_INGOT).criterion(hasItem(Items.COPPER_INGOT), conditionsFromItem(Items.COPPER_INGOT))
                     .input('Z', AITItems.ZEITON_SHARD).criterion(hasItem(AITItems.ZEITON_SHARD), conditionsFromItem(AITItems.ZEITON_SHARD)));
 
-            provider.addShapelessRecipe(ShapelessRecipeJsonBuilder.create(RecipeCategory.REDSTONE, AITBlocks.FULL_CABLE_BLOCK, 2)
+            provider.addShapelessRecipe(ShapelessRecipeJsonBuilder.create(RecipeCategory.REDSTONE, AITBlocks.CABLE_CONNECTOR_BLOCK , 2)
                     .input(AITBlocks.CABLE_BLOCK, 4).criterion(hasItem(AITBlocks.CABLE_BLOCK), conditionsFromItem(AITBlocks.CABLE_BLOCK)));
 
             //provider.addShapelessRecipe(ShapelessRecipeJsonBuilder.create(RecipeCategory.REDSTONE, AITBlocks.CABLE_BLOCK, 2)
-            //        .input(AITBlocks.FULL_CABLE_BLOCK).criterion(hasItem(AITBlocks.FULL_CABLE_BLOCK), conditionsFromItem(AITBlocks.FULL_CABLE_BLOCK)));
+            //        .input(AITBlocks.CABLE_CONNECTOR_BLOCK ).criterion(hasItem(AITBlocks.CABLE_CONNECTOR_BLOCK ), conditionsFromItem(AITBlocks.CABLE_CONNECTOR_BLOCK )));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.REDSTONE, AITItems.HYPERION_CORE_SHAFT)
                     .pattern("ACB")
@@ -1245,6 +1255,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("soundCategory.hums", "Interior HUM");
         provider.addTranslation("text.ait.config.title", "AIT Config");
 
+        provider.addTranslation("ait.control_disc.set_position", "Write to DVD-ROM");
+
         // Control entities
         provider.addTranslation("control.ait.antigravs", "Antigravs");
         provider.addTranslation("control.ait.refreshment_control", "Refreshment Selector");
@@ -1276,6 +1288,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.save_waypoint", "Save Waypoint");
         provider.addTranslation("control.ait.load_waypoint", "Load Waypoint");
         provider.addTranslation("control.ait.load_waypoint.error", "Cartridge contains no waypoint");
+        provider.addTranslation("control.ait.load_control_disc.loaded", "Control disc loaded. Ready for takeoff.");
+        provider.addTranslation("control.ait.load_waypoint.no_cartridge", "No cartridge in port");
         provider.addTranslation("control.ait.increment", "Increment");
         provider.addTranslation("control.ait.x", "X");
         provider.addTranslation("control.ait.y", "Y");
@@ -1312,6 +1326,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.animateConsole", "Animate console?");
         provider.addTranslation("yacl3.config.ait:client.animateDoors", "Animate doors?");
         provider.addTranslation("yacl3.config.ait:client.temperatureType", "Temperature type");
+        provider.addTranslation("yacl3.config.ait:client.engineLoopVolume", "Engine Loop Volume");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.celsius", "Celsius (°C)");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.fahrenheit", "Fahrenheit (°F)");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.kelvin", "Kelvin (K)");
@@ -1522,7 +1537,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITBlocks.REDSTONE_CONTROL_BLOCK, "Redstone Control");
         provider.addTranslation(AITBlocks.ENGINE_BLOCK, "Engine");
         provider.addTranslation(AITBlocks.CABLE_BLOCK, "Artron Cable");
-        provider.addTranslation(AITBlocks.FULL_CABLE_BLOCK, "Full Artron Cable");
+        provider.addTranslation(AITBlocks.CABLE_CONNECTOR_BLOCK , "Artron Cable Connector");
         provider.addTranslation(AITBlocks.GENERIC_SUBSYSTEM, "Generalized Subsystem Core");
         provider.addTranslation(AITBlocks.FOOD_MACHINE, "Food Machine");
 
@@ -1605,6 +1620,12 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("item.sonic.scanning.locator_message.title", "TARDIS location: %s");
         provider.addTranslation("item.sonic.scanning.locator_message.coordinates", "Coordinates: %s %s %s");
 
+        provider.addTranslation("tardis.loyalty.name.reject","REJECT");
+        provider.addTranslation("tardis.loyalty.name.neutral","NEUTRAL");
+        provider.addTranslation("tardis.loyalty.name.companion","COMPANION");
+        provider.addTranslation("tardis.loyalty.name.pilot","PILOT");
+        provider.addTranslation("tardis.loyalty.name.owner","OWNER");
+
         // Loyalty Messages In Bed
         provider.addTranslation("tardis.loyalty.message.reject","You hear whispers all around you, you are not welcome. [REJECT]");
         provider.addTranslation("tardis.loyalty.message.neutral", "The TARDIS hums, neither welcoming nor dismissing your presence. [NEUTRAL]");
@@ -1666,6 +1687,12 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.hypercubes.disabled", "Hypercubes are disabled in SERVER config.");
 
         provider.addTranslation("message.ait.control.ylandtype", "Vertical Search Mode: %s");
+        provider.addTranslation("message.ait.control.ylandtype.floor", "FLOOR");
+        provider.addTranslation("message.ait.control.ylandtype.ceiling", "CEILING");
+        provider.addTranslation("message.ait.control.ylandtype.median", "MEDIAN");
+        provider.addTranslation("message.ait.control.ylandtype.none", "NONE");
+        provider.addTranslation("message.ait.control.xlandtype.on", "Horizontal Search: ENGAGED");
+        provider.addTranslation("message.ait.control.xlandtype.off", "Horizontal Search: DISENGAGED");
         provider.addTranslation("message.ait.loyalty_amount", "Loyalty Level: %s");
         provider.addTranslation("message.ait.landing_code", "Landing Code...");
         provider.addTranslation("message.ait.enter_landing_code", "Enter Landing Code...");
@@ -1687,8 +1714,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("sonic.ait.mode.tardis.flight", "Disengaged Handbrake, TARDIS Dematerialising...");
         provider.addTranslation("screen.ait.current_au", "Current AU");
         provider.addTranslation("screen.ait.linked_tardis", "Linked TARDIS");
-        provider.addTranslation("message.ait.control.xlandtype.on", "Horizontal Search: ENGAGED");
-        provider.addTranslation("message.ait.control.xlandtype.off", "Horizontal Search: DISENGAGED");
         provider.addTranslation("tardis.message.engine.phasing", "ENGINES PHASING");
         provider.addTranslation("message.ait.cage.full", "It calls for the void..");
         provider.addTranslation("message.ait.cage.void_hint", "(Throw this into the END void)");
@@ -1732,7 +1757,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("achievement.ait.description.pui", "Consume Zeiton Dust while the TARDIS is in flight.");
         provider.addTranslation("achievement.ait.title.bonding", "I think it's starting to trust you.");
         provider.addTranslation("achievement.ait.description.bonding", "Reach 'Pilot' loyalty for the first time.");
-        provider.addTranslation("achievement.ait.title.owner_ship", "It trusts you now worth it right?");
+        provider.addTranslation("achievement.ait.title.owner_ship", "It trusts you now. Worth it, right?");
         provider.addTranslation("achievement.ait.description.owner_ship", "Reach 'Owner' loyalty for the first time.");
         provider.addTranslation("achievement.ait.title.enable_subsystem", "Time-Space Engineer");
         provider.addTranslation("achievement.ait.description.enable_subsystem", "Enable a subsystem.");
@@ -1746,6 +1771,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("achievement." + AITMod.MOD_ID + ".description.brand_new", "OH MY GOD! IVE DONE IT AGAIN!");
         provider.addTranslation("achievement.ait.title.remote", "Grand Design");
         provider.addTranslation("achievement.ait.description.remote", "The Stattenheim Remote is yours. Fascinating. Now we shall observe precisely how you manipulate causality… and fracture under pressure.");
+        provider.addTranslation("achievement.ait.title.first_rift", "It's a crack");
+        provider.addTranslation("achievement.ait.description.first_rift", "Close your first spatio-temporal rift.");
 
         // Commands
         // Fuel
@@ -2016,6 +2043,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                 "Can't get value of a property named %s, because component %s is not keyed!");
         provider.addTranslation("command.ait.list.tardises", "TARDISes");
         provider.addTranslation("command.ait.list.pattern.error", "Bad pattern '%s'!");
+        provider.addTranslation("command.ait.this.not_found", "Not in TARDIS interior, or no linked item.");
 
         // Rift Chunk Tracking
         provider.addTranslation("riftchunk.ait.tracking", "Rift Tracking");

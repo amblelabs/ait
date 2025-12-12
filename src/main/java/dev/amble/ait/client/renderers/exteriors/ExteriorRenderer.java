@@ -67,10 +67,10 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
         this.updateModel(tardis);
 
-        if (tardis.travel().getAlpha() > 0)
+        if (tardis.travel() != null && tardis.travel().getAlpha() > 0)
             this.renderExterior(profiler, tardis, entity, tickDelta, matrices, vertexConsumers, light, overlay);
 
-        if ((tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) && !tardis.isGrowth() && tardis.travel().isLanded() &&
+        if (tardis.door() != null && (tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) && !tardis.isGrowth() && tardis.travel().isLanded() &&
         !tardis.siege().isActive()) {
             if (!variant.equals(ClientExteriorVariantRegistry.DOOM)) {
                 BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
@@ -82,9 +82,14 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         profiler.pop();
     }
 
+    private boolean awesomeIPEmissionHack(Tardis tardis) {
+        return DependencyChecker.hasPortals() && ClientTardisUtil.getCurrentTardis() == tardis;
+    }
+
     private void renderExterior(Profiler profiler, ClientTardis tardis, T entity, float tickDelta, MatrixStack matrices,
                                 VertexConsumerProvider vertexConsumers, int light, int overlay) {
         final float alpha = tardis.travel().getAlpha(tickDelta);
+        // tf does even all of this do?
         RenderSystem.enableCull();
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
@@ -194,7 +199,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         //  2) there is an emissive texture
         //  3) there's power OR alarms on
         if (alpha > 0.105f && emission != null && (power || alarms)
-                && !emission.equals(DatapackConsole.EMPTY)) {
+                && !emission.equals(DatapackConsole.EMPTY) && !awesomeIPEmissionHack(tardis)) {
             float u = 1;
             float t = 1;
             float s = 1;

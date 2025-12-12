@@ -1,36 +1,5 @@
 package dev.amble.ait.core.tardis.handler.travel;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.UUID;
-
-import dev.amble.ait.core.tardis.control.impl.EngineOverloadControl;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.drtheo.queue.api.ActionQueue;
-import dev.drtheo.scheduler.api.TimeUnit;
-import dev.drtheo.scheduler.api.common.Scheduler;
-import dev.drtheo.scheduler.api.common.TaskStage;
-import dev.drtheo.scheduler.api.task.Task;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.loader.api.FabricLoader;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
@@ -43,6 +12,7 @@ import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.control.impl.DirectionControl;
+import dev.amble.ait.core.tardis.control.impl.EngineOverloadControl;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
@@ -51,6 +21,34 @@ import dev.amble.ait.core.util.SafePosSearch;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.data.Exclude;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.drtheo.queue.api.ActionQueue;
+import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
+import dev.drtheo.scheduler.api.task.Task;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Optional;
+import java.util.UUID;
 
 public final class TravelHandler extends AnimatedTravelHandler implements CrashableTardisTravel {
 
@@ -70,6 +68,17 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     public static final Identifier CANCEL_DEMAT_SOUND = AITMod.id("cancel_demat_sound");
 
     static {
+        TardisEvents.SAVE.register((server, tardis, close) -> {
+            if (!close) return;
+
+            TravelHandlerBase.State state = tardis.travel().getState();
+
+            if (state == TravelHandlerBase.State.DEMAT) {
+                tardis.travel().finishDemat();
+            } else if (state == TravelHandlerBase.State.MAT) {
+                tardis.travel().finishRemat();
+            }
+        });
         TardisEvents.FINISH_FLIGHT.register(tardis -> { // ghost monument
             if (!AITMod.CONFIG.ghostMonument)
                 return TardisEvents.Interaction.PASS;
@@ -207,7 +216,8 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         if (this.tardis.crash().getState() == TardisCrashHandler.State.UNSTABLE)
             this.forceDestination(cached -> TravelUtil.jukePos(cached, 1, 10));
 
-        this.rematerialize();
+        if (this.getState() != State.LANDED)
+            this.rematerialize();
     }
 
     @Override
@@ -220,8 +230,14 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     public void postInit(InitContext context) {
         super.postInit(context);
 
-        if (this.isServer() && context.created())
+        if (!this.isServer()) return;
+
+        if (context.created())
             this.placeExterior(true);
+
+        // FIXME: exterior falling issues :(
+        if (this.vGroundSearch.get() == SafePosSearch.Kind.NONE)
+            this.vGroundSearch.set(SafePosSearch.Kind.MEDIAN);
     }
 
     public void deleteExterior() {
@@ -352,8 +368,8 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     }
 
     private void failRemat() {
-        // Play failure sound at the current position
-        this.position().getWorld().playSound(null, this.position().getPos(), AITSounds.FAIL_MAT, SoundCategory.BLOCKS,
+        // Play failure sound at the destination position where materialization was attempted
+        this.destination().getWorld().playSound(null, this.destination().getPos(), AITSounds.FAIL_MAT, SoundCategory.BLOCKS,
                 2f, 1f);
 
         // Play failure sound at the Tardis console position if the interior is not
@@ -431,8 +447,10 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     }
 
     public Optional<ActionQueue> rematerialize() {
-        if (TardisEvents.MAT.invoker().onMat(tardis.asServer()) == TardisEvents.Interaction.FAIL
-                || this.travelCooldown) {
+        if (this.getState() != State.FLIGHT || this.travelCooldown)
+            return Optional.empty();
+
+        if (TardisEvents.MAT.invoker().onMat(tardis.asServer()) == TardisEvents.Interaction.FAIL) {
             this.failRemat();
             return Optional.empty();
         }
@@ -441,9 +459,6 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     }
 
     public Optional<ActionQueue> forceRemat() {
-        if (this.getState() != State.FLIGHT)
-            return Optional.empty();
-
         if (this.tardis.sequence().hasActiveSequence())
             this.tardis.sequence().setActiveSequence(null, true);
 

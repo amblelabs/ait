@@ -58,6 +58,8 @@ public class NetworkUtil {
     }
 
     public static void sendToInterior(ServerTardis tardis, Identifier id, PacketByteBuf buf) {
+        if (!tardis.hasWorld()) return;
+
         for (ServerPlayerEntity player : tardis.world().getPlayers()) {
             send(player, id, buf);
         }
@@ -114,7 +116,7 @@ public class NetworkUtil {
     }
 
     public static Stream<ServerPlayerEntity> getSubscribedPlayers(ServerTardis tardis) {
-        Stream<ServerPlayerEntity> result = tardis.world().getPlayers().stream();
+        Stream<ServerPlayerEntity> result = tardis.hasWorld() ? tardis.world().getPlayers().stream() : Stream.empty();
         CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
 
         if (exteriorPos == null || exteriorPos.getWorld() == null)

@@ -1,5 +1,7 @@
 package dev.amble.ait.core.blockentities;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.blocks.DoorBlock;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -61,7 +63,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
         Tardis tardis = door.tardis().get();
 
-        if (tardis.areShieldsActive() || world.getServer().getTicks() % 20 != 0)
+        if (world.getServer().getTicks() % 5 != 0)
             return;
 
         CachedDirectedGlobalPos globalExteriorPos = tardis.travel().position();
@@ -75,12 +77,23 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
         if (exteriorWorld == null)
             return;
 
+        blockState = blockState.with(DoorBlock.LEVEL_4, exteriorWorld.getLightLevel(exteriorPos.up()));
+
+        // exit early for light updates
+        if (world.getServer().getTicks() % 20 != 0) {
+            world.setBlockState(pos, blockState, Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
+            return;
+        }
+
+        if (!tardis.door().isOpen() || tardis.areShieldsActive()) {
+            world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, false),
+                Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
+            return;
+        }
+
         if (blockState.get(Properties.WATERLOGGED) && world.getRandom().nextBoolean()) {
             serverWorld.getPlayers().forEach(player -> tardis.loyalty().subLevel(player, 2));
         }
-
-        if (!tardis.door().isOpen())
-            return;
 
         ChunkPos exteriorChunkPos = new ChunkPos(exteriorPos);
         Chunk exteriorChunk = exteriorWorld.getChunk(exteriorChunkPos.x, exteriorChunkPos.z, ChunkStatus.EMPTY, false);
@@ -93,6 +106,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
         if (!(exteriorState.getBlock() instanceof ExteriorBlock))
             return;
 
+        // TODO: performance sink. this should ideally be done in the exterior block code...
         boolean waterlogged = exteriorWorld.getBlockState(exteriorPos).get(Properties.WATERLOGGED);
 
         world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, waterlogged),
@@ -161,7 +175,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
         if (tardis.door().isClosed())
             return;
 
-        if (DependencyChecker.hasPortals() && tardis.getExterior().getVariant().hasPortals())
+        if (DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti && tardis.getExterior().getVariant().hasPortals())
             return;
 
         TravelHandler travel = tardis.travel();

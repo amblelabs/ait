@@ -18,7 +18,7 @@ import net.minecraft.util.math.Vec3d;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.AnimatedModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.client.renderers.VortexUtil;
+import dev.amble.ait.client.renderers.VortexRender;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
@@ -32,10 +32,6 @@ import dev.amble.ait.registry.impl.CategoryRegistry;
 public class TardisDoorBOTI extends BOTI {
     public static void renderInteriorDoorBoti(ClientTardis tardis, DoorBlockEntity door, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, AnimatedModel frame, ModelPart mask, int light, float tickDelta) {
         ExteriorVariantSchema parent = variant.parent();
-        if (!parent.hasPortals()) return;
-
-        if (!AITModClient.CONFIG.enableTardisBOTI)
-            return;
 
         if (MinecraftClient.getInstance().world == null
                 || MinecraftClient.getInstance().player == null) return;
@@ -73,7 +69,7 @@ public class TardisDoorBOTI extends BOTI {
         Vec3d vec = parent.door().adjustPortalPos(new Vec3d(0, -0.55f, 0), Direction.NORTH);
         stack.translate(vec.x, vec.y, vec.z);
         if (tardis.travel().getState() == TravelHandlerBase.State.LANDED) {
-            RenderLayer whichOne = AITModClient.CONFIG.shouldRenderBOTIInterior || AITModClient.CONFIG.greenScreenBOTI ?
+            RenderLayer whichOne = AITModClient.CONFIG.greenScreenBOTI ?
                     RenderLayer.getDebugFilledBox() : RenderLayer.getEndGateway();
             float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0, 1} : new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
             mask.render(stack, botiProvider.getBuffer(whichOne), 0xf000f0, OverlayTexture.DEFAULT_UV, colorsForGreenScreen[0], colorsForGreenScreen[1], colorsForGreenScreen[2], 1);
@@ -99,11 +95,9 @@ public class TardisDoorBOTI extends BOTI {
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
         stack.translate(0, 0, 500);
         stack.scale(1.5f, 1.5f, 1.5f);
-        VortexUtil util = stats.getVortexEffects().toUtil();
+        VortexRender util = stats.getVortexEffects().toRender();
         if (!tardis.travel().isLanded() /*&& !tardis.flight().isFlying()*/) {
-            util.renderVortex(stack);
-            util.renderVortexLayer(stack, 1.5f);
-            util.renderVortexLayer(stack, 2.5f);
+            util.render(stack);
             /*// TODO not a clue if this will work but oh well - Loqor
             stack.push();
             stack.scale(0.9f, 0.9f, 0.9f);
@@ -132,7 +126,7 @@ public class TardisDoorBOTI extends BOTI {
                 float t = 1;
                 float s = 1;
 
-                if ((stats.getName() != null && "partytardis".equals(stats.getName().toLowerCase()) || (!tardis.extra().getInsertedDisc().isEmpty()))) {
+                if ((stats.getName() != null && "partytardis".equalsIgnoreCase(stats.getName()) || (!tardis.extra().getInsertedDisc().isEmpty()))) {
                     final float[] rgb = ClientTardisUtil.getPartyColors();
 
                     u = rgb[0];

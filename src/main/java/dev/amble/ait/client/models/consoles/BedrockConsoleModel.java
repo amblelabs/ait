@@ -73,6 +73,6 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
 
         this.getPart().traverse().forEach(ModelPart::resetTransform);
 
-        anim.apply(this.getPart(), console.ANIM_STATE, console.getAge(), 1F);
+        anim.apply(this.getPart(), console.ANIM_STATE, console.getAge(), 1F, null);
     }
 }

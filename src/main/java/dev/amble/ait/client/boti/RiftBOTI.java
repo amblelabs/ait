@@ -14,7 +14,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.renderers.VortexUtil;
+import dev.amble.ait.client.renderers.VortexRender;
 
 public class RiftBOTI extends BOTI {
     public static void renderRiftBoti(MatrixStack stack, SinglePartEntityModel frame, int pack) {
@@ -61,10 +61,8 @@ public class RiftBOTI extends BOTI {
         //stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90));
         stack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) MinecraftClient.getInstance().player.age / 50 * 360f));
         stack.translate(0, -1, 500);
-        VortexUtil util = new VortexUtil("darkness");
-        util.renderVortex(stack);
-        util.renderVortexLayer(stack, 1.5f);
-        util.renderVortexLayer(stack, 2.5f);
+        VortexRender util = VortexRender.getCurrentInstance();
+        util.render(stack);
         portalProvider.draw();
         stack.pop();
 

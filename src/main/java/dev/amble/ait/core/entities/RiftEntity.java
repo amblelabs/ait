@@ -1,6 +1,6 @@
 package dev.amble.ait.core.entities;
 
-
+import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.lib.util.TeleportUtil;
 
 import net.minecraft.block.*;
@@ -10,6 +10,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.state.property.Properties;
@@ -19,10 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.World;
+import net.minecraft.world.*;
 import net.minecraft.world.chunk.Chunk;
 
 import dev.amble.ait.AITMod;
@@ -45,6 +43,12 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
             AITSounds.RIFT2_AMBIENT,
             AITSounds.RIFT3_AMBIENT
     };
+
+    @Override
+    public boolean canSpawn(WorldAccess world, SpawnReason spawnReason) {
+        return RiftEntity.canSpawn(AITEntityTypes.RIFT_ENTITY, (ServerWorldAccess) world, spawnReason, this.getBlockPos(),
+                this.getWorld().getRandom());
+    }
 
     private static final int[] RIFT_DURATIONS = {
             15 * 20,
@@ -81,6 +85,10 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
 
         }
         interactAmount += 1;
+
+        if (interactAmount == 1) {
+            TardisCriterions.FIRST_RIFT.trigger((ServerPlayerEntity) player);
+        }
 
         if (interactAmount >= 3) {
             boolean gotFragment = this.getWorld().getRandom().nextBoolean();

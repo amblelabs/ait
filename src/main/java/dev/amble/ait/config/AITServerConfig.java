@@ -54,6 +54,10 @@ public class AITServerConfig {
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @SerialEntry public boolean allowPortalsBoti = true;
+
+    @AutoGen(category = CATEGORY)
+    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @CustomDescription(value = "Allow the TNT (when ignited) to be able to enter through the TARDIS Doors.")
     @CustomImage(value = "textures/yacl3/server/disable-tnt.webp", width = 854, height = 480)
     @SerialEntry public boolean tntCanTeleportThroughDoors = true;

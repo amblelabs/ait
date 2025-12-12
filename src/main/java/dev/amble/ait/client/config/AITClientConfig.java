@@ -29,6 +29,11 @@ public class AITClientConfig {
     @SerialEntry public float interiorHumVolume = 0.5f;
 
     @AutoGen(category = CATEGORY)
+    @CustomFormat(ValueFormatters.PercentFormatter.class)
+    @FloatSlider(min = 0f, max = 1f, step = 0.01f)
+    @SerialEntry public float engineLoopVolume = 0.35f;
+
+    @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean customMenu = true;
 
@@ -46,11 +51,11 @@ public class AITClientConfig {
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
-    @SerialEntry public boolean shouldRenderBOTIInterior = false;
+    @SerialEntry public boolean greenScreenBOTI = false;
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
-    @SerialEntry public boolean greenScreenBOTI = false;
+    @SerialEntry public boolean allowPortalsBoti = true;
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)

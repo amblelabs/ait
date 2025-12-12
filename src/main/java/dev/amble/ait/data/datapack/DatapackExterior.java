@@ -28,6 +28,7 @@ import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class DatapackExterior extends ExteriorVariantSchema implements AnimatedDoor, TravelAnimationMap.Holder {
@@ -60,7 +61,7 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
                     Codec.BOOL.optionalFieldOf("has_transparent_doors", false).forGetter(DatapackExterior::hasTransparentDoors),
                     Identifier.CODEC.optionalFieldOf("model").forGetter(DatapackExterior::model),
                     Identifier.CODEC.optionalFieldOf("door").forGetter(DatapackExterior::getDoorId),
-                    PortalOffsets.CODEC.optionalFieldOf("portal_info", new PortalOffsets(1, 2)).forGetter(DatapackExterior::getPortalOffsets),
+                    PortalOffsets.CODEC.optionalFieldOf("portal_info").forGetter(DatapackExterior::portalOffsets),
                     BedrockAnimationReference.CODEC.optionalFieldOf("left_animation").forGetter(DatapackExterior::getLeftAnimation),
                     BedrockAnimationReference.CODEC.optionalFieldOf("right_animation").forGetter(DatapackExterior::getRightAnimation),
                     Vec3d.CODEC.optionalFieldOf("scale", new Vec3d(1, 1, 1)).forGetter(DatapackExterior::getScale),
@@ -72,7 +73,7 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     protected final TravelAnimationMap animations;
 
     public DatapackExterior(Identifier id, Identifier category, Identifier parent, Identifier texture,
-                            Identifier emission, Optional<Loyalty> loyalty, BiomeOverrides overrides, Vec3d seatTranslations, boolean hasTransparentDoors, Optional<Identifier> model, Optional<Identifier> door, PortalOffsets offsets, Optional<BedrockAnimationReference> leftAnimation, Optional<BedrockAnimationReference> rightAnimation, Vec3d scale, TravelAnimationMap animations) {
+                            Identifier emission, Optional<Loyalty> loyalty, BiomeOverrides overrides, Vec3d seatTranslations, boolean hasTransparentDoors, Optional<Identifier> model, Optional<Identifier> door, Optional<PortalOffsets> offsets, Optional<BedrockAnimationReference> leftAnimation, Optional<BedrockAnimationReference> rightAnimation, Vec3d scale, TravelAnimationMap animations) {
         super(category, id, loyalty);
         this.parent = parent;
         this.texture = texture;
@@ -83,7 +84,7 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
         this.overrides = overrides;
         this.model = model.orElse(null);
         this.doorId = door.orElse(null);
-        this.portalOffsets = offsets;
+        this.portalOffsets = offsets.orElse(null);
         this.leftAnimation = leftAnimation.orElse(null);
         this.rightAnimation = rightAnimation.orElse(null);
         this.scale = scale;
@@ -154,12 +155,12 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     }
 
     @Override
-    public Vec3d adjustPortalPos(Vec3d pos, byte direction) {
+    public @Nullable Vec3d getPortalPosition() {
         if (this.getPortalOffsets() != null) {
-            return this.getPortalOffsets().apply(pos, direction);
+            return this.getPortalOffsets().apply(Vec3d.ZERO, (byte) 0);
         }
 
-        return this.getParent().adjustPortalPos(pos, direction);
+        return this.getParent().getPortalPosition();
     }
 
     @Override
@@ -197,6 +198,10 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
      */
     public Optional<Identifier> model() {
         return Optional.ofNullable(this.model);
+    }
+
+    public Optional<PortalOffsets> portalOffsets() {
+        return Optional.ofNullable(this.portalOffsets);
     }
 
     public PortalOffsets getPortalOffsets() {

@@ -1,7 +1,7 @@
 
 package dev.amble.ait.core.loot;
 
-import java.util.Random;
+import java.util.function.Supplier;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
@@ -16,16 +16,18 @@ import net.minecraft.loot.function.LootFunctionType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.core.item.blueprint.BlueprintItem;
 import dev.amble.ait.core.item.blueprint.BlueprintRegistry;
 import dev.amble.ait.core.item.blueprint.BlueprintSchema;
 
 public class SetBlueprintLootFunction extends ConditionalLootFunction {
-    final BlueprintSchema blueprint;
-    public Random random = AITMod.RANDOM;
+    private final Supplier<BlueprintSchema> blueprint;
 
     SetBlueprintLootFunction(LootCondition[] conditions, BlueprintSchema blueprint) {
+        this(conditions, () -> blueprint);
+    }
+
+    SetBlueprintLootFunction(LootCondition[] conditions, Supplier<BlueprintSchema> blueprint) {
         super(conditions);
         this.blueprint = blueprint;
     }
@@ -37,7 +39,7 @@ public class SetBlueprintLootFunction extends ConditionalLootFunction {
 
     @Override
     public ItemStack process(ItemStack stack, LootContext context) {
-        BlueprintItem.setSchema(stack, this.blueprint);
+        BlueprintItem.setSchema(stack, this.blueprint.get());
         return stack;
     }
 
@@ -46,13 +48,18 @@ public class SetBlueprintLootFunction extends ConditionalLootFunction {
                 .builder((LootCondition[] conditions) -> new SetBlueprintLootFunction(conditions, blueprint));
     }
 
+    public static ConditionalLootFunction.Builder<?> random() {
+        return SetBlueprintLootFunction
+                .builder((LootCondition[] conditions) -> new SetBlueprintLootFunction(conditions, () -> BlueprintRegistry.getInstance().getRandom()));
+    }
+
     public static class Serializer extends ConditionalLootFunction.Serializer<SetBlueprintLootFunction> {
         @Override
         public void toJson(JsonObject jsonObject, SetBlueprintLootFunction setBlueprintLootFunction,
                 JsonSerializationContext jsonSerializationContext) {
             super.toJson(jsonObject, setBlueprintLootFunction, jsonSerializationContext);
             jsonObject.addProperty("id",
-                    setBlueprintLootFunction.blueprint.id().toString());
+                    setBlueprintLootFunction.blueprint.get().id().toString());
         }
 
         @Override

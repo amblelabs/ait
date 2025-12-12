@@ -17,7 +17,7 @@ import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
-import dev.amble.ait.client.renderers.VortexUtil;
+import dev.amble.ait.client.renderers.VortexRender;
 
 public record VortexReference(Identifier id, Identifier texture, String name) implements Identifiable, Nameable {
     public static final Codec<VortexReference> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -37,8 +37,8 @@ public record VortexReference(Identifier id, Identifier texture, String name) im
     }
 
     @Environment(EnvType.CLIENT)
-    public VortexUtil toUtil() {
-        return new VortexUtil(this.texture());
+    public VortexRender toRender() {
+        return VortexRender.getInstance(this);
     }
 
     public static VortexReference fromInputStream(InputStream stream) {

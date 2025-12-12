@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Either;
+import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.multidim.MultiDim;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -172,12 +173,13 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
     public void remove(MinecraftServer server, ServerTardis tardis) {
         Objects.requireNonNull(tardis);
 
+        tardis.door().closeDoors();
         tardis.setRemoved(true);
 
         CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
 
         if (exteriorPos != null) {
-            tardis.world().getPlayers().forEach(player
+            if (tardis.hasWorld()) tardis.world().getPlayers().forEach(player
                     -> TardisUtil.teleportOutside(tardis, player));
 
             World world = exteriorPos.getWorld();
@@ -203,17 +205,7 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
             if (tardis == null)
                 return;
 
-            if (close) {
-                // TODO move this into some method like #dispose
-                TravelHandlerBase.State state = tardis.travel().getState();
-
-                if (state == TravelHandlerBase.State.DEMAT) {
-                    tardis.travel().finishDemat();
-                } else if (state == TravelHandlerBase.State.MAT) {
-                    tardis.travel().finishRemat();
-                }
-            }
-
+            TardisEvents.SAVE.invoker().onSave(server, tardis, close);
             this.fileManager.saveTardis(server, this, tardis);
         });
 

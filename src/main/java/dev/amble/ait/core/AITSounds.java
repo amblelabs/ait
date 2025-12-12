@@ -44,6 +44,7 @@ public class AITSounds {
     public static final SoundEvent TARDIS_BLING = register("tardis/bling");
     public static final SoundEvent NAV_NOTIFICATION = register("tardis/nav_notification");
     public static final SoundEvent SHIELD_AMBIANCE = register("tardis/shield_ambiance");
+    public static final SoundEvent CRUMPLE = register("tardis/crumple");
 
 
     public static final SoundEvent SIEGE_ENABLE = register("tardis/siege_enable");

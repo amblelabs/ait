@@ -19,6 +19,9 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.DoorBlock;
@@ -111,6 +114,7 @@ public class AITModClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        resourcepackRegister();
         AITClientConfig.INSTANCE.load();
         CONFIG = AITClientConfig.INSTANCE.instance();
 
@@ -129,7 +133,6 @@ public class AITModClient implements ClientModInitializer {
         ModuleRegistry.instance().onClientInit();
 
         setupBlockRendering();
-        registerBuiltInItemRenderers();
         blockEntityRendererRegister();
         entityRenderRegister();
         chargedZeitonCrystalPredicate();
@@ -157,6 +160,7 @@ public class AITModClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register(new ExteriorAxeOverlay());
 
         ClientPreAttackCallback.EVENT.register((client, player, clickCount) -> (player.getMainHandStack().getItem() instanceof BaseGunItem));
+
         if (DependencyChecker.hasIris()) {
             WorldRenderEvents.END.register(this::exteriorBOTI);
             WorldRenderEvents.END.register(this::doorBOTI);
@@ -254,7 +258,7 @@ public class AITModClient implements ClientModInitializer {
 
         AstralMapBlock.registerSyncListener();
 
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn());
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn(client));
     }
     public static Screen screenFromId(int id) {
         return screenFromId(id, null, null);
@@ -398,18 +402,6 @@ public class AITModClient implements ClientModInitializer {
         BlockEntityRendererFactories.register(AITBlockEntityTypes.FOOD_MACHINE_BLOCK_ENTITY_TYPE,
                 FoodMachineRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ASTRAL_MAP, AstralMapRenderer::new);
-        BlockEntityRendererFactories.register(AITBlockEntityTypes.WOODEN_SEAT,
-                WoodenSeatRenderer::new);
-        BlockEntityRendererFactories.register(AITBlockEntityTypes.BRASS_STATUE,
-                BrassStatueRenderer::new);
-        BlockEntityRendererFactories.register(AITBlockEntityTypes.CORAL_SEAT,
-                CoralSeatRenderer::new);
-        BlockEntityRendererFactories.register(AITBlockEntityTypes.COPPER_SEAT,
-                CopperSeatRenderer::new);
-        BlockEntityRendererFactories.register(AITBlockEntityTypes.TOYOTA_SEAT,
-                ToyotaSeatRenderer::new);
-        BlockEntityRendererFactories.register(AITBlockEntityTypes.COPPER_RINGS,
-                CopperRingsRenderer::new);
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             BlockEntityRendererFactories.register(AITBlockEntityTypes.SNOW_GLOBE_BLOCK_ENTITY_TYPE,
                     SnowGlobeRenderer::new);
@@ -420,7 +412,6 @@ public class AITModClient implements ClientModInitializer {
         EntityRendererRegistry.register(AITEntityTypes.CONTROL_ENTITY_TYPE, ControlEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.FALLING_TARDIS_TYPE, FallingTardisRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.FLIGHT_TARDIS_TYPE, FlightTardisRenderer::new);
-        EntityRendererRegistry.register(AITEntityTypes.SEAT, SeatEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.GALLIFREY_FALLS_PAINTING_ENTITY_TYPE, GallifreyanPaintingEntityRenderer::new);
         EntityRendererRegistry.register(AITEntityTypes.TRENZALORE_PAINTING_ENTITY_TYPE, TrenzalorePaintingEntityRenderer::new);
 //        if (isUnlockedOnThisDay(Calendar.DECEMBER, 26)) {
@@ -442,12 +433,6 @@ public class AITModClient implements ClientModInitializer {
         map.putBlock(AITBlocks.SMALL_ZEITON_BUD, RenderLayer.getCutout());
         map.putBlock(AITBlocks.MACHINE_CASING, RenderLayer.getCutout());
         map.putBlock(AITBlocks.FABRICATOR, RenderLayer.getTranslucent());
-        map.putBlock(AITBlocks.JUKEBOX, RenderLayer.getCutout());
-        map.putBlock(AITBlocks.ACACIA_JUKEBOX, RenderLayer.getCutout());
-        map.putBlock(AITBlocks.PALE_OAK_JUKEBOX, RenderLayer.getCutout());
-        map.putBlock(AITBlocks.CHERRY_JUKEBOX, RenderLayer.getCutout());
-        map.putBlock(AITBlocks.BAMBOO_JUKEBOX, RenderLayer.getCutout());
-        map.putBlock(AITBlocks.WARPED_JUKEBOX, RenderLayer.getCutout());
         map.putBlock(AITBlocks.ENVIRONMENT_PROJECTOR, RenderLayer.getTranslucent());
         map.putBlock(AITBlocks.WAYPOINT_BANK, RenderLayer.getCutout());
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
@@ -485,7 +470,17 @@ public class AITModClient implements ClientModInitializer {
         ParticleFactoryRegistry.getInstance().register(CORAL_PARTICLE, EndRodParticle.Factory::new);
     }
 
+    private boolean skipBuiltInBOTI() {
+        return (DependencyChecker.hasPortals() && CONFIG.allowPortalsBoti) || !CONFIG.enableTardisBOTI;
+    }
+
+    private boolean skipPaintingBOTI() {
+        return DependencyChecker.hasPortals() || !CONFIG.enableTardisBOTI;
+    }
+
     public void exteriorBOTI(WorldRenderContext context) {
+        if (skipBuiltInBOTI()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
@@ -517,6 +512,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void doorBOTI(WorldRenderContext context) {
+        if (skipBuiltInBOTI()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
@@ -549,6 +546,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void gallifreyanBOTI(WorldRenderContext context) {
+        if (skipPaintingBOTI()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         SinglePartEntityModel contents = new GallifreyFallsModel(GallifreyFallsModel.getTexturedModelData().createModel());
         Identifier frameTex = GallifreyanPaintingEntityRenderer.GALLIFREY_FRAME_TEXTURE;
@@ -576,6 +575,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void trenzaloreBOTI(WorldRenderContext context) {
+        if (skipPaintingBOTI()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         SinglePartEntityModel contents = new TrenzalorePaintingModel(TrenzalorePaintingModel.getTexturedModelData().createModel());
         Identifier frameTex = TrenzalorePaintingEntityRenderer.TRENZALORE_FRAME_TEXTURE;
@@ -603,6 +604,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void riftBOTI(WorldRenderContext context) {
+        if (skipPaintingBOTI()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
@@ -623,13 +626,17 @@ public class AITModClient implements ClientModInitializer {
         }
         BOTI.RIFT_RENDERING_QUEUE.clear();
     }
+    public static void resourcepackRegister() {
 
-    public void registerBuiltInItemRenderers() {
-        BuiltinItemRendererRegistry.INSTANCE.register(AITBlocks.TOYOTA_SEAT.asItem(),
-                new ToyotaSeatBuiltInRenderer());
-        BuiltinItemRendererRegistry.INSTANCE.register(AITBlocks.CORAL_SEAT.asItem(),
-                new CoralSeatBuiltInRenderer());
-        BuiltinItemRendererRegistry.INSTANCE.register(AITBlocks.COPPER_RINGS.asItem(),
-                new CopperRingsBuiltInRenderer());
+        // Register builtin resourcepacks (thank you addie for your help)
+        FabricLoader.getInstance().
+
+                getModContainer("ait").
+
+                ifPresent(modContainer ->
+
+                {
+                    ResourceManagerHelper.registerBuiltinResourcePack(id("aitmenu"), modContainer, ResourcePackActivationType.DEFAULT_ENABLED);
+                });
     }
 }

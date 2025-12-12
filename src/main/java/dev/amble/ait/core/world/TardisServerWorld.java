@@ -1,10 +1,10 @@
 package dev.amble.ait.core.world;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.Executor;
-import java.util.function.BooleanSupplier;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.drtheo.multidim.MultiDim;
 import dev.drtheo.multidim.MultiDimMod;
@@ -12,8 +12,6 @@ import dev.drtheo.multidim.api.MultiDimServerWorld;
 import dev.drtheo.multidim.api.WorldBlueprint;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import org.jetbrains.annotations.Nullable;
-
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -30,10 +28,14 @@ import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.level.ServerWorldProperties;
 import net.minecraft.world.level.storage.LevelStorage;
 import net.minecraft.world.spawner.Spawner;
+import org.jetbrains.annotations.Nullable;
+import qouteall.q_misc_util.api.DimensionAPI;
+import qouteall.q_misc_util.dimension.DimensionIdManagement;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.tardis.ServerTardis;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.function.BooleanSupplier;
 
 public class TardisServerWorld extends MultiDimServerWorld {
 
@@ -93,12 +95,10 @@ public class TardisServerWorld extends MultiDimServerWorld {
         return created;
     }
 
-    public static TardisServerWorld load(ServerTardis tardis) {
-        long start = System.currentTimeMillis();
+    public static TardisServerWorld getOrLoad(ServerTardis tardis) {
         MinecraftServer server = ServerLifecycleHooks.get();
-        MultiDim multidim = MultiDim.get(server);
-
         RegistryKey<World> key = keyForTardis(tardis);
+
         TardisServerWorld result = (TardisServerWorld) server.getWorld(key);
 
         if (result != null) {
@@ -106,7 +106,14 @@ public class TardisServerWorld extends MultiDimServerWorld {
             return result;
         }
 
-        result = (TardisServerWorld) multidim.load(AITDimensions.TARDIS_WORLD_BLUEPRINT, key);
+        return load(server, tardis);
+    }
+
+    public static TardisServerWorld load(MinecraftServer server, ServerTardis tardis) {
+        MultiDim multidim = MultiDim.get(server);
+
+        RegistryKey<World> key = keyForTardis(tardis);
+        TardisServerWorld result = (TardisServerWorld) multidim.load(AITDimensions.TARDIS_WORLD_BLUEPRINT, key);
 
         if (result == null) {
             MultiDimMod.LOGGER.info("Failed to load the sub-world, creating a new one instead");
@@ -115,7 +122,6 @@ public class TardisServerWorld extends MultiDimServerWorld {
             result.setTardis(tardis);
         }
 
-        MultiDimMod.LOGGER.info("Time taken to load sub-world: {}", System.currentTimeMillis() - start);
         return result;
     }
 

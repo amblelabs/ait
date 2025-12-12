@@ -7,7 +7,7 @@ plugins {
 
 apply from: 'versioning.gradle'
 
-version = getCurrentVersion()
+version = getPublicVersion()
 group = project.maven_group
 
 base {
@@ -15,14 +15,6 @@ base {
 }
 
 repositories {
-    maven {
-        url "https://jitpack.io"
-
-        metadataSources {
-            artifact() // Look directly for artifact
-        }
-    }
-
     // Dependency for GravityAPI
     maven { url "https://maven.ladysnake.org/releases" }
     maven { url "https://maven.shedaniel.me/" }
@@ -39,8 +31,21 @@ repositories {
     // JEI
     maven { url "https://maven.blamejared.com/" }
 
-    // Scheduler, Queue, MultiDim, AutoJSON
-    maven { url "https://theo.is-a.dev/maven/" }
+    maven {
+		url "https://amblelabs.github.io/maven"
+
+		content {
+			includeGroup "dev.amble"
+		}
+	}
+
+    maven {
+		url "https://theo.is-a.dev/maven/"
+
+		content {
+			includeGroup "dev.drtheo"
+		}
+	}
 }
 
 loom {
@@ -85,23 +90,15 @@ dependencies {
     // MC libraries
     modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 
-    // TODO: move these 3 to modkit so we don't have to re-export so many dependencies
-    modApi("dev.drtheo:multidim:${project.multidim_version}") {
+    modCompileOnly("com.github.iPortalTeam.ImmersivePortalsMod:imm_ptl_core:${project.immersive_portals_version}") {
         exclude(group: "net.fabricmc.fabric-api")
-        transitive = true
     }
-    modApi("dev.drtheo:scheduler:${project.scheduler_version}") {
+    modCompileOnly("com.github.iPortalTeam.ImmersivePortalsMod:q_misc_util:${project.immersive_portals_version}") {
         exclude(group: "net.fabricmc.fabric-api")
-        transitive = true
-    }
-    modApi("dev.drtheo:queue:${project.queue_version}") {
-        exclude(group: "net.fabricmc.fabric-api")
-        transitive = true
     }
 
-    modApi("com.github.amblelabs:modkit:v${project.amblekit_version}") {
+    modApi("dev.amble:lib:${project.amblekit_version}") {
         exclude(group: "net.fabricmc.fabric-api")
-        transitive = true
     }
 
     // Compat
@@ -149,8 +146,14 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
+	withSourcesJar()
+	
+    sourceCompatibility = JavaVersion.VERSION_22
     targetCompatibility = JavaVersion.VERSION_17
+}
+
+sourcesJar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 jar {
@@ -160,7 +163,7 @@ jar {
     def archivesNameValue = project.base.archivesName
 
     from("LICENSE") {
-        rename { "${it}_${archivesNameValue}" }
+        rename { "${it}_${archivesNameValue.get()}" }
     }
 }
 
@@ -188,19 +191,19 @@ spotless {
     }
 }
 
-// configure the maven publication
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
-    }
+	publications {
+		create("mavenJava", MavenPublication) {
+			artifactId = project.archives_base_name
+			version = getArtifactVersion()
+			from components.java
+		}
+	}
 
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        // Add repositories to publish to here.
-        // Notice: This block does NOT have the same function as the block in the top level.
-        // The repositories here will be used for publishing your artifact, not for
-        // retrieving dependencies.
-    }
+	repositories {
+		maven {
+			name = "ci"
+			url = providers.environmentVariable("CI_MAVEN_PATH")
+		}
+	}
 }
