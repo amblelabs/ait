@@ -79,12 +79,12 @@ public class WaypointHandler extends KeyedTardisComponent {
     public Optional<Waypoint> set(Waypoint var, BlockPos console, boolean spawnItem) {
         Optional<Waypoint> prev = Optional.ofNullable(this.current);
 
-        if (spawnItem && this.current != null)
-            this.spawnItem(console, prev.get());
-
         // Insurance so discs don't get overwritten since they're only one-time use and one-time write (so technically it's
         // DVD-ROM but don't tell anyone that) - Loqor
-        if (!spawnItem && this.isDisc()) return prev;
+        if (this.isDisc()) return prev;
+
+        if (spawnItem && this.current != null)
+            this.spawnItem(console, prev.get());
 
         this.current = var;
         return prev;

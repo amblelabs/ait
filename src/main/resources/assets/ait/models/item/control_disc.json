@@ -1,6 +1,8 @@
 {
-  "parent": "item/generated",
-  "textures": {
-    "layer0": "ait:item/control_disc"
-  }
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "ait:item/control_disc"
+	}
 }
