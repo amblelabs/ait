@@ -1,10 +1,5 @@
 package dev.amble.ait.data.schema.console.type;
 
-import org.joml.Vector3f;
-
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.core.tardis.control.impl.*;
@@ -17,6 +12,9 @@ import dev.amble.ait.core.tardis.control.impl.waypoint.SaveWaypointControl;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
+import net.minecraft.entity.EntityDimensions;
+import net.minecraft.util.Identifier;
+import org.joml.Vector3f;
 
 public class AlnicoType extends ConsoleTypeSchema {
     public static final Identifier REFERENCE = AITMod.id("console/alnico");
@@ -91,7 +89,7 @@ public class AlnicoType extends ConsoleTypeSchema {
                     new Vector3f(-1.5359375067055225f, 0.11249975301325321f, -0.7250000014901161f)),};
 
     public AlnicoType() {
-        super(REFERENCE, "alnico");
+	    super(REFERENCE);
     }
 
     @Override

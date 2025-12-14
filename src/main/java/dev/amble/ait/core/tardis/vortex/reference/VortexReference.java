@@ -1,42 +1,34 @@
 package dev.amble.ait.core.tardis.vortex.reference;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.amble.lib.api.Identifiable;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.client.renderers.VortexRender;
+import dev.amble.lib.api.Identifiable;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.util.Identifier;
 
-public record VortexReference(Identifier id, Identifier texture, String name) implements Identifiable, Nameable {
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.concurrent.atomic.AtomicReference;
+
+public record VortexReference(Identifier id, Identifier texture) implements Identifiable, Nameable {
     public static final Codec<VortexReference> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Identifier.CODEC.fieldOf("id").forGetter(VortexReference::id),
-            Identifier.CODEC.fieldOf("texture").forGetter(VortexReference::texture),
-            Codec.STRING.optionalFieldOf("name", "").forGetter(VortexReference::name)
+		    Identifier.CODEC.fieldOf("texture").forGetter(VortexReference::texture)
     ).apply(instance, VortexReference::new));
 
-    public VortexReference {
-        if (name.isEmpty()) {
-            name = id.getPath();
-        }
-    }
+	@Override
+	public String prefix() {
+		return "vortex";
+	}
 
-    public VortexReference(Identifier id, Identifier texture) {
-        this(id, texture, id.getPath());
-    }
-
-    @Environment(EnvType.CLIENT)
+	@Environment(EnvType.CLIENT)
     public VortexRender toRender() {
         return VortexRender.getInstance(this);
     }

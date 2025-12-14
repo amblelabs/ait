@@ -1,29 +1,27 @@
 package dev.amble.ait.core.sounds.travel;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.amble.lib.api.Identifiable;
-
-import net.minecraft.registry.Registries;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.lib.api.Identifiable;
+import net.minecraft.registry.Registries;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.concurrent.atomic.AtomicReference;
 
 // @TODO better variable names
 @Deprecated(since = "1.3.0", forRemoval = true)
 public record TravelSound(TravelHandlerBase.State target, Identifier id, Identifier soundId, int timeLeft, int maxTime, int startTime, int length, float frequency,
-                          float intensity, String name) implements Identifiable, Nameable {
+                          float intensity) implements Identifiable, Nameable {
     public static final Codec<TravelSound> CODEC = RecordCodecBuilder.create(instance -> instance
             .group(
                     TravelHandlerBase.State.CODEC.fieldOf("target").forGetter(TravelSound::target),
@@ -34,21 +32,15 @@ public record TravelSound(TravelHandlerBase.State target, Identifier id, Identif
                     Codec.INT.fieldOf("startTime").forGetter(TravelSound::startTime),
                     Codec.INT.fieldOf("length").forGetter(TravelSound::length),
                     Codec.FLOAT.fieldOf("frequency").forGetter(TravelSound::frequency),
-                    Codec.FLOAT.fieldOf("intensity").forGetter(TravelSound::intensity),
-            Codec.STRING.optionalFieldOf("name", "").forGetter(TravelSound::name))
+		            Codec.FLOAT.fieldOf("intensity").forGetter(TravelSound::intensity))
             .apply(instance, TravelSound::new));
 
-    public TravelSound {
-        if (name.isEmpty()) {
-            name = id.getPath();
-        }
-    }
+	@Override
+	public String prefix() {
+		return "travel";
+	}
 
-    public TravelSound(TravelHandlerBase.State target, Identifier id, Identifier soundId, int timeLeft, int maxTime, int startTime, int length, float frequency, float intensity) {
-        this(target, id, soundId, timeLeft, maxTime, startTime, length, frequency, intensity, id.getPath());
-    }
-
-    @Override
+	@Override
     public Identifier id() {
         return this.id;
     }

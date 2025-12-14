@@ -1,12 +1,10 @@
 package dev.amble.ait.core.sounds.flight;
 
-import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-
-import net.minecraft.resource.ResourceType;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.resource.ResourceType;
 
 public class FlightSoundRegistry extends SimpleDatapackRegistry<FlightSound> {
     private static final FlightSoundRegistry instance = new FlightSoundRegistry();
@@ -31,7 +29,7 @@ public class FlightSoundRegistry extends SimpleDatapackRegistry<FlightSound> {
 
     @Override
     protected void defaults() {
-        DEFAULT = register(new FlightSound(AITMod.id("default"), AITSounds.FLIGHT_LOOP.getId(), 80, "default"));
+	    DEFAULT = register(new FlightSound(AITMod.id("default"), AITSounds.FLIGHT_LOOP.getId(), 80));
     }
 
     @Override

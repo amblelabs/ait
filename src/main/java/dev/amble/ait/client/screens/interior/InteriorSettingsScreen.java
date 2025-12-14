@@ -1,31 +1,6 @@
 package dev.amble.ait.client.screens.interior;
 
-import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.CHANGE_DESKTOP;
-
-import java.util.List;
-import java.util.function.Function;
-
 import com.google.common.collect.Lists;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.PressableTextWidget;
-import net.minecraft.client.gui.widget.TextWidget;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.api.tardis.TardisClientEvents;
@@ -41,6 +16,29 @@ import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.registry.impl.DesktopRegistry;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.widget.PressableTextWidget;
+import net.minecraft.client.gui.widget.TextWidget;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+
+import java.util.List;
+import java.util.function.Function;
+
+import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.CHANGE_DESKTOP;
 
 @Environment(EnvType.CLIENT)
 public class InteriorSettingsScreen extends ConsoleScreen {
@@ -54,7 +52,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     int bgHeight = 166;
     int bgWidth = 256;
     int left, top;
-    private int tickForSpin = 0;
+    private final int tickForSpin = 0;
     public int choicesCount = 0;
     private final Screen parent;
     private TardisDesktopSchema selectedDesktop;
@@ -69,7 +67,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private final int BIG_ARROW_BUTTON_HEIGHT = 20;
     private final int MAIN_SETTINGS_BUTTON_WIDTH = 20;
     private final int MAIN_SETTINGS_BUTTON_HEIGHT = 20;
-    private BlockPos console;
+    private final BlockPos console;
 
     public InteriorSettingsScreen(ClientTardis tardis, BlockPos console, Screen parent) {
         super(Text.translatable("screen." + AITMod.MOD_ID + ".interiorsettings.title"), tardis, console);
@@ -381,7 +379,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
 
         context.getMatrices().push();
         context.getMatrices().translate(0, 0, 15f);
-        context.drawCenteredTextWithShadow(this.textRenderer, this.selectedDesktop.name(),
+	    context.drawCenteredTextWithShadow(this.textRenderer, this.selectedDesktop.text(),
                 (int) (left + (bgWidth * 0.77f)), (int) (top + (bgHeight * 0.080f)), 0xffffff);
         context.getMatrices().pop();
 
@@ -400,12 +398,12 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private void renderCurrentMode(DrawContext context) {
         Nameable current = this.modeManager.get().get();
 
-        Text modeText = Text.literal(this.modeManager.get().name().toUpperCase());
-        context.drawText(this.textRenderer, modeText,
+	    Text modeText = this.modeManager.get().text();
+	    context.drawText(this.textRenderer, modeText.getString().toUpperCase(),
                 (width / 2 + 50) - this.textRenderer.getWidth(modeText) / 2,
                 height / 2 + 32, 0xffffff, true);
-        Text currentText = Text.literal(current .name().toUpperCase());
-        context.drawText(this.textRenderer, currentText, (int) (left + (bgWidth * 0.78f)) - this.textRenderer.getWidth(currentText) / 2,
+	    Text currentText = current.text();
+	    context.drawText(this.textRenderer, currentText.getString().toUpperCase(), (int) (left + (bgWidth * 0.78f)) - this.textRenderer.getWidth(currentText) / 2,
                 (int) (top + (bgHeight * 0.792f)), 0xffffff, true);
     }
 

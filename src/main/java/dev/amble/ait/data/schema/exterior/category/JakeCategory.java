@@ -1,15 +1,14 @@
 package dev.amble.ait.data.schema.exterior.category;
 
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
+import net.minecraft.util.Identifier;
 
 public class JakeCategory extends ExteriorCategorySchema {
     public static final Identifier REFERENCE = AITMod.id("exterior/jake");
 
     public JakeCategory() {
-        super(REFERENCE, "jake");
+	    super(REFERENCE);
     }
 
     @Override

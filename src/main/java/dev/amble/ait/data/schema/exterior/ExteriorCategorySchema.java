@@ -1,16 +1,14 @@
 package dev.amble.ait.data.schema.exterior;
 
-import java.lang.reflect.Type;
-
 import com.google.gson.*;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
-
 import dev.amble.ait.data.schema.BasicSchema;
 import dev.amble.ait.data.schema.exterior.category.CapsuleCategory;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
+
+import java.lang.reflect.Type;
 
 /**
  * @author duzo
@@ -18,7 +16,7 @@ import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 public abstract class ExteriorCategorySchema extends BasicSchema {
     private final Identifier id;
 
-    protected ExteriorCategorySchema(Identifier id, String name) {
+	protected ExteriorCategorySchema(Identifier id) {
         super("exterior");
         this.id = id;
     }
@@ -50,7 +48,7 @@ public abstract class ExteriorCategorySchema extends BasicSchema {
 
     @Override
     public String toString() {
-        return this.name();
+	    return this.toTranslationKey();
     }
 
     public static Object serializer() {

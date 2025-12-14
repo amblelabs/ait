@@ -1,26 +1,22 @@
 package dev.amble.ait.data.schema.console;
 
-import java.lang.reflect.Type;
-
 import com.google.gson.*;
-import dev.amble.lib.api.Identifiable;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
-
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.data.schema.exterior.category.CapsuleCategory;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
+import dev.amble.lib.api.Identifiable;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
+
+import java.lang.reflect.Type;
 
 public abstract class ConsoleTypeSchema implements Identifiable, Nameable {
     private final Identifier id;
-    private final String name;
 
-    protected ConsoleTypeSchema(Identifier id, String name) {
+	protected ConsoleTypeSchema(Identifier id) {
         this.id = id;
-        this.name = name;
     }
 
     @Override
@@ -36,14 +32,14 @@ public abstract class ConsoleTypeSchema implements Identifiable, Nameable {
         return this.id;
     }
 
-    @Override
-    public String name() {
-        return this.name;
-    }
+	@Override
+	public String prefix() {
+		return "console.type";
+	}
 
-    @Override
+	@Override
     public String toString() {
-        return this.name();
+		return this.toTranslationKey();
     }
 
     // @TODO protocol abstraction with numbered letters
