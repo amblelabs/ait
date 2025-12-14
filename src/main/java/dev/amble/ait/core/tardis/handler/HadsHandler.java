@@ -1,23 +1,25 @@
 package dev.amble.ait.core.tardis.handler;
 
-import java.util.List;
-
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.TntEntity;
-import net.minecraft.entity.mob.CreeperEntity;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.Box;
-import net.minecraft.world.World;
-
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisTickable;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
+import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
+import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.mob.Monster;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.TypeFilter;
+import net.minecraft.util.math.Box;
 
 public class HadsHandler extends KeyedTardisComponent implements TardisTickable {
+	private static final int CHECK_FREQUENCY = 20;
+	private static final float EXTERIOR_CHECK_RADIUS = 16F;
+	private static final int DANGER_PERSIST_TICKS = 200;
 
     private static final BoolProperty HADS_ENABLED = new BoolProperty("enabled", false);
     private static final BoolProperty IS_IN_ACTIVE_DANGER = new BoolProperty("is_in_active_danger", false);
@@ -33,10 +35,6 @@ public class HadsHandler extends KeyedTardisComponent implements TardisTickable 
         return enabled.get();
     }
 
-    public void setIsInDanger(boolean bool) {
-        inDanger.set(bool);
-    }
-
     public boolean isInDanger() {
         return inDanger.get();
     }
@@ -49,55 +47,66 @@ public class HadsHandler extends KeyedTardisComponent implements TardisTickable 
 
     @Override
     public void tick(MinecraftServer server) {
-        if (isActive())
-            tickingForDanger(tardis.travel().position().getWorld());
+	    //if (!isActive()) return;
+
+	    if (!tardis.subsystems().lifeSupport().isUsable()) {
+		    tardis.alarm().enable(Text.literal("HADS: LIFE SUPPORT FAILURE"));
+
+		    enabled.set(false);
+		    inDanger.set(false);
+		    return;
+	    }
+
+	    if (server.getTicks() % CHECK_FREQUENCY != 0) return; // Check every second
+
+	    // check if hostiles interior
+	    if (checkForDanger()) {
+		    if (!inDanger.get()) {
+			    panic();
+		    }
+	    } else {
+		    inDanger.set(false);
+	    }
     }
 
-    // @TODO Fix hads idk why its broken. duzo did something to the demat idk what
-    // happened lol
-    public void tickingForDanger(World world) {
-        List<Entity> listOfEntities = world.getOtherEntities(null,
-                new Box(tardis.travel().position().getPos()).expand(3f), EntityPredicates.EXCEPT_CREATIVE_OR_SPECTATOR);
+	private boolean checkForDanger() {
+		boolean interiorDanger = !tardis().asServer().world().getEntitiesByType(TypeFilter.instanceOf(MobEntity.class), e -> e instanceof Monster).isEmpty();
 
-        for (Entity entity : listOfEntities) {
-            if (entity instanceof CreeperEntity creeperEntity) {
-                if (creeperEntity.getFuseSpeed() > 0) {
-                    setIsInDanger(true);
-                    break;
-                }
-            } else if (entity instanceof TntEntity) {
-                setIsInDanger(true);
-                break;
-            }
-            setIsInDanger(false);
-        }
+		if (interiorDanger) return true;
+		if (!tardis().travel().isLanded()) return false;
 
-        dematerialiseWhenInDanger();
-    }
+		ServerWorld exteriorWorld = tardis().travel().position().getWorld();
+		Box checkBox = new Box(tardis().travel().position().getPos()).expand(EXTERIOR_CHECK_RADIUS);
 
-    public void dematerialiseWhenInDanger() {
-        TravelHandler travel = tardis.travel();
-        TravelHandlerBase.State state = travel.getState();
+		return !exteriorWorld.getEntitiesByType(TypeFilter.instanceOf(MobEntity.class), checkBox, e -> e instanceof Monster).isEmpty();
+	}
 
-        ServerAlarmHandler alarm = tardis.alarm();
+	private void panic() {
+		inDanger.set(true);
 
-        if (this.isInDanger()) {
-            if (state == TravelHandlerBase.State.LANDED)
-                travel.dematerialize();
+		tardis().travel().destination(tardis().stats().getHome());
+		tardis().travel().dematerialize().ifPresentOrElse(dematQueue -> {
+			tardis.alarm().enable(Text.literal("HADS: DEMATERIALIZING DUE TO HOSTILE PRESENCE"));
 
-            alarm.enable();
-            return;
-        }
+			tardis().travel().setFlightTicks(tardis().travel().getTargetTicks());
 
-        // FIXME this is dumb.
-        if (state == TravelHandlerBase.State.FLIGHT)
-            travel.rematerialize();
+			var landQueue = tardis().travel().queueFor(TravelHandlerBase.State.LANDED);
 
-        if (state == TravelHandlerBase.State.MAT)
-            alarm.disable();
-    }
+			landQueue.thenRun(() -> {
+				Scheduler.get().runTaskLater(() -> {
+					if (checkForDanger()) return;
 
-    public BoolValue enabled() {
-        return enabled;
-    }
+					// return back to where we were
+					inDanger.set(false);
+					tardis().travel().destination(tardis().travel().previousPosition());
+					tardis().travel().dematerialize().ifPresent(_q -> {
+						tardis().travel().setFlightTicks(tardis().travel().getTargetTicks());
+					});
+					tardis().alarm().disable();
+				}, TaskStage.END_SERVER_TICK, TimeUnit.TICKS, DANGER_PERSIST_TICKS);
+			});
+		}, () -> {
+			tardis.alarm().enable(Text.literal("HADS FAILURE"));
+		});
+	}
 }
