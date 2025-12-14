@@ -10,6 +10,7 @@ import java.util.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.register.unlockable.Unlockable;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import org.joml.Vector3f;
@@ -63,6 +64,7 @@ public class StatsHandler extends KeyedTardisComponent {
     private static final DoubleProperty TARDIS_X_SCALE = new DoubleProperty("tardis_x_scale", 1);
     private static final DoubleProperty TARDIS_Y_SCALE = new DoubleProperty("tardis_y_scale", 1);
     private static final DoubleProperty TARDIS_Z_SCALE = new DoubleProperty("tardis_z_scale", 1);
+    private static final Property<CachedDirectedGlobalPos> HOME = new Property<>(Property.CDIRECTED_GLOBAL_POS, "home", (CachedDirectedGlobalPos) null);
 
     private final Value<String> tardisName = NAME.create(this);
     private final Value<String> playerCreatorName = PLAYER_CREATOR_NAME.create(this);
@@ -79,6 +81,7 @@ public class StatsHandler extends KeyedTardisComponent {
     private final DoubleValue tardisXScale = TARDIS_X_SCALE.create(this);
     private final DoubleValue tardisYScale = TARDIS_Y_SCALE.create(this);
     private final DoubleValue tardisZScale = TARDIS_Z_SCALE.create(this);
+    private final Value<CachedDirectedGlobalPos> home = HOME.create(this);
 
     @Exclude
     private Lazy<FlightSound> flightFxCache;
@@ -96,6 +99,7 @@ public class StatsHandler extends KeyedTardisComponent {
         this.setXScale(1.0f);
         this.setYScale(1.0f);
         this.setZScale(1.0f);
+        this.setHome(this.tardis().travel().position());
     }
 
     @Override
@@ -115,6 +119,9 @@ public class StatsHandler extends KeyedTardisComponent {
         tardisXScale.of(this, TARDIS_X_SCALE);
         tardisYScale.of(this, TARDIS_Y_SCALE);
         tardisZScale.of(this, TARDIS_Z_SCALE);
+        home.of(this, HOME);
+        if (home.get() == null)
+            this.setHome(this.tardis().travel().position());
         vortexId.addListener((id) -> {
             if (this.vortexFxCache != null)
                 this.vortexFxCache.invalidate();
@@ -174,6 +181,18 @@ public class StatsHandler extends KeyedTardisComponent {
     }
     public BoolValue receiveCalls() {
         return this.receiveCalls;
+    }
+
+    public CachedDirectedGlobalPos getHome() {
+        return this.home.get();
+    }
+
+    public void setHome(CachedDirectedGlobalPos cached) {
+        if (cached == null)
+            return;
+
+        cached.init(ServerLifecycleHooks.get());
+        this.home.set(cached);
     }
 
     public String getPlayerCreatorName() {
