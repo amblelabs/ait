@@ -774,6 +774,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tooltip.ait.remoteitem.holdformoreinfo", "Hold shift for more info");
 
         provider.addTranslation("ait.control_disc.set_position", "Write to DVD-ROM");
+        provider.addTranslation("ait.control_disc.can_contain_players.toggle", "Can Contain Players: %s");
+        provider.addTranslation("ait.control_disc.unusable_in_tardis_world", "Failed to write DVD-ROM contents: invalid dimension!");
 
         // Control entities
         provider.addTranslation("control.ait.antigravs", "Antigravs");

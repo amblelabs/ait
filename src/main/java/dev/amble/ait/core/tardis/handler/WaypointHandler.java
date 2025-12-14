@@ -22,6 +22,8 @@ public class WaypointHandler extends KeyedTardisComponent {
     private final BoolValue hasCartridge = HAS_CARTRIDGE.create(this);
     public static final BoolProperty IS_DISC = new BoolProperty("is_disc", false);
     private final BoolValue iSDisc = IS_DISC.create(this);
+    public static final BoolProperty CAN_CONTAIN_PLAYERS = new BoolProperty("can_contain_players", true);
+    public final BoolValue leaveBehindOnLoad = CAN_CONTAIN_PLAYERS.create(this);
 
     private Waypoint current; // The current waypoint in the slot ( tried to make it optional, but that
     // caused a
@@ -32,6 +34,7 @@ public class WaypointHandler extends KeyedTardisComponent {
         TardisEvents.LANDED.register((tardis) -> {
             if (tardis.waypoint().isDisc()) {
                 tardis.waypoint().clear(null, false);
+                tardis.waypoint().clearCanContainPlayers();
             }
         });
     }
@@ -44,7 +47,7 @@ public class WaypointHandler extends KeyedTardisComponent {
     public void onLoaded() {
         hasCartridge.of(this, HAS_CARTRIDGE);
         iSDisc.of(this, IS_DISC);
-
+        leaveBehindOnLoad.of(this, CAN_CONTAIN_PLAYERS);
     }
 
     public boolean hasCartridge() {
@@ -69,6 +72,18 @@ public class WaypointHandler extends KeyedTardisComponent {
 
     private void clearIsDisc() {
         iSDisc.set(false);
+    }
+
+    public boolean canContainPlayers() {
+        return leaveBehindOnLoad.get();
+    }
+
+    public void setCanContainPlayers(boolean bool) {
+        leaveBehindOnLoad.set(bool);
+    }
+
+    private void clearCanContainPlayers() {
+        leaveBehindOnLoad.set(true);
     }
 
     /**
@@ -139,7 +154,7 @@ public class WaypointHandler extends KeyedTardisComponent {
             return;
 
         ItemEntity entity = new ItemEntity(tardis.asServer().world(), console.getX(), console.getY(),
-                console.getZ(), this.isDisc() ? createDiscItem(waypoint) : createWaypointItem(waypoint));
+                console.getZ(), isDisc() ? createDiscItem(waypoint) : createWaypointItem(waypoint));
 
         tardis.asServer().world().spawnEntity(entity);
     }
