@@ -50,3 +50,4 @@
 - fix: Fixed DevTeam list to better represent the current team. | by [@lakehascake](https://github.com/lakehascake) ([#1947](https://github.com/amblelabs/ait/pull/1947))
 - api: tardis save event | by [@drtheodor](https://github.com/drtheodor) ([#1939](https://github.com/amblelabs/ait/pull/1939))
 - Add: TARDIS remembers a "home" pos, either its grown spot or the current location for existing ones. Can be reset to the current location using a coral fragment on the telepathic circuits (requires PILOT loyalty level, or OWNER for the Nether). | by [@Peter1169](https://github.com/Peter1169) ([#1942](https://github.com/amblelabs/ait/pull/1942))
+- add: coral wall, fence, leaves | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#1956](https://github.com/amblelabs/ait/pull/1956))
