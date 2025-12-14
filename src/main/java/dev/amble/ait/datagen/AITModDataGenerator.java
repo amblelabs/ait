@@ -1148,6 +1148,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.telepathic.success", "Destination Found");
         provider.addTranslation("tardis.message.control.telepathic.failed", "Destination Not Found");
         provider.addTranslation("tardis.message.control.telepathic.choosing", "The TARDIS is choosing...");
+        provider.addTranslation("tardis.message.control.telepathic.home_updated", "TARDIS home location changed.");
+        provider.addTranslation("tardis.message.control.telepathic.home_denied", "The TARDIS refuses to change its home for you. Loyalty level PILOT required.");
+        provider.addTranslation("tardis.message.control.telepathic.home_denied_nether", "The TARDIS rejects Nether as home. Loyalty level OWNER required.");
         provider.addTranslation("tardis.message.control.engine_overdrive.primed", "Dump Artron? Press again to confirm.");
         provider.addTranslation("tardis.message.control.engine_overdrive.insufficient_fuel", "ERROR, TARDIS REQUIRES AT LEAST 25K ARTRON TO EXECUTE THIS ACTION.");
         provider.addTranslation("tardis.message.control.engine_overdrive.dumping_artron", "DUMPING ARTRON");
@@ -1520,6 +1523,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("command.ait.list.tardises", "TARDISes");
         provider.addTranslation("command.ait.list.pattern.error", "Bad pattern '%s'!");
         provider.addTranslation("command.ait.this.not_found", "Not in TARDIS interior, or no linked item.");
+        provider.addTranslation("command.ait.home.dimension_locked", "Cannot set home in a dimension locked for this TARDIS.");
 
         // Rift Chunk Tracking
         provider.addTranslation("riftchunk.ait.tracking", "Rift Tracking");
@@ -1683,6 +1687,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         provider.addTranslation("tooltip.ait.key.notardis", "La clé ne s’identifie avec aucun TARDIS");
         //
+        provider.addTranslation("tardis.message.control.telepathic.home_updated", "Emplacement de base de la TARDIS modifié.");
+        provider.addTranslation("tardis.message.control.telepathic.home_denied", "La TARDIS refuse de changer sa base pour vous. Niveau de loyauté PILOT requis.");
+        provider.addTranslation("tardis.message.control.telepathic.home_denied_nether", "La TARDIS rejette le Nether comme base. Niveau de loyauté OWNER requis.");
         provider.addTranslation("tardis.message.control.hads.alarm_enabled", "Alarms: Enabled");
         provider.addTranslation("tardis.message.control.hads.alarms_disabled", "Alarms: Disabled");
         provider.addTranslation("screen.ait.monitor.desktop_settings", "Desktop Settings");
@@ -1700,6 +1707,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.interiorchange.warning",
                 "Interior reconfiguration started! Please leave the interior.");
         provider.addTranslation("command.ait.realworld.responses", "Spawned a real world TARDIS at: ");
+        provider.addTranslation("command.ait.home.dimension_locked",
+                "Impossible de définir la base dans une dimension verrouillée pour cette TARDIS.");
 
         return provider;
     }
@@ -1757,6 +1766,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                 "Fast Return: LAST POSITION SET");
         provider.addTranslation("tardis.message.control.fast_return.current_position",
                 "Fast Return: CURRENT POSITION SET");
+        provider.addTranslation("tardis.message.control.telepathic.home_updated", "Ubicación del hogar de la TARDIS cambiada.");
+        provider.addTranslation("tardis.message.control.telepathic.home_denied", "La TARDIS se niega a cambiar su hogar por ti. Se requiere nivel de lealtad PILOT.");
+        provider.addTranslation("tardis.message.control.telepathic.home_denied_nether", "La TARDIS rechaza el Inframundo como hogar. Se requiere nivel de lealtad OWNER.");
         provider.addTranslation("tardis.message.control.protocol_813.active", "Protocol 813: ACTIVE");
         provider.addTranslation("tardis.message.control.protocol_813.inactive", "Protocol 813: INACTIVE");
         provider.addTranslation("tardis.message.control.handbrake.on", "handbrake: ON");
@@ -1799,6 +1811,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.interiorchange.warning",
                 "Interior reconfiguration started! Please leave the interior.");
         provider.addTranslation("command.ait.realworld.responses", "Spawned a real world TARDIS at: ");
+        provider.addTranslation("command.ait.home.dimension_locked",
+                "No se puede establecer el hogar en una dimensión bloqueada para esta TARDIS.");
 
         return provider;
     }
@@ -1855,6 +1869,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                 "Rückreise: LETZTE POSITION GESETZT");
         provider.addTranslation("tardis.message.control.fast_return.current_position",
                 "Rückreise: JETZIGE POSITION GESETZT");
+        provider.addTranslation("tardis.message.control.telepathic.home_updated", "Heimatposition der TARDIS wurde geändert.");
+        provider.addTranslation("tardis.message.control.telepathic.home_denied", "Die TARDIS weigert sich, ihr Zuhause für dich zu ändern. Loyalitätsstufe PILOT erforderlich.");
+        provider.addTranslation("tardis.message.control.telepathic.home_denied_nether", "Die TARDIS lehnt den Nether als Zuhause ab. Loyalitätsstufe OWNER erforderlich.");
         provider.addTranslation("tardis.message.control.protocol_813.active", "Protokoll 813: AKTIV");
         provider.addTranslation("tardis.message.control.protocol_813.inactive", "Protocol 813: INACTIVE");
         provider.addTranslation("tardis.message.control.handbrake.on", "Handbremse: AN");
@@ -1898,6 +1915,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.interiorchange.warning",
                 "Interior reconfiguration started! Please leave the interior.");
         provider.addTranslation("command.ait.realworld.responses", "Spawned a real world TARDIS at:");
+        provider.addTranslation("command.ait.home.dimension_locked",
+                "Heimatposition kann nicht in einer für diese TARDIS gesperrten Dimension festgelegt werden.");
 
         return provider;
     }
@@ -1905,6 +1924,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
     public AmbleLanguageProvider addPortugueseTranslations(FabricDataOutput output,
                                                          CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture, LanguageType languageType) {
         AmbleLanguageProvider provider = new AmbleLanguageProvider(output, languageType);
+        provider.addTranslation("tardis.message.control.telepathic.home_updated", "Local de origem da TARDIS alterado.");
+        provider.addTranslation("tardis.message.control.telepathic.home_denied", "A TARDIS recusa-se a mudar sua casa para você. Nível de lealdade PILOT necessário.");
+        provider.addTranslation("tardis.message.control.telepathic.home_denied_nether", "A TARDIS rejeita o Nether como casa. Nível de lealdade OWNER necessário.");
+        provider.addTranslation("command.ait.home.dimension_locked", "Não é possível definir a casa em uma dimensão bloqueada para esta TARDIS.");
         return provider;
     }
 
