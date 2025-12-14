@@ -8,18 +8,28 @@ import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.TntEntity;
+import net.minecraft.entity.boss.WitherEntity;
+import net.minecraft.entity.boss.dragon.EnderDragonEntity;
+import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.Monster;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.Box;
 
+import java.util.List;
+
 public class HadsHandler extends KeyedTardisComponent implements TardisTickable {
 	private static final int CHECK_FREQUENCY = 20;
 	private static final float EXTERIOR_CHECK_RADIUS = 16F;
 	private static final int DANGER_PERSIST_TICKS = 200;
+    private static final int MONSTER_THRESHOLD = 5;
 
     private static final BoolProperty HADS_ENABLED = new BoolProperty("enabled", false);
     private static final BoolProperty IS_IN_ACTIVE_DANGER = new BoolProperty("is_in_active_danger", false);
@@ -50,6 +60,7 @@ public class HadsHandler extends KeyedTardisComponent implements TardisTickable 
 	    //if (!isActive()) return;
 
 	    if (!tardis.subsystems().lifeSupport().isUsable()) {
+            // TODO SHOULD BE TRANSLATABLE!!! - Loqor
 		    tardis.alarm().enable(Text.literal("HADS: LIFE SUPPORT FAILURE"));
 
 		    enabled.set(false);
@@ -70,23 +81,33 @@ public class HadsHandler extends KeyedTardisComponent implements TardisTickable 
     }
 
 	private boolean checkForDanger() {
-		boolean interiorDanger = !tardis().asServer().world().getEntitiesByType(TypeFilter.instanceOf(MobEntity.class), e -> e instanceof Monster).isEmpty();
+		// Idk how to make sense of this (why would the tardis HADS its way to its original position
+        // and back again if the entity is already WITHIN the TARDIS?
+        // Wouldn't taking it home be more dangerous than just dematting BEFORE the entity can get in? Use some sense smh - Loqor
+        /*boolean interiorDanger = !tardis().asServer().world().getEntitiesByType(TypeFilter.instanceOf(MobEntity.class), e -> e instanceof Monster).isEmpty();
 
-		if (interiorDanger) return true;
+		if (interiorDanger) return true;*/
 		if (!tardis().travel().isLanded()) return false;
 
 		ServerWorld exteriorWorld = tardis().travel().position().getWorld();
 		Box checkBox = new Box(tardis().travel().position().getPos()).expand(EXTERIOR_CHECK_RADIUS);
 
-		return !exteriorWorld.getEntitiesByType(TypeFilter.instanceOf(MobEntity.class), checkBox, e -> e instanceof Monster).isEmpty();
-	}
+        List<Entity> hostileEntities = exteriorWorld.getEntitiesByType(TypeFilter.instanceOf(Entity.class), checkBox,
+                e -> e instanceof Monster || e instanceof TntEntity);
+
+        return hostileEntities.size() > MONSTER_THRESHOLD || hostileEntities.stream().anyMatch(e -> (e instanceof CreeperEntity c &&
+                c.getFuseSpeed() > 0) ||
+                e instanceof TntEntity ||
+                e instanceof WitherEntity);
+    }
 
 	private void panic() {
 		inDanger.set(true);
 
 		tardis().travel().destination(tardis().stats().getHome());
 		tardis().travel().dematerialize().ifPresentOrElse(dematQueue -> {
-			tardis.alarm().enable(Text.literal("HADS: DEMATERIALIZING DUE TO HOSTILE PRESENCE"));
+            // TODO Should use translatable - Loqor
+			tardis.alarm().enable(Text.literal("HADS: DEMATERIALISING DUE TO HOSTILE PRESENCE"));
 
 			tardis().travel().setFlightTicks(tardis().travel().getTargetTicks());
 
