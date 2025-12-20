@@ -52,3 +52,4 @@
 - Add: TARDIS remembers a "home" pos, either its grown spot or the current location for existing ones. Can be reset to the current location using a coral fragment on the telepathic circuits (requires PILOT loyalty level, or OWNER for the Nether). | by [@Peter1169](https://github.com/Peter1169) ([#1942](https://github.com/amblelabs/ait/pull/1942))
 - add: coral wall, fence, leaves | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#1956](https://github.com/amblelabs/ait/pull/1956))
 - fix: coral leaves no texture | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#1959](https://github.com/amblelabs/ait/pull/1959))
+- fix: Self-Destruct message wording slightly adjusted | by [@Mansarde](https://github.com/Mansarde) ([#1960](https://github.com/amblelabs/ait/pull/1960))
