@@ -53,3 +53,5 @@
 - add: coral wall, fence, leaves | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#1956](https://github.com/amblelabs/ait/pull/1956))
 - fix: coral leaves no texture | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#1959](https://github.com/amblelabs/ait/pull/1959))
 - fix: Self-Destruct message wording slightly adjusted | by [@Mansarde](https://github.com/Mansarde) ([#1960](https://github.com/amblelabs/ait/pull/1960))
+- add: Shalka hudolin console variant | by [@Addi3](https://github.com/Addi3) ([#1963](https://github.com/amblelabs/ait/pull/1963))
+- fix: tall and short hudolin variants having no translations | by [@Addi3](https://github.com/Addi3) ([#1963](https://github.com/amblelabs/ait/pull/1963))
