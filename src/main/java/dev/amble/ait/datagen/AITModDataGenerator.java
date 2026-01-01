@@ -1038,6 +1038,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("console.ait.toyota_legacy", "Legacy Toyota");
         provider.addTranslation("console.ait.renaissance", "Renaissance");
         provider.addTranslation("console.ait.coral_white", "White Coral");
+        provider.addTranslation("console.ait.hudolin_shalka", "Shalka");
+        provider.addTranslation("console.ait.hudolin_short", "Hudolin Short");
+        provider.addTranslation("console.ait.hudolin_tall", "Human Nature Tall");
 
         // Blocks
         provider.addTranslation(AITBlocks.LANDING_PAD, "Landing Marker");
