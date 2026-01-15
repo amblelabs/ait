@@ -55,3 +55,4 @@
 - fix: Self-Destruct message wording slightly adjusted | by [@Mansarde](https://github.com/Mansarde) ([#1960](https://github.com/amblelabs/ait/pull/1960))
 - add: Shalka hudolin console variant | by [@Addi3](https://github.com/Addi3) ([#1963](https://github.com/amblelabs/ait/pull/1963))
 - fix: tall and short hudolin variants having no translations | by [@Addi3](https://github.com/Addi3) ([#1963](https://github.com/amblelabs/ait/pull/1963))
+- fix: `/ait scale` command works now. | by [@Mansarde](https://github.com/Mansarde) ([#1964](https://github.com/amblelabs/ait/pull/1964))
