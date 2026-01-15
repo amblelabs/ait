@@ -1,11 +1,15 @@
 package dev.amble.ait.client.screens;
 
-import java.util.List;
-import java.util.UUID;
-
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.data.schema.sonic.SonicSchema;
+import dev.amble.ait.registry.impl.SonicRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -22,14 +26,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.link.LinkableItem;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientTardisUtil;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.data.schema.sonic.SonicSchema;
-import dev.amble.ait.registry.impl.SonicRegistry;
+import java.util.List;
+import java.util.UUID;
 
 public class SonicSettingsScreen extends ConsoleScreen {
     private static final Identifier BACKGROUND = new Identifier(AITMod.MOD_ID,
@@ -185,7 +183,7 @@ public class SonicSettingsScreen extends ConsoleScreen {
             stack.translate(10, 0, 500f);
             context.drawCenteredTextWithShadow(this.textRenderer, Text.translatable("screen.ait.sonic_casing"), x + 140, y + 10,
                     0xFFFFFF);
-            context.drawCenteredTextWithShadow(this.textRenderer, SonicItem.schema(sonicCopy).name(), x + 140,
+	        context.drawCenteredTextWithShadow(this.textRenderer, SonicItem.schema(sonicCopy).nameText(), x + 140,
                     y + 20, 0x00FFFF);
             context.drawCenteredTextWithShadow(this.textRenderer, Text.translatable("screen.ait.current_au"), x + 140, y + 40, 0xFFFFFF);
             context.drawCenteredTextWithShadow(this.textRenderer, nbt.getDouble(SonicItem.FUEL_KEY) + " AU", x + 140,

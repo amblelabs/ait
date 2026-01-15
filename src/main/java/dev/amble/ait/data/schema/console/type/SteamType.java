@@ -1,10 +1,5 @@
 package dev.amble.ait.data.schema.console.type;
 
-import org.joml.Vector3f;
-
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.core.tardis.control.impl.*;
@@ -17,6 +12,9 @@ import dev.amble.ait.core.tardis.control.impl.waypoint.SaveWaypointControl;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
+import net.minecraft.entity.EntityDimensions;
+import net.minecraft.util.Identifier;
+import org.joml.Vector3f;
 
 public class SteamType extends ConsoleTypeSchema {
     public static final Identifier REFERENCE = AITMod.id("console/steam");
@@ -87,7 +85,7 @@ public class SteamType extends ConsoleTypeSchema {
                     new Vector3f(0.7640625275671482f, 0.4374997578561306f, -0.09999999217689037f)),};
 
     public SteamType() {
-        super(REFERENCE, "steam");
+	    super(REFERENCE);
     }
 
     @Override

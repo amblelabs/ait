@@ -1,9 +1,5 @@
 package dev.amble.ait.client.screens.widget;
 
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.sounds.ClientSoundManager;
@@ -19,6 +15,10 @@ import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
 import dev.amble.ait.data.hum.Hum;
 import dev.amble.ait.registry.impl.HumRegistry;
+
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public class SwitcherManager<T extends Nameable, U> implements Nameable {
 
@@ -53,7 +53,7 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
     }
 
     @Override
-    public String name() {
+    public String toTranslationKey() {
         return id;
     }
 

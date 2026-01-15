@@ -1,10 +1,5 @@
 package dev.amble.ait.data.schema.console.type;
 
-import org.joml.Vector3f;
-
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.core.tardis.control.impl.*;
@@ -17,6 +12,9 @@ import dev.amble.ait.core.tardis.control.impl.waypoint.SaveWaypointControl;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
+import net.minecraft.entity.EntityDimensions;
+import net.minecraft.util.Identifier;
+import org.joml.Vector3f;
 
 public class CoralType extends ConsoleTypeSchema {
     public static final Identifier REFERENCE = AITMod.id("console/coral");
@@ -89,7 +87,7 @@ public class CoralType extends ConsoleTypeSchema {
                     new Vector3f(1.2765621216967702f, -0.05000000726431608f, -0.5242195194587111f)),};
 
     public CoralType() {
-        super(REFERENCE, "coral");
+	    super(REFERENCE);
     }
 
     @Override

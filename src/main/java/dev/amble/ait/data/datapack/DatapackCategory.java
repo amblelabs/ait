@@ -1,28 +1,25 @@
 package dev.amble.ait.data.datapack;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
+import net.minecraft.util.Identifier;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class DatapackCategory extends ExteriorCategorySchema {
     public static final Codec<ExteriorCategorySchema> CODEC = RecordCodecBuilder.create(instance -> instance
-            .group(Identifier.CODEC.fieldOf("id").forGetter(ExteriorCategorySchema::id),
-                    Codec.STRING.fieldOf("name").forGetter(ExteriorCategorySchema::name))
+		    .group(Identifier.CODEC.fieldOf("id").forGetter(ExteriorCategorySchema::id))
             .apply(instance, DatapackCategory::new));
 
-    public DatapackCategory(Identifier id, String name) {
-        super(id, name);
+	public DatapackCategory(Identifier id) {
+		super(id);
     }
 
     public static DatapackCategory fromInputStream(InputStream stream) {

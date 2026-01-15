@@ -1,11 +1,12 @@
 package dev.amble.ait.client.screens;
 
-import java.util.List;
-import java.util.function.Consumer;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.Nameable;
+import dev.amble.ait.client.screens.widget.SwitcherManager;
+import dev.amble.ait.core.blocks.AstralMapBlock;
+import dev.amble.ait.core.util.WorldUtil;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -13,11 +14,8 @@ import net.minecraft.client.gui.widget.PressableTextWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.Nameable;
-import dev.amble.ait.client.screens.widget.SwitcherManager;
-import dev.amble.ait.core.blocks.AstralMapBlock;
-import dev.amble.ait.core.util.WorldUtil;
+import java.util.List;
+import java.util.function.Consumer;
 
 public class AstralMapScreen extends Screen {
 
@@ -75,7 +73,7 @@ public class AstralMapScreen extends Screen {
 
         super.render(context, mouseX, mouseY, delta);
 
-        Text currentText = Text.literal(switcher.get().name().toUpperCase());
+	    Text currentText = switcher.get().nameText();
         context.drawText(this.textRenderer, currentText, (int) (left + (bgWidth * 0.5f)) - this.textRenderer.getWidth(currentText) / 2,
                 (int) (top + (bgHeight * 0.5)), 0xffffff, true);
     }
@@ -86,7 +84,7 @@ public class AstralMapScreen extends Screen {
 
     record IdentifierToName(Identifier id) implements Nameable {
         @Override
-        public String name() {
+        public String toTranslationKey() {
             try {
                 return WorldUtil.fakeTranslate(id.getPath());
             } catch (Exception e) {

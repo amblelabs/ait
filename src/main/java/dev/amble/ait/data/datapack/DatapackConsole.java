@@ -1,27 +1,25 @@
 package dev.amble.ait.data.datapack;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import org.joml.Vector3f;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.data.codec.MoreCodec;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
+import org.joml.Vector3f;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 // Example usage
 /*
@@ -179,14 +177,13 @@ public class DatapackConsole extends ConsoleVariantSchema implements TravelAnima
     public static class SimpleType extends ConsoleTypeSchema {
         public static final Codec<SimpleType> CODEC = RecordCodecBuilder.create(instance -> instance
                 .group(Identifier.CODEC.fieldOf("id").forGetter(SimpleType::id),
-                        Codec.STRING.fieldOf("name").forGetter(SimpleType::name),
                         ControlTypes.CODEC.listOf().fieldOf("controls").forGetter(c -> c.controls))
                 .apply(instance, SimpleType::new));
 
         private final List<ControlTypes> controls;
 
-        protected SimpleType(Identifier id, String name, List<ControlTypes> controls) {
-            super(id, name);
+	    protected SimpleType(Identifier id, List<ControlTypes> controls) {
+		    super(id);
 
             this.controls = controls;
         }

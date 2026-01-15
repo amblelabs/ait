@@ -1,11 +1,9 @@
 package dev.amble.ait.data.schema;
 
+import dev.amble.ait.api.Nameable;
 import dev.amble.lib.api.Identifiable;
-
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.api.Nameable;
 
 public abstract class BasicSchema implements Identifiable, Nameable {
 
@@ -17,7 +15,7 @@ public abstract class BasicSchema implements Identifiable, Nameable {
     }
 
     @Override
-    public Text text() {
+    public Text nameText() {
         if (this.text == null) {
             Identifier id = this.id();
 
@@ -29,10 +27,5 @@ public abstract class BasicSchema implements Identifiable, Nameable {
         }
 
         return text;
-    }
-
-    @Override
-    public String name() {
-        return this.text().getString();
     }
 }
