@@ -32,7 +32,7 @@ repositories {
     maven { url "https://maven.blamejared.com/" }
 
     maven {
-		url "https://amblelabs.github.io/maven"
+		url "https://amblelabs.dev/maven"
 
 		content {
 			includeGroup "dev.amble"
@@ -107,6 +107,8 @@ dependencies {
     modCompileOnly "maven.modrinth:k9-mod:${project.k9_version}"
 
     modImplementation("mezz.jei:jei-${project.minecraft_version}-fabric-api:${project.jei_version}")
+
+
     // Using Modrinth maven because JEI's official maven crashed with Yarn mappings
     modRuntimeOnly("maven.modrinth:jei:${project.jei_version}")
 

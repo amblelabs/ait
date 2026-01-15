@@ -434,6 +434,9 @@ public class AITModClient implements ClientModInitializer {
         map.putBlock(AITBlocks.TARDIS_CORAL_BLOCK, RenderLayer.getCutout());
         map.putBlock(AITBlocks.TARDIS_CORAL_FAN, RenderLayer.getCutout());
         map.putBlock(AITBlocks.TARDIS_CORAL_WALL_FAN, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.TARDIS_CORAL_WALL, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.TARDIS_CORAL_FENCE, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.TARDIS_CORAL_LEAVES, RenderLayer.getCutout());
         map.putBlock(AITBlocks.MATRIX_ENERGIZER, RenderLayer.getCutout());
     }
 
@@ -630,6 +633,7 @@ public class AITModClient implements ClientModInitializer {
 
                 {
                     ResourceManagerHelper.registerBuiltinResourcePack(id("aitmenu"), modContainer, ResourcePackActivationType.DEFAULT_ENABLED);
+                    ResourceManagerHelper.registerBuiltinResourcePack(id("bushy_leaves"), modContainer, ResourcePackActivationType.NORMAL);
                 });
     }
 }
