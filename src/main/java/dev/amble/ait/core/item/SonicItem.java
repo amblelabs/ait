@@ -162,7 +162,7 @@ public class SonicItem extends LinkableItem implements ArtronHolderItem {
         tooltip.add(TEXT_ARTRON.copy().append(Text.literal(String.valueOf(fuel))
                 .formatted(acceptableFuel ? Formatting.GREEN : Formatting.RED)));
 
-	    tooltip.add(TEXT_CASING.copy().append(schema(stack).text()));
+	    tooltip.add(TEXT_CASING.copy().append(schema(stack).nameText()));
         super.appendTooltip(stack, world, tooltip, context);
     }
 

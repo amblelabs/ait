@@ -15,7 +15,7 @@ public abstract class BasicSchema implements Identifiable, Nameable {
     }
 
     @Override
-    public Text text() {
+    public Text nameText() {
         if (this.text == null) {
             Identifier id = this.id();
 

@@ -73,7 +73,7 @@ public class AstralMapScreen extends Screen {
 
         super.render(context, mouseX, mouseY, delta);
 
-	    Text currentText = switcher.get().text();
+	    Text currentText = switcher.get().nameText();
         context.drawText(this.textRenderer, currentText, (int) (left + (bgWidth * 0.5f)) - this.textRenderer.getWidth(currentText) / 2,
                 (int) (top + (bgHeight * 0.5)), 0xffffff, true);
     }

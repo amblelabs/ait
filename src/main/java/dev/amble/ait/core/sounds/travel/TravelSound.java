@@ -36,7 +36,7 @@ public record TravelSound(TravelHandlerBase.State target, Identifier id, Identif
             .apply(instance, TravelSound::new));
 
 	@Override
-	public String prefix() {
+	public String idPrefix() {
 		return "travel";
 	}
 

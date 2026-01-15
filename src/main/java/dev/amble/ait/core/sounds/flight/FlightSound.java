@@ -28,7 +28,7 @@ public record FlightSound(Identifier id, Identifier soundId, int length) impleme
     );
 
 	@Override
-	public String prefix() {
+	public String idPrefix() {
 		return "flight";
 	}
 

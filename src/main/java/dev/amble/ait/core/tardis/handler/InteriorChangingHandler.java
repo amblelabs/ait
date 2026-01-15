@@ -237,7 +237,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                         tardis.removeFuel(MIN_FUEL_COST * tardis.travel().instability());
                     }
 
-	                TardisUtil.sendMessageToLinked(tardis.asServer(), Text.translatable("tardis.message.interiorchange.success", tardis.stats().getName(), tardis.getDesktop().getSchema().text()));
+	                TardisUtil.sendMessageToLinked(tardis.asServer(), Text.translatable("tardis.message.interiorchange.success", tardis.stats().getName(), tardis.getDesktop().getSchema().nameText()));
                     this.tardis.getDesktop().getConsolePos().stream().findFirst().ifPresent(blockPos -> {
                         if (restorationChestContents == null || restorationChestContents.isEmpty()) {
                             AITMod.LOGGER.debug("No contents to save in recovery inventory in console for {}", this.tardis);

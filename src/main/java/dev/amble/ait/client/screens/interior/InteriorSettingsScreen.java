@@ -379,7 +379,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
 
         context.getMatrices().push();
         context.getMatrices().translate(0, 0, 15f);
-	    context.drawCenteredTextWithShadow(this.textRenderer, this.selectedDesktop.text(),
+	    context.drawCenteredTextWithShadow(this.textRenderer, this.selectedDesktop.nameText(),
                 (int) (left + (bgWidth * 0.77f)), (int) (top + (bgHeight * 0.080f)), 0xffffff);
         context.getMatrices().pop();
 
@@ -398,11 +398,11 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private void renderCurrentMode(DrawContext context) {
         Nameable current = this.modeManager.get().get();
 
-	    Text modeText = this.modeManager.get().text();
+	    Text modeText = this.modeManager.get().nameText();
 	    context.drawText(this.textRenderer, modeText.getString().toUpperCase(),
                 (width / 2 + 50) - this.textRenderer.getWidth(modeText) / 2,
                 height / 2 + 32, 0xffffff, true);
-	    Text currentText = current.text();
+	    Text currentText = current.nameText();
 	    context.drawText(this.textRenderer, currentText.getString().toUpperCase(), (int) (left + (bgWidth * 0.78f)) - this.textRenderer.getWidth(currentText) / 2,
                 (int) (top + (bgHeight * 0.792f)), 0xffffff, true);
     }

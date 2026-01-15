@@ -33,7 +33,7 @@ public abstract class ConsoleTypeSchema implements Identifiable, Nameable {
     }
 
 	@Override
-	public String prefix() {
+	public String idPrefix() {
 		return "console.type";
 	}
 

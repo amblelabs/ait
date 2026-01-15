@@ -58,7 +58,7 @@ public class UnlockCommand {
             source.getServer().execute(() -> tardis.stats().unlock(t));
 
             source.sendMessage(Text.translatableWithFallback("command.ait.unlock.some", "Granted [%s] %s %s",
-		            tardis.getUuid(), t.text(), type));
+		            tardis.getUuid(), t.nameText(), type));
 
             return Command.SINGLE_SUCCESS;
         }

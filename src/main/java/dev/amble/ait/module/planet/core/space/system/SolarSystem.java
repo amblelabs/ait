@@ -21,11 +21,11 @@ public class SolarSystem extends HashSet<Planet> implements Nameable {
 
     @Override
     public String toTranslationKey() {
-        return text().getString();
+	    return nameText().getString();
     }
 
     @Override
-    public Text text() {
+    public Text nameText() {
         return name;
     }
 

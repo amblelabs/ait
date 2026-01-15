@@ -24,7 +24,7 @@ public record VortexReference(Identifier id, Identifier texture) implements Iden
     ).apply(instance, VortexReference::new));
 
 	@Override
-	public String prefix() {
+	public String idPrefix() {
 		return "vortex";
 	}
 

@@ -1,29 +1,6 @@
 package dev.amble.ait.client.screens;
 
-import java.util.List;
-
 import com.google.common.collect.Lists;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedGlobalPos;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.PressableTextWidget;
-import net.minecraft.client.gui.widget.TextWidget;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RotationAxis;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.exteriors.BedrockExteriorModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
@@ -46,6 +23,27 @@ import dev.amble.ait.data.schema.exterior.category.PoliceBoxCategory;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedGlobalPos;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.widget.PressableTextWidget;
+import net.minecraft.client.gui.widget.TextWidget;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RotationAxis;
+
+import java.util.List;
 
 public class MonitorScreen extends ConsoleScreen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
@@ -360,7 +358,7 @@ public class MonitorScreen extends ConsoleScreen {
         stack.push();
         stack.translate(0, 0, 500f);
 
-        context.drawCenteredTextWithShadow(this.textRenderer, category.text(), (centerWidth + 70), (centerHeight - 68),
+        context.drawCenteredTextWithShadow(this.textRenderer, category.nameText(), (centerWidth + 70), (centerHeight - 68),
                 5636095);
 
         List<ExteriorVariantSchema> list = ExteriorVariantRegistry.withParent(category);
@@ -368,7 +366,7 @@ public class MonitorScreen extends ConsoleScreen {
         context.drawCenteredTextWithShadow(this.textRenderer, Text.literal((list.indexOf(variant.parent()) + 1) + "/" + list.size()).formatted(Formatting.BOLD),
                 (centerWidth + 70), (centerHeight + 64), 0xffffff);
 
-        context.drawCenteredTextWithShadow(this.textRenderer, variant.parent().text(), (centerWidth + 70),
+        context.drawCenteredTextWithShadow(this.textRenderer, variant.parent().nameText(), (centerWidth + 70),
                 (centerHeight + 44), 5636095);
 
         context.drawCenteredTextWithShadow(this.textRenderer, variant.parent().id().getNamespace().toUpperCase(),

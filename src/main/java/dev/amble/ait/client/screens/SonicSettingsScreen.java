@@ -183,7 +183,7 @@ public class SonicSettingsScreen extends ConsoleScreen {
             stack.translate(10, 0, 500f);
             context.drawCenteredTextWithShadow(this.textRenderer, Text.translatable("screen.ait.sonic_casing"), x + 140, y + 10,
                     0xFFFFFF);
-	        context.drawCenteredTextWithShadow(this.textRenderer, SonicItem.schema(sonicCopy).text(), x + 140,
+	        context.drawCenteredTextWithShadow(this.textRenderer, SonicItem.schema(sonicCopy).nameText(), x + 140,
                     y + 20, 0x00FFFF);
             context.drawCenteredTextWithShadow(this.textRenderer, Text.translatable("screen.ait.current_au"), x + 140, y + 40, 0xFFFFFF);
             context.drawCenteredTextWithShadow(this.textRenderer, nbt.getDouble(SonicItem.FUEL_KEY) + " AU", x + 140,
