@@ -57,3 +57,5 @@
 - fix: tall and short hudolin variants having no translations | by [@Addi3](https://github.com/Addi3) ([#1963](https://github.com/amblelabs/ait/pull/1963))
 - fix: `/ait scale` command works now. | by [@Mansarde](https://github.com/Mansarde) ([#1964](https://github.com/amblelabs/ait/pull/1964))
 - fix: bedrock console models floating in generator | by [@duzos](https://github.com/duzos) ([#1966](https://github.com/amblelabs/ait/pull/1966))
+- fix: in-game version checks | by [@drtheodor](https://github.com/drtheodor), [@Mansarde](https://github.com/Mansarde), [@Loqor](https://github.com/Loqor), [@duzos](https://github.com/duzos) ([#1948](https://github.com/amblelabs/ait/pull/1948))
+- feat: sonic glows on use with lambdynamiclights installed | by [@drtheodor](https://github.com/drtheodor), [@Mansarde](https://github.com/Mansarde), [@Loqor](https://github.com/Loqor), [@duzos](https://github.com/duzos) ([#1948](https://github.com/amblelabs/ait/pull/1948))
