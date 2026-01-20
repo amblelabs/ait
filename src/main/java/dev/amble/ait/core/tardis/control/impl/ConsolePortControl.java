@@ -1,5 +1,6 @@
 package dev.amble.ait.core.tardis.control.impl;
 
+import dev.amble.ait.core.item.ControlDiscItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MusicDiscItem;
 import net.minecraft.nbt.NbtCompound;
@@ -84,6 +85,18 @@ public class ConsolePortControl extends Control {
 
             TardisDesktop.playSoundAtConsole(world, console, AITSounds.SLOT_IN, SoundCategory.PLAYERS, 6f, 1);
             return Result.SUCCESS_ALT;
+        } else if(itemStack.getItem() instanceof ControlDiscItem) {
+            NbtCompound stackNbt = itemStack.getOrCreateNbt();
+            if (stackNbt.get(ControlDiscItem.POS_KEY) == null) return Result.FAILURE;
+            // We're going to set both cartridge and disc booleans just for parity
+            tardis.waypoint().setIsDisc();
+            tardis.waypoint().setHasCartridge();
+            System.out.println(ControlDiscItem.canContainPlayers(itemStack));
+            if (stackNbt.get(ControlDiscItem.CAN_CONTAIN_PLAYERS) != null) {
+                tardis.waypoint().setCanContainPlayers(ControlDiscItem.canContainPlayers(itemStack));
+            }
+            tardis.waypoint().set(Waypoint.fromStack(itemStack), console, false);
+            player.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
         }
 
         return Result.FAILURE;

@@ -33,7 +33,11 @@ repositories {
 
     // AmbleKit
     maven {
-		url "https://amblelabs.github.io/maven"
+		url "https://amblelabs.dev/maven"
+
+		content {
+			includeGroup "dev.amble"
+		}
 	}
 
     // MultiDim, Scheduler
@@ -99,8 +103,12 @@ dependencies {
     // MC libraries
     modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 
-    modImplementation("com.github.iPortalTeam.ImmersivePortalsMod:imm_ptl_core:${project.immersive_portals_version}")
-    modImplementation("com.github.iPortalTeam.ImmersivePortalsMod:q_misc_util:${project.immersive_portals_version}")
+    modCompileOnly("com.github.iPortalTeam.ImmersivePortalsMod:imm_ptl_core:${project.immersive_portals_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+    modCompileOnly("com.github.iPortalTeam.ImmersivePortalsMod:q_misc_util:${project.immersive_portals_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 
     modApi("dev.amble:lib:${project.amblekit_version}") {
         exclude(group: "net.fabricmc.fabric-api")
@@ -112,6 +120,8 @@ dependencies {
     modCompileOnly "maven.modrinth:k9-mod:${project.k9_version}"
 
     modImplementation("mezz.jei:jei-${project.minecraft_version}-fabric-api:${project.jei_version}")
+
+
     // Using Modrinth maven because JEI's official maven crashed with Yarn mappings
     modRuntimeOnly("maven.modrinth:jei:${project.jei_version}")
 

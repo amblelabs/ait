@@ -95,6 +95,15 @@ public class AITBlocks extends BlockContainer {
     @PickaxeMineable(tool = PickaxeMineable.Tool.DIAMOND)
     public static final Block TARDIS_CORAL_STAIRS = new StairsBlock(TARDIS_CORAL_BLOCK.getDefaultState(), FabricBlockSettings.create().mapColor(MapColor.GOLD).solid().instrument(Instrument.BASEDRUM).requiresTool().strength(7f, 6.0f));
 
+    @PickaxeMineable(tool = PickaxeMineable.Tool.STONE)
+    public static final Block TARDIS_CORAL_FENCE = new FenceBlock(FabricBlockSettings.create().mapColor(MapColor.GOLD).solid().instrument(Instrument.BASEDRUM).requiresTool().strength(7f, 6.0f));
+
+    @PickaxeMineable(tool = PickaxeMineable.Tool.STONE)
+    public static final Block TARDIS_CORAL_WALL = new WallBlock(FabricBlockSettings.create().mapColor(MapColor.GOLD).solid().instrument(Instrument.BASEDRUM).requiresTool().strength(7f, 6.0f));
+
+    @PickaxeMineable(tool = PickaxeMineable.Tool.STONE)
+    public static final Block TARDIS_CORAL_LEAVES = new LeavesBlock(ABlockSettings.copyOf(Blocks.CHERRY_LEAVES));
+
     @PickaxeMineable(tool = PickaxeMineable.Tool.DIAMOND)
     public static final Block TARDIS_CORAL_SLAB = new SlabBlock(FabricBlockSettings.create().mapColor(MapColor.GOLD).solid().instrument(Instrument.BASEDRUM).requiresTool().strength(7f, 6.0f));
 
