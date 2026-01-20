@@ -56,3 +56,4 @@
 - add: Shalka hudolin console variant | by [@Addi3](https://github.com/Addi3) ([#1963](https://github.com/amblelabs/ait/pull/1963))
 - fix: tall and short hudolin variants having no translations | by [@Addi3](https://github.com/Addi3) ([#1963](https://github.com/amblelabs/ait/pull/1963))
 - fix: `/ait scale` command works now. | by [@Mansarde](https://github.com/Mansarde) ([#1964](https://github.com/amblelabs/ait/pull/1964))
+- fix: bedrock console models floating in generator | by [@duzos](https://github.com/duzos) ([#1966](https://github.com/amblelabs/ait/pull/1966))
