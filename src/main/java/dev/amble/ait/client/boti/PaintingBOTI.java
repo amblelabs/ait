@@ -31,6 +31,12 @@ public class PaintingBOTI extends BOTI {
 
         BOTI_HANDLER.setupFramebuffer();
 
+        // Clear the framebuffer before copying
+        BOTI_HANDLER.afbo.beginWrite(false);
+        GL11.glClearColor(0.0F, 0.0F, 0.0F, 0.0F);
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
+        BOTI_HANDLER.afbo.endWrite();
+
         BOTI.copyFramebuffer(MinecraftClient.getInstance().getFramebuffer(), BOTI_HANDLER.afbo);
 
         VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
@@ -74,9 +80,16 @@ public class PaintingBOTI extends BOTI {
 
         BOTI.copyColor(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
 
+        // Reset stencil state before disabling
+        GL11.glStencilMask(0xFF);
+        GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
         GL11.glDisable(GL11.GL_STENCIL_TEST);
 
         RenderSystem.depthMask(true);
+
+        // Ensure all rendering is flushed
+        RenderSystem.getModelViewStack().loadIdentity();
+        RenderSystem.applyModelViewMatrix();
 
         stack.pop();
     }

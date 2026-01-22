@@ -44,6 +44,12 @@ public class TardisExteriorBOTI extends BOTI {
 
         BOTI_HANDLER.setupFramebuffer();
 
+        // Clear the framebuffer before copying
+        BOTI_HANDLER.afbo.beginWrite(false);
+        GL11.glClearColor(0.0F, 0.0F, 0.0F, 0.0F);
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
+        BOTI_HANDLER.afbo.endWrite();
+
         Vec3d skyColor = MinecraftClient.getInstance().world.getSkyColor(MinecraftClient.getInstance().player.getPos(), MinecraftClient.getInstance().getTickDelta());
         if (AITModClient.CONFIG.greenScreenBOTI)
             BOTI.setFramebufferColor(BOTI_HANDLER.afbo, 0, 1, 0, 1);
