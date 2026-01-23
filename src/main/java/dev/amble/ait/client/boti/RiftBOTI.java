@@ -15,6 +15,7 @@ import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.renderers.VortexRender;
+import org.lwjgl.opengl.GL30;
 
 public class RiftBOTI extends BOTI {
     public static void renderRiftBoti(MatrixStack stack, SinglePartEntityModel frame, int pack) {
@@ -43,16 +44,7 @@ public class RiftBOTI extends BOTI {
         // Ensure viewport matches framebuffer dimensions on Apple
         GL11.glViewport(0, 0, BOTI_HANDLER.afbo.textureWidth, BOTI_HANDLER.afbo.textureHeight);
 
-        // Before copying color back, ensure depth is in sync
-        BOTI_HANDLER.afbo.endWrite();
-
-// Copy depth from BOTI back to main so the blit knows where to draw
-        BOTI.copyDepth(BOTI_HANDLER.afbo, client.getFramebuffer());
-
-        client.getFramebuffer().beginWrite(false); // false = don't clear!
-
-// Now copy color - it will respect the depth buffer
-        BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
+        GL11.glClearColor(0.0F, 0.0F, 0.0F, 0.0F);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         BOTI_HANDLER.afbo.endWrite();
 
@@ -110,7 +102,22 @@ public class RiftBOTI extends BOTI {
         // End write BEFORE copying back
         BOTI_HANDLER.afbo.endWrite();
 
-        client.getFramebuffer().beginWrite(true);
+// NEW: Copy stencil buffer to main framebuffer
+        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, BOTI_HANDLER.afbo.fbo);
+        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, client.getFramebuffer().fbo);
+        GL30.glBlitFramebuffer(
+                0, 0, BOTI_HANDLER.afbo.textureWidth, BOTI_HANDLER.afbo.textureHeight,
+                0, 0, client.getFramebuffer().textureWidth, client.getFramebuffer().textureHeight,
+                GL30.GL_STENCIL_BUFFER_BIT, // Only copy stencil
+                GL30.GL_NEAREST
+        );
+
+        client.getFramebuffer().beginWrite(false); // Don't clear!
+
+// Enable stencil test for the color copy
+        GL11.glEnable(GL11.GL_STENCIL_TEST);
+        GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+        GL11.glStencilMask(0x00); // Don't write to stencil
 
         BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
 

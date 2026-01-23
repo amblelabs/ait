@@ -17,8 +17,6 @@ import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
 
 public class BOTI {
     public static final Queue<RiftEntity> RIFT_RENDERING_QUEUE = new LinkedList<>();
@@ -36,22 +34,10 @@ public class BOTI {
         GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight, 0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_DEPTH_BUFFER_BIT | GlConst.GL_COLOR_BUFFER_BIT, GlConst.GL_NEAREST);
     }
 
-    public static void copyColor(Framebuffer source, Framebuffer dest) {
-        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, source.fbo);
-        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, dest.fbo);
-
-        // Enable depth test during blit so it only copies where depth allows
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glDepthFunc(GL11.GL_LEQUAL);
-
-        GL30.glBlitFramebuffer(
-                0, 0, source.textureWidth, source.textureHeight,
-                0, 0, dest.textureWidth, dest.textureHeight,
-                GL11.GL_COLOR_BUFFER_BIT,
-                GL11.GL_NEAREST
-        );
-
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+    public static void copyColor(Framebuffer src, Framebuffer dest) {
+        GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, src.fbo);
+        GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, dest.fbo);
+        GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight, 0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_COLOR_BUFFER_BIT, GlConst.GL_NEAREST);
     }
 
     public static void copyDepth(Framebuffer src, Framebuffer dest) {
