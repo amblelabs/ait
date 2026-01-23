@@ -36,35 +36,56 @@ public class TardisExteriorBOTI extends BOTI {
         if (!exterior.isLinked())
             return;
 
-        ClientTardis tardis = exterior.tardis().get().asClient();;
+        ClientTardis tardis = exterior.tardis().get().asClient();
 
         stack.push();
 
-        MinecraftClient.getInstance().getFramebuffer().endWrite();
+        MinecraftClient client = MinecraftClient.getInstance();
+
+        // Store the current viewport state
+        int[] viewport = new int[4];
+        GL11.glGetIntegerv(GL11.GL_VIEWPORT, viewport);
+
+        client.getFramebuffer().endWrite();
 
         BOTI_HANDLER.setupFramebuffer();
 
         // Clear the framebuffer before copying
         BOTI_HANDLER.afbo.beginWrite(false);
+
+        // Ensure viewport matches framebuffer dimensions on Apple
+        GL11.glViewport(0, 0, BOTI_HANDLER.afbo.textureWidth, BOTI_HANDLER.afbo.textureHeight);
+
         GL11.glClearColor(0.0F, 0.0F, 0.0F, 0.0F);
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         BOTI_HANDLER.afbo.endWrite();
 
-        Vec3d skyColor = MinecraftClient.getInstance().world.getSkyColor(MinecraftClient.getInstance().player.getPos(), MinecraftClient.getInstance().getTickDelta());
+        // Restore viewport
+        GL11.glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+        Vec3d skyColor = client.world.getSkyColor(client.player.getPos(), client.getTickDelta());
         if (AITModClient.CONFIG.greenScreenBOTI)
             BOTI.setFramebufferColor(BOTI_HANDLER.afbo, 0, 1, 0, 1);
         else
             BOTI.setFramebufferColor(BOTI_HANDLER.afbo, (float) skyColor.x, (float) skyColor.y, (float) skyColor.z, 1);
 
-        BOTI.copyFramebuffer(MinecraftClient.getInstance().getFramebuffer(), BOTI_HANDLER.afbo);
+        BOTI.copyFramebuffer(client.getFramebuffer(), BOTI_HANDLER.afbo);
+
+        // Bind the custom framebuffer for rendering
+        BOTI_HANDLER.afbo.beginWrite(false);
 
         VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
-        GL11.glEnable(GL11.GL_STENCIL_TEST);
-        GL11.glStencilMask(0xFF);
-        GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
-        GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+        // Only enable stencil if the framebuffer actually has a stencil attachment
+        boolean hasStencil = BOTI_HANDLER.afbo.getDepthAttachment() > -1; // Check if stencil exists
+
+        if (hasStencil) {
+            GL11.glEnable(GL11.GL_STENCIL_TEST);
+            GL11.glStencilMask(0xFF);
+            GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+            GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+            GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+        }
 
         RenderSystem.depthMask(true);
         stack.push();
@@ -88,19 +109,24 @@ public class TardisExteriorBOTI extends BOTI {
         botiProvider.draw();
         stack.pop();
 
-        copyDepth(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
+        // End write BEFORE copying depth
+        BOTI_HANDLER.afbo.endWrite();
+
+        copyDepth(BOTI_HANDLER.afbo, client.getFramebuffer());
 
         BOTI_HANDLER.afbo.beginWrite(false);
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 
-        GL11.glStencilMask(0x00);
-        GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+        if (hasStencil) {
+            GL11.glStencilMask(0x00);
+            GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+        }
 
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
         if (name.equalsIgnoreCase("grumm") || name.equalsIgnoreCase("dinnerbone")) {
             stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-90f));
-            stack.translate(0, scale.y + 0.25f, scale.z -1.7f);
+            stack.translate(0, scale.y() + 0.25f, scale.z() - 1.7f);
         }
         stack.scale(scale.x(), scale.y(), scale.z());
 
@@ -112,7 +138,7 @@ public class TardisExteriorBOTI extends BOTI {
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
         if (name.equalsIgnoreCase("grumm") || name.equalsIgnoreCase("dinnerbone")) {
             stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-90f));
-            stack.translate(0, scale.y() + 0.25f, scale.z() -1.7f);
+            stack.translate(0, scale.y() + 0.25f, scale.z() - 1.7f);
         }
         stack.scale(scale.x(), scale.y(), scale.z());
 
@@ -131,7 +157,7 @@ public class TardisExteriorBOTI extends BOTI {
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
         if (name.equalsIgnoreCase("grumm") || name.equalsIgnoreCase("dinnerbone")) {
             stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-90f));
-            stack.translate(0, scale.y + 0.25f, scale.z -1.7f);
+            stack.translate(0, scale.y() + 0.25f, scale.z() - 1.7f);
         }
         stack.scale(scale.x(), scale.y(), scale.z());
         if (variant.emission() != null) {
@@ -141,11 +167,11 @@ public class TardisExteriorBOTI extends BOTI {
 
             if ((stats.getName() != null && "partytardis".equals(stats.getName().toLowerCase()) || (!exterior.tardis().get().extra().getInsertedDisc().isEmpty()))) {
                 int m = 25;
-                int n = MinecraftClient.getInstance().player.age / m + MinecraftClient.getInstance().player.getId();
+                int n = client.player.age / m + client.player.getId();
                 int o = DyeColor.values().length;
                 int p = n % o;
                 int q = (n + 1) % o;
-                float r = ((float) (MinecraftClient.getInstance().player.age % m)) / m;
+                float r = ((float) (client.player.age % m)) / m;
                 float[] fs = SheepEntity.getRgbColor(DyeColor.byId(p));
                 float[] gs = SheepEntity.getRgbColor(DyeColor.byId(q));
                 s = fs[0] * (1f - r) + gs[0] * r;
@@ -171,11 +197,27 @@ public class TardisExteriorBOTI extends BOTI {
         }
         stack.pop();
 
-        MinecraftClient.getInstance().getFramebuffer().beginWrite(true);
+        // End write BEFORE copying back
+        BOTI_HANDLER.afbo.endWrite();
 
-        BOTI.copyColor(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
+        client.getFramebuffer().beginWrite(true);
 
-        GL11.glDisable(GL11.GL_STENCIL_TEST);
+        BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
+
+        if (hasStencil) {
+            GL11.glStencilMask(0xFF);
+            GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
+            GL11.glDisable(GL11.GL_STENCIL_TEST);
+        }
+
+        RenderSystem.depthMask(true);
+
+        // Restore viewport explicitly
+        GL11.glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+        // Ensure all rendering is flushed
+        RenderSystem.getModelViewStack().loadIdentity();
+        RenderSystem.applyModelViewMatrix();
 
         stack.pop();
     }

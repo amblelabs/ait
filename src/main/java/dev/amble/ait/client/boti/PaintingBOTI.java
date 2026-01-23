@@ -27,17 +27,33 @@ public class PaintingBOTI extends BOTI {
 
         stack.push();
 
-        MinecraftClient.getInstance().getFramebuffer().endWrite();
+        MinecraftClient client = MinecraftClient.getInstance();
+
+        // Store the current viewport state
+        int[] viewport = new int[4];
+        GL11.glGetIntegerv(GL11.GL_VIEWPORT, viewport);
+
+        client.getFramebuffer().endWrite();
 
         BOTI_HANDLER.setupFramebuffer();
 
         // Clear the framebuffer before copying
         BOTI_HANDLER.afbo.beginWrite(false);
+
+        // Ensure viewport matches framebuffer dimensions on Apple
+        GL11.glViewport(0, 0, BOTI_HANDLER.afbo.textureWidth, BOTI_HANDLER.afbo.textureHeight);
+
         GL11.glClearColor(0.0F, 0.0F, 0.0F, 0.0F);
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         BOTI_HANDLER.afbo.endWrite();
 
-        BOTI.copyFramebuffer(MinecraftClient.getInstance().getFramebuffer(), BOTI_HANDLER.afbo);
+        // Restore viewport
+        GL11.glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+        BOTI.copyFramebuffer(client.getFramebuffer(), BOTI_HANDLER.afbo);
+
+        // Bind the custom framebuffer for rendering
+        BOTI_HANDLER.afbo.beginWrite(false);
 
         VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
@@ -46,27 +62,35 @@ public class PaintingBOTI extends BOTI {
 
         stack.translate(0, 0, -0.125);
 
-        // Enable stencil testing and clear the stencil buffer
-        GL11.glEnable(GL11.GL_STENCIL_TEST);
-        GL11.glStencilMask(0xFF);
-        GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
-        GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+        // Only enable stencil if the framebuffer actually has a stencil attachment
+        boolean hasStencil = BOTI_HANDLER.afbo.getDepthAttachment() > -1; // Check if stencil exists
 
-        // Render the mask overtop the interior of the interior stuff
+        if (hasStencil) {
+            GL11.glEnable(GL11.GL_STENCIL_TEST);
+            GL11.glStencilMask(0xFF);
+            GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+            GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+            GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+        }
 
         RenderSystem.depthMask(true);
         stack.push();
         frame.renderWithFbo(stack, botiProvider, 0xf000f0, OverlayTexture.DEFAULT_UV, 0, 0, 0, 1, frameTexture);
         botiProvider.draw();
-        BOTI.copyDepth(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
+
+        // End write BEFORE copying depth
+        BOTI_HANDLER.afbo.endWrite();
+
+        BOTI.copyDepth(BOTI_HANDLER.afbo, client.getFramebuffer());
 
         BOTI_HANDLER.afbo.beginWrite(false);
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
         stack.pop();
 
-        GL11.glStencilMask(0x00);
-        GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+        if (hasStencil) {
+            GL11.glStencilMask(0x00);
+            GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+        }
 
         stack.push();
         stack.translate(0, 0, -4f);
@@ -76,18 +100,24 @@ public class PaintingBOTI extends BOTI {
         botiProvider.draw();
         stack.pop();
 
-        MinecraftClient.getInstance().getFramebuffer().beginWrite(true);
+        // End write BEFORE copying back
+        BOTI_HANDLER.afbo.endWrite();
 
-        BOTI.copyColor(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
+        client.getFramebuffer().beginWrite(true);
 
-        // Reset stencil state before disabling
-        GL11.glStencilMask(0xFF);
-        GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
-        GL11.glDisable(GL11.GL_STENCIL_TEST);
+        BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
+
+        if (hasStencil) {
+            GL11.glStencilMask(0xFF);
+            GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
+            GL11.glDisable(GL11.GL_STENCIL_TEST);
+        }
 
         RenderSystem.depthMask(true);
 
-        // Ensure all rendering is flushed
+        // Restore viewport explicitly
+        GL11.glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
         RenderSystem.getModelViewStack().loadIdentity();
         RenderSystem.applyModelViewMatrix();
 
