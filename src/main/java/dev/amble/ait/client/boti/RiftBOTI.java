@@ -43,7 +43,16 @@ public class RiftBOTI extends BOTI {
         // Ensure viewport matches framebuffer dimensions on Apple
         GL11.glViewport(0, 0, BOTI_HANDLER.afbo.textureWidth, BOTI_HANDLER.afbo.textureHeight);
 
-        GL11.glClearColor(0.0F, 0.0F, 0.0F, 0.0F);
+        // Before copying color back, ensure depth is in sync
+        BOTI_HANDLER.afbo.endWrite();
+
+// Copy depth from BOTI back to main so the blit knows where to draw
+        BOTI.copyDepth(BOTI_HANDLER.afbo, client.getFramebuffer());
+
+        client.getFramebuffer().beginWrite(false); // false = don't clear!
+
+// Now copy color - it will respect the depth buffer
+        BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         BOTI_HANDLER.afbo.endWrite();
 
