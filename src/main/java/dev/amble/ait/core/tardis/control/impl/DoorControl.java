@@ -1,15 +1,16 @@
 package dev.amble.ait.core.tardis.control.impl;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.entities.ConsoleControlEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.Control;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.Control;
+import org.jetbrains.annotations.Nullable;
 
 public class DoorControl extends Control {
     public static final Identifier ID = AITMod.id("door_control");
@@ -31,4 +32,9 @@ public class DoorControl extends Control {
     public SoundEvent getFallbackSound() {
         return AITSounds.DOOR_CONTROL;
     }
+
+	@Override
+	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleControlEntity entity) {
+		return tardis.door().isOpen() ? 1.0f : 0.0f;
+	}
 }
