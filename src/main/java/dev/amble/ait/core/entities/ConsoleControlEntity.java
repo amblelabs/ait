@@ -20,6 +20,7 @@ import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.registry.impl.ControlRegistry;
+import dev.amble.lib.animation.AnimatedEntity;
 import dev.amble.lib.bedrock.TargetedAnimationState;
 import dev.amble.lib.client.bedrock.BedrockAnimationReference;
 import dev.drtheo.scheduler.api.TimeUnit;
@@ -61,7 +62,7 @@ import org.joml.Vector3f;
 import java.util.List;
 import java.util.Optional;
 
-public class ConsoleControlEntity extends LinkableDummyEntity {
+public class ConsoleControlEntity extends LinkableDummyEntity implements AnimatedEntity {
     private static final TrackedData<Float> WIDTH = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.FLOAT);
     private static final TrackedData<Float> HEIGHT = DataTracker.registerData(ConsoleControlEntity.class,
