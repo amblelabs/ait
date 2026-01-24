@@ -2,12 +2,17 @@ package dev.amble.ait.client.models.consoles;
 
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.entities.ConsoleControlEntity;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.datapack.TravelAnimationMap;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.lib.api.Identifiable;
+import dev.amble.lib.bedrock.TargetedAnimationState;
 import dev.amble.lib.client.bedrock.BedrockAnimation;
+import dev.amble.lib.client.bedrock.BedrockAnimationReference;
 import dev.amble.lib.client.bedrock.BedrockModel;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
@@ -70,12 +75,31 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
             throw new IllegalStateException("DatapackConsole " + console.getVariant().id() + " has no animations defined.");
         }
 
-        BedrockAnimation anim = map.getAnimation(state);
-
-        if (anim == null) return;
 
         this.getPart().traverse().forEach(ModelPart::resetTransform);
+		console.getControlEntities().forEach(this::applyControlAnimation);
 
-        anim.apply(this.getPart(), console.ANIM_STATE, console.getAge(), 1F, null);
+		BedrockAnimation anim = map.getAnimation(state);
+		if (anim == null) return;
+
+		anim.apply(this.getPart(), console.ANIM_STATE, console.getAge(), 1F, null);
     }
+
+	private void applyControlAnimation(ConsoleControlEntity entity) {
+		if (entity.tardis().isEmpty()) return;
+
+		Control control = entity.getControl();
+		if (control == null) return;
+
+		ControlTypes type = entity.getControlType().orElse(null);
+		if (type == null) return;
+
+		BedrockAnimationReference ref = type.getAnimation().orElse(null);
+		if (ref == null) return;
+
+		TargetedAnimationState state = entity.getAnimationState();
+		state.setTargetProgress(control.getTargetProgress(entity.tardis().get()));
+		state.tick();
+		ref.get().ifPresent(anim -> anim.apply(this.getPart(), state.getAnimationTimeSecs() - 0.01F));
+	}
 }
