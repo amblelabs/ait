@@ -100,6 +100,10 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
 		TargetedAnimationState state = entity.getAnimationState();
 		state.setTargetProgress(control.getTargetProgress(entity.tardis().get(), entity.isOnDelay(), entity));
 		state.tick();
-		ref.get().ifPresent(anim -> anim.apply(this.getPart(), state.getAnimationTimeSecs() - 0.01F));
+		ref.get().ifPresent(anim -> {
+			state.setAnimationLength(anim);
+			anim.apply(this.getPart(), state.getAnimationTimeSecs() - 0.01F);
+		});
+
 	}
 }

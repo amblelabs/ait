@@ -35,6 +35,10 @@ public class DoorControl extends Control {
 
 	@Override
 	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleControlEntity entity) {
-		return tardis.door().isOpen() ? 1.0f : 0.0f;
+		// Door open progress
+		float left = tardis.door().isLeftOpen() ? 1.0f : 0.0f;
+		float right = tardis.door().isRightOpen() ? 1.0f : 0.0f;
+
+		return (left + right) / 2.0f;
 	}
 }
