@@ -3,6 +3,7 @@ package dev.amble.lib.bedrock;
 import dev.amble.lib.client.bedrock.BedrockAnimation;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.entity.AnimationState;
 import net.minecraft.util.math.MathHelper;
 
 /**
@@ -26,8 +27,12 @@ import net.minecraft.util.math.MathHelper;
  * // Get the current animation time for rendering:
  * long animTime = state.getAnimationTimeMs();
  * }</pre>
+ *
+ * Even though this implements animation state, it does not change the built-in
+ * animation time directly. Instead, use getAnimationTimeMs() to retrieve the
+ * current time based on progress.
  */
-public class TargetedAnimationState {
+public class TargetedAnimationState extends AnimationState {
 
 	/**
 	 * The target progress to animate toward (0-1)
