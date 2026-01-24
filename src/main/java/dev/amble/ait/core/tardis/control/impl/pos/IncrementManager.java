@@ -61,4 +61,8 @@ public class IncrementManager extends KeyedTardisComponent {
 
         getIncrementPosition(tardis);
     }
+
+	public static int getIncrementSize() {
+		return validIncrements.length;
+	}
 }

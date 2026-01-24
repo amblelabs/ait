@@ -102,6 +102,7 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
 		float previous = state.getAnimationTimeSecs() - 0.01F;
 		state.tick();
 		float current = state.getAnimationTimeSecs() - 0.01F;
+
 		ref.get().ifPresent(anim -> {
 			state.setAnimationLength(anim);
 			anim.apply(this.getPart(), current);

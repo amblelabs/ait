@@ -297,4 +297,16 @@ public class TargetedAnimationState extends AnimationState {
 		this.currentProgress = this.targetProgress;
 		this.running = false;
 	}
+
+	@Override
+	public String toString() {
+		return "TargetedAnimationState{" +
+				"targetProgress=" + targetProgress +
+				", currentProgress=" + currentProgress +
+				", animationLengthMs=" + animationLengthMs +
+				", transitionSpeed=" + transitionSpeed +
+				", running=" + running +
+				", lastUpdateTime=" + lastUpdateTime +
+				'}';
+	}
 }
