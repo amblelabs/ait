@@ -28,6 +28,9 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
     private final ConsoleGeneratorModel generator;
     private final EntityRenderDispatcher dispatcher;
 
+	private ConsoleModel cachedConsole;
+	private Identifier cachedVariantId;
+
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
             "textures/blockentities/consoles/console_generator/console_generator.png");
 
@@ -53,7 +56,14 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
         if (!entity.isLinked())
             return;
 
-        ConsoleModel console = ClientConsoleVariantRegistry.getInstance().get(entity.getConsoleVariant().id()).model();
+	    // Cache the model
+	    Identifier variantId = entity.getConsoleVariant().id();
+	    if (this.cachedVariantId == null || !this.cachedVariantId.equals(variantId)) {
+		    this.cachedVariantId = variantId;
+		    this.cachedConsole = ClientConsoleVariantRegistry.getInstance().get(variantId).model();
+	    }
+	    ConsoleModel console = this.cachedConsole;
+
         Identifier consoleTexture = ClientConsoleVariantRegistry.getInstance().get(entity.getConsoleVariant().id())
                 .texture();
         Identifier consoleEmission = ClientConsoleVariantRegistry.getInstance().get(entity.getConsoleVariant().id()).emission();
