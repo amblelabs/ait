@@ -60,7 +60,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
 
     private boolean needsControls = true;
 
-	private static final int CLIENT_CACHE_REFRESH_INTERVAL = 100; // Lazy refresh
+	private static final int CLIENT_CACHE_REFRESH_INTERVAL = 2400; // Lazy refresh
 	// Client-side cache for control entities
 	private List<ConsoleControlEntity> cachedClientControls = null;
 

@@ -10,19 +10,23 @@ import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.datapack.TravelAnimationMap;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.lib.api.Identifiable;
-import dev.amble.lib.bedrock.TargetedAnimationState;
 import dev.amble.lib.client.bedrock.BedrockAnimation;
 import dev.amble.lib.client.bedrock.BedrockAnimationReference;
 import dev.amble.lib.client.bedrock.BedrockModel;
+import dev.amble.lib.client.bedrock.TargetedAnimationState;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
 
 public class BedrockConsoleModel implements ConsoleModel, Identifiable {
     private final BedrockModel model;
     private final ModelPart root;
+	private final HashMap<Identifier, BedrockAnimation> animationCache = new HashMap<>();
 
     public BedrockConsoleModel(BedrockModel model) {
         this.model = model;
@@ -85,29 +89,27 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
 		anim.apply(this.getPart(), console.ANIM_STATE, console.getAge(), 1F, null);
     }
 
+	private static @Nullable BedrockAnimation findAnimationById(ConsoleControlEntity entity) {
+		ControlTypes type = entity.getControlType().orElse(null);
+		if (type == null) return null;
+
+		BedrockAnimationReference ref = type.getAnimation().orElse(null);
+		if (ref == null) return null;
+
+		return ref.get().orElse(null);
+	}
+
 	private void applyControlAnimation(ConsoleControlEntity entity) {
 		if (entity.tardis().isEmpty()) return;
 
 		Control control = entity.getControl();
 		if (control == null) return;
 
-		ControlTypes type = entity.getControlType().orElse(null);
-		if (type == null) return;
-
-		BedrockAnimationReference ref = type.getAnimation().orElse(null);
-		if (ref == null) return;
+		BedrockAnimation anim = this.animationCache.computeIfAbsent(entity.getControl().id(), k -> findAnimationById(entity));
+		if (anim == null) return;
 
 		TargetedAnimationState state = entity.getAnimationState();
 		state.setTargetProgress(control.getTargetProgress(entity.tardis().get(), entity.isOnDelay(), entity));
-		float previous = state.getAnimationTimeSecs() - 0.01F;
-		state.tick();
-		float current = state.getAnimationTimeSecs() - 0.01F;
-
-		ref.get().ifPresent(anim -> {
-			state.setAnimationLength(anim);
-			anim.apply(this.getPart(), current);
-			anim.applyEffects(entity, current, previous, this.getPart());
-		});
-
+		anim.apply(this.getPart(), state, entity);
 	}
 }

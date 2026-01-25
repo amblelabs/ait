@@ -42,6 +42,7 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
             int light, int overlay) {
+	    if (entity.getConsoleVariant() == null) return;
 
         if (ClientConsoleVariantRegistry.getInstance().get(entity.getConsoleVariant().id()) == null)
             return;
