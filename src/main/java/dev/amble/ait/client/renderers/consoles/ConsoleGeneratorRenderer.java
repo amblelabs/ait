@@ -89,8 +89,8 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(MinecraftClient.getInstance().getTickDelta() % 180));
 
 	    if (console instanceof BedrockConsoleModel bedrockConsoleModel) {
-		    bedrockConsoleModel.applyOffsets(matrices, entity.getConsoleVariant());
 		    matrices.translate(-0.5, 1.5, 0.5);
+		    bedrockConsoleModel.applyOffsets(matrices, entity.getConsoleVariant());
 	    }
 
         //if (powered) {
