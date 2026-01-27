@@ -115,7 +115,7 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
                 continue;
             }
 
-            if (schema.parent().equals(parent))
+	        if (schema.parent() != null && schema.parent().equals(parent))
                 list.add(schema);
         }
 

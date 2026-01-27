@@ -12,8 +12,10 @@ import dev.amble.ait.data.codec.MoreCodec;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
+import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.io.InputStream;
@@ -21,6 +23,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 // Example usage
 /*
@@ -34,14 +37,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class DatapackConsole extends ConsoleVariantSchema implements TravelAnimationMap.Holder {
     public static final Identifier EMPTY = AITMod.id("intentionally_empty");
 
-    protected final Identifier texture;
-    protected final Identifier emission;
-    protected final Identifier id;
-    protected final List<Float> sonicRotation;
-    protected final Vector3f sonicTranslation;
-    protected final List<Float> handlesRotation;
-    protected final Vector3f handlesTranslation;
-    protected final Identifier model;
     public static final Codec<DatapackConsole> CODEC = RecordCodecBuilder.create(instance -> instance
             .group(Identifier.CODEC.fieldOf("id").forGetter(ConsoleVariantSchema::id),
                     Identifier.CODEC.optionalFieldOf("parent").forGetter(c -> Optional.ofNullable(c.parentId())),
@@ -54,15 +49,23 @@ public class DatapackConsole extends ConsoleVariantSchema implements TravelAnima
                             .forGetter(DatapackConsole::handlesRotation),
                     MoreCodec.VECTOR3F.optionalFieldOf("handles_translation", new Vector3f()).forGetter(DatapackConsole::handlesTranslation),
                     Identifier.CODEC.optionalFieldOf("model").forGetter(DatapackConsole::model),
-		            Transformations.CODEC.optionalFieldOf("transformations", Transformations.DEFAULT).forGetter(DatapackConsole::getTransformations),
+		            Transformations.CODEC.optionalFieldOf("transformations", Transformations.MISSING).forGetter(DatapackConsole::getTransformations),
                     TravelAnimationMap.CODEC.optionalFieldOf("animations", new TravelAnimationMap())
                             .forGetter(DatapackConsole::getAnimations),
                     SimpleType.CODEC.optionalFieldOf("type").forGetter(DatapackConsole::getCustomType),
                     Codec.BOOL.optionalFieldOf("isDatapack", true).forGetter(DatapackConsole::wasDatapack))
             .apply(instance, DatapackConsole::new));
-	protected final Transformations transformations;
+	protected Identifier texture;
+    protected final Identifier id;
+	protected Identifier emission;
+	protected List<Float> sonicRotation;
+	protected Vector3f sonicTranslation;
+	protected List<Float> handlesRotation;
+	protected Vector3f handlesTranslation;
+	protected Identifier model;
+	protected Transformations transformations;
     protected boolean initiallyDatapack;
-    protected final TravelAnimationMap animations;
+	protected TravelAnimationMap animations;
 
     public DatapackConsole(Identifier id,
                            Optional<Identifier> category,
@@ -133,6 +136,13 @@ public class DatapackConsole extends ConsoleVariantSchema implements TravelAnima
     }
 
     public Optional<Identifier> model() {
+	    if (this.model == null) {
+		    ConsoleVariantSchema parentConsole = getSameParent(val -> val instanceof DatapackConsole val2 && val2.model != null);
+		    if (parentConsole instanceof DatapackConsole datapackParent) {
+			    this.model = datapackParent.model;
+		    }
+	    }
+
         return Optional.ofNullable(model);
     }
 
@@ -147,11 +157,19 @@ public class DatapackConsole extends ConsoleVariantSchema implements TravelAnima
 	}
 
 	public Transformations getTransformations() {
+		if (transformations.equals(Transformations.MISSING)) {
+			transformations = (getSameParent(val -> val instanceof DatapackConsole val2 && !val2.transformations.equals(Transformations.MISSING)) instanceof DatapackConsole other) ? other.getTransformations() : Transformations.DEFAULT;
+		}
+
 		return transformations;
 	}
 
     @Override
     public TravelAnimationMap getAnimations() {
+	    if (animations.isEmpty() && getSameParent(val -> val instanceof DatapackConsole val2 && !val2.animations.isEmpty()) instanceof DatapackConsole datapackParent) {
+		    this.animations = datapackParent.getAnimations();
+	    }
+
         return animations;
     }
 
@@ -161,6 +179,10 @@ public class DatapackConsole extends ConsoleVariantSchema implements TravelAnima
         }
         return Optional.empty();
     }
+
+	public @Nullable ConsoleVariantSchema getSameParent(Predicate<ConsoleVariantSchema> predicate) {
+		return ConsoleVariantRegistry.withParent(this.parent()).stream().filter(val -> val != this).filter(predicate).findAny().orElse(ConsoleVariantRegistry.HARTNELL);
+	}
 
     public static DatapackConsole fromInputStream(InputStream stream) {
         return fromJson(JsonParser.parseReader(new InputStreamReader(stream)).getAsJsonObject());

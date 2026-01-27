@@ -15,6 +15,12 @@ public record Transformations(Vec3d offset, Vec3d scale, Vec3d rotation) {
 			new Vec3d(0.0, 0.0, 0.0)
 	);
 
+	public static final Transformations MISSING = new Transformations(
+			new Vec3d(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE),
+			new Vec3d(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE),
+			new Vec3d(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE)
+	);
+
 	public static final Codec<Transformations> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Vec3d.CODEC.optionalFieldOf("offset", DEFAULT.offset()).forGetter(Transformations::offset),
 			Vec3d.CODEC.optionalFieldOf("scale", DEFAULT.scale()).forGetter(Transformations::scale),
