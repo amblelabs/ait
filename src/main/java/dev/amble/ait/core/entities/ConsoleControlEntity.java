@@ -138,7 +138,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
 	    this.dataTracker.startTracking(ANIMATION_ID, "");
     }
 
-    @Override
+	@Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
 
@@ -625,7 +625,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
 			    this.dataTracker.set(ANIMATION_ID, animation.id().toString())
 	    );
 
-        super.setCustomName(Text.translatable(this.control.id().toTranslationKey("control")));
+	    updateCustomName();
 
         if (consoleType != null) {
             this.setControlWidth(type.getScale().width);
@@ -633,6 +633,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
             this.setOffset(type.getOffset());
         }
     }
+
+	private void updateCustomName() {
+		super.setCustomName(Text.translatable(this.getControl().id().toTranslationKey("control")));
+	}
 
     public void logConsoleJson() {
         // convert all controls into json

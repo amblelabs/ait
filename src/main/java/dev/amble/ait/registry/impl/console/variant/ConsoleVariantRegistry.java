@@ -1,22 +1,7 @@
 package dev.amble.ait.registry.impl.console.variant;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import dev.amble.ait.data.schema.console.variant.hudolin.*;
-import dev.amble.lib.register.unlockable.UnlockableRegistry;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import org.joml.Vector3f;
-
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.Vec3d;
-
 import dev.amble.ait.AITMod;
+import dev.amble.ait.core.util.Transformations;
 import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.datapack.DatapackExterior;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
@@ -31,11 +16,24 @@ import dev.amble.ait.data.schema.console.variant.hartnell.HartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.KeltHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.MintHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.WoodenHartnellVariant;
+import dev.amble.ait.data.schema.console.variant.hudolin.*;
 import dev.amble.ait.data.schema.console.variant.renaissance.*;
 import dev.amble.ait.data.schema.console.variant.steam.*;
 import dev.amble.ait.data.schema.console.variant.toyota.ToyotaBlueVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.ToyotaLegacyVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.ToyotaVariant;
+import dev.amble.lib.register.unlockable.UnlockableRegistry;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.resource.ResourceType;
+import net.minecraft.server.network.ServerPlayerEntity;
+import org.joml.Vector3f;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSchema> {
     private static ConsoleVariantRegistry INSTANCE;
@@ -65,7 +63,7 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
             }
 
             buf.encodeAsJson(DatapackConsole.CODEC, new DatapackConsole(schema.id(), Optional.of(schema.parent().id()),
-                    DatapackExterior.DEFAULT_TEXTURE, DatapackExterior.DEFAULT_TEXTURE, List.of(), new Vector3f(), List.of(), new Vector3f(), Optional.empty(), Vec3d.ZERO, Vec3d.ZERO, null, Optional.empty(), false));
+		            DatapackExterior.DEFAULT_TEXTURE, DatapackExterior.DEFAULT_TEXTURE, List.of(), new Vector3f(), List.of(), new Vector3f(), Optional.empty(), Transformations.DEFAULT, null, Optional.empty(), false));
         }
 
         ServerPlayNetworking.send(player, this.packet, buf);

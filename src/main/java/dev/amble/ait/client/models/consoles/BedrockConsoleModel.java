@@ -18,7 +18,6 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -62,11 +61,7 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
 
 	public void applyOffsets(MatrixStack matrices, ConsoleVariantSchema schema) {
 		if (schema instanceof DatapackConsole datapackConsole) {
-			Vec3d offset = datapackConsole.getOffset().multiply(1, -1, 1);
-			matrices.translate(offset.x, offset.y, offset.z);
-
-			Vec3d scale = datapackConsole.getScale();
-			matrices.scale((float) scale.x, (float) scale.y, (float) scale.z);
+			datapackConsole.getTransformations().apply(matrices);
 		}
 	}
 
