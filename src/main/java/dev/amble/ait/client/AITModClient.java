@@ -6,14 +6,18 @@ import static dev.amble.ait.core.item.PersonalityMatrixItem.colorToInt;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
+import dev.amble.ait.api.ClientWorldEvents;
 import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
@@ -140,6 +144,20 @@ public class AITModClient implements ClientModInitializer {
         registerItemColors();
         registerParticles();
 
+        // In your AITModClient.onInitializeClient() or similar initialization
+        ClientChunkEvents.CHUNK_LOAD.register((world, chunk) -> {
+            // Check if this is a TARDIS dimension
+            if (TardisServerWorld.isTardisDimension(world)) {
+                TardisDoorBOTI.markDirty();
+            }
+        });
+
+        ClientChunkEvents.CHUNK_UNLOAD.register((world, chunk) -> {
+            if (TardisServerWorld.isTardisDimension(world)) {
+                TardisDoorBOTI.markDirty();
+            }
+        });
+
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             ConfigCommand.register(dispatcher);
             DebugCommand.register(dispatcher);
@@ -255,6 +273,7 @@ public class AITModClient implements ClientModInitializer {
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn(client));
     }
+
     public static Screen screenFromId(int id) {
         return screenFromId(id, null, null);
     }
@@ -442,13 +461,13 @@ public class AITModClient implements ClientModInitializer {
 
     public void registerItemColors() {
         ColorProviderRegistry.ITEM.register((stack, tintIndex) -> {
-                    if (tintIndex != 0)
-                        return -1;
+            if (tintIndex != 0)
+                return -1;
 
-                    PersonalityMatrixItem personalityMatrixItem = (PersonalityMatrixItem) stack.getItem();
-                    int[] integers = personalityMatrixItem.getColor(stack);
-                    return colorToInt(integers[0], integers[1], integers[2]);
-                }, AITItems.PERSONALITY_MATRIX);
+            PersonalityMatrixItem personalityMatrixItem = (PersonalityMatrixItem) stack.getItem();
+            int[] integers = personalityMatrixItem.getColor(stack);
+            return colorToInt(integers[0], integers[1], integers[2]);
+        }, AITItems.PERSONALITY_MATRIX);
 
         ColorProviderRegistry.ITEM.register((stack, tintIndex) -> tintIndex > 0 ? -1 :
                 DrinkUtil.getColor(stack), AITItems.MUG);
@@ -479,10 +498,14 @@ public class AITModClient implements ClientModInitializer {
 
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
+
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
-        var exteriorQueue = new ArrayList<>(BOTI.EXTERIOR_RENDER_QUEUE);
-        for (ExteriorBlockEntity exterior : exteriorQueue) {
+
+        // Create snapshot to avoid ConcurrentModificationException
+        List<ExteriorBlockEntity> exteriorSnapshot = new ArrayList<>(BOTI.EXTERIOR_RENDER_QUEUE);
+
+        for (ExteriorBlockEntity exterior : exteriorSnapshot) {
             if (exterior == null || !exterior.isLinked() || exterior.tardis().isEmpty()) continue;
             Tardis tardis = exterior.tardis().get();
             if (tardis == null || tardis.getExterior() == null) return;
@@ -504,6 +527,7 @@ public class AITModClient implements ClientModInitializer {
             }
             stack.pop();
         }
+
         BOTI.EXTERIOR_RENDER_QUEUE.clear();
     }
 
@@ -512,15 +536,21 @@ public class AITModClient implements ClientModInitializer {
 
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
+
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
         boolean bl = TardisServerWorld.isTardisDimension(world);
+
         if (bl) {
             ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
             if (tardis == null || tardis.getDesktop() == null) return;
             ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
             AnimatedModel model = variant.getDoor().model();
-            for (DoorBlockEntity door : BOTI.DOOR_RENDER_QUEUE) {
+
+            // Create snapshot to avoid ConcurrentModificationException
+            List<DoorBlockEntity> doorSnapshot = new ArrayList<>(BOTI.DOOR_RENDER_QUEUE);
+
+            for (DoorBlockEntity door : doorSnapshot) {
                 if (door == null) continue;
                 BlockPos pos = door.getPos();
                 stack.push();
@@ -537,6 +567,7 @@ public class AITModClient implements ClientModInitializer {
                 }
                 stack.pop();
             }
+
             BOTI.DOOR_RENDER_QUEUE.clear();
         }
     }
@@ -548,10 +579,16 @@ public class AITModClient implements ClientModInitializer {
         SinglePartEntityModel contents = new GallifreyFallsModel(GallifreyFallsModel.getTexturedModelData().createModel());
         Identifier frameTex = GallifreyanPaintingEntityRenderer.GALLIFREY_FRAME_TEXTURE;
         Identifier contentsTex = GallifreyanPaintingEntityRenderer.GALLIFREY_PAINTING_TEXTURE;
+
         if (client.player == null || client.world == null) return;
+
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
-        for (BOTIPaintingEntity painting : BOTI.GALLIFREYAN_RENDER_QUEUE) {
+
+        // Create snapshot to avoid ConcurrentModificationException
+        List<BOTIPaintingEntity> paintingSnapshot = new ArrayList<>(BOTI.GALLIFREYAN_RENDER_QUEUE);
+
+        for (BOTIPaintingEntity painting : paintingSnapshot) {
             if (painting == null) continue;
             Vec3d pos = painting.getPos();
             stack.push();
@@ -567,6 +604,7 @@ public class AITModClient implements ClientModInitializer {
                             world.getLightLevel(LightType.SKY, blockPos)), contents, frameTex, contentsTex);
             stack.pop();
         }
+
         BOTI.GALLIFREYAN_RENDER_QUEUE.clear();
     }
 
@@ -577,10 +615,16 @@ public class AITModClient implements ClientModInitializer {
         SinglePartEntityModel contents = new TrenzalorePaintingModel(TrenzalorePaintingModel.getTexturedModelData().createModel());
         Identifier frameTex = TrenzalorePaintingEntityRenderer.TRENZALORE_FRAME_TEXTURE;
         Identifier contentsTex = TrenzalorePaintingEntityRenderer.TRENZALORE_PAINTING_TEXTURE;
+
         if (client.player == null || client.world == null) return;
+
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
-        for (BOTIPaintingEntity painting : BOTI.TRENZALORE_PAINTING_QUEUE) {
+
+        // Create snapshot to avoid ConcurrentModificationException
+        List<BOTIPaintingEntity> paintingSnapshot = new ArrayList<>(BOTI.TRENZALORE_PAINTING_QUEUE);
+
+        for (BOTIPaintingEntity painting : paintingSnapshot) {
             if (painting == null) continue;
             Vec3d pos = painting.getPos();
             stack.push();
@@ -596,6 +640,7 @@ public class AITModClient implements ClientModInitializer {
                             world.getLightLevel(LightType.SKY, blockPos)), contents, frameTex, contentsTex);
             stack.pop();
         }
+
         BOTI.TRENZALORE_PAINTING_QUEUE.clear();
     }
 
@@ -604,9 +649,14 @@ public class AITModClient implements ClientModInitializer {
 
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
+
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
-        for (RiftEntity rift : BOTI.RIFT_RENDERING_QUEUE) {
+
+        // Create snapshot to avoid ConcurrentModificationException
+        List<RiftEntity> riftSnapshot = new ArrayList<>(BOTI.RIFT_RENDERING_QUEUE);
+
+        for (RiftEntity rift : riftSnapshot) {
             if (rift == null) continue;
             Vec3d pos = rift.getPos();
             stack.push();
@@ -620,18 +670,15 @@ public class AITModClient implements ClientModInitializer {
             RiftBOTI.renderRiftBoti(stack, riftModel, LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, blockPos), world.getLightLevel(LightType.SKY, blockPos)));
             stack.pop();
         }
+
         BOTI.RIFT_RENDERING_QUEUE.clear();
     }
-    public static void resourcepackRegister() {
 
+    public static void resourcepackRegister() {
         // Register builtin resourcepacks (thank you addie for your help)
         FabricLoader.getInstance().
-
                 getModContainer("ait").
-
-                ifPresent(modContainer ->
-
-                {
+                ifPresent(modContainer -> {
                     ResourceManagerHelper.registerBuiltinResourcePack(id("aitmenu"), modContainer, ResourcePackActivationType.DEFAULT_ENABLED);
                     ResourceManagerHelper.registerBuiltinResourcePack(id("bushy_leaves"), modContainer, ResourcePackActivationType.NORMAL);
                 });
