@@ -41,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * A proxy world that fetches block data from a target dimension (server-side)
  * and caches it for client-side rendering.
- * Now supports optimized batch chunk requests.
+ * Now supports optimized batch chunk requests and renderer notifications.
  */
 public class ProxyClientWorld implements BlockRenderView {
     private final RegistryKey<World> targetDimension;
@@ -50,10 +50,32 @@ public class ProxyClientWorld implements BlockRenderView {
     private final MinecraftClient client;
     private final World fallbackWorld;
 
+    // Reference to the renderer for chunk update notifications
+    private WorldGeometryRenderer renderer;
+    private BlockPos lastCenterPos;
+
+    // Track when chunks were last requested to avoid spam
+    private final Map<ChunkPos, Long> requestTimestamps = new ConcurrentHashMap<>();
+    private static final long REQUEST_COOLDOWN_MS = 1000; // 1 second cooldown per chunk
+
     public ProxyClientWorld(RegistryKey<World> targetDimension) {
         this.targetDimension = targetDimension;
         this.client = MinecraftClient.getInstance();
         this.fallbackWorld = client.world;
+    }
+
+    /**
+     * Links this proxy world to a renderer for chunk update notifications
+     */
+    public void setRenderer(WorldGeometryRenderer renderer) {
+        this.renderer = renderer;
+    }
+
+    /**
+     * Checks if this proxy world is valid (has access to server world in singleplayer)
+     */
+    public boolean isValid() {
+        return client.getServer() != null && client.getServer().getWorld(targetDimension) != null;
     }
 
     /**
@@ -67,10 +89,13 @@ public class ProxyClientWorld implements BlockRenderView {
         if (chunk == null || chunk.isEmpty()) {
             // Try to fetch from server
             chunk = fetchChunk(chunkPos);
-            cachedChunks.put(chunkPos, chunk);
+            if (chunk != null) {
+                cachedChunks.put(chunkPos, chunk);
+                notifyChunkUpdate(chunkPos);
+            }
         }
 
-        return chunk.getBlockState(pos);
+        return chunk != null ? chunk.getBlockState(pos) : fallbackWorld.getBlockState(pos);
     }
 
     @Override
@@ -86,10 +111,13 @@ public class ProxyClientWorld implements BlockRenderView {
 
         if (chunk == null || chunk.isEmpty()) {
             chunk = fetchChunk(chunkPos);
-            cachedChunks.put(chunkPos, chunk);
+            if (chunk != null) {
+                cachedChunks.put(chunkPos, chunk);
+                notifyChunkUpdate(chunkPos);
+            }
         }
 
-        return chunk.getBlockEntity(pos);
+        return chunk != null ? chunk.getBlockEntity(pos) : null;
     }
 
     /**
@@ -105,9 +133,30 @@ public class ProxyClientWorld implements BlockRenderView {
             }
         }
 
-        // Multiplayer: request via packet (TODO - implement packet system)
-        // For now, return empty chunk
+        // Multiplayer: request via packet if not already requested recently
+        if (!isValid()) {
+            requestChunkIfNeeded(chunkPos);
+        }
+
+        // Return empty chunk if not available
         return ProxyChunk.empty();
+    }
+
+    /**
+     * Requests a single chunk from the server with cooldown protection
+     */
+    private void requestChunkIfNeeded(ChunkPos chunkPos) {
+        long now = System.currentTimeMillis();
+        Long lastRequest = requestTimestamps.get(chunkPos);
+
+        // Only request if not requested recently
+        if (lastRequest == null || (now - lastRequest) > REQUEST_COOLDOWN_MS) {
+            if (requestedChunks.add(chunkPos)) {
+                requestTimestamps.put(chunkPos, now);
+                // Send single chunk request as fallback
+                // TODO: Implement single chunk request packet
+            }
+        }
     }
 
     /**
@@ -116,6 +165,8 @@ public class ProxyClientWorld implements BlockRenderView {
     public void receiveChunkData(ChunkPos chunkPos, byte[] compressedData) {
         ProxyChunk chunk = ProxyChunk.fromBytes(chunkPos, compressedData);
         cachedChunks.put(chunkPos, chunk);
+        requestedChunks.remove(chunkPos);
+        notifyChunkUpdate(chunkPos);
     }
 
     /**
@@ -123,40 +174,87 @@ public class ProxyClientWorld implements BlockRenderView {
      */
     public void clearCache() {
         cachedChunks.clear();
+        requestedChunks.clear();
+        requestTimestamps.clear();
+    }
+
+    /**
+     * Pre-loads a single chunk and notifies renderer when ready.
+     * Used by WorldGeometryRenderer's preloadChunks() method.
+     */
+    public void preloadChunk(ChunkPos chunkPos) {
+        // Skip if already cached
+        if (cachedChunks.containsKey(chunkPos)) {
+            return;
+        }
+
+        // Singleplayer: fetch directly
+        if (isValid()) {
+            ProxyChunk chunk = fetchChunk(chunkPos);
+            if (chunk != null && !chunk.isEmpty()) {
+                cachedChunks.put(chunkPos, chunk);
+                notifyChunkUpdate(chunkPos);
+            }
+            return;
+        }
+
+        // Multiplayer: will be handled by batch request
+        requestChunkIfNeeded(chunkPos);
     }
 
     /**
      * Pre-loads chunks in a radius around a center position using optimized batch requests.
+     * This is the main preloading method called by WorldGeometryRenderer.
      */
     public void preloadChunks(BlockPos center, int radius) {
+        this.lastCenterPos = center;
         List<ChunkPos> toRequest = new ArrayList<>();
         int centerChunkX = center.getX() >> 4;
         int centerChunkZ = center.getZ() >> 4;
-        
+
         for (int x = -radius; x <= radius; x++) {
             for (int z = -radius; z <= radius; z++) {
                 ChunkPos pos = new ChunkPos(centerChunkX + x, centerChunkZ + z);
-                if (!cachedChunks.containsKey(pos) && requestedChunks.add(pos)) {
+
+                // Skip if already cached
+                if (cachedChunks.containsKey(pos)) {
+                    continue;
+                }
+
+                // Check cooldown
+                Long lastRequest = requestTimestamps.get(pos);
+                long now = System.currentTimeMillis();
+                if (lastRequest != null && (now - lastRequest) < REQUEST_COOLDOWN_MS) {
+                    continue;
+                }
+
+                if (requestedChunks.add(pos)) {
                     toRequest.add(pos);
+                    requestTimestamps.put(pos, now);
                 }
             }
         }
-        
+
         if (!toRequest.isEmpty()) {
-            // Send batch request (only works in multiplayer, in singleplayer fetchChunk handles it)
-            if (client.getServer() == null) {
+            // Multiplayer: send batch request
+            if (client.getServer() == null && ClientPlayNetworking.canSend(BOTIChunkBatchRequestC2SPacket.TYPE)) {
                 ClientPlayNetworking.send(new BOTIChunkBatchRequestC2SPacket(
-                    targetDimension, center, (byte)radius, toRequest
+                        targetDimension, center, (byte)radius, toRequest
                 ));
-            } else {
-                // Singleplayer: fetch chunks directly
+            }
+            // Singleplayer: fetch chunks directly
+            else if (isValid()) {
                 for (ChunkPos chunkPos : toRequest) {
-                    fetchChunk(chunkPos);
+                    ProxyChunk chunk = fetchChunk(chunkPos);
+                    if (chunk != null && !chunk.isEmpty()) {
+                        cachedChunks.put(chunkPos, chunk);
+                        notifyChunkUpdate(chunkPos);
+                    }
                 }
             }
         }
     }
-    
+
     /**
      * Receives section data from server (multiplayer).
      * Called when BOTIChunkDataBatchS2CPacket is received.
@@ -165,6 +263,39 @@ public class ProxyClientWorld implements BlockRenderView {
         ChunkPos chunkPos = new ChunkPos(data.chunkX, data.chunkZ);
         ProxyChunk chunk = cachedChunks.computeIfAbsent(chunkPos, ProxyChunk::new);
         chunk.setSection(data);
+        requestedChunks.remove(chunkPos);
+        notifyChunkUpdate(chunkPos);
+    }
+
+    /**
+     * Notifies the renderer that a chunk has been updated/loaded
+     */
+    private void notifyChunkUpdate(ChunkPos chunkPos) {
+        if (renderer != null && lastCenterPos != null) {
+            renderer.onChunkUpdate(chunkPos, lastCenterPos);
+        }
+    }
+
+    /**
+     * Checks if a chunk is loaded in the cache
+     */
+    public boolean isChunkLoaded(ChunkPos chunkPos) {
+        ProxyChunk chunk = cachedChunks.get(chunkPos);
+        return chunk != null && !chunk.isEmpty();
+    }
+
+    /**
+     * Gets the number of cached chunks
+     */
+    public int getCachedChunkCount() {
+        return cachedChunks.size();
+    }
+
+    /**
+     * Gets the number of pending chunk requests
+     */
+    public int getPendingRequestCount() {
+        return requestedChunks.size();
     }
 
     public RegistryKey<World> getTargetDimension() {

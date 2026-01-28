@@ -21,8 +21,6 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.World;
 
-import dev.amble.ait.client.boti.ProxyClientWorld;
-
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
@@ -45,10 +43,10 @@ public class WorldGeometryRenderer {
     private Matrix4f projectionMatrix;
     private Frustum frustum;
 
-    // Add this field to WorldGeometryRenderer
+    // Door facing for culling
     private Direction doorFacing = Direction.NORTH;
     private Direction lastDoorFacing = null;
-    
+
     // Cache for cross-dimensional rendering
     private ProxyClientWorld proxyWorld = null;
     private RegistryKey<World> lastDimensionKey = null;
@@ -104,7 +102,9 @@ public class WorldGeometryRenderer {
         this.needsRebuild = true;
     }
 
-    // Modify setDoorFacing to only mark dirty when it actually changes
+    /**
+     * Sets the door facing direction for culling (only marks dirty if it changes)
+     */
     public void setDoorFacing(Direction facing) {
         if (this.lastDoorFacing != facing) {
             this.doorFacing = facing;
@@ -114,11 +114,11 @@ public class WorldGeometryRenderer {
             this.doorFacing = facing; // Update without marking dirty
         }
     }
-    
+
     /**
      * Renders geometry from a different dimension using a ProxyWorld.
      * This is the main entry point for cross-dimensional BOTI rendering.
-     * 
+     *
      * @param dimensionKey The dimension to render from
      * @param centerPos Center position for rendering
      * @param matrices View matrix transformations
@@ -128,24 +128,96 @@ public class WorldGeometryRenderer {
         // Create or update ProxyWorld for this dimension
         if (proxyWorld == null || !dimensionKey.equals(lastDimensionKey)) {
             proxyWorld = new ProxyClientWorld(dimensionKey);
+            proxyWorld.setRenderer(this); // Link renderer for chunk update notifications
             lastDimensionKey = dimensionKey;
             markDirty(); // Rebuild when dimension changes
         }
-        
+
         // Check if the proxy world is valid (has server world in singleplayer)
         if (!proxyWorld.isValid()) {
-            // TODO: In multiplayer, request chunks via packets
+            // In multiplayer, request chunks via packets
+            requestChunksForMultiplayer(dimensionKey, centerPos);
             return;
         }
-        
+
+        // Preload chunks before rendering
+        preloadChunks(centerPos);
+
         // Render using the proxy world
         renderWithWorld(proxyWorld, centerPos, matrices, tickDelta);
     }
-    
+
+    /**
+     * Preloads chunks around a center position to ensure they're available for rendering.
+     * This is critical for cross-dimensional rendering where chunks may not be loaded yet.
+     *
+     * @param centerPos Center position to preload around
+     */
+    private void preloadChunks(BlockPos centerPos) {
+        if (proxyWorld == null || !proxyWorld.isValid()) {
+            return;
+        }
+
+        // Calculate chunk radius based on render distance
+        int chunkRadius = (renderDistance >> 4) + 1; // Convert block distance to chunks + 1 for safety
+
+        // Use ProxyClientWorld's optimized batch preloading
+        proxyWorld.preloadChunks(centerPos, chunkRadius);
+    }
+
+    /**
+     * Requests chunks from the server in multiplayer when ProxyWorld is invalid.
+     * This triggers the BOTIChunkRequestC2SPacket system.
+     *
+     * @param dimensionKey The dimension to request chunks from
+     * @param centerPos Center position to request around
+     */
+    private void requestChunksForMultiplayer(RegistryKey<World> dimensionKey, BlockPos centerPos) {
+        MinecraftClient client = MinecraftClient.getInstance();
+
+        // Don't request if in singleplayer or not connected
+        if (client.isInSingleplayer() || client.getNetworkHandler() == null) {
+            return;
+        }
+
+        // Use ProxyClientWorld's preloading which handles multiplayer requests
+        if (proxyWorld != null) {
+            int chunkRadius = (renderDistance >> 4) + 1;
+            proxyWorld.preloadChunks(centerPos, chunkRadius);
+
+            // Mark dirty so we rebuild when chunks arrive
+            markDirty();
+        }
+    }
+
+    /**
+     * Called when a chunk is loaded/unloaded in the proxy world to trigger a rebuild
+     * if it's in our render area.
+     *
+     * @param chunkPos The chunk position that was updated
+     * @param centerPos The current center position for rendering
+     */
+    public void onChunkUpdate(ChunkPos chunkPos, BlockPos centerPos) {
+        if (centerPos == null || lastCenterPos == null) {
+            return;
+        }
+
+        // Check if the updated chunk is within render distance
+        int chunkRadius = (renderDistance >> 4) + 1;
+        ChunkPos center = new ChunkPos(lastCenterPos);
+
+        int dx = Math.abs(chunkPos.x - center.x);
+        int dz = Math.abs(chunkPos.z - center.z);
+
+        if (dx <= chunkRadius && dz <= chunkRadius) {
+            markDirty(); // Chunk in view changed, rebuild needed
+        }
+    }
+
     /**
      * Internal render method that works with any BlockRenderView.
      * This allows rendering from either a real World or a ProxyClientWorld.
-     * 
+     *
      * @param blockView The block view to render from
      * @param centerPos Center position for rendering
      * @param matrices View matrix transformations
@@ -166,12 +238,11 @@ public class WorldGeometryRenderer {
         this.frustum.setPosition(centerPos.getX(), centerPos.getY(), centerPos.getZ());
 
         // Rebuild geometry if needed
-        if (needsRebuild || !centerPos.equals(lastCenterPos)) {
-            if (buildFuture == null || buildFuture.isDone()) {
-                lastCenterPos = centerPos;
-                needsRebuild = false;
-                rebuildGeometryFromWorld(blockView, centerPos);
-            }
+        boolean shouldRebuild = needsRebuild || !centerPos.equals(lastCenterPos);
+        if (shouldRebuild && (buildFuture == null || buildFuture.isDone())) {
+            lastCenterPos = centerPos.toImmutable(); // Use toImmutable() to avoid mutations
+            rebuildGeometryFromWorld(blockView, centerPos);
+            // Don't reset needsRebuild here - let the rebuild completion do it
         }
 
         // Store original projection
@@ -340,7 +411,7 @@ public class WorldGeometryRenderer {
             throw new IllegalStateException("Matrix stack not empty");
         }
     }
-    
+
     /**
      * Rebuilds all geometry asynchronously from a BlockRenderView with double-buffering.
      * This version works with any BlockView, including ProxyClientWorld.
@@ -400,170 +471,27 @@ public class WorldGeometryRenderer {
                     // Update block entities
                     blockEntities.clear();
                     blockEntities.addAll(foundBlockEntities);
+
+                    // NOW reset the dirty flag after rebuild is complete
+                    needsRebuild = false;
                 });
 
             } catch (Exception e) {
                 e.printStackTrace();
+                // Reset flag even on error to avoid infinite loop
+                MinecraftClient.getInstance().execute(() -> needsRebuild = false);
             }
         });
     }
 
     /**
-     * Rebuilds all geometry asynchronously with double-buffering
-     */
-    private void rebuildGeometry(World world, BlockPos centerPos) {
-        rebuildGeometryFromWorld(world, centerPos);
-    }
-
-    /**
-     * Builds geometry for a single 16x16x16 section into a target map
-     */
-    private void buildSectionToMap(World world, BlockPos centerPos, int sectionX, int sectionY, int sectionZ,
-                                   BlockRenderManager blockRenderManager, Random random,
-                                   List<BlockEntity> foundBlockEntities,
-                                   Map<ChunkSectionPos, Map<RenderLayer, VertexBuffer>> targetMap) {
-
-        Map<RenderLayer, BufferBuilder> builders = new HashMap<>();
-        Set<RenderLayer> usedLayers = new HashSet<>();
-
-        // Initialize buffer builders for each layer
-        for (RenderLayer layer : RenderLayer.getBlockLayers()) {
-            BufferBuilder builder = new BufferBuilder(layer.getExpectedBufferSize());
-            builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL);
-            builders.put(layer, builder);
-        }
-
-        MatrixStack matrices = new MatrixStack();
-        BlockPos.Mutable mutablePos = new BlockPos.Mutable();
-
-        int startX = sectionX << 4;
-        int startY = sectionY << 4;
-        int startZ = sectionZ << 4;
-        int endX = startX + 15;
-        int endY = startY + 15;
-        int endZ = startZ + 15;
-
-        boolean hasBlocks = false;
-
-        // Iterate through all blocks in section
-        for (int x = startX; x <= endX; x++) {
-            for (int y = startY; y <= endY; y++) {
-                for (int z = startZ; z <= endZ; z++) {
-                    mutablePos.set(x, y, z);
-
-                    BlockState state = world.getBlockState(mutablePos);
-
-                    // Skip air and black concrete (void)
-                    if (state.isAir() || state.getBlock() == Blocks.BLACK_CONCRETE) {
-                        continue;
-                    }
-
-                    // Calculate relative position
-                    double relX = x - centerPos.getX();
-                    double relY = y - centerPos.getY();
-                    double relZ = z - centerPos.getZ();
-
-                    // **INVERTED: Check if block is BEHIND the door plane (opposite of door facing)**
-                    // Since the door is "backwards", we want to show blocks on the opposite side
-                    boolean behindDoor = switch (doorFacing) {
-                        case NORTH -> relZ > 0.0;   // Door faces north, but show blocks toward +Z (south)
-                        case SOUTH -> relZ < -0.0;  // Door faces south, but show blocks toward -Z (north)
-                        case EAST -> relX < -0.0;   // Door faces east, but show blocks toward -X (west)
-                        case WEST -> relX > 0.0;    // Door faces west, but show blocks toward +X (east)
-                        default -> false;
-                    };
-
-                    if (behindDoor) {
-                        continue; // Skip blocks behind the door
-                    }
-
-                    // Skip fully surrounded blocks (optimization)
-                    if (isFullySurrounded(world, mutablePos)) {
-                        continue;
-                    }
-
-                    hasBlocks = true;
-
-                    // Track block entities for later rendering
-                    if (state.hasBlockEntity()) {
-                        BlockEntity blockEntity = world.getBlockEntity(mutablePos);
-                        if (blockEntity != null) {
-                            synchronized (foundBlockEntities) {
-                                foundBlockEntities.add(blockEntity);
-                            }
-                        }
-                    }
-
-                    // Render fluids
-                    FluidState fluidState = state.getFluidState();
-                    if (!fluidState.isEmpty()) {
-                        RenderLayer fluidLayer = RenderLayers.getFluidLayer(fluidState);
-                        BufferBuilder builder = builders.get(fluidLayer);
-                        usedLayers.add(fluidLayer);
-
-                        matrices.push();
-                        matrices.translate(relX, relY, relZ);
-                        blockRenderManager.renderFluid(mutablePos, world, builder, state, fluidState);
-                        matrices.pop();
-                    }
-
-                    // Render blocks
-                    if (state.getRenderType() != BlockRenderType.INVISIBLE) {
-                        RenderLayer blockLayer = RenderLayers.getBlockLayer(state);
-                        BufferBuilder builder = builders.get(blockLayer);
-                        usedLayers.add(blockLayer);
-
-                        matrices.push();
-                        matrices.translate(relX, relY, relZ);
-                        blockRenderManager.renderBlock(state, mutablePos, world, matrices, builder, true, random);
-                        matrices.pop();
-                    }
-                }
-            }
-        }
-
-        // Upload to GPU if section has any blocks
-        if (hasBlocks) {
-            ChunkSectionPos sectionPos = ChunkSectionPos.from(sectionX, sectionY, sectionZ);
-
-            Map<RenderLayer, BufferBuilder.BuiltBuffer> builtBuffers = new HashMap<>();
-            for (RenderLayer layer : usedLayers) {
-                BufferBuilder builder = builders.get(layer);
-                BufferBuilder.BuiltBuffer builtBuffer = builder.end();
-                builtBuffers.put(layer, builtBuffer);
-            }
-
-            // Upload on main thread and put into target map
-            MinecraftClient.getInstance().execute(() -> {
-                Map<RenderLayer, VertexBuffer> layerBuffers = new HashMap<>();
-
-                for (Map.Entry<RenderLayer, BufferBuilder.BuiltBuffer> entry : builtBuffers.entrySet()) {
-                    RenderLayer layer = entry.getKey();
-                    BufferBuilder.BuiltBuffer builtBuffer = entry.getValue();
-
-                    VertexBuffer vbo = new VertexBuffer(VertexBuffer.Usage.STATIC);
-                    vbo.bind();
-                    vbo.upload(builtBuffer);
-                    VertexBuffer.unbind();
-
-                    layerBuffers.put(layer, vbo);
-                }
-
-                if (!layerBuffers.isEmpty()) {
-                    targetMap.put(sectionPos, layerBuffers);
-                }
-            });
-        }
-    }
-    
-    /**
      * Builds geometry for a single 16x16x16 section from a BlockRenderView into a target map.
      * This version works with any BlockView, including ProxyClientWorld.
      */
     private void buildSectionFromWorld(BlockRenderView blockView, BlockPos centerPos, int sectionX, int sectionY, int sectionZ,
-                                   BlockRenderManager blockRenderManager, Random random,
-                                   List<BlockEntity> foundBlockEntities,
-                                   Map<ChunkSectionPos, Map<RenderLayer, VertexBuffer>> targetMap) {
+                                       BlockRenderManager blockRenderManager, Random random,
+                                       List<BlockEntity> foundBlockEntities,
+                                       Map<ChunkSectionPos, Map<RenderLayer, VertexBuffer>> targetMap) {
 
         Map<RenderLayer, BufferBuilder> builders = new HashMap<>();
         Set<RenderLayer> usedLayers = new HashSet<>();
@@ -711,7 +639,7 @@ public class WorldGeometryRenderer {
         }
         return true;
     }
-    
+
     /**
      * Checks if a block is fully surrounded by opaque blocks (for culling) - World version
      */
@@ -730,7 +658,7 @@ public class WorldGeometryRenderer {
         }
         sectionBuffers.clear();
         blockEntities.clear();
-        
+
         // Clean up proxy world resources
         if (proxyWorld != null) {
             proxyWorld.clearCache();
@@ -751,6 +679,20 @@ public class WorldGeometryRenderer {
      */
     public int getBlockEntityCount() {
         return blockEntities.size();
+    }
+
+    /**
+     * Gets debug info about the proxy world state
+     */
+    public String getDebugInfo() {
+        if (proxyWorld == null) {
+            return "No proxy world";
+        }
+        return String.format("Proxy: %s | Cached: %d chunks | Pending: %d requests | Sections: %d",
+                proxyWorld.getTargetDimension().getValue(),
+                proxyWorld.getCachedChunkCount(),
+                proxyWorld.getPendingRequestCount(),
+                getSectionCount());
     }
 
     public void bobView(MatrixStack matrices, float tickDelta) {
