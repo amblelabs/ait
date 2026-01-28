@@ -6,6 +6,15 @@ import net.minecraft.block.Blocks;
 /**
  * Efficient storage for a 16x16x16 chunk section using palette compression.
  * Blocks are stored as bit-packed palette indices instead of full BlockState objects.
+ * 
+ * This achieves significant memory and bandwidth savings:
+ * - Old system: HashMap<BlockPos, BlockState> = ~32 bytes per non-air block
+ * - New system: Palette + packed indices = ~2KB for entire section
+ * 
+ * For a section with 50 unique block types:
+ * - Palette: 50 states * 2 bytes = 100 bytes
+ * - Data: 4096 blocks * 6 bits = 3072 bits = 384 bytes
+ * - Total: ~500 bytes vs ~10KB+ in old system
  */
 public class SectionData {
     public final int chunkX;
