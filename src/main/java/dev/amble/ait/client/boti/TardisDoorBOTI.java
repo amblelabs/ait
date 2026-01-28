@@ -179,93 +179,96 @@ public class TardisDoorBOTI extends BOTI {
         GL11.glStencilMask(0x00);
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
-        // ===== RENDER TARDIS INTERIOR HERE =====
+        // ===== RENDER EXTERIOR WORLD HERE =====
         if (tardis.travel().getState() == TravelHandlerBase.State.LANDED && interiorRenderer != null) {
             stack.push();
 
             BlockPos interiorDoorPos = door.getPos();
             if (interiorDoorPos != null) {
-                // Get the TARDIS interior dimension key
-                RegistryKey<World> tardisDimension = RegistryKey.of(RegistryKeys.WORLD, 
-                        new Identifier(TardisServerWorld.NAMESPACE, tardis.getUuid().toString()));
+                // Get the TARDIS exterior position and dimension (where the TARDIS is physically located)
+                BlockPos exteriorPos = tardis.travel().position();
+                RegistryKey<World> exteriorDimension = tardis.travel().dimensionKey();
                 
-                MatrixStack interiorMatrices = new MatrixStack();
+                if (exteriorPos != null && exteriorDimension != null) {
+                    MatrixStack exteriorMatrices = new MatrixStack();
 
-                // Get camera position and rotation
-                Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
-                float cameraPitch = client.gameRenderer.getCamera().getPitch();
-                float cameraYaw = client.gameRenderer.getCamera().getYaw();
+                    // Get camera position and rotation
+                    Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+                    float cameraPitch = client.gameRenderer.getCamera().getPitch();
+                    float cameraYaw = client.gameRenderer.getCamera().getYaw();
 
-                // Start with camera position
-                Vec3d stableCameraPos = cameraPos;
-                Vec3d inverseBobbingRotations = Vec3d.ZERO;
+                    // Start with camera position
+                    Vec3d stableCameraPos = cameraPos;
+                    Vec3d inverseBobbingRotations = Vec3d.ZERO;
 
-                // Calculate and SUBTRACT inverse bobbing if enabled (camera already has bobbing applied)
-                if (client.options.getBobView().getValue() && client.player != null) {
-                    float f = client.player.horizontalSpeed - client.player.prevHorizontalSpeed;
-                    float g = -(client.player.horizontalSpeed + f * tickDelta);
-                    float h = MathHelper.lerp(tickDelta, client.player.prevStrideDistance, client.player.strideDistance);
+                    // Calculate and SUBTRACT inverse bobbing if enabled (camera already has bobbing applied)
+                    if (client.options.getBobView().getValue() && client.player != null) {
+                        float f = client.player.horizontalSpeed - client.player.prevHorizontalSpeed;
+                        float g = -(client.player.horizontalSpeed + f * tickDelta);
+                        float h = MathHelper.lerp(tickDelta, client.player.prevStrideDistance, client.player.strideDistance);
 
-                    // Calculate the bobbing that was applied to the camera
-                    float bobbingX = MathHelper.sin(g * (float)Math.PI) * h * 0.5F;
-                    float bobbingY = -Math.abs(MathHelper.cos(g * (float)Math.PI) * h);
+                        // Calculate the bobbing that was applied to the camera
+                        float bobbingX = MathHelper.sin(g * (float)Math.PI) * h * 0.5F;
+                        float bobbingY = -Math.abs(MathHelper.cos(g * (float)Math.PI) * h);
 
-                    // SUBTRACT the bobbing (don't add inverse, subtract the actual bobbing)
-                    stableCameraPos = new Vec3d(
-                            cameraPos.x - bobbingX,
-                            cameraPos.y - bobbingY,
-                            cameraPos.z
+                        // SUBTRACT the bobbing (don't add inverse, subtract the actual bobbing)
+                        stableCameraPos = new Vec3d(
+                                cameraPos.x - bobbingX,
+                                cameraPos.y - bobbingY,
+                                cameraPos.z
+                        );
+
+                        // Calculate inverse rotations
+                        float rollZ = MathHelper.sin(g * (float)Math.PI) * h * 3.0F;
+                        float pitchX = Math.abs(MathHelper.cos(g * (float)Math.PI - 0.2F) * h) * 5.0F;
+                        inverseBobbingRotations = new Vec3d(-pitchX, 0.0F, -rollZ);
+                    }
+
+                    // Exterior door center (where the TARDIS is physically located)
+                    Vec3d exteriorDoorCenter = new Vec3d(
+                            exteriorPos.getX() + 0.5,
+                            exteriorPos.getY() + 1.0,  // Standing eye height
+                            exteriorPos.getZ() + 0.5
                     );
 
-                    // Calculate inverse rotations
-                    float rollZ = MathHelper.sin(g * (float)Math.PI) * h * 3.0F;
-                    float pitchX = Math.abs(MathHelper.cos(g * (float)Math.PI - 0.2F) * h) * 5.0F;
-                    inverseBobbingRotations = new Vec3d(-pitchX, 0.0F, -rollZ);
-                }
+                    // Calculate offset using stable camera position
+                    Vec3d offset = new Vec3d(
+                            stableCameraPos.x - exteriorDoorCenter.x,
+                            stableCameraPos.y - exteriorDoorCenter.y,
+                            stableCameraPos.z - exteriorDoorCenter.z
+                    );
 
-                // Interior door center at fixed position
-                Vec3d interiorDoorCenter = new Vec3d(
-                        interiorDoorPos.getX() + 1.0,
-                        interiorDoorPos.getY(),  // Fixed at standing eye height
-                        interiorDoorPos.getZ() + 1.0
-                );
+                    // Apply inverse bobbing rotations BEFORE camera rotations
+                    if (client.options.getBobView().getValue()) {
+                        exteriorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((float) inverseBobbingRotations.x));
+                        exteriorMatrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) inverseBobbingRotations.z));
+                    }
 
-                // Calculate offset using stable camera position
-                Vec3d offset = new Vec3d(
-                        stableCameraPos.x - interiorDoorCenter.x,
-                        stableCameraPos.y - interiorDoorCenter.y,
-                        stableCameraPos.z - interiorDoorCenter.z
-                );
+                    // Apply camera rotations
+                    exteriorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cameraPitch));
+                    exteriorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cameraYaw));
 
-                // Apply inverse bobbing rotations BEFORE camera rotations
-                if (client.options.getBobView().getValue()) {
-                    interiorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((float) inverseBobbingRotations.x));
-                    interiorMatrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) inverseBobbingRotations.z));
-                }
+                    // Translate by offset
+                    exteriorMatrices.translate(offset.x, -offset.y, offset.z);
 
-                // Apply camera rotations
-                interiorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cameraPitch));
-                interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cameraYaw));
+                    // Render from exterior position using cross-dimensional rendering
+                    try {
+                        // Set door facing for frustum culling
+                        Direction doorFacing = door.getCachedState().get(DoorBlock.FACING);
+                        interiorRenderer.setDoorFacing(doorFacing);
 
-                // Translate by offset
-                interiorMatrices.translate(offset.x, -offset.y, offset.z);
-
-                // Render from interior door position using cross-dimensional rendering
-                try {
-                    // Set door facing for frustum culling
-                    Direction doorFacing = door.getCachedState().get(DoorBlock.FACING);
-                    interiorRenderer.setDoorFacing(doorFacing);
-
-                    // Render from the TARDIS interior dimension
-                    interiorRenderer.renderFromDimension(tardisDimension, interiorDoorPos, interiorMatrices, tickDelta);
-                } catch (Exception e) {
-                    // Silent fail
+                        // Render from the EXTERIOR dimension (where the TARDIS is physically located)
+                        // This shows the outside world when looking through the door from inside
+                        interiorRenderer.renderFromDimension(exteriorDimension, exteriorPos, exteriorMatrices, tickDelta);
+                    } catch (Exception e) {
+                        // Silent fail
+                    }
                 }
             }
 
             stack.pop();
         }
-// ===== END INTERIOR RENDERING =====
+// ===== END EXTERIOR WORLD RENDERING =====
 
 
 

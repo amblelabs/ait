@@ -523,7 +523,7 @@ public class AITModClient implements ClientModInitializer {
                 TardisExteriorBOTI boti = new TardisExteriorBOTI();
                 boti.renderExteriorBoti(exterior, variant, stack,
                         AITMod.id("textures/environment/tardis_sky.png"), model,
-                        BotiPortalModel.getTexturedModelData().createModel(), light);
+                        BotiPortalModel.getTexturedModelData().createModel(), light, tickDelta);
             }
             stack.pop();
         }
