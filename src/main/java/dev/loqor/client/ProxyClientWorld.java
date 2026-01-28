@@ -222,10 +222,14 @@ public class ProxyClientWorld implements BlockRenderView {
 
     /**
      * Called when a block is updated in the target dimension.
-     * Updates the cached chunk directly and triggers a rebuild.
+     * Invalidates the affected section and triggers a rebuild.
+     * 
+     * Note: We invalidate the entire section rather than updating the single block
+     * because our palette-compressed format makes single-block updates expensive.
+     * The section will be automatically re-requested on the next render.
      * 
      * @param pos Position of the updated block
-     * @param newState New block state
+     * @param newState New block state (unused for now, reserved for future optimization)
      */
     public void onBlockUpdate(BlockPos pos, BlockState newState) {
         ChunkPos chunkPos = new ChunkPos(pos);
@@ -233,21 +237,16 @@ public class ProxyClientWorld implements BlockRenderView {
         // Update the cached chunk if it exists
         ProxyChunk chunk = cachedChunks.get(chunkPos);
         if (chunk != null) {
-            // Try to update the block state directly in the cached chunk
-            try {
-                // Update will be handled by ProxyChunk if it supports it
-                // For now, we invalidate to force re-request
-                // TODO: Implement direct block state update in ProxyChunk
+            // Invalidate the section containing the changed block
+            // This will cause it to be re-requested from the server
+            if (chunk.invalidateSection(pos)) {
+                // Clear request tracking for this chunk so it can be re-requested immediately
                 requestedChunks.remove(chunkPos);
                 requestTimestamps.remove(chunkPos);
-            } catch (Exception e) {
-                // If direct update fails, invalidate the chunk
-                requestedChunks.remove(chunkPos);
-                requestTimestamps.remove(chunkPos);
+                
+                // Notify renderer to trigger rebuild
+                notifyChunkUpdate(chunkPos);
             }
-            
-            // Notify renderer to trigger rebuild
-            notifyChunkUpdate(chunkPos);
         }
     }
 

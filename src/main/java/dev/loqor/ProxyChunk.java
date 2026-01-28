@@ -98,6 +98,30 @@ public class ProxyChunk {
         return section.getBlockState(localX, localY, localZ);
     }
 
+    /**
+     * Marks a section as dirty, requiring it to be re-requested from the server.
+     * This is used when a block update occurs and we need fresh data.
+     * 
+     * Note: Direct block state updates in the palette-compressed format would require
+     * rebuilding the entire section's palette and data array, which is expensive.
+     * Instead, we invalidate the section and let it be re-requested on the next render.
+     * 
+     * @param pos Position of the block that changed
+     * @return true if section was invalidated, false if not loaded
+     */
+    public boolean invalidateSection(BlockPos pos) {
+        if (isEmpty) {
+            return false;
+        }
+        
+        // Calculate section Y coordinate
+        int sectionY = pos.getY() >> 4;
+        
+        // Remove the section from cache - it will be re-requested
+        SectionData removed = sections.remove(sectionY);
+        return removed != null;
+    }
+
     @Nullable
     public BlockEntity getBlockEntity(BlockPos pos) {
         if (isEmpty) {

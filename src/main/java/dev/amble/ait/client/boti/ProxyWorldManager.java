@@ -57,4 +57,18 @@ public class ProxyWorldManager {
             world.clearCache();
         }
     }
+    
+    /**
+     * Gets the number of active proxy worlds.
+     */
+    public int getActiveWorldCount() {
+        return proxyWorlds.size();
+    }
+    
+    /**
+     * Gets all proxy worlds (for debugging).
+     */
+    public Map<RegistryKey<World>, ProxyClientWorld> getAllProxyWorlds() {
+        return proxyWorlds;
+    }
 }
