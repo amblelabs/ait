@@ -15,9 +15,14 @@ import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.World;
+
+import dev.amble.ait.client.boti.ProxyClientWorld;
+
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
@@ -43,6 +48,10 @@ public class WorldGeometryRenderer {
     // Add this field to WorldGeometryRenderer
     private Direction doorFacing = Direction.NORTH;
     private Direction lastDoorFacing = null;
+    
+    // Cache for cross-dimensional rendering
+    private ProxyClientWorld proxyWorld = null;
+    private RegistryKey<World> lastDimensionKey = null;
 
     public WorldGeometryRenderer(int renderDistance) {
         this.renderDistance = renderDistance;
@@ -105,16 +114,44 @@ public class WorldGeometryRenderer {
             this.doorFacing = facing; // Update without marking dirty
         }
     }
-
+    
     /**
-     * Main render method - call this every frame
-     *
-     * @param world The world to render from
-     * @param centerPos Center position (usually camera/player position)
+     * Renders geometry from a different dimension using a ProxyWorld.
+     * This is the main entry point for cross-dimensional BOTI rendering.
+     * 
+     * @param dimensionKey The dimension to render from
+     * @param centerPos Center position for rendering
      * @param matrices View matrix transformations
      * @param tickDelta Partial tick for interpolation
      */
-    public void render(World world, BlockPos centerPos, MatrixStack matrices, float tickDelta) {
+    public void renderFromDimension(RegistryKey<World> dimensionKey, BlockPos centerPos, MatrixStack matrices, float tickDelta) {
+        // Create or update ProxyWorld for this dimension
+        if (proxyWorld == null || !dimensionKey.equals(lastDimensionKey)) {
+            proxyWorld = new ProxyClientWorld(dimensionKey);
+            lastDimensionKey = dimensionKey;
+            markDirty(); // Rebuild when dimension changes
+        }
+        
+        // Check if the proxy world is valid (has server world in singleplayer)
+        if (!proxyWorld.isValid()) {
+            // TODO: In multiplayer, request chunks via packets
+            return;
+        }
+        
+        // Render using the proxy world
+        renderWithWorld(proxyWorld, centerPos, matrices, tickDelta);
+    }
+    
+    /**
+     * Internal render method that works with any BlockRenderView.
+     * This allows rendering from either a real World or a ProxyClientWorld.
+     * 
+     * @param blockView The block view to render from
+     * @param centerPos Center position for rendering
+     * @param matrices View matrix transformations
+     * @param tickDelta Partial tick for interpolation
+     */
+    private void renderWithWorld(BlockRenderView blockView, BlockPos centerPos, MatrixStack matrices, float tickDelta) {
         if (projectionMatrix == null) {
             throw new IllegalStateException("Projection matrix not set! Call setProjectionMatrix() or setPerspectiveProjection() first.");
         }
@@ -123,7 +160,7 @@ public class WorldGeometryRenderer {
         projectionMatrix = gameRenderer.getBasicProjectionMatrix(gameRenderer.getFov(gameRenderer.getCamera(),
                 MinecraftClient.getInstance().getTickDelta(), true));
 
-        // Create frustum for culling - no need to use it for now, we'll use distance-based culling
+        // Create frustum for culling
         Matrix4f modelViewMatrix = matrices.peek().getPositionMatrix();
         this.frustum = new Frustum(modelViewMatrix, projectionMatrix);
         this.frustum.setPosition(centerPos.getX(), centerPos.getY(), centerPos.getZ());
@@ -133,7 +170,7 @@ public class WorldGeometryRenderer {
             if (buildFuture == null || buildFuture.isDone()) {
                 lastCenterPos = centerPos;
                 needsRebuild = false;
-                rebuildGeometry(world, centerPos);
+                rebuildGeometryFromWorld(blockView, centerPos);
             }
         }
 
@@ -163,9 +200,6 @@ public class WorldGeometryRenderer {
             renderTerrain(matrices);
         }
 
-        // Render block entities
-        //renderBlockEntities(matrices, tickDelta, centerPos);
-
         // Restore state
         modelViewStack.pop();
         RenderSystem.applyModelViewMatrix();
@@ -173,6 +207,18 @@ public class WorldGeometryRenderer {
         RenderSystem.disableBlend();
         RenderSystem.disableCull();
         RenderSystem.setProjectionMatrix(originalProjection, VertexSorter.BY_DISTANCE);
+    }
+
+    /**
+     * Main render method - call this every frame
+     *
+     * @param world The world to render from
+     * @param centerPos Center position (usually camera/player position)
+     * @param matrices View matrix transformations
+     * @param tickDelta Partial tick for interpolation
+     */
+    public void render(World world, BlockPos centerPos, MatrixStack matrices, float tickDelta) {
+        renderWithWorld(world, centerPos, matrices, tickDelta);
     }
 
     /**
@@ -294,11 +340,12 @@ public class WorldGeometryRenderer {
             throw new IllegalStateException("Matrix stack not empty");
         }
     }
-
+    
     /**
-     * Rebuilds all geometry asynchronously with double-buffering
+     * Rebuilds all geometry asynchronously from a BlockRenderView with double-buffering.
+     * This version works with any BlockView, including ProxyClientWorld.
      */
-    private void rebuildGeometry(World world, BlockPos centerPos) {
+    private void rebuildGeometryFromWorld(BlockRenderView blockView, BlockPos centerPos) {
         buildFuture = CompletableFuture.runAsync(() -> {
             try {
                 // DON'T clear old buffers yet - keep them for rendering
@@ -328,7 +375,7 @@ public class WorldGeometryRenderer {
                 for (int sectionX = minSectionX; sectionX <= maxSectionX; sectionX++) {
                     for (int sectionY = minSectionY; sectionY <= maxSectionY; sectionY++) {
                         for (int sectionZ = minSectionZ; sectionZ <= maxSectionZ; sectionZ++) {
-                            buildSectionToMap(world, centerPos, sectionX, sectionY, sectionZ,
+                            buildSectionFromWorld(blockView, centerPos, sectionX, sectionY, sectionZ,
                                     blockRenderManager, random, foundBlockEntities, tempBuffers);
                         }
                     }
@@ -359,6 +406,13 @@ public class WorldGeometryRenderer {
                 e.printStackTrace();
             }
         });
+    }
+
+    /**
+     * Rebuilds all geometry asynchronously with double-buffering
+     */
+    private void rebuildGeometry(World world, BlockPos centerPos) {
+        rebuildGeometryFromWorld(world, centerPos);
     }
 
     /**
@@ -501,19 +555,168 @@ public class WorldGeometryRenderer {
             });
         }
     }
+    
+    /**
+     * Builds geometry for a single 16x16x16 section from a BlockRenderView into a target map.
+     * This version works with any BlockView, including ProxyClientWorld.
+     */
+    private void buildSectionFromWorld(BlockRenderView blockView, BlockPos centerPos, int sectionX, int sectionY, int sectionZ,
+                                   BlockRenderManager blockRenderManager, Random random,
+                                   List<BlockEntity> foundBlockEntities,
+                                   Map<ChunkSectionPos, Map<RenderLayer, VertexBuffer>> targetMap) {
+
+        Map<RenderLayer, BufferBuilder> builders = new HashMap<>();
+        Set<RenderLayer> usedLayers = new HashSet<>();
+
+        // Initialize buffer builders for each layer
+        for (RenderLayer layer : RenderLayer.getBlockLayers()) {
+            BufferBuilder builder = new BufferBuilder(layer.getExpectedBufferSize());
+            builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL);
+            builders.put(layer, builder);
+        }
+
+        MatrixStack matrices = new MatrixStack();
+        BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+
+        int startX = sectionX << 4;
+        int startY = sectionY << 4;
+        int startZ = sectionZ << 4;
+        int endX = startX + 15;
+        int endY = startY + 15;
+        int endZ = startZ + 15;
+
+        boolean hasBlocks = false;
+
+        // Iterate through all blocks in section
+        for (int x = startX; x <= endX; x++) {
+            for (int y = startY; y <= endY; y++) {
+                for (int z = startZ; z <= endZ; z++) {
+                    mutablePos.set(x, y, z);
+
+                    BlockState state = blockView.getBlockState(mutablePos);
+
+                    // Skip air and black concrete (void)
+                    if (state.isAir() || state.getBlock() == Blocks.BLACK_CONCRETE) {
+                        continue;
+                    }
+
+                    // Calculate relative position
+                    double relX = x - centerPos.getX();
+                    double relY = y - centerPos.getY();
+                    double relZ = z - centerPos.getZ();
+
+                    // **INVERTED: Check if block is BEHIND the door plane (opposite of door facing)**
+                    // Since the door is "backwards", we want to show blocks on the opposite side
+                    boolean behindDoor = switch (doorFacing) {
+                        case NORTH -> relZ > 0.0;   // Door faces north, but show blocks toward +Z (south)
+                        case SOUTH -> relZ < 0.0;  // Door faces south, but show blocks toward -Z (north)
+                        case EAST -> relX < 0.0;   // Door faces east, but show blocks toward -X (west)
+                        case WEST -> relX > 0.0;    // Door faces west, but show blocks toward +X (east)
+                        default -> false;
+                    };
+
+                    if (behindDoor) {
+                        continue; // Skip blocks behind the door
+                    }
+
+                    // Skip fully surrounded blocks (optimization)
+                    if (isFullySurrounded(blockView, mutablePos)) {
+                        continue;
+                    }
+
+                    hasBlocks = true;
+
+                    // Track block entities for later rendering
+                    if (state.hasBlockEntity()) {
+                        BlockEntity blockEntity = blockView.getBlockEntity(mutablePos);
+                        if (blockEntity != null) {
+                            synchronized (foundBlockEntities) {
+                                foundBlockEntities.add(blockEntity);
+                            }
+                        }
+                    }
+
+                    // Render fluids
+                    FluidState fluidState = state.getFluidState();
+                    if (!fluidState.isEmpty()) {
+                        RenderLayer fluidLayer = RenderLayers.getFluidLayer(fluidState);
+                        BufferBuilder builder = builders.get(fluidLayer);
+                        usedLayers.add(fluidLayer);
+
+                        matrices.push();
+                        matrices.translate(relX, relY, relZ);
+                        blockRenderManager.renderFluid(mutablePos, blockView, builder, state, fluidState);
+                        matrices.pop();
+                    }
+
+                    // Render blocks
+                    if (state.getRenderType() != BlockRenderType.INVISIBLE) {
+                        RenderLayer blockLayer = RenderLayers.getBlockLayer(state);
+                        BufferBuilder builder = builders.get(blockLayer);
+                        usedLayers.add(blockLayer);
+
+                        matrices.push();
+                        matrices.translate(relX, relY, relZ);
+                        blockRenderManager.renderBlock(state, mutablePos, blockView, matrices, builder, true, random);
+                        matrices.pop();
+                    }
+                }
+            }
+        }
+
+        // Upload to GPU if section has any blocks
+        if (hasBlocks) {
+            ChunkSectionPos sectionPos = ChunkSectionPos.from(sectionX, sectionY, sectionZ);
+
+            Map<RenderLayer, BufferBuilder.BuiltBuffer> builtBuffers = new HashMap<>();
+            for (RenderLayer layer : usedLayers) {
+                BufferBuilder builder = builders.get(layer);
+                BufferBuilder.BuiltBuffer builtBuffer = builder.end();
+                builtBuffers.put(layer, builtBuffer);
+            }
+
+            // Upload on main thread and put into target map
+            MinecraftClient.getInstance().execute(() -> {
+                Map<RenderLayer, VertexBuffer> layerBuffers = new HashMap<>();
+
+                for (Map.Entry<RenderLayer, BufferBuilder.BuiltBuffer> entry : builtBuffers.entrySet()) {
+                    RenderLayer layer = entry.getKey();
+                    BufferBuilder.BuiltBuffer builtBuffer = entry.getValue();
+
+                    VertexBuffer vbo = new VertexBuffer(VertexBuffer.Usage.STATIC);
+                    vbo.bind();
+                    vbo.upload(builtBuffer);
+                    VertexBuffer.unbind();
+
+                    layerBuffers.put(layer, vbo);
+                }
+
+                if (!layerBuffers.isEmpty()) {
+                    targetMap.put(sectionPos, layerBuffers);
+                }
+            });
+        }
+    }
 
     /**
      * Checks if a block is fully surrounded by opaque blocks (for culling)
      */
-    private boolean isFullySurrounded(World world, BlockPos pos) {
+    private boolean isFullySurrounded(BlockRenderView blockView, BlockPos pos) {
         for (Direction dir : Direction.values()) {
             BlockPos adjacent = pos.offset(dir);
-            BlockState adjacentState = world.getBlockState(adjacent);
-            if (!adjacentState.isOpaqueFullCube(world, adjacent)) {
+            BlockState adjacentState = blockView.getBlockState(adjacent);
+            if (!adjacentState.isOpaqueFullCube(blockView, adjacent)) {
                 return false;
             }
         }
         return true;
+    }
+    
+    /**
+     * Checks if a block is fully surrounded by opaque blocks (for culling) - World version
+     */
+    private boolean isFullySurrounded(World world, BlockPos pos) {
+        return isFullySurrounded((BlockRenderView) world, pos);
     }
 
     /**
@@ -527,6 +730,13 @@ public class WorldGeometryRenderer {
         }
         sectionBuffers.clear();
         blockEntities.clear();
+        
+        // Clean up proxy world resources
+        if (proxyWorld != null) {
+            proxyWorld.clearCache();
+            proxyWorld = null;
+        }
+        lastDimensionKey = null;
     }
 
     /**

@@ -2,17 +2,21 @@ package dev.amble.ait.client.boti;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.amble.ait.core.blocks.DoorBlock;
+import dev.amble.ait.core.world.TardisServerWorld;
 import dev.loqor.client.WorldGeometryRenderer;
 import net.minecraft.client.render.*;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
+import net.minecraft.world.World;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
 
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.AnimatedModel;
@@ -181,6 +185,10 @@ public class TardisDoorBOTI extends BOTI {
 
             BlockPos interiorDoorPos = door.getPos();
             if (interiorDoorPos != null) {
+                // Get the TARDIS interior dimension key
+                RegistryKey<World> tardisDimension = RegistryKey.of(RegistryKeys.WORLD, 
+                        new Identifier(TardisServerWorld.NAMESPACE, tardis.getUuid().toString()));
+                
                 MatrixStack interiorMatrices = new MatrixStack();
 
                 // Get camera position and rotation
@@ -242,13 +250,14 @@ public class TardisDoorBOTI extends BOTI {
                 // Translate by offset
                 interiorMatrices.translate(offset.x, -offset.y, offset.z);
 
-                // Render from interior door position
+                // Render from interior door position using cross-dimensional rendering
                 try {
-                    // Before calling interiorRenderer.render()
+                    // Set door facing for frustum culling
                     Direction doorFacing = door.getCachedState().get(DoorBlock.FACING);
                     interiorRenderer.setDoorFacing(doorFacing);
 
-                    interiorRenderer.render(client.world, interiorDoorPos, interiorMatrices, tickDelta);
+                    // Render from the TARDIS interior dimension
+                    interiorRenderer.renderFromDimension(tardisDimension, interiorDoorPos, interiorMatrices, tickDelta);
                 } catch (Exception e) {
                     // Silent fail
                 }
