@@ -82,7 +82,7 @@ public class TardisDoorBOTI extends BOTI {
      * Calculates the inverse of view bobbing to stabilize the camera
      * Based on GameRenderer.bobView() logic
      */
-    private static Vec3d calculateInverseBobbing(PlayerEntity player, float tickDelta) {
+    public static Vec3d calculateInverseBobbing(PlayerEntity player, float tickDelta) {
         float f = player.horizontalSpeed - player.prevHorizontalSpeed;
         float g = -(player.horizontalSpeed + f * tickDelta);
         float h = MathHelper.lerp(tickDelta, player.prevStrideDistance, player.strideDistance);

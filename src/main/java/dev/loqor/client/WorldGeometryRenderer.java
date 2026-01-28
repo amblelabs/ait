@@ -2,9 +2,13 @@ package dev.loqor.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
+import dev.amble.ait.client.renderers.consoles.ConsoleRenderer;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
@@ -150,7 +154,9 @@ public class WorldGeometryRenderer {
         RenderSystem.enableDepthTest();
         RenderSystem.depthFunc(GL11.GL_LEQUAL);
         RenderSystem.depthMask(true);
-        RenderSystem.enableCull();
+
+        // Render block entities
+        renderBlockEntities(matrices, tickDelta, centerPos);
 
         // Apply view matrix to RenderSystem for immediate mode rendering
         MatrixStack modelViewStack = RenderSystem.getModelViewStack();
@@ -163,15 +169,11 @@ public class WorldGeometryRenderer {
             renderTerrain(matrices);
         }
 
-        // Render block entities
-        //renderBlockEntities(matrices, tickDelta, centerPos);
-
         // Restore state
         modelViewStack.pop();
         RenderSystem.applyModelViewMatrix();
         RenderSystem.disableDepthTest();
         RenderSystem.disableBlend();
-        RenderSystem.disableCull();
         RenderSystem.setProjectionMatrix(originalProjection, VertexSorter.BY_DISTANCE);
     }
 
@@ -181,9 +183,13 @@ public class WorldGeometryRenderer {
     private void renderTerrain(MatrixStack matrices) {
         RenderSystem.setShaderTexture(0, SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
 
+        // Prepare blending for transparency
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+
         for (RenderLayer layer : RenderLayer.getBlockLayers()) {
             if (layer == RenderLayer.getTranslucent()) {
-                continue; // Skip translucent for now
+                continue; // Skip for now, render translucent last
             }
 
             layer.startDrawing();
@@ -191,15 +197,14 @@ public class WorldGeometryRenderer {
             for (Map.Entry<ChunkSectionPos, Map<RenderLayer, VertexBuffer>> entry : sectionBuffers.entrySet()) {
                 ChunkSectionPos sectionPos = entry.getKey();
 
-                // Simple distance-based culling instead of frustum
-                // Skip sections too far from center
+                // Cull distant sections
                 double dx = (sectionPos.getCenterPos().getX() - lastCenterPos.getX());
                 double dy = (sectionPos.getCenterPos().getY() - lastCenterPos.getY());
                 double dz = (sectionPos.getCenterPos().getZ() - lastCenterPos.getZ());
                 double distSq = dx * dx + dy * dy + dz * dz;
 
-                if (distSq > renderDistance * renderDistance * 256) { // 256 = 16^2 (section size)
-                    continue;
+                if (distSq > renderDistance * renderDistance * 256) {
+                    continue; // Skip sections too far
                 }
 
                 Map<RenderLayer, VertexBuffer> layerBuffers = entry.getValue();
@@ -214,6 +219,36 @@ public class WorldGeometryRenderer {
             VertexBuffer.unbind();
             layer.endDrawing();
         }
+
+        // Render fluid layers last
+        RenderLayer translucentLayer = RenderLayer.getTranslucent();
+        translucentLayer.startDrawing();
+
+        for (Map.Entry<ChunkSectionPos, Map<RenderLayer, VertexBuffer>> entry : sectionBuffers.entrySet()) {
+            ChunkSectionPos sectionPos = entry.getKey();
+
+            double dx = (sectionPos.getCenterPos().getX() - lastCenterPos.getX());
+            double dy = (sectionPos.getCenterPos().getY() - lastCenterPos.getY());
+            double dz = (sectionPos.getCenterPos().getZ() - lastCenterPos.getZ());
+            double distSq = dx * dx + dy * dy + dz * dz;
+
+            if (distSq > renderDistance * renderDistance * 256) {
+                continue; // Skip sections too far
+            }
+
+            Map<RenderLayer, VertexBuffer> layerBuffers = entry.getValue();
+            VertexBuffer vbo = layerBuffers.get(translucentLayer);
+
+            if (vbo != null) {
+                vbo.bind();
+                vbo.draw(matrices.peek().getPositionMatrix(), projectionMatrix, RenderSystem.getShader());
+            }
+        }
+
+        VertexBuffer.unbind();
+        translucentLayer.endDrawing();
+
+        RenderSystem.disableBlend(); // Restore state
     }
 
     /**
@@ -247,43 +282,57 @@ public class WorldGeometryRenderer {
         // Configure dispatcher
         dispatcher.configure(client.world, client.gameRenderer.getCamera(), null);
 
-        double centerX = (double) centerPos.getX();
-        double centerY = (double) centerPos.getY();
-        double centerZ = (double) centerPos.getZ();
+        double cameraX = client.gameRenderer.getCamera().getPos().x;
+        double cameraY = client.gameRenderer.getCamera().getPos().y;
+        double cameraZ = client.gameRenderer.getCamera().getPos().z;
 
         // Create a snapshot to avoid concurrent modification
         List<BlockEntity> snapshot = new ArrayList<>(blockEntities);
 
-        // Render each block entity
+        // Render block entities, restricted to valid sections
         for (BlockEntity blockEntity : snapshot) {
             BlockPos blockPos = blockEntity.getPos();
 
+            // Check if this block entity belongs inside the rendering area
+            if (!isWithinRenderBounds(blockPos, centerPos)) {
+                continue; // Skip block entities outside the valid render area
+            }
+
+            if (blockEntity instanceof DoorBlockEntity && blockPos == centerPos) continue;
+
             matrices.push();
             matrices.translate(
-                    (double) blockPos.getX() - centerX,
-                    (double) blockPos.getY() - centerY,
-                    (double) blockPos.getZ() - centerZ
+                    blockPos.getX() - centerPos.getX(),
+                    blockPos.getY() - centerPos.getY(),
+                    blockPos.getZ() - centerPos.getZ()
             );
 
             dispatcher.render(blockEntity, tickDelta, matrices, immediate);
-
             matrices.pop();
         }
 
         // Verify matrix stack is balanced
         checkEmpty(matrices);
 
-        // Draw all block entity render layers
-        immediate.draw(RenderLayer.getSolid());
-        immediate.draw(RenderLayer.getEndPortal());
-        immediate.draw(RenderLayer.getEndGateway());
-        immediate.draw(TexturedRenderLayers.getEntitySolid());
-        immediate.draw(TexturedRenderLayers.getEntityCutout());
-        immediate.draw(TexturedRenderLayers.getBeds());
-        immediate.draw(TexturedRenderLayers.getShulkerBoxes());
-        immediate.draw(TexturedRenderLayers.getSign());
-        immediate.draw(TexturedRenderLayers.getHangingSign());
-        immediate.draw(TexturedRenderLayers.getChest());
+        // Render all vertex consumer layers
+        immediate.draw();
+    }
+
+    /**
+     * Determines if a block entity is within the valid render bounds
+     */
+    private boolean isWithinRenderBounds(BlockPos blockPos, BlockPos centerPos) {
+        int minX = centerPos.getX() - renderDistance;
+        int minY = centerPos.getY() - renderDistance;
+        int minZ = centerPos.getZ() - renderDistance;
+
+        int maxX = centerPos.getX() + renderDistance;
+        int maxY = centerPos.getY() + renderDistance;
+        int maxZ = centerPos.getZ() + renderDistance;
+
+        return blockPos.getX() >= minX && blockPos.getX() <= maxX &&
+                blockPos.getY() >= minY && blockPos.getY() <= maxY &&
+                blockPos.getZ() >= minZ && blockPos.getZ() <= maxZ;
     }
 
     /**
@@ -409,18 +458,17 @@ public class WorldGeometryRenderer {
                     double relY = y - centerPos.getY();
                     double relZ = z - centerPos.getZ();
 
-                    // **INVERTED: Check if block is BEHIND the door plane (opposite of door facing)**
-                    // Since the door is "backwards", we want to show blocks on the opposite side
+                    // Inverted check: block behind door plane
                     boolean behindDoor = switch (doorFacing) {
-                        case NORTH -> relZ > 0.0;   // Door faces north, but show blocks toward +Z (south)
-                        case SOUTH -> relZ < -0.0;  // Door faces south, but show blocks toward -Z (north)
-                        case EAST -> relX < -0.0;   // Door faces east, but show blocks toward -X (west)
-                        case WEST -> relX > 0.0;    // Door faces west, but show blocks toward +X (east)
+                        case NORTH -> relZ > 0.0;
+                        case SOUTH -> relZ < -0.0;
+                        case EAST -> relX < -0.0;
+                        case WEST -> relX > 0.0;
                         default -> false;
                     };
 
                     if (behindDoor) {
-                        continue; // Skip blocks behind the door
+                        continue;
                     }
 
                     // Skip fully surrounded blocks (optimization)
@@ -443,13 +491,13 @@ public class WorldGeometryRenderer {
                     // Render fluids
                     FluidState fluidState = state.getFluidState();
                     if (!fluidState.isEmpty()) {
-                        RenderLayer fluidLayer = RenderLayers.getFluidLayer(fluidState);
+                        RenderLayer fluidLayer = RenderLayers.getFluidLayer(fluidState); // Translucent fluid layer
                         BufferBuilder builder = builders.get(fluidLayer);
                         usedLayers.add(fluidLayer);
 
                         matrices.push();
-                        matrices.translate(relX, relY, relZ);
-                        blockRenderManager.renderFluid(mutablePos, world, builder, state, fluidState);
+                        matrices.translate(relX, relY, relZ); // Correctly position the fluid block
+                        blockRenderManager.renderFluid(mutablePos, world, builder, state, fluidState); // Render fluid
                         matrices.pop();
                     }
 
@@ -468,7 +516,7 @@ public class WorldGeometryRenderer {
             }
         }
 
-        // Upload to GPU if section has any blocks
+        // Upload to GPU and insert results into the target map on the main thread
         if (hasBlocks) {
             ChunkSectionPos sectionPos = ChunkSectionPos.from(sectionX, sectionY, sectionZ);
 
@@ -479,7 +527,6 @@ public class WorldGeometryRenderer {
                 builtBuffers.put(layer, builtBuffer);
             }
 
-            // Upload on main thread and put into target map
             MinecraftClient.getInstance().execute(() -> {
                 Map<RenderLayer, VertexBuffer> layerBuffers = new HashMap<>();
 
