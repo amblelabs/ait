@@ -2,6 +2,7 @@ package dev.loqor.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -23,6 +24,9 @@ import net.minecraft.world.World;
 
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
+
+import dev.amble.ait.core.tardis.util.network.c2s.BOTIRegisterViewerC2SPacket;
+import dev.amble.ait.core.tardis.util.network.c2s.BOTIUnregisterViewerC2SPacket;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -50,6 +54,9 @@ public class WorldGeometryRenderer {
     // Cache for cross-dimensional rendering
     private ProxyClientWorld proxyWorld = null;
     private RegistryKey<World> lastDimensionKey = null;
+    
+    // Track if viewer is registered for block updates
+    private boolean viewerRegistered = false;
 
     public WorldGeometryRenderer(int renderDistance) {
         this.renderDistance = renderDistance;
@@ -128,10 +135,27 @@ public class WorldGeometryRenderer {
     public void renderFromDimension(RegistryKey<World> dimensionKey, BlockPos centerPos, MatrixStack matrices, float tickDelta) {
         // Create or update ProxyWorld for this dimension
         if (proxyWorld == null || !dimensionKey.equals(lastDimensionKey)) {
+            // Unregister from old dimension if we're switching
+            if (viewerRegistered && lastDimensionKey != null) {
+                if (ClientPlayNetworking.canSend(BOTIUnregisterViewerC2SPacket.TYPE)) {
+                    ClientPlayNetworking.send(new BOTIUnregisterViewerC2SPacket(lastDimensionKey));
+                }
+                viewerRegistered = false;
+            }
+            
             proxyWorld = new ProxyClientWorld(dimensionKey);
             proxyWorld.setRenderer(this); // Link renderer for chunk update notifications
             lastDimensionKey = dimensionKey;
             markDirty(); // Rebuild when dimension changes
+        }
+        
+        // Only register for TARDIS interior dimensions (not vanilla dimensions like Overworld/Nether)
+        // TARDIS dimensions use namespace "tardis"
+        boolean isTardisDimension = dimensionKey.getValue().getNamespace().equals("tardis");
+        
+        if (isTardisDimension && !viewerRegistered && ClientPlayNetworking.canSend(BOTIRegisterViewerC2SPacket.TYPE)) {
+            ClientPlayNetworking.send(new BOTIRegisterViewerC2SPacket(dimensionKey));
+            viewerRegistered = true;
         }
 
         // Preload chunks before rendering (works for both singleplayer and multiplayer)
@@ -623,6 +647,14 @@ public class WorldGeometryRenderer {
      * Cleans up resources - MUST be called when done
      */
     public void close() {
+        // Unregister from dimension updates
+        if (viewerRegistered && lastDimensionKey != null) {
+            if (ClientPlayNetworking.canSend(BOTIUnregisterViewerC2SPacket.TYPE)) {
+                ClientPlayNetworking.send(new BOTIUnregisterViewerC2SPacket(lastDimensionKey));
+            }
+            viewerRegistered = false;
+        }
+        
         for (Map<RenderLayer, VertexBuffer> layerMap : sectionBuffers.values()) {
             for (VertexBuffer vbo : layerMap.values()) {
                 vbo.close();
