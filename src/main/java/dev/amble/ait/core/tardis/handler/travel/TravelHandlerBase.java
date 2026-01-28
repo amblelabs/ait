@@ -7,10 +7,12 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 import net.minecraft.world.border.WorldBorder;
 
 import dev.amble.ait.api.tardis.KeyedTardisComponent;

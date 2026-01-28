@@ -161,9 +161,9 @@ public class TardisExteriorBOTI extends BOTI {
             BlockPos exteriorPos = exterior.getPos();
             
             if (exteriorPos != null) {
-                // Get the TARDIS interior dimension key
-                RegistryKey<World> tardisDimension = RegistryKey.of(RegistryKeys.WORLD, 
-                        new Identifier("tardis", tardis.getUuid().toString()));
+                // Get the TARDIS interior dimension key from the synced TARDIS data
+                // This uses server-synced UUID, so it's safe on client
+                RegistryKey<World> tardisDimension = tardis.interiorDimension();
                 
                 MatrixStack interiorMatrices = new MatrixStack();
 

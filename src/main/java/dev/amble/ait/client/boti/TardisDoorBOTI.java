@@ -186,10 +186,13 @@ public class TardisDoorBOTI extends BOTI {
             BlockPos interiorDoorPos = door.getPos();
             if (interiorDoorPos != null) {
                 // Get the TARDIS exterior position and dimension (where the TARDIS is physically located)
-                BlockPos exteriorPos = tardis.travel().position();
-                RegistryKey<World> exteriorDimension = tardis.travel().dimensionKey();
+                CachedDirectedGlobalPos exteriorPosition = tardis.travel().position();
                 
-                if (exteriorPos != null && exteriorDimension != null) {
+                if (exteriorPosition != null) {
+                    BlockPos exteriorPos = exteriorPosition.getPos();
+                    RegistryKey<World> exteriorDimension = exteriorPosition.getDimension();
+                
+                    if (exteriorPos != null && exteriorDimension != null) {
                     MatrixStack exteriorMatrices = new MatrixStack();
 
                     // Get camera position and rotation

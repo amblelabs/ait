@@ -55,6 +55,20 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
         return uuid;
     }
 
+    /**
+     * Gets the registry key for the TARDIS interior dimension.
+     * This uses the TARDIS UUID to construct the dimension identifier.
+     * 
+     * IMPORTANT: While this can be called on either client or server, the dimension
+     * key is based on server-synced UUID data, so it's safe for client use.
+     * 
+     * @return The dimension registry key for this TARDIS's interior world
+     */
+    public RegistryKey<World> interiorDimension() {
+        return RegistryKey.of(net.minecraft.registry.RegistryKeys.WORLD,
+                new net.minecraft.util.Identifier("tardis", this.uuid.toString()));
+    }
+
     public ServerTardis asServer() {
         return (ServerTardis) this;
     }
