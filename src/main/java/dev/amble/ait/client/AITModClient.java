@@ -264,6 +264,19 @@ public class AITModClient implements ClientModInitializer {
                         console.setVariant(id);
                 });
 
+        // Register BOTI packet handlers
+        ClientPlayNetworking.registerGlobalReceiver(
+                dev.amble.ait.core.tardis.util.network.s2c.BOTIBlockUpdateS2CPacket.TYPE,
+                (packet, context) -> {
+                    context.client().execute(() -> packet.handle(context.player(), context.responseSender()));
+                });
+
+        ClientPlayNetworking.registerGlobalReceiver(
+                dev.amble.ait.core.tardis.util.network.s2c.BOTIChunkDataBatchS2CPacket.TYPE,
+                (packet, context) -> {
+                    context.client().execute(() -> packet.handle(context.player(), context.responseSender()));
+                });
+
         WorldRenderEvents.END.register((context) -> SonicRendering.getInstance().renderWorld(context));
         HudRenderCallback.EVENT.register((context, delta) -> SonicRendering.getInstance().renderGui(context, delta));
 

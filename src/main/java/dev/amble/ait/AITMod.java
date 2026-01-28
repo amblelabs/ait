@@ -304,6 +304,25 @@ public class AITMod implements ModInitializer {
                     });
                 });
 
+        // Register BOTI C2S packet handlers
+        ServerPlayNetworking.registerGlobalReceiver(
+                dev.amble.ait.core.tardis.util.network.c2s.BOTIRegisterViewerC2SPacket.TYPE,
+                (packet, context) -> {
+                    context.server().execute(() -> packet.handle(context.player(), context.responseSender()));
+                });
+
+        ServerPlayNetworking.registerGlobalReceiver(
+                dev.amble.ait.core.tardis.util.network.c2s.BOTIUnregisterViewerC2SPacket.TYPE,
+                (packet, context) -> {
+                    context.server().execute(() -> packet.handle(context.player(), context.responseSender()));
+                });
+
+        ServerPlayNetworking.registerGlobalReceiver(
+                dev.amble.ait.core.tardis.util.network.c2s.BOTIChunkBatchRequestC2SPacket.TYPE,
+                (packet, context) -> {
+                    context.server().execute(() -> packet.handle(context.player(), context.responseSender()));
+                });
+
         LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
             if (source.isBuiltin()
                     && (id.equals(LootTables.NETHER_BRIDGE_CHEST) || id.equals(LootTables.DESERT_PYRAMID_CHEST)
