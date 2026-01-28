@@ -53,8 +53,7 @@ public class BOTIUnregisterViewerC2SPacket implements FabricPacket {
      * Handles the packet on the server side.
      * Unregisters the player from viewing the specified dimension.
      */
-    @SuppressWarnings("unchecked")
-    public <T> boolean handle(ServerPlayerEntity player, PacketSender response) {
+    public boolean handle(ServerPlayerEntity player, PacketSender response) {
         if (player == null) {
             return false;
         }

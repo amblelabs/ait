@@ -153,9 +153,12 @@ public class WorldGeometryRenderer {
         // TARDIS dimensions use namespace "tardis"
         boolean isTardisDimension = dimensionKey.getValue().getNamespace().equals("tardis");
         
-        if (isTardisDimension && !viewerRegistered && ClientPlayNetworking.canSend(BOTIRegisterViewerC2SPacket.TYPE)) {
-            ClientPlayNetworking.send(new BOTIRegisterViewerC2SPacket(dimensionKey));
-            viewerRegistered = true;
+        if (isTardisDimension && !viewerRegistered) {
+            if (ClientPlayNetworking.canSend(BOTIRegisterViewerC2SPacket.TYPE)) {
+                // Set flag BEFORE sending to prevent race condition
+                viewerRegistered = true;
+                ClientPlayNetworking.send(new BOTIRegisterViewerC2SPacket(dimensionKey));
+            }
         }
 
         // Preload chunks before rendering (works for both singleplayer and multiplayer)

@@ -75,6 +75,8 @@ public class BOTIUpdateTracker {
      * It sends BOTIBlockUpdateS2CPacket to all clients that are currently
      * viewing this dimension via BOTI.
      * 
+     * Thread-safe: Creates a snapshot of the entry set to avoid ConcurrentModificationException.
+     * 
      * @param world The world where the block changed
      * @param pos Position of the changed block
      * @param state New block state
@@ -82,8 +84,12 @@ public class BOTIUpdateTracker {
     public static void notifyBlockUpdate(ServerWorld world, BlockPos pos, BlockState state) {
         RegistryKey<World> dimension = world.getRegistryKey();
         
+        // Create a snapshot to avoid concurrent modification during iteration
+        Map.Entry<ServerPlayerEntity, Set<RegistryKey<World>>>[] snapshot = 
+            viewingDimensions.entrySet().toArray(new Map.Entry[0]);
+        
         // Find all players viewing this dimension
-        for (Map.Entry<ServerPlayerEntity, Set<RegistryKey<World>>> entry : viewingDimensions.entrySet()) {
+        for (Map.Entry<ServerPlayerEntity, Set<RegistryKey<World>>> entry : snapshot) {
             ServerPlayerEntity player = entry.getKey();
             Set<RegistryKey<World>> viewedDimensions = entry.getValue();
             

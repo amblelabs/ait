@@ -73,8 +73,7 @@ public class BOTIBlockUpdateS2CPacket implements FabricPacket {
      * Handles the packet on the client side.
      * Routes the block update to the appropriate ProxyClientWorld.
      */
-    @SuppressWarnings("unchecked")
-    public <T> boolean handle(ClientPlayerEntity source, PacketSender response) {
+    public boolean handle(ClientPlayerEntity source, PacketSender response) {
         MinecraftClient client = MinecraftClient.getInstance();
         
         if (client.world == null) {

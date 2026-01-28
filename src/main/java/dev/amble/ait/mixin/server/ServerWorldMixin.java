@@ -62,14 +62,20 @@ public class ServerWorldMixin implements AITWorldOptions {
     /**
      * Tracks block state changes for BOTI (Bigger On The Inside) rendering updates.
      * When a block changes in a dimension being viewed via BOTI, notifies all viewing clients.
+     * 
+     * Performance optimization: Only processes if dimension has registered viewers.
      */
     @Inject(method = "setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;II)Z", 
             at = @At("RETURN"))
     private void onBlockStateChange(BlockPos pos, BlockState state, int flags, int maxUpdateDepth, 
                                    CallbackInfoReturnable<Boolean> cir) {
-        // Only notify if the block state actually changed
+        // Only notify if the block state actually changed AND dimension has viewers
         if (cir.getReturnValue()) {
-            BOTIUpdateTracker.notifyBlockUpdate((ServerWorld)(Object)this, pos, state);
+            ServerWorld world = (ServerWorld)(Object)this;
+            // Performance optimization: Check if dimension has viewers before processing
+            if (BOTIUpdateTracker.hasViewers(world.getRegistryKey())) {
+                BOTIUpdateTracker.notifyBlockUpdate(world, pos, state);
+            }
         }
     }
 }

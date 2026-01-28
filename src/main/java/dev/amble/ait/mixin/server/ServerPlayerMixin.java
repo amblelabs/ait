@@ -11,6 +11,7 @@ import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.tardis.util.network.BOTIUpdateTracker;
 import dev.amble.ait.core.world.TardisServerWorld;
 
 @Mixin(ServerPlayerEntity.class)
@@ -39,5 +40,15 @@ public class ServerPlayerMixin {
         ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
         if (player.hasVehicle() && player.getVehicle() instanceof FlightTardisEntity)
             ci.cancel();
+    }
+
+    /**
+     * Clean up BOTI viewer registrations when player disconnects.
+     * Prevents memory leaks by removing disconnected players from BOTIUpdateTracker.
+     */
+    @Inject(method = "onDisconnect", at = @At("HEAD"))
+    private void ait$onDisconnect(CallbackInfo ci) {
+        ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
+        BOTIUpdateTracker.unregisterAll(player);
     }
 }
