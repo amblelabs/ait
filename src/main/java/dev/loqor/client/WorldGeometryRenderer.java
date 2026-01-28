@@ -220,11 +220,6 @@ public class WorldGeometryRenderer {
     public void render(World world, BlockPos centerPos, MatrixStack matrices, float tickDelta) {
         renderWithWorld(world, centerPos, matrices, tickDelta);
     }
-        RenderSystem.disableDepthTest();
-        RenderSystem.disableBlend();
-        RenderSystem.disableCull();
-        RenderSystem.setProjectionMatrix(originalProjection, VertexSorter.BY_DISTANCE);
-    }
 
     /**
      * Renders terrain using VBOs
@@ -614,8 +609,8 @@ public class WorldGeometryRenderer {
                     // Since the door is "backwards", we want to show blocks on the opposite side
                     boolean behindDoor = switch (doorFacing) {
                         case NORTH -> relZ > 0.0;   // Door faces north, but show blocks toward +Z (south)
-                        case SOUTH -> relZ < -0.0;  // Door faces south, but show blocks toward -Z (north)
-                        case EAST -> relX < -0.0;   // Door faces east, but show blocks toward -X (west)
+                        case SOUTH -> relZ < 0.0;  // Door faces south, but show blocks toward -Z (north)
+                        case EAST -> relX < 0.0;   // Door faces east, but show blocks toward -X (west)
                         case WEST -> relX > 0.0;    // Door faces west, but show blocks toward +X (east)
                         default -> false;
                     };
@@ -735,6 +730,13 @@ public class WorldGeometryRenderer {
         }
         sectionBuffers.clear();
         blockEntities.clear();
+        
+        // Clean up proxy world resources
+        if (proxyWorld != null) {
+            proxyWorld.clearCache();
+            proxyWorld = null;
+        }
+        lastDimensionKey = null;
     }
 
     /**

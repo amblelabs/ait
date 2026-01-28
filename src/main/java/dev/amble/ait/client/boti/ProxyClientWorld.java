@@ -32,12 +32,17 @@ import org.jetbrains.annotations.Nullable;
  * received via packets (TODO: implement multiplayer support).
  */
 public class ProxyClientWorld implements BlockRenderView {
+    // Cache with bounded size to prevent memory leaks
+    private static final int MAX_CACHED_CHUNKS = 256; // ~4MB of chunk data max
     private final Map<Long, ProxyChunk> chunkCache = new HashMap<>();
     private final RegistryKey<World> dimensionKey;
     
     // Cache the server world reference for singleplayer
     @Nullable
     private ServerWorld serverWorld;
+    private boolean isValid;
+    private long lastValidityCheck = 0;
+    private static final long VALIDITY_CHECK_INTERVAL = 1000; // Check every second
     
     /**
      * Creates a new ProxyClientWorld for the given dimension.
@@ -47,6 +52,7 @@ public class ProxyClientWorld implements BlockRenderView {
     public ProxyClientWorld(RegistryKey<World> dimensionKey) {
         this.dimensionKey = dimensionKey;
         this.serverWorld = getServerWorld();
+        this.isValid = serverWorld != null;
     }
     
     /**
@@ -71,18 +77,40 @@ public class ProxyClientWorld implements BlockRenderView {
      */
     public void refreshServerWorld() {
         this.serverWorld = getServerWorld();
+        this.isValid = serverWorld != null;
+        this.lastValidityCheck = System.currentTimeMillis();
     }
     
     /**
      * Gets the cached chunk for the given section coordinates, or creates a new empty one.
+     * Implements LRU-style eviction to prevent unbounded memory growth.
      */
     private ProxyChunk getOrCreateChunk(int sectionX, int sectionY, int sectionZ) {
         long key = packSectionPos(sectionX, sectionY, sectionZ);
-        return chunkCache.computeIfAbsent(key, k -> new ProxyChunk(sectionX, sectionY, sectionZ));
+        
+        ProxyChunk chunk = chunkCache.get(key);
+        if (chunk != null) {
+            return chunk;
+        }
+        
+        // Evict oldest chunks if cache is too large
+        if (chunkCache.size() >= MAX_CACHED_CHUNKS) {
+            // Simple eviction: remove first entry (arbitrary, but prevents unbounded growth)
+            // TODO: Implement proper LRU cache for better eviction strategy
+            Long keyToRemove = chunkCache.keySet().iterator().next();
+            chunkCache.remove(keyToRemove);
+        }
+        
+        chunk = new ProxyChunk(sectionX, sectionY, sectionZ);
+        chunkCache.put(key, chunk);
+        return chunk;
     }
     
     /**
      * Packs section coordinates into a single long for use as a map key.
+     * Note: This supports coordinates within ±2 million blocks. Beyond this range,
+     * coordinates will be truncated, potentially causing cache collisions.
+     * For TARDIS interiors, this range is more than sufficient.
      */
     private static long packSectionPos(int x, int y, int z) {
         return ((long) x & 0x3FFFFFL) << 42 | ((long) y & 0xFFFFFL) << 20 | ((long) z & 0x3FFFFFL);
@@ -159,8 +187,8 @@ public class ProxyClientWorld implements BlockRenderView {
             return serverWorld.getLightingProvider();
         }
         
-        // In multiplayer, we would need a stub lighting provider
-        // TODO: Implement stub lighting provider for multiplayer
+        // In multiplayer, return null and rely on default lighting in rendering
+        // TODO: Implement stub lighting provider for multiplayer if needed
         return null;
     }
     
@@ -185,6 +213,13 @@ public class ProxyClientWorld implements BlockRenderView {
      * Updates the chunk cache with new data received from the server.
      * This is called by the packet handler when chunk data arrives.
      * 
+     * Expected NBT format (from BOTIDataS2CPacket):
+     * - "block_states": Compound containing:
+     *   - "palette": List of block state NBT compounds (encoded via BlockState.CODEC)
+     *   - "data": LongArray of packed palette indices
+     *   - "bitsPerEntry": Int specifying bits per palette entry (typically 4-15)
+     * - "block_entities": Optional compound mapping "x_y_z" keys to block entity NBT
+     * 
      * @param sectionX Section X coordinate
      * @param sectionY Section Y coordinate
      * @param sectionZ Section Z coordinate
@@ -205,10 +240,14 @@ public class ProxyClientWorld implements BlockRenderView {
     
     /**
      * Checks if this proxy world is valid (has a server world in singleplayer).
+     * Uses cached validity state with periodic refresh to avoid excessive lookups.
      */
     public boolean isValid() {
-        refreshServerWorld();
-        return serverWorld != null;
+        long now = System.currentTimeMillis();
+        if (now - lastValidityCheck > VALIDITY_CHECK_INTERVAL) {
+            refreshServerWorld();
+        }
+        return isValid;
     }
     
     /**

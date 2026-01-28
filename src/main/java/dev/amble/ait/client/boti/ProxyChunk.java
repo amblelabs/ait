@@ -129,6 +129,13 @@ public class ProxyChunk {
         // Read data array
         long[] data = blockStatesNbt.getLongArray("data");
         int bitsPerEntry = blockStatesNbt.getInt("bitsPerEntry");
+        
+        // Validate bitsPerEntry to prevent division by zero and invalid bit operations
+        if (bitsPerEntry <= 0 || bitsPerEntry > 64) {
+            System.err.println("Invalid bitsPerEntry value: " + bitsPerEntry + ". Skipping chunk deserialization.");
+            return;
+        }
+        
         int entriesPerLong = 64 / bitsPerEntry;
         
         // Decode block states
@@ -146,8 +153,11 @@ public class ProxyChunk {
                     long value = data[longIndex];
                     int paletteIndex = (int) ((value >> offset) & ((1L << bitsPerEntry) - 1));
                     
+                    // Validate palette index to prevent array out of bounds
                     if (paletteIndex >= 0 && paletteIndex < paletteArray.length) {
                         blockStates[x][y][z] = paletteArray[paletteIndex];
+                    } else {
+                        System.err.println("Invalid palette index: " + paletteIndex + " (palette size: " + paletteArray.length + ")");
                     }
                 }
             }
