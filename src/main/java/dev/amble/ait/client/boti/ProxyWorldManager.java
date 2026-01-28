@@ -67,8 +67,9 @@ public class ProxyWorldManager {
     
     /**
      * Gets all proxy worlds (for debugging).
+     * Returns an unmodifiable view to prevent external modification.
      */
     public Map<RegistryKey<World>, ProxyClientWorld> getAllProxyWorlds() {
-        return proxyWorlds;
+        return java.util.Collections.unmodifiableMap(proxyWorlds);
     }
 }
