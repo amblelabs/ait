@@ -1,6 +1,9 @@
 package dev.loqor.client;
 
+import dev.amble.ait.client.boti.codec.SectionData;
+import dev.amble.ait.core.tardis.util.network.c2s.BOTIChunkBatchRequestC2SPacket;
 import dev.loqor.ProxyChunk;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
@@ -27,16 +30,23 @@ import net.minecraft.world.chunk.light.LightingProvider;
 import net.minecraft.world.dimension.DimensionTypes;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A proxy world that fetches block data from a target dimension (server-side)
- * and caches it for client-side rendering
+ * and caches it for client-side rendering.
+ * Now supports optimized batch chunk requests.
  */
 public class ProxyClientWorld implements BlockRenderView {
     private final RegistryKey<World> targetDimension;
-    private final Map<ChunkPos, ProxyChunk> cachedChunks = new HashMap<>();
+    private final Map<ChunkPos, ProxyChunk> cachedChunks = new ConcurrentHashMap<>();
+    private final Set<ChunkPos> requestedChunks = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private final MinecraftClient client;
     private final World fallbackWorld;
 
@@ -116,20 +126,45 @@ public class ProxyClientWorld implements BlockRenderView {
     }
 
     /**
-     * Pre-loads chunks in a radius around a center position
+     * Pre-loads chunks in a radius around a center position using optimized batch requests.
      */
     public void preloadChunks(BlockPos center, int radius) {
+        List<ChunkPos> toRequest = new ArrayList<>();
         int centerChunkX = center.getX() >> 4;
         int centerChunkZ = center.getZ() >> 4;
-
-        for (int x = centerChunkX - radius; x <= centerChunkX + radius; x++) {
-            for (int z = centerChunkZ - radius; z <= centerChunkZ + radius; z++) {
-                ChunkPos chunkPos = new ChunkPos(x, z);
-                if (!cachedChunks.containsKey(chunkPos)) {
+        
+        for (int x = -radius; x <= radius; x++) {
+            for (int z = -radius; z <= radius; z++) {
+                ChunkPos pos = new ChunkPos(centerChunkX + x, centerChunkZ + z);
+                if (!cachedChunks.containsKey(pos) && requestedChunks.add(pos)) {
+                    toRequest.add(pos);
+                }
+            }
+        }
+        
+        if (!toRequest.isEmpty()) {
+            // Send batch request (only works in multiplayer, in singleplayer fetchChunk handles it)
+            if (client.getServer() == null) {
+                ClientPlayNetworking.send(new BOTIChunkBatchRequestC2SPacket(
+                    targetDimension, center, (byte)radius, toRequest
+                ));
+            } else {
+                // Singleplayer: fetch chunks directly
+                for (ChunkPos chunkPos : toRequest) {
                     fetchChunk(chunkPos);
                 }
             }
         }
+    }
+    
+    /**
+     * Receives section data from server (multiplayer).
+     * Called when BOTIChunkDataBatchS2CPacket is received.
+     */
+    public void receiveSectionData(SectionData data) {
+        ChunkPos chunkPos = new ChunkPos(data.chunkX, data.chunkZ);
+        ProxyChunk chunk = cachedChunks.computeIfAbsent(chunkPos, ProxyChunk::new);
+        chunk.setSection(data);
     }
 
     public RegistryKey<World> getTargetDimension() {
