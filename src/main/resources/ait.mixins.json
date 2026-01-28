@@ -10,6 +10,7 @@
     "LivingEntityMixin",
     "UseActionMixin",
     "artron.ServerWorldMixin",
+    "boti.ThreadedAnvilChunkStorageBOTIMixin",
     "boti.WorldBOTIMixin",
     "client.experimental_screen.LevelSummaryMixin",
     "client.rendering.EntityMixin",

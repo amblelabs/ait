@@ -141,4 +141,23 @@ public class BOTIUpdateTracker {
         }
         return false;
     }
+    
+    /**
+     * Gets all players currently viewing a specific dimension via BOTI.
+     * Used by packet interception to send Minecraft's native packets to BOTI viewers.
+     * 
+     * @param dimension The dimension to get viewers for
+     * @return List of players viewing this dimension (empty list if none)
+     */
+    public static java.util.List<ServerPlayerEntity> getViewers(RegistryKey<World> dimension) {
+        java.util.List<ServerPlayerEntity> viewers = new java.util.ArrayList<>();
+        
+        for (Map.Entry<ServerPlayerEntity, Set<RegistryKey<World>>> entry : viewingDimensions.entrySet()) {
+            if (entry.getValue().contains(dimension)) {
+                viewers.add(entry.getKey());
+            }
+        }
+        
+        return viewers;
+    }
 }
