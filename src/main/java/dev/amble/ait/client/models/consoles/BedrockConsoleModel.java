@@ -2,22 +2,30 @@ package dev.amble.ait.client.models.consoles;
 
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.entities.ConsoleControlEntity;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.datapack.TravelAnimationMap;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.lib.api.Identifiable;
 import dev.amble.lib.client.bedrock.BedrockAnimation;
+import dev.amble.lib.client.bedrock.BedrockAnimationReference;
 import dev.amble.lib.client.bedrock.BedrockModel;
+import dev.amble.lib.client.bedrock.TargetedAnimationState;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
 
 public class BedrockConsoleModel implements ConsoleModel, Identifiable {
     private final BedrockModel model;
     private final ModelPart root;
+	private final HashMap<Identifier, BedrockAnimation> animationCache = new HashMap<>();
 
     public BedrockConsoleModel(BedrockModel model) {
         this.model = model;
@@ -53,11 +61,7 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
 
 	public void applyOffsets(MatrixStack matrices, ConsoleVariantSchema schema) {
 		if (schema instanceof DatapackConsole datapackConsole) {
-			Vec3d offset = datapackConsole.getOffset().multiply(1, -1, 1);
-			matrices.translate(offset.x, offset.y, offset.z);
-
-			Vec3d scale = datapackConsole.getScale();
-			matrices.scale((float) scale.x, (float) scale.y, (float) scale.z);
+			datapackConsole.getTransformations().apply(matrices);
 		}
 	}
 
@@ -70,12 +74,37 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
             throw new IllegalStateException("DatapackConsole " + console.getVariant().id() + " has no animations defined.");
         }
 
-        BedrockAnimation anim = map.getAnimation(state);
-
-        if (anim == null) return;
 
         this.getPart().traverse().forEach(ModelPart::resetTransform);
+		console.getControlEntities().forEach(this::applyControlAnimation);
 
-        anim.apply(this.getPart(), console.ANIM_STATE, console.getAge(), 1F, null);
+		BedrockAnimation anim = map.getAnimation(state);
+		if (anim == null) return;
+
+		anim.apply(this.getPart(), console.ANIM_STATE, console.getAge(), 1F, null);
     }
+
+	private static @Nullable BedrockAnimation findAnimationById(ConsoleControlEntity entity) {
+		ControlTypes type = entity.getControlType().orElse(null);
+		if (type == null) return null;
+
+		BedrockAnimationReference ref = type.getAnimation().orElse(null);
+		if (ref == null) return null;
+
+		return ref.get().orElse(null);
+	}
+
+	private void applyControlAnimation(ConsoleControlEntity entity) {
+		if (entity.tardis().isEmpty()) return;
+
+		Control control = entity.getControl();
+		if (control == null) return;
+
+		BedrockAnimation anim = this.animationCache.computeIfAbsent(entity.getControl().id(), k -> findAnimationById(entity));
+		if (anim == null) return;
+
+		TargetedAnimationState state = entity.getAnimationState();
+		state.setTargetProgress(control.getTargetProgress(entity.tardis().get(), entity.isOnDelay(), entity));
+		anim.apply(this.getPart(), state, entity);
+	}
 }

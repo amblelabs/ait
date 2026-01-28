@@ -1,14 +1,5 @@
 package dev.amble.ait.registry.impl.console.variant;
 
-import dev.amble.ait.data.schema.console.variant.hudolin.client.*;
-import dev.amble.lib.client.bedrock.BedrockModelRegistry;
-import dev.amble.lib.register.datapack.DatapackRegistry;
-import org.joml.Vector3f;
-
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.consoles.BedrockConsoleModel;
 import dev.amble.ait.client.models.consoles.ConsoleModel;
@@ -25,11 +16,21 @@ import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientHartnellV
 import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientKeltHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientMintHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientWoodenHartnellVariant;
+import dev.amble.ait.data.schema.console.variant.hudolin.client.*;
 import dev.amble.ait.data.schema.console.variant.renaissance.client.*;
 import dev.amble.ait.data.schema.console.variant.steam.client.*;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaBlueVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaLegacyVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaVariant;
+import dev.amble.lib.client.bedrock.BedrockModelRegistry;
+import dev.amble.lib.register.datapack.DatapackRegistry;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
+
+import java.util.function.Predicate;
 
 public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsoleVariantSchema> {
     private static ClientConsoleVariantRegistry INSTANCE;
@@ -101,6 +102,8 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
 
         return new ClientConsoleVariantSchema(variant.id()) {
             private ClientConsoleVariantSchema sameParent; // a variant with the same parent as this one, so we have the same models n that
+	        private @Nullable Identifier texture = null;
+	        private @Nullable Identifier emission = null;
 
             private ClientConsoleVariantSchema getSameParent() {
                 if (sameParent == null) {
@@ -110,14 +113,47 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
                 return sameParent;
             }
 
+	        private ClientConsoleVariantSchema getSameParent(Predicate<ClientConsoleVariantSchema> predicate) {
+		        for (ClientConsoleVariantSchema schema : ClientConsoleVariantRegistry.getInstance().toList()) {
+			        if (schema == this)
+				        continue;
+
+			        if (schema.parent() == null)
+				        continue;
+
+			        if (schema.parent().id().equals(this.parent().id()) && predicate.test(schema))
+				        return schema;
+		        }
+
+		        return null;
+	        }
+
             @Override
             public Identifier texture() {
-                return variant.texture();
+	            if (texture == null) {
+		            if (variant.texture().equals(DatapackConsole.EMPTY)) {
+			            ClientConsoleVariantSchema parent = getSameParent(val -> val.texture() != null && !val.texture().equals(DatapackConsole.EMPTY));
+			            texture = parent != null ? parent.texture() : variant.texture();
+		            } else {
+			            texture = variant.texture();
+		            }
+	            }
+
+	            return texture;
             }
 
             @Override
             public Identifier emission() {
-                return variant.emission();
+	            if (emission == null) {
+		            if (variant.emission().equals(DatapackConsole.EMPTY)) {
+			            ClientConsoleVariantSchema parent = getSameParent(val -> val.emission() != null && !val.emission().equals(DatapackConsole.EMPTY));
+			            emission = parent != null ? parent.emission() : variant.emission();
+		            } else {
+			            emission = variant.emission();
+		            }
+	            }
+
+	            return emission;
             }
 
             @Override
@@ -126,7 +162,12 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
                     return new BedrockConsoleModel(BedrockModelRegistry.getInstance().get(variant.model().get()));
                 }
 
-                return getSameParent().model();
+	            ClientConsoleVariantSchema parent = getSameParent(val -> val.model() != null);
+	            if (parent != null) {
+		            return parent.model();
+	            }
+
+	            return HARTNELL.model();
             }
 
             @Override
