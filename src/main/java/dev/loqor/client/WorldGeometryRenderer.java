@@ -118,6 +118,7 @@ public class WorldGeometryRenderer {
     /**
      * Renders geometry from a different dimension using a ProxyWorld.
      * This is the main entry point for cross-dimensional BOTI rendering.
+     * Works identically in both singleplayer and multiplayer.
      *
      * @param dimensionKey The dimension to render from
      * @param centerPos Center position for rendering
@@ -133,14 +134,7 @@ public class WorldGeometryRenderer {
             markDirty(); // Rebuild when dimension changes
         }
 
-        // Check if the proxy world is valid (has server world in singleplayer)
-        if (!proxyWorld.isValid()) {
-            // In multiplayer, request chunks via packets
-            requestChunksForMultiplayer(dimensionKey, centerPos);
-            return;
-        }
-
-        // Preload chunks before rendering
+        // Preload chunks before rendering (works for both singleplayer and multiplayer)
         preloadChunks(centerPos);
 
         // Render using the proxy world
@@ -150,11 +144,12 @@ public class WorldGeometryRenderer {
     /**
      * Preloads chunks around a center position to ensure they're available for rendering.
      * This is critical for cross-dimensional rendering where chunks may not be loaded yet.
+     * Works identically in both singleplayer and multiplayer via packet system.
      *
      * @param centerPos Center position to preload around
      */
     private void preloadChunks(BlockPos centerPos) {
-        if (proxyWorld == null || !proxyWorld.isValid()) {
+        if (proxyWorld == null) {
             return;
         }
 
@@ -165,30 +160,7 @@ public class WorldGeometryRenderer {
         proxyWorld.preloadChunks(centerPos, chunkRadius);
     }
 
-    /**
-     * Requests chunks from the server in multiplayer when ProxyWorld is invalid.
-     * This triggers the BOTIChunkRequestC2SPacket system.
-     *
-     * @param dimensionKey The dimension to request chunks from
-     * @param centerPos Center position to request around
-     */
-    private void requestChunksForMultiplayer(RegistryKey<World> dimensionKey, BlockPos centerPos) {
-        MinecraftClient client = MinecraftClient.getInstance();
 
-        // Don't request if in singleplayer or not connected
-        if (client.isInSingleplayer() || client.getNetworkHandler() == null) {
-            return;
-        }
-
-        // Use ProxyClientWorld's preloading which handles multiplayer requests
-        if (proxyWorld != null) {
-            int chunkRadius = (renderDistance >> 4) + 1;
-            proxyWorld.preloadChunks(centerPos, chunkRadius);
-
-            // Mark dirty so we rebuild when chunks arrive
-            markDirty();
-        }
-    }
 
     /**
      * Called when a chunk is loaded/unloaded in the proxy world to trigger a rebuild
