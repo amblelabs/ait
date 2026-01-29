@@ -63,7 +63,7 @@ public abstract class DoorSchema implements Identifiable {
     }
 
     /**
-     * @deprecated {@link #getPortalPosition()}
+     * @deprecated {@link #getPortalPosition(Vec3d, float)}
      */
     @Deprecated(forRemoval = true)
     public Vec3d adjustPortalPos(Vec3d pos, Direction direction) {

@@ -151,7 +151,9 @@ public class TardisDoorBOTI extends BOTI {
 
         stack.scale((float) parent.portalWidth() * scale.x(),
                 (float) parent.portalHeight() * scale.y(), scale.z());
-        Vec3d vec = parent.door().adjustPortalPos(new Vec3d(0, -0.55f, 0), Direction.NORTH);
+        Vec3d vec = parent.door().getPortalPosition();
+        if (vec == null) return;
+
         stack.translate(vec.x, vec.y, vec.z);
         if (tardis.travel().getState() == TravelHandlerBase.State.LANDED) {
             RenderLayer whichOne = RenderLayer.getDebugFilledBox();
