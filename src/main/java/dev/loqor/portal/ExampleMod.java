@@ -13,14 +13,17 @@ public class ExampleMod implements ModInitializer {
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             ServerWorld world = server.getOverworld();
+
             PacketProxyPlayer proxy = new PacketProxyPlayer(world);
             world.spawnEntity(proxy);
 
             proxy.setPacketListener(packet -> {
-                AITMod.LOGGER.info("Got packet: {}", packet);
+                AITMod.LOGGER.info("Proxied a packet: {}", packet);
                 FabricPacket wrapped = new WrappedPacketS2CPacket(packet);
 
                 for (ServerPlayerEntity player : world.getPlayers()) {
+                    if (player instanceof PacketProxyPlayer) continue;
+
                     ServerPlayNetworking.send(player, wrapped);
                 }
             });

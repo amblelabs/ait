@@ -20,7 +20,7 @@ public class ProxyNetworkHandler extends ServerPlayNetworkHandler implements Unt
     }
 
     public void sendPacket(Packet<?> packet, @Nullable PacketCallbacks callbacks) {
-        if (this.packetListener != null)
+        if (this.packetListener != null && !(packet instanceof ProxiedPacket))
             this.packetListener.onPacket(packet);
     }
 

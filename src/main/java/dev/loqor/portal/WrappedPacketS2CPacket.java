@@ -8,7 +8,7 @@ import net.minecraft.network.NetworkState;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.Packet;
 
-public record WrappedPacketS2CPacket(Packet<?> packet) implements FabricPacket {
+public record WrappedPacketS2CPacket(Packet<?> packet) implements FabricPacket, ProxiedPacket {
 
     public static final PacketType<WrappedPacketS2CPacket> TYPE = PacketType.create(AITMod.id("wrapped"), WrappedPacketS2CPacket::read);
 
