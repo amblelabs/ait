@@ -5,16 +5,20 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 
 public class ExampleMod implements ModInitializer {
+
+    private static PacketProxyPlayer proxy;
+
     @Override
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             ServerWorld world = server.getOverworld();
 
-            PacketProxyPlayer proxy = new PacketProxyPlayer(world);
+            proxy = new PacketProxyPlayer(world);
             world.spawnEntity(proxy);
 
             proxy.setPacketListener(packet -> {
@@ -27,6 +31,10 @@ public class ExampleMod implements ModInitializer {
                     ServerPlayNetworking.send(player, wrapped);
                 }
             });
+        });
+
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+            server.getOverworld().removePlayer(proxy, Entity.RemovalReason.DISCARDED);
         });
     }
 }
