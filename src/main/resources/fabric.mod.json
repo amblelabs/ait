@@ -51,7 +51,8 @@
 		],
 		"client": [
 			"dev.amble.ait.client.AITModClient",
-			"dev.amble.ait.compat.Compat"
+			"dev.amble.ait.compat.Compat",
+			"dev.loqor.portal.client.ExampleClientMod"
 		],
 		"fabric-datagen": [
 			"dev.amble.ait.datagen.AITModDataGenerator"
