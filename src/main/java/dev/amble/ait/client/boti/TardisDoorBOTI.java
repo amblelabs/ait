@@ -2,7 +2,7 @@ package dev.amble.ait.client.boti;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.amble.ait.core.blocks.DoorBlock;
-import dev.loqor.client.WorldGeometryRenderer;
+import dev.loqor.portal.client.WorldGeometryRenderer;
 import net.minecraft.client.render.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.*;

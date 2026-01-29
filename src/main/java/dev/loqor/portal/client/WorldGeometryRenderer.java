@@ -1,14 +1,12 @@
-package dev.loqor.client;
+package dev.loqor.portal.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
-import dev.amble.ait.client.renderers.consoles.ConsoleRenderer;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
@@ -17,7 +15,6 @@ import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
@@ -282,7 +279,7 @@ public class WorldGeometryRenderer {
         }
 
         // Verify matrix stack is balanced
-        checkEmpty(matrices);
+        assertEmpty(matrices);
 
         // Render all vertex consumer layers
     }
@@ -307,7 +304,7 @@ public class WorldGeometryRenderer {
     /**
      * Checks that the matrix stack is empty
      */
-    private void checkEmpty(MatrixStack matrices) {
+    private void assertEmpty(MatrixStack matrices) {
         if (!matrices.isEmpty()) {
             throw new IllegalStateException("Matrix stack not empty");
         }
@@ -352,9 +349,6 @@ public class WorldGeometryRenderer {
                     }
                 }
 
-                // Wait for all uploads to complete
-                Thread.sleep(50); // Small delay to ensure all async uploads finish
-
                 // Swap buffers on main thread - atomic operation
                 MinecraftClient.getInstance().execute(() -> {
                     // Clean up OLD buffers
@@ -374,7 +368,7 @@ public class WorldGeometryRenderer {
                 });
 
             } catch (Exception e) {
-                e.printStackTrace();
+                AITMod.LOGGER.error("Failed to rebuild geometry", e);
             }
         });
     }

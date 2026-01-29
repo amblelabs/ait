@@ -2,7 +2,7 @@ package dev.amble.ait.client.screens;
 
 import com.google.common.collect.Lists;
 import dev.amble.ait.AITMod;
-import dev.loqor.client.WorldGeometryRenderer;
+import dev.loqor.portal.client.WorldGeometryRenderer;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import net.minecraft.client.MinecraftClient;
