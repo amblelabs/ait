@@ -42,7 +42,6 @@ public class WorldGeometryRenderer {
 
     private final int renderDistance;
     private Matrix4f projectionMatrix;
-    private Frustum frustum;
 
     // Add this field to WorldGeometryRenderer
     private Direction doorFacing = Direction.NORTH;
@@ -118,7 +117,7 @@ public class WorldGeometryRenderer {
      * @param matrices View matrix transformations
      * @param tickDelta Partial tick for interpolation
      */
-    public void render(World world, BlockPos centerPos, MatrixStack matrices, float tickDelta) {
+    public void render(World world, BlockPos centerPos, MatrixStack matrices, float tickDelta, boolean checkBehindPortal) {
         if (projectionMatrix == null) {
             throw new IllegalStateException("Projection matrix not set! Call setProjectionMatrix() or setPerspectiveProjection() first.");
         }
@@ -127,17 +126,12 @@ public class WorldGeometryRenderer {
         projectionMatrix = gameRenderer.getBasicProjectionMatrix(gameRenderer.getFov(gameRenderer.getCamera(),
                 MinecraftClient.getInstance().getTickDelta(), true));
 
-        // Create frustum for culling - no need to use it for now, we'll use distance-based culling
-        Matrix4f modelViewMatrix = matrices.peek().getPositionMatrix();
-        this.frustum = new Frustum(modelViewMatrix, projectionMatrix);
-        this.frustum.setPosition(centerPos.getX(), centerPos.getY(), centerPos.getZ());
-
         // Rebuild geometry if needed
         if (needsRebuild || !centerPos.equals(lastCenterPos)) {
             if (buildFuture == null || buildFuture.isDone()) {
                 lastCenterPos = centerPos;
                 needsRebuild = false;
-                rebuildGeometry(world, centerPos);
+                rebuildGeometry(world, centerPos, checkBehindPortal);
             }
         }
 
@@ -252,26 +246,6 @@ public class WorldGeometryRenderer {
     }
 
     /**
-     * Checks if a chunk section is visible in the frustum
-     */
-    private boolean isSectionVisible(ChunkSectionPos sectionPos) {
-        if (frustum == null) {
-            return true; // No culling if frustum not set
-        }
-
-        // Calculate section bounds (16x16x16 block section)
-        int minX = sectionPos.getMinX();
-        int minY = sectionPos.getMinY();
-        int minZ = sectionPos.getMinZ();
-        int maxX = sectionPos.getMaxX();
-        int maxY = sectionPos.getMaxY();
-        int maxZ = sectionPos.getMaxZ();
-
-        // Use Minecraft's frustum to test if the box is visible
-        return frustum.isVisible(minX, minY, minZ, maxX, maxY, maxZ);
-    }
-
-    /**
      * Renders block entities following Minecraft's WorldRenderer pattern
      */
     private void renderBlockEntities(MatrixStack matrices, float tickDelta, BlockPos centerPos) {
@@ -281,10 +255,6 @@ public class WorldGeometryRenderer {
 
         // Configure dispatcher
         dispatcher.configure(client.world, client.gameRenderer.getCamera(), null);
-
-        double cameraX = client.gameRenderer.getCamera().getPos().x;
-        double cameraY = client.gameRenderer.getCamera().getPos().y;
-        double cameraZ = client.gameRenderer.getCamera().getPos().z;
 
         // Create a snapshot to avoid concurrent modification
         List<BlockEntity> snapshot = new ArrayList<>(blockEntities);
@@ -315,7 +285,6 @@ public class WorldGeometryRenderer {
         checkEmpty(matrices);
 
         // Render all vertex consumer layers
-        immediate.draw();
     }
 
     /**
@@ -347,7 +316,7 @@ public class WorldGeometryRenderer {
     /**
      * Rebuilds all geometry asynchronously with double-buffering
      */
-    private void rebuildGeometry(World world, BlockPos centerPos) {
+    private void rebuildGeometry(World world, BlockPos centerPos, boolean checkBehindPortal) {
         buildFuture = CompletableFuture.runAsync(() -> {
             try {
                 // DON'T clear old buffers yet - keep them for rendering
@@ -378,7 +347,7 @@ public class WorldGeometryRenderer {
                     for (int sectionY = minSectionY; sectionY <= maxSectionY; sectionY++) {
                         for (int sectionZ = minSectionZ; sectionZ <= maxSectionZ; sectionZ++) {
                             buildSectionToMap(world, centerPos, sectionX, sectionY, sectionZ,
-                                    blockRenderManager, random, foundBlockEntities, tempBuffers);
+                                    blockRenderManager, random, foundBlockEntities, tempBuffers, checkBehindPortal);
                         }
                     }
                 }
@@ -416,7 +385,7 @@ public class WorldGeometryRenderer {
     private void buildSectionToMap(World world, BlockPos centerPos, int sectionX, int sectionY, int sectionZ,
                                    BlockRenderManager blockRenderManager, Random random,
                                    List<BlockEntity> foundBlockEntities,
-                                   Map<ChunkSectionPos, Map<RenderLayer, VertexBuffer>> targetMap) {
+                                   Map<ChunkSectionPos, Map<RenderLayer, VertexBuffer>> targetMap, boolean checkBehindPortal) {
 
         Map<RenderLayer, BufferBuilder> builders = new HashMap<>();
         Set<RenderLayer> usedLayers = new HashSet<>();
@@ -459,7 +428,7 @@ public class WorldGeometryRenderer {
                     double relZ = z - centerPos.getZ();
 
                     // Inverted check: block behind door plane
-                    boolean behindDoor = switch (doorFacing) {
+                    boolean behindPortal = switch (doorFacing) {
                         case NORTH -> relZ > 0.0;
                         case SOUTH -> relZ < -0.0;
                         case EAST -> relX < -0.0;
@@ -467,7 +436,7 @@ public class WorldGeometryRenderer {
                         default -> false;
                     };
 
-                    if (behindDoor) {
+                    if (behindPortal && checkBehindPortal) {
                         continue;
                     }
 
@@ -588,17 +557,5 @@ public class WorldGeometryRenderer {
      */
     public int getBlockEntityCount() {
         return blockEntities.size();
-    }
-
-    public void bobView(MatrixStack matrices, float tickDelta) {
-        if (MinecraftClient.getInstance().getCameraEntity() instanceof PlayerEntity) {
-            PlayerEntity playerEntity = (PlayerEntity)MinecraftClient.getInstance().getCameraEntity();
-            float f = playerEntity.horizontalSpeed - playerEntity.prevHorizontalSpeed;
-            float g = -(playerEntity.horizontalSpeed + f * tickDelta);
-            float h = MathHelper.lerp(tickDelta, playerEntity.prevStrideDistance, playerEntity.strideDistance);
-            matrices.translate(MathHelper.sin(g * (float)Math.PI) * h * 0.5F, -Math.abs(MathHelper.cos(g * (float)Math.PI) * h), 0.0F);
-            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(MathHelper.sin(g * (float)Math.PI) * h * 3.0F));
-            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(Math.abs(MathHelper.cos(g * (float)Math.PI - 0.2F) * h) * 5.0F));
-        }
     }
 }

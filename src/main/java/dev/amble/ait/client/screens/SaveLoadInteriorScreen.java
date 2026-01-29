@@ -117,7 +117,7 @@ public class SaveLoadInteriorScreen extends ConsoleScreen {
         matrices.translate(offsetX / zoom, -offsetY / zoom, 0);
 
         // Render the world!
-        worldRenderer.render(client.world, playerPos, matrices, delta);
+        worldRenderer.render(client.world, playerPos, matrices, delta, false);
     }
 
     @Override

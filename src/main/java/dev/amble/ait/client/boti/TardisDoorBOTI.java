@@ -154,8 +154,7 @@ public class TardisDoorBOTI extends BOTI {
         Vec3d vec = parent.door().adjustPortalPos(new Vec3d(0, -0.55f, 0), Direction.NORTH);
         stack.translate(vec.x, vec.y, vec.z);
         if (tardis.travel().getState() == TravelHandlerBase.State.LANDED) {
-            RenderLayer whichOne = RenderLayer.getDebugFilledBox();/*AITModClient.CONFIG.greenScreenBOTI ?
-                    RenderLayer.getDebugFilledBox() : RenderLayer.getEndGateway();*/
+            RenderLayer whichOne = RenderLayer.getDebugFilledBox();
             float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ?
                     new float[]{0, 1, 0, 1} :
                     new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
@@ -183,72 +182,59 @@ public class TardisDoorBOTI extends BOTI {
             if (interiorDoorPos != null) {
                 MatrixStack interiorMatrices = new MatrixStack();
 
-                // Get camera position and rotation
                 Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
                 float cameraPitch = client.gameRenderer.getCamera().getPitch();
                 float cameraYaw = client.gameRenderer.getCamera().getYaw();
 
-                // Start with camera position
                 Vec3d stableCameraPos = cameraPos;
                 Vec3d inverseBobbingRotations = Vec3d.ZERO;
 
-                // Calculate and SUBTRACT inverse bobbing if enabled (camera already has bobbing applied)
                 if (client.options.getBobView().getValue() && client.player != null) {
                     float f = client.player.horizontalSpeed - client.player.prevHorizontalSpeed;
                     float g = -(client.player.horizontalSpeed + f * tickDelta);
                     float h = MathHelper.lerp(tickDelta, client.player.prevStrideDistance, client.player.strideDistance);
 
-                    // Calculate the bobbing that was applied to the camera
                     float bobbingX = MathHelper.sin(g * (float)Math.PI) * h * 0.5F;
                     float bobbingY = -Math.abs(MathHelper.cos(g * (float)Math.PI) * h);
 
-                    // SUBTRACT the bobbing (don't add inverse, subtract the actual bobbing)
                     stableCameraPos = new Vec3d(
                             cameraPos.x - bobbingX,
                             cameraPos.y - bobbingY,
                             cameraPos.z
                     );
 
-                    // Calculate inverse rotations
                     float rollZ = MathHelper.sin(g * (float)Math.PI) * h * 3.0F;
                     float pitchX = Math.abs(MathHelper.cos(g * (float)Math.PI - 0.2F) * h) * 5.0F;
                     inverseBobbingRotations = new Vec3d(-pitchX, 0.0F, -rollZ);
                 }
 
-                // Interior door center at fixed position
                 Vec3d interiorDoorCenter = new Vec3d(
                         interiorDoorPos.getX() + 1.0,
-                        interiorDoorPos.getY(),  // Fixed at standing eye height
+                        interiorDoorPos.getY(),
                         interiorDoorPos.getZ() + 1.0
                 );
 
-                // Calculate offset using stable camera position
                 Vec3d offset = new Vec3d(
                         stableCameraPos.x - interiorDoorCenter.x,
                         stableCameraPos.y - interiorDoorCenter.y,
                         stableCameraPos.z - interiorDoorCenter.z
                 );
 
-                // Apply inverse bobbing rotations BEFORE camera rotations
                 if (client.options.getBobView().getValue()) {
                     interiorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((float) inverseBobbingRotations.x));
                     interiorMatrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) inverseBobbingRotations.z));
                 }
 
-                // Apply camera rotations
                 interiorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cameraPitch));
                 interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cameraYaw));
 
-                // Translate by offset
                 interiorMatrices.translate(offset.x, -offset.y, offset.z);
 
-                // Render from interior door position
                 try {
-                    // Before calling interiorRenderer.render()
                     Direction doorFacing = door.getCachedState().get(DoorBlock.FACING);
                     interiorRenderer.setDoorFacing(doorFacing);
 
-                    interiorRenderer.render(client.world, interiorDoorPos, interiorMatrices, tickDelta);
+                    interiorRenderer.render(client.world, interiorDoorPos, interiorMatrices, tickDelta, true);
                 } catch (Exception e) {
                     // Silent fail
                 }
@@ -256,9 +242,6 @@ public class TardisDoorBOTI extends BOTI {
 
             stack.pop();
         }
-// ===== END INTERIOR RENDERING =====
-
-
 
         // Render vortex/effects when in flight
         stack.push();
@@ -323,12 +306,20 @@ public class TardisDoorBOTI extends BOTI {
             stack.pop();
         }
 
-        client.getFramebuffer().beginWrite(true);
+        // **NEW APPROACH: Disable stencil BEFORE switching framebuffers**
+        GL11.glDisable(GL11.GL_STENCIL_TEST);
+        GL11.glStencilMask(0x00);
 
+        // Switch to main framebuffer and copy color
+        client.getFramebuffer().beginWrite(false);  // false = don't check for errors
         BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
 
-        GL11.glDisable(GL11.GL_STENCIL_TEST);
+        // Reset all stencil state on main framebuffer
+        GL11.glStencilMask(0xFF);
+        GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
+        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
 
+        // Ensure depth mask is enabled for normal rendering
         RenderSystem.depthMask(true);
 
         stack.pop();
