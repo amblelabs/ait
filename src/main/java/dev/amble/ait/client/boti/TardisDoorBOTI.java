@@ -33,6 +33,10 @@ public class TardisDoorBOTI extends BOTI {
     private static WorldGeometryRenderer interiorRenderer;
     private static boolean rendererInitialized = false;
 
+    public static WorldGeometryRenderer getInteriorRenderer() {
+        return interiorRenderer;
+    }
+
     /**
      * Initializes the interior renderer if not already initialized
      */
@@ -151,7 +155,7 @@ public class TardisDoorBOTI extends BOTI {
 
         stack.scale((float) parent.portalWidth() * scale.x(),
                 (float) parent.portalHeight() * scale.y(), scale.z());
-        Vec3d vec = parent.door().getPortalPosition();
+        Vec3d vec = parent.door().getPortalPosition().add(0, -0.55, 0);
         if (vec == null) return;
 
         stack.translate(vec.x, vec.y, vec.z);
@@ -222,14 +226,13 @@ public class TardisDoorBOTI extends BOTI {
                         stableCameraPos.z - interiorDoorCenter.z
                 );
 
-                if (client.options.getBobView().getValue()) {
+                /*if (client.options.getBobView().getValue()) {
                     interiorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((float) inverseBobbingRotations.x));
                     interiorMatrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) inverseBobbingRotations.z));
-                }
+                }*/
 
                 interiorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cameraPitch));
                 interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cameraYaw));
-
                 interiorMatrices.translate(offset.x, -offset.y, offset.z);
 
                 try {

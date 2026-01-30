@@ -19,10 +19,11 @@ public class ExampleMod implements ModInitializer {
             ServerWorld world = server.getOverworld();
 
             proxy = new PacketProxyPlayer(world);
+            proxy.setPos(0, 64, 0);
             world.spawnEntity(proxy);
 
             proxy.setPacketListener(packet -> {
-                AITMod.LOGGER.info("Proxied a packet: {}", packet);
+                //AITMod.LOGGER.info("Proxied a packet: {}", packet);
                 FabricPacket wrapped = new WrappedPacketS2CPacket(packet);
 
                 for (ServerPlayerEntity player : world.getPlayers()) {

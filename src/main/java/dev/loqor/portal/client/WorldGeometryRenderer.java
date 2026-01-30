@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
+import dev.loqor.portal.ProxyPacketListener;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -15,10 +16,21 @@ import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.network.NetworkThreadUtils;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.*;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.LightType;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.ChunkNibbleArray;
+import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.light.LightingProvider;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
@@ -44,8 +56,19 @@ public class WorldGeometryRenderer {
     private Direction doorFacing = Direction.NORTH;
     private Direction lastDoorFacing = null;
 
+    private ClientWorld world;
+
     public WorldGeometryRenderer(int renderDistance) {
         this.renderDistance = renderDistance;
+
+        MinecraftClient client = MinecraftClient.getInstance();
+        ClientWorld oldWorld = client.world;
+
+        if (oldWorld == null) return;
+
+        this.world = new ClientWorld(client.getNetworkHandler(), oldWorld.getLevelProperties(), oldWorld.getRegistryKey(),
+                oldWorld.getRegistryManager().get(RegistryKeys.DIMENSION_TYPE).entryOf(oldWorld.getDimensionKey()),
+                512, 512, () -> null, null, false, 0L);
     }
 
     /**
@@ -115,6 +138,7 @@ public class WorldGeometryRenderer {
      * @param tickDelta Partial tick for interpolation
      */
     public void render(World world, BlockPos centerPos, MatrixStack matrices, float tickDelta, boolean checkBehindPortal) {
+        centerPos = new BlockPos(0, 64, 0);
         if (projectionMatrix == null) {
             throw new IllegalStateException("Projection matrix not set! Call setProjectionMatrix() or setPerspectiveProjection() first.");
         }
@@ -128,7 +152,7 @@ public class WorldGeometryRenderer {
             if (buildFuture == null || buildFuture.isDone()) {
                 lastCenterPos = centerPos;
                 needsRebuild = false;
-                rebuildGeometry(world, centerPos, checkBehindPortal);
+                rebuildGeometry(this.world, centerPos, checkBehindPortal);
             }
         }
 
@@ -251,7 +275,7 @@ public class WorldGeometryRenderer {
         VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
 
         // Configure dispatcher
-        dispatcher.configure(client.world, client.gameRenderer.getCamera(), null);
+        dispatcher.configure(this.world, client.gameRenderer.getCamera(), null);
 
         // Create a snapshot to avoid concurrent modification
         List<BlockEntity> snapshot = new ArrayList<>(blockEntities);
@@ -551,5 +575,74 @@ public class WorldGeometryRenderer {
      */
     public int getBlockEntityCount() {
         return blockEntities.size();
+    }
+
+    public void onChunkDeltaUpdate(ChunkDeltaUpdateS2CPacket packet) {
+        MinecraftClient.getInstance().executeSync(() -> {
+            packet.visitUpdates((pos, state) -> this.world.handleBlockUpdate((BlockPos) pos, (BlockState) state, 19));
+        });
+    }
+
+    public void onBlockUpdate(BlockUpdateS2CPacket packet) {
+        MinecraftClient.getInstance().executeSync(() ->  {
+            this.world.handleBlockUpdate(packet.getPos(), packet.getState(), 19);
+        });
+    }
+
+    public void onChunkData(ChunkDataS2CPacket chunkDataS2CPacket) {
+        MinecraftClient.getInstance().executeSync(() ->  {
+            int i = chunkDataS2CPacket.getX();
+            int j = chunkDataS2CPacket.getZ();
+            this.loadChunk(i, j, chunkDataS2CPacket.getChunkData());
+            LightData lightData = chunkDataS2CPacket.getLightData();
+            this.world.enqueueChunkUpdate(() -> {
+                this.readLightData(i, j, lightData);
+                WorldChunk worldChunk = this.world.getChunkManager().getWorldChunk(i, j, false);
+                if (worldChunk != null) {
+                    this.scheduleRenderChunk(worldChunk, i, j);
+                }
+            });
+        }
+        );
+    }
+
+    private void readLightData(int x, int z, LightData data) {
+        LightingProvider lightingProvider = this.world.getChunkManager().getLightingProvider();
+        BitSet bitSet = data.getInitedSky();
+        BitSet bitSet2 = data.getUninitedSky();
+        Iterator<byte[]> iterator = data.getSkyNibbles().iterator();
+        this.updateLighting(x, z, lightingProvider, LightType.SKY, bitSet, bitSet2, iterator);
+        BitSet bitSet3 = data.getInitedBlock();
+        BitSet bitSet4 = data.getUninitedBlock();
+        Iterator<byte[]> iterator2 = data.getBlockNibbles().iterator();
+        this.updateLighting(x, z, lightingProvider, LightType.BLOCK, bitSet3, bitSet4, iterator2);
+        lightingProvider.setColumnEnabled(new ChunkPos(x, z), true);
+    }
+
+    private void updateLighting(int chunkX, int chunkZ, LightingProvider provider, LightType type, BitSet inited, BitSet uninited, Iterator<byte[]> nibbles) {
+        for (int i = 0; i < provider.getHeight(); ++i) {
+            int j = provider.getBottomY() + i;
+            boolean bl = inited.get(i);
+            boolean bl2 = uninited.get(i);
+            if (!bl && !bl2) continue;
+            provider.enqueueSectionData(type, ChunkSectionPos.from(chunkX, j, chunkZ), bl ? new ChunkNibbleArray((byte[])nibbles.next().clone()) : new ChunkNibbleArray());
+            this.world.scheduleBlockRenders(chunkX, j, chunkZ);
+        }
+    }
+
+    private void loadChunk(int x, int z, ChunkData chunkData) {
+        this.world.getChunkManager().loadChunkFromPacket(x, z, chunkData.getSectionsDataBuf(), chunkData.getHeightmap(), chunkData.getBlockEntities(x, z));
+    }
+
+    private void scheduleRenderChunk(WorldChunk chunk, int x, int z) {
+        LightingProvider lightingProvider = this.world.getChunkManager().getLightingProvider();
+        ChunkSection[] chunkSections = chunk.getSectionArray();
+        ChunkPos chunkPos = chunk.getPos();
+        for (int i = 0; i < chunkSections.length; ++i) {
+            ChunkSection chunkSection = chunkSections[i];
+            int j = this.world.sectionIndexToCoord(i);
+            lightingProvider.setSectionStatus(ChunkSectionPos.from(chunkPos, j), chunkSection.isEmpty());
+            this.world.scheduleBlockRenders(x, j, z);
+        }
     }
 }
