@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.VertexSorter;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.loqor.portal.ProxyPacketListener;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -25,6 +26,7 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkNibbleArray;
@@ -67,9 +69,11 @@ public class WorldGeometryRenderer {
 
         if (oldWorld == null) return;
 
-        this.world = new ClientWorld(client.getNetworkHandler(), oldWorld.getLevelProperties(), World.OVERWORLD,
-                oldWorld.getRegistryManager().get(RegistryKeys.DIMENSION_TYPE).entryOf(DimensionTypes.OVERWORLD),
-                512, 512, () -> null, client.worldRenderer, false, 0L);
+        this.world = new ClientWorld(client.getNetworkHandler(),  new ClientWorld.Properties(Difficulty.NORMAL,
+                false, false), oldWorld.getRegistryKey(),
+                oldWorld.getDimensionEntry(),
+                12, client.world.getSimulationDistance(), client::getProfiler, client.worldRenderer,
+                false, 0);
     }
 
     /**
@@ -139,7 +143,16 @@ public class WorldGeometryRenderer {
      * @param tickDelta Partial tick for interpolation
      */
     public void render(World world, BlockPos centerPos, MatrixStack matrices, float tickDelta, boolean checkBehindPortal) {
-        centerPos = new BlockPos(0, 64, 0);
+
+        WorldChunk fakeChunk = this.world.getWorldChunk(new BlockPos(0, 0, 0));
+
+        if (fakeChunk.isEmpty()) {
+            WorldChunk worldChunk = MinecraftClient.getInstance().world.getChunkManager().getWorldChunk(0, 0);
+            if (worldChunk.isEmpty()) return;
+            this.loadChunk(0, 0, new ChunkData(worldChunk));
+            System.out.println(this.world.setBlockState(new BlockPos(2, 0, 1), Blocks.SEA_LANTERN.getDefaultState(), Block.NOTIFY_ALL));
+        }
+
         if (projectionMatrix == null) {
             throw new IllegalStateException("Projection matrix not set! Call setProjectionMatrix() or setPerspectiveProjection() first.");
         }
@@ -635,6 +648,12 @@ public class WorldGeometryRenderer {
         this.world.getChunkManager().loadChunkFromPacket(x, z, chunkData.getSectionsDataBuf(), chunkData.getHeightmap(), chunkData.getBlockEntities(x, z));
     }
 
+    public void onChunkRenderDistanceCenter(ChunkRenderDistanceCenterS2CPacket packet) {
+        MinecraftClient.getInstance().executeSync(() -> {
+            this.world.getChunkManager().setChunkMapCenter(packet.getChunkX(), packet.getChunkZ());
+        });
+    }
+
     public void onChunkBiomeData(ChunkBiomeDataS2CPacket packet) {
         MinecraftClient.getInstance().executeSync(() -> {
             for (ChunkBiomeDataS2CPacket.Serialized serialized : packet.chunkBiomeData()) {
@@ -654,7 +673,6 @@ public class WorldGeometryRenderer {
             }
         });
     }
-
 
     private void scheduleRenderChunk(WorldChunk chunk, int x, int z) {
         LightingProvider lightingProvider = this.world.getChunkManager().getLightingProvider();

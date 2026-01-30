@@ -21,13 +21,17 @@ public class ExampleClientMod implements ClientModInitializer {
     public void onInitializeClient() {
         ClientPlayNetworking.registerGlobalReceiver(WrappedPacketS2CPacket.TYPE, (wrapped, player, packetSender) -> {
             Packet<?> packet = wrapped.packet();
-
+            // AITMod.LOGGER.info("(client) got packet: {}", packet);
             WorldGeometryRenderer renderer = TardisDoorBOTI.getInteriorRenderer();
 
             if (renderer == null) return;
 
             if (packet instanceof BundleS2CPacket bundle) {
                 for(Packet<?> packets : bundle.getPackets()) {
+                    if (packets instanceof ChunkRenderDistanceCenterS2CPacket chunkRenderDistanceCenterS2CPacket) {
+                        renderer.onChunkRenderDistanceCenter(chunkRenderDistanceCenterS2CPacket);
+                    }
+
                     if (packets instanceof ChunkDataS2CPacket chunkDataS2CPacket) {
 
                         renderer.onChunkData(chunkDataS2CPacket);
@@ -46,6 +50,10 @@ public class ExampleClientMod implements ClientModInitializer {
                         renderer.onChunkBiomeData(chunkBiomeDataS2CPacket);
                     }
                 }
+            }
+
+            if (packet instanceof ChunkRenderDistanceCenterS2CPacket chunkRenderDistanceCenterS2CPacket) {
+                renderer.onChunkRenderDistanceCenter(chunkRenderDistanceCenterS2CPacket);
             }
 
             if (packet instanceof ChunkDataS2CPacket chunkDataS2CPacket) {
