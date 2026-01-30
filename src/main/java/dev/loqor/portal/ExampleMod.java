@@ -8,6 +8,8 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.world.ThreadedAnvilChunkStorage;
+import net.minecraft.world.ForcedChunkState;
 
 public class ExampleMod implements ModInitializer {
 
@@ -21,6 +23,7 @@ public class ExampleMod implements ModInitializer {
             proxy = new PacketProxyPlayer(world);
             proxy.setPos(0, 64, 0);
             world.spawnEntity(proxy);
+            proxy.onChunkEntered();
 
             proxy.setPacketListener(packet -> {
                 //AITMod.LOGGER.info("Proxied a packet: {}", packet);

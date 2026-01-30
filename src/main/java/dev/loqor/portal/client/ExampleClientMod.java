@@ -9,9 +9,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
-import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -28,6 +26,28 @@ public class ExampleClientMod implements ClientModInitializer {
 
             if (renderer == null) return;
 
+            if (packet instanceof BundleS2CPacket bundle) {
+                for(Packet<?> packets : bundle.getPackets()) {
+                    if (packets instanceof ChunkDataS2CPacket chunkDataS2CPacket) {
+
+                        renderer.onChunkData(chunkDataS2CPacket);
+                    }
+
+                    if (packets instanceof ChunkDeltaUpdateS2CPacket chunkDeltaUpdateS2CPacket) {
+
+                        renderer.onChunkDeltaUpdate(chunkDeltaUpdateS2CPacket);
+                    }
+
+                    if (packets instanceof BlockUpdateS2CPacket blockUpdateS2CPacket) {
+                        renderer.onBlockUpdate(blockUpdateS2CPacket);
+                    }
+
+                    if (packets instanceof ChunkBiomeDataS2CPacket chunkBiomeDataS2CPacket) {
+                        renderer.onChunkBiomeData(chunkBiomeDataS2CPacket);
+                    }
+                }
+            }
+
             if (packet instanceof ChunkDataS2CPacket chunkDataS2CPacket) {
 
                 renderer.onChunkData(chunkDataS2CPacket);
@@ -40,6 +60,10 @@ public class ExampleClientMod implements ClientModInitializer {
 
             if (packet instanceof BlockUpdateS2CPacket blockUpdateS2CPacket) {
                 renderer.onBlockUpdate(blockUpdateS2CPacket);
+            }
+
+            if (packet instanceof ChunkBiomeDataS2CPacket chunkBiomeDataS2CPacket) {
+                renderer.onChunkBiomeData(chunkBiomeDataS2CPacket);
             }
         });
     }

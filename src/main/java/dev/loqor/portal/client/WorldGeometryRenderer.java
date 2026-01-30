@@ -31,6 +31,7 @@ import net.minecraft.world.chunk.ChunkNibbleArray;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.chunk.light.LightingProvider;
+import net.minecraft.world.dimension.DimensionTypes;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
@@ -66,9 +67,9 @@ public class WorldGeometryRenderer {
 
         if (oldWorld == null) return;
 
-        this.world = new ClientWorld(client.getNetworkHandler(), oldWorld.getLevelProperties(), oldWorld.getRegistryKey(),
-                oldWorld.getRegistryManager().get(RegistryKeys.DIMENSION_TYPE).entryOf(oldWorld.getDimensionKey()),
-                512, 512, () -> null, null, false, 0L);
+        this.world = new ClientWorld(client.getNetworkHandler(), oldWorld.getLevelProperties(), World.OVERWORLD,
+                oldWorld.getRegistryManager().get(RegistryKeys.DIMENSION_TYPE).entryOf(DimensionTypes.OVERWORLD),
+                512, 512, () -> null, client.worldRenderer, false, 0L);
     }
 
     /**
@@ -633,6 +634,27 @@ public class WorldGeometryRenderer {
     private void loadChunk(int x, int z, ChunkData chunkData) {
         this.world.getChunkManager().loadChunkFromPacket(x, z, chunkData.getSectionsDataBuf(), chunkData.getHeightmap(), chunkData.getBlockEntities(x, z));
     }
+
+    public void onChunkBiomeData(ChunkBiomeDataS2CPacket packet) {
+        MinecraftClient.getInstance().executeSync(() -> {
+            for (ChunkBiomeDataS2CPacket.Serialized serialized : packet.chunkBiomeData()) {
+                this.world.getChunkManager().onChunkBiomeData(serialized.pos().x, serialized.pos().z, serialized.toReadingBuf());
+            }
+            for (ChunkBiomeDataS2CPacket.Serialized serialized : packet.chunkBiomeData()) {
+                this.world.resetChunkColor(new ChunkPos(serialized.pos().x, serialized.pos().z));
+            }
+            for (ChunkBiomeDataS2CPacket.Serialized serialized : packet.chunkBiomeData()) {
+                for (int i = -1; i <= 1; ++i) {
+                    for (int j = -1; j <= 1; ++j) {
+                        for (int k = this.world.getBottomSectionCoord(); k < this.world.getTopSectionCoord(); ++k) {
+                            MinecraftClient.getInstance().worldRenderer.scheduleBlockRender(serialized.pos().x + i, k, serialized.pos().z + j);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
 
     private void scheduleRenderChunk(WorldChunk chunk, int x, int z) {
         LightingProvider lightingProvider = this.world.getChunkManager().getLightingProvider();
