@@ -118,23 +118,16 @@ public class WorldGeometryRenderer {
      */
     public void render(World world, BlockPos centerPos, MatrixStack matrices, float tickDelta, boolean checkBehindPortal) {
         ClientWorld portalWorld = PortalDataManager.get().world();
-        portalWorld.setBlockState(new BlockPos(2, 0, 1), Blocks.SEA_LANTERN.getDefaultState());
-
-        if (projectionMatrix == null) {
-            throw new IllegalStateException("Projection matrix not set! Call setProjectionMatrix() or setPerspectiveProjection() first.");
-        }
 
         GameRenderer gameRenderer = MinecraftClient.getInstance().gameRenderer;
         projectionMatrix = gameRenderer.getBasicProjectionMatrix(gameRenderer.getFov(gameRenderer.getCamera(),
                 MinecraftClient.getInstance().getTickDelta(), true));
 
         // Rebuild geometry if needed
-        if (needsRebuild || !centerPos.equals(lastCenterPos)) {
-            if (buildFuture == null || buildFuture.isDone()) {
-                lastCenterPos = centerPos;
-                needsRebuild = false;
-                rebuildGeometry(portalWorld, centerPos, checkBehindPortal);
-            }
+        if (needsRebuild && (buildFuture == null || buildFuture.isDone())) {
+            lastCenterPos = centerPos;
+            needsRebuild = false;
+            rebuildGeometry(portalWorld, centerPos, checkBehindPortal);
         }
 
         // Store original projection
