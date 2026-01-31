@@ -14,8 +14,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class ExampleMod implements ModInitializer {
 
     private static PacketProxyPlayer proxy;
@@ -26,9 +24,6 @@ public class ExampleMod implements ModInitializer {
     private static PacketProxyPlayer setupProxy(ServerWorld world, BlockPos pos) {
         PacketProxyPlayer proxy = new PacketProxyPlayer(world);
         proxy.setPos(pos.getX(), pos.getY(), pos.getZ());
-        world.spawnEntity(proxy);
-//        proxy.onChunkEntered();
-
         return proxy;
     }
 
@@ -58,6 +53,8 @@ public class ExampleMod implements ModInitializer {
                     ServerPlayNetworking.send(player, wrapped);
                 }
             });
+
+            proxyWorld.spawnEntity(proxy);
         });
 
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
