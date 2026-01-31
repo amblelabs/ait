@@ -5,8 +5,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.network.OffThreadException;
-import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.util.math.BlockPos;
@@ -59,42 +57,38 @@ public class PortalDataManager {
         return world;
     }
 
-    public <T extends PacketListener> void forceMainThread(Packet<T> packet) throws OffThreadException {
+    public void handle(Packet<?> packet) {
         if (!client.isOnThread()) {
-            client.executeSync(() -> {
-                try {
-                    handle0(packet);
-                } catch (Exception var3) {
-                    AITMod.LOGGER.error("Failed to handle packet {}, suppressing error", packet, var3);
-                }
-            });
-
-            throw OffThreadException.INSTANCE;
+            client.executeSync(() -> this.handle1(packet));
+            return;
         }
+
+        this.handle1(packet);
     }
 
-    public void handle(Packet<?> packet) {
+    private void handle1(Packet<?> packet) {
         try {
-            forceMainThread(packet);
-            handle0(packet);
-        } catch (OffThreadException ignored) { }
+            this.handle0(packet);
+        } catch (Exception var3) {
+            AITMod.LOGGER.error("Failed to handle packet {}, suppressing error", packet, var3);
+        }
     }
 
     private void handle0(Packet<?> packet) {
         if (packet instanceof BundleS2CPacket bundle) {
             for (Packet<?> otherPacket : bundle.getPackets()) {
-                handle0(otherPacket);
+                this.handle0(otherPacket);
             }
         } else if (packet instanceof ChunkRenderDistanceCenterS2CPacket render) {
-            onChunkRenderDistanceCenter(render);
+            this.onChunkRenderDistanceCenter(render);
         } else if (packet instanceof ChunkDataS2CPacket data) {
-            onChunkData(data);
+            this.onChunkData(data);
         } else if (packet instanceof ChunkDeltaUpdateS2CPacket update) {
-            onChunkDeltaUpdate(update);
+            this.onChunkDeltaUpdate(update);
         } else if (packet instanceof BlockUpdateS2CPacket update) {
-            onBlockUpdate(update);
+            this.onBlockUpdate(update);
         } else if (packet instanceof ChunkBiomeDataS2CPacket biome) {
-//            onChunkBiomeData(biome); // - uncomment if it breaks everything
+//            this.onChunkBiomeData(biome); // - uncomment if it breaks everything
         }
     }
 
