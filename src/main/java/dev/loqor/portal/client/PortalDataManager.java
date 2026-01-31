@@ -18,6 +18,8 @@ import java.util.Iterator;
 
 public class PortalDataManager {
 
+    private static PortalDataManager instance;
+
     private final ClientWorld world;
 
     private PortalDataManager(ClientWorld world) {
@@ -26,6 +28,8 @@ public class PortalDataManager {
     }
 
     public static PortalDataManager get() {
+        if (instance != null) return instance;
+
         MinecraftClient client = MinecraftClient.getInstance();
         ClientWorld oldWorld = client.world;
 
@@ -37,7 +41,7 @@ public class PortalDataManager {
                 12, client.world.getSimulationDistance(), client::getProfiler, client.worldRenderer,
                 false, 0);
 
-        return new PortalDataManager(world);
+        return instance = new PortalDataManager(world);
     }
 
     public ClientWorld world() {
