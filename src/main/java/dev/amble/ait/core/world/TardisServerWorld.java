@@ -1,10 +1,8 @@
 package dev.amble.ait.core.world;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.drtheo.multidim.MultiDim;
 import dev.drtheo.multidim.MultiDimMod;
@@ -29,8 +27,6 @@ import net.minecraft.world.level.ServerWorldProperties;
 import net.minecraft.world.level.storage.LevelStorage;
 import net.minecraft.world.spawner.Spawner;
 import org.jetbrains.annotations.Nullable;
-import qouteall.q_misc_util.api.DimensionAPI;
-import qouteall.q_misc_util.dimension.DimensionIdManagement;
 
 import java.util.List;
 import java.util.UUID;
@@ -66,6 +62,9 @@ public class TardisServerWorld extends MultiDimServerWorld {
 
     @Override
     public String toString() {
+        if (this.tardis != null)
+            return "TardisServerLevel[" + this.tardis.getUuid() + "@" + ((ServerWorldProperties) this.getLevelProperties()).getLevelName() + "]";
+
         return "Tardis" + super.toString();
     }
 

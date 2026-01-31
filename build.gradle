@@ -119,11 +119,10 @@ dependencies {
 
     modCompileOnly "maven.modrinth:k9-mod:${project.k9_version}"
 
-    modImplementation("mezz.jei:jei-${project.minecraft_version}-fabric-api:${project.jei_version}")
-
+    modCompileOnly("mezz.jei:jei-${project.minecraft_version}-fabric-api:${project.jei_version}")
 
     // Using Modrinth maven because JEI's official maven crashed with Yarn mappings
-    modRuntimeOnly("maven.modrinth:jei:${project.jei_version}")
+    //modRuntimeOnly("maven.modrinth:jei:${project.jei_version}")
 
     modCompileOnly("com.github.qouteall:GravityChanger:${project.gravity_version}") {
         exclude(group: "net.fabricmc.fabric-api")
@@ -132,7 +131,7 @@ dependencies {
     modCompileOnly "me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"
 
     modCompileOnly("dev.lambdaurora.lambdynamiclights:lambdynamiclights-api:${project.lambdynlights_version}")
-    modLocalRuntime("dev.lambdaurora.lambdynamiclights:lambdynamiclights-runtime:${project.lambdynlights_version}")
+    //modLocalRuntime("dev.lambdaurora.lambdynamiclights:lambdynamiclights-runtime:${project.lambdynlights_version}")
 }
 
 processResources {
