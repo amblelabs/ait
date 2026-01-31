@@ -2,10 +2,12 @@ package dev.amble.ait.client.boti;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.amble.ait.core.blocks.DoorBlock;
+import dev.amble.lib.data.DirectedGlobalPos;
 import dev.loqor.portal.client.WorldGeometryRenderer;
 import net.minecraft.client.render.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.*;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
@@ -44,7 +46,7 @@ public class TardisDoorBOTI extends BOTI {
         if (!rendererInitialized) {
             MinecraftClient client = MinecraftClient.getInstance();
             if (client.getWindow() != null) {
-                interiorRenderer = new WorldGeometryRenderer(50); // Large render distance for interior
+                interiorRenderer = new WorldGeometryRenderer(25); // Large render distance for interior
 
                 float aspect = (float) client.getWindow().getFramebufferWidth() / (float) client.getWindow().getFramebufferHeight();
                 // Perspective projection - adjust FOV/near/far as needed
@@ -182,70 +184,49 @@ public class TardisDoorBOTI extends BOTI {
 
         // ===== RENDER TARDIS INTERIOR HERE =====
         if (tardis.travel().getState() == TravelHandlerBase.State.LANDED && interiorRenderer != null) {
-            stack.push();
 
             BlockPos interiorDoorPos = door.getPos();
             if (interiorDoorPos != null) {
                 MatrixStack interiorMatrices = new MatrixStack();
 
+
                 Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
                 float cameraPitch = client.gameRenderer.getCamera().getPitch();
                 float cameraYaw = client.gameRenderer.getCamera().getYaw();
 
-                Vec3d stableCameraPos = cameraPos;
-                Vec3d inverseBobbingRotations = Vec3d.ZERO;
+                DirectedGlobalPos exteriorPos = tardis.travel().position();
 
-                if (client.options.getBobView().getValue() && client.player != null) {
-                    float f = client.player.horizontalSpeed - client.player.prevHorizontalSpeed;
-                    float g = -(client.player.horizontalSpeed + f * tickDelta);
-                    float h = MathHelper.lerp(tickDelta, client.player.prevStrideDistance, client.player.strideDistance);
-
-                    float bobbingX = MathHelper.sin(g * (float)Math.PI) * h * 0.5F;
-                    float bobbingY = -Math.abs(MathHelper.cos(g * (float)Math.PI) * h);
-
-                    stableCameraPos = new Vec3d(
-                            cameraPos.x - bobbingX,
-                            cameraPos.y - bobbingY,
-                            cameraPos.z
-                    );
-
-                    float rollZ = MathHelper.sin(g * (float)Math.PI) * h * 3.0F;
-                    float pitchX = Math.abs(MathHelper.cos(g * (float)Math.PI - 0.2F) * h) * 5.0F;
-                    inverseBobbingRotations = new Vec3d(-pitchX, 0.0F, -rollZ);
-                }
-
-                Vec3d interiorDoorCenter = new Vec3d(
-                        interiorDoorPos.getX() + 1.0,
-                        interiorDoorPos.getY(),
-                        interiorDoorPos.getZ() + 1.0
-                );
+                BlockPos exteriorBlockPos = exteriorPos.getPos();
+                float exteriorFacing = exteriorPos.getRotationDegrees() - 90;
 
                 Vec3d offset = new Vec3d(
-                        stableCameraPos.x - interiorDoorCenter.x,
-                        stableCameraPos.y - interiorDoorCenter.y,
-                        stableCameraPos.z - interiorDoorCenter.z
+                        cameraPos.x - interiorDoorPos.getX(),
+                        cameraPos.y - interiorDoorPos.getY(),
+                        cameraPos.z - interiorDoorPos.getZ()
                 );
 
-                /*if (client.options.getBobView().getValue()) {
-                    interiorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((float) inverseBobbingRotations.x));
-                    interiorMatrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) inverseBobbingRotations.z));
-                }*/
 
                 interiorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cameraPitch));
                 interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cameraYaw));
+
                 interiorMatrices.translate(offset.x, -offset.y, offset.z);
+                interiorMatrices.translate(-0.5, 0, -0.5);
+                interiorMatrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(exteriorFacing));
+                interiorMatrices.translate(-exteriorBlockPos.getX(), 0,-exteriorBlockPos.getZ());
+                interiorMatrices.translate(-0.5, 0, -0.5);
 
                 try {
-                    Direction doorFacing = door.getCachedState().get(DoorBlock.FACING);
+                    Direction doorFacing = Direction.fromRotation(exteriorFacing + 90);
                     interiorRenderer.setDoorFacing(doorFacing);
 
-                    interiorRenderer.render(client.world, interiorDoorPos, interiorMatrices, tickDelta, true);
+                    interiorMatrices.scale(-1, 1, -1);
+
+                    interiorRenderer.render(client.world, new BlockPos(0, 0, 0), interiorMatrices, tickDelta, true);
                 } catch (Exception e) {
                     // Silent fail
                 }
             }
 
-            stack.pop();
         }
 
         // Render vortex/effects when in flight

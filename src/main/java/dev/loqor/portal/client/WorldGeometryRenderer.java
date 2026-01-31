@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -263,7 +264,7 @@ public class WorldGeometryRenderer {
                 continue; // Skip block entities outside the valid render area
             }
 
-            if (blockEntity instanceof DoorBlockEntity && blockPos == centerPos) continue;
+            if (blockEntity instanceof DoorBlockEntity || blockEntity instanceof ExteriorBlockEntity/* && blockPos == centerPos*/) continue;
 
             matrices.push();
             matrices.translate(
