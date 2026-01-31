@@ -1,9 +1,15 @@
 package dev.loqor.portal.client;
 
 import dev.amble.ait.AITMod;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.network.OffThreadException;
+import net.minecraft.network.listener.PacketListener;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.*;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.Difficulty;
@@ -18,6 +24,7 @@ import java.util.Iterator;
 
 public class PortalDataManager {
 
+    private static final MinecraftClient client = MinecraftClient.getInstance();
     private static PortalDataManager instance;
 
     private final ClientWorld world;
@@ -52,36 +59,70 @@ public class PortalDataManager {
         return world;
     }
 
-    public void onChunkDeltaUpdate(ChunkDeltaUpdateS2CPacket packet) {
-        MinecraftClient.getInstance().executeSync(() -> {
-            packet.visitUpdates((pos, state) -> {
-                this.world.handleBlockUpdate(pos, state, 19);
+    public <T extends PacketListener> void forceMainThread(Packet<T> packet) throws OffThreadException {
+        if (!client.isOnThread()) {
+            client.executeSync(() -> {
+                try {
+                    handle0(packet);
+                } catch (Exception var3) {
+                    AITMod.LOGGER.error("Failed to handle packet {}, suppressing error", packet, var3);
+                }
             });
-        });
+
+            throw OffThreadException.INSTANCE;
+        }
+    }
+
+    public void handle(Packet<?> packet) {
+        try {
+            forceMainThread(packet);
+            handle0(packet);
+        } catch (OffThreadException ignored) { }
+    }
+
+    private void handle0(Packet<?> packet) {
+        if (packet instanceof BundleS2CPacket bundle) {
+            for (Packet<?> otherPacket : bundle.getPackets()) {
+                handle0(otherPacket);
+            }
+        } else if (packet instanceof ChunkRenderDistanceCenterS2CPacket render) {
+            onChunkRenderDistanceCenter(render);
+        } else if (packet instanceof ChunkDataS2CPacket data) {
+            onChunkData(data);
+        } else if (packet instanceof ChunkDeltaUpdateS2CPacket update) {
+            onChunkDeltaUpdate(update);
+        } else if (packet instanceof BlockUpdateS2CPacket update) {
+            onBlockUpdate(update);
+        } else if (packet instanceof ChunkBiomeDataS2CPacket biome) {
+//            onChunkBiomeData(biome); // - uncomment if it breaks everything
+        }
+    }
+
+    private void onChunkDeltaUpdate(ChunkDeltaUpdateS2CPacket packet) {
+        packet.visitUpdates(this::handleBlockUpdate);
     }
 
     public void onBlockUpdate(BlockUpdateS2CPacket packet) {
-        MinecraftClient.getInstance().executeSync(() ->  {
-            this.world.handleBlockUpdate(packet.getPos(), packet.getState(), 19);
-        });
+        handleBlockUpdate(packet.getPos(), packet.getState());
+    }
+
+    private void handleBlockUpdate(BlockPos pos, BlockState state) {
+        this.world.handleBlockUpdate(pos, state, Block.FORCE_STATE | Block.NOTIFY_LISTENERS | Block.NOTIFY_NEIGHBORS);
     }
 
     public void onChunkData(ChunkDataS2CPacket chunkDataS2CPacket) {
-        MinecraftClient.getInstance().executeSync(() ->  {
-                    int i = chunkDataS2CPacket.getX();
-                    int j = chunkDataS2CPacket.getZ();
-                    this.loadChunk(i, j, chunkDataS2CPacket.getChunkData());
-            AITMod.LOGGER.info("Got chunk: ({},{}); {}", i, j, world.getChunkManager().getChunk(i, j));
-                    LightData lightData = chunkDataS2CPacket.getLightData();
-                    this.world.enqueueChunkUpdate(() -> {
-                        this.readLightData(i, j, lightData);
-                        WorldChunk worldChunk = this.world.getChunkManager().getWorldChunk(i, j, false);
-                        if (worldChunk != null) {
-                            this.scheduleRenderChunk(worldChunk, i, j);
-                        }
-                    });
-                }
-        );
+        int i = chunkDataS2CPacket.getX();
+        int j = chunkDataS2CPacket.getZ();
+        this.loadChunk(i, j, chunkDataS2CPacket.getChunkData());
+        LightData lightData = chunkDataS2CPacket.getLightData();
+
+        this.world.enqueueChunkUpdate(() -> {
+            this.readLightData(i, j, lightData);
+            WorldChunk worldChunk = this.world.getChunkManager().getWorldChunk(i, j, false);
+            if (worldChunk != null) {
+                this.scheduleRenderChunk(worldChunk, i, j);
+            }
+        });
     }
 
     private void readLightData(int x, int z, LightData data) {
@@ -113,29 +154,25 @@ public class PortalDataManager {
     }
 
     public void onChunkRenderDistanceCenter(ChunkRenderDistanceCenterS2CPacket packet) {
-        MinecraftClient.getInstance().executeSync(() -> {
-            this.world.getChunkManager().setChunkMapCenter(packet.getChunkX(), packet.getChunkZ());
-        });
+        this.world.getChunkManager().setChunkMapCenter(packet.getChunkX(), packet.getChunkZ());
     }
 
     public void onChunkBiomeData(ChunkBiomeDataS2CPacket packet) {
-        MinecraftClient.getInstance().executeSync(() -> {
-            for (ChunkBiomeDataS2CPacket.Serialized serialized : packet.chunkBiomeData()) {
-                this.world.getChunkManager().onChunkBiomeData(serialized.pos().x, serialized.pos().z, serialized.toReadingBuf());
-            }
-            for (ChunkBiomeDataS2CPacket.Serialized serialized : packet.chunkBiomeData()) {
-                this.world.resetChunkColor(new ChunkPos(serialized.pos().x, serialized.pos().z));
-            }
-            for (ChunkBiomeDataS2CPacket.Serialized serialized : packet.chunkBiomeData()) {
-                for (int i = -1; i <= 1; ++i) {
-                    for (int j = -1; j <= 1; ++j) {
-                        for (int k = this.world.getBottomSectionCoord(); k < this.world.getTopSectionCoord(); ++k) {
-                            MinecraftClient.getInstance().worldRenderer.scheduleBlockRender(serialized.pos().x + i, k, serialized.pos().z + j);
-                        }
+        for (ChunkBiomeDataS2CPacket.Serialized serialized : packet.chunkBiomeData()) {
+            this.world.getChunkManager().onChunkBiomeData(serialized.pos().x, serialized.pos().z, serialized.toReadingBuf());
+        }
+        for (ChunkBiomeDataS2CPacket.Serialized serialized : packet.chunkBiomeData()) {
+            this.world.resetChunkColor(new ChunkPos(serialized.pos().x, serialized.pos().z));
+        }
+        for (ChunkBiomeDataS2CPacket.Serialized serialized : packet.chunkBiomeData()) {
+            for (int i = -1; i <= 1; ++i) {
+                for (int j = -1; j <= 1; ++j) {
+                    for (int k = this.world.getBottomSectionCoord(); k < this.world.getTopSectionCoord(); ++k) {
+                        MinecraftClient.getInstance().worldRenderer.scheduleBlockRender(serialized.pos().x + i, k, serialized.pos().z + j);
                     }
                 }
             }
-        });
+        }
     }
 
     private void scheduleRenderChunk(WorldChunk chunk, int x, int z) {

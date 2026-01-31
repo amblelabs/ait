@@ -16,35 +16,17 @@ public class ExampleClientMod implements ClientModInitializer {
             Packet<?> packet = wrapped.packet();
             PortalDataManager manager = PortalDataManager.get();
 
-            handlePacket(packet, manager);
+            manager.handle(packet);
+
+            WorldGeometryRenderer renderer = TardisDoorBOTI.getInteriorRenderer();
+
+            if (renderer != null)
+                MinecraftClient.getInstance().executeSync(renderer::markDirty);
         });
 
         ClientPlayConnectionEvents.DISCONNECT.register((clientPlayNetworkHandler, minecraftClient) -> {
             TardisDoorBOTI.cleanup();
             PortalDataManager.get().reset();
         });
-    }
-
-    private static void handlePacket(Packet<?> packet, PortalDataManager manager) {
-        if (packet instanceof BundleS2CPacket bundle) {
-            for (Packet<?> otherPacket : bundle.getPackets()) {
-                handlePacket(otherPacket, manager);
-            }
-        } else if (packet instanceof ChunkRenderDistanceCenterS2CPacket render) {
-            manager.onChunkRenderDistanceCenter(render);
-        } else if (packet instanceof ChunkDataS2CPacket data) {
-            manager.onChunkData(data);
-        } else if (packet instanceof ChunkDeltaUpdateS2CPacket update) {
-            manager.onChunkDeltaUpdate(update);
-        } else if (packet instanceof BlockUpdateS2CPacket update) {
-            manager.onBlockUpdate(update);
-        } else if (packet instanceof ChunkBiomeDataS2CPacket biome) {
-            manager.onChunkBiomeData(biome);
-        }
-
-        WorldGeometryRenderer renderer = TardisDoorBOTI.getInteriorRenderer();
-
-        if (renderer != null)
-            MinecraftClient.getInstance().executeSync(renderer::markDirty);
     }
 }
