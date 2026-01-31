@@ -20,6 +20,7 @@ public class ExampleClientMod implements ClientModInitializer {
         });
 
         ClientPlayConnectionEvents.DISCONNECT.register((clientPlayNetworkHandler, minecraftClient) -> {
+            TardisDoorBOTI.cleanup();
             PortalDataManager.get().reset();
         });
     }
