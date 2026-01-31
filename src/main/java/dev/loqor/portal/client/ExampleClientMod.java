@@ -3,6 +3,7 @@ package dev.loqor.portal.client;
 import dev.amble.ait.client.boti.TardisDoorBOTI;
 import dev.loqor.portal.WrappedPacketS2CPacket;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.Packet;
@@ -16,6 +17,10 @@ public class ExampleClientMod implements ClientModInitializer {
             PortalDataManager manager = PortalDataManager.get();
 
             handlePacket(packet, manager);
+        });
+
+        ClientPlayConnectionEvents.DISCONNECT.register((clientPlayNetworkHandler, minecraftClient) -> {
+            PortalDataManager.get().reset();
         });
     }
 

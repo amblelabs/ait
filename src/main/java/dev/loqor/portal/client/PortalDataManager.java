@@ -22,6 +22,10 @@ public class PortalDataManager {
 
     private final ClientWorld world;
 
+    public void reset() {
+        instance = null;
+    }
+
     private PortalDataManager(ClientWorld world) {
         this.world = world;
         this.onChunkRenderDistanceCenter(new ChunkRenderDistanceCenterS2CPacket(0, 0));
