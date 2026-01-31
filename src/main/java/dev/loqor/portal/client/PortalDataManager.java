@@ -33,6 +33,7 @@ public class PortalDataManager {
 
     private PortalDataManager(ClientWorld world) {
         this.world = world;
+        // ChunkPos chunkPos = new ChunkPos(new BlockPos(-1262, 69, 106));
         this.onChunkRenderDistanceCenter(new ChunkRenderDistanceCenterS2CPacket(0, 0));
     }
 

@@ -3,8 +3,10 @@ package dev.amble.ait.client.boti;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.amble.ait.core.blocks.DoorBlock;
 import dev.amble.lib.data.DirectedGlobalPos;
+import dev.loqor.portal.client.PortalDataManager;
 import dev.loqor.portal.client.WorldGeometryRenderer;
 import net.minecraft.client.render.*;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.*;
 import org.joml.Matrix4f;
@@ -134,7 +136,7 @@ public class TardisDoorBOTI extends BOTI {
 
         BOTI_HANDLER.setupFramebuffer();
 
-        Vec3d skyColor = client.world.getSkyColor(client.player.getPos(), client.getTickDelta());
+        Vec3d skyColor = new Vec3d(0.5d, 0.65d, 0.9d);//PortalDataManager.get().world().getSkyColor(client.player.getPos(), client.getTickDelta());
         if (AITModClient.CONFIG.greenScreenBOTI)
             BOTI.setFramebufferColor(BOTI_HANDLER.afbo, 0, 1, 0, 1);
         else
@@ -157,7 +159,7 @@ public class TardisDoorBOTI extends BOTI {
 
         stack.scale((float) parent.portalWidth() * scale.x(),
                 (float) parent.portalHeight() * scale.y(), scale.z());
-        Vec3d vec = parent.door().getPortalPosition().add(0, -0.55, 0);
+        Vec3d vec = parent.door().getPortalPosition().add(0, -0.548, 0);
         if (vec == null) return;
 
         stack.translate(vec.x, vec.y, vec.z);
@@ -184,7 +186,7 @@ public class TardisDoorBOTI extends BOTI {
 
         // ===== RENDER TARDIS INTERIOR HERE =====
         if (tardis.travel().getState() == TravelHandlerBase.State.LANDED && interiorRenderer != null) {
-
+            stack.push();
             BlockPos interiorDoorPos = door.getPos();
             if (interiorDoorPos != null) {
                 MatrixStack interiorMatrices = new MatrixStack();
@@ -205,28 +207,28 @@ public class TardisDoorBOTI extends BOTI {
                         cameraPos.z - interiorDoorPos.getZ()
                 );
 
-
                 interiorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cameraPitch));
                 interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cameraYaw));
 
                 interiorMatrices.translate(offset.x, -offset.y, offset.z);
                 interiorMatrices.translate(-0.5, 0, -0.5);
-                interiorMatrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(exteriorFacing));
-                interiorMatrices.translate(-exteriorBlockPos.getX(), 0,-exteriorBlockPos.getZ());
-                interiorMatrices.translate(-0.5, 0, -0.5);
+                interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(exteriorFacing));
+                interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(door.getFacing().asRotation() + (door.getFacing() == Direction.EAST ||
+                        door.getFacing() == Direction.WEST ? -90 : 90))); // This is super jank but its working!!!!!!! - Loqor
+                interiorMatrices.translate(0.5, 0, 0.5);
 
                 try {
-                    Direction doorFacing = Direction.fromRotation(exteriorFacing + 90);
+                    Direction doorFacing = Direction.fromRotation(exteriorFacing - 90);
                     interiorRenderer.setDoorFacing(doorFacing);
 
                     interiorMatrices.scale(-1, 1, -1);
 
-                    interiorRenderer.render(client.world, new BlockPos(0, 0, 0), interiorMatrices, tickDelta, true);
+                    interiorRenderer.render(client.world, exteriorBlockPos, interiorMatrices, tickDelta, true);
                 } catch (Exception e) {
                     // Silent fail
                 }
             }
-
+            stack.pop();
         }
 
         // Render vortex/effects when in flight
