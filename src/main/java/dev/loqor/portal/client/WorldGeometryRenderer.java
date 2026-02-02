@@ -139,11 +139,6 @@ public class WorldGeometryRenderer {
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, MinecraftClient.IS_SYSTEM_MAC);
 
         // Enable depth testing and blending
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthFunc(GL11.GL_LEQUAL);
-        RenderSystem.depthMask(true);
 
         // Render block entities
         renderBlockEntities(portalWorld, matrices, tickDelta, centerPos);
@@ -152,6 +147,11 @@ public class WorldGeometryRenderer {
         MatrixStack modelViewStack = RenderSystem.getModelViewStack();
         modelViewStack.push();
         modelViewStack.multiplyPositionMatrix(matrices.peek().getPositionMatrix());
+
+        /*if (MinecraftClient.getInstance().options.getBobView().getValue()) {
+            MinecraftClient.getInstance().gameRenderer.bobView(matrices, tickDelta);
+        }*/
+
         RenderSystem.applyModelViewMatrix();
 
         // Render terrain
@@ -162,8 +162,6 @@ public class WorldGeometryRenderer {
         // Restore state
         modelViewStack.pop();
         RenderSystem.applyModelViewMatrix();
-        RenderSystem.disableDepthTest();
-        RenderSystem.disableBlend();
         RenderSystem.setProjectionMatrix(originalProjection, VertexSorter.BY_DISTANCE);
     }
 
@@ -250,7 +248,7 @@ public class WorldGeometryRenderer {
         VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
 
         // Configure dispatcher
-        dispatcher.configure(portalWorld, client.gameRenderer.getCamera(), null);
+        dispatcher.configure(portalWorld, client.gameRenderer.getCamera(), client.crosshairTarget);
 
         // Create a snapshot to avoid concurrent modification
         List<BlockEntity> snapshot = new ArrayList<>(blockEntities);

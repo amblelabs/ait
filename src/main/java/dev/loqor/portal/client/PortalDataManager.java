@@ -4,6 +4,7 @@ import dev.amble.ait.AITMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.*;
@@ -26,13 +27,15 @@ public class PortalDataManager {
     private static PortalDataManager instance;
 
     private final ClientWorld world;
+    public final WorldRenderer worldRenderer;
 
     public void reset() {
         instance = null;
     }
 
-    private PortalDataManager(ClientWorld world) {
+    private PortalDataManager(ClientWorld world, WorldRenderer worldRenderer) {
         this.world = world;
+        this.worldRenderer = worldRenderer;
         // ChunkPos chunkPos = new ChunkPos(new BlockPos(-1262, 69, 106));
         this.onChunkRenderDistanceCenter(new ChunkRenderDistanceCenterS2CPacket(0, 0));
     }
@@ -45,13 +48,22 @@ public class PortalDataManager {
 
         if (oldWorld == null) throw new IllegalStateException("Couldn't initialize a fake client world");
 
+        WorldRenderer worldRenderer = new WorldRenderer(
+                client,
+                client.getEntityRenderDispatcher(),
+                client.getBlockEntityRenderDispatcher(),
+                client.getBufferBuilders()
+        );
+
         ClientWorld world = new ClientWorld(client.getNetworkHandler(),  new ClientWorld.Properties(Difficulty.NORMAL,
                 false, false), oldWorld.getRegistryKey(),
                 oldWorld.getDimensionEntry(),
-                12, client.world.getSimulationDistance(), client::getProfiler, client.worldRenderer,
-                false, 0);
+                12, client.world.getSimulationDistance(), client::getProfiler, worldRenderer,
+                client.world.isDebugWorld(), client.world.getBiomeAccess().seed);
 
-        return instance = new PortalDataManager(world);
+        worldRenderer.setWorld(world);
+
+        return instance = new PortalDataManager(world, worldRenderer);
     }
 
     public ClientWorld world() {
@@ -163,7 +175,7 @@ public class PortalDataManager {
             for (int i = -1; i <= 1; ++i) {
                 for (int j = -1; j <= 1; ++j) {
                     for (int k = this.world.getBottomSectionCoord(); k < this.world.getTopSectionCoord(); ++k) {
-                        MinecraftClient.getInstance().worldRenderer.scheduleBlockRender(serialized.pos().x + i, k, serialized.pos().z + j);
+                        this.worldRenderer.scheduleBlockRender(serialized.pos().x + i, k, serialized.pos().z + j);
                     }
                 }
             }
