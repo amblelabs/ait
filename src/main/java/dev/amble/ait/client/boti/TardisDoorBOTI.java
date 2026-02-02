@@ -191,6 +191,17 @@ public class TardisDoorBOTI extends BOTI {
             if (interiorDoorPos != null) {
                 MatrixStack interiorMatrices = new MatrixStack();
 
+                // Apply inverse view bobbing compensation if enabled
+                if (client.options.getBobView().getValue()) {
+                    Vec3d inverseBobTranslation = calculateInverseBobbing(client.player, tickDelta);
+                    Vec3d inverseBobRotation = calculateInverseBobbingRotations(client.player, tickDelta);
+                    
+                    // Apply rotations first (in reverse order)
+                    interiorMatrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float)inverseBobRotation.z));
+                    interiorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((float)inverseBobRotation.x));
+                    // Then translation
+                    interiorMatrices.translate(inverseBobTranslation.x, inverseBobTranslation.y, inverseBobTranslation.z);
+                }
 
                 Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
                 float cameraPitch = client.gameRenderer.getCamera().getPitch();

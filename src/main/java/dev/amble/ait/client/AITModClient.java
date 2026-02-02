@@ -272,6 +272,25 @@ public class AITModClient implements ClientModInitializer {
         AstralMapBlock.registerSyncListener();
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn(client));
+        
+        // Cleanup BOTI renderers when disconnecting from server
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            TardisDoorBOTI.cleanup();
+            TardisExteriorBOTI.cleanup();
+            BOTI.DOOR_RENDER_QUEUE.clear();
+            BOTI.EXTERIOR_RENDER_QUEUE.clear();
+            BOTI.GALLIFREYAN_RENDER_QUEUE.clear();
+            BOTI.TRENZALORE_PAINTING_QUEUE.clear();
+        });
+        
+        // Cleanup when world changes (dimension change, etc.)
+        ClientWorldEvents.UNLOAD.register((client, world) -> {
+            // Clear render queues to prevent rendering stale data
+            BOTI.DOOR_RENDER_QUEUE.clear();
+            BOTI.EXTERIOR_RENDER_QUEUE.clear();
+            BOTI.GALLIFREYAN_RENDER_QUEUE.clear();
+            BOTI.TRENZALORE_PAINTING_QUEUE.clear();
+        });
     }
 
     public static Screen screenFromId(int id) {
