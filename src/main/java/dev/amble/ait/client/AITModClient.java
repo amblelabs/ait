@@ -275,8 +275,7 @@ public class AITModClient implements ClientModInitializer {
         
         // Cleanup BOTI renderers when disconnecting from server
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            TardisDoorBOTI.cleanup();
-            TardisExteriorBOTI.cleanup();
+            BOTI.cleanupAllRenderers();
             BOTI.DOOR_RENDER_QUEUE.clear();
             BOTI.EXTERIOR_RENDER_QUEUE.clear();
             BOTI.GALLIFREYAN_RENDER_QUEUE.clear();

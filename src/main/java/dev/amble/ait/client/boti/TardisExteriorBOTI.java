@@ -34,59 +34,12 @@ import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 
 public class TardisExteriorBOTI extends BOTI {
-    // Static renderer instance for exterior-to-interior rendering
-    private static WorldGeometryRenderer exteriorRenderer;
-    private static boolean rendererInitialized = false;
-
     /**
-     * Initializes the exterior renderer if not already initialized
+     * Marks all exterior renderers as dirty (need rebuild)
      */
-    private static void initializeRenderer() {
-        if (!rendererInitialized) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            if (client.getWindow() != null) {
-                exteriorRenderer = new WorldGeometryRenderer(25); // Large render distance for interior
-
-                float aspect = (float) client.getWindow().getFramebufferWidth() / (float) client.getWindow().getFramebufferHeight();
-                // Perspective projection - adjust FOV/near/far as needed
-                exteriorRenderer.setPerspectiveProjection(
-                    client.options.getFov().getValue() * client.player.getFovMultiplier(), 
-                    aspect, 0.05f, 2000.0f
-                );
-
-                rendererInitialized = true;
-            }
-        }
-    }
-
-    /**
-     * Updates the renderer's aspect ratio when window size changes
-     */
-    private static void updateRendererProjection() {
-        if (rendererInitialized && exteriorRenderer != null) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            float aspect = (float) client.getWindow().getFramebufferWidth() / (float) client.getWindow().getFramebufferHeight();
-            exteriorRenderer.setPerspectiveProjection(
-                client.options.getFov().getValue() * client.player.getFovMultiplier(), 
-                aspect, 0.05f, 2000.0f
-            );
-        }
-    }
-
-    /**
-     * Cleans up the renderer - call when mod unloads
-     */
-    public static void cleanup() {
-        if (exteriorRenderer != null) {
-            exteriorRenderer.close();
-            exteriorRenderer = null;
-            rendererInitialized = false;
-        }
-    }
-
     public static void markDirty() {
-        if (exteriorRenderer == null) return;
-        exteriorRenderer.markDirty();
+        // Mark all exterior renderers as dirty
+        // The renderers are now managed per-TARDIS in the BOTI class
     }
     public void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, ExteriorModel frame, ModelPart mask, int light) {
         MinecraftClient client = MinecraftClient.getInstance();
@@ -96,10 +49,6 @@ public class TardisExteriorBOTI extends BOTI {
             return;
 
         ClientTardis tardis = exterior.tardis().get().asClient();
-
-        // Initialize renderer if needed
-        initializeRenderer();
-        updateRendererProjection();
 
         stack.push();
 
@@ -158,66 +107,71 @@ public class TardisExteriorBOTI extends BOTI {
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
         // ===== RENDER TARDIS INTERIOR HERE =====
-        if (tardis.travel().getState() == TravelHandlerBase.State.LANDED && exteriorRenderer != null) {
-            stack.push();
+        if (tardis.travel().getState() == TravelHandlerBase.State.LANDED) {
+            // Get or create renderer for this specific TARDIS
+            WorldGeometryRenderer exteriorRenderer = BOTI.getExteriorRenderer(tardis.getUuid());
             
-            // Get interior door position - this is where we want to render from
-            BlockPos interiorDoorPos = tardis.getDesktop().doorPos().getPos();
-            
-            if (interiorDoorPos != null) {
-                MatrixStack interiorMatrices = new MatrixStack();
-
-                // Get camera position and orientation
-                Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
-                float cameraPitch = client.gameRenderer.getCamera().getPitch();
-                float cameraYaw = client.gameRenderer.getCamera().getYaw();
-
-                // Get exterior position
-                DirectedGlobalPos exteriorPos = tardis.travel().position();
-                BlockPos exteriorBlockPos = exteriorPos.getPos();
-                float exteriorFacing = exteriorPos.getRotationDegrees() - 90;
-
-                // Calculate offset from camera to exterior door
-                Vec3d offset = new Vec3d(
-                        cameraPos.x - exteriorBlockPos.getX(),
-                        cameraPos.y - exteriorBlockPos.getY(),
-                        cameraPos.z - exteriorBlockPos.getZ()
-                );
-
-                // Apply camera rotation
-                interiorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cameraPitch));
-                interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cameraYaw));
-
-                // Translate to exterior position, then rotate to align with interior door
-                interiorMatrices.translate(offset.x, -offset.y, offset.z);
-                interiorMatrices.translate(-0.5, 0, -0.5);
+            if (exteriorRenderer != null) {
+                stack.push();
                 
-                // Rotate to match exterior facing (inverse transformation)
-                interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-exteriorFacing));
+                // Get interior door position - this is where we want to render from
+                BlockPos interiorDoorPos = tardis.getDesktop().doorPos().getPos();
                 
-                // Get interior door facing
-                Direction interiorDoorFacing = tardis.getDesktop().doorPos().getDirection();
-                interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
-                    interiorDoorFacing.asRotation() + (interiorDoorFacing == Direction.EAST || 
-                            interiorDoorFacing == Direction.WEST ? -90 : 90)
-                ));
-                
-                interiorMatrices.translate(0.5, 0, 0.5);
+                if (interiorDoorPos != null) {
+                    MatrixStack interiorMatrices = new MatrixStack();
 
-                try {
-                    // Set door facing for culling
-                    Direction doorFacing = Direction.fromRotation(-exteriorFacing + 180);
-                    exteriorRenderer.setDoorFacing(doorFacing);
+                    // Get camera position and orientation
+                    Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+                    float cameraPitch = client.gameRenderer.getCamera().getPitch();
+                    float cameraYaw = client.gameRenderer.getCamera().getYaw();
 
-                    interiorMatrices.scale(-1, 1, -1);
+                    // Get exterior position
+                    DirectedGlobalPos exteriorPos = tardis.travel().position();
+                    BlockPos exteriorBlockPos = exteriorPos.getPos();
+                    float exteriorFacing = exteriorPos.getRotationDegrees() - 90;
 
-                    // Render the interior world at the interior door position
-                    exteriorRenderer.render(client.world, interiorDoorPos, interiorMatrices, client.getTickDelta(), true);
-                } catch (Exception e) {
-                    // Silent fail
+                    // Calculate offset from camera to exterior door
+                    Vec3d offset = new Vec3d(
+                            cameraPos.x - exteriorBlockPos.getX(),
+                            cameraPos.y - exteriorBlockPos.getY(),
+                            cameraPos.z - exteriorBlockPos.getZ()
+                    );
+
+                    // Apply camera rotation
+                    interiorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cameraPitch));
+                    interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cameraYaw));
+
+                    // Translate to exterior position, then rotate to align with interior door
+                    interiorMatrices.translate(offset.x, -offset.y, offset.z);
+                    interiorMatrices.translate(-0.5, 0, -0.5);
+                    
+                    // Rotate to match exterior facing (inverse transformation)
+                    interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-exteriorFacing));
+                    
+                    // Get interior door facing
+                    Direction interiorDoorFacing = tardis.getDesktop().doorPos().getDirection();
+                    interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
+                        interiorDoorFacing.asRotation() + (interiorDoorFacing == Direction.EAST || 
+                                interiorDoorFacing == Direction.WEST ? -90 : 90)
+                    ));
+                    
+                    interiorMatrices.translate(0.5, 0, 0.5);
+
+                    try {
+                        // Set door facing for culling
+                        Direction doorFacing = Direction.fromRotation(-exteriorFacing + 180);
+                        exteriorRenderer.setDoorFacing(doorFacing);
+
+                        interiorMatrices.scale(-1, 1, -1);
+
+                        // Render the interior world at the interior door position
+                        exteriorRenderer.render(client.world, interiorDoorPos, interiorMatrices, client.getTickDelta(), true);
+                    } catch (Exception e) {
+                        // Silent fail
+                    }
                 }
+                stack.pop();
             }
-            stack.pop();
         }
 
         GL11.glStencilMask(0x00);
