@@ -59,3 +59,5 @@
 - fix: bedrock console models floating in generator | by [@duzos](https://github.com/duzos) ([#1966](https://github.com/amblelabs/ait/pull/1966))
 - fix: in-game version checks | by [@drtheodor](https://github.com/drtheodor), [@Mansarde](https://github.com/Mansarde), [@Loqor](https://github.com/Loqor), [@duzos](https://github.com/duzos) ([#1948](https://github.com/amblelabs/ait/pull/1948))
 - feat: sonic glows on use with lambdynamiclights installed | by [@drtheodor](https://github.com/drtheodor), [@Mansarde](https://github.com/Mansarde), [@Loqor](https://github.com/Loqor), [@duzos](https://github.com/duzos) ([#1948](https://github.com/amblelabs/ait/pull/1948))
+- add: ukrainian markdown readme | by [@nitrogenez](https://github.com/nitrogenez) ([#1984](https://github.com/amblelabs/ait/pull/1984))
+- remove: ukrainian adoc readme | by [@nitrogenez](https://github.com/nitrogenez) ([#1984](https://github.com/amblelabs/ait/pull/1984))
