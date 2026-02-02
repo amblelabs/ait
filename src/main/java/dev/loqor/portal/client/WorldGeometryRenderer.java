@@ -14,6 +14,7 @@ import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -264,6 +265,11 @@ public class WorldGeometryRenderer {
 
             if (blockEntity instanceof DoorBlockEntity || blockEntity instanceof ExteriorBlockEntity/* && blockPos == centerPos*/) continue;
 
+            // Get proper light levels for this block entity
+            int blockLight = portalWorld.getLightLevel(LightType.BLOCK, blockPos);
+            int skyLight = portalWorld.getLightLevel(LightType.SKY, blockPos);
+            int packedLight = LightmapTextureManager.pack(blockLight, skyLight);
+
             matrices.push();
             matrices.translate(
                     blockPos.getX() - centerPos.getX(),
@@ -271,7 +277,7 @@ public class WorldGeometryRenderer {
                     blockPos.getZ() - centerPos.getZ()
             );
 
-            dispatcher.render(blockEntity, tickDelta, matrices, immediate);
+            dispatcher.render(blockEntity, tickDelta, matrices, immediate, packedLight, OverlayTexture.DEFAULT_UV);
             matrices.pop();
         }
 
