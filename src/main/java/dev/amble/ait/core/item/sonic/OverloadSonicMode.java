@@ -218,13 +218,13 @@ public class OverloadSonicMode extends SonicMode {
      * @return true if a rift was successfully opened
      */
     private boolean tryOpenRiftOnZeiton(ServerWorld world, BlockPos centerPos, LivingEntity user, BlockHitResult blockHit) {
-        // Check if the center has a 3x3 area of zeiton blocks (in the horizontal plane)
-        if (!has3x3ZeitonArea(world, centerPos)) {
-            return false;
-        }
-
         // Get the direction the player is facing the block from
         Direction facing = blockHit.getSide();
+
+        // Check if the center has a 3x3 area of zeiton blocks on the wall plane
+        if (!has3x3ZeitonArea(world, centerPos, facing)) {
+            return false;
+        }
 
         // Position where the rift will be placed (in front of the center block)
         BlockPos riftPos = centerPos.offset(facing);
@@ -250,12 +250,28 @@ public class OverloadSonicMode extends SonicMode {
     }
 
     /**
-     * Checks if there is a 3x3 horizontal area of zeiton blocks centered on the given position.
+     * Checks if there is a 3x3 area of zeiton blocks centered on the given position,
+     * on the plane perpendicular to the given facing direction (the wall plane).
+     * For example, if facing NORTH/SOUTH, checks X/Y plane. If facing UP/DOWN, checks X/Z plane.
      */
-    private boolean has3x3ZeitonArea(ServerWorld world, BlockPos center) {
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dz = -1; dz <= 1; dz++) {
-                BlockPos checkPos = center.add(dx, 0, dz);
+    private boolean has3x3ZeitonArea(ServerWorld world, BlockPos center, Direction facing) {
+        Direction.Axis facingAxis = facing.getAxis();
+
+        for (int d1 = -1; d1 <= 1; d1++) {
+            for (int d2 = -1; d2 <= 1; d2++) {
+                BlockPos checkPos;
+                // Check the plane perpendicular to the facing direction
+                if (facingAxis == Direction.Axis.Y) {
+                    // Facing up/down: check X/Z plane (horizontal)
+                    checkPos = center.add(d1, 0, d2);
+                } else if (facingAxis == Direction.Axis.X) {
+                    // Facing east/west: check Y/Z plane
+                    checkPos = center.add(0, d1, d2);
+                } else {
+                    // Facing north/south: check X/Y plane
+                    checkPos = center.add(d1, d2, 0);
+                }
+
                 BlockState checkState = world.getBlockState(checkPos);
                 if (!checkState.isIn(AITTags.Blocks.ZEITON_BLOCKS)) {
                     return false;

@@ -10,9 +10,6 @@ import dev.amble.lib.util.TeleportUtil;
 import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.decoration.AbstractDecorationEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -46,15 +43,8 @@ public class RiftEntity extends AbstractDecorationEntity implements ISpaceImmune
     private static final int WIDTH = 48;
     private static final int HEIGHT = 48;
 
-    // Tracked data for scale (growth/shrink animation)
-    private static final TrackedData<Float> SCALE = DataTracker.registerData(RiftEntity.class, TrackedDataHandlerRegistry.FLOAT);
-
     // Lifespan in ticks (default 5 minutes = 6000 ticks)
     private static final int DEFAULT_LIFESPAN = 5 * 60 * 20;
-    // Growth duration in ticks (2 seconds)
-    private static final int GROWTH_DURATION = 2 * 20;
-    // Shrink start time (when remaining life is this many ticks, start shrinking)
-    private static final int SHRINK_DURATION = 2 * 20;
 
     private int interactAmount = 0;
     private int ambientSoundCooldown = 0;
@@ -76,20 +66,6 @@ public class RiftEntity extends AbstractDecorationEntity implements ISpaceImmune
 
     public RiftEntity(EntityType<? extends RiftEntity> type, World world) {
         super(type, world);
-    }
-
-    @Override
-    protected void initDataTracker() {
-        super.initDataTracker();
-        this.dataTracker.startTracking(SCALE, 0.0f);
-    }
-
-    public float getScale() {
-        return this.dataTracker.get(SCALE);
-    }
-
-    public void setScale(float scale) {
-        this.dataTracker.set(SCALE, Math.max(0.0f, Math.min(1.0f, scale)));
     }
 
     /**
@@ -244,22 +220,6 @@ public class RiftEntity extends AbstractDecorationEntity implements ISpaceImmune
             // Increment age
             this.age++;
 
-            // Handle growth animation (scale increases from 0 to 1 over GROWTH_DURATION)
-            if (this.age <= GROWTH_DURATION) {
-                float growthProgress = (float) this.age / GROWTH_DURATION;
-                this.setScale(growthProgress);
-            }
-            // Handle shrink animation (scale decreases from 1 to 0 over SHRINK_DURATION)
-            else if (this.remainingLife <= SHRINK_DURATION) {
-                float shrinkProgress = (float) this.remainingLife / SHRINK_DURATION;
-                this.setScale(shrinkProgress);
-            } else {
-                // Fully grown, ensure scale is 1
-                if (this.getScale() < 1.0f) {
-                    this.setScale(1.0f);
-                }
-            }
-
             // Handle lifespan
             this.remainingLife--;
             if (this.remainingLife <= 0) {
@@ -306,7 +266,6 @@ public class RiftEntity extends AbstractDecorationEntity implements ISpaceImmune
         nbt.putByte("facing", (byte) this.facing.getId());
         nbt.putInt("remainingLife", this.remainingLife);
         nbt.putInt("age", this.age);
-        nbt.putFloat("scale", this.getScale());
         nbt.putInt("interactAmount", this.interactAmount);
         super.writeCustomDataToNbt(nbt);
     }
@@ -316,7 +275,6 @@ public class RiftEntity extends AbstractDecorationEntity implements ISpaceImmune
         this.facing = Direction.byId(nbt.getByte("facing"));
         this.remainingLife = nbt.getInt("remainingLife");
         this.age = nbt.getInt("age");
-        this.setScale(nbt.getFloat("scale"));
         this.interactAmount = nbt.getInt("interactAmount");
         super.readCustomDataFromNbt(nbt);
         this.setFacing(this.facing);

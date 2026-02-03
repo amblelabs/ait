@@ -36,22 +36,18 @@ public class RiftEntityRenderer
 
     @Override
     public void render(RiftEntity riftEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
+        // Rendering is handled by BOTI when enabled
         if (AITModClient.CONFIG.enableTardisBOTI) {
             BOTI.RIFT_RENDERING_QUEUE.add(riftEntity);
             return;
         }
 
-        float scale = riftEntity.getScale();
-        if (scale <= 0.01f) return; // Don't render if scale is too small
-
+        // Fallback rendering when BOTI is disabled
         matrixStack.push();
-        // Use the horizontal facing direction for rotation, similar to how paintings work
         Direction facing = riftEntity.getHorizontalFacing();
         float rotation = 180 - facing.asRotation();
         matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rotation));
         matrixStack.translate(0, -0.9, 0.05);
-        // Apply the scale from the rift entity for growth/shrink animation
-        matrixStack.scale(scale, scale, scale);
         frame.render(matrixStack, vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucentCull(RIFT_TEXTURE)), 0xf000f0, OverlayTexture.DEFAULT_UV, 0.6f, 0.0f, 1, 1);
         matrixStack.pop();
     }
