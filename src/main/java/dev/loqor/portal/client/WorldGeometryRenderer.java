@@ -114,13 +114,13 @@ public class WorldGeometryRenderer {
     /**
      * Main render method - call this every frame
      *
-     * @param world The world to render from
+     * @param portalDataManager The portal data manager to use for world data
      * @param centerPos Center position (usually camera/player position)
      * @param matrices View matrix transformations
      * @param tickDelta Partial tick for interpolation
      */
-    public void render(World world, BlockPos centerPos, MatrixStack matrices, float tickDelta, boolean checkBehindPortal) {
-        ClientWorld portalWorld = PortalDataManager.get().world();
+    public void render(PortalDataManager portalDataManager, BlockPos centerPos, MatrixStack matrices, float tickDelta, boolean checkBehindPortal) {
+        ClientWorld portalWorld = portalDataManager.world();
 
         GameRenderer gameRenderer = MinecraftClient.getInstance().gameRenderer;
         projectionMatrix = gameRenderer.getBasicProjectionMatrix(gameRenderer.getFov(gameRenderer.getCamera(),
@@ -165,6 +165,14 @@ public class WorldGeometryRenderer {
         modelViewStack.pop();
         RenderSystem.applyModelViewMatrix();
         RenderSystem.setProjectionMatrix(originalProjection, VertexSorter.BY_DISTANCE);
+    }
+
+    /**
+     * Backward compatibility method - uses default PortalDataManager
+     */
+    @Deprecated
+    public void render(World world, BlockPos centerPos, MatrixStack matrices, float tickDelta, boolean checkBehindPortal) {
+        render(PortalDataManager.get(), centerPos, matrices, tickDelta, checkBehindPortal);
     }
 
     /**

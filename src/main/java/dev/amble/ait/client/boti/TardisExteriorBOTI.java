@@ -109,15 +109,23 @@ public class TardisExteriorBOTI extends BOTI {
         // ===== RENDER TARDIS INTERIOR HERE =====
         if (tardis.travel().getState() == TravelHandlerBase.State.LANDED) {
             // Get or create renderer for this specific TARDIS
-            WorldGeometryRenderer exteriorRenderer = BOTI.getExteriorRenderer(tardis.getUuid());
+            WorldGeometryRenderer interiorRenderer = BOTI.getExteriorRenderer(tardis.getUuid());
             
-            if (exteriorRenderer != null) {
+            if (interiorRenderer != null) {
                 stack.push();
                 
                 // Get interior door position - this is where we want to render from
                 BlockPos interiorDoorPos = tardis.getDesktop().getDoorPos().getPos();
                 
                 if (interiorDoorPos != null) {
+                    // Get the interior portal data manager for this TARDIS
+                    dev.loqor.portal.client.InteriorPortalDataManager interiorDataManager = 
+                        dev.loqor.portal.client.InteriorPortalDataManager.get();
+                    
+                    // Update the fake world center to the interior door position
+                    interiorDataManager.updateCenter(interiorDoorPos);
+                    interiorDataManager.setTardis(tardis.getUuid());
+                    
                     MatrixStack interiorMatrices = new MatrixStack();
 
                     // Get camera position and orientation
@@ -160,12 +168,12 @@ public class TardisExteriorBOTI extends BOTI {
                     try {
                         // Set door facing for culling
                         Direction doorFacing = Direction.fromRotation(-exteriorFacing + 180);
-                        exteriorRenderer.setDoorFacing(doorFacing);
+                        interiorRenderer.setDoorFacing(doorFacing);
 
                         interiorMatrices.scale(-1, 1, -1);
 
-                        // Render the interior world at the interior door position
-                        exteriorRenderer.render(client.world, interiorDoorPos, interiorMatrices, client.getTickDelta(), true);
+                        // Render the interior world using the interior portal data manager
+                        interiorRenderer.render(interiorDataManager, interiorDoorPos, interiorMatrices, client.getTickDelta(), true);
                     } catch (Exception e) {
                         // Silent fail
                     }

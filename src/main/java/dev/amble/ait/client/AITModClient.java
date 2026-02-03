@@ -292,6 +292,18 @@ public class AITModClient implements ClientModInitializer {
             BOTI.GALLIFREYAN_RENDER_QUEUE.clear();
             BOTI.TRENZALORE_PAINTING_QUEUE.clear();
             dev.loqor.portal.client.BOTIClientTracker.clearAll();
+            
+            // Clear all portal data managers
+            try {
+                dev.loqor.portal.client.InteriorPortalDataManager.get().reset();
+            } catch (Exception e) {
+                // Silent fail if not initialized
+            }
+            try {
+                dev.loqor.portal.client.ExteriorPortalDataManager.get().reset();
+            } catch (Exception e) {
+                // Silent fail if not initialized
+            }
         });
         
         // Cleanup when world changes (dimension change, etc.)

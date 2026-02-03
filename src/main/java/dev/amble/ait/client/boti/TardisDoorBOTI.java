@@ -146,7 +146,7 @@ public class TardisDoorBOTI extends BOTI {
         GL11.glStencilMask(0x00);
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
-        // ===== RENDER TARDIS INTERIOR HERE =====
+        // ===== RENDER TARDIS EXTERIOR HERE =====
         if (tardis.travel().getState() == TravelHandlerBase.State.LANDED) {
             // Get or create renderer for this specific TARDIS
             WorldGeometryRenderer interiorRenderer = BOTI.getInteriorRenderer(tardis.getUuid());
@@ -155,6 +155,16 @@ public class TardisDoorBOTI extends BOTI {
                 stack.push();
                 BlockPos interiorDoorPos = door.getPos();
                 if (interiorDoorPos != null) {
+                    // Get the exterior portal data manager for viewing exterior from interior
+                    dev.loqor.portal.client.ExteriorPortalDataManager exteriorDataManager = 
+                        dev.loqor.portal.client.ExteriorPortalDataManager.get();
+                    
+                    // Get exterior position and update the fake world center
+                    DirectedGlobalPos exteriorPos = tardis.travel().position();
+                    BlockPos exteriorBlockPos = exteriorPos.getPos();
+                    exteriorDataManager.updateCenter(exteriorBlockPos);
+                    exteriorDataManager.setTardis(tardis.getUuid());
+                    
                     MatrixStack interiorMatrices = new MatrixStack();
 
                     // Apply inverse view bobbing compensation if enabled
@@ -173,9 +183,6 @@ public class TardisDoorBOTI extends BOTI {
                     float cameraPitch = client.gameRenderer.getCamera().getPitch();
                     float cameraYaw = client.gameRenderer.getCamera().getYaw();
 
-                    DirectedGlobalPos exteriorPos = tardis.travel().position();
-
-                    BlockPos exteriorBlockPos = exteriorPos.getPos();
                     float exteriorFacing = exteriorPos.getRotationDegrees() - 90;
 
                     Vec3d offset = new Vec3d(
@@ -200,7 +207,8 @@ public class TardisDoorBOTI extends BOTI {
 
                         interiorMatrices.scale(-1, 1, -1);
 
-                        interiorRenderer.render(client.world, exteriorBlockPos, interiorMatrices, tickDelta, true);
+                        // Render the exterior world using the exterior portal data manager
+                        interiorRenderer.render(exteriorDataManager, exteriorBlockPos, interiorMatrices, tickDelta, true);
                     } catch (Exception e) {
                         // Silent fail
                     }

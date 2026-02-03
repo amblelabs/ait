@@ -36,8 +36,16 @@ public class PortalDataManager {
     private PortalDataManager(ClientWorld world, WorldRenderer worldRenderer) {
         this.world = world;
         this.worldRenderer = worldRenderer;
-        // ChunkPos chunkPos = new ChunkPos(new BlockPos(-1262, 69, 106));
-        this.onChunkRenderDistanceCenter(new ChunkRenderDistanceCenterS2CPacket(0, 0));
+        // Don't set center here - let subclasses handle it
+        // this.onChunkRenderDistanceCenter(new ChunkRenderDistanceCenterS2CPacket(0, 0));
+    }
+
+    protected PortalDataManager(ClientWorld world, WorldRenderer worldRenderer, boolean initCenter) {
+        this.world = world;
+        this.worldRenderer = worldRenderer;
+        if (initCenter) {
+            this.onChunkRenderDistanceCenter(new ChunkRenderDistanceCenterS2CPacket(0, 0));
+        }
     }
 
     public static PortalDataManager get() {
@@ -63,7 +71,7 @@ public class PortalDataManager {
 
         worldRenderer.setWorld(world);
 
-        return instance = new PortalDataManager(world, worldRenderer);
+        return instance = new PortalDataManager(world, worldRenderer, true);
     }
 
     public ClientWorld world() {
