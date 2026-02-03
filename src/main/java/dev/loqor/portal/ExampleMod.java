@@ -58,6 +58,7 @@ public class ExampleMod implements ModInitializer {
         });
 
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+            if (proxyWorld == null) return;
             proxyWorld.removePlayer(proxy, Entity.RemovalReason.DISCARDED);
             proxyWorld = null;
             proxy = null;

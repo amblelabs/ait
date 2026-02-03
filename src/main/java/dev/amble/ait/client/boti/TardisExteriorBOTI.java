@@ -160,14 +160,14 @@ public class TardisExteriorBOTI extends BOTI {
                     Direction interiorDoorFacing = tardis.getDesktop().getDoorPos().toMinecraftDirection();
                     interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
                         interiorDoorFacing.asRotation() + (interiorDoorFacing == Direction.EAST || 
-                                interiorDoorFacing == Direction.WEST ? -90 : 90)
+                                interiorDoorFacing == Direction.WEST ? 90 : -90)
                     ));
                     
                     interiorMatrices.translate(0.5, 0, 0.5);
 
                     try {
                         // Set door facing for culling
-                        Direction doorFacing = Direction.fromRotation(-exteriorFacing + 180);
+                        Direction doorFacing = Direction.fromRotation(-exteriorFacing + 90); // Change the 90 to -90 or + 180 if this doesnt work
                         interiorRenderer.setDoorFacing(doorFacing);
 
                         interiorMatrices.scale(-1, 1, -1);

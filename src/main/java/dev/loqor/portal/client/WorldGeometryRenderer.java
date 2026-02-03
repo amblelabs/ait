@@ -424,7 +424,7 @@ public class WorldGeometryRenderer {
                     BlockState state = world.getBlockState(mutablePos);
 
                     // Skip air and black concrete (void)
-                    if (state.isAir() || state.getBlock() == Blocks.BLACK_CONCRETE) {
+                    if (state.isAir()) {
                         continue;
                     }
 
