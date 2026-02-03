@@ -283,7 +283,7 @@ public class AITModClient implements ClientModInitializer {
         });
         
         // Cleanup when world changes (dimension change, etc.)
-        ClientWorldEvents.UNLOAD.register((client, world) -> {
+        ClientWorldEvents.CHANGE_WORLD.register((client, world) -> {
             // Clear render queues to prevent rendering stale data
             BOTI.DOOR_RENDER_QUEUE.clear();
             BOTI.EXTERIOR_RENDER_QUEUE.clear();

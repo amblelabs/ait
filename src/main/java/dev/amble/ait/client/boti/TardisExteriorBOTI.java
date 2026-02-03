@@ -115,7 +115,7 @@ public class TardisExteriorBOTI extends BOTI {
                 stack.push();
                 
                 // Get interior door position - this is where we want to render from
-                BlockPos interiorDoorPos = tardis.getDesktop().doorPos().getPos();
+                BlockPos interiorDoorPos = tardis.getDesktop().getDoorPos().getPos();
                 
                 if (interiorDoorPos != null) {
                     MatrixStack interiorMatrices = new MatrixStack();
@@ -149,7 +149,7 @@ public class TardisExteriorBOTI extends BOTI {
                     interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-exteriorFacing));
                     
                     // Get interior door facing
-                    Direction interiorDoorFacing = tardis.getDesktop().doorPos().getDirection();
+                    Direction interiorDoorFacing = tardis.getDesktop().getDoorPos().toMinecraftDirection();
                     interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
                         interiorDoorFacing.asRotation() + (interiorDoorFacing == Direction.EAST || 
                                 interiorDoorFacing == Direction.WEST ? -90 : 90)

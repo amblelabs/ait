@@ -81,8 +81,8 @@ public class TardisDoorBOTI extends BOTI {
         if (client.world == null || client.player == null) return;
 
         // Initialize renderer if needed
-        initializeRenderer();
-        updateRendererProjection();
+        /*initializeRenderer();
+        updateRendererProjection();*/
 
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));

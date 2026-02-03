@@ -22,6 +22,7 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
@@ -277,7 +278,7 @@ public class WorldGeometryRenderer {
                     blockPos.getZ() - centerPos.getZ()
             );
 
-            dispatcher.render(blockEntity, tickDelta, matrices, immediate, packedLight, OverlayTexture.DEFAULT_UV);
+            dispatcher.renderEntity(blockEntity, matrices, immediate, packedLight, OverlayTexture.DEFAULT_UV);
             matrices.pop();
         }
 
