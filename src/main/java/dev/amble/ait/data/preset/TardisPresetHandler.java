@@ -160,18 +160,16 @@ public class TardisPresetHandler {
                     stats.setFlightEffects(flightSound);
                 });
 
-        // Store pending console variant for later application (after Tardis.init())
-        if (consoleVariantId != null) {
-            builder.<ExtraHandler>with(TardisComponent.Id.EXTRAS, extra -> {
-                extra.setPendingConsoleVariant(consoleVariantId);
-            });
-        }
-
         ServerTardis created = ServerTardisManager.getInstance().create(builder);
 
         if (created == null) {
             player.sendMessage(Text.translatable("message.ait.max_tardises"), true);
             return;
+        }
+
+        // Set pending console variant after TARDIS is created (handlers now exist)
+        if (consoleVariantId != null) {
+            created.extra().setPendingConsoleVariant(consoleVariantId);
         }
 
         // Set animations

@@ -188,8 +188,8 @@ public class CreativePresetScreen extends Screen {
         this.addButton(new PressableTextWidget(centerX + 44, centerY + 3, 53, 20,
                 Text.empty(), button -> confirmSelection(), this.textRenderer));
         
-        // Button 6: Cancel/back button
-        this.addButton(new PressableTextWidget(left + 9, top + 132, 20, 20,
+        // Button 6: Cancel/back button (same position as MonitorScreen interior settings button)
+        this.addButton(new PressableTextWidget(centerX - 13, centerY + 52, 20, 20,
                 Text.empty(), button -> this.close(), this.textRenderer));
     }
 
@@ -495,9 +495,11 @@ public class CreativePresetScreen extends Screen {
         
         com.mojang.blaze3d.systems.RenderSystem.enableScissor(scissorLeft, scissorBottom, scissorWidth, scissorHeight);
         
-        // Center the vortex in the preview area and scale it properly
-        stack.translate(x, y + 15, 100f);
-        stack.scale(1.2f, 1.2f, 1.2f);
+        // Position the vortex - view from the "entrance" looking into the tunnel
+        stack.translate(x, y + 15, 200f);
+        // Scale down to fit in preview area
+        stack.scale(0.08f, 0.08f, 0.08f);
+        // Rotate to look down the tunnel (the vortex extends in -Z direction)
         stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90f));
         
         VortexRender.getInstance(vortex).render(stack);
