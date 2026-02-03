@@ -210,20 +210,10 @@ public class AITModClient implements ClientModInitializer {
             client.execute(() -> client.setScreenAndRender(screen));
         });
         
-        // Register BOTI packet handlers to forward to PortalDataManager
+        // Register BOTI packet handlers
         ClientPlayNetworking.registerGlobalReceiver(dev.amble.ait.core.tardis.util.network.s2c.BOTIDataS2CPacket.TYPE,
             (packet, player, responseSender) -> {
-                // Forward chunk data packets to PortalDataManager
-                try {
-                    dev.loqor.portal.client.PortalDataManager.get().handle(
-                        new net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket(
-                            new net.minecraft.util.math.ChunkPos(packet.chunkData.getInt("x"), packet.chunkData.getInt("z")),
-                            null, null, null
-                        )
-                    );
-                } catch (Exception e) {
-                    dev.amble.ait.AITMod.LOGGER.error("Failed to forward BOTI chunk data to PortalDataManager", e);
-                }
+                packet.handle(player, responseSender);
             });
         
         ClientPlayNetworking.registerGlobalReceiver(dev.amble.ait.core.tardis.util.network.s2c.BOTISyncS2CPacket.TYPE,
@@ -565,10 +555,17 @@ public class AITModClient implements ClientModInitializer {
                 try {
                     dev.amble.lib.data.DirectedBlockPos interiorDoorPos = tardis.getDesktop().getDoorPos();
                     if (interiorDoorPos != null) {
+                        // TARDIS interior dimension key is constructed as ait-tardis:{tardis-uuid}
+                        net.minecraft.registry.RegistryKey<net.minecraft.world.World> tardisDimension = 
+                            net.minecraft.registry.RegistryKey.of(
+                                net.minecraft.registry.RegistryKeys.WORLD,
+                                new net.minecraft.util.Identifier("ait-tardis", tardis.getUuid().toString())
+                            );
+                        
                         dev.loqor.portal.client.BOTIClientTracker.startWatching(
                             tardis.getUuid(),
                             true, // exterior to interior view
-                            dev.amble.ait.core.AITDimensions.TARDIS_DIM_WORLD,
+                            tardisDimension,
                             interiorDoorPos.getPos()
                         );
                     }
@@ -621,11 +618,11 @@ public class AITModClient implements ClientModInitializer {
                     // Notify server that we're viewing exterior through interior door
                     try {
                         dev.amble.lib.data.DirectedGlobalPos exteriorPos = tardis.travel().position();
-                        if (exteriorPos != null && exteriorPos.getWorld() != null) {
+                        if (exteriorPos != null && exteriorPos.getDimension() != null) {
                             dev.loqor.portal.client.BOTIClientTracker.startWatching(
                                 tardis.getUuid(),
                                 false, // interior to exterior view
-                                exteriorPos.getWorld(),
+                                exteriorPos.getDimension(),
                                 exteriorPos.getPos()
                             );
                         }

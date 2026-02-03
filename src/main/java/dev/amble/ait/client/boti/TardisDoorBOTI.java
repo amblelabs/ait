@@ -40,6 +40,13 @@ public class TardisDoorBOTI extends BOTI {
         // Mark all interior renderers as dirty
         // The renderers are now managed per-TARDIS in the BOTI class
     }
+    
+    /**
+     * Cleans up all renderers - call when disconnecting
+     */
+    public static void cleanup() {
+        BOTI.cleanupAllRenderers();
+    }
 
     /**
      * Calculates the inverse of view bobbing to stabilize the camera

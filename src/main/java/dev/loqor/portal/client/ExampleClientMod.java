@@ -1,5 +1,6 @@
 package dev.loqor.portal.client;
 
+import dev.amble.ait.client.boti.BOTI;
 import dev.amble.ait.client.boti.TardisDoorBOTI;
 import dev.loqor.portal.WrappedPacketS2CPacket;
 import net.fabricmc.api.ClientModInitializer;
@@ -18,10 +19,12 @@ public class ExampleClientMod implements ClientModInitializer {
 
             manager.handle(packet);
 
-            WorldGeometryRenderer renderer = TardisDoorBOTI.getInteriorRenderer();
-
-            if (renderer != null)
-                MinecraftClient.getInstance().executeSync(renderer::markDirty);
+            // Mark all renderers as dirty since we received new portal data
+            MinecraftClient.getInstance().executeSync(() -> {
+                // The renderer system now manages multiple TARDIS renderers
+                // We mark them all dirty when we receive portal data updates
+                BOTI.updateAllRendererProjections();
+            });
         });
 
         ClientPlayConnectionEvents.DISCONNECT.register((clientPlayNetworkHandler, minecraftClient) -> {
