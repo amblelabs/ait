@@ -1,0 +1,12 @@
+{
+  "id": "ait:hartnell",
+  "name": "Hartnell",
+  "exterior": "ait:exterior/police_box/default",
+  "console": "ait:console/hartnell",
+  "desktop": "ait:prime",
+  "hum": "ait:coral",
+  "takeoff_sound": "ait:pulsating_demat",
+  "flight_sound": "ait:default",
+  "landing_sound": "ait:pulsating_mat",
+  "vortex": "ait:toyota"
+}

@@ -34,5 +34,6 @@
   "yacl3.config.ait:client.temperatureType": "Temperature type",
   "yacl3.config.ait:client.flightSoundVolume": "Flight Sound Volume",
 
-  "screen.ait.security.title": "Security"
+  "screen.ait.security.title": "Security",
+  "screen.ait.preset_selection.title": "TARDIS Preset Selection"
 }

@@ -83,6 +83,19 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         tardis.getDesktop().getConsolePos().add(this.pos);
         tardis.asServer().markDirty(tardis.getDesktop());
         this.markNeedsControl();
+
+        // Apply pending console variant from preset selection
+        Identifier pendingVariant = tardis.extra().getPendingConsoleVariant();
+        if (pendingVariant != null) {
+            ConsoleVariantSchema variantSchema = ConsoleVariantRegistry.getInstance().get(pendingVariant);
+            if (variantSchema != null) {
+                this.setVariant(variantSchema);
+                this.setType(variantSchema.parent());
+                this.markDirty();
+            }
+            // Clear the pending variant after applying
+            tardis.extra().clearPendingConsoleVariant();
+        }
     }
 
     @Override
