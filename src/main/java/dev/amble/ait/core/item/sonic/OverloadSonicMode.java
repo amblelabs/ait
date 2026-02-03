@@ -61,13 +61,14 @@ public class OverloadSonicMode extends SonicMode {
             this.overloadBlock(blockHit.getBlockPos(), world, user, ticks, blockHit);
         }
 
-        // Check for entity hits (currently only creepers)
-        HitResult collisionResult = SonicMode.getHitResult(user);
-        if (collisionResult instanceof EntityHitResult entityHit) {
-            // Ignite creepers when targeted
-            if (entityHit.getEntity() instanceof CreeperEntity creeper && canLight(ticks)) {
-                creeper.ignite();
-            }
+        // Entity raycast for creeper ignition and player-to-player transfer
+        HitResult entityHitResult = SonicMode.getHitResult(user);
+
+        // Ignite creepers when targeted
+        if (entityHitResult instanceof EntityHitResult entityHit
+                && entityHit.getEntity() instanceof CreeperEntity creeper
+                && canLight(ticks)) {
+            creeper.ignite();
         }
 
         if (!(user instanceof PlayerEntity player)) return;
@@ -100,7 +101,7 @@ public class OverloadSonicMode extends SonicMode {
         }
 
         // Overload transfer between two players via targeting
-        if (hitResult instanceof EntityHitResult entityHit &&
+        if (entityHitResult instanceof EntityHitResult entityHit &&
                 entityHit.getEntity() instanceof PlayerEntity other) {
 
             ItemStack userStack = player.getMainHandStack();
