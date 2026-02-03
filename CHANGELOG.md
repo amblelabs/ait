@@ -61,3 +61,4 @@
 - feat: sonic glows on use with lambdynamiclights installed | by [@drtheodor](https://github.com/drtheodor), [@Mansarde](https://github.com/Mansarde), [@Loqor](https://github.com/Loqor), [@duzos](https://github.com/duzos) ([#1948](https://github.com/amblelabs/ait/pull/1948))
 - add: ukrainian markdown readme | by [@nitrogenez](https://github.com/nitrogenez) ([#1984](https://github.com/amblelabs/ait/pull/1984))
 - remove: ukrainian adoc readme | by [@nitrogenez](https://github.com/nitrogenez) ([#1984](https://github.com/amblelabs/ait/pull/1984))
+- Add creeper ignition to sonic overload mode | by [@Copilot](https://github.com/Copilot), [@duzos](https://github.com/duzos) ([#1987](https://github.com/amblelabs/ait/pull/1987))
