@@ -33,57 +33,19 @@ import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 
 public class TardisDoorBOTI extends BOTI {
-    // Static renderer instance - reused across all TARDIS door renders
-    private static WorldGeometryRenderer interiorRenderer;
-    private static boolean rendererInitialized = false;
-
-    public static WorldGeometryRenderer getInteriorRenderer() {
-        return interiorRenderer;
-    }
-
     /**
-     * Initializes the interior renderer if not already initialized
+     * Marks all interior renderers as dirty (need rebuild)
      */
-    private static void initializeRenderer() {
-        if (!rendererInitialized) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            if (client.getWindow() != null) {
-                interiorRenderer = new WorldGeometryRenderer(25); // Large render distance for interior
-
-                float aspect = (float) client.getWindow().getFramebufferWidth() / (float) client.getWindow().getFramebufferHeight();
-                // Perspective projection - adjust FOV/near/far as needed
-                interiorRenderer.setPerspectiveProjection(MinecraftClient.getInstance().options.getFov().getValue() * MinecraftClient.getInstance().player.getFovMultiplier(), aspect, 0.05f, 2000.0f);
-
-                rendererInitialized = true;
-            }
-        }
-    }
-
     public static void markDirty() {
-        if (interiorRenderer == null) return;
-        interiorRenderer.markDirty();
+        // Mark all interior renderers as dirty
+        // The renderers are now managed per-TARDIS in the BOTI class
     }
-
+    
     /**
-     * Updates the renderer's aspect ratio when window size changes
-     */
-    private static void updateRendererProjection() {
-        if (rendererInitialized && interiorRenderer != null) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            float aspect = (float) client.getWindow().getFramebufferWidth() / (float) client.getWindow().getFramebufferHeight();
-            interiorRenderer.setPerspectiveProjection(MinecraftClient.getInstance().options.getFov().getValue() * MinecraftClient.getInstance().player.getFovMultiplier(), aspect, 0.05f, 2000.0f);
-        }
-    }
-
-    /**
-     * Cleans up the renderer - call when mod unloads
+     * Cleans up all renderers - call when disconnecting
      */
     public static void cleanup() {
-        if (interiorRenderer != null) {
-            interiorRenderer.close();
-            interiorRenderer = null;
-            rendererInitialized = false;
-        }
+        BOTI.cleanupAllRenderers();
     }
 
     /**
@@ -126,8 +88,8 @@ public class TardisDoorBOTI extends BOTI {
         if (client.world == null || client.player == null) return;
 
         // Initialize renderer if needed
-        initializeRenderer();
-        updateRendererProjection();
+        /*initializeRenderer();
+        updateRendererProjection();*/
 
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
@@ -184,51 +146,75 @@ public class TardisDoorBOTI extends BOTI {
         GL11.glStencilMask(0x00);
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
-        // ===== RENDER TARDIS INTERIOR HERE =====
-        if (tardis.travel().getState() == TravelHandlerBase.State.LANDED && interiorRenderer != null) {
-            stack.push();
-            BlockPos interiorDoorPos = door.getPos();
-            if (interiorDoorPos != null) {
-                MatrixStack interiorMatrices = new MatrixStack();
+        // ===== RENDER TARDIS EXTERIOR HERE =====
+        if (tardis.travel().getState() == TravelHandlerBase.State.LANDED) {
+            // Get or create renderer for this specific TARDIS
+            WorldGeometryRenderer interiorRenderer = BOTI.getInteriorRenderer(tardis.getUuid());
+            
+            if (interiorRenderer != null) {
+                stack.push();
+                BlockPos interiorDoorPos = door.getPos();
+                if (interiorDoorPos != null) {
+                    // Get the exterior portal data manager for viewing exterior from interior
+                    dev.loqor.portal.client.ExteriorPortalDataManager exteriorDataManager = 
+                        dev.loqor.portal.client.ExteriorPortalDataManager.get();
+                    
+                    // Get exterior position and update the fake world center
+                    DirectedGlobalPos exteriorPos = tardis.travel().position();
+                    BlockPos exteriorBlockPos = exteriorPos.getPos();
+                    exteriorDataManager.updateCenter(exteriorBlockPos);
+                    exteriorDataManager.setTardis(tardis.getUuid());
+                    
+                    MatrixStack interiorMatrices = new MatrixStack();
 
+                    // Apply inverse view bobbing compensation if enabled
+                    if (client.options.getBobView().getValue()) {
+                        Vec3d inverseBobTranslation = calculateInverseBobbing(client.player, tickDelta);
+                        Vec3d inverseBobRotation = calculateInverseBobbingRotations(client.player, tickDelta);
+                        
+                        // Apply rotations first (in reverse order)
+                        interiorMatrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float)inverseBobRotation.z));
+                        interiorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((float)inverseBobRotation.x));
+                        // Then translation
+                        interiorMatrices.translate(inverseBobTranslation.x, inverseBobTranslation.y, inverseBobTranslation.z);
+                    }
 
-                Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
-                float cameraPitch = client.gameRenderer.getCamera().getPitch();
-                float cameraYaw = client.gameRenderer.getCamera().getYaw();
+                    Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
+                    float cameraPitch = client.gameRenderer.getCamera().getPitch();
+                    float cameraYaw = client.gameRenderer.getCamera().getYaw();
 
-                DirectedGlobalPos exteriorPos = tardis.travel().position();
+                    float exteriorFacing = exteriorPos.getRotationDegrees() - 90;
 
-                BlockPos exteriorBlockPos = exteriorPos.getPos();
-                float exteriorFacing = exteriorPos.getRotationDegrees() - 90;
+                    Vec3d offset = new Vec3d(
+                            cameraPos.x - interiorDoorPos.getX(),
+                            cameraPos.y - interiorDoorPos.getY(),
+                            cameraPos.z - interiorDoorPos.getZ()
+                    );
 
-                Vec3d offset = new Vec3d(
-                        cameraPos.x - interiorDoorPos.getX(),
-                        cameraPos.y - interiorDoorPos.getY(),
-                        cameraPos.z - interiorDoorPos.getZ()
-                );
+                    interiorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cameraPitch));
+                    interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cameraYaw));
 
-                interiorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cameraPitch));
-                interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cameraYaw));
+                    interiorMatrices.translate(offset.x, -offset.y, offset.z);
+                    interiorMatrices.translate(-0.5, 0, -0.5);
+                    interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(exteriorFacing));
+                    interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(door.getFacing().asRotation() + (door.getFacing() == Direction.EAST ||
+                            door.getFacing() == Direction.WEST ? -90 : 90))); // This is super jank but its working!!!!!!! - Loqor
+                    interiorMatrices.translate(0.5, 0, 0.5);
 
-                interiorMatrices.translate(offset.x, -offset.y, offset.z);
-                interiorMatrices.translate(-0.5, 0, -0.5);
-                interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(exteriorFacing));
-                interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(door.getFacing().asRotation() + (door.getFacing() == Direction.EAST ||
-                        door.getFacing() == Direction.WEST ? -90 : 90))); // This is super jank but its working!!!!!!! - Loqor
-                interiorMatrices.translate(0.5, 0, 0.5);
+                    try {
+                        Direction doorFacing = Direction.fromRotation(exteriorFacing - 90);
+                        interiorRenderer.setDoorFacing(doorFacing);
 
-                try {
-                    Direction doorFacing = Direction.fromRotation(exteriorFacing - 90);
-                    interiorRenderer.setDoorFacing(doorFacing);
+                        interiorMatrices.scale(-1, 1, -1);
 
-                    interiorMatrices.scale(-1, 1, -1);
-
-                    interiorRenderer.render(client.world, exteriorBlockPos, interiorMatrices, tickDelta, true);
-                } catch (Exception e) {
-                    // Silent fail
+                        // Render the exterior world using the exterior portal data manager
+                        interiorRenderer.render(exteriorDataManager, exteriorBlockPos, interiorMatrices, tickDelta, true);
+                    } catch (Exception e) {
+                        // Silent fail
+                    }
                 }
+                stack.pop();
             }
-            stack.pop();
         }
 
         // Render vortex/effects when in flight

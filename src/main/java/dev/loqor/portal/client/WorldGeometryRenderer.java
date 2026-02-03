@@ -14,6 +14,7 @@ import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -21,6 +22,7 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
@@ -112,13 +114,13 @@ public class WorldGeometryRenderer {
     /**
      * Main render method - call this every frame
      *
-     * @param world The world to render from
+     * @param portalDataManager The portal data manager to use for world data
      * @param centerPos Center position (usually camera/player position)
      * @param matrices View matrix transformations
      * @param tickDelta Partial tick for interpolation
      */
-    public void render(World world, BlockPos centerPos, MatrixStack matrices, float tickDelta, boolean checkBehindPortal) {
-        ClientWorld portalWorld = PortalDataManager.get().world();
+    public void render(PortalDataManager portalDataManager, BlockPos centerPos, MatrixStack matrices, float tickDelta, boolean checkBehindPortal) {
+        ClientWorld portalWorld = portalDataManager.world();
 
         GameRenderer gameRenderer = MinecraftClient.getInstance().gameRenderer;
         projectionMatrix = gameRenderer.getBasicProjectionMatrix(gameRenderer.getFov(gameRenderer.getCamera(),
@@ -163,6 +165,14 @@ public class WorldGeometryRenderer {
         modelViewStack.pop();
         RenderSystem.applyModelViewMatrix();
         RenderSystem.setProjectionMatrix(originalProjection, VertexSorter.BY_DISTANCE);
+    }
+
+    /**
+     * Backward compatibility method - uses default PortalDataManager
+     */
+    @Deprecated
+    public void render(World world, BlockPos centerPos, MatrixStack matrices, float tickDelta, boolean checkBehindPortal) {
+        render(PortalDataManager.get(), centerPos, matrices, tickDelta, checkBehindPortal);
     }
 
     /**
@@ -264,6 +274,11 @@ public class WorldGeometryRenderer {
 
             if (blockEntity instanceof DoorBlockEntity || blockEntity instanceof ExteriorBlockEntity/* && blockPos == centerPos*/) continue;
 
+            // Get proper light levels for this block entity
+            int blockLight = portalWorld.getLightLevel(LightType.BLOCK, blockPos);
+            int skyLight = portalWorld.getLightLevel(LightType.SKY, blockPos);
+            int packedLight = LightmapTextureManager.pack(blockLight, skyLight);
+
             matrices.push();
             matrices.translate(
                     blockPos.getX() - centerPos.getX(),
@@ -271,7 +286,7 @@ public class WorldGeometryRenderer {
                     blockPos.getZ() - centerPos.getZ()
             );
 
-            dispatcher.render(blockEntity, tickDelta, matrices, immediate);
+            dispatcher.renderEntity(blockEntity, matrices, immediate, packedLight, OverlayTexture.DEFAULT_UV);
             matrices.pop();
         }
 
@@ -409,7 +424,7 @@ public class WorldGeometryRenderer {
                     BlockState state = world.getBlockState(mutablePos);
 
                     // Skip air and black concrete (void)
-                    if (state.isAir() || state.getBlock() == Blocks.BLACK_CONCRETE) {
+                    if (state.isAir()) {
                         continue;
                     }
 

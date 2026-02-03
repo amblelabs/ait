@@ -209,6 +209,22 @@ public class AITModClient implements ClientModInitializer {
 
             client.execute(() -> client.setScreenAndRender(screen));
         });
+        
+        // Register BOTI packet handlers
+        ClientPlayNetworking.registerGlobalReceiver(dev.amble.ait.core.tardis.util.network.s2c.BOTIChunkDataS2CPacket.TYPE,
+            (packet, player, responseSender) -> {
+                packet.handle();
+            });
+        
+        ClientPlayNetworking.registerGlobalReceiver(dev.amble.ait.core.tardis.util.network.s2c.BOTIDataS2CPacket.TYPE,
+            (packet, player, responseSender) -> {
+                packet.handle(player, responseSender);
+            });
+        
+        ClientPlayNetworking.registerGlobalReceiver(dev.amble.ait.core.tardis.util.network.s2c.BOTISyncS2CPacket.TYPE,
+            (packet, player, responseSender) -> {
+                packet.handle(player, responseSender);
+            });
 
         ClientPlayNetworking.registerGlobalReceiver(OPEN_SCREEN_TARDIS, (client, handler, buf, responseSender) -> {
             int id = buf.readInt();
@@ -272,6 +288,37 @@ public class AITModClient implements ClientModInitializer {
         AstralMapBlock.registerSyncListener();
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn(client));
+        
+        // Cleanup BOTI renderers when disconnecting from server
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            BOTI.cleanupAllRenderers();
+            BOTI.DOOR_RENDER_QUEUE.clear();
+            BOTI.EXTERIOR_RENDER_QUEUE.clear();
+            BOTI.GALLIFREYAN_RENDER_QUEUE.clear();
+            BOTI.TRENZALORE_PAINTING_QUEUE.clear();
+            dev.loqor.portal.client.BOTIClientTracker.clearAll();
+            
+            // Clear all portal data managers
+            try {
+                dev.loqor.portal.client.InteriorPortalDataManager.get().reset();
+            } catch (Exception e) {
+                // Silent fail if not initialized
+            }
+            try {
+                dev.loqor.portal.client.ExteriorPortalDataManager.get().reset();
+            } catch (Exception e) {
+                // Silent fail if not initialized
+            }
+        });
+        
+        // Cleanup when world changes (dimension change, etc.)
+        ClientWorldEvents.CHANGE_WORLD.register((client, world) -> {
+            // Clear render queues to prevent rendering stale data
+            BOTI.DOOR_RENDER_QUEUE.clear();
+            BOTI.EXTERIOR_RENDER_QUEUE.clear();
+            BOTI.GALLIFREYAN_RENDER_QUEUE.clear();
+            BOTI.TRENZALORE_PAINTING_QUEUE.clear();
+        });
     }
 
     public static Screen screenFromId(int id) {
@@ -520,6 +567,29 @@ public class AITModClient implements ClientModInitializer {
             int light = world.getLightLevel(pos);
             if ((tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) && !tardis.isGrowth()) {
                 light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
+                
+                // Notify server that we're viewing interior through exterior door
+                try {
+                    dev.amble.lib.data.DirectedBlockPos interiorDoorPos = tardis.getDesktop().getDoorPos();
+                    if (interiorDoorPos != null) {
+                        // TARDIS interior dimension key is constructed as ait-tardis:{tardis-uuid}
+                        net.minecraft.registry.RegistryKey<net.minecraft.world.World> tardisDimension = 
+                            net.minecraft.registry.RegistryKey.of(
+                                net.minecraft.registry.RegistryKeys.WORLD,
+                                new net.minecraft.util.Identifier("ait-tardis", tardis.getUuid().toString())
+                            );
+                        
+                        dev.loqor.portal.client.BOTIClientTracker.startWatching(
+                            tardis.getUuid(),
+                            true, // exterior to interior view
+                            tardisDimension,
+                            interiorDoorPos.getPos()
+                        );
+                    }
+                } catch (Exception e) {
+                    // Silent fail
+                }
+                
                 TardisExteriorBOTI boti = new TardisExteriorBOTI();
                 boti.renderExteriorBoti(exterior, variant, stack,
                         AITMod.id("textures/environment/tardis_sky.png"), model,
@@ -561,6 +631,22 @@ public class AITModClient implements ClientModInitializer {
                 int light = world.getLightLevel(pos.up());
                 if ((tardis.door().getLeftRot() > 0  || variant.hasTransparentDoors()) && !tardis.isGrowth()) {
                     light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
+                    
+                    // Notify server that we're viewing exterior through interior door
+                    try {
+                        dev.amble.lib.data.DirectedGlobalPos exteriorPos = tardis.travel().position();
+                        if (exteriorPos != null && exteriorPos.getDimension() != null) {
+                            dev.loqor.portal.client.BOTIClientTracker.startWatching(
+                                tardis.getUuid(),
+                                false, // interior to exterior view
+                                exteriorPos.getDimension(),
+                                exteriorPos.getPos()
+                            );
+                        }
+                    } catch (Exception e) {
+                        // Silent fail
+                    }
+                    
                     TardisDoorBOTI.renderInteriorDoorBoti(tardis, door, variant, stack,
                             AITMod.id("textures/environment/tardis_sky.png"), model,
                             BotiPortalModel.getTexturedModelData().createModel(), light, context.tickDelta());

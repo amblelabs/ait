@@ -30,6 +30,7 @@
     "server.EnderDragonFightAccessor",
     "server.ItemEntityMixin",
     "server.MinecraftServerMixin",
+    "server.ServerChunkManagerMixin",
     "server.ServerPlayerMixin",
     "server.ServerWorldMixin",
     "server.StructureTemplateMixin",
