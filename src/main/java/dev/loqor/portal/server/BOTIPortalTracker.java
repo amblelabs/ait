@@ -148,22 +148,14 @@ public class BOTIPortalTracker {
     
     /**
      * Called when a chunk is loaded on the server
-     * Notify relevant players who are viewing this chunk through a portal
+     * Note: We don't send chunks here to avoid infinite recursion.
+     * The tick() method handles sending chunks to players.
+     * This method just logs that the chunk is available.
      */
     public void onChunkLoad(ServerWorld world, ChunkPos pos) {
         Set<ServerPlayerEntity> viewers = chunkViewers.get(pos);
         if (viewers != null && !viewers.isEmpty()) {
-            AITMod.LOGGER.debug("Chunk {} loaded, {} players viewing through portal", pos, viewers.size());
-            
-            // Send chunk data to all viewers
-            for (ServerPlayerEntity viewer : viewers) {
-                sendChunkToPlayer(viewer, world, pos);
-                
-                // Mark as sent for this player
-                Map<ServerWorld, Set<ChunkPos>> playerSentChunks = sentChunks.computeIfAbsent(viewer, k -> new HashMap<>());
-                Set<ChunkPos> worldSentChunks = playerSentChunks.computeIfAbsent(world, k -> new HashSet<>());
-                worldSentChunks.add(pos);
-            }
+            AITMod.LOGGER.debug("Chunk {} loaded, {} players viewing through portal (will be sent on next tick)", pos, viewers.size());
         }
     }
     
