@@ -1,7 +1,7 @@
 {
   "id": "ait:hartnell",
   "name": "Hartnell",
-  "exterior": "ait:exterior/police_box/default",
+  "exterior": "ait:exterior/classic/prime",
   "console": "ait:console/hartnell",
   "desktop": "ait:prime",
   "hum": "ait:coral",

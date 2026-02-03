@@ -1,0 +1,9 @@
+{
+  "id": "ait:hudolin",
+  "name": "Hudolin",
+  "exterior": "ait:exterior/classic/hudolin",
+  "console": "ait:console/hudolin",
+  "desktop": "ait:shalka",
+  "hum": "ait:coral",
+  "vortex": "ait:classic_white"
+}

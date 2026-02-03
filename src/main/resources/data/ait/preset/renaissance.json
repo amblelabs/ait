@@ -1,0 +1,9 @@
+{
+  "id": "ait:renaissance",
+  "name": "Renaissance",
+  "exterior": "ait:exterior/police_box/renaissance",
+  "console": "ait:console/renaissance",
+  "desktop": "ait:renaissance",
+  "hum": "ait:renaissance",
+  "vortex": "ait:renaissance"
+}

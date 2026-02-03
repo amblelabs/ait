@@ -160,9 +160,9 @@ public class TardisPresetHandler {
                     stats.setFlightEffects(flightSound);
                 });
 
-        // Store pending console variant for later application
+        // Store pending console variant for later application (MUST be before Tardis.init())
         if (consoleVariantId != null) {
-            builder.<ExtraHandler>with(TardisComponent.Id.EXTRAS, extra -> {
+            builder.<ExtraHandler>withEarly(TardisComponent.Id.EXTRAS, extra -> {
                 extra.setPendingConsoleVariant(consoleVariantId);
             });
         }

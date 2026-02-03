@@ -87,6 +87,15 @@ public class CreativePresetScreen extends Screen {
     // Sound preview
     private PositionedSoundInstance currentPreviewSound;
     
+    // Button indices
+    private static final int BTN_PREV_PRESET = 0;
+    private static final int BTN_NEXT_PRESET = 1;
+    private static final int BTN_PREV_ELEMENT = 2;
+    private static final int BTN_NEXT_ELEMENT = 3;
+    private static final int BTN_PLAY_SOUND = 4;
+    private static final int BTN_CONFIRM = 5;
+    private static final int BTN_CANCEL = 6;
+    
     private enum PreviewElement {
         EXTERIOR("Exterior"),
         CONSOLE("Console"),
@@ -115,6 +124,10 @@ public class CreativePresetScreen extends Screen {
         public PreviewElement previous() {
             PreviewElement[] values = values();
             return values[(this.ordinal() - 1 + values.length) % values.length];
+        }
+        
+        public boolean isSoundElement() {
+            return this == HUM || this == TAKEOFF || this == FLIGHT || this == LANDING;
         }
     }
 
@@ -153,28 +166,30 @@ public class CreativePresetScreen extends Screen {
         int centerX = this.width / 2;
         int centerY = this.height / 2;
         
-        // Preset navigation arrows (big arrows)
-        this.addButton(new PressableTextWidget(centerX + 23, centerY + 3, 20, 20,
+        // Button 0: Previous preset (big left arrow)
+        this.addButton(new PressableTextWidget(centerX + 23, centerY + 10, 20, 20,
                 Text.empty(), button -> previousPreset(), this.textRenderer));
-        this.addButton(new PressableTextWidget(centerX + 98, centerY + 3, 20, 20,
+        // Button 1: Next preset (big right arrow)
+        this.addButton(new PressableTextWidget(centerX + 98, centerY + 10, 20, 20,
                 Text.empty(), button -> nextPreset(), this.textRenderer));
         
-        // Element preview navigation (small arrows)
-        this.addButton(new PressableTextWidget(centerX + 23, centerY + 61, 20, 12,
+        // Button 2: Previous element (small left arrow)
+        this.addButton(new PressableTextWidget(centerX + 23, centerY + 54, 20, 12,
                 Text.empty(), button -> previousElement(), this.textRenderer));
-        this.addButton(new PressableTextWidget(centerX + 98, centerY + 61, 20, 12,
+        // Button 3: Next element (small right arrow)
+        this.addButton(new PressableTextWidget(centerX + 98, centerY + 54, 20, 12,
                 Text.empty(), button -> nextElement(), this.textRenderer));
         
-        // Play sound button (for sound elements)
-        this.addButton(new PressableTextWidget(centerX + 44, centerY + 61, 53, 12,
+        // Button 4: Play sound button (for sound elements)
+        this.addButton(new PressableTextWidget(centerX + 44, centerY + 54, 53, 12,
                 Text.empty(), button -> playPreviewSound(), this.textRenderer));
         
-        // Confirm button
-        this.addButton(new PressableTextWidget(centerX + 44, centerY + 3, 53, 20,
+        // Button 5: Confirm button
+        this.addButton(new PressableTextWidget(centerX + 44, centerY + 10, 53, 20,
                 Text.empty(), button -> confirmSelection(), this.textRenderer));
         
-        // Cancel/back button
-        this.addButton(new PressableTextWidget(centerX - 13, centerY + 52, 20, 20,
+        // Button 6: Cancel/back button
+        this.addButton(new PressableTextWidget(left + 9, top + 132, 20, 20,
                 Text.empty(), button -> this.close(), this.textRenderer));
     }
 
@@ -217,6 +232,7 @@ public class CreativePresetScreen extends Screen {
         stopCurrentSound();
         
         if (selectedPreset == null) return;
+        if (!currentElement.isSoundElement()) return;
         
         SoundEvent sound = getSoundForCurrentElement();
         if (sound != null) {
@@ -312,33 +328,35 @@ public class CreativePresetScreen extends Screen {
         stack.push();
         stack.translate(0, 0, 500f);
         
-        // Preset name
+        // Left side info - Creative TARDIS title and selected preset
+        context.drawText(this.textRenderer, Text.literal("Creative TARDIS"), left + 15, top + 50, 0xFFFFFF, true);
+        context.drawText(this.textRenderer, Text.literal("Selected Preset:"), left + 15, top + 65, 0xAAAAAA, true);
+        context.drawText(this.textRenderer, Text.literal(selectedPreset.name()).formatted(Formatting.BOLD, Formatting.AQUA), 
+                left + 15, top + 78, 0xFFFFFF, true);
+        
+        // Preset name (right side header)
         context.drawCenteredTextWithShadow(this.textRenderer, 
                 Text.literal(selectedPreset.name()).formatted(Formatting.BOLD), 
                 centerX + 70, centerY - 68, 0xFFFFFF);
         
-        // Preset count
+        // Preset count (moved up)
         List<TardisPreset> presets = TardisPresetRegistry.getInstance().toList();
         context.drawCenteredTextWithShadow(this.textRenderer,
                 Text.literal((presetIndex + 1) + "/" + presets.size()).formatted(Formatting.BOLD),
-                centerX + 70, centerY + 64, 0xFFFFFF);
+                centerX + 70, centerY + 58, 0xFFFFFF);
         
         // Current element being previewed
         context.drawCenteredTextWithShadow(this.textRenderer,
                 Text.literal(currentElement.getDisplayName()),
-                centerX + 70, centerY + 44, 0x5FAAFF);
+                centerX + 70, centerY + 40, 0x5FAAFF);
         
         // Element value
         String elementValue = getElementValueDisplay();
         context.drawCenteredTextWithShadow(this.textRenderer,
                 Text.literal(elementValue),
-                centerX + 70, centerY + 34, 0xAAAAAA);
+                centerX + 70, centerY + 30, 0xAAAAAA);
         
         stack.pop();
-        
-        // Left side info - position info
-        context.drawText(this.textRenderer, Text.literal("Creative TARDIS"), left + 15, top + 20, 0xFFFFFF, true);
-        context.drawText(this.textRenderer, Text.literal("Select a preset:"), left + 15, top + 35, 0xAAAAAA, true);
     }
 
     private String getElementValueDisplay() {
@@ -383,12 +401,15 @@ public class CreativePresetScreen extends Screen {
         int centerX = this.width / 2;
         int centerY = this.height / 2;
         
+        // Move previews up and reduce scale
+        int previewY = centerY - 35;
+        
         switch (currentElement) {
-            case EXTERIOR -> drawExteriorPreview(context, centerX + 70, centerY - 30, 19f);
-            case CONSOLE -> drawConsolePreview(context, centerX + 70, centerY - 30, 15f);
-            case DESKTOP -> drawDesktopPreview(context, centerX + 70, centerY - 30);
-            case VORTEX -> drawVortexPreview(context, centerX + 70, centerY - 30);
-            default -> drawSoundIndicator(context, centerX + 70, centerY - 30);
+            case EXTERIOR -> drawExteriorPreview(context, centerX + 70, previewY, 14f);
+            case CONSOLE -> drawConsolePreview(context, centerX + 70, previewY, 11f);
+            case DESKTOP -> drawDesktopPreview(context, centerX + 70, previewY);
+            case VORTEX -> drawVortexPreview(context, centerX + 70, previewY);
+            default -> drawSoundIndicator(context, centerX + 70, previewY);
         }
     }
 
@@ -404,7 +425,7 @@ public class CreativePresetScreen extends Screen {
         
         MatrixStack stack = context.getMatrices();
         stack.push();
-        stack.translate(x, y + 11, 100f);
+        stack.translate(x, y + 15, 100f);
         stack.scale(-scale, scale, scale);
         stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(((float) tickForSpin / 1200L) * 360.0f));
         
@@ -428,7 +449,7 @@ public class CreativePresetScreen extends Screen {
         
         MatrixStack stack = context.getMatrices();
         stack.push();
-        stack.translate(x, y + 20, 100f);
+        stack.translate(x, y + 22, 100f);
         stack.scale(-scale, scale, scale);
         stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(((float) tickForSpin / 1200L) * 360.0f));
         
@@ -448,16 +469,16 @@ public class CreativePresetScreen extends Screen {
         Identifier previewTexture = preview.texture();
         boolean exists = MinecraftClient.getInstance().getResourceManager().getResource(previewTexture).isPresent();
         
-        int previewWidth = preview.width * 2;
-        int previewHeight = preview.height * 2;
+        // Smaller preview area
+        int size = 70;
         
         context.drawTexture(
                 exists ? previewTexture : MISSING_PREVIEW,
-                x - 47, y - 25, 95, 95, 0, 0, 
-                previewWidth,
-                previewHeight, 
-                previewWidth,
-                previewHeight);
+                x - size/2, y - size/2 + 15, size, size, 0, 0, 
+                preview.width,
+                preview.height, 
+                preview.width,
+                preview.height);
     }
 
     private void drawVortexPreview(DrawContext context, int x, int y) {
@@ -466,11 +487,29 @@ public class CreativePresetScreen extends Screen {
         
         MatrixStack stack = context.getMatrices();
         stack.push();
-        stack.translate(x, y, 100f);
-        stack.scale(1.5f, 1.5f, 1.5f);
+        
+        // Use scissor to clip the vortex rendering
+        int scissorX = x - 40;
+        int scissorY = y - 30;
+        int scissorW = 80;
+        int scissorH = 70;
+        
+        // Convert to screen coordinates for scissor
+        double scaleFactor = MinecraftClient.getInstance().getWindow().getScaleFactor();
+        int scissorLeft = (int) (scissorX * scaleFactor);
+        int scissorBottom = (int) ((this.height - scissorY - scissorH) * scaleFactor);
+        int scissorWidth = (int) (scissorW * scaleFactor);
+        int scissorHeight = (int) (scissorH * scaleFactor);
+        
+        com.mojang.blaze3d.systems.RenderSystem.enableScissor(scissorLeft, scissorBottom, scissorWidth, scissorHeight);
+        
+        stack.translate(x, y + 10, 100f);
+        stack.scale(0.8f, 0.8f, 0.8f);
         stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90f));
         
         VortexRender.getInstance(vortex).render(stack);
+        
+        com.mojang.blaze3d.systems.RenderSystem.disableScissor();
         
         stack.pop();
     }
@@ -481,9 +520,11 @@ public class CreativePresetScreen extends Screen {
                 Text.literal("♪").formatted(Formatting.YELLOW),
                 x, y, 0xFFFFFF);
         
-        context.drawCenteredTextWithShadow(this.textRenderer,
-                Text.literal("Click to preview").formatted(Formatting.GRAY),
-                x, y + 15, 0xAAAAAA);
+        if (currentElement.isSoundElement()) {
+            context.drawCenteredTextWithShadow(this.textRenderer,
+                    Text.literal("Click ▶ to preview").formatted(Formatting.GRAY),
+                    x, y + 15, 0xAAAAAA);
+        }
     }
 
     private void drawButtons(DrawContext context) {
@@ -491,63 +532,77 @@ public class CreativePresetScreen extends Screen {
         int centerX = this.width / 2;
         int centerY = this.height / 2;
         
-        // Big arrow buttons (preset navigation)
-        if (buttons.size() > 0) {
-            if (!buttons.get(0).isHovered())
-                context.drawTexture(BACKGROUND, buttons.get(0).getX(), buttons.get(0).getY(), 0, 166, 20, 20);
+        // Button 0: Big left arrow (previous preset)
+        if (buttons.size() > BTN_PREV_PRESET) {
+            ButtonWidget btn = buttons.get(BTN_PREV_PRESET);
+            if (!btn.isHovered())
+                context.drawTexture(BACKGROUND, btn.getX(), btn.getY(), 0, 166, 20, 20);
             else
-                context.drawTexture(BACKGROUND, buttons.get(0).getX(), buttons.get(0).getY(), 0, 186, 20, 20);
+                context.drawTexture(BACKGROUND, btn.getX(), btn.getY(), 0, 186, 20, 20);
         }
         
-        if (buttons.size() > 1) {
-            if (!buttons.get(1).isHovered())
-                context.drawTexture(BACKGROUND, buttons.get(1).getX(), buttons.get(1).getY(), 20, 166, 20, 20);
+        // Button 1: Big right arrow (next preset)
+        if (buttons.size() > BTN_NEXT_PRESET) {
+            ButtonWidget btn = buttons.get(BTN_NEXT_PRESET);
+            if (!btn.isHovered())
+                context.drawTexture(BACKGROUND, btn.getX(), btn.getY(), 20, 166, 20, 20);
             else
-                context.drawTexture(BACKGROUND, buttons.get(1).getX(), buttons.get(1).getY(), 20, 186, 20, 20);
+                context.drawTexture(BACKGROUND, btn.getX(), btn.getY(), 20, 186, 20, 20);
         }
         
-        // Small arrow buttons (element navigation)
-        if (buttons.size() > 2) {
-            if (!buttons.get(2).isHovered())
-                context.drawTexture(BACKGROUND, buttons.get(2).getX(), buttons.get(2).getY(), 93, 166, 20, 12);
+        // Button 2: Small left arrow (previous element)
+        if (buttons.size() > BTN_PREV_ELEMENT) {
+            ButtonWidget btn = buttons.get(BTN_PREV_ELEMENT);
+            if (!btn.isHovered())
+                context.drawTexture(BACKGROUND, btn.getX(), btn.getY(), 93, 166, 20, 12);
             else
-                context.drawTexture(BACKGROUND, buttons.get(2).getX(), buttons.get(2).getY(), 93, 178, 20, 12);
+                context.drawTexture(BACKGROUND, btn.getX(), btn.getY(), 93, 178, 20, 12);
         }
         
-        if (buttons.size() > 3) {
-            if (!buttons.get(3).isHovered())
-                context.drawTexture(BACKGROUND, buttons.get(3).getX(), buttons.get(3).getY(), 113, 166, 20, 12);
+        // Button 3: Small right arrow (next element)
+        if (buttons.size() > BTN_NEXT_ELEMENT) {
+            ButtonWidget btn = buttons.get(BTN_NEXT_ELEMENT);
+            if (!btn.isHovered())
+                context.drawTexture(BACKGROUND, btn.getX(), btn.getY(), 113, 166, 20, 12);
             else
-                context.drawTexture(BACKGROUND, buttons.get(3).getX(), buttons.get(3).getY(), 113, 178, 20, 12);
+                context.drawTexture(BACKGROUND, btn.getX(), btn.getY(), 113, 178, 20, 12);
         }
         
-        // Play sound button (apply bar style)
-        if (buttons.size() > 4) {
-            if (!buttons.get(4).isHovered())
-                context.drawTexture(BACKGROUND, buttons.get(4).getX(), buttons.get(4).getY(), 133, 166, 53, 12);
+        // Button 4: Play sound button (only show for sound elements)
+        if (buttons.size() > BTN_PLAY_SOUND && currentElement.isSoundElement()) {
+            ButtonWidget btn = buttons.get(BTN_PLAY_SOUND);
+            if (!btn.isHovered())
+                context.drawTexture(BACKGROUND, btn.getX(), btn.getY(), 133, 166, 53, 12);
             else
-                context.drawTexture(BACKGROUND, buttons.get(4).getX(), buttons.get(4).getY(), 133, 178, 53, 12);
+                context.drawTexture(BACKGROUND, btn.getX(), btn.getY(), 133, 178, 53, 12);
+            
+            // Draw play icon
+            context.drawCenteredTextWithShadow(this.textRenderer,
+                    Text.literal("▶ Play"),
+                    btn.getX() + 26, btn.getY() + 2, 0xFFFFFF);
         }
         
-        // Confirm button (apply style)
-        if (buttons.size() > 5) {
-            if (!buttons.get(5).isHovered())
-                context.drawTexture(BACKGROUND, buttons.get(5).getX(), buttons.get(5).getY(), 40, 166, 53, 20);
+        // Button 5: Confirm button
+        if (buttons.size() > BTN_CONFIRM) {
+            ButtonWidget btn = buttons.get(BTN_CONFIRM);
+            if (!btn.isHovered())
+                context.drawTexture(BACKGROUND, btn.getX(), btn.getY(), 40, 166, 53, 20);
             else
-                context.drawTexture(BACKGROUND, buttons.get(5).getX(), buttons.get(5).getY(), 40, 186, 53, 20);
+                context.drawTexture(BACKGROUND, btn.getX(), btn.getY(), 40, 186, 53, 20);
             
             // Draw "Confirm" text
             context.drawCenteredTextWithShadow(this.textRenderer,
                     Text.literal("Confirm").formatted(Formatting.BOLD),
-                    buttons.get(5).getX() + 26, buttons.get(5).getY() + 6, 0xFFFFFF);
+                    btn.getX() + 26, btn.getY() + 6, 0xFFFFFF);
         }
         
-        // Cancel button (interior settings style)
-        if (buttons.size() > 6) {
-            if (!buttons.get(6).isHovered())
-                context.drawTexture(BACKGROUND, buttons.get(6).getX(), buttons.get(6).getY(), 186, 166, 20, 20);
+        // Button 6: Cancel button
+        if (buttons.size() > BTN_CANCEL) {
+            ButtonWidget btn = buttons.get(BTN_CANCEL);
+            if (!btn.isHovered())
+                context.drawTexture(BACKGROUND, btn.getX(), btn.getY(), 186, 166, 20, 20);
             else
-                context.drawTexture(BACKGROUND, buttons.get(6).getX(), buttons.get(6).getY(), 186, 186, 20, 20);
+                context.drawTexture(BACKGROUND, btn.getX(), btn.getY(), 186, 186, 20, 20);
         }
     }
 
