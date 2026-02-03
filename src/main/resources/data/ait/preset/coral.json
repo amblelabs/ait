@@ -1,0 +1,9 @@
+{
+  "id": "ait:coral",
+  "name": "Coral",
+  "exterior": "ait:exterior/police_box/coral",
+  "console": "ait:console/coral",
+  "desktop": "ait:coral",
+  "hum": "ait:coral",
+  "vortex": "ait:tennantblue"
+}

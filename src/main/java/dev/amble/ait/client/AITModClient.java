@@ -37,6 +37,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec3d;
@@ -77,6 +78,7 @@ import dev.amble.ait.client.renderers.sky.MarsSkyProperties;
 import dev.amble.ait.client.screens.AstralMapScreen;
 import dev.amble.ait.client.screens.BlueprintFabricatorScreen;
 import dev.amble.ait.client.screens.MonitorScreen;
+import dev.amble.ait.client.screens.preset.CreativePresetScreen;
 import dev.amble.ait.client.sonic.SonicModelLoader;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
@@ -244,6 +246,16 @@ public class AITModClient implements ClientModInitializer {
 
                     if (client.world.getBlockEntity(consolePos) instanceof ConsoleGeneratorBlockEntity console)
                         console.setVariant(id);
+                });
+
+        // Register preset screen packet receiver
+        ClientPlayNetworking.registerGlobalReceiver(TardisItemBuilder.OPEN_PRESET_SCREEN,
+                (client, handler, buf, responseSender) -> {
+                    BlockPos placePos = buf.readBlockPos();
+                    int facingHorizontal = buf.readInt();
+
+                    client.execute(() -> client.setScreenAndRender(
+                            new CreativePresetScreen(placePos, Direction.fromHorizontal(facingHorizontal))));
                 });
 
         WorldRenderEvents.END.register((context) -> SonicRendering.getInstance().renderWorld(context));

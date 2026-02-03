@@ -1,0 +1,9 @@
+{
+  "id": "ait:toyota",
+  "name": "Toyota",
+  "exterior": "ait:exterior/police_box/default",
+  "console": "ait:console/toyota",
+  "desktop": "ait:toyota",
+  "hum": "ait:toyota",
+  "vortex": "ait:capaldi"
+}
