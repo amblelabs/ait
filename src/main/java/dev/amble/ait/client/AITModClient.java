@@ -209,6 +209,27 @@ public class AITModClient implements ClientModInitializer {
 
             client.execute(() -> client.setScreenAndRender(screen));
         });
+        
+        // Register BOTI packet handlers to forward to PortalDataManager
+        ClientPlayNetworking.registerGlobalReceiver(dev.amble.ait.core.tardis.util.network.s2c.BOTIDataS2CPacket.TYPE,
+            (packet, player, responseSender) -> {
+                // Forward chunk data packets to PortalDataManager
+                try {
+                    dev.loqor.portal.client.PortalDataManager.get().handle(
+                        new net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket(
+                            new net.minecraft.util.math.ChunkPos(packet.chunkData.getInt("x"), packet.chunkData.getInt("z")),
+                            null, null, null
+                        )
+                    );
+                } catch (Exception e) {
+                    dev.amble.ait.AITMod.LOGGER.error("Failed to forward BOTI chunk data to PortalDataManager", e);
+                }
+            });
+        
+        ClientPlayNetworking.registerGlobalReceiver(dev.amble.ait.core.tardis.util.network.s2c.BOTISyncS2CPacket.TYPE,
+            (packet, player, responseSender) -> {
+                packet.handle(player, responseSender);
+            });
 
         ClientPlayNetworking.registerGlobalReceiver(OPEN_SCREEN_TARDIS, (client, handler, buf, responseSender) -> {
             int id = buf.readInt();

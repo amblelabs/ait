@@ -1,10 +1,15 @@
 package dev.loqor.portal.server;
 
 import dev.amble.ait.AITMod;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.light.LightingProvider;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,6 +26,9 @@ public class BOTIPortalTracker {
     
     // Track which chunks are being viewed through portals
     private final Map<ChunkPos, Set<ServerPlayerEntity>> chunkViewers = new ConcurrentHashMap<>();
+    
+    // Track which chunks have been sent to which players (per world)
+    private final Map<ServerPlayerEntity, Map<ServerWorld, Set<ChunkPos>>> sentChunks = new WeakHashMap<>();
     
     private BOTIPortalTracker() {
         // Private constructor for singleton
@@ -80,8 +88,16 @@ public class BOTIPortalTracker {
             ServerPlayerEntity player = entry.getKey();
             Set<PortalView> views = entry.getValue();
             
+            // Get or create sent chunks tracking for this player
+            Map<ServerWorld, Set<ChunkPos>> playerSentChunks = sentChunks.computeIfAbsent(player, k -> new HashMap<>());
+            
             // For each portal view this player has
             for (PortalView view : views) {
+                ServerWorld targetWorld = view.targetWorld;
+                
+                // Get or create sent chunks set for this world
+                Set<ChunkPos> worldSentChunks = playerSentChunks.computeIfAbsent(targetWorld, k -> new HashSet<>());
+                
                 // Calculate which chunks should be loaded for this view
                 int viewDistance = 8; // Could be configurable
                 ChunkPos centerChunk = new ChunkPos(view.targetPos);
@@ -94,12 +110,39 @@ public class BOTIPortalTracker {
                         // Track that this player is viewing this chunk
                         chunkViewers.computeIfAbsent(chunkPos, k -> new HashSet<>()).add(player);
                         
-                        // TODO: Send chunk data to player if not already sent
-                        // This would involve creating packets and sending them to the client
-                        // The packets would be handled by PortalDataManager on the client side
+                        // Send chunk data to player if not already sent
+                        if (!worldSentChunks.contains(chunkPos)) {
+                            sendChunkToPlayer(player, targetWorld, chunkPos);
+                            worldSentChunks.add(chunkPos);
+                        }
                     }
                 }
             }
+        }
+    }
+    
+    /**
+     * Sends chunk data to a specific player
+     */
+    private void sendChunkToPlayer(ServerPlayerEntity player, ServerWorld world, ChunkPos chunkPos) {
+        try {
+            // Load the chunk if needed
+            WorldChunk chunk = world.getChunk(chunkPos.x, chunkPos.z);
+            
+            if (chunk == null) {
+                return;
+            }
+            
+            // Create and send chunk data packet
+            ChunkDataS2CPacket chunkDataPacket = new ChunkDataS2CPacket(chunk, world.getLightingProvider(), null, null);
+            player.networkHandler.sendPacket(chunkDataPacket);
+            
+            AITMod.LOGGER.debug("Sent chunk {} in world {} to player {} for BOTI portal", 
+                chunkPos, world.getRegistryKey().getValue(), player.getName().getString());
+            
+        } catch (Exception e) {
+            AITMod.LOGGER.error("Failed to send chunk {} to player {}: {}", 
+                chunkPos, player.getName().getString(), e.getMessage());
         }
     }
     
@@ -111,7 +154,16 @@ public class BOTIPortalTracker {
         Set<ServerPlayerEntity> viewers = chunkViewers.get(pos);
         if (viewers != null && !viewers.isEmpty()) {
             AITMod.LOGGER.debug("Chunk {} loaded, {} players viewing through portal", pos, viewers.size());
-            // TODO: Send chunk data to viewers
+            
+            // Send chunk data to all viewers
+            for (ServerPlayerEntity viewer : viewers) {
+                sendChunkToPlayer(viewer, world, pos);
+                
+                // Mark as sent for this player
+                Map<ServerWorld, Set<ChunkPos>> playerSentChunks = sentChunks.computeIfAbsent(viewer, k -> new HashMap<>());
+                Set<ChunkPos> worldSentChunks = playerSentChunks.computeIfAbsent(world, k -> new HashSet<>());
+                worldSentChunks.add(pos);
+            }
         }
     }
     
@@ -123,7 +175,21 @@ public class BOTIPortalTracker {
         Set<ServerPlayerEntity> viewers = chunkViewers.remove(pos);
         if (viewers != null && !viewers.isEmpty()) {
             AITMod.LOGGER.debug("Chunk {} unloaded, was viewed by {} players", pos, viewers.size());
-            // TODO: Notify clients that chunk is no longer available
+            
+            // Send unload packet to all viewers
+            UnloadChunkS2CPacket unloadPacket = new UnloadChunkS2CPacket(pos.x, pos.z);
+            for (ServerPlayerEntity viewer : viewers) {
+                viewer.networkHandler.sendPacket(unloadPacket);
+                
+                // Remove from sent chunks tracking
+                Map<ServerWorld, Set<ChunkPos>> playerSentChunks = sentChunks.get(viewer);
+                if (playerSentChunks != null) {
+                    Set<ChunkPos> worldSentChunks = playerSentChunks.get(world);
+                    if (worldSentChunks != null) {
+                        worldSentChunks.remove(pos);
+                    }
+                }
+            }
         }
     }
     
@@ -135,6 +201,9 @@ public class BOTIPortalTracker {
         
         // Remove player from all chunk viewer sets
         chunkViewers.values().forEach(viewers -> viewers.remove(player));
+        
+        // Remove sent chunks tracking
+        sentChunks.remove(player);
         
         AITMod.LOGGER.info("Cleaned up portal tracking for disconnected player {}", 
             player.getName().getString());

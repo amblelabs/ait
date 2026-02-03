@@ -85,6 +85,7 @@ import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.loqor.portal.server.BOTIServerEvents;
 
 public class AITMod implements ModInitializer {
 
@@ -202,6 +203,9 @@ public class AITMod implements ModInitializer {
 
         ServerTardisManager.init();
         TardisCriterions.init();
+        
+        // Initialize BOTI server-side tracking
+        BOTIServerEvents.init();
 
         entityAttributeRegister();
 
