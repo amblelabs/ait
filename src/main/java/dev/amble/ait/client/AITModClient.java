@@ -301,6 +301,7 @@ public class AITModClient implements ClientModInitializer {
             BOTI.EXTERIOR_RENDER_QUEUE.clear();
             BOTI.GALLIFREYAN_RENDER_QUEUE.clear();
             BOTI.TRENZALORE_PAINTING_QUEUE.clear();
+            dev.loqor.portal.client.BOTIClientTracker.clearAll();
         });
         
         // Cleanup when world changes (dimension change, etc.)
@@ -559,6 +560,22 @@ public class AITModClient implements ClientModInitializer {
             int light = world.getLightLevel(pos);
             if ((tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) && !tardis.isGrowth()) {
                 light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
+                
+                // Notify server that we're viewing interior through exterior door
+                try {
+                    dev.amble.lib.data.DirectedBlockPos interiorDoorPos = tardis.getDesktop().getDoorPos();
+                    if (interiorDoorPos != null) {
+                        dev.loqor.portal.client.BOTIClientTracker.startWatching(
+                            tardis.getUuid(),
+                            true, // exterior to interior view
+                            dev.amble.ait.core.AITDimensions.TARDIS_DIM_WORLD,
+                            interiorDoorPos.getPos()
+                        );
+                    }
+                } catch (Exception e) {
+                    // Silent fail
+                }
+                
                 TardisExteriorBOTI boti = new TardisExteriorBOTI();
                 boti.renderExteriorBoti(exterior, variant, stack,
                         AITMod.id("textures/environment/tardis_sky.png"), model,
@@ -600,6 +617,22 @@ public class AITModClient implements ClientModInitializer {
                 int light = world.getLightLevel(pos.up());
                 if ((tardis.door().getLeftRot() > 0  || variant.hasTransparentDoors()) && !tardis.isGrowth()) {
                     light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
+                    
+                    // Notify server that we're viewing exterior through interior door
+                    try {
+                        dev.amble.lib.data.DirectedGlobalPos exteriorPos = tardis.travel().position();
+                        if (exteriorPos != null && exteriorPos.getWorld() != null) {
+                            dev.loqor.portal.client.BOTIClientTracker.startWatching(
+                                tardis.getUuid(),
+                                false, // interior to exterior view
+                                exteriorPos.getWorld(),
+                                exteriorPos.getPos()
+                            );
+                        }
+                    } catch (Exception e) {
+                        // Silent fail
+                    }
+                    
                     TardisDoorBOTI.renderInteriorDoorBoti(tardis, door, variant, stack,
                             AITMod.id("textures/environment/tardis_sky.png"), model,
                             BotiPortalModel.getTexturedModelData().createModel(), light, context.tickDelta());

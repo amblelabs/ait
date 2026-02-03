@@ -2,6 +2,8 @@ package dev.loqor.portal.server;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.util.network.c2s.BOTIChunkRequestC2SPacket;
+import dev.amble.ait.core.tardis.util.network.c2s.StartWatchingPortalC2SPacket;
+import dev.amble.ait.core.tardis.util.network.c2s.StopWatchingPortalC2SPacket;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -26,6 +28,16 @@ public class BOTIServerEvents {
         
         // Register packet handlers
         ServerPlayNetworking.registerGlobalReceiver(BOTIChunkRequestC2SPacket.TYPE, 
+            (packet, player, responseSender) -> {
+                packet.handle(player, responseSender);
+            });
+        
+        ServerPlayNetworking.registerGlobalReceiver(StartWatchingPortalC2SPacket.TYPE,
+            (packet, player, responseSender) -> {
+                packet.handle(player, responseSender);
+            });
+        
+        ServerPlayNetworking.registerGlobalReceiver(StopWatchingPortalC2SPacket.TYPE,
             (packet, player, responseSender) -> {
                 packet.handle(player, responseSender);
             });
