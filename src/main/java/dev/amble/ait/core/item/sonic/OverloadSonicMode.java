@@ -2,6 +2,7 @@ package dev.amble.ait.core.item.sonic;
 
 import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.BlockStateParticleEffect;
@@ -58,6 +59,15 @@ public class OverloadSonicMode extends SonicMode {
 
         if (hitResult instanceof BlockHitResult blockHit) {
             this.overloadBlock(blockHit.getBlockPos(), world, user, ticks, blockHit);
+        }
+
+        // Check for entity hits (creepers, players)
+        HitResult collisionResult = SonicMode.getHitResult(user);
+        if (collisionResult instanceof EntityHitResult entityHit) {
+            // Ignite creepers when targeted
+            if (entityHit.getEntity() instanceof CreeperEntity creeper && canLight(ticks)) {
+                creeper.ignite();
+            }
         }
 
         if (!(user instanceof PlayerEntity player)) return;
