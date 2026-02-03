@@ -101,8 +101,9 @@ public class RiftEntity extends AbstractDecorationEntity implements ISpaceImmune
 
         if (riftEntity == null) return Optional.empty();
 
-        riftEntity.setPosition(pos.getX(), pos.getY(), pos.getZ());
+        // Set facing first, then position - AbstractDecorationEntity uses facing to calculate attachment
         riftEntity.setFacing(facing);
+        riftEntity.setPosition(pos.getX(), pos.getY(), pos.getZ());
 
         if (riftEntity.canStayAttached()) {
             return Optional.of(riftEntity);
@@ -302,7 +303,7 @@ public class RiftEntity extends AbstractDecorationEntity implements ISpaceImmune
 
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
-        nbt.putByte("facing", (byte) this.facing.getHorizontal());
+        nbt.putByte("facing", (byte) this.facing.getId());
         nbt.putInt("remainingLife", this.remainingLife);
         nbt.putInt("age", this.age);
         nbt.putFloat("scale", this.getScale());
@@ -312,7 +313,7 @@ public class RiftEntity extends AbstractDecorationEntity implements ISpaceImmune
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
-        this.facing = Direction.fromHorizontal(nbt.getByte("facing"));
+        this.facing = Direction.byId(nbt.getByte("facing"));
         this.remainingLife = nbt.getInt("remainingLife");
         this.age = nbt.getInt("age");
         this.setScale(nbt.getFloat("scale"));

@@ -11,6 +11,7 @@ import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.AITMod;
@@ -44,7 +45,10 @@ public class RiftEntityRenderer
         if (scale <= 0.01f) return; // Don't render if scale is too small
 
         matrixStack.push();
-        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180 - riftEntity.getYaw()));
+        // Use the horizontal facing direction for rotation, similar to how paintings work
+        Direction facing = riftEntity.getHorizontalFacing();
+        float rotation = 180 - facing.asRotation();
+        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rotation));
         matrixStack.translate(0, -0.9, 0.05);
         // Apply the scale from the rift entity for growth/shrink animation
         matrixStack.scale(scale, scale, scale);
