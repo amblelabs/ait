@@ -40,17 +40,21 @@ public class RiftEntityRenderer
             return;
         }
 
+        float scale = riftEntity.getScale();
+        if (scale <= 0.01f) return; // Don't render if scale is too small
+
         matrixStack.push();
-        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
+        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180 - riftEntity.getYaw()));
         matrixStack.translate(0, -0.9, 0.05);
-        matrixStack.scale(1, 1, 1);
+        // Apply the scale from the rift entity for growth/shrink animation
+        matrixStack.scale(scale, scale, scale);
         frame.render(matrixStack, vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucentCull(RIFT_TEXTURE)), 0xf000f0, OverlayTexture.DEFAULT_UV, 0.6f, 0.0f, 1, 1);
         matrixStack.pop();
     }
 
     @Override
     public Identifier getTexture(RiftEntity entity) {
-        return null;
+        return RIFT_TEXTURE;
     }
 
 }
