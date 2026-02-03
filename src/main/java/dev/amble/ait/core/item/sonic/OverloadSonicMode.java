@@ -61,7 +61,7 @@ public class OverloadSonicMode extends SonicMode {
             this.overloadBlock(blockHit.getBlockPos(), world, user, ticks, blockHit);
         }
 
-        // Check for entity hits (creepers, players)
+        // Check for entity hits (currently only creepers)
         HitResult collisionResult = SonicMode.getHitResult(user);
         if (collisionResult instanceof EntityHitResult entityHit) {
             // Ignite creepers when targeted
