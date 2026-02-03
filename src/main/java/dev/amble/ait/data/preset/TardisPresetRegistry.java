@@ -1,9 +1,6 @@
 package dev.amble.ait.data.preset;
 
 import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-
-import net.minecraft.resource.ResourceType;
 
 import dev.amble.ait.AITMod;
 
@@ -28,12 +25,6 @@ public class TardisPresetRegistry extends SimpleDatapackRegistry<TardisPreset> {
 
     public static TardisPresetRegistry getInstance() {
         return instance;
-    }
-
-    @Override
-    public void onCommonInit() {
-        super.onCommonInit();
-        ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(this);
     }
 
     /**
