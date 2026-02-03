@@ -37,6 +37,7 @@ import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
 import dev.amble.ait.data.hum.Hum;
 import dev.amble.ait.data.preset.TardisPreset;
+import dev.amble.ait.data.preset.TardisPresetHandler;
 import dev.amble.ait.data.preset.TardisPresetRegistry;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
@@ -54,7 +55,6 @@ import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
  */
 @Environment(EnvType.CLIENT)
 public class CreativePresetScreen extends Screen {
-    public static final Identifier CONFIRM_PRESET = AITMod.id("confirm_preset");
     
     private static final Identifier BACKGROUND = new Identifier(AITMod.MOD_ID,
             "textures/gui/tardis/monitor/monitor_gui.png");
@@ -141,7 +141,7 @@ public class CreativePresetScreen extends Screen {
         if (!presets.isEmpty()) {
             this.selectedPreset = presets.get(0);
         } else {
-            this.selectedPreset = TardisPresetRegistry.HARTNELL;
+            this.selectedPreset = TardisPresetRegistry.getInstance().fallback();
         }
         
         this.createButtons();
@@ -264,7 +264,7 @@ public class CreativePresetScreen extends Screen {
         buf.writeBlockPos(placePos);
         buf.writeInt(playerFacing.getHorizontal());
         
-        ClientPlayNetworking.send(CONFIRM_PRESET, buf);
+        ClientPlayNetworking.send(TardisPresetHandler.CONFIRM_PRESET, buf);
         this.close();
     }
 
@@ -548,40 +548,49 @@ public class CreativePresetScreen extends Screen {
     }
 
     // Helper methods to get registry entries for preset
+    private TardisPreset getFallbackPreset() {
+        TardisPreset fallback = TardisPresetRegistry.getInstance().fallback();
+        return fallback != null ? fallback : selectedPreset;
+    }
+
     private ExteriorVariantSchema getExteriorForPreset() {
         if (selectedPreset == null) return null;
+        TardisPreset fallback = getFallbackPreset();
         return selectedPreset.exterior()
                 .map(id -> ExteriorVariantRegistry.getInstance().get(id))
-                .orElseGet(() -> TardisPresetRegistry.HARTNELL.exterior()
+                .orElseGet(() -> fallback != null ? fallback.exterior()
                         .map(id -> ExteriorVariantRegistry.getInstance().get(id))
-                        .orElse(null));
+                        .orElse(null) : null);
     }
 
     private ConsoleVariantSchema getConsoleForPreset() {
         if (selectedPreset == null) return null;
+        TardisPreset fallback = getFallbackPreset();
         return selectedPreset.console()
                 .map(id -> ConsoleVariantRegistry.getInstance().get(id))
-                .orElseGet(() -> TardisPresetRegistry.HARTNELL.console()
+                .orElseGet(() -> fallback != null ? fallback.console()
                         .map(id -> ConsoleVariantRegistry.getInstance().get(id))
-                        .orElse(null));
+                        .orElse(null) : null);
     }
 
     private TardisDesktopSchema getDesktopForPreset() {
         if (selectedPreset == null) return null;
+        TardisPreset fallback = getFallbackPreset();
         return selectedPreset.desktop()
                 .map(id -> DesktopRegistry.getInstance().get(id))
-                .orElseGet(() -> TardisPresetRegistry.HARTNELL.desktop()
+                .orElseGet(() -> fallback != null ? fallback.desktop()
                         .map(id -> DesktopRegistry.getInstance().get(id))
-                        .orElse(null));
+                        .orElse(null) : null);
     }
 
     private Hum getHumForPreset() {
         if (selectedPreset == null) return null;
+        TardisPreset fallback = getFallbackPreset();
         return selectedPreset.hum()
                 .map(id -> HumRegistry.getInstance().get(id))
-                .orElseGet(() -> TardisPresetRegistry.HARTNELL.hum()
+                .orElseGet(() -> fallback != null ? fallback.hum()
                         .map(id -> HumRegistry.getInstance().get(id))
-                        .orElse(HumRegistry.CORAL));
+                        .orElse(HumRegistry.CORAL) : HumRegistry.CORAL);
     }
 
     private TardisAnimation getTakeoffAnimationForPreset() {

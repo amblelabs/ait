@@ -14,7 +14,6 @@ import net.minecraft.util.math.RotationPropertyHelper;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.client.screens.preset.CreativePresetScreen;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.sounds.flight.FlightSound;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
@@ -44,9 +43,10 @@ import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
  * Handles the server-side logic for creating a TARDIS with a preset.
  */
 public class TardisPresetHandler {
+    public static final Identifier CONFIRM_PRESET = AITMod.id("confirm_preset");
 
     public static void init() {
-        ServerPlayNetworking.registerGlobalReceiver(CreativePresetScreen.CONFIRM_PRESET,
+        ServerPlayNetworking.registerGlobalReceiver(CONFIRM_PRESET,
                 (server, player, handler, buf, responseSender) -> {
                     Identifier presetId = buf.readIdentifier();
                     BlockPos placePos = buf.readBlockPos();
@@ -82,57 +82,62 @@ public class TardisPresetHandler {
 
         CachedDirectedGlobalPos pos = CachedDirectedGlobalPos.create(serverWorld, actualPos, (byte) rotation);
 
-        // Get fallback values from Hartnell preset
-        TardisPreset fallback = TardisPresetRegistry.HARTNELL;
+        // Get fallback values from Hartnell preset (using registry fallback to handle loading order)
+        TardisPreset fallback = TardisPresetRegistry.getInstance().fallback();
+        if (fallback == null) {
+            fallback = preset; // Use the selected preset as fallback if hartnell isn't loaded
+        }
+
+        final TardisPreset resolvedFallback = fallback;
 
         // Resolve exterior
         ExteriorVariantSchema exterior = preset.exterior()
                 .map(id -> ExteriorVariantRegistry.getInstance().get(id))
-                .orElseGet(() -> fallback.exterior()
+                .orElseGet(() -> resolvedFallback.exterior()
                         .map(id -> ExteriorVariantRegistry.getInstance().get(id))
                         .orElseGet(() -> ExteriorVariantRegistry.getInstance().getRandom()));
 
         // Resolve desktop
         TardisDesktopSchema desktop = preset.desktop()
                 .map(id -> DesktopRegistry.getInstance().get(id))
-                .orElseGet(() -> fallback.desktop()
+                .orElseGet(() -> resolvedFallback.desktop()
                         .map(id -> DesktopRegistry.getInstance().get(id))
                         .orElseGet(() -> DesktopRegistry.getInstance().getRandom()));
 
         // Resolve hum
         final Hum hum = preset.hum()
                 .map(id -> HumRegistry.getInstance().get(id))
-                .orElseGet(() -> fallback.hum()
+                .orElseGet(() -> resolvedFallback.hum()
                         .map(id -> HumRegistry.getInstance().get(id))
                         .orElse(HumRegistry.CORAL));
 
         // Resolve vortex
         final VortexReference vortex = preset.vortex()
                 .map(id -> VortexReferenceRegistry.getInstance().get(id))
-                .orElseGet(() -> fallback.vortex()
+                .orElseGet(() -> resolvedFallback.vortex()
                         .map(id -> VortexReferenceRegistry.getInstance().get(id))
                         .orElse(VortexReferenceRegistry.TOYOTA));
 
         // Resolve flight sound
         final FlightSound flightSound = preset.flightSound()
                 .map(id -> FlightSoundRegistry.getInstance().get(id))
-                .orElseGet(() -> fallback.flightSound()
+                .orElseGet(() -> resolvedFallback.flightSound()
                         .map(id -> FlightSoundRegistry.getInstance().get(id))
                         .orElse(FlightSoundRegistry.DEFAULT));
 
         // Resolve takeoff animation ID
         final Identifier takeoffAnimId = preset.takeoffSound()
-                .orElseGet(() -> fallback.takeoffSound()
+                .orElseGet(() -> resolvedFallback.takeoffSound()
                         .orElse(TardisAnimationRegistry.DEFAULT_DEMAT));
 
         // Resolve landing animation ID
         final Identifier landingAnimId = preset.landingSound()
-                .orElseGet(() -> fallback.landingSound()
+                .orElseGet(() -> resolvedFallback.landingSound()
                         .orElse(TardisAnimationRegistry.DEFAULT_MAT));
 
         // Resolve console variant ID for later use (applied when console links)
         final Identifier consoleVariantId = preset.console()
-                .orElseGet(() -> fallback.console().orElse(null));
+                .orElseGet(() -> resolvedFallback.console().orElse(null));
 
         // Build the TARDIS
         TardisBuilder builder = new TardisBuilder().at(pos)
