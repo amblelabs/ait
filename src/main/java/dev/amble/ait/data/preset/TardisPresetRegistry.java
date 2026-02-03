@@ -33,7 +33,7 @@ public class TardisPresetRegistry extends SimpleDatapackRegistry<TardisPreset> {
     @Override
     public void onCommonInit() {
         super.onCommonInit();
-        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(this);
+        ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(this);
     }
 
     /**
@@ -56,11 +56,17 @@ public class TardisPresetRegistry extends SimpleDatapackRegistry<TardisPreset> {
 
     @Override
     public TardisPreset fallback() {
-        // Return Hartnell preset as fallback, or create a minimal fallback if not yet loaded
+        // Return Hartnell preset as fallback
         if (HARTNELL != null) {
             return HARTNELL;
         }
-        // Fallback in case presets haven't loaded yet
-        return this.get(AITMod.id("hartnell"));
+        // Try to get from registry
+        TardisPreset hartnell = this.get(AITMod.id("hartnell"));
+        if (hartnell != null) {
+            return hartnell;
+        }
+        // Return first available preset, or null if registry is empty
+        var list = this.toList();
+        return list.isEmpty() ? null : list.get(0);
     }
 }

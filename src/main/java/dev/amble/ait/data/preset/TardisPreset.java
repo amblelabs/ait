@@ -55,12 +55,12 @@ public record TardisPreset(
 
     @Override
     public Identifier id() {
-        return this.id;
+        return id;
     }
 
     @Override
     public String name() {
-        return this.name;
+        return name;
     }
 
     public static TardisPreset fromInputStream(InputStream stream) {

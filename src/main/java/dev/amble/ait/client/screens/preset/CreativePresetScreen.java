@@ -444,16 +444,20 @@ public class CreativePresetScreen extends Screen {
         TardisDesktopSchema desktop = getDesktopForPreset();
         if (desktop == null) return;
         
-        Identifier previewTexture = desktop.previewTexture().texture();
+        var preview = desktop.previewTexture();
+        Identifier previewTexture = preview.texture();
         boolean exists = MinecraftClient.getInstance().getResourceManager().getResource(previewTexture).isPresent();
+        
+        int previewWidth = preview.width * 2;
+        int previewHeight = preview.height * 2;
         
         context.drawTexture(
                 exists ? previewTexture : MISSING_PREVIEW,
                 x - 47, y - 25, 95, 95, 0, 0, 
-                desktop.previewTexture().width * 2,
-                desktop.previewTexture().height * 2, 
-                desktop.previewTexture().width * 2,
-                desktop.previewTexture().height * 2);
+                previewWidth,
+                previewHeight, 
+                previewWidth,
+                previewHeight);
     }
 
     private void drawVortexPreview(DrawContext context, int x, int y) {
