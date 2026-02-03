@@ -82,6 +82,10 @@ public class AITServerConfig {
     @SerialEntry public int travelPerTick = 2;
 
     @AutoGen(category = CATEGORY)
+    @IntField(min = 256, max = 65536)
+    @SerialEntry public int astralMapBiomeLocatorRange = 6400;
+
+    @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean sendBulk = true;
 

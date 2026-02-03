@@ -838,6 +838,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.travelPerTick", "Travel Per Tick");
         provider.addTranslation("yacl3.config.ait:server.sendBulk", "Send Bulk?");
         provider.addTranslation("yacl3.config.ait:server.maxTardises", "Max Amount Of Tardises");
+        provider.addTranslation("yacl3.config.ait:server.astralMapBiomeLocatorRange", "Block Radius Of Biome Finder For Astral Map");
         provider.addTranslation("yacl3.config.ait:client.showConsoleMonitorText", "Show text on console monitors?");
         provider.addTranslation("yacl3.config.ait:client.showCRTMonitorText", "Show text on CRT monitors?");
         provider.addTranslation("yacl3.config.ait:client.renderDematParticles", "Render demat particles?");
@@ -1082,6 +1083,18 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         provider.addTranslation("painting.ait.peanut.title", "Peanut");
         provider.addTranslation("painting.ait.peanut.author", "???");
+
+        // Astral Map
+        provider.addTranslation("screen.ait.astral_map.structures.button", "STRUCTURES");
+        provider.addTranslation("screen.ait.astral_map.biomes.button", "BIOMES");
+        provider.addTranslation("screen.ait.astral_map.search.button", "SEARCH");
+        provider.addTranslation("screen.ait.astral_map.loading", "LOADING");
+        provider.addTranslation("screen.ait.astral_map.switcher.left_arrow", "<");
+        provider.addTranslation("screen.ait.astral_map.switcher.right_arrow", ">");
+        provider.addTranslation("block.ait.astral_map.finder.not_found", "404: BIOME NOT FOUND");
+        provider.addTranslation("block.ait.astral_map.finder.searching_for_biome", "SEARCHING FOR BIOME...");
+        provider.addTranslation("block.ait.astral_map.finder.searching_for_structure", "SEARCHING FOR STRUCTURE...");
+        provider.addTranslation("block.ait.astral_map.finder.found", "SUCCESS! FOUND AT %s, %s, %s ( %s blocks away )");
 
         // Death
         provider.addTranslation("death.attack.tardis_squash", "%1$s got squashed by a TARDIS!");
