@@ -211,6 +211,11 @@ public class AITModClient implements ClientModInitializer {
         });
         
         // Register BOTI packet handlers
+        ClientPlayNetworking.registerGlobalReceiver(dev.amble.ait.core.tardis.util.network.s2c.BOTIChunkDataS2CPacket.TYPE,
+            (packet, player, responseSender) -> {
+                packet.handle();
+            });
+        
         ClientPlayNetworking.registerGlobalReceiver(dev.amble.ait.core.tardis.util.network.s2c.BOTIDataS2CPacket.TYPE,
             (packet, player, responseSender) -> {
                 packet.handle(player, responseSender);

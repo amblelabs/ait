@@ -1,6 +1,7 @@
 package dev.loqor.portal.server;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.util.network.s2c.BOTIChunkDataS2CPacket;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -122,7 +123,7 @@ public class BOTIPortalTracker {
     }
     
     /**
-     * Sends chunk data to a specific player
+     * Sends chunk data to a specific player via BOTI wrapper packet
      */
     private void sendChunkToPlayer(ServerPlayerEntity player, ServerWorld world, ChunkPos chunkPos) {
         try {
@@ -133,12 +134,37 @@ public class BOTIPortalTracker {
                 return;
             }
             
-            // Create and send chunk data packet
-            ChunkDataS2CPacket chunkDataPacket = new ChunkDataS2CPacket(chunk, world.getLightingProvider(), null, null);
-            player.networkHandler.sendPacket(chunkDataPacket);
+            // Find which portal view this is for
+            Set<PortalView> views = playerPortalViews.get(player);
+            if (views == null || views.isEmpty()) {
+                return;
+            }
             
-            AITMod.LOGGER.debug("Sent chunk {} in world {} to player {} for BOTI portal", 
-                chunkPos, world.getRegistryKey().getValue(), player.getName().getString());
+            // Get the first matching view for this world
+            PortalView view = views.stream()
+                .filter(v -> v.targetWorld.equals(world))
+                .findFirst()
+                .orElse(null);
+            
+            if (view == null) {
+                return;
+            }
+            
+            // Create chunk data packet
+            ChunkDataS2CPacket chunkDataPacket = new ChunkDataS2CPacket(chunk, world.getLightingProvider(), null, null);
+            
+            // Wrap in BOTI packet to route to correct portal data manager
+            BOTIChunkDataS2CPacket botiPacket = new BOTIChunkDataS2CPacket(
+                view.tardisId,
+                view.isExteriorView,
+                chunkDataPacket
+            );
+            
+            // Send the wrapped packet using Fabric's networking API
+            ServerPlayNetworking.send(player, botiPacket);
+            
+            AITMod.LOGGER.debug("Sent BOTI chunk {} in world {} to player {} (exteriorView: {})", 
+                chunkPos, world.getRegistryKey().getValue(), player.getName().getString(), view.isExteriorView);
             
         } catch (Exception e) {
             AITMod.LOGGER.error("Failed to send chunk {} to player {}: {}", 
