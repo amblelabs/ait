@@ -28,7 +28,6 @@ public class TardisBuilder {
     private TardisDesktopSchema desktop;
     private ExteriorVariantSchema exterior;
 
-    private final List<Consumer<ServerTardis>> preInit = new ArrayList<>();
     private final List<Consumer<ServerTardis>> postInit = new ArrayList<>();
 
     public TardisBuilder(UUID uuid) {
@@ -56,19 +55,6 @@ public class TardisBuilder {
 
     public <T extends TardisComponent> TardisBuilder with(TardisComponent.Id id, Consumer<T> consumer) {
         this.postInit.add(tardis -> {
-            T t = tardis.handler(id);
-            consumer.accept(t);
-        });
-
-        return this;
-    }
-
-    /**
-     * Adds a consumer that runs BEFORE Tardis.init() is called.
-     * Use this for setting up data that needs to be available during interior generation.
-     */
-    public <T extends TardisComponent> TardisBuilder withEarly(TardisComponent.Id id, Consumer<T> consumer) {
-        this.preInit.add(tardis -> {
             T t = tardis.handler(id);
             consumer.accept(t);
         });
@@ -104,11 +90,6 @@ public class TardisBuilder {
         this.validate();
 
         ServerTardis tardis = new ServerTardis(this.uuid, this.desktop, this.exterior);
-
-        // Run preInit consumers before Tardis.init() so data is available during interior generation
-        for (Consumer<ServerTardis> consumer : this.preInit) {
-            consumer.accept(tardis);
-        }
 
         Tardis.init(tardis, TardisComponent.InitContext.createdAt(this.pos));
 

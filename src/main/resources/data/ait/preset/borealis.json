@@ -1,9 +1,0 @@
-{
-  "id": "ait:borealis",
-  "name": "Borealis",
-  "exterior": "ait:exterior/police_box/default",
-  "console": "ait:console/borealis",
-  "desktop": "ait:alnico",
-  "hum": "ait:coral",
-  "vortex": "ait:starlight"
-}
