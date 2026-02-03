@@ -47,7 +47,14 @@ public class ExteriorPortalDataManager extends PortalDataManager {
         worldRenderer.setWorld(world);
 
         AITMod.LOGGER.info("Created ExteriorPortalDataManager");
-        return instance = new ExteriorPortalDataManager(world, worldRenderer);
+        instance = new ExteriorPortalDataManager(world, worldRenderer);
+        
+        // Set up callback to mark interior renderers dirty when exterior chunks load
+        instance.setOnChunkLoadedCallback(() -> {
+            dev.amble.ait.client.boti.BOTI.markAllInteriorRenderersDirty();
+        });
+        
+        return instance;
     }
 
     /**

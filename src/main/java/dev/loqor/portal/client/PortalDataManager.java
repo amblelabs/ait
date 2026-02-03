@@ -28,9 +28,19 @@ public class PortalDataManager {
 
     private final ClientWorld world;
     public final WorldRenderer worldRenderer;
+    
+    // Callback for when chunks are loaded - used to notify renderers to rebuild
+    protected Runnable onChunkLoadedCallback = null;
 
     public void reset() {
         instance = null;
+    }
+    
+    /**
+     * Set a callback to be invoked when a chunk is loaded into the fake world
+     */
+    public void setOnChunkLoadedCallback(Runnable callback) {
+        this.onChunkLoadedCallback = callback;
     }
 
     private PortalDataManager(ClientWorld world, WorldRenderer worldRenderer) {
@@ -199,6 +209,11 @@ public class PortalDataManager {
             int j = this.world.sectionIndexToCoord(i);
             lightingProvider.setSectionStatus(ChunkSectionPos.from(chunkPos, j), chunkSection.isEmpty());
             this.world.scheduleBlockRenders(x, j, z);
+        }
+        
+        // Notify callback that a chunk was loaded (for WorldGeometryRenderer to rebuild)
+        if (onChunkLoadedCallback != null) {
+            onChunkLoadedCallback.run();
         }
     }
 }

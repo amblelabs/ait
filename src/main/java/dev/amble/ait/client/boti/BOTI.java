@@ -63,6 +63,15 @@ public class BOTI {
             return renderer;
         });
     }
+    
+    /**
+     * Mark all interior renderers dirty (for when exterior portal manager loads chunks)
+     */
+    public static void markAllInteriorRenderersDirty() {
+        for (WorldGeometryRenderer renderer : INTERIOR_RENDERERS.values()) {
+            renderer.markDirty();
+        }
+    }
 
     /**
      * Gets or creates an exterior renderer for a specific TARDIS
@@ -91,6 +100,15 @@ public class BOTI {
             }
             return renderer;
         });
+    }
+    
+    /**
+     * Mark all exterior renderers dirty (for when interior portal manager loads chunks)
+     */
+    public static void markAllExteriorRenderersDirty() {
+        for (WorldGeometryRenderer renderer : EXTERIOR_RENDERERS.values()) {
+            renderer.markDirty();
+        }
     }
 
     /**
