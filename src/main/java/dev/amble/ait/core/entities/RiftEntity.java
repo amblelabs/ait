@@ -1,42 +1,56 @@
 package dev.amble.ait.core.entities;
 
+import java.util.Optional;
+
+import org.jetbrains.annotations.Nullable;
+
 import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.lib.util.TeleportUtil;
 
 import net.minecraft.block.*;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.decoration.AbstractDecorationEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.*;
 import net.minecraft.world.chunk.Chunk;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.*;
-import dev.amble.ait.core.entities.base.DummyAmbientEntity;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.util.StackUtil;
 import dev.amble.ait.core.util.TagsUtil;
 import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.module.planet.core.util.ISpaceImmune;
 
-public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
+public class RiftEntity extends AbstractDecorationEntity implements ISpaceImmune {
+    private static final int WIDTH = 48;
+    private static final int HEIGHT = 48;
+
+    // Lifespan in ticks (default 5 minutes = 6000 ticks)
+    private static final int DEFAULT_LIFESPAN = 5 * 60 * 20;
+
     private int interactAmount = 0;
     private int ambientSoundCooldown = 0;
     private int currentSoundIndex = 0;
+    private int remainingLife = DEFAULT_LIFESPAN;
+    private int age = 0;
 
     private static final SoundEvent[] RIFT_SOUNDS = {
             AITSounds.RIFT1_AMBIENT,
@@ -44,20 +58,34 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
             AITSounds.RIFT3_AMBIENT
     };
 
-    @Override
-    public boolean canSpawn(WorldAccess world, SpawnReason spawnReason) {
-        return RiftEntity.canSpawn(AITEntityTypes.RIFT_ENTITY, (ServerWorldAccess) world, spawnReason, this.getBlockPos(),
-                this.getWorld().getRandom());
-    }
-
     private static final int[] RIFT_DURATIONS = {
             15 * 20,
             13 * 20,
             14 * 20
     };
 
-    public RiftEntity(EntityType<?> type, World world) {
-        super(AITEntityTypes.RIFT_ENTITY, world);
+    public RiftEntity(EntityType<? extends RiftEntity> type, World world) {
+        super(type, world);
+    }
+
+    /**
+     * Opens a rift at the given position facing the given direction.
+     * Returns the created rift entity if successful, empty otherwise.
+     */
+    public static Optional<RiftEntity> openRift(World world, BlockPos pos, Direction facing) {
+        RiftEntity riftEntity = AITEntityTypes.RIFT_ENTITY.create(world);
+
+        if (riftEntity == null) return Optional.empty();
+
+        // Set facing first, then position - AbstractDecorationEntity uses facing to calculate attachment
+        riftEntity.setFacing(facing);
+        riftEntity.setPosition(pos.getX(), pos.getY(), pos.getZ());
+
+        if (riftEntity.canStayAttached()) {
+            return Optional.of(riftEntity);
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -69,21 +97,19 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
     }
 
     @Override
-    public final ActionResult interactMob(PlayerEntity player, Hand hand) {
+    public ActionResult interact(PlayerEntity player, Hand hand) {
         if (this.getWorld().isClient()) return ActionResult.SUCCESS;
 
         ItemStack stack = player.getStackInHand(hand);
 
         if (stack.getItem() instanceof SonicItem sonic) {
-            if (!this.getWorld().isClient()) {
-                sonic.addFuel(1000, stack);
-                this.getWorld().playSound(null, this.getBlockPos(), AITSounds.RIFT_SONIC, SoundCategory.AMBIENT, 1f, 1f);
-                StackUtil.spawn(this.getWorld(), this.getBlockPos(), new ItemStack(AITItems.CORAL_FRAGMENT));
-                this.discard();
-            }
+            sonic.addFuel(1000, stack);
+            this.getWorld().playSound(null, this.getBlockPos(), AITSounds.RIFT_SONIC, SoundCategory.AMBIENT, 1f, 1f);
+            StackUtil.spawn(this.getWorld(), this.getBlockPos(), new ItemStack(AITItems.CORAL_FRAGMENT));
+            this.discard();
             return ActionResult.SUCCESS;
-
         }
+
         interactAmount += 1;
 
         if (interactAmount == 1) {
@@ -191,6 +217,17 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
         super.tick();
 
         if (!this.getWorld().isClient()) {
+            // Increment age
+            this.age++;
+
+            // Handle lifespan
+            this.remainingLife--;
+            if (this.remainingLife <= 0) {
+                this.discard();
+                return;
+            }
+
+            // Ambient sounds
             if (ambientSoundCooldown > 0) {
                 ambientSoundCooldown--;
             } else {
@@ -201,49 +238,79 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
         }
     }
 
-    public static boolean canSpawn(EntityType<RiftEntity> rift,
-                                   ServerWorldAccess serverWorldAccess, SpawnReason spawnReason,
-                                   BlockPos pos, net.minecraft.util.math.random.Random random) {
-        if (!(serverWorldAccess instanceof StructureWorldAccess worldAccess))
-            return false;
+    // AbstractDecorationEntity methods
 
-        if (!WorldUtil.canRiftsSpawn(serverWorldAccess.toServerWorld()))
-            return false;
+    @Override
+    public int getWidthPixels() {
+        return WIDTH;
+    }
 
-        boolean canSpawn = spawnReason == SpawnReason.STRUCTURE || (random.nextBoolean()
-                && random.nextBoolean() && RiftChunkManager.isRiftChunk(worldAccess, pos));
+    @Override
+    public int getHeightPixels() {
+        return HEIGHT;
+    }
 
-        if (!canSpawn)
-            return false;
+    @Override
+    public void onBreak(@Nullable Entity entity) {
+        // Rifts don't drop items when broken
+        this.playSound(SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, 1.0f, 1.0f);
+    }
 
-        Chunk chunk = worldAccess.getChunk(pos);
-        ChunkPos chunkPos = chunk.getPos();
-        BlockPos startPos = new BlockPos(chunkPos.getStartX(), chunk.getBottomY(), chunkPos.getStartZ());
-        BlockPos endPos = new BlockPos(chunkPos.getEndX(), worldAccess.getHeight(), chunkPos.getEndZ());
-        Box box = new Box(startPos, endPos);
+    @Override
+    public void onPlace() {
+        this.playSound(AITSounds.RIFT1_AMBIENT, 1.0f, 1.0f);
+    }
 
-        if (serverWorldAccess.getEntitiesByType(rift, box, predicate -> true).isEmpty())
-            return worldAccess.getBlockState(pos).isAir() && worldAccess.getBlockState(pos.down()).isAir();
+    @Override
+    public void writeCustomDataToNbt(NbtCompound nbt) {
+        nbt.putByte("facing", (byte) this.facing.getId());
+        nbt.putInt("remainingLife", this.remainingLife);
+        nbt.putInt("age", this.age);
+        nbt.putInt("interactAmount", this.interactAmount);
+        super.writeCustomDataToNbt(nbt);
+    }
 
-        return false;
+    @Override
+    public void readCustomDataFromNbt(NbtCompound nbt) {
+        this.facing = Direction.byId(nbt.getByte("facing"));
+        this.remainingLife = nbt.getInt("remainingLife");
+        this.age = nbt.getInt("age");
+        this.interactAmount = nbt.getInt("interactAmount");
+        super.readCustomDataFromNbt(nbt);
+        this.setFacing(this.facing);
+    }
+
+    @Override
+    public void refreshPositionAndAngles(double x, double y, double z, float yaw, float pitch) {
+        this.setPosition(x, y, z);
+    }
+
+    @Override
+    public void updateTrackedPositionAndAngles(double x, double y, double z, float yaw, float pitch, int interpolationSteps, boolean interpolate) {
+        this.setPosition(x, y, z);
+    }
+
+    @Override
+    public Vec3d getSyncedPos() {
+        return Vec3d.of(this.attachmentPos);
+    }
+
+    @Override
+    public Packet<ClientPlayPacketListener> createSpawnPacket() {
+        return new EntitySpawnS2CPacket(this, this.facing.getId(), this.getDecorationBlockPos());
     }
 
     @Override
     public void onSpawnPacket(EntitySpawnS2CPacket packet) {
-        double d = packet.getX();
-        double e = packet.getY();
-        double f = packet.getZ();
-        float g = packet.getYaw();
-        float h = packet.getPitch();
-        this.updateTrackedPosition(d, e, f);
-        this.bodyYaw = packet.getHeadYaw();
-        this.headYaw = packet.getHeadYaw();
-        this.prevBodyYaw = this.bodyYaw;
-        this.prevHeadYaw = this.headYaw;
-        this.setId(packet.getId());
-        this.setUuid(packet.getUuid());
-        this.updatePositionAndAngles(d, e, f, g, h);
-        this.setVelocity(packet.getVelocityX(), packet.getVelocityY(), packet.getVelocityZ());
-        this.updatePosition(d, e, f);
+        super.onSpawnPacket(packet);
+        this.setFacing(Direction.byId(packet.getEntityData()));
+    }
+
+    public int getRemainingLife() {
+        return this.remainingLife;
+    }
+
+    public int getAge() {
+        return this.age;
     }
 }

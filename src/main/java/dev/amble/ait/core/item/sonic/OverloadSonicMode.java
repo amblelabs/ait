@@ -1,5 +1,7 @@
 package dev.amble.ait.core.item.sonic;
 
+import java.util.Optional;
+
 import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.CreeperEntity;
@@ -18,6 +20,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
@@ -25,6 +28,7 @@ import net.minecraft.world.event.GameEvent;
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.control.Control;
@@ -150,6 +154,14 @@ public class OverloadSonicMode extends SonicMode {
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
 
+        // Check for zeiton blocks - try to open a rift if 3x3 area of zeiton blocks
+        if (state.isIn(AITTags.Blocks.ZEITON_BLOCKS) && canMakeRedstoneTweak(ticks)) {
+            if (tryOpenRiftOnZeiton(world, pos, user, blockHit)) {
+                playFx(world, pos);
+                return;
+            }
+        }
+
         if (!state.isIn(AITTags.Blocks.SONIC_INTERACTABLE) || !canMakeRedstoneTweak(ticks)) return;
 
         if (world.getBlockEntity(pos) instanceof AbstractLinkableBlockEntity ext && ext.isLinked()) {
@@ -196,6 +208,77 @@ public class OverloadSonicMode extends SonicMode {
             breakBlock(world, pos, user, state, blockHit);
         }
         playFx(world, pos);
+    }
+
+    /**
+     * Attempts to open a rift when using the sonic screwdriver in overload mode on a zeiton block.
+     * Requires a 3x3 area of zeiton blocks centered on the target block.
+     * The rift will be placed on the side of the center block that was hit.
+     *
+     * @return true if a rift was successfully opened
+     */
+    private boolean tryOpenRiftOnZeiton(ServerWorld world, BlockPos centerPos, LivingEntity user, BlockHitResult blockHit) {
+        // Get the direction the player is facing the block from
+        Direction facing = blockHit.getSide();
+
+        // Check if the center has a 3x3 area of zeiton blocks on the wall plane
+        if (!has3x3ZeitonArea(world, centerPos, facing)) {
+            return false;
+        }
+
+        // Position where the rift will be placed (in front of the center block)
+        BlockPos riftPos = centerPos.offset(facing);
+
+        // Try to open a rift at this position
+        Optional<RiftEntity> optionalRift = RiftEntity.openRift(world, riftPos, facing);
+
+        if (optionalRift.isPresent()) {
+            RiftEntity rift = optionalRift.get();
+            rift.onPlace();
+            world.emitGameEvent(user, GameEvent.ENTITY_PLACE, rift.getPos());
+            world.spawnEntity(rift);
+
+            // Play special effects
+            world.playSound(null, centerPos, AITSounds.RIFT1_AMBIENT, SoundCategory.BLOCKS, 1.0f, 1.0f);
+            world.spawnParticles(ParticleTypes.ELECTRIC_SPARK, centerPos.getX() + 0.5, centerPos.getY() + 0.5, centerPos.getZ() + 0.5, 20, 0.5, 0.5, 0.5, 0.1);
+            world.spawnParticles(ParticleTypes.PORTAL, riftPos.getX() + 0.5, riftPos.getY() + 0.5, riftPos.getZ() + 0.5, 30, 0.3, 0.3, 0.3, 0.5);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if there is a 3x3 area of zeiton blocks centered on the given position,
+     * on the plane perpendicular to the given facing direction (the wall plane).
+     * For example, if facing NORTH/SOUTH, checks X/Y plane. If facing UP/DOWN, checks X/Z plane.
+     */
+    private boolean has3x3ZeitonArea(ServerWorld world, BlockPos center, Direction facing) {
+        Direction.Axis facingAxis = facing.getAxis();
+
+        for (int d1 = -1; d1 <= 1; d1++) {
+            for (int d2 = -1; d2 <= 1; d2++) {
+                BlockPos checkPos;
+                // Check the plane perpendicular to the facing direction
+                if (facingAxis == Direction.Axis.Y) {
+                    // Facing up/down: check X/Z plane (horizontal)
+                    checkPos = center.add(d1, 0, d2);
+                } else if (facingAxis == Direction.Axis.X) {
+                    // Facing east/west: check Y/Z plane
+                    checkPos = center.add(0, d1, d2);
+                } else {
+                    // Facing north/south: check X/Y plane
+                    checkPos = center.add(d1, d2, 0);
+                }
+
+                BlockState checkState = world.getBlockState(checkPos);
+                if (!checkState.isIn(AITTags.Blocks.ZEITON_BLOCKS)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void playSparkEffect(ServerWorld world, PlayerEntity player) {

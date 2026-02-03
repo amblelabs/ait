@@ -61,6 +61,10 @@ public class AITBlockTagProvider extends AmbleBlockTagProvider {
                 .add(AITBlocks.MEDIUM_ZEITON_BUD).add(AITBlocks.LARGE_ZEITON_BUD).add(AITBlocks.ZEITON_CLUSTER)
                 .add(Blocks.BELL);
 
+        getOrCreateTagBuilder(AITTags.Blocks.ZEITON_BLOCKS).add(AITBlocks.ZEITON_BLOCK).add(AITBlocks.ZEITON_COBBLE)
+                .add(AITBlocks.BUDDING_ZEITON).add(AITBlocks.COMPACT_ZEITON).add(AITBlocks.SMALL_ZEITON_BUD)
+                .add(AITBlocks.MEDIUM_ZEITON_BUD).add(AITBlocks.LARGE_ZEITON_BUD).add(AITBlocks.ZEITON_CLUSTER);
+
         getOrCreateTagBuilder(AITTags.Blocks.WOODEN_BLOCKS)
                 .forceAddTag(BlockTags.LOGS)
                 .forceAddTag(BlockTags.PLANKS)

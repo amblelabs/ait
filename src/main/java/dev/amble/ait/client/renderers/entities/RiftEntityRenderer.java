@@ -11,6 +11,7 @@ import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.AITMod;
@@ -35,22 +36,25 @@ public class RiftEntityRenderer
 
     @Override
     public void render(RiftEntity riftEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
+        // Rendering is handled by BOTI when enabled
         if (AITModClient.CONFIG.enableTardisBOTI) {
             BOTI.RIFT_RENDERING_QUEUE.add(riftEntity);
             return;
         }
 
+        // Fallback rendering when BOTI is disabled
         matrixStack.push();
-        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
+        Direction facing = riftEntity.getHorizontalFacing();
+        float rotation = 180 - facing.asRotation();
+        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rotation));
         matrixStack.translate(0, -0.9, 0.05);
-        matrixStack.scale(1, 1, 1);
         frame.render(matrixStack, vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucentCull(RIFT_TEXTURE)), 0xf000f0, OverlayTexture.DEFAULT_UV, 0.6f, 0.0f, 1, 1);
         matrixStack.pop();
     }
 
     @Override
     public Identifier getTexture(RiftEntity entity) {
-        return null;
+        return RIFT_TEXTURE;
     }
 
 }

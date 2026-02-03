@@ -208,14 +208,7 @@ public class AITMod implements ModInitializer {
         BiomeModifications.addFeature(BiomeSelectors.foundInOverworld(), GenerationStep.Feature.UNDERGROUND_ORES,
                 CUSTOM_GEODE_PLACED_KEY);
 
-        BiomeModifications.addSpawn(
-                BiomeSelectors.all(),
-                SpawnGroup.AMBIENT,
-                AITEntityTypes.RIFT_ENTITY,
-                4,
-                1,
-                1
-        );
+        // Rift entities no longer spawn naturally - they are opened via sonic screwdriver on zeiton blocks
 
         Registry.register(net.minecraft.registry.Registries.FEATURE, CRATER_ID, CRATER);
 
@@ -327,9 +320,6 @@ public class AITMod implements ModInitializer {
     }
 
     public void entityAttributeRegister() {
-        FabricDefaultAttributeRegistry.register(AITEntityTypes.RIFT_ENTITY,
-                RiftEntity.createMobAttributes());
-
         FabricDefaultAttributeRegistry.register(AITEntityTypes.FLIGHT_TARDIS_TYPE,
                 FlightTardisEntity.createDummyAttributes());
     }
