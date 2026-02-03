@@ -167,25 +167,25 @@ public class CreativePresetScreen extends Screen {
         int centerY = this.height / 2;
         
         // Button 0: Previous preset (big left arrow)
-        this.addButton(new PressableTextWidget(centerX + 23, centerY + 10, 20, 20,
+        this.addButton(new PressableTextWidget(centerX + 23, centerY + 3, 20, 20,
                 Text.empty(), button -> previousPreset(), this.textRenderer));
         // Button 1: Next preset (big right arrow)
-        this.addButton(new PressableTextWidget(centerX + 98, centerY + 10, 20, 20,
+        this.addButton(new PressableTextWidget(centerX + 98, centerY + 3, 20, 20,
                 Text.empty(), button -> nextPreset(), this.textRenderer));
         
         // Button 2: Previous element (small left arrow)
-        this.addButton(new PressableTextWidget(centerX + 23, centerY + 54, 20, 12,
+        this.addButton(new PressableTextWidget(centerX + 23, centerY + 61, 20, 12,
                 Text.empty(), button -> previousElement(), this.textRenderer));
         // Button 3: Next element (small right arrow)
-        this.addButton(new PressableTextWidget(centerX + 98, centerY + 54, 20, 12,
+        this.addButton(new PressableTextWidget(centerX + 98, centerY + 61, 20, 12,
                 Text.empty(), button -> nextElement(), this.textRenderer));
         
         // Button 4: Play sound button (for sound elements)
-        this.addButton(new PressableTextWidget(centerX + 44, centerY + 54, 53, 12,
+        this.addButton(new PressableTextWidget(centerX + 44, centerY + 61, 53, 12,
                 Text.empty(), button -> playPreviewSound(), this.textRenderer));
         
         // Button 5: Confirm button
-        this.addButton(new PressableTextWidget(centerX + 44, centerY + 10, 53, 20,
+        this.addButton(new PressableTextWidget(centerX + 44, centerY + 3, 53, 20,
                 Text.empty(), button -> confirmSelection(), this.textRenderer));
         
         // Button 6: Cancel/back button
@@ -328,33 +328,26 @@ public class CreativePresetScreen extends Screen {
         stack.push();
         stack.translate(0, 0, 500f);
         
-        // Left side info - Creative TARDIS title and selected preset
+        // Left side info - Creative TARDIS title and selected preset with count
         context.drawText(this.textRenderer, Text.literal("Creative TARDIS"), left + 15, top + 50, 0xFFFFFF, true);
         context.drawText(this.textRenderer, Text.literal("Selected Preset:"), left + 15, top + 65, 0xAAAAAA, true);
-        context.drawText(this.textRenderer, Text.literal(selectedPreset.name()).formatted(Formatting.BOLD, Formatting.AQUA), 
+        
+        // Preset name with count on the same line
+        List<TardisPreset> presets = TardisPresetRegistry.getInstance().toList();
+        String presetText = selectedPreset.name() + " (" + (presetIndex + 1) + "/" + presets.size() + ")";
+        context.drawText(this.textRenderer, Text.literal(presetText).formatted(Formatting.BOLD, Formatting.AQUA), 
                 left + 15, top + 78, 0xFFFFFF, true);
         
-        // Preset name (right side header)
-        context.drawCenteredTextWithShadow(this.textRenderer, 
-                Text.literal(selectedPreset.name()).formatted(Formatting.BOLD), 
-                centerX + 70, centerY - 68, 0xFFFFFF);
-        
-        // Preset count (moved up)
-        List<TardisPreset> presets = TardisPresetRegistry.getInstance().toList();
-        context.drawCenteredTextWithShadow(this.textRenderer,
-                Text.literal((presetIndex + 1) + "/" + presets.size()).formatted(Formatting.BOLD),
-                centerX + 70, centerY + 58, 0xFFFFFF);
-        
-        // Current element being previewed
+        // Current element being previewed (right side, below preview area)
         context.drawCenteredTextWithShadow(this.textRenderer,
                 Text.literal(currentElement.getDisplayName()),
-                centerX + 70, centerY + 40, 0x5FAAFF);
+                centerX + 70, centerY + 44, 0x5FAAFF);
         
         // Element value
         String elementValue = getElementValueDisplay();
         context.drawCenteredTextWithShadow(this.textRenderer,
                 Text.literal(elementValue),
-                centerX + 70, centerY + 30, 0xAAAAAA);
+                centerX + 70, centerY + 54, 0xAAAAAA);
         
         stack.pop();
     }
@@ -401,14 +394,14 @@ public class CreativePresetScreen extends Screen {
         int centerX = this.width / 2;
         int centerY = this.height / 2;
         
-        // Move previews up and reduce scale
-        int previewY = centerY - 35;
+        // Preview area center - moved up
+        int previewY = centerY - 25;
         
         switch (currentElement) {
-            case EXTERIOR -> drawExteriorPreview(context, centerX + 70, previewY, 14f);
-            case CONSOLE -> drawConsolePreview(context, centerX + 70, previewY, 11f);
-            case DESKTOP -> drawDesktopPreview(context, centerX + 70, previewY);
-            case VORTEX -> drawVortexPreview(context, centerX + 70, previewY);
+            case EXTERIOR -> drawExteriorPreview(context, centerX + 70, previewY - 15, 18f);
+            case CONSOLE -> drawConsolePreview(context, centerX + 70, previewY - 10, 14f);
+            case DESKTOP -> drawDesktopPreview(context, centerX + 70, previewY - 20);
+            case VORTEX -> drawVortexPreview(context, centerX + 70, previewY - 10);
             default -> drawSoundIndicator(context, centerX + 70, previewY);
         }
     }
@@ -469,12 +462,12 @@ public class CreativePresetScreen extends Screen {
         Identifier previewTexture = preview.texture();
         boolean exists = MinecraftClient.getInstance().getResourceManager().getResource(previewTexture).isPresent();
         
-        // Smaller preview area
-        int size = 70;
+        // Larger preview area that fills the space better
+        int size = 85;
         
         context.drawTexture(
                 exists ? previewTexture : MISSING_PREVIEW,
-                x - size/2, y - size/2 + 15, size, size, 0, 0, 
+                x - size/2, y - size/2 + 20, size, size, 0, 0, 
                 preview.width,
                 preview.height, 
                 preview.width,
@@ -488,23 +481,23 @@ public class CreativePresetScreen extends Screen {
         MatrixStack stack = context.getMatrices();
         stack.push();
         
-        // Use scissor to clip the vortex rendering
-        int scissorX = x - 40;
-        int scissorY = y - 30;
-        int scissorW = 80;
-        int scissorH = 70;
+        // Use scissor to clip the vortex rendering to a square area
+        int scissorSize = 80;
+        int scissorX = x - scissorSize/2;
+        int scissorY = y - scissorSize/2 + 15;
         
         // Convert to screen coordinates for scissor
         double scaleFactor = MinecraftClient.getInstance().getWindow().getScaleFactor();
         int scissorLeft = (int) (scissorX * scaleFactor);
-        int scissorBottom = (int) ((this.height - scissorY - scissorH) * scaleFactor);
-        int scissorWidth = (int) (scissorW * scaleFactor);
-        int scissorHeight = (int) (scissorH * scaleFactor);
+        int scissorBottom = (int) ((this.height - scissorY - scissorSize) * scaleFactor);
+        int scissorWidth = (int) (scissorSize * scaleFactor);
+        int scissorHeight = (int) (scissorSize * scaleFactor);
         
         com.mojang.blaze3d.systems.RenderSystem.enableScissor(scissorLeft, scissorBottom, scissorWidth, scissorHeight);
         
-        stack.translate(x, y + 10, 100f);
-        stack.scale(0.8f, 0.8f, 0.8f);
+        // Center the vortex in the preview area and scale it properly
+        stack.translate(x, y + 15, 100f);
+        stack.scale(1.2f, 1.2f, 1.2f);
         stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90f));
         
         VortexRender.getInstance(vortex).render(stack);
