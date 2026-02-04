@@ -2,12 +2,7 @@ package dev.amble.ait.core.tardis.control;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.amble.ait.core.tardis.control.impl.ThrottleControl;
-import org.joml.Vector3f;
-
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.util.Identifier;
-
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blocks.ConsoleBlock;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.data.codec.MoreCodec;
@@ -67,7 +62,12 @@ public class ControlTypes {
     }
 
     public Control getControl() {
-		if (this.control == null) return new ThrottleControl();
+        if (this.control == null) {
+            // print stacktrace
+            Thread.dumpStack();
+            AITMod.LOGGER.error("ControlTypes has null control! Returning fallback control.");
+            return ControlRegistry.fallback();
+        }
 
         return this.control;
     }
