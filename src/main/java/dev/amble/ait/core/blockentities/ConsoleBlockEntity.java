@@ -1,32 +1,5 @@
 package dev.amble.ait.core.blockentities;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import dev.amble.lib.util.ServerLifecycleHooks;
-import org.joml.Vector3f;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.entity.AnimationState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventories;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.particle.DustColorTransitionParticleEffect;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.ArtronHolderItem;
 import dev.amble.ait.client.tardis.ClientTardis;
@@ -49,6 +22,33 @@ import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
+import dev.amble.lib.util.ServerLifecycleHooks;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.entity.AnimationState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.DustColorTransitionParticleEffect;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.screen.GenericContainerScreenHandler;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.world.World;
+import org.joml.Vector3f;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements BlockEntityTicker<ConsoleBlockEntity>, ArtronHolderItem {
 
@@ -59,6 +59,10 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
     public final AnimationState ANIM_STATE = new AnimationState();
 
     private boolean needsControls = true;
+
+	private static final int CLIENT_CACHE_REFRESH_INTERVAL = 2400; // Lazy refresh
+	// Client-side cache for control entities
+	private List<ConsoleControlEntity> cachedClientControls = null;
 
     private ConsoleTypeSchema type;
     private ConsoleVariantSchema variant;
@@ -210,6 +214,51 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         controlEntities.clear();
     }
 
+	/**
+	 * Gets the control entities for this console.
+	 * On the server, returns the cached list.
+	 * On the client, returns a cached query that refreshes periodically.
+	 *
+	 * @return List of control entities belonging to this console
+	 */
+	public List<ConsoleControlEntity> getControlEntities() {
+		if (this.world == null) return Collections.emptyList();
+
+		// On client, use cached list that refreshes periodically
+		if (this.world.isClient()) {
+			if (cachedClientControls == null || this.age % CLIENT_CACHE_REFRESH_INTERVAL == 0) {
+				cachedClientControls = findControlEntitiesInWorld();
+			}
+			return cachedClientControls;
+		}
+
+		// On server, use the cached list
+		return this.controlEntities;
+	}
+
+	/**
+	 * Invalidates the client-side control entity cache, forcing a refresh on next access.
+	 */
+	public void invalidateClientCache() {
+		this.cachedClientControls = null;
+	}
+
+	/**
+	 * Finds all ConsoleControlEntity instances in the world that belong to this console.
+	 * Works on both client and server.
+	 *
+	 * @return List of control entities referencing this console's position
+	 */
+	public List<ConsoleControlEntity> findControlEntitiesInWorld() {
+		if (this.world == null) return Collections.emptyList();
+
+		return this.world.getEntitiesByClass(
+				ConsoleControlEntity.class,
+				new Box(this.pos).expand(3.0),
+				entity -> this.pos.equals(entity.getConsoleBlockPos())
+		);
+    }
+
     public void spawnControls() {
         BlockPos current = this.getPos();
 
@@ -238,6 +287,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
             this.controlEntities.add(controlEntity);
         }
 
+	    this.markDirty();
         this.needsControls = false;
     }
 
