@@ -167,6 +167,8 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
 		            return parent.model();
 	            }
 
+                AITMod.LOGGER.warn("Datapack console variant {} has no model set, falling back to Hartnell model", variant.id());
+
 	            return HARTNELL.model();
             }
 

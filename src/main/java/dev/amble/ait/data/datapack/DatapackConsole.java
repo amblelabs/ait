@@ -181,8 +181,16 @@ public class DatapackConsole extends ConsoleVariantSchema implements TravelAnima
     }
 
 	public @Nullable ConsoleVariantSchema getSameParent(Predicate<ConsoleVariantSchema> predicate) {
-		return ConsoleVariantRegistry.withParent(this.parent()).stream().filter(val -> val != this).filter(predicate).findAny().orElse(ConsoleVariantRegistry.HARTNELL);
-	}
+        if (this.parent() == null) return null;
+
+        Optional<ConsoleVariantSchema> found = ConsoleVariantRegistry.withParent(this.parent()).stream().filter(val -> val != this).filter(predicate).findAny();
+
+        if (found.isPresent()) return found.get();
+
+        AITMod.LOGGER.warn("DatapackConsole {} could not find parent variant matching predicate", this.id());
+
+        return ConsoleVariantRegistry.HARTNELL;
+    }
 
     public static DatapackConsole fromInputStream(InputStream stream) {
         return fromJson(JsonParser.parseReader(new InputStreamReader(stream)).getAsJsonObject());
