@@ -12,12 +12,7 @@ import net.minecraft.network.packet.s2c.play.*;
 public class ExampleClientMod implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        ClientPlayNetworking.registerGlobalReceiver(WrappedPacketS2CPacket.TYPE, (wrapped, player, packetSender) -> {
-            Packet<?> packet = wrapped.packet();
-            PortalDataManager manager = PortalDataManager.get();
-
-            manager.handle(packet);
-
+        PortalEvents.UPDATE.register(data -> {
             WorldGeometryRenderer renderer = TardisDoorBOTI.getInteriorRenderer();
 
             if (renderer != null)
@@ -26,7 +21,6 @@ public class ExampleClientMod implements ClientModInitializer {
 
         ClientPlayConnectionEvents.DISCONNECT.register((clientPlayNetworkHandler, minecraftClient) -> {
             TardisDoorBOTI.cleanup();
-            PortalDataManager.get().reset();
         });
     }
 }

@@ -12,18 +12,22 @@ import net.minecraft.network.packet.s2c.play.BundleS2CPacket;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-public record WrappedPacketS2CPacket(Packet<?> packet) implements FabricPacket, ProxiedPacket {
+public record WrappedPacketS2CPacket(UUID id, Packet<?> packet) implements FabricPacket, ProxiedPacket {
 
     public static final PacketType<WrappedPacketS2CPacket> TYPE = PacketType.create(AITMod.id("wrapped"), WrappedPacketS2CPacket::read);
 
     private static WrappedPacketS2CPacket read(PacketByteBuf buf) {
+        UUID id = buf.readUuid();
         Packet<?> packet = readPacket(buf);
-        return new WrappedPacketS2CPacket(packet);
+        return new WrappedPacketS2CPacket(id, packet);
     }
 
     @Override
     public void write(PacketByteBuf buf) {
+        buf.writeUuid(id);
+
         if (this.packet instanceof BundleS2CPacket bundle) {
             List<Packet<ClientPlayPacketListener>> packets = (List<Packet<ClientPlayPacketListener>>) bundle.getPackets();
             buf.writeVarInt(packets.size());
