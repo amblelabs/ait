@@ -1,5 +1,6 @@
 package dev.amble.ait.core.tardis.control.impl.waypoint;
 
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -25,7 +26,7 @@ public class LoadWaypointControl extends Control {
     public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
         super.runServer(tardis, player, world, console, leftClick);
 
-        if (!tardis.waypoint().hasCartridge()) {
+        if (!tardis.waypoint().hasCartridge() || !tardis.waypoint().isDisc()) {
             player.sendMessage(Text.translatable("control.ait.load_waypoint.no_cartridge"), true);
             TardisDesktop.playSoundAtConsole(world, console, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.PLAYERS, 6f, 0.1f);
             return Result.SUCCESS;
@@ -35,6 +36,14 @@ public class LoadWaypointControl extends Control {
 
         if (waypoints.loadWaypoint()) {
             TardisDesktop.playSoundAtConsole(world, console, AITSounds.NAV_NOTIFICATION, SoundCategory.PLAYERS, 6f, 1);
+            if (waypoints.isDisc()) {
+                player.sendMessage(Text.translatable("control.ait.load_control_disc.loaded"), true);
+                TravelHandler travel = tardis.travel();
+                travel.handbrake(false);
+                travel.autopilot(true);
+                travel.speed(travel.maxSpeed().get());
+                travel.setFlightTicks(travel.getTargetTicks() / 2);
+            }
         } else {
             player.sendMessage(Text.translatable("control.ait.load_waypoint.error"), true);
             TardisDesktop.playSoundAtConsole(world, console, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.PLAYERS, 6f, 0.1f);

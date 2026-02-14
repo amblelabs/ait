@@ -1,5 +1,6 @@
 package dev.amble.ait.core.tardis.control;
 
+import dev.amble.ait.core.AITItems;
 import dev.amble.lib.api.Identifiable;
 
 import net.minecraft.particle.ParticleTypes;
@@ -120,8 +121,9 @@ public class Control implements Identifiable {
         return !this.shouldBeAddedToSequence(tardis) && this.shouldHaveDelay();
     }
 
-    public boolean ignoresSecurity() {
-        return false;
+    // Bypass security controls when using the disc :al_clueless: - Loqorb
+    public boolean ignoresSecurity(ServerPlayerEntity user) {
+        return user.getMainHandStack().getItem() == AITItems.CONTROL_DISC;
     }
 
     public boolean canRun(Tardis tardis, ServerPlayerEntity user) {
@@ -133,7 +135,7 @@ public class Control implements Identifiable {
 
         boolean security = tardis.stats().security().get();
 
-        if (!this.ignoresSecurity() && security)
+        if (!this.ignoresSecurity(user) && security)
             return SecurityControl.hasMatchingKey(user, tardis);
 
         SubSystem.IdLike dependent = this.requiredSubSystem();

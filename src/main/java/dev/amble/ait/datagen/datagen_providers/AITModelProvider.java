@@ -75,6 +75,9 @@ public class AITModelProvider extends AmbleModelProvider {
         BlockStateModelGenerator.BlockTexturePool tardis_coral_pool = generator.registerCubeAllModelTexturePool(AITBlocks.TARDIS_CORAL_BLOCK);
         tardis_coral_pool.stairs(AITBlocks.TARDIS_CORAL_STAIRS);
         tardis_coral_pool.slab(AITBlocks.TARDIS_CORAL_SLAB);
+        tardis_coral_pool.wall(AITBlocks.TARDIS_CORAL_WALL);
+        tardis_coral_pool.fence(AITBlocks.TARDIS_CORAL_FENCE);
+
 
         super.generateBlockStateModels(generator);
     }

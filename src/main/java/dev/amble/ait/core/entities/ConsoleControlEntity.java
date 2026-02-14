@@ -237,9 +237,11 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         ServerWorld world = (ServerWorld) this.getWorld();
 
-        // spawn particle above the control
-        world.spawnParticles(AITMod.CORAL_PARTICLE, this.getX(), this.getY() + 0.25, this.getZ(), 1, 0.05, 0.05, 0.05, 0.025);
-        world.playSound(null, this.getBlockPos(), SoundEvents.ITEM_SHIELD_BREAK, SoundCategory.BLOCKS, 0.2F, AITMod.RANDOM.nextFloat(0.5F, 1.5F));
+        // spawn particle above the control - change from the ait particle to crit - Loqor
+        world.spawnParticles(ParticleTypes.CRIT, this.getX(), this.getY() + 0.25, this.getZ(), 1, 0.05, 0.05, 0.05, 0.025);
+
+        // Changed from that horrible, ear-grating, nausea-inducing SHIELD BREAK to a much softer sound - Loqor
+        world.playSound(null, this.getBlockPos(), SoundEvents.BLOCK_BAMBOO_WOOD_BUTTON_CLICK_OFF, SoundCategory.BLOCKS, 0.5F, AITMod.RANDOM.nextFloat(0.5F, 1F));
     }
 
     @Override

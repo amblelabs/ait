@@ -72,7 +72,6 @@ import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
 import dev.amble.ait.core.util.CustomTrades;
-import dev.amble.ait.core.util.SpaceUtils;
 import dev.amble.ait.core.util.StackUtil;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.LandingPadManager;
@@ -116,10 +115,10 @@ public class AITMod implements ModInitializer {
     public static final String BRANCH;
 
     static {
-        // ait-1.x.xx-BRANCH+mc.1.20.1
+        // 1.x.xx-BRANCH+mc.1.20.1
         String version = FabricLoader.getInstance().getModContainer(MOD_ID).get().getMetadata().getVersion().getFriendlyString();
         // get the part of the version string between the - and +
-        BRANCH = version.substring(version.indexOf("-"), version.lastIndexOf("-"));
+        BRANCH = version.substring(version.indexOf("-") + 1, version.indexOf("+"));
     }
 
     public static boolean isUnsafeBranch() {
@@ -233,6 +232,7 @@ public class AITMod implements ModInitializer {
             SetNameCommand.register(dispatcher);
             GetNameCommand.register(dispatcher);
             GetCreatorCommand.register(dispatcher);
+            HomeCommand.register(dispatcher);
             SetMaxSpeedCommand.register(dispatcher);
             SetSiegeCommand.register(dispatcher);
             LinkCommand.register(dispatcher);

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import com.google.common.collect.Lists;
+import dev.amble.ait.client.screens.SonicSettingsScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -30,7 +31,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.api.tardis.TardisClientEvents;
 import dev.amble.ait.client.screens.ConsoleScreen;
-import dev.amble.ait.client.screens.SonicSettingsScreen;
+import dev.amble.ait.client.screens.SaveLoadInteriorScreen;
 import dev.amble.ait.client.screens.TardisSecurityScreen;
 import dev.amble.ait.client.screens.widget.SwitcherManager;
 import dev.amble.ait.client.tardis.ClientTardis;
@@ -128,6 +129,11 @@ public class InteriorSettingsScreen extends ConsoleScreen {
                         toSonicScreen();
                 });
 
+        createTextButton(Text.translatable("screen.ait.loadsaveinterior.button")
+                .formatted(Formatting.WHITE), button -> {
+                toLoadSaveInteriorScreen();
+        });
+
         this.createCompatButtons();
         TardisClientEvents.SETTINGS_SETUP.invoker().onSetup(this);
 
@@ -176,6 +182,10 @@ public class InteriorSettingsScreen extends ConsoleScreen {
 
     private void toSonicScreen() {
         MinecraftClient.getInstance().setScreen(new SonicSettingsScreen(this.tardis(), this.console, this));
+    }
+
+    private void toLoadSaveInteriorScreen() {
+        MinecraftClient.getInstance().setScreen(new SaveLoadInteriorScreen(this.tardis(), this.console, this));
     }
 
     public <T extends ClickableWidget> void addButton(T button) {
@@ -249,7 +259,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         context.getMatrices().pop();
 
         // TODO: this is a fucking nightmare
-        int buttonIndex = DependencyChecker.hasGravity() ? 4 : 3;
+        int buttonIndex = DependencyChecker.hasGravity() ? 5 : 4;
 
         // arrow buttons (hum/misc screen)
         if (!this.buttons.get(buttonIndex).isHovered())
