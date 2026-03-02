@@ -121,11 +121,13 @@ public class WorldUtil {
 
             Identifier worldId = world.getRegistryKey().getValue();
 
-            if (!ids.contains(worldId))
-                worlds.add(world);
+            ///  Added skip for if the world is in the riftspawn blacklist - Addie
+            if (ids.contains(worldId))
+                continue;
+
+            worlds.add(world);
         }
     }
-
     private static void clearWorldCache(MinecraftServer server) {
         PROJECTOR_WORLDS.clear();
         TRAVEL_WORLDS.clear();
