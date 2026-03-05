@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.registry.RegistryWrapper;
 
 import dev.amble.ait.core.AITEntityTypes;
@@ -26,5 +27,17 @@ public class AITEntityTypeTagProvider extends FabricTagProvider.EntityTypeTagPro
         getOrCreateTagBuilder(AITTags.EntityTypes.BOSS)
                 .add(EntityType.ENDER_DRAGON).add(EntityType.WITHER)
                 .add(EntityType.WARDEN).add(EntityType.ELDER_GUARDIAN);
+
+        getOrCreateTagBuilder(AITTags.EntityTypes.HADS_TRIGGERER)
+                .add(EntityType.WITHER_SKULL)
+                .add(EntityType.FIREBALL)
+                .add(EntityType.ELDER_GUARDIAN)
+                .add(EntityType.DRAGON_FIREBALL)
+                .add(EntityType.SMALL_FIREBALL)
+                // .add(EntityType.WITHER_SKELETON)
+                .add(EntityType.BLAZE)
+                .add(EntityType.TNT)
+                .add(EntityType.TNT_MINECART)
+                .add(EntityType.CREEPER);
     }
 }

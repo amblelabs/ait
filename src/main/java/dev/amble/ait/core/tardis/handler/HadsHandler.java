@@ -3,6 +3,7 @@ package dev.amble.ait.core.tardis.handler;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.core.AITTags;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
@@ -93,8 +94,15 @@ public class HadsHandler extends KeyedTardisComponent implements TardisTickable 
 		Box checkBox = new Box(tardis().travel().position().getPos()).expand(AITMod.CONFIG.exteriorRadius);
 
         List<Entity> hostileEntities = exteriorWorld.getEntitiesByType(TypeFilter.instanceOf(Entity.class), checkBox,
-                e -> e instanceof Monster || e instanceof TntEntity);
+                e -> {
+					// Now uses custom defined tags for filtering.
+					boolean hadsTriggerer = e.getType().isIn(AITTags.EntityTypes.HADS_TRIGGERER);
+					boolean isBoss = e.getType().isIn(AITTags.EntityTypes.BOSS);
+					return hadsTriggerer || isBoss;
+				});
 
+		// This has some custom logic per-entity, e.g. creepers aren't an immediate threat
+		// unless they start exploding - Loqor
         return hostileEntities.size() > MONSTER_THRESHOLD || hostileEntities.stream().anyMatch(e -> (e instanceof CreeperEntity c &&
                 c.getFuseSpeed() > 0) ||
                 e instanceof TntEntity ||
