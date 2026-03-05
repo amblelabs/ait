@@ -69,6 +69,9 @@
 		],
 		"amblekit-client": [
 			"dev.amble.ait.init.client.AmbleClientInitializer"
+		],
+		"lambdynlights:initializer": [
+			"dev.amble.ait.compat.lambdynlights.LambDynLightsCompat"
 		]
 	},
 	"mixins": [
@@ -89,7 +92,8 @@
 	"suggests": {
 		"k9-mod": "*",
 		"fabric-permissions-api": "*",
-		"immersiveportals": "~v3.3.9-mc1.20.1"
+		"immersiveportals": "~v3.3.9-mc1.20.1",
+		"lambdynlights": "*"
 	},
 	"custom": {
 		"modmenu": {

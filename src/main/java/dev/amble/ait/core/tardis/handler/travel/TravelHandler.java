@@ -423,8 +423,10 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         TardisEvents.ENTER_FLIGHT.invoker().onFlight(this.tardis);
         this.deleteExterior();
 
-        if (tardis.stats().security().get())
+
+        if (tardis.stats().security().get() || !tardis.waypoint().canContainPlayers()) {
             SecurityControl.runSecurityProtocols(this.tardis);
+        }
     }
 
     public void cancelDemat() {

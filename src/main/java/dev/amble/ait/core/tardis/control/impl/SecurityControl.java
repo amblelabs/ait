@@ -39,16 +39,19 @@ public class SecurityControl extends Control {
 
     public static void runSecurityProtocols(Tardis tardis) {
         boolean security = tardis.stats().security().get();
-        boolean leaveBehind = tardis.travel().leaveBehind().get();
+        boolean isDiscShouldLeave = tardis.waypoint().isDisc() && !tardis.waypoint().canContainPlayers();
+        boolean leaveBehind = tardis.travel().leaveBehind().get() || isDiscShouldLeave;
 
-        if (!security)
+        if (!security && !isDiscShouldLeave)
             return;
+
+        System.out.println(isDiscShouldLeave);
 
         List<ServerPlayerEntity> forRemoval = new ArrayList<>();
 
         if (leaveBehind) {
             for (ServerPlayerEntity player : tardis.asServer().world().getPlayers()) {
-                if (!hasMatchingKey(player, tardis)) {
+                if (isDiscShouldLeave || !hasMatchingKey(player, tardis)) {
                     forRemoval.add(player);
                 }
             }

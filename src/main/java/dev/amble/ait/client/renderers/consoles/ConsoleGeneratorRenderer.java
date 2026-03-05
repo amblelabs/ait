@@ -1,7 +1,13 @@
 package dev.amble.ait.client.renderers.consoles;
 
-import org.joml.Matrix4f;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.consoles.BedrockConsoleModel;
+import dev.amble.ait.client.models.consoles.ConsoleGeneratorModel;
+import dev.amble.ait.client.models.consoles.ConsoleModel;
+import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.data.datapack.DatapackConsole;
+import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.OverlayTexture;
@@ -15,14 +21,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.consoles.ConsoleGeneratorModel;
-import dev.amble.ait.client.models.consoles.ConsoleModel;
-import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.data.datapack.DatapackConsole;
-import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
+import org.joml.Matrix4f;
 
 public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> implements BlockEntityRenderer<T> {
 
@@ -77,6 +76,11 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
 
         matrices.translate(0.5f, -1.5f + entity.getWorld().random.nextFloat() * 0.02, -0.5f);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(MinecraftClient.getInstance().getTickDelta() % 180));
+
+	    if (console instanceof BedrockConsoleModel bedrockConsoleModel) {
+		    bedrockConsoleModel.applyOffsets(matrices, entity.getConsoleVariant());
+		    matrices.translate(-0.5, 1.5, 0.5);
+	    }
 
         //if (powered) {
             if (tardis.isUnlocked(entity.getConsoleVariant())) {

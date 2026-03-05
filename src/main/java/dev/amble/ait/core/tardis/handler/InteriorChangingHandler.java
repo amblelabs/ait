@@ -3,6 +3,8 @@ package dev.amble.ait.core.tardis.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.core.lock.LockedDimension;
+import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import dev.amble.lib.data.DirectedGlobalPos;
@@ -233,6 +235,13 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                         TravelHandler travel = tardis.travel();
 
                         travel.autopilot(true);
+
+                        // Should unlock the world the TARDIS is grown in, reducing PR #1908 to ashes. - Loqor
+                        LockedDimension worldID = LockedDimensionRegistry.getInstance().get(travel.position().getWorld());
+                        if (worldID != null) {
+                            tardis.stats().unlock(worldID);
+                        }
+
                         travel.forceDemat();
                         this.replaceAllConsolesWithGrowth();
                     } else {
