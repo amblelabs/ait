@@ -32,6 +32,32 @@
 				"up": {"uv": [13, 3, 3, 4], "texture": "#1"},
 				"down": {"uv": [3, 12, 13, 13], "texture": "#1"}
 			}
+		},
+		{
+			"from": [3, 9, 7.25],
+			"to": [4, 9, 8.25],
+			"rotation": {"angle": 0, "axis": "y", "origin": [3, 9, 6.25]},
+			"faces": {
+				"north": {"uv": [1, 2, 2, 2], "texture": "#0"},
+				"east": {"uv": [0, 2, 1, 2], "texture": "#0"},
+				"south": {"uv": [0, 2, 1, 2], "texture": "#0"},
+				"west": {"uv": [1, 2, 2, 2], "texture": "#0"},
+				"up": {"uv": [12, 4, 13, 5], "texture": "#0", "tintindex": 0},
+				"down": {"uv": [0, 0, 1, 1], "texture": "#0"}
+			}
+		},
+		{
+			"from": [4, 9, 7.25],
+			"to": [4, 10, 8.25],
+			"rotation": {"angle": 0, "axis": "y", "origin": [3, 9, 6.25]},
+			"faces": {
+				"north": {"uv": [1, 1, 1, 2], "texture": "#0"},
+				"east": {"uv": [0, 1, 1, 2], "texture": "#0"},
+				"south": {"uv": [1, 1, 1, 2], "texture": "#0"},
+				"west": {"uv": [11, 3, 12, 4], "texture": "#0", "tintindex": 0},
+				"up": {"uv": [13, 4, 13, 5], "texture": "#0"},
+				"down": {"uv": [1, 0, 1, 1], "texture": "#0"}
+			}
 		}
 	],
 	"gui_light": "front",
@@ -79,7 +105,7 @@
 			"name": "disk",
 			"origin": [0, -1, 6.25],
 			"color": 0,
-			"children": [0, 1]
+			"children": [0, 1, 2, 3]
 		}
 	]
 }
