@@ -13,6 +13,7 @@ import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
@@ -91,8 +92,8 @@ public class HadsHandler extends KeyedTardisComponent implements TardisTickable 
 		// This has some custom logic per-entity, e.g. creepers aren't an immediate threat
 		// unless they start exploding - Loqor
         return hostileEntities.size() > AITMod.CONFIG.hadsHostileThreshold || hostileEntities.stream().anyMatch(e -> {
-					// If it's a boss, RUN.
-					if (e.getType().isIn(AITTags.EntityTypes.BOSS)) {
+					// If it's a boss or actively exploding TNT, RUN.
+					if (e instanceof TntEntity || e.getType().isIn(AITTags.EntityTypes.BOSS)) {
 						return true;
 					}
 
