@@ -30,7 +30,7 @@ public class AITEntityTypeTagProvider extends FabricTagProvider.EntityTypeTagPro
                 .add(EntityType.WARDEN)
                 .add(EntityType.ELDER_GUARDIAN);
 
-        getOrCreateTagBuilder(AITTags.EntityTypes.HADS_TRIGGERER)
+        getOrCreateTagBuilder(AITTags.EntityTypes.HADS_HOSTILE)
                 .add(EntityType.WITHER_SKULL)
                 .add(EntityType.FIREBALL)
                 .add(EntityType.DRAGON_FIREBALL)
