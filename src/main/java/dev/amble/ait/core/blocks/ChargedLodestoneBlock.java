@@ -37,7 +37,7 @@ public class ChargedLodestoneBlock extends Block {
 
         if (!isConsumable(manager, chunkPos)) {
             if (placer != null) {
-                placer.sendMessage(Text.literal("No rift chunk here!"));
+                placer.sendMessage(Text.translatable("message.ait.riftscanner.info3"));
             }
             world.playSound(null, pos, SoundEvents.BLOCK_BEACON_DEACTIVATE,
                     SoundCategory.BLOCKS, 1, 0.5f);
