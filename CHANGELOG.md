@@ -63,3 +63,4 @@
 - remove: ukrainian adoc readme | by [@nitrogenez](https://github.com/nitrogenez) ([#1984](https://github.com/amblelabs/ait/pull/1984))
 - Add creeper ignition to sonic overload mode | by [@Copilot](https://github.com/Copilot), [@duzos](https://github.com/duzos) ([#1987](https://github.com/amblelabs/ait/pull/1987))
 - api!: hums are now translatable | by [@duzos](https://github.com/duzos) ([#1954](https://github.com/amblelabs/ait/pull/1954))
+- Lodestone block uses the charged crystal to emit chronons and rips open rift chunks to expose rifts. | ([#1997](https://github.com/amblelabs/ait/pull/1997))
