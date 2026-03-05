@@ -1,8 +1,13 @@
 package dev.amble.ait.core.blocks;
 
 import dev.amble.ait.core.AITEntityTypes;
+import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.world.RiftChunkManager;
+import dev.drtheo.queue.api.ActionQueue;
+import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
@@ -64,7 +69,10 @@ public class ChargedLodestoneBlock extends Block {
         double spawnY = topY + 12;
 
         riftEntity.refreshPositionAndAngles(centerX + 0.5, spawnY, centerZ + 0.5, 180, -90);
-        world.spawnEntity(riftEntity);
+
+        Scheduler.get().runTaskLater(() -> {
+            world.spawnEntity(riftEntity);
+        }, TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 10);
     }
 
     private static boolean isConsumable(RiftChunkManager manager, ChunkPos pos) {
