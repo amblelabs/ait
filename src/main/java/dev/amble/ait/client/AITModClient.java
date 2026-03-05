@@ -2,7 +2,7 @@ package dev.amble.ait.client;
 
 import static dev.amble.ait.AITMod.*;
 import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
-import static dev.amble.ait.core.item.PersonalityMatrixItem.colorToInt;
+import static dev.amble.ait.core.item.TardisMatrixItem.colorToInt;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -445,10 +445,10 @@ public class AITModClient implements ClientModInitializer {
                     if (tintIndex != 0)
                         return -1;
 
-                    PersonalityMatrixItem personalityMatrixItem = (PersonalityMatrixItem) stack.getItem();
-                    int[] integers = personalityMatrixItem.getColor(stack);
+                    TardisMatrixItem tardisMatrixItem = (TardisMatrixItem) stack.getItem();
+                    int[] integers = tardisMatrixItem.getColor(stack);
                     return colorToInt(integers[0], integers[1], integers[2]);
-                }, AITItems.PERSONALITY_MATRIX);
+                }, AITItems.TARDIS_MATRIX);
 
         ColorProviderRegistry.ITEM.register((stack, tintIndex) -> tintIndex > 0 ? -1 :
                 DrinkUtil.getColor(stack), AITItems.MUG);

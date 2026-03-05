@@ -129,7 +129,7 @@ public class AITItems extends ItemContainer {
     public static final Item PLASMIC_MATERIAL = new Item(new AItemSettings().group(AITItemGroups.MAIN));
     public static final Item CORAL_FRAGMENT = new Item(new AItemSettings().group(AITItemGroups.MAIN));
     public static final Item CORAL_CAGE = new Item(new AItemSettings().group(AITItemGroups.MAIN));
-    public static final Item PERSONALITY_MATRIX = new PersonalityMatrixItem(new AItemSettings().group(AITItemGroups.MAIN));
+    public static final Item TARDIS_MATRIX = new TardisMatrixItem(new AItemSettings().group(AITItemGroups.MAIN));
 
     // Machine parts
     public static final Item ARTRON_FLUID_LINK = new FluidLinkItem(AbstractLinkItem.Type.ARTRON,
