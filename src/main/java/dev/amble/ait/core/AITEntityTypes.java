@@ -41,6 +41,6 @@ public class AITEntityTypes implements EntityContainer {
 //            .dimensions(EntityDimensions.fixed(0.25f, 0.25f)).trackRangeBlocks(4).trackedUpdateRate(10).build();
 
     public static final EntityType<RiftEntity> RIFT_ENTITY = EntityType.Builder
-            .create(RiftEntity::new, SpawnGroup.MISC).setDimensions(8f, 8f)
+            .create(RiftEntity::new, SpawnGroup.MISC).setDimensions(9f, 1f)
             .spawnableFarFromPlayer().build("rift_entity");
 }
