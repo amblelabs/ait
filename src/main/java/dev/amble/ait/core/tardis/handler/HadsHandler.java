@@ -13,14 +13,7 @@ import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.TntEntity;
-import net.minecraft.entity.boss.WitherEntity;
-import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.mob.CreeperEntity;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.mob.Monster;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -82,28 +75,22 @@ public class HadsHandler extends KeyedTardisComponent implements TardisTickable 
     }
 
 	private boolean checkForDanger() {
-		// Idk how to make sense of this (why would the tardis HADS its way to its original position
-        // and back again if the entity is already WITHIN the TARDIS?
-        // Wouldn't taking it home be more dangerous than just dematting BEFORE the entity can get in? Use some sense smh - Loqor
-        /*boolean interiorDanger = !tardis().asServer().world().getEntitiesByType(TypeFilter.instanceOf(MobEntity.class), e -> e instanceof Monster).isEmpty();
-
-		if (interiorDanger) return true;*/
 		if (!tardis().travel().isLanded()) return false;
 
 		ServerWorld exteriorWorld = tardis().travel().position().getWorld();
-		Box checkBox = new Box(tardis().travel().position().getPos()).expand(AITMod.CONFIG.exteriorRadius);
+		Box checkBox = new Box(tardis().travel().position().getPos()).expand(AITMod.CONFIG.exteriorCheckRadius);
 
         List<Entity> hostileEntities = exteriorWorld.getEntitiesByType(TypeFilter.instanceOf(Entity.class), checkBox,
                 e -> {
 					// Now uses custom defined tags for filtering.
-					boolean hadsTriggerer = e.getType().isIn(AITTags.EntityTypes.HADS_TRIGGERER);
+					boolean hadsTriggerer = e.getType().isIn(AITTags.EntityTypes.HADS_HOSTILE);
 					boolean isBoss = e.getType().isIn(AITTags.EntityTypes.BOSS);
 					return hadsTriggerer || isBoss;
 				});
 
 		// This has some custom logic per-entity, e.g. creepers aren't an immediate threat
 		// unless they start exploding - Loqor
-        return hostileEntities.size() > AITMod.CONFIG.triggererThreshold || hostileEntities.stream().anyMatch(e -> {
+        return hostileEntities.size() > AITMod.CONFIG.hadsHostileThreshold || hostileEntities.stream().anyMatch(e -> {
 					// If it's a boss, RUN.
 					if (e.getType().isIn(AITTags.EntityTypes.BOSS)) {
 						return true;

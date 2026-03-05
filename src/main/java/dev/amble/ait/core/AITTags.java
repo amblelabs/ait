@@ -48,7 +48,7 @@ public class AITTags {
 
         public static final TagKey<EntityType<?>> BOSS = createTag("boss");
         public static final TagKey<EntityType<?>> NON_DISMOUNTABLE = createTag("non_dismountable");
-        public static final TagKey<EntityType<?>> HADS_TRIGGERER = createTag("hads_triggerer");
+        public static final TagKey<EntityType<?>> HADS_HOSTILE = createTag("hads_hostile");
 
         private static TagKey<EntityType<?>> createTag(String name) {
             return TagKey.of(RegistryKeys.ENTITY_TYPE, AITMod.id(name));

@@ -1,6 +1,5 @@
 package dev.amble.ait.config;
 
-import java.io.Serial;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -60,11 +59,11 @@ public class AITServerConfig {
 
     @AutoGen(category = CATEGORY)
     @FloatSlider(min = 8, max = 64, step = 4)
-    @SerialEntry public float exteriorRadius = 16F;
+    @SerialEntry public float exteriorCheckRadius = 16F;
 
     @AutoGen(category = CATEGORY)
     @IntSlider(min = 0, max = 50, step = 1)
-    @SerialEntry public int triggererThreshold = 5;
+    @SerialEntry public int hadsHostileThreshold = 5;
 
     @AutoGen(category = CATEGORY)
     @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
