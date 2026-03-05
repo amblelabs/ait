@@ -3,6 +3,7 @@ package dev.amble.ait.core.tardis.handler;
 
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -23,11 +24,13 @@ public class ExtraHandler extends KeyedTardisComponent {
     private static final Property<ItemStack> CONSOLE_HAMMER = new Property<>(Property.ITEM_STACK, "console_hammer",
             (ItemStack) null);
     private static final BoolProperty TOOLBOX_OPEN = new BoolProperty("toolbox_open", false);
+    private static final Property<Identifier> PENDING_CONSOLE_VARIANT = new Property<>(Property.IDENTIFIER, "pending_console_variant", (Identifier) null);
 
     private final Value<ItemStack> consoleHammer = CONSOLE_HAMMER.create(this);
     private final BoolValue toolbox_open = TOOLBOX_OPEN.create(this);
     private final Value<ItemStack> setRefreshmentItemValue = SET_REFRESHMENT_ITEM.create(this);
     private final Value<ItemStack> setInsertedDiscValue = INSERTED_DISC.create(this);
+    private final Value<Identifier> pendingConsoleVariant = PENDING_CONSOLE_VARIANT.create(this);
 
 
     public ExtraHandler() {
@@ -47,6 +50,7 @@ public class ExtraHandler extends KeyedTardisComponent {
         setInsertedDiscValue.of(this, INSERTED_DISC);
         consoleHammer.of(this, CONSOLE_HAMMER);
         toolbox_open.of(this, TOOLBOX_OPEN);
+        pendingConsoleVariant.of(this, PENDING_CONSOLE_VARIANT);
     }
 
     public ItemStack getConsoleHammer() {
@@ -91,5 +95,28 @@ public class ExtraHandler extends KeyedTardisComponent {
 
     public void setInsertedDisc(ItemStack item) {
         setInsertedDiscValue.set(item);
+    }
+
+    /**
+     * Gets the pending console variant from a preset selection.
+     * This will be applied to the first console that links to this TARDIS.
+     */
+    public Identifier getPendingConsoleVariant() {
+        return this.pendingConsoleVariant.get();
+    }
+
+    /**
+     * Sets a pending console variant from a preset selection.
+     * This will be applied to the first console that links to this TARDIS.
+     */
+    public void setPendingConsoleVariant(Identifier variant) {
+        this.pendingConsoleVariant.set(variant);
+    }
+
+    /**
+     * Clears the pending console variant after it has been applied.
+     */
+    public void clearPendingConsoleVariant() {
+        this.pendingConsoleVariant.set((Identifier) null);
     }
 }

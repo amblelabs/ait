@@ -1,0 +1,9 @@
+{
+  "id": "ait:copper",
+  "name": "Copper",
+  "exterior": "ait:exterior/police_box/default",
+  "console": "ait:console/copper",
+  "desktop": "ait:copper",
+  "hum": "ait:copper",
+  "vortex": "ait:copper"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "ait:steam",
+  "name": "Steam",
+  "exterior": "ait:exterior/police_box/default",
+  "console": "ait:console/steam",
+  "desktop": "ait:vintage",
+  "hum": "ait:copper",
+  "vortex": "ait:classic"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "ait:alnico",
+  "name": "Alnico",
+  "exterior": "ait:exterior/geometric/default",
+  "console": "ait:console/alnico",
+  "desktop": "ait:alnico",
+  "hum": "ait:beacon",
+  "vortex": "ait:synthwave"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "ait:crystalline",
+  "name": "Crystalline",
+  "exterior": "ait:exterior/police_box/renaissance",
+  "console": "ait:console/crystalline",
+  "desktop": "ait:crystalline",
+  "hum": "ait:coral",
+  "vortex": "ait:crystal"
+}

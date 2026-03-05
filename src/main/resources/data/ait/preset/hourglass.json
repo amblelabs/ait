@@ -1,0 +1,9 @@
+{
+  "id": "ait:hourglass",
+  "name": "Hourglass",
+  "exterior": "ait:exterior/capsule/default",
+  "console": "ait:console/hourglass",
+  "desktop": "ait:cave",
+  "hum": "ait:eight",
+  "vortex": "ait:darkness"
+}

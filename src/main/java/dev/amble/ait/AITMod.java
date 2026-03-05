@@ -77,6 +77,8 @@ import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.LandingPadManager;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.data.landing.LandingPadRegion;
+import dev.amble.ait.data.preset.TardisPresetHandler;
+import dev.amble.ait.data.preset.TardisPresetRegistry;
 import dev.amble.ait.data.schema.MachineRecipeSchema;
 import dev.amble.ait.module.ModuleRegistry;
 import dev.amble.ait.module.planet.core.space.planet.Crater;
@@ -164,7 +166,8 @@ public class AITMod implements ModInitializer {
                 ItemOpinionRegistry.getInstance(),
                 DrinkRegistry.getInstance(),
                 TardisAnimationRegistry.getInstance(),
-                DoorRegistry.getInstance()
+                DoorRegistry.getInstance(),
+                TardisPresetRegistry.getInstance()
         );
         ControlSoundRegistry.init();
         BlockbenchParser.init();
@@ -202,6 +205,7 @@ public class AITMod implements ModInitializer {
 
         ServerTardisManager.init();
         TardisCriterions.init();
+        TardisPresetHandler.init();
 
         entityAttributeRegister();
 
