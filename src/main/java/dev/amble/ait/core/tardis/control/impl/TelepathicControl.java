@@ -74,21 +74,42 @@ public class TelepathicControl extends Control {
 
         if (type == Items.BRICK) {
             tardis.siege().texture().set(SiegeHandler.BRICK_TEXTURE);
+            if (!player.isCreative()) held.decrement(1);
             return Result.FAILURE;
         }
 
         if (type == Items.STONE) {
             tardis.siege().texture().set(SiegeHandler.DEFAULT_TEXTURRE);
+            if (!player.isCreative()) held.decrement(1);
             return Result.FAILURE;
         }
 
         if (type == Items.OBSERVER) {
             tardis.siege().texture().set(SiegeHandler.APERTURE_TEXTURE);
+            if (!player.isCreative()) held.decrement(1);
             return Result.FAILURE;
         }
 
         if (type == Items.QUARTZ_BLOCK) {
             tardis.siege().texture().set(SiegeHandler.COMPANION_TEXTURE);
+            if (!player.isCreative()) held.decrement(1);
+            return Result.FAILURE;
+        }
+
+        // Sets the home position when you use a coral fragment on the telepathic circuits - Loqor
+        if (type == AITItems.CORAL_FRAGMENT) {
+            tardis.stats().setHome(tardis.travel().position());
+            world.playSound(null, player.getBlockPos(), AITSounds.NAV_NOTIFICATION, SoundCategory.BLOCKS,
+                    1.0F, 0.5F);
+            for(int i=0;i<20;i++) {
+                player.getServerWorld().spawnParticles(ParticleTypes.ELECTRIC_SPARK, console.toCenterPos().getX(),
+                        console.toCenterPos().getY() + 1, console.toCenterPos().getZ(), 1,
+                        0f, 0.5F, 0f, 5.0F);
+                player.getServerWorld().spawnParticles(ParticleTypes.ENCHANT, console.toCenterPos().getX(),
+                        console.toCenterPos().getY() + 1, console.toCenterPos().getZ(), 1,
+                        0f, 0.5F, 0f, 5.0F);
+            }
+            if (!player.isCreative()) held.decrement(1);
             return Result.FAILURE;
         }
 
