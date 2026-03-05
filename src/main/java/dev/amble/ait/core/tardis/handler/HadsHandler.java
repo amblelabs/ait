@@ -32,7 +32,6 @@ import java.util.List;
 public class HadsHandler extends KeyedTardisComponent implements TardisTickable {
 	private static final int CHECK_FREQUENCY = 20;
 	private static final int DANGER_PERSIST_TICKS = 200;
-    private static final int MONSTER_THRESHOLD = 5;
 
     private static final BoolProperty HADS_ENABLED = new BoolProperty("enabled", false);
     private static final BoolProperty IS_IN_ACTIVE_DANGER = new BoolProperty("is_in_active_danger", false);
@@ -104,7 +103,7 @@ public class HadsHandler extends KeyedTardisComponent implements TardisTickable 
 
 		// This has some custom logic per-entity, e.g. creepers aren't an immediate threat
 		// unless they start exploding - Loqor
-        return hostileEntities.size() > MONSTER_THRESHOLD || hostileEntities.stream().anyMatch(e -> {
+        return hostileEntities.size() > AITMod.CONFIG.triggererThreshold || hostileEntities.stream().anyMatch(e -> {
 					// If it's a boss, RUN.
 					if (e.getType().isIn(AITTags.EntityTypes.BOSS)) {
 						return true;

@@ -63,6 +63,10 @@ public class AITServerConfig {
     @SerialEntry public float exteriorRadius = 16F;
 
     @AutoGen(category = CATEGORY)
+    @IntSlider(min = 0, max = 50, step = 1)
+    @SerialEntry public int triggererThreshold = 5;
+
+    @AutoGen(category = CATEGORY)
     @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
     @SerialEntry public List<String> projectorBlacklist = Lists.newArrayList(
             "ait-tardis");
