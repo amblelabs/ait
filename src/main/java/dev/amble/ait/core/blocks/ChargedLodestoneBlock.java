@@ -13,7 +13,9 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -28,36 +30,41 @@ public class ChargedLodestoneBlock extends Block {
 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        if (!(world instanceof ServerWorld serverWorld)) return;
 
-        world.playSound(null, pos, SoundEvents.BLOCK_BEACON_DEACTIVATE,
-                SoundCategory.BLOCKS, 1, 0.5f);
+        RiftChunkManager manager = RiftChunkManager.getInstance(serverWorld);
+        ChunkPos chunkPos = new ChunkPos(pos);
 
-        if (world instanceof ServerWorld serverWorld) {
-
-            RiftChunkManager manager = RiftChunkManager.getInstance(serverWorld);
-
-            if (!isConsumable(manager, new ChunkPos(pos))) {
-                if (placer != null) {
-                    placer.sendMessage(Text.literal("No rift chunk here!"));
-                }
-                world.playSound(null, pos, SoundEvents.BLOCK_BEACON_DEACTIVATE,
-                        SoundCategory.BLOCKS, 1, 0.5f);
-                return;
+        if (!isConsumable(manager, chunkPos)) {
+            if (placer != null) {
+                placer.sendMessage(Text.literal("No rift chunk here!"));
             }
-
-            world.playSound(null, pos, SoundEvents.BLOCK_BEACON_ACTIVATE,
-                    SoundCategory.BLOCKS, 1, 1.5f);
+            world.playSound(null, pos, SoundEvents.BLOCK_BEACON_DEACTIVATE,
+                    SoundCategory.BLOCKS, 1, 0.5f);
+            return;
         }
+
+        world.playSound(null, pos, SoundEvents.BLOCK_BEACON_ACTIVATE,
+                SoundCategory.BLOCKS, 1, 1.5f);
 
         RiftEntity riftEntity = AITEntityTypes.RIFT_ENTITY.create(world);
 
-        // if (riftEntity == null) return;
+        if (riftEntity == null) return;
 
+        // Center of the chunk is startX + 8, startZ + 8
+        int centerX = chunkPos.getStartX() + 8;
+        int centerZ = chunkPos.getStartZ() + 8;
+
+        // Sample the heightmap at the chunk center, excluding leaves
+        Chunk chunk = world.getChunk(pos);
+        int topY = chunk.sampleHeightmap(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
+                centerX & 15, centerZ & 15);
+
+        // Spawn 12 blocks above the top block
+        double spawnY = topY + 12;
+
+        riftEntity.refreshPositionAndAngles(centerX + 0.5, spawnY, centerZ + 0.5, 180, -90);
         world.spawnEntity(riftEntity);
-
-        riftEntity.setPos(pos.getX(), pos.getY(), pos.getZ());
-
-        // super.onPlaced(world, pos, state, placer, itemStack);
     }
 
     private static boolean isConsumable(RiftChunkManager manager, ChunkPos pos) {
