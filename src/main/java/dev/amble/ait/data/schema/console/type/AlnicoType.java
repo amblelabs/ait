@@ -75,7 +75,7 @@ public class AlnicoType extends ConsoleTypeSchema {
                     new Vector3f(0.7660156516358256f, 0.325000187382102f, -1.335937511175871f)),
             new ControlTypes(new SiegeModeControl(), EntityDimensions.changing(0.20000002f, 0.3749999f),
                     new Vector3f(1.6171875046566129f, 0.3249999061226845f, 0.004687516950070858f)),
-            new ControlTypes(new HADSControl(), EntityDimensions.changing(0.18750001f, 0.18750001f),
+            new ControlTypes(new AlarmsControl(), EntityDimensions.changing(0.18750001f, 0.18750001f),
                     new Vector3f(0.6902343910187483f, 0.49999980814754963f, 1.7648437842726707f)),
             new ControlTypes(new SaveWaypointControl(), EntityDimensions.changing(0.099999994f, 0.29999998f),
                     new Vector3f(-1.0492187775671482f, 0.4625003803521395f, 0.5886718826368451f)),

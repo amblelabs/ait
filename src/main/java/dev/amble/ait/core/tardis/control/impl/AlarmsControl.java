@@ -11,11 +11,10 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 
-public class HADSControl extends Control {
+public class AlarmsControl extends Control {
     public static final Identifier ID = AITMod.id("alarms");
 
-    // @TODO fix hads but for now it's changed to the alarm toggle
-    public HADSControl() {
+    public AlarmsControl() {
         super(ID);
     }
 
@@ -29,7 +28,7 @@ public class HADSControl extends Control {
 
     @Override
     public boolean requiresPower() {
-        return false; // todo remember to change this back when this becomes a HADS control again!!
+        return false;
     }
 
     @Override

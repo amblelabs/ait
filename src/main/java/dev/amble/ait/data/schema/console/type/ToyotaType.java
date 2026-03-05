@@ -84,7 +84,7 @@ public class ToyotaType extends ConsoleTypeSchema {
                     new Vector3f(0.37656252086162567f, 0.5875001912936568f, -1.385937511920929f)),
             new ControlTypes(new SiegeModeControl(), EntityDimensions.changing(0.20000002f, 0.22500002f),
                     new Vector3f(-0.004687480628490448f, 0.13750028610229492f, 1.5132812839001417f)),
-            new ControlTypes(new HADSControl(), EntityDimensions.changing(0.07499999f, 0.17500001f),
+            new ControlTypes(new AlarmsControl(), EntityDimensions.changing(0.07499999f, 0.17500001f),
                     new Vector3f(-0.09531249571591616f, 0.7624998120591044f, 0.7687500193715096f)),
             new ControlTypes(new SaveWaypointControl(), EntityDimensions.changing(0.07499999f, 0.0875f),
                     new Vector3f(0.18828124087303877f, 0.5750003820285201f, -1.4593750229105353f)),

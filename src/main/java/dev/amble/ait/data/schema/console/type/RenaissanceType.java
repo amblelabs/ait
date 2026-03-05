@@ -103,7 +103,7 @@ public class RenaissanceType extends ConsoleTypeSchema {
             new ControlTypes(new SiegeModeControl(), EntityDimensions.changing(0.13750003f, 0.1375f),
                     new Vector3f(0.38749924302101135f, 0.6500003831461072f, 1.1734375059604645f)),
 
-            new ControlTypes(new HADSControl(), EntityDimensions.changing(0.16250001f, 0.099999994f),
+            new ControlTypes(new AlarmsControl(), EntityDimensions.changing(0.16250001f, 0.099999994f),
                     new Vector3f(-0.8859382709488273f, 0.5500005697831511f, 0.8382808724418283f)),
 
             new ControlTypes(new SaveWaypointControl(), EntityDimensions.changing(0.07499999f, 0.099999994f),
