@@ -100,7 +100,12 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
                         AITTags.Items.RIFT_SUCCESS_EXTRA_ITEM
                 );
 
-                StackUtil.spawn(this.getWorld(), this.getBlockPos(), new ItemStack(AITItems.CORAL_FRAGMENT));
+                // Since we don't really wanna have to use 3 billion charged zeiton crystals, just spawn more coral fragments. - Loqor
+                ItemStack coralFragments = new ItemStack(AITItems.CORAL_FRAGMENT);
+
+                coralFragments.setCount(this.getWorld().random.nextBetween(3, 8));
+                StackUtil.spawn(this.getWorld(), this.getBlockPos(), coralFragments);
+
                 StackUtil.spawn(this.getWorld(), this.getBlockPos(), new ItemStack(randomItem));
                 this.getWorld().playSound(null, player.getBlockPos(), AITSounds.RIFT_SUCCESS, SoundCategory.AMBIENT, 1f, 1f);
             } else {
