@@ -5,6 +5,7 @@ import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.world.RiftChunkManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.DustColorTransitionParticleEffect;
@@ -106,6 +107,9 @@ public class ChargedLodestoneBlock extends Block {
             if (riftEntity != null) {
                 riftEntity.refreshPositionAndAngles(endX, targetY, endZ, 0, -90);
                 world.spawnEntity(riftEntity);
+
+                // Set back to a regular lodestone
+                world.setBlockState(pos, Blocks.LODESTONE.getDefaultState());
             }
 
             world.playSound(null, pos, SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(),
