@@ -1,10 +1,16 @@
 package dev.amble.ait.core.tardis.control.impl;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.entities.ConsoleControlEntity;
+import dev.amble.ait.core.lock.LockedDimensionRegistry;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.core.tardis.control.impl.pos.PosType;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
+import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -13,16 +19,10 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import org.jetbrains.annotations.Nullable;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.lock.LockedDimensionRegistry;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.core.tardis.control.impl.pos.PosType;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
-import dev.amble.ait.core.util.WorldUtil;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class DimensionControl extends Control {
 
@@ -76,4 +76,14 @@ public class DimensionControl extends Control {
     public SoundEvent getFallbackSound() {
         return AITSounds.DIMENSION;
     }
+
+	@Override
+	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleControlEntity entity) {
+		// return selected dim / all dims
+		CachedDirectedGlobalPos dest = tardis.travel().destination();
+		int index = WorldUtil.travelWorldIndex(dest.getWorld());
+		int total = WorldUtil.getTravelWorlds().size();
+		if (total == 0) return 0.0f;
+		return (float) index / (float) total;
+	}
 }
