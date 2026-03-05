@@ -46,8 +46,9 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
 
     @Override
     public boolean canSpawn(WorldAccess world, SpawnReason spawnReason) {
-        return RiftEntity.canSpawn(AITEntityTypes.RIFT_ENTITY, (ServerWorldAccess) world, spawnReason, this.getBlockPos(),
-                this.getWorld().getRandom());
+        /*return RiftEntity.canSpawn(AITEntityTypes.RIFT_ENTITY, (ServerWorldAccess) world, spawnReason, this.getBlockPos(),
+                this.getWorld().getRandom());*/
+        return super.canSpawn(world, spawnReason);
     }
 
     private static final int[] RIFT_DURATIONS = {
@@ -201,7 +202,8 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
         }
     }
 
-    public static boolean canSpawn(EntityType<RiftEntity> rift,
+    // Nuke the canSpawn stuff because this has gone on long ENOUGH - Loqor
+    /*public static boolean canSpawn(EntityType<RiftEntity> rift,
                                    ServerWorldAccess serverWorldAccess, SpawnReason spawnReason,
                                    BlockPos pos, net.minecraft.util.math.random.Random random) {
         if (!(serverWorldAccess instanceof StructureWorldAccess worldAccess))
@@ -226,7 +228,7 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
             return worldAccess.getBlockState(pos).isAir() && worldAccess.getBlockState(pos.down()).isAir();
 
         return false;
-    }
+    }*/
 
     @Override
     public void onSpawnPacket(EntitySpawnS2CPacket packet) {

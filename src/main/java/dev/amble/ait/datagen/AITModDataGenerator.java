@@ -716,6 +716,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
             provider.registerDirectionalBlock(AITBlocks.FABRICATOR);
             provider.registerDirectionalBlock(AITBlocks.DOOR_BLOCK);
             provider.registerCoralFanBlock(AITBlocks.TARDIS_CORAL_FAN, AITBlocks.TARDIS_CORAL_WALL_FAN);
+            // provider.registerPillarBlock(AITBlocks.LODESTONE);
 
             return provider;
         }));
@@ -769,6 +770,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         });
 
         provider.addTranslation("ait.tardis.likes_item", "The TARDIS may like this item...");
+        provider.addTranslation("ait.charged_zeiton_crystal.not_max_fuel", "Crystal doesn't have enough fuel!");
         provider.addTranslation("tooltip.ait.remoteitem.holdformoreinfo", "Hold shift for more info");
 
         provider.addTranslation("ait.control_disc.set_position", "Write to DVD-ROM");

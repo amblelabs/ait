@@ -208,14 +208,14 @@ public class AITMod implements ModInitializer {
         BiomeModifications.addFeature(BiomeSelectors.foundInOverworld(), GenerationStep.Feature.UNDERGROUND_ORES,
                 CUSTOM_GEODE_PLACED_KEY);
 
-        BiomeModifications.addSpawn(
+        /*BiomeModifications.addSpawn(
                 BiomeSelectors.all(),
                 SpawnGroup.AMBIENT,
                 AITEntityTypes.RIFT_ENTITY,
                 4,
                 1,
                 1
-        );
+        );*/
 
         Registry.register(net.minecraft.registry.Registries.FEATURE, CRATER_ID, CRATER);
 

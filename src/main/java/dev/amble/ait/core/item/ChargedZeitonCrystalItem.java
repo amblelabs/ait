@@ -1,7 +1,11 @@
 package dev.amble.ait.core.item;
 
+import java.awt.*;
 import java.util.List;
 
+import net.minecraft.block.Blocks;
+import net.minecraft.text.Style;
+import net.minecraft.util.Colors;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
@@ -66,10 +70,25 @@ public class ChargedZeitonCrystalItem extends Item implements ArtronHolderItem {
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
         BlockState state = context.getWorld().getBlockState(context.getBlockPos());
+        PlayerEntity player = context.getPlayer();
+
+        if (player == null) return ActionResult.PASS; // This may mess with some automation (like Create) but I don't care - Loqor
 
         if (state.isOf(AITBlocks.ZEITON_COBBLE)) {
             context.getWorld().setBlockState(context.getBlockPos(), AITBlocks.COMPACT_ZEITON.getDefaultState());
             context.getStack().decrement(1);
+            return ActionResult.SUCCESS;
+        }
+
+        if (state.isOf(Blocks.LODESTONE)) {
+            ItemStack stack = context.getStack();
+            if (!this.hasMaxFuel(stack)) {
+                player.sendMessage(Text.translatable("ait.charged_zeiton_crystal.not_max_fuel").append(
+                        Text.of(" " + this.getCurrentFuel(stack) + "/" + this.getMaxFuel(stack))), true);
+                return ActionResult.PASS;
+            }
+            context.getWorld().setBlockState(context.getBlockPos(), AITBlocks.LODESTONE.getDefaultState());
+            if (!player.isCreative()) context.getStack().decrement(1);
             return ActionResult.SUCCESS;
         }
 
