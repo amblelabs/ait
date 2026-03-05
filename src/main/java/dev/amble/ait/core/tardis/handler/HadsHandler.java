@@ -1,10 +1,12 @@
 package dev.amble.ait.core.tardis.handler;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
+import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -27,7 +29,6 @@ import java.util.List;
 
 public class HadsHandler extends KeyedTardisComponent implements TardisTickable {
 	private static final int CHECK_FREQUENCY = 20;
-	private static final float EXTERIOR_CHECK_RADIUS = 16F;
 	private static final int DANGER_PERSIST_TICKS = 200;
     private static final int MONSTER_THRESHOLD = 5;
 
@@ -60,8 +61,7 @@ public class HadsHandler extends KeyedTardisComponent implements TardisTickable 
 	    //if (!isActive()) return;
 
 	    if (!tardis.subsystems().lifeSupport().isUsable()) {
-            // TODO SHOULD BE TRANSLATABLE!!! - Loqor
-		    tardis.alarm().enable(Text.literal("HADS: LIFE SUPPORT FAILURE"));
+		    tardis.alarm().enable(Text.translatable("ait.tardis.life_support_failure"));
 
 		    enabled.set(false);
 		    inDanger.set(false);
@@ -90,7 +90,7 @@ public class HadsHandler extends KeyedTardisComponent implements TardisTickable 
 		if (!tardis().travel().isLanded()) return false;
 
 		ServerWorld exteriorWorld = tardis().travel().position().getWorld();
-		Box checkBox = new Box(tardis().travel().position().getPos()).expand(EXTERIOR_CHECK_RADIUS);
+		Box checkBox = new Box(tardis().travel().position().getPos()).expand(AITMod.CONFIG.exteriorRadius);
 
         List<Entity> hostileEntities = exteriorWorld.getEntitiesByType(TypeFilter.instanceOf(Entity.class), checkBox,
                 e -> e instanceof Monster || e instanceof TntEntity);
@@ -106,12 +106,11 @@ public class HadsHandler extends KeyedTardisComponent implements TardisTickable 
 
 		tardis().travel().destination(tardis().stats().getHome());
 		tardis().travel().dematerialize().ifPresentOrElse(dematQueue -> {
-            // TODO Should use translatable - Loqor
-			tardis.alarm().enable(Text.literal("HADS: DEMATERIALISING DUE TO HOSTILE PRESENCE"));
+			tardis.alarm().enable(Text.translatable("ait.tardis.hads_escape"));
 
 			tardis().travel().setFlightTicks(tardis().travel().getTargetTicks());
 
-			var landQueue = tardis().travel().queueFor(TravelHandlerBase.State.LANDED);
+			ActionQueue landQueue = tardis().travel().queueFor(TravelHandlerBase.State.LANDED);
 
 			landQueue.thenRun(() -> {
 				Scheduler.get().runTaskLater(() -> {
@@ -127,7 +126,7 @@ public class HadsHandler extends KeyedTardisComponent implements TardisTickable 
 				}, TaskStage.END_SERVER_TICK, TimeUnit.TICKS, DANGER_PERSIST_TICKS);
 			});
 		}, () -> {
-			tardis.alarm().enable(Text.literal("HADS FAILURE"));
+			tardis.alarm().enable(Text.translatable("ait.tardis.hads_failure"));
 		});
 	}
 }

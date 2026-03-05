@@ -769,6 +769,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         });
 
         provider.addTranslation("ait.tardis.likes_item", "The TARDIS may like this item...");
+        provider.addTranslation("ait.tardis.life_support_failure", "HADS: LIFE SUPPORT FAILURE");
+        provider.addTranslation("ait.tardis.hads_failiure", "HADS: FAILURE");
+        provider.addTranslation("ait.tardis.hads_escape", "HADS: DEMATERIALISING DUE TO HOSTILE PRESENCE");
         provider.addTranslation("tooltip.ait.remoteitem.holdformoreinfo", "Hold shift for more info");
 
         provider.addTranslation("ait.control_disc.set_position", "Write to DVD-ROM");

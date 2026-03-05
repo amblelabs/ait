@@ -1,5 +1,6 @@
 package dev.amble.ait.config;
 
+import java.io.Serial;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -56,6 +57,10 @@ public class AITServerConfig {
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean hypercubesEnabled = true;
+
+    @AutoGen(category = CATEGORY)
+    @FloatSlider(min = 8, max = 64, step = 4)
+    @SerialEntry public float exteriorRadius = 16F;
 
     @AutoGen(category = CATEGORY)
     @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)

@@ -237,6 +237,7 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
         // disabling protocols
         tardis.travel().antigravs().set(false);
         tardis.stats().hailMary().set(false);
+        // Removed the HADS disabler because HADS should still work without power - Loqor
     }
 
     public void enablePower(boolean requiresEngine) {
