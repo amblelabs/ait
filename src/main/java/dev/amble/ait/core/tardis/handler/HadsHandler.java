@@ -4,6 +4,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
@@ -103,22 +104,37 @@ public class HadsHandler extends KeyedTardisComponent implements TardisTickable 
 
 		// This has some custom logic per-entity, e.g. creepers aren't an immediate threat
 		// unless they start exploding - Loqor
-        return hostileEntities.size() > MONSTER_THRESHOLD || hostileEntities.stream().anyMatch(e -> (e instanceof CreeperEntity c &&
-                c.getFuseSpeed() > 0) ||
-                e instanceof TntEntity ||
-                e instanceof WitherEntity);
+        return hostileEntities.size() > MONSTER_THRESHOLD || hostileEntities.stream().anyMatch(e -> {
+					// If it's a boss, RUN.
+					if (e.getType().isIn(AITTags.EntityTypes.BOSS)) {
+						return true;
+					}
+
+					// If it's a creeper, check if it's exploding currently or not.
+					if (e instanceof CreeperEntity creeperEntity) {
+						return creeperEntity.getFuseSpeed() > 0;
+					}
+
+					// Otherwise, return false.
+					return false;
+				}
+		);
     }
 
 	private void panic() {
 		inDanger.set(true);
 
-		tardis().travel().destination(tardis().stats().getHome());
-		tardis().travel().dematerialize().ifPresentOrElse(dematQueue -> {
-			tardis.alarm().enable(Text.translatable("ait.tardis.hads_escape"));
+		TravelHandler travel = tardis().travel();
+		StatsHandler stats = tardis().stats();
+		ServerAlarmHandler alarms = tardis().alarm();
 
-			tardis().travel().setFlightTicks(tardis().travel().getTargetTicks());
+		travel.destination(stats.getHome());
+		travel.dematerialize().ifPresentOrElse(dematQueue -> {
+			alarms.enable(Text.translatable("ait.tardis.hads_escape"));
 
-			ActionQueue landQueue = tardis().travel().queueFor(TravelHandlerBase.State.LANDED);
+			travel.setFlightTicks(travel.getTargetTicks());
+
+			ActionQueue landQueue = travel.queueFor(TravelHandlerBase.State.LANDED);
 
 			landQueue.thenRun(() -> {
 				Scheduler.get().runTaskLater(() -> {
@@ -126,15 +142,15 @@ public class HadsHandler extends KeyedTardisComponent implements TardisTickable 
 
 					// return back to where we were
 					inDanger.set(false);
-					tardis().travel().destination(tardis().travel().previousPosition());
-					tardis().travel().dematerialize().ifPresent(_q -> {
-						tardis().travel().setFlightTicks(tardis().travel().getTargetTicks());
+					travel.destination(travel.previousPosition());
+					travel.dematerialize().ifPresent(_q -> {
+						travel.setFlightTicks(travel.getTargetTicks());
 					});
-					tardis().alarm().disable();
+					alarms.disable();
 				}, TaskStage.END_SERVER_TICK, TimeUnit.TICKS, DANGER_PERSIST_TICKS);
 			});
 		}, () -> {
-			tardis.alarm().enable(Text.translatable("ait.tardis.hads_failure"));
+			alarms.enable(Text.translatable("ait.tardis.hads_failure"));
 		});
 	}
 }

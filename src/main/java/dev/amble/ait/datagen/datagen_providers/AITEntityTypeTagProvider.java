@@ -25,17 +25,20 @@ public class AITEntityTypeTagProvider extends FabricTagProvider.EntityTypeTagPro
                 .add(AITEntityTypes.FLIGHT_TARDIS_TYPE);
 
         getOrCreateTagBuilder(AITTags.EntityTypes.BOSS)
-                .add(EntityType.ENDER_DRAGON).add(EntityType.WITHER)
-                .add(EntityType.WARDEN).add(EntityType.ELDER_GUARDIAN);
+                .add(EntityType.ENDER_DRAGON)
+                .add(EntityType.WITHER)
+                .add(EntityType.WARDEN)
+                .add(EntityType.ELDER_GUARDIAN);
 
         getOrCreateTagBuilder(AITTags.EntityTypes.HADS_TRIGGERER)
                 .add(EntityType.WITHER_SKULL)
                 .add(EntityType.FIREBALL)
-                .add(EntityType.ELDER_GUARDIAN)
                 .add(EntityType.DRAGON_FIREBALL)
                 .add(EntityType.SMALL_FIREBALL)
-                // .add(EntityType.WITHER_SKELETON)
-                .add(EntityType.BLAZE)
+                .add(EntityType.END_CRYSTAL)
+                .add(EntityType.EVOKER_FANGS)
+                .add(EntityType.LIGHTNING_BOLT)
+                .add(EntityType.SHULKER_BULLET)
                 .add(EntityType.TNT)
                 .add(EntityType.TNT_MINECART)
                 .add(EntityType.CREEPER);
