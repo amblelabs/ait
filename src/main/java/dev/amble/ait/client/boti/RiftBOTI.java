@@ -45,7 +45,7 @@ public class RiftBOTI extends BOTI {
         RenderSystem.depthMask(true);
         stack.push();
         stack.translate(0, -0.9, 0.05);
-        stack.scale(1, 1, 1);
+        stack.scale(5, 5, 5);
         frame.render(stack, portalProvider.getBuffer(RenderLayer.getEntityTranslucentCull(RIFT_TEXTURE)), 0xf000f0, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
         portalProvider.draw();
         stack.pop();

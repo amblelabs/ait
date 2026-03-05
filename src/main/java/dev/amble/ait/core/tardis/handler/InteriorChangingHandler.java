@@ -415,7 +415,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
         TardisUtil.getEntitiesInInterior(this.tardis, 50).stream()
                 .filter(entity -> entity instanceof ItemEntity item
-                        && (item.getStack().getItem() == AITItems.PERSONALITY_MATRIX)
+                        && (item.getStack().getItem() == AITItems.TARDIS_MATRIX)
                         && entity.isTouchingWater())
                 .forEach(entity -> {
                     ItemEntity item = (ItemEntity) entity;
@@ -433,7 +433,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                             SoundCategory.BLOCKS, 10.0F, 0.75F);
 
                     this.queueInteriorChange(DesktopRegistry.getInstance().get(AITMod.id("cave")));
-                    if (stack.isOf(AITItems.PERSONALITY_MATRIX)) {
+                    if (stack.isOf(AITItems.TARDIS_MATRIX)) {
                         NbtCompound nbt = stack.getOrCreateNbt();
                         if (nbt.contains("name")) {
                             this.tardis.stats().setName(nbt.getString("name"));

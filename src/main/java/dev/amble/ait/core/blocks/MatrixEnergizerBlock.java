@@ -47,7 +47,7 @@ import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.blockentities.MatrixEnergizerBlockEntity;
-import dev.amble.ait.core.item.PersonalityMatrixItem;
+import dev.amble.ait.core.item.TardisMatrixItem;
 
 public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
     private final VoxelShape DEFAULT = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 11.0, 16.0);
@@ -180,7 +180,7 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
     @Override
     public void onBroken(WorldAccess world, BlockPos pos, BlockState state) {
         if (hasPower(state) && this.getAge(state) == this.getMaxAge()) {
-            ItemStack pmStack = PersonalityMatrixItem.randomize();
+            ItemStack pmStack = TardisMatrixItem.randomize();
             dropStack((World) world, pos, pmStack);
         }
         super.onBroken(world, pos, state);
@@ -190,7 +190,7 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
         if (world.isClient()) return false;
         if (this.isMature(state) && hasPower(state)) {
             world.playSound(null, pos, SoundEvents.BLOCK_SCULK_CATALYST_BLOOM, SoundCategory.BLOCKS, 1.0F, 1.0F);
-            ItemStack pmStack = PersonalityMatrixItem.randomize();
+            ItemStack pmStack = TardisMatrixItem.randomize();
             ItemEntity matrix = new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), pmStack);
             world.spawnEntity(matrix);
             if (world.getBlockEntity(pos.down()) instanceof SculkShriekerBlockEntity) {
