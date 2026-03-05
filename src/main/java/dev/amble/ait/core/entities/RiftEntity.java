@@ -46,8 +46,6 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
 
     @Override
     public boolean canSpawn(WorldAccess world, SpawnReason spawnReason) {
-        /*return RiftEntity.canSpawn(AITEntityTypes.RIFT_ENTITY, (ServerWorldAccess) world, spawnReason, this.getBlockPos(),
-                this.getWorld().getRandom());*/
         return super.canSpawn(world, spawnReason);
     }
 
@@ -201,34 +199,6 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
             }
         }
     }
-
-    // Nuke the canSpawn stuff because this has gone on long ENOUGH - Loqor
-    /*public static boolean canSpawn(EntityType<RiftEntity> rift,
-                                   ServerWorldAccess serverWorldAccess, SpawnReason spawnReason,
-                                   BlockPos pos, net.minecraft.util.math.random.Random random) {
-        if (!(serverWorldAccess instanceof StructureWorldAccess worldAccess))
-            return false;
-
-        if (!WorldUtil.canRiftsSpawn(serverWorldAccess.toServerWorld()))
-            return false;
-
-        boolean canSpawn = spawnReason == SpawnReason.STRUCTURE || (random.nextBoolean()
-                && random.nextBoolean() && RiftChunkManager.isRiftChunk(worldAccess, pos));
-
-        if (!canSpawn)
-            return false;
-
-        Chunk chunk = worldAccess.getChunk(pos);
-        ChunkPos chunkPos = chunk.getPos();
-        BlockPos startPos = new BlockPos(chunkPos.getStartX(), chunk.getBottomY(), chunkPos.getStartZ());
-        BlockPos endPos = new BlockPos(chunkPos.getEndX(), worldAccess.getHeight(), chunkPos.getEndZ());
-        Box box = new Box(startPos, endPos);
-
-        if (serverWorldAccess.getEntitiesByType(rift, box, predicate -> true).isEmpty())
-            return worldAccess.getBlockState(pos).isAir() && worldAccess.getBlockState(pos.down()).isAir();
-
-        return false;
-    }*/
 
     @Override
     public void onSpawnPacket(EntitySpawnS2CPacket packet) {
