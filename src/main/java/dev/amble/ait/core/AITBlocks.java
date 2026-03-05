@@ -259,7 +259,7 @@ public class AITBlocks extends BlockContainer {
             .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).nonOpaque()
             .instrument(Instrument.GUITAR).strength(1.5F, 6.0F));
 
-    public static final Block LODESTONE = new LodestoneBlock(ABlockSettings.create().itemSettings(
+    public static final Block LODESTONE = new ChargedLodestoneBlock(ABlockSettings.create().itemSettings(
             new AItemSettings().group(AITItemGroups.MAIN)).lightLevel(7)
     );
 

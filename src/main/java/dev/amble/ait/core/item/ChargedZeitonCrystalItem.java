@@ -3,6 +3,7 @@ package dev.amble.ait.core.item;
 import java.awt.*;
 import java.util.List;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.text.Style;
 import net.minecraft.util.Colors;
@@ -87,7 +88,9 @@ public class ChargedZeitonCrystalItem extends Item implements ArtronHolderItem {
                         Text.of(" " + this.getCurrentFuel(stack) + "/" + this.getMaxFuel(stack))), true);
                 return ActionResult.PASS;
             }
-            context.getWorld().setBlockState(context.getBlockPos(), AITBlocks.LODESTONE.getDefaultState());
+            Block block = AITBlocks.LODESTONE;
+            context.getWorld().setBlockState(context.getBlockPos(), block.getDefaultState());
+            AITBlocks.LODESTONE.onPlaced(player.getWorld(), context.getBlockPos(), block.getDefaultState(), player, stack);
             if (!player.isCreative()) context.getStack().decrement(1);
             return ActionResult.SUCCESS;
         }
