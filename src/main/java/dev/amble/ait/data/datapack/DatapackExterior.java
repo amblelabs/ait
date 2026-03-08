@@ -1,24 +1,10 @@
 package dev.amble.ait.data.datapack;
 
-import static dev.amble.ait.data.datapack.DatapackConsole.EMPTY;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.amble.lib.client.bedrock.BedrockAnimationReference;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.util.PortalOffsets;
 import dev.amble.ait.data.Loyalty;
@@ -28,7 +14,19 @@ import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.client.bedrock.BedrockAnimationReference;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static dev.amble.ait.data.datapack.DatapackConsole.EMPTY;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class DatapackExterior extends ExteriorVariantSchema implements AnimatedDoor, TravelAnimationMap.Holder {
@@ -62,18 +60,18 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
                     Identifier.CODEC.optionalFieldOf("model").forGetter(DatapackExterior::model),
                     Identifier.CODEC.optionalFieldOf("door").forGetter(DatapackExterior::getDoorId),
                     PortalOffsets.CODEC.optionalFieldOf("portal_info").forGetter(DatapackExterior::portalOffsets),
-                    BedrockAnimationReference.CODEC.optionalFieldOf("left_animation").forGetter(DatapackExterior::getLeftAnimation),
-                    BedrockAnimationReference.CODEC.optionalFieldOf("right_animation").forGetter(DatapackExterior::getRightAnimation),
-                    Vec3d.CODEC.optionalFieldOf("scale", new Vec3d(1, 1, 1)).forGetter(DatapackExterior::getScale),
-                    TravelAnimationMap.CODEC.optionalFieldOf("animations", new TravelAnimationMap())
-                            .forGetter(DatapackExterior::getAnimations)
+                    BedrockAnimationReference.CODEC.optionalFieldOf("left_animation").forGetter(DatapackExterior::getRawLeftAnimation),
+                    BedrockAnimationReference.CODEC.optionalFieldOf("right_animation").forGetter(DatapackExterior::getRawRightAnimation),
+                    DoorAnimationReferences.CODEC.optionalFieldOf("door_animations", DoorAnimationReferences.EMPTY)
+                            .forGetter(DatapackExterior::getDoorAnimations),
+                    Vec3d.CODEC.optionalFieldOf("scale", new Vec3d(1, 1, 1)).forGetter(DatapackExterior::getScale)
             ).apply(instance, DatapackExterior::new)
         );
+    protected final DoorAnimationReferences doorAnimations;
     protected final Vec3d scale;
-    protected final TravelAnimationMap animations;
 
     public DatapackExterior(Identifier id, Identifier category, Identifier parent, Identifier texture,
-                            Identifier emission, Optional<Loyalty> loyalty, BiomeOverrides overrides, Vec3d seatTranslations, boolean hasTransparentDoors, Optional<Identifier> model, Optional<Identifier> door, Optional<PortalOffsets> offsets, Optional<BedrockAnimationReference> leftAnimation, Optional<BedrockAnimationReference> rightAnimation, Vec3d scale, TravelAnimationMap animations) {
+                            Identifier emission, Optional<Loyalty> loyalty, BiomeOverrides overrides, Vec3d seatTranslations, boolean hasTransparentDoors, Optional<Identifier> model, Optional<Identifier> door, Optional<PortalOffsets> offsets, Optional<BedrockAnimationReference> leftAnimation, Optional<BedrockAnimationReference> rightAnimation, DoorAnimationReferences doorAnimations, Vec3d scale) {
         super(category, id, loyalty);
         this.parent = parent;
         this.texture = texture;
@@ -87,8 +85,8 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
         this.portalOffsets = offsets.orElse(null);
         this.leftAnimation = leftAnimation.orElse(null);
         this.rightAnimation = rightAnimation.orElse(null);
+        this.doorAnimations = doorAnimations;
         this.scale = scale;
-        this.animations = animations;
     }
 
     public static DatapackExterior fromInputStream(InputStream stream) {
@@ -115,16 +113,19 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     }
 
     private Optional<Identifier> getDoorId() {
-        return Optional.ofNullable(this.door().id());
+        return Optional.ofNullable(this.doorId);
     }
 
     @Override
     public DoorSchema door() {
         if (doorId == null) {
-            return this.getParent().door();
+            ExteriorVariantSchema parent = this.getParent();
+            if (parent == null) return null;
+            return parent.door();
         }
 
-        return DoorRegistry.getInstance().getOrElse(doorId, this.getParent().door());
+        ExteriorVariantSchema parent = this.getParent();
+        return DoorRegistry.getInstance().getOrElse(doorId, parent != null ? parent.door() : null);
     }
 
     public BiomeOverrides overrides() {
@@ -208,14 +209,42 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
         return this.portalOffsets;
     }
 
+    private Optional<BedrockAnimationReference> getRawLeftAnimation() {
+        return Optional.ofNullable(this.leftAnimation);
+    }
+
+    private Optional<BedrockAnimationReference> getRawRightAnimation() {
+        return Optional.ofNullable(this.rightAnimation);
+    }
+
     @Override
     public Optional<BedrockAnimationReference> getLeftAnimation() {
+        if (!doorAnimations.isEmpty() && doorAnimations.getLeft().isPresent()) {
+            return doorAnimations.getLeft();
+        }
         return Optional.ofNullable(this.leftAnimation);
     }
 
     @Override
     public Optional<BedrockAnimationReference> getRightAnimation() {
+        if (!doorAnimations.isEmpty() && doorAnimations.getRight().isPresent()) {
+            return doorAnimations.getRight();
+        }
         return Optional.ofNullable(this.rightAnimation);
+    }
+
+    @Override
+    public Optional<BedrockAnimationReference> getLeftCloseAnimation() {
+        return doorAnimations.getLeftClose();
+    }
+
+    @Override
+    public Optional<BedrockAnimationReference> getRightCloseAnimation() {
+        return doorAnimations.getRightClose();
+    }
+
+    public DoorAnimationReferences getDoorAnimations() {
+        return doorAnimations;
     }
 
     @Override
@@ -225,6 +254,6 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
 
     @Override
     public TravelAnimationMap getAnimations() {
-        return animations;
+        return new TravelAnimationMap();
     }
 }
