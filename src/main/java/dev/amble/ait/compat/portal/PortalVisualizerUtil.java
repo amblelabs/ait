@@ -103,7 +103,7 @@ public class PortalVisualizerUtil {
         /**
          * The Framebuffer that the GUI portal is going to render onto
          */
-        private static Framebuffer frameBuffer = new SimpleFramebuffer(2, 2, true, true);
+        private static Framebuffer frameBuffer;
 
         public static void clientInit() {
             ClientPlayNetworking.registerGlobalReceiver(OPEN_VISUALIZER, (client, handler, buf, sender) -> {
@@ -111,6 +111,8 @@ public class PortalVisualizerUtil {
                 BlockPos pos = buf.readBlockPos();
     
                 client.execute(() -> {
+                    if (frameBuffer == null)
+                        frameBuffer = new SimpleFramebuffer(2, 2, true, true);
                     client.setScreen(new GuiPortalScreen(dim, pos.toCenterPos()));
                 });
             });
