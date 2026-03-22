@@ -53,14 +53,7 @@ public class PortalVisualizerUtil {
 
     @Environment(EnvType.CLIENT)
     public static void clientInit() {
-        ClientPlayNetworking.registerGlobalReceiver(OPEN_VISUALIZER, (client, handler, buf, sender) -> {
-            RegistryKey<World> dim = buf.readRegistryKey(RegistryKeys.WORLD);
-            BlockPos pos = buf.readBlockPos();
-
-            client.execute(() -> {
-                client.setScreen(new GuiPortalScreen(dim, pos.toCenterPos()));
-            });
-        });
+        GuiPortalScreen.init();
     }
     
     private static void removeChunkLoaderFor(ServerPlayerEntity player) {
@@ -111,6 +104,17 @@ public class PortalVisualizerUtil {
          * The Framebuffer that the GUI portal is going to render onto
          */
         private static Framebuffer frameBuffer = new SimpleFramebuffer(2, 2, true, true);
+
+        public static void init() {
+            ClientPlayNetworking.registerGlobalReceiver(OPEN_VISUALIZER, (client, handler, buf, sender) -> {
+                RegistryKey<World> dim = buf.readRegistryKey(RegistryKeys.WORLD);
+                BlockPos pos = buf.readBlockPos();
+    
+                client.execute(() -> {
+                    client.setScreen(new GuiPortalScreen(dim, pos.toCenterPos()));
+                });
+            });
+        }
         
         public GuiPortalScreen(RegistryKey<World> viewingDimension, Vec3d viewingPosition) {
             super(Text.translatable("screen.ait.visualizer.title"));
