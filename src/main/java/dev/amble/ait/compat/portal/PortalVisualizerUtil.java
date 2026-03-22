@@ -53,7 +53,7 @@ public class PortalVisualizerUtil {
 
     @Environment(EnvType.CLIENT)
     public static void clientInit() {
-        GuiPortalScreen.init();
+        GuiPortalScreen.clientInit();
     }
     
     private static void removeChunkLoaderFor(ServerPlayerEntity player) {
@@ -105,7 +105,7 @@ public class PortalVisualizerUtil {
          */
         private static Framebuffer frameBuffer = new SimpleFramebuffer(2, 2, true, true);
 
-        public static void init() {
+        public static void clientInit() {
             ClientPlayNetworking.registerGlobalReceiver(OPEN_VISUALIZER, (client, handler, buf, sender) -> {
                 RegistryKey<World> dim = buf.readRegistryKey(RegistryKeys.WORLD);
                 BlockPos pos = buf.readBlockPos();
