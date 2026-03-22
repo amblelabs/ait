@@ -229,7 +229,10 @@ public class PortalsHandler extends KeyedTardisComponent {
 
 	private void removePortals() {
 		removePortal(this.getInterior());
+		this.interiorRef = null;
+		
 		removePortal(this.getExterior());
+		this.exteriorRef = null;
 	}
 
 	private static void removePortal(Portal portal) {
