@@ -29,8 +29,9 @@ public class EngineLoopSound extends PositionedLoopingSound {
     }
 
     public void refresh() {
-
         BlockPos nearestEngine = ClientTardisUtil.getNearestEngine();
+        if (nearestEngine == null) return;
+        
         World world = MinecraftClient.getInstance().world;
         boolean isEngineBlockEntity = world != null && world.getBlockEntity(nearestEngine) instanceof EngineBlockEntity;
 
