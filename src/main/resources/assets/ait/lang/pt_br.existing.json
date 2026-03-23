@@ -840,11 +840,17 @@
   "yacl3.config.ait:server.maxTardises": "Máximo de TARDISes",
   "yacl3.config.ait:server.minifyJson": "Minificar JSON?",
   "yacl3.config.ait:server.projectorBlacklist": "Lista negra de mundos para o Projetor de Ambiente",
+  "yacl3.config.ait:server.projectorWhitelist": "Lista branca de mundos para o Projetor de Ambiente (substitui a lista negra)",
   "yacl3.config.ait:server.riftDropBlacklist": "Lista negra de mundos para a queda na fenda",
+  "yacl3.config.ait:server.riftDropWhitelist": "Lista branca de mundos para a queda na fenda (substitui a lista negra)",
   "yacl3.config.ait:server.riftSpawnBlacklist": "Lista negra de mundos para geração de fenda",
+  "yacl3.config.ait:server.riftSpawnWhitelist": "Lista branca de mundos para geração de fenda (substitui a lista negra)",
   "yacl3.config.ait:server.rwfEnabled": "Ativar VMR?",
   "yacl3.config.ait:server.sendBulk": "Enviar em Massa?",
   "yacl3.config.ait:server.tntCanTeleportThroughDoors": "O TNT pode ser teleportado através das portas?",
   "yacl3.config.ait:server.travelBlacklist": "Lista negra de mundos para onde a TARDIS não pode viajar",
+  "yacl3.config.ait:server.travelWhitelist": "Lista branca de mundos para onde a TARDIS pode viajar (substitui a lista negra)",
+  "message.ait.projector.no_worlds": "Nenhum mundo esta disponivel para o Projetor de Ambiente.",
+  "message.ait.tardis.control.dimension.none_available": "Nenhuma dimensao de viagem esta permitida.",
   "yacl3.config.ait:server.travelPerTick": "Viagem por Tick"
 }

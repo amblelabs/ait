@@ -2,8 +2,6 @@ package dev.amble.ait.core.blockentities;
 
 import static dev.amble.ait.core.blocks.EnvironmentProjectorBlock.*;
 
-import java.util.Iterator;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -26,6 +24,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.properties.Value;
+import org.jetbrains.annotations.Nullable;
 
 public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity {
 
@@ -88,8 +87,10 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
     public void switchSkybox(Tardis tardis, BlockState state, PlayerEntity player) {
         ServerWorld next = findNext(this.current);
 
-        while (TardisServerWorld.isTardisDimension(next)) {
-            next = findNext(next.getRegistryKey());
+        if (next == null) {
+            player.sendMessage(Text.translatableWithFallback("message.ait.projector.no_worlds",
+                    "No worlds are currently available for the Environment Projector."));
+            return;
         }
 
         player.sendMessage(Text.translatable("message.ait.projector.skybox", next.getRegistryKey().getValue().toString()));
@@ -121,21 +122,22 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
             value.set(DEFAULT);
     }
 
-    private static ServerWorld findNext(RegistryKey<World> last) {
-        Iterator<ServerWorld> iter = WorldUtil.getProjectorWorlds().iterator();
+    private static @Nullable ServerWorld findNext(RegistryKey<World> last) {
+        ServerWorld first = null;
+        boolean returnNext = false;
 
-        ServerWorld first = iter.next();
-        ServerWorld found = first;
+        for (ServerWorld world : WorldUtil.getProjectorWorlds()) {
+            if (TardisServerWorld.isTardisDimension(world))
+                continue;
 
-        while (iter.hasNext()) {
-            if (same(found.getRegistryKey(), last)) {
-                if (!iter.hasNext())
-                    break;
+            if (first == null)
+                first = world;
 
-                return iter.next();
-            }
+            if (returnNext)
+                return world;
 
-            found = iter.next();
+            if (same(world.getRegistryKey(), last))
+                returnNext = true;
         }
 
         return first;
