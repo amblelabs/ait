@@ -28,7 +28,7 @@ import dev.amble.ait.core.AITTags;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.core.tardis.control.impl.HADSControl;
+import dev.amble.ait.core.tardis.control.impl.AlarmsControl;
 import dev.amble.ait.core.tardis.control.impl.HandBrakeControl;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
@@ -208,7 +208,7 @@ public class OverloadSonicMode extends SonicMode {
         TravelHandler travel = tardis.travel();
         return (travel.getState() == TravelHandlerBase.State.DEMAT || tardis.subsystems().engine().phaser().isPhasing())
                 ? new HandBrakeControl()
-                : new HADSControl();
+                : new AlarmsControl();
     }
 
     private void activateBlock(ServerWorld world, BlockPos pos, LivingEntity user, BlockState state, BlockHitResult hit) {

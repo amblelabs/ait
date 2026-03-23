@@ -69,7 +69,7 @@ public class SteamType extends ConsoleTypeSchema {
                     new Vector3f(-0.7640624977648258f, 0.3700000746175647f, 0.6269531277939677f)),
             new ControlTypes(new RefuelerControl(), EntityDimensions.changing(0.07499999f, 0.16250001f),
                     new Vector3f(0.7882812572643161f, 0.45000019017606974f, -0.19296873733401299f)),
-            new ControlTypes(new HADSControl(), EntityDimensions.changing(0.074999996f, 0.15f),
+            new ControlTypes(new AlarmsControl(), EntityDimensions.changing(0.074999996f, 0.15f),
                     new Vector3f(0.7781250039115548f, 0.44999980740249157f, 0.18984374683350325f)),
             new ControlTypes(new PowerControl(), EntityDimensions.changing(0.125f, 0.1375f),
                     new Vector3f(-0.3109375163912773f, 0.4875005716457963f, -0.5468750149011612f)),
