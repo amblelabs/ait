@@ -82,6 +82,9 @@ public abstract class LivingEntityMixin extends Entity implements ExtraPushableE
     @Inject(method = "tickInVoid", at = @At("HEAD"))
     public void tickVoid(CallbackInfo ci) {
         if (!this.getWorld().isClient() && this.getWorld().getRegistryKey() == AITDimensions.TIME_VORTEX_WORLD) {
+            if (WorldUtil.RIFT_DROP_WORLDS.isEmpty())
+                return;
+
             LivingEntity entity = (LivingEntity) (Object) this;
             int worldIndex = this.getWorld().getRandom().nextInt(WorldUtil.RIFT_DROP_WORLDS.size());
 
