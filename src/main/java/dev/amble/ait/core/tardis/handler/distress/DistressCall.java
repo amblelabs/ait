@@ -129,11 +129,7 @@ public record DistressCall(Sender sender, String message, int lifetime, int crea
      * sends this distress call to all tardises
      */
     private void send() {
-        CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
-            ServerTardisManager.getInstance().forEach(this::send);
-
-            return null;
-        });
+        ServerTardisManager.getInstance().forEach(this::send);
     }
     private void send(ServerTardis target) {
         if (this.isSource(target.getUuid())) return; // dont send to self
