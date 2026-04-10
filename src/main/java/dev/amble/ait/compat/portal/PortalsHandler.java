@@ -75,8 +75,6 @@ public class PortalsHandler extends KeyedTardisComponent {
 		TardisEvents.SAVE.register((server, tardis, close) -> {
 			if (!close) return;
 
-			tardis.door().closeDoors();
-
 			PortalsHandler handler = tardis.handler(ID);
 			handler.removePortals();
 		});
@@ -87,6 +85,11 @@ public class PortalsHandler extends KeyedTardisComponent {
 		});
 
 		TardisEvents.REAL_DOOR_CLOSE.register((tdis) -> {
+			PortalsHandler handler = tdis.handler(ID);
+			handler.removePortals();
+		});
+
+		TardisEvents.ENTER_FLIGHT.register((tdis) -> {
 			PortalsHandler handler = tdis.handler(ID);
 			handler.removePortals();
 		});
