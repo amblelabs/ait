@@ -72,13 +72,6 @@ public class PortalsHandler extends KeyedTardisComponent {
 		//  for exterior changing this could be achieved by moving the portals & changing their size
 		//  for opening and closing doors, portals' rendering can be turned off
 
-		TardisEvents.SAVE.register((server, tardis, close) -> {
-			if (!close) return;
-
-			PortalsHandler handler = tardis.handler(ID);
-			handler.removePortals();
-		});
-
 		TardisEvents.DOOR_OPEN.register((tdis) -> {
 			PortalsHandler handler = tdis.handler(ID);
 			handler.generatePortals();
