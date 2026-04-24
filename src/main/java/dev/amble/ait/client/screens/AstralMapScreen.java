@@ -10,6 +10,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.PressableTextWidget;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -44,14 +45,20 @@ public class AstralMapScreen extends Screen {
         waitingOnBiomes = (AstralMapBlock.biomeIds == null || AstralMapBlock.biomeIds.isEmpty());
         if (!waitingOnStructures) {
             this.switcher = new IdentifierSwitcher(AstralMapBlock.structureIds, (id) -> {
-                ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, PacketByteBufs.create().writeIdentifier(id));
+                PacketByteBuf buf = PacketByteBufs.create();
+                buf.writeIdentifier(id);
+                buf.writeBoolean(false);
+                ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, buf);
                 this.close();
             });
         }
 
         if (!waitingOnBiomes) {
             this.biomeSwitcher = new IdentifierSwitcher(AstralMapBlock.biomeIds, (id) -> {
-                ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, PacketByteBufs.create().writeIdentifier(id));
+                PacketByteBuf buf = PacketByteBufs.create();
+                buf.writeIdentifier(id);
+                buf.writeBoolean(true);
+                ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, buf);
                 this.close();
             });
         }
@@ -62,7 +69,10 @@ public class AstralMapScreen extends Screen {
 
         if (waitingOnStructures && AstralMapBlock.structureIds != null && !AstralMapBlock.structureIds.isEmpty()) {
             this.switcher = new IdentifierSwitcher(AstralMapBlock.structureIds, (id) -> {
-                ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, PacketByteBufs.create().writeIdentifier(id));
+                PacketByteBuf buf = PacketByteBufs.create();
+                buf.writeIdentifier(id);
+                buf.writeBoolean(false);
+                ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, buf);
                 this.close();
             });
             waitingOnStructures = false;
@@ -71,7 +81,10 @@ public class AstralMapScreen extends Screen {
 
         if (waitingOnBiomes && AstralMapBlock.biomeIds != null && !AstralMapBlock.biomeIds.isEmpty()) {
             this.biomeSwitcher = new IdentifierSwitcher(AstralMapBlock.biomeIds, (id) -> {
-                ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, PacketByteBufs.create().writeIdentifier(id));
+                PacketByteBuf buf = PacketByteBufs.create();
+                buf.writeIdentifier(id);
+                buf.writeBoolean(true);
+                ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, buf);
                 this.close();
             });
             waitingOnBiomes = false;
