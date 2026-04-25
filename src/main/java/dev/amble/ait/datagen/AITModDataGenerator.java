@@ -1089,7 +1089,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.astral_map.loading", "LOADING");
         provider.addTranslation("screen.ait.astral_map.switcher.left_arrow", "<");
         provider.addTranslation("screen.ait.astral_map.switcher.right_arrow", ">");
-        provider.addTranslation("block.ait.astral_map.finder.not_found", "404: BIOME NOT FOUND");
+        provider.addTranslation("block.ait.astral_map.finder.structure_not_found", "404: STRUCTURE NOT FOUND");
+        provider.addTranslation("block.ait.astral_map.finder.biome_not_found", "404: BIOME NOT FOUND");
         provider.addTranslation("block.ait.astral_map.finder.searching_for_biome", "SEARCHING FOR BIOME...");
         provider.addTranslation("block.ait.astral_map.finder.searching_for_structure", "SEARCHING FOR STRUCTURE...");
         provider.addTranslation("block.ait.astral_map.finder.found", "SUCCESS! FOUND AT %s, %s, %s ( %s blocks away )");
@@ -1381,6 +1382,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.interior.settings.prime", "Prime");
         provider.addTranslation("screen.ait.interior.settings.renaissance", "Renaissance");
         provider.addTranslation("screen.ait.interior.settings.exile", "Exile");
+
+        // Astral Map
+        provider.addTranslation("screen.ait.astral_map.show_structures", "Structures");
+        provider.addTranslation("screen.ait.astral_map.show_biomes", "Biomes");
 
         // Handles
         provider.addTranslation("message.ait.handles.take_off","<Handles> Taking Off.");

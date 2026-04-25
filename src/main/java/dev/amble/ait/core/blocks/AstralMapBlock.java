@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.mojang.datafixers.util.Pair;
+import dev.amble.ait.client.screens.AstralMapScreen;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -42,7 +43,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.Structure;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.client.screens.AstralMapScreen;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.blockentities.AstralMapBlockEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
@@ -57,9 +57,8 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
 
     public static final Identifier REQUEST_SEARCH = AITMod.id("c2s/request_search");
     public static final Identifier SYNC_STRUCTURES = AITMod.id("s2c/sync_structures");
-    public static final Identifier SYNC_BIOMES = AITMod.id("s2c/sync_biomes");
+    // Store structure IDs on the client since they aren't synced by default
     public static List<Identifier> structureIds;
-    public static List<Identifier> biomeIds;
 
     static {
         ServerPlayNetworking.registerGlobalReceiver(REQUEST_SEARCH, (server, player, handler, buf, responseSender) -> {
@@ -76,12 +75,12 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
                 if (!hasAccess) return;
 
                 Identifier target = buf.readIdentifier();
-                boolean isBiome = buf.readBoolean();
+                boolean isStructure = buf.readBoolean();
 
-                if (isBiome) {
-                    handleBiomeRequest(player, target);
-                } else {
+                if (isStructure) {
                     handleStructureRequest(player, target);
+                } else {
+                    handleBiomeRequest(player, target);
                 }
             } catch (Exception e) {
                 AITMod.LOGGER.error("Error handling search request", e);
@@ -108,12 +107,9 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
             ServerWorld serverWorld = (ServerWorld) world;
             ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
 
-            sendStructures(serverWorld, serverPlayer);
-            sendBiomes(serverWorld, serverPlayer);
+            sendStructuresAndOpenScreen(serverWorld, serverPlayer);
 
             player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 1.0F, 1.0F);
-
-            serverWorld.getServer().execute(() -> AITMod.openScreen(serverPlayer, 2));
         }
 
         return ActionResult.SUCCESS;
@@ -152,7 +148,7 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
                             Math.round(Math.sqrt(newPos.getSquaredDistance(player.getPos())))), false);
                     tardis.travel().destination(destination -> destination.pos(newPos));
                 } else {
-                    player.sendMessage(Text.translatable("block.ait.astral_map.finder.not_found"), false);
+                    player.sendMessage(Text.translatable("block.ait.astral_map.finder.structure_not_found"), false);
                 }
             });
         }
@@ -182,12 +178,12 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
                         locatedBiome.getX(), locatedBiome.getY(), locatedBiome.getZ(), distance), false);
                 tardis.travel().destination(destination -> destination.pos(locatedBiome));
             } else {
-                player.sendMessage(Text.translatable("block.ait.astral_map.finder.not_found"), false);
+                player.sendMessage(Text.translatable("block.ait.astral_map.finder.biome_not_found"), false);
             }
         });
     }
 
-    private static void sendStructures(ServerWorld world, ServerPlayerEntity target) {
+    private static void sendStructuresAndOpenScreen(ServerWorld world, ServerPlayerEntity target) {
         if (structureIds == null || structureIds.isEmpty()) {
             Registry<Structure> registry = world.getRegistryManager().get(RegistryKeys.STRUCTURE);
             List<Identifier> ids = new ArrayList<>(registry.size());
@@ -202,40 +198,13 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
         ServerPlayNetworking.send(target, SYNC_STRUCTURES, buf);
     }
 
-    private static void sendBiomes(ServerWorld world, ServerPlayerEntity target) {
-        if (biomeIds == null || biomeIds.isEmpty()) {
-            Registry<Biome> registry = world.getRegistryManager().get(RegistryKeys.BIOME);
-            List<Identifier> ids = new ArrayList<>(registry.size());
-            for (Biome entry : registry) {
-                ids.add(registry.getId(entry));
-            }
-            biomeIds = ids;
-        }
-
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeCollection(biomeIds, PacketByteBuf::writeIdentifier);
-        ServerPlayNetworking.send(target, SYNC_BIOMES, buf);
-    }
-
     @Environment(EnvType.CLIENT)
     public static void registerSyncListener() {
         ClientPlayNetworking.registerGlobalReceiver(SYNC_STRUCTURES, (client, handler, buf, responseSender) -> {
             List<Identifier> ids = buf.readList(PacketByteBuf::readIdentifier);
             client.execute(() -> {
                 AstralMapBlock.structureIds = ids;
-                if (client.currentScreen instanceof AstralMapScreen screen) {
-                    screen.reloadData();
-                }
-            });
-        });
-
-        ClientPlayNetworking.registerGlobalReceiver(SYNC_BIOMES, (client, handler, buf, responseSender) -> {
-            List<Identifier> ids = buf.readList(PacketByteBuf::readIdentifier);
-            client.execute(() -> {
-                AstralMapBlock.biomeIds = ids;
-                if (client.currentScreen instanceof AstralMapScreen screen) {
-                    screen.reloadData();
-                }
+                client.setScreen(new AstralMapScreen());
             });
         });
     }
