@@ -25,6 +25,7 @@ public class DevTeam {
     public static final UUID ECHO = UUID.fromString("b74877fb-cc7a-4e89-b900-09ec522e0ca9");
     public static final UUID NYX = UUID.fromString("5a9bb737-ceb2-4d45-876c-b0e4531a811f");
     public static final UUID LAKE = UUID.fromString("12a4e062-da90-4797-a788-c42fd18c94d7");
+    public static final UUID MAX = UUID.fromString("6f30a849-061a-4ac5-8e47-9fcd2a9cda2a");
 
 
 
@@ -38,7 +39,7 @@ public class DevTeam {
     // WOW NOT EVEN ME :SOB: - Tendo // sorry - monke
 
     public static final Set<UUID> PLAYERS = Set.of(
-            LOQOR, DUZO, THEO, OURO, CLASSIC, ADDIE, VENWHOVIAN, MONKE, PAN, SATURN, MAGGIE, CROW, K_KING, DIAN, RHYNO, TREE, ECHO, NYX, LAKE, COSMIC, NANO
+            LOQOR, DUZO, THEO, OURO, CLASSIC, ADDIE, VENWHOVIAN, MONKE, PAN, SATURN, MAGGIE, MAX, CROW, K_KING, DIAN, RHYNO, TREE, ECHO, NYX, LAKE, COSMIC, NANO
     );
 
     public static boolean isDev(UUID uuid) {
