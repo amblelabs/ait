@@ -1,7 +1,19 @@
 package dev.amble.ait.client.renderers.consoles;
 
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.models.consoles.ConsoleModel;
+import dev.amble.ait.client.models.consoles.HartnellConsoleModel;
+import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
+import dev.amble.ait.client.models.items.HandlesModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.item.HandlesItem;
+import dev.amble.ait.data.datapack.DatapackConsole;
+import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
+import dev.amble.ait.data.schema.console.variant.crystalline.client.ClientCrystallineVariant;
+import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -13,21 +25,6 @@ import net.minecraft.item.Items;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
-
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.models.consoles.ConsoleModel;
-import dev.amble.ait.client.models.consoles.HartnellConsoleModel;
-import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
-import dev.amble.ait.client.models.items.HandlesModel;
-import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.compat.DependencyChecker;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.item.HandlesItem;
-import dev.amble.ait.data.datapack.DatapackConsole;
-import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
-import dev.amble.ait.data.schema.console.variant.crystalline.client.ClientCrystallineVariant;
-import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 
 public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntityRenderer<T> {
 
@@ -120,7 +117,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         profiler.swap("render");
         model.renderWithAnimations(tardis, entity, model.getPart(),
                 matrices, vertexConsumers.getBuffer(variant.equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(variant.texture()) :
-                        RenderLayer.getEntityCutout(variant.texture())), light, overlay,
+				        RenderLayer.getEntityTranslucentCull(variant.texture())), light, overlay,
                 1, 1, 1, 1, tickDelta);
 
         this.renderEmissions(profiler, matrices, vertexConsumers, tardis, entity, hasPower, light, overlay, tickDelta);
