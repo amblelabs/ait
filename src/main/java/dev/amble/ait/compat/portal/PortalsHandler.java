@@ -5,6 +5,7 @@ import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.util.EntityRef;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.data.schema.door.DoorSchema;
@@ -43,22 +44,6 @@ public class PortalsHandler extends KeyedTardisComponent {
 
 	public PortalsHandler() {
 		super(ID);
-	}
-
-	@Override
-	public void postInit(InitContext ctx) {
-		if (this.isClient() || ctx.created())
-			return;
-
-		if (this.exteriorRef != null) {
-			ServerWorld exteriorWorld = tardis.travel().position().getWorld();
-			this.exteriorRef.setWorld(exteriorWorld);
-		}
-
-		if (this.interiorRef != null) {
-			ServerWorld interiorWorld = tardis.asServer().world();
-			this.interiorRef.setWorld(interiorWorld);
-		}
 	}
 
 	public static void init() {
@@ -122,11 +107,29 @@ public class PortalsHandler extends KeyedTardisComponent {
 	}
 
 	public TardisPortal getInterior() {
-		return this.interiorRef != null ? this.interiorRef.get() : null;
+		if (this.interiorRef != null) {
+			if (!this.interiorRef.hasWorld() && tardis instanceof ServerTardis serverTardis) {
+				ServerWorld interiorWorld = serverTardis.world();
+				this.interiorRef.setWorld(interiorWorld);
+			}
+
+			return this.interiorRef.get();
+		}
+		
+		return null;
 	}
 
 	public TardisPortal getExterior() {
-		return this.exteriorRef != null ? this.exteriorRef.get() : null;
+		if (this.exteriorRef != null) {
+			if (!this.exteriorRef.hasWorld() && tardis instanceof ServerTardis) {
+				ServerWorld exteriorWorld = tardis.travel().position().getWorld();
+				this.exteriorRef.setWorld(exteriorWorld);
+			}
+
+			return this.exteriorRef.get();
+		}
+		
+		return null;
 	}
 
 	private void generatePortals() {
