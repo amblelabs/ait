@@ -171,7 +171,7 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
                         return;
 
                     Vec3d pos = new Vec3d(directed.getPos().getX(), directed.getPos().getY(),
-                            directed.getPos().getZ()).offset(directed.toMinecraftDirection(), -1f);
+                            directed.getPos().getZ()).offset(directed.toMinecraftDirection(), -1.5f);
 
                     float suckValue = tardis.travel().position().getDimension().equals(AITDimensions.SPACE) ? 0.08f: 0.05f;
                     Vec3d motion = pos.subtract(entity.getPos()).normalize().multiply(suckValue);
@@ -189,8 +189,9 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         if (directed == null)
             return false;
 
-        return tardis.travel().position().getDimension().equals(AITDimensions.SPACE) && this.isOpen() && !tardis.areShieldsActive()
-                || (!tardis.travel().isLanded() && this.isOpen() && !tardis.areShieldsActive() && !tardis.travel().autopilot());
+        return this.isOpen() && !tardis.areShieldsActive() 
+            && ((!tardis.travel().isLanded() && !tardis.travel().autopilot()) 
+                || tardis.travel().position().getDimension().equals(AITDimensions.SPACE));
     }
 
     public boolean isRightOpen() {
