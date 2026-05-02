@@ -71,105 +71,39 @@ jobs:
           GH_TOKEN: ${{ secrets.BOT_TOKEN }}
       run: |
           set -euo pipefail
-          API_HEADER="Authorization: Bearer ${GH_TOKEN}"
-          API_URL="https://api.github.com/repos/${OWNER}/${REPO}"
 
-          # Ensure the target branch exists
-          if ! git ls-remote --heads origin "refs/heads/${BRANCH}" | grep -q "${BRANCH}"; then
-            echo "Creating empty branch ${BRANCH}"
-            EMPTY_TREE=$(curl -s -H "${API_HEADER}" -X POST "${API_URL}/git/trees" -d '{"tree":[]}' | jq -r '.sha')
-            COMMIT_SHA=$(curl -s -H "${API_HEADER}" -X POST "${API_URL}/git/commits" \
-              -d "{\"message\":\"Initial empty commit for ${BRANCH}\",\"tree\":\"${EMPTY_TREE}\"}" | jq -r '.sha')
-            curl -s -H "${API_HEADER}" -X POST "${API_URL}/git/refs" \
-              -d "{\"ref\":\"refs/heads/${BRANCH}\",\"sha\":\"${COMMIT_SHA}\"}" > /dev/null
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${OWNER}/${REPO}.git"
+
+          # Partial clone: metadata only, no blob content
+          if ! git clone --filter=blob:none --branch "${BRANCH}" --depth 1 "${REPO_URL}" mvn-repo-temp; then
+            echo "Branch ${BRANCH} does not exist. Creating fresh branch."
+            git init mvn-repo-temp
+            cd mvn-repo-temp
+            git checkout -b "${BRANCH}"
+            cd ..
           fi
 
-          # Get current commit and tree SHA
-          CURRENT_COMMIT=$(curl -s -H "${API_HEADER}" "${API_URL}/git/refs/heads/${BRANCH}" | jq -r '.object.sha')
-          CURRENT_TREE=$(curl -s -H "${API_HEADER}" "${API_URL}/git/commits/${CURRENT_COMMIT}" | jq -r '.tree.sha')
-          echo "Current commit: ${CURRENT_COMMIT}, tree: ${CURRENT_TREE}"
+          # Copy artifacts into the working tree (overwrites existing files at same paths)
+          rsync -av --delete "${SOURCE_FOLDER}/" mvn-repo-temp/
 
-          # Create tree entries array
-          TREE_ENTRIES_FILE=$(mktemp)
-          echo "[]" > "$TREE_ENTRIES_FILE"
+          cd mvn-repo-temp
 
-          find "${SOURCE_FOLDER}" -type f | while read -r file; do
-            rel_path="${file#$SOURCE_FOLDER/}"
-            echo "Processing: ${rel_path}"
+          # DO NOT use git add --all; that would stage deletions for placeholder files.
+          # Instead, add only the files that we have copied/updated.
+          # We add the entire directory structure that we know we are publishing.
+          # Git will update the index for those paths, and leave all other paths alone.
+          git add --verbose --ignore-removal .
 
-            # ----- FIX: write base64 directly to a file, then use --rawfile -----
-            base64_file=$(mktemp)
-            base64 -w 0 "${file}" > "${base64_file}"
-
-            blob_payload_file=$(mktemp)
-            jq -n --rawfile content "${base64_file}" '{content: $content, encoding: "base64"}' > "${blob_payload_file}"
-            rm -f "${base64_file}"
-            # --------------------------------------------------------------------
-
-            blob_response=$(curl -s -X POST -H "${API_HEADER}" -H "Content-Type: application/json" \
-              --data-binary "@${blob_payload_file}" "${API_URL}/git/blobs")
-            rm -f "${blob_payload_file}"
-
-            blob_sha=$(echo "$blob_response" | jq -r '.sha')
-            if [ "$blob_sha" = "null" ]; then
-              echo "❌ Failed to create blob: $(echo "$blob_response" | jq -r '.message')"
-              exit 1
-            fi
-            echo "  → Blob SHA: ${blob_sha}"
-
-            # Append tree entry to the JSON array file
-            entry_file=$(mktemp)
-            jq -n --arg path "$rel_path" --arg mode "100644" --arg type "blob" --arg sha "$blob_sha" \
-              '{path: $path, mode: $mode, type: $type, sha: $sha}' > "$entry_file"
-            jq --slurpfile new "$entry_file" '. + $new' "$TREE_ENTRIES_FILE" > "${TREE_ENTRIES_FILE}.tmp"
-            mv "${TREE_ENTRIES_FILE}.tmp" "$TREE_ENTRIES_FILE"
-            rm -f "$entry_file"
-          done
-
-          # Create new tree
-          tree_payload_file=$(mktemp)
-          jq -n --arg base_tree "$CURRENT_TREE" --slurpfile tree "$TREE_ENTRIES_FILE" \
-            '{base_tree: $base_tree, tree: $tree[0]}' > "$tree_payload_file"
-          rm -f "$TREE_ENTRIES_FILE"
-
-          new_tree_response=$(curl -s -X POST -H "${API_HEADER}" -H "Content-Type: application/json" \
-            --data-binary "@${tree_payload_file}" "${API_URL}/git/trees")
-          rm -f "$tree_payload_file"
-
-          NEW_TREE_SHA=$(echo "$new_tree_response" | jq -r '.sha')
-          if [ "$NEW_TREE_SHA" = "null" ]; then
-            echo "❌ Failed to create tree: $(echo "$new_tree_response" | jq -r '.message')"
-            exit 1
-          fi
-          echo "New tree SHA: ${NEW_TREE_SHA}"
-
-          # Create commit
-          commit_payload_file=$(mktemp)
-          jq -n \
-            --arg message "Update Maven repository artifacts via workflow" \
-            --arg tree "$NEW_TREE_SHA" \
-            --arg parent "$CURRENT_COMMIT" \
-            '{message: $message, tree: $tree, parents: [$parent]}' > "$commit_payload_file"
-
-          new_commit_response=$(curl -s -X POST -H "${API_HEADER}" -H "Content-Type: application/json" \
-            --data-binary "@${commit_payload_file}" "${API_URL}/git/commits")
-          rm -f "$commit_payload_file"
-
-          NEW_COMMIT_SHA=$(echo "$new_commit_response" | jq -r '.sha')
-          if [ "$NEW_COMMIT_SHA" = "null" ]; then
-            echo "❌ Failed to create commit: $(echo "$new_commit_response" | jq -r '.message')"
-            exit 1
-          fi
-          echo "New commit SHA: ${NEW_COMMIT_SHA}"
-
-          # Update branch reference
-          update_response=$(curl -s -X PATCH -H "${API_HEADER}" -H "Content-Type: application/json" \
-            -d "{\"sha\":\"${NEW_COMMIT_SHA}\"}" "${API_URL}/git/refs/heads/${BRANCH}")
-          if echo "$update_response" | jq -e '.object.sha' > /dev/null; then
-            echo "✅ Branch ${BRANCH} updated successfully"
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
           else
-            echo "❌ Failed to update branch: $(echo "$update_response" | jq -r '.message')"
-            exit 1
+            git commit -m "Update Maven artifacts from workflow run ${GITHUB_RUN_ID}"
+            # Push only the new commits + blobs (existing blobs already on server)
+            git push origin "${BRANCH}"
+            echo "✅ Pushed to ${BRANCH}"
           fi
 
     - name: Publish artifacts
