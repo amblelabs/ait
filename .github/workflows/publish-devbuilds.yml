@@ -68,12 +68,76 @@ jobs:
         CI_MAVEN_PATH: ${{ steps.setup-maven.outputs.path }}
       run: ./gradlew --configuration-cache publishMavenJavaPublicationToCiRepository
 
-    - name: Publish to Amble Maven
-      uses: drtheodor/static-file-server-actions/upload@main
-      with:
-        published: dev/amble/ait
-        token: ${{ secrets.BOT_TOKEN }}
-        message: "chore: publish AIT artifacts"
+    - name: Push folder to mvn-repo branch via GitHub API
+      env:
+          OWNER: amblelabs
+          REPO: maven
+          BRANCH: main              # target branch
+          SOURCE_FOLDER: ${{ steps.setup-maven.outputs.path }}
+      run: |
+          set -euo pipefail
+
+          # Basic config
+          API_HEADER="Authorization: Bearer ${secrets.BOT_TOKEN}"
+          API_URL="https://api.github.com/repos/${OWNER}/${REPO}"
+
+          # 1. Ensure the target branch exists (create from empty tree if not)
+          if ! git ls-remote --heads origin "refs/heads/${BRANCH}" | grep -q "${BRANCH}"; then
+            echo "Creating empty branch ${BRANCH}"
+            # Get the empty tree SHA
+            EMPTY_TREE=$(curl -s -H "${API_HEADER}" -X POST "${API_URL}/git/trees" -d '{"tree":[]}' | jq -r '.sha')
+            # Create an initial commit
+            COMMIT_SHA=$(curl -s -H "${API_HEADER}" -X POST "${API_URL}/git/commits" \
+              -d "{\"message\":\"Initial empty commit for ${BRANCH}\",\"tree\":\"${EMPTY_TREE}\"}" | jq -r '.sha')
+            # Create the branch
+            curl -s -H "${API_HEADER}" -X POST "${API_URL}/git/refs" \
+              -d "{\"ref\":\"refs/heads/${BRANCH}\",\"sha\":\"${COMMIT_SHA}\"}" > /dev/null
+          fi
+
+          # 2. Iterate over all files in the source folder
+          find "${SOURCE_FOLDER}" -type f | while read -r file; do
+            # Compute relative path inside the repo (remove SOURCE_FOLDER prefix)
+            rel_path="${file#$SOURCE_FOLDER/}"
+            echo "Processing: ${rel_path}"
+
+            # Encode file content (base64)
+            content_b64=$(base64 -w 0 "${file}")
+
+            # Check if file already exists on the branch
+            existing_sha=$(curl -s -H "${API_HEADER}" \
+              "${API_URL}/contents/${rel_path}?ref=${BRANCH}" | jq -r '.sha // empty')
+
+            # Build JSON payload
+            if [ -n "${existing_sha}" ]; then
+              echo "  → File exists, updating (SHA: ${existing_sha})"
+              payload=$(jq -n \
+                --arg message "Update ${rel_path}" \
+                --arg content "${content_b64}" \
+                --arg sha "${existing_sha}" \
+                --arg branch "${BRANCH}" \
+                '{message:$message, content:$content, sha:$sha, branch:$branch}')
+            else
+              echo "  → New file, creating"
+              payload=$(jq -n \
+                --arg message "Add ${rel_path}" \
+                --arg content "${content_b64}" \
+                --arg branch "${BRANCH}" \
+                '{message:$message, content:$content, branch:$branch}')
+            fi
+
+            # PUT the file (create or update)
+            response=$(curl -s -X PUT -H "${API_HEADER}" \
+              -H "Content-Type: application/json" \
+              -d "${payload}" \
+              "${API_URL}/contents/${rel_path}")
+
+            if echo "${response}" | jq -e '.content' > /dev/null; then
+              echo "  ✅ Success"
+            else
+              echo "  ❌ Failed: $(echo "${response}" | jq -r '.message // "Unknown error"')"
+              exit 1
+            fi
+          done
 
     - name: Publish artifacts
       uses: drtheodor/discord-webhook-upload-action@v0.2
