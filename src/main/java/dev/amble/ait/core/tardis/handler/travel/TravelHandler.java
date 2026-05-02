@@ -469,7 +469,9 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
                 .onLanded(this.tardis, initialPos);
 
         if (result.type() == TardisEvents.Interaction.FAIL) {
-            this.crash();
+            if (!this.isCrashing())
+                this.crash();
+            
             return Optional.of(this.queueFor(State.LANDED));
         }
 
