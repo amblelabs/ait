@@ -56,51 +56,24 @@ jobs:
     
     - name: Build
       run: ./gradlew --configuration-cache build
-    
+
+    - name: Setup Amble Maven
+      id: setup-maven
+      uses: drtheodor/static-file-server-actions/upload/setup@main
+      with:
+        repo: amblelabs/maven
+
     - name: Build for Maven
       env:
-        CI_MAVEN_PATH: maven-root
+        CI_MAVEN_PATH: ${{ steps.setup-maven.outputs.path }}
       run: ./gradlew --configuration-cache publishMavenJavaPublicationToCiRepository
 
-    - name: Push folder to mvn-repo branch via GitHub API
-      env:
-          GH_TOKEN: ${{ secrets.BOT_TOKEN }}
-      run: |
-          set -euo pipefail
-          TARGET_BRANCH="main"
-          SOURCE_FOLDER="./maven-root"
-
-          REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/amblelabs/maven.git"
-
-          # Clone metadata only, no checkout
-          if ! git clone --filter=blob:none --no-checkout --depth 1 --branch "${TARGET_BRANCH}" "${REPO_URL}" mvn-repo-temp; then
-            # Branch doesn't exist – create empty branch
-            git init mvn-repo-temp
-            cd mvn-repo-temp
-            git checkout -b "${TARGET_BRANCH}"
-            cd ..
-          fi
-
-          cd mvn-repo-temp
-
-          # Populate index with the current tree (no file content)
-          git read-tree HEAD 2>/dev/null || true  # Ignore if HEAD is empty (new branch)
-
-          # Copy our artifacts into working directory (overwrites anything there)
-          cp -r "${GITHUB_WORKSPACE}/${SOURCE_FOLDER}/"* .
-
-          # Stage only our changes – existing files not touched are preserved
-          git add .
-
-          if git diff --cached --quiet; then
-            echo "No changes"
-          else          
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-
-            git commit -m "Update Maven artifacts (run ${GITHUB_RUN_ID})"
-            git push origin "${TARGET_BRANCH}"
-          fi
+    - name: Publish to Amble Maven
+      uses: drtheodor/static-file-server-actions/upload@main
+      with:
+        published: dev/amble/ait
+        token: ${{ secrets.BOT_TOKEN }}
+        message: "chore: publish AIT artifacts"
 
     - name: Publish artifacts
       uses: drtheodor/discord-webhook-upload-action@v0.2
