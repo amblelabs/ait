@@ -31,6 +31,10 @@ public class EntityRef<T extends Entity> {
         this.world = world;
     }
 
+    public boolean hasWorld() {
+        return this.world != null;
+    }
+
     public T get() {
         T portal = this.ref != null ? this.ref.get() : null;
 
