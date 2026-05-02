@@ -87,9 +87,9 @@ jobs:
           fi
 
           # Copy artifacts into the working tree (overwrites existing files at same paths)
-          rsync -av --delete "${SOURCE_FOLDER}/" mvn-repo-temp/
+          rsync -av --delete "${SOURCE_FOLDER}/" /tmp/mvn-repo-temp/
 
-          cd mvn-repo-temp
+          cd /tmp/mvn-repo-temp
 
           # DO NOT use git add --all; that would stage deletions for placeholder files.
           # Instead, add only the files that we have copied/updated.
