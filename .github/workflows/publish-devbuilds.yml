@@ -103,9 +103,8 @@ jobs:
             rel_path="${file#$SOURCE_FOLDER/}"
             echo "Processing: ${rel_path}"
 
-            # Create blob with file content
+            # Create blob with file content (use temp file for JSON payload)
             content_b64=$(base64 -w 0 "${file}")
-            # Write JSON payload to a temporary file
             blob_payload_file=$(mktemp)
             jq -n --arg content "$content_b64" '{content: $content, encoding: "base64"}' > "$blob_payload_file"
 
@@ -125,7 +124,7 @@ jobs:
             jq -n --arg path "$rel_path" --arg mode "100644" --arg type "blob" --arg sha "$blob_sha" \
               '{path: $path, mode: $mode, type: $type, sha: $sha}' > "$entry_file"
             # Merge into TREE_ENTRIES_FILE
-            jq --argfile new "$entry_file" '. + [$new]' "$TREE_ENTRIES_FILE" > "${TREE_ENTRIES_FILE}.tmp"
+            jq --slurpfile new "$entry_file" '. + $new' "$TREE_ENTRIES_FILE" > "${TREE_ENTRIES_FILE}.tmp"
             mv "${TREE_ENTRIES_FILE}.tmp" "$TREE_ENTRIES_FILE"
             rm -f "$entry_file"
           done
