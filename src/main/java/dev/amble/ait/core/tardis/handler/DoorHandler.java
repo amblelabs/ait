@@ -170,7 +170,7 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
                     if (!(tardis.asServer().world().getBlockEntity(directed.getPos()) instanceof DoorBlockEntity))
                         return;
 
-                    Vec3d pos = directed.getPos().toCenterPos().offset(directed.toMinecraftDirection(), 1f);
+                    Vec3d pos = directed.getPos().toCenterPos(); //.offset(directed.toMinecraftDirection(), 1f);
 
                     float suckValue = tardis.travel().position().getDimension().equals(AITDimensions.SPACE) ? 0.08f: 0.05f;
                     Vec3d motion = pos.subtract(entity.getPos()).normalize().multiply(suckValue);
