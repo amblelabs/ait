@@ -56,16 +56,10 @@ jobs:
     
     - name: Build
       run: ./gradlew --configuration-cache build
-
-    - name: Setup Amble Maven
-      id: setup-maven
-      uses: drtheodor/static-file-server-actions/upload/setup@main
-      with:
-        repo: amblelabs/maven
-
+    
     - name: Build for Maven
       env:
-        CI_MAVEN_PATH: ${{ steps.setup-maven.outputs.path }}
+        CI_MAVEN_PATH: maven-root
       run: ./gradlew --configuration-cache publishMavenJavaPublicationToCiRepository
 
     - name: Push folder to mvn-repo branch via GitHub API
@@ -73,12 +67,13 @@ jobs:
           OWNER: amblelabs
           REPO: maven
           BRANCH: main              # target branch
-          SOURCE_FOLDER: ${{ steps.setup-maven.outputs.path }}
+          SOURCE_FOLDER: maven-root
+          GH_TOKEN: ${{ secrets.BOT_TOKEN }}
       run: |
           set -euo pipefail
 
           # Basic config
-          API_HEADER="Authorization: Bearer ${secrets.BOT_TOKEN}"
+          API_HEADER="Authorization: Bearer ${GH_TOKEN}"
           API_URL="https://api.github.com/repos/${OWNER}/${REPO}"
 
           # 1. Ensure the target branch exists (create from empty tree if not)
