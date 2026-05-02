@@ -96,22 +96,23 @@ jobs:
           # ------------------------------------------------------------
           # 3. Create blobs for each file and collect tree entries
           # ------------------------------------------------------------
-          TREE_ENTRIES="[]"
+          TREE_ENTRIES_FILE=$(mktemp)
+          echo "[]" > "$TREE_ENTRIES_FILE"
+
           find "${SOURCE_FOLDER}" -type f | while read -r file; do
             rel_path="${file#$SOURCE_FOLDER/}"
             echo "Processing: ${rel_path}"
 
             # Create blob with file content
             content_b64=$(base64 -w 0 "${file}")
-            # Use a temp file to avoid argument length limit
-            content_file=$(mktemp)
-            echo -n "$content_b64" > "$content_file"
-
-            blob_payload=$(jq -n --rawfile content "$content_file" '{content: $content, encoding: "base64"}')
-            rm -f "$content_file"
+            # Write JSON payload to a temporary file
+            blob_payload_file=$(mktemp)
+            jq -n --arg content "$content_b64" '{content: $content, encoding: "base64"}' > "$blob_payload_file"
 
             blob_response=$(curl -s -X POST -H "${API_HEADER}" -H "Content-Type: application/json" \
-              -d "$blob_payload" "${API_URL}/git/blobs")
+              --data-binary "@${blob_payload_file}" "${API_URL}/git/blobs")
+            rm -f "$blob_payload_file"
+
             blob_sha=$(echo "$blob_response" | jq -r '.sha')
             if [ "$blob_sha" = "null" ]; then
               echo "❌ Failed to create blob: $(echo "$blob_response" | jq -r '.message')"
@@ -119,25 +120,28 @@ jobs:
             fi
             echo "  → Blob SHA: ${blob_sha}"
 
-            # Append tree entry
-            entry=$(jq -n \
-              --arg path "$rel_path" \
-              --arg mode "100644" \
-              --arg type "blob" \
-              --arg sha "$blob_sha" \
-              '{path: $path, mode: $mode, type: $type, sha: $sha}')
-            TREE_ENTRIES=$(echo "$TREE_ENTRIES" | jq --argjson entry "$entry" '. + [$entry]')
+            # Append tree entry to the JSON array file
+            entry_file=$(mktemp)
+            jq -n --arg path "$rel_path" --arg mode "100644" --arg type "blob" --arg sha "$blob_sha" \
+              '{path: $path, mode: $mode, type: $type, sha: $sha}' > "$entry_file"
+            # Merge into TREE_ENTRIES_FILE
+            jq --argfile new "$entry_file" '. + [$new]' "$TREE_ENTRIES_FILE" > "${TREE_ENTRIES_FILE}.tmp"
+            mv "${TREE_ENTRIES_FILE}.tmp" "$TREE_ENTRIES_FILE"
+            rm -f "$entry_file"
           done
 
           # ------------------------------------------------------------
           # 4. Create a new tree based on the current tree + our entries
           # ------------------------------------------------------------
-          tree_payload=$(jq -n \
-            --arg base_tree "$CURRENT_TREE" \
-            --argjson tree "$TREE_ENTRIES" \
-            '{base_tree: $base_tree, tree: $tree}')
+          tree_payload_file=$(mktemp)
+          jq -n --arg base_tree "$CURRENT_TREE" --slurpfile tree "$TREE_ENTRIES_FILE" \
+            '{base_tree: $base_tree, tree: $tree[0]}' > "$tree_payload_file"
+          rm -f "$TREE_ENTRIES_FILE"
+
           new_tree_response=$(curl -s -X POST -H "${API_HEADER}" -H "Content-Type: application/json" \
-            -d "$tree_payload" "${API_URL}/git/trees")
+            --data-binary "@${tree_payload_file}" "${API_URL}/git/trees")
+          rm -f "$tree_payload_file"
+
           NEW_TREE_SHA=$(echo "$new_tree_response" | jq -r '.sha')
           if [ "$NEW_TREE_SHA" = "null" ]; then
             echo "❌ Failed to create tree: $(echo "$new_tree_response" | jq -r '.message')"
@@ -148,13 +152,17 @@ jobs:
           # ------------------------------------------------------------
           # 5. Create a commit with the new tree
           # ------------------------------------------------------------
-          commit_payload=$(jq -n \
+          commit_payload_file=$(mktemp)
+          jq -n \
             --arg message "Update Maven repository artifacts via workflow" \
             --arg tree "$NEW_TREE_SHA" \
             --arg parent "$CURRENT_COMMIT" \
-            '{message: $message, tree: $tree, parents: [$parent]}')
+            '{message: $message, tree: $tree, parents: [$parent]}' > "$commit_payload_file"
+
           new_commit_response=$(curl -s -X POST -H "${API_HEADER}" -H "Content-Type: application/json" \
-            -d "$commit_payload" "${API_URL}/git/commits")
+            --data-binary "@${commit_payload_file}" "${API_URL}/git/commits")
+          rm -f "$commit_payload_file"
+
           NEW_COMMIT_SHA=$(echo "$new_commit_response" | jq -r '.sha')
           if [ "$NEW_COMMIT_SHA" = "null" ]; then
             echo "❌ Failed to create commit: $(echo "$new_commit_response" | jq -r '.message')"
