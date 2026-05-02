@@ -71,68 +71,108 @@ jobs:
           GH_TOKEN: ${{ secrets.BOT_TOKEN }}
       run: |
           set -euo pipefail
-
-          # Basic config
           API_HEADER="Authorization: Bearer ${GH_TOKEN}"
           API_URL="https://api.github.com/repos/${OWNER}/${REPO}"
 
-          # 1. Ensure the target branch exists (create from empty tree if not)
+          # ------------------------------------------------------------
+          # 1. Ensure the target branch exists (create empty if needed)
+          # ------------------------------------------------------------
           if ! git ls-remote --heads origin "refs/heads/${BRANCH}" | grep -q "${BRANCH}"; then
             echo "Creating empty branch ${BRANCH}"
-            # Get the empty tree SHA
             EMPTY_TREE=$(curl -s -H "${API_HEADER}" -X POST "${API_URL}/git/trees" -d '{"tree":[]}' | jq -r '.sha')
-            # Create an initial commit
             COMMIT_SHA=$(curl -s -H "${API_HEADER}" -X POST "${API_URL}/git/commits" \
               -d "{\"message\":\"Initial empty commit for ${BRANCH}\",\"tree\":\"${EMPTY_TREE}\"}" | jq -r '.sha')
-            # Create the branch
             curl -s -H "${API_HEADER}" -X POST "${API_URL}/git/refs" \
               -d "{\"ref\":\"refs/heads/${BRANCH}\",\"sha\":\"${COMMIT_SHA}\"}" > /dev/null
           fi
 
-          # 2. Iterate over all files in the source folder
+          # ------------------------------------------------------------
+          # 2. Get current commit and tree SHA of the branch
+          # ------------------------------------------------------------
+          CURRENT_COMMIT=$(curl -s -H "${API_HEADER}" "${API_URL}/git/refs/heads/${BRANCH}" | jq -r '.object.sha')
+          CURRENT_TREE=$(curl -s -H "${API_HEADER}" "${API_URL}/git/commits/${CURRENT_COMMIT}" | jq -r '.tree.sha')
+          echo "Current commit: ${CURRENT_COMMIT}, tree: ${CURRENT_TREE}"
+
+          # ------------------------------------------------------------
+          # 3. Create blobs for each file and collect tree entries
+          # ------------------------------------------------------------
+          TREE_ENTRIES="[]"
           find "${SOURCE_FOLDER}" -type f | while read -r file; do
-            # Compute relative path inside the repo (remove SOURCE_FOLDER prefix)
             rel_path="${file#$SOURCE_FOLDER/}"
             echo "Processing: ${rel_path}"
 
-            # Encode file content (base64)
+            # Create blob with file content
             content_b64=$(base64 -w 0 "${file}")
+            # Use a temp file to avoid argument length limit
+            content_file=$(mktemp)
+            echo -n "$content_b64" > "$content_file"
 
-            # Check if file already exists on the branch
-            existing_sha=$(curl -s -H "${API_HEADER}" \
-              "${API_URL}/contents/${rel_path}?ref=${BRANCH}" | jq -r '.sha // empty')
+            blob_payload=$(jq -n --rawfile content "$content_file" '{content: $content, encoding: "base64"}')
+            rm -f "$content_file"
 
-            # Build JSON payload
-            if [ -n "${existing_sha}" ]; then
-              echo "  → File exists, updating (SHA: ${existing_sha})"
-              payload=$(jq -n \
-                --arg message "Update ${rel_path}" \
-                --arg content "${content_b64}" \
-                --arg sha "${existing_sha}" \
-                --arg branch "${BRANCH}" \
-                '{message:$message, content:$content, sha:$sha, branch:$branch}')
-            else
-              echo "  → New file, creating"
-              payload=$(jq -n \
-                --arg message "Add ${rel_path}" \
-                --arg content "${content_b64}" \
-                --arg branch "${BRANCH}" \
-                '{message:$message, content:$content, branch:$branch}')
-            fi
-
-            # PUT the file (create or update)
-            response=$(curl -s -X PUT -H "${API_HEADER}" \
-              -H "Content-Type: application/json" \
-              -d "${payload}" \
-              "${API_URL}/contents/${rel_path}")
-
-            if echo "${response}" | jq -e '.content' > /dev/null; then
-              echo "  ✅ Success"
-            else
-              echo "  ❌ Failed: $(echo "${response}" | jq -r '.message // "Unknown error"')"
+            blob_response=$(curl -s -X POST -H "${API_HEADER}" -H "Content-Type: application/json" \
+              -d "$blob_payload" "${API_URL}/git/blobs")
+            blob_sha=$(echo "$blob_response" | jq -r '.sha')
+            if [ "$blob_sha" = "null" ]; then
+              echo "❌ Failed to create blob: $(echo "$blob_response" | jq -r '.message')"
               exit 1
             fi
+            echo "  → Blob SHA: ${blob_sha}"
+
+            # Append tree entry
+            entry=$(jq -n \
+              --arg path "$rel_path" \
+              --arg mode "100644" \
+              --arg type "blob" \
+              --arg sha "$blob_sha" \
+              '{path: $path, mode: $mode, type: $type, sha: $sha}')
+            TREE_ENTRIES=$(echo "$TREE_ENTRIES" | jq --argjson entry "$entry" '. + [$entry]')
           done
+
+          # ------------------------------------------------------------
+          # 4. Create a new tree based on the current tree + our entries
+          # ------------------------------------------------------------
+          tree_payload=$(jq -n \
+            --arg base_tree "$CURRENT_TREE" \
+            --argjson tree "$TREE_ENTRIES" \
+            '{base_tree: $base_tree, tree: $tree}')
+          new_tree_response=$(curl -s -X POST -H "${API_HEADER}" -H "Content-Type: application/json" \
+            -d "$tree_payload" "${API_URL}/git/trees")
+          NEW_TREE_SHA=$(echo "$new_tree_response" | jq -r '.sha')
+          if [ "$NEW_TREE_SHA" = "null" ]; then
+            echo "❌ Failed to create tree: $(echo "$new_tree_response" | jq -r '.message')"
+            exit 1
+          fi
+          echo "New tree SHA: ${NEW_TREE_SHA}"
+
+          # ------------------------------------------------------------
+          # 5. Create a commit with the new tree
+          # ------------------------------------------------------------
+          commit_payload=$(jq -n \
+            --arg message "Update Maven repository artifacts via workflow" \
+            --arg tree "$NEW_TREE_SHA" \
+            --arg parent "$CURRENT_COMMIT" \
+            '{message: $message, tree: $tree, parents: [$parent]}')
+          new_commit_response=$(curl -s -X POST -H "${API_HEADER}" -H "Content-Type: application/json" \
+            -d "$commit_payload" "${API_URL}/git/commits")
+          NEW_COMMIT_SHA=$(echo "$new_commit_response" | jq -r '.sha')
+          if [ "$NEW_COMMIT_SHA" = "null" ]; then
+            echo "❌ Failed to create commit: $(echo "$new_commit_response" | jq -r '.message')"
+            exit 1
+          fi
+          echo "New commit SHA: ${NEW_COMMIT_SHA}"
+
+          # ------------------------------------------------------------
+          # 6. Update the branch to point to the new commit
+          # ------------------------------------------------------------
+          update_response=$(curl -s -X PATCH -H "${API_HEADER}" -H "Content-Type: application/json" \
+            -d "{\"sha\":\"${NEW_COMMIT_SHA}\"}" "${API_URL}/git/refs/heads/${BRANCH}")
+          if echo "$update_response" | jq -e '.object.sha' > /dev/null; then
+            echo "✅ Branch ${BRANCH} updated successfully"
+          else
+            echo "❌ Failed to update branch: $(echo "$update_response" | jq -r '.message')"
+            exit 1
+          fi
 
     - name: Publish artifacts
       uses: drtheodor/discord-webhook-upload-action@v0.2
