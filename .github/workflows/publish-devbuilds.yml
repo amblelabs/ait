@@ -78,12 +78,12 @@ jobs:
           REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${OWNER}/${REPO}.git"
 
           # Partial clone: metadata only, no blob content
-          if ! git clone --filter=blob:none --branch "${BRANCH}" --depth 1 "${REPO_URL}" mvn-repo-temp; then
+          if ! git clone --filter=blob:none --branch "${BRANCH}" --depth 1 "${REPO_URL}" /tmp/mvn-repo-temp; then
             echo "Branch ${BRANCH} does not exist. Creating fresh branch."
-            git init mvn-repo-temp
-            cd mvn-repo-temp
+            git init /tmp/mvn-repo-temp
+            cd /tmp/mvn-repo-temp
             git checkout -b "${BRANCH}"
-            cd ..
+            cd -
           fi
 
           # Copy artifacts into the working tree (overwrites existing files at same paths)
