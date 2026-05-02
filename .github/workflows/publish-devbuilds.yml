@@ -73,7 +73,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          REPO_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/amblelabs/maven.git"
+          REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/amblelabs/maven.git"
 
           # Clone metadata only, no checkout
           if ! git clone --filter=blob:none --no-checkout --depth 1 --branch "${TARGET_BRANCH}" "${REPO_URL}" mvn-repo-temp; then
