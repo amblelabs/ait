@@ -64,46 +64,42 @@ jobs:
 
     - name: Push folder to mvn-repo branch via GitHub API
       env:
-          OWNER: amblelabs
-          REPO: maven
-          BRANCH: main              # target branch
-          SOURCE_FOLDER: maven-root
           GH_TOKEN: ${{ secrets.BOT_TOKEN }}
       run: |
           set -euo pipefail
+          TARGET_BRANCH="main"
+          SOURCE_FOLDER="./maven-root"
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${OWNER}/${REPO}.git"
+          REPO_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/amblelabs/maven.git"
 
-          # Partial clone: metadata only, no blob content
-          if ! git clone --filter=blob:none --branch "${BRANCH}" --depth 1 "${REPO_URL}" /tmp/mvn-repo-temp; then
-            echo "Branch ${BRANCH} does not exist. Creating fresh branch."
-            git init /tmp/mvn-repo-temp
-            cd /tmp/mvn-repo-temp
-            git checkout -b "${BRANCH}"
-            cd -
+          # Clone metadata only, no checkout
+          if ! git clone --filter=blob:none --no-checkout --depth 1 --branch "${TARGET_BRANCH}" "${REPO_URL}" mvn-repo-temp; then
+            # Branch doesn't exist – create empty branch
+            git init mvn-repo-temp
+            cd mvn-repo-temp
+            git checkout -b "${TARGET_BRANCH}"
+            cd ..
           fi
 
-          # Copy artifacts into the working tree (overwrites existing files at same paths)
-          rsync -av --delete "${SOURCE_FOLDER}/" /tmp/mvn-repo-temp/
+          cd mvn-repo-temp
 
-          cd /tmp/mvn-repo-temp
+          # Populate index with the current tree (no file content)
+          git read-tree HEAD 2>/dev/null || true  # Ignore if HEAD is empty (new branch)
 
-          # DO NOT use git add --all; that would stage deletions for placeholder files.
-          # Instead, add only the files that we have copied/updated.
-          # We add the entire directory structure that we know we are publishing.
-          # Git will update the index for those paths, and leave all other paths alone.
-          git add --verbose --ignore-removal .
+          # Copy our artifacts into working directory (overwrites anything there)
+          cp -r "${GITHUB_WORKSPACE}/${SOURCE_FOLDER}/"* .
+
+          # Stage only our changes – existing files not touched are preserved
+          git add .
 
           if git diff --cached --quiet; then
-            echo "No changes to commit"
+            echo "No changes"
           else
-            git commit -m "Update Maven artifacts from workflow run ${GITHUB_RUN_ID}"
-            # Push only the new commits + blobs (existing blobs already on server)
-            git push origin "${BRANCH}"
-            echo "✅ Pushed to ${BRANCH}"
+            git commit -m "Update Maven artifacts (run ${GITHUB_RUN_ID})"
+            git push origin "${TARGET_BRANCH}"
           fi
 
     - name: Publish artifacts
