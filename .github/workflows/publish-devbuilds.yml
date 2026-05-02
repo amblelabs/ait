@@ -74,9 +74,7 @@ jobs:
           API_HEADER="Authorization: Bearer ${GH_TOKEN}"
           API_URL="https://api.github.com/repos/${OWNER}/${REPO}"
 
-          # ------------------------------------------------------------
-          # 1. Ensure the target branch exists (create empty if needed)
-          # ------------------------------------------------------------
+          # Ensure the target branch exists
           if ! git ls-remote --heads origin "refs/heads/${BRANCH}" | grep -q "${BRANCH}"; then
             echo "Creating empty branch ${BRANCH}"
             EMPTY_TREE=$(curl -s -H "${API_HEADER}" -X POST "${API_URL}/git/trees" -d '{"tree":[]}' | jq -r '.sha')
@@ -86,16 +84,12 @@ jobs:
               -d "{\"ref\":\"refs/heads/${BRANCH}\",\"sha\":\"${COMMIT_SHA}\"}" > /dev/null
           fi
 
-          # ------------------------------------------------------------
-          # 2. Get current commit and tree SHA of the branch
-          # ------------------------------------------------------------
+          # Get current commit and tree SHA
           CURRENT_COMMIT=$(curl -s -H "${API_HEADER}" "${API_URL}/git/refs/heads/${BRANCH}" | jq -r '.object.sha')
           CURRENT_TREE=$(curl -s -H "${API_HEADER}" "${API_URL}/git/commits/${CURRENT_COMMIT}" | jq -r '.tree.sha')
           echo "Current commit: ${CURRENT_COMMIT}, tree: ${CURRENT_TREE}"
 
-          # ------------------------------------------------------------
-          # 3. Create blobs for each file and collect tree entries
-          # ------------------------------------------------------------
+          # Create tree entries array
           TREE_ENTRIES_FILE=$(mktemp)
           echo "[]" > "$TREE_ENTRIES_FILE"
 
@@ -103,14 +97,18 @@ jobs:
             rel_path="${file#$SOURCE_FOLDER/}"
             echo "Processing: ${rel_path}"
 
-            # Create blob with file content (use temp file for JSON payload)
-            content_b64=$(base64 -w 0 "${file}")
+            # ----- FIX: write base64 directly to a file, then use --rawfile -----
+            base64_file=$(mktemp)
+            base64 -w 0 "${file}" > "${base64_file}"
+
             blob_payload_file=$(mktemp)
-            jq -n --arg content "$content_b64" '{content: $content, encoding: "base64"}' > "$blob_payload_file"
+            jq -n --rawfile content "${base64_file}" '{content: $content, encoding: "base64"}' > "${blob_payload_file}"
+            rm -f "${base64_file}"
+            # --------------------------------------------------------------------
 
             blob_response=$(curl -s -X POST -H "${API_HEADER}" -H "Content-Type: application/json" \
               --data-binary "@${blob_payload_file}" "${API_URL}/git/blobs")
-            rm -f "$blob_payload_file"
+            rm -f "${blob_payload_file}"
 
             blob_sha=$(echo "$blob_response" | jq -r '.sha')
             if [ "$blob_sha" = "null" ]; then
@@ -123,15 +121,12 @@ jobs:
             entry_file=$(mktemp)
             jq -n --arg path "$rel_path" --arg mode "100644" --arg type "blob" --arg sha "$blob_sha" \
               '{path: $path, mode: $mode, type: $type, sha: $sha}' > "$entry_file"
-            # Merge into TREE_ENTRIES_FILE
             jq --slurpfile new "$entry_file" '. + $new' "$TREE_ENTRIES_FILE" > "${TREE_ENTRIES_FILE}.tmp"
             mv "${TREE_ENTRIES_FILE}.tmp" "$TREE_ENTRIES_FILE"
             rm -f "$entry_file"
           done
 
-          # ------------------------------------------------------------
-          # 4. Create a new tree based on the current tree + our entries
-          # ------------------------------------------------------------
+          # Create new tree
           tree_payload_file=$(mktemp)
           jq -n --arg base_tree "$CURRENT_TREE" --slurpfile tree "$TREE_ENTRIES_FILE" \
             '{base_tree: $base_tree, tree: $tree[0]}' > "$tree_payload_file"
@@ -148,9 +143,7 @@ jobs:
           fi
           echo "New tree SHA: ${NEW_TREE_SHA}"
 
-          # ------------------------------------------------------------
-          # 5. Create a commit with the new tree
-          # ------------------------------------------------------------
+          # Create commit
           commit_payload_file=$(mktemp)
           jq -n \
             --arg message "Update Maven repository artifacts via workflow" \
@@ -169,9 +162,7 @@ jobs:
           fi
           echo "New commit SHA: ${NEW_COMMIT_SHA}"
 
-          # ------------------------------------------------------------
-          # 6. Update the branch to point to the new commit
-          # ------------------------------------------------------------
+          # Update branch reference
           update_response=$(curl -s -X PATCH -H "${API_HEADER}" -H "Content-Type: application/json" \
             -d "{\"sha\":\"${NEW_COMMIT_SHA}\"}" "${API_URL}/git/refs/heads/${BRANCH}")
           if echo "$update_response" | jq -e '.object.sha' > /dev/null; then
