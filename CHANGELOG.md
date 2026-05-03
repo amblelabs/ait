@@ -66,3 +66,4 @@
 - Lodestone block uses the charged crystal to emit chronons and rips open rift chunks to expose rifts. | ([#1997](https://github.com/amblelabs/ait/pull/1997))
 - feat: biome finder for the astral map | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#1929](https://github.com/amblelabs/ait/pull/1929))
 - fix: refactor portal world handling and remove postInit | by [@drtheodor](https://github.com/drtheodor) ([#2004](https://github.com/amblelabs/ait/pull/2004))
+- Update link for Amble Labs in README | by [@Loqor](https://github.com/Loqor) ([#2007](https://github.com/amblelabs/ait/pull/2007))
