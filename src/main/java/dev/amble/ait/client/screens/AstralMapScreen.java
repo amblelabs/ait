@@ -21,7 +21,7 @@ import net.minecraft.util.Identifier;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.blocks.AstralMapBlock;
 import dev.amble.ait.core.util.WorldUtil;
-import net.minecraft.util.Language;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 public class AstralMapScreen extends Screen {
@@ -42,10 +42,16 @@ public class AstralMapScreen extends Screen {
     private static final Text SHOW_STRUCTURES_MESSAGE = Text.translatable("screen.ait.astral_map.show_structures");
     private static final Text SHOW_BIOMES_MESSAGE = Text.translatable("screen.ait.astral_map.show_biomes");
 
-    public enum DisplayedCategories {
+    public enum Category {
         STRUCTURES,
-        BIOMES,
-        BOTH,
+        BIOMES;
+
+        // Used for bitwise masking in order to combine shown and hidden categories
+        public final int bitValue = 1 << this.ordinal();
+
+        public boolean isShown(int shownCategories) {
+            return (shownCategories & this.bitValue) != 0;
+        }
     }
 
     public AstralMapScreen() {
@@ -67,7 +73,6 @@ public class AstralMapScreen extends Screen {
         this.searchBox = new TextFieldWidget(this.client.textRenderer, this.left + 12,
                 this.top + 13, this.bgWidth - 26, 15, SEARCH_TEXT);
         this.searchBox.setPlaceholder(SEARCH_TEXT);
-        this.searchBox.setText("");
         this.searchBox.setChangedListener(this::onSearchChange);
 
         this.showStructuresCheckbox = new CallbackCheckboxWidget(this.left + 11, this.top + 33,
@@ -90,15 +95,13 @@ public class AstralMapScreen extends Screen {
     }
 
     private void onShowStructuresChecked(CallbackCheckboxWidget checkbox) {
-        boolean showBothCategories = checkbox.isChecked() || !this.showBiomesCheckbox.isChecked();
-        this.showBiomesCheckbox.active = showBothCategories;
-        this.entryList.setShownCategory(showBothCategories ? DisplayedCategories.BOTH : DisplayedCategories.BIOMES);
+        this.showBiomesCheckbox.active = checkbox.isChecked() || !this.showBiomesCheckbox.isChecked();
+        this.entryList.toggleCategory(Category.STRUCTURES);
     }
 
     private void onShowBiomesChecked(CallbackCheckboxWidget checkbox) {
-        boolean showBothCategories = checkbox.isChecked() || !this.showStructuresCheckbox.isChecked();
-        this.showStructuresCheckbox.active = showBothCategories;
-        this.entryList.setShownCategory(showBothCategories ? DisplayedCategories.BOTH : DisplayedCategories.STRUCTURES);
+        this.showStructuresCheckbox.active = checkbox.isChecked() || !this.showStructuresCheckbox.isChecked();
+        this.entryList.toggleCategory(Category.BIOMES);
     }
 
     @Override
@@ -118,7 +121,7 @@ public class AstralMapScreen extends Screen {
 
     private void exit(AstralMapListWidget.Entry entry) {
         var packetByteBuf = PacketByteBufs.create().writeIdentifier(entry.identifier);
-        packetByteBuf.writeBoolean(AstralMapBlock.structureIds.contains(entry.identifier));
+        packetByteBuf.writeEnumConstant(entry.category);
         ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, packetByteBuf);
         this.client.setScreen(null);
     }
@@ -146,7 +149,9 @@ public class AstralMapScreen extends Screen {
      */
      class AstralMapListWidget extends AlwaysSelectedEntryListWidget<AstralMapListWidget.Entry> {
 
-        private DisplayedCategories shownCategory = DisplayedCategories.BOTH;
+        // Bit flags are used to filter which categories to show. All categories are initially shown, hence the
+        // bit inversion of 0 for initialization
+        private int shownCategories = ~0;
         private final List<Entry> entries = new ArrayList<>();
         private final Map<String, String> mods = new HashMap<>();
         private String currentSearch = "";
@@ -167,60 +172,56 @@ public class AstralMapScreen extends Screen {
         }
 
         public String getModName(String modId) {
-            if (mods.containsKey(modId)) return mods.get(modId);
-            String modName = FabricLoader.getInstance().getModContainer(modId)
-                    .map(mod -> mod.getMetadata().getName()).orElse(modId);
-            mods.put(modId, modName);
-            return modName;
+            return mods.computeIfAbsent(modId, id -> FabricLoader.getInstance().getModContainer(id)
+                    .map(mod -> mod.getMetadata().getName()).orElse(id));
         }
 
         public void refreshEntries() {
             this.entries.clear();
-            if (shownCategory != DisplayedCategories.STRUCTURES) {
-                for (Identifier id : client.world.getRegistryManager().get(RegistryKeys.BIOME).getIds()) {
-                    this.entries.add(new Entry(id, true));
+            if (Category.STRUCTURES.isShown(this.shownCategories)) {
+                for (Identifier id : AstralMapBlock.structureIds) {
+                    this.entries.add(new Entry(id, Category.STRUCTURES, null));
                 }
             }
-            if (shownCategory != DisplayedCategories.BIOMES) {
-                for (Identifier id : AstralMapBlock.structureIds) {
-                    this.entries.add(new Entry(id, false));
+            if (Category.BIOMES.isShown(this.shownCategories)) {
+                for (Identifier id : client.world.getRegistryManager().get(RegistryKeys.BIOME).getIds()) {
+                    this.entries.add(new Entry(id, Category.BIOMES, id.toTranslationKey("biome")));
                 }
             }
             this.entries.sort((e1, e2) -> e1.text.getString().compareToIgnoreCase(e2.text.getString()));
         }
 
-        public void setCurrentSearch(String currentSearch) {
-            this.currentSearch = currentSearch;
+        public void setCurrentSearch(String search) {
             this.refreshEntries();
-            String[] splitSearch = currentSearch.split(" ");
+            this.currentSearch = search.strip();
+            String[] splitSearch = this.currentSearch.split(" ");
             for (String substring : splitSearch) {
-                if (substring.isEmpty()) break;
+                if (substring.isEmpty()) continue;
+                String lowercase = substring.toLowerCase(Locale.ROOT);
                 // Allow users to search by mod by prefixing their search with "@"
-                if (substring.charAt(0) == '@') {
-                    if (substring.length() < 2) continue;
+                if (lowercase.charAt(0) == '@') {
+                    if (lowercase.length() < 2) continue;
+                    // a "@" and at least one more character
+                    String modId = lowercase.substring(1);
                     this.entries.removeIf(entry -> !entry.identifier.getNamespace()
-                            .contains(substring.substring(1).strip().toLowerCase(Locale.ROOT)));
+                            .contains(modId));
                 } else {
                     this.entries.removeIf(entry -> !entry.text.toString().toLowerCase(Locale.ROOT)
-                            .contains(substring.toLowerCase(Locale.ROOT)));
+                            .contains(lowercase));
                 }
             }
+            this.setScrollAmount(0);
             this.replaceEntries(this.entries);
             if (!this.children().isEmpty()) {
                 this.setFocused(this.getFirst());
             }
-            if (!currentSearch.isEmpty()) {
-                this.setScrollAmount(0);
-            }
         }
 
-        public void setShownCategory(DisplayedCategories shownCategory) {
-            this.shownCategory = shownCategory;
+        public void toggleCategory(Category category) {
+            // Bitwise XOR mask toggles the category
+            this.shownCategories ^= category.bitValue;
             this.setCurrentSearch(this.currentSearch);
-            this.replaceEntries(this.entries);
-            if (shownCategory != DisplayedCategories.BOTH) {
-                this.setScrollAmount(0);
-            }
+            this.setScrollAmount(0);
         }
 
         @Override
@@ -257,17 +258,14 @@ public class AstralMapScreen extends Screen {
             private final Identifier identifier;
             private final Text text;
             private final String modName;
+            public final Category category;
 
-            public Entry(Identifier identifier, boolean isBiome) {
+            public Entry(Identifier identifier, Category category, @Nullable String translationKey) {
                 this.identifier = identifier;
+                this.category = category;
                 // Only biomes have actual translation keys and some modded ones might not
-                if (isBiome) {
-                    String translationKey = identifier.toTranslationKey("biome");
-                    if (Language.getInstance().hasTranslation(translationKey)) {
-                        this.text = Text.translatable(translationKey);
-                    } else {
-                        this.text = Text.literal(identifierToName(identifier));
-                    }
+                if (translationKey != null) {
+                    this.text = Text.translatableWithFallback(translationKey, identifierToName(identifier));
                 } else {
                     this.text = Text.literal(identifierToName(identifier));
                 }

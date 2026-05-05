@@ -56,7 +56,7 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
     public static final IntProperty ROTATION = Properties.ROTATION;
 
     public static final Identifier REQUEST_SEARCH = AITMod.id("c2s/request_search");
-    public static final Identifier SYNC_STRUCTURES = AITMod.id("s2c/sync_structures");
+    public static final Identifier OPEN_ASTRAL_MAP = AITMod.id("s2c/open_astral_map");
     // Store structure IDs on the client since they aren't synced by default
     public static List<Identifier> structureIds;
 
@@ -75,12 +75,11 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
                 if (!hasAccess) return;
 
                 Identifier target = buf.readIdentifier();
-                boolean isStructure = buf.readBoolean();
+                AstralMapScreen.Category category = buf.readEnumConstant(AstralMapScreen.Category.class);
 
-                if (isStructure) {
-                    handleStructureRequest(player, target);
-                } else {
-                    handleBiomeRequest(player, target);
+                switch(category) {
+                    case BIOMES -> handleBiomeRequest(player, target);
+                    case STRUCTURES -> handleStructureRequest(player, target);
                 }
             } catch (Exception e) {
                 AITMod.LOGGER.error("Error handling search request", e);
@@ -195,12 +194,12 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
 
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeCollection(structureIds, PacketByteBuf::writeIdentifier);
-        ServerPlayNetworking.send(target, SYNC_STRUCTURES, buf);
+        ServerPlayNetworking.send(target, OPEN_ASTRAL_MAP, buf);
     }
 
     @Environment(EnvType.CLIENT)
     public static void registerSyncListener() {
-        ClientPlayNetworking.registerGlobalReceiver(SYNC_STRUCTURES, (client, handler, buf, responseSender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(OPEN_ASTRAL_MAP, (client, handler, buf, responseSender) -> {
             List<Identifier> ids = buf.readList(PacketByteBuf::readIdentifier);
             client.execute(() -> {
                 AstralMapBlock.structureIds = ids;
