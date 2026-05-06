@@ -22,6 +22,7 @@ import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
 import dev.amble.ait.core.engine.link.IFluidLink;
 import dev.amble.ait.core.engine.link.IFluidSource;
 import dev.amble.ait.core.engine.link.ITardisSource;
+import dev.amble.ait.core.engine.link.tracker.FluidNetworkRebuilder;
 import dev.amble.ait.core.tardis.Tardis;
 
 public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSource {
@@ -39,8 +40,10 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
 
         this.tardis().ifPresent(tardis -> tardis.subsystems().engine().setEnabled(true));
 
-        if (tryPlaceFillBlocks())
+        if (tryPlaceFillBlocks()) {
+            this.markNetworkDirty();
             return;
+        }
 
         this.onBroken(world, pos);
         world.setBlockState(pos, Blocks.AIR.getDefaultState());
@@ -152,6 +155,24 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
     @Override
     public void onLinked() {
         this.tardis().ifPresent(tardis -> tardis.getDesktop().setEnginePos(this));
+    }
+
+    @Override
+    public void onGainFluid() {
+        super.onGainFluid();
+        this.markNetworkDirty();
+    }
+
+    @Override
+    public void onLoseFluid() {
+        super.onLoseFluid();
+        this.markNetworkDirty();
+    }
+
+    private void markNetworkDirty() {
+        if (this.hasWorld() && !this.getWorld().isClient()) {
+            FluidNetworkRebuilder.markDirty((ServerWorld) this.getWorld(), this.getPos());
+        }
     }
 
     @Override

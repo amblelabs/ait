@@ -1,7 +1,10 @@
 package dev.amble.ait.core.engine.link.tracker;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 import org.jetbrains.annotations.Nullable;
@@ -69,5 +72,37 @@ public class WorldFluidTracker {
         }
 
         return null;
+    }
+
+    /**
+     * Breadth-first traversal of every {@link IFluidLink} reachable from {@code start}.
+     * Insertion order is BFS order, so iterating the result yields nodes by distance from {@code start}.
+     * Stops cleanly at {@code maxNodes} to bound worst-case cost on pathological networks.
+     *
+     * @return immutable-ish {@code LinkedHashMap<BlockPos, IFluidLink>} of every visited node, including {@code start}.
+     */
+    public static LinkedHashMap<BlockPos, IFluidLink> bfs(ServerWorld world, BlockPos start, int maxNodes) {
+        LinkedHashMap<BlockPos, IFluidLink> visited = new LinkedHashMap<>();
+        IFluidLink first = query(world, start);
+        if (first == null) return visited;
+
+        Deque<BlockPos> queue = new ArrayDeque<>();
+        queue.add(start);
+        visited.put(start, first);
+
+        while (!queue.isEmpty() && visited.size() < maxNodes) {
+            BlockPos cur = queue.poll();
+            for (Direction dir : Direction.values()) {
+                BlockPos next = cur.offset(dir);
+                if (visited.containsKey(next)) continue;
+                IFluidLink link = query(world, next);
+                if (link == null) continue;
+                visited.put(next, link);
+                queue.add(next);
+                if (visited.size() >= maxNodes) break;
+            }
+        }
+
+        return visited;
     }
 }
