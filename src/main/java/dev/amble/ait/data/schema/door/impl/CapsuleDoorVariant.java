@@ -33,13 +33,6 @@ public class CapsuleDoorVariant extends DoorSchema {
 
     @Override
     public Vec3d adjustPortalPos(Vec3d pos, Direction direction) {
-        return switch (direction) {
-            case DOWN, UP -> pos;
-            case NORTH -> pos.add(0, 0.04, -0.3);
-            case SOUTH -> pos.add(0, 0.04, 0.3);
-            case WEST -> pos.add(-0, 0.04, -0.3);
-            case EAST -> pos.add(0.0, 0.04, -0.3);
-        };
-
+        return pos.add(0, 0.04, -0.3);
     }
 }
