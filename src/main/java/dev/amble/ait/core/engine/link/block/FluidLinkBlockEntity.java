@@ -6,7 +6,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
@@ -20,7 +19,7 @@ import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.engine.link.IFluidLink;
 import dev.amble.ait.core.engine.link.IFluidSource;
-import dev.amble.ait.core.engine.link.tracker.FluidNetworkRebuilder;
+import dev.amble.ait.core.engine.link.tracker.FluidNetwork;
 import dev.amble.ait.core.util.SoundData;
 
 public abstract class FluidLinkBlockEntity extends InteriorLinkableBlockEntity implements IFluidLink {
@@ -31,22 +30,6 @@ public abstract class FluidLinkBlockEntity extends InteriorLinkableBlockEntity i
 
     protected FluidLinkBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-    }
-
-    @Override
-    public void writeNbt(NbtCompound nbt) {
-        super.writeNbt(nbt);
-
-        nbt.putBoolean("HasFluid", this.powered);
-    }
-
-    @Override
-    public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
-
-        if (nbt.contains("HasFluid")) {
-            this.powered = nbt.getBoolean("HasFluid");
-        }
     }
 
     @Nullable @Override
@@ -75,7 +58,7 @@ public abstract class FluidLinkBlockEntity extends InteriorLinkableBlockEntity i
     }
 
     public boolean isPowered() {
-        return this.powered;
+        return this.powered && this.source != null;
     }
 
     @Override
@@ -111,9 +94,9 @@ public abstract class FluidLinkBlockEntity extends InteriorLinkableBlockEntity i
     }
 
     /**
-     * Applied by {@link FluidNetworkRebuilder} during the per-tick rebuild. Writes the new
-     * upstream pointer / source / powered state and fires gain/lose callbacks on transitions.
-     * Cables and subsystems must not mutate these fields outside this method.
+     * Applied by {@link FluidNetwork} during a rebuild. Writes the new upstream pointer / source /
+     * powered state and fires gain/lose callbacks on transitions. Cables and subsystems must not
+     * mutate these fields outside this method.
      */
     public void applyNetworkAssignment(@Nullable IFluidSource newSource, @Nullable IFluidLink newLast,
                                        @Nullable BlockPos newLastPos, boolean newPowered) {
@@ -158,20 +141,26 @@ public abstract class FluidLinkBlockEntity extends InteriorLinkableBlockEntity i
         this.lastPos = null;
         this.powered = false;
 
-        FluidNetworkRebuilder.markBrokenAt((ServerWorld) world, pos);
+        FluidNetwork.rebuildAround((ServerWorld) world, pos);
     }
 
     public void onPlaced(World world, BlockPos pos, @Nullable LivingEntity placer) {
         if (world.isClient())
             return;
 
-        FluidNetworkRebuilder.markDirty((ServerWorld) world, pos);
+        FluidNetwork.rebuildFrom((ServerWorld) world, pos);
     }
 
     public void onNeighborUpdate(World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos) {
         if (world.isClient())
             return;
 
-        FluidNetworkRebuilder.markDirty((ServerWorld) world, pos);
+        // Only react to changes from blocks that participate in the fluid-link graph;
+        // a redstone clock or piston next door must not force a network rebuild.
+        if (sourcePos != null && !(world.getBlockState(sourcePos).getBlock() instanceof IFluidLink)) {
+            return;
+        }
+
+        FluidNetwork.rebuildFrom((ServerWorld) world, pos);
     }
 }

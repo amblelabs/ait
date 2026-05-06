@@ -53,7 +53,6 @@ import dev.amble.ait.core.*;
 import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.commands.*;
 import dev.amble.ait.core.drinks.DrinkRegistry;
-import dev.amble.ait.core.engine.link.tracker.FluidNetworkRebuilder;
 import dev.amble.ait.core.engine.registry.SubSystemRegistry;
 import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.entities.RiftEntity;
@@ -203,7 +202,6 @@ public class AITMod implements ModInitializer {
 
         ServerTardisManager.init();
         TardisCriterions.init();
-        FluidNetworkRebuilder.register();
 
         entityAttributeRegister();
 

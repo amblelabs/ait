@@ -79,21 +79,22 @@ public class WorldFluidTracker {
      * Insertion order is BFS order, so iterating the result yields nodes by distance from {@code start}.
      * Stops cleanly at {@code maxNodes} to bound worst-case cost on pathological networks.
      *
-     * @return immutable-ish {@code LinkedHashMap<BlockPos, IFluidLink>} of every visited node, including {@code start}.
+     * The returned map is mutable and owned by the caller. Keys are stored as immutable {@link BlockPos}.
      */
     public static LinkedHashMap<BlockPos, IFluidLink> bfs(ServerWorld world, BlockPos start, int maxNodes) {
         LinkedHashMap<BlockPos, IFluidLink> visited = new LinkedHashMap<>();
-        IFluidLink first = query(world, start);
+        BlockPos rootPos = start.toImmutable();
+        IFluidLink first = query(world, rootPos);
         if (first == null) return visited;
 
         Deque<BlockPos> queue = new ArrayDeque<>();
-        queue.add(start);
-        visited.put(start, first);
+        queue.add(rootPos);
+        visited.put(rootPos, first);
 
         while (!queue.isEmpty() && visited.size() < maxNodes) {
             BlockPos cur = queue.poll();
             for (Direction dir : Direction.values()) {
-                BlockPos next = cur.offset(dir);
+                BlockPos next = cur.offset(dir).toImmutable();
                 if (visited.containsKey(next)) continue;
                 IFluidLink link = query(world, next);
                 if (link == null) continue;
