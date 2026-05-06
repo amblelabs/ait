@@ -5,6 +5,7 @@
   "texture": "ait:textures/blockentities/exteriors/classic/classic_definitive.png",
   "emission": "ait:textures/blockentities/exteriors/classic/classic_definitive_emission.png",
   "model": "ait:classic",
+  "door": "ait:door/redux_classic",
   "scale": [
     0.64,
     0.64,
@@ -17,4 +18,3 @@
     "right_close": "classic:rightdoorclose"
   }
 }
-

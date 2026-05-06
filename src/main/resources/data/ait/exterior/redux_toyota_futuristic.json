@@ -5,6 +5,7 @@
   "texture": "ait:textures/blockentities/exteriors/police_box/police_box_futuristic.png",
   "emission": "ait:textures/blockentities/exteriors/police_box/police_box_futuristic_emission.png",
   "model": "ait:toyota",
+  "door": "ait:door/redux_toyota",
   "scale": [
     0.63,
     0.63,
@@ -17,4 +18,3 @@
     "right_close": "toyota:rightdoorclose"
   }
 }
-

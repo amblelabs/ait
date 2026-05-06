@@ -3,6 +3,6 @@
   "category": "ait:exterior/capsule",
   "parent": "ait:exterior/capsule/default",
   "texture": "ait:textures/blockentities/exteriors/capsule/capsule_default.png",
-  "model": "ait:tt_capsule"
+  "model": "ait:tt_capsule",
+  "door": "ait:door/redux_capsule"
 }
-

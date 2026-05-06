@@ -4,6 +4,6 @@
   "parent": "ait:exterior/tardim/default",
   "texture": "ait:textures/blockentities/exteriors/tardim/tardim_default.png",
   "emission": "ait:textures/blockentities/exteriors/tardim/tardim_default_emission.png",
-  "model": "ait:tardim"
+  "model": "ait:tardim",
+  "door": "ait:door/redux_tardim"
 }
-
