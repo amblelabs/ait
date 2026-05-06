@@ -438,6 +438,7 @@ public class AITModClient implements ClientModInitializer {
         map.putBlock(AITBlocks.TARDIS_CORAL_FENCE, RenderLayer.getCutout());
         map.putBlock(AITBlocks.TARDIS_CORAL_LEAVES, RenderLayer.getCutout());
         map.putBlock(AITBlocks.MATRIX_ENERGIZER, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.GENERIC_SUBSYSTEM, RenderLayer.getTranslucent());
     }
 
     public void registerItemColors() {

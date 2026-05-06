@@ -182,7 +182,7 @@ public class AITBlocks extends BlockContainer {
 
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     @NoEnglish
-    public static final Block GENERIC_SUBSYSTEM = new GenericSubSystemBlock(ABlockSettings.create()
+    public static final Block GENERIC_SUBSYSTEM = new GenericSubSystemBlock(ABlockSettings.create().lightLevel(5)
             .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR))
             .requiresTool().instrument(Instrument.COW_BELL).strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
 
