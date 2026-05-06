@@ -1,6 +1,7 @@
 package dev.amble.ait.client.boti;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.lib.data.DirectedGlobalPos;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
@@ -36,7 +37,7 @@ public class TardisExteriorBOTI extends BOTI {
         if (!exterior.isLinked())
             return;
 
-        ClientTardis tardis = exterior.tardis().get().asClient();;
+        ClientTardis tardis = exterior.tardis().get().asClient();
 
         stack.push();
 
@@ -73,8 +74,9 @@ public class TardisExteriorBOTI extends BOTI {
         ExteriorVariantSchema parent = variant.parent();
         stack.scale((float) parent.portalWidth() * scale.x(),
                 (float) parent.portalHeight() * scale.y(), scale.z());
-        Vec3d vec = parent.adjustPortalPos(new Vec3d(0, -0.4675f, 0), (byte) 0);
-        stack.translate(vec.x, vec.y, vec.z);
+        Vec3d vec = parent.getPortalPosition();
+        if (vec == null) vec = new Vec3d(0, 0, 0);
+        stack.translate(vec.x, vec.y - 0.475f, vec.z);
         RenderLayer whichOne = AITModClient.CONFIG.greenScreenBOTI ?
                 RenderLayer.getDebugFilledBox() : RenderLayer.getEndGateway();
         float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0, 1} : new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
