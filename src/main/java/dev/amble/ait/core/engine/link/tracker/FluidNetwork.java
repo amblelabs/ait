@@ -40,9 +40,31 @@ public final class FluidNetwork {
      */
     public static void rebuildFrom(ServerWorld world, BlockPos seed) {
         if (world == null || seed == null) return;
-
         LinkedHashMap<BlockPos, IFluidLink> component = WorldFluidTracker.bfs(world, seed, MAX_NETWORK_SIZE);
         if (component.isEmpty()) return;
+        rebuildComponent(seed, component);
+    }
+
+    /**
+     * Rebuild every component that touches one of the 6 neighbours of {@code center}, walking
+     * each component exactly once. Use when {@code center} itself no longer holds a fluid-link
+     * block entity (i.e. on-break).
+     */
+    public static void rebuildAround(ServerWorld world, BlockPos center) {
+        if (world == null || center == null) return;
+        Set<BlockPos> handled = new HashSet<>();
+        for (Direction dir : Direction.values()) {
+            BlockPos n = center.offset(dir);
+            if (handled.contains(n)) continue;
+            if (WorldFluidTracker.query(world, n) == null) continue;
+            LinkedHashMap<BlockPos, IFluidLink> component = WorldFluidTracker.bfs(world, n, MAX_NETWORK_SIZE);
+            if (component.isEmpty()) continue;
+            handled.addAll(component.keySet());
+            rebuildComponent(n, component);
+        }
+    }
+
+    private static void rebuildComponent(BlockPos seed, LinkedHashMap<BlockPos, IFluidLink> component) {
         if (component.size() >= MAX_NETWORK_SIZE) {
             AITMod.LOGGER.warn("Fluid network at {} hit max size {}, assignment may be incomplete", seed, MAX_NETWORK_SIZE);
         }
@@ -74,20 +96,6 @@ public final class FluidNetwork {
                 continue;
             }
             be.applyNetworkAssignment(source, component.get(parentPos), parentPos, sourcePowered);
-        }
-    }
-
-    /** Rebuild every component that touches one of the 6 neighbours of {@code center}. */
-    public static void rebuildAround(ServerWorld world, BlockPos center) {
-        if (world == null || center == null) return;
-        Set<BlockPos> handled = new HashSet<>();
-        for (Direction dir : Direction.values()) {
-            BlockPos n = center.offset(dir);
-            if (handled.contains(n)) continue;
-            if (WorldFluidTracker.query(world, n) == null) continue;
-            LinkedHashMap<BlockPos, IFluidLink> seen = WorldFluidTracker.bfs(world, n, MAX_NETWORK_SIZE);
-            handled.addAll(seen.keySet());
-            rebuildFrom(world, n);
         }
     }
 
