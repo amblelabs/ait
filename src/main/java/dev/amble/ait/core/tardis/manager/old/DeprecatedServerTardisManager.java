@@ -64,7 +64,7 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
                 this.save(world.getServer(), false);
         });
 
-        ServerTickEvents.START_SERVER_TICK.register(server -> {
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
             this.forEach(tardis -> {
                 if (tardis.isRemoved() || !tardis.shouldTick())
                     return;
