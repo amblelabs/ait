@@ -197,17 +197,6 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
         ServerPlayNetworking.send(target, OPEN_ASTRAL_MAP, buf);
     }
 
-    @Environment(EnvType.CLIENT)
-    public static void registerSyncListener() {
-        ClientPlayNetworking.registerGlobalReceiver(OPEN_ASTRAL_MAP, (client, handler, buf, responseSender) -> {
-            List<Identifier> ids = buf.readList(PacketByteBuf::readIdentifier);
-            client.execute(() -> {
-                AstralMapBlock.structureIds = ids;
-                client.setScreen(new AstralMapScreen());
-            });
-        });
-    }
-
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         return this.getDefaultState().with(ROTATION, RotationPropertyHelper.fromYaw(ctx.getPlayerYaw()));
