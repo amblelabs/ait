@@ -34,11 +34,11 @@ public abstract class ServerChunkManagerMixin implements MojangYoinkySploinky {
     protected abstract CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> getChunkFuture(int chunkX, int chunkZ, ChunkStatus leastStatus, boolean create);
 
     @Shadow
-    @Final
-    private ThreadExecutor<?> mainThreadExecutor;
+    protected abstract void putInCache(long pos, Chunk chunk, ChunkStatus status);
 
     @Shadow
-    protected abstract void putInCache(long pos, Chunk chunk, ChunkStatus status);
+    @Final
+    private ServerChunkManager.MainThreadExecutor mainThreadExecutor;
 
     @Override
     public ThreadExecutor<?> moj$mainThreadExecutor() {
