@@ -1170,7 +1170,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.engine_overdrive.engines_overloaded", "ARTRON DUMPED, ENGINES OVERLOADED, TRIGGERING EMERGENCY ARTRON RELEASE");
         provider.addTranslation("tardis.message.interiorchange.success", "%s has grown to %d");
         provider.addTranslation("tardis.message.landingpad.adjust", "Adjusting to landing pad..");
-        provider.addTranslation("tardis.message.landingpad.auth", "Authentication..");
         provider.addTranslation("tardis.message.self_destruct.warning", "SELF DESTRUCT INITIATED | ABANDON SHIP");
         provider.addTranslation("tardis.message.chameleon.failed", "Failed to find a suitable disguise!");
         provider.addTranslation("warning.ait.needs_subsystem", "ERROR, REQUIRES ACTIVE SUBSYSTEM: %s");
@@ -1507,6 +1506,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.interiorchange.regenerating", "Interior Reconfiguration in %s seconds");
         // Landing Pad
         provider.addTranslation("message.ait.landingpad.adjust", "Your landing position has been adjusted");
+        provider.addTranslation("message.ait.landingpad.auth", "Authentication..");
 
         // Commands
         provider.addTranslation("command.ait.realworld.responses", "Spawned a real world TARDIS at: ");
