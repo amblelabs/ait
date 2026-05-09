@@ -69,3 +69,4 @@
 - Update link for Amble Labs in README | by [@Loqor](https://github.com/Loqor) ([#2007](https://github.com/amblelabs/ait/pull/2007))
 - fix: portal positions for all exteriors and their respective interior doors (namely datapacked exteriors) now work as intended. | by [@Loqor](https://github.com/Loqor) ([#2008](https://github.com/amblelabs/ait/pull/2008))
 - fix: Engine now reliably detects subsystems attached via Fluid Link cables, including across cable loops and after breaking mid-chain cables. | by [@duzos](https://github.com/duzos) ([#2009](https://github.com/amblelabs/ait/pull/2009))
+- fix: suck harder & proper | by [@drtheodor](https://github.com/drtheodor) ([#2006](https://github.com/amblelabs/ait/pull/2006))
