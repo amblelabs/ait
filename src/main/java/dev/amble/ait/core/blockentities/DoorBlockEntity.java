@@ -1,6 +1,7 @@
 package dev.amble.ait.core.blockentities;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.api.MojangYoinkySploinky;
 import dev.amble.ait.core.blocks.DoorBlock;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
@@ -22,12 +23,9 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.event.GameEvent;
 
 import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
@@ -44,9 +42,12 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 
+import java.util.concurrent.CompletableFuture;
+
 public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
     private DirectedBlockPos directedPos;
+    private CompletableFuture<BlockState> exteriorStateFuture;
 
     public DoorBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.DOOR_BLOCK_ENTITY_TYPE, pos, state);
@@ -72,7 +73,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
             return;
 
         BlockPos exteriorPos = globalExteriorPos.getPos();
-        World exteriorWorld = globalExteriorPos.getWorld();
+        ServerWorld exteriorWorld = globalExteriorPos.getWorld();
 
         if (exteriorWorld == null)
             return;
@@ -95,26 +96,28 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
             serverWorld.getPlayers().forEach(player -> tardis.loyalty().subLevel(player, 2));
         }
 
-        ChunkPos exteriorChunkPos = new ChunkPos(exteriorPos);
-        Chunk exteriorChunk = exteriorWorld.getChunk(exteriorChunkPos.x, exteriorChunkPos.z, ChunkStatus.EMPTY, false);
+        if (door.exteriorStateFuture != null) {
+            if (door.exteriorStateFuture.isDone()) {
+                BlockState exteriorState = door.exteriorStateFuture.join();
+                door.exteriorStateFuture = null;
 
-        if (exteriorChunk == null)
+                if (!(exteriorState.getBlock() instanceof ExteriorBlock))
+                    return;
+
+                boolean waterlogged = exteriorWorld.getBlockState(exteriorPos).get(Properties.WATERLOGGED);
+
+                world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, waterlogged),
+                        Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
+
+                world.emitGameEvent(null, GameEvent.BLOCK_CHANGE, pos);
+                world.scheduleFluidTick(pos, blockState.getFluidState().getFluid(),
+                        blockState.getFluidState().getFluid().getTickRate(world));
+            }
+
             return;
+        }
 
-        BlockState exteriorState = exteriorChunk.getBlockState(exteriorPos);
-
-        if (!(exteriorState.getBlock() instanceof ExteriorBlock))
-            return;
-
-        // TODO: performance sink. this should ideally be done in the exterior block code...
-        boolean waterlogged = exteriorWorld.getBlockState(exteriorPos).get(Properties.WATERLOGGED);
-
-        world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, waterlogged),
-                Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
-
-        world.emitGameEvent(null, GameEvent.BLOCK_CHANGE, pos);
-        world.scheduleFluidTick(pos, blockState.getFluidState().getFluid(),
-                blockState.getFluidState().getFluid().getTickRate(world));
+        door.exteriorStateFuture = MojangYoinkySploinky.getBlockState(exteriorWorld, exteriorPos);
     }
 
     public void useOn(World world, boolean sneaking, PlayerEntity player) {
