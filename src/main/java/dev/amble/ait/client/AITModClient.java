@@ -251,7 +251,13 @@ public class AITModClient implements ClientModInitializer {
 
         SonicModelLoader.init();
 
-        AstralMapBlock.registerSyncListener();
+        ClientPlayNetworking.registerGlobalReceiver(AstralMapBlock.OPEN_ASTRAL_MAP, (client, handler, buf, responseSender) -> {
+            List<Identifier> ids = buf.readList(PacketByteBuf::readIdentifier);
+            client.execute(() -> {
+                AstralMapBlock.structureIds = ids;
+                client.setScreen(new AstralMapScreen());
+            });
+        });
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn(client));
     }
