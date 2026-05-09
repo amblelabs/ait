@@ -73,3 +73,4 @@
 - fix: dont crash if an invalid world was provided to a rift manager | by [@drtheodor](https://github.com/drtheodor) ([#2011](https://github.com/amblelabs/ait/pull/2011))
 - fix: no more exterior duplication during crashing | by [@drtheodor](https://github.com/drtheodor) ([#2005](https://github.com/amblelabs/ait/pull/2005))
 - perf: made the rain/thunder check faster - should fix Twilight Forest issues | by [@drtheodor](https://github.com/drtheodor) ([#2010](https://github.com/amblelabs/ait/pull/2010))
+- feat: astral map rework | by [@nanowu](https://github.com/nanowuu) ([#2003](https://github.com/amblelabs/ait/pull/2003))
