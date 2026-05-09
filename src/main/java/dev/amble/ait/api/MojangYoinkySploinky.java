@@ -51,8 +51,11 @@ public interface MojangYoinkySploinky {
         if (cached != null)
             return CompletableFuture.completedFuture(Either.left(cached));
 
-        return this.moj$getChunkFuture0(chunkX, chunkZ, leastStatus, create).thenApplyAsync(either -> either.ifLeft(chunk ->
-                this.moj$putInCache(l, chunk, leastStatus)), this.moj$mainThreadExecutor());
+        return this.moj$getChunkFuture0(chunkX, chunkZ, leastStatus, create)
+                .orTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+                .handle((val, throwable) -> val)
+                .thenApplyAsync(either -> either.ifLeft(chunk ->
+                        this.moj$putInCache(l, chunk, leastStatus)), this.moj$mainThreadExecutor());
     }
 
     default CompletableFuture<Chunk> moj$getChunkFutureOrThrow(
@@ -61,7 +64,7 @@ public interface MojangYoinkySploinky {
             @NotNull ChunkStatus leastStatus,
             boolean create
     ) {
-        return moj$getChunkFuture(chunkX, chunkZ, leastStatus, create).orTimeout(10, java.util.concurrent.TimeUnit.SECONDS).handle((val, throwable) -> val).thenApply(either -> either.map(chunkx -> chunkx, unloaded -> {
+        return moj$getChunkFuture(chunkX, chunkZ, leastStatus, create).thenApply(either -> either.map(chunkx -> chunkx, unloaded -> {
             if (create) {
                 throw Util.throwOrPause(new IllegalStateException("Chunk not there when requested: " + unloaded));
             } else {
