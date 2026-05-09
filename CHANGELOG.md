@@ -71,3 +71,4 @@
 - fix: Engine now reliably detects subsystems attached via Fluid Link cables, including across cable loops and after breaking mid-chain cables. | by [@duzos](https://github.com/duzos) ([#2009](https://github.com/amblelabs/ait/pull/2009))
 - fix: suck harder & proper | by [@drtheodor](https://github.com/drtheodor) ([#2006](https://github.com/amblelabs/ait/pull/2006))
 - fix: dont crash if an invalid world was provided to a rift manager | by [@drtheodor](https://github.com/drtheodor) ([#2011](https://github.com/amblelabs/ait/pull/2011))
+- fix: no more exterior duplication during crashing | by [@drtheodor](https://github.com/drtheodor) ([#2005](https://github.com/amblelabs/ait/pull/2005))
