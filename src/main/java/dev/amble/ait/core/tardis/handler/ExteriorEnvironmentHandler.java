@@ -1,9 +1,11 @@
 package dev.amble.ait.core.tardis.handler;
 
+import dev.amble.ait.api.MojangYoinkySploinky;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -14,6 +16,9 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ExteriorEnvironmentHandler extends KeyedTardisComponent implements TardisTickable {
 
@@ -26,8 +31,13 @@ public class ExteriorEnvironmentHandler extends KeyedTardisComponent implements 
     private final BoolValue lava = LAVA.create(this);
 
     static {
-        TardisEvents.LANDED.register((tdis) -> {
+        TardisEvents.LANDED.register(tdis -> {
             tdis.<ExteriorEnvironmentHandler>handler(Id.ENVIRONMENT).updateLava();
+        });
+
+        TardisEvents.DEMAT.register(tdis -> {
+            tdis.<ExteriorEnvironmentHandler>handler(Id.ENVIRONMENT).updateLava();
+            return TardisEvents.Interaction.PASS;
         });
     }
 
@@ -69,21 +79,15 @@ public class ExteriorEnvironmentHandler extends KeyedTardisComponent implements 
             }
         }
 
-        if (this.isRaining() != isRaining)
-            this.raining.set(isRaining);
-
-        if (this.isThundering() != isThundering)
-            this.thundering.set(isThundering);
+        this.raining.set(isRaining);
+        this.thundering.set(isThundering);
     }
 
     private void updateLava() {
-        boolean hasLava = this.isInLava();
+        this.lava.set(false);
 
-        if (this.tardis.travel().getState() != TravelHandlerBase.State.LANDED)
-            hasLava = false;
-
-        if (this.hasLava() != hasLava)
-            this.lava.set(hasLava);
+        if (this.tardis.travel().getState() == TravelHandlerBase.State.LANDED)
+            this.performLavaCheck();
     }
 
     public boolean isRaining() {
@@ -98,24 +102,48 @@ public class ExteriorEnvironmentHandler extends KeyedTardisComponent implements 
         return this.lava.get();
     }
 
-    private boolean isInLava() {
+    private void performLavaCheck() {
         if (this.isClient())
-            return false;
+            return;
 
         CachedDirectedGlobalPos cached = tardis.travel().position();
 
-        World world = cached.getWorld();
+        ServerWorld world = cached.getWorld();
         BlockPos tardisPos = cached.getPos();
 
-        for (int xOffset = -1; xOffset <= 1; xOffset++) {
-            for (int zOffset = -1; zOffset <= 1; zOffset++) {
-                BlockPos blockPos = tardisPos.add(xOffset, 0, zOffset);
+        Iterable<BlockPos> positions = BlockPos.iterate(tardisPos.add(-1, 0, -1), tardisPos.add(1, 0, 1));
+        CompletableFuture<Boolean>[] futures = new CompletableFuture[9];
 
-                if (world.getBlockState(blockPos).getBlock() == Blocks.LAVA)
-                    return true;
+        AtomicBoolean done = new AtomicBoolean(false);
+
+        int i = 0;
+        for (BlockPos pos : positions) {
+            if (world.isChunkLoaded(tardisPos)) {
+                if (world.getBlockState(pos).getBlock() == Blocks.LAVA) {
+                    this.lava.set(true);
+                    return;
+                }
+
+                continue;
             }
+
+            futures[i] = MojangYoinkySploinky.getBlockState(world, pos)
+                    .thenApply(blockState -> blockState.getBlock() == Blocks.LAVA);
+
+            i++;
         }
 
-        return false;
+        for (CompletableFuture<Boolean> f : futures) {
+            if (f == null) break;
+
+            f.whenComplete((value, ex) -> {
+                if (done.get()) return;
+                if (ex == null) {
+                    if (done.compareAndSet(false, true)) {
+                        this.lava.set(true);
+                    }
+                }
+            });
+        }
     }
 }

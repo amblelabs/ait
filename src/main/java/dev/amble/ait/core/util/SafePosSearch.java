@@ -20,6 +20,7 @@ import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
+// TODO: optimize with yoinkysploinky
 public class SafePosSearch {
 
     private static final int SAFE_RADIUS = 3;

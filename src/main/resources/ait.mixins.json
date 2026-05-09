@@ -35,7 +35,8 @@
     "server.StructureTemplateMixin",
     "server.multidim.MultiDimLoadFix",
     "server.multidim.ShutUpMultiDim",
-    "server.structure.StructureTemplateAccessor"
+    "server.structure.StructureTemplateAccessor",
+    "yoinkysploinky.ServerChunkManagerMixin"
   ],
   "client": [
     "client.DefaultLogoMixin",

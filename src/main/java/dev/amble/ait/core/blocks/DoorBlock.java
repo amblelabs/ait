@@ -1,5 +1,6 @@
 package dev.amble.ait.core.blocks;
 
+import dev.amble.ait.api.MojangYoinkySploinky;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -50,11 +51,13 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
         TardisEvents.DOOR_OPEN.register(tardis -> {
             CachedDirectedGlobalPos globalPos = tardis.travel().position();
             BlockPos exteriorPos = globalPos.getPos();
-            World exteriorWorld = globalPos.getWorld();
+            ServerWorld exteriorWorld = globalPos.getWorld();
 
-            BlockState exteriorState = exteriorWorld.getBlockState(exteriorPos);
-            if (!tardis.travel().inFlight() && exteriorState.getBlock() instanceof ExteriorBlock)
-                setDoorLight(tardis.asServer(), exteriorState.get(ExteriorBlock.LEVEL_4));
+            MojangYoinkySploinky.getBlockState(exteriorWorld, exteriorPos, false).thenAccept(chunk -> {
+                BlockState exteriorState = exteriorWorld.getBlockState(exteriorPos);
+                if (!tardis.travel().inFlight() && exteriorState.getBlock() instanceof ExteriorBlock)
+                    setDoorLight(tardis.asServer(), exteriorState.get(ExteriorBlock.LEVEL_4));
+            });
         });
 
         TardisEvents.DOOR_CLOSE.register(tardis -> setDoorLight(tardis.asServer(), 0));
@@ -69,6 +72,7 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
         world.getServer().execute(() -> {
             BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
 
+            // TODO: use yoinkysploinky
             BlockState state = world.getBlockState(pos);
             if (!(state.getBlock() instanceof DoorBlock))
                 return;
