@@ -61,7 +61,7 @@ public interface MojangYoinkySploinky {
             @NotNull ChunkStatus leastStatus,
             boolean create
     ) {
-        return moj$getChunkFuture(chunkX, chunkZ, leastStatus, create).thenApply(either -> either.map(chunkx -> chunkx, unloaded -> {
+        return moj$getChunkFuture(chunkX, chunkZ, leastStatus, create).orTimeout(10, java.util.concurrent.TimeUnit.SECONDS).handle((val, throwable) -> val).thenApply(either -> either.map(chunkx -> chunkx, unloaded -> {
             if (create) {
                 throw Util.throwOrPause(new IllegalStateException("Chunk not there when requested: " + unloaded));
             } else {

@@ -1,5 +1,6 @@
 package dev.amble.ait.core.world;
 
+import dev.amble.ait.api.MojangYoinkySploinky;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
@@ -25,6 +26,8 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.data.landing.LandingPadRegion;
 
+import java.util.concurrent.CompletableFuture;
+
 @SuppressWarnings("UnstableApiUsage")
 public class LandingPadManager {
 
@@ -42,8 +45,13 @@ public class LandingPadManager {
         this.world = world;
     }
 
+    public CompletableFuture<LandingPadRegion> queryRegion(BlockPos pos) {
+        return MojangYoinkySploinky.get(world).moj$getChunkFutureOrThrow(pos, ChunkStatus.FULL, false)
+                .thenApply(chunk -> chunk == null ? null : chunk.getAttached(PERSISTENT));
+    }
+
     @Nullable public LandingPadRegion getRegion(ChunkPos pos) {
-        Chunk chunk = this.world.getChunk(pos.x, pos.z, ChunkStatus.FULL, true);
+        Chunk chunk = this.world.getChunk(pos.x, pos.z, ChunkStatus.FULL, false);
 
         if (chunk == null)
             return null;

@@ -19,6 +19,7 @@ import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.util.SafePosSearch;
 import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.core.world.LandingPadManager;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.data.Exclude;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
@@ -49,6 +50,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public final class TravelHandler extends AnimatedTravelHandler implements CrashableTardisTravel {
 
@@ -448,16 +450,31 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         });
     }
 
-    public Optional<ActionQueue> rematerialize() {
-        if (this.getState() != State.FLIGHT || this.travelCooldown)
-            return Optional.empty();
+    public CompletableFuture<Optional<ActionQueue>> rematerialize() {
+        if (this.getState() != State.FLIGHT || this.travelCooldown || this.waiting)
+            return CompletableFuture.completedFuture(Optional.empty());
 
         if (TardisEvents.MAT.invoker().onMat(tardis.asServer()) == TardisEvents.Interaction.FAIL) {
             this.failRemat();
-            return Optional.empty();
+            return CompletableFuture.completedFuture(Optional.empty());
         }
 
-        return this.forceRemat();
+        ServerWorld world = this.destination().getWorld();
+        BlockPos pos = this.destination().getPos();
+
+        TardisUtil.sendMessageToInterior(this.tardis.asServer(), Text.translatable("message.ait.landingpad.auth"));
+        this.waiting = true;
+
+        return LandingPadManager.getInstance(world).queryRegion(pos)
+                .thenApply(landingPadRegion -> {
+                    this.waiting = false;
+
+                    if (landingPadRegion == null || tardis.landingPad().hasMatchingCode(landingPadRegion))
+                        return this.forceRemat();
+
+                    this.failRemat();
+                    return Optional.empty();
+                });
     }
 
     public Optional<ActionQueue> forceRemat() {

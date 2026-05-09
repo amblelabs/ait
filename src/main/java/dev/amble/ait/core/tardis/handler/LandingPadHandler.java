@@ -37,14 +37,6 @@ public class LandingPadHandler extends KeyedTardisComponent {
             tardis.landingPad().release();
             return TardisEvents.Interaction.PASS;
         });
-
-        TardisEvents.MAT.register(tardis -> {
-            boolean success = tardis.landingPad().checkCode();
-
-            if (!success) return TardisEvents.Interaction.FAIL;
-
-            return TardisEvents.Interaction.PASS;
-        });
     }
 
     public LandingPadHandler() {
@@ -88,9 +80,8 @@ public class LandingPadHandler extends KeyedTardisComponent {
         return code;
     }
 
-    private CachedDirectedGlobalPos update(CachedDirectedGlobalPos pos) {
+    private CachedDirectedGlobalPos update(CachedDirectedGlobalPos destination) {
         TravelHandler travel = this.tardis.travel();
-        CachedDirectedGlobalPos destination = travel.destination();
         ServerWorld world = destination.getWorld();
 
         LandingPadSpot spot = findFreeSpot(world, destination.getPos());
@@ -114,19 +105,8 @@ public class LandingPadHandler extends KeyedTardisComponent {
 
         return destination;
     }
-    private boolean checkCode() {
-        ServerWorld world = tardis.travel().destination().getWorld();
-        BlockPos pos = tardis.travel().destination().getPos();
 
-        LandingPadRegion region = LandingPadManager.getInstance(world)
-                .getRegionAt(pos);
-
-        if (region == null)
-            return true;
-
-        return hasMatchingCode(region);
-    }
-    private boolean hasMatchingCode(LandingPadRegion region) {
+    public boolean hasMatchingCode(LandingPadRegion region) {
         String tardisCode = tardis.landingPad().code().get();
         String regionCode = region.getLandingCode();
 

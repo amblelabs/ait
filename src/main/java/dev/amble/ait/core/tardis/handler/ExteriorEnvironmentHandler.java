@@ -118,15 +118,6 @@ public class ExteriorEnvironmentHandler extends KeyedTardisComponent implements 
 
         int i = 0;
         for (BlockPos pos : positions) {
-            if (world.isChunkLoaded(tardisPos)) {
-                if (world.getBlockState(pos).getBlock() == Blocks.LAVA) {
-                    this.lava.set(true);
-                    return;
-                }
-
-                continue;
-            }
-
             futures[i] = MojangYoinkySploinky.getBlockState(world, pos)
                     .thenApply(blockState -> blockState.getBlock() == Blocks.LAVA);
 
