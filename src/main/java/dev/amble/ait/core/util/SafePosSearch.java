@@ -1,12 +1,15 @@
 package dev.amble.ait.core.util;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
+import dev.amble.ait.api.MojangYoinkySploinky;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.queue.api.util.Value;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.TaskStage;
+import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
@@ -28,50 +31,52 @@ public class SafePosSearch {
     public static void wrapSafe(CachedDirectedGlobalPos globalPos, Kind vSearch,
                                 boolean hSearch, Consumer<CachedDirectedGlobalPos> posConsumer) {
         Value<BlockPos> ref = new Value<>(null);
-        ActionQueue queue = findSafe(globalPos, vSearch, hSearch, ref);
+        CompletableFuture<ActionQueue> future = findSafe(globalPos, vSearch, hSearch, ref);
 
-        if (queue != null) {
-            queue.thenRun(() -> {
-                CachedDirectedGlobalPos resultPos = globalPos;
+        future.thenAccept(queue -> {
+            if (queue != null) {
+                queue.thenRun(() -> {
+                    CachedDirectedGlobalPos resultPos = globalPos;
 
-                if (ref.value != null)
-                    resultPos = resultPos.pos(ref.value);
+                    if (ref.value != null)
+                        resultPos = resultPos.pos(ref.value);
 
-                posConsumer.accept(resultPos);
-            }).execute();
-        } else {
-            posConsumer.accept(globalPos);
-        }
+                    posConsumer.accept(resultPos);
+                }).execute();
+            } else {
+                posConsumer.accept(globalPos);
+            }
+        });
     }
 
     /**
      * @return {@literal null} when the position is already safe, {@link ActionQueue} otherwise.
      */
-    @Nullable public static ActionQueue findSafe(CachedDirectedGlobalPos globalPos,
-                                       Kind vSearch, boolean hSearch, Value<BlockPos> ref) {
+    public static CompletableFuture<ActionQueue> findSafe(CachedDirectedGlobalPos globalPos,
+                                                                   Kind vSearch, boolean hSearch, Value<BlockPos> ref) {
         ServerWorld world = globalPos.getWorld();
         BlockPos pos = globalPos.getPos();
 
-        final Chunk chunk = globalPos.getWorld().getChunk(pos);
+        return MojangYoinkySploinky.get(world).moj$getChunkFutureOrThrow(pos, ChunkStatus.FULL, true).thenApply(chunk -> {
+            if (isSafe(chunk, pos))
+                return null;
 
-        if (isSafe(chunk, pos))
-            return null;
+            ActionQueue queue = new ActionQueue();
 
-        ActionQueue queue = new ActionQueue();
+            if (hSearch) {
+                queue = findSafeXZ(queue, ref, world, pos, SAFE_RADIUS).thenRun(() -> {
+                    if (ref.value != null)
+                        globalPos.pos(ref.value);
+                });
+            }
 
-        if (hSearch) {
-            queue = findSafeXZ(queue, ref, world, pos, SAFE_RADIUS).thenRun(() -> {
-                if (ref.value != null)
-                    globalPos.pos(ref.value);
-            });
-        }
-
-        return switch (vSearch) {
-            case CEILING -> findSafeCeiling(queue, ref, world, pos);
-            case FLOOR -> findSafeFloor(queue, ref, world, pos);
-            case MEDIAN -> findSafeMedian(queue, ref, world, pos);
-            case NONE -> queue;
-        };
+            return switch (vSearch) {
+                case CEILING -> findSafeCeiling(queue, ref, world, pos);
+                case FLOOR -> findSafeFloor(queue, ref, world, pos);
+                case MEDIAN -> findSafeMedian(queue, ref, world, pos);
+                case NONE -> queue;
+            };
+        });
     }
 
     private static ActionQueue findSafeCeiling(ActionQueue queue, Value<BlockPos> result, ServerWorld world, BlockPos original) {
@@ -144,6 +149,7 @@ public class SafePosSearch {
 
     @SuppressWarnings("deprecation")
     private static boolean isSafe(Chunk chunk, BlockPos pos) {
+        if (chunk == null) return false;
         BlockState floor = chunk.getBlockState(pos.down());
 
         if (!floor.blocksMovement())
