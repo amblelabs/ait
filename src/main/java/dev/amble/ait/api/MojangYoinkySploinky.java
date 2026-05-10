@@ -6,7 +6,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
@@ -46,16 +45,20 @@ public interface MojangYoinkySploinky {
             @NotNull ChunkStatus leastStatus,
             boolean create
     ) {
+        AITMod.LOGGER.info("Yoinky Sploinky: Getting chunk at {}x{}", chunkX, chunkZ);
+
         long l = ChunkPos.toLong(chunkX, chunkZ);
         Chunk cached = moj$getChunkCached(l, leastStatus, create);
 
-        if (cached != null)
+        if (cached != null) {
+            AITMod.LOGGER.info("Yoinky Sploinky: cache hit for {}x{}", chunkX, chunkZ);
             return CompletableFuture.completedFuture(Either.left(cached));
+        }
 
-        AITMod.LOGGER.info("Getting chunk at {}x{}", chunkX, chunkZ);
+        AITMod.LOGGER.info("Yoinky Sploinky: cache miss for {}x{}", chunkX, chunkZ);
 
         return this.moj$getChunkFuture0(chunkX, chunkZ, leastStatus, create)
-                .orTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                .orTimeout(20, java.util.concurrent.TimeUnit.SECONDS)
                 .handle((val, throwable) -> {
                     AITMod.LOGGER.info("Yoinky Sploinky: {}", val);
                     return val;
@@ -72,12 +75,11 @@ public interface MojangYoinkySploinky {
             boolean create
     ) {
         return moj$getChunkFuture(chunkX, chunkZ, leastStatus, create).thenApply(either -> either.map(chunkx -> chunkx, unloaded -> {
-            if (create) {
-                AITMod.LOGGER.info("yoinky sploinky: Chunk not there when requested");
-                throw Util.throwOrPause(new IllegalStateException("Chunk not there when requested: " + unloaded));
-            } else {
-                return null;
-            }
+            if (create)
+                AITMod.LOGGER.error("Error in yoinky sploinky: ",
+                        new IllegalStateException("Chunk not there when requested: " + unloaded));
+
+            return null;
         }));
     }
 

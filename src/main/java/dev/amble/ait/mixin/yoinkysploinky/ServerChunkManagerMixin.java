@@ -1,9 +1,11 @@
 package dev.amble.ait.mixin.yoinkysploinky;
 
 import com.mojang.datafixers.util.Either;
+import dev.amble.ait.AITMod;
 import dev.amble.ait.api.MojangYoinkySploinky;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.thread.ThreadExecutor;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -47,6 +49,7 @@ public abstract class ServerChunkManagerMixin implements MojangYoinkySploinky {
 
     @Override
     public void moj$putInCache(long pos, Chunk chunk, ChunkStatus status) {
+        AITMod.LOGGER.info("Yoinky Sploinky: cached chunk at {}x{}", ChunkPos.getPackedX(pos), ChunkPos.getPackedZ(pos));
         this.putInCache(pos, chunk, status);
     }
 
