@@ -1,6 +1,7 @@
 package dev.amble.ait.api;
 
 import com.mojang.datafixers.util.Either;
+import dev.amble.ait.AITMod;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
@@ -51,11 +52,17 @@ public interface MojangYoinkySploinky {
         if (cached != null)
             return CompletableFuture.completedFuture(Either.left(cached));
 
+        AITMod.LOGGER.info("Getting chunk at {}x{}", chunkX, chunkZ);
+
         return this.moj$getChunkFuture0(chunkX, chunkZ, leastStatus, create)
                 .orTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
-                .handle((val, throwable) -> val)
-                .thenApplyAsync(either -> either.ifLeft(chunk ->
-                        this.moj$putInCache(l, chunk, leastStatus)), this.moj$mainThreadExecutor());
+                .handle((val, throwable) -> {
+                    AITMod.LOGGER.info("Yoinky Sploinky: {}", val);
+                    return val;
+                })
+                .thenApplyAsync(either -> either == null ? null
+                        : either.ifLeft(chunk -> this.moj$putInCache(l, chunk, leastStatus)
+                ), this.moj$mainThreadExecutor());
     }
 
     default CompletableFuture<Chunk> moj$getChunkFutureOrThrow(
@@ -66,6 +73,7 @@ public interface MojangYoinkySploinky {
     ) {
         return moj$getChunkFuture(chunkX, chunkZ, leastStatus, create).thenApply(either -> either.map(chunkx -> chunkx, unloaded -> {
             if (create) {
+                AITMod.LOGGER.info("yoinky sploinky: Chunk not there when requested");
                 throw Util.throwOrPause(new IllegalStateException("Chunk not there when requested: " + unloaded));
             } else {
                 return null;

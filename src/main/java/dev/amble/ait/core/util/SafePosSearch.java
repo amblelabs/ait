@@ -3,6 +3,7 @@ package dev.amble.ait.core.util;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.api.MojangYoinkySploinky;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.queue.api.ActionQueue;
@@ -33,6 +34,7 @@ public class SafePosSearch {
         CompletableFuture<ActionQueue> future = findSafe(globalPos, vSearch, hSearch, ref);
 
         future.thenAccept(queue -> {
+            AITMod.LOGGER.info("Safe position queue acquired");
             if (queue != null) {
                 queue.thenRun(() -> {
                     CachedDirectedGlobalPos resultPos = globalPos;
@@ -56,7 +58,10 @@ public class SafePosSearch {
         ServerWorld world = globalPos.getWorld();
         BlockPos pos = globalPos.getPos();
 
+        AITMod.LOGGER.info("Trying to find safe position");
+
         return MojangYoinkySploinky.get(world).moj$getChunkFutureOrThrow(pos, ChunkStatus.FULL, true).thenApply(chunk -> {
+            AITMod.LOGGER.info("Safe position chunk acquired");
             if (isSafe(chunk, pos))
                 return null;
 

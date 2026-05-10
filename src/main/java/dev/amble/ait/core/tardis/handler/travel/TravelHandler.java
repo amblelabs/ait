@@ -465,8 +465,10 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         TardisUtil.sendMessageToInterior(this.tardis.asServer(), Text.translatable("message.ait.landingpad.auth"));
         this.waiting = true;
 
+        AITMod.LOGGER.info("#rematerialize: Waiting on chunk...");
         return LandingPadManager.getInstance(world).queryRegion(pos)
                 .thenApply(landingPadRegion -> {
+                    AITMod.LOGGER.info("#rematerialize: landing region acquired");
                     this.waiting = false;
 
                     if (landingPadRegion == null || tardis.landingPad().hasMatchingCode(landingPadRegion))
@@ -503,16 +505,20 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         boolean wasWaiting = this.waiting;
         this.waiting = true;
 
+        AITMod.LOGGER.info("#forceRemat: wasWaiting = {}", wasWaiting);
+
         // this method MAY get called twice.
         if (!wasWaiting) {
             SafePosSearch.wrapSafe(finalPos, this.vGroundSearch.get(),
                     this.hGroundSearch.get(), this::finishForceRemat);
         }
 
+
         return Optional.of(this.queueFor(State.LANDED));
     }
 
     private void finishForceRemat(CachedDirectedGlobalPos pos) {
+        AITMod.LOGGER.info("#finishForceRemat");
         this.waiting = false;
         this.tardis.door().closeDoors();
 
