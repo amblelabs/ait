@@ -52,7 +52,7 @@ public interface MojangYoinkySploinky {
             return CompletableFuture.completedFuture(Either.left(cached));
 
         return this.moj$getChunkFuture0(chunkX, chunkZ, leastStatus, create)
-                .orTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+                .orTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
                 .handle((val, throwable) -> val)
                 .thenApplyAsync(either -> either.ifLeft(chunk ->
                         this.moj$putInCache(l, chunk, leastStatus)), this.moj$mainThreadExecutor());
