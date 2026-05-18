@@ -140,7 +140,7 @@ public class Control implements Identifiable {
 
         SubSystem.IdLike dependent = this.requiredSubSystem();
 
-        if (dependent != null) {
+        if (dependent != null && !this.shouldBeAddedToSequence(tardis)) {
             boolean enabled = tardis.subsystems().get(dependent).isEnabled();
 
             if (!enabled)
