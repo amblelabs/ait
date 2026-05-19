@@ -74,3 +74,4 @@
 - fix: no more exterior duplication during crashing | by [@drtheodor](https://github.com/drtheodor) ([#2005](https://github.com/amblelabs/ait/pull/2005))
 - perf: made the rain/thunder check faster - should fix Twilight Forest issues | by [@drtheodor](https://github.com/drtheodor) ([#2010](https://github.com/amblelabs/ait/pull/2010))
 - feat: astral map rework | by [@nanowu](https://github.com/nanowuu) ([#2003](https://github.com/amblelabs/ait/pull/2003))
+- fix: the game shouldn't crash when you're holding a sonic screwdriver with vivecraft anymore | by [@drtheodor](https://github.com/drtheodor) ([#2015](https://github.com/amblelabs/ait/pull/2015))
