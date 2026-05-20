@@ -47,9 +47,9 @@ public class WorldListWidget extends EntryListWidget<WorldListWidget.WorldEntry>
     public void appendNarrations(NarrationMessageBuilder builder) {
         WorldEntry selected = this.getSelected();
         if (selected != null) {
-            builder.put(NarrationPart.TITLE, Text.literal("world: ").copy().append(selected.label));
+            builder.put(NarrationPart.TITLE, Text.translatable("message.ait.projector.world"));
         } else {
-            builder.put(NarrationPart.TITLE, Text.literal("dimension skys"));
+            builder.put(NarrationPart.TITLE, Text.translatable("message.ait.projector.dimension_skys"));
         }
     }
 

@@ -1284,6 +1284,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         // Environment Projector
         provider.addTranslation("message.ait.projector.skybox", "Now projecting: %s");
+        provider.addTranslation("message.ait.projector.world", "World: ");
+        provider.addTranslation("message.ait.projector.dimension_skys", "Dimension skys");
 
         // Rift Scanner
         provider.addTranslation("message.ait.riftscanner.info1", "Artron Chunk Info: ");

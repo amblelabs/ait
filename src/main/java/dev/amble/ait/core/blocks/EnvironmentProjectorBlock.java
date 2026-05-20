@@ -91,16 +91,11 @@ public class EnvironmentProjectorBlock extends HorizontalDirectionalBlock implem
             return ActionResult.SUCCESS;
         }
 
-        if (world.getBlockEntity(pos) instanceof EnvironmentProjectorBlockEntity projector) {
+        if (world.getBlockEntity(pos) instanceof EnvironmentProjectorBlockEntity) {
             player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 1.0F, 1.0F);
             AITMod.openScreen((ServerPlayerEntity) player, 3, pos);
             return ActionResult.SUCCESS;
         }
-
-        if (world.isClient){
-            return ActionResult.SUCCESS;
-        }
-
 
         return ActionResult.PASS;
     }
