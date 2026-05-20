@@ -23,10 +23,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 public class EnvironmentProjectorScreen extends TardisScreen {
-    private static final Identifier DEFAULT_TEXTURE = new Identifier(AITMod.MOD_ID,
-            "textures/gui/tardis/monitor/environment_menu_sky.png");
-    private static final Identifier DIRECTION_TEXTURE = new Identifier(AITMod.MOD_ID,
-            "textures/gui/tardis/monitor/environment_menu_direction_compass.png");
+    private static final Identifier DEFAULT_TEXTURE = AITMod.id("textures/gui/tardis/monitor/environment_menu_sky.png");
+    private static final Identifier DIRECTION_TEXTURE = AITMod.id("textures/gui/tardis/monitor/environment_menu_direction_compass.png");
 
     private GuiSelection currentGuiSelection = GuiSelection.SKY;
     private final BlockPos projectorPos;
@@ -40,8 +38,7 @@ public class EnvironmentProjectorScreen extends TardisScreen {
     int bgWidth = 216;
     int left, top;
 
-    private static final RegistryKey<World> DEFAULT = World.END;
-    private RegistryKey<World> current = DEFAULT;
+    private RegistryKey<World> current = World.END;
     private float currentYaw = 0f;
     private float currentPitch = 0f;
     private enum GuiSelection { SKY, DIRECTION }
@@ -283,14 +280,11 @@ public class EnvironmentProjectorScreen extends TardisScreen {
 
             context.getMatrices().pop();
         }
-        if (this.client != null) {
-            super.render(context, mouseX, mouseY, delta);
-        }
         super.render(context, mouseX, mouseY, delta);
     }
 
     private void drawBackground(DrawContext context, GuiSelection current) {
-        if (current.equals(GuiSelection.SKY)) {
+        if (current == GuiSelection.SKY) {
             context.drawTexture(DEFAULT_TEXTURE, left, top, 0, 0, bgWidth, bgHeight);
         } else {
             context.drawTexture(DIRECTION_TEXTURE, left, top, 0, 0, bgWidth, bgHeight);
