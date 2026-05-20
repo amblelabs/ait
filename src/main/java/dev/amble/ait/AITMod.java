@@ -1,14 +1,11 @@
 package dev.amble.ait;
 
-import static dev.amble.ait.client.AITModClient.screenFromId;
 import static dev.amble.ait.module.planet.core.space.planet.Crater.CRATER_ID;
 
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity;
 import dev.amble.ait.core.blocks.EnvironmentProjectorBlock;
 import dev.amble.ait.core.tardis.Tardis;
@@ -31,8 +28,6 @@ import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -318,17 +313,6 @@ public class AITMod implements ModInitializer {
                     });
                 });
 
-        ClientPlayNetworking.registerGlobalReceiver(OPEN_SCREEN_PROJECTOR, (client, handler, buf, responseSender) -> {
-            int id = buf.readInt();
-            BlockPos projector = buf.readBlockPos();
-
-            client.execute(() -> {
-                ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
-                Screen screen = screenFromId(id, tardis, projector);
-                if (screen != null) client.setScreenAndRender(screen);
-            });
-        });
-
         ServerPlayNetworking.registerGlobalReceiver(TOGGLE_PROJECTOR, (server, player, handler, buf, responseSender) -> {
             BlockPos pos = buf.readBlockPos();
             boolean enabled = buf.readBoolean();
@@ -358,13 +342,14 @@ public class AITMod implements ModInitializer {
             });
         });
 
-        ServerPlayNetworking.registerGlobalReceiver(PROJECTOR_DIRECTION, (server, player, handler, buf, responseSender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(PROJECTOR_ANGLES, (server, player, handler, buf, responseSender) -> {
             BlockPos pos = buf.readBlockPos();
-            Direction direction = buf.readEnumConstant(Direction.class);
+            float yaw = buf.readFloat();
+            float pitch = buf.readFloat();
             server.execute(() -> {
                 ServerWorld world = player.getServerWorld();
                 if (world != null && world.getBlockEntity(pos) instanceof dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity projector) {
-                    projector.setDirectionFromClient(direction, player);
+                    projector.setAnglesFromClient(yaw, pitch, player);
                 }
             });
         });
@@ -405,7 +390,7 @@ public class AITMod implements ModInitializer {
     public static final Identifier OPEN_SCREEN_PROJECTOR = AITMod.id("open_screen_projector");
     public static final Identifier TOGGLE_PROJECTOR = AITMod.id("toggle_projector");
     public static final Identifier PROJECTOR_SELECTION = new Identifier(MOD_ID, "projector_selection");
-    public static final Identifier PROJECTOR_DIRECTION = new Identifier(MOD_ID, "projector_direction");
+    public static final Identifier PROJECTOR_ANGLES = new Identifier(MOD_ID, "projector_angles");
 
     public static void openScreen(ServerPlayerEntity player, int id) {
         PacketByteBuf buf = PacketByteBufs.create();
@@ -452,11 +437,12 @@ public class AITMod implements ModInitializer {
         ClientPlayNetworking.send(PROJECTOR_SELECTION, buf);
     }
 
-    public static void sendProjectorDirection(BlockPos pos, Direction direction) {
+    public static void sendProjectorAngles(BlockPos pos, float yaw, float pitch) {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeBlockPos(pos);
-        buf.writeEnumConstant(direction);
-        ClientPlayNetworking.send(PROJECTOR_DIRECTION, buf);
+        buf.writeFloat(yaw);
+        buf.writeFloat(pitch);
+        ClientPlayNetworking.send(PROJECTOR_ANGLES, buf);
     }
 
     public static Identifier id(String path) {

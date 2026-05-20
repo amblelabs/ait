@@ -17,7 +17,6 @@ import org.joml.Vector3f;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
@@ -35,6 +34,8 @@ import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.ait.data.properties.dbl.DoubleProperty;
 import dev.amble.ait.data.properties.dbl.DoubleValue;
+import dev.amble.ait.data.properties.flt.FloatProperty;
+import dev.amble.ait.data.properties.flt.FloatValue;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.registry.impl.DesktopRegistry;
 
@@ -50,8 +51,8 @@ public class StatsHandler extends KeyedTardisComponent {
     private static final Property<String> DATE_TIME_ZONE = new Property<>(Property.STR, "date_time_zone", "");
     private static final Property<RegistryKey<World>> SKYBOX = new Property<>(Property.WORLD_KEY, "skybox",
             World.END);
-    private static final Property<Direction> SKYBOX_DIRECTION = new Property<>(Property.DIRECTION, "skybox_direction",
-            Direction.NORTH);
+    private static final FloatProperty SKYBOX_YAW = new FloatProperty("skybox_yaw", 0f);
+    private static final FloatProperty SKYBOX_PITCH = new FloatProperty("skybox_pitch", 0f);
     private static final Property<HashSet<String>> UNLOCKS = new Property<>(Property.STR_SET, "unlocks",
             new HashSet<>());
 
@@ -69,7 +70,8 @@ public class StatsHandler extends KeyedTardisComponent {
     private final Value<Long> dateCreated = DATE.create(this);
     private final Value<String> dateTimeZone = DATE_TIME_ZONE.create(this);
     private final Value<RegistryKey<World>> skybox = SKYBOX.create(this);
-    private final Value<Direction> skyboxDirection = SKYBOX_DIRECTION.create(this);
+    private final FloatValue skyboxYaw = SKYBOX_YAW.create(this);
+    private final FloatValue skyboxPitch = SKYBOX_PITCH.create(this);
     private final Value<HashSet<String>> unlocks = UNLOCKS.create(this);
     private final BoolValue security = SECURITY.create(this);
     private final BoolValue hailMary = HAIL_MARY.create(this);
@@ -101,7 +103,8 @@ public class StatsHandler extends KeyedTardisComponent {
     @Override
     public void onLoaded() {
         skybox.of(this, SKYBOX);
-        skyboxDirection.of(this, SKYBOX_DIRECTION);
+        skyboxYaw.of(this, SKYBOX_YAW);
+        skyboxPitch.of(this, SKYBOX_PITCH);
         unlocks.of(this, UNLOCKS);
         tardisName.of(this, NAME);
         playerCreatorName.of(this, PLAYER_CREATOR_NAME);
@@ -150,8 +153,12 @@ public class StatsHandler extends KeyedTardisComponent {
         return skybox;
     }
 
-    public Value<Direction> skyboxDirection() {
-        return skyboxDirection;
+    public FloatValue skyboxYaw() {
+        return skyboxYaw;
+    }
+
+    public FloatValue skyboxPitch() {
+        return skyboxPitch;
     }
 
     public String getName() {

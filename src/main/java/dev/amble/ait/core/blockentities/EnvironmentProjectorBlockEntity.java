@@ -18,6 +18,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
@@ -33,7 +34,8 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
 
     private static final RegistryKey<World> DEFAULT = World.END;
     private RegistryKey<World> current = DEFAULT;
-    private Direction currentDirection = Direction.NORTH;
+    private float currentYaw = 0f;
+    private float currentPitch = 0f;
 
     public EnvironmentProjectorBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.ENVIRONMENT_PROJECTOR_BLOCK_ENTITY_TYPE, pos, state);
@@ -64,9 +66,7 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
 
         if (player.isSneaking()) {
             state = state.cycle(ENABLED);
-//            world.setBlockState(pos, state, Block.NOTIFY_LISTENERS);
             AITMod.sendProjectorToggle(pos, state.get(ENABLED));
-//            EnvironmentProjectorBlock.toggle(tardis, null, world, pos, state, state.get(ENABLED));
         }
 
         return ActionResult.SUCCESS;
@@ -79,12 +79,18 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
 
         this.current = RegistryKey.of(RegistryKeys.WORLD, new Identifier(nbt.getString("dimension")));
 
-        if (nbt.contains("direction")) {
+        if (nbt.contains("yaw")) {
+            this.currentYaw = nbt.getFloat("yaw");
+        } else if (nbt.contains("direction")) {
             try {
-                this.currentDirection = Direction.valueOf(nbt.getString("direction"));
-            } catch (IllegalArgumentException e) {
-                this.currentDirection = Direction.NORTH;
+                Direction dir = Direction.valueOf(nbt.getString("direction"));
+                this.applyLegacyDirection(dir);
+            } catch (IllegalArgumentException ignored) {
             }
+        }
+
+        if (nbt.contains("pitch")) {
+            this.currentPitch = nbt.getFloat("pitch");
         }
     }
 
@@ -93,8 +99,15 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
         super.writeNbt(nbt);
 
         nbt.putString("dimension", this.current.getValue().toString());
-        if (this.currentDirection != null) {
-            nbt.putString("direction", this.currentDirection.name());
+        nbt.putFloat("yaw", this.currentYaw);
+        nbt.putFloat("pitch", this.currentPitch);
+    }
+
+    private void applyLegacyDirection(Direction dir) {
+        switch (dir) {
+            case UP -> { this.currentYaw = 0f; this.currentPitch = 90f; }
+            case DOWN -> { this.currentYaw = 0f; this.currentPitch = -90f; }
+            default -> { this.currentYaw = dir.asRotation(); this.currentPitch = 0f; }
         }
     }
 
@@ -124,7 +137,8 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
 
     public void apply(Tardis tardis, BlockState state) {
         tardis.stats().skybox().set(this.current);
-        tardis.stats().skyboxDirection().set(state.get(EnvironmentProjectorBlock.FACING));
+        tardis.stats().skyboxYaw().set(this.currentYaw);
+        tardis.stats().skyboxPitch().set(this.currentPitch);
     }
 
     public void disable(Tardis tardis) {
@@ -158,19 +172,27 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
         return a == b || a.getValue().equals(b.getValue());
     }
 
-    public void switchDirectionRotation(Direction direction) {
-        if (this.world instanceof ServerWorld serverWorld) {
-            BlockState state = serverWorld.getBlockState(this.pos);
-            BlockState modifiedState = state.with(EnvironmentProjectorBlock.FACING, direction);
-            serverWorld.setBlockState(this.pos, modifiedState, Block.NOTIFY_ALL);
-            this.currentDirection = direction;
-            this.markDirty();
+    public void setAnglesFromClient(float yaw, float pitch, ServerPlayerEntity player) {
+        if (!(this.world instanceof ServerWorld serverWorld))
+            return;
 
-            if (modifiedState.get(EnvironmentProjectorBlock.ENABLED)) {
-                Tardis tardis = this.tardis().get();
-                if (tardis != null) {
-                    tardis.stats().skyboxDirection().set(modifiedState.get(EnvironmentProjectorBlock.FACING));
-                }
+        this.currentYaw = MathHelper.wrapDegrees(yaw);
+        this.currentPitch = MathHelper.clamp(pitch, -90f, 90f);
+        this.markDirty();
+
+        BlockState state = serverWorld.getBlockState(this.pos);
+
+        Direction nearest = Direction.fromRotation(this.currentYaw);
+        if (state.get(EnvironmentProjectorBlock.FACING) != nearest) {
+            state = state.with(EnvironmentProjectorBlock.FACING, nearest);
+            serverWorld.setBlockState(this.pos, state, Block.NOTIFY_ALL);
+        }
+
+        if (state.get(EnvironmentProjectorBlock.ENABLED)) {
+            Tardis tardis = this.tardis().get();
+            if (tardis != null) {
+                tardis.stats().skyboxYaw().set(this.currentYaw);
+                tardis.stats().skyboxPitch().set(this.currentPitch);
             }
         }
     }
@@ -189,26 +211,6 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
             }
 
             serverWorld.updateListeners(this.pos, state, state, Block.NOTIFY_ALL);
-        }
-    }
-
-    public void setDirectionFromClient(Direction direction, ServerPlayerEntity player) {
-        this.currentDirection = direction;
-        this.markDirty();
-
-        if (this.world instanceof ServerWorld serverWorld) {
-            BlockState state = serverWorld.getBlockState(this.pos);
-            BlockState modifiedState = state.with(EnvironmentProjectorBlock.FACING, direction);
-            serverWorld.setBlockState(this.pos, modifiedState, Block.NOTIFY_ALL);
-
-            if (modifiedState.get(EnvironmentProjectorBlock.ENABLED)) {
-                Tardis tardis = this.tardis().get();
-                if (tardis != null) {
-                    switchDirectionRotation(this.currentDirection);
-                }
-            }
-
-            serverWorld.updateListeners(this.pos, modifiedState, modifiedState, Block.NOTIFY_ALL);
         }
     }
 
