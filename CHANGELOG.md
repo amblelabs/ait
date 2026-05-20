@@ -76,3 +76,4 @@
 - feat: astral map rework | by [@nanowu](https://github.com/nanowuu) ([#2003](https://github.com/amblelabs/ait/pull/2003))
 - fix: the game shouldn't crash when you're holding a sonic screwdriver with vivecraft anymore | by [@drtheodor](https://github.com/drtheodor) ([#2015](https://github.com/amblelabs/ait/pull/2015))
 - fix: controls no longer require the subsystem they depend on to be enabled if they're a part of the flight sequence | by [@drtheodor](https://github.com/drtheodor) ([#2014](https://github.com/amblelabs/ait/pull/2014))
+- feat: chat message that points to wiki | by [@vmbbi](https://github.com/vmbbi) ([#2017](https://github.com/amblelabs/ait/pull/2017))
