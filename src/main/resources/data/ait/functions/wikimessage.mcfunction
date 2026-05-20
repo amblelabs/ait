@@ -1,1 +1,1 @@
-tellraw @s [{"translate":"ait.text.chat.readwiki"}, {"translate":"ait.text.chat.clicked","color":"blue","underlined":true,"clickEvent":{"action":"open_url","value":"https://amblelabs.dev/wiki"},"hoverEvent":{"action":"show_text","contents":{"translate":"ait.text.chat.hover"}}}]
+tellraw @s [{"translate":"ait.text.chat.readwiki"}, {"translate":"ait.text.chat.clicked","color":"blue","underlined":true,"clickEvent":{"action":"open_url","value":"https://amblelabs.dev/wiki/en/ait"},"hoverEvent":{"action":"show_text","contents":{"translate":"ait.text.chat.hover"}}}]
