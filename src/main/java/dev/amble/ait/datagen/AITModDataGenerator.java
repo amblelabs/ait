@@ -777,7 +777,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         provider.addTranslation("ait.text.chat.clicked", "here");
         provider.addTranslation("ait.text.chat.readwiki", "To learn how to play this mod, we suggest you read the wiki, which is ");
-        provider.addTranslation("ait.text.chat.hover", "Click here to open link in a Browser");
+        provider.addTranslation("ait.text.chat.hover", "Click here to open the wiki in your browser");
 
         // Control entities
         provider.addTranslation("control.ait.antigravs", "Antigravs");
