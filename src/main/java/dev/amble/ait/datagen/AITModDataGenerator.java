@@ -775,6 +775,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("ait.control_disc.can_contain_players.toggle", "Can Contain Players: %s");
         provider.addTranslation("ait.control_disc.unusable_in_tardis_world", "Failed to write DVD-ROM contents: invalid dimension!");
 
+        provider.addTranslation("ait.text.chat.clicked", "here");
+        provider.addTranslation("ait.text.chat.readwiki", "To learn how to play this mod, we suggest you read the wiki, which is ");
+        provider.addTranslation("ait.text.chat.hover", "Click here to open link in a Browser");
+
         // Control entities
         provider.addTranslation("control.ait.antigravs", "Antigravs");
         provider.addTranslation("control.ait.refreshment_control", "Refreshment Selector");

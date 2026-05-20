@@ -9,6 +9,7 @@
     "HopperBlockEntityMixin",
     "LivingEntityMixin",
     "UseActionMixin",
+    "PlayerAdvancementTrackerMixin",
     "artron.ServerWorldMixin",
     "client.experimental_screen.LevelSummaryMixin",
     "client.rendering.EntityMixin",
