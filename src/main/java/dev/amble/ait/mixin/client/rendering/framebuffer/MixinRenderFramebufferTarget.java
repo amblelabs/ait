@@ -42,7 +42,7 @@ public abstract class MixinRenderFramebufferTarget implements StencilFrameBuffer
         isStencilBufferEnabled = false;
     }
 
-    @ModifyArgs(method = "initFbo", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_texImage2D(IIIIIIIILjava/nio/IntBuffer;)V", remap = false)
+    @ModifyArg(method = "initFbo", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_texImage2D(IIIIIIIILjava/nio/IntBuffer;)V", remap = false)
     )
     private void ait$modifyTexImage2D(Args args) {
         if (Objects.equals(args.get(2), GL_DEPTH_COMPONENT)) {
@@ -54,7 +54,7 @@ public abstract class MixinRenderFramebufferTarget implements StencilFrameBuffer
         }
     }
 
-    @ModifyArgs(method = "initFbo", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_glFramebufferTexture2D(IIIII)V", remap = false))
+    @ModifyArg(method = "initFbo", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_glFramebufferTexture2D(IIIII)V", remap = false))
     private void ait$modifyFrameBufferTexture2D(Args args) {
         if (Objects.equals(args.get(1), GL30C.GL_DEPTH_ATTACHMENT)) {
             if (isStencilBufferEnabled) {
