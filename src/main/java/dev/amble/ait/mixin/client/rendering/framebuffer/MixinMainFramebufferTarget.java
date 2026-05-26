@@ -23,7 +23,7 @@ public abstract class MixinMainFramebufferTarget extends Framebuffer {
         throw new RuntimeException();
     }
 
-    @ModifyArgs(method = "supportsDepth", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_texImage2D(IIIIIIIILjava/nio/IntBuffer;)V", remap = false))
+    @ModifyArg(method = "supportsDepth", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_texImage2D(IIIIIIIILjava/nio/IntBuffer;)V", remap = false))
     private void ait$modifyTexImage2D(Args args) {
         boolean isStencilBufferEnabled = ((StencilFrameBuffer) this).ait$getIsStencilBufferEnabled();
 
@@ -34,7 +34,7 @@ public abstract class MixinMainFramebufferTarget extends Framebuffer {
         }
     }
 
-    @ModifyArgs(method = "init", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_glFramebufferTexture2D(IIIII)V", remap = false))
+    @ModifyArg(method = "init", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_glFramebufferTexture2D(IIIII)V", remap = false))
     private void ait$modifyFrameBufferTexture2d(Args args) {
         boolean isStencilBufferEnabled = ((StencilFrameBuffer) this).ait$getIsStencilBufferEnabled();
 
