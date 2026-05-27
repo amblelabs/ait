@@ -122,8 +122,8 @@
 
 ### Розробники:
 - [Loqor](https://loqor.dev/)
-- [duzo](https://duzo.is-a.dev/)
 - [Dr. Theo](https://theo.is-a.dev/)
+- [duzo](https://duzo.is-a.dev/)
 - [Maketendo](https://github.com/MaketendoDev)
 - [AddieDaBaddie](https://addi3.github.io/index)
 - [Saturn](https://github.com/Saturnorsomthing)
@@ -133,6 +133,7 @@
 ---
 
 ### Артисти:
+- WazzakiWanzz
 - Westankrang
 - Tright
 - b2
@@ -143,8 +144,8 @@
 ---
 
 ### Звуковий дизайн:
+- RatZoomie
 - Dian
-- [Radio](https://im-radio.bandcamp.com/album/ait-mod-music-disc-drifting)
 - TARDISSFX (the YouTube channel)
 - Uriel_N_Diaz 
 - Classic

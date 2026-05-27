@@ -891,9 +891,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItems.REMOTE_ITEM, "Stattenheim Remote");
         provider.addTranslation(AITItems.ARTRON_COLLECTOR, "Artron Collector Unit");
         provider.addTranslation(AITItems.SIEGE_ITEM, "TARDIS");
-        provider.addTranslation(AITItems.DRIFTING_MUSIC_DISC, "Music Disc");
+        provider.addTranslation(AITItems.TWO_THOUSAND_MUSIC_DISC, "Music Disc");
         provider.addTranslation(AITItems.WONDERFUL_TIME_IN_SPACE_MUSIC_DISC, "Music Disc");
-        provider.addTranslation(AITItems.DRIFTING_MUSIC_DISC.getTranslationKey() + ".desc", "Radio - Drifting");
+        provider.addTranslation(AITItems.TWO_THOUSAND_MUSIC_DISC.getTranslationKey() + ".desc", "dendoji - Two Thousand");
         provider.addTranslation(AITItems.WONDERFUL_TIME_IN_SPACE_MUSIC_DISC.getTranslationKey() + ".desc", "Dian - Wonderful Time in Space");
         provider.addTranslation(AITItems.EARTH_MUSIC_DISC, "Music Disc");
         provider.addTranslation(AITItems.EARTH_MUSIC_DISC.getTranslationKey() + ".desc", "Nitrogenez - Earth");
@@ -901,8 +901,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItems.VENUS_MUSIC_DISC.getTranslationKey() + ".desc", "Nitrogenez - Venus");
         provider.addTranslation(AITItems.GOOD_MAN_MUSIC_DISC, "Music Disc");
         provider.addTranslation(AITItems.GOOD_MAN_MUSIC_DISC.getTranslationKey() + ".desc", "Dian - Good Man? [CUT EDITION]");
-        provider.addTranslation(AITItems.CHRONOLOGY_MUSIC_DISC, "Music Disc");
-        provider.addTranslation(AITItems.CHRONOLOGY_MUSIC_DISC.getTranslationKey() + ".desc", "PianoinFlames - Chronology [MAIN THEME]");
+        provider.addTranslation(AITItems.AIT_THEME_MUSIC_DISC, "Music Disc");
+        provider.addTranslation(AITItems.AIT_THEME_MUSIC_DISC.getTranslationKey() + ".desc", "RatZoomie - Adventures In Time [MAIN THEME]");
         provider.addTranslation(AITItems.GOLD_KEY_UPGRADE_SMITHING_TEMPLATE, "Smithing Template");
         provider.addTranslation(AITItems.NETHERITE_KEY_UPGRADE_SMITHING_TEMPLATE, "Smithing Template");
         provider.addTranslation(AITItems.CLASSIC_KEY_UPGRADE_SMITHING_TEMPLATE, "Smithing Template");

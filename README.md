@@ -118,8 +118,8 @@ We also have some extra compatibility but for this you would have to install a s
 
 ### Developers:
 - [Loqor](https://loqor.dev/)
-- [duzo](https://duzo.is-a.dev/)
 - [Dr. Theo](https://theo.is-a.dev/)
+- [duzo](https://duzo.is-a.dev/)
 - [Maketendo](https://github.com/MaketendoDev)
 - [AddieDaBaddie](https://addi3.github.io/index)
 - [Saturn](https://github.com/Saturnorsomthing)
@@ -129,18 +129,18 @@ We also have some extra compatibility but for this you would have to install a s
 ---
 
 ### Artists:
+- WazzakiWanzz
 - Westankrang
 - Tright
 - b2
 - Ouro
 - Maggie
-- Theta
 
 ---
 
 ### Sound Design:
+- RatZoomie
 - Dian
-- [Radio](https://im-radio.bandcamp.com/album/ait-mod-music-disc-drifting)
 - TARDISSFX (the YouTube channel)
 - Uriel_N_Diaz 
 - Classic
