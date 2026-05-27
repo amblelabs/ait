@@ -117,7 +117,6 @@ We also have some extra compatibility but for this you would have to install a s
 
 
 ### Developers:
-- [Loqor](https://loqor.dev/)
 - [Dr. Theo](https://theo.is-a.dev/)
 - [duzo](https://duzo.is-a.dev/)
 - [Maketendo](https://github.com/MaketendoDev)
@@ -125,6 +124,7 @@ We also have some extra compatibility but for this you would have to install a s
 - [Saturn](https://github.com/Saturnorsomthing)
 - [Monke](https://github.com/rapbattlegod32)
 - [Pan](https://github.com/Mansarde)
+- Many more! (Check the [GitHub](https://github.com/amblelabs/ait/graphs/contributors) for a full list of contributors)
 
 ---
 

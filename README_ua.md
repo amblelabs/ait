@@ -121,7 +121,6 @@
 
 
 ### Розробники:
-- [Loqor](https://loqor.dev/)
 - [Dr. Theo](https://theo.is-a.dev/)
 - [duzo](https://duzo.is-a.dev/)
 - [Maketendo](https://github.com/MaketendoDev)
@@ -129,7 +128,7 @@
 - [Saturn](https://github.com/Saturnorsomthing)
 - [Monke](https://github.com/rapbattlegod32)
 - [Pan](https://github.com/Mansarde)
-
+- і більше! (Перевірте [GitHub](https://github.com/amblelabs/ait/graphs/contributors) для повного списку учасників)
 ---
 
 ### Артисти:
