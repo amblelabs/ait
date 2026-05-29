@@ -116,6 +116,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
     }
 
     public void updateDurability(Control control, float durability) {
+        if (control == null) return;
         if (this.controlDurability.containsKey(control) && durability >= ConsoleControlEntity.MAX_DURABILITY) {
             this.controlDurability.remove(control);
         }

@@ -271,6 +271,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         }
 
         if (this.getWorld().getBlockEntity(this.getConsoleBlockPos()) instanceof ConsoleBlockEntity console) {
+            if (this.getControl() == null) return;
             console.updateDurability(this.getControl(), this.getDurability());
             console.updateStickiness(this.getControl(), this.isSticky());
             console.markDirty();
