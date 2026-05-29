@@ -109,8 +109,8 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         });
         nbt.put("control_damage", durabilityCompound);
         NbtCompound stickyCompound = new NbtCompound();
-        this.controlStickiness.forEach((control, damage) -> {
-            stickyCompound.putBoolean(control.id().toString(), damage);
+        this.controlStickiness.forEach((control, sticky) -> {
+            stickyCompound.putBoolean(control.id().toString(), sticky);
         });
         nbt.put("control_stickiness", stickyCompound);
     }
@@ -291,7 +291,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
             Control control1 = controlEntity.getControl();
             boolean bl = this.controlDurability.isEmpty();
 
-            float durability = bl ? 1.0f : this.controlDurability.get(control1);
+            float durability = bl ? ConsoleControlEntity.MAX_DURABILITY : this.controlDurability.get(control1);
 
             boolean bl1 = this.controlStickiness.isEmpty();
             boolean sticky = !bl1 && this.controlStickiness.get(control1);

@@ -80,7 +80,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     private static final TrackedData<BlockPos> CONSOLE_BLOCK_POS = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.BLOCK_POS);
     private Control control;
-    private static final float MAX_DURABILITY = 1.0f;
+    public static final float MAX_DURABILITY = 1.0f;
 
     public ConsoleControlEntity(EntityType<? extends Entity> entityType, World world) {
         super(entityType, world);
@@ -378,7 +378,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         if (isSticky()) {
             if (player.getMainHandStack().isOf(Items.SHEARS)) {
                 this.playSound(SoundEvents.ENTITY_SHEEP_SHEAR, 1, 1);
-                this.dataTracker.set(STICKY, false);
+                this.setSticky(false);
                 return true;
             }
 
