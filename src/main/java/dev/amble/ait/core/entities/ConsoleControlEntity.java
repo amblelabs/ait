@@ -269,6 +269,12 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             case JAMMED, SPARKING -> this.spark();
             case CATCH_FIRE -> this.onFire();
         }
+
+        if (this.getWorld().getBlockEntity(this.getConsoleBlockPos()) instanceof ConsoleBlockEntity console) {
+            console.updateDurability(this.getControl(), this.getDurability());
+            console.updateStickiness(this.getControl(), this.isSticky());
+            console.markDirty();
+        }
     }
 
     @Override
@@ -358,6 +364,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
     public void setDurability(float durability) {
         this.dataTracker.set(DURABILITY, durability);
+        if (this.getControl() != null) this.getConsole().updateDurability(this.getControl(), this.getDurability());
     }
 
     public void setSticky(boolean sticky) {
@@ -371,7 +378,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
     public void subtractDurability(float durability) {
         this.setDurability(Math.max(this.getDurability() - durability, 0));
-        if (this.getControl() != null) this.getConsole().updateDurability(this.getControl(), this.getDurability());
     }
 
     public boolean run(PlayerEntity player, World world, boolean leftClick) {
@@ -447,7 +453,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         if (state == DurabilityStates.FULL) {
             if (hasMallet)
-                this.subtractDurability(0.1f);
+                this.subtractDurability(0.4f);
         }
 
         if (state == DurabilityStates.JAMMED) {

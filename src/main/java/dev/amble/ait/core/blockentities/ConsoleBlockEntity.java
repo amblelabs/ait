@@ -100,7 +100,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         nbt.putString("type", this.getTypeSchema().id().toString());
         nbt.putString("variant", this.getVariant().id().toString());
         Inventories.writeNbt(nbt, this.inventory);
-        if (this.sonicScrewdriver != null && !this.sonicScrewdriver.isEmpty()) {
+        if (this.sonicScrewdriver != null) {
             nbt.put("sonic_screwdriver", this.sonicScrewdriver.writeNbt(new NbtCompound()));
         }
         NbtCompound durabilityCompound = new NbtCompound();
@@ -116,6 +116,12 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
     }
 
     public void updateDurability(Control control, float durability) {
+        if (this.controlDurability.containsKey(control) && durability >= ConsoleControlEntity.MAX_DURABILITY) {
+            this.controlDurability.remove(control);
+        }
+
+        if (durability >= ConsoleControlEntity.MAX_DURABILITY) return;
+
         this.controlDurability.put(control, durability);
     }
 
@@ -262,8 +268,18 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
     }
 
     public void killControls() {
+        for (ConsoleControlEntity entity : controlEntities) {
+            Control control = entity.getControl();
+            if (control != null) {
+                this.controlDurability.put(control, entity.getDurability());
+                this.controlStickiness.put(control, entity.isSticky());
+            }
+        }
+
+        // Now safely discard them
         controlEntities.forEach(Entity::discard);
         controlEntities.clear();
+        this.markDirty();
     }
 
     public void spawnControls() {
@@ -289,14 +305,16 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
             controlEntity.setPitch(0.0f);
 
             Control control1 = controlEntity.getControl();
-            boolean bl = this.controlDurability.isEmpty();
+            if (control1 != null) {
+                float durability = this.controlDurability.getOrDefault(control1, ConsoleControlEntity.MAX_DURABILITY);
 
-            float durability = bl ? ConsoleControlEntity.MAX_DURABILITY : this.controlDurability.get(control1);
+                boolean sticky = this.controlStickiness.containsKey(control1)
+                        && this.controlStickiness.get(control1);
 
-            boolean bl1 = this.controlStickiness.isEmpty();
-            boolean sticky = !bl1 && this.controlStickiness.get(control1);
-
-            controlEntity.setControlData(consoleType, control, this.getPos(), durability, sticky);
+                controlEntity.setControlData(consoleType, control, this.getPos(), durability, sticky);
+            } else {
+                controlEntity.setControlData(consoleType, control, this.getPos(), ConsoleControlEntity.MAX_DURABILITY, false);
+            }
 
             serverWorld.spawnEntity(controlEntity);
             this.controlEntities.add(controlEntity);
