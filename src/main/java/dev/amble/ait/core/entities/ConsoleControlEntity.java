@@ -362,6 +362,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
     public void setSticky(boolean sticky) {
         this.dataTracker.set(STICKY, sticky);
+        if (this.getControl() != null) this.getConsole().updateStickiness(this.getControl(), sticky);
     }
 
     public void addDurability(float durability) {
@@ -370,6 +371,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
     public void subtractDurability(float durability) {
         this.setDurability(Math.max(this.getDurability() - durability, 0));
+        if (this.getControl() != null) this.getConsole().updateDurability(this.getControl(), this.getDurability());
     }
 
     public boolean run(PlayerEntity player, World world, boolean leftClick) {
@@ -389,8 +391,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
             return true;
         } else if (player.getMainHandStack().isOf(Items.SLIME_BALL)) {
-            this.playSound(SoundEvents.BLOCK_SLIME_BLOCK_BREAK, 1, 1);
-            this.dataTracker.set(STICKY, true);
+            this.playSound(SoundEvents.BLOCK_SLIME_BLOCK_PLACE, 1, 1);
+            this.setSticky(true);
             return true;
         }
 
@@ -536,7 +538,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         this.calculateDimensions();
     }
 
-    public void setControlData(ConsoleTypeSchema consoleType, ControlTypes type, BlockPos consoleBlockPosition) {
+    public void setControlData(ConsoleTypeSchema consoleType, ControlTypes type, BlockPos consoleBlockPosition, float durability, boolean sticky) {
         this.setConsolePos(consoleBlockPosition);
         this.control = type.getControl();
 
@@ -546,6 +548,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             this.setControlWidth(type.getScale().width);
             this.setControlHeight(type.getScale().height);
             this.setOffset(type.getOffset());
+            this.setDurability(durability);
+            this.setSticky(sticky);
         }
     }
 

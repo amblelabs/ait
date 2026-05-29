@@ -272,7 +272,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         boolean hasPower = this.tardis.fuel().hasPower();
 
         BlockState blockState = AITBlocks.EXTERIOR_BLOCK.getDefaultState()
-                .with(ExteriorBlock.ROTATION, (int) DirectionControl.getGeneralizedRotation(globalPos.getRotation()))
+                .with(ExteriorBlock.ROTATION, (int) globalPos.getRotation())
                 .with(ExteriorBlock.LEVEL_4, hasPower ? 4 : 0);
 
         world.setBlockState(pos, blockState);

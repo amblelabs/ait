@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -170,7 +171,6 @@ public class KeyItem extends LinkableItem {
         tardis.shields().enable();
         tardis.shields().enableVisuals();
         tardis.removeFuel(4250 + 50 * tardis.travel().instability());
-
 
         player.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 80, 3));
         player.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 6 * 20, 3));

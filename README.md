@@ -148,6 +148,7 @@ We also have some extra compatibility but for this you would have to install a s
 ---
 
 ### Thank You's:
+- vmbbi (Max) (wiki writing)
 - [MagicMan(?)](https://magicmaan.github.io/) (Help with modeling)
 - Bug1312 (Help with code)
 - DocArcane (Credit for the Steampunk console design)

@@ -129,10 +129,10 @@ public class InteriorSettingsScreen extends ConsoleScreen {
                         toSonicScreen();
                 });
 
-        createTextButton(Text.translatable("screen.ait.loadsaveinterior.button")
+        /*createTextButton(Text.translatable("screen.ait.loadsaveinterior.button")
                 .formatted(Formatting.WHITE), button -> {
                 toLoadSaveInteriorScreen();
-        });
+        });*/
 
         this.createCompatButtons();
         TardisClientEvents.SETTINGS_SETUP.invoker().onSetup(this);
@@ -259,7 +259,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         context.getMatrices().pop();
 
         // TODO: this is a fucking nightmare
-        int buttonIndex = DependencyChecker.hasGravity() ? 5 : 4;
+        int buttonIndex = DependencyChecker.hasGravity() ? 4 : 3;
 
         // arrow buttons (hum/misc screen)
         if (!this.buttons.get(buttonIndex).isHovered())

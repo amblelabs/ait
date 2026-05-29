@@ -1,9 +1,15 @@
 package dev.amble.ait.core.blockentities;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
+import dev.amble.ait.registry.impl.ControlRegistry;
 import dev.amble.lib.util.ServerLifecycleHooks;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -56,6 +62,8 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
     private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(54, ItemStack.EMPTY);
 
     public final List<ConsoleControlEntity> controlEntities = new ArrayList<>();
+    public final ConcurrentHashMap<Control, Float> controlDurability = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<Control, Boolean> controlStickiness = new ConcurrentHashMap<>();
     public final AnimationState ANIM_STATE = new AnimationState();
 
     private boolean needsControls = true;
@@ -92,9 +100,23 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         nbt.putString("type", this.getTypeSchema().id().toString());
         nbt.putString("variant", this.getVariant().id().toString());
         Inventories.writeNbt(nbt, this.inventory);
-        if (this.sonicScrewdriver != null) {
+        if (this.sonicScrewdriver != null && !this.sonicScrewdriver.isEmpty()) {
             nbt.put("sonic_screwdriver", this.sonicScrewdriver.writeNbt(new NbtCompound()));
         }
+        NbtCompound durabilityCompound = new NbtCompound();
+        this.controlDurability.forEach((control, damage) -> {
+            durabilityCompound.putFloat(control.id().toString(), damage);
+        });
+        nbt.put("control_damage", durabilityCompound);
+        NbtCompound stickyCompound = new NbtCompound();
+        this.controlStickiness.forEach((control, damage) -> {
+            stickyCompound.putBoolean(control.id().toString(), damage);
+        });
+        nbt.put("control_stickiness", stickyCompound);
+    }
+
+    public void updateDurability(Control control, float durability) {
+        this.controlDurability.put(control, durability);
     }
 
     @Override
@@ -119,6 +141,40 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         Inventories.readNbt(nbt, this.inventory);
         if (nbt.contains("sonic_screwdriver")) {
             this.sonicScrewdriver = ItemStack.fromNbt(nbt.getCompound("sonic_screwdriver"));
+        }
+
+        this.controlDurability.clear();
+
+        if (nbt.contains("control_damage", 10)) {
+            NbtCompound compound = nbt.getCompound("control_damage");
+            for (String key : compound.getKeys()) {
+                Identifier id = Identifier.tryParse(key);
+
+                if (id == null) continue;
+
+                Control control = ControlRegistry.REGISTRY.get(id);
+
+                if (control == null) continue;
+
+                this.controlDurability.put(control, compound.getFloat(key));
+            }
+        }
+
+        this.controlStickiness.clear();
+
+        if (nbt.contains("control_stickiness", 10)) {
+            NbtCompound compound = nbt.getCompound("control_stickiness");
+            for (String key : compound.getKeys()) {
+                Identifier id = Identifier.tryParse(key);
+
+                if (id == null) continue;
+
+                Control control = ControlRegistry.REGISTRY.get(id);
+
+                if (control == null) continue;
+
+                this.controlStickiness.put(control, compound.getBoolean(key));
+            }
         }
     }
 
@@ -232,7 +288,15 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
             controlEntity.setYaw(0.0f);
             controlEntity.setPitch(0.0f);
 
-            controlEntity.setControlData(consoleType, control, this.getPos());
+            Control control1 = controlEntity.getControl();
+            boolean bl = this.controlDurability.isEmpty();
+
+            float durability = bl ? 1.0f : this.controlDurability.get(control1);
+
+            boolean bl1 = this.controlStickiness.isEmpty();
+            boolean sticky = !bl1 && this.controlStickiness.get(control1);
+
+            controlEntity.setControlData(consoleType, control, this.getPos(), durability, sticky);
 
             serverWorld.spawnEntity(controlEntity);
             this.controlEntities.add(controlEntity);
@@ -452,5 +516,9 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
     @Override
     public double getMaxFuel(ItemStack stack) {
         return SonicItem.MAX_FUEL;
+    }
+
+    public void updateStickiness(Control control, boolean sticky) {
+        this.controlStickiness.put(control, sticky);
     }
 }
