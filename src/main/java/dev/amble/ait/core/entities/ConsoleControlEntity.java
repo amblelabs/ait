@@ -73,10 +73,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> ON_DELAY = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Float> DURABILITY = DataTracker.registerData(ConsoleControlEntity.class,
-            TrackedDataHandlerRegistry.FLOAT);
-    private static final TrackedData<Boolean> STICKY = DataTracker.registerData(ConsoleControlEntity.class,
-            TrackedDataHandlerRegistry.BOOLEAN);
+
     private static final TrackedData<BlockPos> CONSOLE_BLOCK_POS = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.BLOCK_POS);
     private Control control;
@@ -118,8 +115,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         this.dataTracker.startTracking(SEQUENCE_LENGTH, 0);
         this.dataTracker.startTracking(WAS_SEQUENCED, false);
         this.dataTracker.startTracking(ON_DELAY, false);
-        this.dataTracker.startTracking(DURABILITY, MAX_DURABILITY);
-        this.dataTracker.startTracking(STICKY, false);
         this.dataTracker.startTracking(CONSOLE_BLOCK_POS, BlockPos.ORIGIN);
     }
 
@@ -269,13 +264,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             case JAMMED, SPARKING -> this.spark();
             case CATCH_FIRE -> this.onFire();
         }
-
-        if (this.getWorld().getBlockEntity(this.getConsoleBlockPos()) instanceof ConsoleBlockEntity console) {
-            if (this.getControl() == null) return;
-            console.updateDurability(this.getControl(), this.getDurability());
-            console.updateStickiness(this.getControl(), this.isSticky());
-            console.markDirty();
-        }
     }
 
     @Override
@@ -352,11 +340,13 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     }
 
     public float getDurability() {
-        return this.dataTracker.get(DURABILITY);
+        if (this.getControl() == null || this.getConsole() == null) return MAX_DURABILITY;
+        return this.getConsole().controlStateMap.getOrDefault(this.getControl(), new Control.ControlState(1.0f, false)).damage();//this.dataTracker.get(DURABILITY);
     }
 
     public boolean isSticky() {
-        return this.dataTracker.get(STICKY);
+        if (this.getControl() == null || this.getConsole() == null) return false;
+        return this.getConsole().controlStateMap.getOrDefault(this.getControl(), new Control.ControlState(1.0f, false)).sticky();//this.dataTracker.get(DURABILITY);
     }
 
     public DurabilityStates getDurabilityState(float durability) {
@@ -364,13 +354,19 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     }
 
     public void setDurability(float durability) {
-        this.dataTracker.set(DURABILITY, durability);
-        if (this.getControl() != null) this.getConsole().updateDurability(this.getControl(), this.getDurability());
+        ConsoleBlockEntity console = this.getConsole();
+        if (console != null && this.getControl() != null) {
+            console.updateDurability(this.getControl(), durability);
+            console.markDirty();
+        }
     }
 
     public void setSticky(boolean sticky) {
-        this.dataTracker.set(STICKY, sticky);
-        if (this.getControl() != null) this.getConsole().updateStickiness(this.getControl(), sticky);
+        ConsoleBlockEntity console = this.getConsole();
+        if (console != null && this.getControl() != null) {
+            console.updateStickiness(this.getControl(), sticky);
+            console.markDirty();
+        }
     }
 
     public void addDurability(float durability) {
@@ -488,7 +484,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         if (result == Control.Result.SEQUENCE) {
             // THIS IS LITERALLY A FEATURE DON'T REMOVE UNLESS I SAY SO DAMMIT - Loqor
-            if (random.nextBetween(0, 10) == 5) {
+            if (true) {//random.nextBetween(0, 10) == 5) {
                 int subtractCauseICan = random.nextBetween(0, 200);
                 this.subtractDurability(subtractCauseICan / 200f);
             }
