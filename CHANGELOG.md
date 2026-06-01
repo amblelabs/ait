@@ -78,3 +78,11 @@
 - fix: controls no longer require the subsystem they depend on to be enabled if they're a part of the flight sequence | by [@drtheodor](https://github.com/drtheodor) ([#2014](https://github.com/amblelabs/ait/pull/2014))
 - feat: chat message that points to wiki | by [@vmbbi](https://github.com/vmbbi) ([#2017](https://github.com/amblelabs/ait/pull/2017))
 - fixed staser bolt for devs maybe idrk | by [@vmbbi](https://github.com/vmbbi) ([#2022](https://github.com/amblelabs/ait/pull/2022))
+- fix: rejoining in a tardis wouldn't load the client tardis properly, ergo the current set skybox, boti, and hum wouldn't appear or play
+- fix: hail mary
+- fix: tardis rotation is now consistent with tardis data
+- fix: controls now are persistently damaged and sticky!
+- fix: handles is now aligned properly on the tall hudolin variant
+- feat: new music from ratzoomie and lucien!
+- chore: remove interior save button, pushed up to AIT 2
+- fix: multitude of bugs addiedabaddie reported
