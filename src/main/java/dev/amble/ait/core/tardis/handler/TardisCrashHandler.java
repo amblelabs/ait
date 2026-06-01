@@ -74,15 +74,12 @@ public class TardisCrashHandler extends KeyedTardisComponent implements TardisTi
             return;
         }
 
-        if (state == State.TOXIC && tardis.sonic().getExteriorSonic() == null)
+        if (state == State.TOXIC && tardis.sonic().getExteriorSonic() == null) {
             this.tardis().alarm().enable();
+        }
 
         if (repairTicks < UNSTABLE_TICK_START_THRESHOLD && state != State.UNSTABLE) {
             state = State.UNSTABLE;
-
-            // play new arpalarm music - its stereo so it shouldn't matter where it's played from
-            tardisWorld.playSound(null, new BlockPos(0, 0, 0), AITSounds.ARPALARM, SoundCategory.MASTER, 1f, 1f);
-
             this.state.set(state);
         }
 
