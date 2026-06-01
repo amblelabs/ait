@@ -1,7 +1,5 @@
 package dev.amble.ait.mixin.client;
 
-import static dev.amble.ait.core.AITItems.isInAdvent;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,9 +30,13 @@ public class DefaultLogoMixin {
             return;
         }
 
-        int screenWidth = this.client.getWindow().getScaledWidth();
-        int centerX = screenWidth / 2 - 128;
-        context.drawTexture(AIT_LOGO, centerX, y - 18, 0.0f, 0.0f, 121, 21, 121, 21);
+        int screenWidth = MinecraftClient.getInstance().getWindow().getScaledWidth();
+        int centerX = screenWidth / 2 - 242;
+        context.getMatrices().push();
+        context.getMatrices().translate(centerX, y - 24, 0);
+        context.getMatrices().scale(4f, 4f, 4f);
+        context.drawTexture(AIT_LOGO, 0, 0, 0, 0, 121, 21, 121, 21);
+        context.getMatrices().pop();
     }
 
     @Redirect(method = "draw(Lnet/minecraft/client/gui/DrawContext;IFI)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Lnet/minecraft/util/Identifier;IIFFIIII)V", ordinal = 1))

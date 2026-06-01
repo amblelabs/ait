@@ -1,5 +1,7 @@
 package dev.amble.ait.api.tardis;
 
+import dev.amble.ait.api.tardis.link.v2.TardisRef;
+import dev.amble.ait.client.tardis.ClientTardis;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
@@ -17,8 +19,20 @@ public class TardisClientEvents {
                 }
             });
 
+    public static final Event<EnterClientTardis> ENTER_CLIENT_TARDIS = EventFactory.createArrayBacked(EnterClientTardis.class,
+            callbacks -> tardis -> {
+        for (EnterClientTardis callback : callbacks) {
+            callback.enterClientTardis(tardis);
+        }
+    });
+
     @FunctionalInterface
     public interface SettingsSetup {
         void onSetup(InteriorSettingsScreen screen);
+    }
+
+    @FunctionalInterface
+    public interface EnterClientTardis {
+        void enterClientTardis(ClientTardis tardis);
     }
 }

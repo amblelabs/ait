@@ -2,6 +2,7 @@ package dev.amble.ait.mixin.client.rendering;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.ait.api.tardis.TardisClientEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.DimensionRenderingRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
@@ -29,6 +30,7 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import dev.amble.ait.api.ClientWorldEvents;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.client.util.SkyboxUtil;
@@ -68,12 +70,23 @@ public abstract class SkyboxMixin {
 
     @Shadow
     public abstract void render(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline,
-            Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager,
-            Matrix4f projectionMatrix);
+                                Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager,
+                                Matrix4f projectionMatrix);
 
     @Shadow protected abstract void renderStars();
 
     @Unique private static WorldRenderContext context;
+    @Unique private boolean needsSkyboxReinit = false;
+
+    static {
+        TardisClientEvents.ENTER_CLIENT_TARDIS.register(tardis -> {
+            MinecraftClient mc = MinecraftClient.getInstance();
+            if (mc.worldRenderer != null) {
+                SkyboxMixin mixin = (SkyboxMixin) (Object) mc.worldRenderer;
+                mixin.needsSkyboxReinit = true;
+            }
+        });
+    }
 
     @Inject(method = "<clinit>", at = @At("TAIL"))
     private static void init(CallbackInfo ci) {
@@ -82,9 +95,13 @@ public abstract class SkyboxMixin {
 
     @Inject(method = "renderSky(Lnet/minecraft/client/util/math/MatrixStack;Lorg/joml/Matrix4f;FLnet/minecraft/client/render/Camera;ZLjava/lang/Runnable;)V", at = @At("HEAD"), cancellable = true)
     public void ait$renderSky(MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, Camera camera,
-            boolean thickFog, Runnable fogCallback, CallbackInfo ci) {
+                              boolean thickFog, Runnable fogCallback, CallbackInfo ci) {
         if (this.world == null)
             return;
+
+        if (this.needsSkyboxReinit && ClientTardisUtil.getCurrentTardis() != null) {
+            this.needsSkyboxReinit = false;
+        }
 
         if (TardisServerWorld.isTardisDimension(this.world)) {
             this.renderSkyDynamically(matrices, projectionMatrix, tickDelta, camera, fogCallback, ci);
@@ -112,7 +129,7 @@ public abstract class SkyboxMixin {
     }
 
     @Unique private void renderSkyDynamically(MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, Camera camera,
-            Runnable fogCallback, CallbackInfo ci) {
+                                              Runnable fogCallback, CallbackInfo ci) {
         if (!AITModClient.CONFIG.environmentProjector || context == null) {
             SkyboxUtil.renderTardisSky(matrices);
             ci.cancel();
@@ -199,7 +216,7 @@ public abstract class SkyboxMixin {
     }
 
     @Unique private void renderOverworldSky(MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, Camera camera,
-            Runnable fogCallback) {
+                                            Runnable fogCallback) {
         float q;
         float p;
         float o;
@@ -343,7 +360,7 @@ public abstract class SkyboxMixin {
     }
 
     @Unique private void renderEndPortalEffect(MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, Camera camera,
-                                            Runnable fogCallback) {
+                                               Runnable fogCallback) {
 
         float q;
         float p;

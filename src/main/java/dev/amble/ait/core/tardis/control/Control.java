@@ -203,13 +203,8 @@ public class Control implements Identifiable {
     }
 
     public static class ControlState {
-        private float damage;
-        private boolean sticky;
-
-        public ControlState() {
-            this.damage = 1.0f;
-            this.sticky = false;
-        }
+        private float damage = 1.0f;
+        private boolean sticky = false;
 
         public float damage() {
             return damage;

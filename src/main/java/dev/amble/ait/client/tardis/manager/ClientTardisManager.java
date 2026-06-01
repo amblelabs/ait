@@ -36,7 +36,7 @@ public class ClientTardisManager extends TardisManager<ClientTardis, MinecraftCl
     private static ClientTardisManager instance;
 
     private final TardisMap.Direct<ClientTardis> lookup = new TardisMap.Direct<>();
-    private final Multimap<UUID, Consumer<ClientTardis>> subscribers = ArrayListMultimap.create();
+    public final Multimap<UUID, Consumer<ClientTardis>> subscribers = ArrayListMultimap.create();
 
     public static void init() {
         if (FabricLoader.getInstance().getEnvironmentType() != EnvType.CLIENT)
