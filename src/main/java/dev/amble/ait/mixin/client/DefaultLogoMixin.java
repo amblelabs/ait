@@ -21,20 +21,11 @@ import dev.amble.ait.client.AITModClient;
 public class DefaultLogoMixin {
 
     @Unique private static final Identifier AIT_LOGO = AITMod.id("textures/gui/title/ait_logo.png");
-    @Unique private static final Identifier AIT_CHRISTMAS_LOGO = AITMod.id("textures/gui/title/ait_christmas_logo.png");
     @Unique private final MinecraftClient client = MinecraftClient.getInstance();
-    @Unique boolean isChristmas = isInAdvent();
 
     @Redirect(method = "draw(Lnet/minecraft/client/gui/DrawContext;IFI)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Lnet/minecraft/util/Identifier;IIFFIIII)V", ordinal = 0))
     private void ait$drawCustomLogo(DrawContext context, Identifier texture, int x, int y, float u, float v, int width,
                                     int height, int textureWidth, int textureHeight) {
-
-        Identifier currentLogo;
-        if (isChristmas) {
-            currentLogo = AIT_CHRISTMAS_LOGO;
-        } else {
-            currentLogo = AIT_LOGO;
-        }
 
         if (!AITModClient.CONFIG.customMenu) {
             context.drawTexture(texture, x, y, u, v, width, height, textureWidth, textureHeight);
@@ -43,11 +34,7 @@ public class DefaultLogoMixin {
 
         int screenWidth = this.client.getWindow().getScaledWidth();
         int centerX = screenWidth / 2 - 128;
-        if (isChristmas) {
-            context.drawTexture(currentLogo, centerX, y - 18, 0.0f, 0.0f, 266,  74, 266, 74);
-        } else {
-            context.drawTexture(currentLogo, centerX, y - 18, 0.0f, 0.0f, 266, 94, 266, 94);
-        }
+        context.drawTexture(AIT_LOGO, centerX, y - 18, 0.0f, 0.0f, 121, 21, 121, 21);
     }
 
     @Redirect(method = "draw(Lnet/minecraft/client/gui/DrawContext;IFI)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Lnet/minecraft/util/Identifier;IIFFIIII)V", ordinal = 1))
@@ -61,12 +48,7 @@ public class DefaultLogoMixin {
     private void renderWarningMessage(DrawContext context, int screenWidth, float alpha, int y, CallbackInfo ci) {
         if (AITMod.isUnsafeBranch()) {
 
-            String warningMessage;
-            if (isChristmas) {
-                warningMessage =  "HO HO HO!: You are using an experimental branch (" + AITMod.BRANCH + "), please be cautious when testing or the grinch will smell you toes!";
-            } else {
-                warningMessage =  "WARNING!: You are using an experimental version (" + AITMod.BRANCH + "), please be cautious when testing!";
-            }
+            String warningMessage =  "WARNING!: You are using an experimental version (" + AITMod.BRANCH + "), please be cautious when testing!";
 
             screenWidth = this.client.getWindow().getScaledWidth();
             int textWidth = this.client.textRenderer.getWidth(warningMessage);

@@ -23,12 +23,8 @@ public abstract class TitleScreenMixin extends Screen {
         super(title);
     }
 
-    @Unique private static final boolean isChristmas = isInAdvent();
-
     @Unique private static final RotatingCubeMapRenderer NEWPANO = new RotatingCubeMapRenderer(
-            isChristmas
-                    ? new CubeMapRenderer(AITMod.id("textures/gui/title/background/advent/panorama"))
-                    : new CubeMapRenderer(AITMod.id("textures/gui/title/background/panorama"))
+            new CubeMapRenderer(AITMod.id("textures/gui/title/background/panorama"))
     );
 
 
