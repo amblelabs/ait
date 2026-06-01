@@ -1,8 +1,11 @@
 package dev.amble.ait.core.tardis.control;
 
 import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.entities.ConsoleControlEntity;
+import dev.amble.ait.registry.impl.ControlRegistry;
 import dev.amble.lib.api.Identifiable;
 
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -21,6 +24,8 @@ import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
+
+import java.util.Map;
 
 public class Control implements Identifiable {
 
@@ -201,9 +206,9 @@ public class Control implements Identifiable {
         private float damage;
         private boolean sticky;
 
-        public ControlState(float damage, boolean sticky) {
-            this.damage = damage;
-            this.sticky = sticky;
+        public ControlState() {
+            this.damage = 1.0f;
+            this.sticky = false;
         }
 
         public float damage() {
@@ -214,12 +219,29 @@ public class Control implements Identifiable {
             return sticky;
         }
 
-        public void setDamage(float damage) {
+        public ControlState setDamage(float damage) {
             this.damage = damage;
+            return this;
         }
 
-        public void setSticky(boolean sticky) {
+        public ControlState setSticky(boolean sticky) {
             this.sticky = sticky;
+            return this;
+        }
+
+        public NbtCompound writeNbt() {
+            NbtCompound stateCompound = new NbtCompound();
+            stateCompound.putFloat("Durability", this.damage);
+            stateCompound.putBoolean("Sticky", this.sticky);
+            return stateCompound;
+        }
+
+        public ControlState readNbt(NbtCompound nbt) {
+            float durability = nbt.getFloat("Durability");
+            boolean sticky = nbt.getBoolean("Sticky");
+            this.setDamage(durability);
+            this.setSticky(sticky);
+            return this;
         }
     }
 }

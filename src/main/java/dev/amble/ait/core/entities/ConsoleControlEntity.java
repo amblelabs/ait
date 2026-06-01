@@ -341,12 +341,12 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
     public float getDurability() {
         if (this.getControl() == null || this.getConsole() == null) return MAX_DURABILITY;
-        return this.getConsole().controlStateMap.getOrDefault(this.getControl(), new Control.ControlState(1.0f, false)).damage();//this.dataTracker.get(DURABILITY);
+        return this.getConsole().controlStateMap.getOrDefault(this.getControl(), new Control.ControlState()).damage();//this.dataTracker.get(DURABILITY);
     }
 
     public boolean isSticky() {
         if (this.getControl() == null || this.getConsole() == null) return false;
-        return this.getConsole().controlStateMap.getOrDefault(this.getControl(), new Control.ControlState(1.0f, false)).sticky();//this.dataTracker.get(DURABILITY);
+        return this.getConsole().controlStateMap.getOrDefault(this.getControl(), new Control.ControlState()).sticky();//this.dataTracker.get(DURABILITY);
     }
 
     public DurabilityStates getDurabilityState(float durability) {
@@ -484,7 +484,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         if (result == Control.Result.SEQUENCE) {
             // THIS IS LITERALLY A FEATURE DON'T REMOVE UNLESS I SAY SO DAMMIT - Loqor
-            if (random.nextBetween(0, 8) == 5) {
+            if (true/*random.nextBetween(0, 8) == 5*/) {
                 int subtractCauseICan = random.nextBetween(0, 200);
                 this.subtractDurability(subtractCauseICan / 200f);
             }

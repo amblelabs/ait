@@ -3,6 +3,7 @@ package dev.amble.ait.core.blockentities;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import dev.amble.ait.registry.impl.ControlRegistry;
@@ -59,7 +60,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
     private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(54, ItemStack.EMPTY);
 
     public final List<ConsoleControlEntity> controlEntities = new ArrayList<>();
-    public final HashMap<Control, Control.ControlState> controlStateMap = new HashMap<>();
+    public final Map<Control, Control.ControlState> controlStateMap = new HashMap<>();
     public final AnimationState ANIM_STATE = new AnimationState();
 
     private boolean needsControls = true;
@@ -99,16 +100,14 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         if (this.sonicScrewdriver != null) {
             nbt.put("sonic_screwdriver", this.sonicScrewdriver.writeNbt(new NbtCompound()));
         }
-        NbtCompound durabilityCompound = new NbtCompound();
+
+        NbtCompound controlNbt = new NbtCompound();
+
         this.controlStateMap.forEach((control, state) -> {
-            durabilityCompound.putFloat(control.id().toString(), state.damage());
+            controlNbt.put(control.id().toString(), state.writeNbt());
         });
-        nbt.put("control_damage", durabilityCompound);
-        NbtCompound stickyCompound = new NbtCompound();
-        this.controlStateMap.forEach((control, state) -> {
-            stickyCompound.putBoolean(control.id().toString(), state.sticky());
-        });
-        nbt.put("control_stickiness", stickyCompound);
+
+        nbt.put("ControlStates", controlNbt);
     }
 
     public void updateDurability(Control control, float durability) {
@@ -172,43 +171,28 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
             this.sonicScrewdriver = ItemStack.fromNbt(nbt.getCompound("sonic_screwdriver"));
         }
 
-        if (nbt.contains("control_damage", 10)) {
-            NbtCompound compound = nbt.getCompound("control_damage");
-            for (String key : compound.getKeys()) {
-                Identifier id = Identifier.tryParse(key);
+        if (!nbt.contains("ControlStates", NbtCompound.COMPOUND_TYPE)) return;
 
-                if (id == null) continue;
+        NbtCompound controlStatesNbt = nbt.getCompound("ControlStates");
 
-                Control control = ControlRegistry.REGISTRY.get(id);
+        for (String key : controlStatesNbt.getKeys()) {
+            Identifier id = Identifier.tryParse(key);
 
-                if (control == null) continue;
+            if (id == null) continue;
 
-                Control.ControlState existingState = this.controlStateMap.get(control);
-                if (existingState != null) {
-                    existingState.setDamage(compound.getFloat(key));
-                } else {
-                    this.controlStateMap.put(control, new Control.ControlState(compound.getFloat(key), false));
-                }
-            }
-        }
+            Control control = ControlRegistry.REGISTRY.get(id);
 
-        if (nbt.contains("control_stickiness", 10)) {
-            NbtCompound compound = nbt.getCompound("control_stickiness");
-            for (String key : compound.getKeys()) {
-                Identifier id = Identifier.tryParse(key);
+            if (control == null) continue;
 
-                if (id == null) continue;
+            if (!controlStatesNbt.contains(id.toString(), NbtCompound.COMPOUND_TYPE)) return;
 
-                Control control = ControlRegistry.REGISTRY.get(id);
+            NbtCompound compound1 = controlStatesNbt.getCompound(id.toString());
+            Control.ControlState existingState = controlStateMap.get(control);
 
-                if (control == null) continue;
-
-                Control.ControlState existingState = this.controlStateMap.get(control);
-                if (existingState != null) {
-                    existingState.setSticky(compound.getBoolean(key));
-                } else {
-                    this.controlStateMap.put(control, new Control.ControlState(ConsoleControlEntity.MAX_DURABILITY, compound.getBoolean(key)));
-                }
+            if (existingState != null) {
+                existingState.readNbt(compound1);
+            } else {
+                controlStateMap.put(control, new Control.ControlState().readNbt(compound1));
             }
         }
     }
@@ -558,7 +542,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
 
     private Control.ControlState getOrCreateState(Control control) {
         return this.controlStateMap.computeIfAbsent(control,
-                entry -> new Control.ControlState(ConsoleControlEntity.MAX_DURABILITY, false));
+                entry -> new Control.ControlState());
     }
 
     private void updateStateFromEntity(Control control, float damage, boolean sticky) {
@@ -567,6 +551,6 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
             return;
         }
 
-        this.controlStateMap.put(control, new Control.ControlState(damage, sticky));
+        this.controlStateMap.put(control, new Control.ControlState().setDamage(damage).setSticky(sticky));
     }
 }
