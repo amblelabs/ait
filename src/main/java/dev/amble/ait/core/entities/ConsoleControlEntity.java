@@ -484,7 +484,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         if (result == Control.Result.SEQUENCE) {
             // THIS IS LITERALLY A FEATURE DON'T REMOVE UNLESS I SAY SO DAMMIT - Loqor
-            if (true) {//random.nextBetween(0, 10) == 5) {
+            if (random.nextBetween(0, 8) == 5) {
                 int subtractCauseICan = random.nextBetween(0, 200);
                 this.subtractDurability(subtractCauseICan / 200f);
             }

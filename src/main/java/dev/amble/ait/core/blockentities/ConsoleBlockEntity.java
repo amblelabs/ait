@@ -1,6 +1,7 @@
 package dev.amble.ait.core.blockentities;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -58,7 +59,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
     private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(54, ItemStack.EMPTY);
 
     public final List<ConsoleControlEntity> controlEntities = new ArrayList<>();
-    public final ConcurrentHashMap<Control, Control.ControlState> controlStateMap = new ConcurrentHashMap<>();
+    public final HashMap<Control, Control.ControlState> controlStateMap = new HashMap<>();
     public final AnimationState ANIM_STATE = new AnimationState();
 
     private boolean needsControls = true;
@@ -171,8 +172,6 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
             this.sonicScrewdriver = ItemStack.fromNbt(nbt.getCompound("sonic_screwdriver"));
         }
 
-        this.controlStateMap.clear();
-
         if (nbt.contains("control_damage", 10)) {
             NbtCompound compound = nbt.getCompound("control_damage");
             for (String key : compound.getKeys()) {
@@ -184,7 +183,12 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
 
                 if (control == null) continue;
 
-                this.getOrCreateState(control).setDamage(compound.getFloat(key));
+                Control.ControlState existingState = this.controlStateMap.get(control);
+                if (existingState != null) {
+                    existingState.setDamage(compound.getFloat(key));
+                } else {
+                    this.controlStateMap.put(control, new Control.ControlState(compound.getFloat(key), false));
+                }
             }
         }
 
@@ -199,7 +203,12 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
 
                 if (control == null) continue;
 
-                this.getOrCreateState(control).setSticky(compound.getBoolean(key));
+                Control.ControlState existingState = this.controlStateMap.get(control);
+                if (existingState != null) {
+                    existingState.setSticky(compound.getBoolean(key));
+                } else {
+                    this.controlStateMap.put(control, new Control.ControlState(ConsoleControlEntity.MAX_DURABILITY, compound.getBoolean(key)));
+                }
             }
         }
     }
@@ -295,7 +304,6 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
             }
         }
 
-        // Now safely discard them
         controlEntities.forEach(Entity::discard);
         controlEntities.clear();
         this.markDirty();
@@ -370,9 +378,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
             if (handler.hasActiveSequence() && handler.getActiveSequence() != null) {
                 List<Control> sequence = handler.getActiveSequence().getControls();
 
-                // Iterate only through entities whose controls are in the sequenceSet
                 this.controlEntities.forEach(entity -> {
-                    // Since we're here, the entity's control is part of the sequence
                     int index = sequence.indexOf(entity.getControl());
 
                     Control control = entity.getControl();
