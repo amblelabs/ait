@@ -181,6 +181,32 @@ public class Control implements Identifiable {
         }
     }
 
+    public static class ControlState {
+        private float damage;
+        private boolean sticky;
+
+        public ControlState(float damage, boolean sticky) {
+            this.damage = damage;
+            this.sticky = sticky;
+        }
+
+        public float damage() {
+            return damage;
+        }
+
+        public boolean sticky() {
+            return sticky;
+        }
+
+        public void setDamage(float damage) {
+            this.damage = damage;
+        }
+
+        public void setSticky(boolean sticky) {
+            this.sticky = sticky;
+        }
+    }
+
     public static class ControlSequencedException extends RuntimeException {
         /**
          * The singleton instance, to reduce object allocations.
