@@ -4,6 +4,7 @@ import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 import java.util.List;
 
+import net.minecraft.item.NetherStarItem;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -91,8 +92,10 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         ItemStack stack = player.getStackInHand(hand);
         if (world.isClient()) return ActionResult.SUCCESS;
-        if (stack.isOf(Items.NETHER_STAR) && !hasPower(state)) {
 
+        if (hasPower(state)) return ActionResult.FAIL;
+
+        if (stack.isOf(Items.NETHER_STAR)) {
             world.setBlockState(pos, state.with(HAS_POWER, true));
             stack.decrement(1);
 
@@ -101,7 +104,8 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
             return ActionResult.SUCCESS;
         }
 
-        return super.onUse(state, world, pos, player, hand, hit);
+        player.sendMessage(Text.translatable("block.ait.matrix_energizer.needs_nether_star"), true);
+        return ActionResult.SUCCESS;
     }
 
     @Override
@@ -179,7 +183,13 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
 
     @Override
     public void onBroken(WorldAccess world, BlockPos pos, BlockState state) {
-        if (hasPower(state) && this.getAge(state) == this.getMaxAge()) {
+        if (!hasPower(state)) return;
+
+        // Drop if the block has power, gets broken, and isn't at finished producing the matrix. - Loqor
+        ItemStack netherStar = new ItemStack(Items.NETHER_STAR);
+        dropStack((World) world, pos, netherStar);
+
+        if (this.getAge(state) == this.getMaxAge()) {
             ItemStack pmStack = TardisMatrixItem.randomize();
             dropStack((World) world, pos, pmStack);
         }

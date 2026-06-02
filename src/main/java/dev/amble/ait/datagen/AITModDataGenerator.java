@@ -767,6 +767,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
             module.getItemRegistry().ifPresent(provider::translateItems);
         });
 
+        provider.addTranslation("block.ait.matrix_energizer.needs_nether_star", "The energizer needs the power of the Wither...");
         provider.addTranslation("ait.tardis.likes_item", "The TARDIS may like this item...");
         provider.addTranslation("ait.charged_zeiton_crystal.not_max_fuel", "Crystal doesn't have enough fuel!");
         provider.addTranslation("tooltip.ait.remoteitem.holdformoreinfo", "Hold shift for more info");
