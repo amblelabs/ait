@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import dev.amble.ait.core.tardis.control.impl.HammerHangerControl;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -448,7 +449,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         DurabilityStates state = this.getDurabilityState(this.getDurability());
 
-        if (state == DurabilityStates.FULL) {
+        if (state == DurabilityStates.FULL && !(this.getControl() instanceof HammerHangerControl)) {
             if (hasMallet)
                 this.subtractDurability(0.4f);
         }
