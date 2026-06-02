@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Calendar;
 import java.util.UUID;
 
-import dev.amble.ait.api.ClientWorldEvents;
 import dev.amble.ait.client.screens.*;
 import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.ClientModInitializer;
