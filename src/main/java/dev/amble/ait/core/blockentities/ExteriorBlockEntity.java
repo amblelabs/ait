@@ -4,6 +4,8 @@ import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.MAX_PLAS
 
 import java.util.UUID;
 
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
+import dev.amble.ait.data.Loyalty;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
@@ -51,10 +53,12 @@ import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.core.tardis.handler.SonicHandler;
+import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.data.schema.exterior.category.AdaptiveCategory;
 
 public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements BlockEntityTicker<ExteriorBlockEntity> {
     private UUID seatEntityUUID = null;
@@ -78,11 +82,11 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         ItemStack hand = player.getMainHandStack();
 
         if (tardis.isGrowth()) {
-            if (tardis.interiorChangingHandler().hasCage()) {
+            if (tardis.interiorChanging().hasCage()) {
                 if (hand.getItem() == AITItems.PLASMIC_MATERIAL) {
-                    int plasmic = tardis.interiorChangingHandler().plasmicMaterialAmount();
+                    int plasmic = tardis.interiorChanging().plasmicMaterialAmount();
                     if (plasmic < MAX_PLASMIC_MATERIAL_AMOUNT) {
-                        tardis.interiorChangingHandler().addPlasmicMaterial(1);
+                        tardis.interiorChanging().addPlasmicMaterial(1);
                         world.playSound(null, pos, SoundEvents.ENTITY_MAGMA_CUBE_SQUISH, SoundCategory.BLOCKS, 1F, (float) plasmic / 8);
                         hand.decrement(1);
                     }
@@ -90,7 +94,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
             } else {
                 if (hand.getItem() == AITItems.CORAL_CAGE) {
                     world.playSound(null, pos, SoundEvents.BLOCK_CHAIN_HIT, SoundCategory.BLOCKS, 1F, 0.7f);
-                    tardis.interiorChangingHandler().setHasCage(true);
+                    tardis.interiorChanging().setHasCage(true);
                     hand.decrement(1);
                     return;
                 }
@@ -112,7 +116,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         }
 
         if (hand.getItem() instanceof KeyItem key && !tardis.siege().isActive()
-                && !tardis.interiorChangingHandler().queued().get()) {
+                && !tardis.interiorChanging().queued().get()) {
             if (hand.isOf(AITItems.SKELETON_KEY) || key.isOf(hand, tardis)) {
                 tardis.door().interactToggleLock((ServerPlayerEntity) player);
             } else {
@@ -141,7 +145,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
 
         if (hand.getItem() instanceof SonicItem sonic && sonic.isOf(hand, tardis)) {
             if (!tardis.siege().isActive()
-                    && !tardis.interiorChangingHandler().queued().get()
+                    && !tardis.interiorChanging().queued().get()
                     && tardis.door().isClosed() && tardis.crash().getRepairTicks() > 0) {
                 if (sonic.isOf(hand, tardis)) {
                     handler.insertExteriorSonic(hand);
@@ -168,6 +172,28 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
                     phasing.cancel();
                 return;
             }
+        }
+
+        // Change disguise via sonic
+        if (player.getOffHandStack().getItem() instanceof SonicItem
+                && SonicItem.mode(player.getOffHandStack()) == SonicMode.Modes.INTERACTION
+                && tardis.getExterior().getCategory().id().equals(AdaptiveCategory.REFERENCE)
+                && tardis.door().isClosed()
+                && !tardis.siege().isActive()
+                && !tardis.interiorChanging().queued().get()
+                && tardis.crash().getState() == TardisCrashHandler.State.NORMAL
+        ) {
+            Loyalty playerLoyalty = tardis.loyalty().get(player);
+            Loyalty pilotLoyalty = Loyalty.fromLevel(Loyalty.Type.PILOT.level);
+            // Follows isomorphic security if enabled, otherwise requires at least PILOT loyalty or OP.
+            boolean isPermitted = tardis.stats().security().get() ? SecurityControl.hasMatchingKey((ServerPlayerEntity) player, tardis) : playerLoyalty.greaterOrEqual(pilotLoyalty) || player.hasPermissionLevel(2);
+
+            if (!isPermitted)
+                return;
+
+            tardis.chameleon().clearDisguise();
+            tardis.chameleon().applyDisguise();
+            return;
         }
 
         if (sneaking && !tardis.isSiegeBeingHeld() && tardis.siege().isActive()) {
@@ -292,7 +318,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
             TardisUtil.teleportInside(tardis, entity);
 
         if (!tardis.door().isClosed()
-                && (!DependencyChecker.hasPortals() || !tardis.getExterior().getVariant().hasPortals()))
+                && (!(DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti) || !tardis.getExterior().getVariant().hasPortals()))
             TardisUtil.teleportInside(tardis, entity);
 
         if (tardis.door().isClosed()

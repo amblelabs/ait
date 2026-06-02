@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import dev.amble.ait.core.tardis.control.impl.HammerHangerControl;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -73,14 +74,11 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> ON_DELAY = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Float> DURABILITY = DataTracker.registerData(ConsoleControlEntity.class,
-            TrackedDataHandlerRegistry.FLOAT);
-    private static final TrackedData<Boolean> STICKY = DataTracker.registerData(ConsoleControlEntity.class,
-            TrackedDataHandlerRegistry.BOOLEAN);
+
     private static final TrackedData<BlockPos> CONSOLE_BLOCK_POS = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.BLOCK_POS);
     private Control control;
-    private static final float MAX_DURABILITY = 1.0f;
+    public static final float MAX_DURABILITY = 1.0f;
 
     public ConsoleControlEntity(EntityType<? extends Entity> entityType, World world) {
         super(entityType, world);
@@ -118,8 +116,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         this.dataTracker.startTracking(SEQUENCE_LENGTH, 0);
         this.dataTracker.startTracking(WAS_SEQUENCED, false);
         this.dataTracker.startTracking(ON_DELAY, false);
-        this.dataTracker.startTracking(DURABILITY, MAX_DURABILITY);
-        this.dataTracker.startTracking(STICKY, false);
         this.dataTracker.startTracking(CONSOLE_BLOCK_POS, BlockPos.ORIGIN);
     }
 
@@ -237,9 +233,11 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         ServerWorld world = (ServerWorld) this.getWorld();
 
-        // spawn particle above the control
-        world.spawnParticles(AITMod.CORAL_PARTICLE, this.getX(), this.getY() + 0.25, this.getZ(), 1, 0.05, 0.05, 0.05, 0.025);
-        world.playSound(null, this.getBlockPos(), SoundEvents.ITEM_SHIELD_BREAK, SoundCategory.BLOCKS, 0.2F, AITMod.RANDOM.nextFloat(0.5F, 1.5F));
+        // spawn particle above the control - change from the ait particle to crit - Loqor
+        world.spawnParticles(ParticleTypes.CRIT, this.getX(), this.getY() + 0.25, this.getZ(), 1, 0.05, 0.05, 0.05, 0.025);
+
+        // Changed from that horrible, ear-grating, nausea-inducing SHIELD BREAK to a much softer sound - Loqor
+        world.playSound(null, this.getBlockPos(), SoundEvents.BLOCK_BAMBOO_WOOD_BUTTON_CLICK_OFF, SoundCategory.BLOCKS, 0.5F, AITMod.RANDOM.nextFloat(0.5F, 1F));
     }
 
     @Override
@@ -343,11 +341,13 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     }
 
     public float getDurability() {
-        return this.dataTracker.get(DURABILITY);
+        if (this.getControl() == null || this.getConsole() == null) return MAX_DURABILITY;
+        return this.getConsole().controlStateMap.getOrDefault(this.getControl(), new Control.ControlState()).damage();//this.dataTracker.get(DURABILITY);
     }
 
     public boolean isSticky() {
-        return this.dataTracker.get(STICKY);
+        if (this.getControl() == null || this.getConsole() == null) return false;
+        return this.getConsole().controlStateMap.getOrDefault(this.getControl(), new Control.ControlState()).sticky();//this.dataTracker.get(DURABILITY);
     }
 
     public DurabilityStates getDurabilityState(float durability) {
@@ -355,11 +355,19 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     }
 
     public void setDurability(float durability) {
-        this.dataTracker.set(DURABILITY, durability);
+        ConsoleBlockEntity console = this.getConsole();
+        if (console != null && this.getControl() != null) {
+            console.updateDurability(this.getControl(), durability);
+            console.markDirty();
+        }
     }
 
     public void setSticky(boolean sticky) {
-        this.dataTracker.set(STICKY, sticky);
+        ConsoleBlockEntity console = this.getConsole();
+        if (console != null && this.getControl() != null) {
+            console.updateStickiness(this.getControl(), sticky);
+            console.markDirty();
+        }
     }
 
     public void addDurability(float durability) {
@@ -374,7 +382,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         if (isSticky()) {
             if (player.getMainHandStack().isOf(Items.SHEARS)) {
                 this.playSound(SoundEvents.ENTITY_SHEEP_SHEAR, 1, 1);
-                this.dataTracker.set(STICKY, false);
+                this.setSticky(false);
                 return true;
             }
 
@@ -387,8 +395,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
             return true;
         } else if (player.getMainHandStack().isOf(Items.SLIME_BALL)) {
-            this.playSound(SoundEvents.BLOCK_SLIME_BLOCK_BREAK, 1, 1);
-            this.dataTracker.set(STICKY, true);
+            this.playSound(SoundEvents.BLOCK_SLIME_BLOCK_PLACE, 1, 1);
+            this.setSticky(true);
             return true;
         }
 
@@ -441,9 +449,9 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         DurabilityStates state = this.getDurabilityState(this.getDurability());
 
-        if (state == DurabilityStates.FULL) {
+        if (state == DurabilityStates.FULL && !(this.getControl() instanceof HammerHangerControl)) {
             if (hasMallet)
-                this.subtractDurability(0.1f);
+                this.subtractDurability(0.4f);
         }
 
         if (state == DurabilityStates.JAMMED) {
@@ -477,7 +485,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         if (result == Control.Result.SEQUENCE) {
             // THIS IS LITERALLY A FEATURE DON'T REMOVE UNLESS I SAY SO DAMMIT - Loqor
-            if (random.nextBetween(0, 10) == 5) {
+            if (random.nextBetween(0, 8) == 5) {
                 int subtractCauseICan = random.nextBetween(0, 200);
                 this.subtractDurability(subtractCauseICan / 200f);
             }
@@ -534,7 +542,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         this.calculateDimensions();
     }
 
-    public void setControlData(ConsoleTypeSchema consoleType, ControlTypes type, BlockPos consoleBlockPosition) {
+    public void setControlData(ConsoleTypeSchema consoleType, ControlTypes type, BlockPos consoleBlockPosition, float durability, boolean sticky) {
         this.setConsolePos(consoleBlockPosition);
         this.control = type.getControl();
 
@@ -544,6 +552,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             this.setControlWidth(type.getScale().width);
             this.setControlHeight(type.getScale().height);
             this.setOffset(type.getOffset());
+            this.setDurability(durability);
+            this.setSticky(sticky);
         }
     }
 

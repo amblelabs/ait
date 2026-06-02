@@ -38,8 +38,8 @@ public class CrystallineType extends ConsoleTypeSchema {
             new ControlTypes(new DoorControl(), EntityDimensions.changing(0.125f, 0.124999985f),
                     new Vector3f(1.0601562475785613f, 0.38749957270920277f, 0.4980472531169653f)),
 
-          //  new ControlTypes(new VisualiserControl(), EntityDimensions.changing(0.29999998f, 0.1125f),
-                    //new Vector3f(0.36406249925494194f, 0.7499999087303877f, 0.5773441279307008f)),
+            new ControlTypes(new VisualiserControl(), EntityDimensions.changing(0.29999998f, 0.1125f),
+                    new Vector3f(0.36406249925494194f, 0.7499999087303877f, 0.5773441279307008f)),
 
             new ControlTypes(new EngineOverloadControl(),  EntityDimensions.changing(0.04999999f, 0.125f),
                     new Vector3f(0.6367189437150955f, 0.41250014305114746f, 0.8890623077750206f)),

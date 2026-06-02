@@ -46,7 +46,8 @@ public class AITBlocks extends BlockContainer {
     @PickaxeMineable
     @NoEnglish
     public static final Block DOOR_BLOCK = new DoorBlock(FabricBlockSettings.create().nonOpaque().noCollision()
-            .instrument(Instrument.BASEDRUM).requiresTool().strength(0.5F, 6.0F).pistonBehavior(PistonBehavior.IGNORE));
+            .instrument(Instrument.BASEDRUM).requiresTool().strength(0.5F, 6.0F).pistonBehavior(PistonBehavior.IGNORE).luminance(ExteriorBlock.STATE_TO_LUMINANCE));
+
     @NoBlockDrop
     @NoEnglish
     public static final Block CONSOLE = new ConsoleBlock(
@@ -93,6 +94,15 @@ public class AITBlocks extends BlockContainer {
 
     @PickaxeMineable(tool = PickaxeMineable.Tool.DIAMOND)
     public static final Block TARDIS_CORAL_STAIRS = new StairsBlock(TARDIS_CORAL_BLOCK.getDefaultState(), FabricBlockSettings.create().mapColor(MapColor.GOLD).solid().instrument(Instrument.BASEDRUM).requiresTool().strength(7f, 6.0f));
+
+    @PickaxeMineable(tool = PickaxeMineable.Tool.STONE)
+    public static final Block TARDIS_CORAL_FENCE = new FenceBlock(FabricBlockSettings.create().mapColor(MapColor.GOLD).solid().instrument(Instrument.BASEDRUM).requiresTool().strength(7f, 6.0f));
+
+    @PickaxeMineable(tool = PickaxeMineable.Tool.STONE)
+    public static final Block TARDIS_CORAL_WALL = new WallBlock(FabricBlockSettings.create().mapColor(MapColor.GOLD).solid().instrument(Instrument.BASEDRUM).requiresTool().strength(7f, 6.0f));
+
+    @PickaxeMineable(tool = PickaxeMineable.Tool.STONE)
+    public static final Block TARDIS_CORAL_LEAVES = new LeavesBlock(ABlockSettings.copyOf(Blocks.CHERRY_LEAVES));
 
     @PickaxeMineable(tool = PickaxeMineable.Tool.DIAMOND)
     public static final Block TARDIS_CORAL_SLAB = new SlabBlock(FabricBlockSettings.create().mapColor(MapColor.GOLD).solid().instrument(Instrument.BASEDRUM).requiresTool().strength(7f, 6.0f));
@@ -172,7 +182,7 @@ public class AITBlocks extends BlockContainer {
 
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     @NoEnglish
-    public static final Block GENERIC_SUBSYSTEM = new GenericSubSystemBlock(ABlockSettings.create()
+    public static final Block GENERIC_SUBSYSTEM = new GenericSubSystemBlock(ABlockSettings.create().lightLevel(5)
             .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR))
             .requiresTool().instrument(Instrument.COW_BELL).strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
 
@@ -249,6 +259,9 @@ public class AITBlocks extends BlockContainer {
             .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).nonOpaque()
             .instrument(Instrument.GUITAR).strength(1.5F, 6.0F));
 
+    public static final Block LODESTONE = new ChargedLodestoneBlock(ABlockSettings.create().itemSettings(
+            new AItemSettings().group(AITItemGroups.MAIN)).lightLevel(7)
+    );
 
     public static List<Block> get() {
         List<Block> list = new ArrayList<>();

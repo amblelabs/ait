@@ -195,6 +195,7 @@ public class ChameleonHandler extends KeyedTardisComponent {
         gaslighter.tweet();
 
         this.gaslighter = null;
+        this.lastFeature = null;
     }
 
     /**

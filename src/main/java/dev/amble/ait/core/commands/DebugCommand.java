@@ -8,6 +8,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
@@ -26,7 +27,7 @@ import dev.amble.ait.data.landing.LandingPadRegion;
 public class DebugCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher.register(literal(AITMod.MOD_ID).then(literal("debug").executes(DebugCommand::execute)
+        dispatcher.register(literal(AITMod.MOD_ID).then(literal("debug").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.debug", 2)).executes(DebugCommand::execute)
                 .then(argument("tardis", TardisArgumentType.tardis()).executes(DebugCommand::executeTardis)
                         .then(argument("player", EntityArgumentType.player()).executes(DebugCommand::executePlayer)))));
 

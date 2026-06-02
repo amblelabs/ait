@@ -12,14 +12,18 @@ import dev.amble.ait.AITMod;
 public class AITSounds {
     // public static final SoundEvent SECRET_MUSIC = init("music/secret_music"); // removed for its large size - if you bring it back, COMPRESS IT
     public static final SoundEvent EVEN_MORE_SECRET_MUSIC = register("music/even_more_secret_music");
-    public static final SoundEvent DRIFTING_MUSIC = register("music/drifting_by_radio");
     public static final SoundEvent WONDERFUL_TIME_IN_SPACE = register("music/wonderful_time_in_space");
     public static final SoundEvent EARTH_MUSIC = register("music/earth_nitrogenez");
     public static final SoundEvent VENUS_MUSIC = register("music/venus_nitrogenez");
     public static final SoundEvent GOOD_MAN_MUSIC = register("music/good_man_dian");
-    public static final SoundEvent CHRONOLOGY_MUSIC = register("music/chronology");
+
+    // Screw chronology, lets go ait theme!
+    public static final SoundEvent AIT_THEME = register("music/ait_theme");
+    public static final SoundEvent AIT_THEME_MONO = register("music/ait_theme_mono");
     public static final SoundEvent MAD_MAN_MUSIC = register("music/mad_man_dian");
     public static final SoundEvent SPACE = register("music/space");
+    public static final SoundEvent TWO_THOUSAND = register("music/two_thousand");
+    public static final SoundEvent ARPALARM = register("tardis/arpalarm");
 
     // TARDIS
     public static final SoundEvent DEMAT = register("tardis/demat");

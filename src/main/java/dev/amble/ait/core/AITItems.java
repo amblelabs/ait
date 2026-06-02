@@ -129,7 +129,7 @@ public class AITItems extends ItemContainer {
     public static final Item PLASMIC_MATERIAL = new Item(new AItemSettings().group(AITItemGroups.MAIN));
     public static final Item CORAL_FRAGMENT = new Item(new AItemSettings().group(AITItemGroups.MAIN));
     public static final Item CORAL_CAGE = new Item(new AItemSettings().group(AITItemGroups.MAIN));
-    public static final Item PERSONALITY_MATRIX = new PersonalityMatrixItem(new AItemSettings().group(AITItemGroups.MAIN));
+    public static final Item TARDIS_MATRIX = new TardisMatrixItem(new AItemSettings().group(AITItemGroups.MAIN));
 
     // Machine parts
     public static final Item ARTRON_FLUID_LINK = new FluidLinkItem(AbstractLinkItem.Type.ARTRON,
@@ -189,9 +189,12 @@ public class AITItems extends ItemContainer {
     public static final Item WAYPOINT_CARTRIDGE = new WaypointItem(
             new AItemSettings().group(AITItemGroups.MAIN).maxCount(1));
 
+    public static final Item CONTROL_DISC = new ControlDiscItem(
+            new AItemSettings().group(AITItemGroups.MAIN).maxCount(1));
+
     // Music discs
     @NoEnglish
-    public static final Item DRIFTING_MUSIC_DISC = new MusicDiscItem(1, AITSounds.DRIFTING_MUSIC,
+    public static final Item TWO_THOUSAND_MUSIC_DISC = new MusicDiscItem(1, AITSounds.TWO_THOUSAND,
             new AItemSettings().maxCount(1).rarity(Rarity.RARE), 169);
 
     @NoEnglish
@@ -208,7 +211,7 @@ public class AITItems extends ItemContainer {
             new AItemSettings().maxCount(1).rarity(Rarity.RARE), 342);
 
     @NoEnglish
-    public static final Item CHRONOLOGY_MUSIC_DISC = new MusicDiscItem(1, AITSounds.CHRONOLOGY_MUSIC,
+    public static final Item AIT_THEME_MUSIC_DISC = new MusicDiscItem(1, AITSounds.AIT_THEME_MONO,
             new AItemSettings().maxCount(1).rarity(Rarity.RARE), 180);
 
     @NoEnglish
@@ -262,10 +265,10 @@ public class AITItems extends ItemContainer {
 
     static {
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
-            entries.addAfter(Items.MUSIC_DISC_RELIC, DRIFTING_MUSIC_DISC);
-            entries.addAfter(DRIFTING_MUSIC_DISC, WONDERFUL_TIME_IN_SPACE_MUSIC_DISC);
+            entries.addAfter(Items.MUSIC_DISC_RELIC, TWO_THOUSAND_MUSIC_DISC);
+            entries.addAfter(TWO_THOUSAND_MUSIC_DISC, WONDERFUL_TIME_IN_SPACE_MUSIC_DISC);
             entries.addAfter(WONDERFUL_TIME_IN_SPACE_MUSIC_DISC, EARTH_MUSIC_DISC);
-            entries.addAfter(EARTH_MUSIC_DISC, VENUS_MUSIC_DISC, GOOD_MAN_MUSIC_DISC, CHRONOLOGY_MUSIC_DISC);
+            entries.addAfter(EARTH_MUSIC_DISC, VENUS_MUSIC_DISC, GOOD_MAN_MUSIC_DISC, AIT_THEME_MUSIC_DISC);
         });
 
 

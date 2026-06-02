@@ -20,10 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.World;
+import net.minecraft.world.*;
 import net.minecraft.world.chunk.Chunk;
 
 import dev.amble.ait.AITMod;
@@ -46,6 +43,11 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
             AITSounds.RIFT2_AMBIENT,
             AITSounds.RIFT3_AMBIENT
     };
+
+    @Override
+    public boolean canSpawn(WorldAccess world, SpawnReason spawnReason) {
+        return super.canSpawn(world, spawnReason);
+    }
 
     private static final int[] RIFT_DURATIONS = {
             15 * 20,
@@ -98,7 +100,12 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
                         AITTags.Items.RIFT_SUCCESS_EXTRA_ITEM
                 );
 
-                StackUtil.spawn(this.getWorld(), this.getBlockPos(), new ItemStack(AITItems.CORAL_FRAGMENT));
+                // Since we don't really wanna have to use 3 billion charged zeiton crystals, just spawn more coral fragments. - Loqor
+                ItemStack coralFragments = new ItemStack(AITItems.CORAL_FRAGMENT);
+
+                coralFragments.setCount(this.getWorld().random.nextBetween(3, 8));
+                StackUtil.spawn(this.getWorld(), this.getBlockPos(), coralFragments);
+
                 StackUtil.spawn(this.getWorld(), this.getBlockPos(), new ItemStack(randomItem));
                 this.getWorld().playSound(null, player.getBlockPos(), AITSounds.RIFT_SUCCESS, SoundCategory.AMBIENT, 1f, 1f);
             } else {
@@ -196,33 +203,6 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
                 currentSoundIndex = (currentSoundIndex + 1) % RIFT_SOUNDS.length;
             }
         }
-    }
-
-    public static boolean canSpawn(EntityType<RiftEntity> rift,
-                                   ServerWorldAccess serverWorldAccess, SpawnReason spawnReason,
-                                   BlockPos pos, net.minecraft.util.math.random.Random random) {
-        if (!(serverWorldAccess instanceof StructureWorldAccess worldAccess))
-            return false;
-
-        if (!WorldUtil.canRiftsSpawn(serverWorldAccess.toServerWorld()))
-            return false;
-
-        boolean canSpawn = spawnReason == SpawnReason.STRUCTURE || (random.nextBoolean()
-                && random.nextBoolean() && RiftChunkManager.isRiftChunk(worldAccess, pos));
-
-        if (!canSpawn)
-            return false;
-
-        Chunk chunk = worldAccess.getChunk(pos);
-        ChunkPos chunkPos = chunk.getPos();
-        BlockPos startPos = new BlockPos(chunkPos.getStartX(), chunk.getBottomY(), chunkPos.getStartZ());
-        BlockPos endPos = new BlockPos(chunkPos.getEndX(), worldAccess.getHeight(), chunkPos.getEndZ());
-        Box box = new Box(startPos, endPos);
-
-        if (serverWorldAccess.getEntitiesByType(rift, box, predicate -> true).isEmpty())
-            return worldAccess.getBlockState(pos).isAir() && worldAccess.getBlockState(pos.down()).isAir();
-
-        return false;
     }
 
     @Override

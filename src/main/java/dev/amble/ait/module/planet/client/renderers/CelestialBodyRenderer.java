@@ -179,11 +179,9 @@ public class CelestialBodyRenderer {
             matrixStack.push();
             float gg = 1.0f + ((i != 0 ? i : i + 1) * 0.025f);
             matrixStack.scale(gg, gg, gg);
-            float delta = (MinecraftClient.getInstance().getTickDelta() + MinecraftClient.getInstance().player.age) * 0.00001f;
             RenderLayer renderLayer = AITRenderLayers.getItemEntityTranslucentCull(new Identifier("textures/environment/clouds.png"));//RenderLayer.getEnergySwirl(new Identifier("textures/environment/clouds.png"), delta % 1.0F, (delta * 0.1F) % 1.0F);
             Identifier texture = AITMod.id("textures/environment/atmosphere.png");
             if (i != 1) {
-                //System.out.println("min" + (Math.min(color.z + (0.05f * i + i), 1.0f)));
                 model.render(matrixStack,
                         provider.getBuffer(isStar && (i == 2 || i == 3 || i == 4) ?
                                 AITRenderLayers.getEyes(texture) : AITRenderLayers.getItemEntityTranslucentCull(texture)),

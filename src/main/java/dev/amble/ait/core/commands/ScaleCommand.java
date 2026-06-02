@@ -20,10 +20,13 @@ import dev.amble.ait.core.tardis.handler.StatsHandler;
 
 public class ScaleCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher.register(literal(AITMod.MOD_ID).then(literal("scale").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.scale", 2))
-                .then(argument("tardis", TardisArgumentType.tardis()).then(argument("x", DoubleArgumentType.doubleArg()))
-                        .then(argument("y", DoubleArgumentType.doubleArg()))
-                        .then(argument("z", DoubleArgumentType.doubleArg())).executes(ScaleCommand::runCommand))));
+        dispatcher
+                .register(literal(AITMod.MOD_ID).then(literal("scale").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.scale", 2))
+                        .then(argument("tardis", TardisArgumentType.tardis())
+                                .then(argument("x", DoubleArgumentType.doubleArg())
+                                        .then(argument("y", DoubleArgumentType.doubleArg())
+                                                .then(argument("z", DoubleArgumentType.doubleArg())
+                                                        .executes(ScaleCommand::runCommand)))))));
     }
 
     private static int runCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {

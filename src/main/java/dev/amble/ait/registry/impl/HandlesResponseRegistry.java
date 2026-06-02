@@ -60,9 +60,9 @@ public class HandlesResponseRegistry {
         int minDistance = Integer.MAX_VALUE;
         HandlesResponse closest = null;
         for (String key : COMMANDS_CACHE.keySet()) {
-            int distanc = COMMANDS_CACHE.get(key).distance(key, command);
-            if (distanc < minDistance) {
-                minDistance = distanc;
+            int distance = COMMANDS_CACHE.get(key).distance(key, command);
+            if (distance < minDistance) {
+                minDistance = distance;
                 closest = COMMANDS_CACHE.get(key);
             }
         }
