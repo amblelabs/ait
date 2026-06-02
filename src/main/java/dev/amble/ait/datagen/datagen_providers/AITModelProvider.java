@@ -25,6 +25,7 @@ public class AITModelProvider extends AmbleModelProvider {
     private final List<Block> directionalBlocksToRegister = new ArrayList<>();
     private final List<Block> simpleBlocksToRegister = new ArrayList<>();
     private final List<Pair<Block, Block>> coralFanBlocksToRegister = new ArrayList<>();
+    private final List<Block> pillarBlocksToRegister = new ArrayList<>();
 
     public AITModelProvider(FabricDataOutput output) {
         super(output);
@@ -67,6 +68,10 @@ public class AITModelProvider extends AmbleModelProvider {
             generator.registerCoralFan(pair.getLeft(), pair.getRight());
         }
 
+        for (Block block : pillarBlocksToRegister) {
+            generator.registerCubeWithCustomTextures(block, block, (a, b) -> TextureMap.sideAndTop(block));
+        }
+
         ModuleRegistry.instance().iterator().forEachRemaining(module -> {
             module.getDataGenerator().ifPresent(data -> data.models(this, generator));
             module.getBlockRegistry().ifPresent(this::withBlocks);
@@ -75,6 +80,9 @@ public class AITModelProvider extends AmbleModelProvider {
         BlockStateModelGenerator.BlockTexturePool tardis_coral_pool = generator.registerCubeAllModelTexturePool(AITBlocks.TARDIS_CORAL_BLOCK);
         tardis_coral_pool.stairs(AITBlocks.TARDIS_CORAL_STAIRS);
         tardis_coral_pool.slab(AITBlocks.TARDIS_CORAL_SLAB);
+        tardis_coral_pool.wall(AITBlocks.TARDIS_CORAL_WALL);
+        tardis_coral_pool.fence(AITBlocks.TARDIS_CORAL_FENCE);
+
 
         super.generateBlockStateModels(generator);
     }
@@ -103,6 +111,10 @@ public class AITModelProvider extends AmbleModelProvider {
 
     public void registerSimpleBlock(Block block) {
         simpleBlocksToRegister.add(block);
+    }
+
+    public void registerPillarBlock(Block block) {
+        pillarBlocksToRegister.add(block);
     }
 
     private void registerItem(ItemModelGenerator generator, Item item, String modid) {

@@ -1,25 +1,24 @@
 package dev.amble.ait.core.util;
 
-import java.util.*;
-
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.AITWorldOptions;
+import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.mixin.server.EnderDragonFightAccessor;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.util.ServerLifecycleHooks;
-import dev.amble.lib.util.TeleportUtil;
-import dev.drtheo.scheduler.api.TimeUnit;
-import dev.drtheo.scheduler.api.common.Scheduler;
-import dev.drtheo.scheduler.api.common.TaskStage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.loader.api.FabricLoader;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.network.packet.s2c.play.EntityStatusEffectS2CPacket;
@@ -36,21 +35,15 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.AITWorldOptions;
-import dev.amble.ait.client.util.ClientTardisUtil;
-import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.mixin.server.EnderDragonFightAccessor;
+import java.util.*;
 
-@SuppressWarnings("deprecation")
 public class WorldUtil {
 
     private static final List<ServerWorld> PROJECTOR_WORLDS = new ArrayList<>();
     private static final List<ServerWorld> TRAVEL_WORLDS = new ArrayList<>();
 
     private static final Set<ServerWorld> RIFT_SPAWN_WORLDS = new HashSet<>();
-    private static final List<ServerWorld> RIFT_DROP_WORLDS = new ArrayList<>();
+    public static final List<ServerWorld> RIFT_DROP_WORLDS = new ArrayList<>();
 
     private static ServerWorld OVERWORLD;
     private static ServerWorld TIME_VORTEX;
@@ -79,26 +72,6 @@ public class WorldUtil {
             OVERWORLD = server.getOverworld();
             TIME_VORTEX = server.getWorld(AITDimensions.TIME_VORTEX_WORLD);
         });
-
-        ServerEntityWorldChangeEvents.AFTER_ENTITY_CHANGE_WORLD.register((originalEntity, newEntity, origin, destination) -> {
-            if (destination == TIME_VORTEX && newEntity instanceof LivingEntity living)
-                scheduleVortexFall(living);
-        });
-
-        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
-            if (destination == TIME_VORTEX)
-                scheduleVortexFall(player);
-        });
-    }
-
-    private static void scheduleVortexFall(LivingEntity entity) {
-        int worldIndex = TIME_VORTEX.getRandom().nextInt(RIFT_DROP_WORLDS.size());
-
-        Scheduler.get().runTaskLater(() -> {
-            if (entity.getWorld() == TIME_VORTEX)
-                TeleportUtil.teleport(entity, RIFT_DROP_WORLDS.get(worldIndex),
-                        entity.getPos().add(2, 10, -2), entity.getYaw());
-        }, TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 5);
     }
 
     public static ServerWorld getOverworld() {
@@ -110,11 +83,16 @@ public class WorldUtil {
     }
 
     private static void generateWorldCache(MinecraftServer server) {
-        generateWorldCache(server, AITMod.CONFIG.projectorBlacklist, PROJECTOR_WORLDS);
-        generateWorldCache(server, AITMod.CONFIG.travelBlacklist, TRAVEL_WORLDS);
+        for (ServerWorld world : server.getWorlds()) {
+            if (world instanceof AITWorldOptions options)
+                options.ait$setCanRiftsSpawn(false);
+        }
 
-        generateWorldCache(server, AITMod.CONFIG.riftSpawnBlacklist, RIFT_SPAWN_WORLDS);
-        generateWorldCache(server, AITMod.CONFIG.riftDropBlacklist, RIFT_DROP_WORLDS);
+        generateWorldCache(server, "environment projector", AITMod.CONFIG.projectorBlacklist, AITMod.CONFIG.projectorWhitelist, PROJECTOR_WORLDS, false);
+        generateWorldCache(server, "travel", AITMod.CONFIG.travelBlacklist, AITMod.CONFIG.travelWhitelist, TRAVEL_WORLDS, true);
+
+        generateWorldCache(server, "rift spawn", AITMod.CONFIG.riftSpawnBlacklist, AITMod.CONFIG.riftSpawnWhitelist, RIFT_SPAWN_WORLDS, true);
+        generateWorldCache(server, "rift drop", AITMod.CONFIG.riftDropBlacklist, AITMod.CONFIG.riftDropWhitelist, RIFT_DROP_WORLDS, true);
 
         for (ServerWorld riftSpawnable : RIFT_SPAWN_WORLDS) {
             if (riftSpawnable instanceof AITWorldOptions options)
@@ -122,19 +100,63 @@ public class WorldUtil {
         }
     }
 
-    private static void generateWorldCache(MinecraftServer server, List<String> raw, Collection<ServerWorld> worlds) {
+    private static void generateWorldCache(MinecraftServer server, String cacheName, List<String> blacklist, List<String> whitelist,
+                                           Collection<ServerWorld> worlds, boolean allowTardisWorlds) {
         worlds.clear();
 
-        Set<Identifier> ids = new HashSet<>();
-        boolean blocksTardis = false;
+        Set<Identifier> whitelistIds = new HashSet<>();
+        boolean whitelistHasTardisFlag = collectWorldIds(whitelist, whitelistIds);
+        boolean useWhitelist = whitelistHasTardisFlag || !whitelistIds.isEmpty();
 
-        for (String rawId : raw) {
-            if (rawId.equals("ait-tardis")) {
-                blocksTardis = true;
+        Set<Identifier> blacklistIds = new HashSet<>();
+        boolean blacklistHasTardisFlag = collectWorldIds(blacklist, blacklistIds);
+
+        if (useWhitelist && (blacklistHasTardisFlag || !blacklistIds.isEmpty()))
+            AITMod.LOGGER.warn("Both {} blacklist and whitelist are populated - whitelist takes priority. Clear one to suppress this warning.", cacheName);
+
+        Set<Identifier> activeIds = useWhitelist ? whitelistIds : blacklistIds;
+        boolean hasTardisFlag = useWhitelist ? whitelistHasTardisFlag : blacklistHasTardisFlag;
+
+        for (ServerWorld world : server.getWorlds()) {
+            boolean isTardis = TardisServerWorld.isTardisDimension(world);
+
+            if (!allowTardisWorlds && isTardis)
+                continue;
+
+            Identifier worldId = world.getRegistryKey().getValue();
+            boolean matches = idsMatch(activeIds, hasTardisFlag, worldId, isTardis);
+
+            if (useWhitelist) {
+                if (matches)
+                    worlds.add(world);
+            } else {
+                if (!matches)
+                    worlds.add(world);
+            }
+        }
+
+        if (useWhitelist && worlds.isEmpty())
+            AITMod.LOGGER.warn("The {} whitelist is configured but does not resolve to any available worlds.", cacheName);
+    }
+
+    private static boolean collectWorldIds(List<String> rawIds, Set<Identifier> ids) {
+        boolean hasTardisFlag = false;
+
+        for (String rawId : rawIds) {
+            if (rawId == null)
+                continue;
+
+            String cleaned = rawId.trim();
+
+            if (cleaned.isEmpty())
+                continue;
+
+            if (cleaned.equals("ait-tardis")) {
+                hasTardisFlag = true;
                 continue;
             }
 
-            Identifier id = Identifier.tryParse(rawId);
+            Identifier id = Identifier.tryParse(cleaned);
 
             if (id == null)
                 continue;
@@ -142,15 +164,11 @@ public class WorldUtil {
             ids.add(id);
         }
 
-        for (ServerWorld world : server.getWorlds()) {
-            if (blocksTardis && TardisServerWorld.isTardisDimension(world))
-                continue;
+        return hasTardisFlag;
+    }
 
-            Identifier worldId = world.getRegistryKey().getValue();
-
-            if (!ids.contains(worldId))
-                worlds.add(world);
-        }
+    private static boolean idsMatch(Set<Identifier> ids, boolean hasTardisFlag, Identifier worldId, boolean isTardis) {
+        return (hasTardisFlag && isTardis) || ids.contains(worldId);
     }
 
     private static void clearWorldCache(MinecraftServer server) {
@@ -259,6 +277,40 @@ public class WorldUtil {
         return Text.translatable(key);
     }
 
+    public static byte tardis2Rot(ServerTardis tardis) {
+        if (tardis == null)
+            return 0;
+        CachedDirectedGlobalPos position = tardis.travel().position();
+        return position == null ? 0 : position.getRotation();
+    }
+
+    public static byte stringName2Rot(String name) {
+        String s = name == null ? "" : name.toLowerCase();
+        return switch (s) {
+            case "north_east" -> 2;     // group 1..3
+            case "east" -> 4;           // group 4
+            case "south_east" -> 6;     // group 5..7
+            case "south" -> 8;          // group 8
+            case "south_west" -> 10;    // group 9..11
+            case "west" -> 12;          // group 12
+            case "north_west" -> 14;    // group 13..15
+            default -> 0;               // group 0 (north)
+        };
+    }
+
+    public static String rot2StringName(int rotation) {
+        return switch (rotation) {
+            case 1, 2, 3 -> "north_east";
+            case 4 -> "east";
+            case 5, 6, 7 -> "south_east";
+            case 8 -> "south";
+            case 9, 10, 11 -> "south_west";
+            case 12 -> "west";
+            case 13, 14, 15 -> "north_west";
+            default -> "north";
+        };
+    }
+
     public static void onBreakHalfInCreative(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         DoubleBlockHalf doubleBlockHalf = state.get(Properties.DOUBLE_BLOCK_HALF);
 
@@ -292,5 +344,4 @@ public class WorldUtil {
         player.getStatusEffects().forEach(effect -> player.networkHandler.sendPacket(
                 new EntityStatusEffectS2CPacket(player.getId(), effect)));
     }
-
 }

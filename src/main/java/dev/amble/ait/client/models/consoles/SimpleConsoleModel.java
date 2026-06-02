@@ -2,6 +2,7 @@ package dev.amble.ait.client.models.consoles;
 
 import java.util.function.Function;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -40,7 +41,7 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
         this.getPart().traverse().forEach(ModelPart::resetTransform);
 
         if (hasPower && AITModClient.CONFIG.animateConsole)
-            this.updateAnimation(console.ANIM_STATE, this.getAnimationForState(state), console.getAge());
+            this.updateAnimation(console.ANIM_STATE, this.getAnimationForState(state), MinecraftClient.getInstance().getTickDelta() + console.getAge());
     }
 
     @Override

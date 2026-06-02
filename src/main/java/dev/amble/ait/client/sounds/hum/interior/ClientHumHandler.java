@@ -3,6 +3,7 @@ package dev.amble.ait.client.sounds.hum.interior;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.api.tardis.TardisClientEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 
@@ -29,23 +30,22 @@ import dev.amble.ait.registry.impl.HumRegistry;
 public class ClientHumHandler extends SoundHandler {
 
     private LoopingSound current;
+    private boolean needsReinit = false;
 
     static {
-        ClientWorldEvents.CHANGE_WORLD.register((client, world) -> {
-            if (world == null)
-                return;
-
-            ClientHumHandler handler = ClientSoundManager.getHum();
-            handler.stopSounds();
-            handler.current = null;
-
-            ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
-
-            if (tardis == null)
-                return;
-
-            handler.getHum(tardis);
+        TardisClientEvents.ENTER_CLIENT_TARDIS.register(tardis -> {
+            refresh();
         });
+    }
+
+    private static void refresh() {
+        if (MinecraftClient.getInstance().world == null)
+            return;
+
+        ClientHumHandler handler = ClientSoundManager.getHum();
+        handler.stopSounds();
+        handler.current = null;
+        handler.needsReinit = true;
     }
 
     protected ClientHumHandler() {
@@ -59,7 +59,11 @@ public class ClientHumHandler extends SoundHandler {
             if (!(sound instanceof LoopingSound hum))
                 return; // it aint a hum.
 
-            this.setHum(ClientTardisUtil.getCurrentTardis(), hum);
+            ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
+
+            if (tardis == null) return;
+
+            this.setHum(tardis, hum);
         });
     }
 
@@ -121,6 +125,12 @@ public class ClientHumHandler extends SoundHandler {
 
         if (this.sounds == null)
             this.generateHums();
+
+        if (this.needsReinit && tardis != null) {
+            this.needsReinit = false;
+            this.current = null;
+            this.getHum(tardis);
+        }
 
         if (this.shouldPlaySounds(tardis)) {
             this.startIfNotPlaying(this.getHum(tardis));

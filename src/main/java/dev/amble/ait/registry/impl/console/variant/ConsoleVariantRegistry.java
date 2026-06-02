@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import dev.amble.ait.data.schema.console.variant.hudolin.*;
 import dev.amble.lib.register.unlockable.UnlockableRegistry;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -30,10 +31,6 @@ import dev.amble.ait.data.schema.console.variant.hartnell.HartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.KeltHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.MintHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.WoodenHartnellVariant;
-import dev.amble.ait.data.schema.console.variant.hudolin.HudolinNatureVariant;
-import dev.amble.ait.data.schema.console.variant.hudolin.HudolinShortVariant;
-import dev.amble.ait.data.schema.console.variant.hudolin.HudolinTallVariant;
-import dev.amble.ait.data.schema.console.variant.hudolin.HudolinVariant;
 import dev.amble.ait.data.schema.console.variant.renaissance.*;
 import dev.amble.ait.data.schema.console.variant.steam.*;
 import dev.amble.ait.data.schema.console.variant.toyota.ToyotaBlueVariant;
@@ -151,6 +148,7 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
     public static ConsoleVariantSchema HUDOLIN_NATURE;
     public static ConsoleVariantSchema HUDOLIN_TALL;
     public static ConsoleVariantSchema HUDOLIN_SHORT;
+    public static ConsoleVariantSchema HUDOLIN_SHALKA;
     public static ConsoleVariantSchema COPPER;
     public static ConsoleVariantSchema BOREALIS;
     public static ConsoleVariantSchema CRYSTALLINE;
@@ -201,6 +199,7 @@ public class ConsoleVariantRegistry extends UnlockableRegistry<ConsoleVariantSch
         HUDOLIN_NATURE = registerStatic(new HudolinNatureVariant());
         HUDOLIN_TALL = registerStatic(new HudolinTallVariant());
         HUDOLIN_SHORT = registerStatic(new HudolinShortVariant());
+        HUDOLIN_SHALKA = registerStatic(new HudolinShalkaVariant());
 
         // Copper variants
         COPPER = registerStatic(new CopperVariant());

@@ -109,8 +109,14 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         if (this.shouldSucc())
             this.succ();
 
+        // blame loqor.
+        boolean wasClosed = this.isClosed();
+
         leftDoorRot.flatMap(rot -> this.tryUpdateRot(rot, this.getDoorState() != DoorState.CLOSED));
         rightDoorRot.flatMap(rot -> this.tryUpdateRot(rot, this.getDoorState() == DoorState.BOTH));
+
+        if (wasClosed != this.isClosed())
+            TardisEvents.REAL_DOOR_CLOSE.invoker().onClose(tardis);
 
         if (this.doorOpenParticles != null && !this.tardis().crash().isNormal() && server.getTicks() % 5 == 0 && tardis.door().isOpen()) {
             Vec3d exteriorPosition = TardisUtil.offsetPos(tardis.travel().position().toPos(), -0.15F);
@@ -164,8 +170,7 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
                     if (!(tardis.asServer().world().getBlockEntity(directed.getPos()) instanceof DoorBlockEntity))
                         return;
 
-                    Vec3d pos = new Vec3d(directed.getPos().getX(), directed.getPos().getY(),
-                            directed.getPos().getZ()).offset(directed.toMinecraftDirection(), -1f);
+                    Vec3d pos = directed.getPos().toCenterPos().offset(directed.toMinecraftDirection(), 0.5f);
 
                     float suckValue = tardis.travel().position().getDimension().equals(AITDimensions.SPACE) ? 0.08f: 0.05f;
                     Vec3d motion = pos.subtract(entity.getPos()).normalize().multiply(suckValue);
@@ -183,8 +188,9 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         if (directed == null)
             return false;
 
-        return tardis.travel().position().getDimension().equals(AITDimensions.SPACE) && this.isOpen() && !tardis.areShieldsActive()
-                || (!tardis.travel().isLanded() && this.isOpen() && !tardis.areShieldsActive() && !tardis.travel().autopilot());
+        return this.isOpen() && !tardis.areShieldsActive() 
+            && ((!tardis.travel().isLanded() && !tardis.travel().autopilot()) 
+                || tardis.travel().position().getDimension().equals(AITDimensions.SPACE));
     }
 
     public boolean isRightOpen() {
@@ -342,12 +348,9 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
             } else {
                 this.openDoors();
             }
-
-            TardisEvents.DOOR_USED.invoker().onDoorUsed(tardis, player);
-            return true;
+        } else {
+            this.setDoorState(this.getDoorState().next(doorSchema.isDouble()));
         }
-
-        this.setDoorState(this.getDoorState().next(doorSchema.isDouble()));
 
         TardisEvents.DOOR_USED.invoker().onDoorUsed(tardis, player);
         return true;

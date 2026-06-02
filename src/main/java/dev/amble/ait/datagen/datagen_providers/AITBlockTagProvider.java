@@ -72,6 +72,13 @@ public class AITBlockTagProvider extends AmbleBlockTagProvider {
                 .forceAddTag(BlockTags.WOODEN_SLABS)
                 .forceAddTag(BlockTags.WOODEN_STAIRS);
 
+
+
+        getOrCreateTagBuilder(BlockTags.WALLS)
+                .add(AITBlocks.TARDIS_CORAL_WALL);
+        getOrCreateTagBuilder(BlockTags.FENCES)
+                .add(AITBlocks.TARDIS_CORAL_FENCE);
+
         getOrCreateTagBuilder(BlockTags.COAL_ORES).add(PlanetBlocks.ANORTHOSITE_COAL_ORE, PlanetBlocks.MARTIAN_COAL_ORE);
         getOrCreateTagBuilder(BlockTags.COPPER_ORES).add(PlanetBlocks.ANORTHOSITE_COPPER_ORE, PlanetBlocks.MARTIAN_COPPER_ORE);
         getOrCreateTagBuilder(BlockTags.IRON_ORES).add(PlanetBlocks.ANORTHOSITE_COPPER_ORE, PlanetBlocks.MARTIAN_COPPER_ORE);

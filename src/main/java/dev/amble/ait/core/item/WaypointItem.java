@@ -26,49 +26,12 @@ import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Waypoint;
 
-public class WaypointItem extends Item implements DyeableItem {
+public class WaypointItem extends AbstractCoordinateModifierItem implements DyeableItem {
 
     public static final int DEFAULT_COLOR = 16777215;
-    public static final String POS_KEY = "pos";
 
     public WaypointItem(Settings settings) {
         super(settings);
-    }
-
-    @Override
-    public ItemStack getDefaultStack() {
-        return super.getDefaultStack();
-    }
-
-    @Override
-    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        super.appendTooltip(stack, world, tooltip, context);
-
-        addShiftHiddenTooltip(stack, tooltip, tooltips -> {
-            NbtCompound main = stack.getOrCreateNbt();
-
-            if (!main.contains(POS_KEY))
-                return;
-
-            NbtCompound nbt = main.getCompound(POS_KEY);
-            DirectedGlobalPos globalPos = DirectedGlobalPos.fromNbt(nbt);
-
-            BlockPos pos = globalPos.getPos();
-            String dir = DirectionControl.rotationToDirection(globalPos.getRotation());
-            RegistryKey<World> dimension = globalPos.getDimension();
-
-            tooltips.add(Text.translatable("waypoint.position.tooltip")
-                    .append(Text.literal(" > " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()))
-                    .formatted(Formatting.BLUE));
-
-            tooltips.add(Text.translatable("waypoint.direction.tooltip")
-                    .append(Text.literal(" > " + dir.toUpperCase()))
-                    .formatted(Formatting.BLUE));
-
-            tooltips.add(Text.translatable("waypoint.dimension.tooltip")
-                    .append(Text.literal(" > ").append(WorldUtil.worldText(dimension, false)))
-                    .formatted(Formatting.BLUE));
-        });
     }
 
     @Override
@@ -79,41 +42,5 @@ public class WaypointItem extends Item implements DyeableItem {
             return nbt.getInt(COLOR_KEY);
 
         return DEFAULT_COLOR; // white
-    }
-
-    public static ItemStack create(Waypoint pos) {
-        ItemStack stack = new ItemStack(AITItems.WAYPOINT_CARTRIDGE);
-        if (pos == null) return stack;
-
-        setPos(stack, pos.getPos());
-
-        if (pos.hasName())
-            stack.setCustomName(Text.literal(pos.name()));
-
-        return stack;
-    }
-
-    public static CachedDirectedGlobalPos getPos(ItemStack stack) {
-        NbtCompound nbt = stack.getOrCreateNbt();
-
-        if (!nbt.contains(POS_KEY))
-            return null;
-
-        CachedDirectedGlobalPos cached = CachedDirectedGlobalPos.fromNbt(nbt.getCompound(POS_KEY));
-        if (cached.getWorld() instanceof TardisServerWorld) {
-            cached = CachedDirectedGlobalPos.create(TardisServerWorld.OVERWORLD, cached.getPos(), cached.getRotation());
-        }
-
-        return cached;
-    }
-
-    public static void setPos(ItemStack stack, DirectedGlobalPos pos) {
-        NbtCompound nbt = stack.getOrCreateNbt();
-        if (pos == null) return;
-        CachedDirectedGlobalPos cached = CachedDirectedGlobalPos.create(pos.getDimension(), pos.getPos(), pos.getRotation());
-        if (cached.getWorld() instanceof TardisServerWorld) {
-            cached = CachedDirectedGlobalPos.create(TardisServerWorld.OVERWORLD, cached.getPos(), cached.getRotation());
-        }
-        nbt.put(POS_KEY, cached.toNbt());
     }
 }

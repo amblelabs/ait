@@ -32,10 +32,6 @@ import dev.amble.ait.registry.impl.CategoryRegistry;
 public class TardisDoorBOTI extends BOTI {
     public static void renderInteriorDoorBoti(ClientTardis tardis, DoorBlockEntity door, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, AnimatedModel frame, ModelPart mask, int light, float tickDelta) {
         ExteriorVariantSchema parent = variant.parent();
-        if (!parent.hasPortals()) return;
-
-        if (!AITModClient.CONFIG.enableTardisBOTI)
-            return;
 
         if (MinecraftClient.getInstance().world == null
                 || MinecraftClient.getInstance().player == null) return;
@@ -70,10 +66,11 @@ public class TardisDoorBOTI extends BOTI {
 
         stack.scale((float) parent.portalWidth() * scale.x(),
                 (float) parent.portalHeight() * scale.y(), scale.z());
-        Vec3d vec = parent.door().adjustPortalPos(new Vec3d(0, -0.55f, 0), Direction.NORTH);
-        stack.translate(vec.x, vec.y, vec.z);
+        Vec3d vec = parent.door().getPortalPosition();
+        if (vec == null) vec = new Vec3d(0, 0, 0);
+        stack.translate(vec.x, vec.y - 0.575f, vec.z);
         if (tardis.travel().getState() == TravelHandlerBase.State.LANDED) {
-            RenderLayer whichOne = AITModClient.CONFIG.shouldRenderBOTIInterior || AITModClient.CONFIG.greenScreenBOTI ?
+            RenderLayer whichOne = AITModClient.CONFIG.greenScreenBOTI ?
                     RenderLayer.getDebugFilledBox() : RenderLayer.getEndGateway();
             float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0, 1} : new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
             mask.render(stack, botiProvider.getBuffer(whichOne), 0xf000f0, OverlayTexture.DEFAULT_UV, colorsForGreenScreen[0], colorsForGreenScreen[1], colorsForGreenScreen[2], 1);
@@ -91,16 +88,18 @@ public class TardisDoorBOTI extends BOTI {
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
         stack.push();
+        float delta = MinecraftClient.getInstance().getTickDelta() + MinecraftClient.getInstance().player.age;
         if (!tardis.travel().autopilot() && tardis.travel().getState() != TravelHandlerBase.State.LANDED)
-            stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees((float) MinecraftClient.getInstance().player.age / ((float) 200 / tardis.travel().speed()) * 360f));
+            stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees((delta) * (tardis.travel().speed() * 0.7f)));
         if (!tardis.crash().isNormal())
-            stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees((float) MinecraftClient.getInstance().player.age / 100 * 360f));
-        stack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) MinecraftClient.getInstance().player.age / 100 * 360f));
+            stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees((delta)));
+        stack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((delta) * (tardis.travel().speed() + 1)));
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
         stack.translate(0, 0, 500);
         stack.scale(1.5f, 1.5f, 1.5f);
         VortexRender util = stats.getVortexEffects().toRender();
         if (!tardis.travel().isLanded() /*&& !tardis.flight().isFlying()*/) {
+            util.setSpeed(tardis.travel().speed() < 1 ? 4 : tardis.travel().speed());
             util.render(stack);
             /*// TODO not a clue if this will work but oh well - Loqor
             stack.push();

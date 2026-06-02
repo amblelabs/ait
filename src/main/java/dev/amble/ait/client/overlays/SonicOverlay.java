@@ -25,7 +25,7 @@ public class SonicOverlay implements HudRenderCallback {
     public void onHudRender(DrawContext drawContext, float v) {
         MinecraftClient mc = MinecraftClient.getInstance();
 
-        if (mc.player == null || mc.world == null)
+        if (mc.player == null || mc.world == null || mc.crosshairTarget == null)
             return;
 
         if (!mc.options.getPerspective().isFirstPerson())

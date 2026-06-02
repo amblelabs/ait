@@ -1,7 +1,7 @@
 
 <div align="center">
 
-### **Presented by [Amble Labs](https://amblelabs.github.io)**
+### **Presented by [AmbleLabs](https://amblelabs.dev)**
 <img src="https://cdn.modrinth.com/data/cached_images/3a42ec9af204d77515b938dc326a6694bf8766b7.png" alt="AIT Logo" width="700"/>
 
 &nbsp;
@@ -100,6 +100,11 @@ We also have some extra compatibility but for this you would have to install a s
 ### If you have [Adventures in Space](https://github.com/DrTheodor/adventures-in-space) and [Ad Astra](https://modrinth.com/mod/ad-astra)
 - Special compatibility with the TARDIS when playing with Ad Astra
 
+### If you have [Immersive Portals](https://modrinth.com/mod/immersiveportals)
+
+- Your TARDIS will be Bigger on the Inside (BOTI)
+- When you open the doors from the exterior you will be able to see the interior and vice versa
+
 <h2>
   <img src="https://cdn.modrinth.com/data/cached_images/7412fc34a0142c5cc1ec9eee18c68c81fbbb4d81.png"
        alt="Credits"
@@ -112,30 +117,30 @@ We also have some extra compatibility but for this you would have to install a s
 
 
 ### Developers:
-- [Loqor](https://loqor.dev/)
-- [duzo](https://duzo.is-a.dev/)
 - [Dr. Theo](https://theo.is-a.dev/)
+- [duzo](https://duzo.is-a.dev/)
 - [Maketendo](https://github.com/MaketendoDev)
 - [AddieDaBaddie](https://addi3.github.io/index)
 - [Saturn](https://github.com/Saturnorsomthing)
 - [Monke](https://github.com/rapbattlegod32)
 - [Pan](https://github.com/Mansarde)
+- Many more! (Check the [GitHub](https://github.com/amblelabs/ait/graphs/contributors) for a full list of contributors)
 
 ---
 
 ### Artists:
+- WazzakiWanzz
 - Westankrang
 - Tright
 - b2
 - Ouro
 - Maggie
-- Theta
 
 ---
 
 ### Sound Design:
+- RatZoomie
 - Dian
-- [Radio](https://im-radio.bandcamp.com/album/ait-mod-music-disc-drifting)
 - TARDISSFX (the YouTube channel)
 - Uriel_N_Diaz 
 - Classic
@@ -143,6 +148,8 @@ We also have some extra compatibility but for this you would have to install a s
 ---
 
 ### Thank You's:
+- vmbbi (Max) (Wiki writing)
+- Echo (Wiki writing)
 - [MagicMan(?)](https://magicmaan.github.io/) (Help with modeling)
 - Bug1312 (Help with code)
 - DocArcane (Credit for the Steampunk console design)

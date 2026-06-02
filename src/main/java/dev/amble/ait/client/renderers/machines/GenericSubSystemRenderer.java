@@ -14,27 +14,19 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.client.models.machines.GenericSubSystemModel;
-import dev.amble.ait.client.renderers.MultiBlockStructureRenderer;
-import dev.amble.ait.core.engine.StructureHolder;
-import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.block.generic.GenericStructureSystemBlockEntity;
 
 public class GenericSubSystemRenderer<T extends GenericStructureSystemBlockEntity> implements BlockEntityRenderer<T> {
-    private GenericSubSystemModel model;
+    private final GenericSubSystemModel model;
 
     public GenericSubSystemRenderer(BlockEntityRendererFactory.Context ctx) {
         this.model = new GenericSubSystemModel();
     }
 
     @Override
-    public void render(T entity, float tickDelta, MatrixStack matrices,
+    public void render(GenericStructureSystemBlockEntity entity, float tickDelta, MatrixStack matrices,
                        VertexConsumerProvider vertexConsumers, int light, int overlay) {
         matrices.push();
-
-        SubSystem system = entity.system();
-        if (entity.hasSystem() && system != null && !system.isUsable() && system instanceof StructureHolder holder) {
-            MultiBlockStructureRenderer.instance().render(holder.getStructure(), entity.getPos(), entity.getWorld(), matrices, vertexConsumers, true);
-        }
 
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180));
         matrices.translate(0.5f, -1.5f, -0.5f);
@@ -45,7 +37,7 @@ public class GenericSubSystemRenderer<T extends GenericStructureSystemBlockEntit
         ModelPart wires = this.model.getPart().getChild("wires");
         wires.visible = hasStack;
 
-        this.model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(GenericSubSystemModel.TEXTURE)),
+        this.model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(GenericSubSystemModel.TEXTURE)),
                 light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
 
         if (hasStack) {

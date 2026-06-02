@@ -38,9 +38,15 @@ public class DimensionControl extends Control {
 
         TravelHandler travel = tardis.travel();
         CachedDirectedGlobalPos dest = travel.destination();
+        List<ServerWorld> dims = WorldUtil.getTravelWorlds();
+
+        if (dims.isEmpty()) {
+            player.sendMessage(Text.translatableWithFallback("message.ait.tardis.control.dimension.none_available",
+                    "No travel dimensions are currently allowed."), true);
+            return Result.FAILURE;
+        }
 
         CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
-            List<ServerWorld> dims = WorldUtil.getTravelWorlds();
             int index = Math.max(0, WorldUtil.travelWorldIndex(dest.getWorld()));
 
             if (leftClick) {

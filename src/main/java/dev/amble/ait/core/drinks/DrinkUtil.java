@@ -24,14 +24,14 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.item.PersonalityMatrixItem;
+import dev.amble.ait.core.item.TardisMatrixItem;
 
 public class DrinkUtil {
 
     public static final String CUSTOM_DRINK_EFFECTS_KEY = "CustomDrinkEffects";
     public static final String CUSTOM_DRINK_COLOR_KEY = "CustomDrinkColor";
     public static final String DRINK_KEY = "Drink";
-    private static final int DEFAULT_COLOR = PersonalityMatrixItem.colorToInt(210, 227, 252);
+    private static final int DEFAULT_COLOR = TardisMatrixItem.colorToInt(210, 227, 252);
     private static final Text NONE_TEXT = Text.translatable("effect.none").formatted(Formatting.GRAY);
     public static final Drink EMPTY = DrinkRegistry.EMPTY_MUG;
 
@@ -92,7 +92,7 @@ public class DrinkUtil {
         if (drink.getHasColor()) {
             // TODO: use hex or normal int rgb values instead of this shit
             Vector3f vector = drink.getColor();
-            return PersonalityMatrixItem.colorToInt((int) (vector.x() * 255), (int) (vector.y() * 255), (int) (vector.z() * 255));
+            return TardisMatrixItem.colorToInt((int) (vector.x() * 255), (int) (vector.y() * 255), (int) (vector.z() * 255));
         }
         if (effects.isEmpty()) {
             return DEFAULT_COLOR;

@@ -1,5 +1,6 @@
 package dev.amble.ait.registry.impl.console.variant;
 
+import dev.amble.ait.data.schema.console.variant.hudolin.client.*;
 import dev.amble.lib.client.bedrock.BedrockModelRegistry;
 import dev.amble.lib.register.datapack.DatapackRegistry;
 import org.joml.Vector3f;
@@ -24,10 +25,6 @@ import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientHartnellV
 import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientKeltHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientMintHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientWoodenHartnellVariant;
-import dev.amble.ait.data.schema.console.variant.hudolin.client.ClientHudolinNatureVariant;
-import dev.amble.ait.data.schema.console.variant.hudolin.client.ClientHudolinShortVariant;
-import dev.amble.ait.data.schema.console.variant.hudolin.client.ClientHudolinTallVariant;
-import dev.amble.ait.data.schema.console.variant.hudolin.client.ClientHudolinVariant;
 import dev.amble.ait.data.schema.console.variant.renaissance.client.*;
 import dev.amble.ait.data.schema.console.variant.steam.client.*;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaBlueVariant;
@@ -221,6 +218,7 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
     public static ClientConsoleVariantSchema HUDOLIN_NATURE;
     public static ClientConsoleVariantSchema HUDOLIN_TALL;
     public static ClientConsoleVariantSchema HUDOLIN_SHORT;
+    public static ClientConsoleVariantSchema HUDOLIN_SHALKA;
     public static ClientConsoleVariantSchema COPPER;
     public static ClientConsoleVariantSchema CRYSTALLINE;
     public static ClientConsoleVariantSchema CRYSTALLINE_ZEITON;
@@ -270,6 +268,7 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
         HUDOLIN_NATURE = register(new ClientHudolinNatureVariant());
         HUDOLIN_TALL = register(new ClientHudolinTallVariant());
         HUDOLIN_SHORT = register(new ClientHudolinShortVariant());
+        HUDOLIN_SHALKA = register(new ClientHudolinShalkaVariant());
 
         // Copper variants
         COPPER = register(new ClientCopperVariant());

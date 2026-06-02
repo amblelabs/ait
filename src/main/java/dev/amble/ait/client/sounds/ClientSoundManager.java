@@ -7,7 +7,7 @@ import net.minecraft.client.MinecraftClient;
 
 import dev.amble.ait.client.sounds.alarm.ClientAlarmHandler;
 import dev.amble.ait.client.sounds.console.ClientConsoleAmbientSoundsHandler;
-import dev.amble.ait.client.sounds.drifting.ClientDriftingSoundHandler;
+import dev.amble.ait.client.sounds.drifting.ClientTwoThousandSoundHandler;
 import dev.amble.ait.client.sounds.engine.ClientEngineLoopSoundHandler;
 import dev.amble.ait.client.sounds.fall.ClientFallSoundHandler;
 import dev.amble.ait.client.sounds.flight.ClientFlightHandler;
@@ -36,7 +36,7 @@ public class ClientSoundManager {
     private static ClientLavaSoundHandler lavaSound;
     private static SonicSoundHandler sonicSound;
     private static ClientFallSoundHandler fallSound;
-    private static ClientDriftingSoundHandler driftingSound;
+    private static ClientTwoThousandSoundHandler driftingSound;
     private static ClientConsoleAmbientSoundsHandler ambientSound;
     private static ClientEngineLoopSoundHandler engineLoopSound;
     private static ExteriorHumHandler exteriorHum;
@@ -126,9 +126,9 @@ public class ClientSoundManager {
         return fallSound;
     }
 
-    public static ClientDriftingSoundHandler getDriftingSound() {
+    public static ClientTwoThousandSoundHandler getDriftingSound() {
         if (driftingSound == null)
-            driftingSound = ClientDriftingSoundHandler.create();
+            driftingSound = ClientTwoThousandSoundHandler.create();
 
         return driftingSound;
     }

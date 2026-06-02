@@ -1,7 +1,7 @@
 package dev.amble.ait.client.boti;
 
-
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.lib.data.DirectedGlobalPos;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
@@ -29,19 +29,15 @@ import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 
-
 public class TardisExteriorBOTI extends BOTI {
     public void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, ExteriorModel frame, ModelPart mask, int light) {
-        if (!AITModClient.CONFIG.enableTardisBOTI)
-            return;
-
         if (MinecraftClient.getInstance().world == null
                 || MinecraftClient.getInstance().player == null) return;
 
         if (!exterior.isLinked())
             return;
 
-        ClientTardis tardis = exterior.tardis().get().asClient();;
+        ClientTardis tardis = exterior.tardis().get().asClient();
 
         stack.push();
 
@@ -78,9 +74,10 @@ public class TardisExteriorBOTI extends BOTI {
         ExteriorVariantSchema parent = variant.parent();
         stack.scale((float) parent.portalWidth() * scale.x(),
                 (float) parent.portalHeight() * scale.y(), scale.z());
-        Vec3d vec = parent.adjustPortalPos(new Vec3d(0, -0.4675f, 0), (byte) 0);
-        stack.translate(vec.x, vec.y, vec.z);
-        RenderLayer whichOne = AITModClient.CONFIG.shouldRenderBOTIInterior || AITModClient.CONFIG.greenScreenBOTI ?
+        Vec3d vec = parent.getPortalPosition();
+        if (vec == null) vec = new Vec3d(0, 0, 0);
+        stack.translate(vec.x, vec.y - 0.475f, vec.z);
+        RenderLayer whichOne = AITModClient.CONFIG.greenScreenBOTI ?
                 RenderLayer.getDebugFilledBox() : RenderLayer.getEndGateway();
         float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0, 1} : new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
         mask.render(stack, botiProvider.getBuffer(whichOne), light, OverlayTexture.DEFAULT_UV, colorsForGreenScreen[0], colorsForGreenScreen[1], colorsForGreenScreen[2], 1);
@@ -103,7 +100,7 @@ public class TardisExteriorBOTI extends BOTI {
         }
         stack.scale(scale.x(), scale.y(), scale.z());
 
-        ((ExteriorModel) frame).renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.getBotiInterior(variant.texture())), light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
+        frame.renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.getBotiInterior(variant.texture())), light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
         botiProvider.draw();
         stack.pop();
 
@@ -119,7 +116,7 @@ public class TardisExteriorBOTI extends BOTI {
             BiomeHandler handler = exterior.tardis().get().handler(TardisComponent.Id.BIOME);
             Identifier biomeTexture = handler.getBiomeKey().get(variant.overrides());
             if (biomeTexture != null)
-                ((ExteriorModel) frame).renderDoors(tardis, exterior, frame.getPart(), stack,
+                frame.renderDoors(tardis, exterior, frame.getPart(), stack,
                         botiProvider.getBuffer(AITRenderLayers.getEntityTranslucentCull(biomeTexture)),
                         light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
         }

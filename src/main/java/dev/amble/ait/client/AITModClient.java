@@ -2,13 +2,15 @@ package dev.amble.ait.client;
 
 import static dev.amble.ait.AITMod.*;
 import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
-import static dev.amble.ait.core.item.PersonalityMatrixItem.colorToInt;
+import static dev.amble.ait.core.item.TardisMatrixItem.colorToInt;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Calendar;
 import java.util.UUID;
 
 import dev.amble.ait.client.screens.*;
+import dev.amble.ait.api.ClientWorldEvents;
 import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -36,6 +38,7 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
@@ -153,6 +156,7 @@ public class AITModClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register(new ExteriorAxeOverlay());
 
         ClientPreAttackCallback.EVENT.register((client, player, clickCount) -> (player.getMainHandStack().getItem() instanceof BaseGunItem));
+
         if (DependencyChecker.hasIris()) {
             WorldRenderEvents.END.register(this::exteriorBOTI);
             WorldRenderEvents.END.register(this::doorBOTI);
@@ -254,14 +258,22 @@ public class AITModClient implements ClientModInitializer {
                         console.setVariant(id);
                 });
 
+        ClientTardisUtil.init();
+
         WorldRenderEvents.END.register((context) -> SonicRendering.getInstance().renderWorld(context));
         HudRenderCallback.EVENT.register((context, delta) -> SonicRendering.getInstance().renderGui(context, delta));
 
         SonicModelLoader.init();
 
-        AstralMapBlock.registerSyncListener();
+        ClientPlayNetworking.registerGlobalReceiver(AstralMapBlock.OPEN_ASTRAL_MAP, (client, handler, buf, responseSender) -> {
+            List<Identifier> ids = buf.readList(PacketByteBuf::readIdentifier);
+            client.execute(() -> {
+                AstralMapBlock.structureIds = ids;
+                client.setScreen(new AstralMapScreen());
+            });
+        });
 
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn());
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn(client));
     }
     public static Screen screenFromId(int id) {
         return screenFromId(id, null, null);
@@ -443,7 +455,11 @@ public class AITModClient implements ClientModInitializer {
         map.putBlock(AITBlocks.TARDIS_CORAL_BLOCK, RenderLayer.getCutout());
         map.putBlock(AITBlocks.TARDIS_CORAL_FAN, RenderLayer.getCutout());
         map.putBlock(AITBlocks.TARDIS_CORAL_WALL_FAN, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.TARDIS_CORAL_WALL, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.TARDIS_CORAL_FENCE, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.TARDIS_CORAL_LEAVES, RenderLayer.getCutout());
         map.putBlock(AITBlocks.MATRIX_ENERGIZER, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.GENERIC_SUBSYSTEM, RenderLayer.getTranslucent());
     }
 
     public void registerItemColors() {
@@ -451,10 +467,10 @@ public class AITModClient implements ClientModInitializer {
                     if (tintIndex != 0)
                         return -1;
 
-                    PersonalityMatrixItem personalityMatrixItem = (PersonalityMatrixItem) stack.getItem();
-                    int[] integers = personalityMatrixItem.getColor(stack);
+                    TardisMatrixItem tardisMatrixItem = (TardisMatrixItem) stack.getItem();
+                    int[] integers = tardisMatrixItem.getColor(stack);
                     return colorToInt(integers[0], integers[1], integers[2]);
-                }, AITItems.PERSONALITY_MATRIX);
+                }, AITItems.TARDIS_MATRIX);
 
         ColorProviderRegistry.ITEM.register((stack, tintIndex) -> tintIndex > 0 ? -1 :
                 DrinkUtil.getColor(stack), AITItems.MUG);
@@ -472,7 +488,17 @@ public class AITModClient implements ClientModInitializer {
         ParticleFactoryRegistry.getInstance().register(CORAL_PARTICLE, EndRodParticle.Factory::new);
     }
 
+    private boolean skipBuiltInBOTI() {
+        return (DependencyChecker.hasPortals() && CONFIG.allowPortalsBoti) || !CONFIG.enableTardisBOTI;
+    }
+
+    private boolean skipPaintingBOTI() {
+        return DependencyChecker.hasPortals() || !CONFIG.enableTardisBOTI;
+    }
+
     public void exteriorBOTI(WorldRenderContext context) {
+        if (skipBuiltInBOTI()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
@@ -504,6 +530,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void doorBOTI(WorldRenderContext context) {
+        if (skipBuiltInBOTI()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
@@ -536,6 +564,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void gallifreyanBOTI(WorldRenderContext context) {
+        if (skipPaintingBOTI()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         SinglePartEntityModel contents = new GallifreyFallsModel(GallifreyFallsModel.getTexturedModelData().createModel());
         Identifier frameTex = GallifreyanPaintingEntityRenderer.GALLIFREY_FRAME_TEXTURE;
@@ -563,6 +593,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void trenzaloreBOTI(WorldRenderContext context) {
+        if (skipPaintingBOTI()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         SinglePartEntityModel contents = new TrenzalorePaintingModel(TrenzalorePaintingModel.getTexturedModelData().createModel());
         Identifier frameTex = TrenzalorePaintingEntityRenderer.TRENZALORE_FRAME_TEXTURE;
@@ -590,6 +622,8 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void riftBOTI(WorldRenderContext context) {
+        if (skipPaintingBOTI()) return;
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
@@ -600,7 +634,7 @@ public class AITModClient implements ClientModInitializer {
             stack.push();
             stack.translate(pos.getX() - context.camera().getPos().getX(),
                     pos.getY() - context.camera().getPos().getY(), pos.getZ() - context.camera().getPos().getZ());
-            stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90f));
+            stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(rift.getPitch()));
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rift.getBodyYaw()));
             stack.translate(0, 1f, 0);
             RiftModel riftModel = new RiftModel(RiftModel.getTexturedModelData().createModel());
@@ -621,6 +655,7 @@ public class AITModClient implements ClientModInitializer {
 
                 {
                     ResourceManagerHelper.registerBuiltinResourcePack(id("aitmenu"), modContainer, ResourcePackActivationType.DEFAULT_ENABLED);
+                    ResourceManagerHelper.registerBuiltinResourcePack(id("bushy_leaves"), modContainer, ResourcePackActivationType.NORMAL);
                 });
     }
 }

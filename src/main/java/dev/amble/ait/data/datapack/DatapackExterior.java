@@ -28,6 +28,7 @@ import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class DatapackExterior extends ExteriorVariantSchema implements AnimatedDoor, TravelAnimationMap.Holder {
@@ -154,12 +155,12 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     }
 
     @Override
-    public Vec3d adjustPortalPos(Vec3d pos, byte direction) {
+    public @Nullable Vec3d getPortalPosition() {
         if (this.getPortalOffsets() != null) {
-            return this.getPortalOffsets().apply(pos, direction);
+            return this.getPortalOffsets().apply(Vec3d.ZERO, (byte) 0);
         }
 
-        return this.getParent().adjustPortalPos(pos, direction);
+        return this.getParent().getPortalPosition();
     }
 
     @Override

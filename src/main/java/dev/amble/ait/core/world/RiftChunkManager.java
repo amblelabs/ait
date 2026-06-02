@@ -119,6 +119,7 @@ public record RiftChunkManager(ServerWorld world) {
     }
 
     public static boolean isRiftChunk(StructureWorldAccess world, ChunkPos pos) {
+        if (world == null) return false;
         return ChunkRandom.getSlimeRandom(pos.x, pos.z,
                 world.getSeed(), 987234910L
         ).nextInt(8) == 0;
