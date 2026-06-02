@@ -58,8 +58,7 @@ public class RiftBOTI extends BOTI {
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
         stack.push();
-        //stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90));
-        stack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) MinecraftClient.getInstance().player.age / 50 * 360f));
+        stack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(MinecraftClient.getInstance().getTickDelta() + MinecraftClient.getInstance().player.age));
         stack.translate(0, -1, 500);
         VortexRender util = VortexRender.getCurrentInstance();
         util.render(stack);

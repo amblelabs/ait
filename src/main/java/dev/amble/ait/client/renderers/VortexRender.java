@@ -24,7 +24,7 @@ public class VortexRender {
     private final float distortionSeparationFactor;
     private final float distortionFactor;
     private final float scale;
-    private final float speed;
+    private float speed = 4;
     private float time = 0;
 
     public VortexRender(Identifier texture) {
@@ -33,12 +33,10 @@ public class VortexRender {
         this.distortionSeparationFactor = 32f;
         this.distortionFactor = 2;
         this.scale = 32f;
-        this.speed = 4f;
     }
-    @ApiStatus.Internal
-    //@Deprecated(forRemoval = true)
-    public VortexRender(String name) {
-        this(AITMod.id("textures/vortex/" + name + ".png"));
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
     }
 
     /**
@@ -75,7 +73,7 @@ public class VortexRender {
 
     public void render(MatrixStack matrixStack) {
 
-        time += MinecraftClient.getInstance().getTickDelta() / 360F;
+        time = MinecraftClient.getInstance().getTickDelta() + MinecraftClient.getInstance().player.age;
 
         this.renderLayer(matrixStack, 1.0F, texture);
         this.renderLayer(matrixStack, 1.5f);
@@ -106,7 +104,7 @@ public class VortexRender {
         buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL);
 
         for (int i = 0; i < 32; ++i) {
-            this.renderSection(buffer, i, (((MinecraftClient.getInstance().player.age) * 0.005F) * -this.speed), (float) Math.sin(i * Math.PI / 32),
+            this.renderSection(buffer, i,(MinecraftClient.getInstance().getTickDelta() + MinecraftClient.getInstance().player.age) / (120 / this.speed), (float) Math.sin(i * Math.PI / 32),
                     (float) Math.sin((i + 1) * Math.PI / 32), matrixStack.peek().getNormalMatrix(), matrixStack.peek().getPositionMatrix());
         }
 
@@ -119,7 +117,7 @@ public class VortexRender {
 
     public void renderSection(VertexConsumer builder, int zOffset, float textureDistanceOffset, float startScale,
             float endScale, Matrix3f matrix3f, Matrix4f matrix4f) {
-        float panel = 1 / 6f;
+        float panel = 1/6f;
         float sqrt = (float) Math.sqrt(3) / 2.0f;
         int vOffset = (zOffset * panel + textureDistanceOffset > 1.0) ? zOffset - 6 : zOffset;
         float distortion = this.computeDistortionFactor(time, zOffset);
@@ -225,7 +223,7 @@ public class VortexRender {
     }
 
     private float computeDistortionFactor(float time, int t) {
-        return (float) (Math.sin(time * this.distortionSpeed * 2.0 * Math.PI + (13 - t) *
-        this.distortionSeparationFactor) * this.distortionFactor) / 8;
+        return (float) (Math.sin(time * this.distortionSpeed * 0.1 * Math.PI + (13 - t) *
+        this.distortionSeparationFactor) * this.distortionFactor) / 6;
     }
 }

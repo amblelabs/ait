@@ -88,3 +88,4 @@
 - feat: Tardis Matrix model updated | by [@Loqor](https://github.com/Loqor)
 - chore: Add message to the matrix energizer for more information | by [@Loqor](https://github.com/Loqor)
 - chore: Interacting with the matrix energizer before it finishes (or if it fails) will drop the nether star | by [@Loqor](https://github.com/Loqor)
+- fix: Console animations, vortex rendering, TARDIS Star rendering, and assorted other spinning elements are now smooth! | by [@Loqor](https://github.com/Loqor)
