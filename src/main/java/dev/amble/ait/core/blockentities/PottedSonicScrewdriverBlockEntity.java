@@ -75,10 +75,10 @@ public class PottedSonicScrewdriverBlockEntity extends BlockEntity {
 
         this.sonics.clear();
         NbtList list = nbt.getList("Sonics", NbtElement.COMPOUND_TYPE);
-        for (int i = 0; i < list.size(); i++) {
+        for (int i = 0; i < list.size() && this.sonics.size() < PottedSonicScrewdriverBlock.MAX_SONICS; i++) {
             ItemStack stack = ItemStack.fromNbt(list.getCompound(i));
             if (!stack.isEmpty())
-                this.sonics.add(stack);
+                this.sonics.add(stack.copyWithCount(1));
         }
     }
 
