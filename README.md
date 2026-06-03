@@ -117,6 +117,7 @@ We also have some extra compatibility but for this you would have to install a s
 
 
 ### Developers:
+- [Loqor](https://loqor.dev)
 - [Dr. Theo](https://theo.is-a.dev/)
 - [duzo](https://duzo.is-a.dev/)
 - [Maketendo](https://github.com/MaketendoDev)

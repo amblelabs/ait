@@ -121,6 +121,7 @@
 
 
 ### Розробники:
+- [Loqor](https://loqor.dev)
 - [Dr. Theo](https://theo.is-a.dev/)
 - [duzo](https://duzo.is-a.dev/)
 - [Maketendo](https://github.com/MaketendoDev)
