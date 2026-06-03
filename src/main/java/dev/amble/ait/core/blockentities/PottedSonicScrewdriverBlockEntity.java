@@ -45,7 +45,8 @@ public class PottedSonicScrewdriverBlockEntity extends BlockEntity {
 
     public ItemStack removeLast() {
         if (this.sonics.isEmpty())
-            return null;
+            return ItemStack.EMPTY;
+
         ItemStack removed = this.sonics.remove(this.sonics.size() - 1);
         this.sync();
         return removed;
