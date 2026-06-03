@@ -80,7 +80,7 @@ Recommended to have 8GB of RAM **allocated** to the multiplayer servers.
   Need Help? Confused? Don't know what a feature does?
 </h2>
 
-If you have confusion about special blocks you are able to check the items tooltip for more info on what conditions you need to be to place the block. We also have a [wiki](https://amblelabs.github.io/ait-wiki/) which documents on most things in the mod from blocks and items right to how to add custom datapack exteriors and consoles.
+If you have confusion about special blocks you are able to check the items tooltip for more info on what conditions you need to be to place the block. We also have a [wiki](https://amblelabs.dev/wiki) which documents on most things in the mod from blocks and items right to how to add custom datapack exteriors and consoles.
 
 ![The Sonic Screwdriver can see what controls do what!](https://cdn.modrinth.com/data/cached_images/e9a7d7247bd2c74f8690fa99caf30acda381c37d.png)
 
@@ -171,7 +171,7 @@ We also have some extra compatibility but for this you would have to install a s
 </h2>
 
 <div style="text-align: center; font-size: 1.5em; margin-top: 1em; white-space: nowrap;">
-  <a href="https://amblelabs.github.io/ait-wiki/" style="text-decoration: none; color: inherit; display: inline-block; margin: 0 8px;">Wiki</a>
+  <a href="https://amblelabs.dev/wiki/" style="text-decoration: none; color: inherit; display: inline-block; margin: 0 8px;">Wiki</a>
   <span style="display: inline-block; margin: 0 4px;">•</span>
   <a href="https://github.com/amblelabs/ait/" style="text-decoration: none; color: inherit; display: inline-block; margin: 0 8px;">GitHub</a>
   <span style="display: inline-block; margin: 0 4px;">•</span>
