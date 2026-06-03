@@ -54,7 +54,7 @@ public class PottedSonicScrewdriverBlockEntity extends BlockEntity {
     private void sync() {
         this.markDirty();
         if (this.world != null && !this.world.isClient)
-            this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 3);
+            this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), net.minecraft.block.Block.NOTIFY_ALL);
     }
 
     @Override
