@@ -31,10 +31,10 @@ public class CloakControl extends Control {
 
         if (leftClick && cloak.cloaked().get() && !cloak.silent().get()) {
             cloak.silent().set(true);
-            player.sendMessage(Text.literal("Silent Mode for Shell Cloaking has been activated"), true);
+            player.sendMessage(Text.translatable("control.ait.protocol_3_silent_activated"), true);
         } else if (leftClick && cloak.cloaked().get() && cloak.silent().get()){
             cloak.silent().set(false);
-            player.sendMessage(Text.literal("Silent Mode for Shell Cloaking has been deactivated"), true);
+            player.sendMessage(Text.translatable("control.ait.protocol_3_silent_deactivated"), true);
         } else {
             cloak.cloaked().set(!cloak.cloaked().get());
             if (cloak.silent().get())

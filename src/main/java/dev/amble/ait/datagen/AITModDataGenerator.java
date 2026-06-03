@@ -791,6 +791,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.food_creation", "Refreshment Dispenser");
         provider.addTranslation("control.ait.protocol_116", "Stabiliser");
         provider.addTranslation("control.ait.protocol_3", "Shell Cloaking");
+        provider.addTranslation("control.ait.protocol_3_silent_activated", "Silent Mode for Shell Cloaking has been activated");
+        provider.addTranslation("control.ait.protocol_3_silent_deactivated", "Silent Mode for Shell Cloaking has been deactivated");
         provider.addTranslation("control.ait.dimension", "Dimension");
         provider.addTranslation("control.ait.direction", "Direction");
         provider.addTranslation("control.ait.door_control", "Door Control");
