@@ -118,7 +118,7 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         if (wasClosed != this.isClosed())
             TardisEvents.REAL_DOOR_CLOSE.invoker().onClose(tardis);
 
-        if (this.doorOpenParticles != null && !this.tardis().crash().isNormal() && server.getTicks() % 5 == 0 && tardis.door().isOpen()) {
+        if (this.doorOpenParticles != null && !this.tardis().crash().isNormal() && server.getTicks() % 5 == 0 && tardis.door().isOpen() && !(tardis.cloak().cloaked().get() && tardis.cloak().silent().get())) {
             Vec3d exteriorPosition = TardisUtil.offsetPos(tardis.travel().position().toPos(), -0.15F);
             exteriorPosition = TardisUtil.offsetDoorPosition(exteriorPosition, tardis.travel().position().getRotation());
 

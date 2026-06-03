@@ -4,6 +4,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
@@ -27,7 +28,18 @@ public class CloakControl extends Control {
         super.runServer(tardis, player, world, console, leftClick);
 
         CloakHandler cloak = tardis.handler(TardisComponent.Id.CLOAK);
-        cloak.cloaked().set(!cloak.cloaked().get());
+
+        if (leftClick && cloak.cloaked().get() && !cloak.silent().get()) {
+            cloak.silent().set(true);
+            player.sendMessage(Text.literal("Silent Mode for Shell Cloaking has been activated"), true);
+        } else if (leftClick && cloak.cloaked().get() && cloak.silent().get()){
+            cloak.silent().set(false);
+            player.sendMessage(Text.literal("Silent Mode for Shell Cloaking has been deactivated"), true);
+        } else {
+            cloak.cloaked().set(!cloak.cloaked().get());
+            if (cloak.silent().get())
+                cloak.silent().set(false);
+        }
 
         return cloak.cloaked().get() ? Result.SUCCESS : Result.SUCCESS_ALT;
     }
