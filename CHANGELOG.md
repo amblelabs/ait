@@ -91,3 +91,4 @@
 - fix: Console animations, vortex rendering, TARDIS Star rendering, and assorted other spinning elements are now smooth! | by [@Loqor](https://github.com/Loqor)
 - feat: environment projector gui | by [@lakehascake](https://github.com/lakehascake), [@rapbattlegod32](https://github.com/rapbattlegod32), [@Loqor](https://github.com/Loqor) ([#1941](https://github.com/amblelabs/ait/pull/1941))
 - changed it to be not blurry | by [@vmbbi](https://github.com/vmbbi) ([#2024](https://github.com/amblelabs/ait/pull/2024))
+- Fix/readme wiki libk | by [@vmbbi](https://github.com/vmbbi) ([#2025](https://github.com/amblelabs/ait/pull/2025))
