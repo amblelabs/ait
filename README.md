@@ -2,7 +2,7 @@
 <div align="center">
 
 ### **Presented by [AmbleLabs](https://amblelabs.dev)**
-<img src="src/main/resources/assets/ait_logo.png" alt="AIT Logo" />
+<img src="src/main/resources/assets/ait_logo_700px.png" alt="AIT Logo" />
 
 
 &nbsp;
