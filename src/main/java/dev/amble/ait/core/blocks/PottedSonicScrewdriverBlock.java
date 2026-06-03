@@ -58,7 +58,7 @@ public class PottedSonicScrewdriverBlock extends BlockWithEntity {
         if (!world.isClient && world.getBlockEntity(pos) instanceof PottedSonicScrewdriverBlockEntity pot) {
             ItemStack sonic = pot.removeLast();
 
-            if (sonic != null) {
+            if (!sonic.isEmpty()) {
                 if (!player.giveItemStack(sonic))
                     player.dropItem(sonic, false);
             }
