@@ -6,6 +6,9 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
+import dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity;
+import dev.amble.ait.core.blocks.EnvironmentProjectorBlock;
+import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.lib.container.RegistryContainer;
 import dev.amble.lib.register.AmbleRegistries;
 import dev.amble.lib.util.ServerLifecycleHooks;
@@ -13,6 +16,7 @@ import dev.drtheo.multidim.MultiDim;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
@@ -22,6 +26,9 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -295,6 +302,47 @@ public class AITMod implements ModInitializer {
                     });
                 });
 
+        ServerPlayNetworking.registerGlobalReceiver(TOGGLE_PROJECTOR, (server, player, handler, buf, responseSender) -> {
+            BlockPos pos = buf.readBlockPos();
+            boolean enabled = buf.readBoolean();
+
+            server.execute(() -> {
+                World world = player.getWorld();
+                BlockState state = world.getBlockState(pos);
+
+                if (!(world.getBlockEntity(pos) instanceof EnvironmentProjectorBlockEntity projector))
+                    return;
+
+                Tardis tardis = projector.tardis().get();
+                world.setBlockState(pos, state.with(EnvironmentProjectorBlock.ENABLED, enabled), Block.NOTIFY_ALL);
+                EnvironmentProjectorBlock.toggle(tardis, null, world, pos, world.getBlockState(pos), enabled);
+            });
+        });
+
+        ServerPlayNetworking.registerGlobalReceiver(PROJECTOR_SELECTION, (server, player, handler, buf, responseSender) -> {
+            BlockPos pos = buf.readBlockPos();
+            Identifier id = buf.readIdentifier();
+            server.execute(() -> {
+                ServerWorld world = player.getServerWorld();
+                if (world != null && world.getBlockEntity(pos) instanceof dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity projector) {
+                    RegistryKey<World> key = RegistryKey.of(RegistryKeys.WORLD, id);
+                    projector.setCurrentFromClient(key, player);
+                }
+            });
+        });
+
+        ServerPlayNetworking.registerGlobalReceiver(PROJECTOR_ANGLES, (server, player, handler, buf, responseSender) -> {
+            BlockPos pos = buf.readBlockPos();
+            float yaw = buf.readFloat();
+            float pitch = buf.readFloat();
+            server.execute(() -> {
+                ServerWorld world = player.getServerWorld();
+                if (world != null && world.getBlockEntity(pos) instanceof dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity projector) {
+                    projector.setAnglesFromClient(yaw, pitch, player);
+                }
+            });
+        });
+
         LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
             if (source.isBuiltin()
                     && (id.equals(LootTables.NETHER_BRIDGE_CHEST) || id.equals(LootTables.DESERT_PYRAMID_CHEST)
@@ -328,6 +376,10 @@ public class AITMod implements ModInitializer {
     public static final Identifier OPEN_SCREEN = AITMod.id("open_screen");
     public static final Identifier OPEN_SCREEN_TARDIS = AITMod.id("open_screen_tardis");
     public static final Identifier OPEN_SCREEN_CONSOLE = AITMod.id("open_screen_console");
+    public static final Identifier OPEN_SCREEN_PROJECTOR = AITMod.id("open_screen_projector");
+    public static final Identifier TOGGLE_PROJECTOR = AITMod.id("toggle_projector");
+    public static final Identifier PROJECTOR_SELECTION = new Identifier(MOD_ID, "projector_selection");
+    public static final Identifier PROJECTOR_ANGLES = new Identifier(MOD_ID, "projector_angles");
 
     public static void openScreen(ServerPlayerEntity player, int id) {
         PacketByteBuf buf = PacketByteBufs.create();
@@ -349,6 +401,37 @@ public class AITMod implements ModInitializer {
         buf.writeBlockPos(console);
 
         ServerPlayNetworking.send(player, OPEN_SCREEN_CONSOLE, buf);
+    }
+
+    public static void openScreen(ServerPlayerEntity player, int id, BlockPos console) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeInt(id);
+        buf.writeBlockPos(console);
+
+        ServerPlayNetworking.send(player, OPEN_SCREEN_PROJECTOR, buf);
+    }
+
+
+    public static void sendProjectorToggle(BlockPos pos, boolean enabled) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeBlockPos(pos);
+        buf.writeBoolean(enabled);
+        ClientPlayNetworking.send(TOGGLE_PROJECTOR, buf);
+    }
+
+    public static void sendProjectorSelection(BlockPos pos, Identifier worldId) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeBlockPos(pos);
+        buf.writeIdentifier(worldId);
+        ClientPlayNetworking.send(PROJECTOR_SELECTION, buf);
+    }
+
+    public static void sendProjectorAngles(BlockPos pos, float yaw, float pitch) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeBlockPos(pos);
+        buf.writeFloat(yaw);
+        buf.writeFloat(pitch);
+        ClientPlayNetworking.send(PROJECTOR_ANGLES, buf);
     }
 
     public static Identifier id(String path) {

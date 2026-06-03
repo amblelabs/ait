@@ -24,7 +24,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
@@ -93,6 +92,16 @@ public abstract class SkyboxMixin {
         WorldRenderEvents.AFTER_SETUP.register(ctx -> context = ctx);
     }
 
+    @Unique
+    private static void ait$applySkyboxRotation(MatrixStack matrices, float yaw, float pitch) {
+        if (yaw != 0f) {
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yaw));
+        }
+        if (pitch != 0f) {
+            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(pitch));
+        }
+    }
+
     @Inject(method = "renderSky(Lnet/minecraft/client/util/math/MatrixStack;Lorg/joml/Matrix4f;FLnet/minecraft/client/render/Camera;ZLjava/lang/Runnable;)V", at = @At("HEAD"), cancellable = true)
     public void ait$renderSky(MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, Camera camera,
                               boolean thickFog, Runnable fogCallback, CallbackInfo ci) {
@@ -146,11 +155,12 @@ public abstract class SkyboxMixin {
             return;
 
         RegistryKey<World> skyboxWorld = tardis.stats().skybox().get();
-        Direction skyboxDirection = tardis.stats().skyboxDirection().get();
+        float skyboxYaw = tardis.stats().skyboxYaw().get();
+        float skyboxPitch = tardis.stats().skyboxPitch().get();
 
         if (skyboxWorld == World.OVERWORLD) {
             matrices.push();
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(skyboxDirection.asRotation()));
+            ait$applySkyboxRotation(matrices, skyboxYaw, skyboxPitch);
             this.renderOverworldSky(matrices, projectionMatrix, tickDelta, camera, fogCallback);
             matrices.pop();
 
@@ -160,7 +170,7 @@ public abstract class SkyboxMixin {
 
         if (skyboxWorld == World.END) {
             matrices.push();
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(skyboxDirection.asRotation()));
+            ait$applySkyboxRotation(matrices, skyboxYaw, skyboxPitch);
             this.renderEndSky(matrices);
             matrices.pop();
             ci.cancel();
@@ -177,7 +187,7 @@ public abstract class SkyboxMixin {
 
         if (skyboxWorld == AITDimensions.SPACE) {
             matrices.push();
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(skyboxDirection.asRotation()));
+            ait$applySkyboxRotation(matrices, skyboxYaw, skyboxPitch);
             SkyboxUtil.renderSpaceSky(true, matrices, fogCallback, this.starsBuffer, world, tickDelta, projectionMatrix);
             matrices.pop();
             ci.cancel();
@@ -185,14 +195,17 @@ public abstract class SkyboxMixin {
         }
 
         if (skyboxWorld == AITDimensions.MOON) {
-            SkyboxUtil.renderMoonSky(skyboxDirection.asRotation(), matrices, fogCallback, this.starsBuffer, world, tickDelta, projectionMatrix);
+            matrices.push();
+            ait$applySkyboxRotation(matrices, skyboxYaw, skyboxPitch);
+            SkyboxUtil.renderMoonSky(0f, matrices, fogCallback, this.starsBuffer, world, tickDelta, projectionMatrix);
+            matrices.pop();
             ci.cancel();
             return;
         }
 
         if (skyboxWorld == AITDimensions.MARS) {
             matrices.push();
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(skyboxDirection.asRotation()));
+            ait$applySkyboxRotation(matrices, skyboxYaw, skyboxPitch);
             SkyboxUtil.renderMarsSky(matrices, fogCallback, this.starsBuffer, world, tickDelta, projectionMatrix, ci);
             matrices.pop();
             return;
@@ -200,7 +213,7 @@ public abstract class SkyboxMixin {
 
         if (skyboxWorld == AITDimensions.TIME_VORTEX_WORLD) {
             matrices.push();
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(skyboxDirection.asRotation()));
+            ait$applySkyboxRotation(matrices, skyboxYaw, skyboxPitch);
             SkyboxUtil.renderVortexSky(matrices, tardis);
             matrices.pop();
             ci.cancel();
