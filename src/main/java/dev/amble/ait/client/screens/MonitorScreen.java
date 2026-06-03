@@ -462,6 +462,19 @@ public class MonitorScreen extends ConsoleScreen {
         context.drawText(this.textRenderer, dDimensionText, (width / 2 - 119), (height / 2), 0xFFFFFF, true);
         context.drawText(this.textRenderer, WorldUtil.rot2Text(dabpd.getRotation()).asOrderedText(), (width / 2 - 119), (height / 2 + 10),
                 0xFFFFFF, true);
+
+        // cloak silent
+        if (this.tardis().cloak().silent().get() && this.tardis().cloak().cloaked().get()) {
+            float scale = 0.5f;
+            int x = width / 2 - 66;
+            int y = height / 2 + 17;
+
+            context.getMatrices().push();
+            context.getMatrices().translate(x, y, 0);
+            context.getMatrices().scale(scale, scale, 1);
+            context.drawText(this.textRenderer, Text.translatable("screen.ait.monitor.shellcloakingsilentactivated"), 0, 0, 0xFFFFFF, true);
+            context.getMatrices().pop();
+        }
     }
 
     @Override

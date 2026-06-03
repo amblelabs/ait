@@ -15,6 +15,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -28,11 +29,13 @@ import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.impl.CloakControl;
 
 @Environment(value = EnvType.CLIENT)
 public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> {
 
     private static final Identifier TEXTURE = AITMod.id("textures/entity/control/sequenced.png");
+    private static final String CLOAK_CONTROL_KEY = CloakControl.ID.toTranslationKey("control");
 
     ControlModel model = new ControlModel(ControlModel.getTexturedModelData().createModel());
 
@@ -63,10 +66,6 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
         if (name == null)
             return;
 
-        TextRenderer textRenderer = this.getTextRenderer();
-        float h = (float) -textRenderer.getWidth(name) / 2;
-        float f = entity.getNameLabelHeight() - 0.3f;
-
         if (!entity.isLinked())
             return;
 
@@ -74,6 +73,12 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
 
         if (tardis == null)
             return;
+
+        Text label = getScanLabel(name, tardis);
+
+        TextRenderer textRenderer = this.getTextRenderer();
+        float h = (float) -textRenderer.getWidth(label) / 2;
+        float f = entity.getNameLabelHeight() - 0.3f;
 
         matrices.push();
         matrices.translate(0.0f, f, 0.0f);
@@ -85,7 +90,7 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
 
         if (hitresult != null) {
             boolean isPlayerLookingWithSonic = isPlayerLookingAtControlWithSonic(hitresult, entity);
-            OrderedText nameOrdered = name.asOrderedText();
+            OrderedText nameOrdered = label.asOrderedText();
 
             if (isPlayerLookingWithSonic) {
                 textRenderer.drawWithOutline(nameOrdered, h, 0, 0xF0F0F0, 0x000000,
@@ -136,6 +141,14 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
 
         Box box = entity.getBoundingBox().offset(-entity.getX(), -entity.getY(), -entity.getZ());
         WorldRenderer.drawBox(matrices, vertices, box, 0.0f, 0.8f, 1.0f, 1.0f);
+    }
+
+    private static Text getScanLabel(Text name, Tardis tardis) {
+        if (name.getContent() instanceof TranslatableTextContent translatable && CLOAK_CONTROL_KEY.equals(translatable.getKey())) {
+            return Text.translatable(tardis.cloak().silent().get() ? "control.ait.protocol_3_silent_active" : "control.ait.protocol_3_silent_inactive");
+        }
+
+        return name;
     }
 
     private static boolean isPlayerLookingAtControlWithSonic(HitResult hitResult, ConsoleControlEntity entity) {
