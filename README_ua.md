@@ -83,7 +83,7 @@
 </h2>
 
 Якщо ви не розумієте щось щодо спеціальних блоків, гляньте на підказку, аби дізнатись більше про умови,
-яких треба дотриматись аби ці блоки поставити. Ми також маємо [вікі](https://amblelabs.github.io/ait-wiki), що документує
+яких треба дотриматись аби ці блоки поставити. Ми також маємо [вікі](https://amblelabs.dev/wiki/ru), що документує
 більшість речей, що пов'язані із модом: від блоків й речей до того, як створити власний датапак для екстер'єрів та консолей.
 
 ![Звукова викрутка дає дізнатись, що робить елемент керування!](https://cdn.modrinth.com/data/cached_images/e9a7d7247bd2c74f8690fa99caf30acda381c37d.png)
@@ -173,7 +173,7 @@
 </h2>
 
 <div style="text-align: center; font-size: 1.5em; margin-top: 1em; white-space: nowrap;">
-  <a href="https://amblelabs.github.io/ait-wiki/" style="text-decoration: none; color: inherit; display: inline-block; margin: 0 8px;">Вікі</a>
+  <a href="https://amblelabs.dev/wiki/ru" style="text-decoration: none; color: inherit; display: inline-block; margin: 0 8px;">Вікі</a>
   <span style="display: inline-block; margin: 0 4px;">•</span>
   <a href="https://github.com/amblelabs/ait/" style="text-decoration: none; color: inherit; display: inline-block; margin: 0 8px;">GitHub</a>
   <span style="display: inline-block; margin: 0 4px;">•</span>
