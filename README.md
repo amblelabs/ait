@@ -2,7 +2,8 @@
 <div align="center">
 
 ### **Presented by [AmbleLabs](https://amblelabs.dev)**
-<img src="https://cdn.modrinth.com/data/cached_images/3a42ec9af204d77515b938dc326a6694bf8766b7.png" alt="AIT Logo" width="700"/>
+<img src="src/main/resources/assets/ait_logo.png" alt="AIT Logo" width="700" style="image-rendering: pixelated;" />
+
 
 &nbsp;
 
