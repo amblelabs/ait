@@ -263,6 +263,10 @@ public class AITBlocks extends BlockContainer {
             new AItemSettings().group(AITItemGroups.MAIN)).lightLevel(7)
     );
 
+    @NoBlockItem
+    @NoBlockDrop
+    @NoEnglish
+    public static final Block POTTED_SONIC_SCREWDRIVER = new PottedSonicScrewdriverBlock(FabricBlockSettings.copyOf(Blocks.POTTED_POPPY));
     public static List<Block> get() {
         List<Block> list = new ArrayList<>();
 

@@ -7,7 +7,9 @@ import java.util.Random;
 import java.util.UUID;
 
 import dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity;
+import dev.amble.ait.core.blockentities.PottedSonicScrewdriverBlockEntity;
 import dev.amble.ait.core.blocks.EnvironmentProjectorBlock;
+import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.lib.container.RegistryContainer;
 import dev.amble.lib.register.AmbleRegistries;
@@ -18,6 +20,7 @@ import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
@@ -28,7 +31,10 @@ import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.ActionResult;
 import net.minecraft.world.World;
+import net.minecraft.world.event.GameEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -362,6 +368,37 @@ public class AITMod implements ModInitializer {
 
                 tableBuilder.pool(poolBuilder);
             }
+        });
+
+        UseBlockCallback.EVENT.register((player, world, hand, hit) -> {
+            ItemStack stack = player.getStackInHand(hand);
+            if (!(stack.getItem() instanceof SonicItem)) return ActionResult.PASS;
+
+            BlockPos pos = hit.getBlockPos();
+            BlockState state = world.getBlockState(pos);
+
+            if (state.isOf(Blocks.FLOWER_POT)) {
+                if (!world.isClient) {
+                    world.setBlockState(pos, AITBlocks.POTTED_SONIC_SCREWDRIVER.getDefaultState(), Block.NOTIFY_ALL);
+                    if (world.getBlockEntity(pos) instanceof PottedSonicScrewdriverBlockEntity pot)
+                        pot.addSonic(stack);
+                    world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
+                    if (!player.getAbilities().creativeMode) stack.decrement(1);
+                }
+                return ActionResult.success(world.isClient);
+            }
+
+            if (state.isOf(AITBlocks.POTTED_SONIC_SCREWDRIVER)
+                    && world.getBlockEntity(pos) instanceof PottedSonicScrewdriverBlockEntity pot && !pot.isFull()) {
+                if (!world.isClient) {
+                    pot.addSonic(stack);
+                    world.emitGameEvent(player, GameEvent.BLOCK_CHANGE, pos);
+                    if (!player.getAbilities().creativeMode) stack.decrement(1);
+                }
+                return ActionResult.success(world.isClient);
+            }
+
+            return ActionResult.PASS;
         });
     }
 
