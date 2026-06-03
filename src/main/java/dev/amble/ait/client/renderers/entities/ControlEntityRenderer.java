@@ -93,7 +93,7 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
             OrderedText nameOrdered = label.asOrderedText();
 
             if (isPlayerLookingWithSonic) {
-                textRenderer.drawWithOutline(nameOrdered, h, 0, 0xF0F0F0, 0x000000,
+                textRenderer.drawWithOutline(nameOrdered, h, 0.0f, 0xF0F0F0, 0x000000,
                         matrix4f, vertexConsumers, 0xFF);
             }
         }
