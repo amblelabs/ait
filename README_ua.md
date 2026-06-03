@@ -2,7 +2,7 @@
 <div align="center">
 
 ### **Для вас від [Amble Labs](https://amblelabs.github.io)**
-<img src="src/main/resources/assets/ait_logo.png" alt="AIT Logo" width="700" style="image-rendering: pixelated;" />
+<img src="src/main/resources/assets/ait_logo.png" alt="AIT Logo" />
 
 
 &nbsp;
