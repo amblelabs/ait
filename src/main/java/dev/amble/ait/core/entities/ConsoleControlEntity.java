@@ -203,6 +203,11 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             return ActionResult.SUCCESS;
         }
 
+        if (hand == Hand.MAIN_HAND && handStack.getItem() instanceof RepairToolItem) {
+            player.setCurrentHand(hand);
+            return ActionResult.CONSUME;
+        }
+
         if (hand == Hand.MAIN_HAND && !this.run(player, player.getWorld(), false))
             this.playFailFx();
 
