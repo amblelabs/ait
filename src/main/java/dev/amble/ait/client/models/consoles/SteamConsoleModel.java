@@ -1,5 +1,6 @@
 package dev.amble.ait.client.models.consoles;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.animation.Animation;
@@ -10,6 +11,7 @@ import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import net.minecraft.util.math.MathHelper;
 
 public class SteamConsoleModel extends SimpleConsoleModel {
     private final ModelPart steam;
@@ -1476,83 +1478,138 @@ public class SteamConsoleModel extends SimpleConsoleModel {
         steam.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
+    private float throttleAngle = 0f;
+    private float handbrakeAngle = 0f;
+    private float powerAngle = 0f;
+    private float doorControlAngle = 0f;
+    private float doorLockAngle = 0f;
+    private float incrementAngle = 0f;
+    private float directionAngle = 0f;
+    private float refuelerAngle = 0f;
+    private float cloakAngle = 0f;
+    private float groundSearchAngle = 0f;
+    private float alarmAngle = 0f;
+    private float securityAngle = 0f;
+    private float antiGravAngle = 0f;
+    private float shieldAngle = 0f;
+    private float autopilotAngle = 0f;
+
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
+        float delta = 0.1f * MinecraftClient.getInstance().getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
 
         ModelPart throttle = steam.getChild("controls").getChild("panel_6").getChild("rot6").getChild("lever9")
                 .getChild("bone50");
-        throttle.roll = throttle.roll - ((tardis.travel().speed() / (float) tardis.travel().maxSpeed().get()) * 1.5f);
+        float throttleTarget = tardis.travel().maxSpeed().get() > 0 ? ((float) tardis.travel().speed() / (float) tardis.travel().maxSpeed().get()): 0f;
+        this.throttleAngle = MathHelper.lerp(delta, this.throttleAngle, throttleTarget);
+        throttle.roll = this.throttleAngle - 0.5f;
+        //throttle.roll = throttle.roll - ((tardis.travel().speed() / (float) tardis.travel().maxSpeed().get()) * 1.5f);
 
-        ModelPart increment = steam.getChild("controls").getChild("panel_6").getChild("rot6").getChild("lever10")
-                .getChild("bone54");
-        increment.roll = IncrementManager.increment(tardis) >= 10
-                ? IncrementManager.increment(tardis) >= 100
-                        ? IncrementManager.increment(tardis) >= 1000
-                                ? IncrementManager.increment(tardis) >= 10000
-                                        ? increment.roll - (1.3963F * 2)
-                                        : increment.roll - (1.047225F * 2)
-                                : increment.roll - (0.69815F * 2)
-                        : increment.roll - 0.69815F
-                : increment.roll;
+        ModelPart increment = steam.getChild("controls").getChild("panel_6").getChild("rot6").getChild("lever10").getChild("bone54");
+
+        int incrementVal = IncrementManager.increment(tardis);
+        float targetOffset = 0f;
+
+        if (incrementVal < 10) {
+            targetOffset = 0f;
+        } else if (incrementVal < 100) {
+            targetOffset = -0.69815F;
+        } else if (incrementVal < 1000) {
+            targetOffset = -(0.69815F * 2);
+        } else if (incrementVal < 10000) {
+            targetOffset = -(1.047225F * 2);
+        } else {
+            targetOffset = -(1.3963F * 2);
+        }
+
+        this.incrementAngle = MathHelper.lerp(delta, this.incrementAngle, targetOffset);
+        increment.roll = this.incrementAngle + 1.5f;
 
         ModelPart alarms = steam.getChild("controls").getChild("panel_1").getChild("rot").getChild("lever4")
                 .getChild("bone22");
-        alarms.roll = tardis.alarm().isEnabled() ? 0.4363F : -0.5672F;
+        float alarmTarget = tardis.alarm().isEnabled() ? 0.4363F : -0.5672F;
+        this.alarmAngle = MathHelper.lerp(delta, this.alarmAngle, alarmTarget);
+        alarms.roll = this.alarmAngle;
 
         ModelPart security = steam.getChild("controls").getChild("panel_1").getChild("rot").getChild("lever2")
                 .getChild("bone20");
-        security.roll = (tardis.stats().security().get() ? 0.4363F : -0.5672F);
+        float securityTarget = tardis.stats().security().get() ? 0.4363F : -0.5672F;
+        this.securityAngle = MathHelper.lerp(delta, this.securityAngle, securityTarget);
+        security.roll = this.securityAngle;
 
         ModelPart antigrav = steam.getChild("controls").getChild("panel_1").getChild("rot").getChild("lever3")
                 .getChild("bone19");
-        antigrav.roll = (tardis.travel().antigravs().get() ? 0.4363F : -0.5672F);
+        float antigravTarget = tardis.travel().antigravs().get() ? 0.4363F : -0.5672F;
+        this.antiGravAngle = MathHelper.lerp(delta, this.antiGravAngle, antigravTarget);
+        antigrav.roll = this.antiGravAngle;
 
         ModelPart shields = steam.getChild("controls").getChild("panel_1").getChild("rot").getChild("lever5")
                 .getChild("bone21");
-        shields.roll = tardis.shields().shielded().get()
+        float shieldsTarget = tardis.shields().shielded().get()
                 ? tardis.shields().visuallyShielded().get() ? 0.0F : 0.4363F
                 : -0.5672F;
+        this.shieldAngle = MathHelper.lerp(delta, this.shieldAngle, shieldsTarget);
+        shields.roll = this.shieldAngle;
 
         ModelPart refueling = steam.getChild("controls").getChild("panel_1").getChild("rot").getChild("lever")
                 .getChild("bone23");
-        refueling.roll = (tardis.isRefueling() ? 0.4363F : -0.5672F);
+        float refuelerTarget = tardis.isRefueling() ? 0.4363F : -0.5672F;
+        this.refuelerAngle = MathHelper.lerp(delta, this.refuelerAngle, refuelerTarget);
+        refueling.roll = this.refuelerAngle;
 
         ModelPart handbrake = steam.getChild("controls").getChild("panel_4").getChild("rot4").getChild("lever6")
                 .getChild("bone41");
-        handbrake.roll = handbrake.roll + (tardis.travel().handbrake() ? -0f : 1.5f);
+        float handbrakeTarget = tardis.travel().handbrake() ? 0 : 1.5f;
+        this.handbrakeAngle = MathHelper.lerp(delta, this.handbrakeAngle, handbrakeTarget);
+        handbrake.roll = this.handbrakeAngle - 0.5f;
 
         ModelPart power = steam.getChild("controls").getChild("panel_5").getChild("rot5").getChild("lever7")
                 .getChild("bone45");
-        power.roll = power.roll + (tardis.fuel().hasPower() ? 0f : 1.5f);
+        float powerTarget = tardis.fuel().hasPower() ? 0f : 1.5f;
+        this.powerAngle = MathHelper.lerp(delta, this.powerAngle, powerTarget);
+        power.roll = this.powerAngle - 0.75f;
 
         ModelPart landType = steam.getChild("controls").getChild("panel_1").getChild("rot").getChild("valve")
                 .getChild("bone9");
-        landType.pivotY = landType.pivotY + (tardis.travel().horizontalSearch().get() ? 0.5f : 0); // FIXME use
-                                                                                                    // TravelHandler#horizontalSearch/#verticalSearch
+        float groundSearchTarget = tardis.travel().horizontalSearch().get() ? 0.5f : 0;
+        this.groundSearchAngle = MathHelper.lerp(delta, this.groundSearchAngle, groundSearchTarget);
+        landType.pivotY = this.groundSearchAngle;
 
         ModelPart direction = steam.getChild("controls").getChild("panel_4").getChild("rot4").getChild("crank")
                 .getChild("bone42");
-        direction.yaw = direction.yaw + (1.5708f * tardis.travel().destination().getRotation());
+        float directionTargetDegrees = (0.3927f * tardis.travel().destination().getRotation()) * (180f / (float) Math.PI);
+        float currentAngleDegrees = this.directionAngle * (180f / (float) Math.PI);
+        float nextAngleDegrees = MathHelper.lerpAngleDegrees(delta, currentAngleDegrees, directionTargetDegrees);
+
+        this.directionAngle = nextAngleDegrees * ((float) Math.PI / 180f);
+        direction.yaw = this.directionAngle;
 
         ModelPart doorControl = steam.getChild("controls").getChild("panel_5").getChild("rot5").getChild("crank2")
                 .getChild("bone18");
-        doorControl.yaw = doorControl.yaw
-                + (tardis.door().isOpen() ? tardis.door().isRightOpen() ? 1.5708f * 2f : 1.5708f : 0);
+        float doorControlTarget = tardis.door().isOpen() ? tardis.door().isRightOpen() ? 1.5708f * 2f : 1.5708f : 0;
+        this.doorControlAngle = MathHelper.lerp(delta, this.doorControlAngle, doorControlTarget);
+        doorControl.yaw = this.doorControlAngle;
 
         ModelPart cloak = steam.getChild("controls").getChild("panel_5").getChild("rot5").getChild("lever8")
                 .getChild("bone46");
-        cloak.roll = cloak.roll - (tardis.cloak().cloaked().get() ? 1.5708f : 0);
+        float cloakTarget = tardis.cloak().cloaked().get() ? 1.35f : 0;
+        this.cloakAngle = MathHelper.lerp(delta, this.cloakAngle, cloakTarget);
+        cloak.roll = this.cloakAngle - 0.5f;
 
         ModelPart doorLock = steam.getChild("controls").getChild("panel_5").getChild("rot5").getChild("lever8")
                 .getChild("bone47");
-        doorLock.roll = doorLock.roll - (tardis.door().locked() ? 1.5708f : 0);
+        float doorLockTarget = tardis.door().locked() ? 1.35f : 0;
+        this.doorLockAngle = MathHelper.lerp(delta, this.doorLockAngle, doorLockTarget);
+        doorLock.roll = this.doorLockAngle - 0.5f;
 
         ModelPart autopilot = steam.getChild("controls").getChild("panel_5").getChild("rot5").getChild("lever8")
                 .getChild("bone48");
-        autopilot.roll = autopilot.roll - (tardis.travel().autopilot() ? 1.5708f : 0);
+        float autopilotTarget = tardis.travel().autopilot() ? 1.35f : 0;
+        this.autopilotAngle = MathHelper.lerp(delta, this.autopilotAngle, autopilotTarget);
+        autopilot.roll = this.autopilotAngle - 0.5f;
 
         super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();

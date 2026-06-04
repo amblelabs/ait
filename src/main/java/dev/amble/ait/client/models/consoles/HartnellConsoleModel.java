@@ -1,5 +1,6 @@
 package dev.amble.ait.client.models.consoles;
 
+import dev.amble.ait.core.util.SafePosSearch;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
@@ -1391,6 +1392,7 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
     private float directionAngle = 0f;
     private float refuelerAngle = 0f;
     private float cloakAngle = 0f;
+    private float groundSearchAngle = 0f;
     private float hailMaryAngle = 0f;
     private float alarmAngle = 0f;
     private float securityAngle = 0f;
@@ -1498,7 +1500,7 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
         float doorLockTarget = tardis.door().locked() ? 2.075f : 0.5f;
         this.doorLockAngle = MathHelper.lerp(delta, this.doorLockAngle, doorLockTarget);
         doorLock.yaw = this.doorLockAngle - 0.5f;
-        doorLockLight.pivotY = this.doorLockAngle - 0.5f;
+        doorLockLight.pivotY = tardis.door().locked() ? doorLockLight.pivotY + 1 : doorLockLight.pivotY;
 
         // Refueler Control Movements
         ModelPart refueler = this.bone.getChild("panels").getChild("p_4").getChild("bone98").getChild("bone99")
@@ -1526,9 +1528,12 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
         // Ground Search Control Movements
         ModelPart groundSearch = this.bone.getChild("panels").getChild("p_4").getChild("bone98").getChild("bone99")
                 .getChild("bone100").getChild("s_knob");
-        groundSearch.pivotZ = !tardis.travel().horizontalSearch().get()
+        float groundSearchTarget = tardis.travel().horizontalSearch().get() ? 1.0f : -1.5f;
+        this.groundSearchAngle = MathHelper.lerp(delta, this.groundSearchAngle, groundSearchTarget);
+        groundSearch.pivotZ = this.groundSearchAngle - 0.5f;
+        /*groundSearch.pivotZ = !tardis.travel().horizontalSearch().get()
                 ? groundSearch.pivotZ - 1.5f
-                : groundSearch.pivotZ; // FIXME use TravelHandler#horizontalSearch/#verticalSearch
+                : groundSearch.pivotZ; // FIXME use TravelHandler#horizontalSearch/#verticalSearch*/
 
         // Hail Mary Control Movements
         ModelPart hailMary = this.bone.getChild("panels").getChild("p_2").getChild("bone48").getChild("bone49")
@@ -1563,28 +1568,34 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
         this.securityAngle = MathHelper.lerp(delta, this.securityAngle, securityTarget);
         security.roll = this.securityAngle - 0.5f;
 
-        // Increment Control Movements
-        ModelPart increment = this.bone.getChild("panels").getChild("p_3").getChild("bone67").getChild("bone68")
-                .getChild("bone69").getChild("s_crank_3").getChild("bone74");
-        float incrementTarget = IncrementManager.increment(tardis) >= 10
-                ? IncrementManager.increment(tardis) >= 100
-                        ? IncrementManager.increment(tardis) >= 1000
-                                ? IncrementManager.increment(tardis) >= 10000
-                                        ? 2f
-                                        : 1.5f
-                                : 1f
-                        : 0.5f
-                : 0;
+        ModelPart increment = this.bone.getChild("panels").getChild("p_3").getChild("bone67")
+                .getChild("bone68").getChild("bone69").getChild("s_crank_3").getChild("bone74");
+
+        int incrementVal = IncrementManager.increment(tardis);
+        float incrementTarget = 0f;
+
+        if (incrementVal >= 10000) {
+            incrementTarget = 2.0f;
+        } else if (incrementVal >= 1000) {
+            incrementTarget = 1.5f;
+        } else if (incrementVal >= 100) {
+            incrementTarget = 1.0f;
+        } else if (incrementVal >= 10) {
+            incrementTarget = 0.5f;
+        }
+
         this.incrementAngle = MathHelper.lerp(delta, this.incrementAngle, incrementTarget);
         increment.yaw = this.incrementAngle - 0.5f;
 
         // Direction Control Movements
         ModelPart direction = this.bone.getChild("panels").getChild("p_2").getChild("bone48").getChild("bone49")
                 .getChild("bone50").getChild("s_crank_1").getChild("bone59");
-        float targetDegrees = tardis.travel().destination().getRotation() * -22.5f;
+        float directionTargetDegrees = (0.3927f * tardis.travel().destination().getRotation()) * (180f / (float) Math.PI);
+        float currentAngleDegrees = this.directionAngle * (180f / (float) Math.PI);
+        float nextAngleDegrees = MathHelper.lerpAngleDegrees(delta, currentAngleDegrees, directionTargetDegrees);
 
-        this.directionAngle = (float) MathHelper.lerp(delta, this.directionAngle, Math.toRadians(targetDegrees));
-        direction.yaw = this.directionAngle - 0.5f;
+        this.directionAngle = nextAngleDegrees * ((float) Math.PI / 180f);
+        direction.yaw = this.directionAngle;
 
         // Anti Grav Control Movements
         ModelPart antiGrav = this.bone.getChild("panels").getChild("p_1").getChild("bone38").getChild("bone36")
@@ -1605,14 +1616,14 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
 
         ModelPart siegeProtocol = this.bone.getChild("panels").getChild("p_2").getChild("bone48").getChild("bone49")
                 .getChild("bone50").getChild("sl_switch_5").getChild("bone56");
-        float siegeTarget = !tardis.siege().isActive() ? 10.9f : 9.9f;
+        float siegeTarget = !tardis.siege().isActive() ? 9.9f : 10.9f;
         this.siegeAngle = MathHelper.lerp(delta, this.siegeAngle, siegeTarget);
         siegeProtocol.pivotX = this.siegeAngle - 0.5f;
 
         // Auto Pilot Control Movements
         ModelPart autoPilot = this.bone.getChild("panels").getChild("p_1").getChild("bone38").getChild("bone36")
                 .getChild("bone37").getChild("st_switch").getChild("bone26");
-        float autopilotTarget = !tardis.travel().autopilot() ? autoPilot.yaw + 1 : autoPilot.yaw;
+        float autopilotTarget = !tardis.travel().autopilot() ? 1 : 0f;
         this.autopilotAngle = MathHelper.lerp(delta, this.autopilotAngle, autopilotTarget);
         autoPilot.yaw = this.autopilotAngle - 0.5f;
 
