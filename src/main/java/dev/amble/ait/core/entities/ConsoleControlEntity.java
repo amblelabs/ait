@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import dev.amble.ait.core.item.RepairToolItem;
 import dev.amble.ait.core.tardis.control.impl.HammerHangerControl;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
@@ -416,8 +417,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         Tardis tardis = this.tardis().get();
 
-        if (player.getMainHandStack().isOf(AITItems.SONIC_SCREWDRIVER) && this.getDurability() < 1.0f
-                && SonicItem.mode(player.getMainHandStack()) == SonicMode.Modes.TARDIS) {
+        ItemStack stack = player.getMainHandStack();
+        if (((stack.isOf(AITItems.SONIC_SCREWDRIVER) && SonicItem.mode(stack) == SonicMode.Modes.TARDIS) || stack.getItem() instanceof RepairToolItem) && this.getDurability() < 1.0f) {
             Vec3d pos = this.getPos();
             this.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
             ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.WAX_ON,
