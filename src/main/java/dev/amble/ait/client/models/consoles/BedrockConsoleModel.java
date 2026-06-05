@@ -99,7 +99,14 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
 
 		// cache by the animation reference id, not the control id, so a control mapped to different
 		// animations across consoles/variants doesn't reuse the wrong cached animation
-		BedrockAnimation anim = this.animationCache.computeIfAbsent(ref.id(), k -> ref.get().orElse(null));
+		// memoize misses too (computeIfAbsent won't store null) so a missing animation ref isn't re-resolved every frame
+		BedrockAnimation anim;
+		if (this.animationCache.containsKey(ref.id())) {
+			anim = this.animationCache.get(ref.id());
+		} else {
+			anim = ref.get().orElse(null);
+			this.animationCache.put(ref.id(), anim);
+		}
 		if (anim == null) return;
 
 		TargetedAnimationState state = entity.getAnimationState();
