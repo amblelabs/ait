@@ -93,3 +93,5 @@
 - changed it to be not blurry | by [@vmbbi](https://github.com/vmbbi) ([#2024](https://github.com/amblelabs/ait/pull/2024))
 - Fix/readme wiki libk | by [@vmbbi](https://github.com/vmbbi) ([#2025](https://github.com/amblelabs/ait/pull/2025))
 - feat: Added potable sonics! | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#2026](https://github.com/amblelabs/ait/pull/2026))
+- fix: hums are properly translated | by [@Loqor](https://github.com/Loqor) ([#2032](https://github.com/amblelabs/ait/pull/2032))
+- fix: spacesuits now need the whole suit to function | by [@Loqor](https://github.com/Loqor) ([#2032](https://github.com/amblelabs/ait/pull/2032))
