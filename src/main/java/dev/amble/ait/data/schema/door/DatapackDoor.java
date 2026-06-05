@@ -1,24 +1,23 @@
 package dev.amble.ait.data.schema.door;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.util.PortalOffsets;
+import dev.amble.ait.data.datapack.DoorAnimationReferences;
 import dev.amble.lib.client.bedrock.BedrockAnimationReference;
-
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.util.PortalOffsets;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class DatapackDoor extends DoorSchema implements AnimatedDoor {
     public static final Codec<DatapackDoor> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -28,8 +27,10 @@ public class DatapackDoor extends DoorSchema implements AnimatedDoor {
             Identifier.CODEC.fieldOf("model").forGetter(DatapackDoor::getModelId),
             Codec.BOOL.fieldOf("is_double").forGetter(DoorSchema::isDouble),
             PortalOffsets.CODEC.optionalFieldOf("portal_info", new PortalOffsets(1, 2)).forGetter(DatapackDoor::getOffsets),
-            BedrockAnimationReference.CODEC.optionalFieldOf("left_animation").forGetter(DatapackDoor::getLeftAnimation),
-            BedrockAnimationReference.CODEC.optionalFieldOf("right_animation").forGetter(DatapackDoor::getRightAnimation),
+            BedrockAnimationReference.CODEC.optionalFieldOf("left_animation").forGetter(DatapackDoor::getRawLeftAnimation),
+            BedrockAnimationReference.CODEC.optionalFieldOf("right_animation").forGetter(DatapackDoor::getRawRightAnimation),
+            DoorAnimationReferences.CODEC.optionalFieldOf("door_animations", DoorAnimationReferences.EMPTY)
+                    .forGetter(DatapackDoor::getDoorAnimations),
             Vec3d.CODEC.optionalFieldOf("scale", new Vec3d(1, 1, 1)).forGetter(DatapackDoor::getScale),
             Vec3d.CODEC.optionalFieldOf("offset", new Vec3d(0, 0, 0)).forGetter(DatapackDoor::getOffset),
             Codec.BOOL.optionalFieldOf("isDatapack", true).forGetter(DatapackDoor::wasDatapack)
@@ -43,11 +44,12 @@ public class DatapackDoor extends DoorSchema implements AnimatedDoor {
     protected final PortalOffsets offsets;
     protected final BedrockAnimationReference leftAnimation;
     protected final BedrockAnimationReference rightAnimation;
+    protected final DoorAnimationReferences doorAnimations;
     protected final Vec3d scale;
     protected final Vec3d offset;
     protected final boolean initiallyDatapack;
 
-    public DatapackDoor(Identifier id, Identifier openSound, Identifier closeSound, Identifier model, boolean isDouble, PortalOffsets offsets, Optional<BedrockAnimationReference> leftAnimation, Optional<BedrockAnimationReference> rightAnimation, Vec3d scale, Vec3d offset, boolean initiallyDatapack) {
+    public DatapackDoor(Identifier id, Identifier openSound, Identifier closeSound, Identifier model, boolean isDouble, PortalOffsets offsets, Optional<BedrockAnimationReference> leftAnimation, Optional<BedrockAnimationReference> rightAnimation, DoorAnimationReferences doorAnimations, Vec3d scale, Vec3d offset, boolean initiallyDatapack) {
         super(id);
 
         this.openSound = openSound;
@@ -57,6 +59,7 @@ public class DatapackDoor extends DoorSchema implements AnimatedDoor {
         this.offsets = offsets;
         this.leftAnimation = leftAnimation.orElse(null);
         this.rightAnimation = rightAnimation.orElse(null);
+        this.doorAnimations = doorAnimations;
         this.scale = scale;
         this.offset = offset;
         this.initiallyDatapack = initiallyDatapack;
@@ -77,14 +80,42 @@ public class DatapackDoor extends DoorSchema implements AnimatedDoor {
         return SoundEvent.of(getCloseSoundId());
     }
 
+    private Optional<BedrockAnimationReference> getRawLeftAnimation() {
+        return Optional.ofNullable(leftAnimation);
+    }
+
+    private Optional<BedrockAnimationReference> getRawRightAnimation() {
+        return Optional.ofNullable(rightAnimation);
+    }
+
     @Override
     public Optional<BedrockAnimationReference> getLeftAnimation() {
+        if (!doorAnimations.isEmpty() && doorAnimations.getLeft().isPresent()) {
+            return doorAnimations.getLeft();
+        }
         return Optional.ofNullable(leftAnimation);
     }
 
     @Override
     public Optional<BedrockAnimationReference> getRightAnimation() {
+        if (!doorAnimations.isEmpty() && doorAnimations.getRight().isPresent()) {
+            return doorAnimations.getRight();
+        }
         return Optional.ofNullable(rightAnimation);
+    }
+
+    @Override
+    public Optional<BedrockAnimationReference> getLeftCloseAnimation() {
+        return doorAnimations.getLeftClose();
+    }
+
+    @Override
+    public Optional<BedrockAnimationReference> getRightCloseAnimation() {
+        return doorAnimations.getRightClose();
+    }
+
+    public DoorAnimationReferences getDoorAnimations() {
+        return doorAnimations;
     }
 
     public Identifier getOpenSoundId() {
