@@ -333,7 +333,9 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
 	    if (this.control == null && this.getWorld() != null && this.getWorld().isClient()) {
 		    String controlId = this.dataTracker.get(CONTROL_ID);
 		    if (!controlId.isEmpty()) {
-			    this.control = ControlRegistry.fromId(Identifier.tryParse(controlId)).orElse(null);
+			    Identifier parsed = Identifier.tryParse(controlId);
+			    if (parsed != null)
+				    this.control = ControlRegistry.fromId(parsed).orElse(null);
 		    }
 	    }
         return control;

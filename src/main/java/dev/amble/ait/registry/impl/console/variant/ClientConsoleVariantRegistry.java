@@ -125,7 +125,7 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
 			        if (schema.parent() == null)
 				        continue;
 
-			        if (schema.parent().id().equals(thisParent.id()) && predicate.test(schema))
+			        if (schema.parent().parentId().equals(thisParent.parentId()) && predicate.test(schema))
 				        return schema;
 		        }
 
@@ -136,7 +136,7 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
             public Identifier texture() {
 	            if (texture == null) {
 		            if (variant.texture().equals(DatapackConsole.EMPTY)) {
-			            ClientConsoleVariantSchema parent = getSameParent(val -> val.texture() != null && !val.texture().equals(DatapackConsole.EMPTY));
+			            ClientConsoleVariantSchema parent = getSameParent(val -> val.parent() instanceof DatapackConsole dp && !dp.texture().equals(DatapackConsole.EMPTY));
 			            texture = parent != null ? parent.texture() : variant.texture();
 		            } else {
 			            texture = variant.texture();
@@ -150,7 +150,7 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
             public Identifier emission() {
 	            if (emission == null) {
 		            if (variant.emission().equals(DatapackConsole.EMPTY)) {
-			            ClientConsoleVariantSchema parent = getSameParent(val -> val.emission() != null && !val.emission().equals(DatapackConsole.EMPTY));
+			            ClientConsoleVariantSchema parent = getSameParent(val -> val.parent() instanceof DatapackConsole dp && !dp.emission().equals(DatapackConsole.EMPTY));
 			            emission = parent != null ? parent.emission() : variant.emission();
 		            } else {
 			            emission = variant.emission();
@@ -166,7 +166,7 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
                     return new BedrockConsoleModel(BedrockModelRegistry.getInstance().get(variant.model().get()));
                 }
 
-	            ClientConsoleVariantSchema parent = getSameParent(val -> val.model() != null);
+	            ClientConsoleVariantSchema parent = getSameParent(val -> val.parent() instanceof DatapackConsole dp && dp.model().isPresent());
 	            if (parent != null) {
 		            return parent.model();
 	            }
