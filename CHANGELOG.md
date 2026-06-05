@@ -95,3 +95,5 @@
 - feat: Added potable sonics! | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#2026](https://github.com/amblelabs/ait/pull/2026))
 - fix: hums are properly translated | by [@Loqor](https://github.com/Loqor) ([#2032](https://github.com/amblelabs/ait/pull/2032))
 - fix: spacesuits now need the whole suit to function | by [@Loqor](https://github.com/Loqor) ([#2032](https://github.com/amblelabs/ait/pull/2032))
+- add: new disc for crash music | by [@vmbbi](https://github.com/vmbbi) ([#2031](https://github.com/amblelabs/ait/pull/2031))
+- tweak: changed logo size in home screen | by [@vmbbi](https://github.com/vmbbi) ([#2031](https://github.com/amblelabs/ait/pull/2031))
