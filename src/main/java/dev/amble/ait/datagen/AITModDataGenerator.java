@@ -904,6 +904,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItems.GOOD_MAN_MUSIC_DISC.getTranslationKey() + ".desc", "Dian - Good Man? [CUT EDITION]");
         provider.addTranslation(AITItems.AIT_THEME_MUSIC_DISC, "Music Disc");
         provider.addTranslation(AITItems.AIT_THEME_MUSIC_DISC.getTranslationKey() + ".desc", "RatZoomie - Adventures In Time [MAIN THEME]");
+        provider.addTranslation(AITItems.CRASH_MUSIC_DISC, "Music Disc");
+        provider.addTranslation(AITItems.CRASH_MUSIC_DISC.getTranslationKey() + ".desc", "lucien - Crashing TARDIS");
         provider.addTranslation(AITItems.GOLD_KEY_UPGRADE_SMITHING_TEMPLATE, "Smithing Template");
         provider.addTranslation(AITItems.NETHERITE_KEY_UPGRADE_SMITHING_TEMPLATE, "Smithing Template");
         provider.addTranslation(AITItems.CLASSIC_KEY_UPGRADE_SMITHING_TEMPLATE, "Smithing Template");
