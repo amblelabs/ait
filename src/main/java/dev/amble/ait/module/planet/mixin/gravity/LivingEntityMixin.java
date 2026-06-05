@@ -34,23 +34,6 @@ public abstract class LivingEntityMixin extends Entity {
         super(type, world);
     }
 
-    /*@Inject(method = "tickFallFlying", at = @At("HEAD"), cancellable = true)
-    public void ait$tickFallFlying(CallbackInfo ci) {
-        if (!this.isLogicalSideForUpdatingMovement())
-            return;
-
-        Planet planet = PlanetRegistry.getInstance().get(this.getWorld());
-
-        if (planet == null || !planet.hasGravityModifier())
-            return;
-
-        *//*LivingEntity entity = (LivingEntity) (Object) this;*//*
-        // todo make this better its a yikes
-        if (planet.gravity() > 0) {
-            ci.cancel();
-        }
-    }*/
-
     @Inject(method = "tickMovement", at = @At("TAIL"))
     public void ait$tickMovement(CallbackInfo ci) {
         if (!this.isLogicalSideForUpdatingMovement())
@@ -125,7 +108,7 @@ public abstract class LivingEntityMixin extends Entity {
                 entity.setFrozenTicks(entity.getMinFreezeDamageTicks() + 20);
         }
 
-        if (!planet.hasOxygen() && !Planet.hasFullSuit(entity) && !Planet.hasOxygenInTank(entity)) {
+        if (!planet.hasOxygen() && (!Planet.hasFullSuit(entity) || !Planet.hasOxygenInTank(entity))) {
             entity.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA,
                     200, 1, false, false));
             entity.addStatusEffect(new StatusEffectInstance(StatusEffects.WITHER, 1,

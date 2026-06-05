@@ -72,7 +72,7 @@ public class AITServerConfig {
     @CustomDescription(value = "Dimensions listed here will be excluded. Ignored when the whitelist has entries.")
     @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
     @SerialEntry public List<String> travelBlacklist = Lists.newArrayList(
-            "ait-tardis", "ait:tardis_dimension_type", AITDimensions.TIME_VORTEX_WORLD.getValue().toString(), "ait:space");
+            "ait-tardis", "ait:tardis_dimension_type", AITDimensions.TIME_VORTEX_WORLD.getValue().toString(), "ait:space", "ait:moon", "ait:mars");
 
     @AutoGen(category = CATEGORY)
     @CustomDescription(value = "When populated, only these dimensions will be allowed and the blacklist is ignored.")
