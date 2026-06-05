@@ -1,5 +1,7 @@
 package dev.amble.ait.client.models.consoles;
 
+import dev.amble.ait.core.util.SafePosSearch;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.animation.Animation;
@@ -16,6 +18,7 @@ import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
 import dev.amble.ait.core.tardis.handler.CloakHandler;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import net.minecraft.util.math.MathHelper;
 
 // Made with Blockbench 4.9.2
 // Exported for Minecraft version 1.17+ for Yarn
@@ -1379,9 +1382,29 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
         bone.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
+    private float throttleAngle = 0f;
+    private float handbrakeAngle = 0f;
+    private float powerAngle = 0f;
+    private float rotorAngle = 0f;
+    private float doorControlAngle = 0f;
+    private float doorLockAngle = 0f;
+    private float incrementAngle = 0f;
+    private float directionAngle = 0f;
+    private float refuelerAngle = 0f;
+    private float cloakAngle = 0f;
+    private float groundSearchAngle = 0f;
+    private float hailMaryAngle = 0f;
+    private float alarmAngle = 0f;
+    private float securityAngle = 0f;
+    private float antiGravAngle = 0f;
+    private float shieldAngle = 0f;
+    private float siegeAngle = 0f;
+    private float autopilotAngle = 0f;
+
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
+        float delta = 0.1f * MinecraftClient.getInstance().getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
 
@@ -1430,41 +1453,42 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
             zControlLight.pivotY = zControlLight.pivotY + 1;
         }
 
-        // Fast Return Movements
-        ModelPart fastReturn = this.bone.getChild("panels").getChild("p_1").getChild("bone38").getChild("bone36")
-                .getChild("bone37").getChild("fastreturn").getChild("bone25");
-        if (tardis.travel().destination().equals(tardis.travel().previousPosition())) {
-            fastReturn.pivotY = fastReturn.pivotY + 0.25f;
-        }
-
         // Throttle Control Movements
         ModelPart throttle = this.bone.getChild("panels").getChild("p_1").getChild("bone38").getChild("bone36")
                 .getChild("bone37").getChild("m_lever_1").getChild("bone45");
-        throttle.roll = throttle.roll + (tardis.travel().speed() / (float) tardis.travel().maxSpeed().get());
+        float throttleTarget = tardis.travel().maxSpeed().get() > 0 ? (float) tardis.travel().speed() / (float) tardis.travel().maxSpeed().get() : 0f;
+        this.throttleAngle = MathHelper.lerp(delta, this.throttleAngle, throttleTarget);
+        throttle.roll = this.throttleAngle - 0.5f;
 
         // Handbrake Control Movements
         ModelPart handbrake = this.bone.getChild("panels").getChild("p_1").getChild("bone38").getChild("bone36")
                 .getChild("bone37").getChild("m_lever_2").getChild("bone46");
-        handbrake.roll = tardis.travel().handbrake() ? handbrake.roll + 1 : handbrake.roll;
+        float handbrakeTarget = tardis.travel().handbrake() ? 1f : 0f;
+        this.handbrakeAngle =  MathHelper.lerp(delta, this.handbrakeAngle, handbrakeTarget);
+        handbrake.roll = this.handbrakeAngle - 0.5f;
 
         // Power Control Movements
         ModelPart powerControl = this.bone.getChild("panels").getChild("p_6").getChild("bone132").getChild("bone133")
                 .getChild("bone134").getChild("m_lever_3").getChild("bone142");
         ModelPart rotor = this.bone.getChild("rotor");
-
-        powerControl.roll = tardis.fuel().hasPower() ? powerControl.roll + 1 : powerControl.roll;
-        rotor.pivotY = !tardis.fuel().hasPower() ? rotor.pivotY + 5 : rotor.pivotY;
+        float powerTarget = tardis.fuel().hasPower() ? 1f : 0f;
+        this.powerAngle = MathHelper.lerp(delta, this.powerAngle, powerTarget);
+        powerControl.roll = this.powerAngle - 0.5f;
+        float rotorTarget = !tardis.fuel().hasPower() ? rotor.pivotY + 5 : -19.5f;
+        this.rotorAngle = MathHelper.lerp(delta, this.rotorAngle, rotorTarget);
+        if (tardis.travel().isLanded()) rotor.pivotY = this.rotorAngle;
 
         // Door Control Movements
         ModelPart doorControl = this.bone.getChild("panels").getChild("p_5").getChild("bone112").getChild("bone113")
                 .getChild("bone114").getChild("ctrl_panel_3").getChild("bone123");
         ModelPart doorControlLight = this.bone.getChild("panels").getChild("p_5").getChild("bone112")
                 .getChild("bone113").getChild("bone114").getChild("ind_lamp_20").getChild("bone117");
+        float doorControlTarget = tardis.door().isLeftOpen() ? 2.075f : tardis.door().areBothOpen() ? 3.15f : 0.5f;
+        this.doorControlAngle = MathHelper.lerp(delta, this.doorControlAngle, doorControlTarget);
+        doorControl.yaw = this.doorControlAngle - 0.5f;
         if (tardis.door().isLeftOpen()) {
-            doorControl.yaw = doorControl.yaw + 1.575f;
             doorControlLight.pivotY = doorControlLight.pivotY + 1;
         } else if (tardis.door().isRightOpen()) {
-            doorControl.yaw = doorControl.yaw + 3.15f;
             doorControlLight.pivotY = doorControlLight.pivotY + 1;
         }
 
@@ -1473,24 +1497,30 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
                 .getChild("bone114").getChild("ctrl_panel_3").getChild("bone125");
         ModelPart doorLockLight = this.bone.getChild("panels").getChild("p_5").getChild("bone112").getChild("bone113")
                 .getChild("bone114").getChild("ind_lamp_21").getChild("bone118");
-        doorLock.yaw = tardis.door().locked() ? doorLock.yaw + 1.575f : doorLock.yaw;
-        doorLockLight.pivotY = tardis.door().locked() ? doorLockLight.pivotY : doorLockLight.pivotY + 1;
+        float doorLockTarget = tardis.door().locked() ? 2.075f : 0.5f;
+        this.doorLockAngle = MathHelper.lerp(delta, this.doorLockAngle, doorLockTarget);
+        doorLock.yaw = this.doorLockAngle - 0.5f;
+        doorLockLight.pivotY = tardis.door().locked() ? doorLockLight.pivotY + 1 : doorLockLight.pivotY;
 
         // Refueler Control Movements
         ModelPart refueler = this.bone.getChild("panels").getChild("p_4").getChild("bone98").getChild("bone99")
                 .getChild("bone100").getChild("ctrl_panel_2").getChild("bone106");
         ModelPart refuelerLight = this.bone.getChild("panels").getChild("p_4").getChild("bone98").getChild("bone99")
                 .getChild("bone100").getChild("ind_lamp_16").getChild("bone111");
-        refueler.yaw = tardis.isRefueling() ? refueler.yaw + 1.575f : refueler.yaw;
+        float refuelerTarget = tardis.isRefueling() ? 2.075f : 0.5f;
+        this.refuelerAngle = MathHelper.lerp(delta, this.refuelerAngle, refuelerTarget);
+        refueler.yaw = this.refuelerAngle - 0.5f;
         refuelerLight.pivotY = tardis.isRefueling() ? refuelerLight.pivotY : refuelerLight.pivotY + 1;
 
         ModelPart cloak = this.bone.getChild("panels").getChild("p_4").getChild("bone98").getChild("bone99")
                 .getChild("bone100").getChild("ctrl_panel_2").getChild("bone108");
         ModelPart cloakLight = this.bone.getChild("panels").getChild("p_4").getChild("bone98").getChild("bone99")
                 .getChild("bone100").getChild("ind_lamp_15").getChild("bone101");
-        cloak.yaw = tardis.<CloakHandler>handler(TardisComponent.Id.CLOAK).cloaked().get()
-                ? cloak.yaw + 1.575f
-                : cloak.yaw;
+        float cloakTarget = tardis.<CloakHandler>handler(TardisComponent.Id.CLOAK).cloaked().get()
+                ? 2.075f
+                : 0.5f;
+        this.cloakAngle = MathHelper.lerp(delta, this.cloakAngle, cloakTarget);
+        cloak.yaw = this.cloakAngle - 0.5f;
         cloakLight.pivotY = tardis.<CloakHandler>handler(TardisComponent.Id.CLOAK).cloaked().get()
                 ? cloakLight.pivotY
                 : cloakLight.pivotY + 1;
@@ -1498,14 +1528,19 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
         // Ground Search Control Movements
         ModelPart groundSearch = this.bone.getChild("panels").getChild("p_4").getChild("bone98").getChild("bone99")
                 .getChild("bone100").getChild("s_knob");
-        groundSearch.pivotZ = !tardis.travel().horizontalSearch().get()
+        float groundSearchTarget = tardis.travel().horizontalSearch().get() ? 1.0f : -1.5f;
+        this.groundSearchAngle = MathHelper.lerp(delta, this.groundSearchAngle, groundSearchTarget);
+        groundSearch.pivotZ = this.groundSearchAngle - 0.5f;
+        /*groundSearch.pivotZ = !tardis.travel().horizontalSearch().get()
                 ? groundSearch.pivotZ - 1.5f
-                : groundSearch.pivotZ; // FIXME use TravelHandler#horizontalSearch/#verticalSearch
+                : groundSearch.pivotZ; // FIXME use TravelHandler#horizontalSearch/#verticalSearch*/
 
         // Hail Mary Control Movements
         ModelPart hailMary = this.bone.getChild("panels").getChild("p_2").getChild("bone48").getChild("bone49")
                 .getChild("bone50").getChild("s_lever").getChild("bone61");
-        hailMary.roll = tardis.stats().hailMary().get() ? hailMary.roll + 1.75f : hailMary.roll;
+        float hailMaryTarget = tardis.stats().hailMary().get() ? 3.0f : 1.5f;
+        this.hailMaryAngle = MathHelper.lerp(delta, this.hailMaryAngle, hailMaryTarget);
+        hailMary.roll = this.hailMaryAngle - 0.5f;
         ModelPart hailMaryWarningLight = this.bone.getChild("panels").getChild("p_2").getChild("bone48")
                 .getChild("bone49").getChild("bone50").getChild("sym_lamp").getChild("bone97");
         hailMaryWarningLight.pivotY = tardis.stats().hailMary().get()
@@ -1519,56 +1554,79 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
                 .getChild("bone133").getChild("bone134").getChild("sym_lamp4").getChild("bone145");
         ModelPart hadsAlarmsLightsTwo = this.bone.getChild("panels").getChild("p_6").getChild("bone132")
                 .getChild("bone133").getChild("bone134").getChild("sym_lamp5").getChild("bone141");
-        if (tardis.alarm().isEnabled()) {
-            hadsAlarms.roll = hadsAlarms.roll + 1.75f;
-        } else {
+        float alarmTarget = tardis.alarm().isEnabled() ? 3.0f : 1.5f;
+        this.alarmAngle = MathHelper.lerp(delta, this.alarmAngle, alarmTarget);
+        hadsAlarms.roll = this.alarmAngle - 0.5f;
+        if (!tardis.alarm().isEnabled()) {
             hadsAlarmsLightsOne.pivotY = hadsAlarmsLightsOne.pivotY + 1;
             hadsAlarmsLightsTwo.pivotY = hadsAlarmsLightsTwo.pivotY + 1;
         }
 
         ModelPart security = this.bone.getChild("panels").getChild("p_6").getChild("bone132").getChild("bone133")
                 .getChild("bone134").getChild("s_lever_7").getChild("bone144");
-        security.roll = (tardis.stats().security().get()) ? security.roll + 1.75f : security.roll;
+        float securityTarget = (tardis.stats().security().get()) ? 3.0f : 1.5f;
+        this.securityAngle = MathHelper.lerp(delta, this.securityAngle, securityTarget);
+        security.roll = this.securityAngle - 0.5f;
 
-        // Increment Control Movements
-        ModelPart increment = this.bone.getChild("panels").getChild("p_3").getChild("bone67").getChild("bone68")
-                .getChild("bone69").getChild("s_crank_3").getChild("bone74");
-        increment.yaw = IncrementManager.increment(tardis) >= 10
-                ? IncrementManager.increment(tardis) >= 100
-                        ? IncrementManager.increment(tardis) >= 1000
-                                ? IncrementManager.increment(tardis) >= 10000
-                                        ? increment.yaw + 2f
-                                        : increment.yaw + 1.5f
-                                : increment.yaw + 1f
-                        : increment.yaw + 0.5f
-                : increment.yaw;
+        ModelPart increment = this.bone.getChild("panels").getChild("p_3").getChild("bone67")
+                .getChild("bone68").getChild("bone69").getChild("s_crank_3").getChild("bone74");
+
+        int incrementVal = IncrementManager.increment(tardis);
+        float incrementTarget = 0f;
+
+        if (incrementVal >= 10000) {
+            incrementTarget = 2.0f;
+        } else if (incrementVal >= 1000) {
+            incrementTarget = 1.5f;
+        } else if (incrementVal >= 100) {
+            incrementTarget = 1.0f;
+        } else if (incrementVal >= 10) {
+            incrementTarget = 0.5f;
+        }
+
+        this.incrementAngle = MathHelper.lerp(delta, this.incrementAngle, incrementTarget);
+        increment.yaw = this.incrementAngle - 0.5f;
 
         // Direction Control Movements
         ModelPart direction = this.bone.getChild("panels").getChild("p_2").getChild("bone48").getChild("bone49")
                 .getChild("bone50").getChild("s_crank_1").getChild("bone59");
-        direction.yaw += (0.5f * tardis.travel().destination().getRotation());
+        float directionTargetDegrees = (0.3927f * tardis.travel().destination().getRotation()) * (180f / (float) Math.PI);
+        float currentAngleDegrees = this.directionAngle * (180f / (float) Math.PI);
+        float nextAngleDegrees = MathHelper.lerpAngleDegrees(delta, currentAngleDegrees, directionTargetDegrees);
+
+        this.directionAngle = nextAngleDegrees * ((float) Math.PI / 180f);
+        direction.yaw = this.directionAngle;
 
         // Anti Grav Control Movements
         ModelPart antiGrav = this.bone.getChild("panels").getChild("p_1").getChild("bone38").getChild("bone36")
                 .getChild("bone37").getChild("sl_switch_1").getChild("bone33");
-        antiGrav.pivotX = !tardis.travel().antigravs().get() ? antiGrav.pivotX : antiGrav.pivotX + 1;
+        float antiGravTarget = !tardis.travel().antigravs().get() ? 15.4f : 16.4f;
+        this.antiGravAngle = MathHelper.lerp(delta, this.antiGravAngle, antiGravTarget);
+        antiGrav.pivotX = this.antiGravAngle - 0.5f;
 
         ModelPart shield = this.bone.getChild("panels").getChild("p_2").getChild("bone48").getChild("bone49")
                 .getChild("bone50").getChild("sl_switch_6").getChild("bone57");
-        shield.pivotX = tardis.shields().shielded().get()
+        float shieldTarget = tardis.shields().shielded().get()
                 ? tardis.shields().visuallyShielded().get()
-                        ? shield.pivotX + 0.5f
-                        : shield.pivotX + 1
-                : shield.pivotX;
+                        ? 13.9f
+                        : 13.4f
+                : 14.4f;
+        this.shieldAngle = MathHelper.lerp(delta, this.shieldAngle, shieldTarget);
+        shield.pivotX = this.shieldAngle - 0.5f;
 
         ModelPart siegeProtocol = this.bone.getChild("panels").getChild("p_2").getChild("bone48").getChild("bone49")
                 .getChild("bone50").getChild("sl_switch_5").getChild("bone56");
-        siegeProtocol.pivotX = !tardis.siege().isActive() ? siegeProtocol.pivotX : siegeProtocol.pivotX + 1;
+        float siegeTarget = !tardis.siege().isActive() ? 9.9f : 10.9f;
+        this.siegeAngle = MathHelper.lerp(delta, this.siegeAngle, siegeTarget);
+        siegeProtocol.pivotX = this.siegeAngle - 0.5f;
 
         // Auto Pilot Control Movements
         ModelPart autoPilot = this.bone.getChild("panels").getChild("p_1").getChild("bone38").getChild("bone36")
                 .getChild("bone37").getChild("st_switch").getChild("bone26");
-        autoPilot.yaw = !tardis.travel().autopilot() ? autoPilot.yaw + 1 : autoPilot.yaw;
+        float autopilotTarget = !tardis.travel().autopilot() ? 1 : 0f;
+        this.autopilotAngle = MathHelper.lerp(delta, this.autopilotAngle, autopilotTarget);
+        autoPilot.yaw = this.autopilotAngle - 0.5f;
+
         super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
     }

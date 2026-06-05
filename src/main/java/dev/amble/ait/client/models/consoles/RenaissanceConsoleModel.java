@@ -11,6 +11,7 @@ import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.client.animation.console.renaissance.RenaissanceAnimation;
@@ -1356,74 +1357,94 @@ public class RenaissanceConsoleModel extends SimpleConsoleModel {
         console.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
+    private float throttleAngle = 0f;
+    private float handbrakeAngle = 0f;
+    private float refueler2Angle = 0f;
+    private float doorControlAngle = 0f;
+    private float doorLockAngle = 0f;
+    private float incrementAngle = 0f;
+    private float directionAngle = 0f;
+    private float refuelerAngle = 0f;
+    private float alarmAngle = 0f;
+    private float antiGravAngle = 0f;
+    private float shieldAngle = 0f;
+    private float antiGrav2Angle = 0f;
+
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
+        float delta = 0.1f * MinecraftClient.getInstance().getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
-
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
 
-        // Throttle Control
         ModelPart throttle = this.console.getChild("bone53").getChild("throttle");
-        throttle.pitch = throttle.pitch + ((tardis.travel().speed() / (float) tardis.travel().maxSpeed().get()) * 1.5f);
+        float throttleTarget = (tardis.travel().speed() / (float) tardis.travel().maxSpeed().get()) * 1.5f;
+        this.throttleAngle = MathHelper.lerp(delta, this.throttleAngle, throttleTarget);
+        throttle.pitch = this.throttleAngle;
 
-        // Handbrake Control
         ModelPart handbrake = this.console.getChild("panelf").getChild("handbrake");
-        handbrake.pitch = !tardis.travel().handbrake() ? handbrake.pitch - -0.57f : handbrake.pitch;
+        float handbrakeTarget = !tardis.travel().handbrake() ? 0.57f : 0f;
+        this.handbrakeAngle = MathHelper.lerp(delta, this.handbrakeAngle, handbrakeTarget);
+        handbrake.pitch = this.handbrakeAngle;
 
-        // Anti Gravity Control
         ModelPart antigravs = this.console.getChild("panelf4").getChild("antigravs");
-        antigravs.yaw = tardis.travel().antigravs().get() ? antigravs.yaw + 1f : antigravs.yaw;
-        antigravs.roll = tardis.travel().antigravs().get() ? antigravs.roll + 0.2f : antigravs.roll;
+        float antiGravTargetYaw = tardis.travel().antigravs().get() ? 1.0f : 0f;
+        float antiGravTargetRoll = tardis.travel().antigravs().get() ? 0.2f : 0f;
+        this.antiGravAngle = MathHelper.lerp(delta, this.antiGravAngle, antiGravTargetYaw);
+        this.antiGrav2Angle = MathHelper.lerp(delta, this.antiGrav2Angle, antiGravTargetRoll);
+        antigravs.yaw = this.antiGravAngle;
+        antigravs.roll = this.antiGrav2Angle;
 
-        // Door Locking Mechanism Control
         ModelPart doorlock = this.console.getChild("panelf5").getChild("door_lock");
-        doorlock.pitch = tardis.door().locked() ? doorlock.pitch + 0.5f : doorlock.pitch;
+        float doorLockTarget = tardis.door().locked() ? 0.5f : 0f;
+        this.doorLockAngle = MathHelper.lerp(delta, this.doorLockAngle, doorLockTarget);
+        doorlock.pitch = this.doorLockAngle;
 
-        // Door Control
         ModelPart doorControl = this.console.getChild("panelf5").getChild("doors");
-        doorControl.pitch = tardis.door().isLeftOpen()
-                ? doorControl.pitch - 0.5f
-                : tardis.door().isRightOpen() ? doorControl.pitch - 1.55f : doorControl.pitch;
+        float doorControlTarget = 0f;
+        if (tardis.door().isLeftOpen()) {
+            doorControlTarget = -0.5f;
+        } else if (tardis.door().isRightOpen()) {
+            doorControlTarget = -1.55f;
+        }
+        this.doorControlAngle = MathHelper.lerp(delta, this.doorControlAngle, doorControlTarget);
+        doorControl.pitch = this.doorControlAngle;
 
-        // Alarm Control and Lights
         ModelPart alarms = this.console.getChild("panelf5").getChild("alarms");
-        alarms.yaw = tardis.alarm().isEnabled() ? alarms.yaw + 0.2f : alarms.yaw;
+        float alarmTarget = tardis.alarm().isEnabled() ? 0.2f : 0f;
+        this.alarmAngle = MathHelper.lerp(delta, this.alarmAngle, alarmTarget);
+        alarms.yaw = this.alarmAngle;
 
-        // Shields
         ModelPart shields = this.console.getChild("panelf5").getChild("rwf").getChild("bone56");
-        shields.yaw = tardis.shields().shielded().get() ? shields.yaw + 1.85f : shields.yaw;
+        float shieldTarget = tardis.shields().shielded().get() ? 1.85f : 0f;
+        this.shieldAngle = MathHelper.lerp(delta, this.shieldAngle, shieldTarget);
+        shields.yaw = this.shieldAngle;
 
-        // Refueler
         ModelPart refuel = this.console.getChild("bone53").getChild("refueler");
-        refuel.roll = tardis.isRefueling() ? refuel.roll + 0.6f : refuel.roll;
-        refuel.yaw = tardis.isRefueling() ? refuel.yaw + 0.1f : refuel.yaw;
+        float refuelTargetRoll = tardis.isRefueling() ? 0.6f : 0f;
+        float refuelTargetYaw = tardis.isRefueling() ? 0.1f : 0f;
+        this.refuelerAngle = MathHelper.lerp(delta, this.refuelerAngle, refuelTargetRoll);
+        this.refueler2Angle = MathHelper.lerp(delta, this.refueler2Angle, refuelTargetYaw);
+        refuel.roll = this.refuelerAngle;
+        refuel.yaw = this.refueler2Angle;
 
         ModelPart direction = this.console.getChild("panelf").getChild("rotation");
-        direction.pitch = direction.pitch + tardis.travel().destination().getRotation();
+        float directionTargetDegrees = tardis.travel().destination().getRotation() * 22.5f;
+        float currentDirectionDegrees = (float) Math.toDegrees(this.directionAngle);
+        float nextDirectionDegrees = MathHelper.lerpAngleDegrees(delta, currentDirectionDegrees, directionTargetDegrees);
+        this.directionAngle = (float) Math.toRadians(nextDirectionDegrees);
+        direction.pitch = this.directionAngle;
 
-//
-//        // Ground Search Control
-//        ModelPart groundSearch = this.console.getChild("panel1").getChild("controls").getChild("smallswitch");
-//        groundSearch.pitch = tardis.travel().horizontalSearch().get()
-//                ? groundSearch.pitch + 1f
-//                : groundSearch.pitch - 0.75f; // FIXME use TravelHandler#horizontalSearch/#verticalSearch
-//
-//        // Direction Control
-//        ModelPart direction = this.console.getChild("panel6").getChild("controls2").getChild("smallnob2");
-//        direction.pitch = direction.pitch + tardis.travel().destination().getRotation();
-//
-        // Increment Control
         ModelPart increment = this.console.getChild("panelf5").getChild("increment");
-        increment.pitch = increment.pitch + ((IncrementManager.increment(tardis) / (float) IncrementManager.increment(tardis)) * 0.5f);
-//
-//        ModelPart fastReturnCover = this.console.getChild("panel4").getChild("controls4").getChild("tinyswitchcover");
-//        ModelPart fastReturnLever = this.console.getChild("panel4").getChild("controls4").getChild("tinyswitch");
+        float incrementTarget = IncrementManager.increment(tardis) > 0 ? 0.5f : 0f;
+        this.incrementAngle = MathHelper.lerp(delta, this.incrementAngle, incrementTarget);
+        increment.pitch = this.incrementAngle;
 
         super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
     }
+
 
     @Override
     public Animation getAnimationForState(TravelHandlerBase.State state) {

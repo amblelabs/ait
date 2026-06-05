@@ -28,7 +28,7 @@ public class RiftScannerModel extends Model {
     public static final Identifier TEXTURE = AITMod.id("textures/blockentities/items/rift_scanner.png");
     public static final Identifier EMISSION = AITMod.id("textures/blockentities/items/rift_scanner_emission.png");
 
-    private static final float MULTIPLIER = (float) (360 * Math.PI / 180);
+    private static final float MULTIPLIER = (float) (2 * Math.PI);
 
     private final AngleInterpolator aimedInterpolator = new AngleInterpolator();
     private final AngleInterpolator aimlessInterpolator = new AngleInterpolator();

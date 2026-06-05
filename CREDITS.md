@@ -1,6 +1,6 @@
-Developers: Loqor, Duzo, Theo, Maketendo, AddieDaBaddie, and Saturn
+Developers: Loqor, Theo, Duzo, Maketendo, AddieDaBaddie, Saturn, and more!
 
-Artists: Westankrang, Tright, b2, Ouro
+Artists: WazzakiWanzz, Westankrang, Tright, b2, Ouro
 
 Steam Console Original Design: DocArcane
 

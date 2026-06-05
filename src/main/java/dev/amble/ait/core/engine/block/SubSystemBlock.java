@@ -76,25 +76,33 @@ public abstract class SubSystemBlock extends FluidLinkBlock {
 
         float durability = system.durability();
 
-        if (durability > 10) return;
+        float percentageOf = (durability / DurableSubSystem.MAX_DURABILITY) * 100;
 
-        // smoke and spark particles & sfx when below 10%
-        world.addParticle(ParticleTypes.SMOKE, true, pos.getX() + 0.5f, pos.getY() + 1,
-                pos.getZ() + 0.5f, 0.15, 0, 0);
-        world.addParticle(ParticleTypes.CLOUD, pos.getX() + 0.5f, pos.getY() + 1, pos.getZ() + 0.5f, 0.1,
-                0, 0.05f);
-        world.addParticle(ParticleTypes.LAVA, pos.getX() + 0.5f, pos.getY() + 1, pos.getZ() + 0.5f, 0.1,
-                0, 0.05f);
-        world.addParticle(ParticleTypes.ELECTRIC_SPARK, pos.getX() + 0.5f, pos.getY() + 1, pos.getZ() + 0.5f, 0.1,
-                0, 0.05f);
+        if (percentageOf > 50) return;
 
-        world.addParticle(ParticleTypes.SMOKE, true, pos.getX() + 0.5f, pos.getY() + 1,
-                pos.getZ() + 0.5f, -0.15, 0, 0);
-        world.addParticle(ParticleTypes.CLOUD, pos.getX() + 0.5f, pos.getY() + 1.25, pos.getZ() + 0.5f, -0.1,
-                0, -0.05f);
-        world.addParticle(ParticleTypes.LAVA, pos.getX() + 0.5f, pos.getY() + 1.25, pos.getZ() + 0.5f, -0.1,
-                0, -0.05f);
-        world.addParticle(ParticleTypes.ELECTRIC_SPARK, pos.getX() + 0.5f, pos.getY() + 1.25, pos.getZ() + 0.5f, -0.1,
-                0, -0.05f);
+        for(int i=0;i<3;i++){
+            world.addParticle(ParticleTypes.LAVA, pos.getX() + 0.5f, pos.getY() + 1, pos.getZ() + 0.5f, 0.1,
+                    0, 0.05f);
+            world.addParticle(ParticleTypes.ELECTRIC_SPARK, pos.getX() + 0.5f, pos.getY() + 1, pos.getZ() + 0.5f, 0.1,
+                    0, 0.05f);
+            world.addParticle(ParticleTypes.LAVA, pos.getX() + 0.5f, pos.getY() + 1.25, pos.getZ() + 0.5f, -0.1,
+                    0, -0.05f);
+            world.addParticle(ParticleTypes.ELECTRIC_SPARK, pos.getX() + 0.5f, pos.getY() + 1.25, pos.getZ() + 0.5f, -0.1,
+                    0, -0.05f);
+        }
+
+        if (percentageOf > 25) return;
+
+        for(int i=0;i<3;i++){
+            world.addParticle(ParticleTypes.SMOKE, true, pos.getX() + 0.5f, pos.getY() + 1,
+                    pos.getZ() + 0.5f, 0.15, 0, 0);
+            world.addParticle(ParticleTypes.CLOUD, pos.getX() + 0.5f, pos.getY() + 1, pos.getZ() + 0.5f, 0.1,
+                    0, 0.05f);
+            world.addParticle(ParticleTypes.SMOKE, true, pos.getX() + 0.5f, pos.getY() + 1,
+                    pos.getZ() + 0.5f, -0.15, 0, 0);
+            world.addParticle(ParticleTypes.CLOUD, pos.getX() + 0.5f, pos.getY() + 1.25, pos.getZ() + 0.5f, -0.1,
+                    0, -0.05f);
+        }
+
     }
 }

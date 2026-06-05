@@ -64,25 +64,36 @@ public class StaserBoltEntity extends PersistentProjectileEntity implements ISpa
 
     @Override
     protected void onCollision(HitResult hitResult) {
+        // Handle block collisions and block breaking safely
         if (hitResult.getType() == HitResult.Type.BLOCK && this.getWorld() instanceof ServerWorld world) {
             boolean allowGriefing = world.getServer().getGameRules().getBoolean(AITMod.STASER_GRIEFING);
             BlockHitResult result = (BlockHitResult) hitResult;
             Block block = this.getWorld().getBlockState(result.getBlockPos()).getBlock();
-            if (allowGriefing && block instanceof IceBlock || block instanceof LanternBlock || block instanceof TorchBlock || this.getWorld().getBlockState(result.getBlockPos()).isReplaceable() || block instanceof GlassBlock || block instanceof PaneBlock || block instanceof StainedGlassBlock) {
+            if (allowGriefing && (block instanceof IceBlock || block instanceof LanternBlock || block instanceof TorchBlock || this.getWorld().getBlockState(result.getBlockPos()).isReplaceable() || block instanceof GlassBlock || block instanceof PaneBlock || block instanceof StainedGlassBlock)) {
                 this.getWorld().breakBlock(result.getBlockPos(), false);
             }
             this.getWorld().playSound(null, result.getBlockPos(), AITSounds.STASER, SoundCategory.BLOCKS, 0.25f, 0.5f);
             this.remove(RemovalReason.DISCARDED);
         }
-        if (getOwner() instanceof PlayerEntity player) {
-            if (hitResult.getType() == HitResult.Type.ENTITY && player.getMainHandStack().getItem() == GunItems.CULT_STASER_RIFLE) {                                                                                                                                                             if(DevTeam.isDev(player.getUuid())) { this.setDamage(250d); return; }
-                this.setDamage(10d);
+
+        super.onCollision(hitResult);
+    }
+
+    @Override
+    protected void onEntityHit(EntityHitResult entityHitResult) {
+        if (!this.getWorld().isClient() && this.getOwner() instanceof PlayerEntity player) {
+
+            if (player.getMainHandStack().getItem() == GunItems.CULT_STASER_RIFLE) {
+                if (DevTeam.isDev(player.getUuid())) {
+                    this.setDamage(250d);
+                } else {
+                    this.setDamage(10d);
+                }
             } else {
                 this.setDamage(6.5d);
             }
         }
-
-        super.onCollision(hitResult);
+        super.onEntityHit(entityHitResult);
     }
 
     @Override

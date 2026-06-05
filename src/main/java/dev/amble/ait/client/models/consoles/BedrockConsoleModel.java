@@ -21,11 +21,12 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class BedrockConsoleModel implements ConsoleModel, Identifiable {
     private final BedrockModel model;
     private final ModelPart root;
-	private final HashMap<Identifier, BedrockAnimation> animationCache = new HashMap<>();
+	private final Map<Identifier, BedrockAnimation> animationCache = new HashMap<>();
 
     public BedrockConsoleModel(BedrockModel model) {
         this.model = model;

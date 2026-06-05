@@ -1,7 +1,9 @@
 package dev.amble.ait.api;
 
+import dev.amble.ait.AITMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import org.jetbrains.annotations.Nullable;
@@ -17,6 +19,14 @@ public class ClientWorldEvents {
                     callback.onChange(client, world);
                 }
             });
+
+    static {
+        ClientPlayConnectionEvents.JOIN.register((handler, packetSender, client) -> {
+            client.execute(() -> {
+                ClientWorldEvents.CHANGE_WORLD.invoker().onChange(client, client.world);
+            });
+        });
+    }
 
     @FunctionalInterface
     public interface ChangeWorld {

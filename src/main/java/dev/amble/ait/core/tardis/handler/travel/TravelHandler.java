@@ -272,7 +272,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         boolean hasPower = this.tardis.fuel().hasPower();
 
         BlockState blockState = AITBlocks.EXTERIOR_BLOCK.getDefaultState()
-                .with(ExteriorBlock.ROTATION, (int) DirectionControl.getGeneralizedRotation(globalPos.getRotation()))
+                .with(ExteriorBlock.ROTATION, (int) globalPos.getRotation())
                 .with(ExteriorBlock.LEVEL_4, hasPower ? 4 : 0);
 
         world.setBlockState(pos, blockState);
@@ -469,7 +469,9 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
                 .onLanded(this.tardis, initialPos);
 
         if (result.type() == TardisEvents.Interaction.FAIL) {
-            this.crash();
+            if (!this.isCrashing())
+                this.crash();
+            
             return Optional.of(this.queueFor(State.LANDED));
         }
 
@@ -480,10 +482,15 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
                 : this.tardis.travel().destination().world(this.tardis.travel().previousPosition().getWorld());
 
         this.setState(State.MAT);
+
+        boolean wasWaiting = this.waiting;
         this.waiting = true;
 
-        SafePosSearch.wrapSafe(finalPos, this.vGroundSearch.get(),
-                this.hGroundSearch.get(), this::finishForceRemat);
+        // this method MAY get called twice.
+        if (!wasWaiting) {
+            SafePosSearch.wrapSafe(finalPos, this.vGroundSearch.get(),
+                    this.hGroundSearch.get(), this::finishForceRemat);
+        }
 
         return Optional.of(this.queueFor(State.LANDED));
     }

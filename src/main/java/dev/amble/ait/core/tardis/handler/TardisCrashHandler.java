@@ -1,6 +1,10 @@
 package dev.amble.ait.core.tardis.handler;
 
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.util.math.BlockPos;
 import org.joml.Vector3f;
 
 import net.minecraft.entity.EquipmentSlot;
@@ -56,6 +60,7 @@ public class TardisCrashHandler extends KeyedTardisComponent implements TardisTi
         if (tardis.isGrowth()) return;
         State state = this.state.get();
         int repairTicks = this.repairTicks.get();
+        TardisServerWorld tardisWorld = this.tardis().asServer().world();
 
         if (repairTicks > 0) {
             repairTicks = tardis.isRefueling() ? repairTicks - 10 : repairTicks - 1;
@@ -69,8 +74,9 @@ public class TardisCrashHandler extends KeyedTardisComponent implements TardisTi
             return;
         }
 
-        if (state == State.TOXIC && tardis.sonic().getExteriorSonic() == null)
+        if (state == State.TOXIC && tardis.sonic().getExteriorSonic() == null) {
             this.tardis().alarm().enable();
+        }
 
         if (repairTicks < UNSTABLE_TICK_START_THRESHOLD && state != State.UNSTABLE) {
             state = State.UNSTABLE;
@@ -100,7 +106,7 @@ public class TardisCrashHandler extends KeyedTardisComponent implements TardisTi
 
         int loyaltySubAmount = AITMod.RANDOM.nextInt(10, 25);
 
-        for (ServerPlayerEntity serverPlayerEntity : tardis.asServer().world().getPlayers()) {
+        for (ServerPlayerEntity serverPlayerEntity : tardisWorld.getPlayers()) {
             ItemStack stack = serverPlayerEntity.getEquippedStack(EquipmentSlot.HEAD);
 
             if (stack.isIn(AITTags.Items.FULL_RESPIRATORS) || stack.isIn(AITTags.Items.HALF_RESPIRATORS))

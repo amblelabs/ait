@@ -83,11 +83,16 @@ public class WorldUtil {
     }
 
     private static void generateWorldCache(MinecraftServer server) {
-        generateWorldCache(server, AITMod.CONFIG.projectorBlacklist, PROJECTOR_WORLDS);
-        generateWorldCache(server, AITMod.CONFIG.travelBlacklist, TRAVEL_WORLDS);
+        for (ServerWorld world : server.getWorlds()) {
+            if (world instanceof AITWorldOptions options)
+                options.ait$setCanRiftsSpawn(false);
+        }
 
-        generateWorldCache(server, AITMod.CONFIG.riftSpawnBlacklist, RIFT_SPAWN_WORLDS);
-        generateWorldCache(server, AITMod.CONFIG.riftDropBlacklist, RIFT_DROP_WORLDS);
+        generateWorldCache(server, "environment projector", AITMod.CONFIG.projectorBlacklist, AITMod.CONFIG.projectorWhitelist, PROJECTOR_WORLDS, false);
+        generateWorldCache(server, "travel", AITMod.CONFIG.travelBlacklist, AITMod.CONFIG.travelWhitelist, TRAVEL_WORLDS, true);
+
+        generateWorldCache(server, "rift spawn", AITMod.CONFIG.riftSpawnBlacklist, AITMod.CONFIG.riftSpawnWhitelist, RIFT_SPAWN_WORLDS, true);
+        generateWorldCache(server, "rift drop", AITMod.CONFIG.riftDropBlacklist, AITMod.CONFIG.riftDropWhitelist, RIFT_DROP_WORLDS, true);
 
         for (ServerWorld riftSpawnable : RIFT_SPAWN_WORLDS) {
             if (riftSpawnable instanceof AITWorldOptions options)
@@ -95,19 +100,63 @@ public class WorldUtil {
         }
     }
 
-    private static void generateWorldCache(MinecraftServer server, List<String> raw, Collection<ServerWorld> worlds) {
+    private static void generateWorldCache(MinecraftServer server, String cacheName, List<String> blacklist, List<String> whitelist,
+                                           Collection<ServerWorld> worlds, boolean allowTardisWorlds) {
         worlds.clear();
 
-        Set<Identifier> ids = new HashSet<>();
-        boolean blocksTardis = false;
+        Set<Identifier> whitelistIds = new HashSet<>();
+        boolean whitelistHasTardisFlag = collectWorldIds(whitelist, whitelistIds);
+        boolean useWhitelist = whitelistHasTardisFlag || !whitelistIds.isEmpty();
 
-        for (String rawId : raw) {
-            if (rawId.equals("ait-tardis")) {
-                blocksTardis = true;
+        Set<Identifier> blacklistIds = new HashSet<>();
+        boolean blacklistHasTardisFlag = collectWorldIds(blacklist, blacklistIds);
+
+        if (useWhitelist && (blacklistHasTardisFlag || !blacklistIds.isEmpty()))
+            AITMod.LOGGER.warn("Both {} blacklist and whitelist are populated - whitelist takes priority. Clear one to suppress this warning.", cacheName);
+
+        Set<Identifier> activeIds = useWhitelist ? whitelistIds : blacklistIds;
+        boolean hasTardisFlag = useWhitelist ? whitelistHasTardisFlag : blacklistHasTardisFlag;
+
+        for (ServerWorld world : server.getWorlds()) {
+            boolean isTardis = TardisServerWorld.isTardisDimension(world);
+
+            if (!allowTardisWorlds && isTardis)
+                continue;
+
+            Identifier worldId = world.getRegistryKey().getValue();
+            boolean matches = idsMatch(activeIds, hasTardisFlag, worldId, isTardis);
+
+            if (useWhitelist) {
+                if (matches)
+                    worlds.add(world);
+            } else {
+                if (!matches)
+                    worlds.add(world);
+            }
+        }
+
+        if (useWhitelist && worlds.isEmpty())
+            AITMod.LOGGER.warn("The {} whitelist is configured but does not resolve to any available worlds.", cacheName);
+    }
+
+    private static boolean collectWorldIds(List<String> rawIds, Set<Identifier> ids) {
+        boolean hasTardisFlag = false;
+
+        for (String rawId : rawIds) {
+            if (rawId == null)
+                continue;
+
+            String cleaned = rawId.trim();
+
+            if (cleaned.isEmpty())
+                continue;
+
+            if (cleaned.equals("ait-tardis")) {
+                hasTardisFlag = true;
                 continue;
             }
 
-            Identifier id = Identifier.tryParse(rawId);
+            Identifier id = Identifier.tryParse(cleaned);
 
             if (id == null)
                 continue;
@@ -115,15 +164,11 @@ public class WorldUtil {
             ids.add(id);
         }
 
-        for (ServerWorld world : server.getWorlds()) {
-            if (blocksTardis && TardisServerWorld.isTardisDimension(world))
-                continue;
+        return hasTardisFlag;
+    }
 
-            Identifier worldId = world.getRegistryKey().getValue();
-
-            if (!ids.contains(worldId))
-                worlds.add(world);
-        }
+    private static boolean idsMatch(Set<Identifier> ids, boolean hasTardisFlag, Identifier worldId, boolean isTardis) {
+        return (hasTardisFlag && isTardis) || ids.contains(worldId);
     }
 
     private static void clearWorldCache(MinecraftServer server) {

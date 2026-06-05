@@ -2,6 +2,7 @@ package dev.amble.ait.core.item.sonic;
 
 import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.BlockStateParticleEffect;
@@ -60,6 +61,16 @@ public class OverloadSonicMode extends SonicMode {
             this.overloadBlock(blockHit.getBlockPos(), world, user, ticks, blockHit);
         }
 
+        // Entity raycast for creeper ignition and player-to-player transfer
+        HitResult entityHitResult = SonicMode.getHitResult(user);
+
+        // Ignite creepers when targeted
+        if (entityHitResult instanceof EntityHitResult entityHit
+                && entityHit.getEntity() instanceof CreeperEntity creeper
+                && canLight(ticks)) {
+            creeper.ignite();
+        }
+
         if (!(user instanceof PlayerEntity player)) return;
 
         ItemStack main = player.getMainHandStack();
@@ -90,7 +101,7 @@ public class OverloadSonicMode extends SonicMode {
         }
 
         // Overload transfer between two players via targeting
-        if (hitResult instanceof EntityHitResult entityHit &&
+        if (entityHitResult instanceof EntityHitResult entityHit &&
                 entityHit.getEntity() instanceof PlayerEntity other) {
 
             ItemStack userStack = player.getMainHandStack();

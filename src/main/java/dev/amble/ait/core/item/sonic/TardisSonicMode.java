@@ -30,7 +30,7 @@ public class TardisSonicMode extends SonicMode {
 
     @Override
     public void tick(ItemStack stack, World world, LivingEntity user, int ticks, int ticksLeft) {
-        if (!(world instanceof ServerWorld serverWorld) || !(user instanceof PlayerEntity player) || ticks % 10 != 0)
+        if (!(world instanceof ServerWorld) || !(user instanceof PlayerEntity player) || ticks % 10 != 0)
             return;
 
         this.process(stack, world, player);
