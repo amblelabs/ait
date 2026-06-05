@@ -63,8 +63,6 @@ public class ControlTypes {
 
     public Control getControl() {
         if (this.control == null) {
-            // print stacktrace
-            Thread.dumpStack();
             AITMod.LOGGER.error("ControlTypes has null control! Returning fallback control.");
             return ControlRegistry.fallback();
         }

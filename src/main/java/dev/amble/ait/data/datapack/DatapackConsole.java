@@ -211,7 +211,20 @@ public class DatapackConsole extends ConsoleVariantSchema implements TravelAnima
             AITMod.LOGGER.error("Error decoding datapack console variant: {}", err);
         });
 
-        return created.get();
+        DatapackConsole console = created.get();
+
+        // legacy support: older datapacks set top-level "scale"/"offset" instead of a "transformations" object
+        if (console != null && console.transformations.equals(Transformations.MISSING) && (json.has("scale") || json.has("offset"))) {
+            Vec3d scale = json.has("scale")
+                    ? Vec3d.CODEC.parse(JsonOps.INSTANCE, json.get("scale")).result().orElse(Transformations.DEFAULT.scale())
+                    : Transformations.DEFAULT.scale();
+            Vec3d offset = json.has("offset")
+                    ? Vec3d.CODEC.parse(JsonOps.INSTANCE, json.get("offset")).result().orElse(Transformations.DEFAULT.offset())
+                    : Transformations.DEFAULT.offset();
+            console.transformations = new Transformations(offset, scale, Transformations.DEFAULT.rotation());
+        }
+
+        return console;
     }
 
     public static class SimpleType extends ConsoleTypeSchema {

@@ -51,6 +51,9 @@ public class IncrementControl extends Control {
 
 	@Override
 	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleControlEntity entity) {
-		return IncrementManager.getIncrementPosition(tardis) / (float) IncrementManager.getIncrementSize();
+		int size = IncrementManager.getIncrementSize();
+		if (size <= 1) return 0.0f;
+
+		return IncrementManager.getIncrementPosition(tardis) / (float) (size - 1);
 	}
 }

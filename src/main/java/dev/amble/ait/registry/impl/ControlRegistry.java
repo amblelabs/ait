@@ -38,7 +38,12 @@ public class ControlRegistry {
     }
 
 	public static Control fallback() {
-		return REGISTRY.get(0);
+		Control fallback = fromId(AITMod.id("throttle")).orElse(REGISTRY.get(0));
+
+		if (fallback == null)
+			throw new IllegalStateException("ControlRegistry is empty; cannot provide a fallback control");
+
+		return fallback;
 	}
 
     public static void init() {

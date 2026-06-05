@@ -32,3 +32,6 @@ src/main/generated
 
 # nix
 .direnv
+
+# claude
+.claude/

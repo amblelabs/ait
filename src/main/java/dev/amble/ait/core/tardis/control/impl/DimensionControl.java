@@ -87,9 +87,9 @@ public class DimensionControl extends Control {
 	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleControlEntity entity) {
 		// return selected dim / all dims
 		CachedDirectedGlobalPos dest = tardis.travel().destination();
-		int index = WorldUtil.travelWorldIndex(dest.getWorld());
+		int index = Math.max(0, WorldUtil.travelWorldIndex(dest.getWorld()));
 		int total = WorldUtil.getTravelWorlds().size();
-		if (total == 0) return 0.0f;
-		return (float) index / (float) total;
+		if (total <= 1) return 0.0f;
+		return (float) index / (float) (total - 1);
 	}
 }
