@@ -67,6 +67,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
 	private static final int CLIENT_CACHE_REFRESH_INTERVAL = 2400; // Lazy refresh
 	// Client-side cache for control entities
 	private List<ConsoleControlEntity> cachedClientControls = null;
+	private int lastClientCacheRefreshAge = -CLIENT_CACHE_REFRESH_INTERVAL;
 
     private ConsoleTypeSchema type;
     private ConsoleVariantSchema variant;
@@ -308,8 +309,9 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
 
 		// On client, use cached list that refreshes periodically
 		if (this.world.isClient()) {
-			if (cachedClientControls == null || this.age % CLIENT_CACHE_REFRESH_INTERVAL == 0) {
+			if (cachedClientControls == null || this.age - lastClientCacheRefreshAge >= CLIENT_CACHE_REFRESH_INTERVAL) {
 				cachedClientControls = findControlEntitiesInWorld();
+				lastClientCacheRefreshAge = this.age;
 			}
 			return cachedClientControls;
 		}
