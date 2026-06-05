@@ -1385,16 +1385,16 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         // Hums
         provider.addTranslation("screen.ait.interior.settings.hum", "HUMS");
-        provider.addTranslation("ait.hum.beacon", "Beacon");
-        provider.addTranslation("ait.hum.copper", "Copper");
-        provider.addTranslation("ait.hum.eight", "Eight");
-        provider.addTranslation("ait.hum.exile", "Exile");
-        provider.addTranslation("ait.hum.prime", "Prime");
-        provider.addTranslation("ait.hum.renaissance", "Renaissance");
-        provider.addTranslation("ait.hum.toyota", "Toyota");
-        provider.addTranslation("ait.hum.coral", "Coral");
-        provider.addTranslation("ait.hum.christmas", "Christmas");
-        provider.addTranslation("ait.hum.off", "Off");
+        provider.addTranslation("hum.ait.beacon", "Beacon");
+        provider.addTranslation("hum.ait.copper", "Copper");
+        provider.addTranslation("hum.ait.eight", "Eight");
+        provider.addTranslation("hum.ait.exile", "Exile");
+        provider.addTranslation("hum.ait.prime", "Prime");
+        provider.addTranslation("hum.ait.renaissance", "Renaissance");
+        provider.addTranslation("hum.ait.toyota", "Toyota");
+        provider.addTranslation("hum.ait.coral", "Coral");
+        provider.addTranslation("hum.ait.christmas", "Christmas");
+        provider.addTranslation("hum.ait.off", "Off");
 
         // Astral Map
         provider.addTranslation("screen.ait.astral_map.show_structures", "Structures");
