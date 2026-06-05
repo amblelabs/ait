@@ -1476,7 +1476,7 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
         powerControl.roll = this.powerAngle - 0.5f;
         float rotorTarget = !tardis.fuel().hasPower() ? rotor.pivotY + 5 : -19.5f;
         this.rotorAngle = MathHelper.lerp(delta, this.rotorAngle, rotorTarget);
-        rotor.pivotY = this.rotorAngle;
+        if (tardis.travel().isLanded()) rotor.pivotY = this.rotorAngle;
 
         // Door Control Movements
         ModelPart doorControl = this.bone.getChild("panels").getChild("p_5").getChild("bone112").getChild("bone113")

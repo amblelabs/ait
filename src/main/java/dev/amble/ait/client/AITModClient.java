@@ -419,6 +419,7 @@ public class AITModClient implements ClientModInitializer {
                 FoodMachineRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ASTRAL_MAP, AstralMapRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.POTTED_SONIC_SCREWDRIVER_BLOCK_ENTITY_TYPE, PottedSonicScrewdriverRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.RIFT_RIPPER_BLOCK_ENTITY_TYPE, RiftRipperRenderer::new);
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             BlockEntityRendererFactories.register(AITBlockEntityTypes.SNOW_GLOBE_BLOCK_ENTITY_TYPE,
                     SnowGlobeRenderer::new);
@@ -636,6 +637,8 @@ public class AITModClient implements ClientModInitializer {
             stack.push();
             stack.translate(pos.getX() - context.camera().getPos().getX(),
                     pos.getY() - context.camera().getPos().getY(), pos.getZ() - context.camera().getPos().getZ());
+            stack.translate(0, 0.5, 0);
+            stack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(5f * (MinecraftClient.getInstance().player.age + MinecraftClient.getInstance().getTickDelta())));
             stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(rift.getPitch()));
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rift.getBodyYaw()));
             stack.translate(0, 1f, 0);

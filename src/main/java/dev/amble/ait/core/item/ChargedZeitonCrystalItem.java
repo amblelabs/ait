@@ -88,9 +88,9 @@ public class ChargedZeitonCrystalItem extends Item implements ArtronHolderItem {
                         Text.of(" " + this.getCurrentFuel(stack) + "/" + this.getMaxFuel(stack))), true);
                 return ActionResult.PASS;
             }
-            Block block = AITBlocks.LODESTONE;
+            Block block = AITBlocks.RIFT_RIPPER;
             context.getWorld().setBlockState(context.getBlockPos(), block.getDefaultState());
-            AITBlocks.LODESTONE.onPlaced(player.getWorld(), context.getBlockPos(), block.getDefaultState(), player, stack);
+            AITBlocks.RIFT_RIPPER.onPlaced(player.getWorld(), context.getBlockPos(), block.getDefaultState(), player, stack);
             if (!player.isCreative()) context.getStack().decrement(1);
             return ActionResult.SUCCESS;
         }
