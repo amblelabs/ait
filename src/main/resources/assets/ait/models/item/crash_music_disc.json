@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/template_music_disc",
   "textures": {
-    "layer0": "ait:item/drifting_music_disc"
+    "layer0": "ait:item/crash_music_disc"
   }
 }

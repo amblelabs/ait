@@ -894,7 +894,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItems.SIEGE_ITEM, "TARDIS");
         provider.addTranslation(AITItems.TWO_THOUSAND_MUSIC_DISC, "Music Disc");
         provider.addTranslation(AITItems.WONDERFUL_TIME_IN_SPACE_MUSIC_DISC, "Music Disc");
-        provider.addTranslation(AITItems.TWO_THOUSAND_MUSIC_DISC.getTranslationKey() + ".desc", "dendoji - Two Thousand");
+        provider.addTranslation(AITItems.TWO_THOUSAND_MUSIC_DISC.getTranslationKey() + ".desc", "lucien - Two Thousand");
         provider.addTranslation(AITItems.WONDERFUL_TIME_IN_SPACE_MUSIC_DISC.getTranslationKey() + ".desc", "Dian - Wonderful Time in Space");
         provider.addTranslation(AITItems.EARTH_MUSIC_DISC, "Music Disc");
         provider.addTranslation(AITItems.EARTH_MUSIC_DISC.getTranslationKey() + ".desc", "Nitrogenez - Earth");
