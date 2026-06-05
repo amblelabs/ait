@@ -217,6 +217,10 @@ public class AITItems extends ItemContainer {
     public static final Item EARTH_MUSIC_DISC = new MusicDiscItem(1, AITSounds.EARTH_MUSIC,
             new AItemSettings().maxCount(1).rarity(Rarity.RARE), 315);
 
+    @NoEnglish
+    public static final Item CRASH_MUSIC_DISC = new MusicDiscItem(1, AITSounds.ARPALARM,
+            new AItemSettings().maxCount(1).rarity(Rarity.RARE), 69);
+
 
     // Block controls
 
@@ -267,7 +271,7 @@ public class AITItems extends ItemContainer {
             entries.addAfter(Items.MUSIC_DISC_RELIC, TWO_THOUSAND_MUSIC_DISC);
             entries.addAfter(TWO_THOUSAND_MUSIC_DISC, WONDERFUL_TIME_IN_SPACE_MUSIC_DISC);
             entries.addAfter(WONDERFUL_TIME_IN_SPACE_MUSIC_DISC, EARTH_MUSIC_DISC);
-            entries.addAfter(EARTH_MUSIC_DISC, VENUS_MUSIC_DISC, GOOD_MAN_MUSIC_DISC, AIT_THEME_MUSIC_DISC);
+            entries.addAfter(EARTH_MUSIC_DISC, VENUS_MUSIC_DISC, GOOD_MAN_MUSIC_DISC, AIT_THEME_MUSIC_DISC, CRASH_MUSIC_DISC);
         });
 
 
