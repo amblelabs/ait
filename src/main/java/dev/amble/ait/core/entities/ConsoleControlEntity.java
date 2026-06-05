@@ -158,9 +158,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
 		    return;
 	    }
 	    DataResult<NbtElement> result = ControlTypes.CODEC.encodeStart(NbtOps.INSTANCE, this.controlType);
-	    NbtElement nbtResult = result.resultOrPartial(AITMod.LOGGER::error).orElseThrow();
-
-	    nbt.put("controlType", nbtResult);
+	    result.resultOrPartial(AITMod.LOGGER::error).ifPresent(nbtResult -> nbt.put("controlType", nbtResult));
     }
 
     @Override

@@ -114,6 +114,10 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
             }
 
 	        private ClientConsoleVariantSchema getSameParent(Predicate<ClientConsoleVariantSchema> predicate) {
+		        ConsoleVariantSchema thisParent = this.parent();
+		        if (thisParent == null)
+			        return null;
+
 		        for (ClientConsoleVariantSchema schema : ClientConsoleVariantRegistry.getInstance().toList()) {
 			        if (schema == this)
 				        continue;
@@ -121,7 +125,7 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
 			        if (schema.parent() == null)
 				        continue;
 
-			        if (schema.parent().id().equals(this.parent().id()) && predicate.test(schema))
+			        if (schema.parent().id().equals(thisParent.id()) && predicate.test(schema))
 				        return schema;
 		        }
 

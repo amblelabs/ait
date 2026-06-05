@@ -85,23 +85,21 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
 		anim.apply(this.getPart(), console.ANIM_STATE, console.getAge(), 1F, null);
     }
 
-	private static @Nullable BedrockAnimation findAnimationById(ConsoleControlEntity entity) {
-		ControlTypes type = entity.getControlType().orElse(null);
-		if (type == null) return null;
-
-		BedrockAnimationReference ref = type.getAnimation().orElse(null);
-		if (ref == null) return null;
-
-		return ref.get().orElse(null);
-	}
-
 	private void applyControlAnimation(ConsoleControlEntity entity) {
 		if (entity.tardis().isEmpty()) return;
 
 		Control control = entity.getControl();
 		if (control == null) return;
 
-		BedrockAnimation anim = this.animationCache.computeIfAbsent(entity.getControl().id(), k -> findAnimationById(entity));
+		ControlTypes type = entity.getControlType().orElse(null);
+		if (type == null) return;
+
+		BedrockAnimationReference ref = type.getAnimation().orElse(null);
+		if (ref == null) return;
+
+		// cache by the animation reference id, not the control id, so a control mapped to different
+		// animations across consoles/variants doesn't reuse the wrong cached animation
+		BedrockAnimation anim = this.animationCache.computeIfAbsent(ref.id(), k -> ref.get().orElse(null));
 		if (anim == null) return;
 
 		TargetedAnimationState state = entity.getAnimationState();
