@@ -97,3 +97,6 @@
 - fix: spacesuits now need the whole suit to function | by [@Loqor](https://github.com/Loqor) ([#2032](https://github.com/amblelabs/ait/pull/2032))
 - add: new disc for crash music | by [@vmbbi](https://github.com/vmbbi) ([#2031](https://github.com/amblelabs/ait/pull/2031))
 - tweak: changed logo size in home screen | by [@vmbbi](https://github.com/vmbbi) ([#2031](https://github.com/amblelabs/ait/pull/2031))
+- fix: models for all discs | by [@Loqor](https://github.com/Loqor) ([#2033](https://github.com/amblelabs/ait/pull/2033))
+- chore: dendoji -> lucien | by [@Loqor](https://github.com/Loqor) ([#2033](https://github.com/amblelabs/ait/pull/2033))
+- chore: update arpalarm sound | by [@Loqor](https://github.com/Loqor) ([#2033](https://github.com/amblelabs/ait/pull/2033))
