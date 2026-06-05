@@ -182,7 +182,7 @@ public class AITBlocks extends BlockContainer {
 
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     @NoEnglish
-    public static final Block GENERIC_SUBSYSTEM = new GenericSubSystemBlock(ABlockSettings.create()
+    public static final Block GENERIC_SUBSYSTEM = new GenericSubSystemBlock(ABlockSettings.create().lightLevel(5)
             .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR))
             .requiresTool().instrument(Instrument.COW_BELL).strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
 
@@ -259,7 +259,14 @@ public class AITBlocks extends BlockContainer {
             .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).nonOpaque()
             .instrument(Instrument.GUITAR).strength(1.5F, 6.0F));
 
+    public static final Block RIFT_RIPPER = new RiftRipperBlock(ABlockSettings.create().itemSettings(
+            new AItemSettings().group(AITItemGroups.MAIN)).lightLevel(7)
+    );
 
+    @NoBlockItem
+    @NoBlockDrop
+    @NoEnglish
+    public static final Block POTTED_SONIC_SCREWDRIVER = new PottedSonicScrewdriverBlock(FabricBlockSettings.copyOf(Blocks.POTTED_POPPY));
     public static List<Block> get() {
         List<Block> list = new ArrayList<>();
 

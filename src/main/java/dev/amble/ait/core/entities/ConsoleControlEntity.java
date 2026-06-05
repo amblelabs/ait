@@ -11,6 +11,7 @@ import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.entities.base.LinkableDummyEntity;
+import dev.amble.ait.core.item.RepairToolItem;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.item.control.ControlBlockItem;
 import dev.amble.ait.core.item.sonic.SonicMode;
@@ -18,6 +19,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.control.ControlTypes;
+import dev.amble.ait.core.tardis.control.impl.HammerHangerControl;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.registry.impl.ControlRegistry;
 import dev.amble.lib.animation.AnimatedEntity;
@@ -79,17 +81,14 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
             TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> ON_DELAY = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Float> DURABILITY = DataTracker.registerData(ConsoleControlEntity.class,
-            TrackedDataHandlerRegistry.FLOAT);
-    private static final TrackedData<Boolean> STICKY = DataTracker.registerData(ConsoleControlEntity.class,
-            TrackedDataHandlerRegistry.BOOLEAN);
+
     private static final TrackedData<BlockPos> CONSOLE_BLOCK_POS = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.BLOCK_POS);
 	private static final TrackedData<String> CONTROL_ID = DataTracker.registerData(ConsoleControlEntity.class,
 			TrackedDataHandlerRegistry.STRING);
 	private static final TrackedData<String> ANIMATION_ID = DataTracker.registerData(ConsoleControlEntity.class,
 			TrackedDataHandlerRegistry.STRING);
-	private static final float MAX_DURABILITY = 1.0f;
+	public static final float MAX_DURABILITY = 1.0f;
 
 	private Control control;
 	private ControlTypes controlType;
@@ -131,8 +130,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
         this.dataTracker.startTracking(SEQUENCE_LENGTH, 0);
         this.dataTracker.startTracking(WAS_SEQUENCED, false);
         this.dataTracker.startTracking(ON_DELAY, false);
-        this.dataTracker.startTracking(DURABILITY, MAX_DURABILITY);
-        this.dataTracker.startTracking(STICKY, false);
         this.dataTracker.startTracking(CONSOLE_BLOCK_POS, BlockPos.ORIGIN);
 	    this.dataTracker.startTracking(CONTROL_ID, "");
 	    this.dataTracker.startTracking(ANIMATION_ID, "");
@@ -419,11 +416,13 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
     }
 
     public float getDurability() {
-        return this.dataTracker.get(DURABILITY);
+        if (this.getControl() == null || this.getConsole() == null) return MAX_DURABILITY;
+        return this.getConsole().controlStateMap.getOrDefault(this.getControl(), new Control.ControlState()).damage();//this.dataTracker.get(DURABILITY);
     }
 
     public boolean isSticky() {
-        return this.dataTracker.get(STICKY);
+        if (this.getControl() == null || this.getConsole() == null) return false;
+        return this.getConsole().controlStateMap.getOrDefault(this.getControl(), new Control.ControlState()).sticky();//this.dataTracker.get(DURABILITY);
     }
 
     public DurabilityStates getDurabilityState(float durability) {
@@ -431,11 +430,19 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
     }
 
     public void setDurability(float durability) {
-        this.dataTracker.set(DURABILITY, durability);
+        ConsoleBlockEntity console = this.getConsole();
+        if (console != null && this.getControl() != null) {
+            console.updateDurability(this.getControl(), durability);
+            console.markDirty();
+        }
     }
 
     public void setSticky(boolean sticky) {
-        this.dataTracker.set(STICKY, sticky);
+        ConsoleBlockEntity console = this.getConsole();
+        if (console != null && this.getControl() != null) {
+            console.updateStickiness(this.getControl(), sticky);
+            console.markDirty();
+        }
     }
 
     public void addDurability(float durability) {
@@ -450,7 +457,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
         if (isSticky()) {
             if (player.getMainHandStack().isOf(Items.SHEARS)) {
                 this.playSound(SoundEvents.ENTITY_SHEEP_SHEAR, 1, 1);
-                this.dataTracker.set(STICKY, false);
+                this.setSticky(false);
                 return true;
             }
 
@@ -463,8 +470,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
 
             return true;
         } else if (player.getMainHandStack().isOf(Items.SLIME_BALL)) {
-            this.playSound(SoundEvents.BLOCK_SLIME_BLOCK_BREAK, 1, 1);
-            this.dataTracker.set(STICKY, true);
+            this.playSound(SoundEvents.BLOCK_SLIME_BLOCK_PLACE, 1, 1);
+            this.setSticky(true);
             return true;
         }
 
@@ -484,8 +491,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
 
         Tardis tardis = this.tardis().get();
 
-        if (player.getMainHandStack().isOf(AITItems.SONIC_SCREWDRIVER) && this.getDurability() < 1.0f
-                && SonicItem.mode(player.getMainHandStack()) == SonicMode.Modes.TARDIS) {
+        ItemStack stack = player.getMainHandStack();
+        if (((stack.isOf(AITItems.SONIC_SCREWDRIVER) && SonicItem.mode(stack) == SonicMode.Modes.TARDIS) || stack.getItem() instanceof RepairToolItem) && this.getDurability() < 1.0f) {
             Vec3d pos = this.getPos();
             this.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
             ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.WAX_ON,
@@ -517,9 +524,9 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
 
         DurabilityStates state = this.getDurabilityState(this.getDurability());
 
-        if (state == DurabilityStates.FULL) {
+        if (state == DurabilityStates.FULL && !(this.getControl() instanceof HammerHangerControl)) {
             if (hasMallet)
-                this.subtractDurability(0.1f);
+                this.subtractDurability(0.4f);
         }
 
         if (state == DurabilityStates.JAMMED) {
@@ -553,7 +560,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
 
         if (result == Control.Result.SEQUENCE) {
             // THIS IS LITERALLY A FEATURE DON'T REMOVE UNLESS I SAY SO DAMMIT - Loqor
-            if (random.nextBetween(0, 10) == 5) {
+            if (random.nextBetween(0, 8) == 5) {
                 int subtractCauseICan = random.nextBetween(0, 200);
                 this.subtractDurability(subtractCauseICan / 200f);
             }
@@ -614,7 +621,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
         this.calculateDimensions();
     }
 
-    public void setControlData(ConsoleTypeSchema consoleType, ControlTypes type, BlockPos consoleBlockPosition) {
+    public void setControlData(ConsoleTypeSchema consoleType, ControlTypes type, BlockPos consoleBlockPosition, float durability, boolean sticky) {
         this.setConsolePos(consoleBlockPosition);
         this.control = type.getControl();
 	    this.controlType = type;
@@ -631,6 +638,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
             this.setControlWidth(type.getScale().width);
             this.setControlHeight(type.getScale().height);
             this.setOffset(type.getOffset());
+            this.setDurability(durability);
+            this.setSticky(sticky);
         }
     }
 

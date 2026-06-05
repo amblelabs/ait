@@ -39,12 +39,6 @@ public class PortalVisualizerUtil {
 
     public static final Identifier OPEN_VISUALIZER = AITMod.id("ip/visualizer/open");
     public static final Identifier CLOSE_VISUALIZER = AITMod.id("ip/visualizer/close");
-
-    /**
-     * The Framebuffer that the GUI portal is going to render onto
-     */
-    @Environment(EnvType.CLIENT)
-    private static Framebuffer frameBuffer;
     
     private static final WeakHashMap<ServerPlayerEntity, ChunkLoader>
         chunkLoaderMap = new WeakHashMap<>();
@@ -59,16 +53,7 @@ public class PortalVisualizerUtil {
 
     @Environment(EnvType.CLIENT)
     public static void clientInit() {
-        ClientPlayNetworking.registerGlobalReceiver(OPEN_VISUALIZER, (client, handler, buf, sender) -> {
-            RegistryKey<World> dim = buf.readRegistryKey(RegistryKeys.WORLD);
-            BlockPos pos = buf.readBlockPos();
-
-            client.execute(() -> {
-                if (frameBuffer == null) frameBuffer = new SimpleFramebuffer(2, 2, true, true);
-
-                client.setScreen(new GuiPortalScreen(dim, pos.toCenterPos()));
-            });
-        });
+        GuiPortalScreen.clientInit();
     }
     
     private static void removeChunkLoaderFor(ServerPlayerEntity player) {
@@ -114,6 +99,24 @@ public class PortalVisualizerUtil {
         private final RegistryKey<World> viewingDimension;
         
         private final Vec3d viewingPosition;
+
+        /**
+         * The Framebuffer that the GUI portal is going to render onto
+         */
+        private static Framebuffer frameBuffer;
+
+        public static void clientInit() {
+            ClientPlayNetworking.registerGlobalReceiver(OPEN_VISUALIZER, (client, handler, buf, sender) -> {
+                RegistryKey<World> dim = buf.readRegistryKey(RegistryKeys.WORLD);
+                BlockPos pos = buf.readBlockPos();
+    
+                client.execute(() -> {
+                    if (frameBuffer == null)
+                        frameBuffer = new SimpleFramebuffer(2, 2, true, true);
+                    client.setScreen(new GuiPortalScreen(dim, pos.toCenterPos()));
+                });
+            });
+        }
         
         public GuiPortalScreen(RegistryKey<World> viewingDimension, Vec3d viewingPosition) {
             super(Text.translatable("screen.ait.visualizer.title"));

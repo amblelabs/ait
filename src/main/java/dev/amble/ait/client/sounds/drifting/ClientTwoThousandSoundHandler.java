@@ -12,34 +12,35 @@ import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITSounds;
 
 // Client only class. One of the last surviving remnants of Duzocode.
-public class ClientDriftingSoundHandler extends SoundHandler {
+// remove all instances of the word "drifting".
+public class ClientTwoThousandSoundHandler extends SoundHandler {
 
-    public static SoundInstance DRIFTING;
+    public static SoundInstance TWO_THOUSAND;
     private long counter;
 
     public SoundInstance getDrifting() {
-        if (DRIFTING == null)
-            DRIFTING = createAlarmSound();
+        if (TWO_THOUSAND == null)
+            TWO_THOUSAND = createTwoThousandSound();
 
-        return DRIFTING;
+        return TWO_THOUSAND;
     }
 
-    private SoundInstance createAlarmSound() {
-        return new PlayerFollowingSound(AITSounds.DRIFTING_MUSIC, SoundCategory.MUSIC, 0.15f);
+    private SoundInstance createTwoThousandSound() {
+        return new PlayerFollowingSound(AITSounds.TWO_THOUSAND, SoundCategory.MUSIC, 0.15f);
     }
 
-    public static ClientDriftingSoundHandler create() {
-        ClientDriftingSoundHandler handler = new ClientDriftingSoundHandler();
+    public static ClientTwoThousandSoundHandler create() {
+        ClientTwoThousandSoundHandler handler = new ClientTwoThousandSoundHandler();
 
         handler.generate();
         return handler;
     }
 
     private void generate() {
-        if (DRIFTING == null)
-            DRIFTING = createAlarmSound();
+        if (TWO_THOUSAND == null)
+            TWO_THOUSAND = createTwoThousandSound();
 
-        this.ofSounds(DRIFTING);
+        this.ofSounds(TWO_THOUSAND);
     }
 
     private boolean shouldPlaySound(ClientTardis tardis) {

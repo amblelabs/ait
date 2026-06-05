@@ -22,13 +22,25 @@ import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
 import dev.amble.ait.core.engine.link.IFluidLink;
 import dev.amble.ait.core.engine.link.IFluidSource;
 import dev.amble.ait.core.engine.link.ITardisSource;
+import dev.amble.ait.core.engine.link.tracker.FluidNetwork;
 import dev.amble.ait.core.tardis.Tardis;
 
 public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSource {
+    private boolean firstTickHandled;
+
     public EngineBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.ENGINE_BLOCK_ENTITY_TYPE, pos, state, SubSystem.Id.ENGINE);
 
         if (!this.hasWorld()) return;
+    }
+
+    @Override
+    public void tick(World world, BlockPos pos, BlockState state) {
+        super.tick(world, pos, state);
+        if (!firstTickHandled && !world.isClient()) {
+            firstTickHandled = true;
+            FluidNetwork.rebuildFrom((ServerWorld) world, pos);
+        }
     }
 
     @Override
@@ -39,8 +51,10 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
 
         this.tardis().ifPresent(tardis -> tardis.subsystems().engine().setEnabled(true));
 
-        if (tryPlaceFillBlocks())
+        if (tryPlaceFillBlocks()) {
+            this.rebuildOwnNetwork();
             return;
+        }
 
         this.onBroken(world, pos);
         world.setBlockState(pos, Blocks.AIR.getDefaultState());
@@ -152,6 +166,24 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
     @Override
     public void onLinked() {
         this.tardis().ifPresent(tardis -> tardis.getDesktop().setEnginePos(this));
+    }
+
+    @Override
+    public void onGainFluid() {
+        super.onGainFluid();
+        this.rebuildOwnNetwork();
+    }
+
+    @Override
+    public void onLoseFluid() {
+        super.onLoseFluid();
+        this.rebuildOwnNetwork();
+    }
+
+    private void rebuildOwnNetwork() {
+        if (this.hasWorld() && !this.getWorld().isClient()) {
+            FluidNetwork.rebuildFrom((ServerWorld) this.getWorld(), this.getPos());
+        }
     }
 
     @Override

@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "ait:block/rift_ripper",
+      "y": 180
+    },
+    "facing=north": {
+      "model": "ait:block/rift_ripper",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "ait:block/rift_ripper",
+      "y": 270
+    },
+    "facing=west": {
+      "model": "ait:block/rift_ripper",
+      "y": 0
+    }
+  }
+}

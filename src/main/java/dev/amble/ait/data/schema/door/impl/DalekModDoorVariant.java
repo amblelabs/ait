@@ -23,10 +23,10 @@ public class DalekModDoorVariant extends DoorSchema {
     public Vec3d adjustPortalPos(Vec3d pos, Direction direction) {
         return switch (direction) {
             case DOWN, UP -> pos;
-            case NORTH -> pos.add(0, -0.1, -0.425);
-            case SOUTH -> pos.add(0, -0.1, 0.425);
-            case WEST -> pos.add(-0, -0.1, -0.425);
-            case EAST -> pos.add(0.0, -0.1, -0.425);
+            case NORTH -> pos.add(0, 0.08, -0.425);
+            case SOUTH -> pos.add(0, 0.08, 0.425);
+            case WEST -> pos.add(-0, 0.08, -0.425);
+            case EAST -> pos.add(0.0, 0.08, -0.425);
         };
     }
 }

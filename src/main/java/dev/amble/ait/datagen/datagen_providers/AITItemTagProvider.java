@@ -31,9 +31,9 @@ public class AITItemTagProvider extends FabricTagProvider<Item> {
         // Items
         getOrCreateTagBuilder(AITTags.Items.SONIC_ITEM).add(AITItems.SONIC_SCREWDRIVER);
 
-        getOrCreateTagBuilder(ItemTags.CREEPER_DROP_MUSIC_DISCS).add(AITItems.DRIFTING_MUSIC_DISC)
+        getOrCreateTagBuilder(ItemTags.CREEPER_DROP_MUSIC_DISCS).add(AITItems.TWO_THOUSAND_MUSIC_DISC)
                .add(AITItems.WONDERFUL_TIME_IN_SPACE_MUSIC_DISC)
-                .add(AITItems.GOOD_MAN_MUSIC_DISC).add(AITItems.CHRONOLOGY_MUSIC_DISC)
+                .add(AITItems.GOOD_MAN_MUSIC_DISC).add(AITItems.AIT_THEME_MUSIC_DISC)
                 .add(AITItems.EARTH_MUSIC_DISC).add(AITItems.VENUS_MUSIC_DISC);
 
         getOrCreateTagBuilder(AITTags.Items.CLUSTER_MAX_HARVESTABLES).add(AITItems.ZEITON_SHARD);
@@ -44,17 +44,8 @@ public class AITItemTagProvider extends FabricTagProvider<Item> {
 
         getOrCreateTagBuilder(AITTags.Items.HALF_RESPIRATORS).add(AITItems.FACELESS_RESPIRATOR);
 
-        /*if (isUnlockedOnThisDay(Calendar.DECEMBER, 27)) {
-            getOrCreateTagBuilder(AITTags.Items.HALF_RESPIRATORS).add(AITItems.SANTA_HAT);
-        }*/
-
         getOrCreateTagBuilder(AITTags.Items.KEY).add(AITItems.IRON_KEY, AITItems.GOLD_KEY, AITItems.CLASSIC_KEY,
                 AITItems.NETHERITE_KEY, AITItems.SKELETON_KEY);
-
-        /*getOrCreateTagBuilder(AITTags.Items.GOAT_HORN).add(AITItems.IRON_GOAT_HORN, AITItems.GOLD_GOAT_HORN, AITItems.CLASSIC_GOAT_HORN,
-                AITItems.NETHERITE_GOAT_HORN);*/
-
-        getOrCreateTagBuilder(AITTags.Items.REPAIRS_SUBSYSTEM).add(Items.IRON_INGOT,Items.GOLD_INGOT, Items.COPPER_INGOT);
 
         getOrCreateTagBuilder(AITTags.Items.IS_TARDIS_FUEL).add(AITItems.ZEITON_DUST, AITItems.ZEITON_SHARD,
                 AITBlocks.TARDIS_CORAL_BLOCK.asItem(), AITBlocks.TARDIS_CORAL_SLAB.asItem(),

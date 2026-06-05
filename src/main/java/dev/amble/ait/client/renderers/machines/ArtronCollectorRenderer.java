@@ -53,7 +53,7 @@ public class ArtronCollectorRenderer<T extends ArtronCollectorBlockEntity> imple
         ModelPart batteryLevels = artronCollectorModel.collector.getChild("battery_levels");
 
         artronCollectorModel.collector.getChild("spinner").yaw = entity.getCurrentFuel() > 0
-                ? ((float) MinecraftClient.getInstance().world.getTime() / 12000L) * 180.0f
+                ? 0.1f * (MinecraftClient.getInstance().getTickDelta() + MinecraftClient.getInstance().player.age)
                 : 0;
 
         batteryLevels.getChild("b_1").visible = entity.getCurrentFuel() > 250 && entity.getCurrentFuel() < 500;

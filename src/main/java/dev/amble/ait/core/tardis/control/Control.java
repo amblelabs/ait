@@ -12,6 +12,8 @@ import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.lib.api.Identifiable;
+
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -21,6 +23,8 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Map;
 
 public class Control implements Identifiable {
 
@@ -140,7 +144,7 @@ public class Control implements Identifiable {
 
         SubSystem.IdLike dependent = this.requiredSubSystem();
 
-        if (dependent != null) {
+        if (dependent != null && !this.shouldBeAddedToSequence(tardis)) {
             boolean enabled = tardis.subsystems().get(dependent).isEnabled();
 
             if (!enabled)
@@ -201,6 +205,44 @@ public class Control implements Identifiable {
 
         public synchronized Throwable fillInStackTrace() {
             this.setStackTrace(new StackTraceElement[0]);
+            return this;
+        }
+    }
+
+    public static class ControlState {
+        private float damage = 1.0f;
+        private boolean sticky = false;
+
+        public float damage() {
+            return damage;
+        }
+
+        public boolean sticky() {
+            return sticky;
+        }
+
+        public ControlState setDamage(float damage) {
+            this.damage = damage;
+            return this;
+        }
+
+        public ControlState setSticky(boolean sticky) {
+            this.sticky = sticky;
+            return this;
+        }
+
+        public NbtCompound writeNbt() {
+            NbtCompound stateCompound = new NbtCompound();
+            stateCompound.putFloat("Durability", this.damage);
+            stateCompound.putBoolean("Sticky", this.sticky);
+            return stateCompound;
+        }
+
+        public ControlState readNbt(NbtCompound nbt) {
+            float durability = nbt.getFloat("Durability");
+            boolean sticky = nbt.getBoolean("Sticky");
+            this.setDamage(durability);
+            this.setSticky(sticky);
             return this;
         }
     }

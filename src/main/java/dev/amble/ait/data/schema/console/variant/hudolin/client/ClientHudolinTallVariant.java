@@ -47,11 +47,11 @@ public class ClientHudolinTallVariant extends ClientConsoleVariantSchema {
     }
     @Override
     public Vector3f handlesTranslations() {
-        return new Vector3f(-0.305f, 0.45f, -0.125f);
+        return new Vector3f(0.5f, 1.3f, 0.2f);
     }
 
     @Override
     public float[] handlesRotations() {
-        return new float[]{29f, 46.25f};
+        return new float[]{120f, 135f};
     }
 }

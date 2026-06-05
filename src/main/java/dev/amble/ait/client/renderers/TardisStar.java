@@ -53,8 +53,9 @@ public class TardisStar {
         matrixStack.translate(0, diff.y, 0);
         matrixStack.scale(40f, 40f, 40f);
 
+        float delta = MinecraftClient.getInstance().getTickDelta() + MinecraftClient.getInstance().player.age;
         matrixStack.multiply(RotationAxis.POSITIVE_Y
-                .rotationDegrees(((float) MinecraftClient.getInstance().player.age / 200.0f) * 360f));
+                .rotationDegrees(delta));
 
         TardisStarModel.getTexturedModelData().createModel().render(matrixStack,
                 provider.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(TARDIS_STAR_TEXTURE, true)),
@@ -84,7 +85,8 @@ public class TardisStar {
         Vec3d diff = targetPos.subtract(cameraPos);
 
         float l = (MinecraftClient.getInstance().getTickDelta() / 50120L);
-        float sinFunc = (float) Math.sin((MinecraftClient.getInstance().player.age / 400f * 220f) * 0.2f + 0.2f);
+        float delta = MinecraftClient.getInstance().getTickDelta() + MinecraftClient.getInstance().player.age;
+        float sinFunc = (float) Math.sin((delta * (tardis.travel().speed() + 1)) * 0.2f + 0.2f);
         Random random = Random.create(432L);
         VertexConsumer vertexConsumer4 = provider.getBuffer(AITRenderLayers.getLightning());
         matrixStack.push();
@@ -97,7 +99,7 @@ public class TardisStar {
             matrixStack.scale(8 + sinFunc, 8 + sinFunc, 8 + sinFunc);
 
         matrixStack.multiply(RotationAxis.POSITIVE_Y
-                .rotationDegrees(((float) MinecraftClient.getInstance().player.age / -200f) * -560f));
+                .rotationDegrees((-delta * (tardis.travel().speed() + 1))));
 
         float m = Math.min(l > 0.8f ? (l - 0.8f) / 0.2f : 0.0f, 1.0f);
 

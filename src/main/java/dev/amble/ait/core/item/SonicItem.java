@@ -2,6 +2,10 @@ package dev.amble.ait.core.item;
 
 import java.util.List;
 
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
+import dev.amble.ait.core.blocks.ArtronCollectorBlock;
+import net.minecraft.item.ItemUsageContext;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.item.TooltipContext;
@@ -52,6 +56,16 @@ public class SonicItem extends LinkableItem implements ArtronHolderItem {
     @Override
     public UseAction getUseAction(ItemStack stack) {
         return AITUseActions.SONIC;
+    }
+
+    @Override
+    public ActionResult useOnBlock(ItemUsageContext context) {
+        // Charge the sonic with the artron collector block
+        if (context.getWorld().getBlockEntity(context.getBlockPos()) instanceof ArtronCollectorBlockEntity artronCollectorBlockEntity) {
+            double remainder = this.addFuel(artronCollectorBlockEntity.getCurrentFuel(), context.getStack());
+            artronCollectorBlockEntity.setCurrentFuel(remainder);
+        }
+        return super.useOnBlock(context);
     }
 
     @Override

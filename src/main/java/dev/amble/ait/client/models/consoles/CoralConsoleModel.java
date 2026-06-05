@@ -11,6 +11,7 @@ import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.api.tardis.TardisComponent;
@@ -2420,9 +2421,25 @@ public class CoralConsoleModel extends SimpleConsoleModel {
         console.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
+    private float throttleAngle = 0f;
+    private float handbrakeAngle = 0f;
+    private float powerAngle = 0f;
+    private float power2Angle = 0f;
+    private float doorControlAngle = 0f;
+    private float incrementAngle = 0f;
+    private float increment2Angle = 0f;
+    private float refuelerAngle = 0f;
+    private float groundSearchAngle = 0f;
+    private float securityAngle = 0f;
+    private float antiGravAngle = 0f;
+    private float shieldAngle = 0f;
+    private float siegeAngle = 0f;
+    private float autopilotAngle = 0f;
+
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
+        float delta = 0.1f * MinecraftClient.getInstance().getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
 
@@ -2441,89 +2458,107 @@ public class CoralConsoleModel extends SimpleConsoleModel {
         fuelLowWarningLight.visible = (tardis.getFuel() <= (FuelHandler.TARDIS_MAX_FUEL / 10));
 
         // Anti-gravs Lever
-        controls.getChild("p_ctrl_1").getChild("bone29").getChild("lever").getChild("bone8").roll = tardis.travel()
-                .antigravs().get() ? 0.829F : 0.829F - 1.5f;
+        ModelPart antigrav = controls.getChild("p_ctrl_1").getChild("bone29").getChild("lever").getChild("bone8");
+        float antigravsTarget = tardis.travel().antigravs().get() ? 0.829F : 0.829F - 1.5f;
+        this.antiGravAngle = MathHelper.lerp(delta, this.antiGravAngle, antigravsTarget);
+        antigrav.roll = this.antiGravAngle - 0.5f;
 
         // Door Control
         ModelPart doorControl = controls.getChild("p_ctrl_1").getChild("bone29").getChild("crank").getChild("bone32");
-
-        if (tardis.door().isLeftOpen()) {
-            doorControl.pitch = -0.6981F - 0.8f;
-        } else if (tardis.door().isRightOpen()) {
-            doorControl.pitch = -0.6981F - 1.5f;
-        }
+        float doorControlTarget = tardis.door().isLeftOpen() ? -0.6981F - 0.8f: tardis.door().isRightOpen() ? -0.6981F - 1.5f : 0;
+        this.doorControlAngle = MathHelper.lerp(delta, this.doorControlAngle, doorControlTarget);
+        doorControl.pitch = this.doorControlAngle;
 
         // Power Lever
-        controls.getChild("p_ctrl_4").getChild("bone41").getChild("lever2").getChild("bone43").roll = tardis.fuel()
-                .hasPower()
-                        ? controls.getChild("p_ctrl_4").getChild("bone41").getChild("lever2").getChild("bone43").roll
-                        : controls.getChild("p_ctrl_4").getChild("bone41").getChild("lever2").getChild("bone43").roll
-                                - 1.5f;
-        controls.getChild("p_ctrl_4").getChild("bone41").getChild("lever2").getChild("bone42").roll = tardis.fuel()
-                .hasPower()
-                        ? controls.getChild("p_ctrl_4").getChild("bone41").getChild("lever2").getChild("bone42").roll
-                        : controls.getChild("p_ctrl_4").getChild("bone41").getChild("lever2").getChild("bone42").roll
-                                + 0.5f;
+        ModelPart power = controls.getChild("p_ctrl_4").getChild("bone41").getChild("lever2").getChild("bone43");
+        float powerTarget = tardis.fuel().hasPower() ? 0 : 1.5f;
+        float power2Target = tardis.fuel().hasPower() ? 0 : 0.5f;
+        this.powerAngle = MathHelper.lerp(delta, this.powerAngle, powerTarget);
+        this.power2Angle = MathHelper.lerp(delta, this.power2Angle, power2Target);
+        power.roll = this.powerAngle - 0.5f;
+        ModelPart power2 = controls.getChild("p_ctrl_4").getChild("bone41").getChild("lever2").getChild("bone42");
+        power2.roll = this.power2Angle - 0.5f;
 
         // Throttle
         ModelPart throttle = controls.getChild("p_ctrl_5").getChild("bone49").getChild("lever3").getChild("bone52");
-        throttle.roll = throttle.roll + (tardis.travel().speed() / (float) tardis.travel().maxSpeed().get());
+        float throttleTarget = tardis.travel().maxSpeed().get() > 0 ? (float) tardis.travel().speed() / (float) tardis.travel().maxSpeed().get() : 0f;
+        this.throttleAngle = MathHelper.lerp(delta, this.throttleAngle, throttleTarget);
+        throttle.roll = this.throttleAngle;
 
         // Increment
         ModelPart increment = controls.getChild("p_ctrl_2").getChild("bone33").getChild("bone31").getChild("crank2");
         ModelPart incrementTwo = controls.getChild("p_ctrl_2").getChild("bone33").getChild("bone31").getChild("bone34");
 
-        increment.yaw = IncrementManager.increment(tardis) >= 10
-                ? IncrementManager.increment(tardis) >= 100
-                        ? IncrementManager.increment(tardis) >= 1000
-                                ? IncrementManager.increment(tardis) >= 10000
-                                        ? increment.yaw + 1.5f
-                                        : increment.yaw + 1.25f
-                                : increment.yaw + 1f
-                        : increment.yaw + 0.5f
-                : increment.yaw;
-        incrementTwo.pivotY = IncrementManager.increment(tardis) >= 10
-                ? IncrementManager.increment(tardis) >= 100
-                        ? IncrementManager.increment(tardis) >= 1000
-                                ? IncrementManager.increment(tardis) >= 10000
-                                        ? incrementTwo.pivotY + 3f
-                                        : incrementTwo.pivotY + 2f
-                                : incrementTwo.pivotY + 1f
-                        : incrementTwo.pivotY + 0.5f
-                : incrementTwo.pivotY;
+        int incrementVal = IncrementManager.increment(tardis);
+        float targetOne = 0f;
+        float targetTwo = 0f;
+
+        if (incrementVal >= 10000) {
+            targetOne = 1.5f;
+            targetTwo = 3.0f;
+        } else if (incrementVal >= 1000) {
+            targetOne = 1.25f;
+            targetTwo = 2.0f;
+        } else if (incrementVal >= 100) {
+            targetOne = 1.0f;
+            targetTwo = 1.0f;
+        } else if (incrementVal >= 10) {
+            targetOne = 0.5f;
+            targetTwo = 0.5f;
+        }
+
+        this.incrementAngle = MathHelper.lerp(delta, this.incrementAngle, targetOne);
+        this.increment2Angle = MathHelper.lerp(delta, this.increment2Angle, targetTwo);
+
+        increment.yaw = this.incrementAngle;
+        incrementTwo.pivotY = this.increment2Angle;
 
         // Refueler
         ModelPart refueler = controls.getChild("p_ctrl_5").getChild("bone49").getChild("ring2").getChild("switch30");
-        refueler.pivotY = tardis.isRefueling() ? refueler.pivotY + 1 : refueler.pivotY;
+        float refuelerTarget = tardis.isRefueling() ? -1 : 0;
+        this.refuelerAngle = MathHelper.lerp(delta, this.refuelerAngle, refuelerTarget);
+        refueler.pivotY = this.refuelerAngle;
 
         // Waypoint
         controls.getChild("ctrl_1").getChild("bone13").getChild("insert").getChild("bone96").visible = tardis
                 .<WaypointHandler>handler(TardisComponent.Id.WAYPOINTS).hasCartridge();
 
         // Handbrake
-        controls.getChild("p_ctrl_6").getChild("bone62").getChild("handbrake2")
-                .getChild("bone102").yaw = !tardis.travel().handbrake() ? 0.829F : 0.829F + 0.75f;
+        ModelPart handbrake = controls.getChild("p_ctrl_6").getChild("bone62").getChild("handbrake2")
+                .getChild("bone102");
+        float handbrakeTarget = !tardis.travel().handbrake() ? 0.829F : 0.829F + 0.75f;
+        this.handbrakeAngle = MathHelper.lerp(delta, this.handbrakeAngle, handbrakeTarget);
+        handbrake.yaw = this.handbrakeAngle;
 
         // Siege Mode
         ModelPart siege = controls.getChild("p_ctrl_3").getChild("bone36").getChild("handbrake");
-        siege.roll = tardis.siege().isActive() ? siege.roll + 0.45f : siege.roll;
+        float siegeTarget = tardis.siege().isActive() ? 0.45f : 0;
+        this.siegeAngle = MathHelper.lerp(delta, this.siegeAngle, siegeTarget);
+        siege.roll = this.siegeAngle;
 
         // Shields
         ModelPart shield = controls.getChild("p_ctrl_4").getChild("bone41").getChild("pully").getChild("bone47");
-        shield.pivotX = tardis.shields().shielded().get()
-                ? shield.pivotX - 1
-                : shield.pivotX;
+        float shieldTarget = tardis.shields().shielded().get() ? tardis.shields().visuallyShielded().get() ? -4f : -1.55f : -2.5f;
+        this.shieldAngle = MathHelper.lerp(delta, this.shieldAngle, shieldTarget);
+        shield.pivotX = this.shieldAngle;
 
         // Autopilot
         ModelPart autopilot = controls.getChild("ctrl_4").getChild("bone15").getChild("switch24").getChild("bone19");
-        autopilot.pivotY = tardis.travel().autopilot() ? autopilot.pivotY + 1 : autopilot.pivotY;
+        float autopilotTarget = tardis.travel().autopilot() ? 1 : 0;
+        this.autopilotAngle = MathHelper.lerp(delta, this.autopilotAngle, autopilotTarget);
+        autopilot.pivotY = this.autopilotAngle;
+
 
         ModelPart security = controls.getChild("ctrl_4").getChild("bone15").getChild("switch25").getChild("bone20");
-        security.pivotY = tardis.stats().security().get() ? security.pivotY + 1 : security.pivotY;
+        float securityTarget = tardis.stats().security().get() ? 1 : 0;
+        this.securityAngle = MathHelper.lerp(delta, this.securityAngle, securityTarget);
+        security.pivotY = this.securityAngle;
 
         // Ground Searching
         ModelPart groundSearch = controls.getChild("p_ctrl_6").getChild("bone62").getChild("bow").getChild("bone68");
-        groundSearch.pitch = tardis.travel().horizontalSearch().get() ? 0.2182F - 0.5f : 0.2182F;
+        float groundSearchTarget = tardis.travel().horizontalSearch().get() ? 0.2182F - 0.5f : 0.2182F;
+        this.groundSearchAngle = MathHelper.lerp(delta, this.groundSearchAngle, groundSearchTarget);
+        groundSearch.pitch = this.groundSearchAngle;
 
         // Hammer
         ModelPart hammer = controls.getChild("p_ctrl_6").getChild("bone62").getChild("hammer").getChild("bone40");
@@ -2546,7 +2581,6 @@ public class CoralConsoleModel extends SimpleConsoleModel {
                 : travel.getProgress();
 
         BlockPos abppPos = abpp.getPos();
-        BlockPos abpdPos = abpd.getPos();
         matrices.push();
         // TODO dont forget to add variant.getConsoleTextPosition()!
         matrices.translate(1.85, 0.60, 0.85);
@@ -2558,9 +2592,6 @@ public class CoralConsoleModel extends SimpleConsoleModel {
         String positionPosText = " " + abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
         Text positionDimensionText = WorldUtil.worldText(abpp.getDimension());
         String positionDirectionText = " " + DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
-        String destinationPosText = " " + abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
-        Text destinationDimensionText = WorldUtil.worldText(abpd.getDimension(), false);
-        String destinationDirectionText = " " + DirectionControl.rotationToDirection(abpd.getRotation()).toUpperCase();
         renderer.drawWithOutline(Text.of("❌").asOrderedText(), 0, 40, 0xF00F00, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 0, 48, 0xFFFFFF, 0x000000,

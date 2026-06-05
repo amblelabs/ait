@@ -26,7 +26,7 @@ public class LoadWaypointControl extends Control {
     public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
         super.runServer(tardis, player, world, console, leftClick);
 
-        if (!tardis.waypoint().hasCartridge() || !tardis.waypoint().isDisc()) {
+        if (!tardis.waypoint().hasCartridge() && !tardis.waypoint().isDisc()) {
             player.sendMessage(Text.translatable("control.ait.load_waypoint.no_cartridge"), true);
             TardisDesktop.playSoundAtConsole(world, console, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.PLAYERS, 6f, 0.1f);
             return Result.SUCCESS;

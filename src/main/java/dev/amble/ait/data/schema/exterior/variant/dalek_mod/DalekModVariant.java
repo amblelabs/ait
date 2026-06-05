@@ -23,14 +23,14 @@ public abstract class DalekModVariant extends ExteriorVariantSchema {
     @Override
     public Vec3d adjustPortalPos(Vec3d pos, byte direction) {
         return switch (direction) {
-            case 0 -> pos.add(0, -0.25, -0.59); // NORTH
-            case 1, 2, 3 -> pos.add(0.43, -0.25, -0.3); // NORTH EAST p n
-            case 4 -> pos.add(0.628, -0.25, 0); // EAST
-            case 5, 6, 7 -> pos.add(0.42, -0.25, 0.42); // SOUTH EAST p p
-            case 8 -> pos.add(0, -0.25, 0.628); // SOUTH
-            case 9, 10, 11 -> pos.add(-0.43, -0.25, 0.45); // SOUTH WEST n p
-            case 12 -> pos.add(-0.628, -0.25, 0); // WEST
-            case 13, 14, 15 -> pos.add(-0.43, -0.25, -0.45); // NORTH WEST n n
+            case 0 -> pos.add(0, -0.05, -0.59); // NORTH
+            case 1, 2, 3 -> pos.add(0.43, -0.05, -0.3); // NORTH EAST p n
+            case 4 -> pos.add(0.628, -0.05, 0); // EAST
+            case 5, 6, 7 -> pos.add(0.42, -0.05, 0.42); // SOUTH EAST p p
+            case 8 -> pos.add(0, -0.05, 0.628); // SOUTH
+            case 9, 10, 11 -> pos.add(-0.43, -0.05, 0.45); // SOUTH WEST n p
+            case 12 -> pos.add(-0.628, -0.05, 0); // WEST
+            case 13, 14, 15 -> pos.add(-0.43, -0.05, -0.45); // NORTH WEST n n
             default -> pos;
         };
     }

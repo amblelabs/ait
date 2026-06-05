@@ -51,14 +51,16 @@ public class SkyboxUtil extends WorldRenderer {
         matrices.push();
         float scale = 100f;
         float zOffset = 500 * scale;
+        float delta = MinecraftClient.getInstance().getTickDelta() + MinecraftClient.getInstance().player.age;
         if (!tardis.travel().autopilot() && tardis.travel().getState() != TravelHandlerBase.State.LANDED)
-            matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees((float) MinecraftClient.getInstance().player.age / ((float) 200 / tardis.travel().speed()) * 360f));
+            matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees((delta) * (tardis.travel().speed() * 0.7f)));
         if (!tardis.crash().isNormal())
-            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((float) MinecraftClient.getInstance().player.age / 100 * 360f));
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) MinecraftClient.getInstance().player.age / 100 * 360f));
+            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((delta)));
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((delta) * (tardis.travel().speed() + 1)));
         matrices.translate(0, 0, zOffset);
         matrices.scale(scale, scale, scale);
 
+        util.setSpeed(tardis.travel().speed() < 1 ? 4 : tardis.travel().speed());
         util.render(matrices);
         matrices.pop();
     }
@@ -68,12 +70,14 @@ public class SkyboxUtil extends WorldRenderer {
         matrices.push();
         float scale = 100f;
         float zOffset = 500 * scale;
-        matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees((float) MinecraftClient.getInstance().player.age / ((float) 200 / 5) * 360f));
-        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((float) MinecraftClient.getInstance().player.age / 100 * 360f));
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) MinecraftClient.getInstance().player.age / 100 * 360f));
+        float delta = MinecraftClient.getInstance().getTickDelta() + MinecraftClient.getInstance().player.age;
+        matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(delta));
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(delta));
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(delta));
         matrices.translate(0, 0, zOffset);
         matrices.scale(scale, scale, scale);
 
+        util.setSpeed(4);
         util.render(matrices);
         matrices.pop();
     }

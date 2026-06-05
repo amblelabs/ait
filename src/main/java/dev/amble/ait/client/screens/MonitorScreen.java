@@ -3,6 +3,7 @@ package dev.amble.ait.client.screens;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedGlobalPos;
 
@@ -331,7 +332,7 @@ public class MonitorScreen extends ConsoleScreen {
     }
 
     protected void drawTardisExterior(DrawContext context, int x, int y, float scale) {
-        this.tickForSpin++;
+        float delta = MinecraftClient.getInstance().getTickDelta() + MinecraftClient.getInstance().player.age;
         Tardis tardis = this.tardis();
 
         if (tardis == null)
@@ -377,13 +378,6 @@ public class MonitorScreen extends ConsoleScreen {
         stack.pop();
         ExteriorModel model = variant.model();
 
-        /*
-         * stack.push(); stack.translate(0, 0, -50f);
-         * stack.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(((float) tickForSpin /
-         * 1400L) * 360.0f), x, y, 0); context.drawTexture(TEXTURE, x - 41, y - 41, 173,
-         * 173, 83, 83); stack.pop();
-         */
-
         stack.push();
         stack.translate(x, isPoliceBox || isHorriblyUnscaled ? y + 11 : y, 100f);
 
@@ -400,13 +394,12 @@ public class MonitorScreen extends ConsoleScreen {
             stack.translate(0, 1.25f, 0);
         }
 
-        stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(((float) tickForSpin / 1200L) * 360.0f));
+        stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(delta * 3));
 
         Identifier texture = variant.texture();
         Identifier emissive = variant.emission();
 
         float base = isExtUnlocked ? 1f : 0.1f;
-        float tinted = alarms && isExtUnlocked ? 0.3f : base;
 
         model.render(stack, context.getVertexConsumers().getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)),
                 LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, base, base, base, 1f);
@@ -415,28 +408,16 @@ public class MonitorScreen extends ConsoleScreen {
             model.render(stack, context.getVertexConsumers().getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(emissive, true)),
                     LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, base, base, base, 1f);
         }
-
         stack.pop();
 
         stack.push();
         stack.translate(0, 0, 550f);
-
         context.drawCenteredTextWithShadow(this.textRenderer, isExtUnlocked ? "" : "\uD83D\uDD12", x, y,
                 0xFFFFFF);
 
-        //float h = (float) (-textRenderer.getWidth("\uD83D\uDD12") / 2);
-
-        //Matrix4f matrix4f = stack.peek().getPositionMatrix();
-        VertexConsumerProvider vertex = context.getVertexConsumers();
-
-        //textRenderer.draw(Text.literal("\uD83D\uDD12"), h + 0.35f, 0.0F, 0xFFFFFFFF, false, matrix4f, vertex,
-                //TextRenderer.TextLayerType.SEE_THROUGH, 0x000000, 0xf000f0);
-
         stack.push();
         stack.translate(0, 0, 50f);
-
         context.drawCenteredTextWithShadow(this.textRenderer, isExtUnlocked ? "" : "\uD83D\uDD12", x, y, 0xFFFFFF);
-
         stack.pop();
 
         stack.pop();
