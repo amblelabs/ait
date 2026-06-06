@@ -15,7 +15,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -35,7 +34,7 @@ import dev.amble.ait.core.tardis.control.impl.CloakControl;
 public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> {
 
     private static final Identifier TEXTURE = AITMod.id("textures/entity/control/sequenced.png");
-    private static final String CLOAK_CONTROL_KEY = CloakControl.ID.toTranslationKey("control");
+    private static final Text CLOAK_CONTROL_NAME = Text.translatable(CloakControl.ID.toTranslationKey("control"));
 
     ControlModel model = new ControlModel(ControlModel.getTexturedModelData().createModel());
 
@@ -144,11 +143,12 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
     }
 
     private static Text getScanLabel(Text name, Tardis tardis) {
-        if (name.getContent() instanceof TranslatableTextContent translatable && CLOAK_CONTROL_KEY.equals(translatable.getKey())) {
-            return Text.translatable(tardis.cloak().silent().get() ? "control.ait.protocol_3_silent_active" : "control.ait.protocol_3_silent_inactive");
-        }
+        if (!CLOAK_CONTROL_NAME.equals(name))
+            return name;
 
-        return name;
+        return Text.translatable(tardis.cloak().silent().get()
+                ? "control.ait.protocol_3_silent_active"
+                : "control.ait.protocol_3_silent_inactive");
     }
 
     private static boolean isPlayerLookingAtControlWithSonic(HitResult hitResult, ConsoleControlEntity entity) {
