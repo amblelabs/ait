@@ -458,16 +458,17 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
     }
 
     public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
-        if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior && exterior.isLinked()) {
-            Tardis tardis = exterior.tardis().get();
-            if (tardis.cloak().silent().get())
-                return;
-        }
         BlockPos blockPos = pos.down();
         if (random.nextInt(16) == 0) {
             if (canFallThrough(world.getBlockState(blockPos))) {
                 ParticleUtil.spawnParticle(world, pos, random, ParticleTypes.TOTEM_OF_UNDYING);
             }
+        }
+
+        if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior && exterior.isLinked()) {
+            Tardis tardis = exterior.tardis().get();
+            if (tardis.cloak().silent().get())
+                return;
         }
     }
 
