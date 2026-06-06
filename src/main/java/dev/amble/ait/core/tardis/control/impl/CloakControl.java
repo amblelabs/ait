@@ -28,15 +28,16 @@ public class CloakControl extends Control {
         super.runServer(tardis, player, world, console, leftClick);
 
         CloakHandler cloak = tardis.handler(TardisComponent.Id.CLOAK);
-
-        if (leftClick && cloak.cloaked().get() && !cloak.silent().get()) {
-            cloak.silent().set(true);
-            player.sendMessage(Text.translatable("control.ait.protocol_3_silent_activated"), true);
-        } else if (leftClick && cloak.cloaked().get() && cloak.silent().get()){
-            cloak.silent().set(false);
-            player.sendMessage(Text.translatable("control.ait.protocol_3_silent_deactivated"), true);
+        boolean wasCloaked = cloak.cloaked().get();
+        
+        if (leftClick && wasCloaked) {
+            boolean wasSilent = cloak.silent().get();
+            cloak.silent().set(!wasSilent);
+            
+            player.sendMessage(Text.translatable("control.ait.protocol_3_silent_" + (wasSilent ? "activated" : "deactivated")), true);
         } else {
-            cloak.cloaked().set(!cloak.cloaked().get());
+            cloak.cloaked().set(!wasCloaked);
+            
             if (cloak.silent().get())
                 cloak.silent().set(false);
         }

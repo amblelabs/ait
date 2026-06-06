@@ -464,7 +464,7 @@ public class MonitorScreen extends ConsoleScreen {
                 0xFFFFFF, true);
 
         // cloak silent
-        if (this.tardis().cloak().silent().get() && this.tardis().cloak().cloaked().get()) {
+        if (this.tardis().cloak().silent().get()) {
             float scale = 0.5f;
             int x = width / 2 - 66;
             int y = height / 2 + 17;

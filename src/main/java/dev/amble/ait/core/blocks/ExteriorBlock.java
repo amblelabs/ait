@@ -458,9 +458,9 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
     }
 
     public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
-        if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior && exterior.isLinked() && !exterior.tardis().isEmpty()) {
+        if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior && exterior.isLinked()) {
             Tardis tardis = exterior.tardis().get();
-            if (tardis.cloak().cloaked().get() && tardis.cloak().silent().get())
+            if (tardis.cloak().silent().get())
                 return;
         }
         BlockPos blockPos = pos.down();

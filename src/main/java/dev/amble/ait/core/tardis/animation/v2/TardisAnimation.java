@@ -106,7 +106,7 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
         playSound = playSound && this.tryStart(this.position, new Vector3f());
         playSound = playSound && this.tryStart(this.rotation, new Vector3f());
 
-        if (playSound && !(tardis.cloak().cloaked().get() && tardis.cloak().silent().get())) {
+        if (playSound && !tardis.cloak().silent().get()) {
             tardis.getExterior().playSound(this.getSoundIdOrDefault(), SoundCategory.BLOCKS,
                     AITMod.CONFIG.flightSoundVolume);
         }

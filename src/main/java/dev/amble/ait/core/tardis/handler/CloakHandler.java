@@ -37,14 +37,11 @@ public class CloakHandler extends KeyedTardisComponent implements TardisTickable
 
     @Override
     public void tick(MinecraftServer server) {
-        if (!this.cloaked().get()) {
-            if (this.silent().get())
-                this.silent().set(false);
+        if (!this.cloaked().get())
             return;
-        }
+
         if (!this.tardis.fuel().hasPower()) {
             this.cloaked().set(false);
-            this.silent().set(false);
             return;
         }
 
