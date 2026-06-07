@@ -1,12 +1,17 @@
 package dev.loqor.portal.client;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.client.boti.TardisDoorBOTI;
+import dev.loqor.portal.PortalInitS2CPacket;
 import dev.loqor.portal.WrappedPacketS2CPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.*;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
 
 import java.util.*;
 
@@ -22,9 +27,28 @@ public class PortalDataManager {
             handle(wrapped);
         });
 
+        ClientPlayNetworking.registerGlobalReceiver(PortalInitS2CPacket.TYPE, (packet, player, packetSender) -> {
+            handleInit(packet.id(), packet.dimension(), packet.dimensionType());
+        });
+
         ClientPlayConnectionEvents.DISCONNECT.register((clientPlayNetworkHandler, minecraftClient) -> {
             reset();
         });
+    }
+
+    /** Rebuilds the shadow world for a TARDIS in the dimension the server says its exterior now occupies. */
+    public static void handleInit(UUID id, RegistryKey<World> dimension, RegistryKey<DimensionType> dimensionType) {
+        if (!client.isOnThread()) {
+            client.executeSync(() -> handleInit(id, dimension, dimensionType));
+            return;
+        }
+
+        free(id);
+        map.put(id, PortalData.create(id, dimension, dimensionType));
+
+        WorldGeometryRenderer renderer = TardisDoorBOTI.getInteriorRenderer();
+        if (renderer != null)
+            renderer.markDirty();
     }
 
     public static void reset() {
@@ -87,6 +111,8 @@ public class PortalDataManager {
             data.onChunkDeltaUpdate(update);
         } else if (packet instanceof BlockUpdateS2CPacket update) {
             data.onBlockUpdate(update);
+        } else if (packet instanceof UnloadChunkS2CPacket unload) {
+            data.onUnloadChunk(unload);
         } else if (packet instanceof ChunkBiomeDataS2CPacket biome) {
 //          this.onChunkBiomeData(biome); // - uncomment if it breaks everything
         }

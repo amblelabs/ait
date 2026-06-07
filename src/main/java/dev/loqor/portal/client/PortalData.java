@@ -7,15 +7,21 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.packet.s2c.play.*;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.LightType;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkNibbleArray;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.chunk.light.LightingProvider;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.dimension.DimensionTypes;
 
 import java.util.BitSet;
 import java.util.Iterator;
@@ -117,9 +123,35 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
         }
     }
 
+    public void onUnloadChunk(UnloadChunkS2CPacket packet) {
+        this.world.getChunkManager().unload(packet.getX(), packet.getZ());
+        markRendererDirty();
+    }
+
+    private static void markRendererDirty() {
+        WorldGeometryRenderer renderer = TardisDoorBOTI.getInteriorRenderer();
+        if (renderer != null)
+            renderer.markDirty();
+    }
+
     public static PortalData fromCurrent(UUID id) {
+        ClientWorld old = MinecraftClient.getInstance().world;
+        RegistryKey<DimensionType> type = old.getDimensionEntry().getKey().orElse(DimensionTypes.OVERWORLD);
+
+        return create(id, old.getRegistryKey(), type);
+    }
+
+    /**
+     * Builds a shadow world mirroring the given dimension. The server tells us which dimension a TARDIS's
+     * exterior is in (see {@link dev.loqor.portal.PortalInitS2CPacket}) so the doorway renders with the correct
+     * lighting, sky and height limits instead of the interior dimension's.
+     */
+    public static PortalData create(UUID id, RegistryKey<World> dimension, RegistryKey<DimensionType> dimensionType) {
         MinecraftClient client = MinecraftClient.getInstance();
-        ClientWorld oldWorld = client.world;
+        ClientWorld old = client.world;
+
+        RegistryEntry<DimensionType> typeEntry = old.getRegistryManager()
+                .get(RegistryKeys.DIMENSION_TYPE).entryOf(dimensionType);
 
         WorldRenderer worldRenderer = new WorldRenderer(
                 client,
@@ -128,11 +160,11 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
                 client.getBufferBuilders()
         );
 
-        ClientWorld world = new ClientWorld(client.getNetworkHandler(),  new ClientWorld.Properties(Difficulty.NORMAL,
-                false, false), oldWorld.getRegistryKey(),
-                oldWorld.getDimensionEntry(),
-                12, client.world.getSimulationDistance(), client::getProfiler, worldRenderer,
-                client.world.isDebugWorld(), client.world.getBiomeAccess().seed);
+        ClientWorld world = new ClientWorld(client.getNetworkHandler(), new ClientWorld.Properties(Difficulty.NORMAL,
+                false, false), dimension,
+                typeEntry,
+                12, old.getSimulationDistance(), client::getProfiler, worldRenderer,
+                old.isDebugWorld(), old.getBiomeAccess().seed);
 
         worldRenderer.setWorld(world);
 

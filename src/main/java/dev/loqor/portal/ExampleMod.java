@@ -19,6 +19,7 @@ import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkRenderDistanceCenterS2CPacket;
+import net.minecraft.network.packet.s2c.play.UnloadChunkS2CPacket;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -26,6 +27,8 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.dimension.DimensionTypes;
 
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
@@ -95,8 +98,8 @@ public class ExampleMod implements ModInitializer {
     private static boolean ensureProxy(MinecraftServer server, ServerTardis tardis) {
         UUID id = tardis.getUuid();
 
-        boolean hasViewers = tardis.hasWorld() && !tardis.world().getPlayers().isEmpty();
-        if (!tardis.travel().isLanded() || !hasViewers)
+        Set<UUID> viewers = viewerIds(tardis);
+        if (!tardis.travel().isLanded() || viewers.isEmpty())
             return false;
 
         CachedDirectedGlobalPos ext = tardis.travel().position();
@@ -116,14 +119,19 @@ public class ExampleMod implements ModInitializer {
         ProxyEntry entry = PROXIES.get(id);
 
         if (entry == null) {
-            PROXIES.put(id, createProxy(tardis, extWorld, extPos));
+            PROXIES.put(id, createProxy(tardis, extWorld, extPos, viewers));
             return true;
         }
 
-        // Dimension changed (e.g. nether trip) - rebuild the proxy in the new world.
-        if (entry.dimension != extWorld.getRegistryKey()) {
+        // A player started viewing after the surroundings were already streamed - they have none of it yet.
+        boolean newViewer = !entry.viewers.containsAll(viewers);
+        entry.viewers = viewers;
+
+        // Dimension changed (e.g. a Nether trip) or a new viewer joined - rebuild the proxy from scratch so the
+        // whole surrounding area (and the dimension reset) is re-sent to everyone watching this TARDIS.
+        if (entry.dimension != extWorld.getRegistryKey() || newViewer) {
             despawn(server, entry);
-            PROXIES.put(id, createProxy(tardis, extWorld, extPos));
+            PROXIES.put(id, createProxy(tardis, extWorld, extPos, viewers));
             return true;
         }
 
@@ -142,7 +150,21 @@ public class ExampleMod implements ModInitializer {
         return true;
     }
 
-    private static ProxyEntry createProxy(ServerTardis tardis, ServerWorld world, BlockPos pos) {
+    private static Set<UUID> viewerIds(ServerTardis tardis) {
+        if (!tardis.hasWorld())
+            return Set.of();
+
+        Set<UUID> ids = new HashSet<>();
+        for (ServerPlayerEntity player : tardis.world().getPlayers())
+            ids.add(player.getUuid());
+
+        return ids;
+    }
+
+    private static ProxyEntry createProxy(ServerTardis tardis, ServerWorld world, BlockPos pos, Set<UUID> viewers) {
+        // Tell viewers which dimension to mirror (and reset any stale shadow world) before streaming chunks.
+        broadcastInit(tardis, world);
+
         PacketProxyPlayer proxy = new PacketProxyPlayer(world);
         proxy.setPos(pos.getX(), pos.getY(), pos.getZ());
         proxy.setPacketListener(packet -> forward(tardis, packet));
@@ -151,7 +173,7 @@ public class ExampleMod implements ModInitializer {
         proxy.onChunkEntered();
 
         broadcastCenter(tardis, proxy);
-        return new ProxyEntry(proxy, world.getRegistryKey(), pos);
+        return new ProxyEntry(proxy, world.getRegistryKey(), pos, viewers);
     }
 
     private static void removeProxy(MinecraftServer server, UUID id) {
@@ -170,10 +192,16 @@ public class ExampleMod implements ModInitializer {
     private static void forward(ServerTardis tardis, Packet<?> packet) {
         if (!(packet instanceof ChunkDataS2CPacket)
                 && !(packet instanceof ChunkDeltaUpdateS2CPacket)
-                && !(packet instanceof BlockUpdateS2CPacket))
+                && !(packet instanceof BlockUpdateS2CPacket)
+                && !(packet instanceof UnloadChunkS2CPacket))
             return;
 
         broadcast(tardis, packet);
+    }
+
+    private static void broadcastInit(ServerTardis tardis, ServerWorld world) {
+        RegistryKey<DimensionType> type = world.getDimensionEntry().getKey().orElse(DimensionTypes.OVERWORLD);
+        sendToViewers(tardis, new PortalInitS2CPacket(tardis.getUuid(), world.getRegistryKey(), type));
     }
 
     private static void broadcastCenter(ServerTardis tardis, PacketProxyPlayer proxy) {
@@ -182,16 +210,18 @@ public class ExampleMod implements ModInitializer {
     }
 
     private static void broadcast(ServerTardis tardis, Packet<?> packet) {
+        sendToViewers(tardis, new WrappedPacketS2CPacket(tardis.getUuid(), packet));
+    }
+
+    private static void sendToViewers(ServerTardis tardis, FabricPacket packet) {
         if (!tardis.hasWorld())
             return;
-
-        FabricPacket wrapped = new WrappedPacketS2CPacket(tardis.getUuid(), packet);
 
         for (ServerPlayerEntity player : tardis.world().getPlayers()) {
             if (player instanceof PacketProxyPlayer)
                 continue;
 
-            ServerPlayNetworking.send(player, wrapped);
+            ServerPlayNetworking.send(player, packet);
         }
     }
 
@@ -206,11 +236,13 @@ public class ExampleMod implements ModInitializer {
         final PacketProxyPlayer proxy;
         final RegistryKey<World> dimension;
         BlockPos pos;
+        Set<UUID> viewers;
 
-        ProxyEntry(PacketProxyPlayer proxy, RegistryKey<World> dimension, BlockPos pos) {
+        ProxyEntry(PacketProxyPlayer proxy, RegistryKey<World> dimension, BlockPos pos, Set<UUID> viewers) {
             this.proxy = proxy;
             this.dimension = dimension;
             this.pos = pos;
+            this.viewers = viewers;
         }
     }
 }
