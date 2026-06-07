@@ -100,3 +100,4 @@
 - fix: models for all discs | by [@Loqor](https://github.com/Loqor) ([#2033](https://github.com/amblelabs/ait/pull/2033))
 - chore: dendoji -> lucien | by [@Loqor](https://github.com/Loqor) ([#2033](https://github.com/amblelabs/ait/pull/2033))
 - chore: update arpalarm sound | by [@Loqor](https://github.com/Loqor) ([#2033](https://github.com/amblelabs/ait/pull/2033))
+- Update README.md | by [@Loqor](https://github.com/Loqor) ([#2063](https://github.com/amblelabs/ait/pull/2063))
