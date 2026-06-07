@@ -4,6 +4,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.client.boti.TardisDoorBOTI;
 import dev.loqor.portal.PortalInitS2CPacket;
 import dev.loqor.portal.WrappedPacketS2CPacket;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
@@ -33,6 +34,11 @@ public class PortalDataManager {
 
         ClientPlayConnectionEvents.DISCONNECT.register((clientPlayNetworkHandler, minecraftClient) -> {
             reset();
+        });
+
+        ClientTickEvents.END_CLIENT_TICK.register(minecraftClient -> {
+            for (PortalData data : new ArrayList<>(map.values()))
+                data.tickEntities();
         });
     }
 
@@ -113,6 +119,22 @@ public class PortalDataManager {
             data.onBlockUpdate(update);
         } else if (packet instanceof UnloadChunkS2CPacket unload) {
             data.onUnloadChunk(unload);
+        } else if (packet instanceof EntitySpawnS2CPacket spawn) {
+            data.onEntitySpawn(spawn);
+        } else if (packet instanceof EntityPositionS2CPacket position) {
+            data.onEntityPosition(position);
+        } else if (packet instanceof EntityS2CPacket move) {
+            data.onEntityMove(move);
+        } else if (packet instanceof EntityVelocityUpdateS2CPacket velocity) {
+            data.onEntityVelocity(velocity);
+        } else if (packet instanceof EntitySetHeadYawS2CPacket headYaw) {
+            data.onEntitySetHeadYaw(headYaw);
+        } else if (packet instanceof EntityTrackerUpdateS2CPacket tracker) {
+            data.onEntityTrackerUpdate(tracker);
+        } else if (packet instanceof EntityEquipmentUpdateS2CPacket equipment) {
+            data.onEntityEquipment(equipment);
+        } else if (packet instanceof EntitiesDestroyS2CPacket destroy) {
+            data.onEntitiesDestroy(destroy);
         } else if (packet instanceof ChunkBiomeDataS2CPacket biome) {
 //          this.onChunkBiomeData(biome); // - uncomment if it breaks everything
         }

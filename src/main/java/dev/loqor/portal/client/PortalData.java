@@ -1,11 +1,19 @@
 package dev.loqor.portal.client;
 
+import com.mojang.datafixers.util.Pair;
+
 import dev.amble.ait.client.boti.TardisDoorBOTI;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.TrackedPosition;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -13,6 +21,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
@@ -23,8 +32,10 @@ import net.minecraft.world.chunk.light.LightingProvider;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.dimension.DimensionTypes;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
@@ -132,6 +143,111 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
         WorldGeometryRenderer renderer = TardisDoorBOTI.getInteriorRenderer();
         if (renderer != null)
             renderer.markDirty();
+    }
+
+    // ===== Entities =====
+    // These mirror ClientPlayNetworkHandler's entity handling, but target the shadow world so the doorway shows
+    // the mobs, items, projectiles, etc. tracked around the exterior.
+
+    public void onEntitySpawn(EntitySpawnS2CPacket packet) {
+        EntityType<?> type = packet.getEntityType();
+        Entity entity = type.create(this.world);
+
+        if (entity == null)
+            return;
+
+        entity.onSpawnPacket(packet);
+        this.world.addEntity(packet.getId(), entity);
+    }
+
+    public void onEntityPosition(EntityPositionS2CPacket packet) {
+        Entity entity = this.world.getEntityById(packet.getId());
+        if (entity == null)
+            return;
+
+        Vec3d pos = new Vec3d(packet.getX(), packet.getY(), packet.getZ());
+        entity.getTrackedPosition().setPos(pos);
+        entity.updateTrackedPositionAndAngles(pos.x, pos.y, pos.z,
+                packet.getYaw() * 360 / 256.0F, packet.getPitch() * 360 / 256.0F, 3, false);
+        entity.setOnGround(packet.isOnGround());
+    }
+
+    public void onEntityMove(EntityS2CPacket packet) {
+        Entity entity = packet.getEntity(this.world);
+        if (entity == null)
+            return;
+
+        if (packet.isPositionChanged()) {
+            TrackedPosition tracked = entity.getTrackedPosition();
+            Vec3d pos = tracked.withDelta(packet.getDeltaX(), packet.getDeltaY(), packet.getDeltaZ());
+            tracked.setPos(pos);
+
+            float yaw = packet.hasRotation() ? packet.getYaw() * 360 / 256.0F : entity.getYaw();
+            float pitch = packet.hasRotation() ? packet.getPitch() * 360 / 256.0F : entity.getPitch();
+            entity.updateTrackedPositionAndAngles(pos.x, pos.y, pos.z, yaw, pitch, 3, false);
+        } else if (packet.hasRotation()) {
+            entity.updateTrackedPositionAndAngles(entity.getX(), entity.getY(), entity.getZ(),
+                    packet.getYaw() * 360 / 256.0F, packet.getPitch() * 360 / 256.0F, 3, false);
+        }
+
+        entity.setOnGround(packet.isOnGround());
+    }
+
+    public void onEntityVelocity(EntityVelocityUpdateS2CPacket packet) {
+        Entity entity = this.world.getEntityById(packet.getId());
+        if (entity == null)
+            return;
+
+        entity.setVelocityClient(packet.getVelocityX() / 8000.0,
+                packet.getVelocityY() / 8000.0, packet.getVelocityZ() / 8000.0);
+    }
+
+    public void onEntitySetHeadYaw(EntitySetHeadYawS2CPacket packet) {
+        Entity entity = packet.getEntity(this.world);
+        if (entity == null)
+            return;
+
+        entity.setHeadYaw(packet.getHeadYaw() * 360 / 256.0F);
+    }
+
+    public void onEntityTrackerUpdate(EntityTrackerUpdateS2CPacket packet) {
+        Entity entity = this.world.getEntityById(packet.id());
+
+        if (entity != null && packet.trackedValues() != null)
+            entity.getDataTracker().writeUpdatedEntries(packet.trackedValues());
+    }
+
+    public void onEntityEquipment(EntityEquipmentUpdateS2CPacket packet) {
+        if (this.world.getEntityById(packet.getId()) instanceof LivingEntity living) {
+            for (Pair<EquipmentSlot, ItemStack> pair : packet.getEquipmentList())
+                living.equipStack(pair.getFirst(), pair.getSecond());
+        }
+    }
+
+    public void onEntitiesDestroy(EntitiesDestroyS2CPacket packet) {
+        for (int i = 0; i < packet.getEntityIds().size(); i++) {
+            int id = packet.getEntityIds().getInt(i);
+            Entity entity = this.world.getEntityById(id);
+
+            if (entity != null)
+                this.world.removeEntity(id, Entity.RemovalReason.DISCARDED);
+        }
+    }
+
+    /**
+     * Steps the shadow world's entities once per client tick so their tracked positions interpolate and their
+     * models animate; the shadow world is not part of the client tick loop, so nothing else advances them.
+     */
+    public void tickEntities() {
+        List<Entity> snapshot = new ArrayList<>();
+        this.world.getEntities().forEach(snapshot::add);
+
+        for (Entity entity : snapshot) {
+            if (entity == null || entity.isRemoved())
+                continue;
+
+            this.world.tickEntity(entity);
+        }
     }
 
     public static PortalData fromCurrent(UUID id) {

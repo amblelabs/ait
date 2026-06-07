@@ -14,9 +14,11 @@ import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
@@ -99,6 +101,7 @@ public class WorldGeometryRenderer {
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, MinecraftClient.IS_SYSTEM_MAC);
 
         renderBlockEntities(portalWorld, matrices, tickDelta, centerPos);
+        renderEntities(portalWorld, matrices, tickDelta, centerPos);
 
         MatrixStack modelViewStack = RenderSystem.getModelViewStack();
         modelViewStack.push();
@@ -214,6 +217,31 @@ public class WorldGeometryRenderer {
 
         immediate.draw();
         assertEmpty(matrices);
+    }
+
+    private void renderEntities(ClientWorld portalWorld, MatrixStack matrices, float tickDelta, BlockPos centerPos) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        EntityRenderDispatcher dispatcher = client.getEntityRenderDispatcher();
+        VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
+
+        dispatcher.configure(portalWorld, client.gameRenderer.getCamera(), client.targetedEntity);
+
+        for (Entity entity : portalWorld.getEntities()) {
+            if (entity == null || !isWithinRenderBounds(entity.getBlockPos(), centerPos))
+                continue;
+
+            // Interpolated render position, expressed relative to the portal centre (same convention as the
+            // block-entity pass). The dispatcher translates the matrix stack by these coordinates internally.
+            double x = MathHelper.lerp(tickDelta, entity.lastRenderX, entity.getX()) - centerPos.getX();
+            double y = MathHelper.lerp(tickDelta, entity.lastRenderY, entity.getY()) - centerPos.getY();
+            double z = MathHelper.lerp(tickDelta, entity.lastRenderZ, entity.getZ()) - centerPos.getZ();
+            float yaw = MathHelper.lerp(tickDelta, entity.prevYaw, entity.getYaw());
+
+            int light = dispatcher.getLight(entity, tickDelta);
+            dispatcher.render(entity, x, y, z, yaw, tickDelta, matrices, immediate, light);
+        }
+
+        immediate.draw();
     }
 
     private boolean isWithinRenderBounds(BlockPos blockPos, BlockPos centerPos) {

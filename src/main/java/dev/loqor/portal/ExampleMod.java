@@ -19,6 +19,14 @@ import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkRenderDistanceCenterS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntitySetHeadYawS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.UnloadChunkS2CPacket;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
@@ -190,13 +198,28 @@ public class ExampleMod implements ModInitializer {
 
     /** Called by the proxy's network handler for every packet the chunk manager streams to it. */
     private static void forward(ServerTardis tardis, Packet<?> packet) {
-        if (!(packet instanceof ChunkDataS2CPacket)
-                && !(packet instanceof ChunkDeltaUpdateS2CPacket)
-                && !(packet instanceof BlockUpdateS2CPacket)
-                && !(packet instanceof UnloadChunkS2CPacket))
-            return;
+        if (shouldForward(packet))
+            broadcast(tardis, packet);
+    }
 
-        broadcast(tardis, packet);
+    /**
+     * The subset of the proxy's stream we replay into the shadow world: terrain and the entity-tracking packets
+     * the entity tracker sends for everything around the exterior. {@link EntityS2CPacket} is the abstract base
+     * for the three relative move/rotate variants, so one check covers all of them.
+     */
+    private static boolean shouldForward(Packet<?> packet) {
+        return packet instanceof ChunkDataS2CPacket
+                || packet instanceof ChunkDeltaUpdateS2CPacket
+                || packet instanceof BlockUpdateS2CPacket
+                || packet instanceof UnloadChunkS2CPacket
+                || packet instanceof EntitySpawnS2CPacket
+                || packet instanceof EntityPositionS2CPacket
+                || packet instanceof EntityS2CPacket
+                || packet instanceof EntityVelocityUpdateS2CPacket
+                || packet instanceof EntitySetHeadYawS2CPacket
+                || packet instanceof EntityTrackerUpdateS2CPacket
+                || packet instanceof EntityEquipmentUpdateS2CPacket
+                || packet instanceof EntitiesDestroyS2CPacket;
     }
 
     private static void broadcastInit(ServerTardis tardis, ServerWorld world) {
