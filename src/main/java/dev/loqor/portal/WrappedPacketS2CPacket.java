@@ -30,6 +30,8 @@ public record WrappedPacketS2CPacket(UUID id, Packet<?> packet) implements Fabri
 
         if (this.packet instanceof BundleS2CPacket bundle) {
             List<Packet<ClientPlayPacketListener>> packets = (List<Packet<ClientPlayPacketListener>>) bundle.getPackets();
+
+            buf.writeVarInt(-1);
             buf.writeVarInt(packets.size());
 
             for (Packet<ClientPlayPacketListener> packet : packets) {

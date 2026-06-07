@@ -1,6 +1,7 @@
 package dev.loqor.portal;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.core.world.TardisServerWorld;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
@@ -10,9 +11,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.ChunkRenderDistanceCenterS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+
+import java.util.UUID;
 
 public class ExampleMod implements ModInitializer {
 
@@ -32,8 +36,11 @@ public class ExampleMod implements ModInitializer {
         ServerPlayConnectionEvents.JOIN.register((handler, packetSender, server) -> {
             playerWorld = handler.player.getServerWorld();
             proxyWorld = server.getOverworld();
+
+            // Set proxy at 0, 0, 0
             proxy = setupProxy(proxyWorld, new BlockPos(0, 0, 0));
 
+            // 1. Setup the listener ONLY for chunk data and block updates
             proxy.setPacketListener(packet -> {
                 if (!(packet instanceof ChunkDataS2CPacket)
                         && !(packet instanceof ChunkDeltaUpdateS2CPacket)
@@ -45,7 +52,11 @@ public class ExampleMod implements ModInitializer {
                     return;
                 }
 
-                FabricPacket wrapped = new WrappedPacketS2CPacket(packet);
+                UUID tardisId = TardisServerWorld.getTardisId(playerWorld);
+
+                if (tardisId == null) return;
+
+                FabricPacket wrapped = new WrappedPacketS2CPacket(tardisId, packet);
 
                 for (ServerPlayerEntity player : playerWorld.getPlayers()) {
                     if (player instanceof PacketProxyPlayer) continue;
@@ -54,11 +65,31 @@ public class ExampleMod implements ModInitializer {
                 }
             });
 
+            // 2. Spawn the proxy into the world to start generating chunks
             proxyWorld.spawnEntity(proxy);
+
+            // 3. Send the center chunk packet EXACTLY ONCE to initialize the client's chunk map
+            UUID tardisId = TardisServerWorld.getTardisId(playerWorld);
+            if (tardisId != null) {
+                // Get the chunk coordinates of the proxy (not block coordinates!)
+                int chunkX = proxy.getChunkPos().x;
+                int chunkZ = proxy.getChunkPos().z;
+
+                ChunkRenderDistanceCenterS2CPacket centerPacket = new ChunkRenderDistanceCenterS2CPacket(chunkX, chunkZ);
+                FabricPacket wrappedCenter = new WrappedPacketS2CPacket(tardisId, centerPacket);
+
+                for (ServerPlayerEntity player : playerWorld.getPlayers()) {
+                    if (player instanceof PacketProxyPlayer) continue;
+
+                    ServerPlayNetworking.send(player, wrappedCenter);
+                }
+            }
         });
 
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
-            proxyWorld.removePlayer(proxy, Entity.RemovalReason.DISCARDED);
+            if (proxyWorld != null && proxy != null) {
+                proxyWorld.removePlayer(proxy, Entity.RemovalReason.DISCARDED);
+            }
             proxyWorld = null;
             proxy = null;
 

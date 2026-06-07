@@ -36,7 +36,8 @@ public class PortalDataManager {
     }
 
     public static PortalData getOrCreate(UUID id) {
-        return map.computeIfAbsent(id, PortalData::fromCurrent);
+        // FIXED: Lambda ensures no signature mismatch if fromCurrent doesn't take a UUID
+        return map.computeIfAbsent(id, uuid -> PortalData.fromCurrent(id));
     }
 
     public static PortalData get(UUID id) {
@@ -62,7 +63,8 @@ public class PortalDataManager {
     }
 
     private static PortalData handle0(UUID id, Packet<?> packet) {
-        PortalData data = map.get(id);
+        // FIXED: Prevent NullPointerException when receiving packets for a new portal
+        PortalData data = getOrCreate(id);
 
         if (packet instanceof BundleS2CPacket bundle) {
             for (Packet<?> otherPacket : bundle.getPackets()) {
@@ -86,7 +88,7 @@ public class PortalDataManager {
         } else if (packet instanceof BlockUpdateS2CPacket update) {
             data.onBlockUpdate(update);
         } else if (packet instanceof ChunkBiomeDataS2CPacket biome) {
-//            this.onChunkBiomeData(biome); // - uncomment if it breaks everything
+//          this.onChunkBiomeData(biome); // - uncomment if it breaks everything
         }
     }
 }

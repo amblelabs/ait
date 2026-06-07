@@ -13,6 +13,8 @@ import java.util.UUID;
 import dev.amble.ait.client.screens.*;
 import dev.amble.ait.api.ClientWorldEvents;
 import dev.amble.lib.register.AmbleRegistries;
+import dev.loqor.portal.WrappedPacketS2CPacket;
+import dev.loqor.portal.client.PortalDataManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -282,6 +284,7 @@ public class AITModClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register((context, delta) -> SonicRendering.getInstance().renderGui(context, delta));
 
         SonicModelLoader.init();
+        PortalDataManager.init();
 
         ClientPlayNetworking.registerGlobalReceiver(AstralMapBlock.OPEN_ASTRAL_MAP, (client, handler, buf, responseSender) -> {
             List<Identifier> ids = buf.readList(PacketByteBuf::readIdentifier);
@@ -486,24 +489,23 @@ public class AITModClient implements ClientModInitializer {
 
     public void registerItemColors() {
         ColorProviderRegistry.ITEM.register((stack, tintIndex) -> {
-            if (tintIndex != 0)
+            if (tintIndex != 0) {
                 return -1;
+            }
 
-                    TardisMatrixItem tardisMatrixItem = (TardisMatrixItem) stack.getItem();
-                    int[] integers = tardisMatrixItem.getColor(stack);
-                    return colorToInt(integers[0], integers[1], integers[2]);
-                }, AITItems.TARDIS_MATRIX);
-            PersonalityMatrixItem personalityMatrixItem = (PersonalityMatrixItem) stack.getItem();
-            int[] integers = personalityMatrixItem.getColor(stack);
+            TardisMatrixItem tardisMatrixItem = (TardisMatrixItem) stack.getItem();
+            int[] integers = tardisMatrixItem.getColor(stack);
             return colorToInt(integers[0], integers[1], integers[2]);
-        }, AITItems.PERSONALITY_MATRIX);
+        }, AITItems.TARDIS_MATRIX);
 
-        ColorProviderRegistry.ITEM.register((stack, tintIndex) -> tintIndex > 0 ? -1 :
-                DrinkUtil.getColor(stack), AITItems.MUG);
+        ColorProviderRegistry.ITEM.register((stack, tintIndex) ->
+                        tintIndex > 0 ? -1 : DrinkUtil.getColor(stack),
+                AITItems.MUG);
 
         ColorProviderRegistry.ITEM.register((stack, tintIndex) -> {
-            if (tintIndex != 0)
+            if (tintIndex != 0) {
                 return -1;
+            }
 
             WaypointItem waypoint = (WaypointItem) stack.getItem();
             return waypoint.getColor(stack);

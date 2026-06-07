@@ -1,12 +1,12 @@
 package dev.amble.ait.client.boti;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.amble.ait.core.blocks.DoorBlock;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedGlobalPos;
+import dev.loqor.portal.client.PortalData;
 import dev.loqor.portal.client.PortalDataManager;
 import dev.loqor.portal.client.WorldGeometryRenderer;
 import net.minecraft.client.render.*;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.*;
 import org.joml.Matrix4f;
@@ -185,49 +185,22 @@ public class TardisDoorBOTI extends BOTI {
 
         // ===== RENDER TARDIS INTERIOR HERE =====
         if (tardis.travel().getState() == TravelHandlerBase.State.LANDED && interiorRenderer != null) {
-            stack.push();
-            BlockPos interiorDoorPos = door.getPos();
-            if (interiorDoorPos != null) {
-                MatrixStack interiorMatrices = new MatrixStack();
+            CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
+            BlockPos exteriorBlockPos = tardis.travel().position().getPos();
+            PortalData portalData = PortalDataManager.get(tardis.getUuid());
+            if (portalData != null && portalData.world() != null) {
 
-
-                Vec3d cameraPos = client.gameRenderer.getCamera().getPos();
-                float cameraPitch = client.gameRenderer.getCamera().getPitch();
-                float cameraYaw = client.gameRenderer.getCamera().getYaw();
-
-                DirectedGlobalPos exteriorPos = tardis.travel().position();
-
-                BlockPos exteriorBlockPos = exteriorPos.getPos();
-                float exteriorFacing = exteriorPos.getRotationDegrees() - 90;
-
-                Vec3d offset = new Vec3d(
-                        cameraPos.x - interiorDoorPos.getX(),
-                        cameraPos.y - interiorDoorPos.getY(),
-                        cameraPos.z - interiorDoorPos.getZ()
-                );
-
-                interiorMatrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(cameraPitch));
-                interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(cameraYaw));
-
-                interiorMatrices.translate(offset.x, -offset.y, offset.z);
-                interiorMatrices.translate(-0.5, 0, -0.5);
-                interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(exteriorFacing));
-                interiorMatrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(door.getFacing().asRotation() + (door.getFacing() == Direction.EAST ||
-                        door.getFacing() == Direction.WEST ? -90 : 90))); // This is super jank but its working!!!!!!! - Loqor
-                interiorMatrices.translate(0.5, 0, 0.5);
+                MatrixStack portalMatrices = new MatrixStack();
 
                 try {
-                    Direction doorFacing = Direction.fromRotation(exteriorFacing - 90);
+                    Direction doorFacing = Direction.fromRotation(exteriorPos.getRotationDegrees());
                     interiorRenderer.setDoorFacing(doorFacing);
 
-                    interiorMatrices.scale(-1, 1, -1);
-
-                    interiorRenderer.render(client.world, exteriorBlockPos, interiorMatrices, tickDelta, true);
+                    interiorRenderer.render(tardis.getUuid(), portalData.world(), exteriorBlockPos, portalMatrices, tickDelta, true);
                 } catch (Exception e) {
-                    // Silent fail
+                    e.printStackTrace();
                 }
             }
-            stack.pop();
         }
 
         // Render vortex/effects when in flight
