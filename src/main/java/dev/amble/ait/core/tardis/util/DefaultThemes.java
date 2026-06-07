@@ -23,14 +23,14 @@ public enum DefaultThemes {
     CORAL("coral", "exterior/police_box/coral", "coral", "console/coral"),
     PRIME("accursed", "exterior/capsule/default", "prime", "console/hartnell"),
     TOYOTA("toyota", "exterior/police_box/default", "toyota", "console/toyota"),
-    RENAISSANCE("renaissance", "exterior/police_box/renaissance", "renaissance", "todo"),
+    RENAISSANCE("renaissance", "exterior/police_box/renaissance", "renaissance", "console/renaissance"),
     WAR(AITMod.id("war"), new Identifier("frooploof", "coral_war"), AITMod.id("coral"), AITMod.id("console/coral")),
-    CRYSTALLINE("crystalline", "exterior/police_box/renaissance", "renaissance", "console/crystalline");
+    CRYSTALLINE("crystalline", "exterior/police_box/renaissance", "renaissance", "console/crystalline"),
+    COPPER("copper", "exterior/police_box/default", "copper", "console/copper");
     private final Identifier desktop;
     private final Identifier exterior;
     private final Identifier hum;
     private final Identifier console;
-
 
     DefaultThemes(String desktop, String exterior, String hum, String console) {
         this(AITMod.id(desktop), AITMod.id(exterior), AITMod.id(hum), AITMod.id(console));

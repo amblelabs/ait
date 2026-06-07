@@ -2,6 +2,7 @@ package dev.amble.ait.client.models.consoles;
 
 import java.util.function.Function;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -17,6 +18,7 @@ import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import net.minecraft.util.math.MathHelper;
 
 @SuppressWarnings("rawtypes")
 public abstract class SimpleConsoleModel extends SinglePartEntityModel implements ConsoleModel {
@@ -40,7 +42,7 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
         this.getPart().traverse().forEach(ModelPart::resetTransform);
 
         if (hasPower && AITModClient.CONFIG.animateConsole)
-            this.updateAnimation(console.ANIM_STATE, this.getAnimationForState(state), console.getAge());
+            this.updateAnimation(console.ANIM_STATE, this.getAnimationForState(state), MinecraftClient.getInstance().getTickDelta() + console.getAge());
     }
 
     @Override
@@ -64,5 +66,10 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
     public void renderMonitorText(Tardis tardis, ConsoleBlockEntity entity, MatrixStack matrices,
                                   VertexConsumerProvider vertexConsumers, int light, int overlay) {
         // do nothing !! (i fucking hate programming) todo - @Loqor you added this feature ur implementing it for the rest
+    }
+
+    public float interpol(float current, float target, float speed) {
+        float delta = MinecraftClient.getInstance().getTickDelta() * speed;
+        return MathHelper.lerp(delta, current, target);
     }
 }

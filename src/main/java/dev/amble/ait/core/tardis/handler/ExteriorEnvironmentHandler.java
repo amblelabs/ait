@@ -44,22 +44,29 @@ public class ExteriorEnvironmentHandler extends KeyedTardisComponent implements 
 
     @Override
     public void tick(MinecraftServer server) {
-        if (server.getTicks() % 10 != 0)
+        if (server.getTicks() % 20 != 0)
             return;
 
         TravelHandler travel = this.tardis.travel();
         World exterior = travel.position().getWorld();
 
-        if (exterior == null || exterior.isClient()) return;
+        if (exterior == null) return;
 
-        boolean snowy = tardis.<BiomeHandler>handler(Id.BIOME).getBiomeKey() == BiomeHandler.BiomeType.SNOWY;
+        boolean isRaining = false;
+        boolean isThundering = false;
+        
+        if (travel.getState() == TravelHandlerBase.State.LANDED) {
+            boolean snowy = tardis.<BiomeHandler>handler(Id.BIOME).getBiomeKey() == BiomeHandler.BiomeType.SNOWY;
 
-        boolean isRaining = exterior.hasRain(travel.position().getPos()) && exterior.isRaining() && !snowy;
-        boolean isThundering = exterior.hasRain(travel.position().getPos()) && exterior.isThundering() && !snowy;
+            isRaining = !snowy && exterior.isRaining();
+            isThundering = !snowy && exterior.isThundering();
 
-        if (travel.getState() != TravelHandlerBase.State.LANDED) {
-            isRaining = false;
-            isThundering = false;
+            if (isRaining || isThundering) {
+                boolean hasRain = exterior.hasRain(travel.position().getPos());
+                
+                isRaining = isRaining && hasRain;
+                isThundering = isThundering && hasRain;
+            }
         }
 
         if (this.isRaining() != isRaining)

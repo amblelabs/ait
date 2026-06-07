@@ -1,5 +1,6 @@
 package dev.amble.ait.core.engine;
 
+import dev.amble.ait.core.item.RepairToolItem;
 import dev.amble.lib.util.ServerLifecycleHooks;
 
 import net.minecraft.item.ItemStack;
@@ -74,7 +75,7 @@ public abstract class DurableSubSystem extends SubSystem {
     protected abstract boolean shouldDurabilityChange();
 
     public boolean isRepairItem(ItemStack stack) {
-        return stack.isIn(AITTags.Items.REPAIRS_SUBSYSTEM);
+        return stack.getItem() instanceof RepairToolItem;
     }
 
     @Override

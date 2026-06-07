@@ -1,7 +1,9 @@
 package dev.amble.ait.client.models.machines;
 
 import net.minecraft.client.model.*;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 
@@ -36,6 +38,10 @@ public class GenericSubSystemModel extends SinglePartEntityModel {
 
     @Override
     public void setAngles(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
+    }
 
+    @Override
+    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+        this.box.render(matrices, vertices, light, overlay, red, green, blue, alpha);
     }
 }

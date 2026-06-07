@@ -1,8 +1,9 @@
 
 <div align="center">
 
-### **Presented by [Amble Labs](https://amblelabs.github.io)**
-<img src="https://cdn.modrinth.com/data/cached_images/3a42ec9af204d77515b938dc326a6694bf8766b7.png" alt="AIT Logo" width="700"/>
+### **Presented by [AmbleLabs](https://amblelabs.dev)**
+<img src="promo/ait_logo_1400px.png" alt="AIT Logo" width="700" />
+
 
 &nbsp;
 
@@ -79,7 +80,7 @@ Recommended to have 8GB of RAM **allocated** to the multiplayer servers.
   Need Help? Confused? Don't know what a feature does?
 </h2>
 
-If you have confusion about special blocks you are able to check the items tooltip for more info on what conditions you need to be to place the block. We also have a [wiki](https://amblelabs.github.io/ait-wiki/) which documents on most things in the mod from blocks and items right to how to add custom datapack exteriors and consoles.
+If you have confusion about special blocks you are able to check the items tooltip for more info on what conditions you need to be to place the block. We also have a [wiki](https://amblelabs.dev/wiki) which documents on most things in the mod from blocks and items right to how to add custom datapack exteriors and consoles.
 
 ![The Sonic Screwdriver can see what controls do what!](https://cdn.modrinth.com/data/cached_images/e9a7d7247bd2c74f8690fa99caf30acda381c37d.png)
 
@@ -117,30 +118,30 @@ We also have some extra compatibility but for this you would have to install a s
 
 
 ### Developers:
-- [Loqor](https://loqor.dev/)
-- [duzo](https://duzo.is-a.dev/)
+- [Loqor](https://loqor.dev)
 - [Dr. Theo](https://theo.is-a.dev/)
 - [Maketendo](https://github.com/MaketendoDev)
 - [AddieDaBaddie](https://addi3.github.io/index)
 - [Saturn](https://github.com/Saturnorsomthing)
 - [Monke](https://github.com/rapbattlegod32)
 - [Pan](https://github.com/Mansarde)
+- Many more! (Check the [GitHub](https://github.com/amblelabs/ait/graphs/contributors) for a full list of contributors)
 
 ---
 
 ### Artists:
+- WazzakiWanzz
 - Westankrang
 - Tright
 - b2
 - Ouro
 - Maggie
-- Theta
 
 ---
 
 ### Sound Design:
+- RatZoomie
 - Dian
-- [Radio](https://im-radio.bandcamp.com/album/ait-mod-music-disc-drifting)
 - TARDISSFX (the YouTube channel)
 - Uriel_N_Diaz 
 - Classic
@@ -148,6 +149,9 @@ We also have some extra compatibility but for this you would have to install a s
 ---
 
 ### Thank You's:
+- [duzo](https://duzo.is-a.dev/)
+- vmbbi (Max) (Wiki writing)
+- Echo (Wiki writing)
 - [MagicMan(?)](https://magicmaan.github.io/) (Help with modeling)
 - Bug1312 (Help with code)
 - DocArcane (Credit for the Steampunk console design)
@@ -167,7 +171,7 @@ We also have some extra compatibility but for this you would have to install a s
 </h2>
 
 <div style="text-align: center; font-size: 1.5em; margin-top: 1em; white-space: nowrap;">
-  <a href="https://amblelabs.github.io/ait-wiki/" style="text-decoration: none; color: inherit; display: inline-block; margin: 0 8px;">Wiki</a>
+  <a href="https://amblelabs.dev/wiki/" style="text-decoration: none; color: inherit; display: inline-block; margin: 0 8px;">Wiki</a>
   <span style="display: inline-block; margin: 0 4px;">•</span>
   <a href="https://github.com/amblelabs/ait/" style="text-decoration: none; color: inherit; display: inline-block; margin: 0 8px;">GitHub</a>
   <span style="display: inline-block; margin: 0 4px;">•</span>

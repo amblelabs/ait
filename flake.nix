@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     flake-parts.url = "github:hercules-ci/flake-parts";
     systems.url = "github:nix-systems/default";
   };
@@ -10,16 +10,16 @@
       systems = import inputs.systems;
 
       perSystem = { config, self', pkgs, lib, system, ... }: let
-        java = pkgs.jetbrains.jdk-no-jcef;
+        mc-java = pkgs.jetbrains.jdk-no-jcef;
 
         nativeBuildInputs = with pkgs; [
-          java
+          mc-java
           git
         ];
 
         buildInputs = with pkgs; [
           libGL
-          glfw-wayland-minecraft # Not always needed, but in case it is, it's here.
+          glfw3-minecraft # Not always needed, but in case it is, it's here.
           flite # TTS
           libpulseaudio # Required for audio
         ];
@@ -29,7 +29,7 @@
 
           env = {
             LD_LIBRARY_PATH = lib.makeLibraryPath buildInputs;
-            JAVA_HOME = "${java.home}";
+            JAVA_HOME = "${mc-java.home}";
           };
         };
       };

@@ -1,31 +1,5 @@
 package dev.amble.ait.datagen;
 
-import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
-import static net.minecraft.data.server.recipe.RecipeProvider.*;
-
-import java.util.Calendar;
-import java.util.concurrent.CompletableFuture;
-
-import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
-import dev.amble.lib.datagen.lang.LanguageType;
-import dev.amble.lib.datagen.sound.AmbleSoundProvider;
-import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-
-import net.minecraft.block.Blocks;
-import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryBuilder;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITEntityTypes;
@@ -40,6 +14,30 @@ import dev.amble.ait.module.planet.core.PlanetBlocks;
 import dev.amble.ait.module.planet.core.PlanetItems;
 import dev.amble.ait.module.planet.core.world.PlanetConfiguredFeatures;
 import dev.amble.ait.module.planet.core.world.PlanetPlacedFeatures;
+import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
+import dev.amble.lib.datagen.lang.LanguageType;
+import dev.amble.lib.datagen.sound.AmbleSoundProvider;
+import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.minecraft.block.Blocks;
+import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
+import net.minecraft.item.Items;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.book.RecipeCategory;
+import net.minecraft.registry.RegistryBuilder;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.Identifier;
+
+import java.util.Calendar;
+import java.util.concurrent.CompletableFuture;
+
+import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
+import static net.minecraft.data.server.recipe.RecipeProvider.*;
 
 public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
@@ -718,7 +716,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
             provider.registerDirectionalBlock(AITBlocks.FABRICATOR);
             provider.registerDirectionalBlock(AITBlocks.DOOR_BLOCK);
             provider.registerCoralFanBlock(AITBlocks.TARDIS_CORAL_FAN, AITBlocks.TARDIS_CORAL_WALL_FAN);
-
             return provider;
         }));
     }
@@ -770,12 +767,18 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
             module.getItemRegistry().ifPresent(provider::translateItems);
         });
 
+        provider.addTranslation("block.ait.matrix_energizer.needs_nether_star", "The energizer needs the power of the Wither...");
         provider.addTranslation("ait.tardis.likes_item", "The TARDIS may like this item...");
+        provider.addTranslation("ait.charged_zeiton_crystal.not_max_fuel", "Crystal doesn't have enough fuel!");
         provider.addTranslation("tooltip.ait.remoteitem.holdformoreinfo", "Hold shift for more info");
 
         provider.addTranslation("ait.control_disc.set_position", "Write to DVD-ROM");
         provider.addTranslation("ait.control_disc.can_contain_players.toggle", "Can Contain Players: %s");
         provider.addTranslation("ait.control_disc.unusable_in_tardis_world", "Failed to write DVD-ROM contents: invalid dimension!");
+
+        provider.addTranslation("ait.text.chat.clicked", "here");
+        provider.addTranslation("ait.text.chat.readwiki", "To learn how to play this mod, we suggest you read the wiki, which is ");
+        provider.addTranslation("ait.text.chat.hover", "Click here to open the wiki in your browser");
 
         // Control entities
         provider.addTranslation("control.ait.antigravs", "Antigravs");
@@ -838,6 +841,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.travelPerTick", "Travel Per Tick");
         provider.addTranslation("yacl3.config.ait:server.sendBulk", "Send Bulk?");
         provider.addTranslation("yacl3.config.ait:server.maxTardises", "Max Amount Of Tardises");
+        provider.addTranslation("yacl3.config.ait:server.astralMapBiomeLocatorRange", "Block Radius Of Biome Finder For Astral Map");
         provider.addTranslation("yacl3.config.ait:client.showConsoleMonitorText", "Show text on console monitors?");
         provider.addTranslation("yacl3.config.ait:client.showCRTMonitorText", "Show text on CRT monitors?");
         provider.addTranslation("yacl3.config.ait:client.renderDematParticles", "Render demat particles?");
@@ -850,6 +854,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.fahrenheit", "Fahrenheit (°F)");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.kelvin", "Kelvin (K)");
         provider.addTranslation("yacl3.config.ait:client.handlesLevenshteinDistance", "Levenshtein distance for handles");
+        provider.addTranslation("yacl3.config.ait:server.flightSoundVolume", "Flight Sound Volume");
 
         provider.addTranslation("text.autoconfig.aitconfig.category.client", "Client");
         provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.SHOW_EXPERIMENTAL_WARNING", "Show Experimental Warning");
@@ -887,9 +892,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItems.REMOTE_ITEM, "Stattenheim Remote");
         provider.addTranslation(AITItems.ARTRON_COLLECTOR, "Artron Collector Unit");
         provider.addTranslation(AITItems.SIEGE_ITEM, "TARDIS");
-        provider.addTranslation(AITItems.DRIFTING_MUSIC_DISC, "Music Disc");
+        provider.addTranslation(AITItems.TWO_THOUSAND_MUSIC_DISC, "Music Disc");
         provider.addTranslation(AITItems.WONDERFUL_TIME_IN_SPACE_MUSIC_DISC, "Music Disc");
-        provider.addTranslation(AITItems.DRIFTING_MUSIC_DISC.getTranslationKey() + ".desc", "Radio - Drifting");
+        provider.addTranslation(AITItems.TWO_THOUSAND_MUSIC_DISC.getTranslationKey() + ".desc", "lucien - Two Thousand");
         provider.addTranslation(AITItems.WONDERFUL_TIME_IN_SPACE_MUSIC_DISC.getTranslationKey() + ".desc", "Dian - Wonderful Time in Space");
         provider.addTranslation(AITItems.EARTH_MUSIC_DISC, "Music Disc");
         provider.addTranslation(AITItems.EARTH_MUSIC_DISC.getTranslationKey() + ".desc", "Nitrogenez - Earth");
@@ -897,8 +902,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItems.VENUS_MUSIC_DISC.getTranslationKey() + ".desc", "Nitrogenez - Venus");
         provider.addTranslation(AITItems.GOOD_MAN_MUSIC_DISC, "Music Disc");
         provider.addTranslation(AITItems.GOOD_MAN_MUSIC_DISC.getTranslationKey() + ".desc", "Dian - Good Man? [CUT EDITION]");
-        provider.addTranslation(AITItems.CHRONOLOGY_MUSIC_DISC, "Music Disc");
-        provider.addTranslation(AITItems.CHRONOLOGY_MUSIC_DISC.getTranslationKey() + ".desc", "PianoinFlames - Chronology [MAIN THEME]");
+        provider.addTranslation(AITItems.AIT_THEME_MUSIC_DISC, "Music Disc");
+        provider.addTranslation(AITItems.AIT_THEME_MUSIC_DISC.getTranslationKey() + ".desc", "RatZoomie - Adventures In Time [MAIN THEME]");
+        provider.addTranslation(AITItems.CRASH_MUSIC_DISC, "Music Disc");
+        provider.addTranslation(AITItems.CRASH_MUSIC_DISC.getTranslationKey() + ".desc", "lucien - Crashing TARDIS");
         provider.addTranslation(AITItems.GOLD_KEY_UPGRADE_SMITHING_TEMPLATE, "Smithing Template");
         provider.addTranslation(AITItems.NETHERITE_KEY_UPGRADE_SMITHING_TEMPLATE, "Smithing Template");
         provider.addTranslation(AITItems.CLASSIC_KEY_UPGRADE_SMITHING_TEMPLATE, "Smithing Template");
@@ -1068,7 +1075,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tooltip.ait.power_converter", "(Convert zeiton, lava, coal and wood into Artron)");
         provider.addTranslation("tooltip.ait.singularity", "(Give the TARDIS Coral this to allow the generation of the interior)");
         provider.addTranslation("tooltip.ait.tardis_coral", "(Grow this on top of soul sand)");
-        provider.addTranslation("tooltip.ait.matrix_energizer", "(Place on a naturally-occurring shrieker to produce a Personality Matrix)");
+        provider.addTranslation("tooltip.ait.matrix_energizer", "(Place on a naturally-occurring shrieker to produce a TARDIS Matrix)");
 
         // Painting
         provider.addTranslation("painting.ait.crab_thrower.title", "Crab Thrower");
@@ -1082,6 +1089,19 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         provider.addTranslation("painting.ait.peanut.title", "Peanut");
         provider.addTranslation("painting.ait.peanut.author", "???");
+
+        // Astral Map
+        provider.addTranslation("screen.ait.astral_map.structures.button", "STRUCTURES");
+        provider.addTranslation("screen.ait.astral_map.biomes.button", "BIOMES");
+        provider.addTranslation("screen.ait.astral_map.search.button", "SEARCH");
+        provider.addTranslation("screen.ait.astral_map.loading", "LOADING");
+        provider.addTranslation("screen.ait.astral_map.switcher.left_arrow", "<");
+        provider.addTranslation("screen.ait.astral_map.switcher.right_arrow", ">");
+        provider.addTranslation("block.ait.astral_map.finder.structure_not_found", "404: STRUCTURE NOT FOUND");
+        provider.addTranslation("block.ait.astral_map.finder.biome_not_found", "404: BIOME NOT FOUND");
+        provider.addTranslation("block.ait.astral_map.finder.searching_for_biome", "SEARCHING FOR BIOME...");
+        provider.addTranslation("block.ait.astral_map.finder.searching_for_structure", "SEARCHING FOR STRUCTURE...");
+        provider.addTranslation("block.ait.astral_map.finder.found", "SUCCESS! FOUND AT %s, %s, %s ( %s blocks away )");
 
         // Death
         provider.addTranslation("death.attack.tardis_squash", "%1$s got squashed by a TARDIS!");
@@ -1160,7 +1180,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.self_destruct.warning", "SELF DESTRUCT INITIATED | ABANDON SHIP");
         provider.addTranslation("tardis.message.chameleon.failed", "Failed to find a suitable disguise!");
         provider.addTranslation("warning.ait.needs_subsystem", "ERROR, REQUIRES ACTIVE SUBSYSTEM: %s");
-        provider.addTranslation("tardis.message.growth.hint", "Throw the Personality Matrix into the water to give it life...");
+        provider.addTranslation("tardis.message.growth.hint", "Throw the TARDIS Matrix into the water to give it life...");
         provider.addTranslation("tardis.message.growth.no_cage", "Cage the TARDIS Coral to begin Plasmic coating process!");
         provider.addTranslation("tardis.message.growth.in_progress", "Coral growth still in progress...");
         provider.addTranslation("message.ait.hypercubes.disabled", "Hypercubes are disabled in SERVER config.");
@@ -1305,6 +1325,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         // Environment Projector
         provider.addTranslation("message.ait.projector.skybox", "Now projecting: %s");
+        provider.addTranslation("message.ait.projector.world", "World: ");
+        provider.addTranslation("message.ait.projector.dimension_skys", "Dimension skys");
 
         // Rift Scanner
         provider.addTranslation("message.ait.riftscanner.info1", "Artron Chunk Info: ");
@@ -1339,6 +1361,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.security.button", "> Security Options");
         provider.addTranslation("screen.ait.interiorsettings.changeinterior", "> Change Interior");
         provider.addTranslation("screen.ait.interiorsettings.cacheconsole", "> Cache Console");
+        provider.addTranslation("screen.ait.loadsaveinterior.button", "> Save Interior");
 
         //TARDIS Flight Sequences
         provider.addTranslation("sequence.ait.avoid_debris", "Debris incoming!");
@@ -1362,14 +1385,20 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         // Hums
         provider.addTranslation("screen.ait.interior.settings.hum", "HUMS");
-        provider.addTranslation("screen.ait.interior.settings.coral", "Coral");
-        provider.addTranslation("screen.ait.interior.settings.toyota", "Toyota");
-        provider.addTranslation("screen.ait.interior.settings.eight", "Eighth");
-        provider.addTranslation("screen.ait.interior.settings.beacon", "Beacon");
-        provider.addTranslation("screen.ait.interior.settings.copper", "Copper");
-        provider.addTranslation("screen.ait.interior.settings.prime", "Prime");
-        provider.addTranslation("screen.ait.interior.settings.renaissance", "Renaissance");
-        provider.addTranslation("screen.ait.interior.settings.exile", "Exile");
+        provider.addTranslation("hum.ait.beacon", "Beacon");
+        provider.addTranslation("hum.ait.copper", "Copper");
+        provider.addTranslation("hum.ait.eight", "Eight");
+        provider.addTranslation("hum.ait.exile", "Exile");
+        provider.addTranslation("hum.ait.prime", "Prime");
+        provider.addTranslation("hum.ait.renaissance", "Renaissance");
+        provider.addTranslation("hum.ait.toyota", "Toyota");
+        provider.addTranslation("hum.ait.coral", "Coral");
+        provider.addTranslation("hum.ait.christmas", "Christmas");
+        provider.addTranslation("hum.ait.off", "Off");
+
+        // Astral Map
+        provider.addTranslation("screen.ait.astral_map.show_structures", "Structures");
+        provider.addTranslation("screen.ait.astral_map.show_biomes", "Biomes");
 
         // Handles
         provider.addTranslation("message.ait.handles.take_off","<Handles> Taking Off.");
@@ -1895,6 +1924,18 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("command.ait.realworld.responses", "Spawned a real world TARDIS at:");
         provider.addTranslation("command.ait.home.dimension_locked",
                 "Heimatposition kann nicht in einer für diese TARDIS gesperrten Dimension festgelegt werden.");
+
+	    // Hums
+	    provider.addTranslation("hum.ait.beacon", "Beacon");
+	    provider.addTranslation("hum.ait.copper", "Copper");
+	    provider.addTranslation("hum.ait.eight", "Eight");
+	    provider.addTranslation("hum.ait.exile", "Exile");
+	    provider.addTranslation("hum.ait.prime", "Prime");
+	    provider.addTranslation("hum.ait.renaissance", "Renaissance");
+	    provider.addTranslation("hum.ait.toyota", "Toyota");
+	    provider.addTranslation("hum.ait.coral", "Coral");
+	    provider.addTranslation("hum.ait.christmas", "Christmas");
+	    provider.addTranslation("hum.ait.off", "Off");
 
         return provider;
     }

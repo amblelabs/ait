@@ -11,6 +11,7 @@ import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.client.animation.console.crystalline.CrystallineAnimations;
@@ -1208,114 +1209,58 @@ public class CrystallineConsoleModel extends SimpleConsoleModel {
         console.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
+    private float throttleAngle = 0f;
+    private float handbrakeAngle = 0f;
+    private float powerAngle = 0f;
+    private float incrementAngle = 0f;
+    private float directionAngle = 0f;
+    private float refuelerAngle = 0f;
+    private float antiGravAngle = 0f;
+
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
+        float delta = 0.1f * MinecraftClient.getInstance().getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
 
-        // Throttle Control
         ModelPart throttle = this.console.getChild("pannel2").getChild("pillars2").getChild("pillars3").getChild("leveer2");
+        float throttleTarget = -(tardis.travel().speed() / (float) tardis.travel().maxSpeed().get());
+        this.throttleAngle = MathHelper.lerp(delta, this.throttleAngle, throttleTarget);
+        throttle.pitch = this.throttleAngle;
 
-        throttle.pitch = throttle.pitch - (tardis.travel().speed() / (float) tardis.travel().maxSpeed().get());
-
-        // Handbrake Control and Lights
         ModelPart handbrake = this.console.getChild("pannel2").getChild("pillars2").getChild("pillars3").getChild("leveer");
-        handbrake.pitch = tardis.travel().handbrake() ? handbrake.pitch + 1 : handbrake.pitch;
+        float handbrakeTarget = tardis.travel().handbrake() ? 1.0f : 0f;
+        this.handbrakeAngle = MathHelper.lerp(delta, this.handbrakeAngle, handbrakeTarget);
+        handbrake.pitch = this.handbrakeAngle;
 
-        // @TODO MONSTER THE ONE ON THE LEFT IS THE POWER NOT THE RIGHT SMH
-        // Power Switch and Lights
         ModelPart power = this.console.getChild("pannel3").getChild("rolly");
-        power.roll = tardis.fuel().hasPower() ? power.roll : power.roll - 1.55f;
+        float powerTarget = tardis.fuel().hasPower() ? 0f : -1.55f;
+        this.powerAngle = MathHelper.lerp(delta, this.powerAngle, powerTarget);
+        power.roll = this.powerAngle;
 
-        // Anti Gravity Control
         ModelPart antigravs = this.console.getChild("pannel7").getChild("panels7").getChild("cube1");
-        antigravs.yaw = tardis.travel().antigravs().get() ? antigravs.yaw - 1.58f : antigravs.yaw;
+        float antigravTarget = tardis.travel().antigravs().get() ? -1.58f : 0f;
+        this.antiGravAngle = MathHelper.lerp(delta, this.antiGravAngle, antigravTarget);
+        antigravs.yaw = this.antiGravAngle;
 
-        // Increment Control
         ModelPart increment = this.console.getChild("pannel7").getChild("panels7").getChild("bone4");
-        increment.roll = increment.roll - (IncrementManager.increment(tardis) / 1000f);
+        float incrementTarget = -(IncrementManager.increment(tardis) / 1000f);
+        this.incrementAngle = MathHelper.lerp(delta, this.incrementAngle, incrementTarget);
+        increment.roll = this.incrementAngle;
 
-//        ModelPart shield = this.console.getChild("panel1").getChild("controls").getChild("faucettaps2");
-//        shield.yaw = tardis.shields().shielded().get()
-//                ? shield.yaw - 1.58f
-//                : shield.yaw;
-//
-//        // Door Locking Mechanism Control
-//        ModelPart doorlock = this.console.getChild("panel1").getChild("controls").getChild("smalllockernob")
-//                .getChild("pivot3");
-//        doorlock.yaw = tardis.door().locked() ? doorlock.yaw + 0.5f : doorlock.yaw;
-//
-//        // Door Control
-//        ModelPart doorControl = this.console.getChild("panel1").getChild("controls").getChild("power");
-//        doorControl.pitch = tardis.door().isLeftOpen()
-//                ? doorControl.pitch - 1f
-//                : tardis.door().isRightOpen() ? doorControl.pitch - 1.55f : doorControl.pitch;
-//        ModelPart doorControlLights = this.console.getChild("panel1").getChild("controls").getChild("powerlights")
-//                .getChild("powerlights2");
-//        doorControlLights.pivotY = !(tardis.door().isOpen()) ? doorControlLights.pivotY : doorControlLights.pivotY + 1;
-//
-//        // Alarm Control and Lights
-//        ModelPart alarms = this.console.getChild("panel4").getChild("controls4").getChild("coloredlever2");
-//        ModelPart alarmsLight = this.console.getChild("panel4").getChild("yellow3");
-//        alarmsLight.pivotY = (tardis.alarm().enabled().get()) ? alarmsLight.pivotY : alarmsLight.pivotY + 1;
-//        alarms.pitch = tardis.alarm().enabled().get() ? alarms.pitch + 1f : alarms.pitch;
-//
-//        ModelPart security = this.console.getChild("panel4").getChild("controls4").getChild("coloredlever5");
-//        security.pitch = tardis.stats().security().get() ? security.pitch + 1f : security.pitch;
-//
-//        // Auto Pilot Control
-//        ModelPart autopilot = this.console.getChild("panel4").getChild("controls4").getChild("tinyswitch2");
-//        ModelPart autopilotLight = this.console.getChild("panel4").getChild("yellow4");
-//
-//        autopilot.pitch = tardis.travel().autopilot() ? autopilot.pitch + 1f : autopilot.pitch - 1f;
-//        autopilotLight.pivotY = tardis.travel().autopilot() ? autopilotLight.pivotY : autopilotLight.pivotY + 1;
-//
-//        // Siege Mode Control
-//        ModelPart siegeMode = this.console.getChild("panel2").getChild("controls3").getChild("siegemode")
-//                .getChild("siegemodehandle");
-//        siegeMode.pitch = tardis.siege().isActive() ? siegeMode.pitch + 1.55f : siegeMode.pitch;
-//
-        // Fuel Gauge
         ModelPart fuelGauge = this.console.getChild("pannel3").getChild("panels3").getChild("button");
-        fuelGauge.pivotX = fuelGauge.pivotX + 0.25f;
-        fuelGauge.pivotZ = fuelGauge.pivotZ + 0.25f;
-        fuelGauge.yaw = (float) (((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 2) - 1);
+        fuelGauge.pivotX += 0.25f;
+        fuelGauge.pivotZ += 0.25f;
+        float fuelGaugeTarget = (float) ((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 2f) - 1f;
+        this.refuelerAngle = MathHelper.lerp(delta, this.refuelerAngle, fuelGaugeTarget);
+        fuelGauge.yaw = this.refuelerAngle;
 
-//
-//        // Ground Search Control
-//        ModelPart groundSearch = this.console.getChild("panel1").getChild("controls").getChild("smallswitch");
-//        groundSearch.pitch = tardis.travel().horizontalSearch().get()
-//                ? groundSearch.pitch + 1f
-//                : groundSearch.pitch - 0.75f; // FIXME use TravelHandler#horizontalSearch/#verticalSearch
-//
-        // Direction Control
         ModelPart direction = this.console.getChild("pannel7").getChild("pillars56").getChild("pillars57").getChild("spinnio");
-        direction.roll = direction.roll + tardis.travel().destination().getRotation();
-//
-//        // Increment Control
-//        ModelPart increment = this.console.getChild("panel2").getChild("controls3").getChild("gears")
-//                .getChild("largegear2");
-//        increment.yaw = IncrementManager.increment(tardis) >= 10
-//                ? IncrementManager.increment(tardis) >= 100
-//                ? IncrementManager.increment(tardis) >= 1000
-//                ? IncrementManager.increment(tardis) >= 10000
-//                ? increment.yaw + 1.5f
-//                : increment.yaw + 1.25f
-//                : increment.yaw + 1f
-//                : increment.yaw + 0.5f
-//                : increment.yaw;
-//
-//        // Refuel Light
-//        ModelPart refuelLight = this.console.getChild("panel4").getChild("yellow6");
-//        refuelLight.pivotY = tardis.isRefueling() ? refuelLight.pivotY : refuelLight.pivotY + 1;
-//
-//        // Fast Return Control
-//        // @TODO Loqor you need to make a toggleable thing for the fast return to be
-//        // able to do
-//        // something for the switch
-//        ModelPart fastReturnCover = this.console.getChild("panel4").getChild("controls4").getChild("tinyswitchcover");
-//        ModelPart fastReturnLever = this.console.getChild("panel4").getChild("controls4").getChild("tinyswitch");
-
+        float directionTargetDegrees = tardis.travel().destination().getRotation() * 22.5f;
+        float currentDirectionDegrees = (float) Math.toDegrees(this.directionAngle);
+        float nextDirectionDegrees = MathHelper.lerpAngleDegrees(delta, currentDirectionDegrees, directionTargetDegrees);
+        this.directionAngle = (float) Math.toRadians(nextDirectionDegrees);
+        direction.roll = this.directionAngle;
 
         super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();

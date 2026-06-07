@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.TardisClientEvents;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -45,14 +47,22 @@ public class ClientTardisUtil {
 
     private static TardisRef currentTardis;
 
-    static {
+
+    public static void init() {
         ClientWorldEvents.CHANGE_WORLD.register((client, world) -> {
             UUID id = TardisServerWorld.getTardisId(world);
             currentTardis = new TardisRef(id, uuid -> ClientTardisManager.getInstance().demandTardis(uuid));
-        });
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            UUID id = TardisServerWorld.getTardisId(client.world);
-            currentTardis = new TardisRef(id, uuid -> ClientTardisManager.getInstance().demandTardis(uuid));
+            if (id == null) {
+                TardisClientEvents.ENTER_CLIENT_TARDIS.invoker().enterClientTardis(null);
+                return;
+            }
+            if (currentTardis.isEmpty()) {
+                ClientTardisManager.getInstance().subscribers.put(id, clientTardis -> {
+                    TardisClientEvents.ENTER_CLIENT_TARDIS.invoker().enterClientTardis(clientTardis);
+                });
+            } else {
+                TardisClientEvents.ENTER_CLIENT_TARDIS.invoker().enterClientTardis(currentTardis.get().asClient());
+            }
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             currentTardis = null;

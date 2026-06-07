@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricAdvancementProvider;
 
 import net.minecraft.advancement.Advancement;
 import net.minecraft.advancement.AdvancementFrame;
+import net.minecraft.advancement.AdvancementRewards;
 import net.minecraft.advancement.criterion.InventoryChangedCriterion;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
@@ -32,8 +33,10 @@ public class AITAchievementProvider extends FabricAdvancementProvider {
 
         Advancement root = Advancement.Builder.create()
                 .display(AITItems.CHARGED_ZEITON_CRYSTAL, Text.translatable("achievement.ait.title.root"),
-                        Text.translatable("achievement.ait.description.root"), new Identifier("textures/entity/end_portal.png"), AdvancementFrame.TASK, false, false, false)
+                        Text.translatable("achievement.ait.description.root"), new Identifier("textures/entity/end_portal.png"),
+                        AdvancementFrame.TASK, false, false, false)
                 .criterion("root", TardisCriterions.ROOT.conditions())
+                .rewards(AdvancementRewards.Builder.function(new Identifier("ait", "wikimessage")))
                 .build(consumer, AITMod.MOD_ID + "/root");
 
         Advancement placeEnergizer = Advancement.Builder.create().parent(root)

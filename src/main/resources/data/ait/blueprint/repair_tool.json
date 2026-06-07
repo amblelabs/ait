@@ -1,0 +1,28 @@
+{
+  "output": {
+    "id": "ait:repair_tool",
+    "Count": 1
+  },
+  "inputs": [
+    {
+      "item": "ait:zeiton_crystal",
+      "maxCount": 1,
+      "minCount": 1
+    },
+    {
+      "item": "minecraft:iron_ingot",
+      "maxCount": 6,
+      "minCount": 6
+    },
+    {
+      "item": "minecraft:redstone_block",
+      "maxCount": 4,
+      "minCount": 2
+    },
+    {
+      "item": "ait:vortex_mercurial_link",
+      "maxCount": 1,
+      "minCount": 1
+    }
+  ]
+}

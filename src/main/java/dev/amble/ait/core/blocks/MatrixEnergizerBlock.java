@@ -4,6 +4,7 @@ import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 import java.util.List;
 
+import net.minecraft.item.NetherStarItem;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -47,7 +48,7 @@ import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.blockentities.MatrixEnergizerBlockEntity;
-import dev.amble.ait.core.item.PersonalityMatrixItem;
+import dev.amble.ait.core.item.TardisMatrixItem;
 
 public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
     private final VoxelShape DEFAULT = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 11.0, 16.0);
@@ -91,8 +92,10 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         ItemStack stack = player.getStackInHand(hand);
         if (world.isClient()) return ActionResult.SUCCESS;
-        if (stack.isOf(Items.NETHER_STAR) && !hasPower(state)) {
 
+        if (hasPower(state)) return ActionResult.FAIL;
+
+        if (stack.isOf(Items.NETHER_STAR)) {
             world.setBlockState(pos, state.with(HAS_POWER, true));
             stack.decrement(1);
 
@@ -101,7 +104,8 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
             return ActionResult.SUCCESS;
         }
 
-        return super.onUse(state, world, pos, player, hand, hit);
+        player.sendMessage(Text.translatable("block.ait.matrix_energizer.needs_nether_star"), true);
+        return ActionResult.SUCCESS;
     }
 
     @Override
@@ -179,8 +183,14 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
 
     @Override
     public void onBroken(WorldAccess world, BlockPos pos, BlockState state) {
-        if (hasPower(state) && this.getAge(state) == this.getMaxAge()) {
-            ItemStack pmStack = PersonalityMatrixItem.randomize();
+        if (!hasPower(state)) return;
+
+        // Drop if the block has power, gets broken, and isn't at finished producing the matrix. - Loqor
+        ItemStack netherStar = new ItemStack(Items.NETHER_STAR);
+        dropStack((World) world, pos, netherStar);
+
+        if (this.getAge(state) == this.getMaxAge()) {
+            ItemStack pmStack = TardisMatrixItem.randomize();
             dropStack((World) world, pos, pmStack);
         }
         super.onBroken(world, pos, state);
@@ -190,7 +200,7 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
         if (world.isClient()) return false;
         if (this.isMature(state) && hasPower(state)) {
             world.playSound(null, pos, SoundEvents.BLOCK_SCULK_CATALYST_BLOOM, SoundCategory.BLOCKS, 1.0F, 1.0F);
-            ItemStack pmStack = PersonalityMatrixItem.randomize();
+            ItemStack pmStack = TardisMatrixItem.randomize();
             ItemEntity matrix = new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), pmStack);
             world.spawnEntity(matrix);
             if (world.getBlockEntity(pos.down()) instanceof SculkShriekerBlockEntity) {

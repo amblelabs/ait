@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.mojang.datafixers.util.Pair;
+import dev.amble.ait.client.screens.AstralMapScreen;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.world.biome.Biome;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -52,15 +56,31 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
     public static final IntProperty ROTATION = Properties.ROTATION;
 
     public static final Identifier REQUEST_SEARCH = AITMod.id("c2s/request_search");
-    public static final Identifier SYNC_STRUCTURES = AITMod.id("s2c/sync_structures");
-    public static List<Identifier> structureIds; // since the client doesnt have the structures we need to send them over
+    public static final Identifier OPEN_ASTRAL_MAP = AITMod.id("s2c/open_astral_map");
+    // Store structure IDs on the client since they aren't synced by default
+    public static List<Identifier> structureIds;
 
     static {
         ServerPlayNetworking.registerGlobalReceiver(REQUEST_SEARCH, (server, player, handler, buf, responseSender) -> {
             try {
-                Identifier target = buf.readIdentifier();
+                ServerWorld checkWorld = player.getServerWorld();
+                BlockPos playerPos = player.getBlockPos();
+                boolean hasAccess = false;
+                for (BlockPos nearby : BlockPos.iterateOutwards(playerPos, 4, 4, 4)) {
+                    if (checkWorld.getBlockState(nearby).getBlock() instanceof AstralMapBlock) {
+                        hasAccess = true;
+                        break;
+                    }
+                }
+                if (!hasAccess) return;
 
-                handleRequest(player, target);
+                Identifier target = buf.readIdentifier();
+                AstralMapScreen.Category category = buf.readEnumConstant(AstralMapScreen.Category.class);
+
+                switch(category) {
+                    case BIOMES -> handleBiomeRequest(player, target);
+                    case STRUCTURES -> handleStructureRequest(player, target);
+                }
             } catch (Exception e) {
                 AITMod.LOGGER.error("Error handling search request", e);
             }
@@ -83,10 +103,12 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
         BlockEntity blockEntity = world.getBlockEntity(pos);
 
         if (blockEntity instanceof AstralMapBlockEntity && !world.isClient()) {
-            sendStructures((ServerWorld) world, (ServerPlayerEntity) player);
+            ServerWorld serverWorld = (ServerWorld) world;
+            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+
+            sendStructuresAndOpenScreen(serverWorld, serverPlayer);
 
             player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 1.0F, 1.0F);
-            AITMod.openScreen((ServerPlayerEntity) player, 2);
         }
 
         return ActionResult.SUCCESS;
@@ -94,27 +116,22 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
 
     private static Optional<RegistryEntry.Reference<Structure>> getStructure(ServerWorld world, Identifier id) {
         Registry<Structure> registry = world.getRegistryManager().get(RegistryKeys.STRUCTURE);
-
         RegistryKey<Structure> key = RegistryKey.of(RegistryKeys.STRUCTURE, id);
-
         return registry.getEntry(key);
     }
 
-    private static void handleRequest(ServerPlayerEntity player, Identifier target) {
-        player.sendMessage(Text.literal("SEARCHING FOR STRUCTURE..."), false);
+    private static void handleStructureRequest(ServerPlayerEntity player, Identifier target) {
+        player.sendMessage(Text.translatable("block.ait.astral_map.finder.searching_for_structure"), false);
 
         ServerWorld world = player.getServerWorld();
         BlockPos pos = player.getBlockPos();
 
         if (TardisServerWorld.isTardisDimension(world)) {
             ServerTardis tardis = ((TardisServerWorld) world).getTardis();
-
             var tPos = tardis.travel().position();
-
             world = tPos.getWorld();
 
             RegistryEntry.Reference<Structure> targetStructure = getStructure(world, target).orElse(null);
-
             if (targetStructure == null) {
                 AITMod.LOGGER.error("Structure not found: {}", target);
                 return;
@@ -125,49 +142,59 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
             AsyncLocatorUtil.locate(world, RegistryEntryList.of(targetStructure), pos, TelepathicControl.RADIUS, false).thenOnServerThread(pPos -> {
                 BlockPos newPos = pPos != null ? pPos.getFirst() : null;
                 if (newPos != null) {
-                    player.sendMessage(Text.literal("SUCCESS! FOUND AT " + newPos.getX() + ", " + newPos.getY() + ", " + newPos.getZ() + " ( " + Math.round(Math.sqrt(newPos.getSquaredDistance(player.getPos()))) + " blocks away )"), false);
+                    player.sendMessage(Text.translatable(
+                            "block.ait.astral_map.finder.found", newPos.getX(), newPos.getY(), newPos.getZ(),
+                            Math.round(Math.sqrt(newPos.getSquaredDistance(player.getPos())))), false);
                     tardis.travel().destination(destination -> destination.pos(newPos));
                 } else {
-                    player.sendMessage(Text.literal("404: STRUCTURE NOT FOUND"), false);
+                    player.sendMessage(Text.translatable("block.ait.astral_map.finder.structure_not_found"), false);
                 }
             });
         }
     }
 
-    private static void sendStructures(ServerWorld world, ServerPlayerEntity target) {
-        if (structureIds == null || structureIds.isEmpty()) {
-            List<Identifier> ids = new ArrayList<>();
+    private static void handleBiomeRequest(ServerPlayerEntity player, Identifier target) {
+        player.sendMessage(Text.translatable("block.ait.astral_map.finder.searching_for_biome"), false);
+        player.getServer().execute(() -> {
+            ServerWorld world = player.getServerWorld();
+            if (!TardisServerWorld.isTardisDimension(world))
+                return;
 
+            ServerTardis tardis = ((TardisServerWorld) world).getTardis();
+            CachedDirectedGlobalPos currentPos = tardis.travel().position();
+            ServerWorld targetWorld = currentPos.getWorld();
+            BlockPos start = currentPos.getPos();
+            RegistryKey<Biome> biomeKey = RegistryKey.of(RegistryKeys.BIOME, target);
+
+            Pair<BlockPos, RegistryEntry<Biome>> r = targetWorld.locateBiome(
+                    entry -> entry.matchesKey(biomeKey),
+                    start, AITMod.CONFIG.astralMapBiomeLocatorRange, 32, 64);
+
+            if (r != null) {
+                BlockPos locatedBiome = r.getFirst();
+                int distance = (int) Math.round(Math.sqrt(locatedBiome.getSquaredDistance(player.getPos())));
+                player.sendMessage(Text.translatable("block.ait.astral_map.finder.found",
+                        locatedBiome.getX(), locatedBiome.getY(), locatedBiome.getZ(), distance), false);
+                tardis.travel().destination(destination -> destination.pos(locatedBiome));
+            } else {
+                player.sendMessage(Text.translatable("block.ait.astral_map.finder.biome_not_found"), false);
+            }
+        });
+    }
+
+    private static void sendStructuresAndOpenScreen(ServerWorld world, ServerPlayerEntity target) {
+        if (structureIds == null || structureIds.isEmpty()) {
             Registry<Structure> registry = world.getRegistryManager().get(RegistryKeys.STRUCTURE);
+            List<Identifier> ids = new ArrayList<>(registry.size());
             for (Structure entry : registry) {
                 ids.add(registry.getId(entry));
             }
-
             structureIds = ids;
         }
 
         PacketByteBuf buf = PacketByteBufs.create();
-
-        buf.writeInt(structureIds.size());
-        for (Identifier id : structureIds) {
-            buf.writeIdentifier(id);
-        }
-
-        ServerPlayNetworking.send(target, SYNC_STRUCTURES, buf);
-    }
-
-    @Environment(EnvType.CLIENT)
-    public static void registerSyncListener() {
-        ClientPlayNetworking.registerGlobalReceiver(SYNC_STRUCTURES, (client, handler, buf, responseSender) -> {
-            int size = buf.readInt();
-            List<Identifier> ids = new ArrayList<>(size);
-
-            for (int i = 0; i < size; i++) {
-                ids.add(buf.readIdentifier());
-            }
-
-            structureIds = ids;
-        });
+        buf.writeCollection(structureIds, PacketByteBuf::writeIdentifier);
+        ServerPlayNetworking.send(target, OPEN_ASTRAL_MAP, buf);
     }
 
     @Override

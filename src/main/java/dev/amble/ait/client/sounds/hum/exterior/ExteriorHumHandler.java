@@ -1,5 +1,7 @@
 package dev.amble.ait.client.sounds.hum.exterior;
 
+import dev.amble.ait.api.tardis.TardisClientEvents;
+import dev.amble.ait.client.sounds.ClientSoundManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundCategory;
 
@@ -13,13 +15,24 @@ public class ExteriorHumHandler extends SoundHandler {
 
     public static double MAX_DISTANCE = 8; // distance from exterior before the sound stops
     public static ExteriorHumSound SOUND;
+    private boolean needsReinit = false;
 
     static {
-        ClientWorldEvents.CHANGE_WORLD.register((client, world) -> {
-            if (SOUND != null)
-                MinecraftClient.getInstance().getSoundManager().stop(SOUND);
-            SOUND = null;
+        TardisClientEvents.ENTER_CLIENT_TARDIS.register(tardis -> {
+            refresh();
         });
+    }
+
+    private static void refresh() {
+        if (SOUND != null)
+            MinecraftClient.getInstance().getSoundManager().stop(SOUND);
+        SOUND = null;
+
+        ExteriorHumHandler handler = MinecraftClient.getInstance().world != null ?
+                ClientSoundManager.getExteriorHum() : null;
+        if (handler != null) {
+            handler.needsReinit = true;
+        }
     }
 
     public ExteriorHumSound getSound(ClientTardis tardis) {
@@ -80,6 +93,12 @@ public class ExteriorHumHandler extends SoundHandler {
 
     public void tick(MinecraftClient client) {
         ClientTardis tardis = ClientTardisUtil.getNearestTardis(MAX_DISTANCE).orElse(null);
+
+        if (this.needsReinit && tardis != null) {
+            this.needsReinit = false;
+            SOUND = null;
+            this.generate(tardis);
+        }
 
         if (tardis == null || ChameleonHandler.isDisguised(tardis) || tardis.cloak().cloaked().get()) {
             this.stopSounds();
