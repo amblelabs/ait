@@ -51,6 +51,7 @@
     "client.rendering.DebugRendererMixin",
     "client.rendering.HeadFeatureRendererMixin",
     "client.rendering.HeldItemRendererMixin",
+    "client.rendering.ParticleManagerMixin",
     "client.rendering.PlayerEntityRendererMixin",
     "client.rendering.SkyboxMixin",
     "client.rendering.VertexBufferWrapper",

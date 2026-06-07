@@ -27,6 +27,7 @@ import net.minecraft.network.packet.s2c.play.EntitySetHeadYawS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
 import net.minecraft.network.packet.s2c.play.UnloadChunkS2CPacket;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
@@ -219,7 +220,8 @@ public class ExampleMod implements ModInitializer {
                 || packet instanceof EntitySetHeadYawS2CPacket
                 || packet instanceof EntityTrackerUpdateS2CPacket
                 || packet instanceof EntityEquipmentUpdateS2CPacket
-                || packet instanceof EntitiesDestroyS2CPacket;
+                || packet instanceof EntitiesDestroyS2CPacket
+                || packet instanceof ParticleS2CPacket;
     }
 
     private static void broadcastInit(ServerTardis tardis, ServerWorld world) {

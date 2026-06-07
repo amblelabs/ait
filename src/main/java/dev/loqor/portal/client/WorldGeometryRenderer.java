@@ -3,6 +3,7 @@ package dev.loqor.portal.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
 import dev.amble.ait.AITMod;
+import dev.amble.ait.client.boti.PortalParticleManager;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import net.minecraft.block.BlockRenderType;
@@ -102,6 +103,7 @@ public class WorldGeometryRenderer {
 
         renderBlockEntities(portalWorld, matrices, tickDelta, centerPos);
         renderEntities(portalWorld, matrices, tickDelta, centerPos);
+        renderParticles(id, matrices, tickDelta, centerPos);
 
         MatrixStack modelViewStack = RenderSystem.getModelViewStack();
         modelViewStack.push();
@@ -241,6 +243,32 @@ public class WorldGeometryRenderer {
             dispatcher.render(entity, x, y, z, yaw, tickDelta, matrices, immediate, light);
         }
 
+        immediate.draw();
+    }
+
+    private void renderParticles(UUID id, MatrixStack matrices, float tickDelta, BlockPos centerPos) {
+        PortalParticleManager manager = PortalDataManager.particles(id);
+        if (manager == null)
+            return;
+
+        MinecraftClient client = MinecraftClient.getInstance();
+        Camera realCamera = client.gameRenderer.getCamera();
+
+        // ParticleManager draws particles relative to the camera's position, so park a throwaway camera at the
+        // portal centre (matching the player's facing). That lines particles up with the terrain and entities,
+        // which are all drawn relative to centerPos.
+        Camera portalCamera = new Camera();
+        portalCamera.setPos(centerPos.getX(), centerPos.getY(), centerPos.getZ());
+        portalCamera.setRotation(realCamera.getYaw(), realCamera.getPitch());
+
+        VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
+
+        MatrixStack modelViewStack = RenderSystem.getModelViewStack();
+        modelViewStack.push();
+        manager.renderParticles(matrices, immediate, client.gameRenderer.getLightmapTextureManager(),
+                portalCamera, tickDelta);
+        modelViewStack.pop();
+        RenderSystem.applyModelViewMatrix();
         immediate.draw();
     }
 

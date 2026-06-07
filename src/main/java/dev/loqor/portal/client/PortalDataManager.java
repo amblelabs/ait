@@ -1,6 +1,7 @@
 package dev.loqor.portal.client;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.client.boti.PortalParticleManager;
 import dev.amble.ait.client.boti.TardisDoorBOTI;
 import dev.loqor.portal.PortalInitS2CPacket;
 import dev.loqor.portal.WrappedPacketS2CPacket;
@@ -11,6 +12,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -22,6 +24,11 @@ public class PortalDataManager {
 
     // TODO: replace with array or intmap maybe
     private static final Map<UUID, PortalData> map = new HashMap<>();
+
+    // Per-portal particle managers, kept here (rather than on the PortalData record) so the shadow world's
+    // particles tick and render in the doorway without touching the main world's particle manager.
+    private static final Map<UUID, PortalParticleManager> particles = new HashMap<>();
+    private static final Random random = Random.create();
 
     public static void init() {
         ClientPlayNetworking.registerGlobalReceiver(WrappedPacketS2CPacket.TYPE, (wrapped, player, packetSender) -> {
@@ -39,6 +46,9 @@ public class PortalDataManager {
         ClientTickEvents.END_CLIENT_TICK.register(minecraftClient -> {
             for (PortalData data : new ArrayList<>(map.values()))
                 data.tickEntities();
+
+            for (PortalParticleManager manager : new ArrayList<>(particles.values()))
+                manager.tick();
         });
     }
 
@@ -59,10 +69,17 @@ public class PortalDataManager {
 
     public static void reset() {
         map.clear();
+        particles.clear();
     }
 
     public static void free(UUID id) {
         map.remove(id);
+        particles.remove(id);
+    }
+
+    /** The shadow particle manager for a TARDIS's doorway, or {@code null} if none has spawned particles yet. */
+    public static PortalParticleManager particles(UUID id) {
+        return particles.get(id);
     }
 
     public static PortalData getOrCreate(UUID id) {
@@ -135,8 +152,36 @@ public class PortalDataManager {
             data.onEntityEquipment(equipment);
         } else if (packet instanceof EntitiesDestroyS2CPacket destroy) {
             data.onEntitiesDestroy(destroy);
+        } else if (packet instanceof ParticleS2CPacket particle) {
+            onParticle(data, particle);
         } else if (packet instanceof ChunkBiomeDataS2CPacket biome) {
 //          this.onChunkBiomeData(biome); // - uncomment if it breaks everything
+        }
+    }
+
+    /** Mirrors ClientPlayNetworkHandler#onParticle, spawning into the shadow world's particle manager. */
+    private static void onParticle(PortalData data, ParticleS2CPacket packet) {
+        PortalParticleManager manager = particles.computeIfAbsent(data.id(),
+                uuid -> new PortalParticleManager(data.world(), client));
+
+        if (packet.getCount() == 0) {
+            // "exact" particle: the offset fields carry the velocity.
+            double vx = packet.getSpeed() * packet.getOffsetX();
+            double vy = packet.getSpeed() * packet.getOffsetY();
+            double vz = packet.getSpeed() * packet.getOffsetZ();
+            manager.addParticle(packet.getParameters(),
+                    packet.getX(), packet.getY(), packet.getZ(), vx, vy, vz);
+        } else {
+            for (int i = 0; i < packet.getCount(); i++) {
+                double ox = random.nextGaussian() * (double) packet.getOffsetX();
+                double oy = random.nextGaussian() * (double) packet.getOffsetY();
+                double oz = random.nextGaussian() * (double) packet.getOffsetZ();
+                double vx = random.nextGaussian() * (double) packet.getSpeed();
+                double vy = random.nextGaussian() * (double) packet.getSpeed();
+                double vz = random.nextGaussian() * (double) packet.getSpeed();
+                manager.addParticle(packet.getParameters(),
+                        packet.getX() + ox, packet.getY() + oy, packet.getZ() + oz, vx, vy, vz);
+            }
         }
     }
 }

@@ -3,3 +3,15 @@ accessible method net/minecraft/client/render/GameRenderer getFov (Lnet/minecraf
 accessible method net/minecraft/client/render/Frustum isVisible (DDDDDD)Z
 accessible method net/minecraft/server/world/ThreadedAnvilChunkStorage sendChunkDataPackets (Lnet/minecraft/server/network/ServerPlayerEntity;Lorg/apache/commons/lang3/mutable/MutableObject;Lnet/minecraft/world/chunk/WorldChunk;)V
 accessible method net/minecraft/client/render/GameRenderer bobView (Lnet/minecraft/client/util/math/MatrixStack;F)V
+
+# BOTI: position a throwaway camera at the portal centre so shadow-world particles render in the doorway
+accessible method net/minecraft/client/render/Camera setPos (DDD)V
+accessible method net/minecraft/client/render/Camera setRotation (FF)V
+
+# BOTI: let PortalParticleManager reuse the main particle manager's stitched atlas + factories
+accessible field net/minecraft/client/particle/ParticleManager factories Lit/unimi/dsi/fastutil/ints/Int2ObjectMap;
+mutable field net/minecraft/client/particle/ParticleManager factories Lit/unimi/dsi/fastutil/ints/Int2ObjectMap;
+accessible field net/minecraft/client/particle/ParticleManager spriteAwareFactories Ljava/util/Map;
+mutable field net/minecraft/client/particle/ParticleManager spriteAwareFactories Ljava/util/Map;
+accessible field net/minecraft/client/particle/ParticleManager particleAtlasTexture Lnet/minecraft/client/texture/SpriteAtlasTexture;
+mutable field net/minecraft/client/particle/ParticleManager particleAtlasTexture Lnet/minecraft/client/texture/SpriteAtlasTexture;
