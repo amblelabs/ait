@@ -43,7 +43,6 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
 
         this.loadChunk(i, j, chunkDataS2CPacket.getChunkData());
         LightData lightData = chunkDataS2CPacket.getLightData();
-        System.out.println("Attempting to load chunk at: " + i + ", " + j + " into world: " + this.world.getRegistryKey().getValue());
 
         this.world.enqueueChunkUpdate(() -> {
             this.readLightData(i, j, lightData);
