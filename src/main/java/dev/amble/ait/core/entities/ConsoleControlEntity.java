@@ -428,6 +428,13 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         control.runAnimation(tardis, (ServerPlayerEntity) player, (ServerWorld) world);
 
+        DurabilityStates state = this.getDurabilityState(this.getDurability());
+        boolean hasMallet = player.getMainHandStack().isOf(AITItems.HAMMER);
+
+        if (state == DurabilityStates.CATCH_FIRE) {
+            if (!hasMallet) player.setFireTicks(random.nextBetween(20*2, 20*6));
+        }
+        
         if (this.isOnDelay())
             return false;
 
@@ -438,16 +445,13 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             this.getWorld().playSound(null, this.getBlockPos(), AITSounds.EVEN_MORE_SECRET_MUSIC, SoundCategory.MASTER,
                     1F, 1F);
 
-        boolean hasMallet = player.getMainHandStack().isOf(AITItems.HAMMER);
-
+        
         if (hasMallet) {
             this.playSound(AITSounds.KNOCK, 1, 0.25f);
             Vec3d pos = this.getPos();
             ((ServerWorld) world).spawnParticles(ParticleTypes.SCRAPE,
                     pos.getX(), pos.getY(), pos.getZ(), 2, 0.2, 0.4, 0.2, 0.02);
         }
-
-        DurabilityStates state = this.getDurabilityState(this.getDurability());
 
         if (!(this.getControl() instanceof HammerHangerControl)) {
             if (hasMallet)
@@ -456,10 +460,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         if (state == DurabilityStates.JAMMED) {
             if (!hasMallet) return false;
-        }
-
-        if (state == DurabilityStates.CATCH_FIRE) {
-            if (!hasMallet) player.setFireTicks(random.nextBetween(20*2, 20*6));
         }
 
         if (state == DurabilityStates.OCCASIONALLY_JAM && random.nextBetween(0, 20) < 10) {
