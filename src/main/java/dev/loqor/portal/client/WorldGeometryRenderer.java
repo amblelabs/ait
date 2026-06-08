@@ -156,6 +156,31 @@ public class WorldGeometryRenderer {
         // Sky sits at infinity, so it only takes the rotation (no eye translation) and never writes depth.
         renderSky(id, portalWorld, portalRot, portalCamera, tickDelta);
 
+        // The lightmap (light coord -> final RGB; it bakes in sky darkness, time of day, the dimension's ambient
+        // light and gamma) is rebuilt once per frame by GameRenderer from client.world - the *interior* dimension -
+        // before this door ever renders. Our terrain and entities carry light coordinates sampled from the shadow
+        // world, but with the interior's ramp they get shaded as if they were inside the TARDIS (typically a flat,
+        // day/night-less ramp), which reads as "lighting is broken / entities are invisible". Rebuild the ramp for
+        // the exterior dimension for the duration of the portal passes, then restore it (below) so the rest of the
+        // frame - main-world particles, weather, the hand - keeps the interior ramp.
+        LightmapTextureManager lightmap = gameRenderer.getLightmapTextureManager();
+        ClientWorld previousLightmapWorld = client.world;
+        client.world = portalWorld;
+        lightmap.tick();            // GameRenderer already consumed this frame's dirty flag - re-arm it
+        lightmap.update(tickDelta); // recompute the ramp from the shadow world's dimension + (synced) time of day
+        client.world = previousLightmapWorld;
+
+        // Distant exterior terrain and the sky horizon otherwise fade to the *interior* dimension's fog colour
+        // (BackgroundRenderer set it earlier this frame). Tint the fog to the exterior dimension's sky colour for the
+        // portal passes so the fade matches the doorway's cleared background and (rain-aware) sky.
+        float[] previousFogColor = RenderSystem.getShaderFogColor().clone();
+        try {
+            Vec3d fog = portalWorld.getSkyColor(Vec3d.of(centerPos), tickDelta);
+            RenderSystem.setShaderFogColor((float) fog.x, (float) fog.y, (float) fog.z);
+        } catch (Exception ignored) {
+            // keep the existing fog colour
+        }
+
         MatrixStack modelViewStack = RenderSystem.getModelViewStack();
         modelViewStack.push();
         try {
@@ -177,6 +202,15 @@ public class WorldGeometryRenderer {
             modelViewStack.pop();
             RenderSystem.applyModelViewMatrix();
             RenderSystem.setProjectionMatrix(originalProjection, VertexSorter.BY_DISTANCE);
+
+            // Restore the interior dimension's lightmap for the rest of this frame (client.world is the interior
+            // again here). Without this, main-world particles/weather drawn after AFTER_ENTITIES would be shaded
+            // with the exterior ramp.
+            lightmap.tick();
+            lightmap.update(tickDelta);
+
+            // Restore the interior fog colour for the rest of the frame.
+            RenderSystem.setShaderFogColor(previousFogColor[0], previousFogColor[1], previousFogColor[2], previousFogColor[3]);
         }
     }
 

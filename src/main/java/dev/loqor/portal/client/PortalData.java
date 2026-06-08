@@ -6,6 +6,9 @@ import dev.amble.ait.client.boti.TardisDoorBOTI;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.OtherClientPlayerEntity;
+import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -141,6 +144,23 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
         this.world.setTimeOfDay(packet.getTimeOfDay());
     }
 
+    /**
+     * Mirrors the rain/thunder cases of {@code ClientPlayNetworkHandler#onGameStateChange} onto the shadow world so
+     * the doorway's sky colour, fog and lighting darken when it's raining/storming where the TARDIS actually is. The
+     * server pushes the exterior's gradients each refresh (see {@code ExampleMod#broadcastWeather}); the shadow world
+     * isn't ticked, so we set the gradient directly rather than relying on the usual client-side interpolation. Other
+     * game-state reasons (game-mode changes, demo messages, etc.) are irrelevant to a render-only mirror and ignored.
+     */
+    public void onGameStateChange(GameStateChangeS2CPacket packet) {
+        GameStateChangeS2CPacket.Reason reason = packet.getReason();
+        float value = packet.getValue();
+
+        if (reason == GameStateChangeS2CPacket.RAIN_GRADIENT_CHANGED)
+            this.world.setRainGradient(value);
+        else if (reason == GameStateChangeS2CPacket.THUNDER_GRADIENT_CHANGED)
+            this.world.setThunderGradient(value);
+    }
+
     public void onChunkBiomeData(ChunkBiomeDataS2CPacket packet) {
         for (ChunkBiomeDataS2CPacket.Serialized serialized : packet.chunkBiomeData()) {
             this.world.getChunkManager().onChunkBiomeData(serialized.pos().x, serialized.pos().z, serialized.toReadingBuf());
@@ -202,6 +222,37 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
 
         entity.onSpawnPacket(packet);
         this.world.addEntity(packet.getId(), entity);
+    }
+
+    /**
+     * Mirrors {@code ClientPlayNetworkHandler#onPlayerSpawn} onto the shadow world so other players standing around
+     * the exterior show through the doorway. (In 1.20.1 players still spawn via their own packet, not the unified
+     * entity-spawn packet.) Building the player needs their profile from the real connection's tab list; if they
+     * aren't in it there's no skin/profile to render from, so we skip them rather than spawn a broken entity.
+     */
+    public void onPlayerSpawn(PlayerSpawnS2CPacket packet) {
+        ClientPlayNetworkHandler handler = MinecraftClient.getInstance().getNetworkHandler();
+        if (handler == null)
+            return;
+
+        PlayerListEntry entry = handler.getPlayerListEntry(packet.getPlayerUuid());
+        if (entry == null)
+            return;
+
+        OtherClientPlayerEntity player = new OtherClientPlayerEntity(this.world, entry.getProfile());
+        int id = packet.getId();
+        double x = packet.getX();
+        double y = packet.getY();
+        double z = packet.getZ();
+        float yaw = packet.getYaw() * 360 / 256.0F;
+        float pitch = packet.getPitch() * 360 / 256.0F;
+
+        player.setId(id);
+        player.updateTrackedPosition(x, y, z);
+        player.updatePositionAndAngles(x, y, z, yaw, pitch);
+        player.setHeadYaw(yaw);
+        player.setBodyYaw(yaw);
+        this.world.addEntity(id, player);
     }
 
     public void onEntityPosition(EntityPositionS2CPacket packet) {

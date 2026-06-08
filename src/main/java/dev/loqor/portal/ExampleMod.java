@@ -27,7 +27,9 @@ import net.minecraft.network.packet.s2c.play.EntitySetHeadYawS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
 import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import net.minecraft.network.packet.s2c.play.UnloadChunkS2CPacket;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.registry.RegistryKey;
@@ -130,6 +132,10 @@ public class ExampleMod implements ModInitializer {
         // Cheap (two longs) and only every REFRESH_INTERVAL ticks, for landed TARDISes that are actually being viewed.
         broadcastTime(tardis, extWorld);
 
+        // Same for weather: push the exterior's rain/thunder gradient so the doorway's sky, fog and lighting darken
+        // when it's raining/storming where the TARDIS actually is.
+        broadcastWeather(tardis, extWorld);
+
         BlockPos extPos = ext.getPos();
         ProxyEntry entry = PROXIES.get(id);
 
@@ -220,6 +226,7 @@ public class ExampleMod implements ModInitializer {
                 || packet instanceof BlockUpdateS2CPacket
                 || packet instanceof UnloadChunkS2CPacket
                 || packet instanceof EntitySpawnS2CPacket
+                || packet instanceof PlayerSpawnS2CPacket
                 || packet instanceof EntityPositionS2CPacket
                 || packet instanceof EntityS2CPacket
                 || packet instanceof EntityVelocityUpdateS2CPacket
@@ -243,6 +250,13 @@ public class ExampleMod implements ModInitializer {
     private static void broadcastTime(ServerTardis tardis, ServerWorld world) {
         broadcast(tardis, new WorldTimeUpdateS2CPacket(world.getTime(), world.getTimeOfDay(),
                 world.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE)));
+    }
+
+    private static void broadcastWeather(ServerTardis tardis, ServerWorld world) {
+        broadcast(tardis, new GameStateChangeS2CPacket(GameStateChangeS2CPacket.RAIN_GRADIENT_CHANGED,
+                world.getRainGradient(1.0F)));
+        broadcast(tardis, new GameStateChangeS2CPacket(GameStateChangeS2CPacket.THUNDER_GRADIENT_CHANGED,
+                world.getThunderGradient(1.0F)));
     }
 
     private static void broadcast(ServerTardis tardis, Packet<?> packet) {

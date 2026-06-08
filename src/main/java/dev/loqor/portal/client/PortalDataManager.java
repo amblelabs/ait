@@ -145,6 +145,10 @@ public class PortalDataManager {
             data.onUnloadChunk(unload);
         } else if (packet instanceof EntitySpawnS2CPacket spawn) {
             data.onEntitySpawn(spawn);
+        } else if (packet instanceof PlayerSpawnS2CPacket spawn) {
+            data.onPlayerSpawn(spawn);
+        } else if (packet instanceof GameStateChangeS2CPacket state) {
+            data.onGameStateChange(state);
         } else if (packet instanceof EntityPositionS2CPacket position) {
             data.onEntityPosition(position);
         } else if (packet instanceof EntityS2CPacket move) {
