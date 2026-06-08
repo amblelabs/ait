@@ -449,9 +449,9 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         DurabilityStates state = this.getDurabilityState(this.getDurability());
 
-        if (state == DurabilityStates.FULL && !(this.getControl() instanceof HammerHangerControl)) {
+        if (!(this.getControl() instanceof HammerHangerControl)) {
             if (hasMallet)
-                this.subtractDurability(0.4f);
+                this.subtractDurability(0.4f * state.durability);
         }
 
         if (state == DurabilityStates.JAMMED) {
@@ -463,7 +463,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             if (!hasMallet) player.setFireTicks(random.nextBetween(20, 60));
         }
 
-        if (state == DurabilityStates.OCCASIONALLY_JAM && random.nextBetween(0, 10) == 5) {
+        if (state == DurabilityStates.OCCASIONALLY_JAM && random.nextBetween(0, 15) == 5) {
             if (hasMallet) {
                 this.setDurability(state.next().durability);
             } else {
@@ -471,7 +471,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             }
         }
 
-        if (state == DurabilityStates.SPARKING && random.nextBetween(0, 10) < 5) {
+        if (state == DurabilityStates.SPARKING && random.nextBetween(0, 20) < 5) {
             if (hasMallet) {
                 this.setDurability(state.next().durability);
             } else {
