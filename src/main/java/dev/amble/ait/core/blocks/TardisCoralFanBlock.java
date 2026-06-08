@@ -102,10 +102,8 @@ public class TardisCoralFanBlock extends Block implements Waterloggable {
             world.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
         }
 
-        if (direction == state.get(FACING).getOpposite()) {
-            if (!state.canPlaceAt(world, pos)) {
-                return Blocks.AIR.getDefaultState();
-            }
+        if (direction == state.get(FACING).getOpposite() && !state.canPlaceAt(world, pos)) {
+            return Blocks.AIR.getDefaultState();
         }
 
         return state;
