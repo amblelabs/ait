@@ -84,7 +84,7 @@ public class TardisCriterions {
                 return;
 
             system.tardis().asServer().world().getPlayers().forEach(player ->
-                    TardisCriterions.ENGINES_PHASE.trigger(player));
+                    TardisCriterions.ENABLE_SUBSYSTEM.trigger(player));
         });
         TardisEvents.SUBSYSTEM_REPAIR.register(system -> {
             if (system.isClient())
@@ -99,7 +99,7 @@ public class TardisCriterions {
                 return;
 
             system.tardis().asServer().world().getPlayers().forEach(player ->
-                    TardisCriterions.REACH_PILOT.trigger(player));
+                    TardisCriterions.ENGINES_PHASE.trigger(player));
         });
     }
 }
