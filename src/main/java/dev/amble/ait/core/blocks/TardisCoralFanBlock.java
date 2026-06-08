@@ -16,8 +16,7 @@ import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 
 public class TardisCoralFanBlock extends Block implements Waterloggable {
-    public static final DirectionProperty FACING = DirectionProperty.of("facing",
-            Direction.UP, Direction.DOWN, Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST);
+    public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
     public static final BooleanProperty WATERLOGGED = BooleanProperty.of("waterlogged");
 
     private static final VoxelShape UP_SHAPE = VoxelShapes.cuboid(0.125, 0, 0.125, 0.875, 0.5, 0.875);
