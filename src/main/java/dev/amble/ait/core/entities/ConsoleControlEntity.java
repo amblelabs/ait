@@ -457,13 +457,12 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         if (state == DurabilityStates.JAMMED) {
             if (!hasMallet) return false;
         }
-            player.sendMessage(Text.literal("hello hello im on fire " + state), false);
 
         if (state == DurabilityStates.CATCH_FIRE) {
-            if (!hasMallet) player.setFireTicks(random.nextBetween(20, 60));
+            if (!hasMallet) player.setFireTicks(random.nextBetween(20*2, 20*6));
         }
 
-        if (state == DurabilityStates.OCCASIONALLY_JAM && random.nextBetween(0, 15) == 5) {
+        if (state == DurabilityStates.OCCASIONALLY_JAM && random.nextBetween(0, 20) < 10) {
             if (hasMallet) {
                 this.setDurability(state.next().durability);
             } else {
@@ -471,7 +470,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             }
         }
 
-        if (state == DurabilityStates.SPARKING && random.nextBetween(0, 20) < 5) {
+        if (state == DurabilityStates.SPARKING && random.nextBetween(0, 25) < 5) {
             if (hasMallet) {
                 this.setDurability(state.next().durability);
             } else {
