@@ -69,7 +69,7 @@ public class TardisCoralFanBlock extends Block implements Waterloggable {
                     .with(WATERLOGGED, ctx.getWorld().getFluidState(ctx.getBlockPos()).getFluid() == Fluids.WATER);
         }
 
-        for (Direction direction : Direction.values()) {
+        for (Direction direction : FACING.getValues()) {
             attachedPos = pos.offset(direction.getOpposite());
             attachedState = world.getBlockState(attachedPos);
             if (canPlaceOn(attachedState, direction.getOpposite())) {
