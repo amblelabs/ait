@@ -362,7 +362,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             console.markDirty();
         }
     }
-    
+
     public void setSticky(boolean sticky) {
         ConsoleBlockEntity console = this.getConsole();
         if (console != null && this.getControl() != null) {
