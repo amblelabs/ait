@@ -206,7 +206,7 @@ public class EngineSystem extends DurableSubSystem {
                             !sTardis.subsystems().demat().isBroken() &&
                             !travel.handbrake() &&
                             !sTardis.isGrowth() &&
-                            AITMod.RANDOM.nextInt(0, 1024) == 1
+                            AITMod.RANDOM.nextInt(0, 100) != 50
             );
         }
     }
