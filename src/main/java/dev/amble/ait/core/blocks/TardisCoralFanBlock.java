@@ -8,6 +8,7 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.state.property.Property;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -18,7 +19,7 @@ import net.minecraft.world.WorldView;
 
 public class TardisCoralFanBlock extends Block implements Waterloggable {
     public static final DirectionProperty FACING = Properties.FACING;
-    public static final BooleanProperty WATERLOGGED = BooleanProperty.of("waterlogged");
+    public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
 
     private static final VoxelShape UP_SHAPE = VoxelShapes.cuboid(0.125, 0, 0.125, 0.875, 0.5, 0.875);
     private static final VoxelShape DOWN_SHAPE = VoxelShapes.cuboid(0.125, 0.5, 0.125, 0.875, 1, 0.875);
