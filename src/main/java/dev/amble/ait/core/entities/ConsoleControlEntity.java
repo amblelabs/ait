@@ -475,7 +475,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         if (state == DurabilityStates.SPARKING && random.nextBetween(0, 25) < 3) {
             if (hasMallet) {
-                this.setDurability(state.next().durability);
+                this.addDurability(0.05f);
             } else {
                 return false;
             }
@@ -522,12 +522,11 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     private void spark() {
         if (this.getEntityWorld().isClient()) return;
         Vec3d pos = this.getPos();
-        if (this.getEntityWorld().getServer().getTicks() % 20 == 0 && random.nextBoolean()) {
+        if (this.getEntityWorld().getServer().getTicks() % 15 == 0 && random.nextBoolean()) {
             this.playSound(SoundEvents.BLOCK_CHAIN_BREAK, 0.1f, random.nextBoolean() ? 1f : 2f);
             ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.ELECTRIC_SPARK, pos.getX(), pos.getY(), pos.getZ(), 5, 0.2, 0.2, 0.2, 0.01);
             ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.LAVA, pos.getX(), pos.getY(), pos.getZ(), 3, 0.1, 0.1, 0.1, 0.01);
         }
-        this.onFire();
     }
 
     private void onFire() {
