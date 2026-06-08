@@ -453,7 +453,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
                     pos.getX(), pos.getY(), pos.getZ(), 2, 0.2, 0.4, 0.2, 0.02);
 
             if (!(this.getControl() instanceof HammerHangerControl)) {
-                this.subtractDurability(0.4f * state.durability);
+                this.subtractDurability(random.nextBetween(1, 4) / 10f * this.getDurability());
             }
         }
 
