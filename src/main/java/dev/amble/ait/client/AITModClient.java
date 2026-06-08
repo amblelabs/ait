@@ -20,7 +20,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -147,19 +146,11 @@ public class AITModClient implements ClientModInitializer {
         registerItemColors();
         registerParticles();
 
-        // In your AITModClient.onInitializeClient() or similar initialization
-        ClientChunkEvents.CHUNK_LOAD.register((world, chunk) -> {
-            // Check if this is a TARDIS dimension
-            if (TardisServerWorld.isTardisDimension(world)) {
-                TardisDoorBOTI.markDirty();
-            }
-        });
-
-        ClientChunkEvents.CHUNK_UNLOAD.register((world, chunk) -> {
-            if (TardisServerWorld.isTardisDimension(world)) {
-                TardisDoorBOTI.markDirty();
-            }
-        });
+        // NOTE: we deliberately do NOT invalidate the doorway geometry on interior chunk load/unload. The doorway
+        // mirrors the *exterior* shadow world, which is fed incrementally by its own packet handlers
+        // (PortalData#markSectionsDirty / scheduleRenderChunk). Tying a full rebuild to the interior dimension's
+        // streaming meant every step inside the TARDIS re-queued the whole exterior volume; with only a few sections
+        // built per frame, the surroundings never settled - chunks flashed in and got "yeeted" before finishing.
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             ConfigCommand.register(dispatcher);

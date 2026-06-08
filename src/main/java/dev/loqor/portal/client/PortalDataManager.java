@@ -133,6 +133,8 @@ public class PortalDataManager {
     private static void handle0(PortalData data, Packet<?> packet) {
         if (packet instanceof ChunkRenderDistanceCenterS2CPacket render) {
             data.onChunkRenderDistanceCenter(render);
+        } else if (packet instanceof WorldTimeUpdateS2CPacket time) {
+            data.onWorldTime(time);
         } else if (packet instanceof ChunkDataS2CPacket chunkData) {
             data.onChunkData(chunkData);
         } else if (packet instanceof ChunkDeltaUpdateS2CPacket update) {

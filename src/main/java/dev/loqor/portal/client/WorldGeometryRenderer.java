@@ -24,6 +24,7 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.ChunkStatus;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -157,20 +158,35 @@ public class WorldGeometryRenderer {
 
         MatrixStack modelViewStack = RenderSystem.getModelViewStack();
         modelViewStack.push();
-        modelViewStack.peek().getPositionMatrix().set(portalView);
-        modelViewStack.peek().getNormalMatrix().set(new Matrix3f(portalView));
-        RenderSystem.applyModelViewMatrix();
+        try {
+            modelViewStack.peek().getPositionMatrix().set(portalView);
+            modelViewStack.peek().getNormalMatrix().set(new Matrix3f(portalView));
+            RenderSystem.applyModelViewMatrix();
 
-        if (!sectionBuffers.isEmpty()) {
-            renderTerrain();
+            // Each pass is isolated: a single throwing block-entity/entity renderer must not abort the others. The
+            // old single try/catch (up in TardisDoorBOTI) meant one bad entity killed terrain's siblings *and* leaked
+            // the model-view push below - which is exactly why entities and particles silently never appeared.
+            if (!sectionBuffers.isEmpty())
+                runPass("terrain", this::renderTerrain);
+
+            runPass("block entities", () -> renderBlockEntities(portalWorld, tickDelta, portalCamera));
+            runPass("entities", () -> renderEntities(portalWorld, tickDelta, portalCamera));
+            runPass("particles", () -> renderParticles(id, portalCamera, tickDelta));
+        } finally {
+            // Always unwind - otherwise the leaked push corrupts the main game's model-view matrix next frame.
+            modelViewStack.pop();
+            RenderSystem.applyModelViewMatrix();
+            RenderSystem.setProjectionMatrix(originalProjection, VertexSorter.BY_DISTANCE);
         }
-        renderBlockEntities(portalWorld, tickDelta, portalCamera);
-        renderEntities(portalWorld, tickDelta, portalCamera);
-        renderParticles(id, portalCamera, tickDelta);
+    }
 
-        modelViewStack.pop();
-        RenderSystem.applyModelViewMatrix();
-        RenderSystem.setProjectionMatrix(originalProjection, VertexSorter.BY_DISTANCE);
+    /** Runs one draw pass, swallowing (and logging once) any failure so the remaining passes still render. */
+    private void runPass(String name, Runnable pass) {
+        try {
+            pass.run();
+        } catch (Throwable t) {
+            AITMod.LOGGER.error("BOTI: '{}' pass failed", name, t);
+        }
     }
 
     /** The world-relative rotation part of the portal camera (pitch then yaw, vanilla camera convention). */
@@ -259,6 +275,15 @@ public class WorldGeometryRenderer {
 
             List<SectionResult> results = new ArrayList<>(batch.size());
             for (ChunkSectionPos sectionPos : batch) {
+                // Don't build a section whose column hasn't streamed into the shadow world yet: reading it would
+                // return all-air, and applySection would then *replace* the section's last good geometry with
+                // nothing - the chunk flashes in, then vanishes ("yeeted"). Re-queue and try again once it loads.
+                // (An explicit unload drops geometry via dropSection, so a genuinely gone chunk still disappears.)
+                if (world.getChunk(sectionPos.getX(), sectionPos.getZ(), ChunkStatus.FULL, false) == null) {
+                    dirtySections.add(sectionPos);
+                    continue;
+                }
+
                 try {
                     results.add(buildSection(world, sectionPos, blockRenderManager, random, checkBehindPortal));
                 } catch (Throwable t) {
@@ -386,12 +411,14 @@ public class WorldGeometryRenderer {
     /**
      * Draws the exterior dimension's sky into the doorway so it shows the sky for wherever the TARDIS actually is.
      * <p>
-     * The doorway is already cleared to the exterior dimension's real sky colour (see {@code TardisDoorBOTI}), which
-     * is the bulk of the look - the right blue for an overworld day, dark for night, the nether's red murk, the End's
-     * void, etc. On top of that we ask the shadow world's own {@link WorldRenderer} (it mirrors the right dimension)
-     * to draw the celestial bodies. Note vanilla {@code renderSky} keys its sky <em>type</em> off the player's own
-     * dimension, so sun/moon/stars only appear when the interior has a vanilla sky type; the colour is always right.
-     * Guarded so a sky hiccup can never take down the rest of the portal render.
+     * The doorway is already cleared to the exterior dimension's real sky colour (see {@code TardisDoorBOTI}); on top
+     * of that we ask the shadow world's own {@link WorldRenderer} (it mirrors the right dimension) to draw the
+     * celestial bodies. Vanilla {@code renderSky} reads the sun/moon angle, sky colour and star brightness from the
+     * renderer's {@code world} (already the shadow world) but decides the sky <em>type</em> - overworld sun/moon/stars
+     * vs. End starfield vs. nether/no sky - from {@code client.world}, the <em>interior</em> dimension. The TARDIS
+     * interior has no vanilla sky type, so nothing celestial ever drew. We momentarily point {@code client.world} at
+     * the shadow world for the duration of the sky pass so the type matches the target dimension too; the swap is
+     * restored in {@code finally}. Guarded so a sky hiccup can never take down the rest of the portal render.
      */
     private void renderSky(UUID id, ClientWorld portalWorld, Matrix4f portalRotation, Camera portalCamera,
                            float tickDelta) {
@@ -399,7 +426,14 @@ public class WorldGeometryRenderer {
         if (data == null || data.renderer() == null)
             return;
 
+        MinecraftClient client = MinecraftClient.getInstance();
+        ClientWorld previousWorld = client.world;
+
         try {
+            // Make vanilla's sky-type check (client.world.getDimensionEffects().getSkyType()) see the target
+            // dimension. This is a single render-thread call with an immediate restore, so nothing else observes it.
+            client.world = portalWorld;
+
             MatrixStack skyStack = new MatrixStack();
             skyStack.multiplyPositionMatrix(portalRotation);
 
@@ -409,6 +443,7 @@ public class WorldGeometryRenderer {
         } catch (Throwable t) {
             AITMod.LOGGER.error("BOTI: failed to render exterior sky", t);
         } finally {
+            client.world = previousWorld;
             // Vanilla renderSky leaves these in various states; reset to sane terrain defaults.
             RenderSystem.depthMask(true);
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -442,8 +477,13 @@ public class WorldGeometryRenderer {
                     blockPos.getY() - centerPos.getY(),
                     blockPos.getZ() - centerPos.getZ());
 
-            dispatcher.render(blockEntity, tickDelta, matrices, immediate);
-            matrices.pop();
+            try {
+                dispatcher.render(blockEntity, tickDelta, matrices, immediate);
+            } catch (Throwable t) {
+                AITMod.LOGGER.error("BOTI: failed to render block entity {}", blockEntity, t);
+            } finally {
+                matrices.pop();
+            }
         }
 
         immediate.draw();
@@ -470,8 +510,13 @@ public class WorldGeometryRenderer {
             double z = MathHelper.lerp(tickDelta, entity.lastRenderZ, entity.getZ()) - centerPos.getZ();
             float yaw = MathHelper.lerp(tickDelta, entity.prevYaw, entity.getYaw());
 
-            int light = dispatcher.getLight(entity, tickDelta);
-            dispatcher.render(entity, x, y, z, yaw, tickDelta, matrices, immediate, light);
+            try {
+                int light = dispatcher.getLight(entity, tickDelta);
+                dispatcher.render(entity, x, y, z, yaw, tickDelta, matrices, immediate, light);
+            } catch (Throwable t) {
+                // A half-synced mob (missing tracked data, etc.) must not blank the whole entity pass.
+                AITMod.LOGGER.error("BOTI: failed to render entity {}", entity, t);
+            }
         }
 
         immediate.draw();
@@ -526,6 +571,16 @@ public class WorldGeometryRenderer {
         int endY = startY + 15;
         int endZ = startZ + 15;
 
+        // renderFluid() ignores the matrix stack and bakes its vertices at section-local coords (x&15, y&15, z&15).
+        // Everything else here is baked relative to centerPos, so wrap the fluid buffers to add the constant
+        // per-section shift (sectionMin - centerPos) that maps section-local space into centerPos-relative space.
+        // Without this every section's fluid quads collapse onto the same 16-block box at the origin - the
+        // "all the water renders in one place" bug.
+        double fluidOffsetX = startX - centerPos.getX();
+        double fluidOffsetY = startY - centerPos.getY();
+        double fluidOffsetZ = startZ - centerPos.getZ();
+        Map<RenderLayer, OffsetVertexConsumer> fluidConsumers = new HashMap<>();
+
         boolean hasBlocks = false;
 
         for (int x = startX; x <= endX; x++) {
@@ -559,13 +614,15 @@ public class WorldGeometryRenderer {
                     FluidState fluidState = state.getFluidState();
                     if (!fluidState.isEmpty()) {
                         RenderLayer fluidLayer = RenderLayers.getFluidLayer(fluidState);
-                        BufferBuilder builder = builders.get(fluidLayer);
                         usedLayers.add(fluidLayer);
 
-                        matrices.push();
-                        matrices.translate(relX, relY, relZ);
-                        blockRenderManager.renderFluid(mutablePos, world, builder, state, fluidState);
-                        matrices.pop();
+                        // Offsetting consumer (not the matrix stack, which renderFluid ignores) puts the fluid in the
+                        // same centerPos-relative space as the solid blocks. Reused per layer within this section.
+                        OffsetVertexConsumer fluidConsumer = fluidConsumers.computeIfAbsent(fluidLayer,
+                                layer -> new OffsetVertexConsumer(builders.get(layer),
+                                        fluidOffsetX, fluidOffsetY, fluidOffsetZ));
+
+                        blockRenderManager.renderFluid(mutablePos, world, fluidConsumer, state, fluidState);
                     }
 
                     if (state.getRenderType() != BlockRenderType.INVISIBLE) {
@@ -634,6 +691,24 @@ public class WorldGeometryRenderer {
             sectionBlockEntities.remove(pos);
         else
             sectionBlockEntities.put(pos, result.blockEntities());
+    }
+
+    /**
+     * Immediately drops a section's geometry. Called when the shadow world unloads a chunk: the blocks are genuinely
+     * gone, so we remove the buffers directly instead of scheduling a rebuild (which would now be skipped, because
+     * the streaming guard in {@link #dispatchBuild} won't build an unloaded column). Must run on the render thread.
+     */
+    public void dropSection(ChunkSectionPos pos) {
+        dirtySections.remove(pos);
+        buildAttempts.remove(pos);
+
+        Map<RenderLayer, VertexBuffer> old = sectionBuffers.remove(pos);
+        if (old != null) {
+            for (VertexBuffer vbo : old.values())
+                vbo.close();
+        }
+
+        sectionBlockEntities.remove(pos);
     }
 
     private void clearBuffers() {

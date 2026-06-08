@@ -29,12 +29,14 @@ import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
 import net.minecraft.network.packet.s2c.play.UnloadChunkS2CPacket;
+import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.dimension.DimensionTypes;
@@ -123,6 +125,10 @@ public class ExampleMod implements ModInitializer {
 
         if (extWorld == null)
             return false;
+
+        // Keep the shadow world's clock in step with the exterior so the doorway's sky shows the right time of day.
+        // Cheap (two longs) and only every REFRESH_INTERVAL ticks, for landed TARDISes that are actually being viewed.
+        broadcastTime(tardis, extWorld);
 
         BlockPos extPos = ext.getPos();
         ProxyEntry entry = PROXIES.get(id);
@@ -232,6 +238,11 @@ public class ExampleMod implements ModInitializer {
     private static void broadcastCenter(ServerTardis tardis, PacketProxyPlayer proxy) {
         ChunkPos center = proxy.getChunkPos();
         broadcast(tardis, new ChunkRenderDistanceCenterS2CPacket(center.x, center.z));
+    }
+
+    private static void broadcastTime(ServerTardis tardis, ServerWorld world) {
+        broadcast(tardis, new WorldTimeUpdateS2CPacket(world.getTime(), world.getTimeOfDay(),
+                world.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE)));
     }
 
     private static void broadcast(ServerTardis tardis, Packet<?> packet) {

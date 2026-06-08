@@ -131,6 +131,16 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
         this.world.getChunkManager().setChunkMapCenter(packet.getChunkX(), packet.getChunkZ());
     }
 
+    /**
+     * Syncs the exterior world's clock onto the shadow world. The shadow world isn't part of the tick loop and never
+     * receives the normal time broadcast (the proxy isn't a real player), so without this its sky angle is frozen and
+     * the doorway shows a fixed time of day regardless of the real one. Mirrors ClientPlayNetworkHandler#onWorldTimeUpdate.
+     */
+    public void onWorldTime(WorldTimeUpdateS2CPacket packet) {
+        this.world.setTime(packet.getTime());
+        this.world.setTimeOfDay(packet.getTimeOfDay());
+    }
+
     public void onChunkBiomeData(ChunkBiomeDataS2CPacket packet) {
         for (ChunkBiomeDataS2CPacket.Serialized serialized : packet.chunkBiomeData()) {
             this.world.getChunkManager().onChunkBiomeData(serialized.pos().x, serialized.pos().z, serialized.toReadingBuf());
@@ -172,9 +182,11 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
         if (renderer == null)
             return;
 
-        // The chunk's blocks are gone now, so rebuild its sections - they come back empty and get dropped.
+        // The chunk's blocks are gone now. Drop its sections directly rather than scheduling a rebuild: the build
+        // path skips unloaded columns (so it can't blank good geometry mid-stream), which would otherwise leave the
+        // now-unloaded geometry stuck on screen forever.
         for (int y = this.world.getBottomSectionCoord(); y < this.world.getTopSectionCoord(); y++)
-            renderer.markSectionDirty(ChunkSectionPos.from(packet.getX(), y, packet.getZ()));
+            renderer.dropSection(ChunkSectionPos.from(packet.getX(), y, packet.getZ()));
     }
 
     // ===== Entities =====
