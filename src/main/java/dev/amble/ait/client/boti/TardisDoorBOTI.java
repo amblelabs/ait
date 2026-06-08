@@ -1,6 +1,7 @@
 package dev.amble.ait.client.boti;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.block.DoorBlock;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedGlobalPos;
 import dev.loqor.portal.client.PortalData;
@@ -18,6 +19,7 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.AnimatedModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
@@ -37,6 +39,10 @@ public class TardisDoorBOTI extends BOTI {
     private static WorldGeometryRenderer interiorRenderer;
     private static boolean rendererInitialized = false;
 
+    // How many blocks of the exterior world to show through the doorway. Larger = more of the surroundings are
+    // visible (at the cost of more sections to build); the renderer culls aggressively to the door-facing frustum.
+    private static final int RENDER_DISTANCE = 64;
+
     public static WorldGeometryRenderer getInteriorRenderer() {
         return interiorRenderer;
     }
@@ -48,12 +54,9 @@ public class TardisDoorBOTI extends BOTI {
         if (!rendererInitialized) {
             MinecraftClient client = MinecraftClient.getInstance();
             if (client.getWindow() != null) {
-                interiorRenderer = new WorldGeometryRenderer(25); // Large render distance for interior
-
-                float aspect = (float) client.getWindow().getFramebufferWidth() / (float) client.getWindow().getFramebufferHeight();
-                // Perspective projection - adjust FOV/near/far as needed
-                interiorRenderer.setPerspectiveProjection(MinecraftClient.getInstance().options.getFov().getValue() * MinecraftClient.getInstance().player.getFovMultiplier(), aspect, 0.05f, 2000.0f);
-
+                // The renderer derives its projection from the live camera FOV each frame, so there's nothing else
+                // to set up here.
+                interiorRenderer = new WorldGeometryRenderer(RENDER_DISTANCE);
                 rendererInitialized = true;
             }
         }
@@ -62,17 +65,6 @@ public class TardisDoorBOTI extends BOTI {
     public static void markDirty() {
         if (interiorRenderer == null) return;
         interiorRenderer.markDirty();
-    }
-
-    /**
-     * Updates the renderer's aspect ratio when window size changes
-     */
-    private static void updateRendererProjection() {
-        if (rendererInitialized && interiorRenderer != null) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            float aspect = (float) client.getWindow().getFramebufferWidth() / (float) client.getWindow().getFramebufferHeight();
-            interiorRenderer.setPerspectiveProjection(MinecraftClient.getInstance().options.getFov().getValue() * MinecraftClient.getInstance().player.getFovMultiplier(), aspect, 0.05f, 2000.0f);
-        }
     }
 
     /**
@@ -127,7 +119,9 @@ public class TardisDoorBOTI extends BOTI {
 
         // Initialize renderer if needed
         initializeRenderer();
-        updateRendererProjection();
+
+        PortalData portalData = PortalDataManager.get(tardis.getUuid());
+        boolean landed = tardis.travel().getState() == TravelHandlerBase.State.LANDED;
 
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
@@ -136,7 +130,16 @@ public class TardisDoorBOTI extends BOTI {
 
         BOTI_HANDLER.setupFramebuffer();
 
-        Vec3d skyColor = new Vec3d(0.5d, 0.65d, 0.9d);//PortalDataManager.get().world().getSkyColor(client.player.getPos(), client.getTickDelta());
+        // Tint the doorway background with the exterior dimension's actual sky colour (right hue for the time of
+        // day / biome / dimension), falling back to a daytime blue if the shadow world isn't ready yet.
+        Vec3d skyColor = new Vec3d(0.5d, 0.65d, 0.9d);
+        if (landed && portalData != null && portalData.world() != null) {
+            try {
+                skyColor = portalData.world().getSkyColor(Vec3d.of(tardis.travel().position().getPos()), tickDelta);
+            } catch (Exception ignored) {
+                // keep the fallback colour
+            }
+        }
         if (AITModClient.CONFIG.greenScreenBOTI)
             BOTI.setFramebufferColor(BOTI_HANDLER.afbo, 0, 1, 0, 1);
         else
@@ -183,23 +186,41 @@ public class TardisDoorBOTI extends BOTI {
         GL11.glStencilMask(0x00);
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
-        // ===== RENDER TARDIS INTERIOR HERE =====
-        if (tardis.travel().getState() == TravelHandlerBase.State.LANDED && interiorRenderer != null) {
+        // ===== RENDER THE EXTERIOR WORLD THROUGH THE DOORWAY =====
+        if (landed && interiorRenderer != null && portalData != null && portalData.world() != null) {
             CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
-            BlockPos exteriorBlockPos = tardis.travel().position().getPos();
-            PortalData portalData = PortalDataManager.get(tardis.getUuid());
-            if (portalData != null && portalData.world() != null) {
+            BlockPos exteriorBlockPos = exteriorPos.getPos();
 
-                MatrixStack portalMatrices = new MatrixStack();
+            try {
+                Direction doorFacing = Direction.fromRotation(exteriorPos.getRotationDegrees());
+                interiorRenderer.setDoorFacing(doorFacing);
 
-                try {
-                    Direction doorFacing = Direction.fromRotation(exteriorPos.getRotationDegrees());
-                    interiorRenderer.setDoorFacing(doorFacing);
+                // Map the player's eye through the interior doorway into the exterior world: the view rotates with
+                // the door (so every facing - not just north - looks the right way out) and parallaxes as the
+                // player moves. deltaYaw turns "looking into the interior door" into "looking out the exterior door".
+                Camera camera = client.gameRenderer.getCamera();
+                Direction interiorFacing = door.getCachedState().get(DoorBlock.FACING);
+                float deltaYaw = doorFacing.asRotation() - (interiorFacing.asRotation() + 180.0f);
 
-                    interiorRenderer.render(tardis.getUuid(), portalData.world(), exteriorBlockPos, portalMatrices, tickDelta, true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                Vec3d interiorDoorCenter = new Vec3d(door.getPos().getX() + 0.5, door.getPos().getY() + 1.0,
+                        door.getPos().getZ() + 0.5);
+                Vec3d rel = camera.getPos().subtract(interiorDoorCenter);
+
+                double rad = Math.toRadians(deltaYaw);
+                double cos = Math.cos(rad);
+                double sin = Math.sin(rad);
+                Vec3d relRotated = new Vec3d(rel.x * cos - rel.z * sin, rel.y, rel.x * sin + rel.z * cos);
+                Vec3d eyeRelToCenter = new Vec3d(0.5, 1.0, 0.5).add(relRotated);
+
+                float portalYaw = camera.getYaw() + deltaYaw;
+                float portalPitch = camera.getPitch();
+
+                interiorRenderer.render(tardis.getUuid(), portalData.world(), exteriorBlockPos, eyeRelToCenter,
+                        portalYaw, portalPitch, tickDelta, true);
+            } catch (Throwable t) {
+                // A doorway effect should never take the whole game down; the framebuffer/stencil teardown below
+                // still runs, so the next frame recovers.
+                AITMod.LOGGER.error("Failed to render door BOTI interior", t);
             }
         }
 

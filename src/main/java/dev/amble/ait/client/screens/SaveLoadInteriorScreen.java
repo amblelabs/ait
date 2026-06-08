@@ -64,13 +64,9 @@ public class SaveLoadInteriorScreen extends ConsoleScreen {
         this.left = (this.width - this.bgWidth) / 2;
         this.createButtons();
 
-        // Initialize world renderer
+        // Initialize world renderer (WIP interior preview - the render() pass below is still disabled). The
+        // renderer now derives its projection from the live camera each frame, so there is no projection to set up.
         worldRenderer = new WorldGeometryRenderer(25);
-
-        // Set up orthographic projection
-        float aspect = (float) this.width / (float) this.height;
-        worldRenderer.setOrthographicProjection(aspect, 50.0f, 1.0f, 5000.0f);
-
         worldRenderer.markDirty();
 
         super.init();
