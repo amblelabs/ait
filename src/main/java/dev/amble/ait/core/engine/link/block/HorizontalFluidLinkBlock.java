@@ -9,8 +9,8 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.math.Direction;
 
-public abstract class DirectionalFluidLinkBlock extends FluidLinkBlock {
-    public DirectionalFluidLinkBlock(Settings settings) {
+public abstract class HorizontalFluidLinkBlock extends FluidLinkBlock {
+    public HorizontalFluidLinkBlock(Settings settings) {
         super(settings);
 
         this.setDefaultState(this.stateManager.getDefaultState().with(HorizontalFacingBlock.FACING, Direction.NORTH));

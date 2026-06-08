@@ -22,7 +22,7 @@ public interface ITardisSource extends IFluidSource {
     }
 
     @Override
-    default double max() {
+    default double maxLevel() {
         if (getTardisForFluid() == null) return 0;
 
         return getTardisForFluid().fuel().getMaxFuel();

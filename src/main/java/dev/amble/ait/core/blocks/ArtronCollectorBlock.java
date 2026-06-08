@@ -4,6 +4,8 @@ import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 import java.util.List;
 
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
+import dev.amble.ait.core.engine.link.block.HorizontalFluidLinkBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,9 +30,9 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
 import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 
-public class ArtronCollectorBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
+@SuppressWarnings("deprecation")
+public class ArtronCollectorBlock extends HorizontalFluidLinkBlock implements BlockEntityProvider {
 
     protected static final VoxelShape Y_SHAPE = Block.createCuboidShape(6.0, 0.0, 6.0, 10.0, 29.0, 10.0);
 
@@ -64,7 +66,7 @@ public class ArtronCollectorBlock extends HorizontalDirectionalBlock implements 
     }
 
     @Nullable @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public FluidLinkBlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new ArtronCollectorBlockEntity(pos, state);
     }
 
