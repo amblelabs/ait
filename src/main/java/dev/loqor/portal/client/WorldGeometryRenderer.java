@@ -29,14 +29,19 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class WorldGeometryRenderer {
     private final Map<ChunkSectionPos, Map<RenderLayer, VertexBuffer>> sectionBuffers = new HashMap<>();
-    private final List<BlockEntity> blockEntities = new CopyOnWriteArrayList<>();
+    private final Map<ChunkSectionPos, List<BlockEntity>> sectionBlockEntities = new HashMap<>();
+
+    // Sections whose geometry changed since the last build. Drained incrementally so a single block/light/chunk
+    // update only rebuilds the affected sections instead of the whole render volume.
+    private final Set<ChunkSectionPos> dirtySections = ConcurrentHashMap.newKeySet();
+    private boolean needsFullRebuild = true;
+
     private CompletableFuture<Void> buildFuture = null;
     private BlockPos lastCenterPos = null;
-    private boolean needsRebuild = true;
 
     private final int renderDistance;
     private Matrix4f projectionMatrix;
@@ -69,8 +74,14 @@ public class WorldGeometryRenderer {
         );
     }
 
+    /** Forces a full rebuild of the whole render volume (used for the first build and on a dimension reset). */
     public void markDirty() {
-        this.needsRebuild = true;
+        this.needsFullRebuild = true;
+    }
+
+    /** Queues just one section for rebuilding - the cheap path for block/light/chunk updates. */
+    public void markSectionDirty(ChunkSectionPos pos) {
+        this.dirtySections.add(pos);
     }
 
     public void setDoorFacing(Direction facing) {
@@ -90,10 +101,17 @@ public class WorldGeometryRenderer {
         projectionMatrix = gameRenderer.getBasicProjectionMatrix(gameRenderer.getFov(gameRenderer.getCamera(),
                 MinecraftClient.getInstance().getTickDelta(), true));
 
-        if (needsRebuild && (buildFuture == null || buildFuture.isDone())) {
-            lastCenterPos = centerPos;
-            needsRebuild = false;
+        lastCenterPos = centerPos;
+
+        boolean idle = buildFuture == null || buildFuture.isDone();
+        if (needsFullRebuild && idle) {
+            needsFullRebuild = false;
+            dirtySections.clear();
             rebuildGeometry(portalWorld, centerPos, checkBehindPortal);
+        } else if (!dirtySections.isEmpty() && idle) {
+            Set<ChunkSectionPos> toBuild = new HashSet<>(dirtySections);
+            dirtySections.removeAll(toBuild);
+            rebuildSections(portalWorld, centerPos, toBuild, checkBehindPortal);
         }
 
         Matrix4f originalProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
@@ -136,12 +154,7 @@ public class WorldGeometryRenderer {
             for (Map.Entry<ChunkSectionPos, Map<RenderLayer, VertexBuffer>> entry : sectionBuffers.entrySet()) {
                 ChunkSectionPos sectionPos = entry.getKey();
 
-                double dx = (sectionPos.getCenterPos().getX() - lastCenterPos.getX());
-                double dy = (sectionPos.getCenterPos().getY() - lastCenterPos.getY());
-                double dz = (sectionPos.getCenterPos().getZ() - lastCenterPos.getZ());
-                double distSq = dx * dx + dy * dy + dz * dz;
-
-                if (distSq > renderDistance * renderDistance * 256) {
+                if (isSectionCulled(sectionPos)) {
                     continue;
                 }
 
@@ -164,12 +177,7 @@ public class WorldGeometryRenderer {
         for (Map.Entry<ChunkSectionPos, Map<RenderLayer, VertexBuffer>> entry : sectionBuffers.entrySet()) {
             ChunkSectionPos sectionPos = entry.getKey();
 
-            double dx = (sectionPos.getCenterPos().getX() - lastCenterPos.getX());
-            double dy = (sectionPos.getCenterPos().getY() - lastCenterPos.getY());
-            double dz = (sectionPos.getCenterPos().getZ() - lastCenterPos.getZ());
-            double distSq = dx * dx + dy * dy + dz * dz;
-
-            if (distSq > renderDistance * renderDistance * 256) {
+            if (isSectionCulled(sectionPos)) {
                 continue;
             }
 
@@ -188,6 +196,14 @@ public class WorldGeometryRenderer {
         RenderSystem.disableBlend();
     }
 
+    private boolean isSectionCulled(ChunkSectionPos sectionPos) {
+        double dx = sectionPos.getCenterPos().getX() - lastCenterPos.getX();
+        double dy = sectionPos.getCenterPos().getY() - lastCenterPos.getY();
+        double dz = sectionPos.getCenterPos().getZ() - lastCenterPos.getZ();
+
+        return dx * dx + dy * dy + dz * dz > renderDistance * renderDistance * 256;
+    }
+
     private void renderBlockEntities(ClientWorld portalWorld, MatrixStack matrices, float tickDelta, BlockPos centerPos) {
         MinecraftClient client = MinecraftClient.getInstance();
         BlockEntityRenderDispatcher dispatcher = client.getBlockEntityRenderDispatcher();
@@ -195,7 +211,10 @@ public class WorldGeometryRenderer {
 
         dispatcher.configure(portalWorld, client.gameRenderer.getCamera(), client.crosshairTarget);
 
-        List<BlockEntity> snapshot = new ArrayList<>(blockEntities);
+        List<BlockEntity> snapshot = new ArrayList<>();
+        for (List<BlockEntity> sectionEntities : sectionBlockEntities.values()) {
+            snapshot.addAll(sectionEntities);
+        }
 
         for (BlockEntity blockEntity : snapshot) {
             BlockPos blockPos = blockEntity.getPos();
@@ -293,61 +312,64 @@ public class WorldGeometryRenderer {
     }
 
     private void rebuildGeometry(World world, BlockPos centerPos, boolean checkBehindPortal) {
+        rebuildSections(world, centerPos, sectionsInVolume(centerPos), checkBehindPortal, true);
+    }
+
+    private void rebuildSections(World world, BlockPos centerPos, Set<ChunkSectionPos> sections, boolean checkBehindPortal) {
+        rebuildSections(world, centerPos, sections, checkBehindPortal, false);
+    }
+
+    private void rebuildSections(World world, BlockPos centerPos, Set<ChunkSectionPos> sections,
+                                 boolean checkBehindPortal, boolean full) {
         buildFuture = CompletableFuture.runAsync(() -> {
             try {
-                Map<ChunkSectionPos, Map<RenderLayer, VertexBuffer>> tempBuffers = Collections.synchronizedMap(new HashMap<>());
-
-                List<BlockEntity> foundBlockEntities = new ArrayList<>();
                 BlockRenderManager blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
                 Random random = Random.create();
 
-                int minX = centerPos.getX() - renderDistance;
-                int minY = centerPos.getY() - renderDistance;
-                int minZ = centerPos.getZ() - renderDistance;
-                int maxX = centerPos.getX() + renderDistance;
-                int maxY = centerPos.getY() + renderDistance;
-                int maxZ = centerPos.getZ() + renderDistance;
-
-                int minSectionX = minX >> 4;
-                int minSectionY = minY >> 4;
-                int minSectionZ = minZ >> 4;
-                int maxSectionX = maxX >> 4;
-                int maxSectionY = maxY >> 4;
-                int maxSectionZ = maxZ >> 4;
-
-                for (int sectionX = minSectionX; sectionX <= maxSectionX; sectionX++) {
-                    for (int sectionY = minSectionY; sectionY <= maxSectionY; sectionY++) {
-                        for (int sectionZ = minSectionZ; sectionZ <= maxSectionZ; sectionZ++) {
-                            buildSectionToMap(world, centerPos, sectionX, sectionY, sectionZ,
-                                    blockRenderManager, random, foundBlockEntities, tempBuffers, checkBehindPortal);
-                        }
-                    }
+                List<SectionResult> results = new ArrayList<>();
+                for (ChunkSectionPos sectionPos : sections) {
+                    results.add(buildSection(world, centerPos, sectionPos, blockRenderManager, random, checkBehindPortal));
                 }
 
                 MinecraftClient.getInstance().execute(() -> {
-                    for (Map<RenderLayer, VertexBuffer> layerMap : sectionBuffers.values()) {
-                        for (VertexBuffer vbo : layerMap.values()) {
-                            vbo.close();
-                        }
+                    if (full) {
+                        clearBuffers();
                     }
-                    sectionBuffers.clear();
 
-                    sectionBuffers.putAll(tempBuffers);
-
-                    blockEntities.clear();
-                    blockEntities.addAll(foundBlockEntities);
+                    for (SectionResult result : results) {
+                        applySection(result);
+                    }
                 });
-
             } catch (Exception e) {
                 AITMod.LOGGER.error("Failed to rebuild geometry", e);
             }
         });
     }
 
-    private void buildSectionToMap(World world, BlockPos centerPos, int sectionX, int sectionY, int sectionZ,
-                                   BlockRenderManager blockRenderManager, Random random,
-                                   List<BlockEntity> foundBlockEntities,
-                                   Map<ChunkSectionPos, Map<RenderLayer, VertexBuffer>> targetMap, boolean checkBehindPortal) {
+    private Set<ChunkSectionPos> sectionsInVolume(BlockPos centerPos) {
+        Set<ChunkSectionPos> sections = new HashSet<>();
+
+        int minSectionX = (centerPos.getX() - renderDistance) >> 4;
+        int minSectionY = (centerPos.getY() - renderDistance) >> 4;
+        int minSectionZ = (centerPos.getZ() - renderDistance) >> 4;
+        int maxSectionX = (centerPos.getX() + renderDistance) >> 4;
+        int maxSectionY = (centerPos.getY() + renderDistance) >> 4;
+        int maxSectionZ = (centerPos.getZ() + renderDistance) >> 4;
+
+        for (int sectionX = minSectionX; sectionX <= maxSectionX; sectionX++) {
+            for (int sectionY = minSectionY; sectionY <= maxSectionY; sectionY++) {
+                for (int sectionZ = minSectionZ; sectionZ <= maxSectionZ; sectionZ++) {
+                    sections.add(ChunkSectionPos.from(sectionX, sectionY, sectionZ));
+                }
+            }
+        }
+
+        return sections;
+    }
+
+    /** Builds one section's geometry off-thread. Returns CPU buffers + block entities; no GL work happens here. */
+    private SectionResult buildSection(World world, BlockPos centerPos, ChunkSectionPos sectionPos,
+                                       BlockRenderManager blockRenderManager, Random random, boolean checkBehindPortal) {
 
         Map<RenderLayer, BufferBuilder> builders = new HashMap<>();
         Set<RenderLayer> usedLayers = new HashSet<>();
@@ -360,10 +382,11 @@ public class WorldGeometryRenderer {
 
         MatrixStack matrices = new MatrixStack();
         BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+        List<BlockEntity> foundBlockEntities = new ArrayList<>();
 
-        int startX = sectionX << 4;
-        int startY = sectionY << 4;
-        int startZ = sectionZ << 4;
+        int startX = sectionPos.getMinX();
+        int startY = sectionPos.getMinY();
+        int startZ = sectionPos.getMinZ();
         int endX = startX + 15;
         int endY = startY + 15;
         int endZ = startZ + 15;
@@ -406,9 +429,7 @@ public class WorldGeometryRenderer {
                     if (state.hasBlockEntity()) {
                         BlockEntity blockEntity = world.getBlockEntity(mutablePos);
                         if (blockEntity != null) {
-                            synchronized (foundBlockEntities) {
-                                foundBlockEntities.add(blockEntity);
-                            }
+                            foundBlockEntities.add(blockEntity);
                         }
                     }
 
@@ -438,46 +459,65 @@ public class WorldGeometryRenderer {
             }
         }
 
-        if (hasBlocks) {
-            ChunkSectionPos sectionPos = ChunkSectionPos.from(sectionX, sectionY, sectionZ);
+        Map<RenderLayer, BufferBuilder.BuiltBuffer> builtBuffers = new HashMap<>();
 
-            Map<RenderLayer, BufferBuilder.BuiltBuffer> builtBuffers = new HashMap<>();
-            for (RenderLayer layer : usedLayers) {
-                BufferBuilder builder = builders.get(layer);
-                BufferBuilder.BuiltBuffer builtBuffer = builder.end();
-                builtBuffers.put(layer, builtBuffer);
-            }
+        for (RenderLayer layer : RenderLayer.getBlockLayers()) {
+            BufferBuilder.BuiltBuffer built = builders.get(layer).end();
 
-            for (RenderLayer layer : RenderLayer.getBlockLayers()) {
-                if (!usedLayers.contains(layer)) {
-                    builders.get(layer).end().release();
-                }
-            }
-
-            MinecraftClient.getInstance().execute(() -> {
-                Map<RenderLayer, VertexBuffer> layerBuffers = new HashMap<>();
-
-                for (Map.Entry<RenderLayer, BufferBuilder.BuiltBuffer> entry : builtBuffers.entrySet()) {
-                    RenderLayer layer = entry.getKey();
-                    BufferBuilder.BuiltBuffer builtBuffer = entry.getValue();
-
-                    VertexBuffer vbo = new VertexBuffer(VertexBuffer.Usage.STATIC);
-                    vbo.bind();
-                    vbo.upload(builtBuffer);
-                    VertexBuffer.unbind();
-
-                    layerBuffers.put(layer, vbo);
-                }
-
-                if (!layerBuffers.isEmpty()) {
-                    targetMap.put(sectionPos, layerBuffers);
-                }
-            });
-        } else {
-            for (BufferBuilder builder : builders.values()) {
-                builder.end().release();
+            if (hasBlocks && usedLayers.contains(layer)) {
+                builtBuffers.put(layer, built);
+            } else {
+                built.release();
             }
         }
+
+        return new SectionResult(sectionPos, builtBuffers, foundBlockEntities);
+    }
+
+    /** Uploads one section's freshly-built buffers, replacing (or removing) whatever was there before. */
+    private void applySection(SectionResult result) {
+        ChunkSectionPos pos = result.pos();
+
+        Map<RenderLayer, VertexBuffer> old = sectionBuffers.remove(pos);
+        if (old != null) {
+            for (VertexBuffer vbo : old.values()) {
+                vbo.close();
+            }
+        }
+
+        if (result.buffers().isEmpty()) {
+            sectionBlockEntities.remove(pos);
+            return;
+        }
+
+        Map<RenderLayer, VertexBuffer> layerBuffers = new HashMap<>();
+        for (Map.Entry<RenderLayer, BufferBuilder.BuiltBuffer> entry : result.buffers().entrySet()) {
+            VertexBuffer vbo = new VertexBuffer(VertexBuffer.Usage.STATIC);
+            vbo.bind();
+            vbo.upload(entry.getValue());
+            VertexBuffer.unbind();
+
+            layerBuffers.put(entry.getKey(), vbo);
+        }
+
+        sectionBuffers.put(pos, layerBuffers);
+
+        if (result.blockEntities().isEmpty()) {
+            sectionBlockEntities.remove(pos);
+        } else {
+            sectionBlockEntities.put(pos, result.blockEntities());
+        }
+    }
+
+    private void clearBuffers() {
+        for (Map<RenderLayer, VertexBuffer> layerMap : sectionBuffers.values()) {
+            for (VertexBuffer vbo : layerMap.values()) {
+                vbo.close();
+            }
+        }
+
+        sectionBuffers.clear();
+        sectionBlockEntities.clear();
     }
 
     private boolean isFullySurrounded(World world, BlockPos pos) {
@@ -492,13 +532,7 @@ public class WorldGeometryRenderer {
     }
 
     public void close() {
-        for (Map<RenderLayer, VertexBuffer> layerMap : sectionBuffers.values()) {
-            for (VertexBuffer vbo : layerMap.values()) {
-                vbo.close();
-            }
-        }
-        sectionBuffers.clear();
-        blockEntities.clear();
+        clearBuffers();
     }
 
     public int getSectionCount() {
@@ -506,6 +540,14 @@ public class WorldGeometryRenderer {
     }
 
     public int getBlockEntityCount() {
-        return blockEntities.size();
+        int count = 0;
+        for (List<BlockEntity> sectionEntities : sectionBlockEntities.values()) {
+            count += sectionEntities.size();
+        }
+        return count;
+    }
+
+    private record SectionResult(ChunkSectionPos pos, Map<RenderLayer, BufferBuilder.BuiltBuffer> buffers,
+                                 List<BlockEntity> blockEntities) {
     }
 }

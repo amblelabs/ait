@@ -50,6 +50,31 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
 
     private void handleBlockUpdate(BlockPos pos, BlockState state) {
         this.world.handleBlockUpdate(pos, state, Block.FORCE_STATE | Block.NOTIFY_LISTENERS | Block.NOTIFY_NEIGHBORS);
+        markSectionsDirty(pos);
+    }
+
+    /**
+     * Marks the section containing {@code pos} dirty - plus any section the block borders - so a single block change
+     * only rebuilds the affected sections instead of the whole render volume. Neighbours are included when the block
+     * sits on a section face/edge/corner so cross-section face culling stays correct.
+     */
+    private void markSectionsDirty(BlockPos pos) {
+        WorldGeometryRenderer renderer = TardisDoorBOTI.getInteriorRenderer();
+        if (renderer == null)
+            return;
+
+        int sectionX = pos.getX() >> 4;
+        int sectionY = pos.getY() >> 4;
+        int sectionZ = pos.getZ() >> 4;
+
+        int localX = pos.getX() & 15;
+        int localY = pos.getY() & 15;
+        int localZ = pos.getZ() & 15;
+
+        for (int dx = (localX == 0 ? -1 : 0); dx <= (localX == 15 ? 1 : 0); dx++)
+            for (int dy = (localY == 0 ? -1 : 0); dy <= (localY == 15 ? 1 : 0); dy++)
+                for (int dz = (localZ == 0 ? -1 : 0); dz <= (localZ == 15 ? 1 : 0); dz++)
+                    renderer.markSectionDirty(ChunkSectionPos.from(sectionX + dx, sectionY + dy, sectionZ + dz));
     }
 
     public void onChunkData(ChunkDataS2CPacket chunkDataS2CPacket) {
@@ -84,14 +109,17 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
     }
 
     private void updateLighting(int chunkX, int chunkZ, LightingProvider provider, LightType type, BitSet inited, BitSet uninited, Iterator<byte[]> nibbles) {
+        WorldGeometryRenderer renderer = TardisDoorBOTI.getInteriorRenderer();
+
         for (int i = 0; i < provider.getHeight(); ++i) {
             int j = provider.getBottomY() + i;
             boolean bl = inited.get(i);
             boolean bl2 = uninited.get(i);
             if (!bl && !bl2) continue;
             provider.enqueueSectionData(type, ChunkSectionPos.from(chunkX, j, chunkZ), bl ? new ChunkNibbleArray(nibbles.next().clone()) : new ChunkNibbleArray());
-//            this.world.scheduleBlockRenders(chunkX, j, chunkZ);
-            TardisDoorBOTI.getInteriorRenderer().markDirty();
+
+            if (renderer != null)
+                renderer.markSectionDirty(ChunkSectionPos.from(chunkX, j, chunkZ));
         }
     }
 
@@ -125,24 +153,28 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
         LightingProvider lightingProvider = this.world.getChunkManager().getLightingProvider();
         ChunkSection[] chunkSections = chunk.getSectionArray();
         ChunkPos chunkPos = chunk.getPos();
+        WorldGeometryRenderer renderer = TardisDoorBOTI.getInteriorRenderer();
+
         for (int i = 0; i < chunkSections.length; ++i) {
             ChunkSection chunkSection = chunkSections[i];
             int j = this.world.sectionIndexToCoord(i);
             lightingProvider.setSectionStatus(ChunkSectionPos.from(chunkPos, j), chunkSection.isEmpty());
-//            this.world.scheduleBlockRenders(x, j, z);
-            TardisDoorBOTI.getInteriorRenderer().markDirty();
+
+            if (renderer != null)
+                renderer.markSectionDirty(ChunkSectionPos.from(chunkPos, j));
         }
     }
 
     public void onUnloadChunk(UnloadChunkS2CPacket packet) {
         this.world.getChunkManager().unload(packet.getX(), packet.getZ());
-        markRendererDirty();
-    }
 
-    private static void markRendererDirty() {
         WorldGeometryRenderer renderer = TardisDoorBOTI.getInteriorRenderer();
-        if (renderer != null)
-            renderer.markDirty();
+        if (renderer == null)
+            return;
+
+        // The chunk's blocks are gone now, so rebuild its sections - they come back empty and get dropped.
+        for (int y = this.world.getBottomSectionCoord(); y < this.world.getTopSectionCoord(); y++)
+            renderer.markSectionDirty(ChunkSectionPos.from(packet.getX(), y, packet.getZ()));
     }
 
     // ===== Entities =====
