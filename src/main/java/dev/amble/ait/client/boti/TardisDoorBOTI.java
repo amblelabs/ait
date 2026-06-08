@@ -192,7 +192,7 @@ public class TardisDoorBOTI extends BOTI {
             BlockPos exteriorBlockPos = exteriorPos.getPos();
 
             try {
-                Direction doorFacing = Direction.fromRotation(exteriorPos.getRotationDegrees());
+                Direction doorFacing = Direction.fromRotation(exteriorPos.getRotationDegrees()).getOpposite();
                 interiorRenderer.setDoorFacing(doorFacing);
 
                 // Map the player's eye through the interior doorway into the exterior world: the view rotates with
