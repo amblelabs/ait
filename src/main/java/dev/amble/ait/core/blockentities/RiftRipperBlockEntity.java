@@ -60,28 +60,8 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
     }
 
     @Override
-    public double addFuel(double var) {
-        return ArtronHolder.super.addFuel(var);
-    }
-
-    @Override
-    public void removeFuel(double var) {
-        ArtronHolder.super.removeFuel(var);
-    }
-
-    @Override
     public double getMaxFuel() {
         return ArtronCollectorItem.COLLECTOR_MAX_FUEL;
-    }
-
-    @Override
-    public boolean isOutOfFuel() {
-        return ArtronHolder.super.isOutOfFuel();
-    }
-
-    @Override
-    public boolean isFull() {
-        return ArtronHolder.super.isFull();
     }
 
     @Override
@@ -103,7 +83,7 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
 
         if (!firstTickHandled) {
             firstTickHandled = true;
-            FluidNetwork.rebuildFrom((ServerWorld) world, pos);
+            FluidNetwork.rebuildFrom(serverWorld, pos);
         }
 
         if (serverWorld.getServer().getTicks() % 3 == 0)
@@ -154,8 +134,8 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
     }
 
     private void rebuildOwnNetwork() {
-        if (this.hasWorld() && !this.getWorld().isClient()) {
-            FluidNetwork.rebuildFrom((ServerWorld) this.getWorld(), this.getPos());
+        if (this.getWorld() instanceof ServerWorld serverWorld) {
+            FluidNetwork.rebuildFrom(serverWorld, this.getPos());
         }
     }
 
@@ -170,7 +150,7 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
     }
 
     @Override
-    public double max() {
+    public double maxLevel() {
         return this.getMaxFuel();
     }
 

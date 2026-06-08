@@ -31,8 +31,8 @@ public interface IFluidSource extends IFluidLink {
         }
     }
 
-    double max();
-    default boolean isFull() {
-        return level() >= max();
+    double maxLevel();
+    default boolean isLevelFull() {
+        return level() >= maxLevel();
     }
 }
