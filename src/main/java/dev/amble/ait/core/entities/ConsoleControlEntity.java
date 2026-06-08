@@ -431,11 +431,9 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         DurabilityStates state = this.getDurabilityState(this.getDurability());
         boolean hasMallet = player.getMainHandStack().isOf(AITItems.HAMMER);
 
-        if (state == DurabilityStates.CATCH_FIRE) {
-            if (!hasMallet) {
-                player.setFireTicks(random.nextBetween(20*2, 20*6));
-                player.damage(world.getDamageSources().hotFloor(), 4);
-            }
+        if (state == DurabilityStates.CATCH_FIRE && !hasMallet) {
+            player.setFireTicks(random.nextBetween(20*2, 20*6));
+            player.damage(world.getDamageSources().hotFloor(), 4);
         }
         
         if (this.isOnDelay())
