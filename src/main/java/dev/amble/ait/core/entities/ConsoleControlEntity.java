@@ -220,8 +220,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
             if (player.getOffHandStack().isOf(Items.COMMAND_BLOCK))
                 controlEditorHandler(player);
-
-            else if (!this.run((PlayerEntity) source.getAttacker(), source.getAttacker().getWorld(), true))
+            else if (!this.run(player, player.getWorld(), true))
                 this.playFailFx();
         }
 
@@ -457,6 +456,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         if (state == DurabilityStates.JAMMED) {
             if (!hasMallet) return false;
+        }
+
+        if (state == DurabilityStates.ON_FIRE) {
+            if (!hasMallet) player.setFireTicks(random.nextBetween(20, 60));
         }
 
         if (state == DurabilityStates.OCCASIONALLY_JAM && random.nextBetween(0, 10) == 5) {
