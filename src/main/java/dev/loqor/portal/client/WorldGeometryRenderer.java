@@ -599,7 +599,7 @@ public class WorldGeometryRenderer {
     /** True for blocks on the far side of the door plane - they can never be seen through the doorway. */
     private boolean isBehindPortal(double relX, double relY, double relZ) {
         Vec3i normal = doorFacing.getVector();
-        return relX * normal.getX() + relY * normal.getY() + relZ * normal.getZ() > 0.0;
+        return relX * normal.getX() + relY * normal.getY() + relZ * normal.getZ() < 0.0;
     }
 
     /** Uploads one section's freshly-built buffers, replacing (or removing) whatever was there before. */
