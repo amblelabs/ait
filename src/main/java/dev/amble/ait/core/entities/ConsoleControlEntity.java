@@ -451,11 +451,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             Vec3d pos = this.getPos();
             ((ServerWorld) world).spawnParticles(ParticleTypes.SCRAPE,
                     pos.getX(), pos.getY(), pos.getZ(), 2, 0.2, 0.4, 0.2, 0.02);
-        }
 
-        if (!(this.getControl() instanceof HammerHangerControl)) {
-            if (hasMallet)
+            if (!(this.getControl() instanceof HammerHangerControl)) {
                 this.subtractDurability(0.4f * state.durability);
+            }
         }
 
         if (state == DurabilityStates.JAMMED) {
@@ -473,12 +472,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             }
         }
 
-        if (state == DurabilityStates.SPARKING && random.nextBetween(0, 25) < 3) {
-            if (hasMallet) {
-                this.addDurability(0.05f);
-            } else {
-                return false;
-            }
+        if (state == DurabilityStates.SPARKING && random.nextBetween(0, 25) < 5) {
+            if (!hasMallet) return false;
         }
 
         if (this.control.shouldHaveDelay(tardis) && !this.isOnDelay()) {
