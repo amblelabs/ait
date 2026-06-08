@@ -418,12 +418,12 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         Tardis tardis = this.tardis().get();
 
         ItemStack stack = player.getMainHandStack();
-        if (((stack.isOf(AITItems.SONIC_SCREWDRIVER) && SonicItem.mode(stack) == SonicMode.Modes.TARDIS) || stack.getItem() instanceof RepairToolItem) && this.getDurability() < 1.0f) {
+        if (tardis.travel().isLanded() && ((stack.isOf(AITItems.SONIC_SCREWDRIVER) && SonicItem.mode(stack) == SonicMode.Modes.TARDIS) || stack.getItem() instanceof RepairToolItem) && this.getDurability() < 1.0f) {
             Vec3d pos = this.getPos();
             this.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
             ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.WAX_ON,
                     pos.getX(), pos.getY(), pos.getZ(), 2, 0.2, 0.4, 0.2, 0.02);
-            this.setDurability(MAX_DURABILITY);
+            this.addDurability(0.1f);
             return true;
         }
 
