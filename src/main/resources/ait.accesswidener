@@ -15,3 +15,6 @@ accessible field net/minecraft/client/particle/ParticleManager spriteAwareFactor
 mutable field net/minecraft/client/particle/ParticleManager spriteAwareFactories Ljava/util/Map;
 accessible field net/minecraft/client/particle/ParticleManager particleAtlasTexture Lnet/minecraft/client/texture/SpriteAtlasTexture;
 mutable field net/minecraft/client/particle/ParticleManager particleAtlasTexture Lnet/minecraft/client/texture/SpriteAtlasTexture;
+
+# BOTI: PortalData#create copies the main world's biome seed into the shadow ClientWorld
+accessible field net/minecraft/world/biome/source/BiomeAccess seed J
