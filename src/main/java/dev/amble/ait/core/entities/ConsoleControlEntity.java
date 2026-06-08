@@ -80,7 +80,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             TrackedDataHandlerRegistry.BLOCK_POS);
     private Control control;
     public static final float MAX_DURABILITY = 1.0f;
-
+    private static final boolean HAS_PORTALS = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("immersive_portals");
+    private static final Text RWF_NAME = Text.translatable("control.ait.rwf");
+    private static final Text VISUALISER_NAME = Text.translatable("control.ait.visualiser");
+    private static final Text NONE_NAME = Text.translatable("control.ait.none");
     public ConsoleControlEntity(EntityType<? extends Entity> entityType, World world) {
         super(entityType, world);
     }
@@ -256,11 +259,22 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
     @Override
     public void tick() {
+        // Run on the server side where we actually know what control this is
         if (this.getWorld().isClient())
             return;
 
-        if (this.control == null && this.getConsoleBlockPos() != null)
+        if (this.control == null && this.getConsoleBlockPos() != null) {
             this.discard();
+            return;
+        }
+        if (this.control instanceof dev.amble.ait.core.tardis.control.impl.VisualiserControl) {
+            // Determine what the name should currently be based on config
+            Text correctName = AITMod.CONFIG.rwfEnabled ? RWF_NAME : (HAS_PORTALS ? VISUALISER_NAME : NONE_NAME);
+            if (!correctName.equals(this.getCustomName())) {
+                this.setCustomName(correctName);
+            }
+        }
+        // -----------------------------
 
         switch (this.getDurabilityState(this.getDurability())) {
             case JAMMED, SPARKING -> this.spark();
@@ -618,8 +632,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         }
     }
 
-    @Override
-    public void setCustomName(@Nullable Text name) {}
 
     public enum DurabilityStates {
         JAMMED(0.0f),

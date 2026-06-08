@@ -1,6 +1,7 @@
 package dev.amble.ait.datagen;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.client.config.AITClientConfig;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITEntityTypes;
 import dev.amble.ait.core.AITItemGroups;
@@ -804,7 +805,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.sonic_port", "Sonic Port");
         provider.addTranslation("control.ait.telepathic_circuit", "Telepathic Circuit");
         provider.addTranslation("control.ait.throttle", "Throttle");
-        provider.addTranslation("control.ait.visualiser", "Manual Override");
+        provider.addTranslation("control.ait.rwf", "Manual Override");
+        provider.addTranslation("control.ait.none", "  ");
+        provider.addTranslation("control.ait.visualiser", "Scanner");
         provider.addTranslation("control.ait.eject_waypoint", "Eject Waypoint");
         provider.addTranslation("control.ait.goto_waypoint", "Goto Waypoint");
         provider.addTranslation("control.ait.console_port", "Console Port");
