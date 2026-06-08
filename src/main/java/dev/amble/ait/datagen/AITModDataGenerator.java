@@ -806,7 +806,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.telepathic_circuit", "Telepathic Circuit");
         provider.addTranslation("control.ait.throttle", "Throttle");
         provider.addTranslation("control.ait.rwf", "Manual Override");
-        provider.addTranslation("control.ait.none", "  ");
+        provider.addTranslation("control.ait.none", "Cool Button");
         provider.addTranslation("control.ait.visualiser", "Scanner");
         provider.addTranslation("control.ait.eject_waypoint", "Eject Waypoint");
         provider.addTranslation("control.ait.goto_waypoint", "Goto Waypoint");
