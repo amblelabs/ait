@@ -100,3 +100,4 @@
 - add: Rift Ripper for opening rifts, powered by Artron Collectors in rift chunks connected via cables | by [@Loqor](https://github.com/Loqor) ([#2066](https://github.com/amblelabs/ait/pull/2066))
 - fix: coral fan placement | by [@Addi3](https://github.com/Addi3) ([#2069](https://github.com/amblelabs/ait/pull/2069))
 - fix: inconsistencies with the with the corals "required tool" | by [@Addi3](https://github.com/Addi3) ([#2069](https://github.com/amblelabs/ait/pull/2069))
+- fix: engine phasing and subsystem enable advancement criterions are now called properly | by [@drtheodor](https://github.com/drtheodor) ([#2071](https://github.com/amblelabs/ait/pull/2071))
