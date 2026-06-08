@@ -460,6 +460,9 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         if (state == DurabilityStates.JAMMED) {
             if (!hasMallet) return false;
+
+            if (random.nextBetween(0, 5) < 2)
+                tardis.subsystems().engine().removeDurability(random.nextBetween(0, 7));
         }
 
         if (state == DurabilityStates.OCCASIONALLY_JAM && random.nextBetween(0, 20) < 10) {
