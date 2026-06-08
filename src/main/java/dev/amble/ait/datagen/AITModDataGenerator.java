@@ -715,7 +715,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
             provider.registerSimpleBlock(AITBlocks.EXTERIOR_BLOCK);
             provider.registerDirectionalBlock(AITBlocks.FABRICATOR);
             provider.registerDirectionalBlock(AITBlocks.DOOR_BLOCK);
-            provider.registerCoralFanBlock(AITBlocks.TARDIS_CORAL_FAN, AITBlocks.TARDIS_CORAL_WALL_FAN);
             return provider;
         }));
     }
