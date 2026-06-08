@@ -457,9 +457,9 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         if (state == DurabilityStates.JAMMED) {
             if (!hasMallet) return false;
         }
+            player.sendMessage(Text.literal("hello hello im on fire " + state), false);
 
         if (state == DurabilityStates.CATCH_FIRE) {
-            player.sendMessage(Text.literal("hello hello im on fire"), false);
             if (!hasMallet) player.setFireTicks(random.nextBetween(20, 60));
         }
 
