@@ -36,20 +36,25 @@ public class RiftBOTI extends BOTI {
 
         VertexConsumerProvider.Immediate portalProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
-        // Enable stencil testing and clear the stencil buffer
+        // Enable stencil testing
         GL11.glEnable(GL11.GL_STENCIL_TEST);
+
         GL11.glStencilMask(0xFF);
+        RenderSystem.depthMask(true);
+        RenderSystem.colorMask(true, true, true, true);
+
         GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+
         GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
         GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
 
-        RenderSystem.depthMask(true);
         stack.push();
         stack.translate(0, -0.7f, 0.05);
         stack.scale(0.65f, 0.65f, 0.65f);
         frame.render(stack, portalProvider.getBuffer(RenderLayer.getEntityTranslucentCull(CIRCLE_TEXTURE)), 0xf000f0, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
         portalProvider.draw();
         stack.pop();
+
         copyDepth(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
 
         BOTI_HANDLER.afbo.beginWrite(false);
@@ -87,9 +92,11 @@ public class RiftBOTI extends BOTI {
         BOTI.copyColor(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
 
         GL11.glDisable(GL11.GL_STENCIL_TEST);
+        GL11.glStencilMask(0xFF);
 
         RenderSystem.depthMask(true);
 
         stack.pop();
+
     }
 }

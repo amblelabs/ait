@@ -40,14 +40,16 @@ public class PaintingBOTI extends BOTI {
 
         stack.translate(0, 0, -0.125);
 
-        // Enable stencil testing and clear the stencil buffer
+        // --- FIXED STENCIL AND MASK INITIALIZATION ---
         GL11.glEnable(GL11.GL_STENCIL_TEST);
+
         GL11.glStencilMask(0xFF);
+        RenderSystem.depthMask(true);
+        RenderSystem.colorMask(true, true, true, true);
         GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+
         GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
         GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
-
-        // Render the mask overtop the interior of the interior stuff
 
         RenderSystem.depthMask(true);
         stack.push();
@@ -74,7 +76,10 @@ public class PaintingBOTI extends BOTI {
 
         BOTI.copyColor(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
 
+        // --- FIXED CLEANUP ---
+        // Disable test and explicitly reset the mask back to full permissions (0xFF)
         GL11.glDisable(GL11.GL_STENCIL_TEST);
+        GL11.glStencilMask(0xFF);
 
         RenderSystem.depthMask(true);
 
