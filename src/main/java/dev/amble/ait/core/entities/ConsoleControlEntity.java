@@ -446,7 +446,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             this.getWorld().playSound(null, this.getBlockPos(), AITSounds.EVEN_MORE_SECRET_MUSIC, SoundCategory.MASTER,
                     1F, 1F);
 
-        
         if (hasMallet) {
             this.playSound(AITSounds.KNOCK, 1, 0.25f);
             Vec3d pos = this.getPos();
@@ -471,7 +470,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             }
         }
 
-        if (state == DurabilityStates.SPARKING && random.nextBetween(0, 25) < 5) {
+        if (state == DurabilityStates.SPARKING && random.nextBetween(0, 25) < 3) {
             if (hasMallet) {
                 this.setDurability(state.next().durability);
             } else {
@@ -520,8 +519,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     private void spark() {
         if (this.getEntityWorld().isClient()) return;
         Vec3d pos = this.getPos();
-        ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.SMOKE, pos.getX(), pos.getY(), pos.getZ(), 1, 0, 0.1, 0, 0.01f);
-        if (random.nextBetween(0, 40) == 5 && random.nextBoolean()) {
+        if (this.getEntityWorld().getServer().getTicks() % 20 == 0 && random.nextBoolean()) {
             this.playSound(SoundEvents.BLOCK_CHAIN_BREAK, 0.1f, random.nextBoolean() ? 1f : 2f);
             ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.ELECTRIC_SPARK, pos.getX(), pos.getY(), pos.getZ(), 5, 0.2, 0.2, 0.2, 0.01);
             ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.LAVA, pos.getX(), pos.getY(), pos.getZ(), 3, 0.1, 0.1, 0.1, 0.01);
