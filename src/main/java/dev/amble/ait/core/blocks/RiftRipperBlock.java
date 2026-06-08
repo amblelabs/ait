@@ -1,10 +1,8 @@
 package dev.amble.ait.core.blocks;
 
 import dev.amble.ait.core.AITEntityTypes;
-import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
 import dev.amble.ait.core.blockentities.RiftRipperBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
-import dev.amble.ait.core.engine.link.block.DirectionalFluidLinkBlock;
+import dev.amble.ait.core.engine.link.block.HorizontalFluidLinkBlock;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.world.RiftChunkManager;
@@ -40,7 +38,7 @@ import org.joml.Vector3f;
  * The purpose of this block is to rip open rifts in rift chunks as opposed to the silly entities.
  * It mimics the Lodestone block from Doctor Who lore as opposed to the usual Lodestone in Minecraft.
  * */
-public class RiftRipperBlock extends DirectionalFluidLinkBlock implements BlockEntityProvider {
+public class RiftRipperBlock extends HorizontalFluidLinkBlock implements BlockEntityProvider {
 
     // 10 seconds = 200 ticks. We tick every 2 ticks, so 100 steps.
     private static final int TOTAL_STEPS = 30;
@@ -110,8 +108,6 @@ public class RiftRipperBlock extends DirectionalFluidLinkBlock implements BlockE
         int centerX = pos.getX();
         int centerZ = pos.getZ();
 
-        int topY = chunk.sampleHeightmap(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
-                centerX & 15, centerZ & 15);
         double targetY = pos.getY() + 1;
 
         double startX = pos.getX() + 0.5;
@@ -126,26 +122,22 @@ public class RiftRipperBlock extends DirectionalFluidLinkBlock implements BlockE
         spawnBeamParticles(world, startX, startY, startZ, endX, targetY, endZ, progress, step);
 
         if (step == TOTAL_STEPS) {
-            // Animation complete — spawn the rift
             RiftEntity riftEntity = AITEntityTypes.RIFT_ENTITY.create(world);
 
             if (riftEntity != null) {
                 riftEntity.refreshPositionAndAngles(endX, targetY, endZ, 0, 0);
                 world.spawnEntity(riftEntity);
 
-                // Set back to a regular lodestone
                 world.setBlockState(pos, Blocks.LODESTONE.getDefaultState());
             }
 
             world.playSound(null, pos, SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(),
                     SoundCategory.BLOCKS, 1.5f, 0.5f);
 
-            // Reset block state
             world.setBlockState(pos, state.with(CHARGE_TICK, 0));
             return;
         }
 
-        // Advance to the next step
         world.setBlockState(pos, state.with(CHARGE_TICK, step + 1));
         world.scheduleBlockTick(pos, this, TICK_INTERVAL);
     }

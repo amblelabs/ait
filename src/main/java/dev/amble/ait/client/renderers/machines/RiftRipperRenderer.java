@@ -7,6 +7,7 @@ import dev.amble.ait.core.blockentities.RiftRipperBlockEntity;
 import dev.amble.ait.core.blocks.ArtronCollectorBlock;
 import dev.amble.ait.core.world.RiftChunkManager;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.model.ModelPart;
@@ -37,7 +38,7 @@ public class RiftRipperRenderer<T extends RiftRipperBlockEntity> implements Bloc
 
         BlockState blockState = entity.getCachedState();
 
-        float f = blockState.get(ArtronCollectorBlock.FACING).asRotation();
+        float f = blockState.get(HorizontalFacingBlock.FACING).asRotation();
 
         if (MinecraftClient.getInstance().world == null)
             return;
