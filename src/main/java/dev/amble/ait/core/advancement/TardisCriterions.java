@@ -93,13 +93,5 @@ public class TardisCriterions {
             system.tardis().asServer().world().getPlayers().forEach(player ->
                     TardisCriterions.REPAIR_SUBSYSTEM.trigger(player));
         });
-
-        TardisEvents.ENGINES_PHASE.register(system -> {
-            if (system.isClient())
-                return;
-
-            system.tardis().asServer().world().getPlayers().forEach(player ->
-                    TardisCriterions.ENGINES_PHASE.trigger(player));
-        });
     }
 }
