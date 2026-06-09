@@ -102,3 +102,6 @@
 - fix: inconsistencies with the with the corals "required tool" | by [@Addi3](https://github.com/Addi3) ([#2069](https://github.com/amblelabs/ait/pull/2069))
 - fix: engine phasing and subsystem enable advancement criterions are now called properly | by [@drtheodor](https://github.com/drtheodor) ([#2071](https://github.com/amblelabs/ait/pull/2071))
 - tweak: control repair only works while landed and fixes only a tenth of the control's max durability | by [@drtheodor](https://github.com/drtheodor) ([#2073](https://github.com/amblelabs/ait/pull/2073))
+- fix: using a control on fire without a mallet will result in the player catching on fire for 1-3 seconds | by [@drtheodor](https://github.com/drtheodor) ([#2070](https://github.com/amblelabs/ait/pull/2070))
+- fix: hammer can no longer be used to abuse control durability, as it will damage the engine with a chance | by [@drtheodor](https://github.com/drtheodor) ([#2070](https://github.com/amblelabs/ait/pull/2070))
+- fix: changed sparking control particles | by [@drtheodor](https://github.com/drtheodor) ([#2070](https://github.com/amblelabs/ait/pull/2070))
