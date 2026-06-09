@@ -18,3 +18,4 @@ mutable field net/minecraft/client/particle/ParticleManager particleAtlasTexture
 
 # BOTI: PortalData#create copies the main world's biome seed into the shadow ClientWorld
 accessible field net/minecraft/world/biome/source/BiomeAccess seed J
+accessible field net/minecraft/network/packet/s2c/play/ChunkDeltaUpdateS2CPacket sectionPos Lnet/minecraft/util/math/ChunkSectionPos;

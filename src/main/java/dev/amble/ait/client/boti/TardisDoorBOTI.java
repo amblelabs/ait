@@ -41,7 +41,7 @@ public class TardisDoorBOTI extends BOTI {
 
     // How many blocks of the exterior world to show through the doorway. Larger = more of the surroundings are
     // visible (at the cost of more sections to build); the renderer culls aggressively to the door-facing frustum.
-    private static final int RENDER_DISTANCE = 64;
+    private static final int RENDER_DISTANCE = 24;
 
     public static WorldGeometryRenderer getInteriorRenderer() {
         return interiorRenderer;
