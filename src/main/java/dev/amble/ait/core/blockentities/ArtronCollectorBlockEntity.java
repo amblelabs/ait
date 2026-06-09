@@ -1,17 +1,13 @@
 package dev.amble.ait.core.blockentities;
 
-import org.jetbrains.annotations.Nullable;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -29,7 +25,9 @@ import dev.amble.ait.core.item.ChargedZeitonCrystalItem;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
 
-public class ArtronCollectorBlockEntity extends BlockEntity implements BlockEntityTicker<ArtronCollectorBlockEntity>, ArtronHolder {
+public class ArtronCollectorBlockEntity extends FluidLinkBlockEntity implements BlockEntityTicker<ArtronCollectorBlockEntity>, ArtronHolder {
+
+    public static final int FLOW_AMOUNT = 3;
 
     public double artronAmount = 0;
 
@@ -38,7 +36,7 @@ public class ArtronCollectorBlockEntity extends BlockEntity implements BlockEnti
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt) {
+    public void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
         nbt.putDouble("artronAmount", this.artronAmount);
     }
@@ -58,8 +56,8 @@ public class ArtronCollectorBlockEntity extends BlockEntity implements BlockEnti
             if (stack.getItem() instanceof ArtronCollectorItem) {
                 double residual = ArtronCollectorItem.addFuel(stack, this.getCurrentFuel());
                 this.setCurrentFuel(residual);
-            } else if (stack.getItem() instanceof ArtronHolderItem) {
-                double residual = ((ArtronHolderItem) stack.getItem()).addFuel(this.getCurrentFuel(), stack);
+            } else if (stack.getItem() instanceof ArtronHolderItem artronHolderItem) {
+                double residual = artronHolderItem.addFuel(this.getCurrentFuel(), stack);
                 this.setCurrentFuel(residual);
             } else if (stack.getItem() instanceof ChargedZeitonCrystalItem crystal) {
                 double residual = crystal.addFuel(this.getCurrentFuel(), stack);
@@ -75,7 +73,6 @@ public class ArtronCollectorBlockEntity extends BlockEntity implements BlockEnti
                     return;
                 }
 
-                // todo - instead of zeiton cluster for fuel, check for the TARDIS_FUEL tag
                 this.addFuel(15);
                 stack.decrement(1);
             }
@@ -98,11 +95,6 @@ public class ArtronCollectorBlockEntity extends BlockEntity implements BlockEnti
         return this.artronAmount;
     }
 
-    @Nullable @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
-    }
-
     @Override
     public NbtCompound toInitialChunkDataNbt() {
         NbtCompound nbtCompound = super.toInitialChunkDataNbt();
@@ -112,26 +104,36 @@ public class ArtronCollectorBlockEntity extends BlockEntity implements BlockEnti
 
     @Override
     public void tick(World world, BlockPos pos, BlockState state, ArtronCollectorBlockEntity blockEntity) {
-        if (world.isClient())
+        if (!(world instanceof ServerWorld serverWorld))
             return;
 
-        if (world.getServer().getTicks() % 3 == 0)
+        if (serverWorld.getServer().getTicks() % 3 == 0)
             return;
 
-        RiftChunkManager manager = RiftChunkManager.getInstance((ServerWorld) this.world);
         ChunkPos chunk = new ChunkPos(pos);
+        RiftChunkManager manager = RiftChunkManager.getInstance(serverWorld);
 
-        if (shouldDrain(manager, chunk)) {
-            manager.removeFuel(chunk, 3);
-            this.addFuel(3);
+        if (shouldDrainChunk(manager, chunk)) {
+            manager.removeFuel(chunk, FLOW_AMOUNT);
+            this.addFuel(FLOW_AMOUNT);
 
+            this.updateListeners(state);
+        }
+
+        if (shouldDrawFluid()) {
+            this.removeFuel(FLOW_AMOUNT);
+            blockEntity.source().addLevel(FLOW_AMOUNT);
             this.updateListeners(state);
         }
     }
 
-    private boolean shouldDrain(RiftChunkManager manager, ChunkPos pos) {
+    private boolean shouldDrainChunk(RiftChunkManager manager, ChunkPos pos) {
         return this.getCurrentFuel() < ArtronCollectorItem.COLLECTOR_MAX_FUEL
-                && manager.getArtron(pos) >= 3;
+                && manager.getArtron(pos) >= FLOW_AMOUNT;
+    }
+
+    private boolean shouldDrawFluid() {
+        return this.getCurrentFuel() >= FLOW_AMOUNT && source() != null && !source().isLevelFull();
     }
 
     private void updateListeners(BlockState state) {

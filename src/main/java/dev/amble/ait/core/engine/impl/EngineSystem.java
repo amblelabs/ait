@@ -16,6 +16,7 @@ import net.minecraft.util.Formatting;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.engine.DurableSubSystem;
@@ -180,6 +181,9 @@ public class EngineSystem extends DurableSubSystem {
                         tdis.getDesktop().playSoundAtEveryConsole(AITSounds.HOP_DEMAT);
                         tdis.getExterior().playSound(AITSounds.HOP_DEMAT);
                         sTardis.subsystems().demat().removeDurability(5);
+
+                        sTardis.asServer().world().getPlayers().forEach(player ->
+                                TardisCriterions.ENGINES_PHASE.trigger(player));
                     },
                     (phaser) -> {
                         TravelUtil.randomPos(sTardis, 1, 300, cached -> {
@@ -206,7 +210,7 @@ public class EngineSystem extends DurableSubSystem {
                             !sTardis.subsystems().demat().isBroken() &&
                             !travel.handbrake() &&
                             !sTardis.isGrowth() &&
-                            AITMod.RANDOM.nextInt(0, 1024) == 1
+                            AITMod.RANDOM.nextInt(0, 100) == 50
             );
         }
     }

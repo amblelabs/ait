@@ -5,7 +5,10 @@ import dev.amble.ait.api.ArtronHolderItem;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.engine.link.IFluidLink;
+import dev.amble.ait.core.engine.link.IFluidSource;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
+import dev.amble.ait.core.engine.link.tracker.FluidNetwork;
 import dev.amble.ait.core.item.ArtronCollectorItem;
 import dev.amble.ait.core.item.ChargedZeitonCrystalItem;
 import dev.amble.ait.core.world.RiftChunkManager;
@@ -28,8 +31,9 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements BlockEntityTicker<RiftRipperBlockEntity>, ArtronHolder {
+public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements BlockEntityTicker<RiftRipperBlockEntity>, ArtronHolder, IFluidSource {
 
+    private boolean firstTickHandled;
     public double artronAmount = 0;
 
     public RiftRipperBlockEntity(BlockPos pos, BlockState state) {
@@ -49,38 +53,6 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
         super.readNbt(nbt);
     }
 
-    public void useOn(World world, boolean sneaking, PlayerEntity player) {
-        if (!world.isClient()) {
-            player.sendMessage(Text.literal(this.getCurrentFuel() + "/" + ArtronCollectorItem.COLLECTOR_MAX_FUEL)
-                    .formatted(Formatting.GOLD));
-            ItemStack stack = player.getMainHandStack();
-            if (stack.getItem() instanceof ArtronCollectorItem) {
-                double residual = ArtronCollectorItem.addFuel(stack, this.getCurrentFuel());
-                this.setCurrentFuel(residual);
-            } else if (stack.getItem() instanceof ArtronHolderItem) {
-                double residual = ((ArtronHolderItem) stack.getItem()).addFuel(this.getCurrentFuel(), stack);
-                this.setCurrentFuel(residual);
-            } else if (stack.getItem() instanceof ChargedZeitonCrystalItem crystal) {
-                double residual = crystal.addFuel(this.getCurrentFuel(), stack);
-                this.setCurrentFuel(residual);
-            } else if (stack.getItem() instanceof StaserBoltMagazine magazine) {
-                double residual = magazine.addFuel(this.getCurrentFuel(), stack);
-                this.setCurrentFuel(residual);
-            }
-            if (stack.isOf(AITBlocks.ZEITON_CLUSTER.asItem())) {
-                if (sneaking) {
-                    player.getInventory().setStack(player.getInventory().selectedSlot,
-                            new ItemStack(AITItems.CHARGED_ZEITON_CRYSTAL));
-                    return;
-                }
-
-                // todo - instead of zeiton cluster for fuel, check for the TARDIS_FUEL tag
-                this.addFuel(15);
-                stack.decrement(1);
-            }
-        }
-    }
-
     @Override
     public void setCurrentFuel(double artronAmount) {
         this.artronAmount = artronAmount;
@@ -97,11 +69,6 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
         return this.artronAmount;
     }
 
-    @Nullable @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
-    }
-
     @Override
     public NbtCompound toInitialChunkDataNbt() {
         NbtCompound nbtCompound = super.toInitialChunkDataNbt();
@@ -111,13 +78,18 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
 
     @Override
     public void tick(World world, BlockPos pos, BlockState state, RiftRipperBlockEntity blockEntity) {
-        if (world.isClient())
+        if (!(world instanceof ServerWorld serverWorld))
             return;
 
-        if (world.getServer().getTicks() % 3 == 0)
+        if (!firstTickHandled) {
+            firstTickHandled = true;
+            FluidNetwork.rebuildFrom(serverWorld, pos);
+        }
+
+        if (serverWorld.getServer().getTicks() % 3 == 0)
             return;
 
-        RiftChunkManager manager = RiftChunkManager.getInstance((ServerWorld) this.world);
+        RiftChunkManager manager = RiftChunkManager.getInstance(serverWorld);
         ChunkPos chunk = new ChunkPos(pos);
 
         if (shouldDrain(manager, chunk)) {
@@ -126,6 +98,13 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
 
             this.updateListeners(state);
         }
+    }
+
+    @Override
+    public void onBroken(World world, BlockPos pos) {
+        this.onLoseFluid(); // always.
+
+        super.onBroken(world, pos);
     }
 
     private boolean shouldDrain(RiftChunkManager manager, ChunkPos pos) {
@@ -140,5 +119,63 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
             return;
 
         this.world.updateListeners(this.getPos(), this.getCachedState(), state, Block.NOTIFY_ALL);
+    }
+
+    @Override
+    public void onGainFluid() {
+        super.onGainFluid();
+        this.rebuildOwnNetwork();
+    }
+
+    @Override
+    public void onLoseFluid() {
+        super.onLoseFluid();
+        this.rebuildOwnNetwork();
+    }
+
+    private void rebuildOwnNetwork() {
+        if (this.getWorld() instanceof ServerWorld serverWorld) {
+            FluidNetwork.rebuildFrom(serverWorld, this.getPos());
+        }
+    }
+
+    @Override
+    public double level() {
+        return this.getCurrentFuel();
+    }
+
+    @Override
+    public void setLevel(double level) {
+        this.setCurrentFuel(level);
+    }
+
+    @Override
+    public double maxLevel() {
+        return this.getMaxFuel();
+    }
+
+    @Override
+    public void setSource(IFluidSource source) {
+
+    }
+
+    @Override
+    public void setLast(IFluidLink last) {
+
+    }
+
+    @Override
+    public IFluidSource source(boolean search) {
+        return this;
+    }
+
+    @Override
+    public BlockPos getLastPos() {
+        return this.getPos();
+    }
+
+    @Override
+    public IFluidLink last() {
+        return this;
     }
 }

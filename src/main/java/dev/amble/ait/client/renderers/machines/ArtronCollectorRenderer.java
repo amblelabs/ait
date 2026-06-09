@@ -1,6 +1,7 @@
 package dev.amble.ait.client.renderers.machines;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.RenderLayer;
@@ -37,7 +38,7 @@ public class ArtronCollectorRenderer<T extends ArtronCollectorBlockEntity> imple
 
         BlockState blockState = entity.getCachedState();
 
-        float f = blockState.get(ArtronCollectorBlock.FACING).asRotation();
+        float f = blockState.get(HorizontalFacingBlock.FACING).asRotation();
 
         if (MinecraftClient.getInstance().world == null)
             return;

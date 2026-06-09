@@ -120,7 +120,6 @@ We also have some extra compatibility but for this you would have to install a s
 ### Developers:
 - [Loqor](https://loqor.dev)
 - [Dr. Theo](https://theo.is-a.dev/)
-- [duzo](https://duzo.is-a.dev/)
 - [Maketendo](https://github.com/MaketendoDev)
 - [AddieDaBaddie](https://addi3.github.io/index)
 - [Saturn](https://github.com/Saturnorsomthing)
@@ -150,6 +149,7 @@ We also have some extra compatibility but for this you would have to install a s
 ---
 
 ### Thank You's:
+- [duzo](https://duzo.is-a.dev/)
 - vmbbi (Max) (Wiki writing)
 - Echo (Wiki writing)
 - [MagicMan(?)](https://magicmaan.github.io/) (Help with modeling)

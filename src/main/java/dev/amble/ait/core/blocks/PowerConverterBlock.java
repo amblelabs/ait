@@ -29,10 +29,10 @@ import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.AITTags;
 import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.core.engine.link.block.DirectionalFluidLinkBlock;
+import dev.amble.ait.core.engine.link.block.HorizontalFluidLinkBlock;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 
-public class PowerConverterBlock extends DirectionalFluidLinkBlock implements ConsumableBlock {
+public class PowerConverterBlock extends HorizontalFluidLinkBlock implements ConsumableBlock {
 
     public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
     protected static final VoxelShape Y_SHAPE = Block.createCuboidShape(
