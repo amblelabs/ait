@@ -58,7 +58,7 @@ jobs:
       run: ./gradlew --configuration-cache build
 
     - name: Publish artifacts
-      uses: drtheodor/discord-webhook-upload-action@c5b31be7ca56991368ce620efb312811b9e0a378
+      uses: drtheodor/discord-webhook-upload-action@aa60b91fbf86364f115c59d14bf24c514e99da32
       with:
         url: ${{ secrets.DEV_BUILDS }}
         username: george washington
