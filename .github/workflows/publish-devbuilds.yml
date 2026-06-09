@@ -66,7 +66,7 @@ jobs:
         
         message_commit: '> :sparkles: [${commitMessage}](<${commitUrl}>) by [${authorName}](<${authorUrl}>)'
         message_header: |
-          <:new1:1253371736510959636><:new2:1253371805734015006> New `Adventures in Time` dev build `#${{ github.run_number }}`:
+          <:new1:1253371736510959636><:new2:1253371805734015006> New <:al_ait:1393920126645960704> **Adventures in Time** (**AIT**) dev build [**`#${{ github.run_number }}`**](https://github.com/amblelabs/ait/actions/runs/${{ github.run_id }}):
 
         file: |
           build/libs/*.jar
