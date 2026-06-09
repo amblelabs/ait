@@ -6,9 +6,12 @@ import java.util.List;
 import java.util.function.Function;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.systems.VertexSorter;
 import dev.amble.ait.client.screens.SonicSettingsScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -25,6 +28,7 @@ import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundInstance;
+import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.sound.SoundEvent;
@@ -42,6 +46,7 @@ import dev.amble.ait.api.tardis.TardisClientEvents;
 import dev.amble.ait.client.models.exteriors.BedrockExteriorModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.renderers.VortexRender;
 import dev.amble.ait.client.screens.ConsoleScreen;
 import dev.amble.ait.client.screens.SaveLoadInteriorScreen;
 import dev.amble.ait.client.sounds.ClientSoundManager;
@@ -57,6 +62,7 @@ import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
 import dev.amble.ait.data.hum.Hum;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
@@ -76,6 +82,11 @@ public class InteriorSettingsScreen extends ConsoleScreen {
             "textures/gui/tardis/monitor/interior_settings.png");
     private static final Identifier MISSING_PREVIEW = new Identifier(AITMod.MOD_ID,
             "textures/gui/tardis/monitor/presets/missing_preview.png");
+    private static final Identifier VORTEX_PREVIEW_OVERLAY = new Identifier(AITMod.MOD_ID,
+            "textures/gui/tardis/monitor/dev_vortex_preview.png");
+    private static final int PREVIEW_X_OFFSET = 151;
+    private static final int PREVIEW_Y_OFFSET = 10;
+    private static final int PREVIEW_SIZE = 95;
     private final List<ButtonWidget> buttons = Lists.newArrayList();
     int bgHeight = 166;
     int bgWidth = 256;
@@ -154,6 +165,10 @@ public class InteriorSettingsScreen extends ConsoleScreen {
 
     private boolean isAnimMode() {
         return this.modeManager != null && this.modeManager.get().get() instanceof TardisAnimation;
+    }
+
+    private boolean isVortexMode() {
+        return this.modeManager != null && this.modeManager.get().get() instanceof VortexReference;
     }
 
     private void sendCachePacket() {
@@ -465,6 +480,11 @@ public class InteriorSettingsScreen extends ConsoleScreen {
             return;
         }
 
+        if (this.isVortexMode()) {
+            this.renderVortexPreview(context);
+            return;
+        }
+
         if (this.selectedDesktop == null)
             return;
 
@@ -479,11 +499,67 @@ public class InteriorSettingsScreen extends ConsoleScreen {
                 doesTextureExist(this.selectedDesktop.previewTexture().texture())
                         ? this.selectedDesktop.previewTexture().texture()
                         : MISSING_PREVIEW,
-                left + 151, top + 10, 95, 95, 0, 0, this.selectedDesktop.previewTexture().width * 2,
+                left + PREVIEW_X_OFFSET, top + PREVIEW_Y_OFFSET, PREVIEW_SIZE, PREVIEW_SIZE, 0, 0,
+                this.selectedDesktop.previewTexture().width * 2,
                 this.selectedDesktop.previewTexture().height * 2, this.selectedDesktop.previewTexture().width * 2,
                 this.selectedDesktop.previewTexture().height * 2);
 
         context.getMatrices().pop();
+    }
+
+    private void renderVortexPreview(DrawContext context) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        Object current = this.modeManager.get().get();
+
+        if (client.player == null || !(current instanceof VortexReference ref))
+            return;
+
+        int boxX = this.left + PREVIEW_X_OFFSET;
+        int boxY = this.top + PREVIEW_Y_OFFSET;
+
+        context.draw();
+
+        Window window = client.getWindow();
+        double scale = window.getScaleFactor();
+        int fbX = (int) (boxX * scale);
+        int fbY = (int) (window.getFramebufferHeight() - (boxY + PREVIEW_SIZE) * scale);
+        int fbSize = (int) (PREVIEW_SIZE * scale);
+
+        Matrix4f prevProjection = RenderSystem.getProjectionMatrix();
+        VertexSorter prevSorter = RenderSystem.getVertexSorting();
+
+        context.enableScissor(boxX, boxY, boxX + PREVIEW_SIZE, boxY + PREVIEW_SIZE);
+        RenderSystem.viewport(fbX, fbY, fbSize, fbSize);
+        RenderSystem.setProjectionMatrix(
+                new Matrix4f().perspective((float) Math.toRadians(70.0), 1f, 0.05f, 4000f), VertexSorter.BY_DISTANCE);
+
+        MatrixStack modelView = RenderSystem.getModelViewStack();
+        modelView.push();
+        modelView.loadIdentity();
+        RenderSystem.applyModelViewMatrix();
+
+        RenderSystem.disableDepthTest();
+        RenderSystem.depthMask(false);
+        RenderSystem.enableBlend();
+
+        float spin = (client.player.age + client.getTickDelta()) / 100f * 360f;
+
+        MatrixStack vortexStack = new MatrixStack();
+        vortexStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(spin));
+        vortexStack.translate(0, 0, 500);
+        ref.toRender().render(vortexStack);
+
+        modelView.pop();
+        RenderSystem.applyModelViewMatrix();
+
+        RenderSystem.setProjectionMatrix(prevProjection, prevSorter);
+        RenderSystem.viewport(0, 0, window.getFramebufferWidth(), window.getFramebufferHeight());
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        context.disableScissor();
+        context.drawTexture(VORTEX_PREVIEW_OVERLAY, boxX, boxY, PREVIEW_SIZE, PREVIEW_SIZE, 0, 0, 800, 800, 800, 800);
     }
 
     private void renderAnimationPreview(DrawContext context) {
