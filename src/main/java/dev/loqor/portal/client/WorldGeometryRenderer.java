@@ -203,6 +203,17 @@ public class WorldGeometryRenderer {
             RenderSystem.applyModelViewMatrix();
             RenderSystem.setProjectionMatrix(originalProjection, VertexSorter.BY_DISTANCE);
 
+            // Restore both dispatcher configurations to the interior world and the real game camera.
+            // renderBlockEntities/renderEntities reconfigure the shared BlockEntityRenderDispatcher and
+            // EntityRenderDispatcher to point at portalWorld; any interior block entities rendered after
+            // this door in the same frame's block-entity loop would then query light from the exterior
+            // dimension and get the wrong (dark/transparent) lighting. Re-configure here so the
+            // remaining interior block entities in the loop see the correct world and camera.
+            Camera mainCamera = client.gameRenderer.getCamera();
+            client.getBlockEntityRenderDispatcher().configure(previousLightmapWorld, mainCamera, client.crosshairTarget);
+            client.getEntityRenderDispatcher().configure(previousLightmapWorld, mainCamera, client.targetedEntity);
+
+
             // Restore the interior dimension's lightmap for the rest of this frame (client.world is the interior
             // again here). Without this, main-world particles/weather drawn after AFTER_ENTITIES would be shaded
             // with the exterior ramp.
@@ -488,7 +499,7 @@ public class WorldGeometryRenderer {
     private void renderBlockEntities(ClientWorld portalWorld, float tickDelta, Camera portalCamera) {
         MinecraftClient client = MinecraftClient.getInstance();
         BlockEntityRenderDispatcher dispatcher = client.getBlockEntityRenderDispatcher();
-        VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
+        VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(new BufferBuilder(256));
 
         dispatcher.configure(portalWorld, portalCamera, client.crosshairTarget);
 
@@ -526,7 +537,7 @@ public class WorldGeometryRenderer {
     private void renderEntities(ClientWorld portalWorld, float tickDelta, Camera portalCamera) {
         MinecraftClient client = MinecraftClient.getInstance();
         EntityRenderDispatcher dispatcher = client.getEntityRenderDispatcher();
-        VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
+        VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(new BufferBuilder(256));
 
         dispatcher.configure(portalWorld, portalCamera, client.targetedEntity);
 
@@ -562,7 +573,7 @@ public class WorldGeometryRenderer {
             return;
 
         MinecraftClient client = MinecraftClient.getInstance();
-        VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
+        VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(new BufferBuilder(256));
 
         // Particles bill-board relative to the camera; with the camera parked at centerPos they come out
         // centerPos-relative, matching the terrain and entities under the shared portal view matrix.
