@@ -58,12 +58,11 @@ jobs:
       run: ./gradlew --configuration-cache build
 
     - name: Publish artifacts
-      uses: drtheodor/discord-webhook-upload-action@b3164782957d7abe35731ba6f113d1c39036e481
+      uses: drtheodor/discord-webhook-upload-action@cfbe3024667b0decf0a2d3a6068cb6582492b3af
       with:
         url: ${{ secrets.DEV_BUILDS }}
         username: george washington
         avatar: 'https://i.imgur.com/uiFqrQh.png'
-        mode: 'commit'
         
         message: |
           <:new1:1253371736510959636><:new2:1253371805734015006> New <:al_ait:1393920126645960704> **Adventures in Time** (**AIT**) dev build [**`#${{ github.run_number }}`**](<https://github.com/amblelabs/ait/actions/runs/${{ github.run_id }}>):
@@ -74,7 +73,7 @@ jobs:
           !build/libs/*-sources.jar
     - name: Send failure notice
       if: failure()
-      uses: drtheodor/discord-webhook-upload-action@b3164782957d7abe35731ba6f113d1c39036e481
+      uses: drtheodor/discord-webhook-upload-action@cfbe3024667b0decf0a2d3a6068cb6582492b3af
       with:
         url: ${{ secrets.DEV_BUILDS }}
         username: george washington
