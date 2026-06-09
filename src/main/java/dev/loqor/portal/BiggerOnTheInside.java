@@ -16,6 +16,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.BundleS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkRenderDistanceCenterS2CPacket;
@@ -352,7 +353,13 @@ public class BiggerOnTheInside implements ModInitializer {
      * variants so one check covers all three.
      */
     private static boolean shouldForward(Packet<?> packet) {
-        return packet instanceof ChunkDataS2CPacket
+        // The entity-spawn sequence (spawn + tracked data + equipment + passengers) is delivered as a single
+        // BundleS2CPacket (see EntityTrackerEntry#startTracking). Without forwarding the bundle, the spawn never
+        // reaches the shadow world, so the later move/track packets have no entity to apply to and nothing renders.
+        // WrappedPacketS2CPacket already serialises bundles, and the client unwraps them and re-filters each
+        // sub-packet through this same whitelist, so forwarding the whole bundle is safe.
+        return packet instanceof BundleS2CPacket
+                || packet instanceof ChunkDataS2CPacket
                 || packet instanceof ChunkDeltaUpdateS2CPacket
                 || packet instanceof BlockUpdateS2CPacket
                 || packet instanceof UnloadChunkS2CPacket

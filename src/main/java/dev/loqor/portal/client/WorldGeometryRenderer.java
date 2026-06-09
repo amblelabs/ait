@@ -508,6 +508,14 @@ public class WorldGeometryRenderer {
             // Pre-capture the fog distance outside the lambda (effectively final).
             float fogDistance = client.options.getViewDistance().getValue() * 16.0f;
 
+            // Bind the position program BEFORE renderSky. Vanilla draws the upper sky dome (lightSkyBuffer, a
+            // POSITION-format VBO) with whatever shader RenderSystem.getShader() happens to hold - it only sets an
+            // explicit shader later, for the horizon glow / sun. In the portal path the leftover shader is the
+            // stencil mask's position_color program, whose vertex layout doesn't match the dome's, so the dome's
+            // colour attribute is unbound and it renders black - leaving only the (separately-shaded) horizon band
+            // visible. Binding the matching position program here makes the dome paint the real sky colour again.
+            RenderSystem.setShader(GameRenderer::getPositionProgram);
+
             data.renderer().renderSky(skyStack, portalProjection, tickDelta, portalCamera, false, () -> {
                 // Bypass BackgroundRenderer and directly set the fog so the interior
                 // fog doesn't swallow the exterior sky dome VBO.
