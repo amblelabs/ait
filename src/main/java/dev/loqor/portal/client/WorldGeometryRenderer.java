@@ -12,6 +12,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
+import net.minecraft.client.option.CloudRenderMode;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
@@ -505,9 +506,6 @@ public class WorldGeometryRenderer {
 
             RenderSystem.depthMask(false);
 
-            // Pre-capture the fog distance outside the lambda (effectively final).
-            float fogDistance = client.options.getViewDistance().getValue() * 16.0f;
-
             // Bind the position program BEFORE renderSky. Vanilla draws the upper sky dome (lightSkyBuffer, a
             // POSITION-format VBO) with whatever shader RenderSystem.getShader() happens to hold - it only sets an
             // explicit shader later, for the horizon glow / sun. In the portal path the leftover shader is the
@@ -517,15 +515,28 @@ public class WorldGeometryRenderer {
             RenderSystem.setShader(GameRenderer::getPositionProgram);
 
             data.renderer().renderSky(skyStack, portalProjection, tickDelta, portalCamera, false, () -> {
-                // Bypass BackgroundRenderer and directly set the fog so the interior
-                // fog doesn't swallow the exterior sky dome VBO.
-                RenderSystem.setShaderFogStart(0.0f);
-                RenderSystem.setShaderFogEnd(fogDistance);
-
-                // If your mapping version (1.18+) supports fog shapes, uncomment this
-                // to prevent spherical clipping artifacts at the screen corners:
+                // Push the fog plane far beyond every sky element (dome ~22 blocks, sun/moon/stars ~100). The core
+                // `position` shader that draws the dome applies linear_fog, and renderSky forces the fog COLOUR to
+                // black (BackgroundRenderer.setFogBlack) right before the dome - so a near fog start fogged the dome's
+                // lower/horizon vertices to black, the dark band that faded up into clear sky. Starting the fog past
+                // all sky geometry leaves the dome at its true colour. (The terrain shown through the door is
+                // short-range, so it needs no fog of its own.)
+                RenderSystem.setShaderFogStart(512.0f);
+                RenderSystem.setShaderFogEnd(1024.0f);
                 RenderSystem.setShaderFogShape(FogShape.CYLINDER);
             });
+
+            // Clouds are a separate pass in vanilla (WorldRenderer.renderClouds), so the doorway never drew them.
+            // Draw them now, inside the same client.world swap, positioned relative to the exterior block so they sit
+            // above the terrain shown through the door. Clouds are distant enough that the eye-vs-centre parallax is
+            // imperceptible, so centerPos is a fine camera origin.
+            if (client.options.getCloudRenderModeValue() != CloudRenderMode.OFF) {
+                RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+                MatrixStack cloudStack = new MatrixStack();
+                cloudStack.multiplyPositionMatrix(portalRotation);
+                data.renderer().renderClouds(cloudStack, portalProjection, tickDelta,
+                        centerPos.getX(), centerPos.getY(), centerPos.getZ());
+            }
         } catch (Throwable t) {
             AITMod.LOGGER.error("BOTI: failed to render exterior sky", t);
         } finally {
