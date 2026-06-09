@@ -2,6 +2,7 @@ package dev.loqor.portal.client;
 
 import com.mojang.datafixers.util.Pair;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.client.boti.TardisDoorBOTI;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -342,6 +343,21 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
                 continue;
 
             this.world.tickEntity(entity);
+        }
+    }
+
+    /**
+     * Frees this shadow world's render resources. {@code setWorld(null)} stops the dedicated chunk-builder threads
+     * and releases the built-chunk storage; {@code close()} frees the entity-outline framebuffer and post shaders.
+     * Without this, every dimension change / new viewer (which rebuilds the {@link PortalData}) leaks an entire
+     * {@link WorldRenderer} - GL buffers, an FBO and live threads. Must run on the render thread (all callers do).
+     */
+    public void close() {
+        try {
+            this.renderer.setWorld(null);
+            this.renderer.close();
+        } catch (Exception e) {
+            AITMod.LOGGER.error("Failed to close shadow world for portal {}", this.id, e);
         }
     }
 

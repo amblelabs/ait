@@ -73,12 +73,18 @@ public class PortalDataManager {
     }
 
     public static void reset() {
+        for (PortalData data : map.values())
+            data.close();
+
         map.clear();
         particles.clear();
     }
 
     public static void free(UUID id) {
-        map.remove(id);
+        PortalData data = map.remove(id);
+        if (data != null)
+            data.close();
+
         particles.remove(id);
     }
 

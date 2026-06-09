@@ -10,9 +10,16 @@ public class BOTIInit {
 
     public void setupFramebuffer() {
         Window window = MinecraftClient.getInstance().getWindow();
+        int width = window.getFramebufferWidth();
+        int height = window.getFramebufferHeight();
 
-        if (afbo == null || afbo.textureWidth != window.getFramebufferWidth() || afbo.textureHeight != window.getFramebufferHeight()) {
-            afbo = new SimpleFramebuffer(window.getFramebufferWidth(), window.getFramebufferHeight(), true, MinecraftClient.IS_SYSTEM_MAC);;
+        if (afbo == null) {
+            afbo = new SimpleFramebuffer(width, height, true, MinecraftClient.IS_SYSTEM_MAC);
+        } else if (afbo.textureWidth != width || afbo.textureHeight != height) {
+            // resize() reinitialises the GL textures in place (deleting the old ones). Allocating a fresh
+            // SimpleFramebuffer here instead - as before - orphaned the previous FBO + depth-stencil texture on
+            // every window resize.
+            afbo.resize(width, height, MinecraftClient.IS_SYSTEM_MAC);
         }
 
         afbo.beginWrite(false);

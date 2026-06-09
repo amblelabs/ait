@@ -88,6 +88,14 @@ public class WorldGeometryRenderer {
     private Matrix4f portalProjection = new Matrix4f();
     private Frustum frustum = null;
 
+    // Shared, reused immediate for the block-entity / entity / particle passes. Allocating a new BufferBuilder per
+    // pass per door per frame churned off-heap direct memory (each grows well past its initial size, then is left for
+    // the GC's Cleaner to reclaim) - the main cause of the "leave the door open and memory overloads" spikes. The
+    // passes run sequentially on the render thread, each ending in draw(), so one reused buffer is safe and keeps its
+    // grown capacity across frames instead of re-allocating.
+    private final VertexConsumerProvider.Immediate immediate =
+            VertexConsumerProvider.immediate(new BufferBuilder(256));
+
     public WorldGeometryRenderer(int renderDistance) {
         this.renderDistance = renderDistance;
     }
@@ -153,9 +161,11 @@ public class WorldGeometryRenderer {
         Matrix4f originalProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
         RenderSystem.setProjectionMatrix(portalProjection, VertexSorter.BY_DISTANCE);
 
-        // Distant exterior terrain and the sky horizon otherwise fade to the *interior* dimension's fog colour
-        // (BackgroundRenderer set it earlier this frame). Tint the fog to the exterior dimension's sky colour for the
-        // portal passes so the fade matches the doorway's cleared background and (rain-aware) sky.
+        // Tint the fog to the exterior dimension's sky colour BEFORE the sky pass. The interior dimension's fog
+        // (set earlier this frame by BackgroundRenderer - typically short-range and near-black for the TARDIS
+        // interior) is otherwise still bound while vanilla renderSky draws the celestial dome and stars, fogging
+        // everything but the horizon band to black ("the sky only renders the horizon, zenith is black"). This also
+        // makes distant terrain and the horizon fade to the right colour. Restored in the finally below.
         float[] previousFogColor = RenderSystem.getShaderFogColor().clone();
         try {
             Vec3d fog = portalWorld.getSkyColor(Vec3d.of(centerPos), tickDelta);
@@ -524,7 +534,6 @@ public class WorldGeometryRenderer {
     private void renderBlockEntities(ClientWorld portalWorld, float tickDelta, Camera portalCamera) {
         MinecraftClient client = MinecraftClient.getInstance();
         BlockEntityRenderDispatcher dispatcher = client.getBlockEntityRenderDispatcher();
-        VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(new BufferBuilder(256));
 
         dispatcher.configure(portalWorld, portalCamera, client.crosshairTarget);
 
@@ -562,7 +571,6 @@ public class WorldGeometryRenderer {
     private void renderEntities(ClientWorld portalWorld, float tickDelta, Camera portalCamera) {
         MinecraftClient client = MinecraftClient.getInstance();
         EntityRenderDispatcher dispatcher = client.getEntityRenderDispatcher();
-        VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(new BufferBuilder(256));
 
         dispatcher.configure(portalWorld, portalCamera, client.targetedEntity);
 
@@ -598,7 +606,6 @@ public class WorldGeometryRenderer {
             return;
 
         MinecraftClient client = MinecraftClient.getInstance();
-        VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(new BufferBuilder(256));
 
         // Particles bill-board relative to the camera; with the camera parked at centerPos they come out
         // centerPos-relative, matching the terrain and entities under the shared portal view matrix.
