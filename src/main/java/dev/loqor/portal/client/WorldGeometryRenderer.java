@@ -153,6 +153,17 @@ public class WorldGeometryRenderer {
         Matrix4f originalProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
         RenderSystem.setProjectionMatrix(portalProjection, VertexSorter.BY_DISTANCE);
 
+        // Distant exterior terrain and the sky horizon otherwise fade to the *interior* dimension's fog colour
+        // (BackgroundRenderer set it earlier this frame). Tint the fog to the exterior dimension's sky colour for the
+        // portal passes so the fade matches the doorway's cleared background and (rain-aware) sky.
+        float[] previousFogColor = RenderSystem.getShaderFogColor().clone();
+        try {
+            Vec3d fog = portalWorld.getSkyColor(Vec3d.of(centerPos), tickDelta);
+            RenderSystem.setShaderFogColor((float) fog.x, (float) fog.y, (float) fog.z);
+        } catch (Exception ignored) {
+            // keep the existing fog colour
+        }
+
         // Sky sits at infinity, so it only takes the rotation (no eye translation) and never writes depth.
         renderSky(id, portalWorld, portalRot, portalCamera, tickDelta);
 
@@ -169,17 +180,6 @@ public class WorldGeometryRenderer {
         lightmap.tick();            // GameRenderer already consumed this frame's dirty flag - re-arm it
         lightmap.update(tickDelta); // recompute the ramp from the shadow world's dimension + (synced) time of day
         client.world = previousLightmapWorld;
-
-        // Distant exterior terrain and the sky horizon otherwise fade to the *interior* dimension's fog colour
-        // (BackgroundRenderer set it earlier this frame). Tint the fog to the exterior dimension's sky colour for the
-        // portal passes so the fade matches the doorway's cleared background and (rain-aware) sky.
-        float[] previousFogColor = RenderSystem.getShaderFogColor().clone();
-        try {
-            Vec3d fog = portalWorld.getSkyColor(Vec3d.of(centerPos), tickDelta);
-            RenderSystem.setShaderFogColor((float) fog.x, (float) fog.y, (float) fog.z);
-        } catch (Exception ignored) {
-            // keep the existing fog colour
-        }
 
         MatrixStack modelViewStack = RenderSystem.getModelViewStack();
         modelViewStack.push();
@@ -474,21 +474,46 @@ public class WorldGeometryRenderer {
         MinecraftClient client = MinecraftClient.getInstance();
         ClientWorld previousWorld = client.world;
 
+        // Tessellator-drawn sky geometry (horizon ring, celestial bodies) reads
+        // RenderSystem.getModelViewMatrix() for ModelViewMat. Without this push the global
+        // matrix is the interior camera's full view (rotation + eye translation), which
+        // displaces the pre-rotated horizon/celestial vertices hundreds of blocks off-screen,
+        // leaving only a thin accidental strip visible. The VBO dome draws already receive
+        // portalRotation through their explicit matrix parameter, so they are unaffected by
+        // this push — both paths now agree on rotation-only, no translation.
+        MatrixStack modelViewStack = RenderSystem.getModelViewStack();
+        modelViewStack.push();
+        modelViewStack.peek().getPositionMatrix().set(portalRotation);
+        modelViewStack.peek().getNormalMatrix().set(new Matrix3f(portalRotation));
+        RenderSystem.applyModelViewMatrix();
+
         try {
-            // Make vanilla's sky-type check (client.world.getDimensionEffects().getSkyType()) see the target
-            // dimension. This is a single render-thread call with an immediate restore, so nothing else observes it.
             client.world = portalWorld;
 
             MatrixStack skyStack = new MatrixStack();
             skyStack.multiplyPositionMatrix(portalRotation);
 
             RenderSystem.depthMask(false);
+
+            // Pre-capture the fog distance outside the lambda (effectively final).
+            float fogDistance = client.options.getViewDistance().getValue() * 16.0f;
+
             data.renderer().renderSky(skyStack, portalProjection, tickDelta, portalCamera, false, () -> {
+                // Bypass BackgroundRenderer and directly set the fog so the interior
+                // fog doesn't swallow the exterior sky dome VBO.
+                RenderSystem.setShaderFogStart(0.0f);
+                RenderSystem.setShaderFogEnd(fogDistance);
+
+                // If your mapping version (1.18+) supports fog shapes, uncomment this
+                // to prevent spherical clipping artifacts at the screen corners:
+                RenderSystem.setShaderFogShape(FogShape.CYLINDER);
             });
         } catch (Throwable t) {
             AITMod.LOGGER.error("BOTI: failed to render exterior sky", t);
         } finally {
             client.world = previousWorld;
+            modelViewStack.pop();
+            RenderSystem.applyModelViewMatrix();
             // Vanilla renderSky leaves these in various states; reset to sane terrain defaults.
             RenderSystem.depthMask(true);
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
