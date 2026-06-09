@@ -6,8 +6,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.item.RepairToolItem;
 import dev.amble.ait.core.tardis.control.impl.HammerHangerControl;
+import dev.amble.ait.core.tardis.control.impl.VisualiserControl;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -80,7 +82,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             TrackedDataHandlerRegistry.BLOCK_POS);
     private Control control;
     public static final float MAX_DURABILITY = 1.0f;
-    private static final boolean HAS_PORTALS = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("immersive_portals");
     private static final Text RWF_NAME = Text.translatable("control.ait.rwf");
     private static final Text VISUALISER_NAME = Text.translatable("control.ait.visualiser");
     private static final Text NONE_NAME = Text.translatable("control.ait.none");
@@ -256,7 +257,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         return super.getDimensions(pose);
     }
 
-    @Override
     public void tick() {
         // Run on the server side where we actually know what control this is
         if (this.getWorld().isClient())
@@ -266,14 +266,12 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             this.discard();
             return;
         }
-        if (this.control instanceof dev.amble.ait.core.tardis.control.impl.VisualiserControl) {
-            // Determine what the name should currently be based on config
-            Text correctName = AITMod.CONFIG.rwfEnabled ? RWF_NAME : (HAS_PORTALS ? VISUALISER_NAME : NONE_NAME);
+        if (this.control instanceof VisualiserControl) {
+            Text correctName = AITMod.CONFIG.rwfEnabled ? RWF_NAME : (DependencyChecker.hasPortals() ? VISUALISER_NAME : NONE_NAME);
             if (!correctName.equals(this.getCustomName())) {
-                this.setCustomName(correctName);
+                super.setCustomName(correctName);
             }
         }
-        // -----------------------------
 
         switch (this.getDurabilityState(this.getDurability())) {
             case JAMMED, SPARKING -> this.spark();
@@ -632,6 +630,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         }
     }
 
+    @Override
+    public void setCustomName(@Nullable Text name) {}
 
     public enum DurabilityStates {
         JAMMED(0.0f),
