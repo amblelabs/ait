@@ -2,7 +2,6 @@ package dev.loqor.portal.client;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.boti.PortalParticleManager;
-import dev.amble.ait.client.boti.TardisDoorBOTI;
 import dev.loqor.portal.PortalInitS2CPacket;
 import dev.loqor.portal.WrappedPacketS2CPacket;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -66,10 +65,7 @@ public class PortalDataManager {
 
         free(id);
         map.put(id, PortalData.create(id, dimension, dimensionType));
-
-        WorldGeometryRenderer renderer = TardisDoorBOTI.getInteriorRenderer();
-        if (renderer != null)
-            renderer.markDirty();
+        // The fresh PortalData owns a geometry renderer that already starts needing a full rebuild.
     }
 
     public static void reset() {

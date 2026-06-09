@@ -13,9 +13,20 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.util.DyeColor;
+import net.minecraft.client.render.Camera;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
+
+import dev.amble.ait.AITMod;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedBlockPos;
+import dev.loqor.portal.Portals;
+import dev.loqor.portal.client.PortalData;
+import dev.loqor.portal.client.PortalDataManager;
+import dev.loqor.portal.client.WorldGeometryRenderer;
 
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.AITModClient;
@@ -91,6 +102,48 @@ public class TardisExteriorBOTI extends BOTI {
 
         GL11.glStencilMask(0x00);
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+
+        // ===== RENDER THE LIVE INTERIOR THROUGH THE EXTERIOR DOORWAY =====
+        // The server streams the interior (around its door) into a shadow world under the derived interior id. Map
+        // the player's eye - taken relative to the exterior door - through into the interior door's frame (the
+        // mirror of TardisDoorBOTI's interior->exterior mapping) and draw that shadow world into the masked opening.
+        // If the stream hasn't arrived yet, the doorway keeps the mask fill drawn above as a graceful fallback.
+        PortalData interior = PortalDataManager.get(Portals.interiorId(tardis.getUuid()));
+        if (interior != null && interior.world() != null && tardis.getDesktop() != null) {
+            try {
+                WorldGeometryRenderer geometry = interior.geometry();
+
+                DirectedBlockPos interiorDoor = tardis.getDesktop().getDoorPos();
+                BlockPos interiorDoorPos = interiorDoor.getPos();
+                Direction interiorFacing = interiorDoor.toMinecraftDirection();
+                geometry.setDoorFacing(interiorFacing);
+
+                CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
+                Direction exteriorFacing = Direction.fromRotation(exteriorPos.getRotationDegrees()).getOpposite();
+                Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
+
+                // Reverse of the interior->exterior turn: looking into the exterior door looks out the interior door.
+                float deltaYaw = interiorFacing.asRotation() - (exteriorFacing.asRotation() + 180.0f);
+
+                BlockPos extBlock = exteriorPos.getPos();
+                Vec3d exteriorDoorCenter = new Vec3d(extBlock.getX() + 0.5, extBlock.getY() + 1.0, extBlock.getZ() + 0.5);
+                Vec3d rel = camera.getPos().subtract(exteriorDoorCenter);
+
+                double rad = Math.toRadians(deltaYaw);
+                double cos = Math.cos(rad);
+                double sin = Math.sin(rad);
+                Vec3d relRotated = new Vec3d(rel.x * cos - rel.z * sin, rel.y, rel.x * sin + rel.z * cos);
+                Vec3d eyeRelToCenter = new Vec3d(0.5, 1.0, 0.5).add(relRotated);
+
+                float portalYaw = camera.getYaw() + deltaYaw;
+                float portalPitch = camera.getPitch();
+
+                geometry.render(Portals.interiorId(tardis.getUuid()), interior.world(), interiorDoorPos,
+                        eyeRelToCenter, portalYaw, portalPitch, MinecraftClient.getInstance().getTickDelta(), true);
+            } catch (Throwable t) {
+                AITMod.LOGGER.error("Failed to render exterior BOTI interior", t);
+            }
+        }
 
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));

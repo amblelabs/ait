@@ -3,7 +3,6 @@ package dev.loqor.portal.client;
 import com.mojang.datafixers.util.Pair;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.client.boti.TardisDoorBOTI;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -42,7 +41,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
+public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world, WorldGeometryRenderer geometry) {
+
+    /** How many blocks of the mirrored world to bake around the portal centre. */
+    private static final int RENDER_DISTANCE = 24;
 
     public void onChunkDeltaUpdate(ChunkDeltaUpdateS2CPacket packet) {
         packet.visitUpdates(this::handleBlockUpdate);
@@ -63,9 +65,7 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
      * sits on a section face/edge/corner so cross-section face culling stays correct.
      */
     private void markSectionsDirty(BlockPos pos) {
-        WorldGeometryRenderer renderer = TardisDoorBOTI.getInteriorRenderer();
-        if (renderer == null)
-            return;
+        WorldGeometryRenderer renderer = this.geometry;
 
         int sectionX = pos.getX() >> 4;
         int sectionY = pos.getY() >> 4;
@@ -113,7 +113,7 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
     }
 
     private void updateLighting(int chunkX, int chunkZ, LightingProvider provider, LightType type, BitSet inited, BitSet uninited, Iterator<byte[]> nibbles) {
-        WorldGeometryRenderer renderer = TardisDoorBOTI.getInteriorRenderer();
+        WorldGeometryRenderer renderer = this.geometry;
 
         for (int i = 0; i < provider.getHeight(); ++i) {
             int j = provider.getBottomY() + i;
@@ -184,7 +184,7 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
         LightingProvider lightingProvider = this.world.getChunkManager().getLightingProvider();
         ChunkSection[] chunkSections = chunk.getSectionArray();
         ChunkPos chunkPos = chunk.getPos();
-        WorldGeometryRenderer renderer = TardisDoorBOTI.getInteriorRenderer();
+        WorldGeometryRenderer renderer = this.geometry;
 
         for (int i = 0; i < chunkSections.length; ++i) {
             ChunkSection chunkSection = chunkSections[i];
@@ -199,7 +199,7 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
     public void onUnloadChunk(UnloadChunkS2CPacket packet) {
         this.world.getChunkManager().unload(packet.getX(), packet.getZ());
 
-        WorldGeometryRenderer renderer = TardisDoorBOTI.getInteriorRenderer();
+        WorldGeometryRenderer renderer = this.geometry;
         if (renderer == null)
             return;
 
@@ -354,6 +354,7 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
      */
     public void close() {
         try {
+            this.geometry.close();      // frees this shadow world's section VBOs + builder thread
             this.renderer.setWorld(null);
             this.renderer.close();
         } catch (Exception e) {
@@ -395,6 +396,10 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world) {
 
         worldRenderer.setWorld(world);
 
-        return new PortalData(id, worldRenderer, world);
+        // Each shadow world owns its geometry renderer, so multiple portals (e.g. several TARDIS exteriors on
+        // screen, or the exterior-view and interior-view streams of one TARDIS) bake and draw independently.
+        WorldGeometryRenderer geometry = new WorldGeometryRenderer(RENDER_DISTANCE);
+
+        return new PortalData(id, worldRenderer, world, geometry);
     }
 }

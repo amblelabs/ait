@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -98,8 +99,14 @@ public class BiggerOnTheInside implements ModInitializer {
     private static final ChunkTicketType<UUID> PORTAL_TICKET =
             ChunkTicketType.create("portal_proxy", UUID::compareTo);
 
-    /** One entry per TARDIS currently being viewed from inside its interior. */
+    /** One entry per TARDIS currently being viewed from inside its interior (exterior stream). */
     private static final Map<UUID, ProxyEntry> PROXIES = new HashMap<>();
+
+    /**
+     * One entry per TARDIS currently being viewed from <em>outside</em> its (open) exterior door (interior stream).
+     * Keyed by the TARDIS UUID for lookup; the entry's chunk-ticket key is the derived {@link Portals#interiorId}.
+     */
+    private static final Map<UUID, ProxyEntry> INTERIOR_PROXIES = new HashMap<>();
 
     /** How often (in ticks) to reconcile proxies with the world state. */
     private static final long REFRESH_INTERVAL = 20L;
@@ -129,6 +136,7 @@ public class BiggerOnTheInside implements ModInitializer {
         if (manager == null)
             return;
 
+        // Exterior stream: surroundings shown through the interior door to players inside.
         activeThisTick.clear();
         manager.forEach(tardis -> {
             if (ensureProxy(server, tardis))
@@ -142,6 +150,21 @@ public class BiggerOnTheInside implements ModInitializer {
         }
         for (UUID id : staleIds)
             removeProxy(id);
+
+        // Interior stream: the live interior shown through the (open) exterior door to players outside.
+        activeThisTick.clear();
+        manager.forEach(tardis -> {
+            if (ensureInteriorProxy(server, tardis))
+                activeThisTick.add(tardis.getUuid());
+        });
+
+        staleIds.clear();
+        for (UUID id : INTERIOR_PROXIES.keySet()) {
+            if (!activeThisTick.contains(id))
+                staleIds.add(id);
+        }
+        for (UUID id : staleIds)
+            removeInteriorProxy(id);
     }
 
     // ─── Proxy lifecycle ──────────────────────────────────────────────────────
@@ -266,6 +289,138 @@ public class BiggerOnTheInside implements ModInitializer {
         entry.world.removePlayer(entry.proxy, Entity.RemovalReason.DISCARDED);
     }
 
+    // ─── Interior stream (exterior door → live interior) ───────────────────────
+
+    /**
+     * Ensures the interior-stream proxy for {@code tardis} — the live interior shown through its exterior door.
+     * Active only when the TARDIS is landed, its door is open, and at least one player stands near the exterior.
+     *
+     * @return {@code true} if an interior proxy is (now) active for this TARDIS
+     */
+    private static boolean ensureInteriorProxy(MinecraftServer server, ServerTardis tardis) {
+        UUID key = tardis.getUuid();
+
+        if (!tardis.travel().isLanded() || !tardis.door().isOpen())
+            return false;
+
+        List<ServerPlayerEntity> viewers = exteriorViewers(tardis);
+        if (viewers.isEmpty())
+            return false;
+
+        // Force-load the interior on demand (getOrLoad) so even an empty/unvisited TARDIS shows its room through the
+        // doorway. The proxy + chunk tickets then keep it loaded while viewed; it unloads once no one is looking.
+        ServerWorld interior = tardis.world();
+        if (interior == null)
+            return false;
+
+        BlockPos doorPos     = tardis.getDesktop().getDoorPos().getPos();
+        UUID portalId        = Portals.interiorId(key);
+        Set<UUID> viewerIds  = idsOf(viewers);
+
+        ProxyEntry entry = INTERIOR_PROXIES.get(key);
+
+        if (entry == null) {
+            INTERIOR_PROXIES.put(key, createInteriorProxy(tardis, interior, doorPos, viewerIds));
+            return true;
+        }
+
+        boolean newViewer = !entry.viewers.containsAll(viewerIds);
+        entry.viewers = viewerIds;
+
+        // Interior dimension changed (interior swap) or a new viewer arrived — rebuild so they get the full re-send.
+        if (!entry.world.getRegistryKey().equals(interior.getRegistryKey()) || newViewer) {
+            despawn(entry);
+            INTERIOR_PROXIES.put(key, createInteriorProxy(tardis, interior, doorPos, viewerIds));
+            return true;
+        }
+
+        broadcastTime(portalId, viewers, interior);
+        maybeBroadcastWeather(portalId, viewers, interior, entry);
+
+        // Interior door moved (desktop rebuild) — migrate the forced-chunk area to match.
+        boolean movedChunk = entry.pos.getX() >> 4 != doorPos.getX() >> 4
+                || entry.pos.getZ() >> 4 != doorPos.getZ() >> 4
+                || entry.pos.getY() != doorPos.getY();
+
+        if (movedChunk) {
+            removeChunkTickets(entry.world, entry.pos, portalId);
+
+            entry.proxy.setPos(doorPos.getX(), doorPos.getY(), doorPos.getZ());
+            entry.proxy.onChunkEntered();
+            entry.posRef[0] = doorPos;
+            entry.pos = doorPos;
+
+            addChunkTickets(interior, doorPos, portalId);
+            broadcastCenter(portalId, viewers, entry.proxy);
+        }
+
+        return true;
+    }
+
+    private static ProxyEntry createInteriorProxy(ServerTardis tardis, ServerWorld interior,
+                                                  BlockPos doorPos, Set<UUID> viewerIds) {
+        UUID portalId = Portals.interiorId(tardis.getUuid());
+        List<ServerPlayerEntity> viewers = exteriorViewers(tardis);
+
+        broadcastInit(portalId, viewers, interior);
+        addChunkTickets(interior, doorPos, portalId);
+
+        BlockPos[] posRef = { doorPos };
+
+        PacketProxyPlayer proxy = new PacketProxyPlayer(interior);
+        proxy.setPos(doorPos.getX(), doorPos.getY(), doorPos.getZ());
+        proxy.setPacketListener(packet -> forwardIfInRange(portalId, () -> exteriorViewers(tardis), posRef[0], packet));
+
+        interior.spawnEntity(proxy);
+        proxy.onChunkEntered();
+
+        float rain    = interior.getRainGradient(1.0f);
+        float thunder = interior.getThunderGradient(1.0f);
+
+        broadcastTime(portalId, viewers, interior);
+        broadcastWeather(portalId, viewers, rain, thunder);
+        broadcastCenter(portalId, viewers, proxy);
+
+        return new ProxyEntry(portalId, proxy, interior, posRef, doorPos, viewerIds, rain, thunder);
+    }
+
+    private static void removeInteriorProxy(UUID key) {
+        ProxyEntry entry = INTERIOR_PROXIES.remove(key);
+        if (entry != null)
+            despawn(entry);
+    }
+
+    /** Live recipients of a TARDIS's interior stream — players in the exterior world near the box. */
+    private static List<ServerPlayerEntity> exteriorViewers(ServerTardis tardis) {
+        CachedDirectedGlobalPos ext = tardis.travel().position();
+        if (ext == null)
+            return List.of();
+
+        ServerWorld extWorld = ext.getWorld();
+        if (extWorld == null)
+            return List.of();
+
+        BlockPos extPos = ext.getPos();
+        double range = (PORTAL_CHUNK_RADIUS + 1) * 16.0;
+        double rangeSq = range * range;
+
+        List<ServerPlayerEntity> result = new ArrayList<>();
+        for (ServerPlayerEntity player : extWorld.getPlayers()) {
+            if (player instanceof PacketProxyPlayer)
+                continue;
+            if (player.getBlockPos().getSquaredDistance(extPos) <= rangeSq)
+                result.add(player);
+        }
+        return result;
+    }
+
+    private static Set<UUID> idsOf(List<ServerPlayerEntity> players) {
+        Set<UUID> ids = new HashSet<>();
+        for (ServerPlayerEntity player : players)
+            ids.add(player.getUuid());
+        return ids;
+    }
+
     // ─── Chunk-area management ─────────────────────────────────────────────────
 
     /**
@@ -308,10 +463,20 @@ public class BiggerOnTheInside implements ModInitializer {
      * exterior; all other packet types pass through unconditionally.
      */
     private static void forwardIfInRange(ServerTardis tardis, BlockPos extPos, Packet<?> packet) {
-        if (isChunkPacketOutOfRange(packet, extPos))
+        forwardIfInRange(tardis.getUuid(), () -> interiorViewers(tardis), extPos, packet);
+    }
+
+    /**
+     * Direction-agnostic forward: drops out-of-range chunk packets, then replays the rest to {@code viewers}
+     * tagged with {@code portalId}. {@code viewers} is resolved live (the proxy streams throughout the tick and
+     * players may join/leave), and the range filter uses the proxy's current centre.
+     */
+    private static void forwardIfInRange(UUID portalId, Supplier<List<ServerPlayerEntity>> viewers,
+                                         BlockPos center, Packet<?> packet) {
+        if (isChunkPacketOutOfRange(packet, center))
             return;
         if (shouldForward(packet))
-            broadcast(tardis, packet);
+            broadcast(portalId, viewers.get(), packet);
     }
 
     /**
@@ -377,56 +542,85 @@ public class BiggerOnTheInside implements ModInitializer {
 
     // ─── Broadcast helpers ─────────────────────────────────────────────────────
 
+    // Exterior-stream wrappers (id = TARDIS UUID, viewers = the players inside the interior). The interior-stream
+    // lifecycle calls the parameterised forms below directly with the derived id and the exterior viewer set.
+
     private static void broadcastInit(ServerTardis tardis, ServerWorld world) {
-        RegistryKey<DimensionType> type = world.getDimensionEntry().getKey().orElse(DimensionTypes.OVERWORLD);
-        sendToViewers(tardis, new PortalInitS2CPacket(tardis.getUuid(), world.getRegistryKey(), type));
+        broadcastInit(tardis.getUuid(), interiorViewers(tardis), world);
     }
 
     private static void broadcastCenter(ServerTardis tardis, PacketProxyPlayer proxy) {
+        broadcastCenter(tardis.getUuid(), interiorViewers(tardis), proxy);
+    }
+
+    private static void broadcastTime(ServerTardis tardis, ServerWorld world) {
+        broadcastTime(tardis.getUuid(), interiorViewers(tardis), world);
+    }
+
+    private static void maybeBroadcastWeather(ServerTardis tardis, ServerWorld world, ProxyEntry entry) {
+        maybeBroadcastWeather(tardis.getUuid(), interiorViewers(tardis), world, entry);
+    }
+
+    private static void broadcastWeather(ServerTardis tardis, float rain, float thunder) {
+        broadcastWeather(tardis.getUuid(), interiorViewers(tardis), rain, thunder);
+    }
+
+    // Parameterised broadcast helpers — shared by both portal directions. {@code mirrored}/{@code world} is the
+    // world the shadow mirrors; {@code targets} are the live recipients; {@code portalId} tags the wrapped packets.
+
+    private static void broadcastInit(UUID portalId, List<ServerPlayerEntity> targets, ServerWorld mirrored) {
+        RegistryKey<DimensionType> type = mirrored.getDimensionEntry().getKey().orElse(DimensionTypes.OVERWORLD);
+        send(targets, new PortalInitS2CPacket(portalId, mirrored.getRegistryKey(), type));
+    }
+
+    private static void broadcastCenter(UUID portalId, List<ServerPlayerEntity> targets, PacketProxyPlayer proxy) {
         ChunkPos center = proxy.getChunkPos();
-        broadcast(tardis, new ChunkRenderDistanceCenterS2CPacket(center.x, center.z));
+        broadcast(portalId, targets, new ChunkRenderDistanceCenterS2CPacket(center.x, center.z));
     }
 
     /** Always sent every refresh cycle — world time advances every tick so caching it is pointless. */
-    private static void broadcastTime(ServerTardis tardis, ServerWorld world) {
-        broadcast(tardis, new WorldTimeUpdateS2CPacket(
+    private static void broadcastTime(UUID portalId, List<ServerPlayerEntity> targets, ServerWorld world) {
+        broadcast(portalId, targets, new WorldTimeUpdateS2CPacket(
                 world.getTime(),
                 world.getTimeOfDay(),
                 world.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE)));
     }
 
     /**
-     * Sends rain/thunder gradient packets only when the value has moved by more than a
-     * small threshold since the last send. Weather transitions are gradual (hundreds of
-     * ticks), so most 20-tick cycles produce no change and no packet.
+     * Sends rain/thunder gradient packets only when the value has moved by more than a small threshold since the
+     * last send. Weather transitions are gradual (hundreds of ticks), so most 20-tick cycles produce no packet.
      */
-    private static void maybeBroadcastWeather(ServerTardis tardis, ServerWorld world, ProxyEntry entry) {
+    private static void maybeBroadcastWeather(UUID portalId, List<ServerPlayerEntity> targets, ServerWorld world, ProxyEntry entry) {
         float rain    = world.getRainGradient(1.0f);
         float thunder = world.getThunderGradient(1.0f);
         if (Math.abs(rain - entry.lastRain) < 0.01f && Math.abs(thunder - entry.lastThunder) < 0.01f)
             return;
         entry.lastRain    = rain;
         entry.lastThunder = thunder;
-        broadcastWeather(tardis, rain, thunder);
+        broadcastWeather(portalId, targets, rain, thunder);
     }
 
-    private static void broadcastWeather(ServerTardis tardis, float rain, float thunder) {
-        broadcast(tardis, new GameStateChangeS2CPacket(GameStateChangeS2CPacket.RAIN_GRADIENT_CHANGED,    rain));
-        broadcast(tardis, new GameStateChangeS2CPacket(GameStateChangeS2CPacket.THUNDER_GRADIENT_CHANGED, thunder));
+    private static void broadcastWeather(UUID portalId, List<ServerPlayerEntity> targets, float rain, float thunder) {
+        broadcast(portalId, targets, new GameStateChangeS2CPacket(GameStateChangeS2CPacket.RAIN_GRADIENT_CHANGED,    rain));
+        broadcast(portalId, targets, new GameStateChangeS2CPacket(GameStateChangeS2CPacket.THUNDER_GRADIENT_CHANGED, thunder));
     }
 
-    private static void broadcast(ServerTardis tardis, Packet<?> packet) {
-        sendToViewers(tardis, new WrappedPacketS2CPacket(tardis.getUuid(), packet));
+    private static void broadcast(UUID portalId, List<ServerPlayerEntity> targets, Packet<?> packet) {
+        send(targets, new WrappedPacketS2CPacket(portalId, packet));
     }
 
-    private static void sendToViewers(ServerTardis tardis, FabricPacket packet) {
-        if (!tardis.hasWorld())
-            return;
-        for (ServerPlayerEntity player : tardis.world().getPlayers()) {
+    /** Sends one packet to every viewer, skipping any proxy player that may be among them (e.g. the other stream's). */
+    private static void send(List<ServerPlayerEntity> targets, FabricPacket packet) {
+        for (ServerPlayerEntity player : targets) {
             if (player instanceof PacketProxyPlayer)
                 continue;
             ServerPlayNetworking.send(player, packet);
         }
+    }
+
+    /** Live recipients of a TARDIS's exterior stream — the players inside its interior. */
+    private static List<ServerPlayerEntity> interiorViewers(ServerTardis tardis) {
+        return tardis.hasWorld() ? tardis.world().getPlayers() : List.of();
     }
 
     // ─── Misc ──────────────────────────────────────────────────────────────────
@@ -435,8 +629,11 @@ public class BiggerOnTheInside implements ModInitializer {
         if (!tardis.hasWorld())
             return Set.of();
         Set<UUID> ids = new HashSet<>();
-        for (ServerPlayerEntity player : tardis.world().getPlayers())
+        for (ServerPlayerEntity player : tardis.world().getPlayers()) {
+            if (player instanceof PacketProxyPlayer)
+                continue; // the interior-stream proxy lives here too; it isn't a real viewer
             ids.add(player.getUuid());
+        }
         return ids;
     }
 
@@ -444,6 +641,10 @@ public class BiggerOnTheInside implements ModInitializer {
         for (ProxyEntry entry : PROXIES.values())
             despawn(entry);
         PROXIES.clear();
+
+        for (ProxyEntry entry : INTERIOR_PROXIES.values())
+            despawn(entry);
+        INTERIOR_PROXIES.clear();
     }
 
     // ─── ProxyEntry ────────────────────────────────────────────────────────────

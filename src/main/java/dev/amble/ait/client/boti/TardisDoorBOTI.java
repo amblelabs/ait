@@ -35,48 +35,8 @@ import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 
 public class TardisDoorBOTI extends BOTI {
-    // Static renderer instance - reused across all TARDIS door renders
-    private static WorldGeometryRenderer interiorRenderer;
-    private static boolean rendererInitialized = false;
-
-    // How many blocks of the exterior world to show through the doorway. Larger = more of the surroundings are
-    // visible (at the cost of more sections to build); the renderer culls aggressively to the door-facing frustum.
-    private static final int RENDER_DISTANCE = 24;
-
-    public static WorldGeometryRenderer getInteriorRenderer() {
-        return interiorRenderer;
-    }
-
-    /**
-     * Initializes the interior renderer if not already initialized
-     */
-    private static void initializeRenderer() {
-        if (!rendererInitialized) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            if (client.getWindow() != null) {
-                // The renderer derives its projection from the live camera FOV each frame, so there's nothing else
-                // to set up here.
-                interiorRenderer = new WorldGeometryRenderer(RENDER_DISTANCE);
-                rendererInitialized = true;
-            }
-        }
-    }
-
-    public static void markDirty() {
-        if (interiorRenderer == null) return;
-        interiorRenderer.markDirty();
-    }
-
-    /**
-     * Cleans up the renderer - call when mod unloads
-     */
-    public static void cleanup() {
-        if (interiorRenderer != null) {
-            interiorRenderer.close();
-            interiorRenderer = null;
-            rendererInitialized = false;
-        }
-    }
+    // The geometry renderer now lives on each PortalData (the shadow world owns it), so multiple TARDIS doors -
+    // and the new exterior->interior view - each bake/draw independently. Fetched per render via PortalDataManager.
 
     /**
      * Calculates the inverse of view bobbing to stabilize the camera
@@ -116,9 +76,6 @@ public class TardisDoorBOTI extends BOTI {
 
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.world == null || client.player == null) return;
-
-        // Initialize renderer if needed
-        initializeRenderer();
 
         PortalData portalData = PortalDataManager.get(tardis.getUuid());
         boolean landed = tardis.travel().getState() == TravelHandlerBase.State.LANDED;
@@ -187,13 +144,14 @@ public class TardisDoorBOTI extends BOTI {
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
         // ===== RENDER THE EXTERIOR WORLD THROUGH THE DOORWAY =====
-        if (landed && interiorRenderer != null && portalData != null && portalData.world() != null) {
+        if (landed && portalData != null && portalData.world() != null) {
+            WorldGeometryRenderer geometry = portalData.geometry();
             CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
             BlockPos exteriorBlockPos = exteriorPos.getPos();
 
             try {
                 Direction doorFacing = Direction.fromRotation(exteriorPos.getRotationDegrees()).getOpposite();
-                interiorRenderer.setDoorFacing(doorFacing);
+                geometry.setDoorFacing(doorFacing);
 
                 // Map the player's eye through the interior doorway into the exterior world: the view rotates with
                 // the door (so every facing - not just north - looks the right way out) and parallaxes as the
@@ -215,7 +173,7 @@ public class TardisDoorBOTI extends BOTI {
                 float portalYaw = camera.getYaw() + deltaYaw;
                 float portalPitch = camera.getPitch();
 
-                interiorRenderer.render(tardis.getUuid(), portalData.world(), exteriorBlockPos, eyeRelToCenter,
+                geometry.render(tardis.getUuid(), portalData.world(), exteriorBlockPos, eyeRelToCenter,
                         portalYaw, portalPitch, tickDelta, true);
             } catch (Throwable t) {
                 // A doorway effect should never take the whole game down; the framebuffer/stencil teardown below
