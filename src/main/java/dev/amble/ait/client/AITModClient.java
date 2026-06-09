@@ -35,6 +35,7 @@ import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
+import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.PacketByteBuf;
@@ -95,6 +96,7 @@ import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.*;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
@@ -182,6 +184,10 @@ public class AITModClient implements ClientModInitializer {
 
             TardisStar.render(context, tardis);
         });
+
+        ClientPlayNetworking.registerGlobalReceiver(TravelHandler.CRASH_MUSIC, (client, handler, buf, responseSender) ->
+                client.execute(() -> client.getSoundManager().play(
+                        PositionedSoundInstance.master(AITSounds.ARPALARM, 1f, CONFIG.crashMusicVolume))));
 
         ClientPlayNetworking.registerGlobalReceiver(OPEN_SCREEN, (client, handler, buf, responseSender) -> {
             int id = buf.readInt();

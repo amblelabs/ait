@@ -66,6 +66,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     private EnumMap<State, ActionQueue> travelQueue;
 
     public static final Identifier CANCEL_DEMAT_SOUND = AITMod.id("cancel_demat_sound");
+    public static final Identifier CRASH_MUSIC = AITMod.id("crash_music");
 
     static {
         TardisEvents.SAVE.register((server, tardis, close) -> {

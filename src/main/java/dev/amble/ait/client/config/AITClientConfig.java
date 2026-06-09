@@ -34,6 +34,11 @@ public class AITClientConfig {
     @SerialEntry public float engineLoopVolume = 0.35f;
 
     @AutoGen(category = CATEGORY)
+    @CustomFormat(ValueFormatters.PercentFormatter.class)
+    @FloatSlider(min = 0f, max = 1f, step = 0.05f)
+    @SerialEntry public float crashMusicVolume = 1f;
+
+    @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean customMenu = true;
 
