@@ -89,7 +89,7 @@ public class BiggerOnTheInside implements ModInitializer {
      * (49 columns) — enough to show immediate surroundings through the doorway.
      * Raise if the portal effect needs more distance; lower to further reduce memory use.
      */
-    private static final int PORTAL_CHUNK_RADIUS = 5;
+    private static final int PORTAL_CHUNK_RADIUS = 16;
 
     /**
      * Custom ticket type keyed by TARDIS {@link UUID}. Using a per-TARDIS UUID argument

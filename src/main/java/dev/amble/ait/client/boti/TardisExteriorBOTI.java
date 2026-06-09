@@ -88,9 +88,8 @@ public class TardisExteriorBOTI extends BOTI {
         Vec3d vec = parent.getPortalPosition();
         if (vec == null) vec = new Vec3d(0, 0, 0);
         stack.translate(vec.x, vec.y - 0.475f, vec.z);
-        RenderLayer whichOne = AITModClient.CONFIG.greenScreenBOTI ?
-                RenderLayer.getDebugFilledBox() : RenderLayer.getEndGateway();
-        float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0, 1} : new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
+        RenderLayer whichOne = RenderLayer.getDebugFilledBox();
+        float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0, 1} : new float[] {0f, 0f, 0f};
         mask.render(stack, botiProvider.getBuffer(whichOne), light, OverlayTexture.DEFAULT_UV, colorsForGreenScreen[0], colorsForGreenScreen[1], colorsForGreenScreen[2], 1);
         botiProvider.draw();
         stack.pop();
@@ -115,7 +114,7 @@ public class TardisExteriorBOTI extends BOTI {
 
                 DirectedBlockPos interiorDoor = tardis.getDesktop().getDoorPos();
                 BlockPos interiorDoorPos = interiorDoor.getPos();
-                Direction interiorFacing = interiorDoor.toMinecraftDirection();
+                Direction interiorFacing = interiorDoor.toMinecraftDirection().getOpposite();
                 geometry.setDoorFacing(interiorFacing);
 
                 CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
