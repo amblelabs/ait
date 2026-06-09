@@ -256,21 +256,14 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         return super.getDimensions(pose);
     }
-
+    @Override
     public void tick() {
-        // Run on the server side where we actually know what control this is
         if (this.getWorld().isClient())
             return;
 
         if (this.control == null && this.getConsoleBlockPos() != null) {
             this.discard();
             return;
-        }
-        if (this.control instanceof VisualiserControl) {
-            Text correctName = AITMod.CONFIG.rwfEnabled ? RWF_NAME : (DependencyChecker.hasPortals() ? VISUALISER_NAME : NONE_NAME);
-            if (!correctName.equals(this.getCustomName())) {
-                super.setCustomName(correctName);
-            }
         }
 
         switch (this.getDurabilityState(this.getDurability())) {
@@ -280,6 +273,31 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         }
     }
 
+    public void syncNameWithConfig() {
+        if (this.getWorld().isClient() || this.control == null) return;
+
+        if (this.control instanceof dev.amble.ait.core.tardis.control.impl.VisualiserControl) {
+            Text correctName = AITMod.CONFIG.rwfEnabled ? RWF_NAME : (DependencyChecker.hasPortals() ? VISUALISER_NAME : NONE_NAME);
+
+            if (!correctName.equals(this.getCustomName())) {
+                super.setCustomName(correctName); // Uses super to bypass your empty override!
+            }
+        }
+    }
+    public static void updateAllControlNames(net.minecraft.server.MinecraftServer server) {
+        if (server == null) return;
+
+        // Force onto the server thread to stay thread-safe
+        server.execute(() -> {
+            for (net.minecraft.server.world.ServerWorld world : server.getWorlds()) {
+                for (net.minecraft.entity.Entity entity : world.iterateEntities()) {
+                    if (entity instanceof ConsoleControlEntity console) {
+                        console.syncNameWithConfig();
+                    }
+                }
+            }
+        });
+    }
     @Override
     public boolean shouldRenderName() {
         return true;
@@ -558,9 +576,11 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     public void setControlData(ConsoleTypeSchema consoleType, ControlTypes type, BlockPos consoleBlockPosition, float durability, boolean sticky) {
         this.setConsolePos(consoleBlockPosition);
         this.control = type.getControl();
-
-        super.setCustomName(Text.translatable(this.control.id().toTranslationKey("control")));
-
+        if (this.control instanceof VisualiserControl) {
+            this.syncNameWithConfig();
+        } else {
+            super.setCustomName(Text.translatable(this.control.id().toTranslationKey("control")));
+        }
         if (consoleType != null) {
             this.setControlWidth(type.getScale().width);
             this.setControlHeight(type.getScale().height);

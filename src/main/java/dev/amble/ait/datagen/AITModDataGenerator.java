@@ -1,7 +1,6 @@
 package dev.amble.ait.datagen;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.client.config.AITClientConfig;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITEntityTypes;
 import dev.amble.ait.core.AITItemGroups;
