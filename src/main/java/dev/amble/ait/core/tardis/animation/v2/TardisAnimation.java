@@ -72,6 +72,15 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
         return this.alpha.getCurrent().ticks();
     }
 
+    public int getMaxDuration() {
+        float max = this.alpha.duration();
+        max = Math.max(max, this.scale.duration());
+        max = Math.max(max, this.position.duration());
+        max = Math.max(max, this.rotation.duration());
+
+        return (int) Math.ceil(max);
+    }
+
     @Override
     @Environment(EnvType.CLIENT)
     public void tick(MinecraftClient client) {
