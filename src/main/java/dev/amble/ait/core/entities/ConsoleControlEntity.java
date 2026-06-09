@@ -220,8 +220,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
             if (player.getOffHandStack().isOf(Items.COMMAND_BLOCK))
                 controlEditorHandler(player);
-
-            else if (!this.run((PlayerEntity) source.getAttacker(), source.getAttacker().getWorld(), true))
+            else if (!this.run(player, player.getWorld(), true))
                 this.playFailFx();
         }
 
@@ -265,6 +264,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         switch (this.getDurabilityState(this.getDurability())) {
             case JAMMED, SPARKING -> this.spark();
             case CATCH_FIRE -> this.onFire();
+            default -> {}
         }
     }
 
@@ -429,6 +429,14 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         control.runAnimation(tardis, (ServerPlayerEntity) player, (ServerWorld) world);
 
+        DurabilityStates state = this.getDurabilityState(this.getDurability());
+        boolean hasMallet = player.getMainHandStack().isOf(AITItems.HAMMER);
+
+        if (state == DurabilityStates.CATCH_FIRE && !hasMallet) {
+            player.setFireTicks(random.nextBetween(20*2, 20*6));
+            player.damage(world.getDamageSources().hotFloor(), 4);
+        }
+        
         if (this.isOnDelay())
             return false;
 
@@ -439,27 +447,25 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             this.getWorld().playSound(null, this.getBlockPos(), AITSounds.EVEN_MORE_SECRET_MUSIC, SoundCategory.MASTER,
                     1F, 1F);
 
-        boolean hasMallet = player.getMainHandStack().isOf(AITItems.HAMMER);
-
         if (hasMallet) {
             this.playSound(AITSounds.KNOCK, 1, 0.25f);
             Vec3d pos = this.getPos();
             ((ServerWorld) world).spawnParticles(ParticleTypes.SCRAPE,
                     pos.getX(), pos.getY(), pos.getZ(), 2, 0.2, 0.4, 0.2, 0.02);
-        }
 
-        DurabilityStates state = this.getDurabilityState(this.getDurability());
-
-        if (state == DurabilityStates.FULL && !(this.getControl() instanceof HammerHangerControl)) {
-            if (hasMallet)
-                this.subtractDurability(0.4f);
+            if (!(this.getControl() instanceof HammerHangerControl)) {
+                this.subtractDurability(random.nextBetween(1, 4) / 25f * this.getDurability());
+            }
         }
 
         if (state == DurabilityStates.JAMMED) {
             if (!hasMallet) return false;
+
+            if (random.nextBetween(0, 5) < 2)
+                tardis.subsystems().engine().removeDurability(random.nextBetween(0, 7));
         }
 
-        if (state == DurabilityStates.OCCASIONALLY_JAM && random.nextBetween(0, 10) == 5) {
+        if (state == DurabilityStates.OCCASIONALLY_JAM && random.nextBetween(0, 20) < 10) {
             if (hasMallet) {
                 this.setDurability(state.next().durability);
             } else {
@@ -467,12 +473,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             }
         }
 
-        if (state == DurabilityStates.SPARKING && random.nextBetween(0, 10) < 5) {
-            if (hasMallet) {
-                this.setDurability(state.next().durability);
-            } else {
-                return false;
-            }
+        if (state == DurabilityStates.SPARKING && random.nextBetween(0, 25) < 5) {
+            if (!hasMallet) return false;
         }
 
         if (this.control.shouldHaveDelay(tardis) && !this.isOnDelay()) {
@@ -516,13 +518,11 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     private void spark() {
         if (this.getEntityWorld().isClient()) return;
         Vec3d pos = this.getPos();
-        ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.SMOKE, pos.getX(), pos.getY(), pos.getZ(), 1, 0, 0.1, 0, 0.01f);
-        if (random.nextBetween(0, 40) == 5 && random.nextBoolean()) {
+        if (this.getEntityWorld().getServer().getTicks() % 15 == 0 && random.nextBoolean()) {
             this.playSound(SoundEvents.BLOCK_CHAIN_BREAK, 0.1f, random.nextBoolean() ? 1f : 2f);
             ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.ELECTRIC_SPARK, pos.getX(), pos.getY(), pos.getZ(), 5, 0.2, 0.2, 0.2, 0.01);
             ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.LAVA, pos.getX(), pos.getY(), pos.getZ(), 3, 0.1, 0.1, 0.1, 0.01);
         }
-        this.onFire();
     }
 
     private void onFire() {
