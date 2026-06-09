@@ -58,7 +58,7 @@ jobs:
       run: ./gradlew --configuration-cache build
 
     - name: Publish artifacts
-      uses: drtheodor/discord-webhook-upload-action@f912ab1f5432d56dd111cfd4f58e3f413323d0ff
+      uses: drtheodor/discord-webhook-upload-action@6cc0c1db7c6c564aad23af3d7acfed6e41993111
       with:
         url: ${{ secrets.DEV_BUILDS }}
         username: george washington
@@ -74,7 +74,7 @@ jobs:
           !build/libs/*-sources.jar
     - name: Send failure notice
       if: failure()
-      uses: drtheodor/discord-webhook-upload-action@f912ab1f5432d56dd111cfd4f58e3f413323d0ff
+      uses: drtheodor/discord-webhook-upload-action@6cc0c1db7c6c564aad23af3d7acfed6e41993111
       with:
         url: ${{ secrets.DEV_BUILDS }}
         username: george washington
