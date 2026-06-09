@@ -35,7 +35,6 @@ import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
-import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.PacketByteBuf;
@@ -80,6 +79,7 @@ import dev.amble.ait.client.renderers.monitors.MonitorRenderer;
 import dev.amble.ait.client.renderers.monitors.WallMonitorRenderer;
 import dev.amble.ait.client.renderers.sky.MarsSkyProperties;
 import dev.amble.ait.client.sonic.SonicModelLoader;
+import dev.amble.ait.client.sounds.crash_music.ClientCrashMusicSoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.client.util.ClientTardisUtil;
@@ -186,8 +186,7 @@ public class AITModClient implements ClientModInitializer {
         });
 
         ClientPlayNetworking.registerGlobalReceiver(TravelHandler.CRASH_MUSIC, (client, handler, buf, responseSender) ->
-                client.execute(() -> client.getSoundManager().play(
-                        PositionedSoundInstance.master(AITSounds.ARPALARM, 1f, CONFIG.crashMusicVolume))));
+                client.execute(ClientCrashMusicSoundHandler::play));
 
         ClientPlayNetworking.registerGlobalReceiver(OPEN_SCREEN, (client, handler, buf, responseSender) -> {
             int id = buf.readInt();
