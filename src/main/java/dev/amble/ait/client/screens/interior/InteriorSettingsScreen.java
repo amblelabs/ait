@@ -100,6 +100,8 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private AnimationScrubberWidget timeline;
     private IconButtonWidget playButton;
     private IconButtonWidget stopButton;
+    private IconButtonWidget muteButton;
+    private boolean previewMuted;
     private TardisAnimation previewBase;
     private TardisAnimation previewAnim;
     private Identifier previewAnimId;
@@ -137,13 +139,17 @@ public class InteriorSettingsScreen extends ConsoleScreen {
 
     private void createPreviewWidgets() {
         this.timeline = this.addDrawableChild(new AnimationScrubberWidget(
-                this.left + 152, this.top + 78, 91, 5, this::scrubTo));
+                this.left + 152, this.top + 78, 81, 5, this::scrubTo));
         this.timeline.visible = false;
 
         this.playButton = this.addDrawableChild(new IconButtonWidget(
                 this.left + 238, this.top + 127, 6, IconButtonWidget.Icon.PLAY, this::playPreviewSound));
         this.stopButton = this.addDrawableChild(new IconButtonWidget(
                 this.left + 238, this.top + 135, 6, IconButtonWidget.Icon.STOP, this::stopPreviewSound));
+
+        this.muteButton = this.addDrawableChild(new IconButtonWidget(
+                this.left + 235, this.top + 77, 7, IconButtonWidget.Icon.SOUND_ON, this::toggleMute));
+        this.muteButton.visible = false;
     }
 
     private boolean isAnimMode() {
@@ -431,14 +437,20 @@ public class InteriorSettingsScreen extends ConsoleScreen {
 
         this.renderCurrentMode(context);
 
+        boolean anim = this.isAnimMode();
         boolean hasSound = this.currentPreviewSound() != null;
 
         if (this.timeline != null)
-            this.timeline.visible = this.isAnimMode();
+            this.timeline.visible = anim;
         if (this.playButton != null)
-            this.playButton.visible = hasSound;
+            this.playButton.visible = hasSound && !anim;
         if (this.stopButton != null)
-            this.stopButton.visible = hasSound;
+            this.stopButton.visible = hasSound && !anim;
+        if (this.muteButton != null) {
+            this.muteButton.visible = anim;
+            this.muteButton.setIcon(this.previewMuted
+                    ? IconButtonWidget.Icon.SOUND_OFF : IconButtonWidget.Icon.SOUND_ON);
+        }
 
         super.render(context, mouseX, mouseY, delta);
     }
@@ -548,18 +560,24 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         Object current = this.modeManager == null ? null : this.modeManager.get().get();
 
         if (!(current instanceof TardisAnimation selected)) {
+            if (this.previewBase != null)
+                this.stopPreviewSound();
+
             this.previewBase = null;
             this.previewAnim = null;
             this.previewAnimId = null;
             return;
         }
 
-        if (this.previewAnim == null || !selected.id().equals(this.previewAnimId))
+        if (this.previewAnim == null || !selected.id().equals(this.previewAnimId)) {
             this.buildPreview(selected);
+            this.playAnimationSound(selected);
+        }
 
         if (this.timeline == null || !this.timeline.isDragging()) {
             if (this.previewAnim.isAged()) {
                 this.buildPreview(selected);
+                this.playAnimationSound(selected);
             } else {
                 this.previewAnim.tick(MinecraftClient.getInstance());
                 this.previewTicks = Math.min(this.previewTicks + 1, this.previewMax);
@@ -568,6 +586,32 @@ public class InteriorSettingsScreen extends ConsoleScreen {
             if (this.timeline != null)
                 this.timeline.setProgress(this.previewMax <= 0 ? 0f : (float) this.previewTicks / this.previewMax);
         }
+    }
+
+    private void toggleMute() {
+        this.previewMuted = !this.previewMuted;
+
+        if (this.previewMuted) {
+            this.stopPreviewSound();
+        } else if (this.previewBase != null) {
+            this.buildPreview(this.previewBase);
+            this.playAnimationSound(this.previewBase);
+        }
+    }
+
+    private void playAnimationSound(TardisAnimation anim) {
+        this.stopPreviewSound();
+
+        if (this.previewMuted)
+            return;
+
+        SoundEvent sfx = anim.getSound();
+
+        if (sfx == null)
+            return;
+
+        this.previewSound = PositionedSoundInstance.master(sfx, 1f, 1f);
+        MinecraftClient.getInstance().getSoundManager().play(this.previewSound);
     }
 
     private void buildPreview(TardisAnimation selected) {
