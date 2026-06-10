@@ -1816,13 +1816,13 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
         matrices.scale(0.005f, 0.005f, 0.005f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(-60f));
         matrices.translate(-60f, -228, -188);
-        String positionPosText = " " + abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
+        String positionPosText = abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
         Text positionDimensionText = WorldUtil.worldText(abpp.getDimension());
-        String positionDirectionText = " " + DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
-        String destinationPosText = " " + abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
+        String positionDirectionText = DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
+        String destinationPosText = abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
         Text destinationDimensionText = WorldUtil.worldText(abpd.getDimension(), false);
-        String destinationDirectionText = " " + DirectionControl.rotationToDirection(abpd.getRotation()).toUpperCase();
-        renderer.drawWithOutline(Text.of("❌").asOrderedText(), 0, 40, 0xF00F00, 0x000000,
+        String destinationDirectionText = DirectionControl.rotationToDirection(abpd.getRotation()).toUpperCase();
+        renderer.drawWithOutline(Text.of("Position:").asOrderedText(), 0, 40, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 0, 48, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
@@ -1838,7 +1838,7 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
         matrices.scale(0.005f, 0.005f, 0.005f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(120f));
         matrices.translate(-60f, -228, -188);
-        renderer.drawWithOutline(Text.of("✛").asOrderedText(), 0, 40, 0x00F0FF, 0x000000,
+        renderer.drawWithOutline(Text.of("Destination:").asOrderedText(), 0, 40, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         renderer.drawWithOutline(Text.of(destinationPosText).asOrderedText(), 0, 48, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
@@ -1855,12 +1855,10 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(120f));
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-72.5f));
         String progressText = tardis.travel().getState() == TravelHandlerBase.State.LANDED
-                ? "0%"
-                : tardis.travel().getDurationAsPercentage() + "%";
+                ? "⏳: 0%"
+                : "⏳: " + tardis.travel().getDurationAsPercentage() + "%";
         matrices.translate(0, 62, -49);
-        /*renderer.drawWithOutline(Text.of("⏳").asOrderedText(), 0, 0, 0x00FF0F, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);*/
-        renderer.drawWithOutline(Text.of(progressText).asOrderedText(), 0 - renderer.getWidth(progressText) / 2, 0, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(progressText).asOrderedText(), -renderer.getWidth(progressText) / 2, 0, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         matrices.pop();
     }

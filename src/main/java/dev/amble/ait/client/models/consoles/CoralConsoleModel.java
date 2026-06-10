@@ -2575,7 +2575,6 @@ public class CoralConsoleModel extends SimpleConsoleModel {
         MinecraftClient client = MinecraftClient.getInstance();
         TextRenderer renderer = client.textRenderer;
         TravelHandler travel = tardis.travel();
-        CachedDirectedGlobalPos abpd = travel.destination();
         CachedDirectedGlobalPos abpp = travel.isLanded() || travel.getState() == TravelHandlerBase.State.MAT
                 ? travel.position()
                 : travel.getProgress();
@@ -2586,19 +2585,20 @@ public class CoralConsoleModel extends SimpleConsoleModel {
         matrices.translate(1.85, 0.60, 0.85);
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(160f +11f));
         matrices.scale(0.005f, 0.005f, 0.005f);
-        matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(4));
+        matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(5));
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(30f));
-        matrices.translate(-240f, -228, -5f);
-        String positionPosText = " " + abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
+        matrices.translate(-240f, -228, -2.1f);
+        int y = 25;
+        String positionPosText = abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
         Text positionDimensionText = WorldUtil.worldText(abpp.getDimension());
-        String positionDirectionText = " " + DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
-        renderer.drawWithOutline(Text.of("❌").asOrderedText(), 0, 40, 0xF00F00, 0x000000,
+        String positionDirectionText = DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
+        renderer.drawWithOutline(Text.of("Position:").asOrderedText(), 0, y, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 0, 48, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 0, y + 8, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 0, 56, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 0, y + 16, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 0, 64, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 0, y + 24, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         matrices.pop();
 
@@ -2609,9 +2609,9 @@ public class CoralConsoleModel extends SimpleConsoleModel {
         matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(4f));
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(30f));
         String progressText = tardis.travel().getState() == TravelHandlerBase.State.LANDED
-                ? "0%"
-                : tardis.travel().getDurationAsPercentage() + "%";
-        matrices.translate(0, -38, -52);
+                ? "⏳: 0%"
+                : "⏳: " + tardis.travel().getDurationAsPercentage() + "%";
+        matrices.translate(7, -13, -50f);
         renderer.drawWithOutline(Text.of(progressText).asOrderedText(),
                 0 - renderer.getWidth(progressText) / 2, 0, 0xffffff, 04,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
