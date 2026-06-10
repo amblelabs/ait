@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import dev.amble.ait.AITMod;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -56,7 +57,7 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
  * For every loaded TARDIS that is landed and has player(s) inside its interior dimension, a
  * {@link PacketProxyPlayer fake player} is parked at the TARDIS's real exterior position. Rather than
  * relying on the fake player's inherited server view distance (which can be 10–32 chunks and causes
- * massive chunk-loading pressure), we explicitly force-load exactly {@value #PORTAL_CHUNK_RADIUS}
+ * massive chunk-loading pressure), we explicitly force-load exactly #AITMod.CONFIG.botiRenderDistance
  * chunks in each direction using a per-TARDIS {@link ChunkTicketType} ticket. The proxy still
  * receives entity-tracking packets naturally by virtue of being in the world; chunk packets from
  * beyond the defined area are filtered before being forwarded to interior viewers.
@@ -82,14 +83,6 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
  * </ul>
  */
 public class BiggerOnTheInside implements ModInitializer {
-
-    /**
-     * How many chunks in each axis direction around the exterior position are explicitly
-     * force-loaded and forwarded to interior viewers. Value of 3 yields a 7×7 footprint
-     * (49 columns) — enough to show immediate surroundings through the doorway.
-     * Raise if the portal effect needs more distance; lower to further reduce memory use.
-     */
-    private static final int PORTAL_CHUNK_RADIUS = 16;
 
     /**
      * Custom ticket type keyed by TARDIS {@link UUID}. Using a per-TARDIS UUID argument
@@ -401,7 +394,7 @@ public class BiggerOnTheInside implements ModInitializer {
             return List.of();
 
         BlockPos extPos = ext.getPos();
-        double range = (PORTAL_CHUNK_RADIUS + 1) * 16.0;
+        double range = (AITMod.CONFIG.botiRenderDistance + 1) * 16.0;
         double rangeSq = range * range;
 
         List<ServerPlayerEntity> result = new ArrayList<>();
@@ -424,14 +417,14 @@ public class BiggerOnTheInside implements ModInitializer {
     // ─── Chunk-area management ─────────────────────────────────────────────────
 
     /**
-     * Force-loads every chunk column within {@value #PORTAL_CHUNK_RADIUS} chunks of
+     * Force-loads every chunk column within #AITMod.CONFIG.botiRenderDistance chunks of
      * {@code center} in both axes. Each ticket is keyed by {@code tardisId} so that
      * removing one TARDIS's area never inadvertently evicts a nearby TARDIS's chunks.
      */
     private static void addChunkTickets(ServerWorld world, BlockPos center, UUID tardisId) {
         ChunkPos origin = new ChunkPos(center);
-        for (int dx = -PORTAL_CHUNK_RADIUS; dx <= PORTAL_CHUNK_RADIUS; dx++) {
-            for (int dz = -PORTAL_CHUNK_RADIUS; dz <= PORTAL_CHUNK_RADIUS; dz++) {
+        for (int dx = -AITMod.CONFIG.botiRenderDistance; dx <= AITMod.CONFIG.botiRenderDistance; dx++) {
+            for (int dz = -AITMod.CONFIG.botiRenderDistance; dz <= AITMod.CONFIG.botiRenderDistance; dz++) {
                 world.getChunkManager().addTicket(
                         PORTAL_TICKET,
                         new ChunkPos(origin.x + dx, origin.z + dz),
@@ -444,8 +437,8 @@ public class BiggerOnTheInside implements ModInitializer {
     /** Exact mirror of {@link #addChunkTickets} — must always be called with identical arguments. */
     private static void removeChunkTickets(ServerWorld world, BlockPos center, UUID tardisId) {
         ChunkPos origin = new ChunkPos(center);
-        for (int dx = -PORTAL_CHUNK_RADIUS; dx <= PORTAL_CHUNK_RADIUS; dx++) {
-            for (int dz = -PORTAL_CHUNK_RADIUS; dz <= PORTAL_CHUNK_RADIUS; dz++) {
+        for (int dx = -AITMod.CONFIG.botiRenderDistance; dx <= AITMod.CONFIG.botiRenderDistance; dx++) {
+            for (int dz = -AITMod.CONFIG.botiRenderDistance; dz <= AITMod.CONFIG.botiRenderDistance; dz++) {
                 world.getChunkManager().removeTicket(
                         PORTAL_TICKET,
                         new ChunkPos(origin.x + dx, origin.z + dz),
@@ -459,7 +452,7 @@ public class BiggerOnTheInside implements ModInitializer {
 
     /**
      * Called by the proxy for every packet the chunk manager delivers to it. Chunk-category
-     * packets are dropped when they fall outside {@value #PORTAL_CHUNK_RADIUS} chunks of the
+     * packets are dropped when they fall outside #AITMod.CONFIG.botiRenderDistance chunks of the
      * exterior; all other packet types pass through unconditionally.
      */
     private static void forwardIfInRange(ServerTardis tardis, BlockPos extPos, Packet<?> packet) {
@@ -481,7 +474,7 @@ public class BiggerOnTheInside implements ModInitializer {
 
     /**
      * Returns {@code true} when {@code packet} is a chunk-type packet whose position lies
-     * beyond {@value #PORTAL_CHUNK_RADIUS} chunks from {@code extPos}. Non-chunk packets
+     * beyond AITMod.CONFIG.botiRenderDistance chunks from {@code extPos}. Non-chunk packets
      * always return {@code false} and are never filtered by distance.
      */
     private static boolean isChunkPacketOutOfRange(Packet<?> packet, BlockPos extPos) {
@@ -508,8 +501,8 @@ public class BiggerOnTheInside implements ModInitializer {
     }
 
     private static boolean outOfRange(int chunkX, int chunkZ, int originX, int originZ) {
-        return Math.abs(chunkX - originX) > PORTAL_CHUNK_RADIUS
-                || Math.abs(chunkZ - originZ) > PORTAL_CHUNK_RADIUS;
+        return Math.abs(chunkX - originX) > AITMod.CONFIG.botiRenderDistance
+                || Math.abs(chunkZ - originZ) > AITMod.CONFIG.botiRenderDistance;
     }
 
     /**

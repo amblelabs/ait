@@ -102,6 +102,11 @@ public class AITServerConfig {
     @SerialEntry public List<String> riftDropWhitelist = Lists.newArrayList();
 
     @AutoGen(category = CATEGORY)
+    @CustomDescription(value = "Default is 16, anything above 32 can cause instability issues.")
+    @IntField(min = 0, max = 64)
+    @SerialEntry public int botiRenderDistance = 16;
+
+    @AutoGen(category = CATEGORY)
     @IntField(min = 1)
     @SerialEntry public int travelPerTick = 2;
 

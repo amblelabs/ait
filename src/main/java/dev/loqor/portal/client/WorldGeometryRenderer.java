@@ -24,8 +24,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.BlockRenderView;
+import net.minecraft.world.LightType;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.ColorResolver;
 import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.light.LightingProvider;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -202,8 +207,10 @@ public class WorldGeometryRenderer {
             // Each pass is isolated: a single throwing block-entity/entity renderer must not abort the others. The
             // old single try/catch (up in TardisDoorBOTI) meant one bad entity killed terrain's siblings *and* leaked
             // the model-view push below - which is exactly why entities and particles silently never appeared.
-            if (!sectionBuffers.isEmpty())
+
+            if (!sectionBuffers.isEmpty()) {
                 runPass("terrain", this::renderTerrain);
+            }
 
             runPass("block entities", () -> renderBlockEntities(portalWorld, tickDelta, portalCamera));
             runPass("entities", () -> renderEntities(portalWorld, tickDelta, portalCamera));
@@ -647,6 +654,38 @@ public class WorldGeometryRenderer {
     private SectionResult buildSection(World world, ChunkSectionPos sectionPos,
                                        BlockRenderManager blockRenderManager, Random random, boolean checkBehindPortal) {
 
+        int startX = sectionPos.getMinX();
+        int startY = sectionPos.getMinY();
+        int startZ = sectionPos.getMinZ();
+        int endX = startX + 15;
+        int endY = startY + 15;
+        int endZ = startZ + 15;
+
+        BlockPos.Mutable mutablePos = new BlockPos.Mutable();
+
+        // ==============================================================================
+        // SCENARIO B FIX: LIGHTING PRE-PASS
+        // Tell the fake world's lighting engine to check these blocks and calculate
+        // flood-fill shadows and light sources before we start meshing.
+        // ==============================================================================
+        LightingProvider lightingProvider = world.getLightingProvider();
+
+        for (int x = startX; x <= endX; x++) {
+            for (int y = startY; y <= endY; y++) {
+                for (int z = startZ; z <= endZ; z++) {
+                    mutablePos.set(x, y, z);
+                    // Queues the block to be checked for light emission/opacity
+                    lightingProvider.checkBlock(mutablePos);
+                }
+            }
+        }
+
+        // Force the engine to process the queue immediately so the light
+        // data is ready when renderBlock() asks for it below.
+        // (Note: If using Mojmap instead of Yarn, this might be called runLightUpdates)
+        lightingProvider.doLightUpdates();
+        // ==============================================================================
+
         Map<RenderLayer, BufferBuilder> builders = new HashMap<>();
         Set<RenderLayer> usedLayers = new HashSet<>();
 
@@ -657,21 +696,11 @@ public class WorldGeometryRenderer {
         }
 
         MatrixStack matrices = new MatrixStack();
-        BlockPos.Mutable mutablePos = new BlockPos.Mutable();
         List<BlockEntity> foundBlockEntities = new ArrayList<>();
-
-        int startX = sectionPos.getMinX();
-        int startY = sectionPos.getMinY();
-        int startZ = sectionPos.getMinZ();
-        int endX = startX + 15;
-        int endY = startY + 15;
-        int endZ = startZ + 15;
 
         // renderFluid() ignores the matrix stack and bakes its vertices at section-local coords (x&15, y&15, z&15).
         // Everything else here is baked relative to centerPos, so wrap the fluid buffers to add the constant
         // per-section shift (sectionMin - centerPos) that maps section-local space into centerPos-relative space.
-        // Without this every section's fluid quads collapse onto the same 16-block box at the origin - the
-        // "all the water renders in one place" bug.
         double fluidOffsetX = startX - centerPos.getX();
         double fluidOffsetY = startY - centerPos.getY();
         double fluidOffsetZ = startZ - centerPos.getZ();
@@ -712,8 +741,6 @@ public class WorldGeometryRenderer {
                         RenderLayer fluidLayer = RenderLayers.getFluidLayer(fluidState);
                         usedLayers.add(fluidLayer);
 
-                        // Offsetting consumer (not the matrix stack, which renderFluid ignores) puts the fluid in the
-                        // same centerPos-relative space as the solid blocks. Reused per layer within this section.
                         OffsetVertexConsumer fluidConsumer = fluidConsumers.computeIfAbsent(fluidLayer,
                                 layer -> new OffsetVertexConsumer(builders.get(layer),
                                         fluidOffsetX, fluidOffsetY, fluidOffsetZ));
@@ -728,7 +755,10 @@ public class WorldGeometryRenderer {
 
                         matrices.push();
                         matrices.translate(relX, relY, relZ);
+
+                        // Because we ran doLightUpdates() above, this will now receive true flood-fill data
                         blockRenderManager.renderBlock(state, mutablePos, world, matrices, builder, true, random);
+
                         matrices.pop();
                     }
                 }
@@ -845,5 +875,73 @@ public class WorldGeometryRenderer {
 
     private record SectionResult(ChunkSectionPos pos, Map<RenderLayer, BufferBuilder.BuiltBuffer> buffers,
                                  List<BlockEntity> blockEntities) {
+    }
+
+    private class HybridRenderView implements BlockRenderView {
+        private final World fakeWorld; // Provides the blocks
+        private final World realWorld; // Provides the light
+
+        public HybridRenderView(World fakeWorld) {
+            this.fakeWorld = fakeWorld;
+            this.realWorld = MinecraftClient.getInstance().world;
+        }
+
+        // ==========================================
+        // LIGHTING: Fetch from the real ClientWorld
+        // ==========================================
+
+        @Override
+        public int getLightLevel(LightType type, BlockPos pos) {
+            if (realWorld == null) return 15;
+            return realWorld.getLightLevel(type, pos);
+        }
+
+        @Override
+        public int getBaseLightLevel(BlockPos pos, int ambientDarkness) {
+            if (realWorld == null) return 15728880;
+            return realWorld.getBaseLightLevel(pos, ambientDarkness);
+        }
+
+        @Override
+        public float getBrightness(Direction direction, boolean shaded) {
+            if (realWorld == null) return 1.0f;
+            return realWorld.getBrightness(direction, shaded);
+        }
+
+        @Override
+        public LightingProvider getLightingProvider() {
+            return realWorld != null ? realWorld.getLightingProvider() : fakeWorld.getLightingProvider();
+        }
+
+        // ==========================================
+        // BLOCKS: Fetch from your copied fake world
+        // ==========================================
+
+        @Nullable
+        @Override
+        public BlockEntity getBlockEntity(BlockPos pos) {
+            return fakeWorld.getBlockEntity(pos);
+        }
+
+        @Override
+        public BlockState getBlockState(BlockPos pos) {
+            return fakeWorld.getBlockState(pos);
+        }
+
+        @Override
+        public FluidState getFluidState(BlockPos pos) {
+            return fakeWorld.getFluidState(pos);
+        }
+
+        @Override
+        public int getColor(BlockPos pos, ColorResolver colorResolver) {
+            return fakeWorld.getColor(pos, colorResolver);
+        }
+
+        @Override
+        public int getHeight() { return fakeWorld.getHeight(); }
+
+        @Override
+        public int getBottomY() { return fakeWorld.getBottomY(); }
     }
 }
