@@ -511,7 +511,7 @@ public class AITModClient implements ClientModInitializer {
             Tardis tardis = exterior.tardis().get();
             if (tardis == null || tardis.getExterior() == null) return;
             ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
-            ExteriorModel model = variant.model();
+            ExteriorModel model = variant.getCachedModel();
             BlockPos pos = exterior.getPos();
             stack.push();
             stack.translate(0.5, 0, 0.5);
