@@ -54,7 +54,6 @@ public class ClientTardis extends Tardis implements Disposable {
         if (!AITModClient.CONFIG.screenShake) return;
 
         float amount = ClientShakeUtil.getShakeAmount(this);
-        // System.out.println(amount);
         ClientShakeUtil.shake(amount);
     }
 
