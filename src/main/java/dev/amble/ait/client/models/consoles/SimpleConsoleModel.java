@@ -32,7 +32,7 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
     protected static final MinecraftClient client = MinecraftClient.getInstance();
 
     protected float getAngle(BlockEntity console, String key, float target, float delta) {
-        Map<String, Float> state = ANIMATION_CACHE.computeIfAbsent(console, k -> new HashMap<>());
+        Map<String, Float> state = ANIMATION_CACHE.computeIfAbsent(console, HashMap::new);
         float current = state.getOrDefault(key, 0f);
         float next = MathHelper.lerp(delta, current, target);
         state.put(key, next);
@@ -40,7 +40,7 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
     }
 
     protected float getLerpedDegrees(BlockEntity console, String key, float targetDegrees, float delta) {
-        Map<String, Float> state = ANIMATION_CACHE.computeIfAbsent(console, k -> new HashMap<>());
+        Map<String, Float> state = ANIMATION_CACHE.computeIfAbsent(console, HashMap::new);
         float currentRadians = state.getOrDefault(key, 0f);
         float currentDegrees = currentRadians * (180f / (float) Math.PI);
         float nextDegrees = MathHelper.lerpAngleDegrees(delta, currentDegrees, targetDegrees);
