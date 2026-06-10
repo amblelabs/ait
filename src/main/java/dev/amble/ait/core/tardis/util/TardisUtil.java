@@ -496,10 +496,10 @@ public class TardisUtil {
         return Math.sqrt(tPos.getSquaredDistance(pPos));
     }
 
-    public static double estimatedFuelCost(PlayerEntity player, Tardis tardis, double distance){
+    public static double estimatedFuelCost(PlayerEntity player, Tardis tardis, double distance) {
         int speed = Math.max(tardis.travel().speed(), 1);
         double ticksRequired = distance / speed;
-        double perTick = FuelHandler.getPerTickFuelCost(speed, tardis.travel().instability());
+        double perTick = FuelHandler.getPerTickFuelCost(speed, tardis.travel().instability(), tardis.travel().autopilot());
         return perTick * ticksRequired;
     }
 }
