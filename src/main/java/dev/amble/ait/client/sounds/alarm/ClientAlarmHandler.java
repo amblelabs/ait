@@ -7,7 +7,6 @@ import dev.amble.ait.client.sounds.LoopingSound;
 import dev.amble.ait.client.sounds.PlayerFollowingLoopingSound;
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientShakeUtil;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITSounds;
 
@@ -53,7 +52,6 @@ public class ClientAlarmHandler extends SoundHandler {
 
         if (this.shouldPlaySound(tardis)) {
             this.startIfNotPlaying(this.getInteriorCloister());
-            ClientShakeUtil.shake(0.15f);
         } else {
             this.stopSounds();
         }

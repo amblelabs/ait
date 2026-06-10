@@ -8,9 +8,13 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
 public class ClientShakeUtil {
-    private static final float SHAKE_CLAMP = 45.0f; // Adjust this value to set the maximum shake angle
-    private static final float SHAKE_INTENSITY = 0.5f; // Adjust this value to control the intensity of the shake
-    private static final int MAX_DISTANCE = 16; // The radius from the console where the player will feel the shake
+    @Deprecated
+    private static final float SHAKE_CLAMP = 45.0f;
+    @Deprecated
+    private static final float SHAKE_INTENSITY = 0.5f;
+    @Deprecated
+    private static final int MAX_DISTANCE = 16;
+
 
     public static boolean shouldShake(Tardis tardis) {
         if (ClientTardisUtil.getCurrentTardis() != tardis)
@@ -19,12 +23,25 @@ public class ClientShakeUtil {
         if (tardis.flight().falling().get())
             return true;
 
-        return !tardis.travel().autopilot() && tardis.travel().getState() != TravelHandlerBase.State.LANDED;
+        if (tardis.travel().getState() == TravelHandlerBase.State.DEMAT)
+            return true;
+
+        if (tardis.sequence().hasActiveSequence())
+            return true;
+
+        if (tardis.alarm().isEnabled())
+            return true;
+
+        if (!tardis.crash().isNormal() && !tardis.travel().isLanded())
+            return true;
+
+        return tardis.travel().getState() == TravelHandlerBase.State.MAT;
     }
 
     /**
      * Shakes based off the distance of the player from the console
      */
+    @Deprecated
     public static void shakeFromConsole() {
         shake(1f - (float) (ClientTardisUtil.distanceFromConsole() / MAX_DISTANCE));
     }

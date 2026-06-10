@@ -50,14 +50,8 @@ public class ClientTardis extends Tardis implements Disposable {
         ClientTardisUtil.tickAlarmDelta();
 
         // referencing client stuff where it COULD be server causes problems
-        if (!ClientShakeUtil.shouldShake(this))
-            return;
-
-        if (this.flight().falling().get()) {
+        if (ClientShakeUtil.shouldShake(this))
             ClientShakeUtil.shakeFromEverywhere();
-        } else {
-            ClientShakeUtil.shakeFromConsole();
-        }
     }
 
     @Override
