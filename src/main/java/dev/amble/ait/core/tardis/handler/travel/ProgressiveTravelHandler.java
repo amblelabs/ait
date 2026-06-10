@@ -202,10 +202,19 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     public void triggerSequencingDuringFlight(Tardis tardis) {
         SequenceHandler sequences = tardis.sequence();
 
-        if (!this.autopilot.get() && this.getDurationAsPercentage() < 100
-                && this.getState() == TravelHandlerBase.State.FLIGHT && !sequences.hasActiveSequence()
-                && !this.position().equals(this.destination()) && this.getTargetTicks() > 100
-                && random.nextBetween(0, 110 /*230*/ / (this.speed() == 0 ? 1 : this.speed())) == 7) {
+        if (this.autopilot.get()) return;
+
+        if (this.getDurationAsPercentage() >= 100) return;
+
+        if (this.getState() != State.FLIGHT) return;
+
+        if (sequences.hasActiveSequence()) return;
+
+        if (this.getTargetTicks() <= 100) return;
+
+        if (this.speed() == 0 || (this.speed() * 100) < (this.maxSpeed().get() / this.speed()) * 100) return;
+
+        if (random.nextBetween(0, 110 / this.speed()) == 7) {
             sequences.triggerRandomSequence(true);
         }
     }
