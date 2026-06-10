@@ -51,9 +51,7 @@ public class ClientTardis extends Tardis implements Disposable {
         ClientTardisUtil.tickPowerDelta();
         ClientTardisUtil.tickAlarmDelta();
 
-        if (!AITModClient.CONFIG.screenShake) return;
-
-        float amount = ClientShakeUtil.getShakeAmount(this);
+        float amount = ClientShakeUtil.getShakeAmount(this) * AITModClient.CONFIG.screenShake;
         ClientShakeUtil.shake(amount);
     }
 
