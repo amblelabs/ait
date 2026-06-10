@@ -381,7 +381,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     }
 
     public void addDurability(float durability) {
-        this.setDurability(Math.min(durability, MAX_DURABILITY));
+        this.setDurability(Math.min(this.getDurability() + durability, MAX_DURABILITY));
     }
 
     public void subtractDurability(float durability) {
