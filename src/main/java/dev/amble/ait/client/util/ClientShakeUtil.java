@@ -1,6 +1,7 @@
 package dev.amble.ait.client.util;
 
 
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.MathHelper;
 
@@ -16,11 +17,12 @@ public class ClientShakeUtil {
     private static final int MAX_DISTANCE = 16;
 
     public static float getShakeAmount(Tardis tardis) {
+        TravelHandler travel = tardis.travel();
         float low = 0.15f;
         float medium = 0.225f;
         float high = 0.3f;
 
-        float speed = (float) MathHelper.clamp(0.1f * tardis.travel().speed(), 0.1, 0.6f);
+        float speed = (float) MathHelper.clamp(0.1f * travel.speed(), 0.1, 0.6f);
         low += speed;
         medium += speed;
         high += speed;
@@ -28,25 +30,25 @@ public class ClientShakeUtil {
         if (ClientTardisUtil.getCurrentTardis() != tardis)
             return 0;
 
-        if (tardis.travel().getState() == TravelHandlerBase.State.MAT)
+        if (travel.getState() == TravelHandlerBase.State.MAT)
             return medium;
 
-        if (tardis.travel().getState() == TravelHandlerBase.State.DEMAT)
+        if (travel.getState() == TravelHandlerBase.State.DEMAT)
             return medium;
 
-        if (!tardis.crash().isNormal() && !tardis.travel().isLanded())
+        if (!tardis.crash().isNormal() && !travel.isLanded())
             return medium;
 
-        if (!tardis.travel().inFlight()) return 0;
+        if (!travel.inFlight())
+            return 0;
 
-        // TODO The active sequence isn't synced to the client
-        /*if (tardis.sequence().hasActiveSequence())
-            return high;*/
+        if (tardis.sequence().hasClientActiveSequence())
+            return high;
 
         if (tardis.flight().falling().get())
             return high;
 
-        if (!tardis.travel().autopilot())
+        if (!travel.autopilot())
             return low;
 
         return 0;
