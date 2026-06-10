@@ -1,5 +1,6 @@
 package dev.amble.ait.client.sounds.alarm;
 
+import dev.amble.ait.client.util.ClientShakeUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundCategory;
 
@@ -52,6 +53,7 @@ public class ClientAlarmHandler extends SoundHandler {
 
         if (this.shouldPlaySound(tardis)) {
             this.startIfNotPlaying(this.getInteriorCloister());
+            ClientShakeUtil.shake(0.15f);
         } else {
             this.stopSounds();
         }

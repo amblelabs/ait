@@ -49,9 +49,9 @@ public class ClientTardis extends Tardis implements Disposable {
         ClientTardisUtil.tickPowerDelta();
         ClientTardisUtil.tickAlarmDelta();
 
-        // referencing client stuff where it COULD be server causes problems
-        if (ClientShakeUtil.shouldShake(this))
-            ClientShakeUtil.shakeFromEverywhere();
+        float amount = ClientShakeUtil.getShakeAmount(this);
+        // System.out.println(amount);
+        ClientShakeUtil.shake(amount);
     }
 
     @Override

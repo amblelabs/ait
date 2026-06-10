@@ -15,27 +15,41 @@ public class ClientShakeUtil {
     @Deprecated
     private static final int MAX_DISTANCE = 16;
 
+    public static float getShakeAmount(Tardis tardis) {
+        float low = 0.15f;
+        float medium = 0.225f;
+        float high = 0.3f;
 
-    public static boolean shouldShake(Tardis tardis) {
+        float speed = (float) MathHelper.clamp(0.1f * tardis.travel().speed(), 0.1, 0.6f);
+        low += speed;
+        medium += speed;
+        high += speed;
+
         if (ClientTardisUtil.getCurrentTardis() != tardis)
-            return false;
+            return 0;
 
-        if (tardis.flight().falling().get())
-            return true;
+        if (tardis.travel().getState() == TravelHandlerBase.State.MAT)
+            return medium;
 
         if (tardis.travel().getState() == TravelHandlerBase.State.DEMAT)
-            return true;
-
-        if (tardis.sequence().hasActiveSequence())
-            return true;
-
-        if (tardis.alarm().isEnabled())
-            return true;
+            return medium;
 
         if (!tardis.crash().isNormal() && !tardis.travel().isLanded())
-            return true;
+            return medium;
 
-        return tardis.travel().getState() == TravelHandlerBase.State.MAT;
+        if (!tardis.travel().inFlight()) return 0;
+
+        // TODO The active sequence isn't synced to the client
+        /*if (tardis.sequence().hasActiveSequence())
+            return high;*/
+
+        if (tardis.flight().falling().get())
+            return high;
+
+        if (!tardis.travel().autopilot())
+            return low;
+
+        return 0;
     }
 
     /**
@@ -47,10 +61,11 @@ public class ClientShakeUtil {
     }
 
     public static void shakeFromEverywhere() {
-        shake(0.1f);
+        shake(0.25f);
     }
 
     public static void shake(float scale) {
+        if (scale == 0) return;
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null)
             return;

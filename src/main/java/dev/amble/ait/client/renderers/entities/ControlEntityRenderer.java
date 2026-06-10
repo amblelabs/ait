@@ -61,8 +61,8 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
             return;
 
         Text name = entity.getCustomName();
-        Text durability = Text.literal("Durability: " + entity.getDurability());
-        Text state = Text.literal("State: " + entity.getDurabilityState(entity.getDurability()));
+        Text durability = Text.literal("Durability: " + entity.getClientDurability());
+        Text state = Text.literal("State: " + entity.getDurabilityState(entity.getClientDurability()));
 
         if (name == null)
             return;
