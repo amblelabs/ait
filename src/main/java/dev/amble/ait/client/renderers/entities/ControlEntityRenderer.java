@@ -2,6 +2,8 @@ package dev.amble.ait.client.renderers.entities;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.math.ColorHelper;
 import org.joml.Matrix4f;
 
 import net.minecraft.client.MinecraftClient;
@@ -59,12 +61,16 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
             return;
 
         Text name = entity.getCustomName();
+        Text durability = Text.literal("Durability: " + entity.getDurability());
+        Text state = Text.literal("State: " + entity.getDurabilityState(entity.getDurability()));
 
         if (name == null)
             return;
 
         TextRenderer textRenderer = this.getTextRenderer();
         float h = (float) -textRenderer.getWidth(name) / 2;
+        float g = (float) -textRenderer.getWidth(durability) / 2;
+        float l = (float) -textRenderer.getWidth(state) / 2;
         float f = entity.getNameLabelHeight() - 0.3f;
 
         if (!entity.isLinked())
@@ -85,11 +91,21 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
 
         if (hitresult != null) {
             boolean isPlayerLookingWithSonic = isPlayerLookingAtControlWithSonic(hitresult, entity);
-            OrderedText orderedText = name.asOrderedText();
+            OrderedText nameOrdered = name.asOrderedText();
+            OrderedText durabilityOrdered = durability.asOrderedText();
+            OrderedText stateOrdered = state.asOrderedText();
 
             if (isPlayerLookingWithSonic) {
-                textRenderer.drawWithOutline(orderedText, h, (float) name.getString().length(), 0xF0F0F0, 0x000000,
+                textRenderer.drawWithOutline(nameOrdered, h, 0, 0xF0F0F0, 0x000000,
                         matrix4f, vertexConsumers, 0xFF);
+                matrices.push();
+                matrices.scale(0.5f, 0.5f, 0.5f);
+                Matrix4f matrix4f1 = matrices.peek().getPositionMatrix();
+                textRenderer.drawWithOutline(durabilityOrdered, g, 20, 0xFFAA00, 0x000000,
+                        matrix4f1, vertexConsumers, 0xFF);
+                textRenderer.drawWithOutline(stateOrdered, l, 31, 0x55FFFF, 0x000000,
+                        matrix4f1, vertexConsumers, 0xFF);
+                matrices.pop();
             }
         }
 
