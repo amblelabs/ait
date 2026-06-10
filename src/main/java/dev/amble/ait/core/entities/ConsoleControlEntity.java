@@ -509,7 +509,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         if (blockEntity instanceof ConsoleBlockEntity console)
             return console;
 
-        AITMod.LOGGER.warn("Control entity at {} has no console block entity at {}", this.getPos(), this.getConsoleBlockPos());
+        // AITMod.LOGGER.warn("Control entity at {} has no console block entity at {}", this.getPos(), this.getConsoleBlockPos());
         return null;
     }
 
