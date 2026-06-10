@@ -18,7 +18,7 @@ import dev.amble.ait.core.engine.block.generic.GenericStructureSystemBlockEntity
 
 public class GenericSubSystemRenderer<T extends GenericStructureSystemBlockEntity> implements BlockEntityRenderer<T> {
     private final GenericSubSystemModel model;
-    public static final MinecraftClient client = MinecraftClient.getInstance();
+    private static final MinecraftClient client = MinecraftClient.getInstance();
 
     public GenericSubSystemRenderer(BlockEntityRendererFactory.Context ctx) {
         this.model = new GenericSubSystemModel();
