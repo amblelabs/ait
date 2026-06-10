@@ -31,46 +31,17 @@ import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 
 public class TardisExteriorBOTI extends BOTI {
     public void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, ExteriorModel frame, ModelPart mask, int light) {
-        if (MinecraftClient.getInstance().world == null
-                || MinecraftClient.getInstance().player == null) return;
-
-        if (!exterior.isLinked())
-            return;
+        if (MinecraftClient.getInstance().world == null || MinecraftClient.getInstance().player == null) return;
+        if (!exterior.isLinked()) return;
 
         ClientTardis tardis = exterior.tardis().get().asClient();
+        MinecraftClient client = MinecraftClient.getInstance();
 
-        stack.push();
-
-        MinecraftClient.getInstance().getFramebuffer().endWrite();
-
-        BOTI_HANDLER.setupFramebuffer();
-
-        Vec3d skyColor = MinecraftClient.getInstance().world.getSkyColor(MinecraftClient.getInstance().player.getPos(), MinecraftClient.getInstance().getTickDelta());
-        if (AITModClient.CONFIG.greenScreenBOTI)
-            BOTI.setFramebufferColor(BOTI_HANDLER.afbo, 0, 1, 0, 1);
-        else
-            BOTI.setFramebufferColor(BOTI_HANDLER.afbo, (float) skyColor.x, (float) skyColor.y, (float) skyColor.z, 1);
-
-        BOTI.copyFramebuffer(MinecraftClient.getInstance().getFramebuffer(), BOTI_HANDLER.afbo);
-
-        VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
-
-        // --- FIXED STENCIL AND MASK INITIALIZATION ---
-        GL11.glEnable(GL11.GL_STENCIL_TEST);
-
-        // Force masks to true so the hardware driver accepts the clear command
-        GL11.glStencilMask(0xFF);
+        // --- PASS 1: THE DEPTH SHIELD (MAIN FRAMEBUFFER) ---
+        // Draw the mask to the main world with color disabled to block clouds/weather.
+        RenderSystem.colorMask(false, false, false, false);
         RenderSystem.depthMask(true);
-        RenderSystem.colorMask(true, true, true, true);
 
-        // Clear the stencil buffer completely
-        GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
-
-        // Setup stencil rules for drawing the portal exterior mask
-        GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
-
-        RenderSystem.depthMask(true);
         stack.push();
         StatsHandler stats = tardis.stats();
         String name = stats.getName();
@@ -81,26 +52,58 @@ public class TardisExteriorBOTI extends BOTI {
             stack.translate(0, scale.y() + 0.25f, scale.z() - 1.7f);
         }
         ExteriorVariantSchema parent = variant.parent();
-        stack.scale((float) parent.portalWidth() * scale.x(),
-                (float) parent.portalHeight() * scale.y(), scale.z());
+        stack.scale((float) parent.portalWidth() * scale.x(), (float) parent.portalHeight() * scale.y(), scale.z());
         Vec3d vec = parent.getPortalPosition();
         if (vec == null) vec = new Vec3d(0, 0, 0);
         stack.translate(vec.x, vec.y - 0.475f, vec.z);
-        RenderLayer whichOne = AITModClient.CONFIG.greenScreenBOTI ?
-                RenderLayer.getDebugFilledBox() : RenderLayer.getEndGateway();
-        float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0, 1} : new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
-        mask.render(stack, botiProvider.getBuffer(whichOne), light, OverlayTexture.DEFAULT_UV, colorsForGreenScreen[0], colorsForGreenScreen[1], colorsForGreenScreen[2], 1);
+
+        // Render the mask to create the depth shield
+        mask.render(stack, AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer().getBuffer(RenderLayer.getEndGateway()), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
+        AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer().draw();
+        stack.pop();
+
+        RenderSystem.colorMask(true, true, true, true);
+
+        // --- PASS 2: SETUP CUSTOM FRAMEBUFFER ---
+        client.getFramebuffer().endWrite();
+        BOTI_HANDLER.setupFramebuffer();
+        BOTI.copyFramebuffer(client.getFramebuffer(), BOTI_HANDLER.afbo);
+        BOTI_HANDLER.afbo.beginWrite(false);
+
+        // Clear BOTH Depth and Stencil. This is critical for AMD driver stability.
+        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
+        GL11.glEnable(GL11.GL_STENCIL_TEST);
+
+        // --- PASS 3: STENCIL MASK (AFBO) ---
+        RenderSystem.colorMask(false, false, false, false);
+        RenderSystem.depthMask(false);
+
+        GL11.glStencilMask(0xFF);
+        GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+
+        stack.push();
+        stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
+        if (name.equalsIgnoreCase("grumm") || name.equalsIgnoreCase("dinnerbone")) {
+            stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-90f));
+            stack.translate(0, scale.y() + 0.25f, scale.z() - 1.7f);
+        }
+        stack.scale((float) parent.portalWidth() * scale.x(), (float) parent.portalHeight() * scale.y(), scale.z());
+        stack.translate(vec.x, vec.y - 0.475f, vec.z);
+
+        // Render mask again for the stencil
+        VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
+        mask.render(stack, botiProvider.getBuffer(RenderLayer.getEndGateway()), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
         botiProvider.draw();
         stack.pop();
 
-        copyDepth(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
-
-        BOTI_HANDLER.afbo.beginWrite(false);
-        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-
+        // --- PASS 4: EXTERIOR RENDERING ---
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.depthMask(true);
         GL11.glStencilMask(0x00);
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
+        // Render Doors
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
         if (name.equalsIgnoreCase("grumm") || name.equalsIgnoreCase("dinnerbone")) {
@@ -108,11 +111,11 @@ public class TardisExteriorBOTI extends BOTI {
             stack.translate(0, scale.y + 0.25f, scale.z -1.7f);
         }
         stack.scale(scale.x(), scale.y(), scale.z());
-
         frame.renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.getBotiInterior(variant.texture())), light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
         botiProvider.draw();
         stack.pop();
 
+        // Render Biome
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
         if (name.equalsIgnoreCase("grumm") || name.equalsIgnoreCase("dinnerbone")) {
@@ -120,18 +123,16 @@ public class TardisExteriorBOTI extends BOTI {
             stack.translate(0, scale.y() + 0.25f, scale.z() -1.7f);
         }
         stack.scale(scale.x(), scale.y(), scale.z());
-
         if (variant != ClientExteriorVariantRegistry.CORAL_GROWTH) {
             BiomeHandler handler = exterior.tardis().get().handler(TardisComponent.Id.BIOME);
             Identifier biomeTexture = handler.getBiomeKey().get(variant.overrides());
             if (biomeTexture != null)
-                frame.renderDoors(tardis, exterior, frame.getPart(), stack,
-                        botiProvider.getBuffer(AITRenderLayers.getEntityTranslucentCull(biomeTexture)),
-                        light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
+                frame.renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.getEntityTranslucentCull(biomeTexture)), light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
         }
         botiProvider.draw();
         stack.pop();
 
+        // Render Emissive
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
         if (name.equalsIgnoreCase("grumm") || name.equalsIgnoreCase("dinnerbone")) {
@@ -140,17 +141,14 @@ public class TardisExteriorBOTI extends BOTI {
         }
         stack.scale(scale.x(), scale.y(), scale.z());
         if (variant.emission() != null) {
-            float u;
-            float t;
-            float s;
-
+            float u, t, s;
             if ((stats.getName() != null && "partytardis".equals(stats.getName().toLowerCase()) || (!exterior.tardis().get().extra().getInsertedDisc().isEmpty()))) {
                 int m = 25;
-                int n = MinecraftClient.getInstance().player.age / m + MinecraftClient.getInstance().player.getId();
+                int n = client.player.age / m + client.player.getId();
                 int o = DyeColor.values().length;
                 int p = n % o;
                 int q = (n + 1) % o;
-                float r = ((float) (MinecraftClient.getInstance().player.age % m)) / m;
+                float r = ((float) (client.player.age % m)) / m;
                 float[] fs = SheepEntity.getRgbColor(DyeColor.byId(p));
                 float[] gs = SheepEntity.getRgbColor(DyeColor.byId(q));
                 s = fs[0] * (1f - r) + gs[0] * r;
@@ -158,32 +156,26 @@ public class TardisExteriorBOTI extends BOTI {
                 u = fs[2] * (1f - r) + gs[2] * r;
             } else {
                 float[] hs = new float[]{1.0f, 1.0f, 1.0f};
-                s = hs[0];
-                t = hs[1];
-                u = hs[2];
+                s = hs[0]; t = hs[1]; u = hs[2];
             }
-
             boolean power = tardis.fuel().hasPower();
             boolean alarms = tardis.alarm().isEnabled();
-
             float red = power ? s : alarms ? 0.3f : 0;
             float green = power ? alarms ? 0.3f : t : 0;
             float blue = power ? alarms ? 0.3f : u : 0;
-
-            frame.renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xf000f0,
-                    OverlayTexture.DEFAULT_UV, red, green, blue, 1, true);
+            frame.renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xf000f0, OverlayTexture.DEFAULT_UV, red, green, blue, 1, true);
             botiProvider.draw();
         }
         stack.pop();
 
-        MinecraftClient.getInstance().getFramebuffer().beginWrite(true);
+        // --- PASS 5: COMPOSITE TO MAIN ---
+        client.getFramebuffer().beginWrite(true);
+        BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
 
-        BOTI.copyColor(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
+        // Cleanup
         GL11.glDisable(GL11.GL_STENCIL_TEST);
         GL11.glStencilMask(0xFF);
         RenderSystem.depthMask(true);
-
-        stack.pop();
     }
 
 }

@@ -20,69 +20,71 @@ public class PaintingBOTI extends BOTI {
         if (!AITModClient.CONFIG.enableTardisBOTI)
             return;
 
-        if (MinecraftClient.getInstance().world == null
-                || MinecraftClient.getInstance().player == null) return;
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.world == null || client.player == null) return;
 
+        // Use the frame model for the shield
         PaintingFrameModel model = new PaintingFrameModel(PaintingFrameModel.getTexturedModelData().createModel());
-
-        stack.push();
-
-        MinecraftClient.getInstance().getFramebuffer().endWrite();
-
-        BOTI_HANDLER.setupFramebuffer();
-
-        BOTI.copyFramebuffer(MinecraftClient.getInstance().getFramebuffer(), BOTI_HANDLER.afbo);
-
         VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
+        // === PASS 1: THE DEPTH SHIELD (MAIN FRAMEBUFFER) ===
+        // Draw the frame mask to the main world with color disabled to block clouds/weather.
+        RenderSystem.colorMask(false, false, false, false);
+        RenderSystem.depthMask(true);
+
+        stack.push();
+        // Draw the frame model so the game knows something solid exists here
         model.render(stack, botiProvider.getBuffer(AITRenderLayers.getEntityCutout(frameTexture)), light, OverlayTexture.DEFAULT_UV, 1.0F, 1.0F, 1.0F, 1.0F);
         botiProvider.draw();
+        stack.pop();
 
-        stack.translate(0, 0, -0.125);
+        RenderSystem.colorMask(true, true, true, true);
 
-        // --- FIXED STENCIL AND MASK INITIALIZATION ---
+        // === PASS 2: SETUP CUSTOM FRAMEBUFFER ===
+        client.getFramebuffer().endWrite();
+        BOTI_HANDLER.setupFramebuffer();
+        BOTI.copyFramebuffer(client.getFramebuffer(), BOTI_HANDLER.afbo);
+        BOTI_HANDLER.afbo.beginWrite(false);
+
+        // Clear both Depth/Stencil to prevent AMD partial-clear corruption
+        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
         GL11.glEnable(GL11.GL_STENCIL_TEST);
 
-        GL11.glStencilMask(0xFF);
-        RenderSystem.depthMask(true);
-        RenderSystem.colorMask(true, true, true, true);
-        GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+        // === PASS 3: STENCIL MASK (AFBO) ===
+        RenderSystem.colorMask(false, false, false, false);
+        RenderSystem.depthMask(false);
 
+        GL11.glStencilMask(0xFF);
         GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
         GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
 
-        RenderSystem.depthMask(true);
         stack.push();
+        // Render frame again to set the stencil mask
         frame.renderWithFbo(stack, botiProvider, 0xf000f0, OverlayTexture.DEFAULT_UV, 0, 0, 0, 1, frameTexture);
         botiProvider.draw();
-        BOTI.copyDepth(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
-
-        BOTI_HANDLER.afbo.beginWrite(false);
-        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
         stack.pop();
 
+        // === PASS 4: PAINTING CONTENT (AFBO) ===
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.depthMask(true);
         GL11.glStencilMask(0x00);
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
         stack.push();
-        stack.translate(0, 0, -4f);
+        stack.translate(0, 0, -4f); // Original Z offset logic
         RenderSystem.enableCull();
         paintingContents.render(stack, botiProvider.getBuffer(AITRenderLayers.getBotiInterior(paintingContentsTexture)), 0xf000f0, OverlayTexture.DEFAULT_UV, 1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableCull();
         botiProvider.draw();
         stack.pop();
 
-        MinecraftClient.getInstance().getFramebuffer().beginWrite(true);
+        // === PASS 5: COMPOSITE TO MAIN ===
+        client.getFramebuffer().beginWrite(true);
+        BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
 
-        BOTI.copyColor(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
-
-        // --- FIXED CLEANUP ---
-        // Disable test and explicitly reset the mask back to full permissions (0xFF)
+        // Cleanup
         GL11.glDisable(GL11.GL_STENCIL_TEST);
         GL11.glStencilMask(0xFF);
-
         RenderSystem.depthMask(true);
-
-        stack.pop();
     }
 }
