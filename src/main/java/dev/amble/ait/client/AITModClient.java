@@ -110,7 +110,7 @@ import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 public class AITModClient implements ClientModInitializer {
 
     public static AITClientConfig CONFIG;
-    public static final MinecraftClient client = MinecraftClient.getInstance();
+    private final MinecraftClient client = MinecraftClient.getInstance();
 
     @Override
     public void onInitializeClient() {
