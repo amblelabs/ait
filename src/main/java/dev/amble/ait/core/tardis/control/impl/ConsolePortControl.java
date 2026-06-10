@@ -1,6 +1,16 @@
 package dev.amble.ait.core.tardis.control.impl;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.item.ControlDiscItem;
+import dev.amble.ait.core.item.WaypointItem;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisDesktop;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.data.Waypoint;
+import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MusicDiscItem;
 import net.minecraft.nbt.NbtCompound;
@@ -12,16 +22,7 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.item.WaypointItem;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisDesktop;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.data.Waypoint;
-import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
+import org.jetbrains.annotations.Nullable;
 
 public class ConsolePortControl extends Control {
 
@@ -119,4 +120,10 @@ public class ConsolePortControl extends Control {
     public SoundEvent getFallbackSound() {
         return SoundEvents.INTENTIONALLY_EMPTY;
     }
+
+	@Override
+	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleControlEntity entity) {
+		// check if we have a disc or waypoint
+		return tardis.extra().getInsertedDisc().isEmpty() && !tardis.waypoint().hasWaypoint() ? 0.0f : 1.0f;
+	}
 }

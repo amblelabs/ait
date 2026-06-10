@@ -1,20 +1,34 @@
 package dev.amble.ait.core.entities;
 
-import java.util.List;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITEntityTypes;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.entities.base.LinkableDummyEntity;
 import dev.amble.ait.core.item.RepairToolItem;
+import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.core.item.control.ControlBlockItem;
+import dev.amble.ait.core.item.sonic.SonicMode;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisManager;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.core.tardis.control.impl.HammerHangerControl;
+import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
+import dev.amble.ait.registry.impl.ControlRegistry;
+import dev.amble.lib.animation.AnimatedEntity;
+import dev.amble.lib.client.bedrock.BedrockAnimationReference;
+import dev.amble.lib.client.bedrock.TargetedAnimationState;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
 import io.netty.handler.codec.EncoderException;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
-
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.*;
@@ -27,7 +41,9 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -37,28 +53,18 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITEntityTypes;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.entities.base.LinkableDummyEntity;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.item.control.ControlBlockItem;
-import dev.amble.ait.core.item.sonic.SonicMode;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisManager;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.core.tardis.control.ControlTypes;
-import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
+import java.util.List;
+import java.util.Optional;
 
-public class ConsoleControlEntity extends LinkableDummyEntity {
+public class ConsoleControlEntity extends LinkableDummyEntity implements AnimatedEntity {
     private static final TrackedData<Float> WIDTH = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.FLOAT);
     private static final TrackedData<Float> HEIGHT = DataTracker.registerData(ConsoleControlEntity.class,
@@ -78,8 +84,15 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
     private static final TrackedData<BlockPos> CONSOLE_BLOCK_POS = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.BLOCK_POS);
-    private Control control;
-    public static final float MAX_DURABILITY = 1.0f;
+	private static final TrackedData<String> CONTROL_ID = DataTracker.registerData(ConsoleControlEntity.class,
+			TrackedDataHandlerRegistry.STRING);
+	private static final TrackedData<String> ANIMATION_ID = DataTracker.registerData(ConsoleControlEntity.class,
+			TrackedDataHandlerRegistry.STRING);
+	public static final float MAX_DURABILITY = 1.0f;
+
+	private Control control;
+	private ControlTypes controlType;
+	private final TargetedAnimationState animationState = new TargetedAnimationState();
 
     public ConsoleControlEntity(EntityType<? extends Entity> entityType, World world) {
         super(entityType, world);
@@ -118,9 +131,11 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         this.dataTracker.startTracking(WAS_SEQUENCED, false);
         this.dataTracker.startTracking(ON_DELAY, false);
         this.dataTracker.startTracking(CONSOLE_BLOCK_POS, BlockPos.ORIGIN);
+	    this.dataTracker.startTracking(CONTROL_ID, "");
+	    this.dataTracker.startTracking(ANIMATION_ID, "");
     }
 
-    @Override
+	@Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
 
@@ -136,6 +151,14 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         nbt.putBoolean("wasSequenced", this.wasSequenced());
         nbt.putFloat("durability", this.getDurability());
         nbt.putBoolean("sticky", this.isSticky());
+
+	    // write control type via codec
+	    if (this.controlType == null) {
+		    AITMod.LOGGER.error("Control type is null for control entity at {}", this.getPos());
+		    return;
+	    }
+	    DataResult<NbtElement> result = ControlTypes.CODEC.encodeStart(NbtOps.INSTANCE, this.controlType);
+	    result.resultOrPartial(AITMod.LOGGER::error).ifPresent(nbtResult -> nbt.put("controlType", nbtResult));
     }
 
     @Override
@@ -170,6 +193,20 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             this.setDurability(nbt.getFloat("durability"));
         if (nbt.contains("sticky"))
             this.setSticky(nbt.getBoolean("sticky"));
+
+	    if (nbt.contains("controlType")) {
+		    DataResult<ControlTypes> result = ControlTypes.CODEC.parse(NbtOps.INSTANCE, nbt.get("controlType"));
+		    result.resultOrPartial(AITMod.LOGGER::error).ifPresent(controlType -> {
+			    this.controlType = controlType;
+			    this.control = controlType.getControl();
+			    this.dataTracker.set(CONTROL_ID, this.control.id().toString());
+
+			    // Sync animation ID if present
+			    controlType.getAnimation().ifPresent(animation ->
+					    this.dataTracker.set(ANIMATION_ID, animation.id().toString())
+			    );
+		    });
+	    }
     }
 
     public void setConsolePos(BlockPos consoleBlockPos) {
@@ -255,7 +292,9 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
     @Override
     public void tick() {
-        if (this.getWorld().isClient())
+	    this.animationState.tick();
+
+	    if (this.getWorld().isClient())
             return;
 
         if (this.control == null && this.getConsoleBlockPos() != null)
@@ -290,8 +329,43 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     }
 
     public Control getControl() {
+	    // On client, look up control from synced ID if local field is null
+	    if (this.control == null && this.getWorld() != null && this.getWorld().isClient()) {
+		    String controlId = this.dataTracker.get(CONTROL_ID);
+		    if (!controlId.isEmpty()) {
+			    Identifier parsed = Identifier.tryParse(controlId);
+			    if (parsed != null)
+				    this.control = ControlRegistry.fromId(parsed).orElse(null);
+		    }
+	    }
         return control;
     }
+
+	public Optional<ControlTypes> getControlType() {
+		// On client, reconstruct controlType from synced data if local field is null
+		if (this.controlType == null && this.getWorld() != null && this.getWorld().isClient()) {
+			Control control = this.getControl();
+			if (control != null) {
+				// Parse animation from synced ID
+				BedrockAnimationReference animation = null;
+				String animationId = this.dataTracker.get(ANIMATION_ID);
+				if (animationId != null && !animationId.isEmpty()) {
+					Identifier id = Identifier.tryParse(animationId);
+					if (id != null) {
+						animation = BedrockAnimationReference.parse(id);
+					}
+				}
+
+				this.controlType = new ControlTypes(
+						control,
+						EntityDimensions.changing(this.getControlWidth(), this.getControlHeight()),
+						this.getOffset(),
+						animation
+				);
+			}
+		}
+		return Optional.ofNullable(this.controlType);
+	}
 
     public Vector3f getOffset() {
         return this.dataTracker.get(OFFSET);
@@ -515,6 +589,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         return null;
     }
 
+	public TargetedAnimationState getAnimationState() {
+		return this.animationState;
+	}
+
     private void spark() {
         if (this.getEntityWorld().isClient()) return;
         Vec3d pos = this.getPos();
@@ -546,8 +624,15 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     public void setControlData(ConsoleTypeSchema consoleType, ControlTypes type, BlockPos consoleBlockPosition, float durability, boolean sticky) {
         this.setConsolePos(consoleBlockPosition);
         this.control = type.getControl();
+	    this.controlType = type;
+	    this.dataTracker.set(CONTROL_ID, this.control.id().toString());
 
-        super.setCustomName(Text.translatable(this.control.id().toTranslationKey("control")));
+	    // Sync animation ID if present
+	    type.getAnimation().ifPresent(animation ->
+			    this.dataTracker.set(ANIMATION_ID, animation.id().toString())
+	    );
+
+	    updateCustomName();
 
         if (consoleType != null) {
             this.setControlWidth(type.getScale().width);
@@ -557,6 +642,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             this.setSticky(sticky);
         }
     }
+
+	private void updateCustomName() {
+		super.setCustomName(Text.translatable(this.getControl().id().toTranslationKey("control")));
+	}
 
     public void logConsoleJson() {
         // convert all controls into json
