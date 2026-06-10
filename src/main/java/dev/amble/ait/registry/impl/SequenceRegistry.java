@@ -76,12 +76,6 @@ public class SequenceRegistry {
                     missedTardis.removeFuel(-random.nextBetween(45, 125));
                     missedTardis.door().openDoors();
 
-                    Scheduler.get().runTaskLater(() ->
-                                    missedTardis.door().closeDoors(),
-                            TaskStage.END_SERVER_TICK,
-                            TimeUnit.SECONDS,
-                            3);
-
                     List<Explosion> explosions = new ArrayList<>();
                     ServerWorld world = missedTardis.asServer().world();
 
@@ -113,12 +107,6 @@ public class SequenceRegistry {
                     finishedTardis.travel().decreaseFlightTime(60);
                 }), (missedTardis -> {
                     missedTardis.door().openDoors();
-
-                    Scheduler.get().runTaskLater(() ->
-                                    missedTardis.door().closeDoors(),
-                            TaskStage.END_SERVER_TICK,
-                            TimeUnit.SECONDS,
-                            3);
                 }), 90L, Text.translatable("sequence.ait.dimensional_breach").formatted(Formatting.ITALIC, Formatting.YELLOW),
                         new DimensionControl(), new DoorControl()));
 
