@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import com.google.gson.InstanceCreator;
 
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.config.AITClientConfig;
 import net.minecraft.client.MinecraftClient;
 
 import dev.amble.ait.AITMod;
@@ -48,6 +50,8 @@ public class ClientTardis extends Tardis implements Disposable {
 
         ClientTardisUtil.tickPowerDelta();
         ClientTardisUtil.tickAlarmDelta();
+
+        if (!AITModClient.CONFIG.screenShake) return;
 
         float amount = ClientShakeUtil.getShakeAmount(this);
         // System.out.println(amount);

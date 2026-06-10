@@ -46,6 +46,10 @@ public class AITClientConfig {
     @SerialEntry public boolean environmentProjector = true;
 
     @AutoGen(category = CATEGORY)
+    @Boolean(formatter = Boolean.Formatter.ON_OFF, colored = true)
+    @SerialEntry public boolean screenShake = true;
+
+    @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean enableTardisBOTI = true;
 
