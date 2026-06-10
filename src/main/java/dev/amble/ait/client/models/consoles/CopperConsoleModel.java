@@ -1749,43 +1749,28 @@ public class CopperConsoleModel extends SimpleConsoleModel {
         matrices.pop();
     }
 
-    private float throttleAngle = 0f;
-    private float handbrakeAngle = 0f;
-    private float powerAngle = 0f;
-    private float doorControlAngle = 0f;
-    private float doorLockAngle = 0f;
-    private float directionAngle = 0f;
-    private float cloakAngle = 0f;
-    private float securityAngle = 0f;
-    private float antiGravAngle = 0f;
-    private float shieldAngle = 0f;
-    private float shield2Angle = 0f;
-    private float siegeAngle = 0f;
-    private float autopilotAngle = 0f;
-    private float fuelAngle = 0f;
-
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = 0.1f * MinecraftClient.getInstance().getTickDelta();
+        float delta = 0.1f * client.getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.52f, -0.5f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(150f));
 
+        // Fuel Gauge
         float fuelTarget = (float) ((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 3f);
-        this.fuelAngle = MathHelper.lerp(delta, this.fuelAngle, fuelTarget);
-        this.copper.getChild("pillars").getChild("pillars2").getChild("pillars3").getChild("pillars4").getChild("bone121").getChild("fuel_gauge").yaw = this.fuelAngle;
+        this.copper.getChild("pillars").getChild("pillars2").getChild("pillars3").getChild("pillars4").getChild("bone121").getChild("fuel_gauge").yaw = getAngle(console, "fuel", fuelTarget, delta);
 
+        // Direction
         float directionTargetDegrees = tardis.travel().destination().getRotation() * 22.5f;
-        float currentDirectionDegrees = (float) Math.toDegrees(this.directionAngle);
-        float nextDirectionDegrees = MathHelper.lerpAngleDegrees(delta, currentDirectionDegrees, directionTargetDegrees);
-        this.directionAngle = (float) Math.toRadians(nextDirectionDegrees);
-        this.copper.getChild("pillars").getChild("pillars2").getChild("pillars3").getChild("pillars4").getChild("pillars5").getChild("bone126").pitch = -this.directionAngle;
+        float directionAngle = getLerpedDegrees(console, "direction", directionTargetDegrees, delta);
+        this.copper.getChild("pillars").getChild("pillars2").getChild("pillars3").getChild("pillars4").getChild("pillars5").getChild("bone126").pitch = -directionAngle;
 
+        // Handbrake
         float handbrakeTarget = tardis.travel().handbrake() ? -1.0f : 0f;
-        this.handbrakeAngle = MathHelper.lerp(delta, this.handbrakeAngle, handbrakeTarget);
-        this.copper.getChild("pillars").getChild("pillars2").getChild("pillars3").getChild("handbrake").pitch = this.handbrakeAngle;
+        this.copper.getChild("pillars").getChild("pillars2").getChild("pillars3").getChild("handbrake").pitch = getAngle(console, "handbrake", handbrakeTarget, delta);
 
+        // Throttle
         ModelPart throttle1 = this.copper.getChild("controls").getChild("panel_2").getChild("rot8").getChild("lever2").getChild("bone29");
         ModelPart throttle2 = this.copper.getChild("controls").getChild("panel_2").getChild("rot8").getChild("lever2").getChild("bone30");
 
@@ -1799,9 +1784,9 @@ public class CopperConsoleModel extends SimpleConsoleModel {
         float throttleTarget = speedPercent * 2f;
         float clampedSpeedAmount = Math.max(0f, Math.min(speedPercent, 5f)) * 5f;
 
-        this.throttleAngle = MathHelper.lerp(delta, this.throttleAngle, throttleTarget);
-        throttle1.roll = this.throttleAngle - 1f;
-        throttle2.roll = this.throttleAngle - 1f;
+        float throttleAngle = getAngle(console, "throttle", throttleTarget, delta);
+        throttle1.roll = throttleAngle - 1f;
+        throttle2.roll = throttleAngle - 1f;
 
         lights.visible = clampedSpeedAmount >= 5f;
         lights2.visible = clampedSpeedAmount >= 4f;
@@ -1809,31 +1794,32 @@ public class CopperConsoleModel extends SimpleConsoleModel {
         lights4.visible = clampedSpeedAmount >= 2f;
         lights5.visible = clampedSpeedAmount >= 1f;
 
+        // Cloak
         ModelPart cloak = this.copper.getChild("desktop").getChild("desktop2").getChild("desktop3").getChild("desktop4").getChild("desktop5").getChild("desktop6").getChild("panels12").getChild("rot6").getChild("bone150");
         float cloakTarget = tardis.cloak().cloaked().get() ? 2f : 0f;
-        this.cloakAngle = MathHelper.lerp(delta, this.cloakAngle, cloakTarget);
-        cloak.roll = this.cloakAngle;
+        cloak.roll = getAngle(console, "cloak", cloakTarget, delta);
 
+        // Power
         ModelPart power = this.copper.getChild("desktop").getChild("desktop2").getChild("desktop3").getChild("desktop4").getChild("desktop5").getChild("desktop6").getChild("panels12").getChild("rot6").getChild("lever9").getChild("bone131");
         float powerTarget = tardis.fuel().hasPower() ? 0f : -1.0f;
-        this.powerAngle = MathHelper.lerp(delta, this.powerAngle, powerTarget);
-        power.roll = this.powerAngle + 1f;
+        power.roll = getAngle(console, "power", powerTarget, delta) + 1f;
 
+        // Wibbly Lever (Siege)
         ModelPart wibblyLever = this.copper.getChild("controls").getChild("panel_3").getChild("rot9").getChild("lever7").getChild("bone96");
         float siegeTarget = tardis.siege().isActive() ? -2.0f : 0f;
-        this.siegeAngle = MathHelper.lerp(delta, this.siegeAngle, siegeTarget);
-        wibblyLever.roll = this.siegeAngle;
+        wibblyLever.roll = getAngle(console, "siege", siegeTarget, delta);
 
+        // Security Control
         ModelPart securityControl = this.copper.getChild("controls").getChild("panel_3").getChild("rot9").getChild("lever10").getChild("bone97");
         float securityTarget = tardis.stats().security().get() ? 0.75f : 0f;
-        this.securityAngle = MathHelper.lerp(delta, this.securityAngle, securityTarget);
-        securityControl.roll = this.securityAngle;
+        securityControl.roll = getAngle(console, "security", securityTarget, delta);
 
+        // Stabilisers (Autopilot)
         ModelPart stabilisers = this.copper.getChild("controls").getChild("panel_3").getChild("rot9").getChild("stabilizers").getChild("bone25");
         float stabiliserTarget = tardis.travel().autopilot() ? -0.8f : 0f;
-        this.autopilotAngle = MathHelper.lerp(delta, this.autopilotAngle, stabiliserTarget);
-        stabilisers.pivotY = this.autopilotAngle;
+        stabilisers.pivotY = getAngle(console, "stabilisers", stabiliserTarget, delta);
 
+        // Door Control
         ModelPart doorControl = this.copper.getChild("controls").getChild("panel_2").getChild("rot8").getChild("crank").getChild("bone36");
         float doorControlTarget = 0f;
         if (tardis.door().isRightOpen()) {
@@ -1841,29 +1827,25 @@ public class CopperConsoleModel extends SimpleConsoleModel {
         } else if (tardis.door().isLeftOpen()) {
             doorControlTarget = -0.5f;
         }
-        this.doorControlAngle = MathHelper.lerp(delta, this.doorControlAngle, doorControlTarget);
-        doorControl.pitch = this.doorControlAngle;
+        doorControl.pitch = getAngle(console, "door_control", doorControlTarget, delta);
 
+        // Door Lock
         ModelPart doorLock = this.copper.getChild("controls").getChild("panel_4").getChild("rot16").getChild("crank3").getChild("bone101");
         float doorLockTarget = tardis.door().locked() ? 1.575f : 0f;
-        this.doorLockAngle = MathHelper.lerp(delta, this.doorLockAngle, doorLockTarget);
-        doorLock.yaw = this.doorLockAngle;
+        doorLock.yaw = getAngle(console, "door_lock", doorLockTarget, delta);
 
+        // Shields
         ModelPart shields = this.copper.getChild("controls").getChild("panel_4").getChild("rot16").getChild("t_switch").getChild("bone106");
-
         float shieldYTarget = tardis.shields().shielded().get() ? 0.8f : 0f;
         float shieldZTarget = tardis.shields().visuallyShielded().get() ? -0.4f : 0f;
 
-        this.shieldAngle = MathHelper.lerp(delta, this.shieldAngle, shieldYTarget);
-        this.shield2Angle = MathHelper.lerp(delta, this.shield2Angle, shieldZTarget);
+        shields.pivotY = getAngle(console, "shields_y", shieldYTarget, delta);
+        shields.pivotZ = getAngle(console, "shields_z", shieldZTarget, delta);
 
-        shields.pivotY += this.shieldAngle;
-        shields.pivotZ += this.shield2Angle;
-
+        // Antigravs
         ModelPart antigravs = this.copper.getChild("controls").getChild("panel_4").getChild("rot16").getChild("lever8").getChild("bone103");
         float antigravTarget = tardis.travel().antigravs().get() ? 0f : -2f;
-        this.antiGravAngle = MathHelper.lerp(delta, this.antiGravAngle, antigravTarget);
-        antigravs.roll = this.antiGravAngle + 1f;
+        antigravs.roll = getAngle(console, "antigravs", antigravTarget, delta) + 1f;
 
         super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
