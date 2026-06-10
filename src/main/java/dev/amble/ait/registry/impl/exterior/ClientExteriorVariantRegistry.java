@@ -1,6 +1,5 @@
 package dev.amble.ait.registry.impl.exterior;
 
-
 import dev.amble.lib.client.bedrock.BedrockModelRegistry;
 import dev.amble.lib.register.datapack.DatapackRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -65,26 +64,9 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
         return INSTANCE;
     }
 
-    /**
-     * Will return the clients version of a servers door variant
-     *
-     * @return the first variant found as there should only be one client version
-     */
-    public static ClientExteriorVariantSchema withParent(ExteriorVariantSchema parent) {
-        for (ClientExteriorVariantSchema schema : ClientExteriorVariantRegistry.getInstance().toList()) {
-            if (schema.parent() == null)
-                continue;
-
-            if (schema.parent().id().equals(parent.id()))
-                return schema;
-        }
-
-        return null;
-    }
-
     @Override
     public ClientExteriorVariantSchema fallback() {
-        return null;
+        return INSTANCE.get(AITMod.id("exterior/capsule/default"));
     }
 
     /**

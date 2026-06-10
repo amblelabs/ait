@@ -101,7 +101,7 @@ public abstract class ExteriorVariantSchema extends BasicSchema implements Unloc
     @Environment(EnvType.CLIENT)
     public ClientExteriorVariantSchema getClient() {
         if (this.cachedSchema == null)
-            this.cachedSchema = ClientExteriorVariantRegistry.withParent(this);
+            this.cachedSchema = ClientExteriorVariantRegistry.getInstance().getOrFallback(this.id());
 
         return cachedSchema;
     }

@@ -1,5 +1,6 @@
 package dev.amble.ait.registry.impl.console.variant;
 
+import dev.amble.ait.data.schema.console.variant.hartnell.HartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hudolin.client.*;
 import dev.amble.lib.client.bedrock.BedrockModelRegistry;
 import dev.amble.lib.register.datapack.DatapackRegistry;
@@ -14,7 +15,6 @@ import dev.amble.ait.client.models.consoles.BedrockConsoleModel;
 import dev.amble.ait.client.models.consoles.ConsoleModel;
 import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
-import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.data.schema.console.variant.alnico.client.ClientAlnicoVariant;
 import dev.amble.ait.data.schema.console.variant.alnico.client.ClientBlueAlnicoVariant;
 import dev.amble.ait.data.schema.console.variant.copper.client.ClientCopperVariant;
@@ -43,23 +43,6 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
         return INSTANCE;
     }
 
-    /**
-     * Will return the clients version of a servers door variant
-     *
-     * @return the first variant found as there should only be one client version
-     */
-    public static ClientConsoleVariantSchema withParent(ConsoleVariantSchema parent) {
-        for (ClientConsoleVariantSchema schema : ClientConsoleVariantRegistry.getInstance().toList()) {
-            if (schema.parent() == null)
-                continue;
-
-            if (schema.parent().id().equals(parent.id()))
-                return schema;
-        }
-
-        return null;
-    }
-
     public static ClientConsoleVariantSchema withSameParent(ClientConsoleVariantSchema schema) {
         for (ClientConsoleVariantSchema s : ClientConsoleVariantRegistry.getInstance().toList()) {
             if (s.parent() == null)
@@ -77,7 +60,7 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
 
     @Override
     public ClientConsoleVariantSchema fallback() {
-        return null;
+        return REGISTRY.get(HartnellVariant.REFERENCE);
     }
 
     @Override

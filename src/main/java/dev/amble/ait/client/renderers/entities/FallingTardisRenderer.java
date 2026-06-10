@@ -49,7 +49,7 @@ public class FallingTardisRenderer extends EntityRenderer<FallingTardisEntity> {
 
         Identifier texture = exteriorVariant.texture();
         Identifier emission = exteriorVariant.emission();
-        ExteriorModel model = exteriorVariant.model();
+        ExteriorModel model = exteriorVariant.getCachedModel();
 
         if (model == null)
             return;
