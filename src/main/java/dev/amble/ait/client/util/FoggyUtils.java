@@ -21,7 +21,7 @@ import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import dev.amble.ait.module.planet.core.space.system.Space;
 
 public class FoggyUtils {
-    public static final MinecraftClient mc = MinecraftClient.getInstance();
+    private static final MinecraftClient mc = MinecraftClient.getInstance();
 
     public static void overrideFog() {
         Tardis tardis = ClientTardisUtil.getCurrentTardis();
