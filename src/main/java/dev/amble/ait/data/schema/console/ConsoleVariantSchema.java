@@ -98,7 +98,7 @@ public abstract class ConsoleVariantSchema extends BasicSchema implements Unlock
     @Environment(EnvType.CLIENT)
     public ClientConsoleVariantSchema getClient() {
         if (this.cachedSchema == null)
-            this.cachedSchema = ClientConsoleVariantRegistry.getInstance().getOrFallback(this.id());
+            this.cachedSchema = ClientConsoleVariantRegistry.withParent(this);
 
         return cachedSchema;
     }
