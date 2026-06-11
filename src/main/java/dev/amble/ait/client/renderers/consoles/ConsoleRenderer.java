@@ -1,7 +1,6 @@
 package dev.amble.ait.client.renderers.consoles;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -21,7 +20,6 @@ import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
 import dev.amble.ait.client.models.items.HandlesModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.item.HandlesItem;
 import dev.amble.ait.data.datapack.DatapackConsole;
@@ -194,7 +192,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
 
         if (this.variant != variant) {
             this.variant = variant;
-            this.model = variant.model();
+            this.model = variant.getCachedModel();
         }
     }
 

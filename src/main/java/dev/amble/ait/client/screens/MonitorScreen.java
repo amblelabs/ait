@@ -3,7 +3,6 @@ package dev.amble.ait.client.screens;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedGlobalPos;
 
@@ -15,7 +14,6 @@ import net.minecraft.client.gui.widget.PressableTextWidget;
 import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.MutableText;
@@ -112,7 +110,7 @@ public class MonitorScreen extends ConsoleScreen {
     }
 
     public void setCurrentVariant(ExteriorVariantSchema var) {
-        setCurrentVariant(ClientExteriorVariantRegistry.withParent(var));
+        setCurrentVariant(var.getClient());
     }
 
     public void setCurrentVariant(ClientExteriorVariantSchema currentVariant) {
@@ -376,7 +374,7 @@ public class MonitorScreen extends ConsoleScreen {
                 (centerWidth + 70), (centerHeight + 34), 5636095);
 
         stack.pop();
-        ExteriorModel model = variant.model();
+        ExteriorModel model = variant.getCachedModel();
 
         stack.push();
         stack.translate(x, isPoliceBox || isHorriblyUnscaled ? y + 11 : y, 100f);
@@ -390,7 +388,7 @@ public class MonitorScreen extends ConsoleScreen {
         }
 
         // datapack models float for some reason
-        if (variant.model() instanceof BedrockExteriorModel) {
+        if (variant.getCachedModel() instanceof BedrockExteriorModel) {
             stack.translate(0, 1.25f, 0);
         }
 

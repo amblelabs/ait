@@ -106,3 +106,4 @@
 - fix: hammer can no longer be used to abuse control durability, as it will damage the engine with a chance | by [@drtheodor](https://github.com/drtheodor) ([#2070](https://github.com/amblelabs/ait/pull/2070))
 - fix: changed sparking control particles | by [@drtheodor](https://github.com/drtheodor) ([#2070](https://github.com/amblelabs/ait/pull/2070))
 - Fixed the explosion emoji | by [@vmbbi](https://github.com/vmbbi) ([#2079](https://github.com/amblelabs/ait/pull/2079))
+- perf: greatly improved exterior and console rendering performance | by [@drtheodor](https://github.com/drtheodor) ([#2080](https://github.com/amblelabs/ait/pull/2080))
