@@ -928,7 +928,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("ait.item.drink.coffee", "Coffee");
         provider.addTranslation("ait.item.drink.vodka", "Vodka");
         provider.addTranslation("ait.item.drink.chocolate_milk", "Chocolate Milk");
-        provider.addTranslation("ait.tooltip.siege_item.enter", "Do not enter TARDIS with Siege Mode TARDIS");
+        provider.addTranslation("ait.tooltip.siege_item.enter", "Temporal machine detected, cannot seal real-time envelope!");
 
         // Exteriors
         provider.addTranslation("exterior.ait.capsule", "Capsule");
