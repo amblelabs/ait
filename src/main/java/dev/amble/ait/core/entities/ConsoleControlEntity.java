@@ -263,8 +263,9 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         switch (this.getDurabilityState(this.getDurability())) {
             case SPARKY -> this.spark();
-            case JAMMED, OCCASIONALY_JAM -> this.smoke();
+            case OCCASIONALY_JAM -> this.smoke();
             case CATCH_FIRE -> this.onFire();
+            // Don't have the COMPLETELY BROKEN one show anything, this is the player's fault
             default -> {}
         }
     }
