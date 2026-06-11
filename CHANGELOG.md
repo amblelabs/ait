@@ -114,3 +114,4 @@
 - tweak: shaking only occurs during major events, and it's been toned down from before | by [@Loqor](https://github.com/Loqor) ([#2078](https://github.com/amblelabs/ait/pull/2078))
 - tweak: sonic screwdriver now shows durability of controls when in scanning mode | by [@Loqor](https://github.com/Loqor) ([#2078](https://github.com/amblelabs/ait/pull/2078))
 - feat: repair tool to repair subsystems instead of using items like gold or iron | by [@Loqor](https://github.com/Loqor) ([#2078](https://github.com/amblelabs/ait/pull/2078))
+- chore: replaced RedstoneControlBlock sound | by [@Addi3](https://github.com/Addi3) ([#2081](https://github.com/amblelabs/ait/pull/2081))
