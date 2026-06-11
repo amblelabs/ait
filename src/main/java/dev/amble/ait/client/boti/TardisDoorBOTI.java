@@ -53,14 +53,23 @@ public class TardisDoorBOTI extends BOTI {
 
         BOTI_HANDLER.setupFramebuffer();
 
-        // Tint the doorway background with the exterior dimension's actual sky colour (right hue for the time of
-        // day / biome / dimension), falling back to a daytime blue if the shadow world isn't ready yet.
+        // Tint the doorway background with the exterior dimension's FOG colour - the horizon colour the sky pass
+        // fades the dome into, and the colour vanilla fills everything below the dome's rim with. Any other choice
+        // (the zenith sky colour used previously) reads as a mismatched band around the horizon wherever the
+        // background peeks out between the bottom of the sky and the terrain. The geometry renderer computes it
+        // every frame, so reuse last frame's value; before the first portal frame fall back to the raw sky colour,
+        // then to a daytime blue if the shadow world isn't ready at all.
         Vec3d skyColor = new Vec3d(0.5d, 0.65d, 0.9d);
         if (landed && portalData != null && portalData.world() != null) {
-            try {
-                skyColor = portalData.world().getSkyColor(Vec3d.of(tardis.travel().position().getPos()), tickDelta);
-            } catch (Exception ignored) {
-                // keep the fallback colour
+            Vec3d exteriorFog = portalData.geometry().exteriorFogColor();
+            if (exteriorFog != null) {
+                skyColor = exteriorFog;
+            } else {
+                try {
+                    skyColor = portalData.world().getSkyColor(Vec3d.of(tardis.travel().position().getPos()), tickDelta);
+                } catch (Exception ignored) {
+                    // keep the fallback colour
+                }
             }
         }
         if (AITModClient.CONFIG.greenScreenBOTI)

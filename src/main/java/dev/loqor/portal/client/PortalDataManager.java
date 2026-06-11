@@ -39,7 +39,13 @@ public class PortalDataManager {
         });
 
         ClientPlayConnectionEvents.DISCONNECT.register((clientPlayNetworkHandler, minecraftClient) -> {
-            reset();
+            // reset() -> PortalData.close() deletes GL buffers, which must happen on the render thread. This
+            // DISCONNECT callback fires on the netty IO thread, so marshal the teardown across - otherwise every
+            // disconnect throws "RenderSystem called from wrong thread" and leaks the shadow-world VBOs.
+            if (minecraftClient.isOnThread())
+                reset();
+            else
+                minecraftClient.execute(PortalDataManager::reset);
         });
 
         ClientTickEvents.END_CLIENT_TICK.register(minecraftClient -> {

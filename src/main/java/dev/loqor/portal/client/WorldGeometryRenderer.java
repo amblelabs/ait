@@ -102,6 +102,19 @@ public class WorldGeometryRenderer {
     private final VertexConsumerProvider.Immediate immediate =
             VertexConsumerProvider.immediate(new BufferBuilder(256));
 
+    /**
+     * While the portal sky pass runs, the portal eye's position in the EXTERIOR world. Read by
+     * {@code WorldRendererBotiMixin}: vanilla {@code renderSky} decides whether to draw its black below-horizon
+     * "void plane" from {@code client.player}'s Y (the interior player sits below the overworld's y=63 darkness
+     * line, which painted a black band along the doorway's horizon) and samples the sky colour's biome at the real
+     * camera's position (interior coordinates that don't exist in the shadow world). The mixin substitutes this
+     * position for both while it is non-null. Only touched on the render thread.
+     */
+    private static Vec3d portalSkyCameraPos = null;
+
+    /** Exterior fog colour computed by the most recent {@link #render}; the doorway background is painted with it. */
+    private Vec3d lastExteriorFogColor = null;
+
     public WorldGeometryRenderer(int renderDistance) {
         this.renderDistance = renderDistance;
     }
@@ -174,21 +187,29 @@ public class WorldGeometryRenderer {
         Matrix4f originalProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
         RenderSystem.setProjectionMatrix(portalProjection, VertexSorter.BY_DISTANCE);
 
-        // Tint the fog to the exterior dimension's sky colour BEFORE the sky pass. The interior dimension's fog
-        // (set earlier this frame by BackgroundRenderer - typically short-range and near-black for the TARDIS
-        // interior) is otherwise still bound while vanilla renderSky draws the celestial dome and stars, fogging
-        // everything but the horizon band to black ("the sky only renders the horizon, zenith is black"). This also
-        // makes distant terrain and the horizon fade to the right colour. Restored in the finally below.
+        // The portal eye in exterior-world coordinates - the position the doorway's sky should be "seen from".
+        Vec3d eyeWorldPos = new Vec3d(centerPos.getX() + eyeRelToCenter.x, centerPos.getY() + eyeRelToCenter.y,
+                centerPos.getZ() + eyeRelToCenter.z);
+
+        // Swap the frame's fog over to the exterior dimension before the sky pass. Setting the shader fog colour
+        // directly is NOT enough: renderSky and renderClouds both call BackgroundRenderer.setFogBlack() mid-pass,
+        // which re-applies the fog colour BackgroundRenderer computed at the start of the frame - the INTERIOR
+        // dimension's (typically near-black for the TARDIS), fogging the dome's horizon to black no matter what
+        // colour was bound here. BackgroundRenderer.render recomputes that cached colour from the shadow world
+        // (biome fog colour, time of day, weather, sunrise tint), exactly like vanilla does at the start of a real
+        // dimension's world render. Everything is restored in the finally below.
         float[] previousFogColor = RenderSystem.getShaderFogColor().clone();
+        float previousFogStart = RenderSystem.getShaderFogStart();
+        float previousFogEnd = RenderSystem.getShaderFogEnd();
+        FogShape previousFogShape = RenderSystem.getShaderFogShape();
         try {
-            Vec3d fog = portalWorld.getSkyColor(Vec3d.of(centerPos), tickDelta);
-            RenderSystem.setShaderFogColor((float) fog.x, (float) fog.y, (float) fog.z);
-        } catch (Exception ignored) {
-            // keep the existing fog colour
+            this.lastExteriorFogColor = updateExteriorFog(portalWorld, eyeWorldPos, portalYaw, portalPitch, tickDelta);
+        } catch (Exception e) {
+            AITMod.LOGGER.error("BOTI: failed to compute exterior fog", e);
         }
 
         // Sky sits at infinity, so it only takes the rotation (no eye translation) and never writes depth.
-        renderSky(id, portalWorld, portalRot, portalCamera, tickDelta);
+        renderSky(id, portalWorld, portalRot, portalCamera, eyeWorldPos, tickDelta);
 
         // The lightmap (light coord -> final RGB; it bakes in sky darkness, time of day, the dimension's ambient
         // light and gamma) is rebuilt once per frame by GameRenderer from client.world - the *interior* dimension -
@@ -245,8 +266,20 @@ public class WorldGeometryRenderer {
             lightmap.tick();
             lightmap.update(tickDelta);
 
-            // Restore the interior fog colour for the rest of the frame.
+            // Recompute BackgroundRenderer's cached fog colour for the interior (anything later in the frame that
+            // calls setFogBlack must get the interior colour back; this also restores the GL clear colour), then put
+            // back the exact fog uniforms the interior render had - including any overrides AIT's FoggyUtils applied
+            // for alarm/power-off effects, which a recompute alone would lose.
+            try {
+                BackgroundRenderer.render(mainCamera, tickDelta, previousLightmapWorld,
+                        client.options.getClampedViewDistance(), gameRenderer.getSkyDarkness(tickDelta));
+            } catch (Exception e) {
+                AITMod.LOGGER.error("BOTI: failed to restore interior fog", e);
+            }
             RenderSystem.setShaderFogColor(previousFogColor[0], previousFogColor[1], previousFogColor[2], previousFogColor[3]);
+            RenderSystem.setShaderFogStart(previousFogStart);
+            RenderSystem.setShaderFogEnd(previousFogEnd);
+            RenderSystem.setShaderFogShape(previousFogShape);
         }
     }
 
@@ -339,6 +372,29 @@ public class WorldGeometryRenderer {
     }
 
     private void dispatchBuild(World world, List<ChunkSectionPos> batch, boolean checkBehindPortal) {
+        // Lighting flood-fill pre-pass - MUST run on this (the render) thread, never on the async builder below.
+        // The shadow world's light engine is backed by thread-unsafe fastutil sets and is also mutated on this
+        // thread by PortalData as chunk/light packets arrive. Touching it from the builder thread corrupted those
+        // sets (builder-thread NPEs that blanked the terrain, then a fatal LongOpenHashSet.rehash AIOOBE on the
+        // render thread). Doing it here keeps every light mutation single-threaded; the off-thread mesh then only
+        // reads light. doLightUpdates() also commits the light PortalData staged via enqueueSectionData/setStatus.
+        LightingProvider lightingProvider = world.getLightingProvider();
+        boolean queuedAny = false;
+        BlockPos.Mutable lightPos = new BlockPos.Mutable();
+        for (ChunkSectionPos sectionPos : batch) {
+            if (world.getChunk(sectionPos.getX(), sectionPos.getZ(), ChunkStatus.FULL, false) == null)
+                continue; // not streamed yet - the async loop re-queues it; nothing to light
+
+            int startX = sectionPos.getMinX(), startY = sectionPos.getMinY(), startZ = sectionPos.getMinZ();
+            for (int x = startX; x <= startX + 15; x++)
+                for (int y = startY; y <= startY + 15; y++)
+                    for (int z = startZ; z <= startZ + 15; z++)
+                        lightingProvider.checkBlock(lightPos.set(x, y, z));
+            queuedAny = true;
+        }
+        if (queuedAny)
+            lightingProvider.doLightUpdates();
+
         buildFuture = CompletableFuture.runAsync(() -> {
             BlockRenderManager blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
             Random random = Random.create();
@@ -491,7 +547,7 @@ public class WorldGeometryRenderer {
      * restored in {@code finally}. Guarded so a sky hiccup can never take down the rest of the portal render.
      */
     private void renderSky(UUID id, ClientWorld portalWorld, Matrix4f portalRotation, Camera portalCamera,
-                           float tickDelta) {
+                           Vec3d eyeWorldPos, float tickDelta) {
         PortalData data = PortalDataManager.get(id);
         if (data == null || data.renderer() == null)
             return;
@@ -499,21 +555,27 @@ public class WorldGeometryRenderer {
         MinecraftClient client = MinecraftClient.getInstance();
         ClientWorld previousWorld = client.world;
 
-        // Tessellator-drawn sky geometry (horizon ring, celestial bodies) reads
-        // RenderSystem.getModelViewMatrix() for ModelViewMat. Without this push the global
-        // matrix is the interior camera's full view (rotation + eye translation), which
-        // displaces the pre-rotated horizon/celestial vertices hundreds of blocks off-screen,
-        // leaving only a thin accidental strip visible. The VBO dome draws already receive
-        // portalRotation through their explicit matrix parameter, so they are unaffected by
-        // this push — both paths now agree on rotation-only, no translation.
+        // Vanilla renderSky draws the sun, moon and sunrise/sunset glow with BufferRenderer.drawWithGlobalProgram,
+        // which transforms them by the GLOBAL model-view matrix - on top of the rotation baked into the skyStack we
+        // pass below. Vanilla runs its whole sky pass with that global matrix at IDENTITY (the camera rotation lives
+        // only in the matrices argument), so the celestial bodies are rotated exactly once.
+        //
+        // The global model-view still holds the interior camera's full view (rotation + eye translation) from the
+        // main world render, which would fling the celestial vertices hundreds of blocks off-screen, so we must
+        // override it - but to IDENTITY, not portalRotation. skyStack already carries portalRotation, so putting
+        // portalRotation here too rotates the sun/moon TWICE (portalRotation squared) and throws them off-screen,
+        // leaving only the dome (drawn via VertexBuffer.draw with an explicit matrix, which ignores the global
+        // model-view) visible. That was the "dome shows but there's no sun" bug. Identity makes the sun/moon agree
+        // with the dome. The dome, stars and clouds all use explicit matrices, so this value doesn't affect them.
         MatrixStack modelViewStack = RenderSystem.getModelViewStack();
         modelViewStack.push();
-        modelViewStack.peek().getPositionMatrix().set(portalRotation);
-        modelViewStack.peek().getNormalMatrix().set(new Matrix3f(portalRotation));
+        modelViewStack.peek().getPositionMatrix().identity();
+        modelViewStack.peek().getNormalMatrix().identity();
         RenderSystem.applyModelViewMatrix();
 
         try {
             client.world = portalWorld;
+            portalSkyCameraPos = eyeWorldPos; // WorldRendererBotiMixin reads this inside renderSky
 
             MatrixStack skyStack = new MatrixStack();
             skyStack.multiplyPositionMatrix(portalRotation);
@@ -528,22 +590,31 @@ public class WorldGeometryRenderer {
             // visible. Binding the matching position program here makes the dome paint the real sky colour again.
             RenderSystem.setShader(GameRenderer::getPositionProgram);
 
+            // Vanilla sky fog (FOG_SKY: start 0, end view-distance, cylinder). This fog IS the sky gradient: the
+            // dome is drawn in the zenith sky colour and linear fog fades its lower fragments into the horizon fog
+            // colour (computed for the shadow world by updateExteriorFog, re-applied inside renderSky via
+            // setFogBlack). The old "push the fog past all sky geometry" workaround killed the fade, which is why
+            // the doorway sky was one flat colour with no horizon gradient.
+            float viewDistanceBlocks = Math.max(client.gameRenderer.getViewDistance(), 32.0f);
             data.renderer().renderSky(skyStack, portalProjection, tickDelta, portalCamera, false, () -> {
-                // Push the fog plane far beyond every sky element (dome ~22 blocks, sun/moon/stars ~100). The core
-                // `position` shader that draws the dome applies linear_fog, and renderSky forces the fog COLOUR to
-                // black (BackgroundRenderer.setFogBlack) right before the dome - so a near fog start fogged the dome's
-                // lower/horizon vertices to black, the dark band that faded up into clear sky. Starting the fog past
-                // all sky geometry leaves the dome at its true colour. (The terrain shown through the door is
-                // short-range, so it needs no fog of its own.)
-                RenderSystem.setShaderFogStart(512.0f);
-                RenderSystem.setShaderFogEnd(1024.0f);
+                RenderSystem.setShaderFogStart(0.0f);
+                RenderSystem.setShaderFogEnd(viewDistanceBlocks);
                 RenderSystem.setShaderFogShape(FogShape.CYLINDER);
             });
+
+            // Match vanilla's terrain fog for everything drawn after the dome (the clouds below, then the terrain/
+            // entity/particle passes back in render()): clear until just short of the view distance, then a quick
+            // fade. The portal volume is far smaller than the fog start so the doorway's blocks stay unfogged, but
+            // the fog COLOUR stays the exterior's - renderClouds re-applies it via setFogBlack for the cloud sheet.
+            RenderSystem.setShaderFogStart(viewDistanceBlocks - MathHelper.clamp(viewDistanceBlocks / 10.0f, 4.0f, 64.0f));
+            RenderSystem.setShaderFogEnd(viewDistanceBlocks);
+            RenderSystem.setShaderFogShape(FogShape.CYLINDER);
 
             // Clouds are a separate pass in vanilla (WorldRenderer.renderClouds), so the doorway never drew them.
             // Draw them now, inside the same client.world swap, positioned relative to the exterior block so they sit
             // above the terrain shown through the door. Clouds are distant enough that the eye-vs-centre parallax is
-            // imperceptible, so centerPos is a fine camera origin.
+            // imperceptible, so centerPos is a fine camera origin. (renderClouds draws its sheet through an explicit
+            // matrix - cloudStack - so the global model-view, still identity from the sky pass, doesn't affect it.)
             if (client.options.getCloudRenderModeValue() != CloudRenderMode.OFF) {
                 RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
                 MatrixStack cloudStack = new MatrixStack();
@@ -554,6 +625,7 @@ public class WorldGeometryRenderer {
         } catch (Throwable t) {
             AITMod.LOGGER.error("BOTI: failed to render exterior sky", t);
         } finally {
+            portalSkyCameraPos = null;
             client.world = previousWorld;
             modelViewStack.pop();
             RenderSystem.applyModelViewMatrix();
@@ -562,6 +634,41 @@ public class WorldGeometryRenderer {
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
             RenderSystem.setProjectionMatrix(portalProjection, VertexSorter.BY_DISTANCE);
         }
+    }
+
+    /**
+     * Recomputes the frame fog for the exterior dimension, exactly like vanilla does at the start of a world render:
+     * {@code BackgroundRenderer.render} derives the fog colour from the shadow world's biomes / time of day /
+     * weather as seen by the portal camera, and {@code setFogBlack()} applies it as the live shader fog colour
+     * (and primes the cached value that renderSky/renderClouds re-apply mid-pass).
+     *
+     * @return the computed fog colour - the colour the sky fades into at the horizon, which is also what the
+     *         doorway background should be painted with so the hand-off is seamless
+     */
+    public static Vec3d updateExteriorFog(ClientWorld portalWorld, Vec3d eyePos, float yaw, float pitch,
+                                          float tickDelta) {
+        MinecraftClient client = MinecraftClient.getInstance();
+
+        Camera fogCamera = new Camera();
+        fogCamera.setPos(eyePos.x, eyePos.y, eyePos.z);
+        fogCamera.setRotation(yaw, pitch);
+
+        BackgroundRenderer.render(fogCamera, tickDelta, portalWorld, client.options.getClampedViewDistance(),
+                client.gameRenderer.getSkyDarkness(tickDelta));
+        BackgroundRenderer.setFogBlack();
+
+        float[] fog = RenderSystem.getShaderFogColor();
+        return new Vec3d(fog[0], fog[1], fog[2]);
+    }
+
+    /** The exterior fog colour from this renderer's most recent frame, or {@code null} before the first one. */
+    public Vec3d exteriorFogColor() {
+        return this.lastExteriorFogColor;
+    }
+
+    /** The portal eye's exterior-world position while the portal sky pass is running, else {@code null}. */
+    public static Vec3d getPortalSkyCameraPos() {
+        return portalSkyCameraPos;
     }
 
     private void renderBlockEntities(ClientWorld portalWorld, float tickDelta, Camera portalCamera) {
@@ -670,28 +777,10 @@ public class WorldGeometryRenderer {
 
         BlockPos.Mutable mutablePos = new BlockPos.Mutable();
 
-        // ==============================================================================
-        // SCENARIO B FIX: LIGHTING PRE-PASS
-        // Tell the fake world's lighting engine to check these blocks and calculate
-        // flood-fill shadows and light sources before we start meshing.
-        // ==============================================================================
-        LightingProvider lightingProvider = world.getLightingProvider();
-
-        for (int x = startX; x <= endX; x++) {
-            for (int y = startY; y <= endY; y++) {
-                for (int z = startZ; z <= endZ; z++) {
-                    mutablePos.set(x, y, z);
-                    // Queues the block to be checked for light emission/opacity
-                    lightingProvider.checkBlock(mutablePos);
-                }
-            }
-        }
-
-        // Force the engine to process the queue immediately so the light
-        // data is ready when renderBlock() asks for it below.
-        // (Note: If using Mojmap instead of Yarn, this might be called runLightUpdates)
-        lightingProvider.doLightUpdates();
-        // ==============================================================================
+        // NOTE: the lighting flood-fill pre-pass used to run here, on this builder thread. That raced PortalData's
+        // render-thread light mutations and corrupted the shadow world's (thread-unsafe) light engine - a fatal
+        // crash. The pre-pass now runs on the render thread in dispatchBuild() before this build is queued, so this
+        // off-thread mesh only READS light (renderBlock below), which is safe.
 
         Map<RenderLayer, BufferBuilder> builders = new HashMap<>();
         Set<RenderLayer> usedLayers = new HashSet<>();
