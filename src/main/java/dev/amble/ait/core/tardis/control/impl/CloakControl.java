@@ -38,8 +38,7 @@ public class CloakControl extends Control {
         } else {
             cloak.cloaked().set(!wasCloaked);
             
-            if (cloak.silent().get())
-                cloak.silent().set(false);
+            cloak.silent().set(false);
         }
 
         return cloak.cloaked().get() ? Result.SUCCESS : Result.SUCCESS_ALT;
