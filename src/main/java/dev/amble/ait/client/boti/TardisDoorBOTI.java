@@ -133,7 +133,7 @@ public class TardisDoorBOTI extends BOTI {
                 // player moves. deltaYaw turns "looking into the interior door" into "looking out the exterior door".
                 Camera camera = client.gameRenderer.getCamera();
                 Direction interiorFacing = door.getCachedState().get(DoorBlock.FACING);
-                float deltaYaw = doorFacing.asRotation() - (interiorFacing.asRotation() + 180.0f);
+                float deltaYaw = doorFacing.asRotation() - (tardis.travel().position().getRotationDegrees() + 90f);
 
                 Vec3d interiorDoorCenter = new Vec3d(door.getPos().getX() + 0.5, door.getPos().getY() + 1.0,
                         door.getPos().getZ() + 0.5);

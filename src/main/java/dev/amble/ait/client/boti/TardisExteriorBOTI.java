@@ -122,7 +122,7 @@ public class TardisExteriorBOTI extends BOTI {
                 Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
 
                 // Reverse of the interior->exterior turn: looking into the exterior door looks out the interior door.
-                float deltaYaw = interiorFacing.asRotation() - (exteriorFacing.asRotation() + 180.0f);
+                float deltaYaw = interiorFacing.asRotation() - (tardis.travel().position().getRotationDegrees());
 
                 BlockPos extBlock = exteriorPos.getPos();
                 Vec3d exteriorDoorCenter = new Vec3d(extBlock.getX() + 0.5, extBlock.getY() + 1.0, extBlock.getZ() + 0.5);
