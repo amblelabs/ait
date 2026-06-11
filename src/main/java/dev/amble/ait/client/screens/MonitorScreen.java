@@ -465,14 +465,14 @@ public class MonitorScreen extends ConsoleScreen {
 
         // cloak silent
         if (this.tardis().cloak().silent().get()) {
-            float scale = 0.5f;
-            int x = width / 2 - 66;
-            int y = height / 2 + 17;
+            float scale = 0.4f;
+            int x = width / 2 - 49;
+            int y = height / 2 + 19;
 
             context.getMatrices().push();
             context.getMatrices().translate(x, y, 0);
             context.getMatrices().scale(scale, scale, 1);
-            context.drawText(this.textRenderer, Text.translatable("screen.ait.monitor.shellcloakingsilentactivated"), 0, 0, 0xFFFFFF, true);
+            context.drawText(this.textRenderer, Text.translatable("screen.ait.monitor.shell_cloaking_activated_message"), 0, 0, 0xFFFFFF, true);
             context.getMatrices().pop();
         }
     }

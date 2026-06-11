@@ -1388,6 +1388,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.interiorsettings.cacheconsole", "> Cache Console");
         provider.addTranslation("screen.ait.loadsaveinterior.button", "> Save Interior");
         provider.addTranslation("screen.ait.widget.timeline", "Timeline");
+        provider.addTranslation("screen.ait.monitor.shell_cloaking_activated_message", "Silent shell cloaking is activated");
 
         //TARDIS Flight Sequences
         provider.addTranslation("sequence.ait.avoid_debris", "Debris incoming!");
