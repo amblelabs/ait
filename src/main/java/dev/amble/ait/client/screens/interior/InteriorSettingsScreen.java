@@ -82,8 +82,6 @@ public class InteriorSettingsScreen extends ConsoleScreen {
             "textures/gui/tardis/monitor/interior_settings.png");
     private static final Identifier MISSING_PREVIEW = new Identifier(AITMod.MOD_ID,
             "textures/gui/tardis/monitor/presets/missing_preview.png");
-    private static final Identifier VORTEX_PREVIEW_OVERLAY = new Identifier(AITMod.MOD_ID,
-            "textures/gui/tardis/monitor/dev_vortex_preview.png");
     private static final int PREVIEW_X_OFFSET = 151;
     private static final int PREVIEW_Y_OFFSET = 10;
     private static final int PREVIEW_SIZE = 95;
@@ -559,7 +557,6 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         context.disableScissor();
-        context.drawTexture(VORTEX_PREVIEW_OVERLAY, boxX, boxY, PREVIEW_SIZE, PREVIEW_SIZE, 0, 0, 800, 800, 800, 800);
     }
 
     private void renderAnimationPreview(DrawContext context) {
