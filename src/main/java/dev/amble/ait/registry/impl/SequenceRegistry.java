@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.amble.lib.data.DirectedBlockPos;
+import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 
 import net.minecraft.entity.EntityType;
@@ -104,7 +107,7 @@ public class SequenceRegistry {
                     finishedTardis.travel().decreaseFlightTime(60);
                 }), (missedTardis -> {
                     missedTardis.door().openDoors();
-                }), 80L, Text.translatable("sequence.ait.dimensional_breach").formatted(Formatting.ITALIC, Formatting.YELLOW),
+                }), 90L, Text.translatable("sequence.ait.dimensional_breach").formatted(Formatting.ITALIC, Formatting.YELLOW),
                         new DimensionControl(), new DoorControl()));
 
         ENERGY_DRAIN = register(
@@ -122,7 +125,7 @@ public class SequenceRegistry {
                 }), (missedTardis -> {
                     missedTardis.removeFuel(random.nextBetween(45, 125));
                     missedTardis.fuel().disablePower();
-                }), 110L, Text.translatable("sequence.ait.power_drain_imminent").formatted(Formatting.ITALIC, Formatting.YELLOW),
+                }), 140L, Text.translatable("sequence.ait.power_drain_imminent").formatted(Formatting.ITALIC, Formatting.YELLOW),
                         new PowerControl(), new RefuelerControl(), new RandomiserControl()));
 
         SHIP_COMPUTER_OFFLINE = register(

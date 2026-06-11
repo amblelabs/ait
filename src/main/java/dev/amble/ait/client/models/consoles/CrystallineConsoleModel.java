@@ -1209,58 +1209,48 @@ public class CrystallineConsoleModel extends SimpleConsoleModel {
         console.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
-    private float throttleAngle = 0f;
-    private float handbrakeAngle = 0f;
-    private float powerAngle = 0f;
-    private float incrementAngle = 0f;
-    private float directionAngle = 0f;
-    private float refuelerAngle = 0f;
-    private float antiGravAngle = 0f;
-
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = 0.1f * MinecraftClient.getInstance().getTickDelta();
+        float delta = 0.1f * client.getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
 
+        // Throttle Control
         ModelPart throttle = this.console.getChild("pannel2").getChild("pillars2").getChild("pillars3").getChild("leveer2");
         float throttleTarget = -(tardis.travel().speed() / (float) tardis.travel().maxSpeed().get());
-        this.throttleAngle = MathHelper.lerp(delta, this.throttleAngle, throttleTarget);
-        throttle.pitch = this.throttleAngle;
+        throttle.pitch = getAngle(console, "throttle", throttleTarget, delta);
 
+        // Handbrake Control
         ModelPart handbrake = this.console.getChild("pannel2").getChild("pillars2").getChild("pillars3").getChild("leveer");
         float handbrakeTarget = tardis.travel().handbrake() ? 1.0f : 0f;
-        this.handbrakeAngle = MathHelper.lerp(delta, this.handbrakeAngle, handbrakeTarget);
-        handbrake.pitch = this.handbrakeAngle;
+        handbrake.pitch = getAngle(console, "handbrake", handbrakeTarget, delta);
 
+        // Power Control
         ModelPart power = this.console.getChild("pannel3").getChild("rolly");
         float powerTarget = tardis.fuel().hasPower() ? 0f : -1.55f;
-        this.powerAngle = MathHelper.lerp(delta, this.powerAngle, powerTarget);
-        power.roll = this.powerAngle;
+        power.roll = getAngle(console, "power", powerTarget, delta);
 
+        // Anti-Grav Control
         ModelPart antigravs = this.console.getChild("pannel7").getChild("panels7").getChild("cube1");
         float antigravTarget = tardis.travel().antigravs().get() ? -1.58f : 0f;
-        this.antiGravAngle = MathHelper.lerp(delta, this.antiGravAngle, antigravTarget);
-        antigravs.yaw = this.antiGravAngle;
+        antigravs.yaw = getAngle(console, "antigravs", antigravTarget, delta);
 
+        // Increment Control
         ModelPart increment = this.console.getChild("pannel7").getChild("panels7").getChild("bone4");
         float incrementTarget = -(IncrementManager.increment(tardis) / 1000f);
-        this.incrementAngle = MathHelper.lerp(delta, this.incrementAngle, incrementTarget);
-        increment.roll = this.incrementAngle;
+        increment.roll = getAngle(console, "increment", incrementTarget, delta);
 
+        // Fuel Gauge
         ModelPart fuelGauge = this.console.getChild("pannel3").getChild("panels3").getChild("button");
         fuelGauge.pivotX += 0.25f;
         fuelGauge.pivotZ += 0.25f;
         float fuelGaugeTarget = (float) ((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 2f) - 1f;
-        this.refuelerAngle = MathHelper.lerp(delta, this.refuelerAngle, fuelGaugeTarget);
-        fuelGauge.yaw = this.refuelerAngle;
+        fuelGauge.yaw = getAngle(console, "fuel_gauge", fuelGaugeTarget, delta);
 
+        // Direction Control
         ModelPart direction = this.console.getChild("pannel7").getChild("pillars56").getChild("pillars57").getChild("spinnio");
         float directionTargetDegrees = tardis.travel().destination().getRotation() * 22.5f;
-        float currentDirectionDegrees = (float) Math.toDegrees(this.directionAngle);
-        float nextDirectionDegrees = MathHelper.lerpAngleDegrees(delta, currentDirectionDegrees, directionTargetDegrees);
-        this.directionAngle = (float) Math.toRadians(nextDirectionDegrees);
-        direction.roll = this.directionAngle;
+        direction.roll = getLerpedDegrees(console, "direction", directionTargetDegrees, delta);
 
         super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
