@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Function;
 
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
@@ -28,12 +30,12 @@ import net.minecraft.util.math.MathHelper;
 public abstract class SimpleConsoleModel extends SinglePartEntityModel implements ConsoleModel {
 
     // Using a map actually is the worst way to do this - DO NOT REPLICATE. - Loqor
-    protected static final Map<BlockEntity, Map<String, Float>> ANIMATION_CACHE = new WeakHashMap<>();
+    protected static final Map<BlockEntity, Object2FloatMap<String>> ANIMATION_CACHE = new WeakHashMap<>();
 
     protected static final MinecraftClient client = MinecraftClient.getInstance();
 
     protected float getAngle(BlockEntity console, String key, float target, float delta) {
-        Map<String, Float> state = ANIMATION_CACHE.computeIfAbsent(console, k -> new HashMap<>());
+        Object2FloatMap<String> state = ANIMATION_CACHE.computeIfAbsent(console, k -> new Object2FloatOpenHashMap<>());
         float current = state.getOrDefault(key, 0f);
         float next = MathHelper.lerp(delta, current, target);
         state.put(key, next);
@@ -41,7 +43,7 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
     }
 
     protected float getLerpedDegrees(BlockEntity console, String key, float targetDegrees, float delta) {
-        Map<String, Float> state = ANIMATION_CACHE.computeIfAbsent(console, k -> new HashMap<>());
+        Object2FloatMap<String> state = ANIMATION_CACHE.computeIfAbsent(console, k -> new Object2FloatOpenHashMap<>());
         float currentRadians = state.getOrDefault(key, 0f);
         float currentDegrees = currentRadians * (180f / (float) Math.PI);
         float nextDegrees = MathHelper.lerpAngleDegrees(delta, currentDegrees, targetDegrees);
