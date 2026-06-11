@@ -46,6 +46,11 @@ public class AITClientConfig {
     @SerialEntry public boolean environmentProjector = true;
 
     @AutoGen(category = CATEGORY)
+    @FloatSlider(min = 0, max = 1.0f, step = 0.1F)
+    @CustomDescription("Default value is 1.0, turn to 0.0 if you want to turn it off.")
+    @SerialEntry public float screenShake = 1.0f;
+
+    @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean enableTardisBOTI = true;
 

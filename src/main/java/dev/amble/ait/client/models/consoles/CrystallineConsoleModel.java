@@ -1289,20 +1289,20 @@ public class CrystallineConsoleModel extends SimpleConsoleModel {
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
         matrices.scale(0.005f, 0.005f, 0.005f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(-30f));
-        matrices.translate(-240f, -228, -5f);
-        String positionPosText = " " + abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
+        matrices.translate(-246f, -225, -5f);
+        String positionPosText = abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
         Text positionDimensionText = WorldUtil.worldText(abpp.getDimension());
-        String positionDirectionText = " " + DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
-        String destinationPosText = " " + abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
+        String positionDirectionText = DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
+        String destinationPosText = abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
         Text destinationDimensionText = WorldUtil.worldText(abpd.getDimension(), false);
-        String destinationDirectionText = " " + DirectionControl.rotationToDirection(abpd.getRotation()).toUpperCase();
-        renderer.drawWithOutline(Text.of("❌").asOrderedText(), 0, 40, 0xF00F00, 0x000000,
+        String destinationDirectionText = DirectionControl.rotationToDirection(abpd.getRotation()).toUpperCase();
+        renderer.drawWithOutline(Text.of("\uD83D\uDCCD").asOrderedText(), 0, 40, 0x00EEFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 0, 48, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 8, 40, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 0, 56, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 8, 48, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 0, 64, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 8, 56, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         matrices.pop();
 
@@ -1311,14 +1311,14 @@ public class CrystallineConsoleModel extends SimpleConsoleModel {
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
         matrices.scale(0.005f, 0.005f, 0.005f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(150f));
-        matrices.translate(-240f, -240, -5f);
-        renderer.drawWithOutline(Text.of("✛").asOrderedText(), 0, 40, 0x00F0FF, 0x000000,
+        matrices.translate(-246f, -235, -5f);
+        renderer.drawWithOutline(Text.of("\uD83E\uDC97").asOrderedText(), 0, 40, 0xFF0000, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(destinationPosText).asOrderedText(), 0, 48, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(destinationPosText).asOrderedText(), 8, 40, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(destinationDimensionText.asOrderedText(), 0, 56, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(destinationDimensionText.asOrderedText(), 8, 48, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(destinationDirectionText).asOrderedText(), 0, 64, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(destinationDirectionText).asOrderedText(), 8, 56, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         matrices.pop();
 
@@ -1329,11 +1329,9 @@ public class CrystallineConsoleModel extends SimpleConsoleModel {
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(150f));
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-20.5f));
         String progressText = tardis.travel().getState() == TravelHandlerBase.State.LANDED
-                ? "0%"
-                : tardis.travel().getDurationAsPercentage() + "%";
+                ? "⏳: 0%"
+                : "⏳: " + tardis.travel().getDurationAsPercentage() + "%";
         matrices.translate(0, -38, -52);
-        /*renderer.drawWithOutline(Text.of("⏳").asOrderedText(), 0, 0, 0x00FF0F, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);*/
         matrices.translate(0 - entity.getWorld().random.nextFloat() * 0.4, 0 + entity.getWorld().random.nextFloat() * 0.4, 0 - entity.getWorld().random.nextFloat() * 0.4);
         renderer.drawWithOutline(Text.of(progressText).asOrderedText(), 0 - renderer.getWidth(progressText) / 2, 0, 0xffffff, 0x03cffc,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);

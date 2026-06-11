@@ -1462,20 +1462,17 @@ public class RenaissanceConsoleModel extends SimpleConsoleModel {
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
         matrices.scale(0.0035f, 0.0035f, 0.0035f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(270f));
-        matrices.translate(-240f, -228, -5f);
-        String positionPosText = " " + abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
+        matrices.translate(-240f, -220, -5f);
+        String positionPosText = abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
         Text positionDimensionText = WorldUtil.worldText(abpp.getDimension());
-        String positionDirectionText = " " + DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
-        String destinationPosText = " " + abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
-        Text destinationDimensionText = WorldUtil.worldText(abpd.getDimension(), false);
-        String destinationDirectionText = " " + DirectionControl.rotationToDirection(abpd.getRotation()).toUpperCase();
-        renderer.drawWithOutline(Text.of("❌").asOrderedText(), 0, 40, 0xF00F00, 0x000000,
+        String positionDirectionText = DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
+        renderer.drawWithOutline(Text.of("\uD83D\uDCCD").asOrderedText(), 0, 40, 0x00EEFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 0, 48, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 8, 40, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 0, 56, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 8, 48, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 0, 64, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 8, 56, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         matrices.pop();
 
@@ -1485,10 +1482,10 @@ public class RenaissanceConsoleModel extends SimpleConsoleModel {
         matrices.scale(0.0040f, 0.0040f, 0.0040f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(270f));
         String progressText = tardis.travel().getState() == TravelHandlerBase.State.LANDED
-                ? "0%"
-                : tardis.travel().getDurationAsPercentage() + "%";
+                ? "⏳: 0%"
+                : "⏳: " + tardis.travel().getDurationAsPercentage() + "%";
         matrices.translate(0, -38, -52);
-        renderer.drawWithOutline(Text.of(progressText).asOrderedText(), 0 - renderer.getWidth(progressText) / 2, 0, 0xffffff, 0x03cffc,
+        renderer.drawWithOutline(Text.of(progressText).asOrderedText(), 0 - renderer.getWidth(progressText) / 2, 0, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         matrices.pop();
     }

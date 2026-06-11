@@ -1871,17 +1871,18 @@ public class CopperConsoleModel extends SimpleConsoleModel {
         matrices.scale(0.005f, 0.005f, 0.005f);
         matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(22.5f));
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(-90f));
-        matrices.translate(-240f, -228, -5f);
-        String positionPosText = " " + abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
+        matrices.translate(-245f, -222, -2.8f);
+        String positionPosText = abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
         Text positionDimensionText = WorldUtil.worldText(abpp.getDimension());
-        String positionDirectionText = " " + DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
-        renderer.drawWithOutline(Text.of("❌").asOrderedText(), 0, 40, 0xF00F00, 0x000000,
+        String positionDirectionText = DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
+        int y = 40;
+        renderer.drawWithOutline(Text.of("\uD83D\uDCCD").asOrderedText(), 0, y, 0x00EEFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 0, 48, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 8, y, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 0, 56, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 8, y + 8, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 0, 64, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 8, y + 16, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         matrices.pop();
 
@@ -1892,11 +1893,11 @@ public class CopperConsoleModel extends SimpleConsoleModel {
         matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(22.5f));
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(-90f));
         String progressText = tardis.travel().getState() == TravelHandlerBase.State.LANDED
-                ? "0%"
-                : tardis.travel().getDurationAsPercentage() + "%";
-        matrices.translate(0, -38, -52);
+                ? "⏳: 0%"
+                : "⏳: " + tardis.travel().getDurationAsPercentage() + "%";
+        matrices.translate(-10, -47, -48.5f);
         renderer.drawWithOutline(Text.of(progressText).asOrderedText(),
-                0 - renderer.getWidth(progressText) / 2, 0, 0xffffff, 04,
+                -renderer.getWidth(progressText) / 2, 0, 0xffffff, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         matrices.pop();
 
