@@ -1640,64 +1640,49 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
         matrices.pop();
     }
 
-    private float throttleAngle = 0f;
-    private float handbrakeAngle = 0f;
-    private float powerAngle = 0f;
-    private float doorControlAngle = 0f;
-    private float doorLockAngle = 0f;
-    private float incrementAngle = 0f;
-    private float directionAngle = 0f;
-    private float groundSearchAngle = 0f;
-    private float alarmAngle = 0f;
-    private float securityAngle = 0f;
-    private float antiGravAngle = 0f;
-    private float shieldAngle = 0f;
-    private float siegeAngle = 0f;
-    private float autopilotAngle = 0f;
-    private float fuelGaugeAngle = 0f;
-
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = 0.1f * MinecraftClient.getInstance().getTickDelta();
+        float delta = 0.1f * client.getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
 
+        // Throttle
         ModelPart throttle = this.toyota.getChild("panel4").getChild("controls4").getChild("throttle");
         ModelPart throttleLights = this.toyota.getChild("panel4").getChild("flightlights").getChild("flightlights2");
         float throttleTarget = (tardis.travel().speed() / (float) tardis.travel().maxSpeed().get()) * 1.5f;
-        this.throttleAngle = MathHelper.lerp(delta, this.throttleAngle, throttleTarget);
-        throttle.pitch += this.throttleAngle;
+        throttle.pitch = getAngle(console, "throttle", throttleTarget, delta) - 0.5f;
         throttleLights.pivotY = !(tardis.travel().speed() > 0) ? throttleLights.pivotY + 1 : throttleLights.pivotY;
 
+        // Handbrake
         ModelPart handbrake = this.toyota.getChild("panel4").getChild("controls4").getChild("handbrake").getChild("pivot");
         ModelPart handbrakeLights = this.toyota.getChild("panel4").getChild("flightlights").getChild("handbrakelights").getChild("handbrakelights2");
         float handbrakeTarget = !tardis.travel().handbrake() ? -1.57f : 0f;
-        this.handbrakeAngle = MathHelper.lerp(delta, this.handbrakeAngle, handbrakeTarget);
-        handbrake.yaw += this.handbrakeAngle;
+        handbrake.yaw = getAngle(console, "handbrake", handbrakeTarget, delta);
         handbrakeLights.pivotY = !tardis.travel().handbrake() ? handbrakeLights.pivotY + 1 : handbrakeLights.pivotY;
 
+        // Power
         ModelPart power = this.toyota.getChild("panel1").getChild("controls").getChild("dooropen");
         float powerTarget = tardis.fuel().hasPower() ? 0f : -1.55f;
-        this.powerAngle = MathHelper.lerp(delta, this.powerAngle, powerTarget);
-        power.pitch += this.powerAngle;
+        power.pitch = getAngle(console, "power", powerTarget, delta);
 
+        // Antigravs
         ModelPart antigravs = this.toyota.getChild("panel1").getChild("controls").getChild("faucettaps1").getChild("pivot2");
         float antigravTarget = tardis.travel().antigravs().get() ? -1.58f : 0f;
-        this.antiGravAngle = MathHelper.lerp(delta, this.antiGravAngle, antigravTarget);
-        antigravs.yaw += this.antiGravAngle;
+        antigravs.yaw = getAngle(console, "antigravs", antigravTarget, delta);
 
+        // Shield
         ModelPart shield = this.toyota.getChild("panel1").getChild("controls").getChild("faucettaps2");
         float shieldTarget = tardis.shields().shielded().get() ? -1.58f : 0f;
-        this.shieldAngle = MathHelper.lerp(delta, this.shieldAngle, shieldTarget);
-        shield.yaw += this.shieldAngle;
+        shield.yaw = getAngle(console, "shield", shieldTarget, delta);
 
+        // Door Lock
         ModelPart doorlock = this.toyota.getChild("panel1").getChild("controls").getChild("smalllockernob").getChild("pivot3");
         float doorLockTarget = tardis.door().locked() ? 0.5f : 0f;
-        this.doorLockAngle = MathHelper.lerp(delta, this.doorLockAngle, doorLockTarget);
-        doorlock.yaw += this.doorLockAngle;
+        doorlock.yaw = getAngle(console, "door_lock", doorLockTarget, delta);
 
+        // Door Control
         ModelPart doorControl = this.toyota.getChild("panel1").getChild("controls").getChild("power");
         ModelPart doorControlLights = this.toyota.getChild("panel1").getChild("controls").getChild("powerlights").getChild("powerlights2");
         float doorControlTarget = 0f;
@@ -1706,56 +1691,55 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
         } else if (tardis.door().isRightOpen()) {
             doorControlTarget = -1.55f;
         }
-        this.doorControlAngle = MathHelper.lerp(delta, this.doorControlAngle, doorControlTarget);
-        doorControl.pitch += this.doorControlAngle;
+        doorControl.pitch = getAngle(console, "door_control", doorControlTarget, delta);
         doorControlLights.pivotY = !(tardis.door().isOpen()) ? doorControlLights.pivotY : doorControlLights.pivotY + 1;
 
+        // Alarms
         ModelPart alarms = this.toyota.getChild("panel4").getChild("controls4").getChild("coloredlever2");
         ModelPart alarmsLight = this.toyota.getChild("panel4").getChild("yellow3");
         float alarmTarget = tardis.alarm().isEnabled() ? 1.0f : 0f;
-        this.alarmAngle = MathHelper.lerp(delta, this.alarmAngle, alarmTarget);
-        alarms.pitch += this.alarmAngle;
+        alarms.pitch = getAngle(console, "alarms", alarmTarget, delta);
         alarmsLight.pivotY = (tardis.alarm().isEnabled()) ? alarmsLight.pivotY : alarmsLight.pivotY + 1;
 
+        // Security
         ModelPart security = this.toyota.getChild("panel4").getChild("controls4").getChild("coloredlever5");
         float securityTarget = tardis.stats().security().get() ? 1.0f : 0f;
-        this.securityAngle = MathHelper.lerp(delta, this.securityAngle, securityTarget);
-        security.pitch += this.securityAngle;
+        security.pitch = getAngle(console, "security", securityTarget, delta);
 
+        // Autopilot
         ModelPart autopilot = this.toyota.getChild("panel4").getChild("controls4").getChild("tinyswitch2");
         ModelPart autopilotLight = this.toyota.getChild("panel4").getChild("yellow4");
         float autopilotTarget = tardis.travel().autopilot() ? 1.0f : -1.0f;
-        this.autopilotAngle = MathHelper.lerp(delta, this.autopilotAngle, autopilotTarget);
-        autopilot.pitch += this.autopilotAngle;
+        autopilot.pitch = getAngle(console, "autopilot", autopilotTarget, delta);
         autopilotLight.pivotY = tardis.travel().autopilot() ? autopilotLight.pivotY : autopilotLight.pivotY + 1;
 
+        // Siege Mode
         ModelPart siegeMode = this.toyota.getChild("panel2").getChild("controls3").getChild("siegemode").getChild("siegemodehandle");
         float siegeTarget = tardis.siege().isActive() ? 1.55f : 0f;
-        this.siegeAngle = MathHelper.lerp(delta, this.siegeAngle, siegeTarget);
-        siegeMode.pitch += this.siegeAngle;
+        siegeMode.pitch = getAngle(console, "siege_mode", siegeTarget, delta);
 
+        // Fuel Gauge
         ModelPart fuelGauge = this.toyota.getChild("panel1").getChild("controls").getChild("geigercounter").getChild("needle");
         fuelGauge.pivotX += 0.25f;
         fuelGauge.pivotZ += 0.25f;
         float fuelGaugeTarget = (float) (((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 2f) - 1f);
-        this.fuelGaugeAngle = MathHelper.lerp(delta, this.fuelGaugeAngle, fuelGaugeTarget);
-        fuelGauge.yaw = this.fuelGaugeAngle;
+        fuelGauge.yaw = getAngle(console, "fuel_gauge", fuelGaugeTarget, delta);
 
+        // Fuel Warning
         ModelPart fuelWarning = this.toyota.getChild("panel4").getChild("yellow5");
         fuelWarning.pivotY = !(tardis.getFuel() > (tardis.getFuel() / 10)) ? fuelWarning.pivotY : fuelWarning.pivotY + 1;
 
+        // Ground Search
         ModelPart groundSearch = this.toyota.getChild("panel1").getChild("controls").getChild("smallswitch");
         float groundSearchTarget = tardis.travel().horizontalSearch().get() ? 1.0f : -0.75f;
-        this.groundSearchAngle = MathHelper.lerp(delta, this.groundSearchAngle, groundSearchTarget);
-        groundSearch.pitch += this.groundSearchAngle;
+        groundSearch.pitch = getAngle(console, "ground_search", groundSearchTarget, delta);
 
+        // Direction
         ModelPart direction = this.toyota.getChild("panel6").getChild("controls2").getChild("smallnob2");
         float directionTargetDegrees = tardis.travel().destination().getRotation() * 22.5f;
-        float currentDirectionDegrees = (float) Math.toDegrees(this.directionAngle);
-        float nextDirectionDegrees = MathHelper.lerpAngleDegrees(delta, currentDirectionDegrees, directionTargetDegrees);
-        this.directionAngle = (float) Math.toRadians(nextDirectionDegrees);
-        direction.yaw += this.directionAngle;
+        direction.yaw = getLerpedDegrees(console, "direction", directionTargetDegrees, delta);
 
+        // Increment
         ModelPart increment = this.toyota.getChild("panel2").getChild("controls3").getChild("gears").getChild("largegear2");
         int incrementVal = IncrementManager.increment(tardis);
         float incrementTarget = 0f;
@@ -1770,16 +1754,15 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
         } else {
             incrementTarget = 1.5f;
         }
-        this.incrementAngle = MathHelper.lerp(delta, this.incrementAngle, incrementTarget);
-        increment.yaw += this.incrementAngle;
+        increment.yaw = getAngle(console, "increment", incrementTarget, delta);
 
+        // Refuel Light
         ModelPart refuelLight = this.toyota.getChild("panel4").getChild("yellow6");
         refuelLight.pivotY = tardis.isRefueling() ? refuelLight.pivotY : refuelLight.pivotY + 1;
 
         super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
     }
-
 
     @Override
     public ModelPart getPart() {

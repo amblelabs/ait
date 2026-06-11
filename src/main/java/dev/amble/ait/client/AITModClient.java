@@ -110,6 +110,7 @@ import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 public class AITModClient implements ClientModInitializer {
 
     public static AITClientConfig CONFIG;
+    private final MinecraftClient client = MinecraftClient.getInstance();
 
     @Override
     public void onInitializeClient() {
@@ -501,7 +502,6 @@ public class AITModClient implements ClientModInitializer {
     public void exteriorBOTI(WorldRenderContext context) {
         if (skipBuiltInBOTI()) return;
 
-        MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
@@ -534,7 +534,6 @@ public class AITModClient implements ClientModInitializer {
     public void doorBOTI(WorldRenderContext context) {
         if (skipBuiltInBOTI()) return;
 
-        MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
@@ -568,7 +567,6 @@ public class AITModClient implements ClientModInitializer {
     public void gallifreyanBOTI(WorldRenderContext context) {
         if (skipPaintingBOTI()) return;
 
-        MinecraftClient client = MinecraftClient.getInstance();
         SinglePartEntityModel contents = new GallifreyFallsModel(GallifreyFallsModel.getTexturedModelData().createModel());
         Identifier frameTex = GallifreyanPaintingEntityRenderer.GALLIFREY_FRAME_TEXTURE;
         Identifier contentsTex = GallifreyanPaintingEntityRenderer.GALLIFREY_PAINTING_TEXTURE;
@@ -597,7 +595,6 @@ public class AITModClient implements ClientModInitializer {
     public void trenzaloreBOTI(WorldRenderContext context) {
         if (skipPaintingBOTI()) return;
 
-        MinecraftClient client = MinecraftClient.getInstance();
         SinglePartEntityModel contents = new TrenzalorePaintingModel(TrenzalorePaintingModel.getTexturedModelData().createModel());
         Identifier frameTex = TrenzalorePaintingEntityRenderer.TRENZALORE_FRAME_TEXTURE;
         Identifier contentsTex = TrenzalorePaintingEntityRenderer.TRENZALORE_PAINTING_TEXTURE;
@@ -626,7 +623,6 @@ public class AITModClient implements ClientModInitializer {
     public void riftBOTI(WorldRenderContext context) {
         if (skipPaintingBOTI()) return;
 
-        MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();

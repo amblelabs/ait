@@ -1402,65 +1402,55 @@ public class AlnicoConsoleModel extends SimpleConsoleModel {
         alnico.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
-    private float throttleAngle = 0f;
-    private float handbrakeAngle = 0f;
-    private float powerAngle = 0f;
-    private float doorControlAngle = 0f;
-    private float doorLockAngle = 0f;
-    private float incrementAngle = 0f;
-    private float directionAngle = 0f;
-    private float securityAngle = 0f;
-    private float shieldAngle = 0f;
-    private float siegeAngle = 0f;
-    private float autopilotAngle = 0f;
-
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = 0.1f * MinecraftClient.getInstance().getTickDelta();
+        float delta = 0.1f * client.getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
 
+        // Throttle Control
         ModelPart throttle = alnico.getChild("section1").getChild("controls").getChild("fliplever1").getChild("bone5");
         float throttleTarget = tardis.travel().maxSpeed().get() > 0 ? ((float) tardis.travel().speed() / (float) tardis.travel().maxSpeed().get()) * 1.5f: 0f;
-        this.throttleAngle = MathHelper.lerp(delta, this.throttleAngle, throttleTarget);
-        throttle.pitch = this.throttleAngle;
+        throttle.pitch = getAngle(console, "throttle", throttleTarget, delta);
 
+        // Handbrake Control
         ModelPart handbrake = alnico.getChild("section1").getChild("controls").getChild("biglever").getChild("bone");
         float handbrakeTarget = !tardis.travel().handbrake() ? -0.9f : 0.9f;
-        this.handbrakeAngle = MathHelper.lerp(delta, this.handbrakeAngle, handbrakeTarget);
-        handbrake.pitch = this.handbrakeAngle;
+        handbrake.pitch = getAngle(console, "handbrake", handbrakeTarget, delta);
 
+        // Power Control
         ModelPart power = alnico.getChild("section4").getChild("controls4").getChild("biglever2").getChild("bone12");
         float powerTarget = !tardis.fuel().hasPower() ? -0.9f : 0.9f;
-        this.powerAngle = MathHelper.lerp(delta, this.powerAngle, powerTarget);
-        power.pitch = this.powerAngle;
+        power.pitch = getAngle(console, "power", powerTarget, delta);
 
+        // Auto Pilot Control
         ModelPart autoPilot = alnico.getChild("section1").getChild("controls").getChild("multiswitchpanel")
                 .getChild("longswitch1");
         float autopilotTarget = tardis.travel().autopilot() ? 0.5f : 0;
-        this.autopilotAngle = MathHelper.lerp(delta, this.autopilotAngle, autopilotTarget);
-        autoPilot.pitch = this.autopilotAngle;
+        autoPilot.pitch = getAngle(console, "autopilot", autopilotTarget, delta);
 
+        // Security Control
         ModelPart security = alnico.getChild("section1").getChild("controls").getChild("multiswitchpanel")
                 .getChild("longswitch4");
         float securityTarget = tardis.stats().security().get() ? 0.5f : 0;
-        this.securityAngle = MathHelper.lerp(delta, this.securityAngle, securityTarget);
-        security.pitch = this.securityAngle;
+        security.pitch = getAngle(console, "security", securityTarget, delta);
 
+        // Siege Mode Control
         ModelPart siegeMode = alnico.getChild("section3").getChild("controls3").getChild("siegemode").getChild("lever");
         float siegeTarget = tardis.siege().isActive() ? 0.9f : 0;
-        this.siegeAngle = MathHelper.lerp(delta, this.siegeAngle, siegeTarget);
-        siegeMode.pitch = this.siegeAngle;
+        siegeMode.pitch = getAngle(console, "siege_mode", siegeTarget, delta);
 
+        // Refueler
         ModelPart refueler = alnico.getChild("section5").getChild("controls5").getChild("refueler").getChild("gasknob");
         refueler.yaw = !tardis.isRefueling() ? refueler.yaw - 0.7854f : refueler.yaw;
 
+        // Fuel Gauge
         ModelPart fuelGauge = alnico.getChild("section3").getChild("controls3").getChild("geiger").getChild("needle");
         fuelGauge.roll = (float) (((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 2) - 1);
 
+        // Increment Control
         ModelPart increment = alnico.getChild("section5").getChild("controls5").getChild("multiswitchpanel2").getChild("longswitch5");
-
         int incrementVal = IncrementManager.increment(tardis);
         float targetOffset;
 
@@ -1475,35 +1465,35 @@ public class AlnicoConsoleModel extends SimpleConsoleModel {
         } else {
             targetOffset = 1.5f;
         }
+        increment.pitch = getAngle(console, "increment", targetOffset, delta);
 
-        this.incrementAngle = MathHelper.lerp(delta, this.incrementAngle,  targetOffset);
-        increment.pitch = this.incrementAngle;
-
+        // Shield Control
         ModelPart shield = alnico.getChild("section5").getChild("controls5").getChild("multiswitchpanel2")
                 .getChild("longswitch8");
         float shieldTarget = tardis.shields().shielded().get() ? 1f : 0;
-        this.shieldAngle = MathHelper.lerp(delta, this.shieldAngle, shieldTarget);
-        shield.pitch = this.shieldAngle;
+        shield.pitch = getAngle(console, "shields", shieldTarget, delta);
 
+        // Land Type
         ModelPart landtype = alnico.getChild("section1").getChild("controls").getChild("tinyswitch2").getChild("bone2");
-        landtype.yaw = landtype.yaw + ((tardis.travel().horizontalSearch().get() ? 1.5708f : 0)); // FIXME use
-                                                                                                    // TravelHandler#horizontalSearch/#verticalSearch
+        landtype.yaw = landtype.yaw + ((tardis.travel().horizontalSearch().get() ? 1.5708f : 0));
 
+        // Anti Gravs
         ModelPart antigravs = alnico.getChild("section1").getChild("controls").getChild("tinyswitch").getChild("bone3");
         antigravs.yaw = antigravs.yaw + (tardis.travel().antigravs().get() ? 1.5708f : 0);
 
+        // Door Control
         ModelPart doorControl = alnico.getChild("section5").getChild("controls5").getChild("tinyswitch6")
                 .getChild("bone24");
         float doorControlTarget = tardis.door().isOpen() ? tardis.door().isRightOpen() ? 1.5708f * 2f : 1.5708f : 0;
-        this.doorControlAngle = MathHelper.lerp(delta, this.doorControlAngle, doorControlTarget);
-        doorControl.yaw = this.doorControlAngle;
+        doorControl.yaw = getAngle(console, "door_control", doorControlTarget, delta);
 
+        // Door Lock
         ModelPart doorLock = alnico.getChild("section5").getChild("controls5").getChild("tinyswitch7")
                 .getChild("bone25");
         float doorLockTarget = tardis.door().locked() ? 1.5708f : 0;
-        this.doorLockAngle = MathHelper.lerp(delta, this.doorLockAngle, doorLockTarget);
-        doorLock.yaw = this.doorLockAngle;
+        doorLock.yaw = getAngle(console, "door_lock", doorLockTarget, delta);
 
+        // Waypoints
         ModelPart toast1 = alnico.getChild("section2").getChild("controls2").getChild("waypointcatridge")
                 .getChild("toast1");
         ModelPart toastlever = alnico.getChild("section2").getChild("controls2").getChild("waypointcatridge")
@@ -1514,14 +1504,11 @@ public class AlnicoConsoleModel extends SimpleConsoleModel {
         toastlever.pivotY = toastlever.pivotY + (!tardis.waypoint().hasCartridge() ? 2f : 0);
         toast2.visible = tardis.waypoint().hasCartridge();
 
+        // Direction Control
         ModelPart direction = alnico.getChild("section5").getChild("controls5").getChild("tinyswitch9")
                 .getChild("bone26");
         float directionTargetDegrees = (0.3927f * tardis.travel().destination().getRotation()) * (180f / (float) Math.PI);
-        float currentAngleDegrees = this.directionAngle * (180f / (float) Math.PI);
-        float nextAngleDegrees = MathHelper.lerpAngleDegrees(delta, currentAngleDegrees, directionTargetDegrees);
-
-        this.directionAngle = nextAngleDegrees * ((float) Math.PI / 180f);
-        direction.yaw = this.directionAngle;
+        direction.yaw = getLerpedDegrees(console, "direction", directionTargetDegrees, delta);
 
         super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
 

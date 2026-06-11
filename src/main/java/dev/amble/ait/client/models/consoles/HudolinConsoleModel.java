@@ -1694,105 +1694,75 @@ public class HudolinConsoleModel extends SimpleConsoleModel {
         matrices.pop();
     }
 
-    private float throttleAngle = 0f;
-    private float handbrakeAngle = 0f;
-    private float powerAngle = 0f;
-    private float doorControlAngle = 0f;
-    private float doorLockAngle = 0f;
-    private float incrementAngle = 0f;
-    private float increment2Angle = 0f;
-    private float directionAngle = 0f;
-    private float cloakAngle = 0f;
-    private float hailMaryAngle = 0f;
-    private float alarmAngle = 0f;
-    private float securityAngle = 0f;
-    private float shieldAngle = 0f;
-    private float siegeAngle = 0f;
-
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = 0.1f * MinecraftClient.getInstance().getTickDelta();
+        float delta = 0.1f * client.getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
-
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
 
         // Throttle Control
         ModelPart throttle = this.dematleveryay;
         float throttleTarget = tardis.travel().maxSpeed().get() > 0 ? (float) tardis.travel().speed() / (float) tardis.travel().maxSpeed().get() : 0f;
-        this.throttleAngle = MathHelper.lerp(delta, this.throttleAngle, throttleTarget);
-        throttle.roll = -this.throttleAngle;
+        throttle.roll = -getAngle(console, "throttle", throttleTarget, delta);
 
-        // Handbrake Control and Lights
+        // Handbrake Control
         ModelPart handbrake = this.console.getChild("fix6");
         float handbrakeTarget = !tardis.travel().handbrake() ? 1.2f : 0f;
-        this.handbrakeAngle =  MathHelper.lerp(delta, this.handbrakeAngle, handbrakeTarget);
-        handbrake.pitch = this.handbrakeAngle - 0.5f;
+        handbrake.pitch = getAngle(console, "handbrake", handbrakeTarget, delta) - 0.5f;
 
-
-        // Power Switch and Lights
+        // Power Switch
         ModelPart power = this.console.getChild("pannel4").getChild("spin2").getChild("bone2");
         float powerTarget = tardis.fuel().hasPower() ? 0 : -1.55f;
-        this.powerAngle = MathHelper.lerp(delta, this.powerAngle, powerTarget);
-        power.yaw = this.powerAngle;
+        power.yaw = getAngle(console, "power", powerTarget, delta);
 
         // Door Locking Mechanism Control
         ModelPart doorlock = this.fix9;
         float doorLockTarget = tardis.door().locked() ? -1.55f : 0;
-        this.doorLockAngle = MathHelper.lerp(delta, this.doorLockAngle, doorLockTarget);
-        doorlock.pitch = this.doorLockAngle;
+        doorlock.pitch = getAngle(console, "door_lock", doorLockTarget, delta);
 
         // Door Control
         ModelPart doorControl = this.fix11;
         float doorControlTarget = tardis.door().isRightOpen() ? -1.55f : tardis.door().isLeftOpen() ? -1f : 0;
-        this.doorControlAngle = MathHelper.lerp(delta, this.doorControlAngle, doorControlTarget);
-        doorControl.pitch = this.doorControlAngle;
+        doorControl.pitch = getAngle(console, "door_control", doorControlTarget, delta);
 
-        // Alarm Control and Lights
+        // Alarm Control
         ModelPart alarms = this.dial2;
         float alarmTarget = tardis.alarm().isEnabled() ? 1f : -0.9f;
-        this.alarmAngle = MathHelper.lerp(delta, this.alarmAngle, alarmTarget);
-        alarms.yaw = this.alarmAngle;
+        alarms.yaw = getAngle(console, "alarm", alarmTarget, delta);
 
         // Hail Mary
         ModelPart hailmary = this.dial3;
         float hailMaryTarget = tardis.stats().hailMary().get() ? 1f : -0.9f;
-        this.hailMaryAngle = MathHelper.lerp(delta, this.hailMaryAngle, hailMaryTarget);
-        hailmary.yaw = this.hailMaryAngle;
+        hailmary.yaw = getAngle(console, "hail_mary", hailMaryTarget, delta);
 
         // Cloak
         ModelPart cloak = this.dial5;
         float cloakTarget = tardis.<CloakHandler>handler(TardisComponent.Id.CLOAK).cloaked().get() ? 1f : -0.9f;
-        this.cloakAngle = MathHelper.lerp(delta, this.cloakAngle, cloakTarget);
-        cloak.yaw = this.cloakAngle;
+        cloak.yaw = getAngle(console, "cloak", cloakTarget, delta);
 
         // Siege Mode
         ModelPart siege = this.dial6;
         float siegeTarget = tardis.siege().isActive() ? 1f : -0.9f;
-        this.siegeAngle = MathHelper.lerp(delta, this.siegeAngle, siegeTarget);
-        siege.yaw = this.siegeAngle;
+        siege.yaw = getAngle(console, "siege", siegeTarget, delta);
 
         // Shields
         ModelPart shields = this.dial4;
         float shieldTarget = tardis.areVisualShieldsActive() ? 1f : tardis.areShieldsActive() ? 0 : -0.9f;
-        this.shieldAngle = MathHelper.lerp(delta, this.shieldAngle, shieldTarget);
-        shields.yaw = this.shieldAngle;
+        shields.yaw = getAngle(console, "shields", shieldTarget, delta);
 
+        // Security
         ModelPart security = this.flick5;
         float securityTarget = tardis.stats().security().get() ? -1f : 0.85f;
-        this.securityAngle = MathHelper.lerp(delta, this.securityAngle, securityTarget);
-        security.pitch = this.securityAngle;
+        security.pitch = getAngle(console, "security", securityTarget, delta);
 
         // Direction Control
         ModelPart direction = this.dialfix;
         float directionTargetDegrees = (0.3927f * tardis.travel().destination().getRotation()) * (180f / (float) Math.PI);
-        float currentAngleDegrees = this.directionAngle * (180f / (float) Math.PI);
-        float nextAngleDegrees = MathHelper.lerpAngleDegrees(delta, currentAngleDegrees, directionTargetDegrees);
+        direction.yaw = getLerpedDegrees(console, "direction", directionTargetDegrees, delta);
 
-        this.directionAngle = nextAngleDegrees * ((float) Math.PI / 180f);
-        direction.yaw = this.directionAngle;
-
+        // Increments
         ModelPart increment = this.slide2;
         ModelPart increment2 = this.slide;
 
@@ -1817,11 +1787,8 @@ public class HudolinConsoleModel extends SimpleConsoleModel {
             targetTwo = 1.3f;
         }
 
-        this.incrementAngle = MathHelper.lerp(delta, this.incrementAngle,  targetOne);
-        this.increment2Angle = MathHelper.lerp(delta, this.increment2Angle, targetTwo);
-
-        increment.pivotX = this.incrementAngle - 2.75f;
-        increment2.pivotX = this.increment2Angle -4.75f;
+        increment.pivotX = getAngle(console, "increment_1", targetOne, delta) - 2.75f;
+        increment2.pivotX = getAngle(console, "increment_2", targetTwo, delta) - 4.75f;
 
         // Hammer
         ModelPart hammer = this.toolbox.getChild("hammer");
