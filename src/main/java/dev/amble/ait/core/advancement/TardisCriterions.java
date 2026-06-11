@@ -58,7 +58,7 @@ public class TardisCriterions {
 
         TardisEvents.ENTER_TARDIS.register((tardis, entity) -> {
             if (!(entity instanceof ServerPlayerEntity player))
-                return;
+                return TardisEvents.Interaction.PASS;
 
             Advancement advancement = player.getServer().getAdvancementLoader().get(new Identifier("ait/enter_tardis"));
 
@@ -70,6 +70,7 @@ public class TardisCriterions {
             }
 
             TardisCriterions.ENTER_TARDIS.trigger(player);
+            return TardisEvents.Interaction.PASS;
         });
 
         TardisEvents.FORCED_ENTRY.register((tardis, entity) -> {

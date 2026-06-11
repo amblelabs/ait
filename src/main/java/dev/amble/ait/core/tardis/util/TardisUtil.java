@@ -262,13 +262,13 @@ public class TardisUtil {
     }
 
     public static void teleportInside(ServerTardis tardis, Entity entity) {
-        TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity);
+        if (TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity) == TardisEvents.Interaction.FAIL) return;
         TardisUtil.teleportWithDoorOffset(tardis.world(), entity, tardis.getDesktop().getDoorPos());
     }
 
     public static void teleportToInteriorPosition(ServerTardis tardis, Entity entity, BlockPos pos) {
         if (entity instanceof ServerPlayerEntity player) {
-            TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity);
+            if (TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity) == TardisEvents.Interaction.FAIL) return;
 
             WorldUtil.teleportToWorld(player, tardis.world(),
                     new Vec3d(pos.getX(), pos.getY(), pos.getZ()), entity.getYaw(), player.getPitch());
