@@ -1544,8 +1544,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("waypoint.position.tooltip", "Position");
         provider.addTranslation("waypoint.dimension.tooltip", "Dimension");
         provider.addTranslation("waypoint.direction.tooltip", "Direction");
-        provider.addTranslation("coral_riftchunk", "Must be placed in Rift Chunk");
-        provider.addTranslation("coral_soulsand", "Must be placed on Soul Sand Block");
+        provider.addTranslation("ait.tooltip.coral_riftchunk", "Must be placed in Rift Chunk");
+        provider.addTranslation("ait.tooltip.coral_soulsand", "Must be placed on Soul Sand Block");
 
         // Blueprint Item
         provider.addTranslation("ait.blueprint.tooltip", "Blueprint: ");
