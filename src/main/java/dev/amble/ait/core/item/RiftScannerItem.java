@@ -2,11 +2,14 @@ package dev.amble.ait.core.item;
 
 import java.util.function.Consumer;
 
+import dev.amble.ait.core.AITSounds;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -34,6 +37,7 @@ public class RiftScannerItem extends Item {
 
         user.getItemCooldownManager().set(this, 100);
         findNearestRift(serverWorld, new ChunkPos(user.getBlockPos()), (chunk) -> setTarget(user.getStackInHand(hand), chunk));
+        ding = false;
 
         user.sendMessage(Text.translatable("riftchunk.ait.tracking"), true);
         return TypedActionResult.success(user.getStackInHand(hand));
@@ -105,5 +109,20 @@ public class RiftScannerItem extends Item {
             return ChunkPos.ORIGIN;
 
         return new ChunkPos(nbt.getInt("X"), nbt.getInt("Z"));
+    }
+
+    private boolean ding = false;
+
+    @Override
+    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+        super.inventoryTick(stack, world, entity, slot, selected);
+        if (RiftScannerItem.getTarget(stack) != null && !ding) {
+
+            ChunkPos pos = RiftScannerItem.getTarget(stack);
+            if (entity.getChunkPos().equals(pos)) {
+                world.playSound(null, entity.getBlockPos(), AITSounds.TARDIS_BLING, SoundCategory.MASTER, 3f, 1f);
+                ding = true;
+            }
+        }
     }
 }
