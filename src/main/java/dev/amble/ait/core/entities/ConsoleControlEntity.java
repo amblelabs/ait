@@ -76,8 +76,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> ON_DELAY = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Float> DURABILITY = DataTracker.registerData(ConsoleControlEntity.class, TrackedDataHandlerRegistry.FLOAT);
-
     private static final TrackedData<BlockPos> CONSOLE_BLOCK_POS = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.BLOCK_POS);
     private Control control;
@@ -119,7 +117,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         this.dataTracker.startTracking(SEQUENCE_LENGTH, 0);
         this.dataTracker.startTracking(WAS_SEQUENCED, false);
         this.dataTracker.startTracking(ON_DELAY, false);
-        this.dataTracker.startTracking(DURABILITY, 1.0f);
         this.dataTracker.startTracking(CONSOLE_BLOCK_POS, BlockPos.ORIGIN);
     }
 
@@ -350,10 +347,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         return this.getConsole().controlStateMap.getOrDefault(this.getControl(), new Control.ControlState()).damage();//this.dataTracker.get(DURABILITY);
     }
 
-    public float getClientDurability() {
-        return this.dataTracker.get(DURABILITY);
-    }
-
     public boolean isSticky() {
         if (this.getControl() == null || this.getConsole() == null) return false;
         return this.getConsole().controlStateMap.getOrDefault(this.getControl(), new Control.ControlState()).sticky();//this.dataTracker.get(DURABILITY);
@@ -365,10 +358,9 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
     public void setDurability(float durability) {
         ConsoleBlockEntity console = this.getConsole();
-        this.dataTracker.set(DURABILITY, durability);
         if (console != null && this.getControl() != null) {
             console.updateDurability(this.getControl(), durability);
-            console.markDirty();
+            console.sync();
         }
     }
 
@@ -376,7 +368,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         ConsoleBlockEntity console = this.getConsole();
         if (console != null && this.getControl() != null) {
             console.updateStickiness(this.getControl(), sticky);
-            console.markDirty();
+            console.sync();
         }
     }
 
