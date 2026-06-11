@@ -34,7 +34,7 @@ public class CloakControl extends Control {
             boolean wasSilent = cloak.silent().get();
             cloak.silent().set(!wasSilent);
             
-            player.sendMessage(Text.translatable("control.ait.protocol_3_silent_" + (wasSilent ? "activated" : "deactivated")), true);
+            player.sendMessage(Text.translatable("control.ait.protocol_3_silent_" + (wasSilent ? "deactivated" : "activated")), true);
         } else {
             cloak.cloaked().set(!wasCloaked);
             
