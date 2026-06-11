@@ -213,7 +213,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
         if (this.getTargetTicks() <= 100) return;
 
-        if (this.speed() == 0 || (this.speed() * 100) < (maxSpeed / this.speed()) * 100) return;
+        if (this.speed() == 0 || (this.speed()) < (maxSpeed / this.speed())) return;
 
         if (random.nextBetween(0, (15 * maxSpeed) / this.speed()) == maxSpeed) {
             sequences.triggerRandomSequence(true);
