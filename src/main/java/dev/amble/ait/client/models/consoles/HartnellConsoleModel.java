@@ -1569,7 +1569,7 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
         ModelPart direction = this.bone.getChild("panels").getChild("p_2").getChild("bone48").getChild("bone49")
                 .getChild("bone50").getChild("s_crank_1").getChild("bone59");
         float directionTargetDegrees = (0.3927f * tardis.travel().destination().getRotation()) * (180f / (float) Math.PI);
-        direction.yaw = getLerpedDegrees(console, "increment", directionTargetDegrees, delta);
+        direction.yaw = getLerpedDegrees(console, "direction", directionTargetDegrees, delta);
 
         // Anti Grav Control Movements
         ModelPart antiGrav = this.bone.getChild("panels").getChild("p_1").getChild("bone38").getChild("bone36")

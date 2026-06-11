@@ -58,10 +58,12 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         ClientTardis tardis = entity.tardis().get().asClient();
         Profiler profiler = entity.getWorld().getProfiler();
 
+        profiler.push("console");
         this.renderConsole(profiler, tardis, entity, matrices, vertexConsumers, light, overlay, tickDelta);
 
         if (variant instanceof ClientCrystallineVariant)
             this.renderPanes(tardis, entity, matrices, vertexConsumers, light, overlay);
+        profiler.pop();
     }
 
     private void renderPanes(ClientTardis tardis, T entity, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {

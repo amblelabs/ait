@@ -27,12 +27,13 @@ import net.minecraft.util.math.MathHelper;
 @SuppressWarnings("rawtypes")
 public abstract class SimpleConsoleModel extends SinglePartEntityModel implements ConsoleModel {
 
+    // Using a map actually is the worst way to do this - DO NOT REPLICATE. - Loqor
     protected static final Map<BlockEntity, Map<String, Float>> ANIMATION_CACHE = new WeakHashMap<>();
 
     protected static final MinecraftClient client = MinecraftClient.getInstance();
 
     protected float getAngle(BlockEntity console, String key, float target, float delta) {
-        Map<String, Float> state = ANIMATION_CACHE.computeIfAbsent(console, HashMap::new);
+        Map<String, Float> state = ANIMATION_CACHE.computeIfAbsent(console, k -> new HashMap<>());
         float current = state.getOrDefault(key, 0f);
         float next = MathHelper.lerp(delta, current, target);
         state.put(key, next);
@@ -40,7 +41,7 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
     }
 
     protected float getLerpedDegrees(BlockEntity console, String key, float targetDegrees, float delta) {
-        Map<String, Float> state = ANIMATION_CACHE.computeIfAbsent(console, HashMap::new);
+        Map<String, Float> state = ANIMATION_CACHE.computeIfAbsent(console, k -> new HashMap<>());
         float currentRadians = state.getOrDefault(key, 0f);
         float currentDegrees = currentRadians * (180f / (float) Math.PI);
         float nextDegrees = MathHelper.lerpAngleDegrees(delta, currentDegrees, targetDegrees);
@@ -59,12 +60,6 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
 
     @Override
     public void animateBlockEntity(ConsoleBlockEntity console, TravelHandlerBase.State state, boolean hasPower) {
-        // fyi, this is directly referencing camel animation code, its just specific
-        // according to
-        // the
-        // block entity that
-        // is being used
-        // to detect different states. - Loqor
         this.getPart().traverse().forEach(ModelPart::resetTransform);
 
         if (hasPower && AITModClient.CONFIG.animateConsole)
