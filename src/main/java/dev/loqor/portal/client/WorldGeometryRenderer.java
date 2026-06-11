@@ -144,8 +144,15 @@ public class WorldGeometryRenderer {
 
         MinecraftClient client = MinecraftClient.getInstance();
         GameRenderer gameRenderer = client.gameRenderer;
-        this.portalProjection = gameRenderer.getBasicProjectionMatrix(
-                gameRenderer.getFov(gameRenderer.getCamera(), tickDelta, true));
+
+        // Match the doorway's view bobbing. In 1.20.1 GameRenderer.renderWorld folds view bobbing (plus the
+        // hurt-tilt and nausea warp) into the *projection* matrix - `projection.mul(bobMatrix)` - and leaves the
+        // model-view as pure camera rotation. The doorway's stencil mask and frame are drawn during the world
+        // render with that bobbed projection bound, so they wobble with the head bob. Building a fresh
+        // getBasicProjectionMatrix() here would have NO bob, so the interior would sit rigid while its frame
+        // wobbles around it - the "interior swims in the doorway" wobble. Reusing the live projection gives the
+        // interior the identical bob (and FOV), so frame and contents move as one.
+        this.portalProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
 
         Matrix4f portalRot = buildPortalRotation(portalYaw, portalPitch);
         this.portalView = buildPortalView(portalRot, eyeRelToCenter);

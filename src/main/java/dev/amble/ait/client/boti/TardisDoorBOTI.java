@@ -8,7 +8,6 @@ import dev.loqor.portal.client.PortalData;
 import dev.loqor.portal.client.PortalDataManager;
 import dev.loqor.portal.client.WorldGeometryRenderer;
 import net.minecraft.client.render.*;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.*;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -37,39 +36,6 @@ import dev.amble.ait.registry.impl.CategoryRegistry;
 public class TardisDoorBOTI extends BOTI {
     // The geometry renderer now lives on each PortalData (the shadow world owns it), so multiple TARDIS doors -
     // and the new exterior->interior view - each bake/draw independently. Fetched per render via PortalDataManager.
-
-    /**
-     * Calculates the inverse of view bobbing to stabilize the camera
-     * Based on GameRenderer.bobView() logic
-     */
-    public static Vec3d calculateInverseBobbing(PlayerEntity player, float tickDelta) {
-        float f = player.horizontalSpeed - player.prevHorizontalSpeed;
-        float g = -(player.horizontalSpeed + f * tickDelta);
-        float h = MathHelper.lerp(tickDelta, player.prevStrideDistance, player.strideDistance);
-
-        // Calculate the inverse of the bobbing translation
-        float bobbingX = MathHelper.sin(g * (float)Math.PI) * h * 0.5F;
-        float bobbingY = -Math.abs(MathHelper.cos(g * (float)Math.PI) * h);
-        float bobbingZ = 0.0F;
-
-        return new Vec3d(-bobbingX, -bobbingY, -bobbingZ);
-    }
-
-    /**
-     * Calculates the inverse of view bobbing rotations
-     * Based on GameRenderer.bobView() logic
-     */
-    private static Vec3d calculateInverseBobbingRotations(PlayerEntity player, float tickDelta) {
-        float f = player.horizontalSpeed - player.prevHorizontalSpeed;
-        float g = -(player.horizontalSpeed + f * tickDelta);
-        float h = MathHelper.lerp(tickDelta, player.prevStrideDistance, player.strideDistance);
-
-        // Calculate the inverse of the bobbing rotations (Z roll, X pitch)
-        float rollZ = MathHelper.sin(g * (float)Math.PI) * h * 3.0F;
-        float pitchX = Math.abs(MathHelper.cos(g * (float)Math.PI - 0.2F) * h) * 5.0F;
-
-        return new Vec3d(-pitchX, 0.0F, -rollZ);
-    }
 
     public static void renderInteriorDoorBoti(ClientTardis tardis, DoorBlockEntity door, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, AnimatedModel frame, ModelPart mask, int light, float tickDelta) {
         ExteriorVariantSchema parent = variant.parent();
