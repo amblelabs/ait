@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.amble.lib.data.DirectedBlockPos;
-import dev.drtheo.scheduler.api.TimeUnit;
-import dev.drtheo.scheduler.api.common.Scheduler;
-import dev.drtheo.scheduler.api.common.TaskStage;
+
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 
 import net.minecraft.entity.EntityType;
@@ -76,12 +74,6 @@ public class SequenceRegistry {
                     missedTardis.removeFuel(-random.nextBetween(45, 125));
                     missedTardis.door().openDoors();
 
-                    Scheduler.get().runTaskLater(() ->
-                                    missedTardis.door().closeDoors(),
-                            TaskStage.END_SERVER_TICK,
-                            TimeUnit.SECONDS,
-                            3);
-
                     missedTardis.travel().increaseFlightTime(700);
 
                     List<Explosion> explosions = new ArrayList<>();
@@ -115,11 +107,6 @@ public class SequenceRegistry {
                     finishedTardis.travel().decreaseFlightTime(50);
                 }), (missedTardis -> {
                     missedTardis.door().openDoors();
-                    Scheduler.get().runTaskLater(() ->
-                                    missedTardis.door().closeDoors(),
-                            TaskStage.END_SERVER_TICK,
-                            TimeUnit.SECONDS,
-                            3);
                 }), 80L, Text.translatable("sequence.ait.dimensional_breach").formatted(Formatting.ITALIC, Formatting.YELLOW),
                         new DimensionControl(), new DoorControl()));
 

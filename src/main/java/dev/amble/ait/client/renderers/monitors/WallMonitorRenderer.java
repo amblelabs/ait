@@ -123,8 +123,9 @@ public class WallMonitorRenderer<T extends WallMonitorBlockEntity> implements Bl
                 (18 - xVal) - ((float) this.textRenderer.getWidth(arrow2) / 2), 75, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
 
-        this.textRenderer.drawWithOutline(Text.of("AU").asOrderedText(),
-                (53 - xVal) - ((float) this.textRenderer.getWidth("AU") / 2), 40, 0xFFFFFF, 0x000000,
+        Text au = Text.translatable("ait.monitor.fuel");
+        this.textRenderer.drawWithOutline(au.asOrderedText(),
+                (53 - xVal) - ((float) this.textRenderer.getWidth(au) / 2), 40, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         this.textRenderer.drawWithOutline(Text.of(fuelText).asOrderedText(),
                 (53 - xVal) - ((float) this.textRenderer.getWidth(fuelText) / 2), 48, 0xFFFFFF, 0x000000,

@@ -130,7 +130,7 @@ public class MonitorRenderer<T extends MonitorBlockEntity> implements BlockEntit
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
 
         String fuelText = Math.round((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 100) + "%";
-        this.textRenderer.drawWithOutline(Text.of("AU: " + fuelText).asOrderedText(), 4, 78, 0xFFFFFF, 0x000000,
+        this.textRenderer.drawWithOutline(Text.translatable("ait.monitor.fuel_with_text", fuelText).asOrderedText(), 4, 78, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
 
         String flightTimeText = tardis.travel().getState() == TravelHandlerBase.State.LANDED

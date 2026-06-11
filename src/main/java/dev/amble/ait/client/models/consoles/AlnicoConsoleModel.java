@@ -1544,7 +1544,7 @@ public class AlnicoConsoleModel extends SimpleConsoleModel {
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         renderer.drawWithOutline(Text.of(destinationDirectionText).asOrderedText(), 8, y + 16, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of("AU: " + fuelText).asOrderedText(), 8, y + 24, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.translatable("ait.monitor.fuel_with_text", fuelText).asOrderedText(), 8, y + 24, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         matrices.pop();
 

@@ -1184,6 +1184,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.growth.in_progress", "Coral growth still in progress...");
         provider.addTranslation("message.ait.hypercubes.disabled", "Hypercubes are disabled in SERVER config.");
 
+        provider.addTranslation("ait.monitor.fuel", "AU");
+        provider.addTranslation("ait.monitor.fuel_with_text", "AU: %s");
+
         provider.addTranslation("message.ait.control.ylandtype", "Vertical Search Mode: %s");
         provider.addTranslation("message.ait.control.ylandtype.floor", "FLOOR");
         provider.addTranslation("message.ait.control.ylandtype.ceiling", "CEILING");

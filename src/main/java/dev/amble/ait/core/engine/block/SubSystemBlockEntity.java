@@ -78,7 +78,7 @@ public class SubSystemBlockEntity extends FluidLinkBlockEntity {
     public void tick(World world, BlockPos pos, BlockState state) {}
 
     public ActionResult useOn(BlockState state, World world, boolean sneaking, PlayerEntity player, ItemStack hand) {
-        if (this.system() instanceof DurableSubSystem durable) {
+        /*if (this.system() instanceof DurableSubSystem durable) {
             if (!durable.isRepairItem(hand)) return ActionResult.PASS;
 
             player.sendMessage(Text.literal(durable.durability() + "/" + DurableSubSystem.MAX_DURABILITY).setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)), true);
@@ -96,7 +96,7 @@ public class SubSystemBlockEntity extends FluidLinkBlockEntity {
                 }
                 return ActionResult.SUCCESS;
             }
-        }
+        }*/
         return ActionResult.PASS;
     }
 
