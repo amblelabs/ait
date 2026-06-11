@@ -40,11 +40,6 @@ public class SiegeTardisItem extends LinkableItem {
             if (!hasSiege) return TardisEvents.Interaction.PASS;
 
             player.sendMessage(Text.translatable("ait.tooltip.siege_item.enter").formatted(Formatting.RED), true);
-            Scheduler.get().runTaskLater(() -> {
-                if (TardisServerWorld.isTardisDimension(player.getServerWorld())) {
-                    TardisUtil.teleportOutside(((TardisServerWorld) player.getServerWorld()).getTardis(), player);
-                }
-            }, TaskStage.END_SERVER_TICK, TimeUnit.TICKS, 10);
             return TardisEvents.Interaction.FAIL;
         });
     }
