@@ -554,6 +554,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         this.controlStateMap.put(control, new Control.ControlState().setDamage(damage).setSticky(sticky));
     }
 
+    @Override
     public void sync() {
         this.markDirty();
         if (this.world != null && !this.world.isClient)
