@@ -58,7 +58,7 @@ public record RiftChunkManager(ServerWorld world) {
         if (!(shouldBeProtoChunk instanceof ProtoChunk protoChunk))
             return 0;
 
-        return protoChunk.getAttachedOrCreate(ARTRON, () -> (double) world.getRandom().nextBetween(100, 800));
+        return protoChunk.getAttachedOrCreate(ARTRON, () -> (double) world.getRandom().nextBetween(1000, 2000));
     }
 
     public double getMaxArtron(ChunkPos pos) {
@@ -70,7 +70,7 @@ public record RiftChunkManager(ServerWorld world) {
         if (!(shouldBeProtoChunk instanceof ProtoChunk protoChunk))
             return 0;
 
-        return protoChunk.getAttachedOrCreate(ARTRON, () -> (double) world.getRandom().nextBetween(300, 1000));
+        return protoChunk.getAttachedOrCreate(ARTRON, () -> (double) world.getRandom().nextBetween(1500, 3000));
     }
 
     public double removeFuel(ChunkPos pos, double amount) {
