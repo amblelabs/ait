@@ -20,7 +20,7 @@ public class AnimationScrubberWidget extends ClickableWidget {
     private boolean dragging;
 
     public AnimationScrubberWidget(int x, int y, int width, int height, Consumer<Float> onScrub) {
-        super(x, y, width, height, Text.literal("Timeline"));
+        super(x, y, width, height, Text.translatable("screen.ait.widget.timeline"));
         this.onScrub = onScrub;
     }
 
