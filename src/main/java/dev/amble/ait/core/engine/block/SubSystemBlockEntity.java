@@ -77,10 +77,6 @@ public class SubSystemBlockEntity extends FluidLinkBlockEntity {
 
     public void tick(World world, BlockPos pos, BlockState state) {}
 
-    public ActionResult useOn(BlockState state, World world, boolean sneaking, PlayerEntity player, ItemStack hand) {
-        return ActionResult.PASS;
-    }
-
     @Override
     public void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
