@@ -163,11 +163,13 @@ public class CoralPlantBlock extends HorizontalDirectionalBlock implements Block
 
         if (!RiftChunkManager.isRiftChunk((ServerWorld) world, pos) && !TardisServerWorld.isTardisDimension((ServerWorld) world)) {
             world.breakBlock(pos, !placer.isPlayer() || !player.isCreative());
+            player.sendMessage(Text.literal("Must be placed in Rift Chunk").formatted(Formatting.RED), true);
             return;
         }
 
         if (!(world.getBlockState(pos.down()).getBlock() instanceof SoulSandBlock)) {
             world.breakBlock(pos, !placer.isPlayer() || !player.isCreative());
+            player.sendMessage(Text.literal("Must be placed on Soul Sand Block").formatted(Formatting.RED), true);
             return;
         }
 
