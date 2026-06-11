@@ -361,7 +361,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         ConsoleBlockEntity console = this.getConsole();
         if (console != null && this.getControl() != null) {
             console.updateDurability(this.getControl(), durability);
-            console.sync();
+            console.markDirty();
         }
     }
 
@@ -369,7 +369,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         ConsoleBlockEntity console = this.getConsole();
         if (console != null && this.getControl() != null) {
             console.updateStickiness(this.getControl(), sticky);
-            console.sync();
+            console.markDirty();
         }
     }
 

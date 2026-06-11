@@ -107,36 +107,36 @@ public class MonitorRenderer<T extends MonitorBlockEntity> implements BlockEntit
         String positionPosText = abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
         Text positionDimensionText = Text.of(MonitorUtil.truncateDimensionName(WorldUtil.worldText(abpp.getDimension()).getString(), 20));
 
-        this.textRenderer.drawWithOutline(Text.of("Position:").asOrderedText(), 4, 4, 0xFFFFFF, 0x000000,
+        this.textRenderer.drawWithOutline(Text.of("\uD83D\uDCCD").asOrderedText(), 4, 4, 0x00EEFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 4, 12, 0xFFFFFF, 0x000000,
+        this.textRenderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 12, 4, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(positionDimensionText.asOrderedText(), 4, 20, 0xFFFFFF, 0x000000,
+        this.textRenderer.drawWithOutline(positionDimensionText.asOrderedText(), 12, 12, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(WorldUtil.rot2Text(abpp.getRotation()).asOrderedText(), 4, 28, 0xFFFFFF, 0x000000,
+        this.textRenderer.drawWithOutline(WorldUtil.rot2Text(abpp.getRotation()).asOrderedText(), 12, 20, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
 
         String destinationPosText = abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
         Text destinationDimensionText = Text.of(MonitorUtil.truncateDimensionName(WorldUtil.worldText(abpd.getDimension(), false).getString(), 20));
 
 
-        this.textRenderer.drawWithOutline(Text.of("Destination:").asOrderedText(), 4, 40, 0xFFFFFF, 0x000000,
+        this.textRenderer.drawWithOutline(Text.of("\uD83E\uDC97").asOrderedText(), 4, 40, 0xFF0000, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(Text.of(destinationPosText).asOrderedText(), 4, 48, 0xFFFFFF, 0x000000,
+        this.textRenderer.drawWithOutline(Text.of(destinationPosText).asOrderedText(), 12, 40, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(destinationDimensionText.asOrderedText(), 4, 56, 0xFFFFFF, 0x000000,
+        this.textRenderer.drawWithOutline(destinationDimensionText.asOrderedText(), 12, 48, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(WorldUtil.rot2Text(abpd.getRotation()).asOrderedText(), 4, 64, 0xFFFFFF, 0x000000,
+        this.textRenderer.drawWithOutline(WorldUtil.rot2Text(abpd.getRotation()).asOrderedText(), 12, 56, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
 
         String fuelText = Math.round((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 100) + "%";
-        this.textRenderer.drawWithOutline(Text.translatable("ait.monitor.fuel_with_text", fuelText).asOrderedText(), 4, 78, 0xFFFFFF, 0x000000,
+        this.textRenderer.drawWithOutline(Text.translatable("ait.monitor.fuel_with_text", fuelText).asOrderedText(), 12, 78, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
 
         String flightTimeText = tardis.travel().getState() == TravelHandlerBase.State.LANDED
                 ? "0%"
                 : tardis.travel().getDurationAsPercentage() + "%";
-        this.textRenderer.drawWithOutline(Text.of("⏳: " + flightTimeText).asOrderedText(), 4, 88, 0xFFFFFF, 0x000000,
+        this.textRenderer.drawWithOutline(Text.of("⏳: " + flightTimeText).asOrderedText(), 12, 88, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
 
         String name = tardis.stats().getName();
