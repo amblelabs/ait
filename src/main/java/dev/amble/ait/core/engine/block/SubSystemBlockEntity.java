@@ -78,25 +78,6 @@ public class SubSystemBlockEntity extends FluidLinkBlockEntity {
     public void tick(World world, BlockPos pos, BlockState state) {}
 
     public ActionResult useOn(BlockState state, World world, boolean sneaking, PlayerEntity player, ItemStack hand) {
-        /*if (this.system() instanceof DurableSubSystem durable) {
-            if (!durable.isRepairItem(hand)) return ActionResult.PASS;
-
-            player.sendMessage(Text.literal(durable.durability() + "/" + DurableSubSystem.MAX_DURABILITY).setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)), true);
-            world.playSound(null, this.getPos(), SoundEvents.BLOCK_ANCIENT_DEBRIS_HIT, SoundCategory.BLOCKS, 0.5f, 0.8f);
-
-            if (durable.durability() < DurableSubSystem.MAX_DURABILITY) {
-                int val = world.getRandom().nextBetween(10, DurableSubSystem.MAX_DURABILITY);
-                durable.addDurability(val);
-                hand.setDamage(hand.getDamage() - 1);
-
-                world.playSound(null, this.getPos(), SoundEvents.BLOCK_AMETHYST_BLOCK_RESONATE, SoundCategory.BLOCKS, 0.5f, 1.5f);
-
-                for (int i = 0; i < (val / 2); i++) {
-                    world.addImportantParticle(ParticleTypes.ENCHANT, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0, 0.1f, 0);
-                }
-                return ActionResult.SUCCESS;
-            }
-        }*/
         return ActionResult.PASS;
     }
 
