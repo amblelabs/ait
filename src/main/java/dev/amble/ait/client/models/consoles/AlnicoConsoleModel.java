@@ -1530,20 +1530,21 @@ public class AlnicoConsoleModel extends SimpleConsoleModel {
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
         matrices.scale(0.004f, 0.004f, 0.004f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(60f));
-        matrices.translate(-249f, -232, 5f);
+        matrices.translate(-252f, -228, 5f);
         String destinationPosText = abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
         Text destinationDimensionText = WorldUtil.worldText(abpd.getDimension(), false);
         String destinationDirectionText = DirectionControl.rotationToDirection(abpd.getRotation()).toUpperCase();
         String fuelText = Math.round((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 100) + "%";
-        renderer.drawWithOutline(Text.of("Destination:").asOrderedText(), 0, 40, 0xFFFFFF, 0x000000,
+        int y = 41;
+        renderer.drawWithOutline(Text.of("\uD83E\uDC97").asOrderedText(), 0, y, 0xFF0000, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(destinationPosText).asOrderedText(), 0, 48, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(destinationPosText).asOrderedText(), 8, y, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(destinationDimensionText.asOrderedText(), 0, 56, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(destinationDimensionText.asOrderedText(), 8, y + 8, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(destinationDirectionText).asOrderedText(), 0, 64, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(destinationDirectionText).asOrderedText(), 8, y + 16, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of("AU: " + fuelText).asOrderedText(), 0, 72, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of("AU: " + fuelText).asOrderedText(), 8, y + 24, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         matrices.pop();
 

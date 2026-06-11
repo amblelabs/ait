@@ -1798,20 +1798,20 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
         matrices.scale(0.005f, 0.005f, 0.005f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(-60f));
-        matrices.translate(-60f, -228, -188);
+        matrices.translate(-60f, -222, -188);
         String positionPosText = abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
         Text positionDimensionText = WorldUtil.worldText(abpp.getDimension());
         String positionDirectionText = DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
         String destinationPosText = abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
         Text destinationDimensionText = WorldUtil.worldText(abpd.getDimension(), false);
         String destinationDirectionText = DirectionControl.rotationToDirection(abpd.getRotation()).toUpperCase();
-        renderer.drawWithOutline(Text.of("Position:").asOrderedText(), 0, 40, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of("\uD83D\uDCCD").asOrderedText(), 0, 40, 0x00EEFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 0, 48, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 8, 40, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 0, 56, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 8, 48, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 0, 64, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 8, 56, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         matrices.pop();
 
@@ -1820,14 +1820,14 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
         matrices.scale(0.005f, 0.005f, 0.005f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(120f));
-        matrices.translate(-60f, -228, -188);
-        renderer.drawWithOutline(Text.of("Destination:").asOrderedText(), 0, 40, 0xFFFFFF, 0x000000,
+        matrices.translate(-60f, -222, -188);
+        renderer.drawWithOutline(Text.of("\uD83E\uDC97").asOrderedText(), 0, 40, 0xFF0000, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(destinationPosText).asOrderedText(), 0, 48, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(destinationPosText).asOrderedText(), 8, 40, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(destinationDimensionText.asOrderedText(), 0, 56, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(destinationDimensionText.asOrderedText(), 8, 48, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(destinationDirectionText).asOrderedText(), 0, 64, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(destinationDirectionText).asOrderedText(), 8, 56, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         matrices.pop();
 
