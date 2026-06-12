@@ -93,7 +93,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     public static ConsoleControlEntity create(World world, Tardis tardis) {
         return new ConsoleControlEntity(world, tardis);
     }
-
+    private boolean cachedRwfEnabled = AITMod.CONFIG.rwfEnabled;
     @Override
     public void onRemoved() {
         if (this.getConsoleBlockPos() == null) {
@@ -261,6 +261,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         if (this.control == null && this.getConsoleBlockPos() != null)
             this.discard();
 
+        if (this.cachedRwfEnabled != AITMod.CONFIG.rwfEnabled) {
+            this.refreshName();
+            this.cachedRwfEnabled = AITMod.CONFIG.rwfEnabled;
+        }
         switch (this.getDurabilityState(this.getDurability())) {
             case SPARKY -> this.spark();
             case OCCASIONALY_JAM -> this.smoke();
@@ -526,7 +530,11 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             serverWorld.spawnParticles(ParticleTypes.LAVA, pos.getX(), pos.getY(), pos.getZ(), 3, 0.1, 0.1, 0.1, 0.01);
         }
     }
-
+    private void refreshName() {
+        if (this.control != null) {
+            super.setCustomName(this.control.getName());
+        }
+    }
     private void smoke() {
         if (!(this.getWorld() instanceof ServerWorld serverWorld)) return;
         Vec3d pos = this.getPos();
@@ -556,8 +564,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         this.setConsolePos(consoleBlockPosition);
         this.control = type.getControl();
 
-        super.setCustomName(Text.translatable(this.control.id().toTranslationKey("control")));
-
+        this.refreshName();
         if (consoleType != null) {
             this.setControlWidth(type.getScale().width);
             this.setControlHeight(type.getScale().height);
