@@ -35,7 +35,7 @@ public class AITBlockTagProvider extends AmbleBlockTagProvider {
                 .add(Blocks.REDSTONE_LAMP).add(AITBlocks.EXTERIOR_BLOCK).add(AITBlocks.CONSOLE_GENERATOR)
                 .forceAddTag(TagKey.of(RegistryKeys.BLOCK, new Identifier("c", "glass_panes")))
                 .forceAddTag(TagKey.of(RegistryKeys.BLOCK, new Identifier("c", "glass_blocks")))
-                .add(AITBlocks.CONSOLE)
+                .add(AITBlocks.MACHINE_CASING, AITBlocks.CONSOLE)
                 .add(Blocks.BRICKS)
                 .add(Blocks.REDSTONE_WIRE, Blocks.COMPARATOR, Blocks.REPEATER, Blocks.LEVER)
                 .forceAddTag(BlockTags.BUTTONS)
