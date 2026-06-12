@@ -107,29 +107,25 @@ public class PortalsHandler extends KeyedTardisComponent {
 	}
 
 	public TardisPortal getInterior() {
-		if (this.interiorRef != null) {
-			if (!this.interiorRef.hasWorld() && tardis instanceof ServerTardis serverTardis) {
-				ServerWorld interiorWorld = serverTardis.world();
-				this.interiorRef.setWorld(interiorWorld);
-			}
+		if (this.interiorRef == null) return null;
 
-			return this.interiorRef.get();
+		if (!this.interiorRef.hasWorld() && tardis instanceof ServerTardis serverTardis) {
+			ServerWorld interiorWorld = serverTardis.world();
+			this.interiorRef.setWorld(interiorWorld);
 		}
-		
-		return null;
+
+		return this.interiorRef.get();
 	}
 
 	public TardisPortal getExterior() {
-		if (this.exteriorRef != null) {
-			if (!this.exteriorRef.hasWorld() && tardis instanceof ServerTardis) {
-				ServerWorld exteriorWorld = tardis.travel().position().getWorld();
-				this.exteriorRef.setWorld(exteriorWorld);
-			}
+		if (this.exteriorRef == null) return null;
 
-			return this.exteriorRef.get();
+		if (!this.exteriorRef.hasWorld() && tardis instanceof ServerTardis) {
+			ServerWorld exteriorWorld = tardis.travel().position().getWorld();
+			this.exteriorRef.setWorld(exteriorWorld);
 		}
-		
-		return null;
+
+		return this.exteriorRef.get();
 	}
 
 	private void generatePortals() {
@@ -141,6 +137,9 @@ public class PortalsHandler extends KeyedTardisComponent {
 		removePortals();
 
         if (!tardis.getExterior().getVariant().hasPortals()) return;
+
+		if (this.getInterior() != null || this.getExterior() != null)
+			this.removePortals();
 
 		this.exteriorRef = new EntityRef<>(exteriorPos.getWorld(), createExteriorPortal());
 		this.interiorRef = new EntityRef<>(interiorPos.getWorld(), createInteriorPortal());
@@ -174,7 +173,8 @@ public class PortalsHandler extends KeyedTardisComponent {
         portal.setDestinationDimension(tardis.asServer().world().getRegistryKey());
         portal.setDestination(doorAdjust);
 
-        portal.renderingMergable = true;
+        //portal.renderingMergable = true;
+		portal.teleportChangesScale = false;
         portal.setInteractable(false);
         portal.getWorld().spawnEntity(portal);
 
@@ -209,7 +209,8 @@ public class PortalsHandler extends KeyedTardisComponent {
         portal.setDestinationDimension(tardis.travel().getState() == TravelHandlerBase.State.FLIGHT ? AITDimensions.TIME_VORTEX_WORLD : exteriorPos.getWorld().getRegistryKey());
         portal.setDestination(exteriorAdjust);
 
-        portal.renderingMergable = true;
+        //portal.renderingMergable = true;
+		portal.teleportChangesScale = false;
         portal.setInteractable(false);
         portal.getWorld().spawnEntity(portal);
 
