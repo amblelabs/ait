@@ -542,13 +542,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             serverWorld.spawnParticles(ParticleTypes.SMOKE, pos.getX(), pos.getY(), pos.getZ(), 1, 0, 0, 0, 0.0f);
     }
 
-    private void smoke() {
-        if (!(this.getWorld() instanceof ServerWorld serverWorld)) return;
-        Vec3d pos = this.getPos();
-        if (serverWorld.getServer().getTicks() % 10 == 0)
-            serverWorld.spawnParticles(ParticleTypes.SMOKE, pos.getX(), pos.getY(), pos.getZ(), 1, 0, 0, 0, 0.0f);
-    }
-
     private void onFire() {
         if (!(this.getWorld() instanceof ServerWorld serverWorld)) return;
         Vec3d pos = this.getPos();
