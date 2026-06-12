@@ -93,6 +93,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     public static ConsoleControlEntity create(World world, Tardis tardis) {
         return new ConsoleControlEntity(world, tardis);
     }
+
     @Override
     public void onRemoved() {
         if (this.getConsoleBlockPos() == null) {

@@ -60,6 +60,7 @@ public class Control implements Identifiable {
             return Result.SEQUENCE;
         }
     }
+
     public Text getName() {
         // Replace this string structure with whatever format your .json keys currently use!
         return Text.translatable(id.toTranslationKey("control"));
