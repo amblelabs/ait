@@ -28,19 +28,13 @@ public class VisualiserControl extends Control {
 
     @Override
     public Text getName() {
-        if (AITMod.CONFIG.rwfEnabled) {
-        // The translation key to use when rwfEnabled is TRUE
-            return Text.translatable("control.ait.rwf");
-        }
-        else if(DependencyChecker.hasPortals()) {
-        // The translation key to use when hasportals is true while rwf is false
-            return Text.translatable("control.ait.visualiser");
-        }
-        else {
-            return Text.translatable("control.ait.none");
-        }
-
+        String type = "none";
+        if (AITMod.CONFIG.rwfEnabled) type = "rwf";
+        else if (DependencyChecker.hasPortals()) type = "normal";
+        
+        return Text.translatable("control.ait.visualiser." + type);
     }
+
     @Override
     public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean rightClick) {
         super.runServer(tardis, player, world, console, rightClick);
