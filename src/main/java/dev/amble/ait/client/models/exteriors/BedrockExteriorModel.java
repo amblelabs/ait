@@ -66,7 +66,7 @@ public class BedrockExteriorModel implements ExteriorModel, Identifiable {
 
         if (anim == null) return;
 
-        if (!anim.shouldLoop) {
+        if (anim.loopMode == BedrockAnimation.LoopMode.NONE) {
             if (MinecraftClient.getInstance().player.age % 40 == 0) {
                 AITMod.LOGGER.error("Non-looping animations are not supported in BedrockExteriorModel. Animation: {}", anim.name);
             }
