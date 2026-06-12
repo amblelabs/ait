@@ -163,7 +163,7 @@ public class PortalsHandler extends KeyedTardisComponent {
         );
 
         DQuaternion quat = DQuaternion.rotationByDegrees(new Vec3d(0, -1, 0), RotationPropertyHelper.toDegrees(exteriorPos.getRotation()));
-        DQuaternion doorQuat = DQuaternion.rotationByDegrees(new Vec3d(0, -1, 0), RotationPropertyHelper.toDegrees(doorPos.getRotation()));
+        DQuaternion doorQuat = DQuaternion.rotationByDegrees(new Vec3d(0, -1, 0), 180 + RotationPropertyHelper.toDegrees(doorPos.getRotation()));
 
         PortalAPI.setPortalOrientationQuaternion(portal, quat);
         portal.setOtherSideOrientation(doorQuat);
@@ -198,7 +198,7 @@ public class PortalsHandler extends KeyedTardisComponent {
                 tardis.getExterior().getVariant().portalHeight() // height
         );
 
-        DQuaternion quat = DQuaternion.rotationByDegrees(new Vec3d(0, -1, 0), RotationPropertyHelper.toDegrees(doorPos.getRotation()));
+        DQuaternion quat = DQuaternion.rotationByDegrees(new Vec3d(0, -1, 0), 180 + RotationPropertyHelper.toDegrees(doorPos.getRotation()));
         DQuaternion extQuat = DQuaternion.rotationByDegrees(new Vec3d(0, -1, 0), RotationPropertyHelper.toDegrees(exteriorPos.getRotation()));
 
         PortalAPI.setPortalOrientationQuaternion(portal, quat);
