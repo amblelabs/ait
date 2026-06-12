@@ -33,23 +33,23 @@ public class TardisDoorBOTI extends BOTI {
     public static void renderInteriorDoorBoti(ClientTardis tardis, DoorBlockEntity door, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, AnimatedModel frame, ModelPart mask, int light, float tickDelta) {
         ExteriorVariantSchema parent = variant.parent();
 
-        if (MinecraftClient.getInstance().world == null
-                || MinecraftClient.getInstance().player == null) return;
+        if (client.world == null
+                || client.player == null) return;
 
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
 
-        MinecraftClient.getInstance().getFramebuffer().endWrite();
+        client.getFramebuffer().endWrite();
 
         BOTI_HANDLER.setupFramebuffer();
 
-        Vec3d skyColor = MinecraftClient.getInstance().world.getSkyColor(MinecraftClient.getInstance().player.getPos(), MinecraftClient.getInstance().getTickDelta());
+        Vec3d skyColor = client.world.getSkyColor(client.player.getPos(), client.getTickDelta());
         if (AITModClient.CONFIG.greenScreenBOTI)
             BOTI.setFramebufferColor(BOTI_HANDLER.afbo, 0, 1, 0, 1);
         else
             BOTI.setFramebufferColor(BOTI_HANDLER.afbo, (float) skyColor.x, (float) skyColor.y, (float) skyColor.z, 1);
 
-        BOTI.copyFramebuffer(MinecraftClient.getInstance().getFramebuffer(), BOTI_HANDLER.afbo);
+        BOTI.copyFramebuffer(client.getFramebuffer(), BOTI_HANDLER.afbo);
 
         VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
@@ -79,7 +79,7 @@ public class TardisDoorBOTI extends BOTI {
         }
         botiProvider.draw();
         stack.pop();
-        copyDepth(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
+        copyDepth(BOTI_HANDLER.afbo, client.getFramebuffer());
 
         BOTI_HANDLER.afbo.beginWrite(false);
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
@@ -88,7 +88,7 @@ public class TardisDoorBOTI extends BOTI {
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
         stack.push();
-        float delta = MinecraftClient.getInstance().getTickDelta() + MinecraftClient.getInstance().player.age;
+        float delta = client.getTickDelta() + client.player.age;
         if (!tardis.travel().autopilot() && tardis.travel().getState() != TravelHandlerBase.State.LANDED)
             stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees((delta) * (tardis.travel().speed() * 0.7f)));
         if (!tardis.crash().isNormal())
@@ -150,9 +150,9 @@ public class TardisDoorBOTI extends BOTI {
             stack.pop();
         }
 
-        MinecraftClient.getInstance().getFramebuffer().beginWrite(true);
+        client.getFramebuffer().beginWrite(true);
 
-        BOTI.copyColor(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
+        BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
 
         GL11.glDisable(GL11.GL_STENCIL_TEST);
 

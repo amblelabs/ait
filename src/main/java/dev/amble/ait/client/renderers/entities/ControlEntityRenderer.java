@@ -2,6 +2,8 @@ package dev.amble.ait.client.renderers.entities;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.math.ColorHelper;
 import org.joml.Matrix4f;
 
 import net.minecraft.client.MinecraftClient;
@@ -85,10 +87,10 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
 
         if (hitresult != null) {
             boolean isPlayerLookingWithSonic = isPlayerLookingAtControlWithSonic(hitresult, entity);
-            OrderedText orderedText = name.asOrderedText();
+            OrderedText nameOrdered = name.asOrderedText();
 
             if (isPlayerLookingWithSonic) {
-                textRenderer.drawWithOutline(orderedText, h, (float) name.getString().length(), 0xF0F0F0, 0x000000,
+                textRenderer.drawWithOutline(nameOrdered, h, 0, 0xF0F0F0, 0x000000,
                         matrix4f, vertexConsumers, 0xFF);
             }
         }

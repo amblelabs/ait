@@ -41,7 +41,6 @@ public class GenericStructureSystemBlockEntity extends StructureSystemBlockEntit
         this(AITBlockEntityTypes.GENERIC_SUBSYSTEM_BLOCK_TYPE, pos, state);
     }
 
-    @Override
     public ActionResult useOn(BlockState state, World world, boolean sneaking, PlayerEntity player, ItemStack hand) {
         if (hand.isEmpty()) {
             if (this.system() != null && this.idSource != null) {
@@ -78,7 +77,7 @@ public class GenericStructureSystemBlockEntity extends StructureSystemBlockEntit
             return ActionResult.SUCCESS;
         }
 
-        return super.useOn(state, world, sneaking, player, hand);
+        return ActionResult.PASS;
     }
 
     private void setId(SubSystem.IdLike id) {

@@ -1,5 +1,7 @@
 package dev.amble.ait.registry.impl.console.variant;
 
+import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
+import dev.amble.ait.data.schema.console.variant.hartnell.HartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hudolin.client.*;
 import dev.amble.lib.client.bedrock.BedrockModelRegistry;
 import dev.amble.lib.register.datapack.DatapackRegistry;
@@ -14,7 +16,6 @@ import dev.amble.ait.client.models.consoles.BedrockConsoleModel;
 import dev.amble.ait.client.models.consoles.ConsoleModel;
 import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
-import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.data.schema.console.variant.alnico.client.ClientAlnicoVariant;
 import dev.amble.ait.data.schema.console.variant.alnico.client.ClientBlueAlnicoVariant;
 import dev.amble.ait.data.schema.console.variant.copper.client.ClientCopperVariant;
@@ -77,7 +78,7 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
 
     @Override
     public ClientConsoleVariantSchema fallback() {
-        return null;
+        return REGISTRY.get(HartnellVariant.REFERENCE);
     }
 
     @Override

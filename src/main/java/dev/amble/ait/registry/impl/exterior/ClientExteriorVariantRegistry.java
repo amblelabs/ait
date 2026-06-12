@@ -1,6 +1,5 @@
 package dev.amble.ait.registry.impl.exterior;
 
-
 import dev.amble.lib.client.bedrock.BedrockModelRegistry;
 import dev.amble.lib.register.datapack.DatapackRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -84,7 +83,7 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
 
     @Override
     public ClientExteriorVariantSchema fallback() {
-        return null;
+        return INSTANCE.get(AITMod.id("exterior/capsule/default"));
     }
 
     /**

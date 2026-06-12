@@ -22,17 +22,17 @@ public class RiftBOTI extends BOTI {
         if (!AITModClient.CONFIG.enableTardisBOTI)
             return;
 
-        if (MinecraftClient.getInstance().world == null
-                || MinecraftClient.getInstance().player == null) return;
+        if (client.world == null
+                || client.player == null) return;
 
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
 
-        MinecraftClient.getInstance().getFramebuffer().endWrite();
+        client.getFramebuffer().endWrite();
 
         BOTI_HANDLER.setupFramebuffer();
 
-        BOTI.copyFramebuffer(MinecraftClient.getInstance().getFramebuffer(), BOTI_HANDLER.afbo);
+        BOTI.copyFramebuffer(client.getFramebuffer(), BOTI_HANDLER.afbo);
 
         VertexConsumerProvider.Immediate portalProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
@@ -50,7 +50,7 @@ public class RiftBOTI extends BOTI {
         frame.render(stack, portalProvider.getBuffer(RenderLayer.getEntityTranslucentCull(CIRCLE_TEXTURE)), 0xf000f0, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
         portalProvider.draw();
         stack.pop();
-        copyDepth(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
+        copyDepth(BOTI_HANDLER.afbo, client.getFramebuffer());
 
         BOTI_HANDLER.afbo.beginWrite(false);
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
@@ -59,7 +59,7 @@ public class RiftBOTI extends BOTI {
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
         stack.push();
-        stack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(MinecraftClient.getInstance().getTickDelta() + MinecraftClient.getInstance().player.age));
+        stack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(client.getTickDelta() + client.player.age));
         stack.translate(0, -1, 400);
 
         // --- DISABLE FOG ---
@@ -82,9 +82,9 @@ public class RiftBOTI extends BOTI {
 
         stack.pop();
 
-        MinecraftClient.getInstance().getFramebuffer().beginWrite(true);
+        client.getFramebuffer().beginWrite(true);
 
-        BOTI.copyColor(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
+        BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
 
         GL11.glDisable(GL11.GL_STENCIL_TEST);
 

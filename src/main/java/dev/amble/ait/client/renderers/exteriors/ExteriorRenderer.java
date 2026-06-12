@@ -317,7 +317,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
         if (this.variant != variant) {
             this.variant = variant;
-            this.model = variant.model();
+            this.model = variant.getCachedModel();
         }
     }
 

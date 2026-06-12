@@ -2,6 +2,9 @@ package dev.amble.ait.core.tardis.control.sequences;
 
 import java.util.UUID;
 
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.data.properties.bool.BoolProperty;
+import dev.amble.ait.data.properties.bool.BoolValue;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -23,17 +26,27 @@ import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.registry.impl.SequenceRegistry;
 
-public class SequenceHandler extends TardisComponent implements TardisTickable {
+public class SequenceHandler extends KeyedTardisComponent implements TardisTickable {
+
+    private static final Random RANDOM = Random.create();
+    private static final BoolProperty HAS_ACTIVE_SEQUENCE = new BoolProperty("has_active_sequence", false);
+
     @Exclude
     private RecentControls recent;
 
+    @Exclude(strategy = Exclude.Strategy.NETWORK)
+    private UUID playerUUID;
+
+    @Exclude(strategy = Exclude.Strategy.NETWORK)
     private int ticks = 0;
 
     @Exclude
     private Sequence activeSequence;
 
-    private static final Random random = Random.create();
-    private UUID playerUUID;
+    /**
+     * This is for the client to recognize whether or not a sequence is active
+     */
+    private final BoolValue hasActiveSequence = HAS_ACTIVE_SEQUENCE.create(this);
 
     public SequenceHandler() {
         super(Id.SEQUENCE);
@@ -43,6 +56,16 @@ public class SequenceHandler extends TardisComponent implements TardisTickable {
     protected void onInit(InitContext ctx) {
         recent = new RecentControls(tardis.getUuid());
         activeSequence = null;
+    }
+
+    @Override
+    public void postInit(InitContext ctx) {
+        hasActiveSequence.set(false);
+    }
+
+    @Override
+    public void onLoaded() {
+        hasActiveSequence.of(this, HAS_ACTIVE_SEQUENCE);
     }
 
     public void setActivePlayer(ServerPlayerEntity player) {
@@ -89,11 +112,16 @@ public class SequenceHandler extends TardisComponent implements TardisTickable {
         return this.activeSequence != null;
     }
 
+    public boolean hasClientActiveSequence() {
+        return this.hasActiveSequence.get();
+    }
+
     public void setActiveSequence(@Nullable Sequence sequence, boolean setTicksTo0) {
         if (setTicksTo0)
             this.ticks = 0;
 
         this.activeSequence = sequence;
+        this.hasActiveSequence.set(this.activeSequence != null);
 
         if (this.activeSequence == null)
             return;
@@ -105,13 +133,14 @@ public class SequenceHandler extends TardisComponent implements TardisTickable {
         if (setTicksTo0)
             ticks = 0;
 
-        int rand = random.nextBetween(0, SequenceRegistry.REGISTRY.size());
+        int rand = RANDOM.nextBetween(0, SequenceRegistry.REGISTRY.size());
         Sequence sequence = SequenceRegistry.REGISTRY.get(rand);
 
         if (sequence == null)
             return;
 
         this.activeSequence = sequence;
+        this.hasActiveSequence.set(true);
         this.activeSequence.sendMessageToInteriorPlayers(tardis.asServer().world().getPlayers());
 
         this.tardis().getDesktop().playSoundAtEveryConsole(SoundEvents.BLOCK_BEACON_POWER_SELECT);

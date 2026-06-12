@@ -21,8 +21,9 @@ import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import dev.amble.ait.module.planet.core.space.system.Space;
 
 public class FoggyUtils {
+    private static final MinecraftClient mc = MinecraftClient.getInstance();
+
     public static void overrideFog() {
-        MinecraftClient mc = MinecraftClient.getInstance();
         Tardis tardis = ClientTardisUtil.getCurrentTardis();
 
         if (mc.player != null && !mc.player.isSpectator() && mc.world != null && mc.world.getRegistryKey().equals(AITDimensions.SPACE)) {
@@ -34,13 +35,13 @@ public class FoggyUtils {
                     stack.translate(0, 0, -2);
                     stack.scale(2000, 20000, 1);
                     for (int i = 0; i < 7; i++) {
-                        MinecraftClient.getInstance().getItemRenderer().renderItem(new ItemStack(Items.WHITE_STAINED_GLASS_PANE),
-                                ModelTransformationMode.GROUND, 0xf, OverlayTexture.DEFAULT_UV, stack, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers(), mc.world, 0);
+                        mc.getItemRenderer().renderItem(new ItemStack(Items.WHITE_STAINED_GLASS_PANE),
+                                ModelTransformationMode.GROUND, 0xf, OverlayTexture.DEFAULT_UV, stack, mc.getBufferBuilders().getEntityVertexConsumers(), mc.world, 0);
                     }
                     stack.pop();
                     RenderSystem
-                            .setShaderFogStart(MathHelper.lerp(MinecraftClient.getInstance().getTickDelta() / 100f, 1, 1));
-                    RenderSystem.setShaderFogEnd(MathHelper.lerp(MinecraftClient.getInstance().getTickDelta() / 100f, 1, 1));
+                            .setShaderFogStart(MathHelper.lerp(mc.getTickDelta() / 100f, 1, 1));
+                    RenderSystem.setShaderFogEnd(MathHelper.lerp(mc.getTickDelta() / 100f, 1, 1));
                     RenderSystem.setShaderFogShape(FogShape.SPHERE);
                     RenderSystem.setShaderFogColor(planet.render().color().x(),
                             planet.render().color().y(),
@@ -58,7 +59,7 @@ public class FoggyUtils {
             RenderSystem.setShaderFogEnd(MathHelper.lerp(ClientTardisUtil.getAlarmDeltaForLerp(), 11, 32));
             RenderSystem.setShaderFogShape(FogShape.SPHERE);
             RenderSystem.setShaderFogColor(0.5f, 0, 0, 0.5f);
-            MinecraftClient.getInstance().gameRenderer.getCamera().getSubmersionType();
+            mc.gameRenderer.getCamera().getSubmersionType();
         }
 
         if (tardis.isGrowth()
@@ -71,8 +72,8 @@ public class FoggyUtils {
         }
         if (tardis.crash().isToxic() && tardis.fuel().hasPower()) {
             RenderSystem
-                    .setShaderFogStart(MathHelper.lerp(MinecraftClient.getInstance().getTickDelta() / 100f, -8, 24));
-            RenderSystem.setShaderFogEnd(MathHelper.lerp(MinecraftClient.getInstance().getTickDelta() / 100f, 11, 32));
+                    .setShaderFogStart(MathHelper.lerp(mc.getTickDelta() / 100f, -8, 24));
+            RenderSystem.setShaderFogEnd(MathHelper.lerp(mc.getTickDelta() / 100f, 11, 32));
             RenderSystem.setShaderFogShape(FogShape.SPHERE);
 
             ItemStack stack = mc.player.getEquippedStack(EquipmentSlot.HEAD);
@@ -86,10 +87,9 @@ public class FoggyUtils {
                 || !tardis.extra().getInsertedDisc().isEmpty())) {
 
             final float[] rgb = ClientTardisUtil.getPartyColors();
-            MinecraftClient minecraftClient = MinecraftClient.getInstance();
 
-            RenderSystem.setShaderFogStart(MathHelper.lerp(minecraftClient.getTickDelta() / 100f, -8, 24));
-            RenderSystem.setShaderFogEnd(MathHelper.lerp(minecraftClient.getTickDelta() / 100f, 20, 40));
+            RenderSystem.setShaderFogStart(MathHelper.lerp(mc.getTickDelta() / 100f, -8, 24));
+            RenderSystem.setShaderFogEnd(MathHelper.lerp(mc.getTickDelta() / 100f, 20, 40));
             RenderSystem.setShaderFogShape(FogShape.SPHERE);
             RenderSystem.setShaderFogColor(rgb[0], rgb[1], rgb[2], 0.25f);
         }

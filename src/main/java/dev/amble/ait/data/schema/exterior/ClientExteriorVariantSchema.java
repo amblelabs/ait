@@ -26,6 +26,7 @@ public abstract class ClientExteriorVariantSchema implements Identifiable {
     private final Identifier id;
 
     private ClientDoorSchema door;
+    private ExteriorModel model;
 
     protected ClientExteriorVariantSchema(Identifier parent, Identifier id) {
         this.parent = parent;
@@ -58,6 +59,10 @@ public abstract class ClientExteriorVariantSchema implements Identifiable {
     public abstract Identifier emission();
 
     public abstract ExteriorModel model();
+
+    public ExteriorModel getCachedModel() {
+        return this.model != null ? this.model : (this.model = this.model());
+    }
 
     public abstract Vector3f sonicItemTranslations();
 

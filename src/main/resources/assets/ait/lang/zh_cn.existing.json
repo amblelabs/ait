@@ -1,0 +1,33 @@
+{
+  "text.ait.config.categories": "AIT",
+  "category.ait.config.client": "客户端",
+  "category.ait.config.server": "服务端",
+
+  "yacl3.config.ait:client.category.client": "AIT（客户端）",
+  "yacl3.config.ait:server.category.server": "AIT（服务端）",
+
+  "yacl3.config.ait:server.minifyJson": "压缩 JSON？",
+  "yacl3.config.ait:server.ghostMonument": "幽灵纪念碑",
+  "yacl3.config.ait:server.lockDimensions": "锁定维度？",
+  "yacl3.config.ait:server.rwfEnabled": "启用 RWF？",
+  "yacl3.config.ait:server.tntCanTeleportThroughDoors": "TNT 可以穿越门传送？",
+  "yacl3.config.ait:server.projectorBlacklist": "”环境投影仪“能投影的维度黑名单",
+  "yacl3.config.ait:server.travelBlacklist": "塔迪斯旅行的维度黑名单",
+  "yacl3.config.ait:server.riftSpawnBlacklist": "时空裂缝可生成的维度黑名单",
+  "yacl3.config.ait:server.riftDropBlacklist": "时空裂缝可前往的维度黑名单",
+
+  "yacl3.config.ait:client.interiorHumVolume": "内部嗡鸣声音量",
+  "yacl3.config.ait:client.customMenu": "使用自定义主菜单？",
+  "yacl3.config.ait:client.showExperimentalWarning": "显示实验性警告",
+  "yacl3.config.ait:client.environmentProjector": "渲染本地天空盒",
+  "yacl3.config.ait:client.enableTardisBOTI": "启用塔迪斯 BOTI（未完成）",
+  "yacl3.config.ait:client.shouldRenderBOTIInterior": "渲染 BOTI 内部",
+  "yacl3.config.ait:client.greenScreenBOTI": "启用绿幕 BOTI",
+  "yacl3.config.ait:client.showControlHitboxes": "显示控件碰撞框",
+  "yacl3.config.ait:client.renderDematParticles": "启用去物质化粒子",
+  "yacl3.config.ait:client.animateConsole": "启用控制台动画？",
+  "yacl3.config.ait:client.animateDoors": "启用门动画？",
+  "yacl3.config.ait:client.temperatureType": "温度单位",
+
+  "screen.ait.security.title": "安全设置"
+}

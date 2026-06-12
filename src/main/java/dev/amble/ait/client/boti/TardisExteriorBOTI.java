@@ -31,8 +31,8 @@ import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 
 public class TardisExteriorBOTI extends BOTI {
     public void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, ExteriorModel frame, ModelPart mask, int light) {
-        if (MinecraftClient.getInstance().world == null
-                || MinecraftClient.getInstance().player == null) return;
+        if (client.world == null
+                || client.player == null) return;
 
         if (!exterior.isLinked())
             return;
@@ -41,17 +41,17 @@ public class TardisExteriorBOTI extends BOTI {
 
         stack.push();
 
-        MinecraftClient.getInstance().getFramebuffer().endWrite();
+        client.getFramebuffer().endWrite();
 
         BOTI_HANDLER.setupFramebuffer();
 
-        Vec3d skyColor = MinecraftClient.getInstance().world.getSkyColor(MinecraftClient.getInstance().player.getPos(), MinecraftClient.getInstance().getTickDelta());
+        Vec3d skyColor = client.world.getSkyColor(client.player.getPos(), client.getTickDelta());
         if (AITModClient.CONFIG.greenScreenBOTI)
             BOTI.setFramebufferColor(BOTI_HANDLER.afbo, 0, 1, 0, 1);
         else
             BOTI.setFramebufferColor(BOTI_HANDLER.afbo, (float) skyColor.x, (float) skyColor.y, (float) skyColor.z, 1);
 
-        BOTI.copyFramebuffer(MinecraftClient.getInstance().getFramebuffer(), BOTI_HANDLER.afbo);
+        BOTI.copyFramebuffer(client.getFramebuffer(), BOTI_HANDLER.afbo);
 
         VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
@@ -84,7 +84,7 @@ public class TardisExteriorBOTI extends BOTI {
         botiProvider.draw();
         stack.pop();
 
-        copyDepth(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
+        copyDepth(BOTI_HANDLER.afbo, client.getFramebuffer());
 
         BOTI_HANDLER.afbo.beginWrite(false);
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
@@ -137,11 +137,11 @@ public class TardisExteriorBOTI extends BOTI {
 
             if ((stats.getName() != null && "partytardis".equals(stats.getName().toLowerCase()) || (!exterior.tardis().get().extra().getInsertedDisc().isEmpty()))) {
                 int m = 25;
-                int n = MinecraftClient.getInstance().player.age / m + MinecraftClient.getInstance().player.getId();
+                int n = client.player.age / m + client.player.getId();
                 int o = DyeColor.values().length;
                 int p = n % o;
                 int q = (n + 1) % o;
-                float r = ((float) (MinecraftClient.getInstance().player.age % m)) / m;
+                float r = ((float) (client.player.age % m)) / m;
                 float[] fs = SheepEntity.getRgbColor(DyeColor.byId(p));
                 float[] gs = SheepEntity.getRgbColor(DyeColor.byId(q));
                 s = fs[0] * (1f - r) + gs[0] * r;
@@ -167,9 +167,9 @@ public class TardisExteriorBOTI extends BOTI {
         }
         stack.pop();
 
-        MinecraftClient.getInstance().getFramebuffer().beginWrite(true);
+        client.getFramebuffer().beginWrite(true);
 
-        BOTI.copyColor(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
+        BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
 
         GL11.glDisable(GL11.GL_STENCIL_TEST);
 

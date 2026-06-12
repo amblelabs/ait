@@ -124,7 +124,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
     private ExteriorModel getModel(Tardis tardis) {
         if (model == null)
-            model = tardis.getExterior().getVariant().getClient().model();
+            model = tardis.getExterior().getVariant().getClient().getCachedModel();
 
         return model;
     }
@@ -142,7 +142,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
         if (this.variant != variant) {
             this.variant = variant;
-            this.model = variant.model();
+            this.model = variant.getCachedModel();
         }
     }
 }

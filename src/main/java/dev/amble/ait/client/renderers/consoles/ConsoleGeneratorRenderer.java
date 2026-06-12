@@ -7,6 +7,8 @@ import dev.amble.ait.client.models.consoles.ConsoleModel;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.data.datapack.DatapackConsole;
+import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
+import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -42,24 +44,17 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
             int light, int overlay) {
-
-        if (ClientConsoleVariantRegistry.getInstance().get(entity.getConsoleVariant().id()) == null)
+        if (entity.getWorld() == null || !entity.isLinked())
             return;
-
-        if (entity.getWorld() == null)
-            return;
-
-        if (!entity.isLinked())
-            return;
-
-        ConsoleModel console = ClientConsoleVariantRegistry.getInstance().get(entity.getConsoleVariant().id()).model();
-        Identifier consoleTexture = ClientConsoleVariantRegistry.getInstance().get(entity.getConsoleVariant().id())
-                .texture();
-        Identifier consoleEmission = ClientConsoleVariantRegistry.getInstance().get(entity.getConsoleVariant().id()).emission();
-
-        //boolean powered = entity.isPowered();
 
         Tardis tardis = entity.tardis().get();
+
+        ConsoleVariantSchema variant = entity.getConsoleVariant();
+        ClientConsoleVariantSchema clientVariant = variant.getClient();
+
+        ConsoleModel console = clientVariant.getCachedModel();
+        Identifier consoleTexture = clientVariant.texture();
+        Identifier consoleEmission = clientVariant.emission();
 
         matrices.push();
 

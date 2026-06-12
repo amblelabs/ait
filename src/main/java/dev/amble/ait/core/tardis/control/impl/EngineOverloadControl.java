@@ -26,7 +26,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
 public class EngineOverloadControl extends Control {
 
-    private static final Random RANDOM = new Random();
+    private static final Random RANDOM = AITMod.RANDOM;
     private static final String[] SPINNER = {"/", "-", "\\", "|"};
 
     public EngineOverloadControl() {

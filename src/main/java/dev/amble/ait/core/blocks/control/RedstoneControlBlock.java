@@ -1,5 +1,6 @@
 package dev.amble.ait.core.blocks.control;
 
+import net.minecraft.sound.SoundEvents;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -99,7 +100,7 @@ public class RedstoneControlBlock extends ControlBlock {
         }
 
         world.setBlockState(pos, Mode.set(state, Mode.get(state).next())); // set to next mode
-        world.playSound(null, pos, AITSounds.REDSTONE_CONTROL_SWITCHAROO, SoundCategory.BLOCKS, 0.1f, 0f);
+        world.playSound(null, pos, SoundEvents.BLOCK_STONE_BUTTON_CLICK_ON, SoundCategory.BLOCKS, 0.1f, 0.5f);
 
         return ActionResult.SUCCESS;
     }

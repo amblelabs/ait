@@ -22,6 +22,8 @@ public abstract class ClientConsoleVariantSchema implements Identifiable {
     private final Identifier parent;
     private final Identifier id;
 
+    private ConsoleModel model;
+
     protected ClientConsoleVariantSchema(Identifier parent, Identifier id) {
         this.parent = parent;
         this.id = id;
@@ -54,6 +56,10 @@ public abstract class ClientConsoleVariantSchema implements Identifiable {
 
     @Environment(EnvType.CLIENT)
     public abstract ConsoleModel model();
+
+    public ConsoleModel getCachedModel() {
+        return this.model != null ? this.model : (this.model = this.model());
+    }
 
     public static Object serializer() {
         return new Serializer();

@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import com.google.gson.InstanceCreator;
 
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.config.AITClientConfig;
 import net.minecraft.client.MinecraftClient;
 
 import dev.amble.ait.AITMod;
@@ -49,15 +51,8 @@ public class ClientTardis extends Tardis implements Disposable {
         ClientTardisUtil.tickPowerDelta();
         ClientTardisUtil.tickAlarmDelta();
 
-        // referencing client stuff where it COULD be server causes problems
-        if (!ClientShakeUtil.shouldShake(this))
-            return;
-
-        if (this.flight().falling().get()) {
-            ClientShakeUtil.shakeFromEverywhere();
-        } else {
-            ClientShakeUtil.shakeFromConsole();
-        }
+        float amount = ClientShakeUtil.getShakeAmount(this) * AITModClient.CONFIG.screenShake;
+        ClientShakeUtil.shake(amount);
     }
 
     @Override

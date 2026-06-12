@@ -19,6 +19,7 @@ import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 
 public class BOTI {
+    public static final MinecraftClient client = MinecraftClient.getInstance();
     public static final Queue<RiftEntity> RIFT_RENDERING_QUEUE = new LinkedList<>();
     public static BOTIInit BOTI_HANDLER = new BOTIInit();
     public static AITBufferBuilderStorage AIT_BUF_BUILDER_STORAGE = new AITBufferBuilderStorage();

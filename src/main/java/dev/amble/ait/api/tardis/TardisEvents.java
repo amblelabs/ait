@@ -205,8 +205,13 @@ public final class TardisEvents {
     public static final Event<EnterTardis> ENTER_TARDIS = EventFactory.createArrayBacked(EnterTardis.class,
             callbacks -> (tardis, entity) -> {
                 for (EnterTardis callback : callbacks) {
-                    callback.onEnter(tardis, entity);
+                    Interaction value = callback.onEnter(tardis, entity);
+
+                    if (value != Interaction.PASS)
+                        return value;
                 }
+
+                return Interaction.SUCCESS;
             });
 
     public static final Event<LeaveTardis> LEAVE_TARDIS = EventFactory.createArrayBacked(LeaveTardis.class,
@@ -499,7 +504,7 @@ public final class TardisEvents {
 
     @FunctionalInterface
     public interface EnterTardis {
-        void onEnter(Tardis tardis, Entity entity);
+        Interaction onEnter(Tardis tardis, Entity entity);
     }
 
     @FunctionalInterface

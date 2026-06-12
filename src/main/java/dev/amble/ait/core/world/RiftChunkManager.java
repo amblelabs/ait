@@ -21,6 +21,9 @@ import dev.amble.ait.core.events.ServerChunkEvents;
 @SuppressWarnings("UnstableApiUsage")
 public record RiftChunkManager(ServerWorld world) {
 
+    private static final int MIN_ARTRON_AMOUNT = 2000;
+    private static final int MAX_ARTRON_AMOUNT = 4000;
+
     private static final AttachmentType<Double> ARTRON = AttachmentRegistry.createPersistent(
             AITMod.id("artron"), Codec.DOUBLE
     );
@@ -58,7 +61,7 @@ public record RiftChunkManager(ServerWorld world) {
         if (!(shouldBeProtoChunk instanceof ProtoChunk protoChunk))
             return 0;
 
-        return protoChunk.getAttachedOrCreate(ARTRON, () -> (double) world.getRandom().nextBetween(100, 800));
+        return protoChunk.getAttachedOrCreate(ARTRON, () -> (double) world.getRandom().nextBetween(MIN_ARTRON_AMOUNT, MAX_ARTRON_AMOUNT));
     }
 
     public double getMaxArtron(ChunkPos pos) {
@@ -70,7 +73,7 @@ public record RiftChunkManager(ServerWorld world) {
         if (!(shouldBeProtoChunk instanceof ProtoChunk protoChunk))
             return 0;
 
-        return protoChunk.getAttachedOrCreate(ARTRON, () -> (double) world.getRandom().nextBetween(300, 1000));
+        return protoChunk.getAttachedOrCreate(ARTRON, () -> (double) world.getRandom().nextBetween(MIN_ARTRON_AMOUNT, MAX_ARTRON_AMOUNT));
     }
 
     public double removeFuel(ChunkPos pos, double amount) {
@@ -142,7 +145,7 @@ public record RiftChunkManager(ServerWorld world) {
         if (!(shouldBeProtoChunk instanceof ProtoChunk protoChunk))
             return 0;
 
-        return protoChunk.getAttachedOrCreate(ARTRON, () -> (double) world.getRandom().nextBetween(100, 800));
+        return protoChunk.getAttachedOrCreate(ARTRON, () -> (double) world.getRandom().nextBetween(MIN_ARTRON_AMOUNT, MAX_ARTRON_AMOUNT));
     }
 
     public static double getMaxFuel(ServerWorld world, ChunkPos pos) {
@@ -154,6 +157,6 @@ public record RiftChunkManager(ServerWorld world) {
         if (!(shouldBeProtoChunk instanceof ProtoChunk protoChunk))
             return 0;
 
-        return protoChunk.getAttachedOrCreate(MAX_ARTRON, () -> (double) world.getRandom().nextBetween(300, 1000));
+        return protoChunk.getAttachedOrCreate(MAX_ARTRON, () -> (double) world.getRandom().nextBetween(MIN_ARTRON_AMOUNT, MAX_ARTRON_AMOUNT));
     }
 }

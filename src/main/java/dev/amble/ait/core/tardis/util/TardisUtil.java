@@ -262,13 +262,13 @@ public class TardisUtil {
     }
 
     public static void teleportInside(ServerTardis tardis, Entity entity) {
-        TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity);
+        if (TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity) == TardisEvents.Interaction.FAIL) return;
         TardisUtil.teleportWithDoorOffset(tardis.world(), entity, tardis.getDesktop().getDoorPos());
     }
 
     public static void teleportToInteriorPosition(ServerTardis tardis, Entity entity, BlockPos pos) {
         if (entity instanceof ServerPlayerEntity player) {
-            TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity);
+            if (TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity) == TardisEvents.Interaction.FAIL) return;
 
             WorldUtil.teleportToWorld(player, tardis.world(),
                     new Vec3d(pos.getX(), pos.getY(), pos.getZ()), entity.getYaw(), player.getPitch());
@@ -496,10 +496,10 @@ public class TardisUtil {
         return Math.sqrt(tPos.getSquaredDistance(pPos));
     }
 
-    public static double estimatedFuelCost(PlayerEntity player, Tardis tardis, double distance){
+    public static double estimatedFuelCost(PlayerEntity player, Tardis tardis, double distance) {
         int speed = Math.max(tardis.travel().speed(), 1);
         double ticksRequired = distance / speed;
-        double perTick = FuelHandler.getPerTickFuelCost(speed, tardis.travel().instability());
+        double perTick = FuelHandler.getPerTickFuelCost(speed, tardis.travel().instability(), tardis.travel().autopilot());
         return perTick * ticksRequired;
     }
 }

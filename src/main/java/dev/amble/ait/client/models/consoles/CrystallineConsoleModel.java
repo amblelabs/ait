@@ -1209,58 +1209,48 @@ public class CrystallineConsoleModel extends SimpleConsoleModel {
         console.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
-    private float throttleAngle = 0f;
-    private float handbrakeAngle = 0f;
-    private float powerAngle = 0f;
-    private float incrementAngle = 0f;
-    private float directionAngle = 0f;
-    private float refuelerAngle = 0f;
-    private float antiGravAngle = 0f;
-
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = 0.1f * MinecraftClient.getInstance().getTickDelta();
+        float delta = 0.1f * client.getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
 
+        // Throttle Control
         ModelPart throttle = this.console.getChild("pannel2").getChild("pillars2").getChild("pillars3").getChild("leveer2");
         float throttleTarget = -(tardis.travel().speed() / (float) tardis.travel().maxSpeed().get());
-        this.throttleAngle = MathHelper.lerp(delta, this.throttleAngle, throttleTarget);
-        throttle.pitch = this.throttleAngle;
+        throttle.pitch = getAngle(console, "throttle", throttleTarget, delta);
 
+        // Handbrake Control
         ModelPart handbrake = this.console.getChild("pannel2").getChild("pillars2").getChild("pillars3").getChild("leveer");
         float handbrakeTarget = tardis.travel().handbrake() ? 1.0f : 0f;
-        this.handbrakeAngle = MathHelper.lerp(delta, this.handbrakeAngle, handbrakeTarget);
-        handbrake.pitch = this.handbrakeAngle;
+        handbrake.pitch = getAngle(console, "handbrake", handbrakeTarget, delta);
 
+        // Power Control
         ModelPart power = this.console.getChild("pannel3").getChild("rolly");
         float powerTarget = tardis.fuel().hasPower() ? 0f : -1.55f;
-        this.powerAngle = MathHelper.lerp(delta, this.powerAngle, powerTarget);
-        power.roll = this.powerAngle;
+        power.roll = getAngle(console, "power", powerTarget, delta);
 
+        // Anti-Grav Control
         ModelPart antigravs = this.console.getChild("pannel7").getChild("panels7").getChild("cube1");
         float antigravTarget = tardis.travel().antigravs().get() ? -1.58f : 0f;
-        this.antiGravAngle = MathHelper.lerp(delta, this.antiGravAngle, antigravTarget);
-        antigravs.yaw = this.antiGravAngle;
+        antigravs.yaw = getAngle(console, "antigravs", antigravTarget, delta);
 
+        // Increment Control
         ModelPart increment = this.console.getChild("pannel7").getChild("panels7").getChild("bone4");
         float incrementTarget = -(IncrementManager.increment(tardis) / 1000f);
-        this.incrementAngle = MathHelper.lerp(delta, this.incrementAngle, incrementTarget);
-        increment.roll = this.incrementAngle;
+        increment.roll = getAngle(console, "increment", incrementTarget, delta);
 
+        // Fuel Gauge
         ModelPart fuelGauge = this.console.getChild("pannel3").getChild("panels3").getChild("button");
         fuelGauge.pivotX += 0.25f;
         fuelGauge.pivotZ += 0.25f;
         float fuelGaugeTarget = (float) ((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 2f) - 1f;
-        this.refuelerAngle = MathHelper.lerp(delta, this.refuelerAngle, fuelGaugeTarget);
-        fuelGauge.yaw = this.refuelerAngle;
+        fuelGauge.yaw = getAngle(console, "fuel_gauge", fuelGaugeTarget, delta);
 
+        // Direction Control
         ModelPart direction = this.console.getChild("pannel7").getChild("pillars56").getChild("pillars57").getChild("spinnio");
         float directionTargetDegrees = tardis.travel().destination().getRotation() * 22.5f;
-        float currentDirectionDegrees = (float) Math.toDegrees(this.directionAngle);
-        float nextDirectionDegrees = MathHelper.lerpAngleDegrees(delta, currentDirectionDegrees, directionTargetDegrees);
-        this.directionAngle = (float) Math.toRadians(nextDirectionDegrees);
-        direction.roll = this.directionAngle;
+        direction.roll = getLerpedDegrees(console, "direction", directionTargetDegrees, delta);
 
         super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
@@ -1299,20 +1289,20 @@ public class CrystallineConsoleModel extends SimpleConsoleModel {
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
         matrices.scale(0.005f, 0.005f, 0.005f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(-30f));
-        matrices.translate(-240f, -228, -5f);
-        String positionPosText = " " + abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
+        matrices.translate(-246f, -225, -5f);
+        String positionPosText = abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
         Text positionDimensionText = WorldUtil.worldText(abpp.getDimension());
-        String positionDirectionText = " " + DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
-        String destinationPosText = " " + abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
+        String positionDirectionText = DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
+        String destinationPosText = abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
         Text destinationDimensionText = WorldUtil.worldText(abpd.getDimension(), false);
-        String destinationDirectionText = " " + DirectionControl.rotationToDirection(abpd.getRotation()).toUpperCase();
-        renderer.drawWithOutline(Text.of("❌").asOrderedText(), 0, 40, 0xF00F00, 0x000000,
+        String destinationDirectionText = DirectionControl.rotationToDirection(abpd.getRotation()).toUpperCase();
+        renderer.drawWithOutline(Text.of("\uD83D\uDCCD").asOrderedText(), 0, 40, 0x00EEFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 0, 48, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 8, 40, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 0, 56, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 8, 48, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 0, 64, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 8, 56, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         matrices.pop();
 
@@ -1321,14 +1311,14 @@ public class CrystallineConsoleModel extends SimpleConsoleModel {
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
         matrices.scale(0.005f, 0.005f, 0.005f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(150f));
-        matrices.translate(-240f, -240, -5f);
-        renderer.drawWithOutline(Text.of("✛").asOrderedText(), 0, 40, 0x00F0FF, 0x000000,
+        matrices.translate(-246f, -235, -5f);
+        renderer.drawWithOutline(Text.of("\uD83E\uDC97").asOrderedText(), 0, 40, 0xFF0000, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(destinationPosText).asOrderedText(), 0, 48, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(destinationPosText).asOrderedText(), 8, 40, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(destinationDimensionText.asOrderedText(), 0, 56, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(destinationDimensionText.asOrderedText(), 8, 48, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(destinationDirectionText).asOrderedText(), 0, 64, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(destinationDirectionText).asOrderedText(), 8, 56, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         matrices.pop();
 
@@ -1339,11 +1329,9 @@ public class CrystallineConsoleModel extends SimpleConsoleModel {
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(150f));
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-20.5f));
         String progressText = tardis.travel().getState() == TravelHandlerBase.State.LANDED
-                ? "0%"
-                : tardis.travel().getDurationAsPercentage() + "%";
+                ? "⏳: 0%"
+                : "⏳: " + tardis.travel().getDurationAsPercentage() + "%";
         matrices.translate(0, -38, -52);
-        /*renderer.drawWithOutline(Text.of("⏳").asOrderedText(), 0, 0, 0x00FF0F, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);*/
         matrices.translate(0 - entity.getWorld().random.nextFloat() * 0.4, 0 + entity.getWorld().random.nextFloat() * 0.4, 0 - entity.getWorld().random.nextFloat() * 0.4);
         renderer.drawWithOutline(Text.of(progressText).asOrderedText(), 0 - renderer.getWidth(progressText) / 2, 0, 0xffffff, 0x03cffc,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);

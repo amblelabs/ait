@@ -36,6 +36,7 @@ import dev.amble.ait.data.properties.dbl.DoubleValue;
 
 public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, TardisTickable {
     public static final double TARDIS_MAX_FUEL = 50000;
+    private static final double AUTOPILOT_COST = 1.5d;
 
     private static final DoubleProperty FUEL = new DoubleProperty("fuel", 1000d);
     private static final BoolProperty REFUELING = new BoolProperty("refueling", false);
@@ -162,12 +163,14 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
         this.removeFuel(20 * 5 * tardis.travel().instability());
     }
 
-    public static double getPerTickFuelCost(int speed, int instability) {
-        return speed + instability - 1;
+    public static double getPerTickFuelCost(int speed, int instability, boolean autopilot) {
+        double cost = speed + instability - 1;
+        if (autopilot && speed > 2) cost *= AUTOPILOT_COST;
+        return cost;
     }
 
     public static double getPerTickFuelCost(TravelHandler travel) {
-        return getPerTickFuelCost(Math.max(travel.speed(), 1), travel.instability());
+        return getPerTickFuelCost(Math.max(travel.speed(), 1), travel.instability(), travel.autopilot());
     }
 
     private void tickFlight() {

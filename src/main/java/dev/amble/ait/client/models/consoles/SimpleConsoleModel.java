@@ -1,7 +1,13 @@
 package dev.amble.ait.client.models.consoles;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.function.Function;
 
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.RenderLayer;
@@ -23,6 +29,29 @@ import net.minecraft.util.math.MathHelper;
 @SuppressWarnings("rawtypes")
 public abstract class SimpleConsoleModel extends SinglePartEntityModel implements ConsoleModel {
 
+    // Using a map actually is the worst way to do this - DO NOT REPLICATE. - Loqor
+    protected static final Map<BlockEntity, Object2FloatMap<String>> ANIMATION_CACHE = new WeakHashMap<>();
+
+    protected static final MinecraftClient client = MinecraftClient.getInstance();
+
+    protected float getAngle(BlockEntity console, String key, float target, float delta) {
+        Object2FloatMap<String> state = ANIMATION_CACHE.computeIfAbsent(console, k -> new Object2FloatOpenHashMap<>());
+        float current = state.getOrDefault(key, 0f);
+        float next = MathHelper.lerp(delta, current, target);
+        state.put(key, next);
+        return next;
+    }
+
+    protected float getLerpedDegrees(BlockEntity console, String key, float targetDegrees, float delta) {
+        Object2FloatMap<String> state = ANIMATION_CACHE.computeIfAbsent(console, k -> new Object2FloatOpenHashMap<>());
+        float currentRadians = state.getOrDefault(key, 0f);
+        float currentDegrees = currentRadians * (180f / (float) Math.PI);
+        float nextDegrees = MathHelper.lerpAngleDegrees(delta, currentDegrees, targetDegrees);
+        float nextRadians = nextDegrees * ((float) Math.PI / 180f);
+        state.put(key, nextRadians);
+        return nextRadians;
+    }
+
     public SimpleConsoleModel() {
         this(RenderLayer::getEntityCutoutNoCull);
     }
@@ -33,16 +62,10 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
 
     @Override
     public void animateBlockEntity(ConsoleBlockEntity console, TravelHandlerBase.State state, boolean hasPower) {
-        // fyi, this is directly referencing camel animation code, its just specific
-        // according to
-        // the
-        // block entity that
-        // is being used
-        // to detect different states. - Loqor
         this.getPart().traverse().forEach(ModelPart::resetTransform);
 
         if (hasPower && AITModClient.CONFIG.animateConsole)
-            this.updateAnimation(console.ANIM_STATE, this.getAnimationForState(state), MinecraftClient.getInstance().getTickDelta() + console.getAge());
+            this.updateAnimation(console.ANIM_STATE, this.getAnimationForState(state), client.getTickDelta() + console.getAge());
     }
 
     @Override
@@ -65,11 +88,6 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
 
     public void renderMonitorText(Tardis tardis, ConsoleBlockEntity entity, MatrixStack matrices,
                                   VertexConsumerProvider vertexConsumers, int light, int overlay) {
-        // do nothing !! (i fucking hate programming) todo - @Loqor you added this feature ur implementing it for the rest
-    }
-
-    public float interpol(float current, float target, float speed) {
-        float delta = MinecraftClient.getInstance().getTickDelta() * speed;
-        return MathHelper.lerp(delta, current, target);
+        // no op
     }
 }

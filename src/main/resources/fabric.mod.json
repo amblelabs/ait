@@ -13,6 +13,7 @@
 		" - Maketendo",
 		" - AddieDaBaddie",
 		" - Saturn",
+		" - nanowu",
 		"\nArtists:",
 		" - WazzakiWanzz",
 		" - Tright",
@@ -22,13 +23,15 @@
 		" - Maggie",
 		" - Monsterwaill",
 		" - Westankrang",
-		" - Dian"
+		" - Dian",
+		"\nMusic:",
+		" - RatZoomie",
+		" - lucien"
 	],
 	"contributors": [
 		"\nContributors:",
 		" - vmbbi (Max)",
 		" - Echo",
-		" - RatZoomie",
 		" - Tryzo (Ben)",
 		" - nitrogenez",
 		" - DocArcane (Designed the original steam console)",
@@ -37,7 +40,9 @@
 		" - Creativious",
 		" - TARDIS SFX for some TARDIS Sounds",
 		" - Pastelb96 (translations)",
-		" - Codiak"
+		" - Codiak",
+		" - Small Moss (translations)",
+		" - bastalation"
 	],
 	"contact": {
 		"homepage": "https://amblelabs.github.io",
@@ -91,7 +96,7 @@
 		"java": ">=17",
 		"fabric-api": "*",
 		"yet_another_config_lib_v3": ">=${yacl_version}",
-		"amblekit": ">=1.1.14-1.20.1-beta"
+		"amblekit": ">=1.1.16-dev+mc.1.20.1"
 	},
 	"suggests": {
 		"k9-mod": "*",
