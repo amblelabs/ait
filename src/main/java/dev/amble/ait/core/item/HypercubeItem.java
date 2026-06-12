@@ -2,6 +2,7 @@ package dev.amble.ait.core.item;
 
 import java.util.List;
 
+import net.minecraft.server.world.ServerWorld;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.MinecraftClient;
@@ -22,6 +23,9 @@ import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.tardis.handler.distress.DistressCall;
 
 public class HypercubeItem extends Item {
+
+    private static final String DISTRESS_CALL_KEY = "DistressCall";
+
     public HypercubeItem(Settings settings) {
         super(settings.maxDamageIfAbsent(100));
     }
@@ -36,13 +40,13 @@ public class HypercubeItem extends Item {
 
         ItemStack held = user.getMainHandStack();
 
-        if (user.getWorld().isClient()) {
+        if (!(world instanceof ServerWorld serverWorld)) {
             MinecraftClient.getInstance().gameRenderer.showFloatingItem(held);
 
             return TypedActionResult.success(user.getStackInHand(hand));
         }
 
-        DistressCall call = getCall(held, world.getServer().getTicks());
+        DistressCall call = getCall(held, serverWorld.getServer().getTicks());
         if (call == null) {
             call = DistressCall.create(user, held.hasCustomName() ? held.getName().getString() : "SOS", true);
             setCall(held, call);
@@ -52,16 +56,16 @@ public class HypercubeItem extends Item {
 
         user.getItemCooldownManager().set(this, 15 * 20);
 
-        return success ? TypedActionResult.success(user.getStackInHand(hand)) : TypedActionResult.fail(user.getStackInHand(hand));
+        return success ? TypedActionResult.success(held) : TypedActionResult.fail(held);
     }
 
     @Override
     public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
         super.inventoryTick(stack, world, entity, slot, selected);
 
-        if (world.isClient()) return;
+        if (!(world instanceof ServerWorld serverWorld)) return;
 
-        DistressCall call = getCall(stack, world.getServer().getTicks());
+        DistressCall call = getCall(stack, serverWorld.getServer().getTicks());
         if (call == null) return;
         if (call.isSourceCall()) return;
 
@@ -90,15 +94,16 @@ public class HypercubeItem extends Item {
 
     public static DistressCall getCall(ItemStack stack, int ticks) {
         NbtCompound data = stack.getOrCreateNbt();
-        if (!data.contains("DistressCall")) return null;
+        if (!data.contains(DISTRESS_CALL_KEY)) return null;
 
-        return DistressCall.fromNbt(data.getCompound("DistressCall"), ticks);
+        return DistressCall.fromNbt(data.getCompound(DISTRESS_CALL_KEY), ticks);
     }
+
     public static void setCall(ItemStack stack, DistressCall call) {
-        stack.getOrCreateNbt().put("DistressCall", call.toNbt());
+        stack.getOrCreateNbt().put(DISTRESS_CALL_KEY, call.toNbt());
 
         if (stack.hasCustomName()) {
-            stack.setCustomName(null);
+            stack.setCustomName(Text.literal(""));
         }
     }
 
