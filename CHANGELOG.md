@@ -123,3 +123,6 @@
 - fix: hypercubes no longer crash players | by [@Loqor](https://github.com/Loqor) ([#2090](https://github.com/amblelabs/ait/pull/2090))
 - chore: updated minimum amblekit to v1.1.16 | by [@drtheodor](https://github.com/drtheodor) ([#2098](https://github.com/amblelabs/ait/pull/2098))
 - fix: re-create exterior model in snow globe and monitor | by [@drtheodor](https://github.com/drtheodor) ([#2101](https://github.com/amblelabs/ait/pull/2101))
+- feat: preview vortex | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#2075](https://github.com/amblelabs/ait/pull/2075))
+- feat: preview TARDIS sounds | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#2075](https://github.com/amblelabs/ait/pull/2075))
+- feat: preview TARDIS animations | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#2075](https://github.com/amblelabs/ait/pull/2075))
