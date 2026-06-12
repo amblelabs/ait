@@ -57,11 +57,11 @@ public class RiftScannerItem extends Item {
 
         if (entity.getChunkPos().equals(target)) {
             if (!hasDinged) {
-                world.playSound(null, entity.getBlockPos(), AITSounds.TARDIS_BLING, SoundCategory.MASTER, 3f, 1f);
+                // Bling sound is kinda quiet so it should be set to about a volume of 3
+                world.playSound(null, entity.getBlockPos(), AITSounds.TARDIS_BLING, SoundCategory.PLAYERS, 3f, 1f);
                 stack.getOrCreateNbt().putBoolean(NBT_DINGED, true);
             }
         } else {
-            // Reset dinged status if the player leaves the target chunk
             if (hasDinged) {
                 stack.getOrCreateNbt().putBoolean(NBT_DINGED, false);
             }
