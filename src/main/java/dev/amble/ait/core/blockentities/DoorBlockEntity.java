@@ -82,12 +82,10 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
         // exit early for light updates
         if (world.getServer().getTicks() % 20 != 0) {
-            if (open) {
-                world.setBlockState(pos, blockState, Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
-            } else {
+            if (!open) {
                 blockState = blockState.with(DoorBlock.LEVEL_4, 0);
-                world.setBlockState(pos, blockState, Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
             }
+            world.setBlockState(pos, blockState, Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
             return;
         }
 
