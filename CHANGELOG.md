@@ -118,3 +118,4 @@
 - fix: do not bring siege tardis inside tardis | by [@bastalation](https://github.com/bastalation) ([#2086](https://github.com/amblelabs/ait/pull/2086))
 - fix: rift scanner now dings when entering a rift chunk | by [@Loqor](https://github.com/Loqor) ([#2085](https://github.com/amblelabs/ait/pull/2085))
 - tweak: rift chunks now have about 2.5x-3.5x the artron | by [@Loqor](https://github.com/Loqor) ([#2085](https://github.com/amblelabs/ait/pull/2085))
+- fix: door lighting properly updates | by [@Loqor](https://github.com/Loqor) ([#2089](https://github.com/amblelabs/ait/pull/2089))
