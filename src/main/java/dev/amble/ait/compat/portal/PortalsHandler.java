@@ -163,7 +163,7 @@ public class PortalsHandler extends KeyedTardisComponent {
         );
 
         DQuaternion quat = DQuaternion.rotationByDegrees(new Vec3d(0, -1, 0), RotationPropertyHelper.toDegrees(exteriorPos.getRotation()));
-        DQuaternion doorQuat = DQuaternion.rotationByDegrees(new Vec3d(0, -1, 0), RotationPropertyHelper.toDegrees(exteriorPos.getRotation()));
+        DQuaternion doorQuat = DQuaternion.rotationByDegrees(new Vec3d(0, -1, 0), RotationPropertyHelper.toDegrees(doorPos.getRotation()));
 
         PortalAPI.setPortalOrientationQuaternion(portal, quat);
         portal.setOtherSideOrientation(doorQuat);
@@ -173,7 +173,7 @@ public class PortalsHandler extends KeyedTardisComponent {
         portal.setDestinationDimension(tardis.asServer().world().getRegistryKey());
         portal.setDestination(doorAdjust);
 
-        //portal.renderingMergable = true;
+        portal.renderingMergable = true;
 		portal.teleportChangesScale = false;
         portal.setInteractable(false);
         portal.getWorld().spawnEntity(portal);
@@ -209,7 +209,7 @@ public class PortalsHandler extends KeyedTardisComponent {
         portal.setDestinationDimension(tardis.travel().getState() == TravelHandlerBase.State.FLIGHT ? AITDimensions.TIME_VORTEX_WORLD : exteriorPos.getWorld().getRegistryKey());
         portal.setDestination(exteriorAdjust);
 
-        //portal.renderingMergable = true;
+        portal.renderingMergable = true;
 		portal.teleportChangesScale = false;
         portal.setInteractable(false);
         portal.getWorld().spawnEntity(portal);
