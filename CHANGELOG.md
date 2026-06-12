@@ -116,3 +116,5 @@
 - feat: repair tool to repair subsystems instead of using items like gold or iron | by [@Loqor](https://github.com/Loqor) ([#2078](https://github.com/amblelabs/ait/pull/2078))
 - chore: replaced RedstoneControlBlock sound | by [@Addi3](https://github.com/Addi3) ([#2081](https://github.com/amblelabs/ait/pull/2081))
 - fix: do not bring siege tardis inside tardis | by [@bastalation](https://github.com/bastalation) ([#2086](https://github.com/amblelabs/ait/pull/2086))
+- fix: rift scanner now dings when entering a rift chunk | by [@Loqor](https://github.com/Loqor) ([#2085](https://github.com/amblelabs/ait/pull/2085))
+- tweak: rift chunks now have about 2.5x-3.5x the artron | by [@Loqor](https://github.com/Loqor) ([#2085](https://github.com/amblelabs/ait/pull/2085))
