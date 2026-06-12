@@ -1,6 +1,7 @@
 package dev.amble.ait.mixin.compat.portals;
 
 import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -20,6 +21,8 @@ public class ServerTeleportationManagerMixin {
             TardisEvents.LEAVE_TARDIS.invoker().onLeave(tsw.getTardis(), player);
 
         if (toWorld instanceof TardisServerWorld tsw)
-            TardisEvents.ENTER_TARDIS.invoker().onEnter(tsw.getTardis(), player);
+            if (TardisEvents.ENTER_TARDIS.invoker().onEnter(tsw.getTardis(), player) == TardisEvents.Interaction.FAIL) {
+                TardisUtil.teleportOutside(tsw.getTardis(), player);
+            }
     }
 }

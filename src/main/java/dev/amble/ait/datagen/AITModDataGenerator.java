@@ -928,6 +928,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("ait.item.drink.coffee", "Coffee");
         provider.addTranslation("ait.item.drink.vodka", "Vodka");
         provider.addTranslation("ait.item.drink.chocolate_milk", "Chocolate Milk");
+        provider.addTranslation("ait.tooltip.siege_item.enter", "Temporal machine detected, cannot seal real-time envelope!");
 
         // Exteriors
         provider.addTranslation("exterior.ait.capsule", "Capsule");
@@ -1544,6 +1545,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("waypoint.position.tooltip", "Position");
         provider.addTranslation("waypoint.dimension.tooltip", "Dimension");
         provider.addTranslation("waypoint.direction.tooltip", "Direction");
+        provider.addTranslation("ait.tooltip.coral_riftchunk", "Must be placed in Rift Chunk");
+        provider.addTranslation("ait.tooltip.coral_soulsand", "Must be placed on Soul Sand Block");
 
         // Blueprint Item
         provider.addTranslation("ait.blueprint.tooltip", "Blueprint: ");
