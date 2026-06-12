@@ -76,6 +76,10 @@ public class Control implements Identifiable {
         }
     }
 
+    public Text getName() {
+        // Replace this string structure with whatever format your .json keys currently use!
+        return Text.translatable(id.toTranslationKey("control"));
+    }
 
     public SoundEvent getFallbackSound() {
         return null;

@@ -80,7 +80,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             TrackedDataHandlerRegistry.BLOCK_POS);
     private Control control;
     public static final float MAX_DURABILITY = 1.0f;
-
+    private boolean cachedRwfEnabled = AITMod.CONFIG.rwfEnabled;
     public ConsoleControlEntity(EntityType<? extends Entity> entityType, World world) {
         super(entityType, world);
     }
@@ -260,6 +260,11 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         if (this.control == null && this.getConsoleBlockPos() != null)
             this.discard();
+
+        if (this.cachedRwfEnabled != AITMod.CONFIG.rwfEnabled) {
+            this.refreshName();
+            this.cachedRwfEnabled = AITMod.CONFIG.rwfEnabled;
+        }
 
         switch (this.getDurabilityState(this.getDurability())) {
             case JAMMED, SPARKING -> this.spark();
@@ -514,7 +519,11 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         AITMod.LOGGER.warn("Control entity at {} has no console block entity at {}", this.getPos(), this.getConsoleBlockPos());
         return null;
     }
-
+    public void refreshName() {
+        if (this.control != null) {
+            super.setCustomName(this.control.getName());
+        }
+    }
     private void spark() {
         if (this.getEntityWorld().isClient()) return;
         Vec3d pos = this.getPos();
@@ -546,8 +555,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     public void setControlData(ConsoleTypeSchema consoleType, ControlTypes type, BlockPos consoleBlockPosition, float durability, boolean sticky) {
         this.setConsolePos(consoleBlockPosition);
         this.control = type.getControl();
-
-        super.setCustomName(Text.translatable(this.control.id().toTranslationKey("control")));
+        this.refreshName();
 
         if (consoleType != null) {
             this.setControlWidth(type.getScale().width);

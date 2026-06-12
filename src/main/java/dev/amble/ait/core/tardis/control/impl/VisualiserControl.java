@@ -2,6 +2,7 @@ package dev.amble.ait.core.tardis.control.impl;
 
 import static dev.amble.ait.core.engine.SubSystem.Id.GRAVITATIONAL;
 
+import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.compat.portal.PortalsAPI;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -23,6 +24,21 @@ public class VisualiserControl extends Control {
 
     public VisualiserControl() {
         super(AITMod.id("visualiser"));
+    }
+
+    @Override
+    public Text getName() {
+        if (AITMod.CONFIG.rwfEnabled) {
+            // The translation key to use when rwfEnabled is TRUE
+            return Text.translatable("control.ait.rwf");
+        }
+        else if(DependencyChecker.hasPortals()) {
+            // The translation key to use when hasportals is true while rwf is false
+            return Text.translatable("control.ait.visualiser");
+        }
+        else {
+            return Text.translatable("control.ait.none");
+        }
     }
 
     @Override
