@@ -73,6 +73,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
         BlockPos exteriorPos = globalExteriorPos.getPos();
         World exteriorWorld = globalExteriorPos.getWorld();
+        boolean open = tardis.door().isOpen();
 
         if (exteriorWorld == null)
             return;
@@ -81,11 +82,16 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
         // exit early for light updates
         if (world.getServer().getTicks() % 20 != 0) {
-            world.setBlockState(pos, blockState, Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
+            if (open) {
+                world.setBlockState(pos, blockState, Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
+            } else {
+                blockState = blockState.with(DoorBlock.LEVEL_4, 0);
+                world.setBlockState(pos, blockState, Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
+            }
             return;
         }
 
-        if (!tardis.door().isOpen() || tardis.areShieldsActive()) {
+        if (!open || tardis.areShieldsActive()) {
             world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, false),
                 Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
             return;
