@@ -374,7 +374,7 @@ public class MonitorScreen extends ConsoleScreen {
                 (centerWidth + 70), (centerHeight + 34), 5636095);
 
         stack.pop();
-        ExteriorModel model = variant.getCachedModel();
+        ExteriorModel model = variant.model();
 
         stack.push();
         stack.translate(x, isPoliceBox || isHorriblyUnscaled ? y + 11 : y, 100f);
@@ -388,7 +388,7 @@ public class MonitorScreen extends ConsoleScreen {
         }
 
         // datapack models float for some reason
-        if (variant.getCachedModel() instanceof BedrockExteriorModel) {
+        if (model instanceof BedrockExteriorModel) {
             stack.translate(0, 1.25f, 0);
         }
 
