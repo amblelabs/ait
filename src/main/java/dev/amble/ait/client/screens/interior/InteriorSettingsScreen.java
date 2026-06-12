@@ -416,8 +416,8 @@ public class InteriorSettingsScreen extends ConsoleScreen {
                 (width / 2 + 50) - this.textRenderer.getWidth(modeText) / 2,
                 height / 2 + 32, 0xffffff, true);
         String name = current.name();
-        Text currentText = Text.translatable(name);
-        context.drawText(this.textRenderer, currentText.getString().toUpperCase(), (int) (left + (bgWidth * 0.78f)) - this.textRenderer.getWidth(currentText) / 2,
+        String currentString = Text.translatable(name).getString().toUpperCase();
+        context.drawText(this.textRenderer, currentString, (int) (left + (bgWidth * 0.78f)) - this.textRenderer.getWidth(currentString) / 2,
                 (int) (top + (bgHeight * 0.792f)), 0xffffff, true);
     }
 
