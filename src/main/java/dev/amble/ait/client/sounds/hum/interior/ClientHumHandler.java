@@ -31,6 +31,7 @@ public class ClientHumHandler extends SoundHandler {
 
     private LoopingSound current;
     private boolean needsReinit = false;
+    private boolean suppressed = false;
 
     static {
         TardisClientEvents.ENTER_CLIENT_TARDIS.register(tardis -> {
@@ -120,11 +121,27 @@ public class ClientHumHandler extends SoundHandler {
         return tardis != null && tardis.fuel().hasPower();
     }
 
+    public void setSuppressed(boolean suppressed) {
+        this.suppressed = suppressed;
+
+        if (suppressed)
+            this.stopSounds();
+    }
+
+    public boolean isSuppressed() {
+        return this.suppressed;
+    }
+
     public void tick(MinecraftClient client) {
         ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
 
         if (this.sounds == null)
             this.generateHums();
+
+        if (this.suppressed) {
+            this.stopSounds();
+            return;
+        }
 
         if (this.needsReinit && tardis != null) {
             this.needsReinit = false;
