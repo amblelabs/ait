@@ -52,8 +52,6 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.server.MinecraftServer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -105,11 +103,6 @@ public class AITMod implements ModInitializer {
 
     public static final String MOD_ID = "ait";
     public static final Logger LOGGER = LoggerFactory.getLogger("ait");
-    private static MinecraftServer SERVER = null;
-
-    public static MinecraftServer getServer() {
-        return SERVER;
-    }
     public static final Random RANDOM = new Random();
 
     public static AITServerConfig CONFIG;
@@ -153,9 +146,6 @@ public class AITMod implements ModInitializer {
     public void onInitialize() {
         AITServerConfig.INSTANCE.load();
         CONFIG = AITServerConfig.INSTANCE.instance();
-
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> SERVER = server);
-        ServerLifecycleEvents.SERVER_STOPPED.register(server -> SERVER = null);
 
         ServerLifecycleHooks.init();
         AsyncLocatorUtil.init();

@@ -1,6 +1,7 @@
 package dev.amble.ait.client.util;
 
 
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.MathHelper;
 
@@ -8,32 +9,65 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
 public class ClientShakeUtil {
-    private static final float SHAKE_CLAMP = 45.0f; // Adjust this value to set the maximum shake angle
-    private static final float SHAKE_INTENSITY = 0.5f; // Adjust this value to control the intensity of the shake
-    private static final int MAX_DISTANCE = 16; // The radius from the console where the player will feel the shake
+    @Deprecated
+    private static final float SHAKE_CLAMP = 45.0f;
+    @Deprecated
+    private static final float SHAKE_INTENSITY = 0.5f;
+    @Deprecated
+    private static final int MAX_DISTANCE = 16;
 
-    public static boolean shouldShake(Tardis tardis) {
+    public static float getShakeAmount(Tardis tardis) {
+        TravelHandler travel = tardis.travel();
+        float low = 0.15f;
+        float medium = 0.225f;
+        float high = 0.3f;
+
+        float speed = (float) MathHelper.clamp(0.1f * travel.speed(), 0.1, 0.6f);
+        low += speed;
+        medium += speed;
+        high += speed;
+
         if (ClientTardisUtil.getCurrentTardis() != tardis)
-            return false;
+            return 0;
+
+        if (travel.getState() == TravelHandlerBase.State.MAT)
+            return medium;
+
+        if (travel.getState() == TravelHandlerBase.State.DEMAT)
+            return medium;
+
+        if (!tardis.crash().isNormal() && !travel.isLanded())
+            return medium;
+
+        if (!travel.inFlight())
+            return 0;
+
+        if (tardis.sequence().hasClientActiveSequence())
+            return high;
 
         if (tardis.flight().falling().get())
-            return true;
+            return high;
 
-        return !tardis.travel().autopilot() && tardis.travel().getState() != TravelHandlerBase.State.LANDED;
+        if (!travel.autopilot())
+            return low;
+
+        return 0;
     }
 
     /**
      * Shakes based off the distance of the player from the console
      */
+    @Deprecated
     public static void shakeFromConsole() {
         shake(1f - (float) (ClientTardisUtil.distanceFromConsole() / MAX_DISTANCE));
     }
 
     public static void shakeFromEverywhere() {
-        shake(0.1f);
+        shake(0.25f);
     }
 
     public static void shake(float scale) {
+        if (scale == 0) return;
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null)
             return;

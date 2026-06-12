@@ -1357,50 +1357,37 @@ public class RenaissanceConsoleModel extends SimpleConsoleModel {
         console.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
-    private float throttleAngle = 0f;
-    private float handbrakeAngle = 0f;
-    private float refueler2Angle = 0f;
-    private float doorControlAngle = 0f;
-    private float doorLockAngle = 0f;
-    private float incrementAngle = 0f;
-    private float directionAngle = 0f;
-    private float refuelerAngle = 0f;
-    private float alarmAngle = 0f;
-    private float antiGravAngle = 0f;
-    private float shieldAngle = 0f;
-    private float antiGrav2Angle = 0f;
-
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = 0.1f * MinecraftClient.getInstance().getTickDelta();
+        float delta = 0.1f * client.getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
 
+        // Throttle
         ModelPart throttle = this.console.getChild("bone53").getChild("throttle");
         float throttleTarget = (tardis.travel().speed() / (float) tardis.travel().maxSpeed().get()) * 1.5f;
-        this.throttleAngle = MathHelper.lerp(delta, this.throttleAngle, throttleTarget);
-        throttle.pitch = this.throttleAngle;
+        throttle.pitch = getAngle(console, "throttle", throttleTarget, delta);
 
+        // Handbrake
         ModelPart handbrake = this.console.getChild("panelf").getChild("handbrake");
         float handbrakeTarget = !tardis.travel().handbrake() ? 0.57f : 0f;
-        this.handbrakeAngle = MathHelper.lerp(delta, this.handbrakeAngle, handbrakeTarget);
-        handbrake.pitch = this.handbrakeAngle;
+        handbrake.pitch = getAngle(console, "handbrake", handbrakeTarget, delta);
 
+        // Antigravs
         ModelPart antigravs = this.console.getChild("panelf4").getChild("antigravs");
         float antiGravTargetYaw = tardis.travel().antigravs().get() ? 1.0f : 0f;
         float antiGravTargetRoll = tardis.travel().antigravs().get() ? 0.2f : 0f;
-        this.antiGravAngle = MathHelper.lerp(delta, this.antiGravAngle, antiGravTargetYaw);
-        this.antiGrav2Angle = MathHelper.lerp(delta, this.antiGrav2Angle, antiGravTargetRoll);
-        antigravs.yaw = this.antiGravAngle;
-        antigravs.roll = this.antiGrav2Angle;
+        antigravs.yaw = getAngle(console, "antigravs_yaw", antiGravTargetYaw, delta);
+        antigravs.roll = getAngle(console, "antigravs_roll", antiGravTargetRoll, delta);
 
+        // Door Lock
         ModelPart doorlock = this.console.getChild("panelf5").getChild("door_lock");
         float doorLockTarget = tardis.door().locked() ? 0.5f : 0f;
-        this.doorLockAngle = MathHelper.lerp(delta, this.doorLockAngle, doorLockTarget);
-        doorlock.pitch = this.doorLockAngle;
+        doorlock.pitch = getAngle(console, "door_lock", doorLockTarget, delta);
 
+        // Door Control
         ModelPart doorControl = this.console.getChild("panelf5").getChild("doors");
         float doorControlTarget = 0f;
         if (tardis.door().isLeftOpen()) {
@@ -1408,38 +1395,34 @@ public class RenaissanceConsoleModel extends SimpleConsoleModel {
         } else if (tardis.door().isRightOpen()) {
             doorControlTarget = -1.55f;
         }
-        this.doorControlAngle = MathHelper.lerp(delta, this.doorControlAngle, doorControlTarget);
-        doorControl.pitch = this.doorControlAngle;
+        doorControl.pitch = getAngle(console, "door_control", doorControlTarget, delta);
 
+        // Alarms
         ModelPart alarms = this.console.getChild("panelf5").getChild("alarms");
         float alarmTarget = tardis.alarm().isEnabled() ? 0.2f : 0f;
-        this.alarmAngle = MathHelper.lerp(delta, this.alarmAngle, alarmTarget);
-        alarms.yaw = this.alarmAngle;
+        alarms.yaw = getAngle(console, "alarm", alarmTarget, delta);
 
+        // Shields
         ModelPart shields = this.console.getChild("panelf5").getChild("rwf").getChild("bone56");
         float shieldTarget = tardis.shields().shielded().get() ? 1.85f : 0f;
-        this.shieldAngle = MathHelper.lerp(delta, this.shieldAngle, shieldTarget);
-        shields.yaw = this.shieldAngle;
+        shields.yaw = getAngle(console, "shields", shieldTarget, delta);
 
+        // Refuel
         ModelPart refuel = this.console.getChild("bone53").getChild("refueler");
         float refuelTargetRoll = tardis.isRefueling() ? 0.6f : 0f;
         float refuelTargetYaw = tardis.isRefueling() ? 0.1f : 0f;
-        this.refuelerAngle = MathHelper.lerp(delta, this.refuelerAngle, refuelTargetRoll);
-        this.refueler2Angle = MathHelper.lerp(delta, this.refueler2Angle, refuelTargetYaw);
-        refuel.roll = this.refuelerAngle;
-        refuel.yaw = this.refueler2Angle;
+        refuel.roll = getAngle(console, "refuel_roll", refuelTargetRoll, delta);
+        refuel.yaw = getAngle(console, "refuel_yaw", refuelTargetYaw, delta);
 
+        // Direction
         ModelPart direction = this.console.getChild("panelf").getChild("rotation");
         float directionTargetDegrees = tardis.travel().destination().getRotation() * 22.5f;
-        float currentDirectionDegrees = (float) Math.toDegrees(this.directionAngle);
-        float nextDirectionDegrees = MathHelper.lerpAngleDegrees(delta, currentDirectionDegrees, directionTargetDegrees);
-        this.directionAngle = (float) Math.toRadians(nextDirectionDegrees);
-        direction.pitch = this.directionAngle;
+        direction.pitch = getLerpedDegrees(console, "direction", directionTargetDegrees, delta);
 
+        // Increment
         ModelPart increment = this.console.getChild("panelf5").getChild("increment");
         float incrementTarget = IncrementManager.increment(tardis) > 0 ? 0.5f : 0f;
-        this.incrementAngle = MathHelper.lerp(delta, this.incrementAngle, incrementTarget);
-        increment.pitch = this.incrementAngle;
+        increment.pitch = getAngle(console, "increment", incrementTarget, delta);
 
         super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
@@ -1479,20 +1462,17 @@ public class RenaissanceConsoleModel extends SimpleConsoleModel {
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
         matrices.scale(0.0035f, 0.0035f, 0.0035f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(270f));
-        matrices.translate(-240f, -228, -5f);
-        String positionPosText = " " + abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
+        matrices.translate(-240f, -220, -5f);
+        String positionPosText = abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
         Text positionDimensionText = WorldUtil.worldText(abpp.getDimension());
-        String positionDirectionText = " " + DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
-        String destinationPosText = " " + abpdPos.getX() + ", " + abpdPos.getY() + ", " + abpdPos.getZ();
-        Text destinationDimensionText = WorldUtil.worldText(abpd.getDimension(), false);
-        String destinationDirectionText = " " + DirectionControl.rotationToDirection(abpd.getRotation()).toUpperCase();
-        renderer.drawWithOutline(Text.of("❌").asOrderedText(), 0, 40, 0xF00F00, 0x000000,
+        String positionDirectionText = DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
+        renderer.drawWithOutline(Text.of("\uD83D\uDCCD").asOrderedText(), 0, 40, 0x00EEFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 0, 48, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 8, 40, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 0, 56, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 8, 48, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 0, 64, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 8, 56, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         matrices.pop();
 
@@ -1502,10 +1482,10 @@ public class RenaissanceConsoleModel extends SimpleConsoleModel {
         matrices.scale(0.0040f, 0.0040f, 0.0040f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(270f));
         String progressText = tardis.travel().getState() == TravelHandlerBase.State.LANDED
-                ? "0%"
-                : tardis.travel().getDurationAsPercentage() + "%";
+                ? "⏳: 0%"
+                : "⏳: " + tardis.travel().getDurationAsPercentage() + "%";
         matrices.translate(0, -38, -52);
-        renderer.drawWithOutline(Text.of(progressText).asOrderedText(), 0 - renderer.getWidth(progressText) / 2, 0, 0xffffff, 0x03cffc,
+        renderer.drawWithOutline(Text.of(progressText).asOrderedText(), 0 - renderer.getWidth(progressText) / 2, 0, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         matrices.pop();
     }

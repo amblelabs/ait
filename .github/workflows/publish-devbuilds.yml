@@ -80,7 +80,7 @@ jobs:
         avatar: 'https://i.imgur.com/uiFqrQh.png'
         
         message: |
-          <:al_error:1513885241339678852> New <:al_ait:1393920126645960704> **Adventures in Time** (**AIT**) dev build [**`#${{ github.run_number }}`**](<https://github.com/amblelabs/ait/actions/runs/${{ github.run_id }}>) **failed** to build! <:al_explosion:1467652202356150272>
+          <:al_error:1513885241339678852> New <:al_ait:1393920126645960704> **Adventures in Time** (**AIT**) dev build [**`#${{ github.run_number }}`**](<https://github.com/amblelabs/ait/actions/runs/${{ github.run_id }}>) **failed** to build!
   maven:
     runs-on: ubuntu-latest
     permissions:

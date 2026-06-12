@@ -158,7 +158,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
     @Override
     protected int clampSpeed(int value) {
-        int max = this.autopilot() ? 1 : this.maxSpeed.get();
+        int max = this.autopilot() ? 4 : this.maxSpeed.get();
         if (!this.tardis.subsystems().stabilisers().isEnabled()) max = 3;
 
         return MathHelper.clamp(value, 0, max);
@@ -201,11 +201,21 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
     public void triggerSequencingDuringFlight(Tardis tardis) {
         SequenceHandler sequences = tardis.sequence();
+        int maxSpeed = this.maxSpeed().get();
 
-        if (!this.autopilot.get() && this.getDurationAsPercentage() < 100
-                && this.getState() == TravelHandlerBase.State.FLIGHT && !sequences.hasActiveSequence()
-                && !this.position().equals(this.destination()) && this.getTargetTicks() > 100
-                && random.nextBetween(0, 110 /*230*/ / (this.speed() == 0 ? 1 : this.speed())) == 7) {
+        if (this.autopilot.get()) return;
+
+        if (this.getDurationAsPercentage() >= 100) return;
+
+        if (this.getState() != State.FLIGHT) return;
+
+        if (sequences.hasActiveSequence()) return;
+
+        if (this.getTargetTicks() <= 100) return;
+
+        if (this.speed() == 0 || (this.speed()) < (maxSpeed / this.speed())) return;
+
+        if (random.nextBetween(0, (15 * maxSpeed) / this.speed()) == maxSpeed) {
             sequences.triggerRandomSequence(true);
         }
     }

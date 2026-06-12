@@ -6,14 +6,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.item.RepairToolItem;
 import dev.amble.ait.core.tardis.control.impl.HammerHangerControl;
-import dev.amble.ait.core.tardis.control.impl.VisualiserControl;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
 import io.netty.handler.codec.EncoderException;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -77,14 +76,11 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> ON_DELAY = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.BOOLEAN);
-
     private static final TrackedData<BlockPos> CONSOLE_BLOCK_POS = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.BLOCK_POS);
     private Control control;
     public static final float MAX_DURABILITY = 1.0f;
-    private static final Text RWF_NAME = Text.translatable("control.ait.rwf");
-    private static final Text VISUALISER_NAME = Text.translatable("control.ait.visualiser");
-    private static final Text NONE_NAME = Text.translatable("control.ait.none");
+
     public ConsoleControlEntity(EntityType<? extends Entity> entityType, World world) {
         super(entityType, world);
     }
@@ -256,48 +252,24 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         return super.getDimensions(pose);
     }
+
     @Override
     public void tick() {
         if (this.getWorld().isClient())
             return;
 
-        if (this.control == null && this.getConsoleBlockPos() != null) {
+        if (this.control == null && this.getConsoleBlockPos() != null)
             this.discard();
-            return;
-        }
 
         switch (this.getDurabilityState(this.getDurability())) {
-            case JAMMED, SPARKING -> this.spark();
+            case SPARKY -> this.spark();
+            case OCCASIONALY_JAM -> this.smoke();
             case CATCH_FIRE -> this.onFire();
+            // Don't have the COMPLETELY BROKEN one show anything, this is the player's fault
             default -> {}
         }
     }
 
-    public void syncNameWithConfig() {
-        if (this.getWorld().isClient() || this.control == null) return;
-
-        if (this.control instanceof dev.amble.ait.core.tardis.control.impl.VisualiserControl) {
-            Text correctName = AITMod.CONFIG.rwfEnabled ? RWF_NAME : (DependencyChecker.hasPortals() ? VISUALISER_NAME : NONE_NAME);
-
-            if (!correctName.equals(this.getCustomName())) {
-                super.setCustomName(correctName); // Uses super to bypass your empty override!
-            }
-        }
-    }
-    public static void updateAllControlNames(net.minecraft.server.MinecraftServer server) {
-        if (server == null) return;
-
-        // Force onto the server thread to stay thread-safe
-        server.execute(() -> {
-            for (net.minecraft.server.world.ServerWorld world : server.getWorlds()) {
-                for (net.minecraft.entity.Entity entity : world.iterateEntities()) {
-                    if (entity instanceof ConsoleControlEntity console) {
-                        console.syncNameWithConfig();
-                    }
-                }
-            }
-        });
-    }
     @Override
     public boolean shouldRenderName() {
         return true;
@@ -402,7 +374,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     }
 
     public void addDurability(float durability) {
-        this.setDurability(Math.min(durability, MAX_DURABILITY));
+        this.setDurability(Math.min(this.getDurability() + durability, MAX_DURABILITY));
     }
 
     public void subtractDurability(float durability) {
@@ -495,7 +467,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
                 tardis.subsystems().engine().removeDurability(random.nextBetween(0, 7));
         }
 
-        if (state == DurabilityStates.OCCASIONALLY_JAM && random.nextBetween(0, 20) < 10) {
+        if (state == DurabilityStates.SPARKY && random.nextBetween(0, 20) < 10) {
             if (hasMallet) {
                 this.setDurability(state.next().durability);
             } else {
@@ -503,7 +475,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             }
         }
 
-        if (state == DurabilityStates.SPARKING && random.nextBetween(0, 25) < 5) {
+        if (state == DurabilityStates.OCCASIONALY_JAM && random.nextBetween(0, 25) < 5) {
             if (!hasMallet) return false;
         }
 
@@ -517,10 +489,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         Control.Result result = this.control.handleRun(tardis, (ServerPlayerEntity) player, (ServerWorld) world, this.getConsoleBlockPos(), leftClick);
 
         if (result == Control.Result.SEQUENCE) {
-            // THIS IS LITERALLY A FEATURE DON'T REMOVE UNLESS I SAY SO DAMMIT - Loqor
             if (random.nextBetween(0, 8) == 5) {
-                int subtractCauseICan = random.nextBetween(0, 200);
-                this.subtractDurability(subtractCauseICan / 200f);
+                // Clamping the random variance to avoid extreme swings
+                float variance = (float) random.nextGaussian() * 0.15f + 0.5f;
+                this.subtractDurability(MathHelper.clamp(variance, 0.1f, 0.9f));
             }
         }
 
@@ -546,21 +518,28 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     }
 
     private void spark() {
-        if (this.getEntityWorld().isClient()) return;
+        if (!(this.getWorld() instanceof ServerWorld serverWorld)) return;
         Vec3d pos = this.getPos();
-        if (this.getEntityWorld().getServer().getTicks() % 15 == 0 && random.nextBoolean()) {
+        if (serverWorld.getServer().getTicks() % 15 == 0 && random.nextBoolean()) {
             this.playSound(SoundEvents.BLOCK_CHAIN_BREAK, 0.1f, random.nextBoolean() ? 1f : 2f);
-            ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.ELECTRIC_SPARK, pos.getX(), pos.getY(), pos.getZ(), 5, 0.2, 0.2, 0.2, 0.01);
-            ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.LAVA, pos.getX(), pos.getY(), pos.getZ(), 3, 0.1, 0.1, 0.1, 0.01);
+            serverWorld.spawnParticles(ParticleTypes.ELECTRIC_SPARK, pos.getX(), pos.getY(), pos.getZ(), 5, 0.2, 0.2, 0.2, 0.01);
+            serverWorld.spawnParticles(ParticleTypes.LAVA, pos.getX(), pos.getY(), pos.getZ(), 3, 0.1, 0.1, 0.1, 0.01);
         }
     }
 
-    private void onFire() {
-        if (this.getEntityWorld().isClient()) return;
+    private void smoke() {
+        if (!(this.getWorld() instanceof ServerWorld serverWorld)) return;
         Vec3d pos = this.getPos();
-        ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.SMOKE, pos.getX(), pos.getY(), pos.getZ(), 1, 0, 0, 0, 0.0f);
-        if (this.getEntityWorld().getServer().getTicks() % 10 == 0)
-            ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.SMALL_FLAME, pos.getX(), pos.getY() + 0.2f, pos.getZ(), 1, 0, 0.075f, 0, 0);
+        if (serverWorld.getServer().getTicks() % 10 == 0)
+            serverWorld.spawnParticles(ParticleTypes.SMOKE, pos.getX(), pos.getY(), pos.getZ(), 1, 0, 0, 0, 0.0f);
+    }
+
+    private void onFire() {
+        if (!(this.getWorld() instanceof ServerWorld serverWorld)) return;
+        Vec3d pos = this.getPos();
+        serverWorld.spawnParticles(ParticleTypes.SMOKE, pos.getX(), pos.getY(), pos.getZ(), 1, 0, 0, 0, 0.0f);
+        if (serverWorld.getServer().getTicks() % 10 == 0)
+            serverWorld.spawnParticles(ParticleTypes.SMALL_FLAME, pos.getX(), pos.getY() + 0.2f, pos.getZ(), 1, 0, 0.075f, 0, 0);
     }
 
     public BlockPos getConsoleBlockPos() {
@@ -576,11 +555,9 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     public void setControlData(ConsoleTypeSchema consoleType, ControlTypes type, BlockPos consoleBlockPosition, float durability, boolean sticky) {
         this.setConsolePos(consoleBlockPosition);
         this.control = type.getControl();
-        if (this.control instanceof VisualiserControl) {
-            this.syncNameWithConfig();
-        } else {
-            super.setCustomName(Text.translatable(this.control.id().toTranslationKey("control")));
-        }
+
+        super.setCustomName(Text.translatable(this.control.id().toTranslationKey("control")));
+
         if (consoleType != null) {
             this.setControlWidth(type.getScale().width);
             this.setControlHeight(type.getScale().height);
@@ -656,8 +633,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     public enum DurabilityStates {
         JAMMED(0.0f),
         CATCH_FIRE(0.25f),
-        SPARKING(0.5f),
-        OCCASIONALLY_JAM(0.75f),
+        OCCASIONALY_JAM(0.5f),
+        SPARKY(0.75f),
         FULL(ConsoleControlEntity.MAX_DURABILITY);
         public final float durability;
         DurabilityStates(float durabilityLevel) {
@@ -689,9 +666,9 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         public DurabilityStates next() {
             return switch (this) {
                 case JAMMED -> CATCH_FIRE;
-                case CATCH_FIRE -> SPARKING;
-                case SPARKING -> OCCASIONALLY_JAM;
-                case OCCASIONALLY_JAM -> FULL;
+                case CATCH_FIRE -> OCCASIONALY_JAM;
+                case OCCASIONALY_JAM -> SPARKY;
+                case SPARKY -> FULL;
                 case FULL -> JAMMED;
             };
         }

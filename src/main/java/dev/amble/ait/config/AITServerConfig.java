@@ -8,7 +8,6 @@ import dev.isxander.yacl3.api.controller.ControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.ConfigField;
-import dev.isxander.yacl3.config.v2.api.ConfigSerializer;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import dev.isxander.yacl3.config.v2.api.autogen.*;
 import dev.isxander.yacl3.config.v2.api.autogen.Boolean;
@@ -18,41 +17,16 @@ import dev.isxander.yacl3.platform.YACLPlatform;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITDimensions;
 
-import static dev.amble.ait.core.entities.ConsoleControlEntity.updateAllControlNames;
-
 public class AITServerConfig {
 
     public static final String CATEGORY = "server";
 
     public static final ConfigClassHandler<AITServerConfig> INSTANCE = ConfigClassHandler.createBuilder(AITServerConfig.class)
             .id(YACLPlatform.rl(AITMod.MOD_ID, "server"))
-            .serializer(handler -> {
-                var baseSerializer = GsonConfigSerializerBuilder.create(handler)
-                        .setPath(YACLPlatform.getConfigDir().resolve("ait-server.json5"))
-                        .setJson5(true)
-                        .build();
-
-                return new ConfigSerializer<AITServerConfig>(handler) {
-                    @Override
-                    public void save() {
-                        baseSerializer.save();
-
-                        if (AITMod.getServer() != null) {
-                            dev.amble.ait.core.entities.ConsoleControlEntity.updateAllControlNames(AITMod.getServer());
-                        }
-                    }
-
-                    @Override
-                    public void load() {
-                        baseSerializer.load();
-                    }
-
-                    @Override
-                    public ConfigSerializer.LoadResult loadSafely(java.util.Map<dev.isxander.yacl3.config.v2.api.ConfigField<?>, dev.isxander.yacl3.config.v2.api.FieldAccess<?>> fields) {
-                        return baseSerializer.loadSafely(fields);
-                    }
-                };
-            })
+            .serializer(config -> GsonConfigSerializerBuilder.create(config)
+                    .setPath(YACLPlatform.getConfigDir().resolve("ait-server.json5"))
+                    .setJson5(true)
+                    .build())
             .build();
 
     @AutoGen(category = CATEGORY)

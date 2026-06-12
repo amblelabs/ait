@@ -2421,25 +2421,10 @@ public class CoralConsoleModel extends SimpleConsoleModel {
         console.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
-    private float throttleAngle = 0f;
-    private float handbrakeAngle = 0f;
-    private float powerAngle = 0f;
-    private float power2Angle = 0f;
-    private float doorControlAngle = 0f;
-    private float incrementAngle = 0f;
-    private float increment2Angle = 0f;
-    private float refuelerAngle = 0f;
-    private float groundSearchAngle = 0f;
-    private float securityAngle = 0f;
-    private float antiGravAngle = 0f;
-    private float shieldAngle = 0f;
-    private float siegeAngle = 0f;
-    private float autopilotAngle = 0f;
-
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = 0.1f * MinecraftClient.getInstance().getTickDelta();
+        float delta = 0.1f * client.getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
 
@@ -2460,30 +2445,25 @@ public class CoralConsoleModel extends SimpleConsoleModel {
         // Anti-gravs Lever
         ModelPart antigrav = controls.getChild("p_ctrl_1").getChild("bone29").getChild("lever").getChild("bone8");
         float antigravsTarget = tardis.travel().antigravs().get() ? 0.829F : 0.829F - 1.5f;
-        this.antiGravAngle = MathHelper.lerp(delta, this.antiGravAngle, antigravsTarget);
-        antigrav.roll = this.antiGravAngle - 0.5f;
+        antigrav.roll = getAngle(console, "antigravs", antigravsTarget, delta) - 0.5f;
 
         // Door Control
         ModelPart doorControl = controls.getChild("p_ctrl_1").getChild("bone29").getChild("crank").getChild("bone32");
         float doorControlTarget = tardis.door().isLeftOpen() ? -0.6981F - 0.8f: tardis.door().isRightOpen() ? -0.6981F - 1.5f : 0;
-        this.doorControlAngle = MathHelper.lerp(delta, this.doorControlAngle, doorControlTarget);
-        doorControl.pitch = this.doorControlAngle;
+        doorControl.pitch = getAngle(console, "door_control", doorControlTarget, delta);
 
         // Power Lever
         ModelPart power = controls.getChild("p_ctrl_4").getChild("bone41").getChild("lever2").getChild("bone43");
         float powerTarget = tardis.fuel().hasPower() ? 0 : 1.5f;
         float power2Target = tardis.fuel().hasPower() ? 0 : 0.5f;
-        this.powerAngle = MathHelper.lerp(delta, this.powerAngle, powerTarget);
-        this.power2Angle = MathHelper.lerp(delta, this.power2Angle, power2Target);
-        power.roll = this.powerAngle - 0.5f;
+        power.roll = getAngle(console, "power", powerTarget, delta) - 0.5f;
         ModelPart power2 = controls.getChild("p_ctrl_4").getChild("bone41").getChild("lever2").getChild("bone42");
-        power2.roll = this.power2Angle - 0.5f;
+        power2.roll = getAngle(console, "power2", power2Target, delta) - 0.5f;
 
         // Throttle
         ModelPart throttle = controls.getChild("p_ctrl_5").getChild("bone49").getChild("lever3").getChild("bone52");
         float throttleTarget = tardis.travel().maxSpeed().get() > 0 ? (float) tardis.travel().speed() / (float) tardis.travel().maxSpeed().get() : 0f;
-        this.throttleAngle = MathHelper.lerp(delta, this.throttleAngle, throttleTarget);
-        throttle.roll = this.throttleAngle;
+        throttle.roll = getAngle(console, "throttle", throttleTarget, delta);
 
         // Increment
         ModelPart increment = controls.getChild("p_ctrl_2").getChild("bone33").getChild("bone31").getChild("crank2");
@@ -2507,17 +2487,13 @@ public class CoralConsoleModel extends SimpleConsoleModel {
             targetTwo = 0.5f;
         }
 
-        this.incrementAngle = MathHelper.lerp(delta, this.incrementAngle, targetOne);
-        this.increment2Angle = MathHelper.lerp(delta, this.increment2Angle, targetTwo);
-
-        increment.yaw = this.incrementAngle;
-        incrementTwo.pivotY = this.increment2Angle;
+        increment.yaw = getAngle(console, "increment", targetOne, delta);
+        incrementTwo.pivotY = getAngle(console, "increment2", targetTwo, delta);
 
         // Refueler
         ModelPart refueler = controls.getChild("p_ctrl_5").getChild("bone49").getChild("ring2").getChild("switch30");
         float refuelerTarget = tardis.isRefueling() ? -1 : 0;
-        this.refuelerAngle = MathHelper.lerp(delta, this.refuelerAngle, refuelerTarget);
-        refueler.pivotY = this.refuelerAngle;
+        refueler.pivotY = getAngle(console, "refueler", refuelerTarget, delta);
 
         // Waypoint
         controls.getChild("ctrl_1").getChild("bone13").getChild("insert").getChild("bone96").visible = tardis
@@ -2527,38 +2503,31 @@ public class CoralConsoleModel extends SimpleConsoleModel {
         ModelPart handbrake = controls.getChild("p_ctrl_6").getChild("bone62").getChild("handbrake2")
                 .getChild("bone102");
         float handbrakeTarget = !tardis.travel().handbrake() ? 0.829F : 0.829F + 0.75f;
-        this.handbrakeAngle = MathHelper.lerp(delta, this.handbrakeAngle, handbrakeTarget);
-        handbrake.yaw = this.handbrakeAngle;
+        handbrake.yaw = getAngle(console, "handbrake", handbrakeTarget, delta);
 
         // Siege Mode
         ModelPart siege = controls.getChild("p_ctrl_3").getChild("bone36").getChild("handbrake");
         float siegeTarget = tardis.siege().isActive() ? 0.45f : 0;
-        this.siegeAngle = MathHelper.lerp(delta, this.siegeAngle, siegeTarget);
-        siege.roll = this.siegeAngle;
+        siege.roll = getAngle(console, "siege", siegeTarget, delta);
 
         // Shields
         ModelPart shield = controls.getChild("p_ctrl_4").getChild("bone41").getChild("pully").getChild("bone47");
         float shieldTarget = tardis.shields().shielded().get() ? tardis.shields().visuallyShielded().get() ? -4f : -1.55f : -2.5f;
-        this.shieldAngle = MathHelper.lerp(delta, this.shieldAngle, shieldTarget);
-        shield.pivotX = this.shieldAngle;
+        shield.pivotX = getAngle(console, "shields", shieldTarget, delta);
 
         // Autopilot
         ModelPart autopilot = controls.getChild("ctrl_4").getChild("bone15").getChild("switch24").getChild("bone19");
         float autopilotTarget = tardis.travel().autopilot() ? 1 : 0;
-        this.autopilotAngle = MathHelper.lerp(delta, this.autopilotAngle, autopilotTarget);
-        autopilot.pivotY = this.autopilotAngle;
-
+        autopilot.pivotY = getAngle(console, "autopilot", autopilotTarget, delta);
 
         ModelPart security = controls.getChild("ctrl_4").getChild("bone15").getChild("switch25").getChild("bone20");
         float securityTarget = tardis.stats().security().get() ? 1 : 0;
-        this.securityAngle = MathHelper.lerp(delta, this.securityAngle, securityTarget);
-        security.pivotY = this.securityAngle;
+        security.pivotY = getAngle(console, "security", securityTarget, delta);
 
         // Ground Searching
         ModelPart groundSearch = controls.getChild("p_ctrl_6").getChild("bone62").getChild("bow").getChild("bone68");
         float groundSearchTarget = tardis.travel().horizontalSearch().get() ? 0.2182F - 0.5f : 0.2182F;
-        this.groundSearchAngle = MathHelper.lerp(delta, this.groundSearchAngle, groundSearchTarget);
-        groundSearch.pitch = this.groundSearchAngle;
+        groundSearch.pitch = getAngle(console, "ground_search", groundSearchTarget, delta);
 
         // Hammer
         ModelPart hammer = controls.getChild("p_ctrl_6").getChild("bone62").getChild("hammer").getChild("bone40");
@@ -2575,30 +2544,29 @@ public class CoralConsoleModel extends SimpleConsoleModel {
         MinecraftClient client = MinecraftClient.getInstance();
         TextRenderer renderer = client.textRenderer;
         TravelHandler travel = tardis.travel();
-        CachedDirectedGlobalPos abpd = travel.destination();
         CachedDirectedGlobalPos abpp = travel.isLanded() || travel.getState() == TravelHandlerBase.State.MAT
                 ? travel.position()
                 : travel.getProgress();
 
         BlockPos abppPos = abpp.getPos();
         matrices.push();
-        // TODO dont forget to add variant.getConsoleTextPosition()!
         matrices.translate(1.85, 0.60, 0.85);
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(160f +11f));
         matrices.scale(0.005f, 0.005f, 0.005f);
-        matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(4));
+        matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(5));
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(30f));
-        matrices.translate(-240f, -228, -5f);
-        String positionPosText = " " + abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
+        matrices.translate(-242f, -228, -2.1f);
+        int y = 28;
+        String positionPosText = abppPos.getX() + ", " + abppPos.getY() + ", " + abppPos.getZ();
         Text positionDimensionText = WorldUtil.worldText(abpp.getDimension());
-        String positionDirectionText = " " + DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
-        renderer.drawWithOutline(Text.of("❌").asOrderedText(), 0, 40, 0xF00F00, 0x000000,
+        String positionDirectionText = DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
+        renderer.drawWithOutline(Text.of("\uD83D\uDCCD").asOrderedText(), 0, y, 0x00EEFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 0, 48, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 8, y, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 0, 56, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 8, y + 8, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 0, 64, 0xFFFFFF, 0x000000,
+        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 8, y + 16, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         matrices.pop();
 
@@ -2609,9 +2577,9 @@ public class CoralConsoleModel extends SimpleConsoleModel {
         matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(4f));
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(30f));
         String progressText = tardis.travel().getState() == TravelHandlerBase.State.LANDED
-                ? "0%"
-                : tardis.travel().getDurationAsPercentage() + "%";
-        matrices.translate(0, -38, -52);
+                ? "⏳: 0%"
+                : "⏳: " + tardis.travel().getDurationAsPercentage() + "%";
+        matrices.translate(7, -13, -50f);
         renderer.drawWithOutline(Text.of(progressText).asOrderedText(),
                 0 - renderer.getWidth(progressText) / 2, 0, 0xffffff, 04,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);

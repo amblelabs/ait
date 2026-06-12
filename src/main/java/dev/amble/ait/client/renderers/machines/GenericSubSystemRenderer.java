@@ -18,6 +18,7 @@ import dev.amble.ait.core.engine.block.generic.GenericStructureSystemBlockEntity
 
 public class GenericSubSystemRenderer<T extends GenericStructureSystemBlockEntity> implements BlockEntityRenderer<T> {
     private final GenericSubSystemModel model;
+    private static final MinecraftClient client = MinecraftClient.getInstance();
 
     public GenericSubSystemRenderer(BlockEntityRendererFactory.Context ctx) {
         this.model = new GenericSubSystemModel();
@@ -47,11 +48,11 @@ public class GenericSubSystemRenderer<T extends GenericStructureSystemBlockEntit
 
             matrices.translate(0, -1.15f + (offset / 2), 0);
 
-            Vector3f scale = MinecraftClient.getInstance().getItemRenderer().getModel(stack, entity.getWorld(), null, 0).getTransformation().firstPersonRightHand.scale;
+            Vector3f scale = client.getItemRenderer().getModel(stack, entity.getWorld(), null, 0).getTransformation().firstPersonRightHand.scale;
             matrices.scale(0.9f, 0.9f, 0.9f);
             matrices.scale(scale.x, scale.y, scale.z);
 
-            MinecraftClient.getInstance().getItemRenderer().renderItem(stack, ModelTransformationMode.GROUND, light,
+            client.getItemRenderer().renderItem(stack, ModelTransformationMode.GROUND, light,
                     overlay, matrices, vertexConsumers, entity.getWorld(), 0);
             matrices.pop();
         }

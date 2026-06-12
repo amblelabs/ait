@@ -2,7 +2,13 @@ package dev.amble.ait.core.item;
 
 import java.util.List;
 
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.item.TooltipContext;
@@ -26,6 +32,17 @@ import dev.amble.ait.core.tardis.Tardis;
 
 // todo fix so many issues with having more than one of this item
 public class SiegeTardisItem extends LinkableItem {
+    static {
+        TardisEvents.ENTER_TARDIS.register((tardis, entity) -> {
+            if (!(entity instanceof ServerPlayerEntity player))
+                return TardisEvents.Interaction.PASS;
+            boolean hasSiege = player.getInventory().containsAny(stack -> stack.isOf(AITItems.SIEGE_ITEM));
+            if (!hasSiege) return TardisEvents.Interaction.PASS;
+
+            player.sendMessage(Text.translatable("ait.tooltip.siege_item.enter").formatted(Formatting.RED), true);
+            return TardisEvents.Interaction.FAIL;
+        });
+    }
 
     public static final String CURRENT_TEXTURE_KEY = "siege_current_texture";
 
