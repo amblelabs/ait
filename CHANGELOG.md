@@ -120,3 +120,4 @@
 - tweak: rift chunks now have about 2.5x-3.5x the artron | by [@Loqor](https://github.com/Loqor) ([#2085](https://github.com/amblelabs/ait/pull/2085))
 - fix: door lighting properly updates | by [@Loqor](https://github.com/Loqor) ([#2089](https://github.com/amblelabs/ait/pull/2089))
 - fix: all elements in the interior settings screen that need to be translated are | by [@Loqor](https://github.com/Loqor) ([#2091](https://github.com/amblelabs/ait/pull/2091))
+- fix: hypercubes no longer crash players | by [@Loqor](https://github.com/Loqor) ([#2090](https://github.com/amblelabs/ait/pull/2090))
