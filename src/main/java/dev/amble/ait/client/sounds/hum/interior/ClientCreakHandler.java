@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import dev.amble.ait.AITMod;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundInstance;
@@ -23,7 +24,7 @@ import dev.amble.ait.registry.impl.CreakRegistry;
 
 public class ClientCreakHandler extends SoundHandler {
 
-    private static final Random random = new Random();
+    private static final Random random = AITMod.RANDOM;
 
     public static ClientCreakHandler create() {
         ClientCreakHandler handler = new ClientCreakHandler();

@@ -2,6 +2,7 @@ package dev.amble.ait.core.blocks;
 
 import java.util.Random;
 
+import dev.amble.ait.AITMod;
 import dev.amble.lib.api.ICantBreak;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -155,7 +156,7 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
     public void onSteppedOn(World world, BlockPos pos, BlockState state, Entity entity) {
         if (!TardisServerWorld.isTardisDimension(world)) return;
         if (entity instanceof PlayerEntity player) {
-            Random random = new Random();
+            Random random = AITMod.RANDOM;
             int x_random = random.nextInt(1, 10);
             int y_random = random.nextInt(1, 10);
             int z_random = random.nextInt(1, 10);
