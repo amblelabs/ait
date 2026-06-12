@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 import com.google.common.collect.Lists;
 import dev.amble.ait.client.screens.SonicSettingsScreen;
+import dev.amble.ait.data.hum.Hum;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -414,8 +415,9 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         context.drawText(this.textRenderer, modeText,
                 (width / 2 + 50) - this.textRenderer.getWidth(modeText) / 2,
                 height / 2 + 32, 0xffffff, true);
-        Text currentText = Text.literal(current .name().toUpperCase());
-        context.drawText(this.textRenderer, currentText, (int) (left + (bgWidth * 0.78f)) - this.textRenderer.getWidth(currentText) / 2,
+        String name = current.name();
+        Text currentText = Text.translatable(name);
+        context.drawText(this.textRenderer, currentText.getString().toUpperCase(), (int) (left + (bgWidth * 0.78f)) - this.textRenderer.getWidth(currentText) / 2,
                 (int) (top + (bgHeight * 0.792f)), 0xffffff, true);
     }
 
