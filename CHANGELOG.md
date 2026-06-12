@@ -121,3 +121,4 @@
 - fix: door lighting properly updates | by [@Loqor](https://github.com/Loqor) ([#2089](https://github.com/amblelabs/ait/pull/2089))
 - fix: all elements in the interior settings screen that need to be translated are | by [@Loqor](https://github.com/Loqor) ([#2091](https://github.com/amblelabs/ait/pull/2091))
 - fix: hypercubes no longer crash players | by [@Loqor](https://github.com/Loqor) ([#2090](https://github.com/amblelabs/ait/pull/2090))
+- chore: updated minimum amblekit to v1.1.16 | by [@drtheodor](https://github.com/drtheodor) ([#2098](https://github.com/amblelabs/ait/pull/2098))
