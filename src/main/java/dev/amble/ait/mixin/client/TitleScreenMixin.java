@@ -44,7 +44,7 @@ public abstract class TitleScreenMixin extends Screen {
     @Redirect(method = "initWidgetsNormal", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/ButtonWidget$Builder;build()Lnet/minecraft/client/gui/widget/ButtonWidget;", ordinal = 0))
     private ButtonWidget initWidgetsNormal(ButtonWidget.Builder instance) {
         MinecraftClient client = MinecraftClient.getInstance();
-        boolean disabled = AITMod.isOfficialBeta() && BetaTeam.isBetaTester(client.player.getGameProfile().getId()) == TriState.FALSE;
+        boolean disabled = AITMod.isOfficialBeta() && BetaTeam.isBetaTester(client.getSession().getProfile().getId()) == TriState.FALSE;
 
         if (disabled)
             instance = instance.tooltip(Tooltip.of(Text.translatable("text.ait.not_a_tester")));
