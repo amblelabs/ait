@@ -2,6 +2,8 @@ package dev.amble.ait.core.tardis.handler;
 
 import static dev.amble.ait.core.engine.SubSystem.Id.GRAVITATIONAL;
 
+import dev.amble.ait.api.ForcedTickableWorld;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -11,10 +13,12 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.RotationPropertyHelper;
 
 import dev.amble.ait.AITMod;
@@ -46,6 +50,30 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
         TardisEvents.DEMAT.register(tardis -> {
             tardis.flight().flying.set(false);
             return tardis.flight().falling().get() ? TardisEvents.Interaction.FAIL : TardisEvents.Interaction.PASS;
+        });
+        TardisEvents.LANDED.register(tardis -> {
+            CachedDirectedGlobalPos globalPos = tardis.travel().position();
+            ServerWorld targetWorld = globalPos.getWorld();
+            BlockPos pos = globalPos.getPos();
+            ChunkPos chunkPos = new ChunkPos(pos);
+
+            targetWorld.getChunkManager().addTicket(ChunkTicketType.FORCED, chunkPos, 2, chunkPos);
+            ((ForcedTickableWorld) targetWorld).setForcedTicked();
+
+            targetWorld.getChunkManager().markForUpdate(pos);
+            targetWorld.scheduleBlockTick(pos, targetWorld.getBlockState(pos).getBlock(), 2);
+        });
+        TardisEvents.ENTER_FLIGHT.register(tardis -> {
+            CachedDirectedGlobalPos globalPos = tardis.travel().position();
+            ServerWorld targetWorld = globalPos.getWorld();
+            BlockPos pos = globalPos.getPos();
+            ChunkPos chunkPos = new ChunkPos(pos);
+
+            targetWorld.getChunkManager().removeTicket(ChunkTicketType.FORCED, chunkPos, 2, chunkPos);
+            ((ForcedTickableWorld) targetWorld).unsetForcedTicked();
+
+            targetWorld.getChunkManager().markForUpdate(pos);
+            targetWorld.scheduleBlockTick(pos, targetWorld.getBlockState(pos).getBlock(), 2);
         });
     }
 

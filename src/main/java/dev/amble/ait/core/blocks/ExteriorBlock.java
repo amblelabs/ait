@@ -4,6 +4,11 @@ import java.util.function.ToIntFunction;
 
 import dev.amble.ait.AITMod;
 import dev.amble.lib.api.ICantBreak;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
+import net.minecraft.util.math.ChunkPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -344,7 +349,6 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
     @Override
     public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
         //FIXME: re-enable this block after the exterior falling issues are resolved :(
-        /*
         Tardis tardis = this.findTardis(world, pos);
 
         if (tardis == null)
@@ -365,7 +369,6 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
 
         if (state.get(WATERLOGGED))
             state.with(WATERLOGGED, false);
-        */
     }
 
     @Override

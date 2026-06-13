@@ -28,6 +28,7 @@
     "server.BedInTardisMixin",
     "server.BellBlockMixin",
     "server.EnderDragonFightAccessor",
+    "server.ForceChunkTickMixin",
     "server.ItemEntityMixin",
     "server.MinecraftServerMixin",
     "server.ServerPlayerMixin",
