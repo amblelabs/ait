@@ -27,14 +27,11 @@ public class DevTeam {
     public static final UUID LAKE = UUID.fromString("12a4e062-da90-4797-a788-c42fd18c94d7");
     public static final UUID MAX = UUID.fromString("6f30a849-061a-4ac5-8e47-9fcd2a9cda2a");
 
-
-
     // junior devs not sure about these ones
     public static final UUID CROW = UUID.fromString("d6ec02fa-f335-47cb-8081-80270bd5f5ab"); // crow
     public static final UUID K_KING = UUID.fromString("73df41fb-7ffb-417e-beab-f9589aaffe74"); // K_king
     public static final UUID COSMIC = UUID.fromString("e0c801c3-4de4-47ad-b51b-ef6dc1b78eff"); // cosmic_fire
     public static final UUID NANO = UUID.fromString("bc130267-59b4-4d96-8397-0dd9b209a45f"); // nanowu
-
 
     // WOW NOT EVEN ME :SOB: - Tendo // sorry - monke
 
