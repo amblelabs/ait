@@ -76,14 +76,14 @@ public class ClientTardis extends Tardis implements Disposable {
 
     @Override
     public void dispose() {
-        this.desktop.dispose();
-        this.desktop = null;
+        // this.desktop.dispose();
+        // this.desktop = null;
 
-        this.exterior.dispose();
-        this.exterior = null;
+        // this.exterior.dispose();
+        // this.exterior = null;
 
-        this.handlers.dispose();
-        this.handlers = null;
+        // this.handlers.dispose();
+        // this.handlers = null;
     }
 
     @Override
