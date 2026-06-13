@@ -1,8 +1,7 @@
 package dev.amble.ait.mixin.client;
 
-import dev.amble.ait.core.devteam.BetaTeam;
-import net.fabricmc.fabric.api.util.TriState;
-import net.minecraft.client.MinecraftClient;
+import dev.amble.ait.core.devteam.LocalCallbackServer;
+import dev.amble.ait.core.devteam.TokenPrefs;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import org.spongepowered.asm.mixin.Mixin;
@@ -41,18 +40,20 @@ public abstract class TitleScreenMixin extends Screen {
             instance.render(delta, alpha);
     }
 
-    @Redirect(method = "initWidgetsNormal", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/ButtonWidget$Builder;build()Lnet/minecraft/client/gui/widget/ButtonWidget;", ordinal = 0))
-    private ButtonWidget initWidgetsNormal(ButtonWidget.Builder instance) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        TriState state = BetaTeam.isBetaTester(client.getSession().getProfile().getId());
-        boolean disabled = AITMod.isOfficialBeta() && state == TriState.FALSE;
+    @Redirect(method = "initWidgetsNormal", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/ButtonWidget;builder(Lnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)Lnet/minecraft/client/gui/widget/ButtonWidget$Builder;", ordinal = 0))
+    private ButtonWidget.Builder initWidgetsNormal1(Text message, ButtonWidget.PressAction onPress) {
+        ButtonWidget.Builder instance = new ButtonWidget.Builder(message, button -> {
+            if (AITMod.isOfficialBeta() && !TokenPrefs.isTokenValid()) {
+                LocalCallbackServer.startAndWaitForToken();
+                return;
+            }
 
-        if (disabled)
+            onPress.onPress(button);
+        });
+
+        if (AITMod.isOfficialBeta() && !TokenPrefs.isTokenValid())
             instance = instance.tooltip(Tooltip.of(Text.translatable("text.ait.not_a_tester")));
 
-        ButtonWidget result = instance.build();
-        result.active = !disabled;
-
-        return result;
+        return instance;
     }
 }
