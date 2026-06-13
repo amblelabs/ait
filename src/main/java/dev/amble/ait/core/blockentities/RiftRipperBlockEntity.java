@@ -116,7 +116,16 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
             RiftEntity riftEntity = new RiftEntity(AITEntityTypes.RIFT_ENTITY, serverWorld);
             this.riftRef = new EntityRef<>(serverWorld, riftEntity);
 
-            riftEntity.refreshPositionAndAngles(endX, targetY, endZ, this.getCachedState().get(HorizontalFacingBlock.FACING).asRotation(), 0);
+            float rotation = this.getCachedState().get(HorizontalFacingBlock.FACING).asRotation();
+
+            float adjustedRotation = rotation + 180.0f;
+
+            riftEntity.updatePositionAndAngles(endX, targetY, endZ, adjustedRotation, 0);
+
+            riftEntity.setYaw(adjustedRotation);
+            riftEntity.setHeadYaw(adjustedRotation);
+            riftEntity.setBodyYaw(adjustedRotation);
+
             serverWorld.spawnEntity(riftEntity);
 
             serverWorld.setBlockState(pos, state.with(RiftRipperBlock.ENABLED, true));
