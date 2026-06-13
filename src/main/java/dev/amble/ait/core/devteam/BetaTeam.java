@@ -1,6 +1,7 @@
 package dev.amble.ait.core.devteam;
 
 import com.google.gson.Gson;
+import dev.amble.ait.AITMod;
 import net.fabricmc.fabric.api.util.TriState;
 
 import java.net.URI;
@@ -48,8 +49,10 @@ public class BetaTeam extends HashMap<UUID, String> {
             return TriState.DEFAULT;
 
         inProgress = true;
-        downloadAsString(API_TESTERS).thenAccept(s -> INSTANCE = new Gson().fromJson(s, BetaTeam.class))
-                .whenComplete((unused, throwable) -> inProgress = false);
+        downloadAsString(API_TESTERS).whenComplete((s, throwable) -> {
+            AITMod.LOGGER.info("Beta list: {} / {}", s, throwable);
+            inProgress = false;
+        }).thenAccept(s -> INSTANCE = new Gson().fromJson(s, BetaTeam.class));
 
         return TriState.DEFAULT;
     }
