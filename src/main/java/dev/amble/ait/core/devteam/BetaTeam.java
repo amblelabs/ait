@@ -50,7 +50,6 @@ public class BetaTeam extends HashMap<UUID, String> {
 
         inProgress = true;
         downloadAsString(API_TESTERS).whenComplete((s, throwable) -> {
-            AITMod.LOGGER.info("Beta list: {} / {}", s, throwable);
             inProgress = false;
         }).thenAccept(s -> {
             try {
