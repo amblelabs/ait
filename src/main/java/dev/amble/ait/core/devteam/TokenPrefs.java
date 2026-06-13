@@ -36,7 +36,7 @@ public class TokenPrefs {
 
         try {
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(LocalCallbackServer.SERVER_DATA.url() + "/verify"))
+                    .uri(URI.create(LocalCallbackServer.SERVER_DATA.verifier() + "/verify"))
                     .header("Authorization", "Bearer " + jwt)
                     .GET()
                     .build();
