@@ -1386,6 +1386,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("sequence.ait.small_debris_field", "Small debris field!");
         provider.addTranslation("sequence.ait.slow_down_to_avoid_flying_out_of_vortex", "Vortex drift: de-acceleration necessary!");
 
+        // Rift ripper
+        provider.addTranslation("rift_ripper.name.renderer", "Rift Ripper");
+        provider.addTranslation("rift_ripper.version", "Systems Version: v1.0-0.1");
+        provider.addTranslation("rift_ripper.held", "RIFT HELD! [%ss]!");
 
         // Hums
         provider.addTranslation("screen.ait.interior.settings.hum", "HUMS");

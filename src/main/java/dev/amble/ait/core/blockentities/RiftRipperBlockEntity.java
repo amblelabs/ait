@@ -4,26 +4,38 @@ import dev.amble.ait.api.ArtronHolder;
 import dev.amble.ait.api.ArtronHolderItem;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITEntityTypes;
 import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.blocks.RiftRipperBlock;
 import dev.amble.ait.core.engine.link.IFluidLink;
 import dev.amble.ait.core.engine.link.IFluidSource;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
+import dev.amble.ait.core.engine.link.block.HorizontalFluidLinkBlock;
 import dev.amble.ait.core.engine.link.tracker.FluidNetwork;
+import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.ArtronCollectorItem;
 import dev.amble.ait.core.item.ChargedZeitonCrystalItem;
+import dev.amble.ait.core.util.EntityRef;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.particle.DustColorTransitionParticleEffect;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
@@ -35,6 +47,7 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
 
     private boolean firstTickHandled;
     public double artronAmount = 0;
+    private EntityRef<RiftEntity> riftRef;
 
     public RiftRipperBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.RIFT_RIPPER_BLOCK_ENTITY_TYPE, pos, state);
@@ -44,12 +57,17 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
     public void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
         nbt.putDouble("artronAmount", this.artronAmount);
+        if (this.riftRef != null) {
+            nbt.putUuid("riftId", this.riftRef.getId());
+        }
     }
 
     @Override
     public void readNbt(NbtCompound nbt) {
         if (nbt.contains("artronAmount"))
             this.setCurrentFuel(nbt.getDouble("artronAmount"));
+        if (nbt.contains("riftId"))
+            this.riftRef = new EntityRef<>(null, nbt.getUuid("riftId"));
         super.readNbt(nbt);
     }
 
@@ -61,7 +79,7 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
 
     @Override
     public double getMaxFuel() {
-        return ArtronCollectorItem.COLLECTOR_MAX_FUEL;
+        return 10 * 20 * RiftRipperBlock.ARTRON_PER_TICK;
     }
 
     @Override
@@ -86,30 +104,57 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
             FluidNetwork.rebuildFrom(serverWorld, pos);
         }
 
-        if (serverWorld.getServer().getTicks() % 3 == 0)
-            return;
+        int centerX = pos.getX();
+        int centerZ = pos.getZ();
 
-        RiftChunkManager manager = RiftChunkManager.getInstance(serverWorld);
-        ChunkPos chunk = new ChunkPos(pos);
+        double targetY = pos.getY() + 1;
 
-        if (shouldDrain(manager, chunk)) {
-            manager.removeFuel(chunk, 3);
-            this.addFuel(3);
+        double endX = centerX + 0.5;
+        double endZ = centerZ + 0.5;
 
+        if ((this.getCurrentFuel() >= this.getMaxFuel())) {
+            RiftEntity riftEntity = new RiftEntity(AITEntityTypes.RIFT_ENTITY, serverWorld);
+            this.riftRef = new EntityRef<>(serverWorld, riftEntity);
+
+            riftEntity.refreshPositionAndAngles(endX, targetY, endZ, this.getCachedState().get(HorizontalFacingBlock.FACING).asRotation(), 0);
+            serverWorld.spawnEntity(riftEntity);
+
+            serverWorld.setBlockState(pos, state.with(RiftRipperBlock.ENABLED, true));
             this.updateListeners(state);
+
+            serverWorld.playSound(null, pos, SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(),
+                    SoundCategory.BLOCKS, 1.5f, 0.5f);
         }
+
+        this.updateListeners(state);
+
+        if (!this.getCachedState().get(RiftRipperBlock.ENABLED)) return;
+
+        if (this.getCurrentFuel() <= 0) {
+            serverWorld.setBlockState(pos, state.with(RiftRipperBlock.ENABLED, false));
+            if (this.riftRef != null) {
+                this.riftRef.setWorld(serverWorld);
+                if (this.riftRef.get() != null)
+                    this.riftRef.get().discard();
+            }
+            this.updateListeners(state);
+            return;
+        }
+
+        this.removeFuel(RiftRipperBlock.ARTRON_PER_TICK);
     }
 
     @Override
     public void onBroken(World world, BlockPos pos) {
         this.onLoseFluid(); // always.
 
-        super.onBroken(world, pos);
-    }
+        if (this.riftRef != null && world instanceof ServerWorld serverWorld) {
+            this.riftRef.setWorld(serverWorld);
+            if (this.riftRef.get() != null)
+                this.riftRef.get().discard();
+        }
 
-    private boolean shouldDrain(RiftChunkManager manager, ChunkPos pos) {
-        return this.getCurrentFuel() < ArtronCollectorItem.COLLECTOR_MAX_FUEL
-                && manager.getArtron(pos) >= 3;
+        super.onBroken(world, pos);
     }
 
     private void updateListeners(BlockState state) {

@@ -5,18 +5,22 @@ import dev.amble.ait.client.models.machines.RiftRipperModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.core.blockentities.RiftRipperBlockEntity;
 import dev.amble.ait.core.blocks.ArtronCollectorBlock;
+import dev.amble.ait.core.blocks.RiftRipperBlock;
 import dev.amble.ait.core.world.RiftChunkManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 
@@ -36,6 +40,7 @@ public class RiftRipperRenderer<T extends RiftRipperBlockEntity> implements Bloc
     public void render(RiftRipperBlockEntity entity, float tickDelta, MatrixStack matrices,
             VertexConsumerProvider vertexConsumers, int light, int overlay) {
 
+        int percentage = (int) (entity.getCurrentFuel() / entity.getMaxFuel() * 100);
         BlockState blockState = entity.getCachedState();
 
         float f = blockState.get(HorizontalFacingBlock.FACING).asRotation();
@@ -46,7 +51,6 @@ public class RiftRipperRenderer<T extends RiftRipperBlockEntity> implements Bloc
         matrices.push();
         matrices.translate(0.5f, 1.5f, 0.5f);
 
-
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(f));
 
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180));
@@ -56,11 +60,11 @@ public class RiftRipperRenderer<T extends RiftRipperBlockEntity> implements Bloc
 
         matrices.push();
 
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(10f * (MinecraftClient.getInstance().getTickDelta() + MinecraftClient.getInstance().player.age)));
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((percentage + 10f) * (MinecraftClient.getInstance().getTickDelta() + MinecraftClient.getInstance().player.age)));
         matrices.translate(0, 1.5f, 0);
 
-        symbol.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.getEyes(RIPPER_TEXTURE)), 0xf000f0, overlay, 0.3607843137f,
-                0.6450980392f, 1, entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
+        symbol.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.getEyes(RIPPER_TEXTURE)), LightmapTextureManager.MAX_LIGHT_COORDINATE, overlay, 0.36f,
+                0.65f, 1, entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
         matrices.pop();
 
 
@@ -69,35 +73,27 @@ public class RiftRipperRenderer<T extends RiftRipperBlockEntity> implements Bloc
                 1.0F, 1.0F, 1.0F);
         this.riftRipperModel.render(matrices,
                 vertexConsumers.getBuffer(RenderLayer.getEyes(EMISSIVE_RIPPER_TEXTURE)),
-                0xF000F00, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+                LightmapTextureManager.MAX_LIGHT_COORDINATE, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
 
+        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         matrices.push();
         matrices.translate(0, 0.7f, -0.5f);
         matrices.multiply(RotationAxis.NEGATIVE_X.rotationDegrees(20f));
         matrices.scale(0.01f, 0.01f, 0.01f);
         matrices.translate(0, 0, 15);
-        String text1 = "-= Rift Ripper =-";
-        String text2 = "Systems Version: v1.0-0.1";
-        String bar = "[##########] 100%";
-        String text3 = "RIFT HELD [10s]!";
-        int width1 = MinecraftClient.getInstance().textRenderer.getWidth(text1);
-        int width2 = MinecraftClient.getInstance().textRenderer.getWidth(text2);
-        int width4 = MinecraftClient.getInstance().textRenderer.getWidth(bar);
-        int width3 = MinecraftClient.getInstance().textRenderer.getWidth(text3);
-        MinecraftClient.getInstance().textRenderer.draw(text1, 0 - width1 / 2, 0, Colors.WHITE,
-                false, matrices.peek().getPositionMatrix(), vertexConsumers, TextRenderer.TextLayerType.NORMAL,
-                0x0000000, 0xf000f0);
-        MinecraftClient.getInstance().textRenderer.draw(text2, 0 - width2 / 2, 10, Colors.WHITE,
-                false, matrices.peek().getPositionMatrix(), vertexConsumers, TextRenderer.TextLayerType.NORMAL,
-                0x0000000, 0xf000f0);
-        MinecraftClient.getInstance().textRenderer.draw(bar, 0 - width4 / 2, 20, Colors.WHITE,
-                false, matrices.peek().getPositionMatrix(), vertexConsumers, TextRenderer.TextLayerType.NORMAL,
-                0x0000000, 0xf000f0);
-        MinecraftClient.getInstance().textRenderer.draw(text3, 0 - width3 / 2, 30, Colors.WHITE,
-                false, matrices.peek().getPositionMatrix(), vertexConsumers, TextRenderer.TextLayerType.NORMAL,
-                0x0000000, 0xf000f0);
+        this.draw(Text.translatable("rift_ripper.name.renderer").formatted(Formatting.BOLD, Formatting.AQUA), matrices, vertexConsumers, textRenderer, 0);
+        this.draw(Text.translatable("rift_ripper.version"), matrices, vertexConsumers, textRenderer, 10);
+        this.draw(Text.literal( percentage + "%").formatted(Formatting.GOLD), matrices, vertexConsumers, textRenderer, 20);
+        this.draw(Text.translatable("rift_ripper.held", (entity.getCurrentFuel() / RiftRipperBlock.ARTRON_PER_TICK / 20f)), matrices, vertexConsumers, textRenderer, 30);
         matrices.pop();
 
         matrices.pop();
+    }
+
+    private void draw(Text text, MatrixStack stack, VertexConsumerProvider vertexConsumers, TextRenderer textRenderer, int yOffset) {
+        int width = textRenderer.getWidth(text);
+        textRenderer.draw(text, -width / 2f, yOffset, Colors.WHITE,
+                false, stack.peek().getPositionMatrix(), vertexConsumers, TextRenderer.TextLayerType.NORMAL,
+                0, LightmapTextureManager.MAX_LIGHT_COORDINATE);
     }
 }
