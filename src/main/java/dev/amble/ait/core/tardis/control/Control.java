@@ -61,6 +61,11 @@ public class Control implements Identifiable {
         }
     }
 
+    public Text getName() {
+        // Replace this string structure with whatever format your .json keys currently use!
+        return Text.translatable(id.toTranslationKey("control"));
+    }
+
     protected boolean shouldBeAddedToSequence(Tardis tardis) {
         return tardis.sequence().hasActiveSequence() && tardis.sequence().controlPartOfSequence(this);
     }

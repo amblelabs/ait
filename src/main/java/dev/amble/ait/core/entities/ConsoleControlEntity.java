@@ -556,7 +556,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         this.setConsolePos(consoleBlockPosition);
         this.control = type.getControl();
 
-        super.setCustomName(Text.translatable(this.control.id().toTranslationKey("control")));
+        super.setCustomName(this.control.getName());
 
         if (consoleType != null) {
             this.setControlWidth(type.getScale().width);
