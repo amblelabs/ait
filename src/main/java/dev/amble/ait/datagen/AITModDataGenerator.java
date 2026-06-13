@@ -853,6 +853,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.fahrenheit", "Fahrenheit (°F)");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.kelvin", "Kelvin (K)");
         provider.addTranslation("yacl3.config.ait:client.handlesLevenshteinDistance", "Levenshtein distance for handles");
+        provider.addTranslation("yacl3.config.ait:client.screenShake", "Screen shake amount");
         provider.addTranslation("yacl3.config.ait:server.flightSoundVolume", "Flight Sound Volume");
 
         provider.addTranslation("text.autoconfig.aitconfig.category.client", "Client");
