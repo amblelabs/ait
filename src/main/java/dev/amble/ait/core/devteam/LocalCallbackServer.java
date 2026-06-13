@@ -3,9 +3,9 @@ package dev.amble.ait.core.devteam;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpServer;
 import dev.amble.ait.AITMod;
+import net.minecraft.util.Util;
 
 import java.net.InetSocketAddress;
-import java.awt.Desktop;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -30,14 +30,18 @@ public class LocalCallbackServer {
 
     public static void startAndWaitForToken() {
         try {
-            startAndWaitForToken0(SERVER_DATA);
+            int port = 54321;
+            String authUrl = SERVER_DATA.url + "/auth?port=" + port;
+            Util.getOperatingSystem().open(new URI(authUrl));
+
+            if (server == null)
+                startAndWaitForToken0(port);
         } catch (Exception e) {
             AITMod.LOGGER.error("Failed to wait for token", e);
         }
     }
 
-    private static void startAndWaitForToken0(ServerData data) throws Exception {
-        int port = 54321;
+    private static void startAndWaitForToken0(int port) throws Exception {
         server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/callback", exchange -> {
             String query = exchange.getRequestURI().getQuery();
@@ -48,7 +52,10 @@ public class LocalCallbackServer {
                 exchange.getResponseBody().write(response.getBytes());
                 exchange.getResponseBody().close();
                 new Thread(() -> {
-                    try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException ignored) {
+                    }
                     server.stop(0);
                 }).start();
             } else {
@@ -57,9 +64,6 @@ public class LocalCallbackServer {
             }
         });
         server.start();
-
-        String authUrl = data.url + "/auth?port=" + port;
-        Desktop.getDesktop().browse(new URI(authUrl));
 
         while (receivedToken == null) {
             Thread.sleep(500);
