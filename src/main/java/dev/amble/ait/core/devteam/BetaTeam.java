@@ -52,7 +52,13 @@ public class BetaTeam extends HashMap<UUID, String> {
         downloadAsString(API_TESTERS).whenComplete((s, throwable) -> {
             AITMod.LOGGER.info("Beta list: {} / {}", s, throwable);
             inProgress = false;
-        }).thenAccept(s -> INSTANCE = new Gson().fromJson(s, BetaTeam.class));
+        }).thenAccept(s -> {
+            try {
+                INSTANCE = new Gson().fromJson(s, BetaTeam.class);
+            } catch (Exception e) {
+                AITMod.LOGGER.error("Beta list failed to deserialize", e);
+            }
+        });
 
         return TriState.DEFAULT;
     }
