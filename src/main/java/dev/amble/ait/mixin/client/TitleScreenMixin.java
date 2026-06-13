@@ -42,16 +42,24 @@ public abstract class TitleScreenMixin extends Screen {
 
     @Redirect(method = "initWidgetsNormal", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/ButtonWidget;builder(Lnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)Lnet/minecraft/client/gui/widget/ButtonWidget$Builder;", ordinal = 0))
     private ButtonWidget.Builder initWidgetsNormal1(Text message, ButtonWidget.PressAction onPress) {
-        ButtonWidget.Builder instance = new ButtonWidget.Builder(message, button -> {
+        boolean beta = AITMod.isOfficialBeta() && !TokenPrefs.isTokenValid();
+
+        ButtonWidget.Builder instance = new ButtonWidget.Builder(beta ? Text.translatable("text.ait.beta.authorize") : message, button -> {
             if (AITMod.isOfficialBeta() && !TokenPrefs.isTokenValid()) {
                 LocalCallbackServer.startAndWaitForToken();
+
+                if (TokenPrefs.isTokenValid()) {
+                    button.setTooltip(null);
+                    button.setMessage(message);
+                }
+
                 return;
             }
 
             onPress.onPress(button);
         });
 
-        if (AITMod.isOfficialBeta() && !TokenPrefs.isTokenValid())
+        if (beta)
             instance = instance.tooltip(Tooltip.of(Text.translatable("text.ait.not_a_tester")));
 
         return instance;
