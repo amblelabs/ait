@@ -128,3 +128,4 @@
 - feat: preview TARDIS animations | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#2075](https://github.com/amblelabs/ait/pull/2075))
 - fix: clients no longer crash on server restart/kick | by [@drtheodor](https://github.com/drtheodor) ([#2104](https://github.com/amblelabs/ait/pull/2104))
 - fix: exteriors get properly loaded on relog | by [@Loqor](https://github.com/Loqor) ([#2105](https://github.com/amblelabs/ait/pull/2105))
+- feat: the visualiser control has multiple names | by [@vmbbi](https://github.com/vmbbi), [@drtheodor](https://github.com/drtheodor) ([#2065](https://github.com/amblelabs/ait/pull/2065))
