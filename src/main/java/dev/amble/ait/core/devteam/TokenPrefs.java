@@ -11,19 +11,26 @@ public class TokenPrefs {
     private static final Preferences prefs = Preferences.userNodeForPackage(AITMod.class);
     private static final String KEY = "ait-jwt";
 
+    public static boolean verified = false;
+
     public static void saveToken(String jwt) {
         prefs.put(KEY, jwt);
+        verified = false;
     }
 
     public static String loadToken() {
+        verified = false;
         return prefs.get(KEY, null);
     }
 
     public static void clearToken() {
         prefs.remove(KEY);
+        verified = false;
     }
 
     public static boolean isTokenValid() {
+        if (verified) return true;
+
         String jwt = loadToken();
         if (jwt == null) return false;
 
@@ -35,7 +42,7 @@ public class TokenPrefs {
                     .build();
 
             HttpResponse<String> response = BetaTeam.CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
-            return response.statusCode() == 200;
+            return verified = response.statusCode() == 200;
         } catch (Exception e) {
             AITMod.LOGGER.error("Failed to check token validity", e);
             return false;

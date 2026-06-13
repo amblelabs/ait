@@ -19,7 +19,7 @@ public class LocalCallbackServer {
     public static ServerData SERVER_DATA;
 
     public static void fetchServerData() {
-        BetaTeam.downloadAsString("https://amblelabs.github.io/data.json").exceptionally(throwable -> {
+        BetaTeam.downloadAsString("https://amblelabs.dev/data.json").exceptionally(throwable -> {
             AITMod.LOGGER.error("Failed to access the server data, falling back", throwable);
             return new Gson().toJson(new ServerData("https://amble-verifier.drtheo.workers.dev"));
         }).thenAccept(s -> {
@@ -70,6 +70,8 @@ public class LocalCallbackServer {
         }
 
         TokenPrefs.saveToken(receivedToken);
+        TokenPrefs.verified = true;
+
         System.out.println("JWT received");
     }
 }
