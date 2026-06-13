@@ -2,6 +2,7 @@ package dev.amble.ait.mixin.client;
 
 import dev.amble.ait.core.devteam.BetaTeam;
 import net.fabricmc.fabric.api.util.TriState;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import org.spongepowered.asm.mixin.Mixin;
@@ -42,7 +43,8 @@ public abstract class TitleScreenMixin extends Screen {
 
     @Redirect(method = "initWidgetsNormal", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/ButtonWidget$Builder;build()Lnet/minecraft/client/gui/widget/ButtonWidget;", ordinal = 0))
     private ButtonWidget initWidgetsNormal(ButtonWidget.Builder instance) {
-        boolean disabled = AITMod.isOfficialBeta() && BetaTeam.isBetaTester(this.client.player.getGameProfile().getId()) == TriState.FALSE;
+        MinecraftClient client = MinecraftClient.getInstance();
+        boolean disabled = AITMod.isOfficialBeta() && BetaTeam.isBetaTester(client.player.getGameProfile().getId()) == TriState.FALSE;
 
         if (disabled)
             instance = instance.tooltip(Tooltip.of(Text.translatable("text.ait.not_a_tester")));

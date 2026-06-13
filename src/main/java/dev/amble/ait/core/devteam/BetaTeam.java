@@ -21,7 +21,7 @@ public class BetaTeam extends HashMap<UUID, String> {
     private static BetaTeam INSTANCE;
     private static boolean inProgress = false;
 
-    private static CompletableFuture<String> downlodAsString(String url) {
+    private static CompletableFuture<String> downloadAsString(String url) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .timeout(Duration.ofMinutes(1))
@@ -48,7 +48,7 @@ public class BetaTeam extends HashMap<UUID, String> {
             return TriState.DEFAULT;
 
         inProgress = true;
-        downlodAsString(API_TESTERS).thenAccept(s -> INSTANCE = new Gson().fromJson(s, BetaTeam.class))
+        downloadAsString(API_TESTERS).thenAccept(s -> INSTANCE = new Gson().fromJson(s, BetaTeam.class))
                 .whenComplete((unused, throwable) -> inProgress = false);
 
         return TriState.DEFAULT;
