@@ -779,7 +779,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("ait.text.chat.readwiki", "To learn how to play Adventures in Time, we suggest you read the wiki, which is ");
         provider.addTranslation("ait.text.chat.hover", "Click here to open the wiki in your browser");
 
-        provider.addTranslation("text.ait.not_a_tester", "You're not a beta tester!");
+        provider.addTranslation("text.ait.beta.play.tooltip", "You're not a beta tester!");
+        provider.addTranslation("text.ait.beta.play", "Authorize to play AIT Beta");
+        provider.addTranslation("text.ait.beta.play.browser", "Check your browser!");
 
         // Control entities
         provider.addTranslation("control.ait.antigravs", "Antigravs");

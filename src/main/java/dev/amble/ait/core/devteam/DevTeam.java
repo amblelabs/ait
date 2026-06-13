@@ -1,5 +1,7 @@
 package dev.amble.ait.core.devteam;
 
+import net.minecraft.client.MinecraftClient;
+
 import java.util.Set;
 import java.util.UUID;
 
@@ -41,5 +43,9 @@ public class DevTeam {
 
     public static boolean isDev(UUID uuid) {
         return PLAYERS.contains(uuid);
+    }
+
+    public static boolean isDev() {
+        return isDev(MinecraftClient.getInstance().getSession().getProfile().getId());
     }
 }

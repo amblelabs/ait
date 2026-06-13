@@ -1,7 +1,7 @@
 package dev.amble.ait.mixin.client;
 
-import dev.amble.ait.core.devteam.LocalCallbackServer;
-import dev.amble.ait.core.devteam.TokenPrefs;
+import dev.amble.ait.core.devteam.BetaVerification;
+import dev.amble.ait.core.devteam.BetaTokenPrefs;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import org.spongepowered.asm.mixin.Mixin;
@@ -42,15 +42,18 @@ public abstract class TitleScreenMixin extends Screen {
 
     @Redirect(method = "initWidgetsNormal", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/ButtonWidget;builder(Lnet/minecraft/text/Text;Lnet/minecraft/client/gui/widget/ButtonWidget$PressAction;)Lnet/minecraft/client/gui/widget/ButtonWidget$Builder;", ordinal = 0))
     private ButtonWidget.Builder initWidgetsNormal1(Text message, ButtonWidget.PressAction onPress) {
-        boolean beta = AITMod.isOfficialBeta() && !TokenPrefs.isTokenValid();
+        boolean beta = AITMod.isBetaLocked();
 
-        ButtonWidget.Builder instance = new ButtonWidget.Builder(beta ? Text.translatable("text.ait.beta.authorize") : message, button -> {
-            if (AITMod.isOfficialBeta() && !TokenPrefs.isTokenValid()) {
-                LocalCallbackServer.startAndWaitForToken();
+        ButtonWidget.Builder instance = new ButtonWidget.Builder(beta ? Text.translatable("text.ait.beta.play") : message, button -> {
+            if (AITMod.isBetaLocked()) {
+                button.setMessage(Text.translatable("text.ait.beta.play.browser"));
+                BetaVerification.startAndWaitForToken();
 
-                if (TokenPrefs.isTokenValid()) {
+                if (BetaTokenPrefs.isTokenValid()) {
                     button.setTooltip(null);
                     button.setMessage(message);
+                } else {
+                    button.setMessage(Text.translatable("text.ait.beta.play"));
                 }
 
                 return;
@@ -60,7 +63,7 @@ public abstract class TitleScreenMixin extends Screen {
         });
 
         if (beta)
-            instance = instance.tooltip(Tooltip.of(Text.translatable("text.ait.not_a_tester")));
+            instance = instance.tooltip(Tooltip.of(Text.translatable("text.ait.beta.play.tooltip")));
 
         return instance;
     }

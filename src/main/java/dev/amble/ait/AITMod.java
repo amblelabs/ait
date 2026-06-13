@@ -9,6 +9,8 @@ import java.util.UUID;
 import dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity;
 import dev.amble.ait.core.blockentities.PottedSonicScrewdriverBlockEntity;
 import dev.amble.ait.core.blocks.EnvironmentProjectorBlock;
+import dev.amble.ait.core.devteam.DevTeam;
+import dev.amble.ait.core.devteam.BetaTokenPrefs;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.lib.container.RegistryContainer;
@@ -139,6 +141,10 @@ public class AITMod implements ModInitializer {
 
     public static boolean isOfficialBeta() {
         return BRANCH.contains("dev");
+    }
+
+    public static boolean isBetaLocked() {
+        return isOfficialBeta() && !DevTeam.isDev() && !BetaTokenPrefs.isTokenValid();
     }
 
     public void registerParticles() {

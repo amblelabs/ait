@@ -10,7 +10,7 @@ import java.util.Calendar;
 import java.util.UUID;
 
 import dev.amble.ait.client.screens.*;
-import dev.amble.ait.core.devteam.BetaTeam;
+import dev.amble.ait.core.devteam.BetaVerification;
 import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -277,7 +277,7 @@ public class AITModClient implements ClientModInitializer {
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn(client));
 
-        BetaTeam.init();
+        BetaVerification.init();
     }
 
     public static Screen screenFromId(int id) {
