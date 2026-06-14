@@ -23,8 +23,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 public class EnvironmentProjectorScreen extends TardisScreen {
-    private static final Identifier DEFAULT_TEXTURE = AITMod.id("textures/gui/tardis/monitor/environment_menu_sky.png");
-    private static final Identifier DIRECTION_TEXTURE = AITMod.id("textures/gui/tardis/monitor/environment_menu_direction_compass.png");
+    private static final Identifier DEFAULT_TEXTURE = AITMod.id("textures/gui/block/environment_projector/environment_menu_sky.png");
+    private static final Identifier DIRECTION_TEXTURE = AITMod.id("textures/gui/block/environment_projector/environment_menu_direction_compass.png");
 
     private GuiSelection currentGuiSelection = GuiSelection.SKY;
     private final BlockPos projectorPos;
