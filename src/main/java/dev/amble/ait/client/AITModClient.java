@@ -38,6 +38,9 @@ import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.world.World;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
@@ -86,6 +89,7 @@ import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.*;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
+import dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.blocks.AstralMapBlock;
 import dev.amble.ait.core.blocks.ExteriorBlock;
@@ -227,9 +231,22 @@ public class AITModClient implements ClientModInitializer {
             int id = buf.readInt();
             BlockPos projector = buf.readBlockPos();
 
+            int worldCount = buf.readVarInt();
+            List<RegistryKey<World>> worldKeys = new ArrayList<>(worldCount);
+            for (int i = 0; i < worldCount; i++)
+                worldKeys.add(RegistryKey.of(RegistryKeys.WORLD, buf.readIdentifier()));
+
             client.execute(() -> {
                 ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
+
+                if (tardis == null && client.world != null
+                        && client.world.getBlockEntity(projector) instanceof EnvironmentProjectorBlockEntity be
+                        && be.tardis() != null)
+                    tardis = (ClientTardis) be.tardis().get();
+
                 Screen screen = screenFromId(id, tardis, projector);
+                if (screen instanceof EnvironmentProjectorScreen projectorScreen)
+                    projectorScreen.setAvailableWorlds(worldKeys);
                 if (screen != null) client.setScreenAndRender(screen);
             });
         });
@@ -450,7 +467,7 @@ public class AITModClient implements ClientModInitializer {
         map.putBlock(AITBlocks.SMALL_ZEITON_BUD, RenderLayer.getCutout());
         map.putBlock(AITBlocks.MACHINE_CASING, RenderLayer.getCutout());
         map.putBlock(AITBlocks.FABRICATOR, RenderLayer.getTranslucent());
-        map.putBlock(AITBlocks.ENVIRONMENT_PROJECTOR, RenderLayer.getTranslucent());
+        map.putBlock(AITBlocks.ENVIRONMENT_PROJECTOR, RenderLayer.getCutout());
         map.putBlock(AITBlocks.WAYPOINT_BANK, RenderLayer.getCutout());
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             map.putBlock(AITBlocks.SNOW_GLOBE, RenderLayer.getCutout());

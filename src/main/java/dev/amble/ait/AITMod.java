@@ -2,6 +2,7 @@ package dev.amble.ait;
 
 import static dev.amble.ait.module.planet.core.space.planet.Crater.CRATER_ID;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -444,6 +445,11 @@ public class AITMod implements ModInitializer {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeInt(id);
         buf.writeBlockPos(console);
+
+        List<ServerWorld> worlds = WorldUtil.getProjectorWorlds();
+        buf.writeVarInt(worlds.size());
+        for (ServerWorld world : worlds)
+            buf.writeIdentifier(world.getRegistryKey().getValue());
 
         ServerPlayNetworking.send(player, OPEN_SCREEN_PROJECTOR, buf);
     }
