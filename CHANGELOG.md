@@ -131,3 +131,4 @@
 - feat: the visualiser control has multiple names | by [@vmbbi](https://github.com/vmbbi), [@drtheodor](https://github.com/drtheodor) ([#2065](https://github.com/amblelabs/ait/pull/2065))
 - feat: competition interiors | by [@Addi3](https://github.com/Addi3) ([#2109](https://github.com/amblelabs/ait/pull/2109))
 - chore: updated readme assets | by [@Addi3](https://github.com/Addi3) ([#2109](https://github.com/amblelabs/ait/pull/2109))
+- feat: see the interior detector's state with a scanning sonic screwdriver! | by [@Loqor](https://github.com/Loqor) ([#2107](https://github.com/amblelabs/ait/pull/2107))
