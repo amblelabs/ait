@@ -132,3 +132,5 @@
 - feat: competition interiors | by [@Addi3](https://github.com/Addi3) ([#2109](https://github.com/amblelabs/ait/pull/2109))
 - chore: updated readme assets | by [@Addi3](https://github.com/Addi3) ([#2109](https://github.com/amblelabs/ait/pull/2109))
 - feat: see the interior detector's state with a scanning sonic screwdriver! | by [@Loqor](https://github.com/Loqor) ([#2107](https://github.com/amblelabs/ait/pull/2107))
+- refactor: move environment projector gui pngs to there own folder! | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#2111](https://github.com/amblelabs/ait/pull/2111))
+- chore: remove unused png! | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#2111](https://github.com/amblelabs/ait/pull/2111))
