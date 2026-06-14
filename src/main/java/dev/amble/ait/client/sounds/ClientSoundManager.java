@@ -7,6 +7,7 @@ import net.minecraft.client.MinecraftClient;
 
 import dev.amble.ait.client.sounds.alarm.ClientAlarmHandler;
 import dev.amble.ait.client.sounds.console.ClientConsoleAmbientSoundsHandler;
+import dev.amble.ait.client.sounds.crash_music.ClientCrashMusicSoundHandler;
 import dev.amble.ait.client.sounds.drifting.ClientTwoThousandSoundHandler;
 import dev.amble.ait.client.sounds.engine.ClientEngineLoopSoundHandler;
 import dev.amble.ait.client.sounds.fall.ClientFallSoundHandler;
@@ -28,6 +29,7 @@ import dev.amble.ait.client.sounds.vortex.ClientVortexSoundsHandler;
 public class ClientSoundManager {
     private static ClientHumHandler hum;
     private static ClientAlarmHandler alarm;
+    private static ClientCrashMusicSoundHandler crashMusic;
     private static ClientFlightHandler flight;
     private static ClientCreakHandler creak;
     private static ClientVortexSoundsHandler vortexSounds;
@@ -53,6 +55,13 @@ public class ClientSoundManager {
             alarm = ClientAlarmHandler.create();
 
         return alarm;
+    }
+
+    public static ClientCrashMusicSoundHandler getCrashMusic() {
+        if (crashMusic == null)
+            crashMusic = ClientCrashMusicSoundHandler.create();
+
+        return crashMusic;
     }
 
     public static ClientFlightHandler getFlight() {
@@ -143,6 +152,9 @@ public class ClientSoundManager {
     public static void tick(MinecraftClient client) {
         if (getAlarm() != null)
             getAlarm().tick(client);
+
+        if (getCrashMusic() != null)
+            getCrashMusic().tick(client);
 
         if (getHum() != null)
             getHum().tick(client);
