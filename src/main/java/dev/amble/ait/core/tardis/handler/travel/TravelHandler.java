@@ -11,7 +11,6 @@ import dev.amble.ait.core.lock.LockedDimension;
 import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
-import dev.amble.ait.core.tardis.control.impl.DirectionControl;
 import dev.amble.ait.core.tardis.control.impl.EngineOverloadControl;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
@@ -66,7 +65,6 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     private EnumMap<State, ActionQueue> travelQueue;
 
     public static final Identifier CANCEL_DEMAT_SOUND = AITMod.id("cancel_demat_sound");
-    public static final Identifier CRASH_MUSIC = AITMod.id("crash_music");
 
     static {
         TardisEvents.SAVE.register((server, tardis, close) -> {

@@ -79,7 +79,6 @@ import dev.amble.ait.client.renderers.monitors.MonitorRenderer;
 import dev.amble.ait.client.renderers.monitors.WallMonitorRenderer;
 import dev.amble.ait.client.renderers.sky.MarsSkyProperties;
 import dev.amble.ait.client.sonic.SonicModelLoader;
-import dev.amble.ait.client.sounds.crash_music.ClientCrashMusicSoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.client.util.ClientTardisUtil;
@@ -96,7 +95,6 @@ import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.*;
 import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
@@ -184,9 +182,6 @@ public class AITModClient implements ClientModInitializer {
 
             TardisStar.render(context, tardis);
         });
-
-        ClientPlayNetworking.registerGlobalReceiver(TravelHandler.CRASH_MUSIC, (client, handler, buf, responseSender) ->
-                client.execute(ClientCrashMusicSoundHandler::play));
 
         ClientPlayNetworking.registerGlobalReceiver(OPEN_SCREEN, (client, handler, buf, responseSender) -> {
             int id = buf.readInt();

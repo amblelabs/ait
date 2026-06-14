@@ -6,10 +6,8 @@ import java.util.Random;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.queue.api.ActionQueue;
 
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -22,7 +20,6 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.handler.ServerAlarmHandler;
 import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
-import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.data.properties.bool.BoolValue;
 
 public sealed interface CrashableTardisTravel permits TravelHandler {
@@ -105,12 +102,6 @@ public sealed interface CrashableTardisTravel permits TravelHandler {
             tardis.crash().setState(TardisCrashHandler.State.TOXIC);
         } else {
             tardis.crash().setState(TardisCrashHandler.State.UNSTABLE);
-        }
-
-        // play new arpalarm music - its stereo so it shouldn't matter where it's played from
-        PacketByteBuf crashMusic = PacketByteBufs.create();
-        for (ServerPlayerEntity player : world.getPlayers()) {
-            NetworkUtil.send(player, TravelHandler.CRASH_MUSIC, crashMusic);
         }
 
         TardisEvents.CRASH.invoker().onCrash(tardis);
