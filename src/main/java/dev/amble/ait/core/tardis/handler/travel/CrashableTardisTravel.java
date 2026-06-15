@@ -90,10 +90,10 @@ public sealed interface CrashableTardisTravel permits TravelHandler {
         tardis.door().setLocked(true);
         tardis.alarm().enable(ServerAlarmHandler.AlarmType.CRASHING);
         this.antigravs().set(false);
-        this.speed(0);
         tardis.removeFuel(700 * power);
         this.resetHammerUses();
         this.setCrashing(true);
+        this.speed(0);
         this.forceRemat();
 
         int repairTicks = 1200 * power;
