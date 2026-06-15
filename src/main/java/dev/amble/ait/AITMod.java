@@ -9,6 +9,8 @@ import java.util.UUID;
 import dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity;
 import dev.amble.ait.core.blockentities.PottedSonicScrewdriverBlockEntity;
 import dev.amble.ait.core.blocks.EnvironmentProjectorBlock;
+import dev.amble.ait.core.devteam.DevTeam;
+import dev.amble.ait.core.devteam.BetaTokenPrefs;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.lib.container.RegistryContainer;
@@ -38,7 +40,6 @@ import net.minecraft.world.event.GameEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.minecraft.entity.SpawnGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootPool;
 import net.minecraft.loot.LootTables;
@@ -128,7 +129,7 @@ public class AITMod implements ModInitializer {
     public static final String BRANCH;
 
     static {
-        // 1.x.xx-BRANCH+mc.1.20.1
+        // 1.x.xx-[BRANCH-]dev+mc.1.20.1
         String version = FabricLoader.getInstance().getModContainer(MOD_ID).get().getMetadata().getVersion().getFriendlyString();
         // get the part of the version string between the - and +
         BRANCH = version.substring(version.indexOf("-") + 1, version.indexOf("+"));
@@ -136,6 +137,14 @@ public class AITMod implements ModInitializer {
 
     public static boolean isUnsafeBranch() {
         return !BRANCH.contains("release");
+    }
+
+    public static boolean isOfficialBeta() {
+        return BRANCH.contains("dev");
+    }
+
+    public static boolean isBetaLocked() {
+        return isOfficialBeta() && !DevTeam.isDev() && !BetaTokenPrefs.isTokenValid();
     }
 
     public void registerParticles() {
