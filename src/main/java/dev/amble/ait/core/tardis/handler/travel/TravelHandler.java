@@ -11,7 +11,6 @@ import dev.amble.ait.core.lock.LockedDimension;
 import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
-import dev.amble.ait.core.tardis.control.impl.DirectionControl;
 import dev.amble.ait.core.tardis.control.impl.EngineOverloadControl;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
@@ -216,7 +215,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         if (this.tardis.crash().getState() == TardisCrashHandler.State.UNSTABLE)
             this.forceDestination(cached -> TravelUtil.jukePos(cached, 1, 10));
 
-        if (this.getState() != State.LANDED)
+        if (this.getState() != State.LANDED && !this.isCrashing())
             this.rematerialize();
     }
 
@@ -416,13 +415,12 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     }
 
     public void finishDemat() {
-        this.crashing.set(false);
+        this.setCrashing(false);
         this.previousPosition.set(this.position);
         this.setState(State.FLIGHT);
 
         TardisEvents.ENTER_FLIGHT.invoker().onFlight(this.tardis);
         this.deleteExterior();
-
 
         if (tardis.stats().security().get() || !tardis.waypoint().canContainPlayers()) {
             SecurityControl.runSecurityProtocols(this.tardis);
