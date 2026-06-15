@@ -137,3 +137,5 @@
 - you can no longer play stolen beta builds, sorry not sorry | by [@drtheodor](https://github.com/drtheodor) ([#2108](https://github.com/amblelabs/ait/pull/2108))
 - fix: historic interior translation | by [@Addi3](https://github.com/Addi3) ([#2112](https://github.com/amblelabs/ait/pull/2112))
 - fix: power converter no more crash | by [@drtheodor](https://github.com/drtheodor) ([#2113](https://github.com/amblelabs/ait/pull/2113))
+- feat: config option for animating controls! | by [@Loqor](https://github.com/Loqor) ([#2114](https://github.com/amblelabs/ait/pull/2114))
+- fix: direction control left-clicking would skip north and south | by [@Loqor](https://github.com/Loqor) ([#2114](https://github.com/amblelabs/ait/pull/2114))
