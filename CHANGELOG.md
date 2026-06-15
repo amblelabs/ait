@@ -139,3 +139,4 @@
 - fix: power converter no more crash | by [@drtheodor](https://github.com/drtheodor) ([#2113](https://github.com/amblelabs/ait/pull/2113))
 - feat: config option for animating controls! | by [@Loqor](https://github.com/Loqor) ([#2114](https://github.com/amblelabs/ait/pull/2114))
 - fix: direction control left-clicking would skip north and south | by [@Loqor](https://github.com/Loqor) ([#2114](https://github.com/amblelabs/ait/pull/2114))
+- feat: new environment projector GUI | by [@rapbattlegod32](https://github.com/rapbattlegod32), [@drtheodor](https://github.com/drtheodor) ([#2110](https://github.com/amblelabs/ait/pull/2110))
