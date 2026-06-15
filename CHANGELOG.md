@@ -135,3 +135,4 @@
 - refactor: move environment projector gui pngs to there own folder! | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#2111](https://github.com/amblelabs/ait/pull/2111))
 - chore: remove unused png! | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#2111](https://github.com/amblelabs/ait/pull/2111))
 - you can no longer play stolen beta builds, sorry not sorry | by [@drtheodor](https://github.com/drtheodor) ([#2108](https://github.com/amblelabs/ait/pull/2108))
+- fix: historic interior translation | by [@Addi3](https://github.com/Addi3) ([#2112](https://github.com/amblelabs/ait/pull/2112))
