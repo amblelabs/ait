@@ -23,6 +23,6 @@ public class StallionDoorVariant extends DoorSchema {
 
     @Override
     public @Nullable Vec3d getPortalPosition() {
-        return new Vec3d(0, 0, -0.4);
+        return new Vec3d(0, 0.0625, -0.4);
     }
 }

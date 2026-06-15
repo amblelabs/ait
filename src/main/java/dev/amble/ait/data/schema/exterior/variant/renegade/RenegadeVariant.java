@@ -31,7 +31,7 @@ public abstract class RenegadeVariant extends ExteriorVariantSchema {
 
     @Override
     public @Nullable Vec3d getPortalPosition() {
-        return new Vec3d(0, -0.07, -0.4);
+        return new Vec3d(0, 0.125, -0.4);
     }
 
     @Override

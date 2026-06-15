@@ -16,6 +16,7 @@ public class PoliceBoxCoralVariant extends PoliceBoxVariant {
 
     @Override
     public double portalHeight() {
-        return 2.2;
+        return 2.3;
     }
+
 }

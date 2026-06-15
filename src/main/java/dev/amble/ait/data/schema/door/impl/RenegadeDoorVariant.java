@@ -35,6 +35,6 @@ public class RenegadeDoorVariant extends DoorSchema {
 
     @Override
     public @Nullable Vec3d getPortalPosition() {
-        return new Vec3d(0, 0.02, -0.4);
+        return new Vec3d(0, 0, -0.4);
     }
 }

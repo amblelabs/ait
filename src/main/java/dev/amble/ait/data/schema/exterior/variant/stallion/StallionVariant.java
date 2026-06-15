@@ -37,7 +37,7 @@ public abstract class StallionVariant extends ExteriorVariantSchema {
 
     @Override
     public @Nullable Vec3d getPortalPosition() {
-        return new Vec3d(0, -0.2, -0.5);
+        return new Vec3d(0, 0.0625, -0.5);
     }
 
     @Override

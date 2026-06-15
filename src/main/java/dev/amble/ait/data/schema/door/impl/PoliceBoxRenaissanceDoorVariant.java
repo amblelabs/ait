@@ -22,6 +22,6 @@ public class PoliceBoxRenaissanceDoorVariant extends DoorSchema {
 
     @Override
     public @Nullable Vec3d getPortalPosition() {
-        return new Vec3d(0, 0.05, -0.4);
+        return new Vec3d(0, -0.15, -0.4);
     }
 }
