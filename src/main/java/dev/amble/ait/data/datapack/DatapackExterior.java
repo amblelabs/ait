@@ -36,18 +36,6 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     public static final Identifier DEFAULT_TEXTURE = new Identifier(AITMod.MOD_ID,
             "textures/gui/tardis/desktop/missing_preview.png");
 
-    protected final Identifier parent;
-    protected final Identifier texture;
-    protected final Identifier emission;
-    protected final BiomeOverrides overrides;
-    protected final Vec3d seatTranslations;
-    protected final boolean initiallyDatapack;
-    protected final boolean hasTransparentDoors;
-    protected final Identifier model;
-    protected final Identifier doorId;
-    protected final PortalOffsets portalOffsets;
-    protected final BedrockAnimationReference leftAnimation;
-    protected final BedrockAnimationReference rightAnimation;
     public static final Codec<DatapackExterior> CODEC = RecordCodecBuilder.create(instance -> instance
             .group(Identifier.CODEC.fieldOf("id").forGetter(ExteriorVariantSchema::id),
                     Identifier.CODEC.fieldOf("category").forGetter(ExteriorVariantSchema::categoryId),
@@ -61,19 +49,32 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
                     Codec.BOOL.optionalFieldOf("has_transparent_doors", false).forGetter(DatapackExterior::hasTransparentDoors),
                     Identifier.CODEC.optionalFieldOf("model").forGetter(DatapackExterior::model),
                     Identifier.CODEC.optionalFieldOf("door").forGetter(DatapackExterior::getDoorId),
-                    PortalOffsets.CODEC.optionalFieldOf("portal_info").forGetter(DatapackExterior::portalOffsets),
+                    PortalOffsets.CODEC.optionalFieldOf("portal_info", null).forGetter(DatapackExterior::getPortalOffsets),
                     BedrockAnimationReference.CODEC.optionalFieldOf("left_animation").forGetter(DatapackExterior::getLeftAnimation),
                     BedrockAnimationReference.CODEC.optionalFieldOf("right_animation").forGetter(DatapackExterior::getRightAnimation),
                     Vec3d.CODEC.optionalFieldOf("scale", new Vec3d(1, 1, 1)).forGetter(DatapackExterior::getScale),
                     TravelAnimationMap.CODEC.optionalFieldOf("animations", new TravelAnimationMap())
                             .forGetter(DatapackExterior::getAnimations)
             ).apply(instance, DatapackExterior::new)
-        );
+    );
+
+    protected final Identifier parent;
+    protected final Identifier texture;
+    protected final Identifier emission;
+    protected final BiomeOverrides overrides;
+    protected final Vec3d seatTranslations;
+    protected final boolean initiallyDatapack;
+    protected final boolean hasTransparentDoors;
+    protected final Identifier model;
+    protected final Identifier doorId;
+    protected final PortalOffsets portalOffsets;
+    protected final BedrockAnimationReference leftAnimation;
+    protected final BedrockAnimationReference rightAnimation;
     protected final Vec3d scale;
     protected final TravelAnimationMap animations;
 
     public DatapackExterior(Identifier id, Identifier category, Identifier parent, Identifier texture,
-                            Identifier emission, Optional<Loyalty> loyalty, BiomeOverrides overrides, Vec3d seatTranslations, boolean hasTransparentDoors, Optional<Identifier> model, Optional<Identifier> door, Optional<PortalOffsets> offsets, Optional<BedrockAnimationReference> leftAnimation, Optional<BedrockAnimationReference> rightAnimation, Vec3d scale, TravelAnimationMap animations) {
+                            Identifier emission, Optional<Loyalty> loyalty, BiomeOverrides overrides, Vec3d seatTranslations, boolean hasTransparentDoors, Optional<Identifier> model, Optional<Identifier> door, PortalOffsets offsets, Optional<BedrockAnimationReference> leftAnimation, Optional<BedrockAnimationReference> rightAnimation, Vec3d scale, TravelAnimationMap animations) {
         super(category, id, loyalty);
         this.parent = parent;
         this.texture = texture;
@@ -84,7 +85,7 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
         this.overrides = overrides;
         this.model = model.orElse(null);
         this.doorId = door.orElse(null);
-        this.portalOffsets = offsets.orElse(null);
+        this.portalOffsets = offsets;
         this.leftAnimation = leftAnimation.orElse(null);
         this.rightAnimation = rightAnimation.orElse(null);
         this.scale = scale;
@@ -148,7 +149,7 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     @Override
     public boolean hasPortals() {
         if (this.getPortalOffsets() != null) {
-            return this.getPortalOffsets().isEnabled();
+            return this.getPortalOffsets().enabled();
         }
 
         return this.getParent().hasPortals();
@@ -157,7 +158,7 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     @Override
     public @Nullable Vec3d getPortalPosition() {
         if (this.getPortalOffsets() != null) {
-            return this.getPortalOffsets().apply(Vec3d.ZERO, (byte) 0);
+            return this.getPortalOffsets().offset();
         }
 
         return this.getParent().getPortalPosition();
@@ -166,7 +167,7 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     @Override
     public double portalWidth() {
         if (this.getPortalOffsets() != null) {
-            return this.getPortalOffsets().getWidth();
+            return this.getPortalOffsets().width();
         }
 
         return this.getParent().portalWidth();
@@ -175,7 +176,7 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     @Override
     public double portalHeight() {
         if (this.getPortalOffsets() != null) {
-            return this.getPortalOffsets().getHeight();
+            return this.getPortalOffsets().height();
         }
 
         return this.getParent().portalHeight();
@@ -198,10 +199,6 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
      */
     public Optional<Identifier> model() {
         return Optional.ofNullable(this.model);
-    }
-
-    public Optional<PortalOffsets> portalOffsets() {
-        return Optional.ofNullable(this.portalOffsets);
     }
 
     public PortalOffsets getPortalOffsets() {
