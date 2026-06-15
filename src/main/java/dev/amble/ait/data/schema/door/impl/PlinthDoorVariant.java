@@ -8,6 +8,7 @@ import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.schema.door.DoorSchema;
+import org.jetbrains.annotations.Nullable;
 
 public class PlinthDoorVariant extends DoorSchema {
 
@@ -33,8 +34,7 @@ public class PlinthDoorVariant extends DoorSchema {
     }
 
     @Override
-    public Vec3d adjustPortalPos(Vec3d pos, Direction direction) {
-        return pos.add(0, 0.06, -0.4);
+    public @Nullable Vec3d getPortalPosition() {
+        return new Vec3d(0, 0, -0.4);
     }
-
 }

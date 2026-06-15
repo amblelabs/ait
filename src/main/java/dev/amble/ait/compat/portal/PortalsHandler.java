@@ -151,8 +151,8 @@ public class PortalsHandler extends KeyedTardisComponent {
         CachedDirectedGlobalPos exteriorPos = tardis.travel().getState() == TravelHandlerBase.State.LANDED
                 ? tardis.travel().position() : tardis.travel().getProgress();
 
-        Vec3d doorAdjust = adjustInteriorPos(tardis.getExterior().getVariant().door(), doorPos);
-        Vec3d exteriorAdjust = adjustExteriorPos(tardis.getExterior().getVariant(), exteriorPos);
+        Vec3d doorAdjust = adjustInteriorPos(tardis.getExterior().getVariant().door(), doorPos).add(0, tardis.getExterior().getVariant().portalHeight() / 2f, 0);
+        Vec3d exteriorAdjust = adjustExteriorPos(tardis.getExterior().getVariant(), exteriorPos).add(0, tardis.getExterior().getVariant().portalHeight() / 2f, 0);
 
         TardisPortal portal = new TardisPortal(tardis.travel().getState() == TravelHandlerBase.State.FLIGHT ? WorldUtil.getTimeVortex() : exteriorPos.getWorld());
 
@@ -186,8 +186,8 @@ public class PortalsHandler extends KeyedTardisComponent {
         CachedDirectedGlobalPos exteriorPos = tardis.travel().getState() == TravelHandlerBase.State.LANDED
                 ? tardis.travel().position() : tardis.travel().getProgress();
 
-        Vec3d doorAdjust = adjustInteriorPos(tardis.getExterior().getVariant().door(), doorPos);
-        Vec3d exteriorAdjust = adjustExteriorPos(tardis.getExterior().getVariant(), exteriorPos);
+        Vec3d doorAdjust = adjustInteriorPos(tardis.getExterior().getVariant().door(), doorPos).add(0, tardis.getExterior().getVariant().portalHeight() / 2f, 0);
+        Vec3d exteriorAdjust = adjustExteriorPos(tardis.getExterior().getVariant(), exteriorPos).add(0, tardis.getExterior().getVariant().portalHeight() / 2f, 0);
 
         TardisPortal portal = new TardisPortal(tardis.asServer().world());
 
@@ -217,13 +217,13 @@ public class PortalsHandler extends KeyedTardisComponent {
     }
 
     private static Vec3d adjustExteriorPos(ExteriorVariantSchema exterior, DirectedGlobalPos directed) {
-        return exterior.getPortalPosition(directed.getPos().toCenterPos(), directed.getRotationDegrees()).add(0, 0.75f, 0);
+        return exterior.getPortalPosition(directed.getPos().toCenterPos(), directed.getRotationDegrees()).add(0, -0.5f, 0);
     }
 
     private static Vec3d adjustInteriorPos(DoorSchema door, DirectedBlockPos directed) {
         return door.getPortalPosition(directed.getPos().toCenterPos(),
 		        RotationPropertyHelper.toDegrees(directed.getRotation())
-        ).add(0, 0.55f, 0);
+        ).add(0, -0.5f, 0);
     }
 
 	private void removePortals() {

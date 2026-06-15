@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.UUID;
 
 import dev.amble.ait.client.screens.*;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.lib.register.AmbleRegistries;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -24,6 +25,8 @@ import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
+import net.minecraft.item.Items;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.DoorBlock;
@@ -105,6 +108,7 @@ import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
+import org.joml.Vector3f;
 
 @Environment(value = EnvType.CLIENT)
 public class AITModClient implements ClientModInitializer {
@@ -519,7 +523,7 @@ public class AITModClient implements ClientModInitializer {
             stack.scale(1, -1, -1);
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(RotationPropertyHelper.toDegrees(exterior.getCachedState().get(ExteriorBlock.ROTATION))));
             int light = world.getLightLevel(pos);
-            if ((tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) && !tardis.isGrowth()) {
+            if (tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) {
                 light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
                 TardisExteriorBOTI boti = new TardisExteriorBOTI();
                 boti.renderExteriorBoti(exterior, variant, stack,
@@ -546,13 +550,31 @@ public class AITModClient implements ClientModInitializer {
             for (DoorBlockEntity door : BOTI.DOOR_RENDER_QUEUE) {
                 if (door == null) continue;
                 BlockPos pos = door.getPos();
+
+                stack.push();
+                stack.translate(0.5, 0, 0.5);
+                stack.translate(pos.getX() - context.camera().getPos().getX(), pos.getY() - context.camera().getPos().getY(), pos.getZ() - context.camera().getPos().getZ());
+                stack.scale(1, -1, -1);
+                stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(door.getCachedState().get(DoorBlock.FACING).asRotation()));
+                Vector3f scale = tardis.travel().getScale();
+
+                ExteriorVariantSchema parent = variant.parent();
+                Vec3d vec = parent.door().getPortalPosition();
+                if (vec == null) vec = new Vec3d(0, 0, 0);
+                stack.translate(vec.x, -vec.y - parent.portalHeight() / 2f, vec.z + 0.8f);
+                stack.scale((float) parent.portalWidth() * scale.x(),
+                        (float) parent.portalHeight() * scale.y(), scale.z());
+
+                client.getItemRenderer().renderItem(Items.BLUE_STAINED_GLASS_PANE.getDefaultStack(), ModelTransformationMode.FIXED, 0xf00f0,0, stack, context.consumers(),world,0);
+                stack.pop();
+
                 stack.push();
                 stack.translate(0.5, 0, 0.5);
                 stack.translate(pos.getX() - context.camera().getPos().getX(), pos.getY() - context.camera().getPos().getY(), pos.getZ() - context.camera().getPos().getZ());
                 stack.scale(1, -1, -1);
                 stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(door.getCachedState().get(DoorBlock.FACING).asRotation()));
                 int light = world.getLightLevel(pos.up());
-                if ((tardis.door().getLeftRot() > 0  || variant.hasTransparentDoors()) && !tardis.isGrowth()) {
+                if (tardis.door().getLeftRot() > 0  || variant.hasTransparentDoors()) {
                     light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
                     TardisDoorBOTI.renderInteriorDoorBoti(tardis, door, variant, stack,
                             AITMod.id("textures/environment/tardis_sky.png"), model,

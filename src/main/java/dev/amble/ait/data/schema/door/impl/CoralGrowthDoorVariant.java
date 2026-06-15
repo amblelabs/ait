@@ -8,6 +8,7 @@ import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.schema.door.DoorSchema;
+import org.jetbrains.annotations.Nullable;
 
 public class CoralGrowthDoorVariant extends DoorSchema {
 
@@ -33,13 +34,7 @@ public class CoralGrowthDoorVariant extends DoorSchema {
     }
 
     @Override
-    public Vec3d adjustPortalPos(Vec3d pos, Direction direction) {
-        return switch (direction) {
-            case DOWN, UP -> pos;
-            case NORTH -> pos.add(0, 0.1, 0.36);
-            case SOUTH -> pos.add(0, 0.1, -0.36);
-            case WEST -> pos.add(0.36, 0.1, 0);
-            case EAST -> pos.add(-0.36, 0.1, 0);
-        };
+    public @Nullable Vec3d getPortalPosition() {
+        return new Vec3d(0, 0, 0.1);
     }
 }

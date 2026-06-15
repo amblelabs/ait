@@ -10,6 +10,7 @@ import dev.amble.ait.data.schema.door.impl.StallionDoorVariant;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.category.StallionCategory;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
+import org.jetbrains.annotations.Nullable;
 
 
 public abstract class StallionVariant extends ExteriorVariantSchema {
@@ -35,27 +36,13 @@ public abstract class StallionVariant extends ExteriorVariantSchema {
     }
 
     @Override
-    public Vec3d adjustPortalPos(Vec3d pos, byte direction) {
-        return switch (direction) {
-            case 0 -> pos.add(0, -0.2, -0.5); // NORTH
-            case 1, 2, 3 -> pos.add(0.38, -0.2, -0.38); // NORTH EAST p n
-            case 4 -> pos.add(0.5, -0.2, 0); // EAST
-            case 5, 6, 7 -> pos.add(0.38, -0.2, 0.38); // SOUTH EAST p p
-            case 8 -> pos.add(0, -0.2, 0.5); // SOUTH
-            case 9, 10, 11 -> pos.add(-0.38, -0.2, 0.38); // SOUTH WEST n p
-            case 12 -> pos.add(-0.5, -0.2, 0); // WEST
-            case 13, 14, 15 -> pos.add(-0.38, -0.2, -0.38); // NORTH WEST n n
-            default -> pos;
-        };
-    }
-    @Override
-    public double portalHeight() {
-        return 2.3d;
+    public @Nullable Vec3d getPortalPosition() {
+        return new Vec3d(0, -0.2, -0.5);
     }
 
     @Override
-    public double portalWidth() {
-        return 1d;
+    public double portalHeight() {
+        return 2.3d;
     }
 
     @Override

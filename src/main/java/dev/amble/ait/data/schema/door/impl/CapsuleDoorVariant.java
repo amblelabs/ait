@@ -8,6 +8,7 @@ import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.schema.door.DoorSchema;
+import org.jetbrains.annotations.Nullable;
 
 public class CapsuleDoorVariant extends DoorSchema {
     public static final Identifier REFERENCE = AITMod.id("door/capsule");
@@ -32,7 +33,7 @@ public class CapsuleDoorVariant extends DoorSchema {
     }
 
     @Override
-    public Vec3d adjustPortalPos(Vec3d pos, Direction direction) {
-        return pos.add(0, 0.04, -0.3);
+    public @Nullable Vec3d getPortalPosition() {
+        return new Vec3d(0, 0.125, -0.5);
     }
 }

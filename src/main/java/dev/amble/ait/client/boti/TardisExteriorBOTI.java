@@ -72,11 +72,13 @@ public class TardisExteriorBOTI extends BOTI {
             stack.translate(0, scale.y() + 0.25f, scale.z() - 1.7f);
         }
         ExteriorVariantSchema parent = variant.parent();
-        stack.scale((float) parent.portalWidth() * scale.x(),
-                (float) parent.portalHeight() * scale.y(), scale.z());
         Vec3d vec = parent.getPortalPosition();
         if (vec == null) vec = new Vec3d(0, 0, 0);
-        stack.translate(vec.x, vec.y - 0.475f, vec.z);
+
+        stack.translate(vec.x, -vec.y - parent.portalHeight() / 2f, vec.z);
+        stack.scale((float) parent.portalWidth() * scale.x(),
+                (float) parent.portalHeight() * scale.y(), scale.z());
+
         RenderLayer whichOne = AITModClient.CONFIG.greenScreenBOTI ?
                 RenderLayer.getDebugFilledBox() : RenderLayer.getEndGateway();
         float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0, 1} : new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
