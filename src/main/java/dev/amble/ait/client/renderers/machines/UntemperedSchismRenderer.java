@@ -3,10 +3,8 @@ package dev.amble.ait.client.renderers.machines;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.machines.RiftRipperModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.core.blockentities.RiftRipperBlockEntity;
-import dev.amble.ait.core.blocks.ArtronCollectorBlock;
-import dev.amble.ait.core.blocks.RiftRipperBlock;
-import dev.amble.ait.core.world.RiftChunkManager;
+import dev.amble.ait.core.blockentities.UntemperedSchismBlockEntity;
+import dev.amble.ait.core.blocks.UntemperedSchismBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.client.MinecraftClient;
@@ -24,7 +22,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 
-public class RiftRipperRenderer<T extends RiftRipperBlockEntity> implements BlockEntityRenderer<T> {
+public class UntemperedSchismRenderer<T extends UntemperedSchismBlockEntity> implements BlockEntityRenderer<T> {
 
     public static final Identifier RIPPER_TEXTURE = new Identifier(AITMod.MOD_ID,
             ("textures/blockentities/machines/rift_ripper.png"));
@@ -32,13 +30,13 @@ public class RiftRipperRenderer<T extends RiftRipperBlockEntity> implements Bloc
             ("textures/blockentities/machines/rift_ripper_emission.png"));
     private final RiftRipperModel riftRipperModel;
 
-    public RiftRipperRenderer(BlockEntityRendererFactory.Context ctx) {
+    public UntemperedSchismRenderer(BlockEntityRendererFactory.Context ctx) {
         this.riftRipperModel = new RiftRipperModel(RiftRipperModel.getTexturedModelData().createModel());
     }
 
     @Override
-    public void render(RiftRipperBlockEntity entity, float tickDelta, MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers, int light, int overlay) {
+    public void render(UntemperedSchismBlockEntity entity, float tickDelta, MatrixStack matrices,
+                       VertexConsumerProvider vertexConsumers, int light, int overlay) {
 
         int percentage = (int) (entity.getCurrentFuel() / entity.getMaxFuel() * 100);
         BlockState blockState = entity.getCachedState();
@@ -84,7 +82,7 @@ public class RiftRipperRenderer<T extends RiftRipperBlockEntity> implements Bloc
         this.draw(Text.translatable("rift_ripper.name.renderer").formatted(Formatting.BOLD, Formatting.AQUA), matrices, vertexConsumers, textRenderer, 0);
         this.draw(Text.translatable("rift_ripper.version"), matrices, vertexConsumers, textRenderer, 10);
         this.draw(Text.literal( percentage + "%").formatted(Formatting.GOLD), matrices, vertexConsumers, textRenderer, 20);
-        this.draw(Text.translatable("rift_ripper.held", (entity.getCurrentFuel() / RiftRipperBlock.ARTRON_PER_TICK / 20f)), matrices, vertexConsumers, textRenderer, 30);
+        this.draw(Text.translatable("rift_ripper.held", (entity.getCurrentFuel() / UntemperedSchismBlock.ARTRON_PER_TICK / 20f)), matrices, vertexConsumers, textRenderer, 30);
         matrices.pop();
 
         matrices.pop();

@@ -1,55 +1,33 @@
 package dev.amble.ait.core.blockentities;
 
 import dev.amble.ait.api.ArtronHolder;
-import dev.amble.ait.api.ArtronHolderItem;
 import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITEntityTypes;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.blocks.RiftRipperBlock;
+import dev.amble.ait.core.blocks.UntemperedSchismBlock;
 import dev.amble.ait.core.engine.link.IFluidLink;
 import dev.amble.ait.core.engine.link.IFluidSource;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
-import dev.amble.ait.core.engine.link.block.HorizontalFluidLinkBlock;
 import dev.amble.ait.core.engine.link.tracker.FluidNetwork;
 import dev.amble.ait.core.entities.RiftEntity;
-import dev.amble.ait.core.item.ArtronCollectorItem;
-import dev.amble.ait.core.item.ChargedZeitonCrystalItem;
 import dev.amble.ait.core.util.EntityRef;
-import dev.amble.ait.core.world.RiftChunkManager;
-import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.particle.DustColorTransitionParticleEffect;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.state.property.Properties;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
-public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements BlockEntityTicker<RiftRipperBlockEntity>, ArtronHolder, IFluidSource {
+public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements BlockEntityTicker<UntemperedSchismBlockEntity>, ArtronHolder, IFluidSource {
 
     private boolean firstTickHandled;
     public double artronAmount = 0;
     private EntityRef<RiftEntity> riftRef;
 
-    public RiftRipperBlockEntity(BlockPos pos, BlockState state) {
+    public UntemperedSchismBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.RIFT_RIPPER_BLOCK_ENTITY_TYPE, pos, state);
     }
 
@@ -79,7 +57,7 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
 
     @Override
     public double getMaxFuel() {
-        return 10 * 20 * RiftRipperBlock.ARTRON_PER_TICK;
+        return 10 * 20 * UntemperedSchismBlock.ARTRON_PER_TICK;
     }
 
     @Override
@@ -95,7 +73,7 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
     }
 
     @Override
-    public void tick(World world, BlockPos pos, BlockState state, RiftRipperBlockEntity blockEntity) {
+    public void tick(World world, BlockPos pos, BlockState state, UntemperedSchismBlockEntity blockEntity) {
         if (!(world instanceof ServerWorld serverWorld))
             return;
 
@@ -128,7 +106,7 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
 
             serverWorld.spawnEntity(riftEntity);
 
-            serverWorld.setBlockState(pos, state.with(RiftRipperBlock.ENABLED, true));
+            serverWorld.setBlockState(pos, state.with(UntemperedSchismBlock.ENABLED, true));
             this.updateListeners(state);
 
             serverWorld.playSound(null, pos, SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(),
@@ -137,10 +115,10 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
 
         this.updateListeners(state);
 
-        if (!this.getCachedState().get(RiftRipperBlock.ENABLED)) return;
+        if (!this.getCachedState().get(UntemperedSchismBlock.ENABLED)) return;
 
         if (this.getCurrentFuel() <= 0) {
-            serverWorld.setBlockState(pos, state.with(RiftRipperBlock.ENABLED, false));
+            serverWorld.setBlockState(pos, state.with(UntemperedSchismBlock.ENABLED, false));
             if (this.riftRef != null) {
                 this.riftRef.setWorld(serverWorld);
                 if (this.riftRef.get() != null)
@@ -150,7 +128,7 @@ public class RiftRipperBlockEntity extends FluidLinkBlockEntity implements Block
             return;
         }
 
-        this.removeFuel(RiftRipperBlock.ARTRON_PER_TICK);
+        this.removeFuel(UntemperedSchismBlock.ARTRON_PER_TICK);
     }
 
     @Override

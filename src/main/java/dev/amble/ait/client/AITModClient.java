@@ -90,7 +90,6 @@ import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.*;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
-import dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.blocks.AstralMapBlock;
 import dev.amble.ait.core.blocks.ExteriorBlock;
@@ -437,7 +436,7 @@ public class AITModClient implements ClientModInitializer {
                 FoodMachineRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ASTRAL_MAP, AstralMapRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.POTTED_SONIC_SCREWDRIVER_BLOCK_ENTITY_TYPE, PottedSonicScrewdriverRenderer::new);
-        BlockEntityRendererFactories.register(AITBlockEntityTypes.RIFT_RIPPER_BLOCK_ENTITY_TYPE, RiftRipperRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.RIFT_RIPPER_BLOCK_ENTITY_TYPE, UntemperedSchismRenderer::new);
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             BlockEntityRendererFactories.register(AITBlockEntityTypes.SNOW_GLOBE_BLOCK_ENTITY_TYPE,
                     SnowGlobeRenderer::new);

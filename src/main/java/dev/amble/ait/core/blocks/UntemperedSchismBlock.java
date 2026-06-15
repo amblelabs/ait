@@ -1,10 +1,8 @@
 package dev.amble.ait.core.blocks;
 
-import dev.amble.ait.core.AITEntityTypes;
-import dev.amble.ait.core.blockentities.RiftRipperBlockEntity;
+import dev.amble.ait.core.blockentities.UntemperedSchismBlockEntity;
 import dev.amble.ait.core.engine.link.block.HorizontalFluidLinkBlock;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
-import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.world.RiftChunkManager;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -13,7 +11,6 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.particle.DustColorTransitionParticleEffect;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -25,13 +22,10 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -39,10 +33,9 @@ import org.joml.Vector3f;
 /**
  * @author Loqor
  * The purpose of this block is to rip open rifts in rift chunks as opposed to the silly entities.
- * It mimics the Lodestone block from Doctor Who lore as opposed to the usual Lodestone in Minecraft.
  * */
 @SuppressWarnings("deprecation")
-public class RiftRipperBlock extends HorizontalFluidLinkBlock implements BlockEntityProvider {
+public class UntemperedSchismBlock extends HorizontalFluidLinkBlock implements BlockEntityProvider {
 
     // 10 seconds = 200 ticks. We tick every 2 ticks, so 100 steps.
     public static final int TOTAL_STEPS = 30;
@@ -55,7 +48,7 @@ public class RiftRipperBlock extends HorizontalFluidLinkBlock implements BlockEn
     public static final Vector3f COLOR_FROM = new Vector3f(1.0f, 0.85f, 0.0f); // bright gold
     public static final Vector3f COLOR_TO = new Vector3f(1.0f, 1.0f, 0.6f);    // pale yellow
 
-    public RiftRipperBlock(Settings settings) {
+    public UntemperedSchismBlock(Settings settings) {
         super(settings);
         this.setDefaultState(this.getStateManager().getDefaultState().with(CHARGE_TICK, 0).with(HorizontalFacingBlock.FACING, Direction.NORTH).with(ENABLED, false));
     }
@@ -74,7 +67,7 @@ public class RiftRipperBlock extends HorizontalFluidLinkBlock implements BlockEn
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull World world, @NotNull BlockState state,
                                                                   @NotNull BlockEntityType<T> type) {
         return (world1, blockPos, blockState, ticker) -> {
-            if (ticker instanceof RiftRipperBlockEntity ripper) {
+            if (ticker instanceof UntemperedSchismBlockEntity ripper) {
                 ripper.tick(world, blockPos, blockState, ripper);
             }
         };
@@ -111,6 +104,6 @@ public class RiftRipperBlock extends HorizontalFluidLinkBlock implements BlockEn
 
     @Override
     public FluidLinkBlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new RiftRipperBlockEntity(pos, state);
+        return new UntemperedSchismBlockEntity(pos, state);
     }
 }
