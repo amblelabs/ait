@@ -74,7 +74,7 @@ public class TardisExteriorBOTI extends BOTI {
         }
         ExteriorVariantSchema parent = variant.parent();
         Vec3d vec = parent.getPortalPosition();
-        if (vec == null) vec = new Vec3d(0, 0, 0);
+        if (vec == null) vec = Vec3d.ZERO;
 
         stack.translate(vec.x, -vec.y - parent.portalHeight() / 2f, vec.z);
         stack.scale((float) parent.portalWidth() * scale.x(),

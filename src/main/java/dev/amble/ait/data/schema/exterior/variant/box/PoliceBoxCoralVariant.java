@@ -18,5 +18,4 @@ public class PoliceBoxCoralVariant extends PoliceBoxVariant {
     public double portalHeight() {
         return 2.3;
     }
-
 }

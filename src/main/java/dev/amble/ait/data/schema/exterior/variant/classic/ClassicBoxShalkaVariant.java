@@ -15,5 +15,4 @@ public class ClassicBoxShalkaVariant extends ClassicBoxHudolinVariant {
     public DoorSchema door() {
         return DoorRegistry.getInstance().get(ClassicHudolinDoorVariant.REFERENCE);
     }
-
 }

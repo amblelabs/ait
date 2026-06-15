@@ -65,7 +65,7 @@ public class TardisDoorBOTI extends BOTI {
         StatsHandler stats = tardis.stats();
         Vector3f scale = tardis.travel().getScale();
         Vec3d vec = parent.door().getPortalPosition();
-        if (vec == null) vec = new Vec3d(0, 0, 0);
+        if (vec == null) vec = Vec3d.ZERO;
 
         stack.translate(vec.x, -vec.y - parent.portalHeight() / 2f, vec.z);
         stack.scale((float) parent.portalWidth() * scale.x(),
