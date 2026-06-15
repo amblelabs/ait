@@ -1004,7 +1004,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("desktop.ait.egyptian", "Egyptian");
         provider.addTranslation("desktop.ait.forest", "Forest");
         provider.addTranslation("desktop.ait.gothic", "Gothic");
-        provider.addTranslation("desktop.ait.Historic", "Historic");
+        provider.addTranslation("desktop.ait.historic", "Historic");
         provider.addTranslation("desktop.ait.laboratory", "Laboratory");
         provider.addTranslation("desktop.ait.steampunk", "Steampunk");
         provider.addTranslation("desktop.ait.trek", "Trek");
