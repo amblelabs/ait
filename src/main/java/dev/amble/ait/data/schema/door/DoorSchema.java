@@ -15,6 +15,7 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.data.schema.door.impl.CapsuleDoorVariant;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -75,10 +76,10 @@ public abstract class DoorSchema implements Identifiable {
         return adjustPortalPos(Vec3d.ZERO, Direction.NORTH);
     }
 
-    @Nullable
+    @NotNull
     public Vec3d getPortalPosition(Vec3d origin, float angle) {
         Vec3d pos = getPortalPosition();
-        if (pos == null) return null;
+        if (pos == null) return origin;
 
         return pos.rotateX((float) Math.toRadians(180)).rotateY((float) Math.toRadians(180 - angle)).multiply(1, -1, 1).add(origin);
     }
