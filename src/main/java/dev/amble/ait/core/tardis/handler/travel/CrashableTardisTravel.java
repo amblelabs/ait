@@ -106,7 +106,9 @@ public sealed interface CrashableTardisTravel permits TravelHandler {
         }
 
         // play new arpalarm music - its stereo so it shouldn't matter where it's played from
-        tardis.asServer().world().playSound(null, 0, 0, 0, AITSounds.ARPALARM, SoundCategory.MASTER, 100000f, 1f);
+        if (random.nextInt(0, 15) == 2){
+            tardis.asServer().world().playSound(null, 0, 0, 0, AITSounds.ARPALARM, SoundCategory.MASTER, 100000f, 1f);
+        }
 
         TardisEvents.CRASH.invoker().onCrash(tardis);
     }
