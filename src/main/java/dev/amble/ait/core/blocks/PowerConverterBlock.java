@@ -107,6 +107,8 @@ public class PowerConverterBlock extends HorizontalFluidLinkBlock implements Con
         if (!be.isPowered()) return stack;
 
         if (!simulate && !world.isClient) {
+            if (be.source() == null) return stack;
+            
             be.source().addLevel(175);
             world.playSound(null, pos, AITSounds.POWER_CONVERT, SoundCategory.BLOCKS, 1.0F, 1.0F);
         }
