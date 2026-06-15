@@ -1,5 +1,6 @@
 package dev.amble.ait.client.models.consoles;
 
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.core.util.SafePosSearch;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.*;
@@ -1385,7 +1386,7 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = 0.1f * client.getTickDelta();
+        float delta = !AITModClient.CONFIG.animateControls ? 1.0f : 0.1f * client.getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
 
@@ -1583,8 +1584,8 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
         float shieldTarget = tardis.shields().shielded().get()
                 ? tardis.shields().visuallyShielded().get()
                         ? 13.9f
-                        : 13.4f
-                : 14.4f;
+                        : 14.4f
+                : 13.4f;
         float shieldAngle = getAngle(console, "shields", shieldTarget, delta);
         shield.pivotX = shieldAngle - 0.5f;
 
