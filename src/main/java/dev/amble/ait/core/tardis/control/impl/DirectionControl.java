@@ -61,7 +61,7 @@ public class DirectionControl extends Control {
     }
 
     public static int getPreviousGeneralizedRotation(int rotation) {
-        return (rotation - 2) % 16;
+        return (rotation - 2 + 16) % 16;
     }
 
     public static byte getGeneralizedRotation(int rotation) {

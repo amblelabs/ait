@@ -90,10 +90,10 @@ public sealed interface CrashableTardisTravel permits TravelHandler {
         tardis.door().setLocked(true);
         tardis.alarm().enable(ServerAlarmHandler.AlarmType.CRASHING);
         this.antigravs().set(false);
-        this.speed(0);
         tardis.removeFuel(700 * power);
         this.resetHammerUses();
         this.setCrashing(true);
+        this.speed(0);
         this.forceRemat();
 
         int repairTicks = 1200 * power;
@@ -106,7 +106,9 @@ public sealed interface CrashableTardisTravel permits TravelHandler {
         }
 
         // play new arpalarm music - its stereo so it shouldn't matter where it's played from
-        tardis.asServer().world().playSound(null, 0, 0, 0, AITSounds.ARPALARM, SoundCategory.MASTER, 100000f, 1f);
+        if (random.nextInt(0, 15) == 2){
+            tardis.asServer().world().playSound(null, 0, 0, 0, AITSounds.ARPALARM, SoundCategory.MASTER, 100000f, 1f);
+        }
 
         TardisEvents.CRASH.invoker().onCrash(tardis);
     }

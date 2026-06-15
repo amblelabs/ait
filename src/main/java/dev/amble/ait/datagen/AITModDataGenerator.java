@@ -779,6 +779,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("ait.text.chat.readwiki", "To learn how to play Adventures in Time, we suggest you read the wiki, which is ");
         provider.addTranslation("ait.text.chat.hover", "Click here to open the wiki in your browser");
 
+        provider.addTranslation("text.ait.beta.play.tooltip", "You're not a beta tester!");
+        provider.addTranslation("text.ait.beta.play", "Authorize to play AIT Beta");
+        provider.addTranslation("text.ait.beta.play.browser", "Check your browser!");
+
         // Control entities
         provider.addTranslation("control.ait.antigravs", "Antigravs");
         provider.addTranslation("control.ait.refreshment_control", "Refreshment Selector");
@@ -803,7 +807,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.sonic_port", "Sonic Port");
         provider.addTranslation("control.ait.telepathic_circuit", "Telepathic Circuit");
         provider.addTranslation("control.ait.throttle", "Throttle");
-        provider.addTranslation("control.ait.visualiser", "Manual Override");
+        provider.addTranslation("control.ait.visualiser.normal", "Scanner");
+        provider.addTranslation("control.ait.visualiser.rwf", "Manual Override");
+        provider.addTranslation("control.ait.visualiser.none", "Cool Button");
         provider.addTranslation("control.ait.eject_waypoint", "Eject Waypoint");
         provider.addTranslation("control.ait.goto_waypoint", "Goto Waypoint");
         provider.addTranslation("control.ait.console_port", "Console Port");
@@ -853,6 +859,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.fahrenheit", "Fahrenheit (°F)");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.kelvin", "Kelvin (K)");
         provider.addTranslation("yacl3.config.ait:client.handlesLevenshteinDistance", "Levenshtein distance for handles");
+        provider.addTranslation("yacl3.config.ait:client.screenShake", "Screen shake amount");
         provider.addTranslation("yacl3.config.ait:server.flightSoundVolume", "Flight Sound Volume");
 
         provider.addTranslation("text.autoconfig.aitconfig.category.client", "Client");
@@ -996,6 +1003,15 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("desktop.ait.corpoyta", "Corpoyta");
         provider.addTranslation("desktop.ait.legacy", "Legacy");
 
+        provider.addTranslation("desktop.ait.cathedral", "Cathedral");
+        provider.addTranslation("desktop.ait.cyberpunk", "CyberPunk");
+        provider.addTranslation("desktop.ait.egyptian", "Egyptian");
+        provider.addTranslation("desktop.ait.forest", "Forest");
+        provider.addTranslation("desktop.ait.gothic", "Gothic");
+        provider.addTranslation("desktop.ait.historic", "Historic");
+        provider.addTranslation("desktop.ait.laboratory", "Laboratory");
+        provider.addTranslation("desktop.ait.steampunk", "Steampunk");
+        provider.addTranslation("desktop.ait.trek", "Trek");
         // Sonic Screwdrivers
         provider.addTranslation("sonic.ait.prime", "Prime");
         provider.addTranslation("sonic.ait.crystalline", "Crystalline");
