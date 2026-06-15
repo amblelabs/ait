@@ -151,16 +151,19 @@ public class PortalsHandler extends KeyedTardisComponent {
         CachedDirectedGlobalPos exteriorPos = tardis.travel().getState() == TravelHandlerBase.State.LANDED
                 ? tardis.travel().position() : tardis.travel().getProgress();
 
-        Vec3d doorAdjust = adjustInteriorPos(tardis.getExterior().getVariant().door(), doorPos);
-        Vec3d exteriorAdjust = adjustExteriorPos(tardis.getExterior().getVariant(), exteriorPos);
+		ExteriorVariantSchema variant = tardis.getExterior().getVariant();
+		double portalHeight = variant.portalHeight();
+
+        Vec3d doorAdjust = adjustInteriorPos(variant.door(), doorPos, portalHeight);
+        Vec3d exteriorAdjust = adjustExteriorPos(variant, exteriorPos, portalHeight);
 
         TardisPortal portal = new TardisPortal(tardis.travel().getState() == TravelHandlerBase.State.FLIGHT ? WorldUtil.getTimeVortex() : exteriorPos.getWorld());
 
         portal.setOrientationAndSize(
                 new Vec3d(1, 0, 0), // axisW
                 new Vec3d(0, 1, 0), // axisH
-                tardis.getExterior().getVariant().portalWidth(), // width
-                tardis.getExterior().getVariant().portalHeight() // height
+                variant.portalWidth(), // width
+                portalHeight // height
         );
 
         DQuaternion quat = DQuaternion.rotationByDegrees(new Vec3d(0, -1, 0), 180 + RotationPropertyHelper.toDegrees(exteriorPos.getRotation()));
@@ -186,16 +189,19 @@ public class PortalsHandler extends KeyedTardisComponent {
         CachedDirectedGlobalPos exteriorPos = tardis.travel().getState() == TravelHandlerBase.State.LANDED
                 ? tardis.travel().position() : tardis.travel().getProgress();
 
-        Vec3d doorAdjust = adjustInteriorPos(tardis.getExterior().getVariant().door(), doorPos);
-        Vec3d exteriorAdjust = adjustExteriorPos(tardis.getExterior().getVariant(), exteriorPos);
+		ExteriorVariantSchema variant = tardis.getExterior().getVariant();
+		double portalHeight = variant.portalHeight();
+
+        Vec3d doorAdjust = adjustInteriorPos(variant.door(), doorPos, portalHeight);
+        Vec3d exteriorAdjust = adjustExteriorPos(variant, exteriorPos, portalHeight);
 
         TardisPortal portal = new TardisPortal(tardis.asServer().world());
 
         portal.setOrientationAndSize(
                 new Vec3d(1, 0, 0), // axisW
                 new Vec3d(0, 1, 0), // axisH
-                tardis.getExterior().getVariant().portalWidth(), // width
-                tardis.getExterior().getVariant().portalHeight() // height
+				variant.portalWidth(), // width
+                portalHeight // height
         );
 
         DQuaternion quat = DQuaternion.rotationByDegrees(new Vec3d(0, -1, 0), RotationPropertyHelper.toDegrees(doorPos.getRotation()));
@@ -216,15 +222,19 @@ public class PortalsHandler extends KeyedTardisComponent {
         return portal;
     }
 
-    private static Vec3d adjustExteriorPos(ExteriorVariantSchema exterior, DirectedGlobalPos directed) {
-        return exterior.getPortalPosition(directed.getPos().toCenterPos(), directed.getRotationDegrees()).add(0, 0.75f, 0);
+    private static Vec3d adjustExteriorPos(ExteriorVariantSchema exterior, DirectedGlobalPos directed, double portalHeight) {
+        return adjustPortalPos(exterior.getPortalPosition(directed.getPos().toCenterPos(), directed.getRotationDegrees()), portalHeight);
     }
 
-    private static Vec3d adjustInteriorPos(DoorSchema door, DirectedBlockPos directed) {
-        return door.getPortalPosition(directed.getPos().toCenterPos(),
+    private static Vec3d adjustInteriorPos(DoorSchema door, DirectedBlockPos directed, double portalHeight) {
+        return adjustPortalPos(door.getPortalPosition(directed.getPos().toCenterPos(),
 		        RotationPropertyHelper.toDegrees(directed.getRotation())
-        ).add(0, 0.55f, 0);
+        ), portalHeight);
     }
+
+	private static Vec3d adjustPortalPos(Vec3d vec, double portalHeight) {
+		return vec.add(0, -0.5f + portalHeight / 2f, 0);
+	}
 
 	private void removePortals() {
 		removePortal(this.getInterior());

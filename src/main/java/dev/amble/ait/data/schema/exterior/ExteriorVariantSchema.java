@@ -21,6 +21,7 @@ import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -129,10 +130,10 @@ public abstract class ExteriorVariantSchema extends BasicSchema implements Unloc
         return adjustPortalPos(Vec3d.ZERO, (byte) 0);
     }
 
-    @Nullable
+    @NotNull
     public Vec3d getPortalPosition(Vec3d origin, float angle) {
         Vec3d pos = getPortalPosition();
-        if (pos == null) return null;
+        if (pos == null) return origin;
 
         return pos.rotateX((float) Math.toRadians(180)).rotateY((float) Math.toRadians(180 - angle)).multiply(1, -1, 1).add(origin);
     }

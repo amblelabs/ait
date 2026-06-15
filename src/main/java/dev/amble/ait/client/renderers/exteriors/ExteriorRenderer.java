@@ -65,21 +65,24 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
         profiler.swap("render");
 
+        this.render0(entity, tardis, profiler, tickDelta, matrices, vertexConsumers, light, overlay);
+
+        profiler.pop();
+        profiler.pop();
+    }
+
+    private void render0(T entity, ClientTardis tardis, Profiler profiler, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
+                         int light, int overlay) {
         this.updateModel(tardis);
 
-        if (tardis.travel() != null && tardis.travel().getAlpha() > 0)
+        if (tardis.travel().getAlpha() > 0)
             this.renderExterior(profiler, tardis, entity, tickDelta, matrices, vertexConsumers, light, overlay);
 
-        if (tardis.door() != null && (tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) && !tardis.isGrowth() && tardis.travel().isLanded() &&
-        !tardis.siege().isActive()) {
-            if (!variant.equals(ClientExteriorVariantRegistry.DOOM)) {
-                BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
-            }
-        }
+        if (tardis.door().getLeftRot() <= 0 && !variant.hasTransparentDoors()) return;
 
-        profiler.pop();
+        if (!tardis.travel().isLanded() || tardis.siege().isActive()) return;
 
-        profiler.pop();
+        if (variant.parent().hasPortals()) BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
     }
 
     private boolean awesomeIPEmissionHack(Tardis tardis) {

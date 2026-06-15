@@ -1,11 +1,12 @@
 package dev.amble.ait.client.boti;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.amble.lib.data.DirectedGlobalPos;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
+import net.minecraft.item.Items;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
@@ -30,7 +31,7 @@ import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 
 public class TardisExteriorBOTI extends BOTI {
-    public void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, ExteriorModel frame, ModelPart mask, int light) {
+    public static void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, VertexConsumerProvider consumers, ExteriorModel frame, ModelPart mask, int light) {
         if (client.world == null
                 || client.player == null) return;
 
@@ -72,11 +73,20 @@ public class TardisExteriorBOTI extends BOTI {
             stack.translate(0, scale.y() + 0.25f, scale.z() - 1.7f);
         }
         ExteriorVariantSchema parent = variant.parent();
+        Vec3d vec = parent.getPortalPosition();
+        if (vec == null) vec = Vec3d.ZERO;
+
+        stack.translate(vec.x, -vec.y - parent.portalHeight() / 2f, vec.z);
         stack.scale((float) parent.portalWidth() * scale.x(),
                 (float) parent.portalHeight() * scale.y(), scale.z());
-        Vec3d vec = parent.getPortalPosition();
-        if (vec == null) vec = new Vec3d(0, 0, 0);
-        stack.translate(vec.x, vec.y - 0.475f, vec.z);
+
+        if (client.getEntityRenderDispatcher().shouldRenderHitboxes()) {
+            stack.push();
+            stack.translate(0, 0, 0.8);
+            client.getItemRenderer().renderItem(Items.BLUE_STAINED_GLASS_PANE.getDefaultStack(), ModelTransformationMode.FIXED, LightmapTextureManager.MAX_LIGHT_COORDINATE, 0, stack, consumers, client.world, 0);
+            stack.pop();
+        }
+
         RenderLayer whichOne = AITModClient.CONFIG.greenScreenBOTI ?
                 RenderLayer.getDebugFilledBox() : RenderLayer.getEndGateway();
         float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0, 1} : new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
@@ -113,7 +123,7 @@ public class TardisExteriorBOTI extends BOTI {
         stack.scale(scale.x(), scale.y(), scale.z());
 
         if (variant != ClientExteriorVariantRegistry.CORAL_GROWTH) {
-            BiomeHandler handler = exterior.tardis().get().handler(TardisComponent.Id.BIOME);
+            BiomeHandler handler = tardis.handler(TardisComponent.Id.BIOME);
             Identifier biomeTexture = handler.getBiomeKey().get(variant.overrides());
             if (biomeTexture != null)
                 frame.renderDoors(tardis, exterior, frame.getPart(), stack,
@@ -131,11 +141,11 @@ public class TardisExteriorBOTI extends BOTI {
         }
         stack.scale(scale.x(), scale.y(), scale.z());
         if (variant.emission() != null) {
-            float u;
-            float t;
-            float s;
+            float u = 1;
+            float t = 1;
+            float s = 1;
 
-            if ((stats.getName() != null && "partytardis".equals(stats.getName().toLowerCase()) || (!exterior.tardis().get().extra().getInsertedDisc().isEmpty()))) {
+            if ((stats.getName() != null && "partytardis".equalsIgnoreCase(stats.getName()) || !tardis.extra().getInsertedDisc().isEmpty())) {
                 int m = 25;
                 int n = client.player.age / m + client.player.getId();
                 int o = DyeColor.values().length;
@@ -147,11 +157,6 @@ public class TardisExteriorBOTI extends BOTI {
                 s = fs[0] * (1f - r) + gs[0] * r;
                 t = fs[1] * (1f - r) + gs[1] * r;
                 u = fs[2] * (1f - r) + gs[2] * r;
-            } else {
-                float[] hs = new float[]{1.0f, 1.0f, 1.0f};
-                s = hs[0];
-                t = hs[1];
-                u = hs[2];
             }
 
             boolean power = tardis.fuel().hasPower();
@@ -161,7 +166,7 @@ public class TardisExteriorBOTI extends BOTI {
             float green = power ? alarms ? 0.3f : t : 0;
             float blue = power ? alarms ? 0.3f : u : 0;
 
-            frame.renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xf000f0,
+            frame.renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), LightmapTextureManager.MAX_LIGHT_COORDINATE,
                     OverlayTexture.DEFAULT_UV, red, green, blue, 1, true);
             botiProvider.draw();
         }
