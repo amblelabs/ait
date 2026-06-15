@@ -43,12 +43,6 @@ public abstract class CapsuleVariant extends ExteriorVariantSchema {
         return new Vec3d(0.5, 1, 0.5);
     }
 
-    //TODO: remove
-    @Override
-    public double portalHeight() {
-        return 2d;
-    }
-
     @Override
     public double portalWidth() {
         return 0.75d;
