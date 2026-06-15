@@ -231,23 +231,19 @@ public class AITModClient implements ClientModInitializer {
             int id = buf.readInt();
             BlockPos projector = buf.readBlockPos();
 
-            int worldCount = buf.readVarInt();
-            List<RegistryKey<World>> worldKeys = new ArrayList<>(worldCount);
-            for (int i = 0; i < worldCount; i++)
-                worldKeys.add(RegistryKey.of(RegistryKeys.WORLD, buf.readIdentifier()));
+            List<RegistryKey<World>> worldKeys = buf.readList(b -> b.readRegistryKey(RegistryKeys.WORLD));
 
             client.execute(() -> {
                 ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
 
-                if (tardis == null && client.world != null
-                        && client.world.getBlockEntity(projector) instanceof EnvironmentProjectorBlockEntity be
-                        && be.tardis() != null)
-                    tardis = (ClientTardis) be.tardis().get();
+                if (tardis == null)
+                    return; // not in a TARDIS
 
                 Screen screen = screenFromId(id, tardis, projector);
-                if (screen instanceof EnvironmentProjectorScreen projectorScreen)
+                if (screen instanceof EnvironmentProjectorScreen projectorScreen) {
                     projectorScreen.setAvailableWorlds(worldKeys);
-                if (screen != null) client.setScreenAndRender(screen);
+                    client.setScreenAndRender(screen);
+                }
             });
         });
 
