@@ -1,5 +1,6 @@
 package dev.amble.ait.client.models.consoles;
 
+import dev.amble.ait.client.AITModClient;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.client.MinecraftClient;
@@ -1360,7 +1361,7 @@ public class RenaissanceConsoleModel extends SimpleConsoleModel {
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = 0.1f * client.getTickDelta();
+        float delta = !AITModClient.CONFIG.animateControls ? 1.0f : 0.1f * client.getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
@@ -1421,8 +1422,21 @@ public class RenaissanceConsoleModel extends SimpleConsoleModel {
 
         // Increment
         ModelPart increment = this.console.getChild("panelf5").getChild("increment");
-        float incrementTarget = IncrementManager.increment(tardis) > 0 ? 0.5f : 0f;
-        increment.pitch = getAngle(console, "increment", incrementTarget, delta);
+        int incrementVal = IncrementManager.increment(tardis);
+        float targetOffset;
+
+        if (incrementVal < 10) {
+            targetOffset =0;
+        } else if (incrementVal < 100) {
+            targetOffset = 0.25f;
+        } else if (incrementVal < 1000) {
+            targetOffset = 0.5f;
+        } else if (incrementVal < 10000) {
+            targetOffset = 0.75f;
+        } else {
+            targetOffset = 1.0f;
+        }
+        increment.pitch = getAngle(console, "increment", targetOffset, delta);
 
         super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();

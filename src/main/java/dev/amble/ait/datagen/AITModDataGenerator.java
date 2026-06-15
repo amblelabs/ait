@@ -779,6 +779,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("ait.text.chat.readwiki", "To learn how to play Adventures in Time, we suggest you read the wiki, which is ");
         provider.addTranslation("ait.text.chat.hover", "Click here to open the wiki in your browser");
 
+        provider.addTranslation("text.ait.beta.play.tooltip", "You're not a beta tester!");
+        provider.addTranslation("text.ait.beta.play", "Authorize to play AIT Beta");
+        provider.addTranslation("text.ait.beta.play.browser", "Check your browser!");
+
         // Control entities
         provider.addTranslation("control.ait.antigravs", "Antigravs");
         provider.addTranslation("control.ait.refreshment_control", "Refreshment Selector");
@@ -1004,7 +1008,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("desktop.ait.egyptian", "Egyptian");
         provider.addTranslation("desktop.ait.forest", "Forest");
         provider.addTranslation("desktop.ait.gothic", "Gothic");
-        provider.addTranslation("desktop.ait.Historic", "Historic");
+        provider.addTranslation("desktop.ait.historic", "Historic");
         provider.addTranslation("desktop.ait.laboratory", "Laboratory");
         provider.addTranslation("desktop.ait.steampunk", "Steampunk");
         provider.addTranslation("desktop.ait.trek", "Trek");

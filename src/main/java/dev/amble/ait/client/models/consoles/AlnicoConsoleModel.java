@@ -1,5 +1,6 @@
 package dev.amble.ait.client.models.consoles;
 
+import dev.amble.ait.client.AITModClient;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.client.MinecraftClient;
@@ -1405,7 +1406,7 @@ public class AlnicoConsoleModel extends SimpleConsoleModel {
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = 0.1f * client.getTickDelta();
+        float delta = !AITModClient.CONFIG.animateControls ? 1.0f : 0.1f * client.getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
 
@@ -1443,7 +1444,8 @@ public class AlnicoConsoleModel extends SimpleConsoleModel {
 
         // Refueler
         ModelPart refueler = alnico.getChild("section5").getChild("controls5").getChild("refueler").getChild("gasknob");
-        refueler.yaw = !tardis.isRefueling() ? refueler.yaw - 0.7854f : refueler.yaw;
+        float refuelerTarget = !tardis.isRefueling() ? -0.7854f : 0;
+        refueler.yaw = getAngle(console, "refueler", refuelerTarget, delta);
 
         // Fuel Gauge
         ModelPart fuelGauge = alnico.getChild("section3").getChild("controls3").getChild("geiger").getChild("needle");
@@ -1475,11 +1477,13 @@ public class AlnicoConsoleModel extends SimpleConsoleModel {
 
         // Land Type
         ModelPart landtype = alnico.getChild("section1").getChild("controls").getChild("tinyswitch2").getChild("bone2");
-        landtype.yaw = landtype.yaw + ((tardis.travel().horizontalSearch().get() ? 1.5708f : 0));
+        float landTypeTarget = tardis.travel().horizontalSearch().get() ? 1.5708f : 0;
+        landtype.yaw = getAngle(console, "landtype", landTypeTarget, delta);
 
         // Anti Gravs
         ModelPart antigravs = alnico.getChild("section1").getChild("controls").getChild("tinyswitch").getChild("bone3");
-        antigravs.yaw = antigravs.yaw + (tardis.travel().antigravs().get() ? 1.5708f : 0);
+        float antigravsTarget = tardis.travel().antigravs().get() ? -1.5708f : 0;
+        antigravs.yaw = getAngle(console, "antigravs", antigravsTarget, delta);
 
         // Door Control
         ModelPart doorControl = alnico.getChild("section5").getChild("controls5").getChild("tinyswitch6")

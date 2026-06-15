@@ -21,6 +21,9 @@ import dev.amble.ait.core.AITTags;
 import dev.amble.ait.core.item.SonicItem;
 
 public class SonicOverlay implements HudRenderCallback {
+
+    public static final Identifier OVERLAY = AITMod.id("textures/gui/overlay/sonic_can_interact.png");
+
     @Override
     public void onHudRender(DrawContext drawContext, float v) {
         MinecraftClient mc = MinecraftClient.getInstance();
@@ -34,8 +37,7 @@ public class SonicOverlay implements HudRenderCallback {
         if ((mc.player.getEquippedStack(EquipmentSlot.MAINHAND).getItem() == AITItems.SONIC_SCREWDRIVER
                 || mc.player.getEquippedStack(EquipmentSlot.OFFHAND).getItem() == AITItems.SONIC_SCREWDRIVER)
                 && playerIsLookingAtSonicInteractable(mc.crosshairTarget, mc.player)) {
-            this.renderOverlay(drawContext,
-                    AITMod.id("textures/gui/overlay/sonic_can_interact.png"));
+            this.renderOverlay(drawContext, OVERLAY);
         }
     }
 

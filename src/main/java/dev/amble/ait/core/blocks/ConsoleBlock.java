@@ -139,7 +139,7 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof ConsoleBlockEntity console && console.isLinked()) {
             Tardis tardis = console.tardis().get();
-            if (console.tardis().get().fuel().hasPower()) {
+            if (tardis.fuel().hasPower()) {
                 return 15;
             }
         }

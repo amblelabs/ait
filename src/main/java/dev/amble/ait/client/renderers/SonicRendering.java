@@ -1,7 +1,10 @@
 package dev.amble.ait.client.renderers;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.ait.core.blockentities.DetectorBlockEntity;
+import dev.amble.ait.core.blocks.DetectorBlock;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import net.minecraft.client.world.ClientWorld;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
@@ -182,6 +185,8 @@ public class SonicRendering {
         renderRedstone(context, state, targetPos);
         profiler.swap("subsystem_info");
         renderSubSystemInfo(context, targetPos);
+        profiler.swap("detector_type");
+        renderDetectorState(context, targetPos);
 
         profiler.pop();
         profiler.pop();
@@ -198,6 +203,15 @@ public class SonicRendering {
         if (power == 0) return;
 
         context.drawCenteredTextWithShadow(client.textRenderer, "" + power, getCentreX(), (int) (getMaxY() * 0.4), Colors.WHITE);
+    }
+
+    private void renderDetectorState(DrawContext context, BlockPos pos) {
+        ClientWorld world = client.world;
+        if (world == null) return;
+        BlockState state = world.getBlockState(pos);
+        if (!(state.getBlock() instanceof DetectorBlock)) return;
+        DetectorBlock.Type type = state.get(DetectorBlock.TYPE);
+        context.drawCenteredTextWithShadow(client.textRenderer, type.name().toUpperCase(), getCentreX(), (int) (getMaxY() * 0.4), Colors.WHITE);
     }
 
     private void renderSubSystemInfo(DrawContext context, BlockPos pos) {
