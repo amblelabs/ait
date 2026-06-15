@@ -18,4 +18,10 @@ public class TardimDoorVariant extends DoorSchema {
     public boolean isDouble() {
         return true;
     }
+
+
+    @Override
+    public Vec3d adjustPortalPos(Vec3d pos, Direction direction) {
+        return pos.add(0, -0.08, -0.3);
+    }
 }

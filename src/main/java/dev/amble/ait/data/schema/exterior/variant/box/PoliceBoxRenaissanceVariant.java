@@ -19,7 +19,7 @@ public class PoliceBoxRenaissanceVariant extends PoliceBoxVariant {
     @Override
     public Vec3d adjustPortalPos(Vec3d pos, byte direction) {
         return super.adjustPortalPos(pos, direction)
-                .add(0, -0.05, 0);
+                .add(0, 0.03, 0);
     }
 
     @Override

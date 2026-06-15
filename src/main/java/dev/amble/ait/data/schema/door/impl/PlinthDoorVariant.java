@@ -34,6 +34,7 @@ public class PlinthDoorVariant extends DoorSchema {
 
     @Override
     public Vec3d adjustPortalPos(Vec3d pos, Direction direction) {
-        return pos.add(0, 0.05, -0.4);
+        return pos.add(0, 0.06, -0.4);
     }
+
 }
