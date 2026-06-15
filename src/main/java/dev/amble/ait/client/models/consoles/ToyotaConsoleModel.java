@@ -1,6 +1,7 @@
 // Made with Blockbench 4.9.3
 package dev.amble.ait.client.models.consoles;
 
+import dev.amble.ait.client.AITModClient;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.client.MinecraftClient;
@@ -1643,7 +1644,7 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = 0.1f * client.getTickDelta();
+        float delta = !AITModClient.CONFIG.animateControls ? 1.0f : 0.1f * client.getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
