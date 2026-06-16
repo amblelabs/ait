@@ -18,6 +18,8 @@ import java.util.function.UnaryOperator;
 
 public class BetaVerification {
 
+    private static final long TIMEOUT = 30_000L; // 30 seconds
+    
     public static ServerData SERVER_DATA;
     private static String RECEIVED_TOKEN;
 
@@ -111,8 +113,16 @@ public class BetaVerification {
         String authUrl = SERVER_DATA.verifier + "/auth?port=" + port;
         Util.getOperatingSystem().open(new URI(authUrl));
 
+        long waitingFor = 0L;
         while (RECEIVED_TOKEN == null) {
             Thread.sleep(500);
+            waitingFor += 500L;
+
+            if (waitingFor > TIMEOUT) {
+                SERVER.stop(0);
+                SERVER = null;
+                return;
+            }
         }
 
         BetaTokenPrefs.saveToken(RECEIVED_TOKEN);
