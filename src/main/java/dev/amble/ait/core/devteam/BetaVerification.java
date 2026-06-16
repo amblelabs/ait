@@ -20,6 +20,7 @@ import java.util.function.Consumer;
 public class BetaVerification {
 
     private static final long TIMEOUT = 30_000L; // 30 seconds
+    private static final int PORT = 54321;
     
     public static ServerData SERVER_DATA;
     private static String RECEIVED_TOKEN;
@@ -34,6 +35,10 @@ public class BetaVerification {
 
         BetaVerification.fetchServerData().thenAcceptAsync(unused
                 -> BetaTokenPrefs.isTokenValid());
+    }
+
+    public static boolean isServerRunning() {
+        return SERVER != null;
     }
 
     public static CompletableFuture<String> downloadAsString(String url) {
@@ -87,10 +92,8 @@ public class BetaVerification {
     }
 
     private static void startAndWaitForToken0() throws Exception {
-        int port = 54321;
-
         if (SERVER == null) {
-            SERVER = HttpServer.create(new InetSocketAddress(port), 0);
+            SERVER = HttpServer.create(new InetSocketAddress(PORT), 0);
             SERVER.createContext("/callback", exchange -> {
                 String query = exchange.getRequestURI().getQuery();
                 if (query != null && query.startsWith("token=")) {
@@ -115,7 +118,7 @@ public class BetaVerification {
             SERVER.start();
         }
 
-        String authUrl = SERVER_DATA.verifier + "/auth?port=" + port;
+        String authUrl = SERVER_DATA.verifier + "/auth?port=" + PORT;
         Util.getOperatingSystem().open(new URI(authUrl));
 
         long waitingFor = 0L;
