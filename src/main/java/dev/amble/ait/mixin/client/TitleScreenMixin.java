@@ -56,7 +56,7 @@ public abstract class TitleScreenMixin extends Screen {
                 clipboard.setContents(stringSelection, null);
                 return;
             }
-            if (AITMod.isBetaLocked() && !BetaTokenPrefs.isTokenValid()) {
+            if (AITMod.isBetaLocked()) {
                 button.setMessage(Text.translatable("text.ait.beta.play.browser"));
                 BetaVerification.startAndWaitForToken(valid -> {
                     if (valid) {
