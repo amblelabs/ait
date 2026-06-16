@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.UnaryOperator;
+import java.util.function.Consumer;
 
 public class BetaVerification {
 
@@ -73,12 +74,16 @@ public class BetaVerification {
         });
     }
 
-    public static void startAndWaitForToken() {
-        try {
-            startAndWaitForToken0();
-        } catch (Exception e) {
-            AITMod.LOGGER.error("Failed to wait for token", e);
-        }
+    public static void startAndWaitForToken(Consumer<Boolean> consumer) {
+        new Thread(() -> {
+            try {
+                startAndWaitForToken0();
+            } catch (Exception e) {
+                AITMod.LOGGER.error("Failed to wait for token", e);
+            }
+
+            consumer.accept(BetaTokenPrefs.isTokenValid());
+        }).run();
     }
 
     private static void startAndWaitForToken0() throws Exception {
