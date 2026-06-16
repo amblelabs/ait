@@ -10,6 +10,7 @@ import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 import dev.amble.ait.core.engine.link.tracker.FluidNetwork;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.util.EntityRef;
+import dev.amble.ait.core.world.RiftChunkManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
@@ -19,12 +20,14 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 
 public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements BlockEntityTicker<UntemperedSchismBlockEntity>, ArtronHolder, IFluidSource {
 
     private boolean firstTickHandled;
     public double artronAmount = 0;
+    public boolean hasCreatedRift = false;
     private EntityRef<RiftEntity> riftRef;
 
     public UntemperedSchismBlockEntity(BlockPos pos, BlockState state) {
@@ -35,6 +38,7 @@ public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements
     public void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
         nbt.putDouble("artronAmount", this.artronAmount);
+        nbt.putBoolean("hasCreatedRift", this.hasCreatedRift);
         if (this.riftRef != null) {
             nbt.putUuid("riftId", this.riftRef.getId());
         }
@@ -44,6 +48,8 @@ public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements
     public void readNbt(NbtCompound nbt) {
         if (nbt.contains("artronAmount"))
             this.setCurrentFuel(nbt.getDouble("artronAmount"));
+        if (nbt.contains("hasCreatedRift"))
+            this.hasCreatedRift = nbt.getBoolean("hasCreatedRift");
         if (nbt.contains("riftId"))
             this.riftRef = new EntityRef<>(null, nbt.getUuid("riftId"));
         super.readNbt(nbt);
@@ -77,6 +83,9 @@ public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements
         if (!(world instanceof ServerWorld serverWorld))
             return;
 
+        if (this.hasCreatedRift)
+            return;
+
         if (!firstTickHandled) {
             firstTickHandled = true;
             FluidNetwork.rebuildFrom(serverWorld, pos);
@@ -85,11 +94,12 @@ public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements
         int centerX = pos.getX();
         int centerZ = pos.getZ();
 
-        double targetY = pos.getY() + 1;
+        double targetY = pos.getY() + 2.5d;
 
         double endX = centerX + 0.5;
         double endZ = centerZ + 0.5;
 
+        RiftChunkManager manager = RiftChunkManager.getInstance(serverWorld);
         if ((this.getCurrentFuel() >= this.getMaxFuel())) {
             RiftEntity riftEntity = new RiftEntity(AITEntityTypes.RIFT_ENTITY, serverWorld);
             this.riftRef = new EntityRef<>(serverWorld, riftEntity);
@@ -105,17 +115,23 @@ public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements
             riftEntity.setBodyYaw(adjustedRotation);
 
             serverWorld.spawnEntity(riftEntity);
+            this.hasCreatedRift = true;
 
             serverWorld.setBlockState(pos, state.with(UntemperedSchismBlock.ENABLED, true));
             this.updateListeners(state);
 
             serverWorld.playSound(null, pos, SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(),
                     SoundCategory.BLOCKS, 1.5f, 0.5f);
+        } else if (manager.getArtron(new ChunkPos(pos)) > UntemperedSchismBlock.ARTRON_PER_TICK && serverWorld.getServer().getTicks() % 20 == 4 && !state.get(UntemperedSchismBlock.ENABLED)) {
+            // Since we don't have visual text updates, the sound will have to do. - Loqor
+            double percentage = (this.getCurrentFuel() * 100d) / this.getMaxFuel();
+            System.out.println(0.5f + (float) percentage / 40);
+            serverWorld.playSound(null, this.getPos(), SoundEvents.BLOCK_END_PORTAL_FRAME_FILL, SoundCategory.BLOCKS, 5.0f, 0.5f + (float) percentage / 40);
         }
 
         this.updateListeners(state);
 
-        if (!this.getCachedState().get(UntemperedSchismBlock.ENABLED)) return;
+       /* if (!this.getCachedState().get(UntemperedSchismBlock.ENABLED)) return;
 
         if (this.getCurrentFuel() <= 0) {
             serverWorld.setBlockState(pos, state.with(UntemperedSchismBlock.ENABLED, false));
@@ -128,7 +144,7 @@ public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements
             return;
         }
 
-        this.removeFuel(UntemperedSchismBlock.ARTRON_PER_TICK);
+        this.removeFuel(UntemperedSchismBlock.ARTRON_PER_TICK);*/
     }
 
     @Override
