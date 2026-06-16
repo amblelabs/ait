@@ -118,8 +118,7 @@ public class BetaVerification {
             SERVER.start();
         }
 
-        String authUrl = SERVER_DATA.verifier + "/auth?port=" + PORT;
-        Util.getOperatingSystem().open(new URI(authUrl));
+        Util.getOperatingSystem().open(new URI(getAuthUrl()));
 
         long waitingFor = 0L;
         while (RECEIVED_TOKEN == null) {
@@ -137,5 +136,9 @@ public class BetaVerification {
         BetaTokenPrefs.verify();
 
         RECEIVED_TOKEN = null;
+    }
+
+    public static String getAuthUrl() {
+        return SERVER_DATA.verifier + "/auth?port=" + PORT;
     }
 }
