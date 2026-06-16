@@ -45,17 +45,16 @@ public abstract class TitleScreenMixin extends Screen {
         boolean beta = AITMod.isBetaLocked();
 
         ButtonWidget.Builder instance = new ButtonWidget.Builder(beta ? Text.translatable("text.ait.beta.play") : message, button -> {
-            if (AITMod.isBetaLocked()) {
+            if (AITMod.isBetaLocked() && !BetaTokenPrefs.isTokenValid()) {
                 button.setMessage(Text.translatable("text.ait.beta.play.browser"));
-                BetaVerification.startAndWaitForToken();
-
-                if (BetaTokenPrefs.isTokenValid()) {
-                    button.setTooltip(null);
-                    button.setMessage(message);
-                } else {
-                    button.setMessage(Text.translatable("text.ait.beta.play"));
-                }
-
+                BetaVerification.startAndWaitForToken(valid -> {
+                    if (valid) {
+                        button.setTooltip(null);
+                        button.setMessage(message);
+                    } else {
+                        button.setMessage(Text.translatable("text.ait.beta.play"));
+                    }
+                });
                 return;
             }
 
