@@ -141,3 +141,6 @@
 - fix: direction control left-clicking would skip north and south | by [@Loqor](https://github.com/Loqor) ([#2114](https://github.com/amblelabs/ait/pull/2114))
 - feat: new environment projector GUI | by [@rapbattlegod32](https://github.com/rapbattlegod32), [@drtheodor](https://github.com/drtheodor) ([#2110](https://github.com/amblelabs/ait/pull/2110))
 - fix: exterior duping on crash! | by [@Loqor](https://github.com/Loqor) ([#2115](https://github.com/amblelabs/ait/pull/2115))
+- fix!: consistent & simplified portal positioning for both IP and end portal stub | by [@Addi3](https://github.com/Addi3), [@Loqor](https://github.com/Loqor) ([#2116](https://github.com/amblelabs/ait/pull/2116))
+- perf: improved performance of stub boti rendering | by [@Addi3](https://github.com/Addi3), [@Loqor](https://github.com/Loqor) ([#2116](https://github.com/amblelabs/ait/pull/2116))
+- fix: all exteriors & doors have correct portal positioning | by [@Addi3](https://github.com/Addi3), [@Loqor](https://github.com/Loqor) ([#2116](https://github.com/amblelabs/ait/pull/2116))

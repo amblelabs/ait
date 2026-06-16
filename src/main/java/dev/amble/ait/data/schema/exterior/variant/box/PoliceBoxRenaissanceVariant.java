@@ -5,6 +5,7 @@ import net.minecraft.util.math.Vec3d;
 import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.door.impl.PoliceBoxRenaissanceDoorVariant;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
+import org.jetbrains.annotations.Nullable;
 
 public class PoliceBoxRenaissanceVariant extends PoliceBoxVariant {
     public PoliceBoxRenaissanceVariant() {
@@ -17,13 +18,7 @@ public class PoliceBoxRenaissanceVariant extends PoliceBoxVariant {
     }
 
     @Override
-    public Vec3d adjustPortalPos(Vec3d pos, byte direction) {
-        return super.adjustPortalPos(pos, direction)
-                .add(0, -0.05, 0);
-    }
-
-    @Override
-    public double portalHeight() {
-        return 2.3;
+    public @Nullable Vec3d getPortalPosition() {
+        return super.getPortalPosition().add(0, 0.03, 0);
     }
 }

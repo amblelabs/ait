@@ -14,11 +14,11 @@ import dev.amble.lib.client.bedrock.BedrockAnimationReference;
 
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.util.PortalOffsets;
+import org.jetbrains.annotations.Nullable;
 
 public class DatapackDoor extends DoorSchema implements AnimatedDoor {
     public static final Codec<DatapackDoor> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -27,11 +27,11 @@ public class DatapackDoor extends DoorSchema implements AnimatedDoor {
             Identifier.CODEC.fieldOf("close_sound").forGetter(DatapackDoor::getCloseSoundId),
             Identifier.CODEC.fieldOf("model").forGetter(DatapackDoor::getModelId),
             Codec.BOOL.fieldOf("is_double").forGetter(DoorSchema::isDouble),
-            PortalOffsets.CODEC.optionalFieldOf("portal_info", new PortalOffsets(1, 2)).forGetter(DatapackDoor::getOffsets),
+            PortalOffsets.CODEC.optionalFieldOf("portal_info", null).forGetter(DatapackDoor::getPortalOffsets),
             BedrockAnimationReference.CODEC.optionalFieldOf("left_animation").forGetter(DatapackDoor::getLeftAnimation),
             BedrockAnimationReference.CODEC.optionalFieldOf("right_animation").forGetter(DatapackDoor::getRightAnimation),
             Vec3d.CODEC.optionalFieldOf("scale", new Vec3d(1, 1, 1)).forGetter(DatapackDoor::getScale),
-            Vec3d.CODEC.optionalFieldOf("offset", new Vec3d(0, 0, 0)).forGetter(DatapackDoor::getOffset),
+            Vec3d.CODEC.optionalFieldOf("offset", Vec3d.ZERO).forGetter(DatapackDoor::getOffset),
             Codec.BOOL.optionalFieldOf("isDatapack", true).forGetter(DatapackDoor::wasDatapack)
         ).apply(instance, DatapackDoor::new)
     );
@@ -40,21 +40,21 @@ public class DatapackDoor extends DoorSchema implements AnimatedDoor {
     protected final Identifier closeSound;
     protected final Identifier model;
     protected final boolean isDouble;
-    protected final PortalOffsets offsets;
+    protected final PortalOffsets portalOffsets;
     protected final BedrockAnimationReference leftAnimation;
     protected final BedrockAnimationReference rightAnimation;
     protected final Vec3d scale;
     protected final Vec3d offset;
     protected final boolean initiallyDatapack;
 
-    public DatapackDoor(Identifier id, Identifier openSound, Identifier closeSound, Identifier model, boolean isDouble, PortalOffsets offsets, Optional<BedrockAnimationReference> leftAnimation, Optional<BedrockAnimationReference> rightAnimation, Vec3d scale, Vec3d offset, boolean initiallyDatapack) {
+    public DatapackDoor(Identifier id, Identifier openSound, Identifier closeSound, Identifier model, boolean isDouble, PortalOffsets portalOffsets, Optional<BedrockAnimationReference> leftAnimation, Optional<BedrockAnimationReference> rightAnimation, Vec3d scale, Vec3d offset, boolean initiallyDatapack) {
         super(id);
 
         this.openSound = openSound;
         this.closeSound = closeSound;
         this.model = model;
         this.isDouble = isDouble;
-        this.offsets = offsets;
+        this.portalOffsets = portalOffsets;
         this.leftAnimation = leftAnimation.orElse(null);
         this.rightAnimation = rightAnimation.orElse(null);
         this.scale = scale;
@@ -87,6 +87,11 @@ public class DatapackDoor extends DoorSchema implements AnimatedDoor {
         return Optional.ofNullable(rightAnimation);
     }
 
+    @Override
+    public @Nullable Vec3d getPortalPosition() {
+        return this.portalOffsets != null ? this.portalOffsets.offset() : null;
+    }
+
     public Identifier getOpenSoundId() {
         return openSound;
     }
@@ -95,13 +100,8 @@ public class DatapackDoor extends DoorSchema implements AnimatedDoor {
         return closeSound;
     }
 
-    @Override
-    public Vec3d adjustPortalPos(Vec3d pos, Direction direction) {
-        return this.offsets.apply(direction, pos);
-    }
-
-    public PortalOffsets getOffsets() {
-        return offsets;
+    public PortalOffsets getPortalOffsets() {
+        return portalOffsets;
     }
 
     public boolean wasDatapack() {
