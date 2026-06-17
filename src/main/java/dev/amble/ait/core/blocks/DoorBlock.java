@@ -57,7 +57,7 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
                 setDoorLight(tardis.asServer(), exteriorState.get(ExteriorBlock.LEVEL_4));
         });
 
-        TardisEvents.DOOR_CLOSE.register(tardis -> setDoorLight(tardis.asServer(), 0));
+        TardisEvents.REAL_DOOR_CLOSE.register(tardis -> setDoorLight(tardis.asServer(), 0));
     }
 
     private static void setDoorLight(ServerTardis tardis, int level) {
