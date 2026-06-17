@@ -309,9 +309,6 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                 door.getRotation()
         );
 
-        // vars are ew, but fully qualifying the package name is worse.
-        var ref = new dev.drtheo.queue.api.util.Value<BlockPos>(null);
-
         SafePosSearch.wrapSafe(safe, SafePosSearch.Kind.MEDIAN, true,
                 result -> this.finishCreatingChest(result, contents));
     }

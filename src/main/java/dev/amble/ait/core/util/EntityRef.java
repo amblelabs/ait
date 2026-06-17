@@ -27,6 +27,11 @@ public class EntityRef<T extends Entity> {
         this.ref = new WeakReference<>(entity);
     }
 
+    public EntityRef(ServerWorld world, UUID id) {
+        this.id = id;
+        this.world = world;
+    }
+
     public void setWorld(ServerWorld world) {
         this.world = world;
     }
@@ -45,5 +50,9 @@ public class EntityRef<T extends Entity> {
         this.ref = new WeakReference<>(portal);
 
         return portal;
+    }
+
+    public UUID getId() {
+        return id;
     }
 }

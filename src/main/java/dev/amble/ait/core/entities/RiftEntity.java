@@ -4,6 +4,7 @@ import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.lib.util.TeleportUtil;
 
 import net.minecraft.block.*;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
@@ -55,8 +56,8 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
             14 * 20
     };
 
-    public RiftEntity(EntityType<?> type, World world) {
-        super(AITEntityTypes.RIFT_ENTITY, world);
+    public RiftEntity(EntityType<RiftEntity> type, World world) {
+        super(type, world);
     }
 
     @Override
@@ -207,20 +208,6 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
 
     @Override
     public void onSpawnPacket(EntitySpawnS2CPacket packet) {
-        double d = packet.getX();
-        double e = packet.getY();
-        double f = packet.getZ();
-        float g = packet.getYaw();
-        float h = packet.getPitch();
-        this.updateTrackedPosition(d, e, f);
-        this.bodyYaw = packet.getHeadYaw();
-        this.headYaw = packet.getHeadYaw();
-        this.prevBodyYaw = this.bodyYaw;
-        this.prevHeadYaw = this.headYaw;
-        this.setId(packet.getId());
-        this.setUuid(packet.getUuid());
-        this.updatePositionAndAngles(d, e, f, g, h);
-        this.setVelocity(packet.getVelocityX(), packet.getVelocityY(), packet.getVelocityZ());
-        this.updatePosition(d, e, f);
+        super.onSpawnPacket(packet);
     }
 }

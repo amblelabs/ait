@@ -254,7 +254,7 @@ public class AITBlocks extends BlockContainer {
             .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).nonOpaque()
             .instrument(Instrument.GUITAR).strength(1.5F, 6.0F));
 
-    public static final Block RIFT_RIPPER = new RiftRipperBlock(ABlockSettings.create().itemSettings(
+    public static final Block UNTEMPERED_SCHISM = new UntemperedSchismBlock(ABlockSettings.create().itemSettings(
             new AItemSettings().group(AITItemGroups.MAIN)).lightLevel(7)
     );
 
