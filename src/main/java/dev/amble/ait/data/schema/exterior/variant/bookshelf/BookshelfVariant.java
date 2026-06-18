@@ -1,5 +1,7 @@
 package dev.amble.ait.data.schema.exterior.variant.bookshelf;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
@@ -9,7 +11,6 @@ import dev.amble.ait.data.schema.door.impl.BookshelfDoorVariant;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.category.BookshelfCategory;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
-import org.jetbrains.annotations.Nullable;
 
 // a useful class for creating tardim variants as they all have the same filepath you know
 public abstract class BookshelfVariant extends ExteriorVariantSchema {

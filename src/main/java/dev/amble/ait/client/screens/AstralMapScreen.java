@@ -2,12 +2,14 @@ package dev.amble.ait.client.screens;
 
 import java.util.*;
 
-import dev.amble.ait.client.screens.widget.CallbackCheckboxWidget;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -21,10 +23,9 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.client.screens.widget.CallbackCheckboxWidget;
 import dev.amble.ait.core.blocks.AstralMapBlock;
 import dev.amble.ait.core.util.WorldUtil;
-import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
 public class AstralMapScreen extends Screen {

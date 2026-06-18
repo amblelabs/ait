@@ -2,7 +2,6 @@ package dev.amble.ait.datagen.datagen_providers;
 
 import java.util.concurrent.CompletableFuture;
 
-import dev.amble.lib.datagen.tag.AmbleBlockTagProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 
@@ -18,6 +17,7 @@ import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITTags;
 import dev.amble.ait.module.ModuleRegistry;
 import dev.amble.ait.module.planet.core.PlanetBlocks;
+import dev.amble.lib.datagen.tag.AmbleBlockTagProvider;
 
 
 public class AITBlockTagProvider extends AmbleBlockTagProvider {

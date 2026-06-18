@@ -2,10 +2,6 @@ package dev.amble.ait.core.item;
 
 import java.util.List;
 
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
-import dev.amble.ait.core.blocks.ArtronCollectorBlock;
-import net.minecraft.item.ItemUsageContext;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.item.TooltipContext;
@@ -13,6 +9,7 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
@@ -24,6 +21,7 @@ import dev.amble.ait.api.ArtronHolderItem;
 import dev.amble.ait.api.tardis.link.LinkableItem;
 import dev.amble.ait.client.sounds.ClientSoundManager;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
 import dev.amble.ait.core.item.sonic.SonicMode;
 import dev.amble.ait.data.schema.sonic.SonicSchema;
 import dev.amble.ait.registry.impl.SonicRegistry;

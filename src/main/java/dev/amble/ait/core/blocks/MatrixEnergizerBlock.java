@@ -4,7 +4,6 @@ import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 import java.util.List;
 
-import net.minecraft.item.NetherStarItem;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;

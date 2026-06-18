@@ -29,8 +29,8 @@ import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.AITTags;
 import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.core.engine.link.block.HorizontalFluidLinkBlock;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
+import dev.amble.ait.core.engine.link.block.HorizontalFluidLinkBlock;
 
 public class PowerConverterBlock extends HorizontalFluidLinkBlock implements ConsumableBlock {
 
@@ -108,7 +108,7 @@ public class PowerConverterBlock extends HorizontalFluidLinkBlock implements Con
 
         if (!simulate && !world.isClient) {
             if (be.source() == null) return stack;
-            
+
             be.source().addLevel(175);
             world.playSound(null, pos, AITSounds.POWER_CONVERT, SoundCategory.BLOCKS, 1.0F, 1.0F);
         }

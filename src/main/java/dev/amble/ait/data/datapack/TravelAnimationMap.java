@@ -4,10 +4,10 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import com.mojang.serialization.Codec;
-import dev.amble.lib.client.bedrock.BedrockAnimation;
-import dev.amble.lib.client.bedrock.BedrockAnimationReference;
 
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.lib.client.bedrock.BedrockAnimation;
+import dev.amble.lib.client.bedrock.BedrockAnimationReference;
 
 public class TravelAnimationMap extends EnumMap<TravelHandlerBase.State, BedrockAnimationReference> {
     public static Codec<TravelAnimationMap> CODEC = Codec.unboundedMap(TravelHandlerBase.State.CODEC, BedrockAnimationReference.CODEC)

@@ -6,8 +6,6 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.TardisClientEvents;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -26,6 +24,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import dev.amble.ait.api.ClientWorldEvents;
+import dev.amble.ait.api.tardis.TardisClientEvents;
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;

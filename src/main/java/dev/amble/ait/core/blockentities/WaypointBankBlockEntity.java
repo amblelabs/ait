@@ -3,7 +3,6 @@ package dev.amble.ait.core.blockentities;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -33,6 +32,7 @@ import dev.amble.ait.core.blocks.WaypointBankBlock;
 import dev.amble.ait.core.item.WaypointItem;
 import dev.amble.ait.core.util.StackUtil;
 import dev.amble.ait.data.Waypoint;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class WaypointBankBlockEntity extends InteriorLinkableBlockEntity {
 

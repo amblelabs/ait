@@ -2,6 +2,8 @@ package dev.amble.ait.core.blockentities;
 
 import static dev.amble.ait.core.blocks.EnvironmentProjectorBlock.*;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -27,7 +29,6 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.properties.Value;
-import org.jetbrains.annotations.Nullable;
 
 public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity {
 

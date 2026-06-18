@@ -7,13 +7,13 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import com.google.gson.*;
-import dev.amble.lib.register.Registry;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.TardisExterior;
 import dev.amble.ait.core.tardis.TardisHandlersManager;
+import dev.amble.lib.register.Registry;
 
 public class TardisComponentRegistry implements Registry {
 

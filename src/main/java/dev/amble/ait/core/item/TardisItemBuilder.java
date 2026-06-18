@@ -1,7 +1,5 @@
 package dev.amble.ait.core.item;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -31,6 +29,7 @@ import dev.amble.ait.core.tardis.util.DefaultThemes;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.registry.impl.DesktopRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class TardisItemBuilder extends Item {
     private final Identifier exterior;

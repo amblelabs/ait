@@ -1,13 +1,8 @@
 package dev.amble.ait.client.screens;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.screens.widget.CompassYawWidget;
-import dev.amble.ait.client.screens.widget.PitchLadderWidget;
-import dev.amble.ait.client.screens.widget.WorldListWidget;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.core.blocks.EnvironmentProjectorBlock;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.util.WorldUtil;
+import java.util.Collections;
+import java.util.List;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -21,8 +16,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-import java.util.Collections;
-import java.util.List;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.screens.widget.CompassYawWidget;
+import dev.amble.ait.client.screens.widget.PitchLadderWidget;
+import dev.amble.ait.client.screens.widget.WorldListWidget;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.blocks.EnvironmentProjectorBlock;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.util.WorldUtil;
 
 public class EnvironmentProjectorScreen extends TardisScreen {
     private static final Identifier DEFAULT_TEXTURE = AITMod.id("textures/gui/block/environment_projector/environment_menu_sky.png");

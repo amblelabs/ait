@@ -33,21 +33,21 @@ repositories {
 
     // AmbleKit
     maven {
-		url "https://amblelabs.dev/maven"
+        url "https://amblelabs.dev/maven"
 
-		content {
-			includeGroup "dev.amble"
-		}
-	}
+        content {
+            includeGroup "dev.amble"
+        }
+    }
 
     // MultiDim, Scheduler
     maven {
-		url "https://theo.is-a.dev/maven/"
+        url "https://theo.is-a.dev/maven/"
 
-		content {
-			includeGroup "dev.drtheo"
-		}
-	}
+        content {
+            includeGroup "dev.drtheo"
+        }
+    }
 
     // LambDynamicLights
     maven {
@@ -164,8 +164,8 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
-	withSourcesJar()
-	
+    withSourcesJar()
+
     sourceCompatibility = JavaVersion.VERSION_22
     targetCompatibility = JavaVersion.VERSION_17
 }
@@ -210,18 +210,18 @@ spotless {
 }
 
 publishing {
-	publications {
-		create("mavenJava", MavenPublication) {
-			artifactId = project.archives_base_name
-			version = getArtifactVersion()
-			from components.java
-		}
-	}
+    publications {
+        create("mavenJava", MavenPublication) {
+            artifactId = project.archives_base_name
+            version = getArtifactVersion()
+            from components.java
+        }
+    }
 
-	repositories {
-		maven {
-			name = "ci"
-			url = providers.environmentVariable("CI_MAVEN_PATH")
-		}
-	}
+    repositories {
+        maven {
+            name = "ci"
+            url = providers.environmentVariable("CI_MAVEN_PATH")
+        }
+    }
 }

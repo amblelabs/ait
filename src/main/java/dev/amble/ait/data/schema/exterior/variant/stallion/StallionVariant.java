@@ -1,5 +1,7 @@
 package dev.amble.ait.data.schema.exterior.variant.stallion;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
@@ -10,7 +12,6 @@ import dev.amble.ait.data.schema.door.impl.StallionDoorVariant;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.category.StallionCategory;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
-import org.jetbrains.annotations.Nullable;
 
 
 public abstract class StallionVariant extends ExteriorVariantSchema {

@@ -1,12 +1,12 @@
 package dev.amble.ait.data.schema.door.impl;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.schema.door.DoorSchema;
-import org.jetbrains.annotations.Nullable;
 
 public class DalekModDoorVariant extends DoorSchema {
     public static final Identifier REFERENCE = AITMod.id("door/dalek_mod");

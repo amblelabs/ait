@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import dev.amble.lib.container.impl.ItemContainer;
-import dev.amble.lib.datagen.util.NoEnglish;
-import dev.amble.lib.item.AItemSettings;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -34,6 +31,9 @@ import dev.amble.ait.core.item.link.AbstractLinkItem;
 import dev.amble.ait.core.item.link.FluidLinkItem;
 import dev.amble.ait.core.item.link.MercurialLinkItem;
 import dev.amble.ait.core.item.part.MachinePartItem;
+import dev.amble.lib.container.impl.ItemContainer;
+import dev.amble.lib.datagen.util.NoEnglish;
+import dev.amble.lib.item.AItemSettings;
 
 public class AITItems extends ItemContainer {
 

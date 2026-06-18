@@ -8,9 +8,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import dev.amble.lib.api.Identifiable;
-import dev.amble.lib.register.unlockable.Unlockable;
-import dev.amble.lib.register.unlockable.UnlockableRegistry;
 
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -25,6 +22,9 @@ import dev.amble.ait.data.Wildcard;
 import dev.amble.ait.registry.impl.DesktopRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.api.Identifiable;
+import dev.amble.lib.register.unlockable.Unlockable;
+import dev.amble.lib.register.unlockable.UnlockableRegistry;
 
 public class UnlockCommand {
 

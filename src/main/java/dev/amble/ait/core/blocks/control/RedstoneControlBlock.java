@@ -1,6 +1,5 @@
 package dev.amble.ait.core.blocks.control;
 
-import net.minecraft.sound.SoundEvents;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -11,6 +10,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
@@ -23,7 +23,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.control.RedstoneControlBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
 

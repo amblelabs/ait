@@ -1,7 +1,5 @@
 package dev.amble.ait.core.tardis.handler.travel;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -17,6 +15,7 @@ import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.ait.data.properties.integer.IntProperty;
 import dev.amble.ait.data.properties.integer.IntValue;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 

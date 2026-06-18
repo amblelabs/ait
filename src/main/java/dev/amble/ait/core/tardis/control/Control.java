@@ -1,10 +1,5 @@
 package dev.amble.ait.core.tardis.control;
 
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.entities.ConsoleControlEntity;
-import dev.amble.ait.registry.impl.ControlRegistry;
-import dev.amble.lib.api.Identifiable;
-
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -17,6 +12,7 @@ import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.tardis.Tardis;
@@ -24,8 +20,8 @@ import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
+import dev.amble.lib.api.Identifiable;
 
-import java.util.Map;
 
 public class Control implements Identifiable {
 

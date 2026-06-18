@@ -1,10 +1,5 @@
 package dev.amble.ait.core.devteam;
 
-import com.google.gson.Gson;
-import com.sun.net.httpserver.HttpServer;
-import dev.amble.ait.AITMod;
-import net.minecraft.util.Util;
-
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URLDecoder;
@@ -14,14 +9,21 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.UnaryOperator;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
+
+import com.google.gson.Gson;
+import com.sun.net.httpserver.HttpServer;
+
+import net.minecraft.util.Util;
+
+import dev.amble.ait.AITMod;
 
 public class BetaVerification {
 
     private static final long TIMEOUT = 30_000L; // 30 seconds
     private static final int PORT = 54321;
-    
+
     public static ServerData SERVER_DATA;
     private static String RECEIVED_TOKEN;
 
