@@ -44,7 +44,7 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
         boolean powered = world.isReceivingRedstonePower(pos);
 
         if (powered != state.get(POWERED)) {
-            if (state.get(ENABLED) != powered) {
+            if (state.get(ENABLED) != powered && this.isLinked()) {
                 state = state.with(ENABLED, powered);
 
                 EnvironmentProjectorBlock.toggle(this.tardis().get(), null, world, pos, state, powered);
