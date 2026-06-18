@@ -1,5 +1,6 @@
 package dev.amble.ait.core.tardis.handler;
 
+import dev.amble.ait.api.tardis.TardisEvents;
 import net.minecraft.server.MinecraftServer;
 
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
@@ -35,15 +36,14 @@ public class CloakHandler extends KeyedTardisComponent implements TardisTickable
         return isSilent;
     }
 
+    static {
+        TardisEvents.LOSE_POWER.register(tardis -> tardis.cloak().cloaked().set(false));
+    }
+
     @Override
     public void tick(MinecraftServer server) {
         if (!this.cloaked().get())
             return;
-
-        if (!this.tardis.fuel().hasPower()) {
-            this.cloaked().set(false);
-            return;
-        }
 
         TravelHandler travel = this.tardis.travel();
 
