@@ -1,5 +1,21 @@
 package dev.amble.ait.client.screens;
 
+import java.util.Collections;
+import java.util.List;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.widget.CheckboxWidget;
+import net.minecraft.client.gui.widget.PressableTextWidget;
+import net.minecraft.client.gui.widget.TextWidget;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.screens.widget.CompassYawWidget;
 import dev.amble.ait.client.screens.widget.PitchLadderWidget;
@@ -8,26 +24,14 @@ import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blocks.EnvironmentProjectorBlock;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.util.WorldUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.CheckboxWidget;
-import net.minecraft.client.gui.widget.PressableTextWidget;
-import net.minecraft.client.gui.widget.TextWidget;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
 
 public class EnvironmentProjectorScreen extends TardisScreen {
-    private static final Identifier DEFAULT_TEXTURE = AITMod.id("textures/gui/tardis/monitor/environment_menu_sky.png");
-    private static final Identifier DIRECTION_TEXTURE = AITMod.id("textures/gui/tardis/monitor/environment_menu_direction_compass.png");
+    private static final Identifier DEFAULT_TEXTURE = AITMod.id("textures/gui/block/environment_projector/environment_menu_sky.png");
+    private static final Identifier DIRECTION_TEXTURE = AITMod.id("textures/gui/block/environment_projector/environment_menu_direction_compass.png");
 
     private GuiSelection currentGuiSelection = GuiSelection.SKY;
     private final BlockPos projectorPos;
+    private List<RegistryKey<World>> availableWorlds = Collections.emptyList();
     private WorldListWidget worldList;
     private TextWidget enabledLabel;
     private CheckboxWidget enabledCheckbox;
@@ -47,6 +51,10 @@ public class EnvironmentProjectorScreen extends TardisScreen {
         super(Text.of("screen." + AITMod.MOD_ID + ".environment_projector"), tardis);
         this.client = MinecraftClient.getInstance();
         this.projectorPos = projectorPos;
+    }
+
+    public void setAvailableWorlds(List<RegistryKey<World>> worlds) {
+        this.availableWorlds = worlds;
     }
 
     public void apply(Tardis tardis, BlockState state) {
@@ -80,10 +88,10 @@ public class EnvironmentProjectorScreen extends TardisScreen {
 
         AITMod.sendProjectorSelection(projectorPos, key.getValue());
 
-        if (state.get(EnvironmentProjectorBlock.ENABLED)) {
-            this.apply(tardis(), state);
+        ClientTardis tardis = tardis();
+        if (tardis != null && state.get(EnvironmentProjectorBlock.ENABLED)) {
+            this.apply(tardis, state);
         }
-
     }
 
     private void sendAngles() {
@@ -179,10 +187,10 @@ public class EnvironmentProjectorScreen extends TardisScreen {
 
         this.worldList = new WorldListWidget(this.client, listWidth, listHeight, listTop, listTop + listHeight, itemHeight, listLeft, this::onWorldSelected);
 
-        for (ServerWorld world : WorldUtil.getProjectorWorlds()) {
-            Identifier id = world.getRegistryKey().getValue();
+        for (RegistryKey<World> key : this.availableWorlds) {
+            Identifier id = key.getValue();
             Text label = Text.translatableWithFallback(id.toTranslationKey("dimension"), WorldUtil.fakeTranslate(id.getPath()));
-            this.worldList.addWorld(world.getRegistryKey(), label);
+            this.worldList.addWorld(key, label);
         }
         this.addDrawableChild(this.worldList);
 

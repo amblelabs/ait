@@ -1,7 +1,5 @@
 package dev.amble.ait.core.tardis.handler;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.block.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
@@ -14,6 +12,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class ExteriorEnvironmentHandler extends KeyedTardisComponent implements TardisTickable {
 
@@ -54,7 +53,7 @@ public class ExteriorEnvironmentHandler extends KeyedTardisComponent implements 
 
         boolean isRaining = false;
         boolean isThundering = false;
-        
+
         if (travel.getState() == TravelHandlerBase.State.LANDED) {
             boolean snowy = tardis.<BiomeHandler>handler(Id.BIOME).getBiomeKey() == BiomeHandler.BiomeType.SNOWY;
 
@@ -63,7 +62,7 @@ public class ExteriorEnvironmentHandler extends KeyedTardisComponent implements 
 
             if (isRaining || isThundering) {
                 boolean hasRain = exterior.hasRain(travel.position().getPos());
-                
+
                 isRaining = isRaining && hasRain;
                 isThundering = isThundering && hasRain;
             }

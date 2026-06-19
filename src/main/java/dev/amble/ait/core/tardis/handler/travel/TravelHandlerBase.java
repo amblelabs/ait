@@ -5,7 +5,6 @@ import java.util.function.Function;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.dynamic.Codecs;
@@ -26,6 +25,7 @@ import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.ait.data.properties.integer.IntProperty;
 import dev.amble.ait.data.properties.integer.IntValue;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public abstract class TravelHandlerBase extends KeyedTardisComponent implements TardisTickable {
 

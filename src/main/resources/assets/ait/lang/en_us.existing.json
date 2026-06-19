@@ -34,7 +34,6 @@
   "yacl3.config.ait:client.greenScreenBOTI": "Green screen BOTI?",
   "yacl3.config.ait:client.allowPortalsBoti": "[EXPERIMENTAL] Render IP BOTI?",
   "yacl3.config.ait:client.showControlHitboxes": "Show control hitboxes?",
-  "yacl3.config.ait:client.renderDematParticles": "Render demat particles?",
   "yacl3.config.ait:client.animateConsole": "Animate console?",
   "yacl3.config.ait:client.animateDoors": "Animate doors?",
   "yacl3.config.ait:client.temperatureType": "Temperature type",

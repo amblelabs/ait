@@ -3,7 +3,6 @@ package dev.amble.ait.core.lock;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 
 import net.minecraft.item.ItemStack;
@@ -20,6 +19,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
 
 public class LockedDimensionRegistry extends SimpleDatapackRegistry<LockedDimension> {
     private static final LockedDimensionRegistry instance = new LockedDimensionRegistry();

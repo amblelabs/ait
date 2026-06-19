@@ -3,8 +3,6 @@ package dev.amble.ait.core.tardis.control.impl;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -23,6 +21,7 @@ import dev.amble.ait.core.tardis.control.impl.pos.PosType;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
 import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class DimensionControl extends Control {
 

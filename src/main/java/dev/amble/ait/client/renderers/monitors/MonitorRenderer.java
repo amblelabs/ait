@@ -1,7 +1,5 @@
 package dev.amble.ait.client.renderers.monitors;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SkullBlock;
 import net.minecraft.client.MinecraftClient;
@@ -29,6 +27,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.MonitorStateUtil;
 import dev.amble.ait.core.util.MonitorUtil;
 import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class MonitorRenderer<T extends MonitorBlockEntity> implements BlockEntityRenderer<T> {
 

@@ -1,7 +1,5 @@
 package dev.amble.ait.client.models.consoles;
 
-import dev.amble.ait.core.util.SafePosSearch;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.animation.Animation;
@@ -11,6 +9,7 @@ import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.animation.console.hartnell.HartnellAnimations;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
@@ -18,7 +17,6 @@ import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
 import dev.amble.ait.core.tardis.handler.CloakHandler;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import net.minecraft.util.math.MathHelper;
 
 // Made with Blockbench 4.9.2
 // Exported for Minecraft version 1.17+ for Yarn
@@ -1385,7 +1383,7 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = 0.1f * client.getTickDelta();
+        float delta = !AITModClient.CONFIG.animateControls ? 1.0f : 0.1f * client.getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
 
@@ -1583,8 +1581,8 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
         float shieldTarget = tardis.shields().shielded().get()
                 ? tardis.shields().visuallyShielded().get()
                         ? 13.9f
-                        : 13.4f
-                : 14.4f;
+                        : 14.4f
+                : 13.4f;
         float shieldAngle = getAngle(console, "shields", shieldTarget, delta);
         shield.pivotX = shieldAngle - 0.5f;
 

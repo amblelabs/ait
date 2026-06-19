@@ -1,9 +1,9 @@
 package dev.amble.ait.module.gun.core.entity;
 
-import dev.amble.lib.container.impl.EntityContainer;
-
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
+
+import dev.amble.lib.container.impl.EntityContainer;
 
 public class GunEntityTypes implements EntityContainer {
 

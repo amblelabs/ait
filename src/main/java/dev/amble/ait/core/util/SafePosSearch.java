@@ -2,7 +2,6 @@ package dev.amble.ait.core.util;
 
 import java.util.function.Consumer;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.queue.api.util.Value;
 import dev.drtheo.scheduler.api.TimeUnit;
@@ -19,6 +18,8 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class SafePosSearch {
 

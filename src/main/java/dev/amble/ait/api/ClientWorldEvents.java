@@ -1,6 +1,5 @@
 package dev.amble.ait.api;
 
-import dev.amble.ait.AITMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;

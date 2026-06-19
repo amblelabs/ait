@@ -1,25 +1,27 @@
 package dev.amble.ait.data.hum;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.concurrent.atomic.AtomicReference;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.amble.ait.AITMod;
+
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.concurrent.atomic.AtomicReference;
+import dev.amble.ait.AITMod;
 
 public class DatapackHum extends Hum {
     public static final Codec<Hum> CODEC = RecordCodecBuilder.create(instance -> instance
-		    .group(Identifier.CODEC.fieldOf("id").forGetter(Hum::id), SoundEvent.CODEC.fieldOf("sound").forGetter(Hum::sound))
+            .group(Identifier.CODEC.fieldOf("id").forGetter(Hum::id), SoundEvent.CODEC.fieldOf("sound").forGetter(Hum::sound))
             .apply(instance, DatapackHum::new));
 
-	protected DatapackHum(Identifier id, SoundEvent sound) {
-		super(id, sound);
+    protected DatapackHum(Identifier id, SoundEvent sound) {
+        super(id, sound);
     }
 
     public static Hum fromInputStream(InputStream stream) {

@@ -3,7 +3,6 @@ package dev.amble.ait.client.sounds.hum.interior;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.amble.ait.api.tardis.TardisClientEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 
@@ -14,7 +13,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.api.ClientWorldEvents;
+import dev.amble.ait.api.tardis.TardisClientEvents;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.sounds.ClientSoundManager;
@@ -31,6 +30,7 @@ public class ClientHumHandler extends SoundHandler {
 
     private LoopingSound current;
     private boolean needsReinit = false;
+    private boolean suppressed = false;
 
     static {
         TardisClientEvents.ENTER_CLIENT_TARDIS.register(tardis -> {
@@ -120,11 +120,27 @@ public class ClientHumHandler extends SoundHandler {
         return tardis != null && tardis.fuel().hasPower();
     }
 
+    public void setSuppressed(boolean suppressed) {
+        this.suppressed = suppressed;
+
+        if (suppressed)
+            this.stopSounds();
+    }
+
+    public boolean isSuppressed() {
+        return this.suppressed;
+    }
+
     public void tick(MinecraftClient client) {
         ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
 
         if (this.sounds == null)
             this.generateHums();
+
+        if (this.suppressed) {
+            this.stopSounds();
+            return;
+        }
 
         if (this.needsReinit && tardis != null) {
             this.needsReinit = false;

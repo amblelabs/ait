@@ -1,11 +1,11 @@
 package dev.amble.ait.client.util;
 
 
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.MathHelper;
 
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
 public class ClientShakeUtil {

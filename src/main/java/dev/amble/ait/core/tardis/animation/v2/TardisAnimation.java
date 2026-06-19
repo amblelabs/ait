@@ -5,8 +5,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.google.gson.*;
-import dev.amble.lib.api.Identifiable;
-import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.drtheo.queue.api.ActionQueue;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -34,6 +32,8 @@ import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.animation.v2.keyframe.KeyframeTracker;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.Exclude;
+import dev.amble.lib.api.Identifiable;
+import dev.amble.lib.util.ServerLifecycleHooks;
 
 /**
  * Represents an exterior animation for the TARDIS.
@@ -70,6 +70,15 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
 
     public int getTicks() {
         return this.alpha.getCurrent().ticks();
+    }
+
+    public int getMaxDuration() {
+        float max = this.alpha.duration();
+        max = Math.max(max, this.scale.duration());
+        max = Math.max(max, this.position.duration());
+        max = Math.max(max, this.rotation.duration());
+
+        return (int) Math.ceil(max);
     }
 
     @Override

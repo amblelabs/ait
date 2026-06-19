@@ -3,7 +3,6 @@ package dev.amble.ait.data.schema.console;
 import java.lang.reflect.Type;
 
 import com.google.gson.*;
-import dev.amble.lib.api.Identifiable;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
@@ -13,6 +12,7 @@ import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.data.schema.exterior.category.CapsuleCategory;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
+import dev.amble.lib.api.Identifiable;
 
 public abstract class ConsoleTypeSchema implements Identifiable, Nameable {
     private final Identifier id;

@@ -1,7 +1,5 @@
 package dev.amble.ait.core.tardis.control.impl;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -15,6 +13,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class DirectionControl extends Control {
 
@@ -61,7 +60,7 @@ public class DirectionControl extends Control {
     }
 
     public static int getPreviousGeneralizedRotation(int rotation) {
-        return (rotation - 2) % 16;
+        return (rotation - 2 + 16) % 16;
     }
 
     public static byte getGeneralizedRotation(int rotation) {

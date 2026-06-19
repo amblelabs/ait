@@ -1,6 +1,5 @@
 package dev.amble.ait.core.tardis.control.impl;
 
-import dev.amble.ait.core.item.ControlDiscItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MusicDiscItem;
 import net.minecraft.nbt.NbtCompound;
@@ -16,6 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.item.ControlDiscItem;
 import dev.amble.ait.core.item.WaypointItem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisDesktop;

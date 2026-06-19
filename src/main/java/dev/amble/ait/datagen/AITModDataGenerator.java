@@ -1,5 +1,28 @@
 package dev.amble.ait.datagen;
 
+import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
+import static net.minecraft.data.server.recipe.RecipeProvider.*;
+
+import java.util.Calendar;
+import java.util.concurrent.CompletableFuture;
+
+import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+
+import net.minecraft.block.Blocks;
+import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
+import net.minecraft.item.Items;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.book.RecipeCategory;
+import net.minecraft.registry.RegistryBuilder;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.Identifier;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITEntityTypes;
@@ -17,27 +40,6 @@ import dev.amble.ait.module.planet.core.world.PlanetPlacedFeatures;
 import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
 import dev.amble.lib.datagen.lang.LanguageType;
 import dev.amble.lib.datagen.sound.AmbleSoundProvider;
-import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.minecraft.block.Blocks;
-import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryBuilder;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.Identifier;
-
-import java.util.Calendar;
-import java.util.concurrent.CompletableFuture;
-
-import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
-import static net.minecraft.data.server.recipe.RecipeProvider.*;
 
 public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
@@ -776,8 +778,12 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("ait.control_disc.unusable_in_tardis_world", "Failed to write DVD-ROM contents: invalid dimension!");
 
         provider.addTranslation("ait.text.chat.clicked", "here");
-        provider.addTranslation("ait.text.chat.readwiki", "To learn how to play this mod, we suggest you read the wiki, which is ");
+        provider.addTranslation("ait.text.chat.readwiki", "To learn how to play Adventures in Time, we suggest you read the wiki, which is ");
         provider.addTranslation("ait.text.chat.hover", "Click here to open the wiki in your browser");
+
+        provider.addTranslation("text.ait.beta.play.tooltip", "You're not a beta tester!");
+        provider.addTranslation("text.ait.beta.play", "Authorize to play AIT Beta");
+        provider.addTranslation("text.ait.beta.play.browser", "Check your browser!");
 
         // Control entities
         provider.addTranslation("control.ait.antigravs", "Antigravs");
@@ -803,9 +809,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.sonic_port", "Sonic Port");
         provider.addTranslation("control.ait.telepathic_circuit", "Telepathic Circuit");
         provider.addTranslation("control.ait.throttle", "Throttle");
-        provider.addTranslation("control.ait.visualiser", "Scanner");
-        provider.addTranslation("control.ait.none", "Cool Button");
-        provider.addTranslation("control.ait.rwf", "Manual Control");
+        provider.addTranslation("control.ait.visualiser.normal", "Scanner");
+        provider.addTranslation("control.ait.visualiser.rwf", "Manual Override");
+        provider.addTranslation("control.ait.visualiser.none", "Cool Button");
         provider.addTranslation("control.ait.eject_waypoint", "Eject Waypoint");
         provider.addTranslation("control.ait.goto_waypoint", "Goto Waypoint");
         provider.addTranslation("control.ait.console_port", "Console Port");
@@ -855,6 +861,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.fahrenheit", "Fahrenheit (°F)");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.kelvin", "Kelvin (K)");
         provider.addTranslation("yacl3.config.ait:client.handlesLevenshteinDistance", "Levenshtein distance for handles");
+        provider.addTranslation("yacl3.config.ait:client.screenShake", "Screen shake amount");
         provider.addTranslation("yacl3.config.ait:server.flightSoundVolume", "Flight Sound Volume");
 
         provider.addTranslation("text.autoconfig.aitconfig.category.client", "Client");
@@ -998,6 +1005,15 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("desktop.ait.corpoyta", "Corpoyta");
         provider.addTranslation("desktop.ait.legacy", "Legacy");
 
+        provider.addTranslation("desktop.ait.cathedral", "Cathedral");
+        provider.addTranslation("desktop.ait.cyberpunk", "CyberPunk");
+        provider.addTranslation("desktop.ait.egyptian", "Egyptian");
+        provider.addTranslation("desktop.ait.forest", "Forest");
+        provider.addTranslation("desktop.ait.gothic", "Gothic");
+        provider.addTranslation("desktop.ait.historic", "Historic");
+        provider.addTranslation("desktop.ait.laboratory", "Laboratory");
+        provider.addTranslation("desktop.ait.steampunk", "Steampunk");
+        provider.addTranslation("desktop.ait.trek", "Trek");
         // Sonic Screwdrivers
         provider.addTranslation("sonic.ait.prime", "Prime");
         provider.addTranslation("sonic.ait.crystalline", "Crystalline");
@@ -1367,6 +1383,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.interiorsettings.changeinterior", "> Change Interior");
         provider.addTranslation("screen.ait.interiorsettings.cacheconsole", "> Cache Console");
         provider.addTranslation("screen.ait.loadsaveinterior.button", "> Save Interior");
+        provider.addTranslation("screen.ait.widget.timeline", "Timeline");
 
         //TARDIS Flight Sequences
         provider.addTranslation("sequence.ait.avoid_debris", "Debris incoming!");
@@ -1932,17 +1949,17 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("command.ait.home.dimension_locked",
                 "Heimatposition kann nicht in einer für diese TARDIS gesperrten Dimension festgelegt werden.");
 
-	    // Hums
-	    provider.addTranslation("hum.ait.beacon", "Beacon");
-	    provider.addTranslation("hum.ait.copper", "Copper");
-	    provider.addTranslation("hum.ait.eight", "Eight");
-	    provider.addTranslation("hum.ait.exile", "Exile");
-	    provider.addTranslation("hum.ait.prime", "Prime");
-	    provider.addTranslation("hum.ait.renaissance", "Renaissance");
-	    provider.addTranslation("hum.ait.toyota", "Toyota");
-	    provider.addTranslation("hum.ait.coral", "Coral");
-	    provider.addTranslation("hum.ait.christmas", "Christmas");
-	    provider.addTranslation("hum.ait.off", "Off");
+        // Hums
+        provider.addTranslation("hum.ait.beacon", "Beacon");
+        provider.addTranslation("hum.ait.copper", "Copper");
+        provider.addTranslation("hum.ait.eight", "Eight");
+        provider.addTranslation("hum.ait.exile", "Exile");
+        provider.addTranslation("hum.ait.prime", "Prime");
+        provider.addTranslation("hum.ait.renaissance", "Renaissance");
+        provider.addTranslation("hum.ait.toyota", "Toyota");
+        provider.addTranslation("hum.ait.coral", "Coral");
+        provider.addTranslation("hum.ait.christmas", "Christmas");
+        provider.addTranslation("hum.ait.off", "Off");
 
         return provider;
     }

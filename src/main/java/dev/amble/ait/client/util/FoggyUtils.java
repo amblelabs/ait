@@ -68,7 +68,7 @@ public class FoggyUtils {
             RenderSystem.setShaderFogStart(MathHelper.lerp(ClientTardisUtil.getPowerDeltaForLerp(), -8, 24));
             RenderSystem.setShaderFogEnd(MathHelper.lerp(ClientTardisUtil.getPowerDeltaForLerp(), 11, 32));
             RenderSystem.setShaderFogShape(FogShape.SPHERE);
-            RenderSystem.setShaderFogColor(0, 0, 0, tardis.siege().isActive() ? 0.85f : 1f);
+            RenderSystem.setShaderFogColor(0, 0, 0, tardis.siege().isActive() ? 0.85f : tardis.isGrowth() ? 0.5f : 1.0f);
         }
         if (tardis.crash().isToxic() && tardis.fuel().hasPower()) {
             RenderSystem

@@ -1,8 +1,5 @@
 package dev.amble.ait.core.item.sonic;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedGlobalPos;
-
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -21,6 +18,8 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.sonic.SonicSchema;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedGlobalPos;
 
 public class TardisSonicMode extends SonicMode {
 

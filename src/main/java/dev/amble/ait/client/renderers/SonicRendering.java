@@ -11,6 +11,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
@@ -23,6 +24,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.core.blocks.DetectorBlock;
 import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
@@ -182,6 +184,8 @@ public class SonicRendering {
         renderRedstone(context, state, targetPos);
         profiler.swap("subsystem_info");
         renderSubSystemInfo(context, targetPos);
+        profiler.swap("detector_type");
+        renderDetectorState(context, targetPos);
 
         profiler.pop();
         profiler.pop();
@@ -198,6 +202,15 @@ public class SonicRendering {
         if (power == 0) return;
 
         context.drawCenteredTextWithShadow(client.textRenderer, "" + power, getCentreX(), (int) (getMaxY() * 0.4), Colors.WHITE);
+    }
+
+    private void renderDetectorState(DrawContext context, BlockPos pos) {
+        ClientWorld world = client.world;
+        if (world == null) return;
+        BlockState state = world.getBlockState(pos);
+        if (!(state.getBlock() instanceof DetectorBlock)) return;
+        DetectorBlock.Type type = state.get(DetectorBlock.TYPE);
+        context.drawCenteredTextWithShadow(client.textRenderer, type.name().toUpperCase(), getCentreX(), (int) (getMaxY() * 0.4), Colors.WHITE);
     }
 
     private void renderSubSystemInfo(DrawContext context, BlockPos pos) {

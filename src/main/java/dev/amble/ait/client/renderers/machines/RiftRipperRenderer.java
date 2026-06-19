@@ -1,11 +1,5 @@
 package dev.amble.ait.client.renderers.machines;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.machines.RiftRipperModel;
-import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.core.blockentities.RiftRipperBlockEntity;
-import dev.amble.ait.core.blocks.ArtronCollectorBlock;
-import dev.amble.ait.core.world.RiftChunkManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.client.MinecraftClient;
@@ -19,6 +13,11 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.machines.RiftRipperModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.core.blockentities.RiftRipperBlockEntity;
 
 public class RiftRipperRenderer<T extends RiftRipperBlockEntity> implements BlockEntityRenderer<T> {
 

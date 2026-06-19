@@ -1,5 +1,7 @@
 package dev.amble.ait.data.schema.exterior.variant.exclusive.wanderer;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
@@ -21,18 +23,8 @@ public class BoothWandererVariant extends ExteriorVariantSchema {
     }
 
     @Override
-    public Vec3d adjustPortalPos(Vec3d pos, byte direction) {
-        return switch (direction) {
-            case 0 -> pos.add(0, -0.1, -0.48f); // NORTH
-            case 1, 2, 3 -> pos.add(0.35f, -0.1, -0.35f); // NORTH EAST p n
-            case 4 -> pos.add(0.48f, -0.1, 0); // EAST
-            case 5, 6, 7 -> pos.add(0.35f, -0.1, 0.35f); // SOUTH EAST p p
-            case 8 -> pos.add(0, -0.1, 0.48f); // SOUTH
-            case 9, 10, 11 -> pos.add(-0.35f, -0.1, 0.35f); // SOUTH WEST n p
-            case 12 -> pos.add(-0.48f, -0.1, 0); // WEST
-            case 13, 14, 15 -> pos.add(-0.35f, -0.1, -0.35f); // NORTH WEST n n
-            default -> pos;
-        };
+    public @Nullable Vec3d getPortalPosition() {
+        return new Vec3d(0, 0.125, -0.48f);
     }
 
     @Override
@@ -47,11 +39,11 @@ public class BoothWandererVariant extends ExteriorVariantSchema {
 
     @Override
     public double portalWidth() {
-        return super.portalWidth();
+        return 0.875d;
     }
 
     @Override
     public double portalHeight() {
-        return 2.3d;
+        return 2.125d;
     }
 }

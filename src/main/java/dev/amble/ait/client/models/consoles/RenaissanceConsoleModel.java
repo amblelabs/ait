@@ -1,7 +1,5 @@
 package dev.amble.ait.client.models.consoles;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.model.*;
@@ -11,9 +9,9 @@ import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.animation.console.renaissance.RenaissanceAnimation;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
@@ -23,6 +21,7 @@ import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class RenaissanceConsoleModel extends SimpleConsoleModel {
 
@@ -1360,7 +1359,7 @@ public class RenaissanceConsoleModel extends SimpleConsoleModel {
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = 0.1f * client.getTickDelta();
+        float delta = !AITModClient.CONFIG.animateControls ? 1.0f : 0.1f * client.getTickDelta();
         matrices.push();
         matrices.translate(0.5f, -1.5f, -0.5f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
@@ -1421,8 +1420,21 @@ public class RenaissanceConsoleModel extends SimpleConsoleModel {
 
         // Increment
         ModelPart increment = this.console.getChild("panelf5").getChild("increment");
-        float incrementTarget = IncrementManager.increment(tardis) > 0 ? 0.5f : 0f;
-        increment.pitch = getAngle(console, "increment", incrementTarget, delta);
+        int incrementVal = IncrementManager.increment(tardis);
+        float targetOffset;
+
+        if (incrementVal < 10) {
+            targetOffset =0;
+        } else if (incrementVal < 100) {
+            targetOffset = 0.25f;
+        } else if (incrementVal < 1000) {
+            targetOffset = 0.5f;
+        } else if (incrementVal < 10000) {
+            targetOffset = 0.75f;
+        } else {
+            targetOffset = 1.0f;
+        }
+        increment.pitch = getAngle(console, "increment", targetOffset, delta);
 
         super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();

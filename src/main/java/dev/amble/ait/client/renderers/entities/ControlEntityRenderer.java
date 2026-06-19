@@ -2,8 +2,6 @@ package dev.amble.ait.client.renderers.entities;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.ColorHelper;
 import org.joml.Matrix4f;
 
 import net.minecraft.client.MinecraftClient;

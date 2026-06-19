@@ -1,8 +1,5 @@
 package dev.amble.ait.mixin;
 
-import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.lib.util.TeleportUtil;
 import net.fabricmc.fabric.api.util.TriState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,8 +20,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
 import dev.amble.ait.api.ExtraPushableEntity;
+import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.lib.util.TeleportUtil;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements ExtraPushableEntity {

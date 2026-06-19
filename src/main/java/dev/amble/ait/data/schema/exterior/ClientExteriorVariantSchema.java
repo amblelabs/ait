@@ -3,7 +3,6 @@ package dev.amble.ait.data.schema.exterior;
 import java.lang.reflect.Type;
 
 import com.google.gson.*;
-import dev.amble.lib.api.Identifiable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.joml.Vector3f;
@@ -18,6 +17,7 @@ import dev.amble.ait.data.schema.door.ClientDoorSchema;
 import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.api.Identifiable;
 
 @Environment(EnvType.CLIENT)
 public abstract class ClientExteriorVariantSchema implements Identifiable {

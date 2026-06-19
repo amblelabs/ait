@@ -6,13 +6,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.amble.ait.core.item.RepairToolItem;
-import dev.amble.ait.core.tardis.control.impl.HammerHangerControl;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
 import io.netty.handler.codec.EncoderException;
-import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -40,6 +37,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -50,6 +48,7 @@ import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.entities.base.LinkableDummyEntity;
+import dev.amble.ait.core.item.RepairToolItem;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.item.control.ControlBlockItem;
 import dev.amble.ait.core.item.sonic.SonicMode;
@@ -57,6 +56,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.control.ControlTypes;
+import dev.amble.ait.core.tardis.control.impl.HammerHangerControl;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 
 public class ConsoleControlEntity extends LinkableDummyEntity {
@@ -80,7 +80,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             TrackedDataHandlerRegistry.BLOCK_POS);
     private Control control;
     public static final float MAX_DURABILITY = 1.0f;
-    private boolean cachedRwfEnabled = AITMod.CONFIG.rwfEnabled;
+
     public ConsoleControlEntity(EntityType<? extends Entity> entityType, World world) {
         super(entityType, world);
     }
@@ -261,11 +261,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         if (this.control == null && this.getConsoleBlockPos() != null)
             this.discard();
 
-        if (this.cachedRwfEnabled != AITMod.CONFIG.rwfEnabled) {
-            this.refreshName();
-            this.cachedRwfEnabled = AITMod.CONFIG.rwfEnabled;
-        }
-
         switch (this.getDurabilityState(this.getDurability())) {
             case SPARKY -> this.spark();
             case OCCASIONALY_JAM -> this.smoke();
@@ -443,7 +438,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             player.setFireTicks(random.nextBetween(20*2, 20*6));
             player.damage(world.getDamageSources().hotFloor(), 4);
         }
-        
+
         if (this.isOnDelay())
             return false;
 
@@ -521,11 +516,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         AITMod.LOGGER.warn("Control entity at {} has no console block entity at {}", this.getPos(), this.getConsoleBlockPos());
         return null;
     }
-    public void refreshName() {
-        if (this.control != null) {
-            super.setCustomName(this.control.getName());
-        }
-    }
+
     private void spark() {
         if (!(this.getWorld() instanceof ServerWorld serverWorld)) return;
         Vec3d pos = this.getPos();
@@ -564,7 +555,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     public void setControlData(ConsoleTypeSchema consoleType, ControlTypes type, BlockPos consoleBlockPosition, float durability, boolean sticky) {
         this.setConsolePos(consoleBlockPosition);
         this.control = type.getControl();
-        this.refreshName();
+
+        super.setCustomName(this.control.getName());
 
         if (consoleType != null) {
             this.setControlWidth(type.getScale().width);

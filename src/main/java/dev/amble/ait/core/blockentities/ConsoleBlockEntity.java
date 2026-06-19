@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-import dev.amble.ait.registry.impl.ControlRegistry;
-import dev.amble.lib.util.ServerLifecycleHooks;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -51,8 +48,10 @@ import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
+import dev.amble.ait.registry.impl.ControlRegistry;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
+import dev.amble.lib.util.ServerLifecycleHooks;
 
 public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements BlockEntityTicker<ConsoleBlockEntity>, ArtronHolderItem {
 

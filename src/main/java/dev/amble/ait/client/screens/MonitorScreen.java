@@ -3,8 +3,6 @@ package dev.amble.ait.client.screens;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedGlobalPos;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -45,6 +43,8 @@ import dev.amble.ait.data.schema.exterior.category.PoliceBoxCategory;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedGlobalPos;
 
 public class MonitorScreen extends ConsoleScreen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
@@ -374,7 +374,7 @@ public class MonitorScreen extends ConsoleScreen {
                 (centerWidth + 70), (centerHeight + 34), 5636095);
 
         stack.pop();
-        ExteriorModel model = variant.getCachedModel();
+        ExteriorModel model = variant.model();
 
         stack.push();
         stack.translate(x, isPoliceBox || isHorriblyUnscaled ? y + 11 : y, 100f);
@@ -388,7 +388,7 @@ public class MonitorScreen extends ConsoleScreen {
         }
 
         // datapack models float for some reason
-        if (variant.getCachedModel() instanceof BedrockExteriorModel) {
+        if (model instanceof BedrockExteriorModel) {
             stack.translate(0, 1.25f, 0);
         }
 

@@ -1,9 +1,5 @@
 package dev.amble.ait.core.blockentities;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.blocks.DoorBlock;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedBlockPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -30,10 +26,12 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.event.GameEvent;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.blocks.DoorBlock;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 import dev.amble.ait.core.item.KeyItem;
@@ -43,6 +41,8 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedBlockPos;
 
 public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 

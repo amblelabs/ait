@@ -1,6 +1,5 @@
 package dev.amble.ait.client.config;
 
-import dev.amble.ait.AITMod;
 import dev.isxander.yacl3.api.NameableEnum;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
@@ -9,7 +8,10 @@ import dev.isxander.yacl3.config.v2.api.autogen.Boolean;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import dev.isxander.yacl3.gui.ValueFormatters;
 import dev.isxander.yacl3.platform.YACLPlatform;
+
 import net.minecraft.text.Text;
+
+import dev.amble.ait.AITMod;
 
 public class AITClientConfig {
 
@@ -85,6 +87,10 @@ public class AITClientConfig {
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean animateConsole = true;
+
+    @AutoGen(category = CATEGORY)
+    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @SerialEntry public boolean animateControls = true;
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)

@@ -1,27 +1,10 @@
 package dev.amble.ait.core.tardis.handler.travel;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.client.tardis.manager.ClientTardisManager;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.blocks.ExteriorBlock;
-import dev.amble.ait.core.lock.LockedDimension;
-import dev.amble.ait.core.lock.LockedDimensionRegistry;
-import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
-import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
-import dev.amble.ait.core.tardis.control.impl.DirectionControl;
-import dev.amble.ait.core.tardis.control.impl.EngineOverloadControl;
-import dev.amble.ait.core.tardis.control.impl.SecurityControl;
-import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
-import dev.amble.ait.core.tardis.util.NetworkUtil;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.core.util.SafePosSearch;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.core.world.RiftChunkManager;
-import dev.amble.ait.data.Exclude;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Optional;
+import java.util.UUID;
+
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
@@ -32,6 +15,8 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.loader.api.FabricLoader;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.network.PacketByteBuf;
@@ -43,12 +28,28 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.UUID;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.client.tardis.manager.ClientTardisManager;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.blocks.ExteriorBlock;
+import dev.amble.ait.core.lock.LockedDimension;
+import dev.amble.ait.core.lock.LockedDimensionRegistry;
+import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
+import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
+import dev.amble.ait.core.tardis.control.impl.EngineOverloadControl;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
+import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
+import dev.amble.ait.core.tardis.util.NetworkUtil;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.util.SafePosSearch;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.core.world.RiftChunkManager;
+import dev.amble.ait.data.Exclude;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public final class TravelHandler extends AnimatedTravelHandler implements CrashableTardisTravel {
 
@@ -216,7 +217,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         if (this.tardis.crash().getState() == TardisCrashHandler.State.UNSTABLE)
             this.forceDestination(cached -> TravelUtil.jukePos(cached, 1, 10));
 
-        if (this.getState() != State.LANDED)
+        if (this.getState() != State.LANDED && !this.isCrashing())
             this.rematerialize();
     }
 
@@ -416,13 +417,12 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     }
 
     public void finishDemat() {
-        this.crashing.set(false);
+        this.setCrashing(false);
         this.previousPosition.set(this.position);
         this.setState(State.FLIGHT);
 
         TardisEvents.ENTER_FLIGHT.invoker().onFlight(this.tardis);
         this.deleteExterior();
-
 
         if (tardis.stats().security().get() || !tardis.waypoint().canContainPlayers()) {
             SecurityControl.runSecurityProtocols(this.tardis);
@@ -471,7 +471,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         if (result.type() == TardisEvents.Interaction.FAIL) {
             if (!this.isCrashing())
                 this.crash();
-            
+
             return Optional.of(this.queueFor(State.LANDED));
         }
 

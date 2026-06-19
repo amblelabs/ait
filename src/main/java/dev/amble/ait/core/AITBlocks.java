@@ -7,14 +7,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import dev.amble.lib.block.ABlockSettings;
-import dev.amble.lib.container.impl.BlockContainer;
-import dev.amble.lib.container.impl.NoBlockItem;
-import dev.amble.lib.datagen.util.AutomaticModel;
-import dev.amble.lib.datagen.util.NoBlockDrop;
-import dev.amble.lib.datagen.util.NoEnglish;
-import dev.amble.lib.datagen.util.PickaxeMineable;
-import dev.amble.lib.item.AItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
@@ -32,6 +24,14 @@ import dev.amble.ait.core.blocks.*;
 import dev.amble.ait.core.blocks.DoorBlock;
 import dev.amble.ait.core.blocks.control.RedstoneControlBlock;
 import dev.amble.ait.core.engine.block.generic.GenericSubSystemBlock;
+import dev.amble.lib.block.ABlockSettings;
+import dev.amble.lib.container.impl.BlockContainer;
+import dev.amble.lib.container.impl.NoBlockItem;
+import dev.amble.lib.datagen.util.AutomaticModel;
+import dev.amble.lib.datagen.util.NoBlockDrop;
+import dev.amble.lib.datagen.util.NoEnglish;
+import dev.amble.lib.datagen.util.PickaxeMineable;
+import dev.amble.lib.item.AItemSettings;
 
 
 public class AITBlocks extends BlockContainer {

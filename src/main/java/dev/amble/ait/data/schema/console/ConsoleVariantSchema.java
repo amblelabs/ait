@@ -4,7 +4,6 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import com.google.gson.*;
-import dev.amble.lib.register.unlockable.Unlockable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.joml.Vector3f;
@@ -18,6 +17,7 @@ import dev.amble.ait.data.schema.BasicSchema;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
+import dev.amble.lib.register.unlockable.Unlockable;
 
 /**
  * This class is for variants of a {@link ConsoleTypeSchema} and can be changed

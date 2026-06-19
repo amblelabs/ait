@@ -1,7 +1,6 @@
 package dev.amble.ait.registry.impl.door;
 
 
-import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
@@ -14,6 +13,7 @@ import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.door.impl.*;
 import dev.amble.ait.data.schema.door.impl.exclusive.BlueBoxDoorVariant;
 import dev.amble.ait.data.schema.door.impl.exclusive.DoomDoorVariant;
+import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
 
 public class DoorRegistry extends SimpleDatapackRegistry<DoorSchema> {
     private static DoorRegistry INSTANCE;

@@ -2,7 +2,6 @@ package dev.amble.ait.core.tardis;
 
 import java.util.Optional;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.block.entity.BlockEntity;
@@ -23,6 +22,7 @@ import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class TardisExterior extends TardisComponent {
 
