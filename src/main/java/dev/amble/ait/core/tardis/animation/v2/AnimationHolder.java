@@ -195,8 +195,12 @@ public class AnimationHolder implements TardisTickable, Disposable, Linkable {
     public float getAlpha(float delta) {
         if (this.isLinked()) {
             Tardis tardis = this.tardis().get();
-            if (tardis.cloak().cloaked().get())
+            if (tardis.cloak().cloaked().get()) {
+                if (tardis.cloak().silent().get())
+                    return 0f;
+
                 return cloakAlpha(tardis);
+            }
 
             if (tardis.travel().isLanded() && tardis.travel().handbrake() && tardis.travel().speed() > 0)
                 return handbrakeAlpha(tardis);

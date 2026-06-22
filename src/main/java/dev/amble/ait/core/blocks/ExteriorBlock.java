@@ -462,8 +462,15 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         if (random.nextInt(16) == 0) {
             if (canFallThrough(world.getBlockState(blockPos))) {
                 ParticleUtil.spawnParticle(world, pos, random, ParticleTypes.TOTEM_OF_UNDYING);
+
+                if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior && exterior.isLinked()) {
+                    Tardis tardis = exterior.tardis().get();
+                    if (tardis.cloak().silent().get())
+                        return;
+                }
             }
         }
+
     }
 
     @Override

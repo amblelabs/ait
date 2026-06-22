@@ -791,6 +791,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.food_creation", "Refreshment Dispenser");
         provider.addTranslation("control.ait.protocol_116", "Stabiliser");
         provider.addTranslation("control.ait.protocol_3", "Shell Cloaking");
+        provider.addTranslation("control.ait.protocol_3_silent_activated", "Silent Mode for Shell Cloaking has been activated");
+        provider.addTranslation("control.ait.protocol_3_silent_deactivated", "Silent Mode for Shell Cloaking has been deactivated");
+        provider.addTranslation("control.ait.protocol_3_silent_active", "Shell Cloaking (Silent Activated)");
+        provider.addTranslation("control.ait.protocol_3_silent_inactive", "Shell Cloaking (Silent Deactivated)");
         provider.addTranslation("control.ait.dimension", "Dimension");
         provider.addTranslation("control.ait.direction", "Direction");
         provider.addTranslation("control.ait.door_control", "Door Control");
@@ -1384,6 +1388,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.interiorsettings.cacheconsole", "> Cache Console");
         provider.addTranslation("screen.ait.loadsaveinterior.button", "> Save Interior");
         provider.addTranslation("screen.ait.widget.timeline", "Timeline");
+        provider.addTranslation("screen.ait.monitor.shell_cloaking_activated_message", "Silent shell cloaking is activated");
 
         //TARDIS Flight Sequences
         provider.addTranslation("sequence.ait.avoid_debris", "Debris incoming!");
