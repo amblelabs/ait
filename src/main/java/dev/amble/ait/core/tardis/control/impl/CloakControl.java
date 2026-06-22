@@ -24,7 +24,7 @@ public class CloakControl extends Control {
     }
 
     @Override
-    public Text getName(Tardis tardis) {
+    public Text getControlNameScannerMode(Tardis tardis) {
         return Text.translatable(tardis.cloak().silent().get()
                 ? "control.ait.protocol_3_silent_active"
                 : "control.ait.protocol_3_silent_inactive");
