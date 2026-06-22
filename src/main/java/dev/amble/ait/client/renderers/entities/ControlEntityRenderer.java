@@ -28,13 +28,12 @@ import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.impl.CloakControl;
+import dev.amble.ait.core.tardis.control.Control;
 
 @Environment(value = EnvType.CLIENT)
 public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> {
 
     private static final Identifier TEXTURE = AITMod.id("textures/entity/control/sequenced.png");
-    private static final Text CLOAK_CONTROL_NAME = Text.translatable(CloakControl.ID.toTranslationKey("control"));
 
     ControlModel model = new ControlModel(ControlModel.getTexturedModelData().createModel());
 
@@ -73,7 +72,8 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
         if (tardis == null)
             return;
 
-        Text label = getScanLabel(name, tardis);
+        Control control = entity.getControl();
+        Text label = control != null ? control.getName(tardis) : name;
 
         TextRenderer textRenderer = this.getTextRenderer();
         float h = (float) -textRenderer.getWidth(label) / 2;
@@ -140,15 +140,6 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
 
         Box box = entity.getBoundingBox().offset(-entity.getX(), -entity.getY(), -entity.getZ());
         WorldRenderer.drawBox(matrices, vertices, box, 0.0f, 0.8f, 1.0f, 1.0f);
-    }
-
-    private static Text getScanLabel(Text name, Tardis tardis) {
-        if (!CLOAK_CONTROL_NAME.equals(name))
-            return name;
-
-        return Text.translatable(tardis.cloak().silent().get()
-                ? "control.ait.protocol_3_silent_active"
-                : "control.ait.protocol_3_silent_inactive");
     }
 
     private static boolean isPlayerLookingAtControlWithSonic(HitResult hitResult, ConsoleControlEntity entity) {

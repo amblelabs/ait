@@ -62,6 +62,14 @@ public class Control implements Identifiable {
         return Text.translatable(id.toTranslationKey("control"));
     }
 
+    /**
+     * The label shown when scanning this control with the sonic. Unlike {@link #getName()}, this may
+     * vary with live TARDIS state. Defaults to the static control name.
+     */
+    public Text getName(Tardis tardis) {
+        return this.getName();
+    }
+
     protected boolean shouldBeAddedToSequence(Tardis tardis) {
         return tardis.sequence().hasActiveSequence() && tardis.sequence().controlPartOfSequence(this);
     }
