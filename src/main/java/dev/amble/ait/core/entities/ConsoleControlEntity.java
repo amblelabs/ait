@@ -571,7 +571,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         this.control = type.getControl();
         this.dataTracker.set(CONTROL_ID, this.control.id().toString());
 
-        super.setCustomName(this.control.getName());
+        super.setCustomName(this.control.getName(this.tardis().get()));
 
         if (consoleType != null) {
             this.setControlWidth(type.getScale().width);
