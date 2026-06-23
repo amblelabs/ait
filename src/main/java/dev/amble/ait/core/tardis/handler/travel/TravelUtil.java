@@ -77,7 +77,7 @@ public class TravelUtil {
         boolean hasDirChanged = source.getRotation() != destination.getRotation();
         boolean hasDimChanged = !source.getDimension().equals(destination.getDimension());
         
-        if (distance < 32 && !hasDimChanged)
+        if (distance < 128 && !hasDimChanged)
             return 0; // fast travel
 
         return (int) (BASE_FLIGHT_TICKS + (distance / 10f) + (hasDirChanged ? 100 : 0) + (hasDimChanged ? 600 : 0));
