@@ -64,6 +64,9 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
     private static final BoolProperty QUEUED = new BoolProperty("queued");
     private static final BoolProperty REGENERATING = new BoolProperty("regenerating");
     private static final int MIN_FUEL_COST = 5000;
+    private static final int FORCE_KILL_TICKS = 20 * 10;
+    private static final float INTERIOR_CHANGE_DAMAGE = 1000.0F;
+    private static final float FINAL_INTERIOR_CHANGE_DAMAGE = Float.MAX_VALUE;
 
     public static final int MAX_PLASMIC_MATERIAL_AMOUNT = 8;
     private static final Text HINT_TEXT = Text.translatable("tardis.message.growth.hint").formatted(Formatting.DARK_GRAY, Formatting.ITALIC);
@@ -78,6 +81,9 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
     @Exclude
     private boolean countdownStarted = false;
+
+    @Exclude
+    private int regeneratingTicks = 0;
 
     @Exclude
     private List<ItemStack> restorationChestContents;
@@ -366,35 +372,73 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         if (!this.canQueue()) {
             this.queued.set(false);
             this.regenerating.set(false);
+            this.countdownStarted = false;
+            this.regeneratingTicks = 0;
 
             tardis.alarm().disable();
             return;
         }
 
-        if (!TardisUtil.isInteriorEmpty(tardis.asServer())) {
-            if (this.regenerating.get()) {
-                PlayerEntity target = TardisUtil.getAnyPlayerInsideInterior(tardis.asServer().world());
+        if (this.regenerating.get()) {
+            this.regeneratingTicks++;
+            this.handlePlayersDuringRegeneration();
 
-                if (this.tardis().subsystems().lifeSupport().isEnabled()) {
-                    TardisUtil.teleportOutside(tardis.asServer(), target);
-                } else {
-                    target.damage(AITDamageTypes.of(target.getWorld(), AITDamageTypes.INTERIOR_CHANGE), Float.MAX_VALUE);
-                }
-            }
+            // Do not rewrite the interior while a client is still tracking the old chunks.
+            if (TardisUtil.isInteriorEmpty(tardis.asServer()) && !this.tardis.getDesktop().isChanging())
+                this.changeInterior();
+
+            return;
         }
 
-        if (!this.regenerating.get() && !this.countdownStarted) {
+        if (!this.countdownStarted) {
             this.startRegeneratingCountdown();
         }
+    }
+
+    private void handlePlayersDuringRegeneration() {
+        for (PlayerEntity target : new ArrayList<>(tardis.asServer().world().getPlayers())) {
+            if (this.shouldTeleportDuringRegeneration(target)) {
+                TardisUtil.teleportOutside(tardis.asServer(), target);
+                continue;
+            }
+
+            this.damageDuringRegeneration(target);
+        }
+    }
+
+    private boolean shouldTeleportDuringRegeneration(PlayerEntity target) {
+        return this.tardis().subsystems().lifeSupport().isEnabled()
+                || target.isCreative()
+                || target.isSpectator();
+    }
+
+    private void damageDuringRegeneration(PlayerEntity target) {
+        if (!target.isAlive())
+            return;
+
+        target.damage(AITDamageTypes.of(target.getWorld(), AITDamageTypes.INTERIOR_CHANGE), INTERIOR_CHANGE_DAMAGE);
+
+        if (!target.isAlive() || this.regeneratingTicks < FORCE_KILL_TICKS)
+            return;
+
+        target.damage(AITDamageTypes.of(target.getWorld(), AITDamageTypes.INTERIOR_CHANGE), FINAL_INTERIOR_CHANGE_DAMAGE);
+
+        if (!target.isAlive())
+            return;
+
+        target.damage(target.getDamageSources().outOfWorld(), FINAL_INTERIOR_CHANGE_DAMAGE);
+
+        if (target.isAlive())
+            target.kill();
     }
 
     private ServerAlarmHandler.Countdown startRegeneratingCountdown() {
         ServerAlarmHandler.Countdown cd = new ServerAlarmHandler.Countdown.Builder().bellTolls(15).message("tardis.message.interiorchange.regenerating").thenRun(() -> {
             tardis.getDesktop().startQueue(true);
-            Scheduler.get().runTaskLater(this::changeInterior, TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 15);
 
             this.regenerating.set(true);
             this.countdownStarted = false;
+            this.regeneratingTicks = 0;
         });
 
         this.tardis().alarm().enable(cd);
