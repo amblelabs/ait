@@ -2,6 +2,7 @@ package dev.amble.ait.data.schema.exterior.variant.classic.client;
 
 import dev.amble.ait.client.models.exteriors.ClassicHudolinExteriorModel;
 import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
+import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 
 public class ClientClassicBoxHudolinVariant extends ClientClassicBoxVariant {
 
@@ -12,5 +13,10 @@ public class ClientClassicBoxHudolinVariant extends ClientClassicBoxVariant {
     @Override
     public SimpleExteriorModel model() {
         return new ClassicHudolinExteriorModel(ClassicHudolinExteriorModel.getTexturedModelData().createModel());
+    }
+
+    @Override
+    public BiomeOverrides overrides() {
+        return BiomeOverrides.EMPTY; // Requires an artist to make biome textures.
     }
 }
