@@ -146,3 +146,4 @@
 - fix: all exteriors & doors have correct portal positioning | by [@Addi3](https://github.com/Addi3), [@Loqor](https://github.com/Loqor) ([#2116](https://github.com/amblelabs/ait/pull/2116))
 - tweak: increased interior changing countdown | by [@drtheodor](https://github.com/drtheodor) ([#2117](https://github.com/amblelabs/ait/pull/2117))
 - feat: Added Silent Cloaking! | by [@rapbattlegod32](https://github.com/rapbattlegod32), [@Copilot](https://github.com/Copilot) ([#2027](https://github.com/amblelabs/ait/pull/2027))
+- feat: chinese translations | by [@smallmoss233](https://github.com/smallmoss233) ([#2064](https://github.com/amblelabs/ait/pull/2064), [#2123](https://github.com/amblelabs/ait/pull/2123))
