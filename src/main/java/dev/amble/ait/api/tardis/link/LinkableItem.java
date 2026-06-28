@@ -61,7 +61,7 @@ public abstract class LinkableItem extends Item {
 
         ClientTardisManager.getInstance().getTardis(id, tardis -> {
             if (tardis != null) {
-                tooltip.add(Text.literal("TARDIS: ").formatted(Formatting.BLUE));
+                tooltip.add(Text.translatable("tooltip.ait.linked_tardis").formatted(Formatting.BLUE));
                 tooltip.add(Text.literal("> " + tardis.stats().getName()));
                 tooltip.add(Text.literal("> " + tardis.getUuid().toString().substring(0, 8))
                         .formatted(Formatting.DARK_GRAY));

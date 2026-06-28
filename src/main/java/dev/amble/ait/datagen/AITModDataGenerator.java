@@ -3,8 +3,16 @@ package dev.amble.ait.datagen;
 import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
 import static net.minecraft.data.server.recipe.RecipeProvider.*;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Files;
 import java.util.Calendar;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
@@ -785,6 +793,117 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("text.ait.beta.play", "Authorize to play AIT Beta");
         provider.addTranslation("text.ait.beta.play.browser", "Check your browser!");
 
+        // Visible text owned by screens, renderers, commands, and actionbar messages
+        provider.addTranslation("block.ait.detector.type.alarms", "ALARMS");
+        provider.addTranslation("block.ait.detector.type.crashed", "CRASHED");
+        provider.addTranslation("block.ait.detector.type.door_locked", "DOOR LOCKED");
+        provider.addTranslation("block.ait.detector.type.door_open", "DOOR OPEN");
+        provider.addTranslation("block.ait.detector.type.flight", "FLIGHT");
+        provider.addTranslation("block.ait.detector.type.power", "POWER");
+        provider.addTranslation("block.ait.detector.type.sonic", "SONIC");
+        provider.addTranslation("block.ait.fabricator.status.collect_output", "COLLECT OUTPUT");
+        provider.addTranslation("block.ait.fabricator.status.insert_blueprint", "INSERT BLUEPRINT");
+        provider.addTranslation("block.ait.fabricator.status.insert_material", "INSERT %s %s");
+        provider.addTranslation("block.ait.plaque.default_text", "Type 50 TT Capsule");
+        provider.addTranslation("block.ait.plaque.tt_capsule_type", "Type %s TT Capsule");
+        provider.addTranslation("block.ait.rift_ripper.screen.rift_held", "RIFT HELD [10s]!");
+        provider.addTranslation("block.ait.rift_ripper.screen.systems_version", "Systems Version: v1.0-0.1");
+        provider.addTranslation("block.ait.rift_ripper.screen.title", "-= Rift Ripper =-");
+        provider.addTranslation("command.ait.door_particle.done", "Particle of [%s] set to [%s]");
+        provider.addTranslation("command.ait.list.header", "TARDISes:");
+        provider.addTranslation("command.ait.load.loaded", "Loaded: %s");
+        provider.addTranslation("command.ait.load.not_found", "No TARDIS found with that UUID.");
+        provider.addTranslation("command.ait.scale.not_found", "TARDIS not found.");
+        provider.addTranslation("command.ait.unlock.all", "Granted [%s] every %s");
+        provider.addTranslation("command.ait.unlock.some", "Granted [%s] %s %s");
+        provider.addTranslation("command.ait.unlock.type.console", "console");
+        provider.addTranslation("command.ait.unlock.type.desktop", "desktop");
+        provider.addTranslation("command.ait.unlock.type.exterior_variant", "exterior variant");
+        provider.addTranslation("command.tardis.ait.name", "TARDIS name: %s");
+        provider.addTranslation("console.ait.generator.requirement.none", "None");
+        provider.addTranslation("console.ait.generator.requires_loyalty", "Requires Loyalty Level: %s");
+        provider.addTranslation("text.ait.config.title", "Adventures in Time");
+        provider.addTranslation("message.ait.boti.indium_required.amd", "You appear to have an AMD GPU. Indium is required, but is not found. This may cause issues with the mod - BOTI has been disabled!");
+        provider.addTranslation("message.ait.boti.indium_required.mac", "You appear to be playing on a Mac. Indium is required, but is not found. This may cause issues with the mod - BOTI has been disabled!");
+        provider.addTranslation("message.ait.console_generator.not_unlocked", "This console is not unlocked yet!");
+        provider.addTranslation("message.ait.console_control.json_logged", "JSON data logged to Java console!");
+        provider.addTranslation("message.ait.control.direction.rotation", "Rotation Direction: %s | %s");
+        provider.addTranslation("message.ait.control.monitor.status", "X: %s Y: %s Z: %s Dim: %s Fuel: %s/50000");
+        provider.addTranslation("message.ait.dimension.unlocked", "%s unlocked!");
+        provider.addTranslation("message.ait.handles.already_in_flight", "The TARDIS is already in flight...");
+        provider.addTranslation("message.ait.handles.antigravs_toggled", "Anti-Gravs Toggled.");
+        provider.addTranslation("message.ait.handles.available_commands", "Available Commands: %s");
+        provider.addTranslation("message.ait.handles.closing_doors", "Closing TARDIS doors.");
+        provider.addTranslation("message.ait.handles.dematerializing", "Initiating dematerialization sequence.");
+        provider.addTranslation("message.ait.handles.disabling_refueling", "Disabling Refueling.");
+        provider.addTranslation("message.ait.handles.doors_already_closed", "Doors are already closed");
+        provider.addTranslation("message.ait.handles.doors_already_locked", "Doors already locked");
+        provider.addTranslation("message.ait.handles.doors_already_open", "Doors are already open");
+        provider.addTranslation("message.ait.handles.doors_already_unlocked", "Doors already unlocked");
+        provider.addTranslation("message.ait.handles.enabling_refueling", "Enabling Refueling.");
+        provider.addTranslation("message.ait.handles.flight_complete", "Flight is %s%% complete.");
+        provider.addTranslation("message.ait.handles.fun_fact.gallifrey", "Gallifrey has two suns and an orange sky!");
+        provider.addTranslation("message.ait.handles.fun_fact.green_tardis", "The first TARDIS was actually painted green!");
+        provider.addTranslation("message.ait.handles.fun_fact.handles", "Handles once saved the Doctor's life by solving a centuries-old riddle.");
+        provider.addTranslation("message.ait.handles.joke.calm", "Why was the TARDIS always calm? Because it's bigger on the inside.");
+        provider.addTranslation("message.ait.handles.joke.dalek", "Why did the Dalek apply for a job? It wanted to EX-TER-MINATE its competition!");
+        provider.addTranslation("message.ait.handles.joke.hide_and_seek", "Why does the TARDIS always win hide-and-seek? Because it's in another dimension!");
+        provider.addTranslation("message.ait.handles.joke.no_time", "What do you call a Time Lord with no time? A Lord!");
+        provider.addTranslation("message.ait.handles.joke.time_lords", "How many Time Lords does it take to change a light bulb? None, they just change the timeline.");
+        provider.addTranslation("message.ait.handles.locking_doors", "Locking door.");
+        provider.addTranslation("message.ait.handles.no_waypoint", "There is no waypoint set.");
+        provider.addTranslation("message.ait.handles.not_in_flight", "The TARDIS is not in flight.");
+        provider.addTranslation("message.ait.handles.opening_doors", "Opening TARDIS doors.");
+        provider.addTranslation("message.ait.handles.protocol_3_toggled", "Protocol 3 Toggled.");
+        provider.addTranslation("message.ait.handles.refueling_already_disabled", "Refueling is already disabled.");
+        provider.addTranslation("message.ait.handles.refueling_already_enabled", "Refueling is already enabled.");
+        provider.addTranslation("message.ait.handles.rematerializing", "Rematerializing.");
+        provider.addTranslation("message.ait.handles.setting_course_waypoint", "Setting course for waypoint.");
+        provider.addTranslation("message.ait.handles.tardis_state", "TARDIS State: %s");
+        provider.addTranslation("message.ait.handles.toggled_shields", "Toggled Shields.");
+        provider.addTranslation("message.ait.handles.unlocking_doors", "Unlocking door.");
+        provider.addTranslation("message.ait.radio.changing_frequency", "Changing Frequency...");
+        provider.addTranslation("message.ait.radio.off", "Radio Off");
+        provider.addTranslation("message.ait.radio.on", "Radio On");
+        provider.addTranslation("message.ait.remoteitem.power_switch_disabled", "TARDIS in flight. Power Switch Disabled.");
+        provider.addTranslation("message.ait.remoteitem.powering_down", "TARDIS Powering Down...");
+        provider.addTranslation("message.ait.remoteitem.powering_up", "TARDIS Powering Up...");
+        provider.addTranslation("message.ait.remoteitem.takeoff_failed_powered_off", "Takeoff Failed, TARDIS powered off...");
+        provider.addTranslation("message.ait.tardis_goat_horn.destination", "X: %s Y: %s Z: %s Dim: %s");
+        provider.addTranslation("screen.ait.blueprint_fabricator", "Blueprint Fabricator");
+        provider.addTranslation("screen.ait.environment_projector", "Environment Projector");
+        provider.addTranslation("screen.ait.environment_projector.current", "CURRENT: ");
+        provider.addTranslation("screen.ait.environment_projector.direction.down", "DOWN");
+        provider.addTranslation("screen.ait.environment_projector.direction.east", "EAST");
+        provider.addTranslation("screen.ait.environment_projector.direction.north", "NORTH");
+        provider.addTranslation("screen.ait.environment_projector.direction.south", "SOUTH");
+        provider.addTranslation("screen.ait.environment_projector.direction.up", "UP");
+        provider.addTranslation("screen.ait.environment_projector.direction.west", "WEST");
+        provider.addTranslation("screen.ait.environment_projector.enabled.off", "OFF");
+        provider.addTranslation("screen.ait.environment_projector.enabled.on", "ON");
+        provider.addTranslation("screen.ait.environment_projector.pitch", "Pitch");
+        provider.addTranslation("screen.ait.environment_projector.tab.direction", "Direction");
+        provider.addTranslation("screen.ait.environment_projector.tab.sky", "Sky");
+        provider.addTranslation("screen.ait.environment_projector.yaw", "Yaw");
+        provider.addTranslation("screen.ait.interior_settings.mode.demat", "DEMAT");
+        provider.addTranslation("screen.ait.interior_settings.mode.flight", "FLIGHT");
+        provider.addTranslation("screen.ait.interior_settings.mode.hum", "HUM");
+        provider.addTranslation("screen.ait.interior_settings.mode.mat", "MAT");
+        provider.addTranslation("screen.ait.interior_settings.mode.vortex", "VORTEX");
+        provider.addTranslation("screen.ait.landing_pad", "Landing Marker");
+        provider.addTranslation("screen.ait.visualizer.title", "Portal Visualizer");
+        provider.addTranslation("tardis.remove.done", "TARDIS [%s] removed");
+        provider.addTranslation("tardis.remove.progress", "Removing TARDIS with id [%s]...");
+        provider.addTranslation("tardis.repair.max", "TARDIS repair ticks are at max!");
+        provider.addTranslation("tardis.repair.set", "Set repair ticks for [%s] to: [%s]");
+        provider.addTranslation("tardis.summon", "TARDIS [%s] is on the way!");
+        provider.addTranslation("tardis.teleport.exterior.success", "Successful teleport - exterior of [%s]");
+        provider.addTranslation("tardis.teleport.interior.success", "Successful teleport - interior of [%s]");
+        provider.addTranslation("tooltip.ait.linked_tardis", "TARDIS:");
+        provider.addTranslation("tooltip.ait.roundel_type", "Roundel Type");
+        provider.addTranslation("tooltip.ait.tardisdeco_type", "TARDIS Deco Type");
+        provider.addTranslation("tooltip.ait.tardis_matrix.name", "Name: %s");
+
         // Control entities
         provider.addTranslation("control.ait.antigravs", "Antigravs");
         provider.addTranslation("control.ait.refreshment_control", "Refreshment Selector");
@@ -1036,6 +1155,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         // Consoles
         provider.addTranslation("console.ait.variant_label", "Console Type: ");
         provider.addTranslation("console.ait.alnico", "Alnico");
+        provider.addTranslation("console.ait.borealis", "Borealis");
         provider.addTranslation("console.ait.steam_steel", "Steel Steam");
         provider.addTranslation("console.ait.toyota", "Toyota");
         provider.addTranslation("console.ait.hartnell", "Hartnell");
@@ -1369,6 +1489,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.tardis.control.dimension.info", "Dimension: ");
         provider.addTranslation("message.ait.version", "ᴠᴇʀꜱɪᴏɴ");
         provider.addTranslation("message.ait.max_tardises", "SERVER has reached the maximum amount of TARDISes");
+        provider.addTranslation("ait.console.inventory", "Console");
 
         provider.addTranslation("tooltip.ait.key.notardis", "Key does not identify with any TARDIS");
         provider.addTranslation("tooltip.ait.items.holdformoreinfo", "Hold shift for more info");
@@ -1423,6 +1544,46 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("hum.ait.christmas", "Christmas");
         provider.addTranslation("hum.ait.off", "Off");
 
+        // Flight Sounds
+        provider.addTranslation("flight.ait.default", "Default");
+        provider.addTranslation("flight.ait.eight", "Eighth");
+        provider.addTranslation("flight.ait.proton", "Proton");
+        provider.addTranslation("flight.ait.stabilize", "Stabilize");
+        provider.addTranslation("flight.ait.unstable", "Unstable");
+
+        // Vortices
+        provider.addTranslation("vortex.ait.80s", "80s");
+        provider.addTranslation("vortex.ait.accursed", "Accursed");
+        provider.addTranslation("vortex.ait.capaldi", "Capaldi");
+        provider.addTranslation("vortex.ait.chronos", "Chronos");
+        provider.addTranslation("vortex.ait.classic", "Classic");
+        provider.addTranslation("vortex.ait.classic_white", "Classic White");
+        provider.addTranslation("vortex.ait.copper", "Copper");
+        provider.addTranslation("vortex.ait.crystal", "Crystal");
+        provider.addTranslation("vortex.ait.dalekmod", "Dalek Mod");
+        provider.addTranslation("vortex.ait.darkness", "Darkness");
+        provider.addTranslation("vortex.ait.galactic", "Galactic");
+        provider.addTranslation("vortex.ait.house", "House");
+        provider.addTranslation("vortex.ait.lego", "LEGO");
+        provider.addTranslation("vortex.ait.mccoy", "McCoy");
+        provider.addTranslation("vortex.ait.movie", "Movie");
+        provider.addTranslation("vortex.ait.outergalaxy", "Outer Galaxy");
+        provider.addTranslation("vortex.ait.outerspace", "Outer Space");
+        provider.addTranslation("vortex.ait.peanut", "Peanut");
+        provider.addTranslation("vortex.ait.pixelator", "Pixelator");
+        provider.addTranslation("vortex.ait.renaissance", "Renaissance");
+        provider.addTranslation("vortex.ait.rulebreaker", "Rulebreaker");
+        provider.addTranslation("vortex.ait.space", "Space");
+        provider.addTranslation("vortex.ait.stargate", "Stargate");
+        provider.addTranslation("vortex.ait.starlight", "Starlight");
+        provider.addTranslation("vortex.ait.synthwave", "Synthwave");
+        provider.addTranslation("vortex.ait.tennantblue", "Tennant Blue");
+        provider.addTranslation("vortex.ait.tennantred", "Tennant Red");
+        provider.addTranslation("vortex.ait.timehole", "Time Hole");
+        provider.addTranslation("vortex.ait.toyota", "Toyota");
+        provider.addTranslation("vortex.ait.tuat", "TUAT");
+        provider.addTranslation("vortex.ait.war", "War");
+
         // Astral Map
         provider.addTranslation("screen.ait.astral_map.show_structures", "Structures");
         provider.addTranslation("screen.ait.astral_map.show_biomes", "Biomes");
@@ -1443,7 +1604,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.handles.displace","<Handles> Displacing Coordinates.");
         provider.addTranslation("message.ait.handles.activate_refuel","<Handles> Refuel Activated.");
         provider.addTranslation("message.ait.handles.disable_refuel","<Handles> Refuel Disabled.");
-        provider.addTranslation("message.ait.handles.when","<Handles> When.");
         provider.addTranslation("message.ait.handles.when","<Handles> Affirmative.");
 
 
@@ -1698,7 +1858,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.handbrake.off", "Frein à main: OFF");
         provider.addTranslation("tardis.message.control.randomiser.destination", "Destination: ");
         provider.addTranslation("tardis.message.control.siege.enabled", "Siége: Activé");
-        provider.addTranslation("tardis.message.control.siege.enabled", "Siége: Désactivé");
+        provider.addTranslation("tardis.message.control.siege.disabled", "Siége: Désactivé");
         provider.addTranslation("tardis.message.control.refueler.enabled", "Rechargement: Activé");
         provider.addTranslation("tardis.message.control.refueler.disabled", "Rechargement: Désactivé");
         provider.addTranslation("tardis.message.destination_biome", "Biome de Destination: ");
@@ -1759,96 +1919,25 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
      */
     public AmbleLanguageProvider addSpanishTranslations(FabricDataOutput output,
                                                       CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture, LanguageType languageType) {
-        AmbleLanguageProvider provider = new AmbleLanguageProvider(output, languageType);
+        if (languageType == LanguageType.ES_ES)
+            return new AmbleLanguageProvider(output, languageType);
 
-        provider.addTranslation(AITItemGroups.MAIN, "Adventures In Time");
-        provider.addTranslation(AITItems.TARDIS_ITEM, "TARDIS");
-        provider.addTranslation(AITBlocks.DOOR_BLOCK, "Door");
-        provider.addTranslation(AITBlocks.CONSOLE, "Console");
-        provider.addTranslation(AITItems.IRON_KEY, "Iron Key");
-        provider.addTranslation(AITItems.GOLD_KEY, "Gold Key");
-        provider.addTranslation(AITItems.NETHERITE_KEY, "Netherite Key");
-        provider.addTranslation(AITItems.CLASSIC_KEY, "Classic Key");
-        provider.addTranslation(AITItems.REMOTE_ITEM, "Stattenheim Remote");
-        provider.addTranslation(AITItems.ARTRON_COLLECTOR, "Artron Collector");
-        provider.addTranslation(AITItems.RIFT_SCANNER, "escáner de Rift");
-        provider.addTranslation(AITItems.SONIC_SCREWDRIVER, "Sonic Screwdriver");
-        provider.addTranslation(AITItems.GOLD_KEY_UPGRADE_SMITHING_TEMPLATE, "Smithing Template");
-        provider.addTranslation(AITItems.NETHERITE_KEY_UPGRADE_SMITHING_TEMPLATE, "Smithing Template");
-        provider.addTranslation(AITItems.CLASSIC_KEY_UPGRADE_SMITHING_TEMPLATE, "Smithing Template");
-        provider.addTranslation(AITBlocks.EXTERIOR_BLOCK, "Exterior");
-        provider.addTranslation(AITBlocks.CORAL_PLANT, "TARDIS Coral");
-        provider.addTranslation("death.attack.tardis_squash", "%1$s got squashed by a TARDIS!");
-        provider.addTranslation("message.ait.riftscanner.info1", "Artron Chunk Info: ");
-        provider.addTranslation("message.ait.riftscanner.info2", "Artron left in chunk: ");
-        provider.addTranslation("message.ait.riftscanner.info3", "This is not a rift chunk");
-        provider.addTranslation("tooltip.ait.remoteitem.holdformoreinfo", "Hold shift for more info");
-        provider.addTranslation("tardis.message.control.protocol_116.active", "Protocol 116: ACTIVE");
-        provider.addTranslation("tardis.message.control.protocol_116.inactive", "Protocol 116: INACTIVE");
-        provider.addTranslation("message.ait.remoteitem.warning1",
-                "The TARDIS is out of fuel and cannot dematerialise");
-        provider.addTranslation("message.ait.remoteitem.warning2",
-                "The TARDIS is refueling and is unable to dematerialise");
-        provider.addTranslation("message.ait.remoteitem.warning3",
-                "Cannot translocate exterior to interior dimension");
-        provider.addTranslation("tooltip.ait.remoteitem.notardis",
-                "Remote does not identify with any TARDIS");
-        provider.addTranslation("tardis.message.control.antigravs.active", "Antigravs: ACTIVE");
-        provider.addTranslation("tardis.message.control.antigravs.inactive", "Antigravs: INACTIVE");
-        provider.addTranslation("message.ait.tardis.control.dimension.info", "Dimension: ");
-        provider.addTranslation("tardis.message.control.fast_return.destination_nonexistent",
-                "Fast Return: Last Position Nonexistent!");
-        provider.addTranslation("tardis.message.control.fast_return.last_position",
-                "Fast Return: LAST POSITION SET");
-        provider.addTranslation("tardis.message.control.fast_return.current_position",
-                "Fast Return: CURRENT POSITION SET");
-        provider.addTranslation("tardis.message.control.telepathic.home_updated", "Ubicación del hogar de la TARDIS cambiada.");
-        provider.addTranslation("tardis.message.control.telepathic.home_denied", "La TARDIS se niega a cambiar su hogar por ti. Se requiere nivel de lealtad PILOT.");
-        provider.addTranslation("tardis.message.control.telepathic.home_denied_nether", "La TARDIS rechaza el Inframundo como hogar. Se requiere nivel de lealtad OWNER.");
-        provider.addTranslation("tardis.message.control.protocol_813.active", "Protocol 813: ACTIVE");
-        provider.addTranslation("tardis.message.control.protocol_813.inactive", "Protocol 813: INACTIVE");
-        provider.addTranslation("tardis.message.control.handbrake.on", "handbrake: ON");
-        provider.addTranslation("tardis.message.control.handbrake.off", "handbrake: OFF");
-        provider.addTranslation("tardis.message.control.landtype.on", "Ground Searching: ON");
-        provider.addTranslation("tardis.message.control.landtype.off", "Ground Searching: OFF");
-        provider.addTranslation("tardis.message.control.randomiser.destination", "Destination: ");
-        provider.addTranslation("tardis.message.control.refueler.enabled", "Refueling: Enabled");
-        provider.addTranslation("tardis.message.control.refueler.disabled", "Refueling: Disabled");
-        provider.addTranslation("tardis.message.destination_biome", "Destination Biome: ");
-        provider.addTranslation("tardis.message.control.increment.info", "Increment: ");
-        provider.addTranslation("tardis.message.control.randomiser.poscontrol", "Destination: ");
-        provider.addTranslation("message.ait.sonic.riftfound", "RIFT CHUNK FOUND");
-        provider.addTranslation("message.ait.sonic.riftnotfound", "RIFT CHUNK NOT FOUND");
-        provider.addTranslation("message.ait.sonic.handbrakedisengaged",
-                "Handbrake disengaged, destination set to current position");
-        provider.addTranslation("message.ait.sonic.mode", "Mode: ");
-        provider.addTranslation("message.ait.sonic.none", "None");
-        provider.addTranslation("message.ait.sonic.currenttype", "Current Casing: ");
-        provider.addTranslation("message.ait.remoteitem.warning4",
-                "Target has been reset and updated, the device is now pointing towards your new target");
-        provider.addTranslation("message.ait.keysmithing.upgrade", "Upgrade");
-        provider.addTranslation("message.ait.keysmithing.key", "Key Type: ");
-        provider.addTranslation("message.ait.keysmithing.ingredient", "Material: ");
-        provider.addTranslation("tooltip.ait.key.notardis", "Key does not identify with any TARDIS");
-        provider.addTranslation("tardis.message.control.hads.alarm_enabled", "Alarms: Enabled");
-        provider.addTranslation("tardis.message.control.hads.alarms_disabled", "Alarms: Disabled");
-        provider.addTranslation("screen.ait.monitor.desktop_settings", "Desktop Settings");
-        provider.addTranslation("screen.ait.monitor.apply", "Apply");
-        provider.addTranslation("screen.ait.monitor.fuel", "Fuel: ");
-        provider.addTranslation("screen.ait.interiorsettings.title", "Interior Settings");
-        provider.addTranslation("screen.ait.interiorsettings.back", "> Back");
-        provider.addTranslation("screen.ait.interiorsettings.changeinterior", "> Change Interior");
-        provider.addTranslation("screen.ait.interior.settings.hum", "HUMS");
-        provider.addTranslation("screen.ait.interior.settings.coral", "Coral");
-        provider.addTranslation("screen.ait.interior.settings.toyota", "Toyota");
-        provider.addTranslation("screen.ait.interor_select.title", "Interior Select");
-        provider.addTranslation("tardis.message.interiorchange.not_enough_fuel",
-                "The TARDIS does not have enough fuel to change it's interior");
-        provider.addTranslation("tardis.message.interiorchange.warning",
-                "Interior reconfiguration started! Please leave the interior.");
-        provider.addTranslation("command.ait.realworld.responses", "Spawned a real world TARDIS at: ");
-        provider.addTranslation("command.ait.home.dimension_locked",
-                "No se puede establecer el hogar en una dimensión bloqueada para esta TARDIS.");
+        AmbleLanguageProvider provider = new AmbleLanguageProvider(output, languageType);
+        String path = "assets/" + AITMod.MOD_ID + "/lang/es_es.existing.json";
+
+        output.getModContainer().findPath(path).ifPresentOrElse(existingPath -> {
+            try (Reader reader = Files.newBufferedReader(existingPath)) {
+                JsonObject translations = JsonParser.parseReader(reader).getAsJsonObject();
+
+                for (Map.Entry<String, JsonElement> entry : translations.entrySet()) {
+                    provider.addTranslation(entry.getKey(), entry.getValue().getAsString());
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to load existing language file: " + path, e);
+            }
+        }, () -> {
+            throw new IllegalStateException("Missing existing language file: " + path);
+        });
 
         return provider;
     }

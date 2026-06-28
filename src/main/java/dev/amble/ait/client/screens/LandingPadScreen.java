@@ -32,7 +32,7 @@ public class LandingPadScreen extends Screen {
     private TextFieldWidget landingCodeInput;
 
     public LandingPadScreen(BlockPos pos) {
-        super(Text.literal("landing_pad"));
+        super(Text.translatable("screen.ait.landing_pad"));
 
         this.client = MinecraftClient.getInstance();
         this.pos = pos;

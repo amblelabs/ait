@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 
 import com.google.gson.*;
 
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 
@@ -39,6 +40,14 @@ public abstract class ConsoleTypeSchema implements Identifiable, Nameable {
     @Override
     public String name() {
         return this.name;
+    }
+
+    @Override
+    public Text text() {
+        String[] parts = this.id.getPath().split("/");
+        String last = parts[parts.length - 1];
+
+        return Text.translatable("console." + this.id.getNamespace() + "." + last);
     }
 
     @Override

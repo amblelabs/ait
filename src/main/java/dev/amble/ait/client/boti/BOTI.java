@@ -84,10 +84,10 @@ public class BOTI {
     }
 
     private static void tryWarnMac(MinecraftClient client) {
-        client.player.sendMessage(Text.literal("You appear to be playing on a Mac. Indium is required, but is not found. This may cause issues with the mod - BOTI has been disabled!").formatted(Formatting.RED), false);
+        client.player.sendMessage(Text.translatable("message.ait.boti.indium_required.mac").formatted(Formatting.RED), false);
     }
 
     private static void tryWarnAmd(MinecraftClient client) {
-        client.player.sendMessage(Text.literal("You appear to have an AMD GPU. Indium is required, but is not found. This may cause issues with the mod - BOTI has been disabled!").formatted(Formatting.RED), false);
+        client.player.sendMessage(Text.translatable("message.ait.boti.indium_required.amd").formatted(Formatting.RED), false);
     }
 }
