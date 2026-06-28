@@ -1,5 +1,8 @@
 package dev.amble.ait.client.renderers.decoration;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -20,6 +23,8 @@ import dev.amble.ait.core.blocks.PlaqueBlock;
 import dev.amble.ait.core.tardis.Tardis;
 
 public class PlaqueRenderer<T extends PlaqueBlockEntity> implements BlockEntityRenderer<T> {
+
+    private static final Pattern TT_CAPSULE_TYPE = Pattern.compile("^Type (\\d+) TT Capsule$");
 
     public static final Identifier PLAQUE_TEXTURE = new Identifier(AITMod.MOD_ID,
             ("textures/blockentities/decoration/plaque.png"));
@@ -66,13 +71,23 @@ public class PlaqueRenderer<T extends PlaqueBlockEntity> implements BlockEntityR
         this.textRenderer.drawWithOutline(Text.of(tardis.stats().getCreationString()).asOrderedText(),
                 xVal - ((float) this.textRenderer.getWidth(tardis.stats().getCreationString()) / 2), 35, 0xFFFFFF,
                 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(Text.of(entity.getPlaqueText()).asOrderedText(),
-                xVal - ((float) this.textRenderer.getWidth(entity.getPlaqueText()) / 2), 55, 0xFFFFFF, 0x000000,
+        Text plaqueTypeText = getPlaqueTypeText(entity.getPlaqueText());
+        this.textRenderer.drawWithOutline(plaqueTypeText.asOrderedText(),
+                xVal - ((float) this.textRenderer.getWidth(plaqueTypeText) / 2), 55, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         this.textRenderer.drawWithOutline(Text.of(tardis.stats().getName()).asOrderedText(),
                 xVal - ((float) this.textRenderer.getWidth(tardis.stats().getName()) / 2), 75, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
 
         matrices.pop();
+    }
+
+    private static Text getPlaqueTypeText(String plaqueText) {
+        Matcher matcher = TT_CAPSULE_TYPE.matcher(plaqueText);
+
+        if (matcher.matches())
+            return Text.translatableWithFallback("block.ait.plaque.tt_capsule_type", plaqueText, matcher.group(1));
+
+        return Text.literal(plaqueText);
     }
 }

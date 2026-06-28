@@ -43,8 +43,9 @@ public class LoadCommand {
     }
 
     private static void sendTardis(ServerCommandSource source, ServerTardis loaded) {
-        Text message = loaded != null ? Text.literal("Loaded: ").append(TextUtil.forTardis(loaded)) : Text.literal("No TARDIS found with that UUID.");
+        Text message = loaded != null ? Text.translatable("command.ait.load.loaded", TextUtil.forTardis(loaded))
+                : Text.translatable("command.ait.load.not_found");
 
-        source.sendMessage(message); // todo - translatable
+        source.sendMessage(message);
     }
 }

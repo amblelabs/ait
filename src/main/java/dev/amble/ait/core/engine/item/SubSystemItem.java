@@ -33,7 +33,7 @@ public class SubSystemItem extends Item {
         super.appendTooltip(stack, world, tooltip, context);
 
         addShiftHiddenTooltip(stack, tooltip, tooltips -> {
-            tooltip.add(Text.literal(this.id().name().replace("_", " ")).formatted(Formatting.YELLOW));
+            tooltip.add(Text.translatable(this.id().toTranslationKey()).formatted(Formatting.YELLOW));
             tooltip.add(Text.translatable("tooltip.ait.subsystem_item").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
         });
     }

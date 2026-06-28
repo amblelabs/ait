@@ -74,7 +74,7 @@ public final class TeleportInteriorCommand {
         }
 
         source.sendMessage(Text.translatableWithFallback("tardis.teleport.interior.success",
-                "Successful teleport - interior of [" + tardis.getUuid().toString().substring(0, 7) + "]"));
+                "Successful teleport - interior of [%s]", tardis.getUuid().toString().substring(0, 7)));
 
         return Command.SINGLE_SUCCESS;
     }
@@ -85,7 +85,7 @@ public final class TeleportInteriorCommand {
         }
 
         source.sendMessage(Text.translatableWithFallback("tardis.teleport.exterior.success",
-                "Successful teleport - exterior of [" + tardis.getUuid().toString().substring(0, 7) + "]"));
+                "Successful teleport - exterior of [%s]", tardis.getUuid().toString().substring(0, 7)));
 
         return Command.SINGLE_SUCCESS;
     }

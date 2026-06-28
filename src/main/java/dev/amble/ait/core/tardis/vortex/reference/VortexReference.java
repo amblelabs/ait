@@ -12,6 +12,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
@@ -34,6 +35,11 @@ public record VortexReference(Identifier id, Identifier texture, String name) im
 
     public VortexReference(Identifier id, Identifier texture) {
         this(id, texture, id.getPath());
+    }
+
+    @Override
+    public Text text() {
+        return Text.translatableWithFallback(this.id().toTranslationKey("vortex"), this.name());
     }
 
     @Environment(EnvType.CLIENT)

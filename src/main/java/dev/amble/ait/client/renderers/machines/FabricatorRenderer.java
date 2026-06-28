@@ -1,5 +1,7 @@
 package dev.amble.ait.client.renderers.machines;
 
+import java.util.Locale;
+
 import org.joml.Vector3f;
 
 import net.minecraft.client.MinecraftClient;
@@ -103,19 +105,21 @@ public class FabricatorRenderer<T extends FabricatorBlockEntity> implements Bloc
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90f));
         matrices.scale(0.005f, 0.005f, 0.005f);
 
-        // display "PRESS TO CRAFT" if enough materials
-        Text text = Text.literal("COLLECT OUTPUT");
+        // display "COLLECT OUTPUT" if enough materials
+        Text text = Text.translatable("block.ait.fabricator.status.collect_output");
 
         // if does not have blueprint, text is "INSERT BLUEPRINT"
         if (!entity.hasBlueprint()) {
-            text = Text.literal("INSERT BLUEPRINT");
+            text = Text.translatable("block.ait.fabricator.status.insert_blueprint");
         }
 
         Blueprint print = entity.getBlueprint().orElse(null);
         ItemStack stack = entity.getShowcaseStack();
         // display "INSERT (COUNT) MATERIAL" if not enough materials
         if (print != null && !print.isComplete()) {
-            text = Text.literal("INSERT " + print.getCountLeftFor(stack) + " " + Text.translatable(stack.getTranslationKey()).getString().toUpperCase());
+            String material = Text.translatable(stack.getTranslationKey()).getString().toUpperCase(Locale.ROOT);
+            text = Text.translatable("block.ait.fabricator.status.insert_material", print.getCountLeftFor(stack),
+                    material);
         }
 
         renderer.drawWithOutline(text.asOrderedText(), 0, 40, 0x60eaf0, 0x108fb3,
