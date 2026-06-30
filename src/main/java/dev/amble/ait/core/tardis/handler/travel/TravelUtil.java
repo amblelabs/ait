@@ -73,8 +73,12 @@ public class TravelUtil {
 
     public static int getFlightDuration(CachedDirectedGlobalPos source, CachedDirectedGlobalPos destination) {
         float distance = MathHelper.sqrt((float) source.getPos().getSquaredDistance(destination.getPos()));
-        boolean hasDirChanged = !(source.getRotation() == destination.getRotation());
-        boolean hasDimChanged = !(source.getDimension().equals(destination.getDimension()));
+
+        boolean hasDirChanged = source.getRotation() != destination.getRotation();
+        boolean hasDimChanged = !source.getDimension().equals(destination.getDimension());
+        
+        if (distance < 128 && !hasDimChanged)
+            return 0; // fast travel
 
         return (int) (BASE_FLIGHT_TICKS + (distance / 10f) + (hasDirChanged ? 100 : 0) + (hasDimChanged ? 600 : 0));
     }
