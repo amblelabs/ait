@@ -21,7 +21,7 @@ import dev.amble.ait.AITMod;
 
 public class BetaVerification {
 
-    private static final long TIMEOUT = 30_000L; // 30 seconds
+    private static final long TIMEOUT = 60_000L; // 60 seconds
     private static final int PORT = 54321;
 
     public static ServerData SERVER_DATA;

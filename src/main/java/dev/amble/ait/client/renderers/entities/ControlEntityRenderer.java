@@ -28,6 +28,7 @@ import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.Control;
 
 @Environment(value = EnvType.CLIENT)
 public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> {
@@ -63,10 +64,6 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
         if (name == null)
             return;
 
-        TextRenderer textRenderer = this.getTextRenderer();
-        float h = (float) -textRenderer.getWidth(name) / 2;
-        float f = entity.getNameLabelHeight() - 0.3f;
-
         if (!entity.isLinked())
             return;
 
@@ -74,6 +71,13 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
 
         if (tardis == null)
             return;
+
+        Control control = entity.getControl();
+        Text label = control != null ? control.getName(tardis) : name;
+
+        TextRenderer textRenderer = this.getTextRenderer();
+        float h = (float) -textRenderer.getWidth(label) / 2;
+        float f = entity.getNameLabelHeight() - 0.3f;
 
         matrices.push();
         matrices.translate(0.0f, f, 0.0f);
@@ -85,10 +89,10 @@ public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> 
 
         if (hitresult != null) {
             boolean isPlayerLookingWithSonic = isPlayerLookingAtControlWithSonic(hitresult, entity);
-            OrderedText nameOrdered = name.asOrderedText();
+            OrderedText nameOrdered = label.asOrderedText();
 
             if (isPlayerLookingWithSonic) {
-                textRenderer.drawWithOutline(nameOrdered, h, 0, 0xF0F0F0, 0x000000,
+                textRenderer.drawWithOutline(nameOrdered, h, 0f, 0xF0F0F0, 0x000000,
                         matrix4f, vertexConsumers, 0xFF);
             }
         }

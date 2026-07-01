@@ -57,8 +57,11 @@ public class Control implements Identifiable {
         }
     }
 
-    public Text getName() {
-        // Replace this string structure with whatever format your .json keys currently use!
+    /**
+     * The label shown for this control (e.g. when scanning it with the sonic). May vary with live
+     * TARDIS state; the default implementation returns the static, translatable control name.
+     */
+    public Text getName(Tardis tardis) {
         return Text.translatable(id.toTranslationKey("control"));
     }
 

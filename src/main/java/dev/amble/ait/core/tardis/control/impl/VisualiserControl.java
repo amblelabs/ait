@@ -27,7 +27,7 @@ public class VisualiserControl extends Control {
     }
 
     @Override
-    public Text getName() {
+    public Text getName(Tardis tardis) {
         String type = "none";
         if (AITMod.CONFIG.rwfEnabled) type = "rwf";
         else if (DependencyChecker.hasPortals()) type = "normal";
