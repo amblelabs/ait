@@ -150,3 +150,4 @@
 - fix: mallet no longer bypasses jammed controls | by [@drtheodor](https://github.com/drtheodor) ([#2125](https://github.com/amblelabs/ait/pull/2125))
 - feat: new subsystem models! thanks ember | by [@Loqor](https://github.com/Loqor)
 - feat: first enter music by lucien! | by [@Loqor](https://github.com/Loqor)
+- feat: add randomly occuring flight music, thanks lucien again! | by [@Loqor](https://github.com/loqor)

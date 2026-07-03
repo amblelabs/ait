@@ -17,6 +17,7 @@ public class AITSounds {
     public static final SoundEvent EARTH_MUSIC = register("music/earth_nitrogenez");
     public static final SoundEvent VENUS_MUSIC = register("music/venus_nitrogenez");
     public static final SoundEvent GOOD_MAN_MUSIC = register("music/good_man_dian");
+    public static final SoundEvent FLIGHT = register("music/flight");
 
     // Screw chronology, lets go ait theme!
     public static final SoundEvent AIT_THEME = register("music/ait_theme");

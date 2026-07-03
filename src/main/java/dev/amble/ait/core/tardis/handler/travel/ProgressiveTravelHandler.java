@@ -33,6 +33,9 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     protected final BoolValue handbrake = HANDBRAKE.create(this);
     protected final BoolValue autopilot = AUTOPILOT.create(this);
 
+    private int realFlightTicks = 0;
+    private int randomFlightSoundTick = -1;
+
     public ProgressiveTravelHandler(Id id) {
         super(id);
     }
@@ -99,11 +102,16 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     protected void startFlight() {
         this.setFlightTicks(0);
         this.setTargetTicks(TravelUtil.getFlightDuration(this.position(), this.destination()));
+
+        this.realFlightTicks = 0;
+        this.randomFlightSoundTick = 100 + random.nextBetween(-20, 30);
     }
 
     protected void resetFlight() {
         this.setFlightTicks(0);
         this.setTargetTicks(0);
+        this.realFlightTicks = 0;
+        this.randomFlightSoundTick = -1;
     }
 
     public int getFlightTicks() {
@@ -166,6 +174,16 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     @Override
     public void tick(MinecraftServer server) {
         super.tick(server);
+
+        if (this.getState() == State.FLIGHT) {
+            this.realFlightTicks++;
+            if (this.realFlightTicks == this.randomFlightSoundTick) {
+                this.tardis.getDesktop().playSoundAtEveryConsole(AITSounds.FLIGHT, SoundCategory.AMBIENT);
+            }
+        } else if (this.getState() != State.MAT && this.getState() != State.DEMAT) {
+            this.realFlightTicks = 0;
+            this.randomFlightSoundTick = -1;
+        }
 
         if ((this.getTargetTicks() > 0 || this.getFlightTicks() > 0)
                 && this.getState() == TravelHandlerBase.State.LANDED)
