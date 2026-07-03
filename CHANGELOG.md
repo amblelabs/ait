@@ -149,3 +149,4 @@
 - feat: chinese translations | by [@smallmoss233](https://github.com/smallmoss233) ([#2064](https://github.com/amblelabs/ait/pull/2064), [#2123](https://github.com/amblelabs/ait/pull/2123))
 - fix: mallet no longer bypasses jammed controls | by [@drtheodor](https://github.com/drtheodor) ([#2125](https://github.com/amblelabs/ait/pull/2125))
 - feat: new subsystem models! thanks ember | by [@Loqor](https://github.com/Loqor)
+- feat: first enter music by lucien! | by [@Loqor](https://github.com/Loqor)
