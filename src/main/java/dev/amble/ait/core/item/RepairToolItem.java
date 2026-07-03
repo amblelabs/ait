@@ -1,7 +1,5 @@
 package dev.amble.ait.core.item;
 
-import dev.amble.ait.core.engine.DurableSubSystem;
-import dev.amble.ait.core.engine.block.generic.GenericStructureSystemBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -17,6 +15,9 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+
+import dev.amble.ait.core.engine.DurableSubSystem;
+import dev.amble.ait.core.engine.block.generic.GenericStructureSystemBlockEntity;
 
 public class RepairToolItem extends Item {
     public RepairToolItem(Settings settings) {

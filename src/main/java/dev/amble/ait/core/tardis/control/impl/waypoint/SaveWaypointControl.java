@@ -1,7 +1,5 @@
 package dev.amble.ait.core.tardis.control.impl.waypoint;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -17,6 +15,7 @@ import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Waypoint;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class SaveWaypointControl extends Control {
 

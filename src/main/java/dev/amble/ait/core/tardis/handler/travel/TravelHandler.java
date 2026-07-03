@@ -1,5 +1,34 @@
 package dev.amble.ait.core.tardis.handler.travel;
 
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Optional;
+import java.util.UUID;
+
+import dev.drtheo.queue.api.ActionQueue;
+import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
+import dev.drtheo.scheduler.api.task.Task;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.loader.api.FabricLoader;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
@@ -21,33 +50,6 @@ import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.data.Exclude;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.drtheo.queue.api.ActionQueue;
-import dev.drtheo.scheduler.api.TimeUnit;
-import dev.drtheo.scheduler.api.common.Scheduler;
-import dev.drtheo.scheduler.api.common.TaskStage;
-import dev.drtheo.scheduler.api.task.Task;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.UUID;
 
 public final class TravelHandler extends AnimatedTravelHandler implements CrashableTardisTravel {
 
@@ -469,7 +471,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         if (result.type() == TardisEvents.Interaction.FAIL) {
             if (!this.isCrashing())
                 this.crash();
-            
+
             return Optional.of(this.queueFor(State.LANDED));
         }
 

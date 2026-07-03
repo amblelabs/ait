@@ -1,5 +1,11 @@
 package dev.amble.ait.client.models.consoles;
 
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
+
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
@@ -9,11 +15,6 @@ import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.lib.api.Identifiable;
 import dev.amble.lib.client.bedrock.BedrockAnimation;
 import dev.amble.lib.client.bedrock.BedrockModel;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
 
 public class BedrockConsoleModel implements ConsoleModel, Identifiable {
     private final BedrockModel model;
@@ -43,7 +44,7 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
 
         ConsoleVariantSchema schema = console.getVariant();
 
-	    this.applyOffsets(matrices, schema);
+        this.applyOffsets(matrices, schema);
 
         getPart().render(matrices, vertices, light, overlay);
 
@@ -51,17 +52,17 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
 
     }
 
-	public void applyOffsets(MatrixStack matrices, ConsoleVariantSchema schema) {
-		if (schema instanceof DatapackConsole datapackConsole) {
-			Vec3d offset = datapackConsole.getOffset().multiply(1, -1, 1);
-			matrices.translate(offset.x, offset.y, offset.z);
+    public void applyOffsets(MatrixStack matrices, ConsoleVariantSchema schema) {
+        if (schema instanceof DatapackConsole datapackConsole) {
+            Vec3d offset = datapackConsole.getOffset().multiply(1, -1, 1);
+            matrices.translate(offset.x, offset.y, offset.z);
 
-			Vec3d scale = datapackConsole.getScale();
-			matrices.scale((float) scale.x, (float) scale.y, (float) scale.z);
-		}
-	}
+            Vec3d scale = datapackConsole.getScale();
+            matrices.scale((float) scale.x, (float) scale.y, (float) scale.z);
+        }
+    }
 
-	@Override
+    @Override
     public void animateBlockEntity(ConsoleBlockEntity console, TravelHandlerBase.State state, boolean hasPower) {
         if (!(console.getVariant() instanceof TravelAnimationMap.Holder schema)) return;
 

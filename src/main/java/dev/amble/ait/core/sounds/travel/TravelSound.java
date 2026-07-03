@@ -9,7 +9,6 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.amble.lib.api.Identifiable;
 
 import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundEvent;
@@ -19,6 +18,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.lib.api.Identifiable;
 
 // @TODO better variable names
 @Deprecated(since = "1.3.0", forRemoval = true)

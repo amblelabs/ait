@@ -2,9 +2,8 @@ package dev.amble.lib.register.unlockable;
 
 import java.util.Optional;
 
-import dev.amble.lib.api.Identifiable;
-
 import dev.amble.ait.data.Loyalty;
+import dev.amble.lib.api.Identifiable;
 
 public interface Unlockable extends Identifiable {
     UnlockType unlockType();

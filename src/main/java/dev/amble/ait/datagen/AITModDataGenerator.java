@@ -1,5 +1,28 @@
 package dev.amble.ait.datagen;
 
+import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
+import static net.minecraft.data.server.recipe.RecipeProvider.*;
+
+import java.util.Calendar;
+import java.util.concurrent.CompletableFuture;
+
+import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+
+import net.minecraft.block.Blocks;
+import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
+import net.minecraft.item.Items;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.book.RecipeCategory;
+import net.minecraft.registry.RegistryBuilder;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.Identifier;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITEntityTypes;
@@ -17,27 +40,6 @@ import dev.amble.ait.module.planet.core.world.PlanetPlacedFeatures;
 import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
 import dev.amble.lib.datagen.lang.LanguageType;
 import dev.amble.lib.datagen.sound.AmbleSoundProvider;
-import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.minecraft.block.Blocks;
-import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryBuilder;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.Identifier;
-
-import java.util.Calendar;
-import java.util.concurrent.CompletableFuture;
-
-import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
-import static net.minecraft.data.server.recipe.RecipeProvider.*;
 
 public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
@@ -789,6 +791,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.food_creation", "Refreshment Dispenser");
         provider.addTranslation("control.ait.protocol_116", "Stabiliser");
         provider.addTranslation("control.ait.protocol_3", "Shell Cloaking");
+        provider.addTranslation("control.ait.protocol_3_silent_activated", "Silent Mode for Shell Cloaking has been activated");
+        provider.addTranslation("control.ait.protocol_3_silent_deactivated", "Silent Mode for Shell Cloaking has been deactivated");
+        provider.addTranslation("control.ait.protocol_3_silent_active", "Shell Cloaking (Silent Activated)");
+        provider.addTranslation("control.ait.protocol_3_silent_inactive", "Shell Cloaking (Silent Deactivated)");
         provider.addTranslation("control.ait.dimension", "Dimension");
         provider.addTranslation("control.ait.direction", "Direction");
         provider.addTranslation("control.ait.door_control", "Door Control");
@@ -1382,6 +1388,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.interiorsettings.cacheconsole", "> Cache Console");
         provider.addTranslation("screen.ait.loadsaveinterior.button", "> Save Interior");
         provider.addTranslation("screen.ait.widget.timeline", "Timeline");
+        provider.addTranslation("screen.ait.monitor.shell_cloaking_activated_message", "Silent shell cloaking is activated");
 
         //TARDIS Flight Sequences
         provider.addTranslation("sequence.ait.avoid_debris", "Debris incoming!");
@@ -1951,17 +1958,17 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("command.ait.home.dimension_locked",
                 "Heimatposition kann nicht in einer für diese TARDIS gesperrten Dimension festgelegt werden.");
 
-	    // Hums
-	    provider.addTranslation("hum.ait.beacon", "Beacon");
-	    provider.addTranslation("hum.ait.copper", "Copper");
-	    provider.addTranslation("hum.ait.eight", "Eight");
-	    provider.addTranslation("hum.ait.exile", "Exile");
-	    provider.addTranslation("hum.ait.prime", "Prime");
-	    provider.addTranslation("hum.ait.renaissance", "Renaissance");
-	    provider.addTranslation("hum.ait.toyota", "Toyota");
-	    provider.addTranslation("hum.ait.coral", "Coral");
-	    provider.addTranslation("hum.ait.christmas", "Christmas");
-	    provider.addTranslation("hum.ait.off", "Off");
+        // Hums
+        provider.addTranslation("hum.ait.beacon", "Beacon");
+        provider.addTranslation("hum.ait.copper", "Copper");
+        provider.addTranslation("hum.ait.eight", "Eight");
+        provider.addTranslation("hum.ait.exile", "Exile");
+        provider.addTranslation("hum.ait.prime", "Prime");
+        provider.addTranslation("hum.ait.renaissance", "Renaissance");
+        provider.addTranslation("hum.ait.toyota", "Toyota");
+        provider.addTranslation("hum.ait.coral", "Coral");
+        provider.addTranslation("hum.ait.christmas", "Christmas");
+        provider.addTranslation("hum.ait.off", "Off");
 
         return provider;
     }

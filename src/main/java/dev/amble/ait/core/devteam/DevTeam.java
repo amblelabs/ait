@@ -1,9 +1,9 @@
 package dev.amble.ait.core.devteam;
 
-import net.minecraft.client.MinecraftClient;
-
 import java.util.Set;
 import java.util.UUID;
+
+import net.minecraft.client.MinecraftClient;
 
 /**
  * @author Loqor

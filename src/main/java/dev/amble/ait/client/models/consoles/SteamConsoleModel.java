@@ -1,20 +1,16 @@
 package dev.amble.ait.client.models.consoles;
 
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.core.tardis.handler.CloakHandler;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.util.math.MatrixStack;
 
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.animation.console.steam.SteamAnimations;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import net.minecraft.util.math.MathHelper;
 
 public class SteamConsoleModel extends SimpleConsoleModel {
     private final ModelPart steam;

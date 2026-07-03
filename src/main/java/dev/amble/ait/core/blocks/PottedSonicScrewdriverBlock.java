@@ -2,9 +2,9 @@ package dev.amble.ait.core.blocks;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.jetbrains.annotations.Nullable;
-import dev.amble.ait.core.blockentities.PottedSonicScrewdriverBlockEntity;
-import dev.amble.ait.core.item.SonicItem;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -26,6 +26,9 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
+import dev.amble.ait.core.blockentities.PottedSonicScrewdriverBlockEntity;
+import dev.amble.ait.core.item.SonicItem;
+
 public class PottedSonicScrewdriverBlock extends BlockWithEntity {
     public static final int MAX_SONICS = 6;
     protected static final VoxelShape SHAPE = Block.createCuboidShape(5, 0, 5, 11, 6, 11);
@@ -34,8 +37,7 @@ public class PottedSonicScrewdriverBlock extends BlockWithEntity {
         super(settings);
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new PottedSonicScrewdriverBlockEntity(pos, state);
     }

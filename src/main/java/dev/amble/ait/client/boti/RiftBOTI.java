@@ -1,12 +1,10 @@
 package dev.amble.ait.client.boti;
 
 import static dev.amble.ait.client.renderers.entities.RiftEntityRenderer.CIRCLE_TEXTURE;
-import static dev.amble.ait.client.renderers.entities.RiftEntityRenderer.RIFT_TEXTURE;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;

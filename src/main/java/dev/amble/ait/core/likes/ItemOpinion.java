@@ -9,7 +9,6 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.amble.lib.api.Identifiable;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -18,6 +17,7 @@ import net.minecraft.util.dynamic.Codecs;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.lib.api.Identifiable;
 
 public record ItemOpinion(Identifier id, ItemStack stack, int cost, int loyalty) implements Identifiable, Opinion {
     public static final Codec<ItemOpinion> CODEC = Codecs.exceptionCatching(RecordCodecBuilder.create(instance -> instance.group(

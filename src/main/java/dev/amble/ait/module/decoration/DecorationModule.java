@@ -3,12 +3,6 @@ package dev.amble.ait.module.decoration;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import dev.amble.lib.container.RegistryContainer;
-import dev.amble.lib.container.impl.BlockContainer;
-import dev.amble.lib.container.impl.ItemContainer;
-import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
-import dev.amble.lib.datagen.model.AmbleModelProvider;
-import dev.amble.lib.itemgroup.AItemGroup;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -26,6 +20,12 @@ import dev.amble.ait.datagen.datagen_providers.AITRecipeProvider;
 import dev.amble.ait.module.Module;
 import dev.amble.ait.module.decoration.core.DecorationBlocks;
 import dev.amble.ait.module.decoration.core.DecorationItems;
+import dev.amble.lib.container.RegistryContainer;
+import dev.amble.lib.container.impl.BlockContainer;
+import dev.amble.lib.container.impl.ItemContainer;
+import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
+import dev.amble.lib.datagen.model.AmbleModelProvider;
+import dev.amble.lib.itemgroup.AItemGroup;
 
 
 

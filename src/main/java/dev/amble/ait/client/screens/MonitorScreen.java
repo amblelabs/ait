@@ -3,8 +3,6 @@ package dev.amble.ait.client.screens;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedGlobalPos;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -45,6 +43,8 @@ import dev.amble.ait.data.schema.exterior.category.PoliceBoxCategory;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedGlobalPos;
 
 public class MonitorScreen extends ConsoleScreen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
@@ -462,6 +462,19 @@ public class MonitorScreen extends ConsoleScreen {
         context.drawText(this.textRenderer, dDimensionText, (width / 2 - 119), (height / 2), 0xFFFFFF, true);
         context.drawText(this.textRenderer, WorldUtil.rot2Text(dabpd.getRotation()).asOrderedText(), (width / 2 - 119), (height / 2 + 10),
                 0xFFFFFF, true);
+
+        // cloak silent
+        if (this.tardis().cloak().silent().get()) {
+            float scale = 0.4f;
+            int x = width / 2 - 49;
+            int y = height / 2 + 19;
+
+            context.getMatrices().push();
+            context.getMatrices().translate(x, y, 0);
+            context.getMatrices().scale(scale, scale, 1);
+            context.drawText(this.textRenderer, Text.translatable("screen.ait.monitor.shell_cloaking_activated_message"), 0, 0, 0xFFFFFF, true);
+            context.getMatrices().pop();
+        }
     }
 
     @Override

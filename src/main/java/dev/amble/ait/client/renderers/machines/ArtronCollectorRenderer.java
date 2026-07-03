@@ -15,7 +15,6 @@ import net.minecraft.util.math.RotationAxis;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.machines.ArtronCollectorModel;
 import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
-import dev.amble.ait.core.blocks.ArtronCollectorBlock;
 
 // Made with Blockbench 4.8.3
 // Exported for Minecraft version 1.17+ for Yarn

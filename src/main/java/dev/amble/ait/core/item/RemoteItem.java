@@ -4,7 +4,6 @@ import static dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase.State.L
 
 import java.util.List;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.item.TooltipContext;
@@ -27,6 +26,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.impl.DirectionControl;
 import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class RemoteItem extends LinkableItem {
 

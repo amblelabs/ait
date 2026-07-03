@@ -1,10 +1,5 @@
 package dev.amble.ait.core.devteam;
 
-import com.google.gson.Gson;
-import com.sun.net.httpserver.HttpServer;
-import dev.amble.ait.AITMod;
-import net.minecraft.util.Util;
-
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URLDecoder;
@@ -14,9 +9,20 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
+import com.google.gson.Gson;
+import com.sun.net.httpserver.HttpServer;
+
+import net.minecraft.util.Util;
+
+import dev.amble.ait.AITMod;
+
 public class BetaVerification {
+
+    private static final long TIMEOUT = 60_000L; // 60 seconds
+    private static final int PORT = 54321;
 
     public static ServerData SERVER_DATA;
     private static String RECEIVED_TOKEN;
@@ -31,6 +37,10 @@ public class BetaVerification {
 
         BetaVerification.fetchServerData().thenAcceptAsync(unused
                 -> BetaTokenPrefs.isTokenValid());
+    }
+
+    public static boolean isServerRunning() {
+        return SERVER != null;
     }
 
     public static CompletableFuture<String> downloadAsString(String url) {
@@ -71,19 +81,21 @@ public class BetaVerification {
         });
     }
 
-    public static void startAndWaitForToken() {
-        try {
-            startAndWaitForToken0();
-        } catch (Exception e) {
-            AITMod.LOGGER.error("Failed to wait for token", e);
-        }
+    public static void startAndWaitForToken(Consumer<Boolean> consumer) {
+        new Thread(() -> {
+            try {
+                startAndWaitForToken0();
+            } catch (Exception e) {
+                AITMod.LOGGER.error("Failed to wait for token", e);
+            }
+
+            consumer.accept(BetaTokenPrefs.isTokenValid());
+        }).run();
     }
 
     private static void startAndWaitForToken0() throws Exception {
-        int port = 54321;
-
         if (SERVER == null) {
-            SERVER = HttpServer.create(new InetSocketAddress(port), 0);
+            SERVER = HttpServer.create(new InetSocketAddress(PORT), 0);
             SERVER.createContext("/callback", exchange -> {
                 String query = exchange.getRequestURI().getQuery();
                 if (query != null && query.startsWith("token=")) {
@@ -108,16 +120,27 @@ public class BetaVerification {
             SERVER.start();
         }
 
-        String authUrl = SERVER_DATA.verifier + "/auth?port=" + port;
-        Util.getOperatingSystem().open(new URI(authUrl));
+        Util.getOperatingSystem().open(new URI(getAuthUrl()));
 
+        long waitingFor = 0L;
         while (RECEIVED_TOKEN == null) {
             Thread.sleep(500);
+            waitingFor += 500L;
+
+            if (waitingFor > TIMEOUT) {
+                SERVER.stop(0);
+                SERVER = null;
+                return;
+            }
         }
 
         BetaTokenPrefs.saveToken(RECEIVED_TOKEN);
         BetaTokenPrefs.verify();
 
         RECEIVED_TOKEN = null;
+    }
+
+    public static String getAuthUrl() {
+        return SERVER_DATA.verifier + "/auth?port=" + PORT;
     }
 }

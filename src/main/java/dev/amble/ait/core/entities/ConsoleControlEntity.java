@@ -6,13 +6,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.amble.ait.core.item.RepairToolItem;
-import dev.amble.ait.core.tardis.control.impl.HammerHangerControl;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
 import io.netty.handler.codec.EncoderException;
-import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -38,8 +35,10 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -50,6 +49,7 @@ import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.entities.base.LinkableDummyEntity;
+import dev.amble.ait.core.item.RepairToolItem;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.item.control.ControlBlockItem;
 import dev.amble.ait.core.item.sonic.SonicMode;
@@ -57,7 +57,9 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.control.ControlTypes;
+import dev.amble.ait.core.tardis.control.impl.HammerHangerControl;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
+import dev.amble.ait.registry.impl.ControlRegistry;
 
 public class ConsoleControlEntity extends LinkableDummyEntity {
     private static final TrackedData<Float> WIDTH = DataTracker.registerData(ConsoleControlEntity.class,
@@ -78,6 +80,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<BlockPos> CONSOLE_BLOCK_POS = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.BLOCK_POS);
+    private static final TrackedData<String> CONTROL_ID = DataTracker.registerData(ConsoleControlEntity.class,
+            TrackedDataHandlerRegistry.STRING);
     private Control control;
     public static final float MAX_DURABILITY = 1.0f;
 
@@ -118,6 +122,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         this.dataTracker.startTracking(WAS_SEQUENCED, false);
         this.dataTracker.startTracking(ON_DELAY, false);
         this.dataTracker.startTracking(CONSOLE_BLOCK_POS, BlockPos.ORIGIN);
+        this.dataTracker.startTracking(CONTROL_ID, "");
     }
 
     @Override
@@ -292,6 +297,15 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     }
 
     public Control getControl() {
+        // The control field is only assigned server-side (see setControlData), so on the client we
+        // resolve it lazily from the synced id.
+        if (this.control == null) {
+            String id = this.dataTracker.get(CONTROL_ID);
+
+            if (!id.isEmpty())
+                this.control = ControlRegistry.REGISTRY.get(Identifier.tryParse(id));
+        }
+
         return control;
     }
 
@@ -438,7 +452,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             player.setFireTicks(random.nextBetween(20*2, 20*6));
             player.damage(world.getDamageSources().hotFloor(), 4);
         }
-        
+
         if (this.isOnDelay())
             return false;
 
@@ -461,10 +475,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         }
 
         if (state == DurabilityStates.JAMMED) {
-            if (!hasMallet) return false;
-
-            if (random.nextBetween(0, 5) < 2)
+            if (hasMallet && random.nextBetween(0, 5) < 2)
                 tardis.subsystems().engine().removeDurability(random.nextBetween(0, 7));
+
+            return false;
         }
 
         if (state == DurabilityStates.SPARKY && random.nextBetween(0, 20) < 10) {
@@ -555,8 +569,9 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     public void setControlData(ConsoleTypeSchema consoleType, ControlTypes type, BlockPos consoleBlockPosition, float durability, boolean sticky) {
         this.setConsolePos(consoleBlockPosition);
         this.control = type.getControl();
+        this.dataTracker.set(CONTROL_ID, this.control.id().toString());
 
-        super.setCustomName(this.control.getName());
+        super.setCustomName(this.control.getName(this.tardis().get()));
 
         if (consoleType != null) {
             this.setControlWidth(type.getScale().width);

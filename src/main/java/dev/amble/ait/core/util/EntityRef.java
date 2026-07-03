@@ -1,11 +1,12 @@
 package dev.amble.ait.core.util;
 
-import dev.amble.ait.data.Exclude;
+import java.lang.ref.WeakReference;
+import java.util.UUID;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
 
-import java.lang.ref.WeakReference;
-import java.util.UUID;
+import dev.amble.ait.data.Exclude;
 
 /**
  * Beloved TardisRefs now available for entities!

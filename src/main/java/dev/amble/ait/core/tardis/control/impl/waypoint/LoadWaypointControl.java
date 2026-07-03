@@ -1,6 +1,5 @@
 package dev.amble.ait.core.tardis.control.impl.waypoint;
 
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -15,6 +14,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.handler.WaypointHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 
 public class LoadWaypointControl extends Control {
 

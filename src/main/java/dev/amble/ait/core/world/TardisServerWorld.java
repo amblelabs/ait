@@ -1,17 +1,18 @@
 package dev.amble.ait.core.world;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.compat.DependencyChecker;
-import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.lib.util.ServerLifecycleHooks;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.function.BooleanSupplier;
+
 import dev.drtheo.multidim.MultiDim;
 import dev.drtheo.multidim.MultiDimMod;
 import dev.drtheo.multidim.api.MultiDimServerWorld;
 import dev.drtheo.multidim.api.WorldBlueprint;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -28,14 +29,11 @@ import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.level.ServerWorldProperties;
 import net.minecraft.world.level.storage.LevelStorage;
 import net.minecraft.world.spawner.Spawner;
-import org.jetbrains.annotations.Nullable;
-import qouteall.q_misc_util.api.DimensionAPI;
-import qouteall.q_misc_util.dimension.DimensionIdManagement;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.Executor;
-import java.util.function.BooleanSupplier;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.lib.util.ServerLifecycleHooks;
 
 public class TardisServerWorld extends MultiDimServerWorld {
 

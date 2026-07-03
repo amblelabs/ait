@@ -3,7 +3,6 @@ package dev.amble.ait.client.sounds.hum.interior;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.amble.ait.api.tardis.TardisClientEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 
@@ -14,7 +13,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 
-import dev.amble.ait.api.ClientWorldEvents;
+import dev.amble.ait.api.tardis.TardisClientEvents;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.sounds.ClientSoundManager;

@@ -1,8 +1,5 @@
 package dev.amble.ait.core.entities;
 
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.lib.util.TeleportUtil;
-
 import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -18,21 +15,20 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.*;
 import net.minecraft.world.chunk.Chunk;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.*;
+import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.entities.base.DummyAmbientEntity;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.util.StackUtil;
 import dev.amble.ait.core.util.TagsUtil;
 import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.module.planet.core.util.ISpaceImmune;
+import dev.amble.lib.util.TeleportUtil;
 
 public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
     private int interactAmount = 0;

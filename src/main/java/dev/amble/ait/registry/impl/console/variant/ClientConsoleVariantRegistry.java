@@ -1,10 +1,5 @@
 package dev.amble.ait.registry.impl.console.variant;
 
-import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
-import dev.amble.ait.data.schema.console.variant.hartnell.HartnellVariant;
-import dev.amble.ait.data.schema.console.variant.hudolin.client.*;
-import dev.amble.lib.client.bedrock.BedrockModelRegistry;
-import dev.amble.lib.register.datapack.DatapackRegistry;
 import org.joml.Vector3f;
 
 import net.minecraft.network.PacketByteBuf;
@@ -16,21 +11,26 @@ import dev.amble.ait.client.models.consoles.BedrockConsoleModel;
 import dev.amble.ait.client.models.consoles.ConsoleModel;
 import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
+import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.data.schema.console.variant.alnico.client.ClientAlnicoVariant;
 import dev.amble.ait.data.schema.console.variant.alnico.client.ClientBlueAlnicoVariant;
 import dev.amble.ait.data.schema.console.variant.copper.client.ClientCopperVariant;
 import dev.amble.ait.data.schema.console.variant.coral.client.*;
 import dev.amble.ait.data.schema.console.variant.crystalline.client.ClientCrystallineVariant;
 import dev.amble.ait.data.schema.console.variant.crystalline.client.ClientCrystallineZeitonVariant;
+import dev.amble.ait.data.schema.console.variant.hartnell.HartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientKeltHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientMintHartnellVariant;
 import dev.amble.ait.data.schema.console.variant.hartnell.client.ClientWoodenHartnellVariant;
+import dev.amble.ait.data.schema.console.variant.hudolin.client.*;
 import dev.amble.ait.data.schema.console.variant.renaissance.client.*;
 import dev.amble.ait.data.schema.console.variant.steam.client.*;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaBlueVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaLegacyVariant;
 import dev.amble.ait.data.schema.console.variant.toyota.client.ClientToyotaVariant;
+import dev.amble.lib.client.bedrock.BedrockModelRegistry;
+import dev.amble.lib.register.datapack.DatapackRegistry;
 
 public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsoleVariantSchema> {
     private static ClientConsoleVariantRegistry INSTANCE;

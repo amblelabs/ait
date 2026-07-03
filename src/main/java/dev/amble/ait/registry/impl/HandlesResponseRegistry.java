@@ -3,7 +3,6 @@ package dev.amble.ait.registry.impl;
 import java.util.HashMap;
 import java.util.List;
 
-import dev.amble.ait.client.AITModClient;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 
@@ -19,6 +18,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.handles.HandlesResponse;
 import dev.amble.ait.core.handles.HandlesSound;

@@ -1,9 +1,5 @@
 package dev.amble.ait.client.models.exteriors;
 
-import dev.amble.lib.api.Identifiable;
-import dev.amble.lib.client.bedrock.BedrockAnimation;
-import dev.amble.lib.client.bedrock.BedrockModel;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
@@ -19,6 +15,9 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.datapack.TravelAnimationMap;
 import dev.amble.ait.data.schema.door.AnimatedDoor;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.lib.api.Identifiable;
+import dev.amble.lib.client.bedrock.BedrockAnimation;
+import dev.amble.lib.client.bedrock.BedrockModel;
 
 public class BedrockExteriorModel implements ExteriorModel, Identifiable {
     private final BedrockModel model;

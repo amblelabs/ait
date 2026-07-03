@@ -1,6 +1,5 @@
 package dev.amble.ait.core.tardis.handler;
 
-import dev.amble.lib.data.DirectedBlockPos;
 import net.fabricmc.fabric.api.util.TriState;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,6 +30,7 @@ import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.ait.data.properties.flt.FloatProperty;
 import dev.amble.ait.data.properties.flt.FloatValue;
 import dev.amble.ait.data.schema.door.DoorSchema;
+import dev.amble.lib.data.DirectedBlockPos;
 
 public class DoorHandler extends KeyedTardisComponent implements TardisTickable {
     private static final long KNOCK_RESET_TIME_MS = 2500;
@@ -118,7 +118,7 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         if (wasClosed != this.isClosed())
             TardisEvents.REAL_DOOR_CLOSE.invoker().onClose(tardis);
 
-        if (this.doorOpenParticles != null && !this.tardis().crash().isNormal() && server.getTicks() % 5 == 0 && tardis.door().isOpen()) {
+        if (this.doorOpenParticles != null && !this.tardis().crash().isNormal() && server.getTicks() % 5 == 0 && tardis.door().isOpen() && !tardis.cloak().silent().get()) {
             Vec3d exteriorPosition = TardisUtil.offsetPos(tardis.travel().position().toPos(), -0.15F);
             exteriorPosition = TardisUtil.offsetDoorPosition(exteriorPosition, tardis.travel().position().getRotation());
 
@@ -188,8 +188,8 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         if (directed == null)
             return false;
 
-        return this.isOpen() && !tardis.areShieldsActive() 
-            && ((!tardis.travel().isLanded() && !tardis.travel().autopilot()) 
+        return this.isOpen() && !tardis.areShieldsActive()
+            && ((!tardis.travel().isLanded() && !tardis.travel().autopilot())
                 || tardis.travel().position().getDimension().equals(AITDimensions.SPACE));
     }
 

@@ -2,14 +2,15 @@
 package dev.amble.ait.data.schema.console.variant.hudolin.client;
 
 
+import org.joml.Vector3f;
+
+import net.minecraft.util.Identifier;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.consoles.HudolinConsoleModel;
 import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
 import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
 import dev.amble.ait.data.schema.console.variant.hudolin.HudolinShalkaVariant;
-import dev.amble.ait.data.schema.console.variant.hudolin.HudolinShortVariant;
-import net.minecraft.util.Identifier;
-import org.joml.Vector3f;
 
 public class ClientHudolinShalkaVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,

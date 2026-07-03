@@ -12,7 +12,6 @@ import org.joml.Vector3f;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.client.models.doors.DoorModel;

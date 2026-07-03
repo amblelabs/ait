@@ -1,10 +1,5 @@
 package dev.amble.ait.mixin.compat.portals;
 
-import dev.amble.ait.api.ClientWorldEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -12,6 +7,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.teleportation.ClientTeleportationManager;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.math.Vec3d;
+
+import dev.amble.ait.api.ClientWorldEvents;
 
 @Mixin(ClientTeleportationManager.class)
 public class ClientTeleportationManagerMixin {
