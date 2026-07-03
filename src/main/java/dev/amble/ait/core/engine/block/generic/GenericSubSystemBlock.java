@@ -19,9 +19,4 @@ public class GenericSubSystemBlock extends SubSystemBlock {
     public @Nullable FluidLinkBlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new GenericStructureSystemBlockEntity(pos, state);
     }
-
-    @Override
-    public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.ENTITYBLOCK_ANIMATED;
-    }
 }

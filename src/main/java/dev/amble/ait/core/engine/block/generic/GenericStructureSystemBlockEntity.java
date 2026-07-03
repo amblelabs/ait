@@ -2,6 +2,7 @@ package dev.amble.ait.core.engine.block.generic;
 
 import java.util.Optional;
 
+import dev.amble.ait.core.world.TardisServerWorld;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -42,6 +43,7 @@ public class GenericStructureSystemBlockEntity extends StructureSystemBlockEntit
     }
 
     public ActionResult useOn(BlockState state, World world, boolean sneaking, PlayerEntity player, ItemStack hand) {
+        if (!TardisServerWorld.isTardisDimension(world)) return ActionResult.CONSUME;
         if (hand.isEmpty()) {
             if (this.system() != null && this.idSource != null) {
                 if (this.system() instanceof DurableSubSystem durable && (durable.isBroken() || durable.durability() < DurableSubSystem.MAX_DURABILITY)) {
