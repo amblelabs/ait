@@ -2,8 +2,6 @@ package dev.amble.ait.core.item;
 
 import java.util.List;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
