@@ -220,7 +220,7 @@ public class AITSounds {
     public static final SoundEvent RIFT_SUCCESS = register("rift/success");
     public static final SoundEvent RIFT_FAIL = register("rift/fail");
     public static final SoundEvent RIFT_SONIC = register("rift/sonic_charge");
-
+    public static final SoundEvent DRUMS = register("rift/drums");
 
     // Fabricator
     public static final SoundEvent FABRICATOR_START = register("tools/fabricator/start");

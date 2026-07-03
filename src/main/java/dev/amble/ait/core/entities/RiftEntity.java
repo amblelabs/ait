@@ -36,9 +36,7 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
     private int currentSoundIndex = 0;
 
     private static final SoundEvent[] RIFT_SOUNDS = {
-            AITSounds.RIFT1_AMBIENT,
-            AITSounds.RIFT2_AMBIENT,
-            AITSounds.RIFT3_AMBIENT
+            AITSounds.DRUMS,
     };
 
     @Override
@@ -47,9 +45,7 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
     }
 
     private static final int[] RIFT_DURATIONS = {
-            15 * 20,
-            13 * 20,
-            14 * 20
+            20,
     };
 
     public RiftEntity(EntityType<RiftEntity> type, World world) {
@@ -200,10 +196,5 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
                 currentSoundIndex = (currentSoundIndex + 1) % RIFT_SOUNDS.length;
             }
         }
-    }
-
-    @Override
-    public void onSpawnPacket(EntitySpawnS2CPacket packet) {
-        super.onSpawnPacket(packet);
     }
 }

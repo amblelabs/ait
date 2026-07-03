@@ -648,11 +648,9 @@ public class AITModClient implements ClientModInitializer {
             stack.push();
             stack.translate(pos.getX() - context.camera().getPos().getX(),
                     pos.getY() - context.camera().getPos().getY(), pos.getZ() - context.camera().getPos().getZ());
-            stack.translate(0, 0.5, 0);
+            stack.translate(0, 2, 0);
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rift.getYaw()));
-            stack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(5f * (MinecraftClient.getInstance().player.age + MinecraftClient.getInstance().getTickDelta())));
             stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(rift.getPitch()));
-            stack.translate(0, 1f, 0);
             RiftModel riftModel = new RiftModel(RiftModel.getTexturedModelData().createModel());
             BlockPos blockPos = BlockPos.ofFloored(rift.getClientCameraPosVec(client.getTickDelta()));
             RiftBOTI.renderRiftBoti(stack, riftModel, LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, blockPos), world.getLightLevel(LightType.SKY, blockPos)));

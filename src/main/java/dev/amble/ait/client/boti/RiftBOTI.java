@@ -57,7 +57,7 @@ public class RiftBOTI extends BOTI {
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
         stack.push();
-        stack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(client.getTickDelta() + client.player.age));
+        stack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(5 * (client.getTickDelta() + client.player.age)));
         stack.translate(0, -1, 400);
 
         // --- DISABLE FOG ---
