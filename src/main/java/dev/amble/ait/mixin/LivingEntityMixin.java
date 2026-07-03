@@ -1,18 +1,6 @@
 package dev.amble.ait.mixin;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.util.SafePosSearch;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.util.TeleportUtil;
 import net.fabricmc.fabric.api.util.TriState;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RotationCalculator;
-import net.minecraft.util.math.RotationPropertyHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.chunk.Chunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -29,13 +17,16 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 
 import dev.amble.ait.api.ExtraPushableEntity;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.util.SafePosSearch;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.util.TeleportUtil;
 
 @Mixin(LivingEntity.class)

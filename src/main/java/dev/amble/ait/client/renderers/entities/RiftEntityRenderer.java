@@ -16,7 +16,6 @@ import net.minecraft.util.math.RotationAxis;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.boti.BOTI;
-import dev.amble.ait.client.models.decoration.GallifreyFallsModel;
 import dev.amble.ait.client.models.decoration.PaintingFrameModel;
 import dev.amble.ait.core.entities.RiftEntity;
 
