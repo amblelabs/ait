@@ -1,6 +1,18 @@
 package dev.amble.ait.mixin;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.util.SafePosSearch;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.util.TeleportUtil;
 import net.fabricmc.fabric.api.util.TriState;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RotationCalculator;
+import net.minecraft.util.math.RotationPropertyHelper;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.chunk.Chunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -88,8 +100,11 @@ public abstract class LivingEntityMixin extends Entity implements ExtraPushableE
             LivingEntity entity = (LivingEntity) (Object) this;
             int worldIndex = this.getWorld().getRandom().nextInt(WorldUtil.RIFT_DROP_WORLDS.size());
 
-            TeleportUtil.teleport(entity, WorldUtil.RIFT_DROP_WORLDS.get(worldIndex),
-                    entity.getPos().add(2, -entity.getY(), -2), entity.getYaw());
+            ServerWorld world = WorldUtil.RIFT_DROP_WORLDS.get(worldIndex);
+            CachedDirectedGlobalPos safe = CachedDirectedGlobalPos.create(world, entity.getBlockPos(), (byte) 0);
+
+            SafePosSearch.wrapSafe(safe, SafePosSearch.Kind.CEILING, true,
+                    result -> TeleportUtil.teleport(entity, world, result.getPos().toCenterPos(), entity.getYaw()));
         }
     }
 }

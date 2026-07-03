@@ -44,7 +44,7 @@ public class RiftBOTI extends BOTI {
         RenderSystem.depthMask(true);
         stack.push();
         stack.translate(0, -0.7f, 0.05);
-        stack.scale(0.65f, 0.65f, 0.65f);
+        stack.scale(1.1f, 1.1f, 1.1f);
         frame.render(stack, portalProvider.getBuffer(RenderLayer.getEntityTranslucentCull(CIRCLE_TEXTURE)), 0xf000f0, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
         portalProvider.draw();
         stack.pop();
@@ -57,7 +57,7 @@ public class RiftBOTI extends BOTI {
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
         stack.push();
-        stack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(client.getTickDelta() + client.player.age));
+        stack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(5 * (client.getTickDelta() + client.player.age)));
         stack.translate(0, -1, 400);
 
         // --- DISABLE FOG ---
