@@ -38,9 +38,6 @@ public class GenericSubSystemRenderer<T extends GenericStructureSystemBlockEntit
         ModelPart wires = this.model.getPart().getChild("wires");
         wires.visible = hasStack;
 
-        this.model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(GenericSubSystemModel.TEXTURE)),
-                light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
-
         if (hasStack) {
             matrices.push();
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180));

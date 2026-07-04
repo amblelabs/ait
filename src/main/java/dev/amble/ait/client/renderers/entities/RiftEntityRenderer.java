@@ -16,7 +16,6 @@ import net.minecraft.util.math.RotationAxis;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.boti.BOTI;
-import dev.amble.ait.client.models.decoration.GallifreyFallsModel;
 import dev.amble.ait.client.models.decoration.PaintingFrameModel;
 import dev.amble.ait.core.entities.RiftEntity;
 
@@ -26,11 +25,9 @@ public class RiftEntityRenderer
     public static final Identifier RIFT_TEXTURE = AITMod.id("textures/entity/rift/rift.png");
     public static final Identifier CIRCLE_TEXTURE = AITMod.id("textures/entity/rift/circle_rift.png");
     PaintingFrameModel frame;
-    GallifreyFallsModel painting;
     public RiftEntityRenderer(EntityRendererFactory.Context context) {
         super(context);
         frame = new PaintingFrameModel(PaintingFrameModel.getTexturedModelData().createModel());
-        painting = new GallifreyFallsModel(GallifreyFallsModel.getTexturedModelData().createModel());
     }
 
     @Override
@@ -41,7 +38,7 @@ public class RiftEntityRenderer
         }
 
         matrixStack.push();
-        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
+        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(riftEntity.getYaw() + 180));
         matrixStack.translate(0, -0.9, 0.05);
         matrixStack.scale(1, 1, 1);
         frame.render(matrixStack, vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucentCull(CIRCLE_TEXTURE)), 0xf000f0, OverlayTexture.DEFAULT_UV, 0.6f, 0.0f, 1, 1);

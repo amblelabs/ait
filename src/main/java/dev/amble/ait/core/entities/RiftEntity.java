@@ -6,7 +6,6 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -35,9 +34,7 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
     private int currentSoundIndex = 0;
 
     private static final SoundEvent[] RIFT_SOUNDS = {
-            AITSounds.RIFT1_AMBIENT,
-            AITSounds.RIFT2_AMBIENT,
-            AITSounds.RIFT3_AMBIENT
+            AITSounds.DRUMS,
     };
 
     @Override
@@ -46,13 +43,11 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
     }
 
     private static final int[] RIFT_DURATIONS = {
-            15 * 20,
-            13 * 20,
-            14 * 20
+            20,
     };
 
-    public RiftEntity(EntityType<?> type, World world) {
-        super(AITEntityTypes.RIFT_ENTITY, world);
+    public RiftEntity(EntityType<RiftEntity> type, World world) {
+        super(type, world);
     }
 
     @Override
@@ -199,24 +194,5 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
                 currentSoundIndex = (currentSoundIndex + 1) % RIFT_SOUNDS.length;
             }
         }
-    }
-
-    @Override
-    public void onSpawnPacket(EntitySpawnS2CPacket packet) {
-        double d = packet.getX();
-        double e = packet.getY();
-        double f = packet.getZ();
-        float g = packet.getYaw();
-        float h = packet.getPitch();
-        this.updateTrackedPosition(d, e, f);
-        this.bodyYaw = packet.getHeadYaw();
-        this.headYaw = packet.getHeadYaw();
-        this.prevBodyYaw = this.bodyYaw;
-        this.prevHeadYaw = this.headYaw;
-        this.setId(packet.getId());
-        this.setUuid(packet.getUuid());
-        this.updatePositionAndAngles(d, e, f, g, h);
-        this.setVelocity(packet.getVelocityX(), packet.getVelocityY(), packet.getVelocityZ());
-        this.updatePosition(d, e, f);
     }
 }

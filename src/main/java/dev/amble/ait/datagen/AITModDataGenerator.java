@@ -806,9 +806,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("block.ait.fabricator.status.insert_material", "INSERT %s %s");
         provider.addTranslation("block.ait.plaque.default_text", "Type 50 TT Capsule");
         provider.addTranslation("block.ait.plaque.tt_capsule_type", "Type %s TT Capsule");
-        provider.addTranslation("block.ait.rift_ripper.screen.rift_held", "RIFT HELD [10s]!");
-        provider.addTranslation("block.ait.rift_ripper.screen.systems_version", "Systems Version: v1.0-0.1");
-        provider.addTranslation("block.ait.rift_ripper.screen.title", "-= Rift Ripper =-");
         provider.addTranslation("command.ait.door_particle.done", "Particle of [%s] set to [%s]");
         provider.addTranslation("command.ait.list.header", "TARDISes:");
         provider.addTranslation("command.ait.load.loaded", "Loaded: %s");
@@ -1401,7 +1398,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("achievement.ait.description.pui", "Consume Zeiton Dust while the TARDIS is in flight.");
         provider.addTranslation("achievement.ait.title.bonding", "I think it's starting to trust you.");
         provider.addTranslation("achievement.ait.description.bonding", "Reach 'Pilot' loyalty for the first time.");
-        provider.addTranslation("achievement.ait.title.owner_ship", "It trusts you now. Worth it, right?");
+        provider.addTranslation("achievement.ait.title.owner_ship", "Established complete telepathic connection.");
         provider.addTranslation("achievement.ait.description.owner_ship", "Reach 'Owner' loyalty for the first time.");
         provider.addTranslation("achievement.ait.title.enable_subsystem", "Time-Space Engineer");
         provider.addTranslation("achievement.ait.description.enable_subsystem", "Enable a subsystem.");
@@ -1415,8 +1412,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("achievement." + AITMod.MOD_ID + ".description.brand_new", "OH MY GOD! IVE DONE IT AGAIN!");
         provider.addTranslation("achievement.ait.title.remote", "Grand Design");
         provider.addTranslation("achievement.ait.description.remote", "The Stattenheim Remote is yours. Fascinating. Now we shall observe precisely how you manipulate causality… and fracture under pressure.");
-        provider.addTranslation("achievement.ait.title.first_rift", "It's a crack");
-        provider.addTranslation("achievement.ait.description.first_rift", "Close your first spatio-temporal rift.");
+        provider.addTranslation("achievement.ait.title.first_rift", "The Sound of Drums");
+        provider.addTranslation("achievement.ait.description.first_rift", "The beating of the drums never stops...");
 
         // Commands
         // Fuel
@@ -1530,6 +1527,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("sequence.ait.small_debris_field", "Small debris field!");
         provider.addTranslation("sequence.ait.slow_down_to_avoid_flying_out_of_vortex", "Vortex drift: de-acceleration necessary!");
 
+        // Rift ripper
+        provider.addTranslation("rift_ripper.name.renderer", "Rift Ripper");
+        provider.addTranslation("rift_ripper.version", "Systems Version: v1.0-0.1");
+        provider.addTranslation("rift_ripper.held", "RIFT HELD! [%ss]!");
 
         // Hums
         provider.addTranslation("screen.ait.interior.settings.hum", "HUMS");

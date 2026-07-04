@@ -109,7 +109,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
     static {
         TardisEvents.DEMAT.register(tardis -> {
             if (tardis.isGrowth()
-                    || tardis.interiorChangingHandler().queued().get())
+                    || (tardis.interiorChangingHandler().queued().get() && tardis.alarm().isEnabled()))
                 return TardisEvents.Interaction.FAIL;
 
             return TardisEvents.Interaction.PASS;
@@ -308,9 +308,6 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                 door.getPos().offset(door.toMinecraftDirection(), 2),
                 door.getRotation()
         );
-
-        // vars are ew, but fully qualifying the package name is worse.
-        var ref = new dev.drtheo.queue.api.util.Value<BlockPos>(null);
 
         SafePosSearch.wrapSafe(safe, SafePosSearch.Kind.MEDIAN, true,
                 result -> this.finishCreatingChest(result, contents));

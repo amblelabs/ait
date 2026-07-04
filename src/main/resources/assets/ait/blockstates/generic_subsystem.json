@@ -1,7 +1,31 @@
 {
-  "variants": {
-    "": {
-      "model": "ait:block/generic_subsystem"
+  "multipart": [
+    {
+      "apply": { "model": "ait:block/generic_subsystem_core" }
+    },
+    {
+      "when": { "up": "true" },
+      "apply": { "model": "ait:block/generic_subsystem_core" }
+    },
+    {
+      "when": { "down": "true" },
+      "apply": { "model": "ait:block/generic_subsystem_core" }
+    },
+    {
+      "when": { "north": "true" },
+      "apply": { "model": "ait:block/generic_subsystem_north" }
+    },
+    {
+      "when": { "east": "true" },
+      "apply": { "model": "ait:block/generic_subsystem_east" }
+    },
+    {
+      "when": { "south": "true" },
+      "apply": { "model": "ait:block/generic_subsystem_south" }
+    },
+    {
+      "when": { "west": "true" },
+      "apply": { "model": "ait:block/generic_subsystem_west" }
     }
-  }
+  ]
 }
