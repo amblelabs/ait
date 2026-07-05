@@ -20,6 +20,7 @@ import net.minecraft.util.hit.HitResult;
 import java.awt.*;
 
 public class UntemperedSchismOverlay implements HudRenderCallback {
+
     @Override
     public void onHudRender(DrawContext drawContext, float delta) {
         MinecraftClient mc = MinecraftClient.getInstance();
