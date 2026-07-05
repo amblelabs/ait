@@ -48,9 +48,7 @@ public class UntemperedSchismOverlay implements HudRenderCallback {
         stack.translate((float) drawContext.getScaledWindowWidth() / 2 - (mc.textRenderer.getWidth(str)/2),
                 (float) drawContext.getScaledWindowHeight() / 2 - 12,
                 -10);
-
         drawContext.drawText(mc.textRenderer,  str, 0, 0, Color.WHITE.getRGB(), false);
-
         RenderSystem.defaultBlendFunc();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
