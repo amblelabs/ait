@@ -50,6 +50,10 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
         super(type, world);
     }
 
+    public RiftEntity(World world) {
+        this(AITEntityTypes.RIFT_ENTITY, world);
+    }
+
     @Override
     public void onPlayerCollision(PlayerEntity player) {
         if (player.getBoundingBox().intersects(this.getBoundingBox().shrink(0.5f, 0.5f, 0.5f))) {

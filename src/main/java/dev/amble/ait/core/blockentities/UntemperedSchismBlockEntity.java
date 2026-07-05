@@ -101,8 +101,8 @@ public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements
         double endZ = centerZ + 0.5;
 
         RiftChunkManager manager = RiftChunkManager.getInstance(serverWorld);
-        if ((this.getCurrentFuel() >= this.getMaxFuel())) {
-            RiftEntity riftEntity = new RiftEntity(AITEntityTypes.RIFT_ENTITY, serverWorld);
+        if (this.getCurrentFuel() >= this.getMaxFuel()) {
+            RiftEntity riftEntity = new RiftEntity(serverWorld);
             this.riftRef = new EntityRef<>(serverWorld, riftEntity);
 
             float rotation = this.getCachedState().get(HorizontalFacingBlock.FACING).asRotation();
@@ -124,28 +124,11 @@ public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements
             serverWorld.playSound(null, pos, SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(),
                     SoundCategory.BLOCKS, 1.5f, 0.5f);
         } else if (manager.getArtron(new ChunkPos(pos)) > UntemperedSchismBlock.ARTRON_PER_TICK && serverWorld.getServer().getTicks() % 20 == 4 && !state.get(UntemperedSchismBlock.ENABLED)) {
-            // Since we don't have visual text updates, the sound will have to do. - Loqor
             double percentage = (this.getCurrentFuel() * 100d) / this.getMaxFuel();
-            System.out.println(0.5f + (float) percentage / 40);
             serverWorld.playSound(null, this.getPos(), SoundEvents.BLOCK_END_PORTAL_FRAME_FILL, SoundCategory.BLOCKS, 5.0f, 0.5f + (float) percentage / 40);
         }
 
         this.updateListeners(state);
-
-       /* if (!this.getCachedState().get(UntemperedSchismBlock.ENABLED)) return;
-
-        if (this.getCurrentFuel() <= 0) {
-            serverWorld.setBlockState(pos, state.with(UntemperedSchismBlock.ENABLED, false));
-            if (this.riftRef != null) {
-                this.riftRef.setWorld(serverWorld);
-                if (this.riftRef.get() != null)
-                    this.riftRef.get().discard();
-            }
-            this.updateListeners(state);
-            return;
-        }
-
-        this.removeFuel(UntemperedSchismBlock.ARTRON_PER_TICK);*/
     }
 
     @Override
@@ -214,17 +197,7 @@ public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements
     }
 
     @Override
-    public IFluidSource source(boolean search) {
-        return this;
-    }
-
-    @Override
     public BlockPos getLastPos() {
         return this.getPos();
-    }
-
-    @Override
-    public IFluidLink last() {
-        return this;
     }
 }

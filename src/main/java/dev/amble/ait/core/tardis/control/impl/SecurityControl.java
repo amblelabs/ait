@@ -45,8 +45,6 @@ public class SecurityControl extends Control {
         if (!security && !isDiscShouldLeave)
             return;
 
-        System.out.println(isDiscShouldLeave);
-
         List<ServerPlayerEntity> forRemoval = new ArrayList<>();
 
         if (leaveBehind) {

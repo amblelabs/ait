@@ -66,7 +66,6 @@ public class TardisCriterions {
                     if (advancement == null) {
                     AITMod.LOGGER.warn("Failed to get the enter_tardis advancement");
                     } else if (TardisServerWorld.isTardisDimension(player.getServerWorld()) && !player.getAdvancementTracker().getProgress(advancement).isDone()) {
-                        System.out.println(advancement);
                         player.playSound(AITSounds.ENTER_TARDIS, SoundCategory.PLAYERS, 1f,1.0f);
                     }
 

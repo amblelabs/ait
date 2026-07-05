@@ -101,7 +101,7 @@ public class UntemperedSchismBlock extends HorizontalFluidLinkBlock implements B
     }
 
     private static boolean isConsumable(RiftChunkManager manager, ChunkPos pos) {
-        return manager.isRiftChunk(pos)/* && manager.getArtron(pos) >= 250*/;
+        return manager.isRiftChunk(pos);
     }
 
     @Override
