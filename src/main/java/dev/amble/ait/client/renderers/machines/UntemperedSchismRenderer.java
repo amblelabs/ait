@@ -33,9 +33,6 @@ public class UntemperedSchismRenderer<T extends UntemperedSchismBlockEntity> imp
 
         float f = blockState.get(HorizontalFacingBlock.FACING).asRotation();
 
-        if (MinecraftClient.getInstance().world == null)
-            return;
-
         matrices.push();
         matrices.translate(0.5f, 1.5f, 0.5f);
 

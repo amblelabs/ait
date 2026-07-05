@@ -271,7 +271,6 @@ public class StatsHandler extends KeyedTardisComponent {
         // parse a Date from the dateCreated, and add to the hours the difference between this time zone and the time zone stored in the dateTimeZone
         try {
             Instant instant = Instant.ofEpochSecond(dateCreated.get());
-            //System.out.println(Instant.now().getEpochSecond());
             TimeZone timeZone = TimeZone.getTimeZone(dateTimeZone.get());
             Calendar calendar = Calendar.getInstance(timeZone);
             calendar.setTimeInMillis(instant.toEpochMilli());

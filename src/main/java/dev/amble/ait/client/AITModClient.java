@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
+import dev.amble.ait.client.overlays.*;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -58,10 +59,6 @@ import dev.amble.ait.client.models.decoration.PaintingFrameModel;
 import dev.amble.ait.client.models.decoration.RiftModel;
 import dev.amble.ait.client.models.decoration.TrenzalorePaintingModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
-import dev.amble.ait.client.overlays.ExteriorAxeOverlay;
-import dev.amble.ait.client.overlays.FabricatorOverlay;
-import dev.amble.ait.client.overlays.RWFOverlay;
-import dev.amble.ait.client.overlays.SonicOverlay;
 import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.client.renderers.TardisStar;
 import dev.amble.ait.client.renderers.consoles.ConsoleGeneratorRenderer;
@@ -157,6 +154,7 @@ public class AITModClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register(new RWFOverlay());
         HudRenderCallback.EVENT.register(new FabricatorOverlay());
         HudRenderCallback.EVENT.register(new ExteriorAxeOverlay());
+        HudRenderCallback.EVENT.register(new UntemperedSchismOverlay());
 
         ClientPreAttackCallback.EVENT.register((client, player, clickCount) -> (player.getMainHandStack().getItem() instanceof BaseGunItem));
 
