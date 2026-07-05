@@ -1338,7 +1338,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.keysmithing.key", "Key Type: ");
         provider.addTranslation("message.ait.keysmithing.ingredient", "Material: ");
         provider.addTranslation("tooltip.ait.skeleton_key", "CREATIVE ONLY ITEM: Unlock any TARDIS Exteriors with it.");
-        provider.addTranslation("tooltip.ait.subsystem_item", "(Use this on the Generalised Subsytem Core to set it to this type)");
+        provider.addTranslation("tooltip.ait.subsystem_item", "(Use this on the Gene0ralised Subsytem Core to set it to this type)");
 
         // Item tooltips
         provider.addTranslation("message.ait.artron_units", "Artron Units: %s");
@@ -1346,6 +1346,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.ammo", "Ammo: %s");
         provider.addTranslation("tooltip.ait.position", "Position: ");
         provider.addTranslation("message.ait.artron_units2", " AU");
+        provider.addTranslation("overlay.ait.untempered_schism.au", "AU: %s/%s");
 
 
         // Environment Projector
@@ -1408,11 +1409,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("sequence.ait.increment_scale_recalculation_necessary", "Increment scale error! Recalculation necessary!");
         provider.addTranslation("sequence.ait.small_debris_field", "Small debris field!");
         provider.addTranslation("sequence.ait.slow_down_to_avoid_flying_out_of_vortex", "Vortex drift: de-acceleration necessary!");
-
-        // Rift ripper
-        provider.addTranslation("rift_ripper.name.renderer", "Rift Ripper");
-        provider.addTranslation("rift_ripper.version", "Systems Version: v1.0-0.1");
-        provider.addTranslation("rift_ripper.held", "RIFT HELD! [%ss]!");
 
         // Hums
         provider.addTranslation("screen.ait.interior.settings.hum", "HUMS");

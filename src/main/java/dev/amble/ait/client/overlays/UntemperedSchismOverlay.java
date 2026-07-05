@@ -13,6 +13,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.AxeItem;
+import net.minecraft.text.Text;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 
@@ -42,13 +43,13 @@ public class UntemperedSchismOverlay implements HudRenderCallback {
         if (schism == null)
             return;
 
-        String str = "AU: " + (int) schism.getCurrentFuel() + "/" + (int) schism.getMaxFuel();
+        Text text = Text.translatable("overlay.ait.untempered_schism.au", (int) schism.getCurrentFuel(), (int) schism.getMaxFuel());
 
         stack.push();
-        stack.translate((float) drawContext.getScaledWindowWidth() / 2 - (mc.textRenderer.getWidth(str)/2),
+        stack.translate((float) drawContext.getScaledWindowWidth() / 2 - (mc.textRenderer.getWidth(text)/2),
                 (float) drawContext.getScaledWindowHeight() / 2 - 12,
                 -10);
-        drawContext.drawText(mc.textRenderer,  str, 0, 0, Color.WHITE.getRGB(), false);
+        drawContext.drawText(mc.textRenderer,  text, 0, 0, Color.WHITE.getRGB(), false);
         RenderSystem.defaultBlendFunc();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
