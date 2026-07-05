@@ -154,3 +154,4 @@
 - add: fast travel - if your destination is less than 128 blocks the flight sequence will be skipped | by [@drtheodor](https://github.com/drtheodor) ([#2119](https://github.com/amblelabs/ait/pull/2119))
 - fix: item rendering pos in subsystem core block | by [@Addi3](https://github.com/Addi3) ([#2126](https://github.com/amblelabs/ait/pull/2126))
 - fix: all BOTI door issues | by [@Addi3](https://github.com/Addi3) ([#2130](https://github.com/amblelabs/ait/pull/2130))
+- Fix Untempered Schism/Theo's Nitpicks | by [@Loqor](https://github.com/Loqor) ([#2128](https://github.com/amblelabs/ait/pull/2128))
