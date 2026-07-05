@@ -152,3 +152,4 @@
 - feat: first enter music by lucien! | by [@Loqor](https://github.com/Loqor)
 - feat: add randomly occuring flight music, thanks lucien again! | by [@Loqor](https://github.com/loqor)- fix: you can demat after cancelling reconfiguration | by [@drtheodor](https://github.com/drtheodor) ([#2120](https://github.com/amblelabs/ait/pull/2120))
 - add: fast travel - if your destination is less than 128 blocks the flight sequence will be skipped | by [@drtheodor](https://github.com/drtheodor) ([#2119](https://github.com/amblelabs/ait/pull/2119))
+- fix: item rendering pos in subsystem core block | by [@Addi3](https://github.com/Addi3) ([#2126](https://github.com/amblelabs/ait/pull/2126))
