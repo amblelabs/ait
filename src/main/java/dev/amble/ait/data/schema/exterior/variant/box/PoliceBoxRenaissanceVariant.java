@@ -20,6 +20,11 @@ public class PoliceBoxRenaissanceVariant extends PoliceBoxVariant {
 
     @Override
     public @Nullable Vec3d getPortalPosition() {
-        return super.getPortalPosition().add(0, 0.03, 0);
+        return new Vec3d(0, 0.01, -0.591);
+    }
+
+    @Override
+    public double portalHeight() {
+        return 2.35d;
     }
 }
