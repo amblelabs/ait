@@ -894,8 +894,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.repair.max", "TARDIS repair ticks are at max!");
         provider.addTranslation("tardis.repair.set", "Set repair ticks for [%s] to: [%s]");
         provider.addTranslation("tardis.summon", "TARDIS [%s] is on the way!");
-        provider.addTranslation("tardis.teleport.exterior.success", "Successful teleport - exterior of [%s]");
-        provider.addTranslation("tardis.teleport.interior.success", "Successful teleport - interior of [%s]");
+        provider.addTranslation("tardis.teleport.exterior.success", "Successful teleport - exterior of %s");
+        provider.addTranslation("tardis.teleport.interior.success", "Successful teleport - interior of %s");
         provider.addTranslation("tooltip.ait.linked_tardis", "TARDIS:");
         provider.addTranslation("tooltip.ait.roundel_type", "Roundel Type");
         provider.addTranslation("tooltip.ait.tardisdeco_type", "TARDIS Deco Type");

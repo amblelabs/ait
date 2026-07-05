@@ -18,10 +18,15 @@ import dev.amble.lib.api.Identifiable;
 public abstract class ConsoleTypeSchema implements Identifiable, Nameable {
     private final Identifier id;
     private final String name;
+    private final Text text;
 
     protected ConsoleTypeSchema(Identifier id, String name) {
         this.id = id;
         this.name = name;
+
+        String[] parts = this.id.getPath().split("/");
+        String last = parts[parts.length - 1];
+        this.text = Text.translatableWithFallback("console." + this.id.getNamespace() + "." + last, this.name);
     }
 
     @Override
@@ -44,10 +49,7 @@ public abstract class ConsoleTypeSchema implements Identifiable, Nameable {
 
     @Override
     public Text text() {
-        String[] parts = this.id.getPath().split("/");
-        String last = parts[parts.length - 1];
-
-        return Text.translatable("console." + this.id.getNamespace() + "." + last);
+        return this.text;
     }
 
     @Override
