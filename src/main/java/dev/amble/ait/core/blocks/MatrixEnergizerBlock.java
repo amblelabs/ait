@@ -135,8 +135,6 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
                 world.addParticle(AITMod.CORAL_PARTICLE, centre.getX(), centre.getY() - 0.65f, centre.getZ(), offsetX, offsetY, offsetZ);
                 world.addParticle(ParticleTypes.SCULK_SOUL, centre.getX(), centre.getY() - 0.65f, centre.getZ(), offsetX, offsetY, offsetZ);
                 world.addParticle(ParticleTypes.SOUL_FIRE_FLAME, centre.getX(), centre.getY() - 0.65f, centre.getZ(), offsetX, offsetY, offsetZ);
-
-
             }
         }
     }
@@ -167,7 +165,9 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
         if (world.getBlockEntity(pos) instanceof MatrixEnergizerBlockEntity mbe) {
             if (mbe.getVibrationCallback().accepts(serverWorld, pos, GameEvent.SHRIEK, GameEvent.Emitter.of(state))) {
                 mbe.getEventListener().forceListen(serverWorld, GameEvent.SHRIEK, GameEvent.Emitter.of(state), pos.down().toCenterPos());
-                if (this.getAge(state) < this.getMaxAge()) {
+                int i = this.getAge(state);
+                
+                if (i < this.getMaxAge()) {
                     world.setBlockState(pos, state.with(AGE, i + 1), 2);
                 } else {
                     tryCreate(world, pos, state);
