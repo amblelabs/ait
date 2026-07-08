@@ -159,3 +159,4 @@
 - fix: random matrix energizer crash | by [@drtheodor](https://github.com/drtheodor) ([#2132](https://github.com/amblelabs/ait/pull/2132))
 - fix: fast travel autopilot behavior | by [@drtheodor](https://github.com/drtheodor) ([#2131](https://github.com/amblelabs/ait/pull/2131))
 - fix: rifts now have a proper placeholder instead of a slightly magenta "crack" | by [@Loqor](https://github.com/Loqor) ([#2134](https://github.com/amblelabs/ait/pull/2134))
+- Fix Subsystem Nitpicks | by [@Loqor](https://github.com/Loqor) ([#2135](https://github.com/amblelabs/ait/pull/2135))
