@@ -86,7 +86,7 @@ jobs:
     steps:
     - run: |
         SHORT_SHA="${GITHUB_SHA:0:10}"
-        curl -i 'https://jitpack.io/api/builds/com.github.amblelabs/ait/${SHORT_SHA}'
+        curl -i "https://jitpack.io/api/builds/com.github.amblelabs/ait/${SHORT_SHA}"
   maven:
     runs-on: ubuntu-latest
     permissions:
