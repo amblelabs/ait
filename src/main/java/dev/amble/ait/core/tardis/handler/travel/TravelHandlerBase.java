@@ -110,7 +110,7 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
     public void tick(MinecraftServer server) {
         TardisCrashHandler crash = tardis.crash();
 
-        if (crash.getState() != TardisCrashHandler.State.NORMAL)
+        if (crash.getState() != TardisCrashHandler.State.NORMAL && !tardis.travel().isLanded())
             crash.addRepairTicks(2 * this.speed());
 
         if (server.getTicks() % 200 == 0 && this.hammerUses > 0)
