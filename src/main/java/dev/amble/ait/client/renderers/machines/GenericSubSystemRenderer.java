@@ -49,7 +49,7 @@ public class GenericSubSystemRenderer<T extends GenericStructureSystemBlockEntit
             matrices.scale(0.9f, 0.9f, 0.9f);
             matrices.scale(scale.x, scale.y, scale.z);
 
-            client.getItemRenderer().renderItem(stack, ModelTransformationMode.GROUND, light,
+            client.getItemRenderer().renderItem(stack, ModelTransformationMode.GROUND, 0xf000f0,
                     overlay, matrices, vertexConsumers, entity.getWorld(), 0);
             matrices.pop();
         }
