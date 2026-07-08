@@ -1,6 +1,10 @@
 package dev.amble.ait.core.item;
 
 import java.util.List;
+
+import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
+import dev.amble.ait.core.entities.ConsoleControlEntity;
+import net.minecraft.util.hit.EntityHitResult;
 import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
@@ -67,7 +71,7 @@ public class RepairToolItem extends Item {
             BlockPos pos = new BlockPos((int) pos3d.x, (int) pos3d.y, (int) pos3d.z);
             BlockEntity blockEntity = world.getBlockEntity(pos);
 
-            if (blockEntity instanceof GenericStructureSystemBlockEntity subSystem) {
+            if (blockEntity instanceof SubSystemBlockEntity subSystem) {
                 if (subSystem.system() instanceof DurableSubSystem durable) {
                     playerEntity.sendMessage(Text.literal(durable.durability() + "/" + DurableSubSystem.MAX_DURABILITY).setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)), true);
                     world.playSound(null, pos, SoundEvents.BLOCK_ANCIENT_DEBRIS_HIT, SoundCategory.BLOCKS, 0.5f, 0.8f);
@@ -80,10 +84,30 @@ public class RepairToolItem extends Item {
                         world.playSound(null, pos, SoundEvents.BLOCK_AMETHYST_BLOCK_RESONATE, SoundCategory.BLOCKS, 0.5f, 1.5f);
 
                         for (int i = 0; i < (val / 2); i++) {
-                            world.addImportantParticle(ParticleTypes.ENCHANT, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0, 0.1f, 0);
+                            world.addImportantParticle(ParticleTypes.ENCHANT, pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, 0, 0.1f, 0);
                         }
                         return;
                     }
+                }
+            }
+        }
+
+        if (hitResult.getType() == HitResult.Type.ENTITY) {
+            EntityHitResult result = (EntityHitResult) hitResult;
+
+            if (result.getEntity() instanceof ConsoleControlEntity consoleControl) {
+                playerEntity.sendMessage(Text.literal(consoleControl.getDurability() + "/" + ConsoleControlEntity.MAX_DURABILITY).setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)), true);
+                world.playSound(null, consoleControl.getBlockPos(), SoundEvents.BLOCK_ANCIENT_DEBRIS_HIT, SoundCategory.BLOCKS, 0.5f, 0.8f);
+                if (consoleControl.getDurability() < DurableSubSystem.MAX_DURABILITY) {
+                    consoleControl.addDurability(world.getRandom().nextFloat());
+                    stack.damage(1, playerEntity, p -> p.sendToolBreakStatus(playerEntity.getActiveHand()));
+
+                    world.playSound(null, consoleControl.getBlockPos(), SoundEvents.BLOCK_AMETHYST_BLOCK_RESONATE, SoundCategory.BLOCKS, 0.5f, 1.5f);
+
+                    for (int i = 0; i < (world.getRandom().nextBetween(2, 5) / 2); i++) {
+                        world.addImportantParticle(ParticleTypes.ENCHANT, consoleControl.getX() + 0.5, consoleControl.getY() + 1, consoleControl.getZ() + 0.5, 0, 0.1f, 0);
+                    }
+                    return;
                 }
             }
         }
