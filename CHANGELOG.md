@@ -161,3 +161,4 @@
 - fix: rifts now have a proper placeholder instead of a slightly magenta "crack" | by [@Loqor](https://github.com/Loqor) ([#2134](https://github.com/amblelabs/ait/pull/2134))
 - Fix Subsystem Nitpicks | by [@Loqor](https://github.com/Loqor) ([#2135](https://github.com/amblelabs/ait/pull/2135))
 - fix: repair time kept increasing even when landed when the throttle was active | by [@Loqor](https://github.com/Loqor) ([#2136](https://github.com/amblelabs/ait/pull/2136))
+- Fix and Finalize Repair Tool Functionality | by [@Loqor](https://github.com/Loqor) ([#2137](https://github.com/amblelabs/ait/pull/2137))
