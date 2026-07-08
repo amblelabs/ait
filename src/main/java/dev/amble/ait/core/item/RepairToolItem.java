@@ -1,6 +1,9 @@
 package dev.amble.ait.core.item;
 
+import java.util.List;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
@@ -22,6 +25,13 @@ import dev.amble.ait.core.engine.block.generic.GenericStructureSystemBlockEntity
 public class RepairToolItem extends Item {
     public RepairToolItem(Settings settings) {
         super(settings);
+    }
+
+    @Override
+    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+        super.appendTooltip(stack, world, tooltip, context);
+
+        tooltip.add(Text.translatable("tooltip.ait.repair_tool").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
     }
 
     @Override
