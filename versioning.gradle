@@ -7,9 +7,10 @@ class CI {
     static Optional<String> branch() {
         // groovy is very bad at globals, apparently.
         return Optional.ofNullable(System.getenv("GITHUB_REF"))
-                .or { Optional.ofNullable(System.getenv("GIT_COMMIT")) }
                 .filter { it.startsWith(REFS_PREFIX) }
-                .map { it.substring(REFS_PREFIX.length()).replaceAll("/", "-") }
+                .map { it.substring(REFS_PREFIX.length()) }
+                .or { Optional.ofNullable(System.getenv("GIT_COMMIT")) }
+                .map { it.replaceAll("/", "-") }
     }
 
     static Optional<String> buildNum() {
