@@ -162,3 +162,4 @@
 - Fix Subsystem Nitpicks | by [@Loqor](https://github.com/Loqor) ([#2135](https://github.com/amblelabs/ait/pull/2135))
 - fix: repair time kept increasing even when landed when the throttle was active | by [@Loqor](https://github.com/Loqor) ([#2136](https://github.com/amblelabs/ait/pull/2136))
 - Fix and Finalize Repair Tool Functionality | by [@Loqor](https://github.com/Loqor) ([#2137](https://github.com/amblelabs/ait/pull/2137))
+- tweak: the generic subsystem block is now non-opaque | by [@drtheodor](https://github.com/drtheodor) ([#2138](https://github.com/amblelabs/ait/pull/2138))
