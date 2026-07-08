@@ -50,7 +50,7 @@ public class RiftEntityRenderer
                 vertexConsumerProvider.getBuffer(RenderLayer.getEndGateway()),
                 0xf000f0,
                 OverlayTexture.DEFAULT_UV,
-                0.6f, 0.0f, 1.0f, 1.0f,
+                1, 1, 1, 1,
                 4.5f
         );
 
@@ -61,7 +61,7 @@ public class RiftEntityRenderer
                 vertexConsumerProvider.getBuffer(RenderLayer.getEndGateway()),
                 0xf000f0,
                 OverlayTexture.DEFAULT_UV,
-                0.6f, 0.0f, 1.0f, 1.0f,
+                1, 1, 1.0f, 1.0f,
                 4.5f
         );
 
