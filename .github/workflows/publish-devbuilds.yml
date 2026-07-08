@@ -109,9 +109,6 @@ jobs:
     - name: Run DataGen
       run: ./gradlew --configuration-cache runDatagen
 
-    - name: Build
-      run: ./gradlew --configuration-cache build
-
     - name: Setup Amble Maven
       id: setup-maven
       uses: drtheodor/static-file-server-actions/upload/setup@main
