@@ -646,7 +646,7 @@ public class AITModClient implements ClientModInitializer {
             stack.push();
             stack.translate(pos.getX() - context.camera().getPos().getX(),
                     pos.getY() - context.camera().getPos().getY(), pos.getZ() - context.camera().getPos().getZ());
-            stack.translate(0, 2, 0);
+            stack.translate(0, 1.5f, 0);
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rift.getYaw()));
             stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(rift.getPitch()));
             RiftModel riftModel = new RiftModel(RiftModel.getTexturedModelData().createModel());
