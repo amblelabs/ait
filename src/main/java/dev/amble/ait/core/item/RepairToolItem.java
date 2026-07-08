@@ -105,7 +105,7 @@ public class RepairToolItem extends Item {
                     world.playSound(null, consoleControl.getBlockPos(), SoundEvents.BLOCK_AMETHYST_BLOCK_RESONATE, SoundCategory.BLOCKS, 0.5f, 1.5f);
 
                     for (int i = 0; i < (world.getRandom().nextBetween(2, 5) / 2); i++) {
-                        world.addImportantParticle(ParticleTypes.ENCHANT, consoleControl.getBlockPos().getX() + 0.5, consoleControl.getBlockPos().getY() + 1, consoleControl.getBlockPos().getZ() + 0.5, 0, 0.1f, 0);
+                        world.addImportantParticle(ParticleTypes.ENCHANT, consoleControl.getX() + 0.5, consoleControl.getY() + 1, consoleControl.getZ() + 0.5, 0, 0.1f, 0);
                     }
                     return;
                 }
