@@ -9,7 +9,7 @@ class CI {
         return Optional.ofNullable(System.getenv("GITHUB_REF"))
                 .filter { it.startsWith(REFS_PREFIX) }
                 .map { it.substring(REFS_PREFIX.length()) }
-                .or { Optional.ofNullable(System.getenv("GIT_COMMIT")) }
+                .or { Optional.ofNullable(System.getenv("GIT_BRANCH")) }
                 .map { it.replaceAll("/", "-") }
     }
 
