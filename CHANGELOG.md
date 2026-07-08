@@ -156,3 +156,4 @@
 - fix: all BOTI door issues | by [@Addi3](https://github.com/Addi3) ([#2130](https://github.com/amblelabs/ait/pull/2130))
 - Fix Untempered Schism/Theo's Nitpicks | by [@Loqor](https://github.com/Loqor) ([#2128](https://github.com/amblelabs/ait/pull/2128))
 - chore: give the repair toolkit item a tooltip! | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#2133](https://github.com/amblelabs/ait/pull/2133))
+- fix: random matrix energizer crash | by [@drtheodor](https://github.com/drtheodor) ([#2132](https://github.com/amblelabs/ait/pull/2132))
