@@ -15,27 +15,26 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.boti.BOTI;
-import dev.amble.ait.client.models.decoration.PaintingFrameModel;
 import dev.amble.ait.core.entities.RiftEntity;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
-@Environment(value=EnvType.CLIENT)
-public class RiftEntityRenderer
-        extends EntityRenderer<RiftEntity> {
+@Environment(EnvType.CLIENT)
+public class RiftEntityRenderer extends EntityRenderer<RiftEntity> {
+
     public static final Identifier RIFT_TEXTURE = AITMod.id("textures/entity/rift/rift.png");
     public static final Identifier CIRCLE_TEXTURE = AITMod.id("textures/entity/rift/circle_rift.png");
-    PaintingFrameModel frame;
+
     public RiftEntityRenderer(EntityRendererFactory.Context context) {
         super(context);
-        frame = new PaintingFrameModel(PaintingFrameModel.getTexturedModelData().createModel());
     }
 
     @Override
     public void render(RiftEntity riftEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
-        if (AITModClient.CONFIG.enableTardisBOTI) {
+        if (AITModClient.CONFIG.enableTardisBOTI && !DependencyChecker.hasPortals()) {
             BOTI.RIFT_RENDERING_QUEUE.add(riftEntity);
             return;
         }
@@ -85,5 +84,4 @@ public class RiftEntityRenderer
     public Identifier getTexture(RiftEntity entity) {
         return null;
     }
-
 }
