@@ -164,3 +164,5 @@
 - Fix and Finalize Repair Tool Functionality | by [@Loqor](https://github.com/Loqor) ([#2137](https://github.com/amblelabs/ait/pull/2137))
 - tweak: the generic subsystem block is now non-opaque | by [@drtheodor](https://github.com/drtheodor) ([#2138](https://github.com/amblelabs/ait/pull/2138))
 - fix: rift rendering fallback if IP is installed | by [@drtheodor](https://github.com/drtheodor) ([#2139](https://github.com/amblelabs/ait/pull/2139))
+- fix: when handles/a sonic are in the sonic port, they got replaced if you were holding a sonic or handles. | by [@Loqor](https://github.com/Loqor) ([#2141](https://github.com/amblelabs/ait/pull/2141))
+- fix: you can now take out whatever from the sonic port with right click when the powers out. | by [@Loqor](https://github.com/Loqor) ([#2141](https://github.com/amblelabs/ait/pull/2141))
