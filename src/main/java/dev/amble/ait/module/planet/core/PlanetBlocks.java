@@ -255,11 +255,11 @@ public class PlanetBlocks extends BlockContainer {
 
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     public static final Block INFESTED_MARTIAN_STONE = new InfestedBlock(
-            Blocks.INFESTED_STONE, AbstractBlock.Settings.copy(Blocks.INFESTED_STONE));
+            PlanetBlocks.MARTIAN_STONE, AbstractBlock.Settings.copy(Blocks.INFESTED_STONE));
 
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     public static final Block INFESTED_MARTIAN_COBBLESTONE = new InfestedBlock(
-            Blocks.INFESTED_COBBLESTONE, AbstractBlock.Settings.copy(Blocks.INFESTED_COBBLESTONE));
+            PlanetBlocks.MARTIAN_COBBLESTONE, AbstractBlock.Settings.copy(Blocks.INFESTED_COBBLESTONE));
 
 
 
