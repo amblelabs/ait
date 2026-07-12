@@ -166,3 +166,4 @@
 - fix: rift rendering fallback if IP is installed | by [@drtheodor](https://github.com/drtheodor) ([#2139](https://github.com/amblelabs/ait/pull/2139))
 - fix: when handles/a sonic are in the sonic port, they got replaced if you were holding a sonic or handles. | by [@Loqor](https://github.com/Loqor) ([#2141](https://github.com/amblelabs/ait/pull/2141))
 - fix: you can now take out whatever from the sonic port with right click when the powers out. | by [@Loqor](https://github.com/Loqor) ([#2141](https://github.com/amblelabs/ait/pull/2141))
+- fix: (cobble)stone no longer turns into infested martian (cobble)stone | by [@drtheodor](https://github.com/drtheodor) ([#2142](https://github.com/amblelabs/ait/pull/2142))
