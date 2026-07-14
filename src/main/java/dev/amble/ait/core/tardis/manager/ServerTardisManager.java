@@ -83,22 +83,6 @@ public class ServerTardisManager extends DeprecatedServerTardisManager {
 
             this.delta.clear();
         });
-
-        ServerPlayNetworking.registerGlobalReceiver(SEND_PROPERTY, (server, player, networkHandler, buf, response) -> {
-            UUID tardisId = buf.readUuid();
-            ServerTardis tardis = this.demandTardis(server, tardisId);
-
-            if (tardis == null)
-                return;
-
-            TardisComponent.IdLike componentId = TardisComponentRegistry.getInstance().get(buf.readString());
-
-            if (!(tardis.handler(componentId) instanceof KeyedTardisComponent keyed))
-                return;
-
-            String propertyId = buf.readString();
-            keyed.getPropertyData().get(propertyId).read(buf);
-        });
     }
 
     @Override
