@@ -90,7 +90,7 @@ public class BetaVerification {
             }
 
             consumer.accept(BetaTokenPrefs.isTokenValid());
-        }).run();
+        }).start();
     }
 
     private static void startAndWaitForToken0() throws Exception {
