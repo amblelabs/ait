@@ -170,3 +170,4 @@
 - fix: IP bullshitery | by [@Addi3](https://github.com/Addi3) ([#2143](https://github.com/amblelabs/ait/pull/2143))
 - chore: untempered schism recipe | by [@Addi3](https://github.com/Addi3) ([#2144](https://github.com/amblelabs/ait/pull/2144))
 - feat: autopilot max speed config option! | by [@Loqor](https://github.com/Loqor) ([#2148](https://github.com/amblelabs/ait/pull/2148))
+- remove FIND_PLAYER | by [@Loqor](https://github.com/Loqor) ([#2149](https://github.com/amblelabs/ait/pull/2149))
