@@ -165,7 +165,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
     @Override
     protected int clampSpeed(int value) {
-        int max = this.autopilot() ? 4 : this.maxSpeed.get();
+        int max = this.autopilot() ? AITMod.CONFIG.maxStabilizedSpeed : this.maxSpeed.get();
         if (!this.tardis.subsystems().stabilisers().isEnabled()) max = 3;
 
         return MathHelper.clamp(value, 0, max);
