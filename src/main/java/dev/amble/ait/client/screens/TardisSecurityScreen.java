@@ -91,15 +91,15 @@ public class TardisSecurityScreen extends ConsoleScreen {
     }
 
     private void receiveDistressCalls() {
-        boolean bool = this.tardis().stats().receiveCalls().get();
-        this.tardis().stats().receiveCalls().set(!bool);
-        SwitcherManager.sync(this.tardis(), buf -> {}, SHOULD_RECEIVE_CALLS);
+        boolean bool = !this.tardis().stats().receiveCalls().get();
+        this.tardis().stats().receiveCalls().set(bool);
+        SwitcherManager.sync(this.tardis(), buf -> buf.writeBoolean(bool), SHOULD_RECEIVE_CALLS);
     }
 
     private void toggleLeaveBehind() {
-        boolean bool = this.tardis().travel().leaveBehind().get();
-        this.tardis().travel().leaveBehind().set(!bool);
-        SwitcherManager.sync(this.tardis(), buf -> {}, TOGGLE_LEAVE_BEHIND);
+        boolean bool = !this.tardis().travel().leaveBehind().get();
+        this.tardis().travel().leaveBehind().set(bool);
+        SwitcherManager.sync(this.tardis(), buf -> buf.writeBoolean(bool), TOGGLE_LEAVE_BEHIND);
     }
 
     private void changeMinimumLoyalty() {
@@ -112,9 +112,9 @@ public class TardisSecurityScreen extends ConsoleScreen {
     }
 
     private void toggleHostileAlarms() {
-        boolean bool = this.tardis().alarm().hostilePresence().get();
-        this.tardis().alarm().hostilePresence().set(!bool);
-        SwitcherManager.sync(this.tardis(), buf -> {}, TOGGLE_HOSTILE_ALARMS);
+        boolean bool = !this.tardis().alarm().hostilePresence().get();
+        this.tardis().alarm().hostilePresence().set(bool);
+        SwitcherManager.sync(this.tardis(), buf -> buf.writeBoolean(bool), TOGGLE_HOSTILE_ALARMS);
     }
 
     private void updateLandingCode() {

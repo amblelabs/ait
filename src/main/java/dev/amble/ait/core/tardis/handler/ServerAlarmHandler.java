@@ -51,11 +51,12 @@ public class ServerAlarmHandler extends KeyedTardisComponent implements TardisTi
 
     static {
         ServerPlayNetworking.registerGlobalReceiver(TardisSecurityScreen.TOGGLE_HOSTILE_ALARMS, ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+            boolean bool = buf.readBoolean();
+
             if (tardis == null)
                 return;
 
-            boolean bool = tardis.alarm().hostilePresence().get();
-            tardis.alarm().hostilePresence().set(!bool);
+            tardis.alarm().hostilePresence().set(bool);
         }));
     }
 
