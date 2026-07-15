@@ -55,6 +55,8 @@ public class LandingPadHandler extends KeyedTardisComponent {
             if (tardis == null)
                 return;
 
+            if (!TardisUtil.verifyTardis(player, tardis.getUuid())) return;
+
             if (!StatsHandler.passesLoyaltyTest(tardis, player)) return;
 
             String input = buf.readString();

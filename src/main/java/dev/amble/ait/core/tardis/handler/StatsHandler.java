@@ -15,6 +15,7 @@ import dev.amble.ait.client.screens.widget.SwitcherManager;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.hum.Hum;
 import dev.amble.ait.registry.impl.HumRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -107,6 +108,8 @@ public class StatsHandler extends KeyedTardisComponent {
             if (tardis == null || id == null)
                 return;
 
+            if (!TardisUtil.verifyTardis(player, tardis.getUuid())) return;
+
             if (!StatsHandler.passesLoyaltyTest(tardis, player)) return;
 
             tardis.stats().setVortexEffects(id);
@@ -118,6 +121,8 @@ public class StatsHandler extends KeyedTardisComponent {
             if (tardis == null || id == null)
                 return;
 
+            if (!TardisUtil.verifyTardis(player, tardis.getUuid())) return;
+
             if (!StatsHandler.passesLoyaltyTest(tardis, player)) return;
 
             tardis.stats().setFlightEffects(id);
@@ -127,6 +132,8 @@ public class StatsHandler extends KeyedTardisComponent {
             boolean bool = buf.readBoolean();
 
             if (tardis == null) return;
+
+            if (!TardisUtil.verifyTardis(player, tardis.getUuid())) return;
 
             if (!StatsHandler.passesLoyaltyTest(tardis, player)) return;
 

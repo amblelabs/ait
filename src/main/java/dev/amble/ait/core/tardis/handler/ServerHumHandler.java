@@ -1,5 +1,6 @@
 package dev.amble.ait.core.tardis.handler;
 
+import dev.amble.ait.core.tardis.util.TardisUtil;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
@@ -22,6 +23,8 @@ public class ServerHumHandler extends TardisComponent {
         ServerPlayNetworking.registerGlobalReceiver(ServerHumHandler.RECEIVE,
                 ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
                     if (tardis == null) return;
+
+                    if (!TardisUtil.verifyTardis(player, tardis.getUuid())) return;
 
                     if (!StatsHandler.passesLoyaltyTest(tardis, player)) return;
 

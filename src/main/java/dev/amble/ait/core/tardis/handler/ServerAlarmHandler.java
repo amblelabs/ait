@@ -56,6 +56,8 @@ public class ServerAlarmHandler extends KeyedTardisComponent implements TardisTi
             if (tardis == null)
                 return;
 
+            if (!TardisUtil.verifyTardis(player, tardis.getUuid())) return;
+
             if (!StatsHandler.passesLoyaltyTest(tardis, player)) return;
 
             tardis.alarm().hostilePresence().set(bool);
