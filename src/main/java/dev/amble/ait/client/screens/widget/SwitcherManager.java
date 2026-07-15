@@ -130,7 +130,7 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
 
         private static void sync(VortexReference current, ClientTardis tardis) {
             tardis.stats().setVortexEffects(current.id());
-            tardisSync(tardis.getUuid(), buf -> buf.writeIdentifier(current.id()), FLIGHT_SOUND_PACKET);
+            tardisSync(tardis.getUuid(), buf -> buf.writeIdentifier(current.id()), VORTEX_PACKET);
         }
     }
 
