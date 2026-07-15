@@ -4,8 +4,11 @@ import java.util.ArrayDeque;
 import java.util.Optional;
 import java.util.Queue;
 
+import dev.amble.ait.client.screens.TardisSecurityScreen;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.drtheo.queue.api.ActionQueue;
 
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.mob.HostileEntity;
@@ -45,6 +48,15 @@ public class ServerAlarmHandler extends KeyedTardisComponent implements TardisTi
 
     private final BoolValue enabled = ENABLED.create(this);
     private final BoolValue hostilePresence = HOSTILE_PRESENCE.create(this);
+
+    static {
+        ServerPlayNetworking.registerGlobalReceiver(TardisSecurityScreen.TOGGLE_HOSTILE_ALARMS, ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+            if (tardis == null)
+                return;
+
+            tardis.alarm().hostilePresence().flatMap(value -> !value);
+        }));
+    }
 
     public ServerAlarmHandler() {
         super(Id.ALARMS);

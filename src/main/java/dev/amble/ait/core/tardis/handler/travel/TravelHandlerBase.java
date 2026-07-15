@@ -6,6 +6,9 @@ import java.util.function.Function;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 
+import dev.amble.ait.client.screens.TardisSecurityScreen;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.util.math.BlockPos;
@@ -66,6 +69,14 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
 
     @Exclude(strategy = Exclude.Strategy.NETWORK)
     protected int hammerUses = 0;
+
+    static {
+        ServerPlayNetworking.registerGlobalReceiver(TardisSecurityScreen.TOGGLE_LEAVE_BEHIND, ServerTardisManager.receiveTardis(((tardis, server, player, handler, buf, responseSender) -> {
+            if (tardis == null) return;
+
+            tardis.travel().leaveBehind().flatMap(value -> !value);
+        })));
+    }
 
     public TravelHandlerBase(Id id) {
         super(id);

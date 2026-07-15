@@ -10,6 +10,7 @@ import java.util.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import dev.amble.ait.client.screens.TardisSecurityScreen;
 import dev.amble.ait.client.screens.widget.SwitcherManager;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.hum.Hum;
@@ -112,6 +113,12 @@ public class StatsHandler extends KeyedTardisComponent {
                 return;
 
             tardis.stats().setFlightEffects(id);
+        }));
+
+        ServerPlayNetworking.registerGlobalReceiver(TardisSecurityScreen.SHOULD_RECEIVE_CALLS, ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+            if (tardis == null) return;
+
+            tardis.stats().receiveCalls().flatMap(value -> !value);
         }));
     }
 

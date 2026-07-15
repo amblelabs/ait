@@ -1,5 +1,6 @@
 package dev.amble.ait.client.screens;
 
+import dev.amble.ait.client.screens.widget.SwitcherManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -23,6 +24,12 @@ import dev.amble.ait.data.properties.Value;
 public class TardisSecurityScreen extends ConsoleScreen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
             "textures/gui/tardis/monitor/security_menu.png");
+
+    public static final Identifier LANDING_CODE = AITMod.id("landing_code");
+    public static final Identifier TOGGLE_HOSTILE_ALARMS = AITMod.id("toggle_hostile_alarms");
+    public static final Identifier TOGGLE_LEAVE_BEHIND = AITMod.id("toggle_leave_behind");
+    public static final Identifier SHOULD_RECEIVE_CALLS = AITMod.id("should_receive_calls");
+
     int bgHeight = 138;
     int bgWidth = 216;
     int left, top;
@@ -84,12 +91,13 @@ public class TardisSecurityScreen extends ConsoleScreen {
     }
 
     private void receiveDistressCalls() {
-        Value<Boolean> receiveCalls = this.tardis().<StatsHandler>handler(TardisComponent.Id.STATS).receiveCalls();
-        receiveCalls.set(!receiveCalls.get());
+        this.tardis().stats().receiveCalls().flatMap(value -> !value);
+        SwitcherManager.tardisSync(this.tardis().getUuid(), buf -> {}, SHOULD_RECEIVE_CALLS);
     }
 
     private void toggleLeaveBehind() {
         this.tardis().travel().leaveBehind().flatMap(value -> !value);
+        SwitcherManager.tardisSync(this.tardis().getUuid(), buf -> {}, TOGGLE_LEAVE_BEHIND);
     }
 
     private void changeMinimumLoyalty() {
@@ -103,12 +111,14 @@ public class TardisSecurityScreen extends ConsoleScreen {
 
     private void toggleHostileAlarms() {
         this.tardis().alarm().hostilePresence().flatMap(value -> !value);
+        SwitcherManager.tardisSync(this.tardis().getUuid(), buf -> {}, TOGGLE_HOSTILE_ALARMS);
     }
 
     private void updateLandingCode() {
         String input = this.landingCodeInput.getText();
 
         this.tardis().landingPad().code().set(input);
+        SwitcherManager.tardisSync(this.tardis().getUuid(), buf -> buf.writeString(input), LANDING_CODE);
     }
 
     private <T extends ClickableWidget> void addButton(T button) {

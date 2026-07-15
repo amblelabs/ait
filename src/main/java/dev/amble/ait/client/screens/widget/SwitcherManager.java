@@ -252,7 +252,7 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
         }
     }
 
-    private static void tardisSync(UUID tardisId, Consumer<PacketByteBuf> bufConsumer, Identifier channel) {
+    public static void tardisSync(UUID tardisId, Consumer<PacketByteBuf> bufConsumer, Identifier channel) {
         PacketByteBuf bufs = PacketByteBufs.create();
         bufs.writeUuid(tardisId);
         bufConsumer.accept(bufs);
