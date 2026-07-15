@@ -21,7 +21,7 @@ public class ServerHumHandler extends TardisComponent {
     static {
         ServerPlayNetworking.registerGlobalReceiver(ServerHumHandler.RECEIVE,
                 ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
-                    Hum hum = HumRegistry.getInstance().get(buf.readIdentifier()); // todo use theos properties
+                    Hum hum = HumRegistry.getInstance().get(buf.readIdentifier());
 
                     if (tardis == null || hum == null)
                         return;

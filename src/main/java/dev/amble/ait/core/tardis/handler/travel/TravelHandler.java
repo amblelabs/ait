@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
+import dev.amble.ait.client.screens.widget.SwitcherManager;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
@@ -14,6 +16,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.Nullable;
 
@@ -137,6 +140,16 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
                 disarmEngineOverload(tardis.getUuid());
             }
         });
+
+        ServerPlayNetworking.registerGlobalReceiver(SwitcherManager.ANIMATION_PACKET, ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+            State state = buf.readEnumConstant(State.class);
+            Identifier id = buf.readIdentifier();
+
+            if (tardis == null || state == null || id == null)
+                return;
+
+            tardis.travel().setAnimationFor(state, id);
+        }));
 
         if (EnvType.CLIENT == FabricLoader.getInstance().getEnvironmentType()) initializeClient();
     }

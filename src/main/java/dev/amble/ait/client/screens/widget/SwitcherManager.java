@@ -1,9 +1,12 @@
 package dev.amble.ait.client.screens.widget;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.sounds.ClientSoundManager;
@@ -19,8 +22,17 @@ import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
 import dev.amble.ait.data.hum.Hum;
 import dev.amble.ait.registry.impl.HumRegistry;
+import kotlin.jvm.internal.Lambda;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.Identifier;
 
 public class SwitcherManager<T extends Nameable, U> implements Nameable {
+
+    public static final Identifier FLIGHT_SOUND_PACKET = AITMod.id("flight_sound_packet");
+    public static final Identifier VORTEX_PACKET = AITMod.id("vortex_packet");
+    public static final Identifier ANIMATION_PACKET = AITMod.id("animation_packet");
 
     private final Function<T, T> next;
     private final Function<T, T> previous;
@@ -84,7 +96,9 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
         }
 
         private static void sync(Hum current, ClientTardis tardis) {
+            // weirdly this is the only one that does the syncing without the properties! - Loqor
             ClientSoundManager.getHum().setServersHum(tardis, current);
+
         }
     }
 
@@ -115,7 +129,8 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
         }
 
         private static void sync(VortexReference current, ClientTardis tardis) {
-            tardis.stats().setVortexEffects(current);
+            tardis.stats().setVortexEffects(current.id());
+            tardisSync(tardis.getUuid(), buf -> buf.writeIdentifier(current.id()), FLIGHT_SOUND_PACKET);
         }
     }
 
@@ -168,6 +183,11 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
 
         private static void sync(TardisAnimation current, ClientTardis tardis) {
             tardis.travel().setAnimationFor(current.getExpectedState(), current.id());
+
+            tardisSync(tardis.getUuid(), buf -> {
+                buf.writeEnumConstant(current.getExpectedState());
+                buf.writeIdentifier(current.id());
+            }, ANIMATION_PACKET);
         }
     }
 
@@ -196,7 +216,9 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
         }
 
         private static void sync(FlightSound current, ClientTardis tardis) {
-            tardis.stats().setFlightEffects(current);
+            tardis.stats().setFlightEffects(current.id());
+
+            tardisSync(tardis.getUuid(), buf -> buf.writeIdentifier(current.id()), FLIGHT_SOUND_PACKET);
         }
     }
 
@@ -228,5 +250,12 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
         private static void sync(SwitcherManager<?, ClientTardis> current, ClientTardis object) {
             current.sync(object);
         }
+    }
+
+    private static void tardisSync(UUID tardisId, Consumer<PacketByteBuf> bufConsumer, Identifier channel) {
+        PacketByteBuf bufs = PacketByteBufs.create();
+        bufs.writeUuid(tardisId);
+        bufConsumer.accept(bufs);
+        ClientPlayNetworking.send(channel, bufs);
     }
 }

@@ -10,6 +10,11 @@ import java.util.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import dev.amble.ait.client.screens.widget.SwitcherManager;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.data.hum.Hum;
+import dev.amble.ait.registry.impl.HumRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.joml.Vector3f;
 
 import net.minecraft.registry.RegistryKey;
@@ -89,6 +94,26 @@ public class StatsHandler extends KeyedTardisComponent {
     private Lazy<FlightSound> flightFxCache;
     @Exclude
     private Lazy<VortexReference> vortexFxCache;
+
+    static {
+        ServerPlayNetworking.registerGlobalReceiver(SwitcherManager.VORTEX_PACKET, ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+            Identifier id = buf.readIdentifier();
+
+            if (tardis == null || id == null)
+                return;
+
+            tardis.stats().setVortexEffects(id);
+        }));
+
+        ServerPlayNetworking.registerGlobalReceiver(SwitcherManager.FLIGHT_SOUND_PACKET, ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+            Identifier id = buf.readIdentifier();
+
+            if (tardis == null || id == null)
+                return;
+
+            tardis.stats().setFlightEffects(id);
+        }));
+    }
 
     public StatsHandler() {
         super(Id.STATS);
@@ -360,15 +385,15 @@ public class StatsHandler extends KeyedTardisComponent {
         return VortexReferenceRegistry.getInstance().getOrFallback(this.vortexId.get());
     }
 
-    public void setVortexEffects(VortexReference current) {
-        this.vortexId.set(current.id());
+    public void setVortexEffects(Identifier current) {
+        this.vortexId.set(current);
 
         if (this.vortexFxCache != null)
             this.vortexFxCache.invalidate();
     }
 
-    public void setFlightEffects(FlightSound current) {
-        this.flightId.set(current.id());
+    public void setFlightEffects(Identifier current) {
+        this.flightId.set(current);
 
         if (this.flightFxCache != null)
             this.flightFxCache.invalidate();
