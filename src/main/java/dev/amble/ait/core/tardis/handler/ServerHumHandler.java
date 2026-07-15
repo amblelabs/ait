@@ -21,9 +21,13 @@ public class ServerHumHandler extends TardisComponent {
     static {
         ServerPlayNetworking.registerGlobalReceiver(ServerHumHandler.RECEIVE,
                 ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+                    if (tardis == null) return;
+
+                    if (!StatsHandler.passesLoyaltyTest(tardis, player)) return;
+
                     Hum hum = HumRegistry.getInstance().get(buf.readIdentifier());
 
-                    if (tardis == null || hum == null)
+                    if (hum == null)
                         return;
 
                     tardis.hum().set(hum);

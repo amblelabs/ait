@@ -12,10 +12,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import dev.amble.ait.client.screens.TardisSecurityScreen;
 import dev.amble.ait.client.screens.widget.SwitcherManager;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.hum.Hum;
 import dev.amble.ait.registry.impl.HumRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import org.joml.Vector3f;
 
 import net.minecraft.registry.RegistryKey;
@@ -103,6 +107,8 @@ public class StatsHandler extends KeyedTardisComponent {
             if (tardis == null || id == null)
                 return;
 
+            if (!StatsHandler.passesLoyaltyTest(tardis, player)) return;
+
             tardis.stats().setVortexEffects(id);
         }));
 
@@ -112,6 +118,8 @@ public class StatsHandler extends KeyedTardisComponent {
             if (tardis == null || id == null)
                 return;
 
+            if (!StatsHandler.passesLoyaltyTest(tardis, player)) return;
+
             tardis.stats().setFlightEffects(id);
         }));
 
@@ -119,6 +127,8 @@ public class StatsHandler extends KeyedTardisComponent {
             boolean bool = buf.readBoolean();
 
             if (tardis == null) return;
+
+            if (!StatsHandler.passesLoyaltyTest(tardis, player)) return;
 
             tardis.stats().receiveCalls().set(bool);
         }));
@@ -406,5 +416,9 @@ public class StatsHandler extends KeyedTardisComponent {
 
         if (this.flightFxCache != null)
             this.flightFxCache.invalidate();
+    }
+
+    public static boolean passesLoyaltyTest(ServerTardis tardis, ServerPlayerEntity user) {
+        return tardis.stats().security().get() && SecurityControl.hasMatchingKey(user, tardis);
     }
 }

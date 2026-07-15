@@ -7,6 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 
 import dev.amble.ait.client.screens.TardisSecurityScreen;
+import dev.amble.ait.core.tardis.handler.StatsHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
@@ -75,6 +76,8 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
             boolean bool = buf.readBoolean();
 
             if (tardis == null) return;
+
+            if (!StatsHandler.passesLoyaltyTest(tardis, player)) return;
 
             tardis.travel().leaveBehind().set(bool);
         })));
