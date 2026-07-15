@@ -74,7 +74,8 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
         ServerPlayNetworking.registerGlobalReceiver(TardisSecurityScreen.TOGGLE_LEAVE_BEHIND, ServerTardisManager.receiveTardis(((tardis, server, player, handler, buf, responseSender) -> {
             if (tardis == null) return;
 
-            tardis.travel().leaveBehind().flatMap(value -> !value);
+            boolean bool = tardis.travel().leaveBehind().get();
+            tardis.travel().leaveBehind().set(!bool);
         })));
     }
 

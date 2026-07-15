@@ -118,7 +118,8 @@ public class StatsHandler extends KeyedTardisComponent {
         ServerPlayNetworking.registerGlobalReceiver(TardisSecurityScreen.SHOULD_RECEIVE_CALLS, ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
             if (tardis == null) return;
 
-            tardis.stats().receiveCalls().flatMap(value -> !value);
+            boolean bool = tardis.stats().receiveCalls().get();
+            tardis.stats().receiveCalls().set(!bool);
         }));
     }
 

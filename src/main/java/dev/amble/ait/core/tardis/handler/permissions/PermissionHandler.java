@@ -56,7 +56,7 @@ public class PermissionHandler extends KeyedTardisComponent {
     }
 
     public static void p19Loyalty(ClientTardis tardis, Loyalty.Type type) {
-        SwitcherManager.tardisSync(tardis.getUuid(), buf -> buf.writeEnumConstant(type), P19_LOYALTY_SYNC);
+        SwitcherManager.sync(tardis, buf -> buf.writeEnumConstant(type), P19_LOYALTY_SYNC);
     }
 
     public Value<Loyalty.Type> p19Loyalty() {
