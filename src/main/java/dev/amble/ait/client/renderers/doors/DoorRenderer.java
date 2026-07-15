@@ -1,5 +1,6 @@
 package dev.amble.ait.client.renderers.doors;
 
+import dev.amble.ait.client.AITModClient;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -160,7 +161,7 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
             }
         }
 
-        if ((tardis.door().getLeftRot() > 0 || this.variant.hasTransparentDoors()) && !tardis.isGrowth())
+        if ((tardis.door().getLeftRot() > 0 || this.variant.hasTransparentDoors()) && !tardis.isGrowth() && !AITModClient.skipBuiltInBOTI())
             BOTI.DOOR_RENDER_QUEUE.add(entity);
 
         matrices.pop();
