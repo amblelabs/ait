@@ -177,3 +177,4 @@
 - fix: client property sync has been removed due to vulnerabilities | by [@Loqor](https://github.com/Loqor) ([#2150](https://github.com/amblelabs/ait/pull/2150))
 - fix: Immersive Portals Wouldn't Get Removed When Unloaded | by [@Loqor](https://github.com/Loqor) ([#2155](https://github.com/amblelabs/ait/pull/2155))
 - fix: incorrect Astral Map distance (measured from interior player position) | by [@Nitjsefnie](https://github.com/Nitjsefnie) ([#2156](https://github.com/amblelabs/ait/pull/2156))
+- feat: Tardis can gift you plushie gift boxes! | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#2157](https://github.com/amblelabs/ait/pull/2157))
