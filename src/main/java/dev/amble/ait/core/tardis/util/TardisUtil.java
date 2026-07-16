@@ -502,8 +502,4 @@ public class TardisUtil {
         double perTick = FuelHandler.getPerTickFuelCost(speed, tardis.travel().instability(), tardis.travel().autopilot());
         return perTick * ticksRequired;
     }
-
-    public static boolean verifyTardis(ServerPlayerEntity player, UUID tardisId) {
-        return TardisServerWorld.getTardisId(player.getServerWorld()) == tardisId;
-    }
 }

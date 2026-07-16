@@ -9,6 +9,7 @@ import com.mojang.serialization.DataResult;
 import dev.amble.ait.client.screens.TardisSecurityScreen;
 import dev.amble.ait.core.tardis.handler.StatsHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.manager.old.DeprecatedServerTardisManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
@@ -73,14 +74,10 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
     protected int hammerUses = 0;
 
     static {
-        ServerPlayNetworking.registerGlobalReceiver(TardisSecurityScreen.TOGGLE_LEAVE_BEHIND, ServerTardisManager.receiveTardis(((tardis, server, player, handler, buf, responseSender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(TardisSecurityScreen.TOGGLE_LEAVE_BEHIND, ServerTardisManager.receiveTardis(DeprecatedServerTardisManager.guarded((tardis, server, player, handler, buf, responseSender) -> {
             boolean bool = buf.readBoolean();
 
             if (tardis == null) return;
-
-            if (!TardisUtil.verifyTardis(player, tardis.getUuid())) return;
-
-            if (!StatsHandler.passesLoyaltyTest(tardis, player)) return;
 
             tardis.travel().leaveBehind().set(bool);
         })));

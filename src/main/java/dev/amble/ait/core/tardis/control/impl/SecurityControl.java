@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import dev.amble.ait.core.tardis.ServerTardis;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -23,6 +24,12 @@ public class SecurityControl extends Control {
     public SecurityControl() {
         // ⨷ ?
         super(AITMod.id("protocol_19"));
+    }
+
+    public static boolean cannotAccess(ServerTardis tardis, ServerPlayerEntity player) {
+        boolean bl = tardis.stats().security().get() && !SecurityControl.hasMatchingKey(player, tardis);
+        boolean bl2 = !tardis.hasWorld() || tardis.world() != player.getServerWorld();
+        return bl || bl2;
     }
 
     @Override

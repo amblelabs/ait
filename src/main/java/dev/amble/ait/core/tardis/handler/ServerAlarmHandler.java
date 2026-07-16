@@ -6,6 +6,7 @@ import java.util.Queue;
 
 import dev.amble.ait.client.screens.TardisSecurityScreen;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.manager.old.DeprecatedServerTardisManager;
 import dev.drtheo.queue.api.ActionQueue;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -50,18 +51,14 @@ public class ServerAlarmHandler extends KeyedTardisComponent implements TardisTi
     private final BoolValue hostilePresence = HOSTILE_PRESENCE.create(this);
 
     static {
-        ServerPlayNetworking.registerGlobalReceiver(TardisSecurityScreen.TOGGLE_HOSTILE_ALARMS, ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(TardisSecurityScreen.TOGGLE_HOSTILE_ALARMS, ServerTardisManager.receiveTardis(DeprecatedServerTardisManager.guarded((tardis, server, player, handler, buf, responseSender) -> {
             boolean bool = buf.readBoolean();
 
             if (tardis == null)
                 return;
 
-            if (!TardisUtil.verifyTardis(player, tardis.getUuid())) return;
-
-            if (!StatsHandler.passesLoyaltyTest(tardis, player)) return;
-
             tardis.alarm().hostilePresence().set(bool);
-        }));
+        })));
     }
 
     public ServerAlarmHandler() {

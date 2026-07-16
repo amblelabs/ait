@@ -15,6 +15,7 @@ import dev.amble.ait.client.screens.widget.SwitcherManager;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.manager.old.DeprecatedServerTardisManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.hum.Hum;
 import dev.amble.ait.registry.impl.HumRegistry;
@@ -102,43 +103,31 @@ public class StatsHandler extends KeyedTardisComponent {
     private Lazy<VortexReference> vortexFxCache;
 
     static {
-        ServerPlayNetworking.registerGlobalReceiver(SwitcherManager.VORTEX_PACKET, ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(SwitcherManager.VORTEX_PACKET, ServerTardisManager.receiveTardis(DeprecatedServerTardisManager.guarded((tardis, server, player, handler, buf, responseSender) -> {
             Identifier id = buf.readIdentifier();
 
             if (tardis == null || id == null)
                 return;
-
-            if (!TardisUtil.verifyTardis(player, tardis.getUuid())) return;
-
-            if (!StatsHandler.passesLoyaltyTest(tardis, player)) return;
 
             tardis.stats().setVortexEffects(id);
-        }));
+        })));
 
-        ServerPlayNetworking.registerGlobalReceiver(SwitcherManager.FLIGHT_SOUND_PACKET, ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(SwitcherManager.FLIGHT_SOUND_PACKET, ServerTardisManager.receiveTardis(DeprecatedServerTardisManager.guarded((tardis, server, player, handler, buf, responseSender) -> {
             Identifier id = buf.readIdentifier();
 
             if (tardis == null || id == null)
                 return;
 
-            if (!TardisUtil.verifyTardis(player, tardis.getUuid())) return;
-
-            if (!StatsHandler.passesLoyaltyTest(tardis, player)) return;
-
             tardis.stats().setFlightEffects(id);
-        }));
+        })));
 
-        ServerPlayNetworking.registerGlobalReceiver(TardisSecurityScreen.SHOULD_RECEIVE_CALLS, ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(TardisSecurityScreen.SHOULD_RECEIVE_CALLS, ServerTardisManager.receiveTardis(DeprecatedServerTardisManager.guarded((tardis, server, player, handler, buf, responseSender) -> {
             boolean bool = buf.readBoolean();
 
             if (tardis == null) return;
 
-            if (!TardisUtil.verifyTardis(player, tardis.getUuid())) return;
-
-            if (!StatsHandler.passesLoyaltyTest(tardis, player)) return;
-
             tardis.stats().receiveCalls().set(bool);
-        }));
+        })));
     }
 
     public StatsHandler() {
@@ -423,9 +412,5 @@ public class StatsHandler extends KeyedTardisComponent {
 
         if (this.flightFxCache != null)
             this.flightFxCache.invalidate();
-    }
-
-    public static boolean passesLoyaltyTest(ServerTardis tardis, ServerPlayerEntity user) {
-        return tardis.stats().security().get() && SecurityControl.hasMatchingKey(user, tardis);
     }
 }

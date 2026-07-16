@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Either;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.drtheo.multidim.MultiDim;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -236,6 +237,13 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
         return (server, player, handler, buf, responseSender) -> {
             ServerTardisManager.getInstance().getTardis(server, buf.readUuid(),
                     tardis -> receiver.receive(tardis, server, player, handler, buf, responseSender));
+        };
+    }
+
+    public static Receiver guarded(Receiver receiver) {
+        return (tardis, server, player, handler, buf, sender) -> {
+              if (SecurityControl.cannotAccess(tardis, player)) return;
+              receiver.receive(tardis, server, player, handler, buf, sender);
         };
     }
 

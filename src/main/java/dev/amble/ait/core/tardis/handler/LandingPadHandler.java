@@ -4,6 +4,7 @@ package dev.amble.ait.core.tardis.handler;
 import dev.amble.ait.client.screens.TardisSecurityScreen;
 import dev.amble.ait.core.tardis.handler.permissions.PermissionHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.manager.old.DeprecatedServerTardisManager;
 import dev.amble.ait.data.Loyalty;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.jetbrains.annotations.Nullable;
@@ -51,18 +52,14 @@ public class LandingPadHandler extends KeyedTardisComponent {
             return TardisEvents.Interaction.PASS;
         });
 
-        ServerPlayNetworking.registerGlobalReceiver(TardisSecurityScreen.LANDING_CODE, ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(TardisSecurityScreen.LANDING_CODE, ServerTardisManager.receiveTardis(DeprecatedServerTardisManager.guarded((tardis, server, player, handler, buf, responseSender) -> {
             if (tardis == null)
                 return;
-
-            if (!TardisUtil.verifyTardis(player, tardis.getUuid())) return;
-
-            if (!StatsHandler.passesLoyaltyTest(tardis, player)) return;
 
             String input = buf.readString();
 
             tardis.landingPad().code().set(input);
-        }));
+        })));
     }
 
     public LandingPadHandler() {
