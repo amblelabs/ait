@@ -173,3 +173,4 @@
 - remove FIND_PLAYER | by [@Loqor](https://github.com/Loqor) ([#2149](https://github.com/amblelabs/ait/pull/2149))
 - fix: in built boti gets ignored if the immersive portals stuff is active | by [@Loqor](https://github.com/Loqor) ([#2151](https://github.com/amblelabs/ait/pull/2151))
 - chore: even more community-suggested splashes | by [@drtheodor](https://github.com/drtheodor) ([#2153](https://github.com/amblelabs/ait/pull/2153))
+- Interior Reconfiguration Issues | by [@Loqor](https://github.com/Loqor) ([#2154](https://github.com/amblelabs/ait/pull/2154))
