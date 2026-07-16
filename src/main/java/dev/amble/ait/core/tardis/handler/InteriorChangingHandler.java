@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.amble.ait.core.AITSounds;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -63,7 +63,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
     public static final int MAX_PLASMIC_MATERIAL_AMOUNT = 8;
     private static final Text HINT_TEXT = Text.translatable("tardis.message.growth.hint").formatted(Formatting.DARK_GRAY, Formatting.ITALIC);
 
-    private static final int EMPTY_LOCK_DELAY_TICKS = 60; // 3 seconds
+    private static final int EMPTY_LOCK_DELAY_TICKS = 60;
 
     private final Value<Identifier> queuedInterior = QUEUED_INTERIOR_PROPERTY.create(this);
     private static final IntProperty PLASMIC_MATERIAL_AMOUNT = new IntProperty("plasmic_material_amount");
@@ -229,6 +229,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                 .thenRun(() -> {
                     this.queued.set(false);
                     this.regenerating.set(false);
+                    this.countdownStarted = false;
 
                     if (tardis.hasGrowthExterior()) {
                         TravelHandler travel = tardis.travel();
@@ -253,14 +254,15 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
                     ParticleEffect particle = ParticleTypes.CLOUD;
                     tardis.door().setDoorParticles(particle);
+                    tardis.door().setLocked(false);
                     Scheduler.get().runTaskLater(() -> tardis.door().setDoorParticles(null), TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 3);
                 }).execute();
     }
 
     private void playReconfigureCompleteSound() {
-        ServerWorld world = tardis.asServer().world();
-        DirectedGlobalPos position = tardis.travel().position();
-        BlockPos pos = position != null ? position.getPos() : tardis.getDesktop().getDoorPos().getPos();
+        CachedDirectedGlobalPos position = tardis.travel().position();
+        ServerWorld world = position.getWorld();
+        BlockPos pos = position.getPos();
 
         world.playSound(null, pos, AITSounds.TARDIS_BLING, SoundCategory.BLOCKS, 10.0F, 1.0F);
     }
@@ -281,10 +283,6 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         });
     }
 
-    /**
-     * Replaces the console with air, and places soul sand beneath it.
-     * @param cPos The position of the console to replace.
-     */
     private void replaceConsoleWithGrowth(BlockPos cPos) {
         ServerWorld world = tardis.asServer().world();
 
@@ -297,10 +295,6 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         console.onBroken();
     }
 
-    /**
-     * Replaces all consoles with growth.
-     * @see #replaceConsoleWithGrowth(BlockPos)
-     */
     private void replaceAllConsolesWithGrowth() {
         for (BlockPos cPos : tardis.getDesktop().getConsolePos()) {
             replaceConsoleWithGrowth(cPos);
@@ -310,31 +304,43 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
     @Override
     public void tick(MinecraftServer server) {
         this.tickGrowth(server);
-        this.tickAutoLock();
 
-        if (!this.queued.get())
+        if (!this.queued.get()) {
+            this.emptyInteriorTicks = 0;
+            this.countdownStarted = false;
             return;
+        }
 
         if (!this.canQueue()) {
             this.queued.set(false);
             this.regenerating.set(false);
-
+            this.countdownStarted = false;
             tardis.alarm().disable();
             return;
         }
 
-        if (!TardisUtil.isInteriorEmpty(tardis.asServer()) && this.regenerating.get()) {
-            PlayerEntity target = TardisUtil.getAnyPlayerInsideInterior(tardis.asServer().world());
+        if (!TardisUtil.isInteriorEmpty(tardis.asServer())) {
+            this.emptyInteriorTicks = 0;
 
-            if (this.tardis().subsystems().lifeSupport().isEnabled()) {
-                TardisUtil.teleportOutside(tardis.asServer(), target);
-            } else {
-                target.damage(AITDamageTypes.of(target.getWorld(), AITDamageTypes.INTERIOR_CHANGE), Float.MAX_VALUE);
+            if (this.regenerating.get()) {
+                PlayerEntity target = TardisUtil.getAnyPlayerInsideInterior(tardis.asServer().world());
+                if (this.tardis().subsystems().lifeSupport().isEnabled()) {
+                    TardisUtil.teleportOutside(tardis.asServer(), target);
+                } else {
+                    target.damage(AITDamageTypes.of(target.getWorld(), AITDamageTypes.INTERIOR_CHANGE), Float.MAX_VALUE);
+                }
             }
+            return;
         }
 
-        if (!this.regenerating.get() && !this.countdownStarted) {
-            this.startRegeneratingCountdown();
+        this.emptyInteriorTicks++;
+
+        if (this.emptyInteriorTicks >= EMPTY_LOCK_DELAY_TICKS) {
+            this.tardis.door().setLocked(true);
+
+            if (!this.countdownStarted && !this.regenerating.get()) {
+                this.startRegeneratingCountdown();
+            }
         }
     }
 
@@ -357,34 +363,11 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         }
     }
 
-    /**
-     * Locks the interior doors once no player has been inside the
-     * interior dimension for {@link #EMPTY_LOCK_DELAY_TICKS} ticks, then
-     * performs the queued interior change, if any.
-     */
-    private void tickAutoLock() {
-        if (this.tardis.isGrowth())
-            return;
-
-        if (TardisUtil.isInteriorEmpty(tardis.asServer())) {
-            if (++this.emptyInteriorTicks == EMPTY_LOCK_DELAY_TICKS) {
-                this.tardis.door().setLocked(true);
-
-                if (this.queued.get())
-                    this.changeInterior();
-            }
-        } else {
-            this.emptyInteriorTicks = 0;
-        }
-    }
-
     private ServerAlarmHandler.Countdown startRegeneratingCountdown() {
         ServerAlarmHandler.Countdown cd = new ServerAlarmHandler.Countdown.Builder().bellTolls(15).message("tardis.message.interiorchange.regenerating").thenRun(() -> {
             tardis.getDesktop().startQueue(true);
             Scheduler.get().runTaskLater(this::changeInterior, TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 15);
-
             this.regenerating.set(true);
-            this.countdownStarted = false;
         });
 
         this.tardis().alarm().enable(cd);
