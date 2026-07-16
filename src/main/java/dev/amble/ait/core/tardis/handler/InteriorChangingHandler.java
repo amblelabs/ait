@@ -366,7 +366,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
     private ServerAlarmHandler.Countdown startRegeneratingCountdown() {
         ServerAlarmHandler.Countdown cd = new ServerAlarmHandler.Countdown.Builder().bellTolls(15).message("tardis.message.interiorchange.regenerating").thenRun(() -> {
             tardis.getDesktop().startQueue(true);
-            Scheduler.get().runTaskLater(this::changeInterior, TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 15);
+            Scheduler.get().runTaskLater(this::changeInterior, TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 5);
             this.regenerating.set(true);
         });
 
