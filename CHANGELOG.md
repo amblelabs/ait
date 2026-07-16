@@ -175,3 +175,4 @@
 - chore: even more community-suggested splashes | by [@drtheodor](https://github.com/drtheodor) ([#2153](https://github.com/amblelabs/ait/pull/2153))
 - Interior Reconfiguration Issues | by [@Loqor](https://github.com/Loqor) ([#2154](https://github.com/amblelabs/ait/pull/2154))
 - fix: client property sync has been removed due to vulnerabilities | by [@Loqor](https://github.com/Loqor) ([#2150](https://github.com/amblelabs/ait/pull/2150))
+- Immersive Portals Wouldn't Get Removed When Unloaded | by [@Loqor](https://github.com/Loqor) ([#2155](https://github.com/amblelabs/ait/pull/2155))
