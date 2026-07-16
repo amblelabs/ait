@@ -85,4 +85,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - run: |
-        curl "https://jitpack.io/api/builds/com.github.amblelabs/ait/${GITHUB_SHA:0:10}" -H 'dnt: 1'
+        curl "https://jitpack.io/api/builds/dev.amblelabs/ait/${GITHUB_SHA:0:10}" -H 'dnt: 1'
