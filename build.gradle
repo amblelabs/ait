@@ -53,7 +53,7 @@ repositories {
 
     // AmbleKit
     maven {
-        url "https://jitpack.io"
+        url "https://maven.amblelabs.dev"
 
         content {
             includeGroup "dev.amblelabs"
