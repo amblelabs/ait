@@ -33,6 +33,10 @@ public class EntityRef<T extends Entity> {
         this.world = world;
     }
 
+    public ServerWorld getWorld() {
+        return this.world;
+    }
+
     public void setWorld(ServerWorld world) {
         this.world = world;
     }

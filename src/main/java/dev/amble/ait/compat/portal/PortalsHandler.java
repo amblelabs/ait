@@ -132,6 +132,14 @@ public class PortalsHandler extends KeyedTardisComponent {
         return null;
     }
 
+    public @Nullable EntityRef<TardisPortal> getExteriorRef() {
+        return exteriorRef;
+    }
+
+    public @Nullable EntityRef<TardisPortal> getInteriorRef() {
+        return interiorRef;
+    }
+
     private void generatePortals() {
         CachedDirectedGlobalPos exteriorPos = this.tardis().travel().position();
 
@@ -157,7 +165,7 @@ public class PortalsHandler extends KeyedTardisComponent {
         Vec3d doorAdjust = adjustInteriorPos(variant.door(), doorPos, portalHeight);
         Vec3d exteriorAdjust = adjustExteriorPos(variant, exteriorPos, portalHeight);
 
-        TardisPortal portal = new TardisPortal(tardis.travel().getState() == TravelHandlerBase.State.FLIGHT ? WorldUtil.getTimeVortex() : exteriorPos.getWorld());
+        TardisPortal portal = new TardisPortal(tardis, tardis.travel().getState() == TravelHandlerBase.State.FLIGHT ? WorldUtil.getTimeVortex() : exteriorPos.getWorld());
 
         portal.setOrientationAndSize(
                 new Vec3d(1, 0, 0), // axisW
@@ -195,7 +203,7 @@ public class PortalsHandler extends KeyedTardisComponent {
         Vec3d doorAdjust = adjustInteriorPos(variant.door(), doorPos, portalHeight);
         Vec3d exteriorAdjust = adjustExteriorPos(variant, exteriorPos, portalHeight);
 
-        TardisPortal portal = new TardisPortal(tardis.asServer().world());
+        TardisPortal portal = new TardisPortal(tardis, tardis.asServer().world());
 
         portal.setOrientationAndSize(
                 new Vec3d(1, 0, 0), // axisW
