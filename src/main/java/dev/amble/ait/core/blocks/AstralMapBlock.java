@@ -141,7 +141,7 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
                 if (newPos != null) {
                     player.sendMessage(Text.translatable(
                             "block.ait.astral_map.finder.found", newPos.getX(), newPos.getY(), newPos.getZ(),
-                            Math.round(Math.sqrt(newPos.getSquaredDistance(player.getPos())))), false);
+                            Math.round(Math.sqrt(newPos.getSquaredDistance(tPos.getPos())))), false);
                     tardis.travel().destination(destination -> destination.pos(newPos));
                 } else {
                     player.sendMessage(Text.translatable("block.ait.astral_map.finder.structure_not_found"), false);
@@ -169,7 +169,7 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
 
             if (r != null) {
                 BlockPos locatedBiome = r.getFirst();
-                int distance = (int) Math.round(Math.sqrt(locatedBiome.getSquaredDistance(player.getPos())));
+                int distance = (int) Math.round(Math.sqrt(locatedBiome.getSquaredDistance(start)));
                 player.sendMessage(Text.translatable("block.ait.astral_map.finder.found",
                         locatedBiome.getX(), locatedBiome.getY(), locatedBiome.getZ(), distance), false);
                 tardis.travel().destination(destination -> destination.pos(locatedBiome));
