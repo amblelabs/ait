@@ -1,5 +1,6 @@
 package dev.amble.ait.core.tardis.handler;
 
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
@@ -20,14 +21,16 @@ public class ServerHumHandler extends TardisComponent {
 
     static {
         ServerPlayNetworking.registerGlobalReceiver(ServerHumHandler.RECEIVE,
-                ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
-                    Hum hum = HumRegistry.getInstance().get(buf.readIdentifier()); // todo use theos properties
+                ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
+                    if (tardis == null) return;
 
-                    if (tardis == null || hum == null)
+                    Hum hum = HumRegistry.getInstance().get(buf.readIdentifier());
+
+                    if (hum == null)
                         return;
 
                     tardis.hum().set(hum);
-                }));
+                })));
     }
 
     public ServerHumHandler() {

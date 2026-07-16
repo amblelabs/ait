@@ -99,17 +99,9 @@ public class Value<T> implements Disposable {
         if (this.holder == null)
             return;
 
-        if (!(this.holder.tardis() instanceof ServerTardis tardis)) {
-            this.syncToServer();
-            return;
+        if (this.holder.tardis() instanceof ServerTardis tardis) {
+            ServerTardisManager.getInstance().markPropertyDirty(tardis, this);
         }
-
-        ServerTardisManager.getInstance().markPropertyDirty(tardis, this);
-    }
-
-    @Environment(EnvType.CLIENT)
-    protected void syncToServer() {
-        ClientTardisManager.getInstance().sendProperty(this);
     }
 
     public void flatMap(Function<T, T> func) {

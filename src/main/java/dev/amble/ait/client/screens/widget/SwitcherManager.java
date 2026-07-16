@@ -1,9 +1,12 @@
 package dev.amble.ait.client.screens.widget;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.sounds.ClientSoundManager;
@@ -14,11 +17,17 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.handler.ServerHumHandler;
+import dev.amble.ait.core.tardis.handler.StatsHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
 import dev.amble.ait.data.hum.Hum;
 import dev.amble.ait.registry.impl.HumRegistry;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.Identifier;
 
 public class SwitcherManager<T extends Nameable, U> implements Nameable {
 
@@ -115,7 +124,8 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
         }
 
         private static void sync(VortexReference current, ClientTardis tardis) {
-            tardis.stats().setVortexEffects(current);
+            tardis.stats().setVortexEffects(current.id());
+            sync(tardis, buf -> buf.writeIdentifier(current.id()), StatsHandler.VORTEX_PACKET);
         }
     }
 
@@ -168,6 +178,11 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
 
         private static void sync(TardisAnimation current, ClientTardis tardis) {
             tardis.travel().setAnimationFor(current.getExpectedState(), current.id());
+
+            sync(tardis, buf -> {
+                buf.writeEnumConstant(current.getExpectedState());
+                buf.writeIdentifier(current.id());
+            }, TravelHandler.ANIMATION_PACKET);
         }
     }
 
@@ -196,7 +211,9 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
         }
 
         private static void sync(FlightSound current, ClientTardis tardis) {
-            tardis.stats().setFlightEffects(current);
+            tardis.stats().setFlightEffects(current.id());
+
+            sync(tardis, buf -> buf.writeIdentifier(current.id()), StatsHandler.FLIGHT_SOUND_PACKET);
         }
     }
 
@@ -228,5 +245,12 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
         private static void sync(SwitcherManager<?, ClientTardis> current, ClientTardis object) {
             current.sync(object);
         }
+    }
+
+    public static void sync(Tardis tardis, Consumer<PacketByteBuf> bufConsumer, Identifier channel) {
+        PacketByteBuf bufs = PacketByteBufs.create();
+        bufs.writeUuid(tardis.getUuid());
+        bufConsumer.accept(bufs);
+        ClientPlayNetworking.send(channel, bufs);
     }
 }
