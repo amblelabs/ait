@@ -3,12 +3,14 @@ package dev.amble.ait.core.tardis.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.core.AITSounds;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.block.Blocks;
+import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -133,7 +135,6 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                     if (tardis == null || desktop == null)
                         return;
 
-                    // nuh uh no interior changing during flight
                     if (tardis.travel().getState() != TravelHandler.State.LANDED)
                         return;
 
@@ -159,7 +160,6 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         hasCage.set(value);
     }
 
-    // unused but here for parity
     public void setPlasmicMaterialAmount(int amount) {
         plasmicMaterialAmount.set(amount);
     }
@@ -235,7 +235,6 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
                         travel.autopilot(true);
 
-                        // Should unlock the world the TARDIS is grown in, reducing PR #1908 to ashes. - Loqor
                         LockedDimension worldID = LockedDimensionRegistry.getInstance().get(travel.position().getWorld());
                         if (worldID != null) {
                             tardis.stats().unlock(worldID);
@@ -250,11 +249,20 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                     TardisUtil.sendMessageToLinked(tardis.asServer(), Text.translatable("tardis.message.interiorchange.success", tardis.stats().getName(), tardis.getDesktop().getSchema().name()));
 
                     this.restoreSubsystemsToConsole();
+                    this.playReconfigureCompleteSound();
 
                     ParticleEffect particle = ParticleTypes.CLOUD;
                     tardis.door().setDoorParticles(particle);
                     Scheduler.get().runTaskLater(() -> tardis.door().setDoorParticles(null), TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 3);
                 }).execute();
+    }
+
+    private void playReconfigureCompleteSound() {
+        ServerWorld world = tardis.asServer().world();
+        DirectedGlobalPos position = tardis.travel().position();
+        BlockPos pos = position != null ? position.getPos() : tardis.getDesktop().getDoorPos().getPos();
+
+        world.playSound(null, pos, AITSounds.TARDIS_BLING, SoundCategory.BLOCKS, 10.0F, 1.0F);
     }
 
     private void restoreSubsystemsToConsole() {
