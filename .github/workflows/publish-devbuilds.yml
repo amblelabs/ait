@@ -86,5 +86,3 @@ jobs:
     steps:
     - run: |
         curl "https://jitpack.io/api/builds/com.github.amblelabs/ait/${GITHUB_SHA:0:10}" -H 'dnt: 1'
-        token: ${{ secrets.BOT_TOKEN }}
-        message: "chore: publish AIT artifacts"
