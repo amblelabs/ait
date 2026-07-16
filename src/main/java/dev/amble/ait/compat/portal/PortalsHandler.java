@@ -126,7 +126,14 @@ public class PortalsHandler extends KeyedTardisComponent {
                 this.exteriorRef.setWorld(exteriorWorld);
             }
 
-            return this.exteriorRef.get();
+            TardisPortal portal = this.exteriorRef.get();
+
+            if (portal != null) {
+                return portal;
+            } else {
+                ServerWorld exteriorWorld = this.exteriorRef.getWorld();
+                exteriorWorld.getChunk(tardis.travel().position().getPos());
+            }
         }
 
         return null;
