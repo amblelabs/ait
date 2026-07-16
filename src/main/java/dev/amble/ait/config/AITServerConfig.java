@@ -129,6 +129,10 @@ public class AITServerConfig {
     @FloatSlider(min = 0, max = 16, step = 0.1f)
     @SerialEntry public float flightSoundVolume = 2f;
 
+    @AutoGen(category = CATEGORY)
+    @IntSlider(min = 1, max = 128, step = 1)
+    @SerialEntry public int maxStabilizedSpeed = 4;
+
     public static class StringListFactory implements ListGroup.ValueFactory<String>, ListGroup.ControllerFactory<String> {
 
         // used by the reflections

@@ -503,11 +503,11 @@ public class AITModClient implements ClientModInitializer {
         ParticleFactoryRegistry.getInstance().register(CORAL_PARTICLE, EndRodParticle.Factory::new);
     }
 
-    private boolean skipBuiltInBOTI() {
+    public static boolean skipBuiltInBOTI() {
         return (DependencyChecker.hasPortals() && CONFIG.allowPortalsBoti) || !CONFIG.enableTardisBOTI;
     }
 
-    private boolean skipPaintingBOTI() {
+    public static boolean skipPaintingBOTI() {
         return DependencyChecker.hasPortals() || !CONFIG.enableTardisBOTI;
     }
 
