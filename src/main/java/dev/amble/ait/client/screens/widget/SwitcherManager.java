@@ -17,6 +17,8 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.handler.ServerHumHandler;
+import dev.amble.ait.core.tardis.handler.StatsHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
@@ -28,10 +30,6 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
 public class SwitcherManager<T extends Nameable, U> implements Nameable {
-
-    public static final Identifier FLIGHT_SOUND_PACKET = AITMod.id("flight_sound_packet");
-    public static final Identifier VORTEX_PACKET = AITMod.id("vortex_packet");
-    public static final Identifier ANIMATION_PACKET = AITMod.id("animation_packet");
 
     private final Function<T, T> next;
     private final Function<T, T> previous;
@@ -127,7 +125,7 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
 
         private static void sync(VortexReference current, ClientTardis tardis) {
             tardis.stats().setVortexEffects(current.id());
-            sync(tardis, buf -> buf.writeIdentifier(current.id()), VORTEX_PACKET);
+            sync(tardis, buf -> buf.writeIdentifier(current.id()), StatsHandler.VORTEX_PACKET);
         }
     }
 
@@ -184,7 +182,7 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
             sync(tardis, buf -> {
                 buf.writeEnumConstant(current.getExpectedState());
                 buf.writeIdentifier(current.id());
-            }, ANIMATION_PACKET);
+            }, TravelHandler.ANIMATION_PACKET);
         }
     }
 
@@ -215,7 +213,7 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
         private static void sync(FlightSound current, ClientTardis tardis) {
             tardis.stats().setFlightEffects(current.id());
 
-            sync(tardis, buf -> buf.writeIdentifier(current.id()), FLIGHT_SOUND_PACKET);
+            sync(tardis, buf -> buf.writeIdentifier(current.id()), StatsHandler.FLIGHT_SOUND_PACKET);
         }
     }
 

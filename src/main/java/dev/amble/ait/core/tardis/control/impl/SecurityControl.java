@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.manager.old.DeprecatedServerTardisManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -27,9 +28,17 @@ public class SecurityControl extends Control {
     }
 
     public static boolean cannotAccess(ServerTardis tardis, ServerPlayerEntity player) {
-        boolean bl = tardis.stats().security().get() && !SecurityControl.hasMatchingKey(player, tardis);
-        boolean bl2 = !tardis.hasWorld() || tardis.world() != player.getServerWorld();
-        return bl || bl2;
+        if (!tardis.hasWorld() || tardis.world() != player.getServerWorld())
+            return true; // To verify the packet is coming from a player in the TARDIS' dimension
+
+        return tardis.stats().security().get() && !SecurityControl.hasMatchingKey(player, tardis);
+    }
+
+    public static DeprecatedServerTardisManager.Receiver withLoyaltyCheck(DeprecatedServerTardisManager.Receiver receiver) {
+        return (tardis, server, player, handler, buf, sender) -> {
+              if (cannotAccess(tardis, player)) return;
+              receiver.receive(tardis, server, player, handler, buf, sender);
+        };
     }
 
     @Override

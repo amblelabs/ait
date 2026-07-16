@@ -10,18 +10,9 @@ import java.util.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import dev.amble.ait.client.screens.TardisSecurityScreen;
-import dev.amble.ait.client.screens.widget.SwitcherManager;
-import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.tardis.manager.old.DeprecatedServerTardisManager;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.data.hum.Hum;
-import dev.amble.ait.registry.impl.HumRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
 import org.joml.Vector3f;
 
 import net.minecraft.registry.RegistryKey;
@@ -53,6 +44,10 @@ import dev.amble.lib.register.unlockable.Unlockable;
 import dev.amble.lib.util.ServerLifecycleHooks;
 
 public class StatsHandler extends KeyedTardisComponent {
+
+    public static final Identifier SHOULD_RECEIVE_CALLS = AITMod.id("should_receive_calls");
+    public static final Identifier FLIGHT_SOUND_PACKET = AITMod.id("flight_sound_packet");
+    public static final Identifier VORTEX_PACKET = AITMod.id("vortex_packet");
 
     private static final Identifier NAME_PATH = AITMod.id("tardis_names.json");
     private static List<String> NAME_CACHE;
@@ -103,7 +98,7 @@ public class StatsHandler extends KeyedTardisComponent {
     private Lazy<VortexReference> vortexFxCache;
 
     static {
-        ServerPlayNetworking.registerGlobalReceiver(SwitcherManager.VORTEX_PACKET, ServerTardisManager.receiveTardis(DeprecatedServerTardisManager.guarded((tardis, server, player, handler, buf, responseSender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(VORTEX_PACKET, ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
             Identifier id = buf.readIdentifier();
 
             if (tardis == null || id == null)
@@ -112,7 +107,7 @@ public class StatsHandler extends KeyedTardisComponent {
             tardis.stats().setVortexEffects(id);
         })));
 
-        ServerPlayNetworking.registerGlobalReceiver(SwitcherManager.FLIGHT_SOUND_PACKET, ServerTardisManager.receiveTardis(DeprecatedServerTardisManager.guarded((tardis, server, player, handler, buf, responseSender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(FLIGHT_SOUND_PACKET, ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
             Identifier id = buf.readIdentifier();
 
             if (tardis == null || id == null)
@@ -121,7 +116,7 @@ public class StatsHandler extends KeyedTardisComponent {
             tardis.stats().setFlightEffects(id);
         })));
 
-        ServerPlayNetworking.registerGlobalReceiver(TardisSecurityScreen.SHOULD_RECEIVE_CALLS, ServerTardisManager.receiveTardis(DeprecatedServerTardisManager.guarded((tardis, server, player, handler, buf, responseSender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(SHOULD_RECEIVE_CALLS, ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
             boolean bool = buf.readBoolean();
 
             if (tardis == null) return;

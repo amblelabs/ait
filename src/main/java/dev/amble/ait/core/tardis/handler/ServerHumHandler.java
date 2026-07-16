@@ -1,7 +1,6 @@
 package dev.amble.ait.core.tardis.handler;
 
-import dev.amble.ait.core.tardis.manager.old.DeprecatedServerTardisManager;
-import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
@@ -22,7 +21,7 @@ public class ServerHumHandler extends TardisComponent {
 
     static {
         ServerPlayNetworking.registerGlobalReceiver(ServerHumHandler.RECEIVE,
-                ServerTardisManager.receiveTardis(DeprecatedServerTardisManager.guarded((tardis, server, player, handler, buf, responseSender) -> {
+                ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
                     if (tardis == null) return;
 
                     Hum hum = HumRegistry.getInstance().get(buf.readIdentifier());

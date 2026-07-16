@@ -6,13 +6,12 @@ import java.util.function.Function;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 
-import dev.amble.ait.client.screens.TardisSecurityScreen;
-import dev.amble.ait.core.tardis.handler.StatsHandler;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.tardis.manager.old.DeprecatedServerTardisManager;
-import dev.amble.ait.core.tardis.util.TardisUtil;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -34,6 +33,8 @@ import dev.amble.ait.data.properties.integer.IntValue;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public abstract class TravelHandlerBase extends KeyedTardisComponent implements TardisTickable {
+
+    public static final Identifier TOGGLE_LEAVE_BEHIND = AITMod.id("toggle_leave_behind");
 
     private static final Property<State> STATE = Property.forEnum("state", State.class, State.LANDED);
     private static final BoolProperty LEAVE_BEHIND = new BoolProperty("leave_behind", false);
@@ -74,7 +75,7 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
     protected int hammerUses = 0;
 
     static {
-        ServerPlayNetworking.registerGlobalReceiver(TardisSecurityScreen.TOGGLE_LEAVE_BEHIND, ServerTardisManager.receiveTardis(DeprecatedServerTardisManager.guarded((tardis, server, player, handler, buf, responseSender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(TOGGLE_LEAVE_BEHIND, ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
             boolean bool = buf.readBoolean();
 
             if (tardis == null) return;

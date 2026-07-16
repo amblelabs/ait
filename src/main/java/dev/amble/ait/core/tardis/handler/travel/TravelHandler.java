@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
-import dev.amble.ait.client.screens.widget.SwitcherManager;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.scheduler.api.TimeUnit;
@@ -55,6 +54,8 @@ import dev.amble.ait.data.Exclude;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public final class TravelHandler extends AnimatedTravelHandler implements CrashableTardisTravel {
+
+    public static final Identifier ANIMATION_PACKET = AITMod.id("animation_packet");
 
     private static final HashMap<UUID, Boolean> ENGINE_OVERLOAD_ARMED = new HashMap<>();
     private static final HashMap<UUID, Task<?>> ENGINE_OVERLOAD_CONFIRMATION_TIMER = new HashMap<>();
@@ -141,7 +142,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
             }
         });
 
-        ServerPlayNetworking.registerGlobalReceiver(SwitcherManager.ANIMATION_PACKET, ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(ANIMATION_PACKET, ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
             State state = buf.readEnumConstant(State.class);
             Identifier id = buf.readIdentifier();
 
@@ -149,7 +150,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
                 return;
 
             tardis.travel().setAnimationFor(state, id);
-        }));
+        })));
 
         if (EnvType.CLIENT == FabricLoader.getInstance().getEnvironmentType()) initializeClient();
     }

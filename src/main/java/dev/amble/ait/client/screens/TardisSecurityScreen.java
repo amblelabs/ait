@@ -1,6 +1,9 @@
 package dev.amble.ait.client.screens;
 
 import dev.amble.ait.client.screens.widget.SwitcherManager;
+import dev.amble.ait.core.tardis.handler.LandingPadHandler;
+import dev.amble.ait.core.tardis.handler.ServerAlarmHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.properties.Value;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -24,11 +27,6 @@ import dev.amble.ait.data.Loyalty;
 public class TardisSecurityScreen extends ConsoleScreen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
             "textures/gui/tardis/monitor/security_menu.png");
-
-    public static final Identifier LANDING_CODE = AITMod.id("landing_code");
-    public static final Identifier TOGGLE_HOSTILE_ALARMS = AITMod.id("toggle_hostile_alarms");
-    public static final Identifier TOGGLE_LEAVE_BEHIND = AITMod.id("toggle_leave_behind");
-    public static final Identifier SHOULD_RECEIVE_CALLS = AITMod.id("should_receive_calls");
 
     int bgHeight = 138;
     int bgWidth = 216;
@@ -93,13 +91,13 @@ public class TardisSecurityScreen extends ConsoleScreen {
     private void receiveDistressCalls() {
         boolean bool = !this.tardis().stats().receiveCalls().get();
         this.tardis().stats().receiveCalls().set(bool);
-        SwitcherManager.sync(this.tardis(), buf -> buf.writeBoolean(bool), SHOULD_RECEIVE_CALLS);
+        SwitcherManager.sync(this.tardis(), buf -> buf.writeBoolean(bool), StatsHandler.SHOULD_RECEIVE_CALLS);
     }
 
     private void toggleLeaveBehind() {
         boolean bool = !this.tardis().travel().leaveBehind().get();
         this.tardis().travel().leaveBehind().set(bool);
-        SwitcherManager.sync(this.tardis(), buf -> buf.writeBoolean(bool), TOGGLE_LEAVE_BEHIND);
+        SwitcherManager.sync(this.tardis(), buf -> buf.writeBoolean(bool), TravelHandlerBase.TOGGLE_LEAVE_BEHIND);
     }
 
     private void changeMinimumLoyalty() {
@@ -114,14 +112,14 @@ public class TardisSecurityScreen extends ConsoleScreen {
     private void toggleHostileAlarms() {
         boolean bool = !this.tardis().alarm().hostilePresence().get();
         this.tardis().alarm().hostilePresence().set(bool);
-        SwitcherManager.sync(this.tardis(), buf -> buf.writeBoolean(bool), TOGGLE_HOSTILE_ALARMS);
+        SwitcherManager.sync(this.tardis(), buf -> buf.writeBoolean(bool), ServerAlarmHandler.TOGGLE_HOSTILE_ALARMS);
     }
 
     private void updateLandingCode() {
         String input = this.landingCodeInput.getText();
 
         this.tardis().landingPad().code().set(input);
-        SwitcherManager.sync(this.tardis(), buf -> buf.writeString(input), LANDING_CODE);
+        SwitcherManager.sync(this.tardis(), buf -> buf.writeString(input), LandingPadHandler.LANDING_CODE);
     }
 
     private <T extends ClickableWidget> void addButton(T button) {

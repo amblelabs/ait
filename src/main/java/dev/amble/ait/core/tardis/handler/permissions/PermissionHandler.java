@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import dev.amble.ait.client.screens.widget.SwitcherManager;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -39,7 +40,7 @@ public class PermissionHandler extends KeyedTardisComponent {
 
     static {
         ServerPlayNetworking.registerGlobalReceiver(P19_LOYALTY_SYNC,
-                ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+                ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
                     if (tardis == null)
                         return;
 
@@ -47,7 +48,7 @@ public class PermissionHandler extends KeyedTardisComponent {
                     Loyalty.Type type = buf.readEnumConstant(Loyalty.Type.class);
 
                     permissions.p19Loyalty.set(type);
-                }));
+                })));
     }
 
     @Override

@@ -4,9 +4,9 @@ import java.util.ArrayDeque;
 import java.util.Optional;
 import java.util.Queue;
 
-import dev.amble.ait.client.screens.TardisSecurityScreen;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.tardis.manager.old.DeprecatedServerTardisManager;
 import dev.drtheo.queue.api.ActionQueue;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -28,11 +28,13 @@ import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
+import net.minecraft.util.Identifier;
 
 // use this as reference for starting other looping sounds on the exterior
 public class ServerAlarmHandler extends KeyedTardisComponent implements TardisTickable {
 
-    @Exclude
+    public static final Identifier TOGGLE_HOSTILE_ALARMS = AITMod.id("toggle_hostile_alarms");
+
     public static final int CLOISTER_LENGTH_TICKS = 3 * 20;
 
     @Exclude
@@ -51,7 +53,7 @@ public class ServerAlarmHandler extends KeyedTardisComponent implements TardisTi
     private final BoolValue hostilePresence = HOSTILE_PRESENCE.create(this);
 
     static {
-        ServerPlayNetworking.registerGlobalReceiver(TardisSecurityScreen.TOGGLE_HOSTILE_ALARMS, ServerTardisManager.receiveTardis(DeprecatedServerTardisManager.guarded((tardis, server, player, handler, buf, responseSender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(TOGGLE_HOSTILE_ALARMS, ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
             boolean bool = buf.readBoolean();
 
             if (tardis == null)
