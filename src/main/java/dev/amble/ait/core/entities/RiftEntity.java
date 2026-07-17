@@ -193,7 +193,7 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
             if (ambientSoundCooldown > 0) {
                 ambientSoundCooldown--;
             } else {
-                this.getWorld().playSound(null, this.getBlockPos(), RIFT_SOUNDS[currentSoundIndex], SoundCategory.AMBIENT, 1.0f, 1.0f);
+                this.getWorld().playSound(null, this.getBlockPos(), RIFT_SOUNDS[currentSoundIndex], SoundCategory.AMBIENT, 0.7f, 1.0f);
                 ambientSoundCooldown = RIFT_DURATIONS[currentSoundIndex];
                 currentSoundIndex = (currentSoundIndex + 1) % RIFT_SOUNDS.length;
             }
