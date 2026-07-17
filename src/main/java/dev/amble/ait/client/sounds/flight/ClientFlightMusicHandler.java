@@ -41,10 +41,6 @@ public class ClientFlightMusicHandler extends SoundHandler {
         this.ofSounds(FLIGHT);
     }
 
-    private boolean shouldPlaySound(ClientTardis tardis) {
-        return tardis != null && !tardis.travel().isLanded();
-    }
-
     public void tick(MinecraftClient client) {
         ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
 
@@ -52,6 +48,13 @@ public class ClientFlightMusicHandler extends SoundHandler {
 
         if (this.sounds == null)
             this.generate();
+
+        if (tardis.travel().isLanded() || tardis.travel().autopilot()) {
+            this.stopSounds();
+            return;
+        }
+
+        this.startIfNotPlaying(this.getFlightMusic());
 
         float vol = switch (tardis.travel().getState()) {
             case FLIGHT -> AITModClient.CONFIG.flightMusicVolume;
@@ -61,11 +64,5 @@ public class ClientFlightMusicHandler extends SoundHandler {
         };
 
         this.getFlightMusic().setVolume(vol);
-
-        if (this.shouldPlaySound(tardis)) {
-            this.startIfNotPlaying(this.getFlightMusic());
-        } else {
-            this.stopSounds();
-        }
     }
 }
