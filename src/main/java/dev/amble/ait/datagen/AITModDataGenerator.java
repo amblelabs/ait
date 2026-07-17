@@ -913,6 +913,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItems.EARTH_MUSIC_DISC.getTranslationKey() + ".desc", "Nitrogenez - Earth");
         provider.addTranslation(AITItems.VENUS_MUSIC_DISC, "Music Disc");
         provider.addTranslation(AITItems.VENUS_MUSIC_DISC.getTranslationKey() + ".desc", "Nitrogenez - Venus");
+        provider.addTranslation(AITItems.STAGE_4_MUSIC_DISC, "Music Disc");
+        provider.addTranslation(AITItems.STAGE_4_MUSIC_DISC.getTranslationKey() + ".desc", "??? - [stage 4]");
         provider.addTranslation(AITItems.GOOD_MAN_MUSIC_DISC, "Music Disc");
         provider.addTranslation(AITItems.GOOD_MAN_MUSIC_DISC.getTranslationKey() + ".desc", "Dian - Good Man? [CUT EDITION]");
         provider.addTranslation(AITItems.AIT_THEME_MUSIC_DISC, "Music Disc");
