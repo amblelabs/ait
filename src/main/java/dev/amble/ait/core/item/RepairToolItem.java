@@ -4,6 +4,7 @@ import java.util.List;
 
 import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.entity.BlockEntity;
@@ -67,17 +68,17 @@ public class RepairToolItem extends Item {
 
         HitResult hitResult = playerEntity.raycast(16, 0.0f, false);
         if (hitResult.getType() == HitResult.Type.BLOCK) {
-            BlockPos pos = ((net.minecraft.util.hit.BlockHitResult) hitResult).getBlockPos();
+            BlockPos pos = ((BlockHitResult) hitResult).getBlockPos();
             BlockEntity blockEntity = world.getBlockEntity(pos);
 
             if (blockEntity instanceof SubSystemBlockEntity subSystem) {
                 if (subSystem.system() instanceof DurableSubSystem durable) {
-                    playerEntity.sendMessage(Text.literal(durable.durability() + "/" + DurableSubSystem.MAX_DURABILITY).setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)), true);
+                    playerEntity.sendMessage(Text.literal(Math.round(durable.durability()) + "/" + DurableSubSystem.MAX_DURABILITY).setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)), true);
                     world.playSound(null, pos, SoundEvents.BLOCK_ANCIENT_DEBRIS_HIT, SoundCategory.BLOCKS, 0.5f, 0.8f);
                     if (durable.durability() < DurableSubSystem.MAX_DURABILITY) {
                         int val = world.getRandom().nextBetween(2, 10);
                         val = (val * DurableSubSystem.MAX_DURABILITY) / 100;
-                        durable.setDurability(Math.round(durable.durability() + val));
+                        durable.addDurability(val);
                         stack.damage(1, playerEntity, p -> p.sendToolBreakStatus(playerEntity.getActiveHand()));
 
                         world.playSound(null, pos, SoundEvents.BLOCK_AMETHYST_BLOCK_RESONATE, SoundCategory.BLOCKS, 0.5f, 1.5f);
@@ -95,7 +96,7 @@ public class RepairToolItem extends Item {
             EntityHitResult result = (EntityHitResult) hitResult;
 
             if (result.getEntity() instanceof ConsoleControlEntity consoleControl) {
-                playerEntity.sendMessage(Text.literal(consoleControl.getDurability() + "/" + ConsoleControlEntity.MAX_DURABILITY).setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)), true);
+                playerEntity.sendMessage(Text.literal(Math.round(consoleControl.getDurability()) + "/" + ConsoleControlEntity.MAX_DURABILITY).setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)), true);
                 world.playSound(null, consoleControl.getBlockPos(), SoundEvents.BLOCK_ANCIENT_DEBRIS_HIT, SoundCategory.BLOCKS, 0.5f, 0.8f);
                 if (consoleControl.getDurability() < DurableSubSystem.MAX_DURABILITY) {
                     consoleControl.addDurability(world.getRandom().nextFloat());
