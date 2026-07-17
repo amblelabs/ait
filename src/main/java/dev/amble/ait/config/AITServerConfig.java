@@ -80,28 +80,6 @@ public class AITServerConfig {
     @SerialEntry public List<String> travelWhitelist = Lists.newArrayList();
 
     @AutoGen(category = CATEGORY)
-    @CustomDescription(value = "Dimensions listed here will be excluded. Ignored when the whitelist has entries.")
-    @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
-    @SerialEntry public List<String> riftSpawnBlacklist = Lists.newArrayList(
-            "ait-tardis", "ait:tardis_dimension_type", AITDimensions.TIME_VORTEX_WORLD.getValue().toString(), "minecraft:the_end", "ait:space");
-
-    @AutoGen(category = CATEGORY)
-    @CustomDescription(value = "When populated, only these dimensions will be allowed and the blacklist is ignored.")
-    @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
-    @SerialEntry public List<String> riftSpawnWhitelist = Lists.newArrayList();
-
-    @AutoGen(category = CATEGORY)
-    @CustomDescription(value = "Dimensions listed here will be excluded. Ignored when the whitelist has entries.")
-    @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
-    @SerialEntry public List<String> riftDropBlacklist = Lists.newArrayList(
-            "ait-tardis", "ait:tardis_dimension_type", AITDimensions.TIME_VORTEX_WORLD.getValue().toString(), "minecraft:the_end", "ait:space");
-
-    @AutoGen(category = CATEGORY)
-    @CustomDescription(value = "When populated, only these dimensions will be allowed and the blacklist is ignored.")
-    @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
-    @SerialEntry public List<String> riftDropWhitelist = Lists.newArrayList();
-
-    @AutoGen(category = CATEGORY)
     @IntField(min = 1)
     @SerialEntry public int travelPerTick = 2;
 
