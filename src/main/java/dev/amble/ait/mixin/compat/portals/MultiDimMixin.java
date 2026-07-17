@@ -17,7 +17,7 @@ import net.minecraft.world.World;
 @Mixin(MultiDim.class)
 public class MultiDimMixin {
 
-    @Shadow @Final protected MinecraftServer server;
+    @Shadow(remap = false) @Final protected MinecraftServer server;
 
     @Redirect(method = "remove", at = @At(value = "INVOKE", target = "Ldev/drtheo/multidim/api/MultiDimServer;multidim$removeWorld(Lnet/minecraft/registry/RegistryKey;)Lnet/minecraft/server/world/ServerWorld;"))
     public ServerWorld remove(MultiDimServer instance, RegistryKey<World> key) {
