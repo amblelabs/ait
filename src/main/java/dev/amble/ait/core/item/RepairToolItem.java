@@ -89,9 +89,7 @@ public class RepairToolItem extends Item {
                     }
                 }
             }
-        }
-
-        if (hitResult instanceof EntityHitResult result) {
+        } else if (hitResult instanceof EntityHitResult result) {
             if (result.getEntity() instanceof ConsoleControlEntity consoleControl) {
                 playerEntity.sendMessage(Text.literal(consoleControl.getDurability() + "/" + ConsoleControlEntity.MAX_DURABILITY).setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)), true);
                 world.playSound(null, consoleControl.getBlockPos(), SoundEvents.BLOCK_ANCIENT_DEBRIS_HIT, SoundCategory.BLOCKS, 0.5f, 0.8f);
