@@ -181,3 +181,6 @@
 - Fix Repair Tool Problems | by [@Loqor](https://github.com/Loqor) ([#2158](https://github.com/amblelabs/ait/pull/2158))
 - Sound Changes | by [@Loqor](https://github.com/Loqor) ([#2159](https://github.com/amblelabs/ait/pull/2159))
 - rewrite all translations for config readability | by [@Loqor](https://github.com/Loqor) ([#2160](https://github.com/amblelabs/ait/pull/2160))
+- feat: new lucien ambient tardis biome tracks! | by [@Loqor](https://github.com/Loqor) ([#2161](https://github.com/amblelabs/ait/pull/2161))
+- feat: new ait theme disc texture! | by [@Loqor](https://github.com/Loqor) ([#2161](https://github.com/amblelabs/ait/pull/2161))
+- feat: new horror-themed disc [stage_4] | by [@Loqor](https://github.com/Loqor) ([#2161](https://github.com/amblelabs/ait/pull/2161))
