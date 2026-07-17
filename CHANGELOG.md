@@ -179,3 +179,4 @@
 - fix: incorrect Astral Map distance (measured from interior player position) | by [@Nitjsefnie](https://github.com/Nitjsefnie) ([#2156](https://github.com/amblelabs/ait/pull/2156))
 - feat: Tardis can gift you plushie gift boxes! | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#2157](https://github.com/amblelabs/ait/pull/2157))
 - Fix Repair Tool Problems | by [@Loqor](https://github.com/Loqor) ([#2158](https://github.com/amblelabs/ait/pull/2158))
+- Sound Changes | by [@Loqor](https://github.com/Loqor) ([#2159](https://github.com/amblelabs/ait/pull/2159))
