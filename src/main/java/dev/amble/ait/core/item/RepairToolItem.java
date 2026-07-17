@@ -67,8 +67,7 @@ public class RepairToolItem extends Item {
 
         HitResult hitResult = playerEntity.raycast(16, 0.0f, false);
         if (hitResult.getType() == HitResult.Type.BLOCK) {
-            Vec3d pos3d = hitResult.getPos();
-            BlockPos pos = new BlockPos((int) pos3d.x, (int) pos3d.y, (int) pos3d.z);
+            BlockPos pos = ((net.minecraft.util.hit.BlockHitResult) hitResult).getBlockPos();
             BlockEntity blockEntity = world.getBlockEntity(pos);
 
             if (blockEntity instanceof SubSystemBlockEntity subSystem) {
@@ -78,7 +77,7 @@ public class RepairToolItem extends Item {
                     if (durable.durability() < DurableSubSystem.MAX_DURABILITY) {
                         int val = world.getRandom().nextBetween(2, 10);
                         val = (val * DurableSubSystem.MAX_DURABILITY) / 100;
-                        durable.addDurability(val);
+                        durable.setDurability(Math.round(durable.durability() + val));
                         stack.damage(1, playerEntity, p -> p.sendToolBreakStatus(playerEntity.getActiveHand()));
 
                         world.playSound(null, pos, SoundEvents.BLOCK_AMETHYST_BLOCK_RESONATE, SoundCategory.BLOCKS, 0.5f, 1.5f);
