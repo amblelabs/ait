@@ -67,8 +67,8 @@ public class RepairToolItem extends Item {
         }
 
         HitResult hitResult = playerEntity.raycast(16, 0.0f, false);
-        if (hitResult.getType() == HitResult.Type.BLOCK) {
-            BlockPos pos = ((BlockHitResult) hitResult).getBlockPos();
+        if (hitResult instanceof BlockHitResult blockHitResult) {
+            BlockPos pos = blockHitResult.getBlockPos();
             BlockEntity blockEntity = world.getBlockEntity(pos);
 
             if (blockEntity instanceof SubSystemBlockEntity subSystem) {
@@ -76,8 +76,7 @@ public class RepairToolItem extends Item {
                     playerEntity.sendMessage(Text.literal(Math.round(durable.durability()) + "/" + DurableSubSystem.MAX_DURABILITY).setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)), true);
                     world.playSound(null, pos, SoundEvents.BLOCK_ANCIENT_DEBRIS_HIT, SoundCategory.BLOCKS, 0.5f, 0.8f);
                     if (durable.durability() < DurableSubSystem.MAX_DURABILITY) {
-                        int val = world.getRandom().nextBetween(2, 10);
-                        val = (val * DurableSubSystem.MAX_DURABILITY) / 100;
+                        float val = world.getRandom().nextBetween(2, 10) * DurableSubSystem.MAX_DURABILITY / 100f;
                         durable.addDurability(val);
                         stack.damage(1, playerEntity, p -> p.sendToolBreakStatus(playerEntity.getActiveHand()));
 
@@ -92,11 +91,9 @@ public class RepairToolItem extends Item {
             }
         }
 
-        if (hitResult.getType() == HitResult.Type.ENTITY) {
-            EntityHitResult result = (EntityHitResult) hitResult;
-
+        if (hitResult instanceof EntityHitResult result) {
             if (result.getEntity() instanceof ConsoleControlEntity consoleControl) {
-                playerEntity.sendMessage(Text.literal(Math.round(consoleControl.getDurability()) + "/" + ConsoleControlEntity.MAX_DURABILITY).setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)), true);
+                playerEntity.sendMessage(Text.literal(consoleControl.getDurability() + "/" + ConsoleControlEntity.MAX_DURABILITY).setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)), true);
                 world.playSound(null, consoleControl.getBlockPos(), SoundEvents.BLOCK_ANCIENT_DEBRIS_HIT, SoundCategory.BLOCKS, 0.5f, 0.8f);
                 if (consoleControl.getDurability() < DurableSubSystem.MAX_DURABILITY) {
                     consoleControl.addDurability(world.getRandom().nextFloat());
