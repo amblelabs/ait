@@ -91,7 +91,6 @@ public class ConsolePortControl extends Control {
             // We're going to set both cartridge and disc booleans just for parity
             tardis.waypoint().setIsDisc();
             tardis.waypoint().setHasCartridge();
-            System.out.println(ControlDiscItem.canContainPlayers(itemStack));
             if (stackNbt.get(ControlDiscItem.CAN_CONTAIN_PLAYERS) != null) {
                 tardis.waypoint().setCanContainPlayers(ControlDiscItem.canContainPlayers(itemStack));
             }

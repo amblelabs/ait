@@ -102,6 +102,7 @@ public class BlueprintInputItemStackRenderer implements IIngredientRenderer<Item
     /**
      * This is both required and deprecated for some reason so it has to be here
      */
+    @SuppressWarnings("removal")
     @Override
     public @NotNull List<Text> getTooltip(ItemStack ingredient, TooltipContext tooltipFlag) {
         return List.of();

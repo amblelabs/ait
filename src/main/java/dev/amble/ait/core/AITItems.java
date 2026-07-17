@@ -197,9 +197,12 @@ public class AITItems extends ItemContainer {
             new AItemSettings().maxCount(1).rarity(Rarity.RARE), 169);
 
     @NoEnglish
+    public static final Item STAGE_4_MUSIC_DISC = new MusicDiscItem(15, AITSounds.STAGE_4,
+            new AItemSettings().maxCount(1).rarity(Rarity.RARE), 239);
+
+    @NoEnglish
     public static final Item WONDERFUL_TIME_IN_SPACE_MUSIC_DISC = new MusicDiscItem(1, AITSounds.WONDERFUL_TIME_IN_SPACE,
             new AItemSettings().maxCount(1).rarity(Rarity.RARE), 73);
-
 
     @NoEnglish
     public static final Item VENUS_MUSIC_DISC = new MusicDiscItem(1, AITSounds.VENUS_MUSIC,
@@ -272,6 +275,7 @@ public class AITItems extends ItemContainer {
             entries.addAfter(TWO_THOUSAND_MUSIC_DISC, WONDERFUL_TIME_IN_SPACE_MUSIC_DISC);
             entries.addAfter(WONDERFUL_TIME_IN_SPACE_MUSIC_DISC, EARTH_MUSIC_DISC);
             entries.addAfter(EARTH_MUSIC_DISC, VENUS_MUSIC_DISC, GOOD_MAN_MUSIC_DISC, AIT_THEME_MUSIC_DISC, CRASH_MUSIC_DISC);
+            entries.addAfter(CRASH_MUSIC_DISC, STAGE_4_MUSIC_DISC);
         });
 
 

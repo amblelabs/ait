@@ -20,6 +20,6 @@ public class ClassicBoxHudolinVariant extends ClassicBoxVariant {
 
     @Override
     public @Nullable Vec3d getPortalPosition() {
-        return new Vec3d(0, 0.125, -0.599);
+        return new Vec3d(0, 0, -0.599);
     }
 }

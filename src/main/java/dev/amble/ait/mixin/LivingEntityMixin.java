@@ -94,7 +94,7 @@ public abstract class LivingEntityMixin extends Entity implements ExtraPushableE
             ServerWorld world = WorldUtil.RIFT_DROP_WORLDS.get(worldIndex);
             CachedDirectedGlobalPos safe = CachedDirectedGlobalPos.create(world, entity.getBlockPos(), (byte) 0);
 
-            SafePosSearch.wrapSafe(safe, SafePosSearch.Kind.CEILING, true,
+            SafePosSearch.wrapSafe(safe, SafePosSearch.Kind.MEDIAN, true,
                     result -> TeleportUtil.teleport(entity, world, result.getPos().toCenterPos(), entity.getYaw()));
         }
     }

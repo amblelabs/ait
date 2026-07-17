@@ -8,11 +8,14 @@ class CI {
         // groovy is very bad at globals, apparently.
         return Optional.ofNullable(System.getenv("GITHUB_REF"))
                 .filter { it.startsWith(REFS_PREFIX) }
-                .map { it.substring(REFS_PREFIX.length()).replaceAll("/", "-") }
+                .map { it.substring(REFS_PREFIX.length()) }
+                .or { Optional.ofNullable(System.getenv("GIT_BRANCH")) }
+                .map { it.replaceAll("/", "-") }
     }
 
     static Optional<String> buildNum() {
         return Optional.ofNullable(System.getenv("GITHUB_RUN_NUMBER"))
+                .or { Optional.ofNullable(System.getenv("GIT_COMMIT")).map { it.substring(0, 7+1) } }
     }
 }
 

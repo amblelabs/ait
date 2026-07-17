@@ -93,9 +93,6 @@ public class WorldUtil {
         generateWorldCache(server, "environment projector", AITMod.CONFIG.projectorBlacklist, AITMod.CONFIG.projectorWhitelist, PROJECTOR_WORLDS, false);
         generateWorldCache(server, "travel", AITMod.CONFIG.travelBlacklist, AITMod.CONFIG.travelWhitelist, TRAVEL_WORLDS, true);
 
-        generateWorldCache(server, "rift spawn", AITMod.CONFIG.riftSpawnBlacklist, AITMod.CONFIG.riftSpawnWhitelist, RIFT_SPAWN_WORLDS, true);
-        generateWorldCache(server, "rift drop", AITMod.CONFIG.riftDropBlacklist, AITMod.CONFIG.riftDropWhitelist, RIFT_DROP_WORLDS, true);
-
         for (ServerWorld riftSpawnable : RIFT_SPAWN_WORLDS) {
             if (riftSpawnable instanceof AITWorldOptions options)
                 options.ait$setCanRiftsSpawn(true);

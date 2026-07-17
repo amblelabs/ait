@@ -2,7 +2,7 @@ plugins {
     id "fabric-loom" version "$loom_version"
     id "maven-publish"
 
-    id "com.diffplug.spotless" version "6.20.0"
+    id "com.diffplug.spotless" version "8.8.0"
 }
 
 apply from: 'versioning.gradle'
@@ -31,15 +31,6 @@ repositories {
     // JEI
     maven { url "https://maven.blamejared.com/" }
 
-    // AmbleKit
-    maven {
-        url "https://amblelabs.dev/maven"
-
-        content {
-            includeGroup "dev.amble"
-        }
-    }
-
     // MultiDim, Scheduler
     maven {
         url "https://theo.is-a.dev/maven/"
@@ -57,6 +48,15 @@ repositories {
             includeGroup "dev.lambdaurora.lambdynamiclights"
             includeGroup "dev.lambdaurora"
             includeGroup "io.github.queerbric"
+        }
+    }
+
+    // AmbleKit
+    maven {
+        url "https://maven.amblelabs.dev"
+
+        content {
+            includeGroup "dev.amblelabs"
         }
     }
 }
@@ -110,7 +110,7 @@ dependencies {
         exclude(group: "net.fabricmc.fabric-api")
     }
 
-    modApi("dev.amble:lib:${project.amblekit_version}") {
+    modApi("dev.amblelabs:modkit:${project.amblekit_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
 

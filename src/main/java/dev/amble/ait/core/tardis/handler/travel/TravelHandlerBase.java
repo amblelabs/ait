@@ -6,7 +6,12 @@ import java.util.function.Function;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -28,6 +33,8 @@ import dev.amble.ait.data.properties.integer.IntValue;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public abstract class TravelHandlerBase extends KeyedTardisComponent implements TardisTickable {
+
+    public static final Identifier TOGGLE_LEAVE_BEHIND = AITMod.id("toggle_leave_behind");
 
     private static final Property<State> STATE = Property.forEnum("state", State.class, State.LANDED);
     private static final BoolProperty LEAVE_BEHIND = new BoolProperty("leave_behind", false);
@@ -66,6 +73,16 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
 
     @Exclude(strategy = Exclude.Strategy.NETWORK)
     protected int hammerUses = 0;
+
+    static {
+        ServerPlayNetworking.registerGlobalReceiver(TOGGLE_LEAVE_BEHIND, ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
+            boolean bool = buf.readBoolean();
+
+            if (tardis == null) return;
+
+            tardis.travel().leaveBehind().set(bool);
+        })));
+    }
 
     public TravelHandlerBase(Id id) {
         super(id);
@@ -110,7 +127,7 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
     public void tick(MinecraftServer server) {
         TardisCrashHandler crash = tardis.crash();
 
-        if (crash.getState() != TardisCrashHandler.State.NORMAL)
+        if (crash.getState() != TardisCrashHandler.State.NORMAL && !tardis.travel().isLanded())
             crash.addRepairTicks(2 * this.speed());
 
         if (server.getTicks() % 200 == 0 && this.hammerUses > 0)

@@ -74,7 +74,6 @@ import dev.amble.ait.core.likes.ItemOpinionRegistry;
 import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.ait.core.loot.SetBlueprintLootFunction;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
-import dev.amble.ait.core.sounds.travel.TravelSoundRegistry;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.animation.v2.blockbench.BlockbenchParser;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
@@ -174,7 +173,6 @@ public class AITMod implements ModInitializer {
                 DesktopRegistry.getInstance(),
                 ConsoleVariantRegistry.getInstance(),
                 MachineRecipeRegistry.getInstance(),
-                TravelSoundRegistry.getInstance(),
                 FlightSoundRegistry.getInstance(),
                 VortexReferenceRegistry.getInstance(),
                 BlueprintRegistry.getInstance(),

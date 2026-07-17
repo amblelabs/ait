@@ -101,7 +101,6 @@ public class AITRadioBlockEntity extends BlockEntity {
                 this.tickRotT = this.tickRotT + 22.5F * ((float) Math.PI / 180f);
             else if (this.tickRotT >= (360F - 22.5F) * ((float) Math.PI / 180f))
                 this.tickRotT = 0;
-            //System.out.println(this.tickRotT + " ?=? " + 360F * ((float) Math.PI / 180f));
             if (player != null)
                 player.sendMessage(Text.translatable("message.ait.radio.changing_frequency"), true);
             world.playSound(null, pos, SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.MASTER, 0.1F,

@@ -1,11 +1,12 @@
 package dev.amble.ait.client.sounds;
 
+import dev.amble.ait.client.sounds.alarm.ClientAlarmHandler;
+import dev.amble.ait.client.sounds.flight.ClientFlightMusicHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 import net.minecraft.client.MinecraftClient;
 
-import dev.amble.ait.client.sounds.alarm.ClientAlarmHandler;
 import dev.amble.ait.client.sounds.console.ClientConsoleAmbientSoundsHandler;
 import dev.amble.ait.client.sounds.drifting.ClientTwoThousandSoundHandler;
 import dev.amble.ait.client.sounds.engine.ClientEngineLoopSoundHandler;
@@ -40,6 +41,7 @@ public class ClientSoundManager {
     private static ClientConsoleAmbientSoundsHandler ambientSound;
     private static ClientEngineLoopSoundHandler engineLoopSound;
     private static ExteriorHumHandler exteriorHum;
+    private static ClientFlightMusicHandler flightMusic;
 
     public static ClientHumHandler getHum() {
         if (hum == null)
@@ -140,6 +142,13 @@ public class ClientSoundManager {
         return exteriorHum;
     }
 
+    public static ClientFlightMusicHandler getFlightMusic() {
+        if (flightMusic == null)
+            flightMusic = ClientFlightMusicHandler.create();
+
+        return flightMusic;
+    }
+
     public static void tick(MinecraftClient client) {
         if (getAlarm() != null)
             getAlarm().tick(client);
@@ -176,6 +185,9 @@ public class ClientSoundManager {
 
         if (getDriftingSound() != null)
             getDriftingSound().tick(client);
+
+        if (getFlightMusic() != null)
+            getFlightMusic().tick(client);
 
         getExteriorHum().tick(client);
     }

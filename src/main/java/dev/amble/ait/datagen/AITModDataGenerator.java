@@ -954,53 +954,54 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItemGroups.FABRICATOR, "AIT: Fabrication");
 
         // Config
-        provider.addTranslation("text.autoconfig.aitconfig.category.server", "Server");
-        provider.addTranslation("text.autoconfig.aitconfig.option.SERVER.MINIFY_JSON", "Minify JSON Output");
-        provider.addTranslation("text.autoconfig.aitconfig.option.SERVER.GHOST_MONUMENT", "Allow Ghost Monument");
-        provider.addTranslation("text.autoconfig.aitconfig.option.SERVER.RWF_ENABLED", "Enable TARDIS RWF");
-        provider.addTranslation("text.autoconfig.aitconfig.option.SERVER.LOCK_DIMENSIONS", "Enable Locked Dimensions");
-        provider.addTranslation("text.autoconfig.aitconfig.option.SERVER.WORLDS_BLACKLIST", "Blacklist Dimensions");
-        provider.addTranslation("text.autoconfig.aitconfig.option.SERVER.TRAVEL_PER_TICK", "TARDIS Travel Speed (per tick)");
-        provider.addTranslation("text.autoconfig.aitconfig.option.SERVER.SEND_BULK", "Send Bulk");
-        provider.addTranslation("text.autoconfig.aitconfig.option.SERVER.MAX_TARDISES", "Max TARDISES (-1 = Infinite)");
-        provider.addTranslation("text.autoconfig.aitconfig.option.SERVER.TNT_CAN_TELEPORT_THROUGH_DOOR", "Tnt Can Teleport Through Doors");
-        provider.addTranslation("yacl3.config.ait:server.hypercubesEnabled", "Enable Hypercubes?");
-        provider.addTranslation("yacl3.config.ait:server.travelPerTick", "Travel Per Tick");
-        provider.addTranslation("yacl3.config.ait:server.sendBulk", "Send Bulk?");
-        provider.addTranslation("yacl3.config.ait:server.maxTardises", "Max Amount Of Tardises");
-        provider.addTranslation("yacl3.config.ait:server.astralMapBiomeLocatorRange", "Block Radius Of Biome Finder For Astral Map");
-        provider.addTranslation("yacl3.config.ait:client.showConsoleMonitorText", "Show text on console monitors?");
-        provider.addTranslation("yacl3.config.ait:client.showCRTMonitorText", "Show text on CRT monitors?");
-        provider.addTranslation("yacl3.config.ait:client.renderDematParticles", "Render demat particles?");
-        provider.addTranslation("yacl3.config.ait:client.powerOffDarkness", "Darkness effect when TARDIS powers off?");
-        provider.addTranslation("yacl3.config.ait:client.animateConsole", "Animate console?");
-        provider.addTranslation("yacl3.config.ait:client.animateDoors", "Animate doors?");
-        provider.addTranslation("yacl3.config.ait:client.temperatureType", "Temperature type");
+        provider.addTranslation("category.ait.config.client", "Client Options");
+        provider.addTranslation("category.ait.config.server", "Server Options");
+
+        // Client config
+        provider.addTranslation("yacl3.config.ait:client.interiorHumVolume", "Interior Hum Volume");
         provider.addTranslation("yacl3.config.ait:client.engineLoopVolume", "Engine Loop Volume");
+        provider.addTranslation("yacl3.config.ait:client.flightMusicVolume", "Flight Music Volume");
+        provider.addTranslation("yacl3.config.ait:client.customMenu", "Toggle Custom Menu");
+        provider.addTranslation("yacl3.config.ait:client.showExperimentalWarning", "Toggle Experimental Warning");
+        provider.addTranslation("yacl3.config.ait:client.environmentProjector", "Toggle Environment Projector");
+        provider.addTranslation("yacl3.config.ait:client.screenShake", "Screen Shake Amount");
+        provider.addTranslation("yacl3.config.ait:client.enableTardisBOTI", "Toggle TARDIS BOTI");
+        provider.addTranslation("yacl3.config.ait:client.greenScreenBOTI", "Toggle Green-Screen BOTI");
+        provider.addTranslation("yacl3.config.ait:client.allowPortalsBoti", "Toggle Immersive Portals BOTI");
+        provider.addTranslation("yacl3.config.ait:client.showControlHitboxes", "Toggle Console Control Hitboxes");
+        provider.addTranslation("yacl3.config.ait:client.showConsoleMonitorText", "Toggle Text On Console Monitors");
+        provider.addTranslation("yacl3.config.ait:client.showCRTMonitorText", "Toggle Text On CRT Monitors");
+        provider.addTranslation("yacl3.config.ait:client.renderDematParticles", "Toggle Demat Particle Rendering");
+        provider.addTranslation("yacl3.config.ait:client.powerOffDarkness", "Toggle Darkness Fog When Powered Off");
+        provider.addTranslation("yacl3.config.ait:client.animateConsole", "Toggle Animated Consoles");
+        provider.addTranslation("yacl3.config.ait:client.animateControls", "Toggle Smoothly Animated Controls");
+        provider.addTranslation("yacl3.config.ait:client.animateDoors", "Toggle Smoothly Animated Doors");
+        provider.addTranslation("yacl3.config.ait:client.handlesLevenshteinDistance", "Levenshtein Distance For Handles");
+        provider.addTranslation("yacl3.config.ait:client.temperatureType", "Temperature Type");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.celsius", "Celsius (°C)");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.fahrenheit", "Fahrenheit (°F)");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.kelvin", "Kelvin (K)");
-        provider.addTranslation("yacl3.config.ait:client.handlesLevenshteinDistance", "Levenshtein distance for handles");
-        provider.addTranslation("yacl3.config.ait:client.screenShake", "Screen shake amount");
-        provider.addTranslation("yacl3.config.ait:server.flightSoundVolume", "Flight Sound Volume");
 
-        provider.addTranslation("text.autoconfig.aitconfig.category.client", "Client");
-        provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.SHOW_EXPERIMENTAL_WARNING", "Show Experimental Warning");
-        provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.ENVIRONMENT_PROJECTOR", "Enable Environment Projector Skybox");
-        provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.DISABLE_LOYALTY_FOG", "Disable Loyalty Fog");
-        provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.DISABLE_LOYALTY_SLEEPING_ACTIONBAR", "Disable Loyalty Sleeping Actionbar Message");
-        provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.TEMPERATURE_TYPE", "Temperature Type");
-        provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.ENABLE_TARDIS_BOTI", "Enable TARDIS BOTI");
-        provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.SHOULD_RENDER_BOTI_INTERIOR", "Enable BOTI Interior Render (EXPERIMENTAL)");
-        provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.ANIMATE_CONSOLE", "Enable Animated Console");
-        provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.ANIMATE_DOORS", "Enable Animated Doors");
-        provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.DOOR_ANIMATION_SPEED", "Door Animation Speed");
-        provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.SHOW_CONTROL_HITBOXES", "Show Control Hitboxes");
-        provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.RENDER_DEMAT_PARTICLES", "Enable Dematerialization Particles");
-        provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.INTERIOR_HUM_VOLUME", "Interior Hum Volume");
-        provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.CUSTOM_MENU", "Enable Main Custom Menu");
-        provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.DISABLE_LOYALTY_BED_MESSAGE", "Disable Loyalty Bed Message");
-        provider.addTranslation("text.autoconfig.aitconfig.option.CLIENT.GREEN_SCREEN_BOTI", "Enable Green Screen Boti");
+        // Server config
+        provider.addTranslation("yacl3.config.ait:server.minifyJson", "Minify Json");
+        provider.addTranslation("yacl3.config.ait:server.ghostMonument", "Toggle Ghost Monument");
+        provider.addTranslation("yacl3.config.ait:server.lockDimensions", "Toggle Lockable Dimensions");
+        provider.addTranslation("yacl3.config.ait:server.rwfEnabled", "[EXPERIMENTAL] Toggle RWF");
+        provider.addTranslation("yacl3.config.ait:server.allowPortalsBoti", "Toggle Immersive Portals BOTI");
+        provider.addTranslation("yacl3.config.ait:server.tntCanTeleportThroughDoors", "Toggle TNT Door Teleporting");
+        provider.addTranslation("yacl3.config.ait:server.hypercubesEnabled", "Toggle Hypercubes");
+        provider.addTranslation("yacl3.config.ait:server.travelPerTick", "Travel Per-Tick");
+        provider.addTranslation("yacl3.config.ait:server.astralMapBiomeLocatorRange", "Astral Map Biome Locator Range");
+        provider.addTranslation("yacl3.config.ait:server.sendBulk", "Toggle Send Bulk TARDIS Data");
+        provider.addTranslation("yacl3.config.ait:server.maxTardises", "Max TARDISes");
+        provider.addTranslation("yacl3.config.ait:server.disableSafeguards", "Disable In-Built Safeguards");
+        provider.addTranslation("yacl3.config.ait:server.crashSoundVolume", "Crash Sound Volume");
+        provider.addTranslation("yacl3.config.ait:server.flightSoundVolume", "Flight Sound Volume");
+        provider.addTranslation("yacl3.config.ait:server.maxStabilizedSpeed", "Max Stabilized Speed");
+        provider.addTranslation("yacl3.config.ait:server.projectorBlacklist", "Environment Projector Blacklist");
+        provider.addTranslation("yacl3.config.ait:server.projectorWhitelist", "Environment Projector Whitelist");
+        provider.addTranslation("yacl3.config.ait:server.travelBlacklist", "TARDIS Travel Blacklist");
+        provider.addTranslation("yacl3.config.ait:server.travelWhitelist", "TARDIS Travel Whitelist");
 
         provider.addTranslation(AITMod.TARDIS_GRIEFING.getTranslationKey(), "TARDIS Griefing");
         provider.addTranslation(AITMod.TARDIS_FIRE_GRIEFING.getTranslationKey(), "TARDIS Fire Griefing");
@@ -1028,6 +1029,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItems.EARTH_MUSIC_DISC.getTranslationKey() + ".desc", "Nitrogenez - Earth");
         provider.addTranslation(AITItems.VENUS_MUSIC_DISC, "Music Disc");
         provider.addTranslation(AITItems.VENUS_MUSIC_DISC.getTranslationKey() + ".desc", "Nitrogenez - Venus");
+        provider.addTranslation(AITItems.STAGE_4_MUSIC_DISC, "Music Disc");
+        provider.addTranslation(AITItems.STAGE_4_MUSIC_DISC.getTranslationKey() + ".desc", "??? - [stage 4]");
         provider.addTranslation(AITItems.GOOD_MAN_MUSIC_DISC, "Music Disc");
         provider.addTranslation(AITItems.GOOD_MAN_MUSIC_DISC.getTranslationKey() + ".desc", "Dian - Good Man? [CUT EDITION]");
         provider.addTranslation(AITItems.AIT_THEME_MUSIC_DISC, "Music Disc");
@@ -1455,7 +1458,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.keysmithing.key", "Key Type: ");
         provider.addTranslation("message.ait.keysmithing.ingredient", "Material: ");
         provider.addTranslation("tooltip.ait.skeleton_key", "CREATIVE ONLY ITEM: Unlock any TARDIS Exteriors with it.");
-        provider.addTranslation("tooltip.ait.subsystem_item", "(Use this on the Generalised Subsytem Core to set it to this type)");
+        provider.addTranslation("tooltip.ait.subsystem_item", "(Use this on the Generalized Subsystem Core to set it to this type)");
+        provider.addTranslation("tooltip.ait.repair_tool", "Use this while holding on a subsystem, engine, or broken controls to repair them.");
 
         // Item tooltips
         provider.addTranslation("message.ait.artron_units", "Artron Units: %s");
@@ -1463,6 +1467,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.ammo", "Ammo: %s");
         provider.addTranslation("tooltip.ait.position", "Position: ");
         provider.addTranslation("message.ait.artron_units2", " AU");
+        provider.addTranslation("overlay.ait.untempered_schism.au", "AU: %s/%s");
 
 
         // Environment Projector
@@ -1526,11 +1531,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("sequence.ait.increment_scale_recalculation_necessary", "Increment scale error! Recalculation necessary!");
         provider.addTranslation("sequence.ait.small_debris_field", "Small debris field!");
         provider.addTranslation("sequence.ait.slow_down_to_avoid_flying_out_of_vortex", "Vortex drift: de-acceleration necessary!");
-
-        // Rift ripper
-        provider.addTranslation("rift_ripper.name.renderer", "Rift Ripper");
-        provider.addTranslation("rift_ripper.version", "Systems Version: v1.0-0.1");
-        provider.addTranslation("rift_ripper.held", "RIFT HELD! [%ss]!");
 
         // Hums
         provider.addTranslation("screen.ait.interior.settings.hum", "HUMS");

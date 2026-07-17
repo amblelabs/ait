@@ -17,7 +17,15 @@ public class AITSounds {
     public static final SoundEvent EARTH_MUSIC = register("music/earth_nitrogenez");
     public static final SoundEvent VENUS_MUSIC = register("music/venus_nitrogenez");
     public static final SoundEvent GOOD_MAN_MUSIC = register("music/good_man_dian");
+
+    // Flight music
     public static final SoundEvent FLIGHT = register("music/flight");
+    public static final SoundEvent FLIGHT1 = register("music/flight1");
+
+    // Ambient tracks in TARDIS biome
+    public static final SoundEvent AMBIENT = register("music/ambient");
+    public static final SoundEvent AMBIENT1 = register("music/ambient1");
+    public static final SoundEvent AMBIENT2 = register("music/ambient2");
 
     // Screw chronology, lets go ait theme!
     public static final SoundEvent AIT_THEME = register("music/ait_theme");
@@ -25,6 +33,8 @@ public class AITSounds {
     public static final SoundEvent MAD_MAN_MUSIC = register("music/mad_man_dian");
     public static final SoundEvent SPACE = register("music/space");
     public static final SoundEvent TWO_THOUSAND = register("music/two_thousand");
+    // Scary
+    public static final SoundEvent STAGE_4 = register("tardis/secret/stage_4");
     public static final SoundEvent ARPALARM = register("tardis/arpalarm");
 
     // TARDIS

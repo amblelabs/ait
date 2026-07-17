@@ -54,7 +54,6 @@ public class MonitorScreen extends ConsoleScreen {
     private ClientExteriorVariantSchema currentVariant;
     int backgroundHeight = 166;
     int backgroundWidth = 256;
-    private int tickForSpin = 0;
     private final int APPLY_BUTTON_WIDTH = 53;
     private final int APPLY_BUTTON_HEIGHT = 20;
     private final int SMALL_ARROW_BUTTON_WIDTH = 20;
