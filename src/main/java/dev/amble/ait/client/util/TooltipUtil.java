@@ -20,4 +20,9 @@ public class TooltipUtil {
         extraTooltips.accept(tooltip);
     }
 
+    public static void addMultilineTooltip(List<Text> tooltip, String translationKey, Formatting... formatting) {
+        Text.translatable(translationKey).getString().lines()
+                .forEach(line -> tooltip.add(Text.literal(line).formatted(formatting)));
+    }
+
 }

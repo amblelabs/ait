@@ -1,5 +1,7 @@
 package dev.amble.ait.core.item;
 
+import static dev.amble.ait.client.util.TooltipUtil.addMultilineTooltip;
+
 import java.util.List;
 
 import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
@@ -36,7 +38,7 @@ public class RepairToolItem extends Item {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
 
-        tooltip.add(Text.translatable("tooltip.ait.repair_tool").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
+        addMultilineTooltip(tooltip, "tooltip.ait.repair_tool", Formatting.DARK_GRAY, Formatting.ITALIC);
     }
 
     @Override
