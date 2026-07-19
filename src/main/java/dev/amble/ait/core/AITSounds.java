@@ -36,6 +36,7 @@ public class AITSounds {
     // Scary
     public static final SoundEvent STAGE_4 = register("tardis/secret/stage_4");
     public static final SoundEvent ARPALARM = register("tardis/arpalarm");
+    public static final SoundEvent ARPALARM_MONO = register("tardis/arpalarm_mono");
 
     // TARDIS
     public static final SoundEvent DEMAT = register("tardis/demat");

@@ -221,7 +221,7 @@ public class AITItems extends ItemContainer {
             new AItemSettings().maxCount(1).rarity(Rarity.RARE), 315);
 
     @NoEnglish
-    public static final Item CRASH_MUSIC_DISC = new MusicDiscItem(1, AITSounds.ARPALARM,
+    public static final Item CRASH_MUSIC_DISC = new MusicDiscItem(1, AITSounds.ARPALARM_MONO,
             new AItemSettings().maxCount(1).rarity(Rarity.RARE), 69);
 
 
