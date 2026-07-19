@@ -43,9 +43,6 @@ public class WorldUtil {
     private static final List<ServerWorld> PROJECTOR_WORLDS = new ArrayList<>();
     private static final List<ServerWorld> TRAVEL_WORLDS = new ArrayList<>();
 
-    private static final Set<ServerWorld> RIFT_SPAWN_WORLDS = new HashSet<>();
-    public static final List<ServerWorld> RIFT_DROP_WORLDS = new ArrayList<>();
-
     private static ServerWorld OVERWORLD;
     private static ServerWorld TIME_VORTEX;
 
@@ -162,9 +159,6 @@ public class WorldUtil {
     private static void clearWorldCache(MinecraftServer server) {
         PROJECTOR_WORLDS.clear();
         TRAVEL_WORLDS.clear();
-
-        RIFT_DROP_WORLDS.clear();
-        RIFT_SPAWN_WORLDS.clear();
     }
 
     /**
