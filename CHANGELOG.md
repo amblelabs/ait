@@ -183,3 +183,4 @@
 - feat: new lucien ambient tardis biome tracks! | by [@Loqor](https://github.com/Loqor) ([#2161](https://github.com/amblelabs/ait/pull/2161))
 - feat: new ait theme disc texture! | by [@Loqor](https://github.com/Loqor) ([#2161](https://github.com/amblelabs/ait/pull/2161))
 - feat: new horror-themed disc [stage_4] | by [@Loqor](https://github.com/Loqor) ([#2161](https://github.com/amblelabs/ait/pull/2161))
+- feat: new copper console model! | by [@Loqor](https://github.com/Loqor) ([#2162](https://github.com/amblelabs/ait/pull/2162))
