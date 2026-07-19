@@ -654,7 +654,7 @@ public class CopperConsoleModel extends SimpleConsoleModel {
 
         ModelPartData fuel_gauge = bone121.addChild("fuel_gauge", ModelPartBuilder.create(), ModelTransform.pivot(0.0875F, 1.2625F, 0.0F));
 
-        ModelPartData cube_r188 = fuel_gauge.addChild("cube_r188", ModelPartBuilder.create().uv(155, 0).cuboid(-0.75F, 0.0F, -0.25F, 1.0F, 0.0F, 1.0F, new Dilation(0.001F)), ModelTransform.of(0.0F, -1.6F, 0.0F, 0.0F, -1.5708F, 0.0F));
+        ModelPartData cube_r188 = fuel_gauge.addChild("cube_r188", ModelPartBuilder.create().uv(155, 0).cuboid(-0.75F, -1.0F, -0.25F, 1.0F, 1.0F, 1.0F, new Dilation(0.001F)), ModelTransform.of(0.0F, -0.675F, 0.0F, 0.0F, -1.5708F, 0.0F));
 
         ModelPartData pillars5 = pillars4.addChild("pillars5", ModelPartBuilder.create().uv(0, 63).cuboid(18.5F, -13.5F, -10.5F, 2.0F, 6.0F, 3.0F, new Dilation(0.0F))
                 .uv(28, 30).cuboid(18.5F, -13.5F, 7.5F, 2.0F, 6.0F, 3.0F, new Dilation(0.0F))
@@ -1221,15 +1221,15 @@ public class CopperConsoleModel extends SimpleConsoleModel {
 
         ModelPartData lights2 = flightlever.addChild("lights2", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-        ModelPartData light = lights2.addChild("light", ModelPartBuilder.create().uv(86, 52).cuboid(0.0F, 0.0F, -1.0F, 1.0F, 1.0F, 2.0F, new Dilation(0.03F)), ModelTransform.pivot(-1.0F, -1.5F, 0.0F));
+        ModelPartData light = lights2.addChild("light", ModelPartBuilder.create().uv(86, 52).cuboid(0.0F, 0.0F, -1.0F, 1.0F, 1.0F, 2.0F, new Dilation(0.03F)), ModelTransform.pivot(0.0F, -1.5F, 0.0F));
 
-        ModelPartData light2 = lights2.addChild("light2", ModelPartBuilder.create().uv(86, 52).cuboid(0.0F, -1.0F, -1.0F, 1.0F, 1.0F, 2.0F, new Dilation(0.03F)), ModelTransform.pivot(-1.0F, -0.5F, 0.0F));
+        ModelPartData light2 = lights2.addChild("light2", ModelPartBuilder.create().uv(86, 52).cuboid(0.0F, -1.0F, -1.0F, 1.0F, 1.0F, 2.0F, new Dilation(0.03F)), ModelTransform.pivot(0.0F, -1.5F, 0.0F));
 
-        ModelPartData light3 = lights2.addChild("light3", ModelPartBuilder.create().uv(86, 52).cuboid(0.0F, 0.0F, -1.0F, 1.0F, 1.0F, 2.0F, new Dilation(0.03F)), ModelTransform.of(0.0F, -0.5F, 0.0F, 0.0F, 0.0F, -1.5708F));
+        ModelPartData light3 = lights2.addChild("light3", ModelPartBuilder.create().uv(86, 52).cuboid(0.0F, 0.0F, -1.0F, 1.0F, 1.0F, 2.0F, new Dilation(0.03F)), ModelTransform.of(0.0F, -1.5F, 0.0F, 0.0F, 0.0F, -1.5708F));
 
-        ModelPartData light4 = lights2.addChild("light4", ModelPartBuilder.create().uv(86, 52).cuboid(0.0F, -1.0F, -1.0F, 1.0F, 1.0F, 2.0F, new Dilation(0.03F)), ModelTransform.of(1.0F, -0.5F, 0.0F, 0.0F, 0.0F, -1.5708F));
+        ModelPartData light4 = lights2.addChild("light4", ModelPartBuilder.create().uv(86, 52).cuboid(0.0F, -1.0F, -1.0F, 1.0F, 1.0F, 2.0F, new Dilation(0.03F)), ModelTransform.of(0.0F, -1.5F, 0.0F, 0.0F, 0.0F, -1.5708F));
 
-        ModelPartData light5 = lights2.addChild("light5", ModelPartBuilder.create().uv(86, 52).cuboid(0.0F, 0.0F, -1.0F, 1.0F, 1.0F, 2.0F, new Dilation(0.03F)), ModelTransform.of(1.0F, -1.5F, 0.0F, 0.0F, 0.0F, -3.1416F));
+        ModelPartData light5 = lights2.addChild("light5", ModelPartBuilder.create().uv(86, 52).cuboid(0.0F, 0.0F, -1.0F, 1.0F, 1.0F, 2.0F, new Dilation(0.03F)), ModelTransform.of(0.0F, -1.5F, 0.0F, 0.0F, 0.0F, -3.1416F));
 
         ModelPartData bone29 = flightlever.addChild("bone29", ModelPartBuilder.create().uv(28, 30).cuboid(-0.75F, -2.25F, -1.25F, 1.0F, 2.0F, 0.0F, new Dilation(0.0F))
                 .uv(88, 65).cuboid(-0.5F, -3.05F, -1.85F, 1.0F, 1.0F, 2.0F, new Dilation(-0.2F)), ModelTransform.of(0.0F, -1.5F, 0.0F, 0.0F, 0.0F, -1.309F));
@@ -1866,9 +1866,9 @@ public class CopperConsoleModel extends SimpleConsoleModel {
                 .uv(26, 246).cuboid(-2.5F, 11.15F, -2.5F, 5.0F, 5.0F, 5.0F, new Dilation(0.6F))
                 .uv(48, 227).cuboid(-1.0F, -18.15F, -1.0F, 2.0F, 9.0F, 2.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, -61.85F, 0.0F));
 
-        ModelPartData horn = column.addChild("horn", ModelPartBuilder.create().uv(28, 108).cuboid(0.0F, -2.0F, 0.0F, 3.0F, 2.0F, 0.0F, new Dilation(0.0F))
+        ModelPartData horn = column.addChild("horn", ModelPartBuilder.create().uv(28, 108).cuboid(0.0F, -2.0F, 0.0F, 3.0F, 2.0F, 0.0F, new Dilation(0.01F))
                 .uv(17, 63).cuboid(4.3F, -5.9F, -0.9F, 4.0F, 1.0F, 1.0F, new Dilation(-0.1F))
-                .uv(101, 121).cuboid(7.05F, -6.65F, 0.1F, 2.0F, 2.0F, 0.0F, new Dilation(0.0F))
+                .uv(101, 121).cuboid(7.05F, -6.65F, 0.1F, 2.0F, 2.0F, 0.0F, new Dilation(0.001F))
                 .uv(88, 89).cuboid(4.3F, -6.9F, 0.0F, 1.0F, 2.0F, 1.0F, new Dilation(0.0F))
                 .uv(40, 111).cuboid(4.3F, -8.65F, 0.0F, 1.0F, 2.0F, 1.0F, new Dilation(-0.1F)), ModelTransform.of(5.3083F, -27.0436F, -1.6007F, 0.1599F, 0.8252F, 0.2524F));
 
@@ -1877,7 +1877,7 @@ public class CopperConsoleModel extends SimpleConsoleModel {
                 .uv(60, 72).cuboid(5.5F, -5.75F, -4.0F, 0.0F, 9.0F, 9.0F, new Dilation(0.001F)), ModelTransform.of(4.8F, -7.9F, 0.0F, 0.0F, 0.0F, 0.1309F));
 
         ModelPartData cube_r370 = horn.addChild("cube_r370", ModelPartBuilder.create().uv(62, 48).cuboid(1.0F, 0.0F, 0.0F, 2.0F, 1.0F, 0.0F, new Dilation(0.0F))
-                .uv(57, 48).cuboid(0.0F, -2.0F, 0.0F, 1.0F, 3.0F, 0.0F, new Dilation(0.0F)), ModelTransform.of(5.4492F, -3.2736F, 0.0F, 0.0F, 0.0F, -1.5708F));
+                .uv(57, 48).cuboid(0.0F, -2.0F, 0.0F, 1.0F, 3.0F, 0.0F, new Dilation(0.01F)), ModelTransform.of(5.4492F, -3.2736F, 0.0F, 0.0F, 0.0F, -1.5708F));
 
         ModelPartData cube_r371 = horn.addChild("cube_r371", ModelPartBuilder.create().uv(92, 118).cuboid(0.0F, -2.0F, 0.0F, 4.0F, 2.0F, 0.0F, new Dilation(0.0F)), ModelTransform.of(3.3F, 0.1F, 0.0F, 0.0F, 0.0F, -1.0036F));
 
@@ -2198,8 +2198,8 @@ public class CopperConsoleModel extends SimpleConsoleModel {
 
         // Shields
         ModelPart shields = this.copper.getChild("controls").getChild("panel_4").getChild("rot16").getChild("t_switch").getChild("bone106");
-        float shieldYTarget = tardis.shields().shielded().get() ? 0.8f : 0f;
-        float shieldZTarget = tardis.shields().visuallyShielded().get() ? -0.4f : 0f;
+        float shieldYTarget = tardis.shields().shielded().get() ? -2.5f : shields.getTransform().pivotY;
+        float shieldZTarget = tardis.shields().visuallyShielded().get() ? 0 : shields.getTransform().pivotZ;
 
         shields.pivotY = getAngle(console, "shields_y", shieldYTarget, delta);
         shields.pivotZ = getAngle(console, "shields_z", shieldZTarget, delta);
