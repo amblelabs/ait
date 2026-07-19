@@ -30,7 +30,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.api.AITWorldOptions;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.tardis.ServerTardis;
@@ -85,18 +84,8 @@ public class WorldUtil {
     }
 
     private static void generateWorldCache(MinecraftServer server) {
-        for (ServerWorld world : server.getWorlds()) {
-            if (world instanceof AITWorldOptions options)
-                options.ait$setCanRiftsSpawn(false);
-        }
-
         generateWorldCache(server, "environment projector", AITMod.CONFIG.projectorBlacklist, AITMod.CONFIG.projectorWhitelist, PROJECTOR_WORLDS, false);
         generateWorldCache(server, "travel", AITMod.CONFIG.travelBlacklist, AITMod.CONFIG.travelWhitelist, TRAVEL_WORLDS, true);
-
-        for (ServerWorld riftSpawnable : RIFT_SPAWN_WORLDS) {
-            if (riftSpawnable instanceof AITWorldOptions options)
-                options.ait$setCanRiftsSpawn(true);
-        }
     }
 
     private static void generateWorldCache(MinecraftServer server, String cacheName, List<String> blacklist, List<String> whitelist,
@@ -189,10 +178,6 @@ public class WorldUtil {
         }
 
         return -1;
-    }
-
-    public static boolean canRiftsSpawn(ServerWorld world) {
-        return world instanceof AITWorldOptions options && options.ait$canRiftsSpawn();
     }
 
     public static List<ServerWorld> getProjectorWorlds() {
