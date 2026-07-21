@@ -860,7 +860,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.animateConsole", "Toggle Animated Consoles");
         provider.addTranslation("yacl3.config.ait:client.animateControls", "Toggle Smoothly Animated Controls");
         provider.addTranslation("yacl3.config.ait:client.animateDoors", "Toggle Smoothly Animated Doors");
-        provider.addTranslation("yacl3.config.ait:client.handlesLevenshteinDistance", "Levenshtein Distance For Handles");
         provider.addTranslation("yacl3.config.ait:client.temperatureType", "Temperature Type");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.celsius", "Celsius (°C)");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.fahrenheit", "Fahrenheit (°F)");
@@ -874,6 +873,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.allowPortalsBoti", "Toggle Immersive Portals BOTI");
         provider.addTranslation("yacl3.config.ait:server.tntCanTeleportThroughDoors", "Toggle TNT Door Teleporting");
         provider.addTranslation("yacl3.config.ait:server.hypercubesEnabled", "Toggle Hypercubes");
+        provider.addTranslation("yacl3.config.ait:server.handlesLevenshteinDistance", "Levenshtein Distance For Handles");
         provider.addTranslation("yacl3.config.ait:server.travelPerTick", "Travel Per-Tick");
         provider.addTranslation("yacl3.config.ait:server.astralMapBiomeLocatorRange", "Astral Map Biome Locator Range");
         provider.addTranslation("yacl3.config.ait:server.sendBulk", "Toggle Send Bulk TARDIS Data");
