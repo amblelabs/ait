@@ -86,9 +86,9 @@ public class TardisServerWorld extends MultiDimServerWorld {
     }
 
     public static TardisServerWorld create(ServerTardis tardis) {
-        if (Thread.currentThread() != ServerLifecycleHooks.get().getThread()) {
+        MinecraftServer server = ServerLifecycleHooks.get();
+        if (Thread.currentThread() != server.getThread()) {
             AITMod.LOGGER.error("Tried creating a TARDIS world when not on the server thread", new Throwable());
-            MinecraftServer server = ServerLifecycleHooks.get();
             CompletableFuture<TardisServerWorld> future = new CompletableFuture<>();
             server.execute(() -> {
                 try {
