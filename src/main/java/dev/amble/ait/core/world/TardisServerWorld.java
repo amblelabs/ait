@@ -99,7 +99,7 @@ public class TardisServerWorld extends MultiDimServerWorld {
             });
 
             try {
-                return future.get(30, TimeUnit.SECONDS);
+                return future.get(5, TimeUnit.SECONDS);
             } catch (ExecutionException e) {
                 throw new RuntimeException(e.getCause() != null ? e.getCause() : e);
             } catch (InterruptedException e) {
@@ -145,7 +145,7 @@ public class TardisServerWorld extends MultiDimServerWorld {
             });
 
             try {
-                return future.get(30, TimeUnit.SECONDS);
+                return future.get(5, TimeUnit.SECONDS);
             } catch (ExecutionException e) {
                 throw new RuntimeException(e.getCause() != null ? e.getCause() : e);
             } catch (InterruptedException e) {
