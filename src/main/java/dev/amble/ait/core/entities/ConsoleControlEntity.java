@@ -611,7 +611,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         if (player.getMainHandStack().getItem() == Items.PAPER && !player.getWorld().isClient()) {
             logConsoleJson();
 
-            player.sendMessage(Text.literal("JSON Data logged to Java Console!"));
+            player.sendMessage(Text.translatable("message.ait.console_control.json_logged"));
 
             return;
         }

@@ -83,9 +83,9 @@ public class TardisGoatHorn extends LinkableItem {
             if (tardis == null || tardis.travel() == null) return TypedActionResult.fail(itemStack);
             CachedDirectedGlobalPos abpd = tardis.travel().destination();
             BlockPos abpdPos = abpd.getPos();
-            Text message = Text.literal("X: " + abpdPos.getX() + " Y: " + abpdPos.getY() + " Z: " + abpdPos.getZ() + " Dim: ")
-                    .formatted(Formatting.GRAY)
-                    .append(WorldUtil.worldText(abpd.getDimension(), false)).formatted(Formatting.GRAY);
+            Text message = Text.translatable("message.ait.tardis_goat_horn.destination", abpdPos.getX(),
+                    abpdPos.getY(), abpdPos.getZ(), WorldUtil.worldText(abpd.getDimension(), false))
+                    .formatted(Formatting.GRAY);
 
             user.sendMessage(message, true);
 

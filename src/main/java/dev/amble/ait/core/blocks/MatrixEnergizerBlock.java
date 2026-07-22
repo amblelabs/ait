@@ -1,5 +1,6 @@
 package dev.amble.ait.core.blocks;
 
+import static dev.amble.ait.client.util.TooltipUtil.addMultilineTooltip;
 import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 import java.util.List;
@@ -257,7 +258,7 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
         super.appendTooltip(stack, world, tooltip, options);
 
         addShiftHiddenTooltip(stack, tooltip, tooltips -> {
-            tooltip.add(Text.translatable("tooltip.ait.matrix_energizer").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
+            addMultilineTooltip(tooltips, "tooltip.ait.matrix_energizer", Formatting.DARK_GRAY, Formatting.ITALIC);
         });
     }
 

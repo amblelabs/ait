@@ -26,7 +26,7 @@ public class CompassYawWidget extends ClickableWidget {
     private boolean fresh = true;
 
     public CompassYawWidget(int x, int y, int size, float initial, Consumer<Float> onChange) {
-        super(x, y, size, size, Text.literal("Yaw"));
+        super(x, y, size, size, Text.translatable("screen.ait.environment_projector.yaw"));
         this.value = wrap(initial);
         this.lastClickValue = this.value;
         this.onChange = onChange;

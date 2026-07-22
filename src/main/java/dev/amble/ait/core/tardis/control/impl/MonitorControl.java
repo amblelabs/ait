@@ -35,7 +35,8 @@ public class MonitorControl extends Control {
         } else {
             DecimalFormat df = new DecimalFormat("#.##");
             String formattedNumber = df.format(tardis.getFuel());
-            player.sendMessage(Text.of("X: " + abpdPos.getX() + " Y: " + abpdPos.getY() + " Z: " + abpdPos.getZ() + " Dim: " + WorldUtil.worldText(abpd.getDimension()).getString() + " Fuel: " + formattedNumber + "/50000"), true);
+            player.sendMessage(Text.translatable("message.ait.control.monitor.status", abpdPos.getX(),
+                    abpdPos.getY(), abpdPos.getZ(), WorldUtil.worldText(abpd.getDimension()), formattedNumber), true);
         }
 
         return Result.SUCCESS;

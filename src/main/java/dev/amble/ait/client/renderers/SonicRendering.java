@@ -1,5 +1,7 @@
 package dev.amble.ait.client.renderers;
 
+import java.util.Locale;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import org.jetbrains.annotations.Nullable;
@@ -210,7 +212,9 @@ public class SonicRendering {
         BlockState state = world.getBlockState(pos);
         if (!(state.getBlock() instanceof DetectorBlock)) return;
         DetectorBlock.Type type = state.get(DetectorBlock.TYPE);
-        context.drawCenteredTextWithShadow(client.textRenderer, type.name().toUpperCase(), getCentreX(), (int) (getMaxY() * 0.4), Colors.WHITE);
+        context.drawCenteredTextWithShadow(client.textRenderer,
+                Text.translatable("block.ait.detector.type." + type.name().toLowerCase(Locale.ROOT)), getCentreX(),
+                (int) (getMaxY() * 0.4), Colors.WHITE);
     }
 
     private void renderSubSystemInfo(DrawContext context, BlockPos pos) {

@@ -14,7 +14,7 @@ public class BlueprintFabricatorScreen extends Screen {
     int backgroundWidth = 176;
 
     public BlueprintFabricatorScreen() {
-        super(Text.literal("Blueprint Fabricator")); // todo translatable
+        super(Text.translatable("screen.ait.blueprint_fabricator"));
     }
 
     protected void drawBackground(DrawContext context) {

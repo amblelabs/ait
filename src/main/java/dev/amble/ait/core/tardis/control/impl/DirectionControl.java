@@ -45,10 +45,8 @@ public class DirectionControl extends Control {
 
     private void messagePlayer(ServerPlayerEntity player, int rotation) {
         String arrow = rotationForArrow(rotation);
-        player.sendMessage(
-                Text.literal("Rotation Direction: " + rotationToDirection(rotation).substring(0, 1).toUpperCase()
-                        + rotationToDirection(rotation).substring(1) + " | " + arrow),
-                true); // fixme translatable is preferred
+        player.sendMessage(Text.translatable("message.ait.control.direction.rotation", WorldUtil.rot2Text(rotation),
+                arrow), true);
     }
 
     public static String rotationToDirection(int currentRot) {
