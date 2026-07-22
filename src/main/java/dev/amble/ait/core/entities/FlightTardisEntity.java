@@ -47,6 +47,8 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     private Vec3d lastVelocity;
     private BlockPos interiorPos;
 
+    private int landedTicks = 0;
+
     public FlightTardisEntity(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
 
@@ -138,8 +140,14 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         }
 
         if (player.isSneaking() && (this.isOnGround() || tardis.travel().antigravs().get())
-                && this.getWorld().isInBuildLimit(this.getBlockPos()))
-            this.finishLand(tardis, player);
+                && this.getWorld().isInBuildLimit(this.getBlockPos())) {
+            this.landedTicks++;
+
+            if (this.landedTicks > 20)
+                this.finishLand(tardis, player);
+        } else {
+            this.landedTicks = 0;
+        }
     }
 
     @Override
