@@ -143,7 +143,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
                 && this.getWorld().isInBuildLimit(this.getBlockPos())) {
             this.landedTicks++;
 
-            if (this.landedTicks > 20)
+            if (this.landedTicks > 50)
                 this.finishLand(tardis, player);
         } else {
             this.landedTicks = 0;
