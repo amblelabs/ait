@@ -109,12 +109,6 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
         Tardis tardis = this.tardis().get();
 
-        if (player.isSneaking() && (this.isOnGround() || tardis.travel().antigravs().get())
-                && this.getWorld().isInBuildLimit(this.getBlockPos())) {
-            this.finishLand(tardis, player);
-            return;
-        }
-
         if (this.getWorld().isClient()) {
             MinecraftClient client = MinecraftClient.getInstance();
 
@@ -142,6 +136,10 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
                     entity -> TardisUtil.teleportInside(tardis.asServer(), entity)
             );
         }
+
+        if (player.isSneaking() && (this.isOnGround() || tardis.travel().antigravs().get())
+                && this.getWorld().isInBuildLimit(this.getBlockPos()))
+            this.finishLand(tardis, player);
     }
 
     @Override
