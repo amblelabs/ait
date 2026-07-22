@@ -130,7 +130,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         if (!player.isInvulnerable())
             player.setInvulnerable(true);
 
-        tardis.flight().tickFlight((ServerPlayerEntity) player, this.getPos());
+        tardis.flight().tickFlight((ServerPlayerEntity) player, this.getBlockPos());
 
         if (tardis.door().isOpen()) {
             this.getWorld().getOtherEntities(this, this.getBoundingBox(), entity
