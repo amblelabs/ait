@@ -70,8 +70,8 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
             this.tardis.door().setLocked(true);
     }
 
-    public void tickFlight(ServerPlayerEntity player) {
-        tardis.travel().forcePosition(cached -> cached.pos(player.getBlockPos())
+    public void tickFlight(ServerPlayerEntity player, BlockPos pos) {
+        tardis.travel().forcePosition(cached -> cached.pos(pos)
                 .rotation((byte) RotationPropertyHelper.fromYaw(player.getYaw())));
         if (player.age % 20 != 0) {
             GravitationalCircuit circuit = tardis.subsystems().get(GRAVITATIONAL);
