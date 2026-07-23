@@ -139,11 +139,14 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
             );
         }
 
-        if (player.isSneaking() && (this.isOnGround() || tardis.travel().antigravs().get())
-                && this.getWorld().isInBuildLimit(this.getBlockPos())) {
-            this.landedTicks++;
+        boolean antigravs = tardis.travel().antigravs().get();
 
-            if (this.landedTicks > 50)
+        if (player.isSneaking() && (this.isOnGround() || antigravs)
+                && this.getWorld().isInBuildLimit(this.getBlockPos())) {
+            if (antigravs)
+                this.landedTicks = 0;
+
+            if (antigravs || this.landedTicks++ > 50)
                 this.finishLand(tardis, player);
         } else {
             this.landedTicks = 0;
