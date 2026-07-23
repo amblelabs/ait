@@ -104,7 +104,7 @@ public class DalekModExteriorModel extends SimpleExteriorModel {
 
         matrices.push();
         matrices.scale(0.945F, 0.945F, 0.945F);
-        matrices.translate(1, -1.5f, 0);
+        matrices.translate(0, -1.5f, 0);
 
         DoorHandler door = falling.tardis().get().door();
 

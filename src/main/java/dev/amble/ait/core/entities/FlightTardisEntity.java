@@ -154,6 +154,11 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     }
 
     @Override
+    public void setVelocityClient(double x, double y, double z) {
+        super.setVelocityClient(x, y, z);
+    }
+
+    @Override
     public void setOnGround(boolean onGround, Vec3d movement) {
         if (!this.isOnGround() && onGround)
             this.playThud();
