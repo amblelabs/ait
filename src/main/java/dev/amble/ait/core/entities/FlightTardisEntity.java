@@ -2,6 +2,8 @@ package dev.amble.ait.core.entities;
 
 import java.util.List;
 
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.sound.SoundEvent;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.MinecraftClient;
@@ -43,8 +45,6 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     private static final List<ItemStack> EMPTY = List.of();
     private static final ItemStack AIR = new ItemStack(Items.AIR);
-    public float speedPitch;
-    private Vec3d lastVelocity;
     private BlockPos interiorPos;
 
     private int landedTicks = 0;
@@ -53,7 +53,6 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         super(entityType, world);
 
         this.setInvulnerable(true);
-        this.lastVelocity = Vec3d.ZERO;
     }
 
     private FlightTardisEntity(BlockPos riderPos, CachedDirectedGlobalPos pos, ServerTardis tardis) {
@@ -97,7 +96,6 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     @Override
     public void tick() {
-        this.lastVelocity = this.getVelocity();
         this.setRotation(0, 0);
         super.tick();
 
@@ -151,11 +149,6 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         } else {
             this.landedTicks = 0;
         }
-    }
-
-    @Override
-    public void setVelocityClient(double x, double y, double z) {
-        super.setVelocityClient(x, y, z);
     }
 
     @Override
@@ -275,10 +268,6 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         return ((float) this.age + tickDelta) / 20.0f;
     }
 
-    public Vec3d lerpVelocity(float tickDelta) {
-        return this.lastVelocity.lerp(this.getVelocity(), tickDelta);
-    }
-
     @Override
     protected void tickControlled(PlayerEntity controllingPlayer, Vec3d movementInput) {
         Vec2f vec2f = new Vec2f(0, controllingPlayer.getYaw());
@@ -328,6 +317,16 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         return MobEntity.createMobAttributes().add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 1)
                 .add(EntityAttributes.GENERIC_MAX_HEALTH, 20.0).add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 0)
                 .add(EntityAttributes.GENERIC_FLYING_SPEED, 5);
+    }
+
+    @Override
+    public boolean isInvulnerable() {
+        return true;
+    }
+
+    @Override
+    protected @Nullable SoundEvent getHurtSound(DamageSource source) {
+        return AITSounds.CLOISTER;
     }
 
     @Override
