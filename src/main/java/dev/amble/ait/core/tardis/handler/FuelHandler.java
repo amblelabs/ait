@@ -179,7 +179,7 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
         TravelHandler travel = this.tardis.travel();
         this.removeFuel(20 * FuelHandler.getPerTickFuelCost(travel));
 
-        if (!tardis.fuel().hasPower())
+        if (!tardis.fuel().hasPower() && !tardis.flight().isFlying()) // to negate the tardis just failing
             travel.crash();
     }
 

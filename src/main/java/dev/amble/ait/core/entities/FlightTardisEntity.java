@@ -2,6 +2,8 @@ package dev.amble.ait.core.entities;
 
 import java.util.List;
 
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.sound.SoundEvent;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.MinecraftClient;
@@ -43,15 +45,14 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     private static final List<ItemStack> EMPTY = List.of();
     private static final ItemStack AIR = new ItemStack(Items.AIR);
-    public float speedPitch;
-    private Vec3d lastVelocity;
     private BlockPos interiorPos;
+
+    private int landedTicks = 0;
 
     public FlightTardisEntity(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
 
         this.setInvulnerable(true);
-        this.lastVelocity = Vec3d.ZERO;
     }
 
     private FlightTardisEntity(BlockPos riderPos, CachedDirectedGlobalPos pos, ServerTardis tardis) {
@@ -95,7 +96,6 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     @Override
     public void tick() {
-        this.lastVelocity = this.getVelocity();
         this.setRotation(0, 0);
         super.tick();
 
@@ -108,10 +108,6 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
             return;
 
         Tardis tardis = this.tardis().get();
-
-        if (player.isSneaking() && (this.isOnGround() || tardis.travel().antigravs().get())
-                && this.getWorld().isInBuildLimit(this.getBlockPos()))
-            this.finishLand(tardis, player);
 
         if (this.getWorld().isClient()) {
             MinecraftClient client = MinecraftClient.getInstance();
@@ -132,13 +128,26 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         if (!player.isInvulnerable())
             player.setInvulnerable(true);
 
-        tardis.flight().tickFlight((ServerPlayerEntity) player);
+        tardis.flight().tickFlight((ServerPlayerEntity) player, this.getBlockPos());
 
         if (tardis.door().isOpen()) {
             this.getWorld().getOtherEntities(this, this.getBoundingBox(), entity
                     -> !entity.isSpectator() && entity != player && entity instanceof LivingEntity).forEach(
                     entity -> TardisUtil.teleportInside(tardis.asServer(), entity)
             );
+        }
+
+        boolean antigravs = tardis.travel().antigravs().get();
+
+        if (player.isSneaking() && (this.isOnGround() || antigravs)
+                && this.getWorld().isInBuildLimit(this.getBlockPos())) {
+            if (antigravs)
+                this.landedTicks = 0;
+
+            if (antigravs || this.landedTicks++ > 50)
+                this.finishLand(tardis, player);
+        } else {
+            this.landedTicks = 0;
         }
     }
 
@@ -218,6 +227,12 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     public LivingEntity getControllingPassenger() {
         Entity entity = this.getFirstPassenger();
 
+        if (this.tardis().isPresent()) {
+            Tardis tardis = this.tardis().get();
+            boolean bl = tardis.fuel().hasPower();
+            if (!bl) return null;
+        }
+
         if (entity instanceof LivingEntity living)
             return living;
 
@@ -226,14 +241,19 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     @Override
     protected Vec3d getControlledMovementInput(PlayerEntity controllingPlayer, Vec3d movementInput) {
-        if (!this.isLinked() || !this.tardis().get().fuel().hasPower()) return new Vec3d(0, 0, 0);
+        Planet planet = PlanetRegistry.getInstance().get(this.getWorld());
+        boolean planetGravity = planet != null && planet.zeroGravity();
+
+        if (!this.isLinked() || !this.tardis().get().fuel().hasPower()) {
+            return new Vec3d(0, planetGravity ? 0.0f : -2f, 0);
+        }
+
         float f = controllingPlayer.sidewaysSpeed * this.tardis().get().travel().speed();
         float g = controllingPlayer.forwardSpeed * this.tardis().get().travel().speed();
 
         float speedVal = this.isSubmergedInWater() ? 30f : 10f;
 
-        Planet planet = PlanetRegistry.getInstance().get(this.getWorld());
-        boolean canFall = this.tardis().get().travel().antigravs().get() || planet != null && planet.zeroGravity();
+        boolean canFall = this.tardis().get().travel().antigravs().get() || planetGravity;
 
         double v = ((LivingEntityAccessor) controllingPlayer).getJumping() ? speedVal :
                 controllingPlayer.isSneaking() ? -speedVal :
@@ -241,8 +261,8 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
         if (v < 0 && this.isOnGround())
             return Vec3d.ZERO.add(0, -0.4f, 0);
-        Vec3d yourmom = new Vec3d(f, v, g);
-        return yourmom;//return this.isOnGround() ? new Vec3d(0, 0, 0) : new Vec3d(f, v * 4f, g);
+
+        return new Vec3d(f, v, g);//return this.isOnGround() ? new Vec3d(0, 0, 0) : new Vec3d(f, v * 4f, g);
     }
 
     @Override
@@ -257,10 +277,6 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     public float getRotation(float tickDelta) {
         return ((float) this.age + tickDelta) / 20.0f;
-    }
-
-    public Vec3d lerpVelocity(float tickDelta) {
-        return this.lastVelocity.lerp(this.getVelocity(), tickDelta);
     }
 
     @Override
@@ -312,6 +328,16 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         return MobEntity.createMobAttributes().add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 1)
                 .add(EntityAttributes.GENERIC_MAX_HEALTH, 20.0).add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 0)
                 .add(EntityAttributes.GENERIC_FLYING_SPEED, 5);
+    }
+
+    @Override
+    public boolean isInvulnerable() {
+        return true;
+    }
+
+    @Override
+    protected @Nullable SoundEvent getHurtSound(DamageSource source) {
+        return AITSounds.CLOISTER;
     }
 
     @Override

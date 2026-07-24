@@ -838,10 +838,12 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItemGroups.FABRICATOR, "AIT: Fabrication");
 
         // Config
+        provider.addTranslation("text.ait.config.categories", "AIT Config");
         provider.addTranslation("category.ait.config.client", "Client Options");
         provider.addTranslation("category.ait.config.server", "Server Options");
 
         // Client config
+        provider.addTranslation("yacl3.config.ait:client.category.client", "Client");
         provider.addTranslation("yacl3.config.ait:client.interiorHumVolume", "Interior Hum Volume");
         provider.addTranslation("yacl3.config.ait:client.engineLoopVolume", "Engine Loop Volume");
         provider.addTranslation("yacl3.config.ait:client.flightMusicVolume", "Flight Music Volume");
@@ -866,6 +868,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.kelvin", "Kelvin (K)");
 
         // Server config
+        provider.addTranslation("yacl3.config.ait:server.category.server", "Server");
         provider.addTranslation("yacl3.config.ait:server.minifyJson", "Minify Json");
         provider.addTranslation("yacl3.config.ait:server.ghostMonument", "Toggle Ghost Monument");
         provider.addTranslation("yacl3.config.ait:server.lockDimensions", "Toggle Lockable Dimensions");

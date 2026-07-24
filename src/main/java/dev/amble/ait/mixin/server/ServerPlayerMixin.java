@@ -33,11 +33,4 @@ public class ServerPlayerMixin {
             player.fallDistance = 0;
         }
     }
-
-    @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
-    public void ait$attack(CallbackInfo ci) {
-        ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
-        if (player.hasVehicle() && player.getVehicle() instanceof FlightTardisEntity)
-            ci.cancel();
-    }
 }
