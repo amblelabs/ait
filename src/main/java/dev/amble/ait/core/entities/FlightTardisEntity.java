@@ -227,6 +227,12 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     public LivingEntity getControllingPassenger() {
         Entity entity = this.getFirstPassenger();
 
+        if (this.tardis().isPresent()) {
+            Tardis tardis = this.tardis().get();
+            boolean bl = tardis.fuel().hasPower();
+            if (!bl) return null;
+        }
+
         if (entity instanceof LivingEntity living)
             return living;
 
@@ -235,14 +241,19 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     @Override
     protected Vec3d getControlledMovementInput(PlayerEntity controllingPlayer, Vec3d movementInput) {
-        if (!this.isLinked() || !this.tardis().get().fuel().hasPower()) return new Vec3d(0, 0, 0);
+        Planet planet = PlanetRegistry.getInstance().get(this.getWorld());
+        boolean planetGravity = planet != null && planet.zeroGravity();
+
+        if (!this.isLinked() || !this.tardis().get().fuel().hasPower()) {
+            return new Vec3d(0, planetGravity ? 0.0f : -2f, 0);
+        }
+
         float f = controllingPlayer.sidewaysSpeed * this.tardis().get().travel().speed();
         float g = controllingPlayer.forwardSpeed * this.tardis().get().travel().speed();
 
         float speedVal = this.isSubmergedInWater() ? 30f : 10f;
 
-        Planet planet = PlanetRegistry.getInstance().get(this.getWorld());
-        boolean canFall = this.tardis().get().travel().antigravs().get() || planet != null && planet.zeroGravity();
+        boolean canFall = this.tardis().get().travel().antigravs().get() || planetGravity;
 
         double v = ((LivingEntityAccessor) controllingPlayer).getJumping() ? speedVal :
                 controllingPlayer.isSneaking() ? -speedVal :
@@ -250,8 +261,8 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
         if (v < 0 && this.isOnGround())
             return Vec3d.ZERO.add(0, -0.4f, 0);
-        Vec3d yourmom = new Vec3d(f, v, g);
-        return yourmom;//return this.isOnGround() ? new Vec3d(0, 0, 0) : new Vec3d(f, v * 4f, g);
+
+        return new Vec3d(f, v, g);//return this.isOnGround() ? new Vec3d(0, 0, 0) : new Vec3d(f, v * 4f, g);
     }
 
     @Override

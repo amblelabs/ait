@@ -76,7 +76,8 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
         if (player.age % 20 != 0) {
             GravitationalCircuit circuit = tardis.subsystems().get(GRAVITATIONAL);
             if (circuit.isEnabled()) {
-                circuit.removeDurability(0.5f);
+                circuit.removeDurability(0.05f); // it takes wayyyy too much away from the gravitational circuit,
+                // it should be a more negligible amount so it doesnt run out so quick
             }
         }
     }
