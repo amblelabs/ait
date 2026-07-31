@@ -1,5 +1,18 @@
 package dev.amble.ait.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.ExtraPushableEntity;
+import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.item.KeyItem;
+import dev.amble.ait.core.tardis.handler.ReturnHomeHandler;
+import dev.amble.ait.core.util.SafePosSearch;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.util.TeleportUtil;
 import net.fabricmc.fabric.api.util.TriState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -13,21 +26,14 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
-
-import dev.amble.ait.api.ExtraPushableEntity;
-import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.util.SafePosSearch;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.util.TeleportUtil;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements ExtraPushableEntity {
@@ -82,8 +88,15 @@ public abstract class LivingEntityMixin extends Entity implements ExtraPushableE
         cir.setReturnValue(pushable);
     }
 
-    @Inject(method = "tickInVoid", at = @At("HEAD"))
+    @Inject(method = "tickInVoid", at = @At("HEAD"), cancellable = true)
     public void tickVoid(CallbackInfo ci) {
+        if ((Object) this instanceof ServerPlayerEntity player
+                && (ReturnHomeHandler.protectsFromVoidDuringHailMary(player)
+                || KeyItem.tryHailMaryVoidRescue(player))) {
+            ci.cancel();
+            return;
+        }
+
         if (!this.getWorld().isClient() && this.getWorld().getRegistryKey() == AITDimensions.TIME_VORTEX_WORLD) {
             if (WorldUtil.getTravelWorlds().isEmpty())
                 return;
@@ -98,4 +111,22 @@ public abstract class LivingEntityMixin extends Entity implements ExtraPushableE
                     result -> TeleportUtil.teleport(entity, world, result.getPos().toCenterPos(), entity.getYaw()));
         }
     }
+    @WrapOperation(method = "damage", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/entity/LivingEntity;tryUseTotem(Lnet/minecraft/entity/damage/DamageSource;)Z"))
+    private boolean ait$resolveHailMaryProtection(LivingEntity entity, DamageSource source,
+                                                  Operation<Boolean> original) {
+        if (!(entity instanceof ServerPlayerEntity player))
+            return original.call(entity, source);
+
+        if (AITMod.CONFIG.hailMaryActivatesDespiteTotems
+                && KeyItem.tryHailMaryLethalRescue(player, source))
+            return true;
+
+        if (original.call(entity, source))
+            return true;
+
+        return !AITMod.CONFIG.hailMaryActivatesDespiteTotems
+                && KeyItem.tryHailMaryLethalRescue(player, source);
+    }
+
 }

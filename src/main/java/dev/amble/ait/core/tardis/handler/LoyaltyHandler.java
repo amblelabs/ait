@@ -5,13 +5,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.api.tardis.TardisComponent;
@@ -30,6 +23,13 @@ import dev.amble.ait.registry.impl.DesktopRegistry;
 import dev.amble.ait.registry.impl.SonicRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 public class LoyaltyHandler extends TardisComponent implements TardisTickable {
     private final Map<UUID, Loyalty> data;
@@ -57,7 +57,14 @@ public class LoyaltyHandler extends TardisComponent implements TardisTickable {
     }
 
     public Loyalty get(PlayerEntity player) {
-        return this.data.getOrDefault(player.getUuid(), new Loyalty(Loyalty.Type.NEUTRAL));
+        return this.get(player.getUuid());
+    }
+
+    public Loyalty get(UUID playerId) {
+        if (playerId == null)
+            return new Loyalty(Loyalty.Type.NEUTRAL);
+
+        return this.data.getOrDefault(playerId, new Loyalty(Loyalty.Type.NEUTRAL));
     }
 
     public Loyalty set(ServerPlayerEntity player, Loyalty loyalty) {

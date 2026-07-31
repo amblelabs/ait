@@ -1,39 +1,8 @@
 package dev.amble.ait.core.tardis.util;
 
 import java.util.*;
+import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
-
-import dev.drtheo.scheduler.api.TimeUnit;
-import dev.drtheo.scheduler.api.common.Scheduler;
-import dev.drtheo.scheduler.api.common.TaskStage;
-import it.unimi.dsi.fastutil.longs.LongBidirectionalIterator;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.util.TriState;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.TntEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.TypeFilter;
-import net.minecraft.util.function.LazyIterationConsumer;
-import net.minecraft.util.math.*;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.entity.EntityLike;
-import net.minecraft.world.entity.EntityTrackingSection;
-import net.minecraft.world.explosion.Explosion;
-import net.minecraft.world.explosion.ExplosionBehavior;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.ExtraPushableEntity;
@@ -58,6 +27,36 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.amble.lib.util.TeleportUtil;
+import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
+import it.unimi.dsi.fastutil.longs.LongBidirectionalIterator;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.util.TriState;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.TntEntity;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.TypeFilter;
+import net.minecraft.util.function.LazyIterationConsumer;
+import net.minecraft.util.math.*;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityLike;
+import net.minecraft.world.entity.EntityTrackingSection;
+import net.minecraft.world.explosion.Explosion;
+import net.minecraft.world.explosion.ExplosionBehavior;
 
 @SuppressWarnings("unused")
 public class TardisUtil {
@@ -237,8 +236,43 @@ public class TardisUtil {
     }
 
     public static void teleportInside(ServerTardis tardis, Entity entity) {
-        if (TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity) == TardisEvents.Interaction.FAIL) return;
-        TardisUtil.teleportWithDoorOffset(tardis.world(), entity, tardis.getDesktop().getDoorPos());
+        teleportInside(tardis, entity, null, null, null);
+    }
+
+    /**
+     * Attempts a normal TARDIS entry and reports whether the queued teleport was
+     * actually accepted. Exactly one callback is run, potentially on the next
+     * server task when the entry checks are evaluated.
+     */
+    public static void teleportInside(ServerTardis tardis, Entity entity,
+                                      @Nullable Runnable onTeleport, @Nullable Runnable onFailure) {
+        teleportInside(tardis, entity, null, onTeleport, onFailure);
+    }
+
+    public static void teleportInsideThroughExterior(ServerTardis tardis, Entity entity, boolean requireOpenDoor) {
+        CachedDirectedGlobalPos position = tardis.travel().position();
+        if (position == null || position.getWorld() == null || entity.getWorld() != position.getWorld())
+            return;
+
+        ServerWorld exteriorWorld = position.getWorld();
+        BooleanSupplier canTeleport = () -> entity.getWorld() == exteriorWorld
+                && (!requireOpenDoor || tardis.door().isOpen());
+        teleportInside(tardis, entity, canTeleport, null, null);
+    }
+
+    private static void teleportInside(ServerTardis tardis, Entity entity,
+                                       @Nullable BooleanSupplier canTeleport,
+                                       @Nullable Runnable onTeleport, @Nullable Runnable onFailure) {
+        BooleanSupplier beforeTeleport = () -> (canTeleport == null || canTeleport.getAsBoolean())
+                && TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity) != TardisEvents.Interaction.FAIL;
+        Runnable afterTeleport = entity instanceof ServerPlayerEntity || onTeleport != null ? () -> {
+            if (onTeleport != null)
+                onTeleport.run();
+            if (entity instanceof ServerPlayerEntity player)
+                tardis.returnHome().onConfirmedPlayerEntered(player);
+        } : null;
+        TardisUtil.teleportWithDoorOffset(tardis.world(), entity, tardis.getDesktop().getDoorPos(),
+                beforeTeleport, afterTeleport, onFailure);
     }
 
     public static void teleportToInteriorPosition(ServerTardis tardis, Entity entity, BlockPos pos) {
@@ -249,16 +283,27 @@ public class TardisUtil {
                     new Vec3d(pos.getX(), pos.getY(), pos.getZ()), entity.getYaw(), player.getPitch());
 
             player.networkHandler.sendPacket(new EntityVelocityUpdateS2CPacket(player));
+            tardis.returnHome().onConfirmedPlayerEntered(player);
         }
     }
 
     private static void teleportWithDoorOffset(ServerWorld world, Entity entity, DirectedBlockPos directed) {
+        teleportWithDoorOffset(world, entity, directed, null, null, null);
+    }
+
+    private static void teleportWithDoorOffset(ServerWorld world, Entity entity, DirectedBlockPos directed,
+                                               @Nullable BooleanSupplier canTeleport,
+                                               @Nullable Runnable afterTeleport,
+                                               @Nullable Runnable failedTeleport) {
         if (!AITMod.CONFIG.tntCanTeleportThroughDoors && entity instanceof TntEntity) {
+            runCallback(failedTeleport);
             return;
         }
 
-        if (entity instanceof ExtraPushableEntity pushable && pushable.ait$pushBehaviour() == TriState.FALSE)
+        if (entity instanceof ExtraPushableEntity pushable && pushable.ait$pushBehaviour() == TriState.FALSE) {
+            runCallback(failedTeleport);
             return;
+        }
 
         BlockPos pos = directed.getPos();
         boolean isDoor = world.getBlockEntity(pos) instanceof DoorBlockEntity;
@@ -268,8 +313,15 @@ public class TardisUtil {
                 : TardisUtil.offsetDoorPosition(directed).add(0, 0.125, 0);
 
         world.getServer().execute(() -> {
-            if (entity.getVehicle() instanceof FlightTardisEntity)
+            if (canTeleport != null && !canTeleport.getAsBoolean()) {
+                runCallback(failedTeleport);
                 return;
+            }
+
+            if (entity.getVehicle() instanceof FlightTardisEntity) {
+                runCallback(failedTeleport);
+                return;
+            }
 
             if (entity instanceof ExtraPushableEntity pushable)
                 pushable.ait$setPushBehaviour(TriState.FALSE);
@@ -281,8 +333,10 @@ public class TardisUtil {
 
                 player.networkHandler.sendPacket(new EntityVelocityUpdateS2CPacket(player));
             } else {
-                if (entity.getType().isIn(AITTags.EntityTypes.BOSS))
+                if (entity.getType().isIn(AITTags.EntityTypes.BOSS)) {
+                    runCallback(failedTeleport);
                     return;
+                }
 
                 if (entity.getWorld().getRegistryKey() == world.getRegistryKey()) {
                     entity.refreshPositionAndAngles(offset(vec, directed, -0.5f).x, vec.y,
@@ -299,7 +353,15 @@ public class TardisUtil {
             if (entity instanceof ExtraPushableEntity pushable)
                 Scheduler.get().runTaskLater(() -> pushable.ait$setPushBehaviour(TriState.DEFAULT),
                         TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 3);
+
+            if (afterTeleport != null)
+                afterTeleport.run();
         });
+    }
+
+    private static void runCallback(@Nullable Runnable callback) {
+        if (callback != null)
+            callback.run();
     }
 
     public static Vec3d offset(Vec3d vec, DirectedBlockPos direction, double value) {

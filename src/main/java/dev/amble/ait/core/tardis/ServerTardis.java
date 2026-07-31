@@ -7,18 +7,17 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import com.google.gson.InstanceCreator;
-import dev.drtheo.scheduler.api.TimeUnit;
-import dev.drtheo.scheduler.api.common.Scheduler;
-import dev.drtheo.scheduler.api.common.TaskStage;
-
-import net.minecraft.server.MinecraftServer;
-
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
+
+import net.minecraft.server.MinecraftServer;
 
 public class ServerTardis extends Tardis {
 
@@ -30,6 +29,9 @@ public class ServerTardis extends Tardis {
 
     @Exclude
     private final Set<TardisComponent> delta = new HashSet<>(32);
+
+    @Exclude
+    private boolean persistentDirty;
 
     @Exclude
     private TardisServerWorld world;
@@ -78,7 +80,21 @@ public class ServerTardis extends Tardis {
         if (component.tardis() != this)
             return;
 
+        this.persistentDirty = true;
         this.delta.add(component);
+    }
+
+    /** Marks server-side state dirty without scheduling a network component delta. */
+    public void markPersistentDirty() {
+        this.persistentDirty = true;
+    }
+
+    public boolean hasPersistentChanges() {
+        return this.persistentDirty;
+    }
+
+    public void markPersistentChangesSaved() {
+        this.persistentDirty = false;
     }
 
     public void consumeDelta(Consumer<TardisComponent> consumer) {
@@ -109,7 +125,8 @@ public class ServerTardis extends Tardis {
     }
 
     public boolean shouldTick() {
-        return !this.travel().isLanded() || (world != null && world.shouldTick()) || this.shouldTickExterior();
+        return !this.travel().isLanded() || (world != null && world.shouldTick()) || this.shouldTickExterior()
+                || this.returnHome().needsTick();
     }
 
     public boolean shouldTickExterior() {

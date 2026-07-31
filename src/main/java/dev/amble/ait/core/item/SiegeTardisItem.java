@@ -2,13 +2,17 @@ package dev.amble.ait.core.item;
 
 import java.util.List;
 
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -19,20 +23,15 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.api.tardis.link.LinkableItem;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 // todo fix so many issues with having more than one of this item
 public class SiegeTardisItem extends LinkableItem {
     static {
         TardisEvents.ENTER_TARDIS.register((tardis, entity) -> {
             if (!(entity instanceof ServerPlayerEntity player))
                 return TardisEvents.Interaction.PASS;
-            boolean hasSiege = player.getInventory().containsAny(stack -> stack.isOf(AITItems.SIEGE_ITEM));
-            if (!hasSiege) return TardisEvents.Interaction.PASS;
+            SiegeInventoryUtil.ScanResult siege = SiegeInventoryUtil.scanCarried(player, tardis.getUuid());
+            if (!siege.blocksEntry())
+                return TardisEvents.Interaction.PASS;
 
             player.sendMessage(Text.translatable("ait.tooltip.siege_item.enter").formatted(Formatting.RED), true);
             return TardisEvents.Interaction.FAIL;
@@ -59,19 +58,15 @@ public class SiegeTardisItem extends LinkableItem {
             return;
         }
 
+        SiegeInventoryUtil.rememberTrackedSiegeItem(entity, tardis.getUuid());
+
         if (!tardis.siege().isActive()) {
             tardis.setSiegeBeingHeld(null);
+            tardis.returnHome().clearSiegeItemContainer();
             return;
         }
 
-        if (entity instanceof ServerPlayerEntity player)
-            tardis.siege().setSiegeBeingHeld(player.getUuid());
-
-        tardis.travel().forcePosition(fromEntity(entity));
-
-        if (!tardis.isSiegeBeingHeld()) {
-            tardis.setSiegeBeingHeld(entity.getUuid());
-        }
+        tardis.returnHome().trackSiegeItemEntity(entity);
     }
 
 
@@ -80,25 +75,23 @@ public class SiegeTardisItem extends LinkableItem {
         if (context.getHand() != Hand.MAIN_HAND || context.getPlayer() == null)
             return ActionResult.PASS;
 
-        context.getPlayer().getInventory().setStack(context.getPlayer().getInventory().selectedSlot, Items.AIR.getDefaultStack());
-
-        context.getStack().decrement(1);
-
         if (context.getWorld().isClient())
             return ActionResult.SUCCESS;
 
         Tardis tardis = this.getTardis(context.getWorld(), context.getStack());
-
-        if (tardis == null)
+        if (tardis == null) {
+            context.getStack().decrement(1);
             return ActionResult.CONSUME;
+        }
 
         if (!tardis.siege().isActive()) {
             tardis.setSiegeBeingHeld(null);
+            context.getStack().decrement(1);
             return ActionResult.SUCCESS;
         }
 
-        placeTardis(tardis, fromItemContext(context));
-        return super.useOnBlock(context);
+        return placeTardis(tardis, fromItemContext(context), context.getPlayer())
+                ? super.useOnBlock(context) : ActionResult.FAIL;
     }
 
     @Override
@@ -122,19 +115,52 @@ public class SiegeTardisItem extends LinkableItem {
     }
 
     public static void pickupTardis(Tardis tardis, ServerPlayerEntity player) {
-        if (tardis.travel().handbrake())
+        if (tardis.travel().handbrake() || player.getServer() == null
+                || !tardis.returnHome().canCreateSiegeItem(player.getServer())
+                || !tardis.getExterior().hasValidExteriorBlock())
             return;
 
-        tardis.travel().deleteExterior();
+        int slot = player.getInventory().getEmptySlot();
+        if (slot < 0 || !tardis.travel().tryDeleteExterior())
+            return;
+
+        tardis.returnHome().clearSiegeItemContainer();
         tardis.siege().setSiegeBeingHeld(player.getUuid());
-        player.getInventory().insertStack(create(tardis));
+        player.getInventory().setStack(slot, create(tardis));
         player.getInventory().markDirty();
     }
 
-    public static void placeTardis(Tardis tardis, CachedDirectedGlobalPos pos) {
+    public static boolean placeTardis(Tardis tardis, CachedDirectedGlobalPos pos) {
+        return placeTardis(tardis, pos, null);
+    }
+
+    public static boolean placeTardis(Tardis tardis, CachedDirectedGlobalPos pos, @Nullable Entity carrier) {
+        pos = tardis.returnHome().resolveSiegeExteriorPlacement(pos);
+        ServerWorld world = pos == null ? null : pos.getWorld();
+        if (world == null || !tardis.siege().isActive())
+            return false;
+
+        boolean movingExterior = tardis.getExterior().hasValidExteriorBlock();
+        if (movingExterior && (carrier != null
+                || !tardis.returnHome().canMaterializeSiegeExterior(world.getServer())))
+            return false;
+
+        var provisional = tardis.travel().placeProvisionalExterior(pos);
+        if (provisional == null)
+            return false;
+
+        boolean prepared = movingExterior ? tardis.travel().tryDeleteExterior()
+                : carrier == null
+                ? tardis.returnHome().prepareSiegeExteriorPlacement(world.getServer(), false)
+                : tardis.returnHome().prepareSiegeExteriorPlacement(world.getServer(), carrier);
+        if (!prepared) {
+            provisional.rollback();
+            return false;
+        }
+
         tardis.travel().forcePosition(pos);
-        tardis.travel().placeExterior(false);
         tardis.setSiegeBeingHeld(null);
+        return true;
     }
 
     public static ItemStack create(Tardis tardis) {

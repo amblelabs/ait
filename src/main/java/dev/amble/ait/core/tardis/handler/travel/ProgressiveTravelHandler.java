@@ -1,11 +1,5 @@
 package dev.amble.ait.core.tardis.handler.travel;
 
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.random.Random;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITSounds;
@@ -16,6 +10,12 @@ import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.ait.data.properties.integer.IntProperty;
 import dev.amble.ait.data.properties.integer.IntValue;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.random.Random;
 
 public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
@@ -185,7 +185,10 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
             this.tardis.getDesktop().playSoundAtEveryConsole(SoundEvents.BLOCK_BELL_RESONATE);
             this.resetFlight();
 
-            boolean shouldRemat = TardisEvents.FINISH_FLIGHT.invoker().onFinish(tardis.asServer()) == TardisEvents.Interaction.SUCCESS;
+            boolean shouldRemat = this.tardis.returnHome().isAutomaticTravel()
+                    || this.tardis.returnHome().isHailMaryPendingLanding()
+                    || TardisEvents.FINISH_FLIGHT.invoker().onFinish(tardis.asServer())
+                    == TardisEvents.Interaction.SUCCESS;
 
             if (shouldRemat)
                 this.tardis.travel().rematerialize();
@@ -202,7 +205,8 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
         SequenceHandler sequences = tardis.sequence();
         int maxSpeed = this.maxSpeed().get();
 
-        if (this.autopilot.get()) return;
+        if (this.autopilot.get() || this.tardis.returnHome().isAutomaticTravel()
+                || this.tardis.returnHome().isHailMaryPendingLanding()) return;
 
         if (this.getDurationAsPercentage() >= 100) return;
 

@@ -1,18 +1,5 @@
 package dev.amble.ait.core.tardis.handler;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.item.AxeItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
-
 import dev.amble.ait.api.ArtronHolder;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
@@ -32,6 +19,19 @@ import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.ait.data.properties.dbl.DoubleProperty;
 import dev.amble.ait.data.properties.dbl.DoubleValue;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.item.AxeItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 
 public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, TardisTickable {
     public static final double TARDIS_MAX_FUEL = 50000;
@@ -124,20 +124,31 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
 
     @Override
     public void setCurrentFuel(double fuel) {
-        double prev = this.getCurrentFuel();
+        double previous = this.getCurrentFuel();
+        this.setCurrentFuelSilently(fuel);
+
+        if (this.isOutOfFuel() && previous != 0)
+            this.runFuelDepletionProtocols();
+    }
+
+    /** Updates fuel without running depletion protocols. */
+    public void setCurrentFuelSilently(double fuel) {
         this.fuel.set(MathHelper.clamp(fuel, 0, this.getMaxFuel()));
+    }
 
-        if (this.isOutOfFuel() && prev != 0) {
-            EmergencyPower backup = this.tardis().subsystems().emergency();
-            if (backup.hasBackupPower()) {
-                this.setCurrentFuel(backup.getCurrentFuel());
-                backup.setCurrentFuel(0);
-                TardisEvents.USE_BACKUP_POWER.invoker().onUse(this.tardis(), this.getCurrentFuel());
-                return;
-            }
+    private void runFuelDepletionProtocols() {
+        if (this.tardis().returnHome().handleFuelDepletion())
+            return;
 
-            TardisEvents.OUT_OF_FUEL.invoker().onNoFuel(this.tardis);
+        EmergencyPower backup = this.tardis().subsystems().emergency();
+        if (backup.hasBackupPower()) {
+            this.setCurrentFuelSilently(backup.getCurrentFuel());
+            backup.setCurrentFuel(0);
+            TardisEvents.USE_BACKUP_POWER.invoker().onUse(this.tardis(), this.getCurrentFuel());
+            return;
         }
+
+        TardisEvents.OUT_OF_FUEL.invoker().onNoFuel(this.tardis);
     }
 
     @Override
@@ -177,7 +188,8 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
             return;
 
         TravelHandler travel = this.tardis.travel();
-        this.removeFuel(20 * FuelHandler.getPerTickFuelCost(travel));
+        if (!this.tardis.returnHome().skipsFlightFuelCost())
+            this.removeFuel(20 * FuelHandler.getPerTickFuelCost(travel));
 
         if (!tardis.fuel().hasPower())
             travel.crash();
