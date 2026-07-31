@@ -194,6 +194,10 @@ public class SubSystemHandler extends KeyedTardisComponent implements TardisTick
         return this.get(SubSystem.Id.ENDER_CHEST_COLLECTOR);
     }
 
+    public BiodataRestoration biodataRestoration() {
+        return this.get(SubSystem.Id.BIODATA_RESTORATION);
+    }
+
     @ApiStatus.Internal
     public <T extends SubSystem> void set(T t) {
         this.systems.put(t.getId(), t);

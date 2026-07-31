@@ -130,6 +130,7 @@ public class AITModClient implements ClientModInitializer {
         );
 
         ClientTardisManager.init();
+        BiodataRestorationClient.init();
         ItemTooltipCallback.EVENT.register((stack, context, tooltip) -> {
             DurableSubSystem.StackDurability durability = DurableSubSystem.getItemDurability(stack);
             if (durability != null && durability.durability() < durability.maximum()) {

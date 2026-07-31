@@ -175,6 +175,10 @@ public final class HomeSystemsHandler extends KeyedTardisComponent implements Ta
     }
 
     public void rejectHarvest(ServerPlayerEntity player, BlockPos console) {
+        this.rejectInteraction(player, console);
+    }
+
+    public void rejectInteraction(ServerPlayerEntity player, BlockPos console) {
         if (player == null || console == null)
             return;
 

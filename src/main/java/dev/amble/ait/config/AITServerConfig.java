@@ -59,6 +59,74 @@ public class AITServerConfig {
 
     @AutoGen(category = HOME_SYSTEMS_CATEGORY)
     @MasterTickBox({
+            "biodataRestorationRejectInsertionChance", "biodataRestorationNeutralInsertionChance",
+            "biodataRestorationCompanionInsertionChance", "biodataRestorationPilotInsertionChance",
+            "biodataRestorationOwnerInsertionChance", "biodataRestorationRejectFireSeconds",
+            "biodataRestorationInsertionLoyaltyCost", "biodataRestorationRescueFuelCost",
+            "biodataRestorationRescueLoyaltyCost", "biodataRestorationSubsystemDamageMin",
+            "biodataRestorationSubsystemDamageMax", "biodataRestorationJealousyPenalty",
+            "biodataRestorationHailMaryTeleportFuelCost", "preferTotemsOverBiodataRestoration"
+    })
+    @SerialEntry public boolean biodataRestorationAvailable = true;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 100)
+    @SerialEntry public int biodataRestorationRejectInsertionChance = 100;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 100)
+    @SerialEntry public int biodataRestorationNeutralInsertionChance = 100;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 100)
+    @SerialEntry public int biodataRestorationCompanionInsertionChance = 50;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 100)
+    @SerialEntry public int biodataRestorationPilotInsertionChance = 35;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 100)
+    @SerialEntry public int biodataRestorationOwnerInsertionChance = 0;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 3600)
+    @SerialEntry public int biodataRestorationRejectFireSeconds = 15;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 500)
+    @SerialEntry public int biodataRestorationInsertionLoyaltyCost = 20;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 1_000_000)
+    @SerialEntry public int biodataRestorationRescueFuelCost = 1000;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 500)
+    @SerialEntry public int biodataRestorationRescueLoyaltyCost = 100;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 1250)
+    @SerialEntry public int biodataRestorationSubsystemDamageMin = 50;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 1250)
+    @SerialEntry public int biodataRestorationSubsystemDamageMax = 300;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 500)
+    @SerialEntry public int biodataRestorationJealousyPenalty = 300;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 1_000_000)
+    @SerialEntry public int biodataRestorationHailMaryTeleportFuelCost = 200;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @SerialEntry public boolean preferTotemsOverBiodataRestoration = true;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @MasterTickBox({
             "homeDefenseAffectsBosses", "homeDefenseRadius", "homeDefenseDamage",
             "homeDefenseIntervalSeconds", "homeDefenseEngineDamagePerKill", "homeDefenseFuelPerSecond"
     })
@@ -227,6 +295,16 @@ public class AITServerConfig {
 
         this.telepathicCoralShearsMin = minimum;
         this.telepathicCoralShearsMax = maximum;
+
+        int minimumDamage = Math.max(0, Math.min(1250, this.biodataRestorationSubsystemDamageMin));
+        int maximumDamage = Math.max(0, Math.min(1250, this.biodataRestorationSubsystemDamageMax));
+        if (minimumDamage > maximumDamage) {
+            int swap = minimumDamage;
+            minimumDamage = maximumDamage;
+            maximumDamage = swap;
+        }
+        this.biodataRestorationSubsystemDamageMin = minimumDamage;
+        this.biodataRestorationSubsystemDamageMax = maximumDamage;
     }
 
     public static class StringListFactory implements ListGroup.ValueFactory<String>, ListGroup.ControllerFactory<String> {

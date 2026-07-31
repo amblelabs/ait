@@ -1610,6 +1610,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(SubSystem.Id.ENGINE.toTranslationKey(), "Engine");
         provider.addTranslation(SubSystem.Id.STABILISERS.toTranslationKey(), "Blue Stabilisers");
         provider.addTranslation(SubSystem.Id.EMERGENCY_POWER.toTranslationKey(), "Emergency Backup Power");
+        provider.addTranslation(SubSystem.Id.BIODATA_RESTORATION.toTranslationKey(), "Biodata Restoration");
 
         // Exterior Animations
         provider.addTranslation("animation." + AITMod.MOD_ID + ".bnt_demat", "Bill & Ted");
@@ -1642,6 +1643,36 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                 "Resistance effect level granted to OWNER players by operational life support at the exact home.");
         addConfigTranslation(provider, "beaconEmanationFuelPerSecond", "Beacon Emanation Fuel Cost (AU/Second)",
                 "Artron consumed each second while an operational Beacon Emanation protects the TARDIS and its home area.");
+        addConfigTranslation(provider, "biodataRestorationAvailable", "Enable Biodata Restoration",
+                "Allows a Totem of Undying to be installed as a home-bound Biodata Restoration system.");
+        addConfigTranslation(provider, "biodataRestorationRejectInsertionChance", "REJECT Insertion Rejection Chance",
+                "Chance that the TARDIS rejects Biodata Restoration when installed by a REJECT player.");
+        addConfigTranslation(provider, "biodataRestorationNeutralInsertionChance", "NEUTRAL Insertion Rejection Chance",
+                "Chance that the TARDIS rejects Biodata Restoration when installed by a NEUTRAL player.");
+        addConfigTranslation(provider, "biodataRestorationCompanionInsertionChance", "COMPANION Insertion Rejection Chance",
+                "Chance that the TARDIS rejects Biodata Restoration when installed by a COMPANION player.");
+        addConfigTranslation(provider, "biodataRestorationPilotInsertionChance", "PILOT Insertion Rejection Chance",
+                "Chance that the TARDIS rejects Biodata Restoration when installed by a PILOT player.");
+        addConfigTranslation(provider, "biodataRestorationOwnerInsertionChance", "OWNER Insertion Rejection Chance",
+                "Chance that the TARDIS rejects Biodata Restoration when installed by an OWNER player.");
+        addConfigTranslation(provider, "biodataRestorationRejectFireSeconds", "Rejected REJECT Fire Duration (Seconds)",
+                "Time a REJECT player burns after the TARDIS refuses their installation attempt.");
+        addConfigTranslation(provider, "biodataRestorationInsertionLoyaltyCost", "Biodata Restoration Installation Loyalty Cost",
+                "Loyalty removed from the player who forces the system into the TARDIS.");
+        addConfigTranslation(provider, "biodataRestorationRescueFuelCost", "Biodata Restoration Cost (AU)",
+                "Artron consumed whenever the TARDIS successfully restores a player's biodata.");
+        addConfigTranslation(provider, "biodataRestorationRescueLoyaltyCost", "Biodata Restoration Loyalty Cost",
+                "Loyalty removed from a player whenever their biodata is restored.");
+        addConfigTranslation(provider, "biodataRestorationSubsystemDamageMin", "Minimum Restoration Subsystem Damage",
+                "Minimum durability damage dealt to every durable subsystem after a restoration.");
+        addConfigTranslation(provider, "biodataRestorationSubsystemDamageMax", "Maximum Restoration Subsystem Damage",
+                "Maximum durability damage dealt to every durable subsystem after a restoration.");
+        addConfigTranslation(provider, "biodataRestorationJealousyPenalty", "Biodata Restoration Jealousy Penalty",
+                "Loyalty removed by every other eligible TARDIS which was not selected for the restoration.");
+        addConfigTranslation(provider, "biodataRestorationHailMaryTeleportFuelCost", "Hail Mary Restoration Teleport Cost (AU)",
+                "Additional Artron used to move a restored player inside when Hail Mary is armed at the exact home.");
+        addConfigTranslation(provider, "preferTotemsOverBiodataRestoration", "Prefer Totems over Biodata Restoration",
+                "Lets a usable vanilla or modded totem act before Biodata Restoration.");
         addConfigTranslation(provider, "homeDefenseAvailable", "Enable Handles Home Defense",
                 "Allows Handles to recognize the defense command and keeps special home defenses available.");
         addConfigTranslation(provider, "homeDefenseAffectsBosses", "Handles Defense Damages Bosses",
@@ -1685,6 +1716,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("subsystem.ait.beacon_emanation", "Beacon Emanation");
         provider.addTranslation("subsystem.ait.sculk_catalyst_collector", "Experience Collector");
         provider.addTranslation("subsystem.ait.ender_chest_collector", "Item Collector");
+        provider.addTranslation("tardis.message.biodata_restoration.forced",
+                "You have forced the TARDIS to preserve your biodata. Every restoration will damage its systems and your bond with it.");
+        provider.addTranslation("tardis.message.biodata_restoration.jealousy",
+                "%1$s resents another TARDIS restoring your biodata.");
         provider.addTranslation("message.ait.handles.requires_inserted",
                 "I can only control the special defenses while I am inserted in the TARDIS.");
         provider.addTranslation("message.ait.handles.defense.home_only",
@@ -1930,6 +1965,36 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                 "Nivel de Resistencia otorgado a jugadores DUEÑO por un soporte vital operativo.");
         addConfigTranslation(provider, "beaconEmanationFuelPerSecond", "Coste de Emanación de Faro (AU/segundo)",
                 "Artrón consumido cada segundo mientras una Emanación de Faro operativa protege la TARDIS y su hogar.");
+        addConfigTranslation(provider, "biodataRestorationAvailable", "Activar Restauración de biodatos",
+                "Permite instalar un Tótem de inmortalidad como sistema de Restauración de biodatos vinculado al hogar.");
+        addConfigTranslation(provider, "biodataRestorationRejectInsertionChance", "Probabilidad de rechazo para RECHAZADO",
+                "Probabilidad de que la TARDIS rechace el sistema si lo instala un jugador RECHAZADO.");
+        addConfigTranslation(provider, "biodataRestorationNeutralInsertionChance", "Probabilidad de rechazo para NEUTRAL",
+                "Probabilidad de que la TARDIS rechace el sistema si lo instala un jugador NEUTRAL.");
+        addConfigTranslation(provider, "biodataRestorationCompanionInsertionChance", "Probabilidad de rechazo para ACOMPAÑANTE",
+                "Probabilidad de que la TARDIS rechace el sistema si lo instala un jugador ACOMPAÑANTE.");
+        addConfigTranslation(provider, "biodataRestorationPilotInsertionChance", "Probabilidad de rechazo para PILOTO",
+                "Probabilidad de que la TARDIS rechace el sistema si lo instala un jugador PILOTO.");
+        addConfigTranslation(provider, "biodataRestorationOwnerInsertionChance", "Probabilidad de rechazo para DUEÑO",
+                "Probabilidad de que la TARDIS rechace el sistema si lo instala un jugador DUEÑO.");
+        addConfigTranslation(provider, "biodataRestorationRejectFireSeconds", "Duración del fuego al rechazar a RECHAZADO (segundos)",
+                "Tiempo que arde un jugador RECHAZADO cuando la TARDIS se niega a aceptar el sistema.");
+        addConfigTranslation(provider, "biodataRestorationInsertionLoyaltyCost", "Coste de lealtad de la instalación",
+                "Lealtad retirada al jugador que fuerza el sistema dentro de la TARDIS.");
+        addConfigTranslation(provider, "biodataRestorationRescueFuelCost", "Coste de Restauración de biodatos (AU)",
+                "Artrón consumido cuando la TARDIS restaura correctamente los biodatos de un jugador.");
+        addConfigTranslation(provider, "biodataRestorationRescueLoyaltyCost", "Coste de lealtad de la restauración",
+                "Lealtad retirada a un jugador cada vez que se restauran sus biodatos.");
+        addConfigTranslation(provider, "biodataRestorationSubsystemDamageMin", "Daño mínimo a subsistemas por restauración",
+                "Daño mínimo de durabilidad infligido a todos los subsistemas duraderos tras una restauración.");
+        addConfigTranslation(provider, "biodataRestorationSubsystemDamageMax", "Daño máximo a subsistemas por restauración",
+                "Daño máximo de durabilidad infligido a todos los subsistemas duraderos tras una restauración.");
+        addConfigTranslation(provider, "biodataRestorationJealousyPenalty", "Penalización de celos de la restauración",
+                "Lealtad retirada por cada TARDIS elegible que no fue seleccionada para la restauración.");
+        addConfigTranslation(provider, "biodataRestorationHailMaryTeleportFuelCost", "Coste de teletransporte de Hail Mary (AU)",
+                "Artrón adicional usado para introducir al jugador restaurado cuando Hail Mary está armado en el hogar exacto.");
+        addConfigTranslation(provider, "preferTotemsOverBiodataRestoration", "Priorizar tótems sobre Restauración de biodatos",
+                "Permite que un tótem vanilla o de otro mod actúe antes que la Restauración de biodatos.");
         addConfigTranslation(provider, "homeDefenseAvailable", "Activar defensa del hogar de Handles",
                 "Permite que Handles reconozca la orden de defensa y mantiene disponibles las defensas especiales.");
         addConfigTranslation(provider, "homeDefenseAffectsBosses", "La defensa de Handles daña jefes",
@@ -1973,6 +2038,11 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("subsystem.ait.beacon_emanation", "Emanación de Faro");
         provider.addTranslation("subsystem.ait.sculk_catalyst_collector", "Recolector de Experiencia");
         provider.addTranslation("subsystem.ait.ender_chest_collector", "Recolector de Objetos");
+        provider.addTranslation("subsystem.ait.biodata_restoration", "Restauración de biodatos");
+        provider.addTranslation("tardis.message.biodata_restoration.forced",
+                "Has forzado a la TARDIS a preservar tus biodatos. Cada restauración dañará sus sistemas y vuestro vínculo.");
+        provider.addTranslation("tardis.message.biodata_restoration.jealousy",
+                "%1$s se resiente porque otra TARDIS haya restaurado tus biodatos.");
         provider.addTranslation("message.ait.handles.requires_inserted",
                 "Solo puedo controlar las defensas especiales mientras estoy insertado en la TARDIS.");
         provider.addTranslation("message.ait.handles.defense.home_only",

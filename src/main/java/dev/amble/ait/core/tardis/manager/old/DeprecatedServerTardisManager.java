@@ -17,6 +17,7 @@ import dev.amble.ait.core.events.WorldSaveEvent;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisManager;
+import dev.amble.ait.core.tardis.manager.BiodataRestorationManager;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.manager.TardisBuilder;
 import dev.amble.ait.core.tardis.manager.TardisFileManager;
@@ -194,6 +195,7 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
         MultiDim.get(server).queueRemove(TardisServerWorld.keyForTardis(tardis));
 
         this.sendTardisRemoval(server, tardis);
+        BiodataRestorationManager.removeTardis(server, tardis.getUuid());
 
         this.lookup.remove(tardis.getUuid());
         this.fileManager.delete(server, tardis.getUuid());

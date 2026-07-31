@@ -165,7 +165,8 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
         GRAVITATIONAL(GravitationalCircuit.class, GravitationalCircuit::new),
         BEACON_EMANATION(BeaconEmanation.class, BeaconEmanation::new),
         SCULK_CATALYST_COLLECTOR(SculkCatalystCollector.class, SculkCatalystCollector::new),
-        ENDER_CHEST_COLLECTOR(EnderChestCollector.class, EnderChestCollector::new),;
+        ENDER_CHEST_COLLECTOR(EnderChestCollector.class, EnderChestCollector::new),
+        BIODATA_RESTORATION(BiodataRestoration.class, BiodataRestoration::new),;
         private final Supplier<SubSystem> creator;
 
         private final Class<? extends SubSystem> clazz;

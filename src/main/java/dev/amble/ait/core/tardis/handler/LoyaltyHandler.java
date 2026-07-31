@@ -14,6 +14,7 @@ import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.likes.ItemOpinion;
 import dev.amble.ait.core.likes.ItemOpinionRegistry;
 import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.manager.BiodataRestorationManager;
 import dev.amble.ait.core.tardis.util.TardisHomeUtil;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
@@ -64,6 +65,10 @@ public class LoyaltyHandler extends TardisComponent implements TardisTickable {
     public Loyalty set(ServerPlayerEntity player, Loyalty loyalty) {
         this.data.put(player.getUuid(), loyalty);
         this.unlock(player, loyalty);
+
+        if (this.tardis instanceof ServerTardis serverTardis)
+            BiodataRestorationManager.updateEligibility(serverTardis, player.getUuid(),
+                    loyalty.isOf(Loyalty.Type.COMPANION));
 
         this.sync();
         return loyalty;
