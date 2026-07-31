@@ -6,23 +6,6 @@ import static net.minecraft.data.server.recipe.RecipeProvider.*;
 import java.util.Calendar;
 import java.util.concurrent.CompletableFuture;
 
-import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-
-import net.minecraft.block.Blocks;
-import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryBuilder;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITEntityTypes;
@@ -40,6 +23,22 @@ import dev.amble.ait.module.planet.core.world.PlanetPlacedFeatures;
 import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
 import dev.amble.lib.datagen.lang.LanguageType;
 import dev.amble.lib.datagen.sound.AmbleSoundProvider;
+import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+
+import net.minecraft.block.Blocks;
+import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
+import net.minecraft.item.Items;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.book.RecipeCategory;
+import net.minecraft.registry.RegistryBuilder;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.Identifier;
 
 public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
@@ -1632,6 +1631,72 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("animation." + AITMod.MOD_ID + ".proton_demat", "Proton");
 
 
+        provider.addTranslation("yacl3.config.ait:server.category.home_systems", "Home Systems");
+        addConfigTranslation(provider, "homeRadius", "Home Area Radius (Blocks)",
+                "Radius around the configured home used by home modules, collectors and defenses.");
+        addConfigTranslation(provider, "exactHomeLoyaltyMultiplier", "Exact Home Loyalty Multiplier",
+                "Multiplier for passive loyalty gained by PILOT and OWNER players while the TARDIS is parked at its exact home.");
+        addConfigTranslation(provider, "exactHomeSaturationLevel", "Exact Home Saturation Level",
+                "Saturation effect level granted to COMPANION-or-higher players by operational life support at the exact home.");
+        addConfigTranslation(provider, "exactHomeOwnerResistanceLevel", "Exact Home OWNER Resistance Level",
+                "Resistance effect level granted to OWNER players by operational life support at the exact home.");
+        addConfigTranslation(provider, "beaconEmanationFuelPerSecond", "Beacon Emanation Fuel Cost (AU/Second)",
+                "Artron consumed each second while an operational Beacon Emanation protects the TARDIS and its home area.");
+        addConfigTranslation(provider, "homeDefenseAvailable", "Enable Handles Home Defense",
+                "Allows Handles to recognize the defense command and keeps special home defenses available.");
+        addConfigTranslation(provider, "homeDefenseAffectsBosses", "Handles Defense Damages Bosses",
+                "Allows special home defenses to damage entities identified by the boss tag.");
+        addConfigTranslation(provider, "homeDefenseRadius", "Handles Defense Radius (Blocks)",
+                "Radius around the exact home in which Handles defense targets hostile entities.");
+        addConfigTranslation(provider, "homeDefenseDamage", "Handles Defense Chronal Damage",
+                "Chronal damage dealt to each hostile target on every Handles defense pulse.");
+        addConfigTranslation(provider, "homeDefenseIntervalSeconds", "Handles Defense Interval (Seconds)",
+                "Time between Handles defense pulses while the TARDIS is parked at its exact home.");
+        addConfigTranslation(provider, "homeDefenseEngineDamagePerKill", "Handles Defense Engine Damage per Kill",
+                "Engine durability removed whenever special home defenses kill an entity.");
+        addConfigTranslation(provider, "homeDefenseFuelPerSecond", "Handles Defense Fuel Cost (AU/Second)",
+                "Artron consumed each second while Handles special defenses are active at the exact home.");
+        addConfigTranslation(provider, "homeRefuelMultiplier", "Exact Home Refueling Multiplier",
+                "Multiplier applied to ambient and nearby rift Artron absorption while the TARDIS is parked at its exact home.");
+        addConfigTranslation(provider, "sculkCatalystFuelPerSecond", "Experience Collector Fuel Cost (AU/Second)",
+                "Artron consumed each second while an operational Experience Collector is installed.");
+        addConfigTranslation(provider, "sculkCatalystExperiencePerArtron", "Experience Collector Experience per Artron",
+                "Experience required to restore one AU after every damageable subsystem is fully repaired.");
+        addConfigTranslation(provider, "sculkCatalystExperiencePerDurability", "Experience Collector Experience per Repair Point",
+                "Experience required to restore one durability point to a damaged subsystem.");
+        addConfigTranslation(provider, "enderChestFuelPerSecond", "Item Collector Fuel Cost (AU/Second)",
+                "Artron consumed each second while an operational Item Collector is installed.");
+        addConfigTranslation(provider, "telepathicCoralCooldownMinutes", "TARDIS Coral Growth Cooldown (Minutes)",
+                "Cooldown between bone meal harvests from the telepathic circuit at the exact home.");
+        addConfigTranslation(provider, "telepathicCoralBonemealCount", "Bone Meal Coral Fragment Count",
+                "Number of coral fragments produced by using bone meal on the telepathic circuit.");
+        addConfigTranslation(provider, "telepathicCoralShearsMin", "Shears Minimum Coral Fragment Count",
+                "Minimum random number of coral fragments cut from the telepathic circuit.");
+        addConfigTranslation(provider, "telepathicCoralShearsMax", "Shears Maximum Coral Fragment Count",
+                "Maximum random number of coral fragments cut from the telepathic circuit.");
+        addConfigTranslation(provider, "telepathicCoralShearsLoyaltyPenalty", "Shears Loyalty Penalty",
+                "Loyalty removed for cutting coral fragments from the telepathic circuit.");
+        addConfigTranslation(provider, "consoleRejectionPushHorizontal", "Console Rejection Horizontal Force",
+                "Horizontal force applied when the TARDIS rejects a damaging home interaction.");
+        addConfigTranslation(provider, "consoleRejectionPushVertical", "Console Rejection Vertical Force",
+                "Vertical force applied when the TARDIS rejects a damaging home interaction.");
+
+        provider.addTranslation("tooltip.ait.subsystem_item.damaged", "DAMAGED %s/%s");
+        provider.addTranslation("subsystem.ait.beacon_emanation", "Beacon Emanation");
+        provider.addTranslation("subsystem.ait.sculk_catalyst_collector", "Experience Collector");
+        provider.addTranslation("subsystem.ait.ender_chest_collector", "Item Collector");
+        provider.addTranslation("message.ait.handles.requires_inserted",
+                "I can only control the special defenses while I am inserted in the TARDIS.");
+        provider.addTranslation("message.ait.handles.defense.home_only",
+                "I can only have the TARDIS defend you while it is at its exact home.");
+        provider.addTranslation("message.ait.handles.defense.enabled", "Special home defenses enabled.");
+        provider.addTranslation("message.ait.handles.defense.disabled", "Special home defenses disabled.");
+        provider.addTranslation("message.ait.telepathic.coral_cooldown",
+                "The TARDIS coral needs more time to recover.");
+        provider.addTranslation("message.ait.telepathic.coral_requires_home",
+                "The TARDIS can only grow coral through this circuit at its exact home.");
+        provider.addTranslation("death.attack.chronal", "%1$s was displaced from the timeline");
+
         return provider;
     }
 
@@ -1854,7 +1919,80 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("command.ait.home.dimension_locked",
                 "No se puede establecer el hogar en una dimensión bloqueada para esta TARDIS.");
 
+        provider.addTranslation("yacl3.config.ait:server.category.home_systems", "Sistemas del hogar");
+        addConfigTranslation(provider, "homeRadius", "Radio del área del hogar (bloques)",
+                "Radio alrededor del hogar configurado utilizado por los módulos, recolectores y defensas del hogar.");
+        addConfigTranslation(provider, "exactHomeLoyaltyMultiplier", "Multiplicador de lealtad en el hogar exacto",
+                "Multiplicador de la lealtad pasiva obtenida por jugadores PILOTO y DUEÑO cuando la TARDIS está en su hogar exacto.");
+        addConfigTranslation(provider, "exactHomeSaturationLevel", "Nivel de saturación en el hogar exacto",
+                "Nivel de Saturación otorgado a jugadores ACOMPAÑANTE o superiores por un soporte vital operativo.");
+        addConfigTranslation(provider, "exactHomeOwnerResistanceLevel", "Nivel de resistencia de DUEÑO en el hogar exacto",
+                "Nivel de Resistencia otorgado a jugadores DUEÑO por un soporte vital operativo.");
+        addConfigTranslation(provider, "beaconEmanationFuelPerSecond", "Coste de Emanación de Faro (AU/segundo)",
+                "Artrón consumido cada segundo mientras una Emanación de Faro operativa protege la TARDIS y su hogar.");
+        addConfigTranslation(provider, "homeDefenseAvailable", "Activar defensa del hogar de Handles",
+                "Permite que Handles reconozca la orden de defensa y mantiene disponibles las defensas especiales.");
+        addConfigTranslation(provider, "homeDefenseAffectsBosses", "La defensa de Handles daña jefes",
+                "Permite que las defensas especiales dañen entidades identificadas con la etiqueta de jefe.");
+        addConfigTranslation(provider, "homeDefenseRadius", "Radio de defensa de Handles (bloques)",
+                "Radio alrededor del hogar exacto en el que la defensa de Handles ataca entidades hostiles.");
+        addConfigTranslation(provider, "homeDefenseDamage", "Daño cronal de la defensa de Handles",
+                "Daño cronal infligido a cada objetivo hostil en cada pulso defensivo.");
+        addConfigTranslation(provider, "homeDefenseIntervalSeconds", "Intervalo de defensa de Handles (segundos)",
+                "Tiempo entre pulsos defensivos mientras la TARDIS está en su hogar exacto.");
+        addConfigTranslation(provider, "homeDefenseEngineDamagePerKill", "Daño al motor por baja defensiva",
+                "Durabilidad retirada al motor cuando las defensas especiales matan una entidad.");
+        addConfigTranslation(provider, "homeDefenseFuelPerSecond", "Coste de defensa de Handles (AU/segundo)",
+                "Artrón consumido cada segundo mientras las defensas especiales están activas.");
+        addConfigTranslation(provider, "homeRefuelMultiplier", "Multiplicador de repostaje en el hogar exacto",
+                "Multiplicador aplicado a la absorción ambiental y de grietas cercanas en el hogar exacto.");
+        addConfigTranslation(provider, "sculkCatalystFuelPerSecond", "Coste del Recolector de Experiencia (AU/segundo)",
+                "Artrón consumido cada segundo mientras hay un Recolector de Experiencia operativo.");
+        addConfigTranslation(provider, "sculkCatalystExperiencePerArtron", "Experiencia por artrón",
+                "Experiencia necesaria para restaurar un AU después de reparar todos los subsistemas.");
+        addConfigTranslation(provider, "sculkCatalystExperiencePerDurability", "Experiencia por punto de reparación",
+                "Experiencia necesaria para restaurar un punto de durabilidad.");
+        addConfigTranslation(provider, "enderChestFuelPerSecond", "Coste del Recolector de Objetos (AU/segundo)",
+                "Artrón consumido cada segundo mientras hay un Recolector de Objetos operativo.");
+        addConfigTranslation(provider, "telepathicCoralCooldownMinutes", "Recarga del crecimiento de coral (minutos)",
+                "Tiempo entre cosechas con polvo de hueso desde el circuito telepático en el hogar exacto.");
+        addConfigTranslation(provider, "telepathicCoralBonemealCount", "Fragmentos de coral con polvo de hueso",
+                "Cantidad de fragmentos producidos al usar polvo de hueso en el circuito telepático.");
+        addConfigTranslation(provider, "telepathicCoralShearsMin", "Mínimo de fragmentos con tijeras",
+                "Cantidad aleatoria mínima de fragmentos cortados del circuito telepático.");
+        addConfigTranslation(provider, "telepathicCoralShearsMax", "Máximo de fragmentos con tijeras",
+                "Cantidad aleatoria máxima de fragmentos cortados del circuito telepático.");
+        addConfigTranslation(provider, "telepathicCoralShearsLoyaltyPenalty", "Penalización de lealtad por usar tijeras",
+                "Lealtad retirada por cortar fragmentos del circuito telepático.");
+        addConfigTranslation(provider, "consoleRejectionPushHorizontal", "Fuerza horizontal de rechazo de la consola",
+                "Fuerza horizontal aplicada cuando la TARDIS rechaza una interacción dañina.");
+        addConfigTranslation(provider, "consoleRejectionPushVertical", "Fuerza vertical de rechazo de la consola",
+                "Fuerza vertical aplicada cuando la TARDIS rechaza una interacción dañina.");
+
+        provider.addTranslation("tooltip.ait.subsystem_item.damaged", "DAÑADO %s/%s");
+        provider.addTranslation("subsystem.ait.beacon_emanation", "Emanación de Faro");
+        provider.addTranslation("subsystem.ait.sculk_catalyst_collector", "Recolector de Experiencia");
+        provider.addTranslation("subsystem.ait.ender_chest_collector", "Recolector de Objetos");
+        provider.addTranslation("message.ait.handles.requires_inserted",
+                "Solo puedo controlar las defensas especiales mientras estoy insertado en la TARDIS.");
+        provider.addTranslation("message.ait.handles.defense.home_only",
+                "Solo puedo hacer que la TARDIS te defienda si está en su hogar exacto.");
+        provider.addTranslation("message.ait.handles.defense.enabled", "Defensas especiales del hogar activadas.");
+        provider.addTranslation("message.ait.handles.defense.disabled", "Defensas especiales del hogar desactivadas.");
+        provider.addTranslation("message.ait.telepathic.coral_cooldown",
+                "El coral de la TARDIS necesita más tiempo para recuperarse.");
+        provider.addTranslation("message.ait.telepathic.coral_requires_home",
+                "La TARDIS solo puede hacer crecer coral mediante este circuito en su hogar exacto.");
+        provider.addTranslation("death.attack.chronal", "%1$s fue desplazado de la línea temporal");
+
         return provider;
+    }
+
+    private void addConfigTranslation(AmbleLanguageProvider provider, String field, String name,
+                                      String description) {
+        String key = "yacl3.config.ait:server." + field;
+        provider.addTranslation(key, name);
+        provider.addTranslation(key + ".desc", description);
     }
 
     public AmbleLanguageProvider addGermanTranslations(FabricDataOutput output,

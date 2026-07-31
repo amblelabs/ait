@@ -5,13 +5,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.api.tardis.TardisComponent;
@@ -21,6 +14,7 @@ import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.likes.ItemOpinion;
 import dev.amble.ait.core.likes.ItemOpinionRegistry;
 import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.util.TardisHomeUtil;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
@@ -30,6 +24,13 @@ import dev.amble.ait.registry.impl.DesktopRegistry;
 import dev.amble.ait.registry.impl.SonicRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 public class LoyaltyHandler extends TardisComponent implements TardisTickable {
     private final Map<UUID, Loyalty> data;
@@ -88,7 +89,10 @@ public class LoyaltyHandler extends TardisComponent implements TardisTickable {
             if (AITMod.RANDOM.nextInt(0, 20) != 14)
                 continue;
 
-            this.addLevel(player, 1);
+            int amount = loyalty.isOf(Loyalty.Type.PILOT) && TardisHomeUtil.isParkedAtExactHome(this.tardis)
+                    ? Math.max(1, AITMod.CONFIG.exactHomeLoyaltyMultiplier)
+                    : 1;
+            this.addLevel(player, amount);
         }
     }
 

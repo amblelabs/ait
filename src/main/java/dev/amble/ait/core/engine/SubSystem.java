@@ -6,12 +6,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import com.google.gson.*;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.Disposable;
 import dev.amble.ait.api.tardis.Initializable;
@@ -26,6 +20,11 @@ import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.enummap.Ordered;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
 
 public abstract class SubSystem extends Initializable<SubSystem.InitContext> implements Disposable {
     @Exclude protected Tardis tardis;
@@ -40,6 +39,28 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
     }
 
     public abstract Item asItem();
+
+    /**
+     * Creates the physical item representation of this subsystem, including any
+     * state which must survive removal from a subsystem core.
+     */
+    public ItemStack toItemStack() {
+        ItemStack stack = this.asItem().getDefaultStack();
+        this.writeItemData(stack);
+        return stack;
+    }
+
+    /**
+     * Writes persistent subsystem state to its physical item representation.
+     */
+    public void writeItemData(ItemStack stack) {
+    }
+
+    /**
+     * Restores persistent subsystem state from its physical item representation.
+     */
+    public void readItemData(ItemStack stack) {
+    }
 
     public IdLike getId() {
         return id;
@@ -111,7 +132,7 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
         if (this instanceof StructureHolder holder && holder.getStructure() != null && !holder.getStructure().isEmpty())
             stacks.addAll(holder.getStructure().toStacks());
 
-        stacks.add(this.asItem().getDefaultStack());
+        stacks.add(this.toItemStack());
         stacks.add(AITBlocks.GENERIC_SUBSYSTEM.asItem().getDefaultStack());
         return stacks;
     }
@@ -141,7 +162,10 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
         CHAMELEON(ChameleonCircuit.class, ChameleonCircuit::new),
         EMERGENCY_POWER(EmergencyPower.class, EmergencyPower::new),
         STABILISERS(Stabilisers.class, Stabilisers::new),
-        GRAVITATIONAL(GravitationalCircuit.class, GravitationalCircuit::new),;
+        GRAVITATIONAL(GravitationalCircuit.class, GravitationalCircuit::new),
+        BEACON_EMANATION(BeaconEmanation.class, BeaconEmanation::new),
+        SCULK_CATALYST_COLLECTOR(SculkCatalystCollector.class, SculkCatalystCollector::new),
+        ENDER_CHEST_COLLECTOR(EnderChestCollector.class, EnderChestCollector::new),;
         private final Supplier<SubSystem> creator;
 
         private final Class<? extends SubSystem> clazz;

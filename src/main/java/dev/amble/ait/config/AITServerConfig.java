@@ -3,6 +3,8 @@ package dev.amble.ait.config;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITDimensions;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.controller.ControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
@@ -14,12 +16,10 @@ import dev.isxander.yacl3.config.v2.api.autogen.Boolean;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import dev.isxander.yacl3.platform.YACLPlatform;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITDimensions;
-
 public class AITServerConfig {
 
     public static final String CATEGORY = "server";
+    public static final String HOME_SYSTEMS_CATEGORY = "home_systems";
 
     public static final ConfigClassHandler<AITServerConfig> INSTANCE = ConfigClassHandler.createBuilder(AITServerConfig.class)
             .id(YACLPlatform.rl(AITMod.MOD_ID, "server"))
@@ -36,6 +36,105 @@ public class AITServerConfig {
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean ghostMonument = true;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 1, max = 256)
+    @SerialEntry public int homeRadius = 100;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 1, max = 100)
+    @SerialEntry public int exactHomeLoyaltyMultiplier = 2;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 1, max = 255)
+    @SerialEntry public int exactHomeSaturationLevel = 2;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 1, max = 255)
+    @SerialEntry public int exactHomeOwnerResistanceLevel = 5;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 25_000)
+    @SerialEntry public int beaconEmanationFuelPerSecond = 40;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @MasterTickBox({
+            "homeDefenseAffectsBosses", "homeDefenseRadius", "homeDefenseDamage",
+            "homeDefenseIntervalSeconds", "homeDefenseEngineDamagePerKill", "homeDefenseFuelPerSecond"
+    })
+    @SerialEntry public boolean homeDefenseAvailable = true;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @SerialEntry public boolean homeDefenseAffectsBosses = true;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 1, max = 256)
+    @SerialEntry public int homeDefenseRadius = 100;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @FloatField(min = 0, max = 2048)
+    @SerialEntry public float homeDefenseDamage = 8f;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 1, max = 300)
+    @SerialEntry public int homeDefenseIntervalSeconds = 2;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 1250)
+    @SerialEntry public int homeDefenseEngineDamagePerKill = 5;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 25_000)
+    @SerialEntry public int homeDefenseFuelPerSecond = 300;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @DoubleField(min = 1, max = 100)
+    @SerialEntry public double homeRefuelMultiplier = 2.0;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 25_000)
+    @SerialEntry public int sculkCatalystFuelPerSecond = 50;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 1, max = 100_000)
+    @SerialEntry public int sculkCatalystExperiencePerArtron = 1;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 1, max = 100_000)
+    @SerialEntry public int sculkCatalystExperiencePerDurability = 1;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 25_000)
+    @SerialEntry public int enderChestFuelPerSecond = 30;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 525_600)
+    @SerialEntry public int telepathicCoralCooldownMinutes = 30;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 64)
+    @SerialEntry public int telepathicCoralBonemealCount = 1;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = -1, max = 64)
+    @SerialEntry public int telepathicCoralShearsMin = 2;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = -1, max = 64)
+    @SerialEntry public int telepathicCoralShearsMax = 7;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @IntField(min = 0, max = 500)
+    @SerialEntry public int telepathicCoralShearsLoyaltyPenalty = 50;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @FloatField(min = 0, max = 8)
+    @SerialEntry public float consoleRejectionPushHorizontal = 1.25f;
+
+    @AutoGen(category = HOME_SYSTEMS_CATEGORY)
+    @FloatField(min = 0, max = 8)
+    @SerialEntry public float consoleRejectionPushVertical = 0.35f;
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
@@ -116,6 +215,19 @@ public class AITServerConfig {
     @AutoGen(category = CATEGORY)
     @IntSlider(min = 1, max = 128, step = 1)
     @SerialEntry public int maxStabilizedSpeed = 4;
+
+    public void normalizeLinkedRanges() {
+        int minimum = Math.max(-1, Math.min(64, this.telepathicCoralShearsMin));
+        int maximum = Math.max(-1, Math.min(64, this.telepathicCoralShearsMax));
+        if (minimum >= 0 && maximum >= 0 && minimum > maximum) {
+            int swap = minimum;
+            minimum = maximum;
+            maximum = swap;
+        }
+
+        this.telepathicCoralShearsMin = minimum;
+        this.telepathicCoralShearsMax = maximum;
+    }
 
     public static class StringListFactory implements ListGroup.ValueFactory<String>, ListGroup.ControllerFactory<String> {
 
