@@ -6,6 +6,16 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
+import dev.amble.ait.api.ClientWorldEvents;
+import dev.amble.ait.api.tardis.TardisClientEvents;
+import dev.amble.ait.api.tardis.link.v2.TardisRef;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.tardis.manager.ClientTardisManager;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisExterior;
+import dev.amble.ait.core.tardis.handler.SonicHandler;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.data.schema.sonic.SonicSchema;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -23,17 +33,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import dev.amble.ait.api.ClientWorldEvents;
-import dev.amble.ait.api.tardis.TardisClientEvents;
-import dev.amble.ait.api.tardis.link.v2.TardisRef;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.tardis.manager.ClientTardisManager;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisExterior;
-import dev.amble.ait.core.tardis.handler.SonicHandler;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.data.schema.sonic.SonicSchema;
-
 @Environment(EnvType.CLIENT)
 public class ClientTardisUtil {
 
@@ -50,11 +49,13 @@ public class ClientTardisUtil {
     public static void init() {
         ClientWorldEvents.CHANGE_WORLD.register((client, world) -> {
             UUID id = TardisServerWorld.getTardisId(world);
-            currentTardis = new TardisRef(id, uuid -> ClientTardisManager.getInstance().demandTardis(uuid));
             if (id == null) {
+                currentTardis = null;
                 TardisClientEvents.ENTER_CLIENT_TARDIS.invoker().enterClientTardis(null);
                 return;
             }
+
+            currentTardis = new TardisRef(id, uuid -> ClientTardisManager.getInstance().demandTardis(uuid));
             if (currentTardis.isEmpty()) {
                 ClientTardisManager.getInstance().subscribers.put(id, clientTardis -> {
                     TardisClientEvents.ENTER_CLIENT_TARDIS.invoker().enterClientTardis(clientTardis);
@@ -123,14 +124,17 @@ public class ClientTardisUtil {
     }
 
     public static boolean isPlayerInATardis() {
-        return currentTardis != null;
+        return getCurrentTardis() != null;
     }
 
     /**
      * Gets the tardis the player is currently inside
      */
     public static ClientTardis getCurrentTardis() {
-        if (currentTardis == null)
+        MinecraftClient client = MinecraftClient.getInstance();
+        UUID worldTardis = TardisServerWorld.getTardisId(client.world);
+        if (currentTardis == null || worldTardis == null
+                || !worldTardis.equals(currentTardis.getId()))
             return null;
 
         return (ClientTardis) currentTardis.get();
@@ -292,7 +296,7 @@ public class ClientTardisUtil {
     }
 
     public static int getPowerDelta() {
-        return currentTardis != null ? powerDeltaTick : 0;
+        return getCurrentTardis() != null ? powerDeltaTick : 0;
     }
 
     public static float getPowerDeltaForLerp() {

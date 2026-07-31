@@ -3,16 +3,6 @@ package dev.amble.ait.client.sounds.hum.interior;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.SoundInstance;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.api.tardis.TardisClientEvents;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.AITModClient;
@@ -25,6 +15,15 @@ import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.tardis.handler.ServerHumHandler;
 import dev.amble.ait.data.hum.Hum;
 import dev.amble.ait.registry.impl.HumRegistry;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.sound.SoundInstance;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Identifier;
 
 public class ClientHumHandler extends SoundHandler {
 
@@ -39,13 +38,7 @@ public class ClientHumHandler extends SoundHandler {
     }
 
     private static void refresh() {
-        if (MinecraftClient.getInstance().world == null)
-            return;
-
-        ClientHumHandler handler = ClientSoundManager.getHum();
-        handler.stopSounds();
-        handler.current = null;
-        handler.needsReinit = true;
+        ClientSoundManager.getHum().reset();
     }
 
     protected ClientHumHandler() {
@@ -68,7 +61,17 @@ public class ClientHumHandler extends SoundHandler {
     }
 
     public void onSynced() {
+        this.reset();
         this.sounds = registryToList();
+    }
+
+    public void reset() {
+        if (this.current != null)
+            this.stopSound(this.current);
+
+        this.stopSounds();
+        this.current = null;
+        this.needsReinit = true;
     }
 
     public LoopingSound getHum(ClientTardis tardis) {
@@ -137,12 +140,12 @@ public class ClientHumHandler extends SoundHandler {
         if (this.sounds == null)
             this.generateHums();
 
-        if (this.suppressed) {
-            this.stopSounds();
+        if (this.suppressed || tardis == null) {
+            this.reset();
             return;
         }
 
-        if (this.needsReinit && tardis != null) {
+        if (this.needsReinit) {
             this.needsReinit = false;
             this.current = null;
             this.getHum(tardis);
