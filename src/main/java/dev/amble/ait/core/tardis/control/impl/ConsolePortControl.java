@@ -1,5 +1,17 @@
 package dev.amble.ait.core.tardis.control.impl;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.item.ControlDiscItem;
+import dev.amble.ait.core.item.WaypointItem;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisDesktop;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.core.tardis.manager.TemporalRecoveryState;
+import dev.amble.ait.data.Waypoint;
+import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MusicDiscItem;
 import net.minecraft.nbt.NbtCompound;
@@ -11,17 +23,6 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.item.ControlDiscItem;
-import dev.amble.ait.core.item.WaypointItem;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisDesktop;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.data.Waypoint;
-import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
 
 public class ConsolePortControl extends Control {
 
@@ -43,6 +44,10 @@ public class ConsolePortControl extends Control {
             tardis.waypoint().spawnItem(console);
             return Result.SUCCESS;
         }
+
+        if (player.isSneaking() && TemporalRecoveryState.get(world.getServer())
+                .open(tardis.asServer(), player))
+            return Result.SUCCESS;
 
         ItemStack itemStack = player.getMainHandStack();
 
