@@ -6,23 +6,6 @@ import static net.minecraft.data.server.recipe.RecipeProvider.*;
 import java.util.Calendar;
 import java.util.concurrent.CompletableFuture;
 
-import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-
-import net.minecraft.block.Blocks;
-import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryBuilder;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITEntityTypes;
@@ -40,6 +23,22 @@ import dev.amble.ait.module.planet.core.world.PlanetPlacedFeatures;
 import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
 import dev.amble.lib.datagen.lang.LanguageType;
 import dev.amble.lib.datagen.sound.AmbleSoundProvider;
+import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+
+import net.minecraft.block.Blocks;
+import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
+import net.minecraft.item.Items;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.book.RecipeCategory;
+import net.minecraft.registry.RegistryBuilder;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.Identifier;
 
 public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
@@ -882,6 +881,11 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.crashSoundVolume", "Crash Sound Volume");
         provider.addTranslation("yacl3.config.ait:server.flightSoundVolume", "Flight Sound Volume");
         provider.addTranslation("yacl3.config.ait:server.maxStabilizedSpeed", "Max Stabilized Speed");
+        provider.addTranslation("yacl3.config.ait:server.category.tardis_home", "TARDIS Home");
+        provider.addTranslation("yacl3.config.ait:server.homeRelocationCooldownMinutes",
+                "Home Relocation Cooldown (Minutes)");
+        provider.addTranslation("yacl3.config.ait:server.homeRelocationCooldownMinutes.desc",
+                "Minimum time after changing the TARDIS home before a player can change it again. Set to 0 for no cooldown.");
         provider.addTranslation("yacl3.config.ait:server.projectorBlacklist", "Environment Projector Blacklist");
         provider.addTranslation("yacl3.config.ait:server.projectorWhitelist", "Environment Projector Whitelist");
         provider.addTranslation("yacl3.config.ait:server.travelBlacklist", "TARDIS Travel Blacklist");
@@ -1196,6 +1200,14 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.telepathic.home_updated", "TARDIS home location changed.");
         provider.addTranslation("tardis.message.control.telepathic.home_denied", "The TARDIS refuses to change its home for you. Loyalty level PILOT required.");
         provider.addTranslation("tardis.message.control.telepathic.home_denied_nether", "The TARDIS rejects Nether as home. Loyalty level OWNER required.");
+        provider.addTranslation("tardis.message.control.telepathic.home_cooldown",
+                "The TARDIS refuses to move its home again so soon.");
+        provider.addTranslation("tardis.message.control.telepathic.home_occupied",
+                "Another TARDIS has already claimed this exact home position.");
+        provider.addTranslation("tardis.message.control.telepathic.home_unavailable",
+                "The TARDIS cannot verify this home position right now.");
+        provider.addTranslation("message.ait.coral.home_occupied",
+                "This coral won't grow here: another TARDIS claims this spot.");
         provider.addTranslation("tardis.message.control.engine_overdrive.primed", "Dump Artron? Press again to confirm.");
         provider.addTranslation("tardis.message.control.engine_overdrive.insufficient_fuel", "ERROR, TARDIS REQUIRES AT LEAST 25K ARTRON TO EXECUTE THIS ACTION.");
         provider.addTranslation("tardis.message.control.engine_overdrive.dumping_artron", "DUMPING ARTRON");
@@ -1449,6 +1461,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.handles.disable_refuel","<Handles> Refuel Disabled.");
         provider.addTranslation("message.ait.handles.when","<Handles> When.");
         provider.addTranslation("message.ait.handles.when","<Handles> Affirmative.");
+        provider.addTranslation("message.ait.handles.already_in_flight", "The TARDIS is already in flight.");
+        provider.addTranslation("message.ait.handles.home_unavailable", "I cannot locate the TARDIS home.");
+        provider.addTranslation("message.ait.handles.travel_failed", "I cannot begin the journey.");
+        provider.addTranslation("message.ait.handles.go_home", "Destination set to home. Taking off.");
 
 
         // Exterior Variant translations
@@ -1765,6 +1781,12 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                                                       CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture, LanguageType languageType) {
         AmbleLanguageProvider provider = new AmbleLanguageProvider(output, languageType);
 
+        provider.addTranslation("yacl3.config.ait:server.category.tardis_home", "Hogar de la TARDIS");
+        provider.addTranslation("yacl3.config.ait:server.homeRelocationCooldownMinutes",
+                "Tiempo de espera para cambiar de hogar (minutos)");
+        provider.addTranslation("yacl3.config.ait:server.homeRelocationCooldownMinutes.desc",
+                "Tiempo mínimo que debe pasar después de cambiar el hogar de la TARDIS antes de que un jugador pueda volver a cambiarlo. Establécelo en 0 para no aplicar tiempo de espera.");
+
         provider.addTranslation(AITItemGroups.MAIN, "Adventures In Time");
         provider.addTranslation(AITItems.TARDIS_ITEM, "TARDIS");
         provider.addTranslation(AITBlocks.DOOR_BLOCK, "Door");
@@ -1809,6 +1831,18 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.telepathic.home_updated", "Ubicación del hogar de la TARDIS cambiada.");
         provider.addTranslation("tardis.message.control.telepathic.home_denied", "La TARDIS se niega a cambiar su hogar por ti. Se requiere nivel de lealtad PILOT.");
         provider.addTranslation("tardis.message.control.telepathic.home_denied_nether", "La TARDIS rechaza el Inframundo como hogar. Se requiere nivel de lealtad OWNER.");
+        provider.addTranslation("tardis.message.control.telepathic.home_cooldown",
+                "La TARDIS se niega a volver a cambiar de hogar tan pronto.");
+        provider.addTranslation("tardis.message.control.telepathic.home_occupied",
+                "Otra TARDIS ya ha reclamado esta posición exacta como hogar.");
+        provider.addTranslation("tardis.message.control.telepathic.home_unavailable",
+                "La TARDIS no puede verificar esta posición de hogar ahora mismo.");
+        provider.addTranslation("message.ait.coral.home_occupied",
+                "Este coral no crecerá aquí: otra TARDIS reclama este lugar.");
+        provider.addTranslation("message.ait.handles.already_in_flight", "La TARDIS ya está en vuelo.");
+        provider.addTranslation("message.ait.handles.home_unavailable", "No puedo localizar el hogar de la TARDIS.");
+        provider.addTranslation("message.ait.handles.travel_failed", "No puedo iniciar el viaje.");
+        provider.addTranslation("message.ait.handles.go_home", "Destino fijado en el hogar. Despegando.");
         provider.addTranslation("tardis.message.control.protocol_813.active", "Protocol 813: ACTIVE");
         provider.addTranslation("tardis.message.control.protocol_813.inactive", "Protocol 813: INACTIVE");
         provider.addTranslation("tardis.message.control.handbrake.on", "handbrake: ON");

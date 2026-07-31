@@ -3,6 +3,33 @@ package dev.amble.ait.core.tardis.control.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.core.drinks.DrinkUtil;
+import dev.amble.ait.core.item.HandlesItem;
+import dev.amble.ait.core.item.HypercubeItem;
+import dev.amble.ait.core.item.KeyItem;
+import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.core.likes.ItemOpinion;
+import dev.amble.ait.core.likes.ItemOpinionRegistry;
+import dev.amble.ait.core.lock.LockedDimensionRegistry;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
+import dev.amble.ait.core.tardis.handler.SiegeHandler;
+import dev.amble.ait.core.tardis.handler.StatsHandler.HomeSetResult;
+import dev.amble.ait.core.tardis.handler.distress.DistressCall;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
+import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.data.Loyalty;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedGlobalPos;
 import dev.drtheo.queue.api.ActionQueue;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,31 +56,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.Structure;
 import net.minecraft.world.gen.structure.StructureKeys;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.link.LinkableItem;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.core.drinks.DrinkUtil;
-import dev.amble.ait.core.item.HandlesItem;
-import dev.amble.ait.core.item.HypercubeItem;
-import dev.amble.ait.core.item.KeyItem;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.likes.ItemOpinion;
-import dev.amble.ait.core.likes.ItemOpinionRegistry;
-import dev.amble.ait.core.lock.LockedDimensionRegistry;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
-import dev.amble.ait.core.tardis.handler.SiegeHandler;
-import dev.amble.ait.core.tardis.handler.distress.DistressCall;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
-import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
-import dev.amble.ait.data.Loyalty;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 public class TelepathicControl extends Control {
 
     public static final int RADIUS = 256;
@@ -71,6 +73,19 @@ public class TelepathicControl extends Control {
 
         ItemStack held = player.getMainHandStack();
         Item type = held.getItem();
+
+        if (!leftClick && player.isSneaking() && held.isEmpty()) {
+            CachedDirectedGlobalPos home = tardis.stats().getHome();
+            if (home == null) {
+                player.sendMessage(Text.translatable(
+                        "tardis.message.control.fast_return.destination_nonexistent"), true);
+                return Result.FAILURE;
+            }
+
+            tardis.travel().forceDestination(home);
+            messageHomeDestination(player, home);
+            return Result.SUCCESS_ALT;
+        }
 
         if (type == Items.BRICK) {
             tardis.siege().texture().set(SiegeHandler.BRICK_TEXTURE);
@@ -150,7 +165,23 @@ public class TelepathicControl extends Control {
                 return Result.FAILURE;
             }
 
-            tardis.stats().setHome(currentPos);
+            HomeSetResult result = tardis.stats().trySetHomeResult(player, currentPos);
+            if (!result.isSuccess()) {
+                if (result == HomeSetResult.COOLDOWN) {
+                    player.sendMessage(Text.translatable(
+                            "tardis.message.control.telepathic.home_cooldown"), true);
+                } else if (result == HomeSetResult.OCCUPIED) {
+                    world.spawnParticles(ParticleTypes.ANGRY_VILLAGER,
+                            console.toCenterPos().getX(), console.toCenterPos().getY() + 1,
+                            console.toCenterPos().getZ(), 5, 0.25, 0.25, 0.25, 0);
+                    player.sendMessage(Text.translatable(
+                            "tardis.message.control.telepathic.home_occupied"), true);
+                } else {
+                    player.sendMessage(Text.translatable(
+                            "tardis.message.control.telepathic.home_unavailable"), true);
+                }
+                return Result.FAILURE;
+            }
 
             player.sendMessage(Text.translatable("tardis.message.control.telepathic.home_updated"), true);
 
@@ -196,6 +227,18 @@ public class TelepathicControl extends Control {
 
         locateStructureOfInterest(player, tardis, globalPos.getWorld(), globalPos.getPos());
         return Result.SUCCESS;
+    }
+
+    private static void messageHomeDestination(ServerPlayerEntity player, CachedDirectedGlobalPos home) {
+        BlockPos pos = home.getPos();
+        Text message = Text.translatable("tardis.message.control.randomiser.destination")
+                .append(Text.literal(pos.getX() + " | " + pos.getY() + " | " + pos.getZ() + " | "))
+                .append(WorldUtil.worldText(home.getDimension(), false))
+                .append(Text.literal(" | "))
+                .append(WorldUtil.rot2Text(home.getRotation()))
+                .append(Text.literal(" " + DirectedGlobalPos.rotationForArrow(home.getRotation())));
+
+        player.sendMessage(message, true);
     }
 
     public static boolean isLiquid(ItemStack held) {

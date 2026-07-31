@@ -8,6 +8,18 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
+import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.commands.argument.TardisArgumentType;
+import dev.amble.ait.core.lock.LockedDimensionRegistry;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.handler.StatsHandler.HomeSetResult;
+import dev.amble.ait.core.tardis.util.CommandUtil;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedGlobalPos;
 
 import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.command.argument.DimensionArgumentType;
@@ -18,18 +30,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
-import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.commands.argument.TardisArgumentType;
-import dev.amble.ait.core.lock.LockedDimensionRegistry;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.util.CommandUtil;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedGlobalPos;
 
 public final class HomeCommand {
 
@@ -103,14 +103,22 @@ public final class HomeCommand {
             }
 
             homePos = CachedDirectedGlobalPos.create(world, manualPos, rotation);
-            tardis.stats().setHome(homePos);
         } else {
             CachedDirectedGlobalPos current = tardis.travel().position();
 
             if (current == null)
                 return -1;
 
-            tardis.stats().setHome(current);
+            homePos = current;
+        }
+
+        HomeSetResult result = tardis.stats().trySetHomeResult(context.getSource().getServer(), homePos);
+        if (!result.isSuccess()) {
+            context.getSource().sendError(Text.translatable(
+                    result == HomeSetResult.OCCUPIED
+                            ? "tardis.message.control.telepathic.home_occupied"
+                            : "tardis.message.control.telepathic.home_unavailable"));
+            return -1;
         }
 
         return printHome(context, homePos);

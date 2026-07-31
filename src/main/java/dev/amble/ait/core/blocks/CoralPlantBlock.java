@@ -5,6 +5,26 @@ import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 import java.util.List;
 import java.util.UUID;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.core.blockentities.CoralBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.handler.FuelHandler;
+import dev.amble.ait.core.tardis.handler.LoyaltyHandler;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager.HomeClaimStatus;
+import dev.amble.ait.core.tardis.manager.TardisBuilder;
+import dev.amble.ait.core.world.RiftChunkManager;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.data.Loyalty;
+import dev.amble.ait.data.schema.exterior.variant.growth.CoralGrowthVariant;
+import dev.amble.ait.registry.impl.DesktopRegistry;
+import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -30,26 +50,6 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.core.blockentities.CoralBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.handler.FuelHandler;
-import dev.amble.ait.core.tardis.handler.LoyaltyHandler;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.tardis.manager.TardisBuilder;
-import dev.amble.ait.core.world.RiftChunkManager;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.data.Loyalty;
-import dev.amble.ait.data.schema.exterior.variant.growth.CoralGrowthVariant;
-import dev.amble.ait.registry.impl.DesktopRegistry;
-import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 @SuppressWarnings("deprecation")
 public class CoralPlantBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
@@ -100,19 +100,36 @@ public class CoralPlantBlock extends HorizontalDirectionalBlock implements Block
 
     @Override
     public void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-        if (world.getBaseLightLevel(pos, 0) >= 4) {
-            int i = this.getAge(state);
-            if (i < this.getMaxAge()) {
-                if (!(world.getBlockState(pos.down()).getBlock() instanceof SoulSandBlock)) {
-                    world.breakBlock(pos, true);
-                    return;
-                }
+        int age = this.getAge(state);
+        if (age < this.getMaxAge() && !(world.getBlockState(pos.down()).getBlock() instanceof SoulSandBlock)) {
+            world.breakBlock(pos, true);
+            return;
+        }
 
-                world.setBlockState(pos, state.with(AGE, i + 1), 2);
-            }
+        if (!TardisServerWorld.isTardisDimension(world)) {
+            ServerTardisManager manager = ServerTardisManager.getInstance();
+            if (manager == null || manager.exactHomeStatus(world, pos) != HomeClaimStatus.AVAILABLE)
+                return;
+        }
+
+        if (world.getBaseLightLevel(pos, 0) >= 4) {
+            if (age < this.getMaxAge())
+                world.setBlockState(pos, state.with(AGE, age + 1), 2);
         }
 
         tryCreate(world, pos, state);
+    }
+
+    @Override
+    public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+        if (TardisServerWorld.isTardisDimension(world))
+            return;
+
+        ServerTardisManager manager = ServerTardisManager.getInstance();
+        if (manager != null && manager.exactHomeStatus(world, pos) == HomeClaimStatus.OCCUPIED)
+            CoralBlockEntity.warnNearbyPlayers(world, pos);
+
+        world.scheduleBlockTick(pos, this, 20);
     }
 
     private boolean tryCreate(ServerWorld world, BlockPos pos, BlockState state) {
