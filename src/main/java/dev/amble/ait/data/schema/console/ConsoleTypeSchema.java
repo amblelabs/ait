@@ -3,17 +3,16 @@ package dev.amble.ait.data.schema.console;
 import java.lang.reflect.Type;
 
 import com.google.gson.*;
-
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
-
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.data.schema.exterior.category.CapsuleCategory;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 import dev.amble.lib.api.Identifiable;
+
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
 
 public abstract class ConsoleTypeSchema implements Identifiable, Nameable {
     private final Identifier id;
@@ -24,9 +23,8 @@ public abstract class ConsoleTypeSchema implements Identifiable, Nameable {
         this.id = id;
         this.name = name;
 
-        String[] parts = this.id.getPath().split("/");
-        String last = parts[parts.length - 1];
-        this.text = Text.translatableWithFallback("console." + this.id.getNamespace() + "." + last, this.name);
+        Identifier translationId = this.id.withPath(path -> path.substring(path.lastIndexOf('/') + 1));
+        this.text = Text.translatableWithFallback(translationId.toTranslationKey("console"), this.name);
     }
 
     @Override

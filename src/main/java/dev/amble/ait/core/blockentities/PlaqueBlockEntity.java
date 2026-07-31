@@ -1,9 +1,8 @@
 package dev.amble.ait.core.blockentities;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.google.gson.JsonParseException;
+import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
+import dev.amble.ait.core.AITBlockEntityTypes;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
@@ -17,15 +16,9 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 
-import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
-import dev.amble.ait.core.AITBlockEntityTypes;
-
 public class PlaqueBlockEntity extends InteriorLinkableBlockEntity {
 
-    private static final Pattern TT_CAPSULE_TYPE = Pattern.compile("^Type (\\d+) TT Capsule$");
-
-    private Text customPlaqueText = Text.translatableWithFallback("block.ait.plaque.default_text",
-            "Type 50 TT Capsule");
+    private Text customPlaqueText = Text.translatable("block.ait.plaque.default_text");
 
     public PlaqueBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.PLAQUE_BLOCK_ENTITY_TYPE, pos, state);
@@ -36,7 +29,7 @@ public class PlaqueBlockEntity extends InteriorLinkableBlockEntity {
     }
 
     public void setPlaqueText(Text name) {
-        this.customPlaqueText = createPlaqueText(name.getString());
+        this.customPlaqueText = name.copy();
         markDirty();
         if (this.getWorld() != null && !this.getWorld().isClient) {
             this.getWorld().updateListeners(getPos(), getCachedState(), getCachedState(), 3);
@@ -68,7 +61,7 @@ public class PlaqueBlockEntity extends InteriorLinkableBlockEntity {
             this.customPlaqueText = readPlaqueText(nbt.getString("CustomPlaqueText"));
         }
         if (this.customPlaqueText == null || this.customPlaqueText.getString().isEmpty()) {
-            this.customPlaqueText = Text.translatableWithFallback("block.ait.plaque.default_text", "Type 50 TT Capsule");
+            this.customPlaqueText = Text.translatable("block.ait.plaque.default_text");
         }
     }
 
@@ -88,17 +81,7 @@ public class PlaqueBlockEntity extends InteriorLinkableBlockEntity {
             if (text != null)
                 return text;
         } catch (JsonParseException ignored) {
-            return createPlaqueText(plaqueText);
         }
-
-        return createPlaqueText(plaqueText);
-    }
-
-    private static Text createPlaqueText(String plaqueText) {
-        Matcher matcher = TT_CAPSULE_TYPE.matcher(plaqueText);
-
-        if (matcher.matches())
-            return Text.translatableWithFallback("block.ait.plaque.tt_capsule_type", plaqueText, matcher.group(1));
 
         return Text.literal(plaqueText);
     }

@@ -5,6 +5,12 @@ import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 import java.util.List;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.core.blockentities.MatrixEnergizerBlockEntity;
+import dev.amble.ait.core.item.TardisMatrixItem;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -42,13 +48,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.event.Vibrations;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.core.blockentities.MatrixEnergizerBlockEntity;
-import dev.amble.ait.core.item.TardisMatrixItem;
 
 public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
     private final VoxelShape DEFAULT = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 11.0, 16.0);
@@ -156,7 +155,7 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
         if (!hasPower(state)) return;
 
         BlockState shriekerState = world.getBlockState(pos.down());
-        
+
         if (!(shriekerState.getBlock() instanceof SculkShriekerBlock))
             return;
 
@@ -167,7 +166,7 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
             if (mbe.getVibrationCallback().accepts(serverWorld, pos, GameEvent.SHRIEK, GameEvent.Emitter.of(state))) {
                 mbe.getEventListener().forceListen(serverWorld, GameEvent.SHRIEK, GameEvent.Emitter.of(state), pos.down().toCenterPos());
                 int i = this.getAge(state);
-                
+
                 if (i < this.getMaxAge()) {
                     world.setBlockState(pos, state.with(AGE, i + 1), 2);
                 } else {
@@ -258,7 +257,8 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
         super.appendTooltip(stack, world, tooltip, options);
 
         addShiftHiddenTooltip(stack, tooltip, tooltips -> {
-            addMultilineTooltip(tooltips, "tooltip.ait.matrix_energizer", Formatting.DARK_GRAY, Formatting.ITALIC);
+            addMultilineTooltip(tooltips, Text.translatable("tooltip.ait.matrix_energizer")
+                    .formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
         });
     }
 

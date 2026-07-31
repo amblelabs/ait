@@ -85,13 +85,13 @@ public abstract class LivingEntityMixin extends Entity implements ExtraPushableE
     @Inject(method = "tickInVoid", at = @At("HEAD"))
     public void tickVoid(CallbackInfo ci) {
         if (!this.getWorld().isClient() && this.getWorld().getRegistryKey() == AITDimensions.TIME_VORTEX_WORLD) {
-            if (WorldUtil.RIFT_DROP_WORLDS.isEmpty())
+            if (WorldUtil.getTravelWorlds().isEmpty())
                 return;
 
             LivingEntity entity = (LivingEntity) (Object) this;
-            int worldIndex = this.getWorld().getRandom().nextInt(WorldUtil.RIFT_DROP_WORLDS.size());
+            int worldIndex = this.getWorld().getRandom().nextInt(WorldUtil.getTravelWorlds().size());
 
-            ServerWorld world = WorldUtil.RIFT_DROP_WORLDS.get(worldIndex);
+            ServerWorld world = WorldUtil.getTravelWorlds().get(worldIndex);
             CachedDirectedGlobalPos safe = CachedDirectedGlobalPos.create(world, entity.getBlockPos(), (byte) 0);
 
             SafePosSearch.wrapSafe(safe, SafePosSearch.Kind.MEDIAN, true,

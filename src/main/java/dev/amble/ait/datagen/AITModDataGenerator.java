@@ -6,23 +6,6 @@ import static net.minecraft.data.server.recipe.RecipeProvider.*;
 import java.util.Calendar;
 import java.util.concurrent.CompletableFuture;
 
-import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-
-import net.minecraft.block.Blocks;
-import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryBuilder;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITEntityTypes;
@@ -40,6 +23,22 @@ import dev.amble.ait.module.planet.core.world.PlanetPlacedFeatures;
 import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
 import dev.amble.lib.datagen.lang.LanguageType;
 import dev.amble.lib.datagen.sound.AmbleSoundProvider;
+import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+
+import net.minecraft.block.Blocks;
+import net.minecraft.data.server.recipe.CookingRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
+import net.minecraft.item.Items;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.book.RecipeCategory;
+import net.minecraft.registry.RegistryBuilder;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.Identifier;
 
 public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
@@ -797,7 +796,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("block.ait.fabricator.status.insert_blueprint", "INSERT BLUEPRINT");
         provider.addTranslation("block.ait.fabricator.status.insert_material", "INSERT %s %s");
         provider.addTranslation("block.ait.plaque.default_text", "Type 50 TT Capsule");
-        provider.addTranslation("block.ait.plaque.tt_capsule_type", "Type %s TT Capsule");
         provider.addTranslation("command.ait.door_particle.done", "Particle of [%s] set to [%s]");
         provider.addTranslation("command.ait.list.header", "TARDISes:");
         provider.addTranslation("command.ait.load.loaded", "Loaded: %s");
@@ -968,7 +966,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.animateConsole", "Toggle Animated Consoles");
         provider.addTranslation("yacl3.config.ait:client.animateControls", "Toggle Smoothly Animated Controls");
         provider.addTranslation("yacl3.config.ait:client.animateDoors", "Toggle Smoothly Animated Doors");
-        provider.addTranslation("yacl3.config.ait:client.handlesLevenshteinDistance", "Levenshtein Distance For Handles");
         provider.addTranslation("yacl3.config.ait:client.temperatureType", "Temperature Type");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.celsius", "Celsius (°C)");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.fahrenheit", "Fahrenheit (°F)");
@@ -982,6 +979,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.allowPortalsBoti", "Toggle Immersive Portals BOTI");
         provider.addTranslation("yacl3.config.ait:server.tntCanTeleportThroughDoors", "Toggle TNT Door Teleporting");
         provider.addTranslation("yacl3.config.ait:server.hypercubesEnabled", "Toggle Hypercubes");
+        provider.addTranslation("yacl3.config.ait:server.handlesLevenshteinDistance", "Levenshtein Distance For Handles");
         provider.addTranslation("yacl3.config.ait:server.travelPerTick", "Travel Per-Tick");
         provider.addTranslation("yacl3.config.ait:server.astralMapBiomeLocatorRange", "Astral Map Biome Locator Range");
         provider.addTranslation("yacl3.config.ait:server.sendBulk", "Toggle Send Bulk TARDIS Data");
@@ -2138,7 +2136,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("block.ait.mossy_martian_cobblestone_wall", "Muro de adoquín marciano musgoso");
         provider.addTranslation("block.ait.oxygenator_block", "Bloque oxigenador");
         provider.addTranslation("block.ait.plaque.default_text", "Cápsula TT Tipo 50");
-        provider.addTranslation("block.ait.plaque.tt_capsule_type", "Cápsula TT Tipo %s");
         provider.addTranslation("block.ait.plaque_block", "Placa de TARDIS");
         provider.addTranslation("block.ait.polished_anorthosite", "Anortosita pulida");
         provider.addTranslation("block.ait.polished_anorthosite_slab", "Losa de anortosita pulida");
@@ -2939,7 +2936,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.environmentProjector", "¿Renderizar skybox local?");
         provider.addTranslation("yacl3.config.ait:client.flightMusicVolume", "Volumen de la música de vuelo");
         provider.addTranslation("yacl3.config.ait:client.greenScreenBOTI", "¿Pantalla verde BOTI?");
-        provider.addTranslation("yacl3.config.ait:client.handlesLevenshteinDistance", "Distancia de Levenshtein para Handles");
+        provider.addTranslation("yacl3.config.ait:server.handlesLevenshteinDistance", "Distancia de Levenshtein para Handles");
         provider.addTranslation("yacl3.config.ait:client.interiorHumVolume", "Volumen del zumbido interior");
         provider.addTranslation("yacl3.config.ait:client.powerOffDarkness", "¿Efecto de oscuridad cuando la TARDIS se apaga?");
         provider.addTranslation("yacl3.config.ait:client.renderDematParticles", "¿Renderizar partículas de desmaterialización?");

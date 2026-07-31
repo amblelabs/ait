@@ -4,11 +4,11 @@ import static dev.amble.ait.client.util.TooltipUtil.addMultilineTooltip;
 
 import java.util.List;
 
+import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.EntityHitResult;
 import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
@@ -21,13 +21,11 @@ import net.minecraft.stat.Stats;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.engine.DurableSubSystem;
-import dev.amble.ait.core.engine.block.generic.GenericStructureSystemBlockEntity;
 
 public class RepairToolItem extends Item {
     public RepairToolItem(Settings settings) {
@@ -38,7 +36,8 @@ public class RepairToolItem extends Item {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
 
-        addMultilineTooltip(tooltip, "tooltip.ait.repair_tool", Formatting.DARK_GRAY, Formatting.ITALIC);
+        addMultilineTooltip(tooltip, Text.translatable("tooltip.ait.repair_tool")
+                .formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
     }
 
     @Override
