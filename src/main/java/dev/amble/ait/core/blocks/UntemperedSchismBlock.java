@@ -84,15 +84,13 @@ public class UntemperedSchismBlock extends HorizontalFluidLinkBlock implements B
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         if (!(world instanceof ServerWorld serverWorld)) return;
 
-        RiftChunkManager manager = RiftChunkManager.getInstance(serverWorld);
-        ChunkPos chunkPos = new ChunkPos(pos);
-
-        if (!isConsumable(manager, chunkPos)) {
+        if (!canCreateAt(serverWorld, pos)) {
             if (placer != null) {
                 placer.sendMessage(Text.translatable("message.ait.riftscanner.info3"));
             }
             world.playSound(null, pos, SoundEvents.BLOCK_BEACON_DEACTIVATE,
                     SoundCategory.BLOCKS, 1, 0.5f);
+            world.setBlockState(pos, Blocks.LODESTONE.getDefaultState(), Block.NOTIFY_ALL);
             return;
         }
 
@@ -100,8 +98,8 @@ public class UntemperedSchismBlock extends HorizontalFluidLinkBlock implements B
                 SoundCategory.BLOCKS, 1, 1.5f);
     }
 
-    private static boolean isConsumable(RiftChunkManager manager, ChunkPos pos) {
-        return manager.isRiftChunk(pos);
+    public static boolean canCreateAt(ServerWorld world, BlockPos pos) {
+        return RiftChunkManager.isRiftChunk(world, new ChunkPos(pos));
     }
 
     @Override
