@@ -1,12 +1,10 @@
 package dev.amble.ait.client.sounds.flight;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.MathHelper;
 
-import dev.amble.ait.client.sounds.EntityFollowingLoopingSound;
 import dev.amble.ait.client.sounds.LoopingSound;
 import dev.amble.ait.client.sounds.PlayerFollowingLoopingSound;
 import dev.amble.ait.client.sounds.SoundHandler;
@@ -17,7 +15,6 @@ import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 
 public class ClientRealFlightSoundHandler extends SoundHandler {
-    private static final double HEARING_RANGE = 32;
     private static final double AIR_START = 1;
     private static final double AIR_FULL = 3.5;
     public static LoopingSound AIR;
@@ -35,13 +32,13 @@ public class ClientRealFlightSoundHandler extends SoundHandler {
         this.data = sfx;
 
         AIR = new PlayerFollowingLoopingSound(SoundEvents.ITEM_ELYTRA_FLYING, SoundCategory.AMBIENT, 0.05f);
-        VWORP = new EntityFollowingLoopingSound(sfx.sound(), SoundCategory.BLOCKS, entity, 1.5f);
+        VWORP = new PlayerFollowingLoopingSound(sfx.sound(), SoundCategory.BLOCKS, 1.5f);
 
         this.ofSounds(AIR, VWORP);
     }
 
     public void tick(MinecraftClient client) {
-        FlightTardisEntity entity = findNearestFlying(client);
+        FlightTardisEntity entity = ridden(client);
 
         if (entity == null || !entity.isLinked()) {
             this.stopSounds();
@@ -62,11 +59,11 @@ public class ClientRealFlightSoundHandler extends SoundHandler {
             this.stopSound(VWORP);
         }
 
-        this.tickAir(client, entity);
+        this.tickAir(entity);
     }
 
-    private void tickAir(MinecraftClient client, FlightTardisEntity entity) {
-        if (client.player == null || client.player.getVehicle() != entity || !hasAir(entity)) {
+    private void tickAir(FlightTardisEntity entity) {
+        if (!hasAir(entity)) {
             this.stopSound(AIR);
             return;
         }
@@ -104,28 +101,10 @@ public class ClientRealFlightSoundHandler extends SoundHandler {
         return Math.sqrt(x * x + y * y + z * z);
     }
 
-    private static FlightTardisEntity findNearestFlying(MinecraftClient client) {
-        PlayerEntity player = client.player;
-
-        if (player == null || client.world == null)
+    private static FlightTardisEntity ridden(MinecraftClient client) {
+        if (client.player == null)
             return null;
 
-        if (player.getVehicle() instanceof FlightTardisEntity riding)
-            return riding;
-
-        FlightTardisEntity nearest = null;
-        double nearestDistance = HEARING_RANGE * HEARING_RANGE;
-
-        for (FlightTardisEntity entity : client.world.getEntitiesByClass(FlightTardisEntity.class,
-                player.getBoundingBox().expand(HEARING_RANGE), entity -> true)) {
-            double distance = entity.squaredDistanceTo(player);
-
-            if (distance < nearestDistance) {
-                nearestDistance = distance;
-                nearest = entity;
-            }
-        }
-
-        return nearest;
+        return client.player.getVehicle() instanceof FlightTardisEntity entity ? entity : null;
     }
 }
