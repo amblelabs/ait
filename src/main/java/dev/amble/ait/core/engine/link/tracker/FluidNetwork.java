@@ -29,7 +29,7 @@ import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
  * compares against the existing fields and only broadcasts when something actually changed.
  */
 public final class FluidNetwork {
-    private static final int MAX_NETWORK_SIZE = 4096;
+    private static final int LARGE_NETWORK_WARNING_SIZE = 4096;
 
     private FluidNetwork() {}
 
@@ -40,7 +40,7 @@ public final class FluidNetwork {
      */
     public static void rebuildFrom(ServerWorld world, BlockPos seed) {
         if (world == null || seed == null) return;
-        LinkedHashMap<BlockPos, IFluidLink> component = WorldFluidTracker.bfs(world, seed, MAX_NETWORK_SIZE);
+        LinkedHashMap<BlockPos, IFluidLink> component = WorldFluidTracker.bfsFully(world, seed);
         if (component.isEmpty()) return;
         rebuildComponent(seed, component);
     }
@@ -57,7 +57,7 @@ public final class FluidNetwork {
             BlockPos n = center.offset(dir);
             if (handled.contains(n)) continue;
             if (WorldFluidTracker.query(world, n) == null) continue;
-            LinkedHashMap<BlockPos, IFluidLink> component = WorldFluidTracker.bfs(world, n, MAX_NETWORK_SIZE);
+            LinkedHashMap<BlockPos, IFluidLink> component = WorldFluidTracker.bfsFully(world, n);
             if (component.isEmpty()) continue;
             handled.addAll(component.keySet());
             rebuildComponent(n, component);
@@ -65,8 +65,9 @@ public final class FluidNetwork {
     }
 
     private static void rebuildComponent(BlockPos seed, LinkedHashMap<BlockPos, IFluidLink> component) {
-        if (component.size() >= MAX_NETWORK_SIZE) {
-            AITMod.LOGGER.warn("Fluid network at {} hit max size {}, assignment may be incomplete", seed, MAX_NETWORK_SIZE);
+        if (component.size() >= LARGE_NETWORK_WARNING_SIZE) {
+            AITMod.LOGGER.warn("Large fluid network at {} contains {} nodes; rebuilding the complete component",
+                    seed, component.size());
         }
 
         BlockPos sourcePos = pickSource(component);
@@ -100,15 +101,36 @@ public final class FluidNetwork {
     }
 
     private static BlockPos pickSource(LinkedHashMap<BlockPos, IFluidLink> component) {
-        BlockPos best = null;
+        BlockPos bestPos = null;
+        IFluidSource bestSource = null;
+
         for (Map.Entry<BlockPos, IFluidLink> e : component.entrySet()) {
-            if (!(e.getValue() instanceof IFluidSource)) continue;
-            BlockPos pos = e.getKey();
-            if (best == null || compareBlockPos(pos, best) < 0) {
-                best = pos;
+            if (!(e.getValue() instanceof IFluidSource candidate)) continue;
+
+            if (bestSource == null || isPreferredSource(candidate, e.getKey(), bestSource, bestPos)) {
+                bestSource = candidate;
+                bestPos = e.getKey();
             }
         }
-        return best;
+
+        return bestPos;
+    }
+
+    private static boolean isPreferredSource(IFluidSource candidate, BlockPos candidatePos,
+                                             IFluidSource current, BlockPos currentPos) {
+        double candidateLevel = candidate.level();
+        double currentLevel = current.level();
+        boolean candidatePowered = candidateLevel > 0;
+        boolean currentPowered = currentLevel > 0;
+
+        if (candidatePowered != currentPowered) return candidatePowered;
+
+        if (candidatePowered) {
+            int byLevel = Double.compare(candidateLevel, currentLevel);
+            if (byLevel != 0) return byLevel > 0;
+        }
+
+        return compareBlockPos(candidatePos, currentPos) < 0;
     }
 
     private static int compareBlockPos(BlockPos a, BlockPos b) {

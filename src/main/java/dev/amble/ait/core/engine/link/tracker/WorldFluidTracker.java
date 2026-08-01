@@ -13,6 +13,8 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkStatus;
 
 import dev.amble.ait.core.engine.link.IFluidLink;
 
@@ -66,7 +68,11 @@ public class WorldFluidTracker {
         return list;
     }
     public static IFluidLink query(ServerWorld world, BlockPos pos) {
-        BlockEntity be = world.getBlockEntity(pos);
+        Chunk chunk = world.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, false);
+        if (chunk == null)
+            return null;
+
+        BlockEntity be = chunk.getBlockEntity(pos);
         if (be instanceof IFluidLink link && !(be.isRemoved())) {
             return link;
         }
@@ -82,6 +88,19 @@ public class WorldFluidTracker {
      * The returned map is mutable and owned by the caller. Keys are stored as immutable {@link BlockPos}.
      */
     public static LinkedHashMap<BlockPos, IFluidLink> bfs(ServerWorld world, BlockPos start, int maxNodes) {
+        return bfs(world, start, maxNodes, true);
+    }
+
+    /**
+     * Breadth-first traversal of the complete connected component. Network assignment must use
+     * this overload so a size limit can never leave half of a component with stale references.
+     */
+    public static LinkedHashMap<BlockPos, IFluidLink> bfsFully(ServerWorld world, BlockPos start) {
+        return bfs(world, start, 0, false);
+    }
+
+    private static LinkedHashMap<BlockPos, IFluidLink> bfs(ServerWorld world, BlockPos start, int maxNodes,
+                                                           boolean bounded) {
         LinkedHashMap<BlockPos, IFluidLink> visited = new LinkedHashMap<>();
         BlockPos rootPos = start.toImmutable();
         IFluidLink first = query(world, rootPos);
@@ -91,7 +110,7 @@ public class WorldFluidTracker {
         queue.add(rootPos);
         visited.put(rootPos, first);
 
-        while (!queue.isEmpty() && visited.size() < maxNodes) {
+        while (!queue.isEmpty() && (!bounded || visited.size() < maxNodes)) {
             BlockPos cur = queue.poll();
             for (Direction dir : Direction.values()) {
                 BlockPos next = cur.offset(dir).toImmutable();
@@ -100,7 +119,7 @@ public class WorldFluidTracker {
                 if (link == null) continue;
                 visited.put(next, link);
                 queue.add(next);
-                if (visited.size() >= maxNodes) break;
+                if (bounded && visited.size() >= maxNodes) break;
             }
         }
 
