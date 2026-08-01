@@ -26,6 +26,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
@@ -234,15 +235,24 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
     }
 
     public void useOn(World world, boolean sneaking, PlayerEntity player) {
+        this.useOn(world, sneaking, player, Hand.MAIN_HAND);
+    }
+
+    public void useOn(World world, boolean sneaking, PlayerEntity player, Hand hand) {
         if (world.isClient())
             return;
 
         if (this.tardis().isEmpty())
             return;
 
-        ItemStack itemStack = player.getMainHandStack();
+        ItemStack itemStack = player.getStackInHand(hand);
         if (itemStack.getItem() == AITBlocks.ZEITON_CLUSTER.asItem()) {
-            this.tardis().get().addFuel(15);
+            Tardis tardis = this.tardis().get();
+            if (tardis.fuel().getMaxFuel() - tardis.fuel().getCurrentFuel() < 15)
+                return;
+
+            if (tardis.fuel().insertFuel(15) != 15)
+                return;
 
             if (!player.isCreative())
                 itemStack.decrement(1);
@@ -251,13 +261,13 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         }
 
         if (itemStack.getItem() instanceof ChargedZeitonCrystalItem) {
-            NbtCompound nbt = itemStack.getOrCreateNbt();
-
-            if (!nbt.contains(ChargedZeitonCrystalItem.FUEL_KEY))
+            ChargedZeitonCrystalItem crystal = (ChargedZeitonCrystalItem) itemStack.getItem();
+            if (!itemStack.getOrCreateNbt().contains(ChargedZeitonCrystalItem.FUEL_KEY))
                 return;
 
-            this.tardis().get().addFuel(nbt.getDouble(ChargedZeitonCrystalItem.FUEL_KEY));
-            nbt.putDouble(ChargedZeitonCrystalItem.FUEL_KEY, 0);
+            double offered = crystal.getCurrentFuel(itemStack);
+            double remainder = this.tardis().get().addFuel(offered);
+            crystal.setCurrentFuel(remainder, itemStack);
         }
     }
 
@@ -431,8 +441,13 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
             if (!tardis.fuel().hasPower())
                 return;
 
-            this.addFuel(10, sonicScrewdriver);
-            tardis.fuel().removeFuel(10);
+            double capacity = Math.max(this.getMaxFuel(sonicScrewdriver)
+                    - this.getCurrentFuel(sonicScrewdriver), 0);
+            double extracted = tardis.fuel().extractFuel(Math.min(10, capacity));
+            double accepted = this.insertFuel(extracted, sonicScrewdriver);
+
+            if (accepted < extracted)
+                tardis.fuel().addFuel(extracted - accepted);
         }
     }
 
