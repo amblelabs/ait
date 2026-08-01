@@ -38,6 +38,7 @@ public class RWFOverlay implements HudRenderCallback {
             Position.render(drawContext, mc.player, mc);
             Position.Y.render(drawContext, mc.player, mc);
             Speed.render(drawContext, mc.player, mc);
+            Throttle.render(drawContext, tardis, mc);
             GravCircuit.render(drawContext, tardis, mc);
             Antigravs.render(drawContext, tardis, mc);
             Keybinds.render(drawContext, mc);
@@ -182,6 +183,42 @@ public class RWFOverlay implements HudRenderCallback {
             context.drawTextWithShadow(client.textRenderer, s, 60, 50, 0xFFFFFF);
         }
     }
+    private static class Throttle {
+        private static final int BAR_WIDTH = 66;
+
+        private static void render(DrawContext context, Tardis tardis, MinecraftClient client) {
+            int speed = tardis.travel().speed();
+            int max = Math.max(1, tardis.travel().maxSpeed().get());
+
+            Text text = Text.translatable("overlay.ait.rwf.throttle", speed, max);
+            int width = Math.max(BAR_WIDTH, client.textRenderer.getWidth(text));
+
+            context.fill(58, 62, 62 + width, 85, ALPHA_GRAY);
+            context.drawTextWithShadow(client.textRenderer, text, 60, 64, 0xFFFFFF);
+
+            context.fill(60, 77, 60 + BAR_WIDTH, 81, ALPHA_BLACK);
+
+            if (max * 2 > BAR_WIDTH) {
+                context.fill(60, 77, 60 + Math.round(BAR_WIDTH * (speed / (float) max)), 81, color(speed / (float) max));
+                return;
+            }
+
+            for (int i = 0; i < speed; i++) {
+                int start = 60 + Math.round(BAR_WIDTH * (i / (float) max));
+                int end = 60 + Math.round(BAR_WIDTH * ((i + 1) / (float) max));
+
+                context.fill(start, 77, end - 1, 81, color((i + 1f) / max));
+            }
+        }
+
+        private static int color(float percent) {
+            if (percent > 0.75f)
+                return ColorHelper.Argb.getArgb(255, 255, 85, 85);
+
+            return percent > 0.4f ? ColorHelper.Argb.getArgb(255, 255, 200, 60)
+                    : ColorHelper.Argb.getArgb(255, 85, 255, 85);
+        }
+    }
     private static class GravCircuit {
         private static final int BAR_WIDTH = 66;
 
@@ -197,11 +234,11 @@ public class RWFOverlay implements HudRenderCallback {
 
             int width = Math.max(BAR_WIDTH, client.textRenderer.getWidth(text));
 
-            context.fill(58, 62, 62 + width, 85, ALPHA_GRAY);
-            context.drawTextWithShadow(client.textRenderer, text, 60, 64, offline ? 0xFF5555 : 0xFFFFFF);
+            context.fill(58, 87, 62 + width, 110, ALPHA_GRAY);
+            context.drawTextWithShadow(client.textRenderer, text, 60, 89, offline ? 0xFF5555 : 0xFFFFFF);
 
-            context.fill(60, 77, 60 + BAR_WIDTH, 81, ALPHA_BLACK);
-            context.fill(60, 77, 60 + Math.round(BAR_WIDTH * percent), 81, offline ? ALPHA_GRAY : color(percent));
+            context.fill(60, 102, 60 + BAR_WIDTH, 106, ALPHA_BLACK);
+            context.fill(60, 102, 60 + Math.round(BAR_WIDTH * percent), 106, offline ? ALPHA_GRAY : color(percent));
         }
 
         private static int color(float percent) {
@@ -218,8 +255,8 @@ public class RWFOverlay implements HudRenderCallback {
 
             Text text = Text.translatable(on ? "overlay.ait.rwf.antigravs.on" : "overlay.ait.rwf.antigravs.off");
 
-            context.fill(58, 87, 62 + client.textRenderer.getWidth(text), 98, ALPHA_GRAY);
-            context.drawTextWithShadow(client.textRenderer, text, 60, 89, on ? 0x55FF55 : 0xAAAAAA);
+            context.fill(58, 112, 62 + client.textRenderer.getWidth(text), 123, ALPHA_GRAY);
+            context.drawTextWithShadow(client.textRenderer, text, 60, 114, on ? 0x55FF55 : 0xAAAAAA);
         }
     }
     private static class Keybinds {
