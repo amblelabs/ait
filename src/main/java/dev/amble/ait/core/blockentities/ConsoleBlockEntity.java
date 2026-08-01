@@ -217,7 +217,6 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         this.type = schema;
         this.markDirty();
     }
-
     public void setVariant(ConsoleVariantSchema schema) {
         this.variant = schema;
         this.markDirty();
@@ -248,10 +247,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         ItemStack itemStack = player.getStackInHand(hand);
         if (itemStack.getItem() == AITBlocks.ZEITON_CLUSTER.asItem()) {
             Tardis tardis = this.tardis().get();
-            if (tardis.fuel().getMaxFuel() - tardis.fuel().getCurrentFuel() < 15)
-                return;
-
-            if (tardis.fuel().insertFuel(15) != 15)
+            if (!tardis.fuel().tryInsertFuelFully(15))
                 return;
 
             if (!player.isCreative())
@@ -437,7 +433,6 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         if (sonicScrewdriver != null) {
             if (this.hasMaxFuel(sonicScrewdriver))
                 return;
-
             if (!tardis.fuel().hasPower())
                 return;
 
