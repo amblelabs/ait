@@ -1599,6 +1599,16 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("key.ait.decrease_speed", "Decrease Speed (RWF)");
         provider.addTranslation("key.ait.toggle_antigravs", "Toggle Antigravs (RWF)");
 
+        // rwf overlay
+        provider.addTranslation("overlay.ait.rwf.grav_circuit", "Grav Circuit: %s%%");
+        provider.addTranslation("overlay.ait.rwf.grav_circuit.offline", "Grav Circuit: OFFLINE");
+        provider.addTranslation("overlay.ait.rwf.increase_speed", "%s - Speed Up");
+        provider.addTranslation("overlay.ait.rwf.decrease_speed", "%s - Speed Down");
+        provider.addTranslation("overlay.ait.rwf.antigravs", "%s - Antigravs");
+        provider.addTranslation("overlay.ait.rwf.doors", "%s - Doors");
+        provider.addTranslation("overlay.ait.rwf.ascend", "%s - Ascend");
+        provider.addTranslation("overlay.ait.rwf.land", "%s - Descend / Land");
+
         // effects
         provider.addTranslation("effect.ait.zeiton_high", "Zeiton High");
         provider.addTranslation("effect.ait.lunar_regolith", "Lunar Regolith Poisoned");

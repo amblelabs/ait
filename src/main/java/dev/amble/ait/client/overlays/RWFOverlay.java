@@ -7,17 +7,23 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 
+import dev.amble.ait.core.AITKeyBinds;
+import dev.amble.ait.core.engine.DurableSubSystem;
+import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.tardis.Tardis;
 
 public class RWFOverlay implements HudRenderCallback {
     private static final int ALPHA_GRAY = ColorHelper.Argb.getArgb(125, 255, 255, 255);
+    private static final int ALPHA_BLACK = ColorHelper.Argb.getArgb(125, 0, 0, 0);
     @Override
     public void onHudRender(DrawContext drawContext, float tickDelta) {
         MinecraftClient mc = MinecraftClient.getInstance();
@@ -32,6 +38,8 @@ public class RWFOverlay implements HudRenderCallback {
             Position.render(drawContext, mc.player, mc);
             Position.Y.render(drawContext, mc.player, mc);
             Speed.render(drawContext, mc.player, mc);
+            GravCircuit.render(drawContext, tardis, mc);
+            Keybinds.render(drawContext, mc);
             //this.renderOverlay(drawContext, AITMod.id("textures/gui/tardis/rwf_gui.png"));
         }
     }
@@ -171,6 +179,58 @@ public class RWFOverlay implements HudRenderCallback {
 
             context.fill(58, 49, 62 + client.textRenderer.getWidth(s), 60, ALPHA_GRAY);
             context.drawTextWithShadow(client.textRenderer, s, 60, 50, 0xFFFFFF);
+        }
+    }
+    private static class GravCircuit {
+        private static final int BAR_WIDTH = 66;
+
+        private static void render(DrawContext context, Tardis tardis, MinecraftClient client) {
+            if (!(tardis.subsystems().get(SubSystem.Id.GRAVITATIONAL) instanceof DurableSubSystem circuit))
+                return;
+
+            float percent = circuit.durability() / DurableSubSystem.MAX_DURABILITY;
+            boolean offline = !circuit.isUsable();
+
+            Text text = offline ? Text.translatable("overlay.ait.rwf.grav_circuit.offline")
+                    : Text.translatable("overlay.ait.rwf.grav_circuit", Math.round(percent * 100));
+
+            int width = Math.max(BAR_WIDTH, client.textRenderer.getWidth(text));
+
+            context.fill(58, 62, 62 + width, 85, ALPHA_GRAY);
+            context.drawTextWithShadow(client.textRenderer, text, 60, 64, offline ? 0xFF5555 : 0xFFFFFF);
+
+            context.fill(60, 77, 60 + BAR_WIDTH, 81, ALPHA_BLACK);
+            context.fill(60, 77, 60 + Math.round(BAR_WIDTH * percent), 81, offline ? ALPHA_GRAY : color(percent));
+        }
+
+        private static int color(float percent) {
+            if (percent > 0.5f)
+                return ColorHelper.Argb.getArgb(255, 85, 255, 85);
+
+            return percent > 0.2f ? ColorHelper.Argb.getArgb(255, 255, 200, 60)
+                    : ColorHelper.Argb.getArgb(255, 255, 85, 85);
+        }
+    }
+    private static class Keybinds {
+        private static void render(DrawContext context, MinecraftClient client) {
+            int y = height() - 30; // above the hotbar
+
+            y = line(context, client, y, client.options.sneakKey, "land");
+            y = line(context, client, y, client.options.jumpKey, "ascend");
+            y = line(context, client, y, AITKeyBinds.SNAP.binding(), "doors");
+            y = line(context, client, y, AITKeyBinds.TOGGLE_ANTIGRAVS.binding(), "antigravs");
+            y = line(context, client, y, AITKeyBinds.DECREASE_SPEED.binding(), "decrease_speed");
+
+            line(context, client, y, AITKeyBinds.INCREASE_SPEED.binding(), "increase_speed");
+        }
+
+        private static int line(DrawContext context, MinecraftClient client, int y, KeyBinding bind, String action) {
+            Text text = Text.translatable("overlay.ait.rwf." + action, bind.getBoundKeyLocalizedText());
+
+            context.fill(8, y - 2, 12 + client.textRenderer.getWidth(text), y + 9, ALPHA_GRAY);
+            context.drawTextWithShadow(client.textRenderer, text, 10, y, 0xFFFFFF);
+
+            return y - 13;
         }
     }
 }

@@ -22,13 +22,18 @@ public class AITKeyBinds {
 
     private static final List<KeyBind> BINDS = new ArrayList<>();
 
+    public static KeyBind SNAP;
+    public static KeyBind INCREASE_SPEED;
+    public static KeyBind DECREASE_SPEED;
+    public static KeyBind TOGGLE_ANTIGRAVS;
+
     public static void init() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             for (KeyBind bind : BINDS)
                 bind.tick(client);
         });
 
-        register(new KeyBind.Held("snap", "main", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_V, client -> {
+        SNAP = register(new KeyBind.Held("snap", "main", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_V, client -> {
             ClientPlayerEntity player = client.player;
 
             if (player == null)
@@ -58,7 +63,7 @@ public class AITKeyBinds {
                 }
             }
         }));
-        register(new KeyBind.Held("increase_speed", "main", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_G, client -> {
+        INCREASE_SPEED = register(new KeyBind.Held("increase_speed", "main", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_G, client -> {
             ClientPlayerEntity player = client.player;
 
             if (player == null || !player.hasVehicle())
@@ -72,7 +77,7 @@ public class AITKeyBinds {
                 ClientTardisUtil.flyingSpeedPacket(tardis, "up");
             }
         }));
-        register(new KeyBind.Held("decrease_speed", "main", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_B, client -> {
+        DECREASE_SPEED = register(new KeyBind.Held("decrease_speed", "main", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_B, client -> {
             ClientPlayerEntity player = client.player;
 
             if (player == null || !player.hasVehicle())
@@ -86,7 +91,7 @@ public class AITKeyBinds {
                 ClientTardisUtil.flyingSpeedPacket(tardis, "down");
             }
         }));
-        register(new KeyBind.Held("toggle_antigravs", "main", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_H, client -> {
+        TOGGLE_ANTIGRAVS = register(new KeyBind.Held("toggle_antigravs", "main", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_H, client -> {
             ClientPlayerEntity player = client.player;
 
             if (player == null || !player.hasVehicle())
@@ -102,8 +107,10 @@ public class AITKeyBinds {
         }));
     }
 
-    private static void register(KeyBind bind) {
+    private static KeyBind register(KeyBind bind) {
         bind.register();
         BINDS.add(bind);
+
+        return bind;
     }
 }
