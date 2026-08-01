@@ -1602,6 +1602,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         // rwf overlay
         provider.addTranslation("overlay.ait.rwf.grav_circuit", "Grav Circuit: %s%%");
         provider.addTranslation("overlay.ait.rwf.grav_circuit.offline", "Grav Circuit: OFFLINE");
+        provider.addTranslation("overlay.ait.rwf.antigravs.on", "Antigravs: ON");
+        provider.addTranslation("overlay.ait.rwf.antigravs.off", "Antigravs: OFF");
         provider.addTranslation("overlay.ait.rwf.increase_speed", "%s - Speed Up");
         provider.addTranslation("overlay.ait.rwf.decrease_speed", "%s - Speed Down");
         provider.addTranslation("overlay.ait.rwf.antigravs", "%s - Antigravs");
