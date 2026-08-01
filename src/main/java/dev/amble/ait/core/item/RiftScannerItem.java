@@ -22,6 +22,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
+import dev.amble.ait.config.ArtronConfigSettings;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.core.world.TardisServerWorld;
@@ -144,7 +145,15 @@ public class RiftScannerItem extends Item {
 
         // Rift identity is deterministic. Do not generate a candidate merely to inspect its
         // attachment; only apply the energy threshold when its data is already loaded.
-        return loaded == null || manager.getArtron(loaded) >= MIN_TRACKABLE_ARTRON;
+        if (loaded == null)
+            return true;
+
+        double capacity = manager.getMaxArtron(loaded);
+        if (capacity <= 0)
+            return false;
+
+        double threshold = ArtronConfigSettings.clampThresholdToCapacity(MIN_TRACKABLE_ARTRON, capacity);
+        return manager.getArtron(loaded) >= threshold;
     }
 
     private static void setTarget(ItemStack stack, RegistryKey<World> dimension, ChunkPos pos) {

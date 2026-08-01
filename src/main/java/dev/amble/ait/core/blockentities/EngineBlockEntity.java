@@ -133,7 +133,9 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
             if (!current.equals(original.state()))
                 replaced.add(original);
 
-            if (!placed || !current.equals(fill.state())) {
+            // Cable connection and waterlogging properties can update immediately after placement.
+            // The intended block type is the invariant; exact state equality is too strict here.
+            if (!placed || !current.isOf(fill.state().getBlock())) {
                 this.rollbackFillBlocks(world, replaced);
                 return false;
             }

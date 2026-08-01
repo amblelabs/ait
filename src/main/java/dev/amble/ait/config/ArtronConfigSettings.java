@@ -22,6 +22,17 @@ public final class ArtronConfigSettings {
         return Double.isFinite(rate) ? Math.max(rate, 0) : fallback;
     }
 
+    /**
+     * Keeps a preferred operational threshold reachable for stores whose configured capacity is
+     * lower than the normal threshold.
+     */
+    public static double clampThresholdToCapacity(double threshold, double capacity) {
+        double normalizedThreshold = normalizeRate(threshold, 0);
+        double normalizedCapacity = normalizeRate(capacity, 0);
+
+        return Math.min(normalizedThreshold, normalizedCapacity);
+    }
+
     public record Bounds(int minimum, int maximum) {
     }
 }

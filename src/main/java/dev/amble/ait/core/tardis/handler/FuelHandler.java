@@ -26,6 +26,7 @@ import dev.amble.ait.core.engine.impl.EmergencyPower;
 import dev.amble.ait.core.engine.impl.EngineSystem;
 import dev.amble.ait.core.engine.link.tracker.FluidNetwork;
 import dev.amble.ait.core.item.KeyItem;
+import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -40,6 +41,7 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
 public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, TardisTickable {
     public static final double TARDIS_MAX_FUEL = 50000;
     private static final double AUTOPILOT_COST = 1.5d;
+    private static final double TRANSFER_EPSILON = 0.000_001d;
 
     private static final DoubleProperty FUEL = new DoubleProperty("fuel", 1000d);
     private static final BoolProperty REFUELING = new BoolProperty("refueling", false);
@@ -241,11 +243,11 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
     }
 
     private void tickIdle() {
-        if (this.refueling().get() && this.getAvailableRefuelCapacity() > 0) {
-            double ambient = Math.min(AITMod.CONFIG.getTardisAmbientRefuelPerSecond(), this.getAvailableRefuelCapacity());
+        if (this.refueling().get() && this.getAvailableFuelCapacity() > 0) {
+            double ambient = Math.min(AITMod.CONFIG.getTardisAmbientRefuelPerSecond(), this.getAvailableFuelCapacity());
             this.addFuel(ambient);
 
-            double riftCapacity = this.getAvailableRefuelCapacity();
+            double riftCapacity = this.getAvailableFuelCapacity();
             double riftBonus = AITMod.CONFIG.getTardisRiftRefuelBonusPerSecond();
 
             if (riftCapacity > 0 && riftBonus > 0) {
@@ -278,7 +280,10 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
         }
     }
 
-    private double getAvailableRefuelCapacity() {
+    /**
+     * Returns the total AU that can currently be accepted by the enabled reserve and primary tank.
+     */
+    public double getAvailableFuelCapacity() {
         double available = Math.max(this.getMaxFuel() - this.getCurrentFuel(), 0);
         EmergencyPower backup = this.tardis().subsystems().emergency();
 
@@ -288,17 +293,30 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
         return available;
     }
 
+    /**
+     * Inserts the complete amount or leaves both stores unchanged when there is not enough room.
+     */
+    public boolean tryInsertFuelFully(double amount) {
+        if (!Double.isFinite(amount) || amount <= 0)
+            return false;
+
+        if (this.getAvailableFuelCapacity() + TRANSFER_EPSILON < amount)
+            return false;
+
+        return this.addFuel(amount) <= TRANSFER_EPSILON;
+    }
+
     private void rebuildFluidNetworkIfThresholdChanged(double before, double after) {
         if ((before > 0) == (after > 0))
             return;
 
-        if (!this.tardis().asServer().hasWorld())
+        if (!(this.tardis() instanceof ServerTardis serverTardis) || !serverTardis.hasWorld())
             return;
 
         BlockPos enginePos = this.tardis().getDesktop().getEnginePos();
 
         if (enginePos != null)
-            FluidNetwork.rebuildFrom(this.tardis().asServer().world(), enginePos);
+            FluidNetwork.rebuildFrom(serverTardis.world(), enginePos);
     }
 
     public BoolValue refueling() {

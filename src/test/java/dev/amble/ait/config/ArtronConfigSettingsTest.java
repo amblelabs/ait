@@ -44,4 +44,13 @@ class ArtronConfigSettingsTest {
         assertEquals(1, ArtronConfigSettings.normalizeRate(Double.NaN, 1));
         assertEquals(1, ArtronConfigSettings.normalizeRate(Double.POSITIVE_INFINITY, 1));
     }
+
+    @Test
+    void keepsOperationalThresholdsReachableAtLowConfiguredCapacities() {
+        assertEquals(250d, ArtronConfigSettings.clampThresholdToCapacity(250, 4000));
+        assertEquals(100d, ArtronConfigSettings.clampThresholdToCapacity(250, 100));
+        assertEquals(0d, ArtronConfigSettings.clampThresholdToCapacity(250, 0));
+        assertEquals(0d, ArtronConfigSettings.clampThresholdToCapacity(-1, 100));
+        assertEquals(0d, ArtronConfigSettings.clampThresholdToCapacity(250, Double.NaN));
+    }
 }
