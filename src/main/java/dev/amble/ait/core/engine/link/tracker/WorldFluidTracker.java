@@ -13,8 +13,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.WorldChunk;
 
 import dev.amble.ait.core.engine.link.IFluidLink;
 
@@ -68,7 +67,7 @@ public class WorldFluidTracker {
         return list;
     }
     public static IFluidLink query(ServerWorld world, BlockPos pos) {
-        Chunk chunk = world.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, false);
+        WorldChunk chunk = world.getChunkManager().getWorldChunk(pos.getX() >> 4, pos.getZ() >> 4);
         if (chunk == null)
             return null;
 

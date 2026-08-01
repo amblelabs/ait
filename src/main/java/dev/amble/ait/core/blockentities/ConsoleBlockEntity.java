@@ -286,13 +286,6 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
     }
 
     public void killControls() {
-        for (ConsoleControlEntity entity : controlEntities) {
-            Control control = entity.getControl();
-            if (control != null) {
-                this.updateStateFromEntity(control, entity.getDurability(), entity.isSticky());
-            }
-        }
-
         controlEntities.forEach(Entity::discard);
         controlEntities.clear();
         this.markDirty();
@@ -552,15 +545,6 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
     private Control.ControlState getOrCreateState(Control control) {
         return this.controlStateMap.computeIfAbsent(control,
                 entry -> new Control.ControlState());
-    }
-
-    private void updateStateFromEntity(Control control, float damage, boolean sticky) {
-        if (damage >= ConsoleControlEntity.MAX_DURABILITY && !sticky) {
-            this.controlStateMap.remove(control);
-            return;
-        }
-
-        this.controlStateMap.put(control, new Control.ControlState().setDamage(damage).setSticky(sticky));
     }
 
     @Override

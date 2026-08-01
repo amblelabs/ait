@@ -12,7 +12,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.ChunkRandom;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.config.ArtronConfigSettings;
@@ -166,7 +165,7 @@ public record RiftChunkManager(ServerWorld world) {
     }
 
     @Nullable public Chunk getLoadedChunk(ChunkPos pos) {
-        return this.world.getChunkManager().getChunk(pos.x, pos.z, ChunkStatus.FULL, false);
+        return this.world.getChunkManager().getWorldChunk(pos.x, pos.z);
     }
 
     public boolean isRiftChunk(ChunkPos chunkPos) {

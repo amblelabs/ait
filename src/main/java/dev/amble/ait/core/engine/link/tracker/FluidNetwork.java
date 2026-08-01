@@ -2,17 +2,27 @@ package dev.amble.ait.core.engine.link.tracker;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
@@ -33,20 +43,108 @@ public final class FluidNetwork {
     private static final int MAX_NETWORK_SIZE = 4096;
     private static final long WARNING_INTERVAL_TICKS = 20L * 10L;
     private static final Map<RegistryKey<World>, Long> LAST_OVERSIZED_WARNING = new HashMap<>();
+    private static final Object PENDING_REBUILDS_LOCK = new Object();
+    private static final Map<MinecraftServer, Map<RegistryKey<World>, Map<Long, Long>>> PENDING_REBUILDS =
+            new IdentityHashMap<>();
+    private static final Set<MinecraftServer> STOPPING_SERVERS =
+            Collections.newSetFromMap(new IdentityHashMap<>());
 
     private static boolean initialized;
 
     private FluidNetwork() {}
 
     /**
-     * Restores in-memory network assignments when chunks containing fluid links are loaded.
+     * Restores in-memory network assignments after chunks containing fluid links finish loading.
+     * Fabric's load callback can run before the chunk future is published, so rebuilding from the
+     * callback itself can make the server thread wait for its own callback to return.
      */
     public static void init() {
         if (initialized) return;
         initialized = true;
 
-        net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents.CHUNK_LOAD.register((world, chunk) ->
-                world.getServer().execute(() -> rebuildLoadedChunk(world, chunk)));
+        ServerChunkEvents.CHUNK_LOAD.register(FluidNetwork::queueLoadedChunkRebuild);
+        ServerTickEvents.START_WORLD_TICK.register(FluidNetwork::processLoadedChunkRebuilds);
+        ServerLifecycleEvents.SERVER_STARTING.register(FluidNetwork::onServerStarting);
+        ServerLifecycleEvents.SERVER_STOPPING.register(FluidNetwork::onServerStopping);
+        ServerLifecycleEvents.SERVER_STOPPED.register(FluidNetwork::onServerStopped);
+    }
+
+    private static void queueLoadedChunkRebuild(ServerWorld world, WorldChunk chunk) {
+        MinecraftServer server = world.getServer();
+
+        synchronized (PENDING_REBUILDS_LOCK) {
+            if (STOPPING_SERVERS.contains(server) || server.isStopped()) return;
+
+            Map<RegistryKey<World>, Map<Long, Long>> pendingWorlds =
+                    PENDING_REBUILDS.computeIfAbsent(server, ignored -> new HashMap<>());
+            Map<Long, Long> pendingChunks =
+                    pendingWorlds.computeIfAbsent(world.getRegistryKey(), ignored -> new LinkedHashMap<>());
+            // A listener earlier in START_WORLD_TICK may itself load a chunk. Waiting for the next
+            // tick guarantees that every CHUNK_LOAD callback has returned before discovery begins.
+            long notBeforeTick = (long) server.getTicks() + 1;
+
+            pendingChunks.merge(chunk.getPos().toLong(), notBeforeTick, Long::max);
+        }
+    }
+
+    private static void processLoadedChunkRebuilds(ServerWorld world) {
+        MinecraftServer server = world.getServer();
+        Set<Long> readyChunks = new LinkedHashSet<>();
+
+        synchronized (PENDING_REBUILDS_LOCK) {
+            if (STOPPING_SERVERS.contains(server)) return;
+
+            Map<RegistryKey<World>, Map<Long, Long>> pendingWorlds = PENDING_REBUILDS.get(server);
+            if (pendingWorlds == null) return;
+
+            Map<Long, Long> pendingChunks = pendingWorlds.get(world.getRegistryKey());
+            if (pendingChunks == null) return;
+
+            long currentTick = server.getTicks();
+            Iterator<Map.Entry<Long, Long>> iterator = pendingChunks.entrySet().iterator();
+
+            while (iterator.hasNext()) {
+                Map.Entry<Long, Long> entry = iterator.next();
+                if (entry.getValue() > currentTick) continue;
+
+                readyChunks.add(entry.getKey());
+                iterator.remove();
+            }
+
+            if (pendingChunks.isEmpty()) pendingWorlds.remove(world.getRegistryKey());
+            if (pendingWorlds.isEmpty()) PENDING_REBUILDS.remove(server);
+        }
+
+        for (long packedPos : readyChunks) {
+            WorldChunk chunk = world.getChunkManager().getWorldChunk(
+                    ChunkPos.getPackedX(packedPos), ChunkPos.getPackedZ(packedPos));
+            if (chunk != null) rebuildLoadedChunk(world, chunk);
+        }
+    }
+
+    private static void onServerStarting(MinecraftServer server) {
+        synchronized (PENDING_REBUILDS_LOCK) {
+            STOPPING_SERVERS.remove(server);
+            PENDING_REBUILDS.remove(server);
+        }
+    }
+
+    private static void onServerStopping(MinecraftServer server) {
+        synchronized (PENDING_REBUILDS_LOCK) {
+            // MinecraftServer.isStopping() remains false while shutdown runs on its live server
+            // thread, so lifecycle state must explicitly prevent late CHUNK_LOAD work.
+            STOPPING_SERVERS.add(server);
+            PENDING_REBUILDS.remove(server);
+        }
+
+        LAST_OVERSIZED_WARNING.clear();
+    }
+
+    private static void onServerStopped(MinecraftServer server) {
+        synchronized (PENDING_REBUILDS_LOCK) {
+            PENDING_REBUILDS.remove(server);
+            STOPPING_SERVERS.remove(server);
+        }
     }
 
     /**
