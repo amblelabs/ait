@@ -39,6 +39,7 @@ public class RWFOverlay implements HudRenderCallback {
             Position.Y.render(drawContext, mc.player, mc);
             Speed.render(drawContext, mc.player, mc);
             GravCircuit.render(drawContext, tardis, mc);
+            Antigravs.render(drawContext, tardis, mc);
             Keybinds.render(drawContext, mc);
             //this.renderOverlay(drawContext, AITMod.id("textures/gui/tardis/rwf_gui.png"));
         }
@@ -209,6 +210,16 @@ public class RWFOverlay implements HudRenderCallback {
 
             return percent > 0.2f ? ColorHelper.Argb.getArgb(255, 255, 200, 60)
                     : ColorHelper.Argb.getArgb(255, 255, 85, 85);
+        }
+    }
+    private static class Antigravs {
+        private static void render(DrawContext context, Tardis tardis, MinecraftClient client) {
+            boolean on = tardis.travel().antigravs().get();
+
+            Text text = Text.translatable(on ? "overlay.ait.rwf.antigravs.on" : "overlay.ait.rwf.antigravs.off");
+
+            context.fill(58, 87, 62 + client.textRenderer.getWidth(text), 98, ALPHA_GRAY);
+            context.drawTextWithShadow(client.textRenderer, text, 60, 89, on ? 0x55FF55 : 0xAAAAAA);
         }
     }
     private static class Keybinds {
