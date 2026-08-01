@@ -275,8 +275,8 @@ public class RWFOverlay implements HudRenderCallback {
         private static int line(DrawContext context, MinecraftClient client, int y, KeyBinding bind, String action) {
             Text text = Text.translatable("overlay.ait.rwf." + action, bind.getBoundKeyLocalizedText());
 
-            context.fill(8, y - 2, 12 + client.textRenderer.getWidth(text), y + 9, ALPHA_GRAY);
-            context.drawTextWithShadow(client.textRenderer, text, 10, y, 0xFFFFFF);
+            context.fill(58, y - 2, 62 + client.textRenderer.getWidth(text), y + 9, ALPHA_GRAY);
+            context.drawTextWithShadow(client.textRenderer, text, 60, y, 0xFFFFFF);
 
             return y - 13;
         }
