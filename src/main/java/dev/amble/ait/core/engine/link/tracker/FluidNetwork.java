@@ -93,7 +93,10 @@ public final class FluidNetwork {
 
             WorldFluidTracker.Discovery discovery = WorldFluidTracker.discover(world, seed, MAX_NETWORK_SIZE);
             handled.addAll(discovery.component().keySet());
-            applyDiscovery(world, seed, discovery);
+
+            // One oversized component is enough to exhaust this chunk's rebuild budget. Avoid
+            // rediscovering the same component from every remaining unvisited node in the chunk.
+            if (!applyDiscovery(world, seed, discovery)) return;
         }
     }
 
