@@ -15,6 +15,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.api.ArtronHolder;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
@@ -39,8 +40,6 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
 public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, TardisTickable {
     public static final double TARDIS_MAX_FUEL = 50000;
     private static final double AUTOPILOT_COST = 1.5d;
-    private static final double AMBIENT_REFUEL_PER_SECOND = 140;
-    private static final double RIFT_REFUEL_PER_SECOND = 40;
 
     private static final DoubleProperty FUEL = new DoubleProperty("fuel", 1000d);
     private static final BoolProperty REFUELING = new BoolProperty("refueling", false);
@@ -243,12 +242,13 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
 
     private void tickIdle() {
         if (this.refueling().get() && this.getAvailableRefuelCapacity() > 0) {
-            double ambient = Math.min(AMBIENT_REFUEL_PER_SECOND, this.getAvailableRefuelCapacity());
+            double ambient = Math.min(AITMod.CONFIG.getTardisAmbientRefuelPerSecond(), this.getAvailableRefuelCapacity());
             this.addFuel(ambient);
 
             double riftCapacity = this.getAvailableRefuelCapacity();
+            double riftBonus = AITMod.CONFIG.getTardisRiftRefuelBonusPerSecond();
 
-            if (riftCapacity > 0) {
+            if (riftCapacity > 0 && riftBonus > 0) {
                 TravelHandler travel = tardis.travel();
                 CachedDirectedGlobalPos pos = travel.position();
                 ServerWorld world = pos.getWorld();
@@ -259,7 +259,7 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
                     Chunk chunk = manager.getLoadedChunk(chunkPos);
 
                     if (chunk != null && manager.isRiftChunk(chunkPos)) {
-                        double requested = Math.min(RIFT_REFUEL_PER_SECOND, riftCapacity);
+                        double requested = Math.min(riftBonus, riftCapacity);
                         double extracted = manager.extractFuel(chunk, requested);
                         double remainder = this.addFuel(extracted);
 

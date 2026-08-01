@@ -15,15 +15,12 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.config.ArtronConfigSettings;
 import dev.amble.ait.core.events.ServerChunkEvents;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 @SuppressWarnings("UnstableApiUsage")
 public record RiftChunkManager(ServerWorld world) {
-
-    private static final int MIN_ARTRON_AMOUNT = 2000;
-    private static final int MAX_ARTRON_AMOUNT = 4000;
-    private static final double REGEN_PER_SECOND = 1;
 
     private static final AttachmentType<Double> ARTRON = AttachmentRegistry.createPersistent(
             AITMod.id("artron"), Codec.DOUBLE
@@ -45,9 +42,10 @@ public record RiftChunkManager(ServerWorld world) {
 
             double current = manager.getArtron(chunk);
             double max = manager.getMaxArtron(chunk);
+            double regeneration = AITMod.CONFIG.getRiftChunkArtronRegenPerSecond();
 
-            if (current < max)
-                manager.setCurrentFuel(chunk, Math.min(current + REGEN_PER_SECOND, max));
+            if (current < max && regeneration > 0)
+                manager.setCurrentFuel(chunk, Math.min(current + regeneration, max));
         });
     }
 
@@ -236,7 +234,19 @@ public record RiftChunkManager(ServerWorld world) {
     }
 
     private double randomCapacity() {
-        return this.world.getRandom().nextBetween(MIN_ARTRON_AMOUNT, MAX_ARTRON_AMOUNT);
+        ArtronConfigSettings.Bounds bounds = AITMod.CONFIG.getRiftChunkArtronBounds();
+        int minimum = bounds.minimum();
+        int maximum = bounds.maximum();
+
+        if (minimum == maximum)
+            return minimum;
+
+        // nextBetween uses an int-sized range. This special case keeps the full
+        // non-negative config range valid without overflowing maximum - minimum + 1.
+        if (minimum == 0 && maximum == Integer.MAX_VALUE)
+            return this.world.getRandom().nextInt() & Integer.MAX_VALUE;
+
+        return this.world.getRandom().nextBetween(minimum, maximum);
     }
 
     private static double normalizeRequest(double requested) {
