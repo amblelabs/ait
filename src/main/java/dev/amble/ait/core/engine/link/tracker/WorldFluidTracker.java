@@ -81,48 +81,53 @@ public class WorldFluidTracker {
     }
 
     /**
-     * Breadth-first traversal of every {@link IFluidLink} reachable from {@code start}.
-     * Insertion order is BFS order, so iterating the result yields nodes by distance from {@code start}.
-     * Stops cleanly at {@code maxNodes} to bound worst-case cost on pathological networks.
-     *
-     * The returned map is mutable and owned by the caller. Keys are stored as immutable {@link BlockPos}.
+     * Breadth-first traversal of a connected {@link IFluidLink} component without loading chunks.
+     * The returned component must only be applied when {@link Discovery#truncated()} is false;
+     * otherwise it is an incomplete snapshot retained solely for deduplication and diagnostics.
      */
-    public static LinkedHashMap<BlockPos, IFluidLink> bfs(ServerWorld world, BlockPos start, int maxNodes) {
-        return bfs(world, start, maxNodes, true);
-    }
-
-    /**
-     * Breadth-first traversal of the complete connected component. Network assignment must use
-     * this overload so a size limit can never leave half of a component with stale references.
-     */
-    public static LinkedHashMap<BlockPos, IFluidLink> bfsFully(ServerWorld world, BlockPos start) {
-        return bfs(world, start, 0, false);
-    }
-
-    private static LinkedHashMap<BlockPos, IFluidLink> bfs(ServerWorld world, BlockPos start, int maxNodes,
-                                                           boolean bounded) {
+    public static Discovery discover(ServerWorld world, BlockPos start, int maxNodes) {
         LinkedHashMap<BlockPos, IFluidLink> visited = new LinkedHashMap<>();
+        if (maxNodes <= 0)
+            return new Discovery(visited, true);
+
         BlockPos rootPos = start.toImmutable();
         IFluidLink first = query(world, rootPos);
-        if (first == null) return visited;
+        if (first == null)
+            return new Discovery(visited, false);
 
         Deque<BlockPos> queue = new ArrayDeque<>();
         queue.add(rootPos);
         visited.put(rootPos, first);
 
-        while (!queue.isEmpty() && (!bounded || visited.size() < maxNodes)) {
-            BlockPos cur = queue.poll();
-            for (Direction dir : Direction.values()) {
-                BlockPos next = cur.offset(dir).toImmutable();
+        while (!queue.isEmpty()) {
+            BlockPos current = queue.poll();
+
+            for (Direction direction : Direction.values()) {
+                BlockPos next = current.offset(direction).toImmutable();
                 if (visited.containsKey(next)) continue;
+
                 IFluidLink link = query(world, next);
                 if (link == null) continue;
+
+                // Detect the first node beyond the limit without mutating part of the network.
+                if (visited.size() >= maxNodes)
+                    return new Discovery(visited, true);
+
                 visited.put(next, link);
                 queue.add(next);
-                if (bounded && visited.size() >= maxNodes) break;
             }
         }
 
-        return visited;
+        return new Discovery(visited, false);
+    }
+
+    /**
+     * Compatibility accessor for callers that only need a bounded traversal result.
+     */
+    public static LinkedHashMap<BlockPos, IFluidLink> bfs(ServerWorld world, BlockPos start, int maxNodes) {
+        return discover(world, start, maxNodes).component();
+    }
+
+    public record Discovery(LinkedHashMap<BlockPos, IFluidLink> component, boolean truncated) {
     }
 }

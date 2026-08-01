@@ -16,6 +16,7 @@ import net.minecraft.world.chunk.ChunkStatus;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.config.ArtronConfigSettings;
+import dev.amble.ait.core.engine.link.tracker.FluidNetwork;
 import dev.amble.ait.core.events.ServerChunkEvents;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
@@ -31,6 +32,8 @@ public record RiftChunkManager(ServerWorld world) {
     );
 
     public static void init() {
+        FluidNetwork.init();
+
         ServerChunkEvents.TICK.register((world, chunk) -> {
             if (world.getServer().getTicks() % 20 != 0)
                 return;
