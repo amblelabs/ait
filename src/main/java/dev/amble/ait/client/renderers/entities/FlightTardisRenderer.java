@@ -46,16 +46,19 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
         this.updateModel(tardis);
 
-        if (entity.getControllingPassenger() == null ||
-                !(entity.getControllingPassenger() instanceof AbstractClientPlayerEntity player)) return;
+        double deltaX = 0;
+        double deltaY = 0;
+        double deltaZ = 0;
 
-        if (player.getVehicle() == null || player.getVehicle() != entity) return;
+        Vec3d vec3d = Vec3d.ZERO;
 
-        double deltaX = player.getX() - player.prevX;
-        double deltaY = player.getY() - player.prevY;
-        double deltaZ = player.getZ() - player.prevZ;
+        if (entity.getControllingPassenger() instanceof AbstractClientPlayerEntity player && player.getVehicle() == entity) {
+            deltaX = player.getX() - player.prevX;
+            deltaY = player.getY() - player.prevY;
+            deltaZ = player.getZ() - player.prevZ;
 
-        Vec3d vec3d = player.getRotationVec(tickDelta);
+            vec3d = player.getRotationVec(tickDelta);
+        }
 
         double d = deltaX * deltaX + deltaZ * deltaZ;
         double e = vec3d.horizontalLengthSquared();
