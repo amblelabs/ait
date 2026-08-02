@@ -1611,6 +1611,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("overlay.ait.rwf.doors", "%s - Doors");
         provider.addTranslation("overlay.ait.rwf.ascend", "%s - Ascend");
         provider.addTranslation("overlay.ait.rwf.land", "%s - Descend / Land");
+        provider.addTranslation("overlay.ait.rwf.dismount", "Hold %s for 3 seconds to dismount");
 
         // effects
         provider.addTranslation("effect.ait.zeiton_high", "Zeiton High");
