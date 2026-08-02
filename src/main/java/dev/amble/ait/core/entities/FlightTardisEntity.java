@@ -144,7 +144,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
             if (antigravs)
                 this.landedTicks = 0;
 
-            if (antigravs || this.landedTicks++ > 50)
+            if (antigravs || this.landedTicks++ > 60)
                 this.finishLand(tardis, player);
         } else {
             this.landedTicks = 0;
