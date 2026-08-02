@@ -227,12 +227,6 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     public LivingEntity getControllingPassenger() {
         Entity entity = this.getFirstPassenger();
 
-        if (this.tardis().isPresent()) {
-            Tardis tardis = this.tardis().get();
-            boolean bl = tardis.fuel().hasPower();
-            if (!bl) return null;
-        }
-
         if (entity instanceof LivingEntity living)
             return living;
 
