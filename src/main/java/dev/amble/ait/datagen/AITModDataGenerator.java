@@ -1600,17 +1600,24 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("key.ait.toggle_antigravs", "Toggle Antigravs (RWF)");
 
         // rwf overlay
-        provider.addTranslation("overlay.ait.rwf.throttle", "Throttle: %s/%s");
-        provider.addTranslation("overlay.ait.rwf.grav_circuit", "Grav Circuit: %s%%");
-        provider.addTranslation("overlay.ait.rwf.grav_circuit.offline", "Grav Circuit: OFFLINE");
-        provider.addTranslation("overlay.ait.rwf.antigravs.on", "Antigravs: ON");
-        provider.addTranslation("overlay.ait.rwf.antigravs.off", "Antigravs: OFF");
-        provider.addTranslation("overlay.ait.rwf.increase_speed", "%s - Speed Up");
-        provider.addTranslation("overlay.ait.rwf.decrease_speed", "%s - Speed Down");
-        provider.addTranslation("overlay.ait.rwf.antigravs", "%s - Antigravs");
-        provider.addTranslation("overlay.ait.rwf.doors", "%s - Doors");
-        provider.addTranslation("overlay.ait.rwf.ascend", "%s - Ascend");
-        provider.addTranslation("overlay.ait.rwf.land", "%s - Descend / Land");
+        provider.addTranslation("overlay.ait.rwf.hud.title", "FLIGHT SYSTEMS");
+        provider.addTranslation("overlay.ait.rwf.hud.velocity", "VELOCITY");
+        provider.addTranslation("overlay.ait.rwf.hud.throttle", "THROTTLE");
+        provider.addTranslation("overlay.ait.rwf.hud.grav", "GRAV");
+        provider.addTranslation("overlay.ait.rwf.hud.artron", "ARTRON");
+        provider.addTranslation("overlay.ait.rwf.hud.antigravs", "ANTIGRAVS");
+        provider.addTranslation("overlay.ait.rwf.hud.engaged", "ENGAGED");
+        provider.addTranslation("overlay.ait.rwf.hud.idle", "IDLE");
+        provider.addTranslation("overlay.ait.rwf.hud.offline", "OFFLINE");
+        provider.addTranslation("overlay.ait.rwf.hud.position", "POSITION");
+        provider.addTranslation("overlay.ait.rwf.hud.agl", "AGL");
+        provider.addTranslation("overlay.ait.rwf.hud.controls", "CONTROLS");
+        provider.addTranslation("overlay.ait.rwf.hud.action.land", "Descend / Land");
+        provider.addTranslation("overlay.ait.rwf.hud.action.ascend", "Ascend");
+        provider.addTranslation("overlay.ait.rwf.hud.action.doors", "Doors");
+        provider.addTranslation("overlay.ait.rwf.hud.action.antigravs", "Antigravs");
+        provider.addTranslation("overlay.ait.rwf.hud.action.decrease_speed", "Speed Down");
+        provider.addTranslation("overlay.ait.rwf.hud.action.increase_speed", "Speed Up");
         provider.addTranslation("overlay.ait.rwf.dismount", "Hold %s for 3 seconds to dismount");
 
         // effects
