@@ -82,7 +82,6 @@ public abstract class AnimatedTravelHandler extends ProgressiveTravelHandler {
 
         dematId.of(this, DEMAT_FX);
         matId.of(this, MAT_FX);
-        missedCap.of(this, MISSED_CAP);
     }
 
     @Override

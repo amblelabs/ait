@@ -54,6 +54,8 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
         handbrake.of(this, HANDBRAKE);
         autopilot.of(this, AUTOPILOT);
+
+        missedEvents.of(this, MISSED_EVENTS);
     }
 
     private boolean isInFlight() {
