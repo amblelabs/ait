@@ -28,16 +28,13 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     private static final BoolProperty HANDBRAKE = new BoolProperty("handbrake", true);
     private static final BoolProperty AUTOPILOT = new BoolProperty("autopilot", false);
 
-    private static final IntProperty MISSED_EVENTS = new IntProperty("missed_events");
-
     private final IntValue flightTicks = FLIGHT_TICKS.create(this);
     private final IntValue targetTicks = TARGET_TICKS.create(this);
 
     protected final BoolValue handbrake = HANDBRAKE.create(this);
     protected final BoolValue autopilot = AUTOPILOT.create(this);
 
-    private final IntValue missedEvents = MISSED_EVENTS.create(this);
-
+    private int missedEvents;
     public int missedHardCap;
 
     public ProgressiveTravelHandler(Id id) {
@@ -53,8 +50,6 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
         handbrake.of(this, HANDBRAKE);
         autopilot.of(this, AUTOPILOT);
-
-        missedEvents.of(this, MISSED_EVENTS);
     }
 
     private boolean isInFlight() {
@@ -105,7 +100,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
         this.setFlightTicks(this.isInFlight() ? MathHelper.clamp(this.getFlightTicks(), 0, this.getTargetTicks()) : 0);
         int prevCap = this.missedHardCap;
         this.missedHardCap = TravelUtil.getHardCap(this.getTargetTicks());
-        this.missedEvents.flatMap(missed -> MathHelper.floor((float) (missed / prevCap * this.missedHardCap)));
+        this.missedEvents = MathHelper.floor((float) (this.missedEvents / prevCap * this.missedHardCap));
     }
 
     protected void startFlight() {
@@ -232,8 +227,8 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     }
 
     public void missEvent() {
-        this.missedEvents.flatMap(missed -> missed + 1);
-        if (this.missedEvents.get() >= this.missedHardCap) {
+        this.missedEvents += 1;
+        if (this.missedEvents >= this.missedHardCap) {
             this.tardis().crash();
             this.missedHardCap = 0;
             this.resetMissed();
@@ -241,6 +236,6 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     }
 
     public void resetMissed() {
-        this.missedEvents.set(0);
+        this.missedEvents = 0;
     }
 }
