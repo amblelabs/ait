@@ -94,4 +94,9 @@ public class TravelUtil {
     public static CachedDirectedGlobalPos jukePos(CachedDirectedGlobalPos pos, int min, int max) {
         return jukePos(pos, min, max, 1);
     }
+
+    public static int getHardCap(int targetTicks, int max) {
+        int scaled = 3 + ((targetTicks - 100) * (max - 3)) / (3000 - 100);
+        return MathHelper.clamp(scaled, 3, max);
+    }
 }
