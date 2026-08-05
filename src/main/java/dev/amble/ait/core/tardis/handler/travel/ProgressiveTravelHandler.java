@@ -28,7 +28,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     private static final BoolProperty HANDBRAKE = new BoolProperty("handbrake", true);
     private static final BoolProperty AUTOPILOT = new BoolProperty("autopilot", false);
 
-    private static final IntProperty MISSED_CAP = new IntProperty("missed_cap");
+    private static final IntProperty MISSED_EVENTS = new IntProperty("missed_events");
 
     private final IntValue flightTicks = FLIGHT_TICKS.create(this);
     private final IntValue targetTicks = TARGET_TICKS.create(this);
@@ -36,7 +36,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     protected final BoolValue handbrake = HANDBRAKE.create(this);
     protected final BoolValue autopilot = AUTOPILOT.create(this);
 
-    private final IntValue missedCap = MISSED_CAP.create(this);
+    private final IntValue missedEvents = MISSED_EVENTS.create(this);
 
     @Exclude
     public int missedHardCap;
@@ -102,11 +102,6 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     public void recalculate() {
         this.setTargetTicks(TravelUtil.getFlightDuration(this.position(), this.destination()));
         this.setFlightTicks(this.isInFlight() ? MathHelper.clamp(this.getFlightTicks(), 0, this.getTargetTicks()) : 0);
-        if (this.missedCap.get() >= this.missedHardCap) {
-            this.tardis().crash();
-            this.missedHardCap = 0;
-            this.clearCap();
-        }
         this.missedHardCap = TravelUtil.getHardCap(this.getTargetTicks());
     }
 
@@ -233,11 +228,16 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
         }
     }
 
-    public void incrementMissedCap() {
-        this.missedCap.set(MathHelper.clamp(this.missedCap.get() + 1, 0, this.missedHardCap));
+    public void incrementMissedEvent() {
+        if (this.missedEvents.get() >= this.missedHardCap) {
+            this.tardis().crash();
+            this.missedHardCap = 0;
+            this.clearCap();
+        }
+        this.missedEvents.set(this.missedEvents.get() + 1);
     }
 
     public void clearCap() {
-        this.missedCap.set(0);
+        this.missedEvents.set(0);
     }
 }
