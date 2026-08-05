@@ -35,7 +35,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     protected final BoolValue autopilot = AUTOPILOT.create(this);
 
     private int missedEvents;
-    public int missedHardCap;
+    private int missedHardCap;
 
     public ProgressiveTravelHandler(Id id) {
         super(id);
