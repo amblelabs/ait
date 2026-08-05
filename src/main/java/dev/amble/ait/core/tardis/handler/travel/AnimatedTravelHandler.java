@@ -2,8 +2,6 @@ package dev.amble.ait.core.tardis.handler.travel;
 
 import java.util.UUID;
 
-import dev.amble.ait.data.properties.integer.IntProperty;
-import dev.amble.ait.data.properties.integer.IntValue;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;

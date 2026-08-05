@@ -105,6 +105,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
         this.setTargetTicks(TravelUtil.getFlightDuration(this.position(), this.destination()));
         this.setFlightTicks(this.isInFlight() ? MathHelper.clamp(this.getFlightTicks(), 0, this.getTargetTicks()) : 0);
         this.missedHardCap = TravelUtil.getHardCap(this.getTargetTicks());
+        this.missedEvents.flatMap(missed -> (int) (2d/3d * missed));
     }
 
     protected void startFlight() {
@@ -230,16 +231,16 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
         }
     }
 
-    public void incrementMissedEvent() {
+    public void missEvent() {
+        this.missedEvents.flatMap(missed -> missed + 1);
         if (this.missedEvents.get() >= this.missedHardCap) {
             this.tardis().crash();
             this.missedHardCap = 0;
-            this.clearCap();
+            this.resetMissed();
         }
-        this.missedEvents.set(this.missedEvents.get() + 1);
     }
 
-    public void clearCap() {
+    public void resetMissed() {
         this.missedEvents.set(0);
     }
 }

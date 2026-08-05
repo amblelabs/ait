@@ -114,9 +114,7 @@ public class SequenceRegistry {
                 Sequence.Builder.create(AITMod.id("energy_drain"), (finishedTardis -> {
                     finishedTardis.travel().decreaseFlightTime(25);
                     finishedTardis.addFuel(random.nextBetween(45, 125));
-                }), (missedTardis -> {
-                    missedTardis.removeFuel(random.nextBetween(45, 125));
-                }), 80L,
+                }), (missedTardis -> missedTardis.removeFuel(random.nextBetween(45, 125))), 80L,
                         Text.translatable("sequence.ait.energy_drain").formatted(Formatting.ITALIC, Formatting.YELLOW),
                         new RefuelerControl()));
 
