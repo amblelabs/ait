@@ -1,5 +1,6 @@
 package dev.amble.ait.core.tardis.handler.travel;
 
+import dev.amble.ait.data.Exclude;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -27,11 +28,18 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     private static final BoolProperty HANDBRAKE = new BoolProperty("handbrake", true);
     private static final BoolProperty AUTOPILOT = new BoolProperty("autopilot", false);
 
+    private static final IntProperty MISSED_CAP = new IntProperty("missed_cap");
+
     private final IntValue flightTicks = FLIGHT_TICKS.create(this);
     private final IntValue targetTicks = TARGET_TICKS.create(this);
 
     protected final BoolValue handbrake = HANDBRAKE.create(this);
     protected final BoolValue autopilot = AUTOPILOT.create(this);
+
+    private final IntValue missedCap = MISSED_CAP.create(this);
+
+    @Exclude
+    public int missedHardCap;
 
     public ProgressiveTravelHandler(Id id) {
         super(id);
@@ -94,6 +102,17 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     public void recalculate() {
         this.setTargetTicks(TravelUtil.getFlightDuration(this.position(), this.destination()));
         this.setFlightTicks(this.isInFlight() ? MathHelper.clamp(this.getFlightTicks(), 0, this.getTargetTicks()) : 0);
+        if (this.missedCap.get() >= this.missedHardCap) {
+            this.tardis().crash();
+            this.missedHardCap = 0;
+            this.clearCap();
+        }
+        this.setHardCap(this.getTargetTicks());
+    }
+
+    private void setHardCap(int target) {
+        int scaled = 3 + ((target - 100) * (15 - 3)) / (3000 - 100);
+        this.missedHardCap = MathHelper.clamp(scaled, 3, 15);
     }
 
     protected void startFlight() {
@@ -217,5 +236,13 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
         if (random.nextBetween(0, (15 * maxSpeed) / this.speed()) == maxSpeed) {
             sequences.triggerRandomSequence(true);
         }
+    }
+
+    public void incrementMissedCap() {
+        this.missedCap.set(MathHelper.clamp(this.missedCap.get() + 1, 0, this.missedHardCap));
+    }
+
+    public void clearCap() {
+        this.missedCap.set(0);
     }
 }

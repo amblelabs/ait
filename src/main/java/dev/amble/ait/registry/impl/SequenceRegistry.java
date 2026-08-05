@@ -71,6 +71,7 @@ public class SequenceRegistry {
     public static void init() {
         AVOID_DEBRIS = register(Sequence.Builder.create(AITMod.id("avoid_debris"),
                 finishedTardis -> finishedTardis.travel().decreaseFlightTime(100), missedTardis -> {
+                    missedTardis.travel().incrementMissedCap();
                     missedTardis.removeFuel(-random.nextBetween(45, 125));
                     missedTardis.door().openDoors();
 
@@ -106,6 +107,7 @@ public class SequenceRegistry {
                 Sequence.Builder.create(AITMod.id("dimensional_breach"), (finishedTardis -> {
                     finishedTardis.travel().decreaseFlightTime(50);
                 }), (missedTardis -> {
+                    missedTardis.travel().incrementMissedCap();
                     missedTardis.door().openDoors();
                 }), 80L, Text.translatable("sequence.ait.dimensional_breach").formatted(Formatting.ITALIC, Formatting.YELLOW),
                         new DimensionControl(), new DoorControl()));
@@ -114,7 +116,10 @@ public class SequenceRegistry {
                 Sequence.Builder.create(AITMod.id("energy_drain"), (finishedTardis -> {
                     finishedTardis.travel().decreaseFlightTime(25);
                     finishedTardis.addFuel(random.nextBetween(45, 125));
-                }), (missedTardis -> missedTardis.removeFuel(random.nextBetween(45, 125))), 80L,
+                }), (missedTardis -> {
+                    missedTardis.travel().incrementMissedCap();
+                    missedTardis.removeFuel(random.nextBetween(45, 125));
+                }), 80L,
                         Text.translatable("sequence.ait.energy_drain").formatted(Formatting.ITALIC, Formatting.YELLOW),
                         new RefuelerControl()));
 
@@ -123,6 +128,7 @@ public class SequenceRegistry {
                     finishedTardis.travel().decreaseFlightTime(75);
                     finishedTardis.addFuel(random.nextBetween(45, 125));
                 }), (missedTardis -> {
+                    missedTardis.travel().incrementMissedCap();
                     missedTardis.removeFuel(random.nextBetween(45, 125));
                     missedTardis.fuel().disablePower();
                 }), 110L, Text.translatable("sequence.ait.power_drain_imminent").formatted(Formatting.ITALIC, Formatting.YELLOW),
@@ -133,6 +139,7 @@ public class SequenceRegistry {
                     finishedTardis.travel().decreaseFlightTime(50);
                     finishedTardis.addFuel(random.nextBetween(45, 125));
                 }), (missedTardis -> {
+                    missedTardis.travel().incrementMissedCap();
                     missedTardis.removeFuel(random.nextBetween(45, 125));
                     missedTardis.fuel().disablePower();
                 }), 110L, Text.translatable("sequence.ait.ship_computer_offline").formatted(Formatting.ITALIC,
@@ -142,6 +149,7 @@ public class SequenceRegistry {
                 Sequence.Builder.create(AITMod.id("anti_gravity_error"), (finishedTardis -> {
                     finishedTardis.travel().decreaseFlightTime(25);
                 }), (missedTardis -> {
+                    missedTardis.travel().incrementMissedCap();
                     missedTardis.removeFuel(random.nextBetween(45, 125));
                     missedTardis.travel().antigravs().set(false);
                 }), 80L, Text.translatable("sequence.ait.anti_gravity_error").formatted(Formatting.ITALIC, Formatting.YELLOW),
@@ -153,6 +161,7 @@ public class SequenceRegistry {
                 }), (missedTardis -> missedTardis.travel().forceDestination(cached -> {
                     BlockPos pos = cached.getPos();
 
+                    missedTardis.travel().incrementMissedCap();
                     missedTardis.travel().increaseFlightTime(400);
                     return cached.pos(random.nextBetween(pos.getX() - 8, pos.getX() + 8), pos.getY(),
                             random.nextBetween(pos.getZ() - 8, pos.getZ() + 8));
@@ -165,6 +174,7 @@ public class SequenceRegistry {
                 }), (missedTardis -> missedTardis.travel().forceDestination(cached -> {
                     BlockPos pos = cached.getPos();
 
+                    missedTardis.travel().incrementMissedCap();
                     missedTardis.travel().increaseFlightTime(400);
                     return cached.pos(random.nextBetween(pos.getX() - 8, pos.getX() + 8), pos.getY(),
                             random.nextBetween(pos.getZ() - 8, pos.getZ() + 8));
@@ -177,6 +187,7 @@ public class SequenceRegistry {
                 }), (missedTardis -> missedTardis.travel().forceDestination(cached -> {
                     BlockPos pos = cached.getPos();
 
+                    missedTardis.travel().incrementMissedCap();
                     missedTardis.travel().increaseFlightTime(400);
                     return cached.pos(random.nextBetween(pos.getX() - 8, pos.getX() + 8), pos.getY(),
                             random.nextBetween(pos.getZ() - 8, pos.getZ() + 8));
@@ -214,6 +225,7 @@ public class SequenceRegistry {
                         return;
 
                     BlockPos doorPos = directedDoorPos.getPos();
+                    missedTardis.travel().incrementMissedCap();
                     missedTardis.travel().increaseFlightTime(200);
 
                     if (missedTardis.door().isOpen() || !(missedTardis instanceof ServerTardis))
@@ -241,6 +253,7 @@ public class SequenceRegistry {
                 Sequence.Builder.create(AITMod.id("directional_error"), (finishedTardis -> {
                     finishedTardis.travel().decreaseFlightTime(50);
                 }), (missedTardis -> {
+                    missedTardis.travel().incrementMissedCap();
                     missedTardis.travel().increaseFlightTime(200);
                 }), 80L, Text.translatable("sequence.ait.directional_error").formatted(Formatting.ITALIC, Formatting.YELLOW),
                         new DirectionControl()));
@@ -249,6 +262,7 @@ public class SequenceRegistry {
                 .create(AITMod.id("speed_up_to_avoid_drifting_out_of_vortex"), (finishedTardis -> {
                     finishedTardis.travel().decreaseFlightTime(100);
                 }), (missedTardis -> {
+                    missedTardis.travel().incrementMissedCap();
                     missedTardis.removeFuel(random.nextBetween(45, 125));
                     missedTardis.travel().increaseFlightTime(200);
                 }), 80L, Text.translatable("sequence.ait.speed_up_to_avoid_drifting_out_of_vortex").formatted(Formatting.ITALIC,
@@ -258,6 +272,7 @@ public class SequenceRegistry {
                 .create(AITMod.id("slow_down_to_avoid_flying_out_of_vortex"), (finishedTardis -> {
                     finishedTardis.travel().decreaseFlightTime(100);
                 }), (missedTardis -> {
+                    missedTardis.travel().incrementMissedCap();
                     missedTardis.travel().rematerialize();
                 }), 80L, Text.translatable("sequence.ait.slow_down_to_avoid_flying_out_of_vortex").formatted(Formatting.ITALIC,
                         Formatting.YELLOW), new IncrementControl(), new HandBrakeControl(), new ThrottleControl()));
@@ -267,6 +282,7 @@ public class SequenceRegistry {
                 Sequence.Builder.create(AITMod.id("course_correct"), (finishedTardis -> {
                     finishedTardis.travel().decreaseFlightTime(75);
                 }), (missedTardis -> {
+                    missedTardis.travel().incrementMissedCap();
                     missedTardis.removeFuel(random.nextBetween(65, 250));
 
                     missedTardis.travel().forceDestination(cached -> {
@@ -285,6 +301,7 @@ public class SequenceRegistry {
                     finishedTardis.travel().decreaseFlightTime(25);
                     finishedTardis.addFuel(random.nextBetween(45, 125));
                 }), (missedTardis -> {
+                    missedTardis.travel().incrementMissedCap();
                     missedTardis.removeFuel(random.nextBetween(45, 125));
                     missedTardis.travel().increaseFlightTime(100);
                 }), 110L, Text.translatable("sequence.ait.ground_unstable").formatted(Formatting.ITALIC, Formatting.YELLOW),
@@ -295,6 +312,7 @@ public class SequenceRegistry {
                     finishedTardis.travel().decreaseFlightTime(50);
                     finishedTardis.addFuel(random.nextBetween(45, 125));
                 }), (missedTardis -> {
+                    missedTardis.travel().incrementMissedCap();
                     missedTardis.removeFuel(random.nextBetween(45, 125));
                     missedTardis.travel().increaseFlightTime(100);
                 }), 80L, Text.translatable("sequence.ait.increment_scale_recalculation_necessary").formatted(Formatting.ITALIC,
@@ -305,6 +323,7 @@ public class SequenceRegistry {
                     finishedTardis.travel().decreaseFlightTime(75);
                     finishedTardis.addFuel(random.nextBetween(45, 125));
                 }), (missedTardis -> {
+                    missedTardis.travel().incrementMissedCap();
                     missedTardis.removeFuel(random.nextBetween(45, 125));
                     missedTardis.travel().increaseFlightTime(150);
                 }), 80L, Text.translatable("sequence.ait.small_debris_field").formatted(Formatting.ITALIC, Formatting.YELLOW),

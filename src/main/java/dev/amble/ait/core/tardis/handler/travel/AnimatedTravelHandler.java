@@ -2,6 +2,8 @@ package dev.amble.ait.core.tardis.handler.travel;
 
 import java.util.UUID;
 
+import dev.amble.ait.data.properties.integer.IntProperty;
+import dev.amble.ait.data.properties.integer.IntValue;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -80,6 +82,7 @@ public abstract class AnimatedTravelHandler extends ProgressiveTravelHandler {
 
         dematId.of(this, DEMAT_FX);
         matId.of(this, MAT_FX);
+        missedCap.of(this, MISSED_CAP);
     }
 
     @Override
