@@ -38,7 +38,6 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
     private final IntValue missedEvents = MISSED_EVENTS.create(this);
 
-    @Exclude
     public int missedHardCap;
 
     public ProgressiveTravelHandler(Id id) {
@@ -106,7 +105,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
         this.setFlightTicks(this.isInFlight() ? MathHelper.clamp(this.getFlightTicks(), 0, this.getTargetTicks()) : 0);
         int prevCap = this.missedHardCap;
         this.missedHardCap = TravelUtil.getHardCap(this.getTargetTicks());
-        this.missedEvents.flatMap(missed -> MathHelper.floor((float) (prevCap / missed * this.missedHardCap)));
+        this.missedEvents.flatMap(missed -> MathHelper.floor((float) (missed / prevCap * this.missedHardCap)));
     }
 
     protected void startFlight() {
