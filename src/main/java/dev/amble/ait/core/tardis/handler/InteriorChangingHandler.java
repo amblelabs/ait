@@ -63,8 +63,6 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
     public static final int MAX_PLASMIC_MATERIAL_AMOUNT = 8;
     private static final Text HINT_TEXT = Text.translatable("tardis.message.growth.hint").formatted(Formatting.DARK_GRAY, Formatting.ITALIC);
 
-    private static final int EMPTY_LOCK_DELAY_TICKS = 60;
-
     private final Value<Identifier> queuedInterior = QUEUED_INTERIOR_PROPERTY.create(this);
     private static final IntProperty PLASMIC_MATERIAL_AMOUNT = new IntProperty("plasmic_material_amount");
     private final IntValue plasmicMaterialAmount = PLASMIC_MATERIAL_AMOUNT.create(this);
@@ -74,13 +72,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
     private final BoolValue regenerating = REGENERATING.create(this);
 
     @Exclude
-    private boolean countdownStarted = false;
-
-    @Exclude
     private List<ItemStack> restorationChestContents;
-
-    @Exclude
-    private int emptyInteriorTicks = 0;
 
     public InteriorChangingHandler() {
         super(Id.INTERIOR);
@@ -229,7 +221,6 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                 .thenRun(() -> {
                     this.queued.set(false);
                     this.regenerating.set(false);
-                    this.countdownStarted = false;
 
                     if (tardis.hasGrowthExterior()) {
                         TravelHandler travel = tardis.travel();
@@ -305,42 +296,36 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
     public void tick(MinecraftServer server) {
         this.tickGrowth(server);
 
-        if (!this.queued.get()) {
-            this.emptyInteriorTicks = 0;
-            this.countdownStarted = false;
+        if (!this.queued.get())
             return;
-        }
 
         if (!this.canQueue()) {
             this.queued.set(false);
             this.regenerating.set(false);
-            this.countdownStarted = false;
             tardis.alarm().disable();
             return;
         }
 
         if (!TardisUtil.isInteriorEmpty(tardis.asServer())) {
-            this.emptyInteriorTicks = 0;
-
             if (this.regenerating.get()) {
                 PlayerEntity target = TardisUtil.getAnyPlayerInsideInterior(tardis.asServer().world());
+
                 if (this.tardis().subsystems().lifeSupport().isEnabled()) {
                     TardisUtil.teleportOutside(tardis.asServer(), target);
                 } else {
                     target.damage(AITDamageTypes.of(target.getWorld(), AITDamageTypes.INTERIOR_CHANGE), Float.MAX_VALUE);
                 }
             }
+
+            TardisUtil.sendMessageToInterior(tardis.asServer(),
+                    Text.translatable("tardis.message.interiorchange.warning").formatted(Formatting.RED));
             return;
         }
 
-        this.emptyInteriorTicks++;
-
-        if (this.emptyInteriorTicks >= EMPTY_LOCK_DELAY_TICKS) {
-            this.tardis.door().setLocked(true);
-
-            if (!this.countdownStarted && !this.regenerating.get()) {
-                this.startRegeneratingCountdown();
-            }
+        if (!this.regenerating.get()) {
+            tardis.getDesktop().startQueue(true);
+            Scheduler.get().runTaskLater(this::changeInterior, TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 5);
+            this.regenerating.set(true);
         }
     }
 
@@ -361,19 +346,6 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         } else {
             this.tardis.door().setLocked(false);
         }
-    }
-
-    private ServerAlarmHandler.Countdown startRegeneratingCountdown() {
-        ServerAlarmHandler.Countdown cd = new ServerAlarmHandler.Countdown.Builder().bellTolls(15).message("tardis.message.interiorchange.regenerating").thenRun(() -> {
-            tardis.getDesktop().startQueue(true);
-            Scheduler.get().runTaskLater(this::changeInterior, TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 5);
-            this.regenerating.set(true);
-        });
-
-        this.tardis().alarm().enable(cd);
-        this.countdownStarted = true;
-
-        return cd;
     }
 
     public boolean hasEnoughPlasmicMaterial() {
