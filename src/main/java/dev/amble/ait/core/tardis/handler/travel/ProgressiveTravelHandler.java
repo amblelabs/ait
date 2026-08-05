@@ -104,8 +104,9 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     public void recalculate() {
         this.setTargetTicks(TravelUtil.getFlightDuration(this.position(), this.destination()));
         this.setFlightTicks(this.isInFlight() ? MathHelper.clamp(this.getFlightTicks(), 0, this.getTargetTicks()) : 0);
-        this.missedHardCap = TravelUtil.getHardCap(this.getTargetTicks());
-        this.missedEvents.flatMap(missed -> (int) (2d/3d * missed));
+        int hardCap = this.missedHardCap;
+        int newHardCap = this.missedHardCap = TravelUtil.getHardCap(this.getTargetTicks());
+        this.missedEvents.flatMap(missed -> MathHelper.floor((float) (hardCap / missed * newHardCap)));
     }
 
     protected void startFlight() {
