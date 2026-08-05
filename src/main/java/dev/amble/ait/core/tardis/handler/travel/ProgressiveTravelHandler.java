@@ -5,6 +5,7 @@ import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.sequences.SequenceHandler;
+import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.ait.data.properties.integer.IntProperty;
@@ -33,6 +34,12 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     protected final BoolValue handbrake = HANDBRAKE.create(this);
     protected final BoolValue autopilot = AUTOPILOT.create(this);
 
+    @Exclude(strategy = Exclude.Strategy.NETWORK)
+    private int missedEvents;
+
+    @Exclude(strategy = Exclude.Strategy.NETWORK)
+    private int missedHardCap;
+
     public ProgressiveTravelHandler(Id id) {
         super(id);
     }
@@ -46,6 +53,8 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
         handbrake.of(this, HANDBRAKE);
         autopilot.of(this, AUTOPILOT);
+
+        this.updateMissedHardCap(this.getTargetTicks());
     }
 
     private boolean isInFlight() {
@@ -97,6 +106,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     }
 
     protected void startFlight() {
+        this.resetMissed();
         this.setFlightTicks(0);
         this.setTargetTicks(TravelUtil.getFlightDuration(this.position(), this.destination()));
     }
@@ -104,6 +114,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     protected void resetFlight() {
         this.setFlightTicks(0);
         this.setTargetTicks(0);
+        this.resetMissed();
     }
 
     public int getFlightTicks() {
@@ -120,6 +131,13 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
     protected void setTargetTicks(int ticks) {
         this.targetTicks.set(ticks);
+        this.updateMissedHardCap(ticks);
+    }
+
+    private void updateMissedHardCap(int targetTicks) {
+        int newHardCap = TravelUtil.getHardCap(targetTicks);
+        this.missedEvents = TravelUtil.rescaleMissedEvents(this.missedEvents, this.missedHardCap, newHardCap);
+        this.missedHardCap = newHardCap;
     }
 
     public void handbrake(boolean value) {
@@ -221,5 +239,23 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
         if (random.nextBetween(0, (15 * maxSpeed) / this.speed()) == maxSpeed) {
             sequences.triggerRandomSequence(true);
         }
+    }
+
+    public void missEvent() {
+        if (this.getState() != State.FLIGHT || this.getTargetTicks() <= 0)
+            return;
+
+        if (this.missedHardCap <= 0)
+            this.updateMissedHardCap(this.getTargetTicks());
+
+        this.missedEvents++;
+        if (this.missedEvents >= this.missedHardCap) {
+            this.tardis().crash();
+            this.resetMissed();
+        }
+    }
+
+    public void resetMissed() {
+        this.missedEvents = 0;
     }
 }

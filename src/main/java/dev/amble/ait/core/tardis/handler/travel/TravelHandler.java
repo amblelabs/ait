@@ -595,6 +595,8 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         if (this.tardis.sequence().hasActiveSequence())
             this.tardis.sequence().cancelActiveSequence();
 
+        this.resetMissed();
+
         CachedDirectedGlobalPos initialPos = this.getProgress();
         boolean destinationHome = this.tardis.returnHome().isDestinationHome();
         boolean exactHailMaryLanding = this.tardis.returnHome().isHailMaryExactLanding();

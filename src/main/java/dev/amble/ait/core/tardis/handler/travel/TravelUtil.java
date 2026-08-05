@@ -17,6 +17,7 @@ import net.minecraft.util.math.MathHelper;
 public class TravelUtil {
 
     private static final int BASE_FLIGHT_TICKS = 5 * 20;
+    private static final int QUICK_FLIGHT_THRESHOLD = 128;
 
     public static void randomPos(Tardis tardis, int limit, int max, Consumer<CachedDirectedGlobalPos> consumer) {
         TravelHandler travel = tardis.travel();
@@ -78,7 +79,7 @@ public class TravelUtil {
         boolean hasDirChanged = source.getRotation() != destination.getRotation();
         boolean hasDimChanged = !source.getDimension().equals(destination.getDimension());
 
-        if (distance < 128 && !hasDimChanged)
+        if (distance < QUICK_FLIGHT_THRESHOLD && !hasDimChanged)
             return 1; // fast travel
 
         return (int) (BASE_FLIGHT_TICKS + (distance / 10f) + (hasDirChanged ? 100 : 0) + (hasDimChanged ? 600 : 0));
@@ -118,5 +119,21 @@ public class TravelUtil {
 
     public static CachedDirectedGlobalPos jukePos(CachedDirectedGlobalPos pos, int min, int max) {
         return jukePos(pos, min, max, 1);
+    }
+
+    public static int getHardCap(int targetTicks) {
+        if (targetTicks <= QUICK_FLIGHT_THRESHOLD) return 1;
+        return 1 + MathHelper.floor(1d / 6d * MathHelper.sqrt(targetTicks - QUICK_FLIGHT_THRESHOLD));
+    }
+
+    static int rescaleMissedEvents(int missedEvents, int previousHardCap, int newHardCap) {
+        int normalizedHardCap = Math.max(newHardCap, 1);
+        int maximumMissedEvents = normalizedHardCap - 1;
+
+        if (missedEvents <= 0) return 0;
+        if (previousHardCap <= 0) return MathHelper.clamp(missedEvents, 0, maximumMissedEvents);
+
+        long proportionalMisses = (long) missedEvents * normalizedHardCap / previousHardCap;
+        return MathHelper.clamp((int) Math.min(proportionalMisses, Integer.MAX_VALUE), 0, maximumMissedEvents);
     }
 }
