@@ -230,7 +230,6 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
         this.missedEvents += 1;
         if (this.missedEvents >= this.missedHardCap) {
             this.tardis().crash();
-            this.missedHardCap = 0;
             this.resetMissed();
         }
     }
