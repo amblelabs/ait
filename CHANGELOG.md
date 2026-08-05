@@ -185,3 +185,4 @@
 - feat: new horror-themed disc [stage_4] | by [@Loqor](https://github.com/Loqor) ([#2161](https://github.com/amblelabs/ait/pull/2161))
 - feat: new copper console model! | by [@Loqor](https://github.com/Loqor) ([#2162](https://github.com/amblelabs/ait/pull/2162))
 - fix: revert interior config back to the old one! | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#2165](https://github.com/amblelabs/ait/pull/2165))
+- feat: hard cap on missed flight events, if hit, crashes tardis | by [@Loqor](https://github.com/Loqor) ([#2173](https://github.com/amblelabs/ait/pull/2173))
