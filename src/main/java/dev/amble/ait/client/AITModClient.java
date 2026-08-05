@@ -553,6 +553,8 @@ public class AITModClient implements ClientModInitializer {
         ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
         if (tardis == null) return;
 
+        if (tardis.flight().isFlying()) return;
+
         ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
         AnimatedModel model = variant.getDoor().model();
         for (DoorBlockEntity door : BOTI.DOOR_RENDER_QUEUE) {
