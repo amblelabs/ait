@@ -97,6 +97,7 @@ public class TravelUtil {
     }
 
     public static int getHardCap(int targetTicks) {
-        return MathHelper.floor(1d/6d * MathHelper.sqrt(targetTicks - QUICK_FLIGHT_THRESHOLD));
+        if (targetTicks <= QUICK_FLIGHT_THRESHOLD) return 1;
+        return 1 + MathHelper.floor(1d/6d * MathHelper.sqrt(targetTicks - QUICK_FLIGHT_THRESHOLD));
     }
 }
