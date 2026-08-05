@@ -22,8 +22,6 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
     private static final Random random = Random.create();
 
-    private static final int MAX_MISSED_CAP = 15;
-
     private static final IntProperty FLIGHT_TICKS = new IntProperty("flight_ticks");
     private static final IntProperty TARGET_TICKS = new IntProperty("target_ticks");
 
@@ -109,7 +107,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
             this.missedHardCap = 0;
             this.clearCap();
         }
-        this.missedHardCap = TravelUtil.getHardCap(this.getTargetTicks(), MAX_MISSED_CAP);
+        this.missedHardCap = TravelUtil.getHardCap(this.getTargetTicks());
     }
 
     protected void startFlight() {

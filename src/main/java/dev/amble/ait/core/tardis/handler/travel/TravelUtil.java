@@ -95,8 +95,7 @@ public class TravelUtil {
         return jukePos(pos, min, max, 1);
     }
 
-    public static int getHardCap(int targetTicks, int max) {
-        int scaled = 3 + ((targetTicks - 100) * (max - 3)) / (3000 - 100);
-        return MathHelper.clamp(scaled, 3, max);
+    public static int getHardCap(int targetTicks) {
+        return MathHelper.floor(1d/6d * MathHelper.sqrt(targetTicks - 100));
     }
 }
