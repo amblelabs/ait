@@ -1,6 +1,6 @@
 {
   "replace": false,
   "values": [
-    "ait:*"
+    "ait:control_entity"
   ]
 }
