@@ -1,7 +1,6 @@
 {
   "replace": false,
   "values": [
-    "ait:astral_map",
     "ait:console",
     "ait:environment_projector",
     "ait:waypoint_bank",
@@ -11,7 +10,9 @@
     "ait:exterior_block",
     "ait:door_block",
     "ait:plaque_block",
+    "ait:wall_monitor_block",
     "ait:monitor_block",
-    "ait:monitor_block"
+    "ait:generic_subsystem",
+    "ait:detector_block"
   ]
 }
