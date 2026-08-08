@@ -2,6 +2,7 @@ package dev.amble.ait.core.entities;
 
 import java.util.List;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.sound.SoundEvent;
 import org.jetbrains.annotations.Nullable;
@@ -20,6 +21,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Arm;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
@@ -49,9 +52,11 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     private int landedTicks = 0;
 
+    private boolean prevHorizontalCollision = false;
+    private boolean prevUpwardCollision = false;
+
     public FlightTardisEntity(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
-
         this.setInvulnerable(true);
     }
 
@@ -98,6 +103,19 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     public void tick() {
         this.setRotation(0, 0);
         super.tick();
+
+        if (!this.getWorld().isClient()) {
+            boolean upwardCollision = this.verticalCollision && !this.isOnGround();
+
+            if (this.horizontalCollision && !this.prevHorizontalCollision) {
+                this.playCollisionSound(true);
+            } else if (upwardCollision && !this.prevUpwardCollision) {
+                this.playCollisionSound(false);
+            }
+
+            this.prevHorizontalCollision = this.horizontalCollision;
+            this.prevUpwardCollision = upwardCollision;
+        }
 
         PlayerEntity player = this.getPlayer();
 
@@ -148,6 +166,30 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
                 this.finishLand(tardis, player);
         } else {
             this.landedTicks = 0;
+        }
+    }
+
+    private void playCollisionSound(boolean horizontal) {
+        Box box = this.getBoundingBox();
+
+        if (horizontal) {
+            box = box.expand(0.2, 0, 0.2);
+        } else {
+            box = box.expand(0, 0.2, 0).offset(0, 0.2, 0);
+        }
+
+        Iterable<BlockPos> blocks = BlockPos.iterate(
+                MathHelper.floor(box.minX), MathHelper.floor(box.minY), MathHelper.floor(box.minZ),
+                MathHelper.ceil(box.maxX), MathHelper.ceil(box.maxY), MathHelper.ceil(box.maxZ)
+        );
+
+        for (BlockPos pos : blocks) {
+            BlockState state = this.getWorld().getBlockState(pos);
+            if (!state.isAir() && !state.isLiquid()) {
+                SoundEvent stepSound = state.getSoundGroup().getStepSound();
+                this.getWorld().playSound(null, this.getBlockPos(), stepSound, SoundCategory.BLOCKS, 3.0F, 1.0F / (AITMod.RANDOM.nextFloat() * 0.4F + 0.8F));
+                break;
+            }
         }
     }
 
@@ -251,7 +293,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
         double v = ((LivingEntityAccessor) controllingPlayer).getJumping() ? speedVal :
                 controllingPlayer.isSneaking() ? -speedVal :
-                        canFall ? 0.0f : f > 0 || g > 0 ? -0.5f : -2f;
+                canFall ? 0.0f : f > 0 || g > 0 ? -0.5f : -2f;
 
         if (v < 0 && this.isOnGround())
             return Vec3d.ZERO.add(0, -0.4f, 0);
