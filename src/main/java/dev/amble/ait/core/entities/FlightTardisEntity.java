@@ -185,7 +185,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         float threshold = (float) DurableSubSystem.MAX_DURABILITY / 4;
 
         if (durability < threshold && tardis.travel().speed() > 0) {
-            int chance = Math.max(10, (int)(durability * 100));
+            int chance = Math.max(10, (int)(durability));
 
             if (AITMod.RANDOM.nextInt(chance) == 0) {
                 double forceScale = 0.5 + ((threshold - durability) * 4.0);

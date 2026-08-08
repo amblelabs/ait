@@ -36,7 +36,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
     @Override
     public void render(FlightTardisEntity entity, float yaw, float tickDelta, MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers, int light) {
+                       VertexConsumerProvider vertexConsumers, int light) {
         if (!entity.isLinked())
             return;
 
