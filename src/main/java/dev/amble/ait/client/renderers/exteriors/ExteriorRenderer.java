@@ -1,6 +1,7 @@
 package dev.amble.ait.client.renderers.exteriors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.ait.client.AITModClient;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -82,7 +83,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
         if (!tardis.travel().isLanded() || tardis.siege().isActive()) return;
 
-        if (variant.parent().hasPortals()) BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
+        if (variant.parent().hasPortals() || !AITModClient.skipBuiltInBOTI()) BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
     }
 
     private boolean awesomeIPEmissionHack(Tardis tardis) {
@@ -239,8 +240,6 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             float blue = alarms
                     ? !power ? 0.01f : 0.3f
                     : u - colorAlpha;
-
-            //System.out.println(emission);
 
            model.renderWithAnimations(tardis, entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)),
                    0xF000F0, OverlayTexture.DEFAULT_UV, red, green, blue, alpha, tickDelta);

@@ -54,11 +54,6 @@ import dev.amble.lib.data.DirectedBlockPos;
 import dev.amble.lib.data.DirectedGlobalPos;
 
 public abstract class TardisManager<T extends Tardis, C> {
-
-    public static final Identifier SEND_PROPERTY = AITMod.id("send_property");
-
-    public static final Identifier ASK = AITMod.id("ask_tardis");
-
     public static final Identifier SEND = AITMod.id("tardis/send");
     public static final Identifier SEND_BULK = AITMod.id("tardis/send_bulk");
 

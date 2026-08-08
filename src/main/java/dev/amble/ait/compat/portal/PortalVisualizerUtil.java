@@ -8,6 +8,8 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix4f;
 import qouteall.imm_ptl.core.CHelper;
 import qouteall.imm_ptl.core.ClientWorldLoader;
@@ -141,7 +143,7 @@ public class PortalVisualizerUtil {
 
             context.drawTexture(TEXTURE, left, top, 0, 0, bgWidth, bgHeight);
 
-            double t1 = CHelper.getSmoothCycles(503);
+            double t1 = delta + MinecraftClient.getInstance().player.age;
 
             // Determine the camera transformation
             Matrix4f cameraTransformation = new Matrix4f();
@@ -149,7 +151,7 @@ public class PortalVisualizerUtil {
             cameraTransformation.mul(
                     DQuaternion.rotationByDegrees(
                             new Vec3d(0, 1, 0).normalize(),
-                            t1 * 360
+                            MathHelper.wrapDegrees(t1)
                     ).toMatrix()
             );
 

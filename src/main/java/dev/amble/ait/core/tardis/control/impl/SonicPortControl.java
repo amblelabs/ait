@@ -1,5 +1,6 @@
 package dev.amble.ait.core.tardis.control.impl;
 
+import dev.amble.ait.core.engine.SubSystem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -30,15 +31,18 @@ public class SonicPortControl extends Control {
     @Override
     public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
         super.runServer(tardis, player, world, console, leftClick);
-        ButlerHandler butler = tardis.butler();
 
+        ButlerHandler butler = tardis.butler();
         if (!(world.getBlockEntity(console) instanceof ConsoleBlockEntity consoleBlockEntity)) return Result.FAILURE;
 
-        if ((leftClick || player.isSneaking()) && ((consoleBlockEntity.getSonicScrewdriver() != null || !consoleBlockEntity.getSonicScrewdriver().isEmpty()) || butler.getHandles() != null)) {
-            ItemStack item;
+        boolean hasSonicStored = !consoleBlockEntity.getSonicScrewdriver().isEmpty();
+        boolean hasHandlesStored = butler.getHandles() != null;
 
-            if (consoleBlockEntity.getSonicScrewdriver() != null && !consoleBlockEntity.getSonicScrewdriver().isEmpty()) {
+        if ((leftClick || player.isSneaking()) && (hasSonicStored || hasHandlesStored)) {
+            ItemStack item;
+            if (hasSonicStored) {
                 item = consoleBlockEntity.getSonicScrewdriver();
+                consoleBlockEntity.setSonicScrewdriver(ItemStack.EMPTY);
             } else {
                 item = butler.takeHandles();
             }
@@ -47,35 +51,36 @@ public class SonicPortControl extends Control {
                 return Result.FAILURE;
 
             player.getInventory().offerOrDrop(item);
-            consoleBlockEntity.setSonicScrewdriver(ItemStack.EMPTY);
             return Result.SUCCESS;
         }
 
         ItemStack stack = player.getMainHandStack();
-
         if (!((stack.getItem() instanceof SonicItem) || (stack.getItem() instanceof HandlesItem)))
             return Result.FAILURE;
 
         LinkableItem linker = (LinkableItem) stack.getItem();
-
         if (!linker.isLinked(stack) || player.isSneaking()) {
             linker.link(stack, tardis);
             world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_AMETHYST_BLOCK_RESONATE, SoundCategory.BLOCKS,
                     1.0F, 1.0F);
-
             SequenceHandler.spawnControlParticles(world, Vec3d.ofBottomCenter(console).add(0.0, 1.2f, 0.0));
         }
 
-        if (consoleBlockEntity.getSonicScrewdriver().isEmpty() && stack.getItem() instanceof HandlesItem) {
+        if (stack.getItem() instanceof HandlesItem) {
+            if (hasHandlesStored || hasSonicStored)
+                return Result.FAILURE;
+
             butler.insertHandles(stack, console);
             player.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
-        } else if (butler.getHandles() == null && stack.getItem() instanceof SonicItem) {
+        } else if (stack.getItem() instanceof SonicItem) {
+            if (hasSonicStored || hasHandlesStored)
+                return Result.FAILURE;
+
             consoleBlockEntity.setSonicScrewdriver(stack);
             player.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
         }
 
-        boolean hasSonic = (consoleBlockEntity.getSonicScrewdriver() != null && consoleBlockEntity.getSonicScrewdriver().isEmpty()) || butler.getHandles() != null;
-
+        boolean hasSonic = !consoleBlockEntity.getSonicScrewdriver().isEmpty() || butler.getHandles() != null;
         return hasSonic ? Result.SUCCESS : Result.SUCCESS_ALT;
     }
 
@@ -87,5 +92,10 @@ public class SonicPortControl extends Control {
     @Override
     public boolean requiresPower() {
         return false;
+    }
+
+    @Override
+    protected SubSystem.IdLike requiredSubSystem() {
+        return null;
     }
 }

@@ -16,6 +16,7 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
 public class TravelUtil {
 
     private static final int BASE_FLIGHT_TICKS = 5 * 20;
+    private static final int QUICK_FLIGHT_THRESHOLD = 128;
 
     public static void randomPos(Tardis tardis, int limit, int max, Consumer<CachedDirectedGlobalPos> consumer) {
         TravelHandler travel = tardis.travel();
@@ -73,8 +74,12 @@ public class TravelUtil {
 
     public static int getFlightDuration(CachedDirectedGlobalPos source, CachedDirectedGlobalPos destination) {
         float distance = MathHelper.sqrt((float) source.getPos().getSquaredDistance(destination.getPos()));
-        boolean hasDirChanged = !(source.getRotation() == destination.getRotation());
-        boolean hasDimChanged = !(source.getDimension().equals(destination.getDimension()));
+
+        boolean hasDirChanged = source.getRotation() != destination.getRotation();
+        boolean hasDimChanged = !source.getDimension().equals(destination.getDimension());
+        
+        if (distance < QUICK_FLIGHT_THRESHOLD && !hasDimChanged)
+            return 1; // fast travel
 
         return (int) (BASE_FLIGHT_TICKS + (distance / 10f) + (hasDirChanged ? 100 : 0) + (hasDimChanged ? 600 : 0));
     }
@@ -89,5 +94,10 @@ public class TravelUtil {
 
     public static CachedDirectedGlobalPos jukePos(CachedDirectedGlobalPos pos, int min, int max) {
         return jukePos(pos, min, max, 1);
+    }
+
+    public static int getHardCap(int targetTicks) {
+        if (targetTicks <= QUICK_FLIGHT_THRESHOLD) return 1;
+        return 1 + MathHelper.floor(1d/6d * MathHelper.sqrt(targetTicks - QUICK_FLIGHT_THRESHOLD));
     }
 }

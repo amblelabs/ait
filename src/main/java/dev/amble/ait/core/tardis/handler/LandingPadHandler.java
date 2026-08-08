@@ -1,6 +1,10 @@
 package dev.amble.ait.core.tardis.handler;
 
 
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.server.world.ServerWorld;
@@ -24,6 +28,9 @@ import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class LandingPadHandler extends KeyedTardisComponent {
+
+    public static final Identifier LANDING_CODE = AITMod.id("landing_code");
+
     public static final Property<String> CODE = new Property<>(Property.STR, "code", "");
     private final Value<String> code = LandingPadHandler.CODE.create(this);
     @Exclude
@@ -45,6 +52,15 @@ public class LandingPadHandler extends KeyedTardisComponent {
 
             return TardisEvents.Interaction.PASS;
         });
+
+        ServerPlayNetworking.registerGlobalReceiver(LANDING_CODE, ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
+            if (tardis == null)
+                return;
+
+            String input = buf.readString();
+
+            tardis.landingPad().code().set(input);
+        })));
     }
 
     public LandingPadHandler() {

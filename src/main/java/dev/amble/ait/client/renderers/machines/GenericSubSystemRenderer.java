@@ -38,21 +38,18 @@ public class GenericSubSystemRenderer<T extends GenericStructureSystemBlockEntit
         ModelPart wires = this.model.getPart().getChild("wires");
         wires.visible = hasStack;
 
-        this.model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(GenericSubSystemModel.TEXTURE)),
-                light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
-
         if (hasStack) {
             matrices.push();
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180));
             double offset = Math.sin((entity.getWorld().getTime() + tickDelta) / 8.0) / 18.0;
 
-            matrices.translate(0, -1.15f + (offset / 2), 0);
+            matrices.translate(0, -0.95f + (offset / 2), 0);
 
             Vector3f scale = client.getItemRenderer().getModel(stack, entity.getWorld(), null, 0).getTransformation().firstPersonRightHand.scale;
             matrices.scale(0.9f, 0.9f, 0.9f);
             matrices.scale(scale.x, scale.y, scale.z);
 
-            client.getItemRenderer().renderItem(stack, ModelTransformationMode.GROUND, light,
+            client.getItemRenderer().renderItem(stack, ModelTransformationMode.GROUND, 0xf000f0,
                     overlay, matrices, vertexConsumers, entity.getWorld(), 0);
             matrices.pop();
         }

@@ -66,7 +66,6 @@ public class TardisUtil {
     public static final Identifier SNAP = AITMod.id("snap");
     public static final Identifier FLYING_SPEED = AITMod.id("flying_speed");
     public static final Identifier TOGGLE_ANTIGRAVS = AITMod.id("toggle_antigravs");
-    public static final Identifier FIND_PLAYER = AITMod.id("find_player");
     public static final ExplosionBehavior EXPLOSION_BEHAVIOR = new ExplosionBehavior() {
         @Override
         public boolean canDestroyBlock(Explosion explosion, BlockView world, BlockPos pos, BlockState state, float power) {
@@ -156,30 +155,6 @@ public class TardisUtil {
                 tardis.travel().antigravs().toggle();
             });
         });
-
-        ServerPlayNetworking.registerGlobalReceiver(FIND_PLAYER,
-                (server, currentPlayer, handler, buf, responseSender) -> {
-                    UUID tardisId = buf.readUuid();
-                    UUID playerUuid = buf.readUuid();
-
-                    ServerTardisManager.getInstance().getTardis(server, tardisId, tardis -> {
-                        ServerPlayerEntity serverPlayer = server.getPlayerManager().getPlayer(playerUuid);
-
-                        if (serverPlayer == null) {
-                            tardis.getDesktop().playSoundAtEveryConsole(SoundEvents.BLOCK_SCULK_SHRIEKER_BREAK,
-                                    SoundCategory.BLOCKS, 3f, 1f);
-                            return;
-                        }
-
-                        tardis.travel()
-                                .forceDestination(CachedDirectedGlobalPos.create((ServerWorld) serverPlayer.getWorld(),
-                                        serverPlayer.getBlockPos(),
-                                        (byte) RotationPropertyHelper.fromYaw(serverPlayer.getBodyYaw())));
-
-                        tardis.getDesktop().playSoundAtEveryConsole(SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME,
-                                SoundCategory.BLOCKS, 3f, 1f);
-                    });
-                });
     }
 
     public static boolean inBox(Box a, Box b) {

@@ -10,6 +10,9 @@ import java.util.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.joml.Vector3f;
 
 import net.minecraft.registry.RegistryKey;
@@ -41,6 +44,10 @@ import dev.amble.lib.register.unlockable.Unlockable;
 import dev.amble.lib.util.ServerLifecycleHooks;
 
 public class StatsHandler extends KeyedTardisComponent {
+
+    public static final Identifier SHOULD_RECEIVE_CALLS = AITMod.id("should_receive_calls");
+    public static final Identifier FLIGHT_SOUND_PACKET = AITMod.id("flight_sound_packet");
+    public static final Identifier VORTEX_PACKET = AITMod.id("vortex_packet");
 
     private static final Identifier NAME_PATH = AITMod.id("tardis_names.json");
     private static List<String> NAME_CACHE;
@@ -89,6 +96,34 @@ public class StatsHandler extends KeyedTardisComponent {
     private Lazy<FlightSound> flightFxCache;
     @Exclude
     private Lazy<VortexReference> vortexFxCache;
+
+    static {
+        ServerPlayNetworking.registerGlobalReceiver(VORTEX_PACKET, ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
+            Identifier id = buf.readIdentifier();
+
+            if (tardis == null || id == null)
+                return;
+
+            tardis.stats().setVortexEffects(id);
+        })));
+
+        ServerPlayNetworking.registerGlobalReceiver(FLIGHT_SOUND_PACKET, ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
+            Identifier id = buf.readIdentifier();
+
+            if (tardis == null || id == null)
+                return;
+
+            tardis.stats().setFlightEffects(id);
+        })));
+
+        ServerPlayNetworking.registerGlobalReceiver(SHOULD_RECEIVE_CALLS, ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
+            boolean bool = buf.readBoolean();
+
+            if (tardis == null) return;
+
+            tardis.stats().receiveCalls().set(bool);
+        })));
+    }
 
     public StatsHandler() {
         super(Id.STATS);
@@ -271,7 +306,6 @@ public class StatsHandler extends KeyedTardisComponent {
         // parse a Date from the dateCreated, and add to the hours the difference between this time zone and the time zone stored in the dateTimeZone
         try {
             Instant instant = Instant.ofEpochSecond(dateCreated.get());
-            //System.out.println(Instant.now().getEpochSecond());
             TimeZone timeZone = TimeZone.getTimeZone(dateTimeZone.get());
             Calendar calendar = Calendar.getInstance(timeZone);
             calendar.setTimeInMillis(instant.toEpochMilli());
@@ -361,15 +395,15 @@ public class StatsHandler extends KeyedTardisComponent {
         return VortexReferenceRegistry.getInstance().getOrFallback(this.vortexId.get());
     }
 
-    public void setVortexEffects(VortexReference current) {
-        this.vortexId.set(current.id());
+    public void setVortexEffects(Identifier current) {
+        this.vortexId.set(current);
 
         if (this.vortexFxCache != null)
             this.vortexFxCache.invalidate();
     }
 
-    public void setFlightEffects(FlightSound current) {
-        this.flightId.set(current.id());
+    public void setFlightEffects(Identifier current) {
+        this.flightId.set(current);
 
         if (this.flightFxCache != null)
             this.flightFxCache.invalidate();

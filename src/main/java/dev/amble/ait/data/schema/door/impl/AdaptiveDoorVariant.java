@@ -34,6 +34,6 @@ public class AdaptiveDoorVariant extends DoorSchema {
 
     @Override
     public @Nullable Vec3d getPortalPosition() {
-        return new Vec3d(0, 0.125, -0.5);
+        return new Vec3d(0, 0.125, -0.45);
     }
 }

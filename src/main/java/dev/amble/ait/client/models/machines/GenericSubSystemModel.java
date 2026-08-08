@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 import dev.amble.ait.AITMod;
 
 public class GenericSubSystemModel extends SinglePartEntityModel {
-    public static final Identifier TEXTURE = AITMod.id("textures/blockentities/machines/subsystem.png");
+    public static final Identifier TEXTURE = AITMod.id("textures/blockentities/machines/generic_subsystem.png");
 
     private final ModelPart box;
 

@@ -195,6 +195,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     public ActionResult interact(PlayerEntity player, Hand hand) {
         ItemStack handStack = player.getStackInHand(hand);
 
+        if (handStack.isOf(AITItems.REPAIR_TOOL) && this.getDurability() < MAX_DURABILITY) {
+            return ActionResult.PASS;
+        }
+
         if (player.getOffHandStack().isOf(Items.COMMAND_BLOCK)) {
             controlEditorHandler(player);
             return ActionResult.SUCCESS;

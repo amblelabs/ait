@@ -38,7 +38,8 @@ public class AITItemTagProvider extends FabricTagProvider<Item> {
                 .add(AITItems.AIT_THEME_MUSIC_DISC)
                 .add(AITItems.EARTH_MUSIC_DISC)
                 .add(AITItems.VENUS_MUSIC_DISC)
-                .add(AITItems.CRASH_MUSIC_DISC);
+                .add(AITItems.CRASH_MUSIC_DISC)
+                .add(AITItems.STAGE_4_MUSIC_DISC);
 
         getOrCreateTagBuilder(AITTags.Items.CLUSTER_MAX_HARVESTABLES).add(AITItems.ZEITON_SHARD);
 

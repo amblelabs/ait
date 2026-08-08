@@ -33,6 +33,9 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     protected final BoolValue handbrake = HANDBRAKE.create(this);
     protected final BoolValue autopilot = AUTOPILOT.create(this);
 
+    private int missedEvents;
+    private int missedHardCap;
+
     public ProgressiveTravelHandler(Id id) {
         super(id);
     }
@@ -94,6 +97,9 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     public void recalculate() {
         this.setTargetTicks(TravelUtil.getFlightDuration(this.position(), this.destination()));
         this.setFlightTicks(this.isInFlight() ? MathHelper.clamp(this.getFlightTicks(), 0, this.getTargetTicks()) : 0);
+        int prevCap = this.missedHardCap;
+        this.missedHardCap = TravelUtil.getHardCap(this.getTargetTicks());
+        this.missedEvents = MathHelper.floor((float) (this.missedEvents / prevCap * this.missedHardCap));
     }
 
     protected void startFlight() {
@@ -157,7 +163,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
     @Override
     protected int clampSpeed(int value) {
-        int max = this.autopilot() ? 4 : this.maxSpeed.get();
+        int max = this.autopilot() ? AITMod.CONFIG.maxStabilizedSpeed : this.maxSpeed.get();
         if (!this.tardis.subsystems().stabilisers().isEnabled()) max = 3;
 
         return MathHelper.clamp(value, 0, max);
@@ -217,5 +223,17 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
         if (random.nextBetween(0, (15 * maxSpeed) / this.speed()) == maxSpeed) {
             sequences.triggerRandomSequence(true);
         }
+    }
+
+    public void missEvent() {
+        this.missedEvents += 1;
+        if (this.missedEvents >= this.missedHardCap) {
+            this.tardis().crash();
+            this.resetMissed();
+        }
+    }
+
+    public void resetMissed() {
+        this.missedEvents = 0;
     }
 }

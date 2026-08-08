@@ -18,7 +18,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.handles.HandlesResponse;
 import dev.amble.ait.core.handles.HandlesSound;
@@ -67,7 +66,7 @@ public class HandlesResponseRegistry {
             }
         }
 
-        if (closest != null && minDistance <= AITModClient.CONFIG.handlesLevenshteinDistance) {
+        if (closest != null && minDistance <= AITMod.CONFIG.handlesLevenshteinDistance) {
             return closest;
         }
 

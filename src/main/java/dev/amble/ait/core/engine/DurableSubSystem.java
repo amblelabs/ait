@@ -72,10 +72,6 @@ public abstract class DurableSubSystem extends SubSystem {
     protected abstract float cost();
     protected abstract boolean shouldDurabilityChange();
 
-    public boolean isRepairItem(ItemStack stack) {
-        return stack.getItem() instanceof RepairToolItem;
-    }
-
     @Override
     public void tick() {
         super.tick();

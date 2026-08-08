@@ -3,6 +3,7 @@ package dev.amble.ait.registry.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.plushies.PlushieBlocks;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 
 import net.minecraft.entity.EntityType;
@@ -200,8 +201,11 @@ public class SequenceRegistry {
                     ItemEntity rewardForCloaking = new ItemEntity(EntityType.ITEM, world);
                     rewardForCloaking.setPosition(doorPos.toCenterPos());
 
-                    rewardForCloaking.setStack(
-                            random.nextBoolean() ? Items.COOKIE.getDefaultStack() : Items.POPPY.getDefaultStack());
+                    rewardForCloaking.setStack(switch (random.nextInt(3)) {
+                        case 0 -> Items.COOKIE.getDefaultStack();
+                        case 1 -> Items.POPPY.getDefaultStack();
+                        default -> PlushieBlocks.GIFT_BOX.asItem().getDefaultStack();
+                    });
                     world.spawnEntity(rewardForCloaking);
                 }), (missedTardis -> {
                     DirectedBlockPos directedDoorPos = missedTardis.getDesktop().getDoorPos();

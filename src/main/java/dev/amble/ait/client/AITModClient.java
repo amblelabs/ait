@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
+import dev.amble.ait.client.overlays.*;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -58,10 +59,6 @@ import dev.amble.ait.client.models.decoration.PaintingFrameModel;
 import dev.amble.ait.client.models.decoration.RiftModel;
 import dev.amble.ait.client.models.decoration.TrenzalorePaintingModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
-import dev.amble.ait.client.overlays.ExteriorAxeOverlay;
-import dev.amble.ait.client.overlays.FabricatorOverlay;
-import dev.amble.ait.client.overlays.RWFOverlay;
-import dev.amble.ait.client.overlays.SonicOverlay;
 import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.client.renderers.TardisStar;
 import dev.amble.ait.client.renderers.consoles.ConsoleGeneratorRenderer;
@@ -157,6 +154,7 @@ public class AITModClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register(new RWFOverlay());
         HudRenderCallback.EVENT.register(new FabricatorOverlay());
         HudRenderCallback.EVENT.register(new ExteriorAxeOverlay());
+        HudRenderCallback.EVENT.register(new UntemperedSchismOverlay());
 
         ClientPreAttackCallback.EVENT.register((client, player, clickCount) -> (player.getMainHandStack().getItem() instanceof BaseGunItem));
 
@@ -434,7 +432,7 @@ public class AITModClient implements ClientModInitializer {
                 FoodMachineRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ASTRAL_MAP, AstralMapRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.POTTED_SONIC_SCREWDRIVER_BLOCK_ENTITY_TYPE, PottedSonicScrewdriverRenderer::new);
-        BlockEntityRendererFactories.register(AITBlockEntityTypes.RIFT_RIPPER_BLOCK_ENTITY_TYPE, RiftRipperRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.RIFT_RIPPER_BLOCK_ENTITY_TYPE, UntemperedSchismRenderer::new);
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             BlockEntityRendererFactories.register(AITBlockEntityTypes.SNOW_GLOBE_BLOCK_ENTITY_TYPE,
                     SnowGlobeRenderer::new);
@@ -475,7 +473,7 @@ public class AITModClient implements ClientModInitializer {
         map.putBlock(AITBlocks.TARDIS_CORAL_FENCE, RenderLayer.getCutout());
         map.putBlock(AITBlocks.TARDIS_CORAL_LEAVES, RenderLayer.getCutout());
         map.putBlock(AITBlocks.MATRIX_ENERGIZER, RenderLayer.getCutout());
-        map.putBlock(AITBlocks.GENERIC_SUBSYSTEM, RenderLayer.getTranslucent());
+        map.putBlock(AITBlocks.GENERIC_SUBSYSTEM, RenderLayer.getCutout());
         map.putBlock(AITBlocks.POTTED_SONIC_SCREWDRIVER, RenderLayer.getCutout());
     }
 
@@ -505,11 +503,11 @@ public class AITModClient implements ClientModInitializer {
         ParticleFactoryRegistry.getInstance().register(CORAL_PARTICLE, EndRodParticle.Factory::new);
     }
 
-    private boolean skipBuiltInBOTI() {
+    public static boolean skipBuiltInBOTI() {
         return (DependencyChecker.hasPortals() && CONFIG.allowPortalsBoti) || !CONFIG.enableTardisBOTI;
     }
 
-    private boolean skipPaintingBOTI() {
+    public static boolean skipPaintingBOTI() {
         return DependencyChecker.hasPortals() || !CONFIG.enableTardisBOTI;
     }
 
@@ -648,11 +646,9 @@ public class AITModClient implements ClientModInitializer {
             stack.push();
             stack.translate(pos.getX() - context.camera().getPos().getX(),
                     pos.getY() - context.camera().getPos().getY(), pos.getZ() - context.camera().getPos().getZ());
-            stack.translate(0, 0.5, 0);
-            stack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(5f * (MinecraftClient.getInstance().player.age + MinecraftClient.getInstance().getTickDelta())));
+            stack.translate(0, 1.5f, 0);
+            stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rift.getYaw()));
             stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(rift.getPitch()));
-            stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rift.getBodyYaw()));
-            stack.translate(0, 1f, 0);
             RiftModel riftModel = new RiftModel(RiftModel.getTexturedModelData().createModel());
             BlockPos blockPos = BlockPos.ofFloored(rift.getClientCameraPosVec(client.getTickDelta()));
             RiftBOTI.renderRiftBoti(stack, riftModel, LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, blockPos), world.getLightLevel(LightType.SKY, blockPos)));

@@ -135,8 +135,6 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
                 world.addParticle(AITMod.CORAL_PARTICLE, centre.getX(), centre.getY() - 0.65f, centre.getZ(), offsetX, offsetY, offsetZ);
                 world.addParticle(ParticleTypes.SCULK_SOUL, centre.getX(), centre.getY() - 0.65f, centre.getZ(), offsetX, offsetY, offsetZ);
                 world.addParticle(ParticleTypes.SOUL_FIRE_FLAME, centre.getX(), centre.getY() - 0.65f, centre.getZ(), offsetX, offsetY, offsetZ);
-
-
             }
         }
     }
@@ -152,29 +150,27 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
         shriekerShrieks(state, world, pos);
     }
 
-    public void shriekerShrieks(BlockState thisState, World world, BlockPos pos) {
-        if (world.isClient()) return;
-        if (!(world.getBlockState(pos.down()).getBlock() instanceof SculkShriekerBlock) || !world.getBlockState(pos.down())
-                .get(SculkShriekerBlock.CAN_SUMMON)) {
-            return;
-        }
+    public void shriekerShrieks(BlockState state, World world, BlockPos pos) {
+        if (!(world instanceof ServerWorld serverWorld)) return;
+        if (!hasPower(state)) return;
 
-        if (!world.getBlockState(pos.down()).get(SculkShriekerBlock.SHRIEKING)) {
+        BlockState shriekerState = world.getBlockState(pos.down());
+        
+        if (!(shriekerState.getBlock() instanceof SculkShriekerBlock))
             return;
-        }
 
-        if (!hasPower(world.getBlockState(pos))) return;
-        BlockEntity be = world.getBlockEntity(pos);
-        BlockState state = world.getBlockState(pos.down());
-        if (be instanceof MatrixEnergizerBlockEntity mbe) {
-            if (mbe.getVibrationCallback().accepts((ServerWorld) world, pos, GameEvent.SHRIEK, GameEvent.Emitter.of(thisState))) {
-                mbe.getEventListener().forceListen((ServerWorld) world, GameEvent.SHRIEK, GameEvent.Emitter.of(state),
-                        new Vec3d(pos.down().getX(), pos.down().getY(), pos.down().getZ()));
-                int i = this.getAge(thisState);
+        if (!shriekerState.get(SculkShriekerBlock.CAN_SUMMON) || !shriekerState.get(SculkShriekerBlock.SHRIEKING))
+            return;
+
+        if (world.getBlockEntity(pos) instanceof MatrixEnergizerBlockEntity mbe) {
+            if (mbe.getVibrationCallback().accepts(serverWorld, pos, GameEvent.SHRIEK, GameEvent.Emitter.of(state))) {
+                mbe.getEventListener().forceListen(serverWorld, GameEvent.SHRIEK, GameEvent.Emitter.of(state), pos.down().toCenterPos());
+                int i = this.getAge(state);
+                
                 if (i < this.getMaxAge()) {
-                    world.setBlockState(pos, thisState.with(AGE, i + 1), 2);
+                    world.setBlockState(pos, state.with(AGE, i + 1), 2);
                 } else {
-                    tryCreate(world, pos, thisState);
+                    tryCreate(world, pos, state);
                 }
             }
         }
@@ -214,6 +210,7 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
 
         return false;
     }
+
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
             ItemStack itemStack) {
