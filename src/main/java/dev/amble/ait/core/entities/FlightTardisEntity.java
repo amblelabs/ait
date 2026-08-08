@@ -2,9 +2,15 @@ package dev.amble.ait.core.entities;
 
 import java.util.List;
 
+import dev.amble.ait.core.engine.DurableSubSystem;
+import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.engine.impl.GravitationalCircuit;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.MinecraftClient;
@@ -148,6 +154,8 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
         tardis.flight().tickFlight((ServerPlayerEntity) player, this.getBlockPos());
 
+        this.applyGravCircuitDamageEffects(tardis);
+
         if (tardis.door().isOpen()) {
             this.getWorld().getOtherEntities(this, this.getBoundingBox(), entity
                     -> !entity.isSpectator() && entity != player && entity instanceof LivingEntity).forEach(
@@ -166,6 +174,43 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
                 this.finishLand(tardis, player);
         } else {
             this.landedTicks = 0;
+        }
+    }
+
+    private void applyGravCircuitDamageEffects(Tardis tardis) {
+        if (this.getWorld().isClient()) return;
+
+        float durability = tardis.subsystems().<GravitationalCircuit>get(SubSystem.Id.GRAVITATIONAL).durability();
+
+        float threshold = (float) DurableSubSystem.MAX_DURABILITY / 4;
+
+        if (durability < threshold && tardis.travel().speed() > 0) {
+            int chance = Math.max(10, (int)(durability * 100));
+
+            if (AITMod.RANDOM.nextInt(chance) == 0) {
+                double forceScale = 0.5 + ((threshold - durability) * 4.0);
+
+                Vec3d fling = new Vec3d(
+                        (AITMod.RANDOM.nextDouble() - 0.5) * 2.0,
+                        (AITMod.RANDOM.nextDouble() - 0.5) * 2.0,
+                        (AITMod.RANDOM.nextDouble() - 0.5) * 2.0
+                ).normalize().multiply(forceScale);
+
+                this.addVelocity(fling.x, fling.y, fling.z);
+                this.velocityModified = true;
+
+                tardis.alarm().enable();
+
+                ServerWorld serverWorld = (ServerWorld) this.getWorld();
+                double x = this.getX();
+                double y = this.getY() + (this.getHeight() / 2.0);
+                double z = this.getZ();
+
+                serverWorld.spawnParticles(ParticleTypes.LARGE_SMOKE, x, y, z, 15, 0.5, 0.5, 0.5, 0.05);
+                serverWorld.spawnParticles(ParticleTypes.ELECTRIC_SPARK, x, y, z, 10, 0.5, 0.5, 0.5, 0.2);
+
+                this.getWorld().playSound(null, this.getBlockPos(), SoundEvents.BLOCK_REDSTONE_TORCH_BURNOUT, SoundCategory.BLOCKS, 2.0F, 0.5F + AITMod.RANDOM.nextFloat());
+            }
         }
     }
 
