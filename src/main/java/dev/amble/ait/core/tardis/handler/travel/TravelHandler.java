@@ -478,6 +478,8 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         if (this.tardis.sequence().hasActiveSequence())
             this.tardis.sequence().setActiveSequence(null, true);
 
+        this.resetMissed(); // resets missed flight events
+
         CachedDirectedGlobalPos initialPos = this.getProgress();
         TardisEvents.Result<CachedDirectedGlobalPos> result = TardisEvents.BEFORE_LAND.invoker()
                 .onLanded(this.tardis, initialPos);
