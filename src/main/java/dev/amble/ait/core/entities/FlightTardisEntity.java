@@ -18,6 +18,9 @@ import net.minecraft.client.option.Perspective;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -52,6 +55,9 @@ import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class FlightTardisEntity extends LinkableLivingEntity implements JumpingMount {
+
+    private static final TrackedData<Boolean> PHASING = DataTracker.registerData(
+            FlightTardisEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
     private static final List<ItemStack> EMPTY = List.of();
     private static final ItemStack AIR = new ItemStack(Items.AIR);
@@ -116,6 +122,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     public void tick() {
         this.setRotation(0, 0);
         super.tick();
+        this.noClip = this.isPhasing();
 
         if (!this.getWorld().isClient()) {
             boolean upwardCollision = this.verticalCollision && !this.isOnGround();
@@ -190,13 +197,13 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         if (this.phaseTicks <= 0)
             return false;
 
-        this.noClip = true;
+        this.setPhasing(true);
         this.phaseTicks--;
 
         if (this.phaseTicks > 0)
             return false;
 
-        this.noClip = false;
+        this.setPhasing(false);
 
         if (this.getWorld().isSpaceEmpty(this, this.getBoundingBox()))
             return false;
@@ -210,7 +217,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
             return;
 
         this.phaseTicks = AITMod.RANDOM.nextInt(PHASE_MIN_TICKS, PHASE_MAX_TICKS + 1);
-        this.noClip = true;
+        this.setPhasing(true);
         this.tardis().get().subsystems().demat().removeDurability(PHASE_DEMAT_DAMAGE);
     }
 
@@ -306,7 +313,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     }
 
     private void finishLand(Tardis tardis, PlayerEntity player) {
-        this.noClip = false;
+        this.setPhasing(false);
         this.phaseTicks = 0;
 
         if (this.getWorld().isClient()) {
@@ -421,6 +428,29 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     @Override
     public boolean isCollidable() {
         return true;
+    }
+
+    @Override
+    protected void initDataTracker() {
+        super.initDataTracker();
+        this.dataTracker.startTracking(PHASING, false);
+    }
+
+    @Override
+    public void onTrackedDataSet(TrackedData<?> data) {
+        super.onTrackedDataSet(data);
+
+        if (PHASING.equals(data))
+            this.noClip = this.isPhasing();
+    }
+
+    private boolean isPhasing() {
+        return this.dataTracker.get(PHASING);
+    }
+
+    private void setPhasing(boolean phasing) {
+        this.dataTracker.set(PHASING, phasing);
+        this.noClip = phasing;
     }
 
     @Override
