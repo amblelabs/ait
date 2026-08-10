@@ -187,3 +187,4 @@
 - fix: revert interior config back to the old one! | by [@rapbattlegod32](https://github.com/rapbattlegod32) ([#2165](https://github.com/amblelabs/ait/pull/2165))
 - feat: hard cap on missed flight events, if hit, crashes tardis | by [@Loqor](https://github.com/Loqor) ([#2173](https://github.com/amblelabs/ait/pull/2173))
 - add: added carry on blacklist | by [@vmbbi](https://github.com/vmbbi) ([#2174](https://github.com/amblelabs/ait/pull/2174))
+- Add "ait:cable_block" into carryon blacklist | by [@lakehascake](https://github.com/lakehascake) ([#2176](https://github.com/amblelabs/ait/pull/2176))
