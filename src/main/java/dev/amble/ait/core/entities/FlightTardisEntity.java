@@ -43,6 +43,7 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisDesktop;
+import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
 import dev.amble.ait.core.tardis.control.impl.DirectionControl;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.mixin.rwf.LivingEntityAccessor;
@@ -54,9 +55,15 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     private static final List<ItemStack> EMPTY = List.of();
     private static final ItemStack AIR = new ItemStack(Items.AIR);
+    private static final int PHASE_MIN_TICKS = 20;
+    private static final int PHASE_MAX_TICKS = 60;
+    private static final int PHASE_FAIL_RADIUS = 10_000;
+    private static final int PHASE_FAIL_REPAIR_TICKS = 5_000;
+    private static final float PHASE_DEMAT_DAMAGE = 45f;
     private BlockPos interiorPos;
 
     private int landedTicks = 0;
+    private int phaseTicks = 0;
 
     private boolean prevHorizontalCollision = false;
     private boolean prevUpwardCollision = false;
@@ -155,12 +162,52 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         tardis.flight().tickFlight((ServerPlayerEntity) player, this.getBlockPos());
 
         this.applyGravCircuitDamageEffects(tardis);
+        if (this.tickPhase(tardis, player))
+            return;
 
         if (tardis.door().isOpen()) {
             this.getWorld().getOtherEntities(this, this.getBoundingBox(), entity
                     -> !entity.isSpectator() && entity != player && entity instanceof LivingEntity).forEach(
                     entity -> TardisUtil.teleportInside(tardis.asServer(), entity)
             );
+        }
+
+        private boolean tickPhase(Tardis tardis, PlayerEntity player) {
+            if (this.phaseTicks <= 0)
+                return false;
+
+            this.noClip = true;
+            this.phaseTicks--;
+
+            if (this.phaseTicks > 0)
+                return false;
+
+            this.noClip = false;
+
+            if (this.getWorld().isSpaceEmpty(this, this.getBoundingBox()))
+                return false;
+
+            this.failPhase(tardis, player);
+            return true;
+        }
+
+        public void startPhase() {
+            if (this.phaseTicks > 0 || this.getWorld().isClient() || !this.isLinked())
+                return;
+
+            this.phaseTicks = AITMod.RANDOM.nextBetween(PHASE_MIN_TICKS, PHASE_MAX_TICKS);
+            this.noClip = true;
+            this.tardis().get().subsystems().demat().removeDurability(PHASE_DEMAT_DAMAGE);
+        }
+
+        private void failPhase(Tardis tardis, PlayerEntity player) {
+            this.finishLand(tardis, player);
+            tardis.travel().forceDestination(cached -> TravelUtil.jukePos(cached, 1, PHASE_FAIL_RADIUS));
+            tardis.subsystems().engine().setDurability(0);
+            tardis.subsystems().<GravitationalCircuit>get(SubSystem.Id.GRAVITATIONAL).setDurability(0);
+            tardis.subsystems().demat().setDurability(0);
+            tardis.crash().addRepairTicks(PHASE_FAIL_REPAIR_TICKS);
+            tardis.travel().dematerialize();
         }
 
         boolean antigravs = tardis.travel().antigravs().get();
@@ -259,6 +306,9 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     }
 
     private void finishLand(Tardis tardis, PlayerEntity player) {
+        this.noClip = false;
+        this.phaseTicks = 0;
+
         if (this.getWorld().isClient()) {
             MinecraftClient client = MinecraftClient.getInstance();
             client.options.setPerspective(Perspective.THIRD_PERSON_BACK);

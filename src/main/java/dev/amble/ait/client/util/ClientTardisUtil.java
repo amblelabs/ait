@@ -122,6 +122,17 @@ public class ClientTardisUtil {
         ClientPlayNetworking.send(TOGGLE_ANTIGRAVS, buf);
     }
 
+    public static void phaseRwf(Tardis tardis) {
+        phaseRwf(tardis.getUuid());
+    }
+
+    public static void phaseRwf(UUID uuid) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeUuid(uuid);
+
+        ClientPlayNetworking.send(PHASE_RWF, buf);
+    }
+
     public static boolean isPlayerInATardis() {
         return currentTardis != null;
     }

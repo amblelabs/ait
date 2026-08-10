@@ -271,9 +271,9 @@ public class RWFOverlay implements HudRenderCallback {
         TextRenderer font = client.textRenderer;
 
         KeyBinding[] binds = {client.options.sneakKey, client.options.jumpKey, AITKeyBinds.SNAP.binding(),
-                AITKeyBinds.TOGGLE_ANTIGRAVS.binding(), AITKeyBinds.DECREASE_SPEED.binding(),
+                AITKeyBinds.TOGGLE_ANTIGRAVS.binding(), AITKeyBinds.PHASE_RWF.binding(), AITKeyBinds.DECREASE_SPEED.binding(),
                 AITKeyBinds.INCREASE_SPEED.binding()};
-        String[] actions = {"land", "ascend", "doors", "antigravs", "decrease_speed", "increase_speed"};
+        String[] actions = {"land", "ascend", "doors", "antigravs", "phase", "decrease_speed", "increase_speed"};
 
         int capW = 0;
         int labelW = 0;

@@ -26,6 +26,7 @@ public class AITKeyBinds {
     public static KeyBind INCREASE_SPEED;
     public static KeyBind DECREASE_SPEED;
     public static KeyBind TOGGLE_ANTIGRAVS;
+    public static KeyBind PHASE_RWF;
 
     public static void init() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
@@ -103,6 +104,20 @@ public class AITKeyBinds {
                 Tardis tardis = flightTardis.tardis().get();
 
                 ClientTardisUtil.toggleAntigravs(tardis);
+            }
+        }));
+        PHASE_RWF = register(new KeyBind.Held("phase_rwf", "main", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, client -> {
+            ClientPlayerEntity player = client.player;
+
+            if (player == null || !player.hasVehicle())
+                return;
+
+            Entity entity = player.getVehicle();
+            if (entity instanceof FlightTardisEntity flightTardis) {
+                if (!flightTardis.isLinked()) return;
+                Tardis tardis = flightTardis.tardis().get();
+
+                ClientTardisUtil.phaseRwf(tardis);
             }
         }));
     }
