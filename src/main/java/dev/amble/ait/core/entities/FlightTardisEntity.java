@@ -172,44 +172,6 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
             );
         }
 
-        private boolean tickPhase(Tardis tardis, PlayerEntity player) {
-            if (this.phaseTicks <= 0)
-                return false;
-
-            this.noClip = true;
-            this.phaseTicks--;
-
-            if (this.phaseTicks > 0)
-                return false;
-
-            this.noClip = false;
-
-            if (this.getWorld().isSpaceEmpty(this, this.getBoundingBox()))
-                return false;
-
-            this.failPhase(tardis, player);
-            return true;
-        }
-
-        public void startPhase() {
-            if (this.phaseTicks > 0 || this.getWorld().isClient() || !this.isLinked())
-                return;
-
-            this.phaseTicks = AITMod.RANDOM.nextBetween(PHASE_MIN_TICKS, PHASE_MAX_TICKS);
-            this.noClip = true;
-            this.tardis().get().subsystems().demat().removeDurability(PHASE_DEMAT_DAMAGE);
-        }
-
-        private void failPhase(Tardis tardis, PlayerEntity player) {
-            this.finishLand(tardis, player);
-            tardis.travel().forceDestination(cached -> TravelUtil.jukePos(cached, 1, PHASE_FAIL_RADIUS));
-            tardis.subsystems().engine().setDurability(0);
-            tardis.subsystems().<GravitationalCircuit>get(SubSystem.Id.GRAVITATIONAL).setDurability(0);
-            tardis.subsystems().demat().setDurability(0);
-            tardis.crash().addRepairTicks(PHASE_FAIL_REPAIR_TICKS);
-            tardis.travel().dematerialize();
-        }
-
         boolean antigravs = tardis.travel().antigravs().get();
 
         if (player.isSneaking() && (this.isOnGround() || antigravs)
@@ -222,6 +184,44 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         } else {
             this.landedTicks = 0;
         }
+    }
+
+    private boolean tickPhase(Tardis tardis, PlayerEntity player) {
+        if (this.phaseTicks <= 0)
+            return false;
+
+        this.noClip = true;
+        this.phaseTicks--;
+
+        if (this.phaseTicks > 0)
+            return false;
+
+        this.noClip = false;
+
+        if (this.getWorld().isSpaceEmpty(this, this.getBoundingBox()))
+            return false;
+
+        this.failPhase(tardis, player);
+        return true;
+    }
+
+    public void startPhase() {
+        if (this.phaseTicks > 0 || this.getWorld().isClient() || !this.isLinked())
+            return;
+
+        this.phaseTicks = AITMod.RANDOM.nextInt(PHASE_MIN_TICKS, PHASE_MAX_TICKS + 1);
+        this.noClip = true;
+        this.tardis().get().subsystems().demat().removeDurability(PHASE_DEMAT_DAMAGE);
+    }
+
+    private void failPhase(Tardis tardis, PlayerEntity player) {
+        this.finishLand(tardis, player);
+        tardis.travel().forceDestination(cached -> TravelUtil.jukePos(cached, 1, PHASE_FAIL_RADIUS));
+        tardis.subsystems().engine().setDurability(0);
+        tardis.subsystems().<GravitationalCircuit>get(SubSystem.Id.GRAVITATIONAL).setDurability(0);
+        tardis.subsystems().demat().setDurability(0);
+        tardis.crash().addRepairTicks(PHASE_FAIL_REPAIR_TICKS);
+        tardis.travel().dematerialize();
     }
 
     private void applyGravCircuitDamageEffects(Tardis tardis) {
