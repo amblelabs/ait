@@ -36,17 +36,23 @@ public class VisualiserControl extends Control {
     }
 
     @Override
-    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean rightClick) {
-        super.runServer(tardis, player, world, console, rightClick);
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+        super.runServer(tardis, player, world, console, leftClick);
+
+        if (DependencyChecker.hasPortals()) {
+            if (leftClick) {
+                if (!tardis.travel().isLanded()) return Result.FAILURE;
+
+                return PortalsAPI.VISUALIZER.map(visualizer -> {
+                    CachedDirectedGlobalPos pos = tardis.travel().position();
+                    visualizer.open(player, pos.getWorld(), pos.getPos().up((int) Math.ceil(tardis.getExterior().getVariant().portalHeight()) + 1));
+                    return Result.SUCCESS;
+                }).orElse(Result.FAILURE);
+            }
+        }
 
         if (!AITMod.CONFIG.rwfEnabled) {
-            if (!tardis.travel().isLanded()) return Result.FAILURE;
-
-            return PortalsAPI.VISUALIZER.map(visualizer -> {
-                CachedDirectedGlobalPos pos = tardis.travel().position();
-                visualizer.open(player, pos.getWorld(), pos.getPos().up((int) Math.ceil(tardis.getExterior().getVariant().portalHeight()) + 1));
-                return Result.SUCCESS;
-            }).orElse(Result.FAILURE);
+            return Result.FAILURE;
         }
 
         if (!player.isSneaking() && tardis.travel().getState() == TravelHandlerBase.State.LANDED && tardis.subsystems().get(GRAVITATIONAL).isEnabled()) {

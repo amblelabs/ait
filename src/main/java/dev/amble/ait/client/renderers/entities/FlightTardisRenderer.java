@@ -64,7 +64,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
         double e = vec3d.horizontalLengthSquared();
 
         matrices.push();
-        if (tardis.door().isClosed() && !entity.groundCollision)
+        if (tardis.door().isClosed() && !entity.isCollidingOnGround())
             matrices.translate(0, 0.25f * -deltaY, 0);
 
         if (tardis.travel().position().getDimension() == AITDimensions.TIME_VORTEX_WORLD) {

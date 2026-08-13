@@ -7,6 +7,9 @@ import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.impl.GravitationalCircuit;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -54,6 +57,10 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     private static final List<ItemStack> EMPTY = List.of();
     private static final ItemStack AIR = new ItemStack(Items.AIR);
+
+    private static final TrackedData<Boolean> GROUND_COLLISION =
+            DataTracker.registerData(FlightTardisEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+
     private BlockPos interiorPos;
 
     private int landedTicks = 0;
@@ -72,7 +79,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         this.interiorPos = riderPos;
 
         this.link(tardis);
-        this.setPosition(pos.getPos().toCenterPos());
+        this.setPosition(pos.getPos().toCenterPos().subtract(0, 0.5, 0));
         this.setVelocity(Vec3d.ZERO);
 
         this.setRotation(RotationPropertyHelper.toDegrees(
@@ -113,14 +120,21 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         if (!this.getWorld().isClient()) {
             boolean upwardCollision = this.verticalCollision && !this.isOnGround();
 
-            if (this.horizontalCollision && !this.prevHorizontalCollision) {
+            // independent checks — both can fire in the same tick if the entity
+            // clips a wall and a ceiling/floor simultaneously
+            if (this.horizontalCollision && !this.prevHorizontalCollision)
                 this.playCollisionSound(true);
-            } else if (upwardCollision && !this.prevUpwardCollision) {
+
+            if (upwardCollision && !this.prevUpwardCollision)
                 this.playCollisionSound(false);
-            }
 
             this.prevHorizontalCollision = this.horizontalCollision;
             this.prevUpwardCollision = upwardCollision;
+
+            boolean grounded = this.isOnGround();
+            if (this.dataTracker.get(GROUND_COLLISION) != grounded) {
+                this.dataTracker.set(GROUND_COLLISION, grounded);
+            }
         }
 
         PlayerEntity player = this.getPlayer();
@@ -139,7 +153,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
             if (client.player == this.getControllingPassenger()) {
                 client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
 
-                if (!this.groundCollision)
+                if (!this.isCollidingOnGround())
                     ClientShakeUtil.shake((float) (tardis.travel().speed() + this.getVelocity().horizontalLength()) / tardis.travel().maxSpeed().get());
             }
 
@@ -175,6 +189,12 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         } else {
             this.landedTicks = 0;
         }
+    }
+
+    @Override
+    protected void initDataTracker() {
+        super.initDataTracker();
+        this.dataTracker.startTracking(GROUND_COLLISION, false);
     }
 
     private void applyGravCircuitDamageEffects(Tardis tardis) {
@@ -223,19 +243,35 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
             box = box.expand(0, 0.2, 0).offset(0, 0.2, 0);
         }
 
+        BlockPos center = this.getBlockPos();
+
         Iterable<BlockPos> blocks = BlockPos.iterate(
                 MathHelper.floor(box.minX), MathHelper.floor(box.minY), MathHelper.floor(box.minZ),
                 MathHelper.ceil(box.maxX), MathHelper.ceil(box.maxY), MathHelper.ceil(box.maxZ)
         );
 
+        BlockPos closest = null;
+        double closestDistSq = Double.MAX_VALUE;
+        SoundEvent stepSound = null;
+
         for (BlockPos pos : blocks) {
             BlockState state = this.getWorld().getBlockState(pos);
-            if (!state.isAir() && !state.isLiquid()) {
-                SoundEvent stepSound = state.getSoundGroup().getStepSound();
-                this.getWorld().playSound(null, this.getBlockPos(), stepSound, SoundCategory.BLOCKS, 3.0F, 1.0F / (AITMod.RANDOM.nextFloat() * 0.4F + 0.8F));
-                break;
+            if (state.isAir() || state.isLiquid())
+                continue;
+
+            double distSq = pos.getSquaredDistance(center);
+            if (distSq < closestDistSq) {
+                closestDistSq = distSq;
+                closest = pos;
+                stepSound = state.getSoundGroup().getStepSound();
             }
         }
+
+        if (stepSound == null)
+            return;
+
+        this.getWorld().playSound(null, this.getBlockPos(), stepSound, SoundCategory.BLOCKS,
+                3.0F, 1.0F / (AITMod.RANDOM.nextFloat() * 0.4F + 0.8F));
     }
 
     @Override
@@ -269,14 +305,15 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         if (!(player instanceof ServerPlayerEntity serverPlayer))
             return;
 
+        tardis.flight().exitFlight(serverPlayer);
+        tardis.travel().speed(0);
+
         if (this.interiorPos == null) {
             TardisUtil.teleportInside(tardis.asServer(), serverPlayer);
         } else {
             TardisUtil.teleportToInteriorPosition(tardis.asServer(), serverPlayer, this.interiorPos);
         }
 
-        tardis.flight().exitFlight(serverPlayer);
-        tardis.travel().speed(0);
         this.discard();
     }
 
@@ -435,4 +472,8 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     @Override
     public void stopJumping() { }
+
+    public boolean isCollidingOnGround() {
+        return this.dataTracker.get(GROUND_COLLISION);
+    }
 }
