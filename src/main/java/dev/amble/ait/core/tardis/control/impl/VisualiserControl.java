@@ -49,11 +49,6 @@ public class VisualiserControl extends Control {
             }).orElse(Result.FAILURE);
         }
 
-        if (!player.isCreative()) {
-            player.sendMessage(Text.translatable("tardis.message.control.rwf_creative_only"), true);
-            return Result.FAILURE;
-        }
-
         if (!player.isSneaking() && tardis.travel().getState() == TravelHandlerBase.State.LANDED && tardis.subsystems().get(GRAVITATIONAL).isEnabled()) {
             if (tardis.door().isOpen()) {
                 world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_CHAIN_FALL, SoundCategory.BLOCKS, 1.0F, 1.0F);

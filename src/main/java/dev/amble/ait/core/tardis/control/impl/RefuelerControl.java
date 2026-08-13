@@ -3,6 +3,7 @@ package dev.amble.ait.core.tardis.control.impl;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
@@ -26,6 +27,11 @@ public class RefuelerControl extends Control {
 
         if (tardis.isGrowth())
             return Result.FAILURE;
+
+        if (tardis.flight().isFlying()) {
+            player.sendMessage(Text.translatable("tardis.message.control.refueler.rwf"));
+            return Result.FAILURE;
+        }
 
         if (tardis.travel().getState() == TravelHandlerBase.State.LANDED && tardis.travel().handbrake()) {
             tardis.setRefueling(!tardis.isRefueling());

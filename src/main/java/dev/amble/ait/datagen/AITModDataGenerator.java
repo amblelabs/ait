@@ -1170,7 +1170,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.antigravs.inactive", "Antigravs: DISENGAGED");
         provider.addTranslation("tardis.message.control.electric.fail", "System Error: Not enough fuel present! Requires %sAU");
         provider.addTranslation("tardis.message.control.rwf_disabled", "RWF is disabled in SERVER config.");
-        provider.addTranslation("tardis.message.control.rwf_creative_only", "RWF is CREATIVE only");
+        provider.addTranslation("tardis.message.control.refueler.rwf", "TARDIS cannot refuel during real world flight!");
         provider.addTranslation("tardis.message.control.fast_return.destination_nonexistent",
                 "Fast Return: Last Position Nonexistent!");
         provider.addTranslation("tardis.message.control.fast_return.last_position", "Fast Return: LAST POSITION SET");

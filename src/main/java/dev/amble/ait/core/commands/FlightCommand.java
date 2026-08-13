@@ -39,11 +39,6 @@ public class FlightCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        if (!player.isCreative()) {
-            player.sendMessage(Text.translatable("tardis.message.control.rwf_creative_only"), true);
-            return Command.SINGLE_SUCCESS;
-        }
-
         context.getSource().getServer().executeSync(()
                 -> tardis.flight().enterFlight(player));
 

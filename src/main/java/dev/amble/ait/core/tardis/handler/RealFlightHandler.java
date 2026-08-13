@@ -107,6 +107,7 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
         this.tardis.door().closeDoors();
         this.tardis().travel().autopilot(false);
         this.tardis.travel().handbrake(true);
+        this.tardis().setRefueling(false);
         this.flying.set(true);
 
         FlightTardisEntity entity = FlightTardisEntity.createAndSpawn(
