@@ -13,6 +13,7 @@
     "ait:wall_monitor_block",
     "ait:monitor_block",
     "ait:generic_subsystem",
-    "ait:detector_block"
+    "ait:detector_block",
+    "ait:cable_block"
   ]
 }
