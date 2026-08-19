@@ -1598,6 +1598,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("key.ait.increase_speed", "Increase Speed (RWF)");
         provider.addTranslation("key.ait.decrease_speed", "Decrease Speed (RWF)");
         provider.addTranslation("key.ait.toggle_antigravs", "Toggle Antigravs (RWF)");
+        provider.addTranslation("key.ait.phase", "Phase Through Blocks (RWF)");
 
         // rwf overlay
         provider.addTranslation("overlay.ait.rwf.hud.title", "FLIGHT SYSTEMS");
@@ -1618,6 +1619,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("overlay.ait.rwf.hud.action.antigravs", "Antigravs");
         provider.addTranslation("overlay.ait.rwf.hud.action.decrease_speed", "Speed Down");
         provider.addTranslation("overlay.ait.rwf.hud.action.increase_speed", "Speed Up");
+        provider.addTranslation("overlay.ait.rwf.hud.action.phase", "Phase");
         provider.addTranslation("overlay.ait.rwf.dismount", "Hold %s for 3 seconds to dismount");
 
         // effects

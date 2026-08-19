@@ -25,6 +25,7 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.engine.impl.GravitationalCircuit;
 import dev.amble.ait.core.entities.FallingTardisEntity;
 import dev.amble.ait.core.entities.FlightTardisEntity;
+import dev.amble.ait.core.tardis.control.impl.DirectionControl;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
@@ -69,7 +70,8 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
 
     public void tickFlight(ServerPlayerEntity player, BlockPos pos) {
         tardis.travel().forcePosition(cached -> cached.pos(pos)
-                .rotation((byte) RotationPropertyHelper.fromYaw(player.getYaw())));
+                .rotation(DirectionControl.getGeneralizedRotation(
+                        RotationPropertyHelper.fromYaw(player.getYaw()))));
         if (player.age % 20 != 0) {
             GravitationalCircuit circuit = tardis.subsystems().get(GRAVITATIONAL);
             if (circuit.isEnabled()) {
@@ -125,7 +127,8 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
         player.setInvisible(false);
         player.setInvulnerable(false);
 
-        tardis.travel().forcePosition(cached -> cached.rotation((byte) RotationPropertyHelper.fromYaw(player.getYaw()))
+        tardis.travel().forcePosition(cached -> cached.rotation(DirectionControl.getGeneralizedRotation(
+                        RotationPropertyHelper.fromYaw(player.getYaw())))
                 .world(player.getServerWorld()));
         tardis.travel().placeExterior(false);
 

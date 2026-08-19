@@ -37,6 +37,7 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
     public static final double TARDIS_MAX_FUEL = 50000;
     private static final double AUTOPILOT_COST = 1.5d;
     private static final double RWF_TOP_SPEED_COST = 4d;
+    private static final double RWF_FUEL_MULTIPLIER = 0.5d;
 
     private static final DoubleProperty FUEL = new DoubleProperty("fuel", 1000d);
     private static final BoolProperty REFUELING = new BoolProperty("refueling", false);
@@ -177,7 +178,7 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
         int maxSpeed = travel.maxSpeed().get();
         double throttle = maxSpeed > 0 ? (double) travel.speed() / maxSpeed : 0;
 
-        return getPerTickFuelCost(travel) * (1 + (RWF_TOP_SPEED_COST - 1) * throttle * throttle);
+        return getPerTickFuelCost(travel) * (1 + (RWF_TOP_SPEED_COST - 1) * throttle * throttle) * RWF_FUEL_MULTIPLIER;
     }
 
     private void tickFlight() {

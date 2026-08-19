@@ -10,6 +10,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -61,12 +62,22 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     private static final TrackedData<Boolean> GROUND_COLLISION =
             DataTracker.registerData(FlightTardisEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
+    private static final TrackedData<Boolean> PHASING =
+            DataTracker.registerData(FlightTardisEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+
+    public static final int PHASE_DURATION = 40;
+
     private BlockPos interiorPos;
 
     private int landedTicks = 0;
 
     private boolean prevHorizontalCollision = false;
     private boolean prevUpwardCollision = false;
+
+    private int phaseTicks = 0;
+    private boolean phaseJustEnded = false;
+
+    private int collisionEffectCooldown = 0;
 
     public FlightTardisEntity(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
@@ -118,24 +129,20 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         super.tick();
 
         if (!this.getWorld().isClient()) {
-            boolean upwardCollision = this.verticalCollision && !this.isOnGround();
+            if (phaseTicks > 0 && --phaseTicks == 0)
+                phaseJustEnded = true;
 
-            // independent checks — both can fire in the same tick if the entity
-            // clips a wall and a ceiling/floor simultaneously
-            if (this.horizontalCollision && !this.prevHorizontalCollision)
-                this.playCollisionSound(true);
-
-            if (upwardCollision && !this.prevUpwardCollision)
-                this.playCollisionSound(false);
-
-            this.prevHorizontalCollision = this.horizontalCollision;
-            this.prevUpwardCollision = upwardCollision;
+            boolean phasing = phaseTicks > 0;
+            if (this.dataTracker.get(PHASING) != phasing)
+                this.dataTracker.set(PHASING, phasing);
 
             boolean grounded = this.isOnGround();
             if (this.dataTracker.get(GROUND_COLLISION) != grounded) {
                 this.dataTracker.set(GROUND_COLLISION, grounded);
             }
         }
+
+        this.noClip = this.dataTracker.get(PHASING);
 
         PlayerEntity player = this.getPlayer();
 
@@ -153,8 +160,22 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
             if (client.player == this.getControllingPassenger()) {
                 client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
 
-                if (!this.isCollidingOnGround())
+                boolean horizCollision = !this.noClip && this.horizontalCollision;
+                boolean vertCollision  = !this.noClip && this.verticalCollision && !this.isOnGround();
+
+                if (horizCollision && !this.prevHorizontalCollision) {
+                    ClientShakeUtil.shake(0.8f);
+                    this.applyClientBounce(client.player, tardis);
+                } else if (vertCollision && !this.prevUpwardCollision) {
+                    ClientShakeUtil.shake(0.4f);
+                } else if (!this.isCollidingOnGround()) {
                     ClientShakeUtil.shake((float) (tardis.travel().speed() + this.getVelocity().horizontalLength()) / tardis.travel().maxSpeed().get());
+                }
+
+                this.prevHorizontalCollision = horizCollision;
+                this.prevUpwardCollision = vertCollision;
+
+                this.applyGravCircuitDamageEffects(tardis);
             }
 
             return;
@@ -169,6 +190,21 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         tardis.flight().tickFlight((ServerPlayerEntity) player, this.getBlockPos());
 
         this.applyGravCircuitDamageEffects(tardis);
+
+        if (!this.noClip) {
+            if (collisionEffectCooldown > 0) {
+                collisionEffectCooldown--;
+            } else if (this.isAdjacentToHorizontalSolidBlock()) {
+                this.spawnCollisionParticles(true);
+                collisionEffectCooldown = 15;
+            }
+        }
+
+        if (phaseJustEnded) {
+            phaseJustEnded = false;
+            if (this.isInsideBlock() && player instanceof ServerPlayerEntity serverPlayer)
+                this.applyPhasePunishment(serverPlayer, tardis);
+        }
 
         if (tardis.door().isOpen()) {
             this.getWorld().getOtherEntities(this, this.getBoundingBox(), entity
@@ -195,46 +231,40 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     protected void initDataTracker() {
         super.initDataTracker();
         this.dataTracker.startTracking(GROUND_COLLISION, false);
+        this.dataTracker.startTracking(PHASING, false);
     }
 
     private void applyGravCircuitDamageEffects(Tardis tardis) {
-        if (this.getWorld().isClient()) return;
-
         float durability = tardis.subsystems().<GravitationalCircuit>get(SubSystem.Id.GRAVITATIONAL).durability();
-
         float threshold = (float) DurableSubSystem.MAX_DURABILITY / 4;
 
-        if (durability < threshold && tardis.travel().speed() > 0) {
-            int chance = Math.max(10, (int)(durability));
+        if (durability >= threshold || tardis.travel().speed() == 0) return;
 
-            if (AITMod.RANDOM.nextInt(chance) == 0) {
-                double forceScale = 0.5 + ((threshold - durability) * 4.0);
+        int chance = Math.max(10, (int) durability);
+        if (AITMod.RANDOM.nextInt(chance) != 0) return;
 
-                Vec3d fling = new Vec3d(
-                        (AITMod.RANDOM.nextDouble() - 0.5) * 2.0,
-                        (AITMod.RANDOM.nextDouble() - 0.5) * 2.0,
-                        (AITMod.RANDOM.nextDouble() - 0.5) * 2.0
-                ).normalize().multiply(forceScale);
+        float forceScale = MathHelper.lerp(1f - durability / threshold, 0.5f, 3.0f);
 
-                this.addVelocity(fling.x, fling.y, fling.z);
-                this.velocityModified = true;
+        Vec3d fling = new Vec3d(
+                (AITMod.RANDOM.nextDouble() - 0.5) * 2.0,
+                (AITMod.RANDOM.nextDouble() - 0.5) * 2.0,
+                (AITMod.RANDOM.nextDouble() - 0.5) * 2.0
+        ).normalize().multiply(forceScale);
 
-                tardis.alarm().enable();
-
-                ServerWorld serverWorld = (ServerWorld) this.getWorld();
-                double x = this.getX();
-                double y = this.getY() + (this.getHeight() / 2.0);
-                double z = this.getZ();
-
-                serverWorld.spawnParticles(ParticleTypes.LARGE_SMOKE, x, y, z, 15, 0.5, 0.5, 0.5, 0.05);
-                serverWorld.spawnParticles(ParticleTypes.ELECTRIC_SPARK, x, y, z, 10, 0.5, 0.5, 0.5, 0.2);
-
-                this.getWorld().playSound(null, this.getBlockPos(), SoundEvents.BLOCK_REDSTONE_TORCH_BURNOUT, SoundCategory.BLOCKS, 2.0F, 0.5F + AITMod.RANDOM.nextFloat());
-            }
+        if (this.getWorld().isClient()) {
+            this.addVelocity(fling.x, fling.y, fling.z);
+            this.velocityModified = true;
+        } else {
+            tardis.alarm().enable();
+            ServerWorld serverWorld = (ServerWorld) this.getWorld();
+            double x = this.getX(), y = this.getY() + this.getHeight() / 2.0, z = this.getZ();
+            serverWorld.spawnParticles(ParticleTypes.LARGE_SMOKE, x, y, z, 15, 0.5, 0.5, 0.5, 0.05);
+            serverWorld.spawnParticles(ParticleTypes.ELECTRIC_SPARK, x, y, z, 10, 0.5, 0.5, 0.5, 0.2);
+            this.getWorld().playSound(null, this.getBlockPos(), SoundEvents.BLOCK_REDSTONE_TORCH_BURNOUT, SoundCategory.BLOCKS, 2.0F, 0.5F + AITMod.RANDOM.nextFloat());
         }
     }
 
-    private void playCollisionSound(boolean horizontal) {
+    private void spawnCollisionParticles(boolean horizontal) {
         Box box = this.getBoundingBox();
 
         if (horizontal) {
@@ -251,8 +281,8 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         );
 
         BlockPos closest = null;
+        BlockState closestState = null;
         double closestDistSq = Double.MAX_VALUE;
-        SoundEvent stepSound = null;
 
         for (BlockPos pos : blocks) {
             BlockState state = this.getWorld().getBlockState(pos);
@@ -263,15 +293,25 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
             if (distSq < closestDistSq) {
                 closestDistSq = distSq;
                 closest = pos;
-                stepSound = state.getSoundGroup().getStepSound();
+                closestState = state;
             }
         }
 
-        if (stepSound == null)
+        if (closest == null)
             return;
 
-        this.getWorld().playSound(null, this.getBlockPos(), stepSound, SoundCategory.BLOCKS,
-                3.0F, 1.0F / (AITMod.RANDOM.nextFloat() * 0.4F + 0.8F));
+        if (this.getWorld() instanceof ServerWorld serverWorld) {
+            Vec3d particlePos = Vec3d.ofCenter(closest);
+            serverWorld.spawnParticles(
+                    new BlockStateParticleEffect(ParticleTypes.BLOCK, closestState),
+                    particlePos.x, particlePos.y, particlePos.z,
+                    25, 0.4, 0.4, 0.4, 0.15
+            );
+            serverWorld.spawnParticles(ParticleTypes.POOF,
+                    particlePos.x, particlePos.y, particlePos.z,
+                    5, 0.3, 0.3, 0.3, 0.05
+            );
+        }
     }
 
     @Override
@@ -292,6 +332,87 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     private void playThud() {
         this.getWorld().playSound(null, this.getBlockPos(), AITSounds.LAND_THUD, SoundCategory.BLOCKS, 2F, 1F / (AITMod.RANDOM.nextFloat() * 0.4F + 0.8F));
+    }
+
+    private void applyClientBounce(PlayerEntity player, Tardis tardis) {
+        Box box = this.getBoundingBox().expand(0.5, 0, 0.5);
+        Vec3d entityPos = this.getPos();
+        Vec3d wallCenter = null;
+        double closestDistSq = Double.MAX_VALUE;
+
+        for (BlockPos pos : BlockPos.iterate(
+                MathHelper.floor(box.minX), MathHelper.floor(box.minY), MathHelper.floor(box.minZ),
+                MathHelper.ceil(box.maxX), MathHelper.ceil(box.maxY), MathHelper.ceil(box.maxZ))) {
+            BlockState state = this.getWorld().getBlockState(pos);
+            if (state.isAir() || state.isLiquid()) continue;
+            double distSq = Vec3d.ofCenter(pos).squaredDistanceTo(entityPos);
+            if (distSq < closestDistSq) {
+                closestDistSq = distSq;
+                wallCenter = Vec3d.ofCenter(pos);
+            }
+        }
+
+        Vec3d bounceDir;
+        if (wallCenter != null) {
+            Vec3d fromWall = entityPos.subtract(wallCenter);
+            double hLen = Math.sqrt(fromWall.x * fromWall.x + fromWall.z * fromWall.z);
+            bounceDir = hLen > 0.001 ? new Vec3d(fromWall.x / hLen, 0, fromWall.z / hLen) : Vec3d.ZERO;
+        } else {
+            float yaw = player.getYaw() * (float) Math.PI / 180f;
+            bounceDir = new Vec3d(-Math.sin(yaw), 0, Math.cos(yaw)).negate();
+        }
+
+        Vec3d impulse = bounceDir.multiply(tardis.travel().speed() * 0.4f);
+        this.addVelocity(impulse.x, 0, impulse.z);
+        this.velocityModified = true;
+    }
+
+    private boolean isAdjacentToHorizontalSolidBlock() {
+        Box searchBox = this.getBoundingBox().expand(0.1, -0.1, 0.1);
+        return BlockPos.stream(searchBox).anyMatch(pos -> {
+            BlockState state = this.getWorld().getBlockState(pos);
+            return !state.isAir() && !state.isLiquid();
+        });
+    }
+
+    public void startPhase(ServerPlayerEntity player, Tardis tardis) {
+        if (phaseTicks > 0) return;
+        player.playSound(AITSounds.CLOISTER, 1, 2);
+        tardis.subsystems().<DurableSubSystem>get(SubSystem.Id.DEMAT).removeDurability(45);
+        phaseTicks = PHASE_DURATION;
+    }
+
+    private boolean isInsideBlock() {
+        Box box = this.getBoundingBox().contract(0.05);
+        return BlockPos.stream(box).anyMatch(pos -> {
+            BlockState state = this.getWorld().getBlockState(pos);
+            return !state.isAir() && !state.isLiquid();
+        });
+    }
+
+    private void applyPhasePunishment(ServerPlayerEntity player, Tardis tardis) {
+        player.setInvisible(false);
+        player.setInvulnerable(false);
+        tardis.flight().flying().set(false);
+
+        tardis.subsystems().<DurableSubSystem>get(SubSystem.Id.ENGINE).setDurability(0);
+        tardis.subsystems().<DurableSubSystem>get(SubSystem.Id.GRAVITATIONAL).setDurability(0);
+        tardis.subsystems().<DurableSubSystem>get(SubSystem.Id.DEMAT).setDurability(0);
+        tardis.crash().addRepairTicks(4000);
+
+        TardisUtil.teleportInside(tardis.asServer(), player);
+
+        int range = 10000;
+        BlockPos current = this.getBlockPos();
+        int newX = current.getX() + AITMod.RANDOM.nextInt(-range, range + 1);
+        int newZ = current.getZ() + AITMod.RANDOM.nextInt(-range, range + 1);
+        BlockPos randomPos = new BlockPos(newX, 64, newZ);
+
+        tardis.travel().forcePosition(cached -> cached.pos(randomPos));
+        tardis.travel().destination(cached -> cached.pos(randomPos));
+        tardis.travel().forceRemat();
+
+        this.discard();
     }
 
     private void finishLand(Tardis tardis, PlayerEntity player) {
@@ -366,21 +487,28 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
             return new Vec3d(0, planetGravity ? 0.0f : -2f, 0);
         }
 
-        float f = controllingPlayer.sidewaysSpeed * this.tardis().get().travel().speed();
-        float g = controllingPlayer.forwardSpeed * this.tardis().get().travel().speed();
+        int tardisSpeed = this.tardis().get().travel().speed();
 
-        float speedVal = this.isSubmergedInWater() ? 30f : 10f;
+        boolean submerged = this.isSubmergedInWater();
+        float waterThrust = submerged ? 3f : 1f;
+        float f = controllingPlayer.sidewaysSpeed * tardisSpeed * waterThrust;
+        float g = controllingPlayer.forwardSpeed * tardisSpeed * waterThrust;
+
+        float speedVal = submerged ? 30f : 10f;
 
         boolean canFall = this.tardis().get().travel().antigravs().get() || planetGravity;
 
+        int maxSpeed = Math.max(1, this.tardis().get().travel().maxSpeed().get());
+        float fallSpeed = MathHelper.lerp((float) tardisSpeed / maxSpeed, 2.0f, 0.1f);
+
         double v = ((LivingEntityAccessor) controllingPlayer).getJumping() ? speedVal :
                 controllingPlayer.isSneaking() ? -speedVal :
-                canFall ? 0.0f : f > 0 || g > 0 ? -0.5f : -2f;
+                canFall ? 0.0f : -fallSpeed;
 
         if (v < 0 && this.isOnGround())
             return Vec3d.ZERO.add(0, -0.4f, 0);
 
-        return new Vec3d(f, v, g);//return this.isOnGround() ? new Vec3d(0, 0, 0) : new Vec3d(f, v * 4f, g);
+        return new Vec3d(f, v, g);
     }
 
     @Override
@@ -475,5 +603,9 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     public boolean isCollidingOnGround() {
         return this.dataTracker.get(GROUND_COLLISION);
+    }
+
+    public boolean isPhasing() {
+        return this.dataTracker.get(PHASING);
     }
 }
