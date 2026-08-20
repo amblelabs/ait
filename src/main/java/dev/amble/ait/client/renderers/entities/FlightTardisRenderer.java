@@ -77,7 +77,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
             matrices.pop();
         }
 
-        if (!entity.verticalCollision) {
+        if (!entity.isCollidingOnGround()) {
             matrices.translate(0, 2f, 0);
             matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float)(9.0d * -deltaX * 2.0d)));
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((float)(9.0d * deltaZ * 2.0d)));

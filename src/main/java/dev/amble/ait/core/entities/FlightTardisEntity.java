@@ -36,6 +36,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
@@ -193,7 +194,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
         if (tardis.door().isOpen()) {
             this.getWorld().getOtherEntities(this, this.getBoundingBox(), entity
-                    -> !entity.isSpectator() && entity != player && entity instanceof LivingEntity).forEach(
+                    -> !entity.isSpectator() && entity != player && entity instanceof LivingEntity && !(entity instanceof FlightTardisEntity) && entity != this.getControllingPassenger()).forEach(
                     entity -> TardisUtil.teleportInside(tardis.asServer(), entity)
             );
         }
@@ -424,7 +425,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         Box box = this.getBoundingBox().contract(0.05);
         return BlockPos.stream(box).anyMatch(pos -> {
             BlockState state = this.getWorld().getBlockState(pos);
-            return !state.isAir() && !state.isLiquid();
+            return !state.isAir() && !state.isLiquid() && !state.isReplaceable();
         });
     }
 
@@ -475,17 +476,15 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         tardis.subsystems().<DurableSubSystem>get(SubSystem.Id.DEMAT).setDurability(0);
         tardis.crash().addRepairTicks(4000);
 
-        TardisUtil.teleportInside(tardis.asServer(), player);
-
-        int range = 10000;
         BlockPos current = this.getBlockPos();
-        int newX = current.getX() + AITMod.RANDOM.nextInt(-range, range + 1);
-        int newZ = current.getZ() + AITMod.RANDOM.nextInt(-range, range + 1);
-        BlockPos randomPos = new BlockPos(newX, 64, newZ);
+        int surfaceY = this.getWorld().getTopY(Heightmap.Type.WORLD_SURFACE, current.getX(), current.getZ());
+        BlockPos surfacePos = new BlockPos(current.getX(), surfaceY, current.getZ());
 
-        tardis.travel().forcePosition(cached -> cached.pos(randomPos));
-        tardis.travel().destination(cached -> cached.pos(randomPos));
+        tardis.travel().forcePosition(cached -> cached.pos(surfacePos));
+        tardis.travel().destination(cached -> cached.pos(surfacePos));
         tardis.travel().forceRemat();
+
+        TardisUtil.teleportInside(tardis.asServer(), player);
 
         this.discard();
     }
