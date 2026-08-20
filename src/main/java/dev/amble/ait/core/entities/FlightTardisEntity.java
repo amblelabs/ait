@@ -656,6 +656,12 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     }
 
     @Override
+    public void onDamaged(DamageSource damageSource) {
+        if (damageSource != getDamageSources().genericKill()) return;
+        super.onDamaged(damageSource);
+    }
+
+    @Override
     public boolean isInvulnerable() {
         return true;
     }
