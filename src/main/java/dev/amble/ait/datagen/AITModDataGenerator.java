@@ -1134,9 +1134,13 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         // Sonic Scanning Mode
         provider.addTranslation("item.sonic.scanning.any_tool", "Any Tool");
-        provider.addTranslation("item.sonic.scanning.diamond_tool", "Diamond Tool");
-        provider.addTranslation("item.sonic.scanning.iron_tool", "Iron Tool");
-        provider.addTranslation("item.sonic.scanning.stone_tool", "Stone Tool");
+        provider.addTranslation("item.sonic.scanning.tool.pickaxe", "Pickaxe");
+        provider.addTranslation("item.sonic.scanning.tool.axe", "Axe");
+        provider.addTranslation("item.sonic.scanning.tool.shovel", "Shovel");
+        provider.addTranslation("item.sonic.scanning.tool.hoe", "Hoe");
+        provider.addTranslation("item.sonic.scanning.tier.diamond", "Diamond");
+        provider.addTranslation("item.sonic.scanning.tier.iron", "Iron");
+        provider.addTranslation("item.sonic.scanning.tier.stone", "Stone");
         provider.addTranslation("item.sonic.scanning.no_tool", "Hand (No Tool)");
         provider.addTranslation("item.sonic.scanning.cant_break", "Can't Break Block!");
         provider.addTranslation("item.sonic.scanning.locator_message.title", "TARDIS location: %s");
