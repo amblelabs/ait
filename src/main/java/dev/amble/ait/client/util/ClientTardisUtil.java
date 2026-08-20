@@ -156,23 +156,6 @@ public class ClientTardisUtil {
         BlockPos pos = player.getBlockPos();
         RegistryKey<World> dimension = player.getWorld().getRegistryKey();
 
-        // doesnt find nearest, only finds if within radius.
-        // could be more performant though
-        //
-        // ya dont say
-        //  - Theo
-        /*
-        return ClientTardisManager.getInstance().find(tardis -> {
-            if (!tardis.travel().position().getDimension().equals(dimension))
-                return false;
-
-            BlockPos tPos = tardis.travel().position().getPos();
-            double distance = Math.sqrt(pos.getSquaredDistance(tPos));
-
-            return distance < radius;
-        });
-        */
-
         double radiusSquared = Math.pow(radius, 2);
 
         final ClientTardis[] nearestTardis = new ClientTardis[1];

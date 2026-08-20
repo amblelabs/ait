@@ -40,17 +40,6 @@ public class AITKeyBinds {
             if (player == null)
                 return;
 
-            if (player.hasVehicle()) {
-                Entity entity = player.getVehicle();
-                if (entity instanceof FlightTardisEntity flightTardis) {
-                    if (!flightTardis.isLinked()) return;
-                    Tardis tardis = flightTardis.tardis().get();
-
-                    ClientTardisUtil.snapToOpenDoors(tardis);
-                    return;
-                }
-            }
-
             Collection<ItemStack> keys = KeyItem.getKeysInInventory(player);
 
             for (ItemStack stack : keys) {

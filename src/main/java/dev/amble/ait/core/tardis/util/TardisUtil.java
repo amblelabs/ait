@@ -89,14 +89,6 @@ public class TardisUtil {
                 Loyalty loyalty = tardis.loyalty().get(player);
 
                 if (tardis.flight().isFlying()) {
-                    server.execute(() -> {
-                        if (!player.isSneaking()) {
-                            tardis.door().interactAllDoors(player.getServerWorld(), null, player, true);
-                        } else {
-                            tardis.door().interactToggleLock(player);
-                        }
-                    });
-
                     return;
                 }
 

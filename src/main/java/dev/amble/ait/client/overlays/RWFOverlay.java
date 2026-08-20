@@ -270,10 +270,10 @@ public class RWFOverlay implements HudRenderCallback {
     private static void controls(DrawContext context, MinecraftClient client) {
         TextRenderer font = client.textRenderer;
 
-        KeyBinding[] binds = {client.options.sneakKey, client.options.jumpKey, AITKeyBinds.SNAP.binding(),
+        KeyBinding[] binds = {client.options.sneakKey, client.options.jumpKey,
                 AITKeyBinds.TOGGLE_ANTIGRAVS.binding(), AITKeyBinds.DECREASE_SPEED.binding(),
                 AITKeyBinds.INCREASE_SPEED.binding(), AITKeyBinds.PHASE.binding()};
-        String[] actions = {"land", "ascend", "doors", "antigravs", "decrease_speed", "increase_speed", "phase"};
+        String[] actions = {"land", "ascend", "antigravs", "decrease_speed", "increase_speed", "phase"};
 
         int capW = 0;
         int labelW = 0;
