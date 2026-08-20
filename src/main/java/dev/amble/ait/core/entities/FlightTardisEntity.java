@@ -1,11 +1,19 @@
 package dev.amble.ait.core.entities;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.impl.GravitationalCircuit;
+import net.minecraft.block.AbstractGlassBlock;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.StainedGlassPaneBlock;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -32,6 +40,7 @@ import net.minecraft.util.Arm;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec2f;
@@ -168,6 +177,9 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
             return;
 
         Tardis tardis = this.tardis().get();
+
+        if (!this.noClip && this.getWorld() instanceof ServerWorld serverWorld)
+            this.breakConnectedGlass(serverWorld);
 
         this.tickBounce(player);
 
@@ -394,6 +406,50 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         }
 
         return bounceDir;
+    }
+
+    // how far, in blocks, the tardis will chew through a connected pane of glass
+    private static final int GLASS_RADIUS = 3;
+
+    // the tardis smashes through any glass it touches, flood filling to connected glass
+    // (in every direction) within a small radius so it doesn't get stuck against windows
+    private void breakConnectedGlass(ServerWorld world) {
+        Box box = this.getBoundingBox().expand(0.2);
+        BlockPos origin = this.getBlockPos();
+
+        Set<BlockPos> visited = new HashSet<>();
+        Deque<BlockPos> queue = new ArrayDeque<>();
+
+        // seed with any glass the tardis is currently intersecting
+        for (BlockPos pos : BlockPos.iterate(
+                MathHelper.floor(box.minX), MathHelper.floor(box.minY), MathHelper.floor(box.minZ),
+                MathHelper.ceil(box.maxX), MathHelper.ceil(box.maxY), MathHelper.ceil(box.maxZ))) {
+            BlockPos immutable = pos.toImmutable();
+
+            if (isGlass(world.getBlockState(immutable)) && visited.add(immutable))
+                queue.add(immutable);
+        }
+
+        while (!queue.isEmpty()) {
+            BlockPos current = queue.poll();
+            world.breakBlock(current, false, this);
+
+            for (Direction direction : Direction.values()) {
+                BlockPos next = current.offset(direction);
+
+                if (origin.getSquaredDistance(next) > GLASS_RADIUS * GLASS_RADIUS || !visited.add(next))
+                    continue;
+
+                if (isGlass(world.getBlockState(next)))
+                    queue.add(next);
+            }
+        }
+    }
+
+    private static boolean isGlass(BlockState state) {
+        Block block = state.getBlock();
+        return block instanceof AbstractGlassBlock || block instanceof StainedGlassPaneBlock
+                || block == Blocks.GLASS_PANE;
     }
 
     private boolean isAdjacentToHorizontalSolidBlock() {
