@@ -16,6 +16,7 @@ public class AITTags {
         public static final TagKey<Block> SONIC_CAN_LOCATE = createTag("sonic_can_locate");
         public static final TagKey<Block> FLUID_LINK_CAN_CONNECT = createTag("fluid_link_can_connect");
         public static final TagKey<Block> WOODEN_BLOCKS = createTag("wooden_blocks");
+        public static final TagKey<Block> PHASE_PROOF = createTag("phase_proof");
 
         private static TagKey<Block> createTag(String name) {
             return TagKey.of(RegistryKeys.BLOCK, AITMod.id(name));

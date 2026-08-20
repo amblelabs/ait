@@ -15,6 +15,7 @@ import net.minecraft.util.math.MathHelper;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
@@ -24,6 +25,15 @@ public class FoggyUtils {
     private static final MinecraftClient mc = MinecraftClient.getInstance();
 
     public static void overrideFog() {
+        // Gray fog while the TARDIS is phasing through blocks
+        if (mc.player != null && mc.player.getVehicle() instanceof FlightTardisEntity flight
+                && flight.isPhasing() && flight.isInsideBlock()) {
+            RenderSystem.setShaderFogStart(-8);
+            RenderSystem.setShaderFogEnd(6);
+            RenderSystem.setShaderFogShape(FogShape.SPHERE);
+            RenderSystem.setShaderFogColor(0.45f, 0.45f, 0.45f, 1f);
+        }
+
         Tardis tardis = ClientTardisUtil.getCurrentTardis();
 
         if (mc.player != null && !mc.player.isSpectator() && mc.world != null && mc.world.getRegistryKey().equals(AITDimensions.SPACE)) {

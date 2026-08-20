@@ -36,7 +36,7 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
 public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, TardisTickable {
     public static final double TARDIS_MAX_FUEL = 50000;
     private static final double AUTOPILOT_COST = 1.5d;
-    private static final double RWF_TOP_SPEED_COST = 4d;
+    private static final double RWF_TOP_SPEED_COST = 2d;
     private static final double RWF_FUEL_MULTIPLIER = 0.5d;
 
     private static final DoubleProperty FUEL = new DoubleProperty("fuel", 1000d);

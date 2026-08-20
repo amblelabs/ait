@@ -1,6 +1,5 @@
 package dev.amble.ait.client.renderers.entities;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
@@ -43,6 +42,8 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
         Tardis tardis = entity.tardis().get();
 
         if (tardis == null) return;
+
+        float phaseAlpha = entity.isPhasing() ? 0.5f : 1f;
 
         this.updateModel(tardis);
 
@@ -93,21 +94,21 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 
-        this.model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(getTexture(entity))), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
+        this.model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(getTexture(entity))), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, phaseAlpha);
 
         if (variant.emission() != null && tardis.fuel().hasPower()) {
             boolean alarms = tardis.alarm().isEnabled();
 
             float color = alarms ? 0.3f : 1f;
 
-            model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xf000f0, OverlayTexture.DEFAULT_UV, color, color, color, 1);
+            model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xf000f0, OverlayTexture.DEFAULT_UV, color, color, color, phaseAlpha);
         }
 
         BiomeHandler biome = tardis.handler(TardisComponent.Id.BIOME);
         Identifier biomeTexture = biome.getBiomeKey().get(variant.overrides());
 
         if (biomeTexture != null && !this.getTexture(entity).equals(biomeTexture))
-            model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(biomeTexture)), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
+            model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(biomeTexture)), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, phaseAlpha);
 
         int maxLight = 0xF000F0;
 
