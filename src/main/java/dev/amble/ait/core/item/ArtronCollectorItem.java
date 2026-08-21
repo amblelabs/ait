@@ -17,10 +17,12 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import dev.amble.ait.api.ArtronHolderItem;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
 
-public class ArtronCollectorItem extends Item {
+public class ArtronCollectorItem extends Item implements ArtronHolderItem {
     public static final String AU_LEVEL = "au_level";
     public static final String UUID_KEY = "uuid";
     public static final Integer COLLECTOR_MAX_FUEL = 1500;
@@ -32,9 +34,8 @@ public class ArtronCollectorItem extends Item {
     @Override
     public ItemStack getDefaultStack() {
         ItemStack stack = new ItemStack(this);
-        NbtCompound nbt = stack.getOrCreateNbt();
-        nbt.putDouble(AU_LEVEL, 0);
-        return super.getDefaultStack();
+        this.setCurrentFuel(0, stack);
+        return stack;
     }
 
     public static UUID getUuid(ItemStack stack) {
@@ -47,23 +48,33 @@ public class ArtronCollectorItem extends Item {
     }
 
     public static double getFuel(ItemStack stack) {
-        NbtCompound nbt = stack.getOrCreateNbt();
+        if (stack.getItem() instanceof ArtronCollectorItem collector)
+            return collector.getCurrentFuel(stack);
 
-        if (nbt.contains(AU_LEVEL))
-            return nbt.getDouble(AU_LEVEL);
-        nbt.putDouble(AU_LEVEL, 0);
-        return 0d;
+        return getFallbackFuel(stack);
     }
 
     public static double addFuel(ItemStack stack, double fuel) {
+        if (stack.getItem() instanceof ArtronCollectorItem collector)
+            return collector.addFuel(fuel, stack);
+
+        double requested = sanitizeAmount(fuel);
         NbtCompound nbt = stack.getOrCreateNbt();
         double currentFuel = getFuel(stack);
-        nbt.putDouble(AU_LEVEL, getFuel(stack) <= COLLECTOR_MAX_FUEL ? getFuel(stack) + fuel : COLLECTOR_MAX_FUEL);
-        if (getFuel(stack) > COLLECTOR_MAX_FUEL)
-            nbt.putDouble(AU_LEVEL, COLLECTOR_MAX_FUEL);
-        if (getFuel(stack) == COLLECTOR_MAX_FUEL)
-            return fuel - (COLLECTOR_MAX_FUEL - currentFuel);
-        return 0;
+        double accepted = Math.min(requested, COLLECTOR_MAX_FUEL - currentFuel);
+
+        nbt.putDouble(AU_LEVEL, currentFuel + accepted);
+        return requested - accepted;
+    }
+
+    @Override
+    public double getMaxFuel(ItemStack stack) {
+        return COLLECTOR_MAX_FUEL;
+    }
+
+    @Override
+    public String getFuelKey() {
+        return AU_LEVEL;
     }
 
     @Override
@@ -72,37 +83,53 @@ public class ArtronCollectorItem extends Item {
         World world = context.getWorld();
         BlockPos clickedPos = context.getBlockPos();
         ItemStack cellItemStack = context.getStack();
-        NbtCompound nbt = cellItemStack.getOrCreateNbt();
+        if (player == null || !player.isSneaking()) return ActionResult.FAIL;
 
-        if (world.isClient())
-            return ActionResult.SUCCESS;
-
-        if (player.isSneaking()) {
-            if (world.getBlockEntity(clickedPos) instanceof ExteriorBlockEntity exterior) {
-                if (exterior.tardis().isEmpty())
-                    return ActionResult.FAIL;
-
-                double residual = exterior.tardis().get().addFuel(nbt.getDouble(AU_LEVEL));
-                nbt.putDouble(AU_LEVEL, residual);
-                return ActionResult.CONSUME;
-            } else if (world.getBlockEntity(clickedPos) instanceof ConsoleBlockEntity console) {
-                if (console.tardis().isEmpty())
-                    return ActionResult.FAIL;
-
-                double residual = console.tardis().get().addFuel(nbt.getDouble(AU_LEVEL));
-                nbt.putDouble(AU_LEVEL, residual);
-                return ActionResult.CONSUME;
-            }
+        Tardis tardis;
+        if (world.getBlockEntity(clickedPos) instanceof ExteriorBlockEntity exterior) {
+            if (exterior.tardis().isEmpty()) return ActionResult.FAIL;
+            tardis = exterior.tardis().get();
+        } else if (world.getBlockEntity(clickedPos) instanceof ConsoleBlockEntity console) {
+            if (console.tardis().isEmpty()) return ActionResult.FAIL;
+            tardis = console.tardis().get();
+        } else {
             return ActionResult.FAIL;
         }
 
-        return ActionResult.FAIL;
+        // The authoritative fuel capacity only exists on the server. PASS keeps the interaction
+        // flowing without rendering a successful transfer before the server has accepted any AU.
+        if (world.isClient()) return ActionResult.PASS;
+
+        double offered = this.getCurrentFuel(cellItemStack);
+        if (offered <= 0) return ActionResult.FAIL;
+
+        double returned = tardis.addFuel(offered);
+        double residual = Double.isFinite(returned) ? Math.min(Math.max(returned, 0), offered) : offered;
+        if (offered - residual <= 0) return ActionResult.FAIL;
+
+        this.setCurrentFuel(residual, cellItemStack);
+        return ActionResult.CONSUME;
+
     }
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        NbtCompound tag = stack.getOrCreateNbt();
-        String text = tag.contains(AU_LEVEL) ? "" + tag.getDouble(AU_LEVEL) : "0.0";
+        String text = String.valueOf(this.getCurrentFuel(stack));
         tooltip.add(Text.literal(text + " / " + COLLECTOR_MAX_FUEL + ".0").formatted(Formatting.BLUE));
+    }
+
+    private static double getFallbackFuel(ItemStack stack) {
+        NbtCompound nbt = stack.getOrCreateNbt();
+        double stored = nbt.contains(AU_LEVEL) ? nbt.getDouble(AU_LEVEL) : 0;
+        double current = Double.isFinite(stored) ? Math.min(Math.max(stored, 0), COLLECTOR_MAX_FUEL) : 0;
+
+        if (!nbt.contains(AU_LEVEL) || Double.compare(stored, current) != 0)
+            nbt.putDouble(AU_LEVEL, current);
+
+        return current;
+    }
+
+    private static double sanitizeAmount(double amount) {
+        return Double.isFinite(amount) && amount > 0 ? amount : 0;
     }
 }

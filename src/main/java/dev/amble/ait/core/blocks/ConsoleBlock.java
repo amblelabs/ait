@@ -84,7 +84,7 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof ConsoleBlockEntity consoleBlockEntity) {
             if (world.getRegistryKey().equals(World.OVERWORLD)) return ActionResult.FAIL;
-            consoleBlockEntity.useOn(world, player.isSneaking(), player);
+            consoleBlockEntity.useOn(world, player.isSneaking(), player, hand);
             ItemStack itemStack = player.getStackInHand(hand);
             if (itemStack.getItem() instanceof HammerItem) {
                 itemStack.getItem().useOnBlock(new ItemUsageContext(world, player, hand, itemStack, hit));

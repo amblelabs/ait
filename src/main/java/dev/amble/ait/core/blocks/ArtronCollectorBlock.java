@@ -75,7 +75,7 @@ public class ArtronCollectorBlock extends HorizontalFluidLinkBlock implements Bl
             BlockHitResult hit) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof ArtronCollectorBlockEntity artronCollectorBlockEntity)
-            artronCollectorBlockEntity.useOn(world, player.isSneaking(), player);
+            artronCollectorBlockEntity.useOn(world, player.isSneaking(), player, hand);
 
         return ActionResult.SUCCESS;
     }

@@ -33,7 +33,7 @@ public class RefuelerControl extends Control {
             return tardis.isRefueling() ? Result.SUCCESS_ALT : Result.SUCCESS;
         }
 
-        return Result.SUCCESS;
+        return Result.FAILURE;
     }
 
     @Override

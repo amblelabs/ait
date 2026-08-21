@@ -18,7 +18,7 @@ public class TagsUtil {
         RegistryWrapper.Impl<Item> itemLookup = world.getRegistryManager().getWrapperOrThrow(RegistryKeys.ITEM);
         Optional<RegistryEntryList.Named<Item>> optionalList = itemLookup.getOptional(tag);
 
-        if (optionalList.isEmpty()) {
+        if (optionalList.isEmpty() || optionalList.get().size() == 0) {
             return Items.AIR;
         }
 
@@ -32,7 +32,7 @@ public class TagsUtil {
         RegistryWrapper.Impl<Block> blockLookup = world.getRegistryManager().getWrapperOrThrow(RegistryKeys.BLOCK);
         Optional<RegistryEntryList.Named<Block>> optionalList = blockLookup.getOptional(tag);
 
-        if (optionalList.isEmpty()) {
+        if (optionalList.isEmpty() || optionalList.get().size() == 0) {
             return Blocks.AIR;
         }
 
