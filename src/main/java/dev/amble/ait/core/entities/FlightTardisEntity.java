@@ -5,6 +5,7 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.SubSystem;
@@ -29,10 +30,12 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.mob.ShulkerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
@@ -50,6 +53,7 @@ import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.LinkableLivingEntity;
+import dev.amble.ait.core.AITDamageTypes;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITEntityTypes;
 import dev.amble.ait.core.AITSounds;
@@ -89,6 +93,11 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     boolean prevUpwardCollision = false;
 
     private static final double BOUNCE_RESTITUTION = 0.5;
+
+    private static final double CRUSH_MIN_SPEED = 0.1;
+    private static final double CRUSH_DAMAGE_SCALE = 20.0;
+    private static final float CRUSH_MIN_DAMAGE = 6f;
+    private static final float CRUSH_MAX_DAMAGE = 40f;
 
     private boolean prevAdjacentToWall = false;
     private Vec3d incomingVelocity = Vec3d.ZERO;
@@ -153,7 +162,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
             if (phaseCooldown > 0)
                 phaseCooldown--;
 
-            if (phaseTicks > 0 && --phaseTicks == 0)
+            if (phaseTicks > 0 && (phaseTicks > 1 || !this.isInsideBlock()) && --phaseTicks == 0)
                 phaseJustEnded = true;
 
             boolean phasing = phaseTicks > 0;
@@ -197,6 +206,8 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         tardis.flight().tickFlight((ServerPlayerEntity) player, this.getBlockPos());
 
         this.applyGravCircuitDamageEffects(tardis);
+
+        this.crushFallenOnEntities();
 
         if (phaseJustEnded) {
             phaseJustEnded = false;
@@ -261,6 +272,37 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         serverWorld.spawnParticles(ParticleTypes.LARGE_SMOKE, x, y, z, 15, 0.5, 0.5, 0.5, 0.05);
         serverWorld.spawnParticles(ParticleTypes.ELECTRIC_SPARK, x, y, z, 10, 0.5, 0.5, 0.5, 0.2);
         this.getWorld().playSound(null, this.getBlockPos(), SoundEvents.BLOCK_REDSTONE_TORCH_BURNOUT, SoundCategory.BLOCKS, 2.0F, 0.5F + AITMod.RANDOM.nextFloat());
+    }
+
+    private void crushFallenOnEntities() {
+        if (this.noClip)
+            return;
+
+        double fallSpeed = -this.incomingVelocity.y;
+
+        if (fallSpeed < CRUSH_MIN_SPEED)
+            return;
+
+        Entity passenger = this.getControllingPassenger();
+        Predicate<Entity> predicate = EntityPredicates.EXCEPT_CREATIVE_OR_SPECTATOR
+                .and(EntityPredicates.VALID_LIVING_ENTITY)
+                .and(entity -> entity != passenger && !(entity instanceof FlightTardisEntity));
+
+        Box box = this.getBoundingBox().expand(0.1).stretch(0, -0.35, 0);
+        List<Entity> victims = this.getWorld().getOtherEntities(this, box, predicate);
+
+        if (victims.isEmpty())
+            return;
+
+        float damage = (float) MathHelper.clamp(fallSpeed * CRUSH_DAMAGE_SCALE, CRUSH_MIN_DAMAGE, CRUSH_MAX_DAMAGE);
+        DamageSource source = AITDamageTypes.of(this.getWorld(), AITDamageTypes.TARDIS_SQUASH_DAMAGE_TYPE);
+
+        for (Entity victim : victims) {
+            if (victim instanceof ShulkerEntity shulker)
+                shulker.kill();
+
+            victim.damage(source, damage);
+        }
     }
 
     private void spawnCollisionParticles(boolean horizontal) {
