@@ -254,6 +254,10 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
         return this.handler(TardisComponent.Id.SUBSYSTEM);
     }
 
+    public TardisTemperamentHandler temperament() {
+        return this.handler(TardisComponent.Id.TEMPERAMENT);
+    }
+
     public ShieldHandler shields() {
         return this.handler(TardisComponent.Id.SHIELDS);
     }

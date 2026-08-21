@@ -1,20 +1,20 @@
 package dev.amble.ait.compat.portal;
 
+import java.util.UUID;
+
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.util.EntityRef;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ServerWorld;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.portal.Portal;
-
-import net.minecraft.entity.EntityType;
-import net.minecraft.world.World;
-
-import dev.amble.ait.client.AITModClient;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 
-import java.util.UUID;
+import net.minecraft.entity.EntityType;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.World;
 
 public class TardisPortal extends Portal {
 
@@ -29,6 +29,17 @@ public class TardisPortal extends Portal {
 
     public TardisPortal(EntityType<TardisPortal> type, World world) {
         super(type, world);
+    }
+
+    public @Nullable ServerTardis getServerTardis() {
+        return this.tardis instanceof ServerTardis serverTardis ? serverTardis : null;
+    }
+
+    public boolean isExteriorPortal() {
+        ServerTardis serverTardis = this.getServerTardis();
+        PortalsHandler portals = serverTardis == null ? null : serverTardis.handler(PortalsHandler.ID);
+        EntityRef<TardisPortal> exterior = portals == null ? null : portals.getExteriorRef();
+        return exterior != null && this.getUuid().equals(exterior.getId());
     }
 
     @Override

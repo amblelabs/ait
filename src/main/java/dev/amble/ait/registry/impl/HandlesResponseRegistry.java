@@ -3,6 +3,16 @@ package dev.amble.ait.registry.impl;
 import java.util.HashMap;
 import java.util.List;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.handles.HandlesResponse;
+import dev.amble.ait.core.handles.HandlesSound;
+import dev.amble.ait.core.item.HandlesItem;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.world.TardisServerWorld;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 
@@ -16,17 +26,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.handles.HandlesResponse;
-import dev.amble.ait.core.handles.HandlesSound;
-import dev.amble.ait.core.item.HandlesItem;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.impl.SecurityControl;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.world.TardisServerWorld;
 
 /**
  * Registry for Handles responses.
@@ -507,7 +506,8 @@ public class HandlesResponseRegistry {
             if (stack.getItem() instanceof HandlesItem item && item.isLinked(stack)) {
                 Tardis tardis = item.getTardis(player.getWorld(), stack);
 
-                if (tardis.butler().getHandles() == null) {
+                if (tardis != null && tardis.butler().getHandles() == null) {
+                    tardis.temperament().tryWarnRejectedPlayer(player);
                     response.run(player, HandlesSound.of(player), tardis.asServer());
                     return false;
                 }
@@ -523,6 +523,8 @@ public class HandlesResponseRegistry {
 
         if (tardis.butler().getHandles() == null)
             return true;
+
+        tardis.temperament().tryWarnRejectedPlayer(player);
 
         if (response.requiresSudo() && tardis.stats().security().get()
                 && !SecurityControl.hasMatchingKey(player, tardis))
