@@ -5,7 +5,30 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.client.tardis.manager.ClientTardisManager;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.blocks.ExteriorBlock;
+import dev.amble.ait.core.lock.LockedDimension;
+import dev.amble.ait.core.lock.LockedDimensionRegistry;
+import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
+import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
+import dev.amble.ait.core.tardis.control.impl.EngineOverloadControl;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
+import dev.amble.ait.core.tardis.handler.ReturnHomeHandler;
+import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.util.NetworkUtil;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.util.SafePosSearch;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.core.world.RiftChunkManager;
+import dev.amble.ait.data.Exclude;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
@@ -20,6 +43,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
@@ -30,28 +54,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.client.tardis.manager.ClientTardisManager;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.blocks.ExteriorBlock;
-import dev.amble.ait.core.lock.LockedDimension;
-import dev.amble.ait.core.lock.LockedDimensionRegistry;
-import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
-import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
-import dev.amble.ait.core.tardis.control.impl.EngineOverloadControl;
-import dev.amble.ait.core.tardis.control.impl.SecurityControl;
-import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
-import dev.amble.ait.core.tardis.util.NetworkUtil;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.core.util.SafePosSearch;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.core.world.RiftChunkManager;
-import dev.amble.ait.data.Exclude;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public final class TravelHandler extends AnimatedTravelHandler implements CrashableTardisTravel {
 
@@ -68,6 +70,9 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     private boolean waiting;
 
     @Exclude
+    private long rematSearchId;
+
+    @Exclude
     private EnumMap<State, ActionQueue> travelQueue;
 
     public static final Identifier CANCEL_DEMAT_SOUND = AITMod.id("cancel_demat_sound");
@@ -81,7 +86,10 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
             if (state == TravelHandlerBase.State.DEMAT) {
                 tardis.travel().finishDemat();
             } else if (state == TravelHandlerBase.State.MAT) {
-                tardis.travel().finishRemat();
+                // A queued home search is not safely resumable while the server is
+                // stopping. Persist MAT and restart the search during post-init.
+                if (!tardis.returnHome().isAutomaticTravel() || !tardis.travel().waiting)
+                    tardis.travel().finishRemat();
             }
         });
         TardisEvents.FINISH_FLIGHT.register(tardis -> { // ghost monument
@@ -124,6 +132,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
         TardisEvents.LANDED.register(tardis -> {
             if (AITMod.CONFIG.ghostMonument) {
+                tardis.returnHome().onGhostLanded();
                 tardis.travel().tryFly();
             }
             if (tardis.travel().autopilot())
@@ -253,15 +262,31 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         // FIXME: exterior falling issues :(
         if (this.vGroundSearch.get() == SafePosSearch.Kind.NONE)
             this.vGroundSearch.set(SafePosSearch.Kind.MEDIAN);
+
+        if (context.deserialized() && this.getState() == State.MAT
+                && this.tardis.returnHome().isAutomaticTravel()
+                && !this.tardis.returnHome().hasReachedAutomaticDestination()) {
+            if (this.finishInterruptedAutomaticRemat())
+                this.finishRemat();
+        }
     }
 
     public void deleteExterior() {
+        this.tryDeleteExterior();
+    }
+
+    public boolean tryDeleteExterior() {
         CachedDirectedGlobalPos globalPos = this.position.get();
+        if (globalPos == null)
+            return false;
 
         ServerWorld world = globalPos.getWorld();
+        if (world == null)
+            return false;
+
         BlockPos pos = globalPos.getPos();
 
-        world.removeBlock(pos, false);
+        return world.removeBlock(pos, false);
     }
 
     /**
@@ -276,13 +301,51 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         return placeExterior(this.position(), animate, schedule);
     }
 
+    @Nullable public ProvisionalExterior placeProvisionalExterior(CachedDirectedGlobalPos globalPos) {
+        if (globalPos == null || globalPos.getWorld() == null
+                || !globalPos.getWorld().isInBuildLimit(globalPos.getPos()))
+            return null;
+
+        ServerWorld world = globalPos.getWorld();
+        BlockState replacedState = world.getBlockState(globalPos.getPos());
+        ExteriorBlockEntity exterior = this.placeExterior(globalPos, false, true, true);
+        return exterior == null ? null
+                : new ProvisionalExterior(world, globalPos.getPos().toImmutable(), replacedState, exterior);
+    }
+
     private ExteriorBlockEntity placeExterior(CachedDirectedGlobalPos globalPos, boolean animate, boolean schedule) {
+        return this.placeExterior(globalPos, animate, schedule, false);
+    }
+
+    private ExteriorBlockEntity placeExterior(CachedDirectedGlobalPos globalPos, boolean animate, boolean schedule,
+                                               boolean provisionalSiegePlacement) {
+        if (globalPos == null) {
+            AITMod.LOGGER.error("Failed to place exterior: position is null");
+            return null;
+        }
+
         ServerWorld world = globalPos.getWorld();
         if (world == null) {
             AITMod.LOGGER.error("Failed to place exterior: world is null for position {}", globalPos);
             return null;
         } // This should be fine for now
+        if (this.tardis.siege().isActive() && !provisionalSiegePlacement
+                && !this.tardis.returnHome().canMaterializeSiegeExterior(world.getServer())) {
+            AITMod.LOGGER.warn("Blocked exterior placement for TARDIS {} while its siege item locator is unresolved",
+                    this.tardis.getUuid());
+            return null;
+        }
         BlockPos pos = globalPos.getPos();
+        if (!world.isInBuildLimit(pos)) {
+            AITMod.LOGGER.warn("Failed to place exterior for TARDIS {} outside the build limit at {}",
+                    this.tardis.getUuid(), pos);
+            return null;
+        }
+
+        BlockState replacedState = world.getBlockState(pos);
+        if (provisionalSiegePlacement && (!canReplaceForSiegePlacement(replacedState)
+                || world.getBlockEntity(pos) != null))
+            return null;
 
         boolean hasPower = this.tardis.fuel().hasPower();
 
@@ -290,10 +353,24 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
                 .with(ExteriorBlock.ROTATION, (int) globalPos.getRotation())
                 .with(ExteriorBlock.LEVEL_4, hasPower ? 4 : 0);
 
-        world.setBlockState(pos, blockState);
+        if (!world.setBlockState(pos, blockState)) {
+            AITMod.LOGGER.warn("Failed to set exterior block for TARDIS {} at {}",
+                    this.tardis.getUuid(), pos);
+            return null;
+        }
 
         ExteriorBlockEntity exterior = new ExteriorBlockEntity(pos, blockState, this.tardis);
         world.addBlockEntity(exterior);
+        if (world.getBlockEntity(pos) != exterior) {
+            if (provisionalSiegePlacement)
+                world.setBlockState(pos, replacedState);
+            else
+                world.removeBlock(pos, false);
+
+            AITMod.LOGGER.error("Failed to attach exterior block entity for TARDIS {} at {}",
+                    this.tardis.getUuid(), pos);
+            return null;
+        }
 
         if (animate)
             this.runAnimations(exterior);
@@ -302,6 +379,22 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
             world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, 2);
 
         return exterior;
+    }
+
+    private static boolean canReplaceForSiegePlacement(BlockState state) {
+        return state.isAir() || state.isLiquid() || state.isReplaceable();
+    }
+
+    public record ProvisionalExterior(ServerWorld world, BlockPos pos, BlockState replacedState,
+                                      ExteriorBlockEntity exterior) {
+        public void rollback() {
+            if (this.world == null || this.pos == null || this.exterior == null
+                    || this.world.getBlockEntity(this.pos) != this.exterior)
+                return;
+
+            if (!this.world.setBlockState(this.pos, this.replacedState))
+                this.world.removeBlock(this.pos, false);
+        }
     }
 
     private void runAnimations(ExteriorBlockEntity exterior) {
@@ -346,6 +439,12 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
      * @param remat the remat animation to play, or null to use the default sound
      */
     public Optional<ActionQueue> dematerialize(@Nullable TardisAnimation demat, @Nullable TardisAnimation remat) {
+        return this.dematerialize(demat, remat, false);
+    }
+
+    private Optional<ActionQueue> dematerialize(@Nullable TardisAnimation demat,
+                                                @Nullable TardisAnimation remat,
+                                                boolean ignoreCooldown) {
         if (this.getState() != State.LANDED)
             return Optional.empty();
 
@@ -361,7 +460,8 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
                 this.increaseSpeed();
         }
 
-        if (TardisEvents.DEMAT.invoker().onDemat(this.tardis) == TardisEvents.Interaction.FAIL || this.travelCooldown) {
+        if (TardisEvents.DEMAT.invoker().onDemat(this.tardis) == TardisEvents.Interaction.FAIL
+                || (!ignoreCooldown && this.travelCooldown)) {
             this.failDemat();
             return Optional.empty();
         }
@@ -371,6 +471,21 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
     public Optional<ActionQueue> dematerialize() {
         return this.dematerialize(null, null);
+    }
+
+    public Optional<ActionQueue> dematerializeForHailMary() {
+        // Hail Mary enables autopilot before taking off. Raising the speed through
+        // increaseSpeed() would call tryFly() and recursively start a second demat.
+        // Prime it through the base setter so this remains one atomic take-off.
+        boolean primedSpeed = this.autopilot() && this.speed() == 0;
+        if (primedSpeed)
+            super.speed(1);
+
+        Optional<ActionQueue> result = this.dematerialize(null, null, true);
+        if (result.isEmpty() && primedSpeed)
+            super.speed(0);
+
+        return result;
     }
 
     private void failDemat() {
@@ -466,7 +581,9 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         if (this.getState() != State.FLIGHT || this.travelCooldown)
             return Optional.empty();
 
-        if (TardisEvents.MAT.invoker().onMat(tardis.asServer()) == TardisEvents.Interaction.FAIL) {
+        if (!this.tardis.returnHome().isHomeLanding()
+                && !this.tardis.returnHome().isHailMaryExactLanding()
+                && TardisEvents.MAT.invoker().onMat(tardis.asServer()) == TardisEvents.Interaction.FAIL) {
             this.failRemat();
             return Optional.empty();
         }
@@ -476,13 +593,17 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
     public Optional<ActionQueue> forceRemat() {
         if (this.tardis.sequence().hasActiveSequence())
-            this.tardis.sequence().setActiveSequence(null, true);
+            this.tardis.sequence().cancelActiveSequence();
 
-        this.resetMissed(); // resets missed flight events
+        this.resetMissed();
 
         CachedDirectedGlobalPos initialPos = this.getProgress();
-        TardisEvents.Result<CachedDirectedGlobalPos> result = TardisEvents.BEFORE_LAND.invoker()
-                .onLanded(this.tardis, initialPos);
+        boolean destinationHome = this.tardis.returnHome().isDestinationHome();
+        boolean exactHailMaryLanding = this.tardis.returnHome().isHailMaryExactLanding();
+        TardisEvents.Result<CachedDirectedGlobalPos> result = this.tardis.returnHome().isHomeLanding()
+                || exactHailMaryLanding
+                ? new TardisEvents.Result<>(TardisEvents.Interaction.SUCCESS, initialPos)
+                : TardisEvents.BEFORE_LAND.invoker().onLanded(this.tardis, initialPos);
 
         if (result.type() == TardisEvents.Interaction.FAIL) {
             if (!this.isCrashing())
@@ -504,11 +625,45 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
         // this method MAY get called twice.
         if (!wasWaiting) {
-            SafePosSearch.wrapSafe(finalPos, this.vGroundSearch.get(),
-                    this.hGroundSearch.get(), this::finishForceRemat);
+            long searchId = ++this.rematSearchId;
+            if (exactHailMaryLanding) {
+                if (this.tardis.returnHome().isHomeLanding())
+                    this.clearLandingObstructions(finalPos);
+                this.finishForceRemat(searchId, finalPos);
+            } else if (this.tardis.returnHome().isHomeLanding()) {
+                CachedDirectedGlobalPos home = this.tardis.stats().getHome();
+                this.searchHomeLanding(searchId, home);
+            } else {
+                SafePosSearch.wrapSafe(finalPos, this.vGroundSearch.get(),
+                        this.hGroundSearch.get(), pos -> this.finishForceRemat(searchId, pos));
+            }
         }
 
         return Optional.of(this.queueFor(State.LANDED));
+    }
+
+    private void finishForceRemat(long searchId, CachedDirectedGlobalPos pos) {
+        if (!this.waiting || this.getState() != State.MAT || searchId != this.rematSearchId)
+            return;
+        if (this.tardis.asServer().isRemoved()) {
+            this.waiting = false;
+            return;
+        }
+
+        this.finishForceRemat(pos);
+    }
+
+    private void searchHomeLanding(long searchId, CachedDirectedGlobalPos home) {
+        int homeRadius = ReturnHomeHandler.homeRadius();
+        SafePosSearch.wrapSafe(home, this.vGroundSearch.get(), true, homeRadius, search -> {
+            boolean withinHomeRadius = search.foundSafePosition()
+                    && search.position().getPos().getSquaredDistance(home.getPos())
+                    <= homeRadius * homeRadius;
+            CachedDirectedGlobalPos target = withinHomeRadius ? search.position() : home;
+            if (!withinHomeRadius)
+                this.clearLandingObstructions(target);
+            this.finishForceRemat(searchId, target);
+        });
     }
 
     private void finishForceRemat(CachedDirectedGlobalPos pos) {
@@ -526,6 +681,42 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         this.forcePosition(this.destination());
 
         this.placeExterior(true); // we schedule block update in #finishRemat
+    }
+
+    private boolean finishInterruptedAutomaticRemat() {
+        boolean homeLanding = this.tardis.returnHome().isHomeLanding();
+        CachedDirectedGlobalPos target = homeLanding
+                ? this.tardis.stats().getHome() : this.position();
+        if (target == null)
+            target = this.destination();
+
+        MinecraftServer server = ServerLifecycleHooks.get();
+        if (target == null || server == null)
+            return false;
+
+        target.init(server);
+        if (target.getWorld() == null)
+            return false;
+
+        if (homeLanding && !this.tardis.returnHome().isHailMaryExactLanding()) {
+            this.waiting = true;
+            long searchId = ++this.rematSearchId;
+            this.searchHomeLanding(searchId, target);
+            return false;
+        }
+
+        this.rematSearchId++;
+        if (homeLanding)
+            this.clearLandingObstructions(target);
+        else
+            this.tardis.returnHome().recoverInterruptedBossReturn();
+        this.finishForceRemat(target);
+        return true;
+    }
+
+    public void clearLandingObstructions(CachedDirectedGlobalPos pos) {
+        pos.getWorld().setBlockState(pos.getPos(), Blocks.AIR.getDefaultState());
+        pos.getWorld().setBlockState(pos.getPos().up(), Blocks.AIR.getDefaultState());
     }
 
     public void finishRemat() {

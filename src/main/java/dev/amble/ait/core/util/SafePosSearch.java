@@ -1,11 +1,17 @@
 package dev.amble.ait.core.util;
 
+import java.util.ArrayDeque;
+import java.util.Queue;
 import java.util.function.Consumer;
 
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.queue.api.util.Value;
 import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
@@ -18,29 +24,108 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-
-import dev.amble.lib.data.CachedDirectedGlobalPos;
+import net.minecraft.world.chunk.ChunkStatus;
 
 public class SafePosSearch {
 
     private static final int SAFE_RADIUS = 3;
+    private static final Queue<Runnable> EXTENDED_SEARCH_QUEUE = new ArrayDeque<>();
+    private static boolean extendedSearchActive;
+
+    static {
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> clearExtendedSearches());
+    }
 
     public static void wrapSafe(CachedDirectedGlobalPos globalPos, Kind vSearch,
                                 boolean hSearch, Consumer<CachedDirectedGlobalPos> posConsumer) {
+        wrapSafe(globalPos, vSearch, hSearch, SAFE_RADIUS,
+                result -> posConsumer.accept(result.position()));
+    }
+
+    public static void wrapSafe(CachedDirectedGlobalPos globalPos, Kind vSearch,
+                                boolean hSearch, int horizontalRadius, Consumer<SearchResult> resultConsumer) {
+        if (globalPos.getWorld() == null)
+            globalPos.init(ServerLifecycleHooks.get());
+
+        if (globalPos.getWorld() == null) {
+            resultConsumer.accept(new SearchResult(globalPos, false));
+            return;
+        }
+
+        if (horizontalRadius > SAFE_RADIUS) {
+            enqueueExtendedSearch(() -> runSafeSearch(globalPos, vSearch, hSearch, horizontalRadius, result -> {
+                try {
+                    resultConsumer.accept(result);
+                } finally {
+                    finishExtendedSearch();
+                }
+            }));
+            return;
+        }
+
+        runSafeSearch(globalPos, vSearch, hSearch, horizontalRadius, resultConsumer);
+    }
+
+    private static void runSafeSearch(CachedDirectedGlobalPos globalPos, Kind vSearch,
+                                      boolean hSearch, int horizontalRadius, Consumer<SearchResult> resultConsumer) {
         Value<BlockPos> ref = new Value<>(null);
-        ActionQueue queue = findSafe(globalPos, vSearch, hSearch, ref);
+        ActionQueue queue = findSafe(globalPos, vSearch, hSearch, horizontalRadius, ref);
 
         if (queue != null) {
             queue.thenRun(() -> {
                 CachedDirectedGlobalPos resultPos = globalPos;
+                boolean foundSafePosition = ref.value != null;
 
-                if (ref.value != null)
+                if (foundSafePosition)
                     resultPos = resultPos.pos(ref.value);
 
-                posConsumer.accept(resultPos);
+                resultConsumer.accept(new SearchResult(resultPos, foundSafePosition));
             }).execute();
         } else {
-            posConsumer.accept(globalPos);
+            resultConsumer.accept(new SearchResult(globalPos, true));
+        }
+    }
+
+    private static void enqueueExtendedSearch(Runnable search) {
+        Runnable next = null;
+        synchronized (EXTENDED_SEARCH_QUEUE) {
+            EXTENDED_SEARCH_QUEUE.add(search);
+            if (!extendedSearchActive) {
+                extendedSearchActive = true;
+                next = EXTENDED_SEARCH_QUEUE.remove();
+            }
+        }
+
+        if (next != null)
+            runExtendedSearch(next);
+    }
+
+    private static void finishExtendedSearch() {
+        Runnable next;
+        synchronized (EXTENDED_SEARCH_QUEUE) {
+            next = EXTENDED_SEARCH_QUEUE.poll();
+            if (next == null)
+                extendedSearchActive = false;
+        }
+
+        if (next != null)
+            Scheduler.get().runTaskLater(() -> runExtendedSearch(next),
+                    TaskStage.END_SERVER_TICK, TimeUnit.TICKS, 1);
+    }
+
+    private static void runExtendedSearch(Runnable search) {
+        try {
+            search.run();
+        } catch (RuntimeException | Error error) {
+            finishExtendedSearch();
+            throw error;
+        }
+    }
+
+    private static void clearExtendedSearches() {
+        synchronized (EXTENDED_SEARCH_QUEUE) {
+            EXTENDED_SEARCH_QUEUE.clear();
+            extendedSearchActive = false;
         }
     }
 
@@ -48,11 +133,22 @@ public class SafePosSearch {
      * @return {@literal null} when the position is already safe, {@link ActionQueue} otherwise.
      */
     @Nullable public static ActionQueue findSafe(CachedDirectedGlobalPos globalPos,
-                                       Kind vSearch, boolean hSearch, Value<BlockPos> ref) {
+                                        Kind vSearch, boolean hSearch, Value<BlockPos> ref) {
+        return findSafe(globalPos, vSearch, hSearch, SAFE_RADIUS, ref);
+    }
+
+    /**
+     * @return {@literal null} when the position is already safe, {@link ActionQueue} otherwise.
+     */
+    @Nullable public static ActionQueue findSafe(CachedDirectedGlobalPos globalPos,
+                                        Kind vSearch, boolean hSearch, int horizontalRadius, Value<BlockPos> ref) {
+        if (horizontalRadius < 0)
+            throw new IllegalArgumentException("Horizontal search radius cannot be negative");
+
         ServerWorld world = globalPos.getWorld();
         BlockPos pos = globalPos.getPos();
 
-        final Chunk chunk = globalPos.getWorld().getChunk(pos);
+        final Chunk chunk = world.getChunk(pos);
 
         if (isSafe(chunk, pos))
             return null;
@@ -60,7 +156,7 @@ public class SafePosSearch {
         ActionQueue queue = new ActionQueue();
 
         if (hSearch) {
-            queue = findSafeXZ(queue, ref, world, pos, SAFE_RADIUS).thenRun(() -> {
+            queue = findSafeXZ(queue, ref, world, pos, vSearch, horizontalRadius).thenRun(() -> {
                 if (ref.value != null)
                     globalPos.pos(ref.value);
             });
@@ -121,16 +217,12 @@ public class SafePosSearch {
         }, TaskStage.startWorldTick(world), TimeUnit.TICKS, 1, 3);
     }
 
-    private static ActionQueue findSafeXZ(ActionQueue queue, Value<BlockPos> result, ServerWorld world, BlockPos original, int radius) {
+    private static ActionQueue findSafeXZ(ActionQueue queue, Value<BlockPos> result, ServerWorld world,
+                                          BlockPos original, Kind vSearch, int radius) {
         BlockPos.Mutable pos = original.mutableCopy();
 
-        int minX = pos.getX() - radius;
-        int maxX = pos.getX() + radius;
-
-        int minZ = pos.getZ() - radius;
-        int maxZ = pos.getZ() + radius;
-
-        final SafeXZHolder holder = new SafeXZHolder(world, pos, maxX, maxZ, minX, minZ);
+        final SafeXZHolder holder = new SafeXZHolder(world, pos, vSearch, radius);
+        int budgetMillis = radius > SAFE_RADIUS ? 1 : 3;
 
         return queue.thenRunSteps(() -> {
             Iter state = holder.checkAndAdvance();
@@ -139,7 +231,7 @@ public class SafePosSearch {
                 result.value = holder.pos.toImmutable();
 
             return state != Iter.CONTINUE;
-        }, TaskStage.startWorldTick(world), TimeUnit.TICKS, 1, 3); // every tick, while the taken time is less than 3ms (1tick = 50ms, 2/50 of a tick, which is 4%)
+        }, TaskStage.startWorldTick(world), TimeUnit.TICKS, 1, budgetMillis);
     }
 
     @SuppressWarnings("deprecation")
@@ -163,45 +255,88 @@ public class SafePosSearch {
     static class SafeXZHolder {
         int x;
         int z;
+        int directionX;
+        int directionZ;
+        int remainingSteps;
         Chunk prevChunk;
-        final World world;
+        ChunkPos prevChunkPos;
+        final ServerWorld world;
         final BlockPos.Mutable pos;
-        final int maxX;
-        final int maxZ;
-        final int minX;
+        final int centerX;
+        final int centerY;
+        final int centerZ;
+        final Kind vSearch;
+        final int radius;
 
-        public SafeXZHolder(World world, BlockPos.Mutable pos, int maxX, int maxZ, int minX, int minZ) {
+        public SafeXZHolder(ServerWorld world, BlockPos.Mutable pos, Kind vSearch, int radius) {
             this.world = world;
             this.pos = pos;
-            this.maxX = maxX;
-            this.maxZ = maxZ;
-            this.minX = minX;
-            this.x = minX;
-            this.z = minZ;
+            this.centerX = pos.getX();
+            this.centerY = pos.getY();
+            this.centerZ = pos.getZ();
+            this.vSearch = vSearch;
+            this.radius = radius;
+            this.x = 0;
+            this.z = 0;
+            this.directionX = 0;
+            this.directionZ = -1;
+            int diameter = this.radius * 2 + 1;
+            this.remainingSteps = diameter * diameter;
         }
 
         public Iter checkAndAdvance() {
-            if (z >= maxZ)
-                return Iter.FAIL;
+            while (this.remainingSteps-- > 0) {
+                int currentX = this.x;
+                int currentZ = this.z;
+                this.advanceSpiral();
 
-            if (x >= maxX) {
-                x = minX;
-                z += 1;
+                if (currentX * currentX + currentZ * currentZ > this.radius * this.radius)
+                    continue;
 
+                pos.setX(this.centerX + currentX).setZ(this.centerZ + currentZ);
+
+                ChunkPos tempPos = new ChunkPos(pos);
+                if (!tempPos.equals(this.prevChunkPos)) {
+                    this.prevChunkPos = tempPos;
+                    this.prevChunk = world.getChunkManager().getChunk(tempPos.x, tempPos.z, ChunkStatus.FULL, false);
+                }
+
+                if (this.prevChunk == null)
+                    return Iter.CONTINUE;
+
+                if (isSafe(this.prevChunk, pos))
+                    return Iter.SUCCESS;
+
+                if (this.vSearch == Kind.NONE)
+                    return Iter.CONTINUE;
+
+                int surfaceY = this.prevChunk.sampleHeightmap(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
+                        pos.getX() & 15, pos.getZ() & 15) + 1;
+                int deltaY = surfaceY - this.centerY;
+                if (currentX * currentX + deltaY * deltaY + currentZ * currentZ > this.radius * this.radius)
+                    return Iter.CONTINUE;
+
+                pos.setY(surfaceY);
+                if (isSafe(this.prevChunk, pos))
+                    return Iter.SUCCESS;
+
+                pos.setY(this.centerY);
                 return Iter.CONTINUE;
             }
 
-            pos.setX(x).setZ(z);
+            return Iter.FAIL;
+        }
 
-            ChunkPos tempPos = new ChunkPos(pos);
-            if (prevChunk == null || !prevChunk.getPos().equals(tempPos))
-                prevChunk = world.getChunk(tempPos.x, tempPos.z);
+        private void advanceSpiral() {
+            if (this.x == this.z || (this.x < 0 && this.x == -this.z)
+                    || (this.x > 0 && this.x == 1 - this.z)) {
+                int previousX = this.directionX;
+                this.directionX = -this.directionZ;
+                this.directionZ = previousX;
+            }
 
-            if (isSafe(prevChunk, pos))
-                return Iter.SUCCESS;
-
-            x += 1;
-            return Iter.CONTINUE;
+            this.x += this.directionX;
+            this.z += this.directionZ;
         }
 
         public BlockPos pos() {
@@ -323,6 +458,9 @@ public class SafePosSearch {
         SUCCESS_B,
         FAIL,
         CONTINUE
+    }
+
+    public record SearchResult(CachedDirectedGlobalPos position, boolean foundSafePosition) {
     }
 
     public enum Kind implements StringIdentifiable {

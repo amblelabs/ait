@@ -4,6 +4,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.api.tardis.WorldWithTardis;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.manager.old.DeprecatedServerTardisManager;
+import dev.amble.ait.core.tardis.util.NetworkUtil;
+import dev.amble.ait.data.properties.Value;
+import dev.amble.ait.registry.impl.TardisComponentRegistry;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -13,17 +22,6 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkPos;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.KeyedTardisComponent;
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.api.tardis.WorldWithTardis;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.manager.old.DeprecatedServerTardisManager;
-import dev.amble.ait.core.tardis.util.NetworkUtil;
-import dev.amble.ait.data.properties.Value;
-import dev.amble.ait.registry.impl.TardisComponentRegistry;
 
 public class ServerTardisManager extends DeprecatedServerTardisManager {
 
@@ -202,6 +200,11 @@ public class ServerTardisManager extends DeprecatedServerTardisManager {
     public void reset() {
         this.delta.clear();
         super.reset();
+    }
+
+    public ServerTardis getLoadedTardis(UUID uuid) {
+        var entry = this.lookup.get(uuid);
+        return entry == null ? null : entry.map(tardis -> tardis, error -> null);
     }
 
     public boolean isFull() {

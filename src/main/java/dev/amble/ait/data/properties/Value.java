@@ -8,18 +8,14 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.google.gson.*;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-
-import net.minecraft.network.PacketByteBuf;
-
 import dev.amble.ait.api.tardis.Disposable;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.Exclude;
+
+import net.minecraft.network.PacketByteBuf;
 
 public class Value<T> implements Disposable {
 
@@ -75,6 +71,16 @@ public class Value<T> implements Disposable {
 
     public void set(T value) {
         this.set(value, true);
+    }
+
+    /** Updates persisted server state without sending this value to clients. */
+    public void setPersistent(T value) {
+        if (property.getType().equals(this.value, value))
+            return;
+
+        this.set(value, false);
+        if (this.holder != null && this.holder.tardis() instanceof ServerTardis tardis)
+            tardis.markPersistentDirty();
     }
 
     public void set(T value, boolean sync) {
