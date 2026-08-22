@@ -39,7 +39,7 @@ public class ListCommand {
 
     public static int list(CommandContext<ServerCommandSource> context) {
         ServerCommandSource source = context.getSource();
-        source.sendMessage(Text.literal("TARDIS':"));
+        source.sendMessage(Text.translatable("command.ait.list.header"));
 
         ServerTardisManager.getInstance().forEach(tardis -> sendTardis(source, tardis));
         return Command.SINGLE_SUCCESS;
@@ -70,7 +70,7 @@ public class ListCommand {
                     sendTardis(source, tardis);
             });
         } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
-            context.getSource().sendError(Text.translatable("command.ait.list.pattern.error"));
+            context.getSource().sendError(Text.translatable("command.ait.list.pattern.error", args));
             return 0;
         }
 

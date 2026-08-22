@@ -111,7 +111,8 @@ public class ConsoleGeneratorBlockEntity extends FluidLinkBlockEntity {
             return;
 
         if (this.tardis().isPresent() && !this.tardis().get().isUnlocked(this.getConsoleVariant())) {
-            player.sendMessage(Text.literal("This console is not unlocked yet!").formatted(Formatting.ITALIC), true);
+            player.sendMessage(Text.translatable("message.ait.console_generator.not_unlocked")
+                    .formatted(Formatting.ITALIC), true);
             world.playSound(null, this.pos, SoundEvents.ENTITY_GLOW_ITEM_FRAME_BREAK, SoundCategory.BLOCKS, 0.5f, 1.0f);
             return;
         }
