@@ -1,18 +1,6 @@
 package dev.amble.ait.core.tardis.handler;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.item.AxeItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
-
+import dev.amble.ait.AITMod;
 import dev.amble.ait.api.ArtronHolder;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
@@ -24,6 +12,7 @@ import dev.amble.ait.core.engine.impl.EngineSystem;
 import dev.amble.ait.core.item.KeyItem;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.tardis.util.TardisHomeUtil;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.core.world.TardisServerWorld;
@@ -32,6 +21,20 @@ import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.ait.data.properties.dbl.DoubleProperty;
 import dev.amble.ait.data.properties.dbl.DoubleValue;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.item.AxeItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 
 public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, TardisTickable {
     public static final double TARDIS_MAX_FUEL = 50000;
@@ -193,20 +196,58 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
             RiftChunkManager manager = RiftChunkManager.getInstance(world);
             ChunkPos chunk = new ChunkPos(pos.getPos());
 
-            double toAdd = 7;
+            if (TardisHomeUtil.isParkedAtExactHome(this.tardis)) {
+                this.refuelAtHome(world, pos.getPos(), manager);
+            } else {
+                double toAdd = 7;
 
-            if (manager.getArtron(chunk) > 0 && !TardisServerWorld.isTardisDimension(world)) {
-                manager.removeFuel(chunk, 2);
-                toAdd += 2;
+                if (manager.getArtron(chunk) > 0 && !TardisServerWorld.isTardisDimension(world)) {
+                    manager.removeFuel(chunk, 2);
+                    toAdd += 2;
+                }
+
+                this.addFuel(20 * toAdd);
             }
-
-            this.addFuel(20 * toAdd);
         }
 
         if (!this.refueling().get() && tardis.fuel().hasPower() && !tardis.isGrowth()) {
             double instability = tardis.travel().instability();
             this.removeFuel(20d * 0.25d * instability < 1 ? 1 : instability);
         }
+    }
+
+    private void refuelAtHome(ServerWorld world, BlockPos home, RiftChunkManager manager) {
+        double capacity = Math.max(0, this.getMaxFuel() - this.getCurrentFuel());
+        if (capacity <= 0)
+            return;
+
+        double multiplier = AITMod.CONFIG.homeRefuelMultiplier;
+        if (!Double.isFinite(multiplier) || multiplier < 1)
+            multiplier = 1;
+
+        double ambient = Math.min(capacity, 140 * multiplier);
+        double riftRequest = Math.min(capacity - ambient, 40 * multiplier);
+        double drained = 0;
+
+        if (riftRequest > 0 && !TardisServerWorld.isTardisDimension(world)) {
+            int radius = TardisHomeUtil.homeRadius();
+            int minimumChunkX = Math.floorDiv(home.getX() - radius, 16);
+            int maximumChunkX = Math.floorDiv(home.getX() + radius, 16);
+            int minimumChunkZ = Math.floorDiv(home.getZ() - radius, 16);
+            int maximumChunkZ = Math.floorDiv(home.getZ() + radius, 16);
+
+            for (int chunkX = minimumChunkX; chunkX <= maximumChunkX && drained < riftRequest; chunkX++) {
+                for (int chunkZ = minimumChunkZ; chunkZ <= maximumChunkZ && drained < riftRequest; chunkZ++) {
+                    ChunkPos candidate = new ChunkPos(chunkX, chunkZ);
+                    if (!world.getChunkManager().isChunkLoaded(chunkX, chunkZ))
+                        continue;
+
+                    drained += manager.drainLoadedFuel(candidate, riftRequest - drained);
+                }
+            }
+        }
+
+        this.addFuel(ambient + drained);
     }
 
     public BoolValue refueling() {

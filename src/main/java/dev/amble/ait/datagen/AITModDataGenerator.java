@@ -1762,6 +1762,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(SubSystem.Id.ENGINE.toTranslationKey(), "Engine");
         provider.addTranslation(SubSystem.Id.STABILISERS.toTranslationKey(), "Blue Stabilisers");
         provider.addTranslation(SubSystem.Id.EMERGENCY_POWER.toTranslationKey(), "Emergency Backup Power");
+        provider.addTranslation(SubSystem.Id.BIODATA_RESTORATION.toTranslationKey(), "Biodata Restoration");
 
         // Exterior Animations
         provider.addTranslation("animation." + AITMod.MOD_ID + ".bnt_demat", "Bill & Ted");
@@ -1782,6 +1783,106 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("animation." + AITMod.MOD_ID + ".proton_mat", "Proton");
         provider.addTranslation("animation." + AITMod.MOD_ID + ".proton_demat", "Proton");
 
+
+        provider.addTranslation("yacl3.config.ait:server.category.home_systems", "Home Systems");
+        addConfigTranslation(provider, "homeRadius", "Home Area Radius (Blocks)",
+                "Radius around the configured home used by home modules, collectors and defenses.");
+        addConfigTranslation(provider, "exactHomeLoyaltyMultiplier", "Exact Home Loyalty Multiplier",
+                "Multiplier for passive loyalty gained by PILOT and OWNER players while the TARDIS is parked at its exact home.");
+        addConfigTranslation(provider, "exactHomeSaturationLevel", "Exact Home Saturation Level",
+                "Saturation effect level granted to COMPANION-or-higher players by operational life support at the exact home.");
+        addConfigTranslation(provider, "exactHomeOwnerResistanceLevel", "Exact Home OWNER Resistance Level",
+                "Resistance effect level granted to OWNER players by operational life support at the exact home.");
+        addConfigTranslation(provider, "beaconEmanationFuelPerSecond", "Beacon Emanation Fuel Cost (AU/Second)",
+                "Artron consumed each second while an operational Beacon Emanation protects the TARDIS and its home area.");
+        addConfigTranslation(provider, "biodataRestorationAvailable", "Enable Biodata Restoration",
+                "Allows a Totem of Undying to be installed as a home-bound Biodata Restoration system.");
+        addConfigTranslation(provider, "biodataRestorationRejectInsertionChance", "REJECT Insertion Rejection Chance",
+                "Chance that the TARDIS rejects Biodata Restoration when installed by a REJECT player.");
+        addConfigTranslation(provider, "biodataRestorationNeutralInsertionChance", "NEUTRAL Insertion Rejection Chance",
+                "Chance that the TARDIS rejects Biodata Restoration when installed by a NEUTRAL player.");
+        addConfigTranslation(provider, "biodataRestorationCompanionInsertionChance", "COMPANION Insertion Rejection Chance",
+                "Chance that the TARDIS rejects Biodata Restoration when installed by a COMPANION player.");
+        addConfigTranslation(provider, "biodataRestorationPilotInsertionChance", "PILOT Insertion Rejection Chance",
+                "Chance that the TARDIS rejects Biodata Restoration when installed by a PILOT player.");
+        addConfigTranslation(provider, "biodataRestorationOwnerInsertionChance", "OWNER Insertion Rejection Chance",
+                "Chance that the TARDIS rejects Biodata Restoration when installed by an OWNER player.");
+        addConfigTranslation(provider, "biodataRestorationRejectFireSeconds", "Rejected REJECT Fire Duration (Seconds)",
+                "Time a REJECT player burns after the TARDIS refuses their installation attempt.");
+        addConfigTranslation(provider, "biodataRestorationInsertionLoyaltyCost", "Biodata Restoration Installation Loyalty Cost",
+                "Loyalty removed from the player who forces the system into the TARDIS.");
+        addConfigTranslation(provider, "biodataRestorationRescueFuelCost", "Biodata Restoration Cost (AU)",
+                "Artron consumed whenever the TARDIS successfully restores a player's biodata.");
+        addConfigTranslation(provider, "biodataRestorationRescueLoyaltyCost", "Biodata Restoration Loyalty Cost",
+                "Loyalty removed from a player whenever their biodata is restored.");
+        addConfigTranslation(provider, "biodataRestorationSubsystemDamageMin", "Minimum Restoration Subsystem Damage",
+                "Minimum durability damage dealt to every durable subsystem after a restoration.");
+        addConfigTranslation(provider, "biodataRestorationSubsystemDamageMax", "Maximum Restoration Subsystem Damage",
+                "Maximum durability damage dealt to every durable subsystem after a restoration.");
+        addConfigTranslation(provider, "biodataRestorationJealousyPenalty", "Biodata Restoration Jealousy Penalty",
+                "Loyalty removed by every other eligible TARDIS which was not selected for the restoration.");
+        addConfigTranslation(provider, "biodataRestorationHailMaryTeleportFuelCost", "Hail Mary Restoration Teleport Cost (AU)",
+                "Additional Artron used to move a restored player inside when Hail Mary is armed at the exact home.");
+        addConfigTranslation(provider, "preferTotemsOverBiodataRestoration", "Prefer Totems over Biodata Restoration",
+                "Lets a usable vanilla or modded totem act before Biodata Restoration.");
+        addConfigTranslation(provider, "homeDefenseAvailable", "Enable Handles Home Defense",
+                "Allows Handles to recognize the defense command and keeps special home defenses available.");
+        addConfigTranslation(provider, "homeDefenseAffectsBosses", "Handles Defense Damages Bosses",
+                "Allows special home defenses to damage entities identified by the boss tag.");
+        addConfigTranslation(provider, "homeDefenseRadius", "Handles Defense Radius (Blocks)",
+                "Radius around the exact home in which Handles defense targets hostile entities.");
+        addConfigTranslation(provider, "homeDefenseDamage", "Handles Defense Chronal Damage",
+                "Chronal damage dealt to each hostile target on every Handles defense pulse.");
+        addConfigTranslation(provider, "homeDefenseIntervalSeconds", "Handles Defense Interval (Seconds)",
+                "Time between Handles defense pulses while the TARDIS is parked at its exact home.");
+        addConfigTranslation(provider, "homeDefenseEngineDamagePerKill", "Handles Defense Engine Damage per Kill",
+                "Engine durability removed whenever special home defenses kill an entity.");
+        addConfigTranslation(provider, "homeDefenseFuelPerSecond", "Handles Defense Fuel Cost (AU/Second)",
+                "Artron consumed each second while Handles special defenses are active at the exact home.");
+        addConfigTranslation(provider, "homeRefuelMultiplier", "Exact Home Refueling Multiplier",
+                "Multiplier applied to ambient and nearby rift Artron absorption while the TARDIS is parked at its exact home.");
+        addConfigTranslation(provider, "sculkCatalystFuelPerSecond", "Experience Collector Fuel Cost (AU/Second)",
+                "Artron consumed each second while an operational Experience Collector is installed.");
+        addConfigTranslation(provider, "sculkCatalystExperiencePerArtron", "Experience Collector Experience per Artron",
+                "Experience required to restore one AU after every damageable subsystem is fully repaired.");
+        addConfigTranslation(provider, "sculkCatalystExperiencePerDurability", "Experience Collector Experience per Repair Point",
+                "Experience required to restore one durability point to a damaged subsystem.");
+        addConfigTranslation(provider, "enderChestFuelPerSecond", "Item Collector Fuel Cost (AU/Second)",
+                "Artron consumed each second while an operational Item Collector is installed.");
+        addConfigTranslation(provider, "telepathicCoralCooldownMinutes", "TARDIS Coral Growth Cooldown (Minutes)",
+                "Cooldown between bone meal harvests from the telepathic circuit at the exact home.");
+        addConfigTranslation(provider, "telepathicCoralBonemealCount", "Bone Meal Coral Fragment Count",
+                "Number of coral fragments produced by using bone meal on the telepathic circuit.");
+        addConfigTranslation(provider, "telepathicCoralShearsMin", "Shears Minimum Coral Fragment Count",
+                "Minimum random number of coral fragments cut from the telepathic circuit.");
+        addConfigTranslation(provider, "telepathicCoralShearsMax", "Shears Maximum Coral Fragment Count",
+                "Maximum random number of coral fragments cut from the telepathic circuit.");
+        addConfigTranslation(provider, "telepathicCoralShearsLoyaltyPenalty", "Shears Loyalty Penalty",
+                "Loyalty removed for cutting coral fragments from the telepathic circuit.");
+        addConfigTranslation(provider, "consoleRejectionPushHorizontal", "Console Rejection Horizontal Force",
+                "Horizontal force applied when the TARDIS rejects a damaging home interaction.");
+        addConfigTranslation(provider, "consoleRejectionPushVertical", "Console Rejection Vertical Force",
+                "Vertical force applied when the TARDIS rejects a damaging home interaction.");
+
+        provider.addTranslation("tooltip.ait.subsystem_item.damaged", "DAMAGED %s/%s");
+        provider.addTranslation("subsystem.ait.beacon_emanation", "Beacon Emanation");
+        provider.addTranslation("subsystem.ait.sculk_catalyst_collector", "Experience Collector");
+        provider.addTranslation("subsystem.ait.ender_chest_collector", "Item Collector");
+        provider.addTranslation("tardis.message.biodata_restoration.forced",
+                "You have forced the TARDIS to preserve your biodata. Every restoration will damage its systems and your bond with it.");
+        provider.addTranslation("tardis.message.biodata_restoration.jealousy",
+                "%1$s resents another TARDIS restoring your biodata.");
+        provider.addTranslation("message.ait.handles.requires_inserted",
+                "I can only control the special defenses while I am inserted in the TARDIS.");
+        provider.addTranslation("message.ait.handles.defense.home_only",
+                "I can only have the TARDIS defend you while it is at its exact home.");
+        provider.addTranslation("message.ait.handles.defense.enabled", "Special home defenses enabled.");
+        provider.addTranslation("message.ait.handles.defense.disabled", "Special home defenses disabled.");
+        provider.addTranslation("message.ait.telepathic.coral_cooldown",
+                "The TARDIS coral needs more time to recover.");
+        provider.addTranslation("message.ait.telepathic.coral_requires_home",
+                "The TARDIS can only grow coral through this circuit at its exact home.");
+        provider.addTranslation("death.attack.chronal", "%1$s was displaced from the timeline");
 
         return provider;
     }
@@ -2974,7 +3075,115 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.travelPerTick", "Viaje por tick");
         provider.addTranslation("yacl3.config.ait:server.travelWhitelist", "Dimensiones permitidas para viaje de TARDIS (sustituye a las bloqueadas)");
 
+        provider.addTranslation("yacl3.config.ait:server.category.home_systems", "Sistemas del hogar");
+        addConfigTranslation(provider, "homeRadius", "Radio del área del hogar (bloques)",
+                "Radio alrededor del hogar configurado utilizado por los módulos, recolectores y defensas del hogar.");
+        addConfigTranslation(provider, "exactHomeLoyaltyMultiplier", "Multiplicador de lealtad en el hogar exacto",
+                "Multiplicador de la lealtad pasiva obtenida por jugadores PILOTO y DUEÑO cuando la TARDIS está en su hogar exacto.");
+        addConfigTranslation(provider, "exactHomeSaturationLevel", "Nivel de saturación en el hogar exacto",
+                "Nivel de Saturación otorgado a jugadores ACOMPAÑANTE o superiores por un soporte vital operativo.");
+        addConfigTranslation(provider, "exactHomeOwnerResistanceLevel", "Nivel de resistencia de DUEÑO en el hogar exacto",
+                "Nivel de Resistencia otorgado a jugadores DUEÑO por un soporte vital operativo.");
+        addConfigTranslation(provider, "beaconEmanationFuelPerSecond", "Coste de Emanación de Faro (AU/segundo)",
+                "Artrón consumido cada segundo mientras una Emanación de Faro operativa protege la TARDIS y su hogar.");
+        addConfigTranslation(provider, "biodataRestorationAvailable", "Activar Restauración de biodatos",
+                "Permite instalar un Tótem de inmortalidad como sistema de Restauración de biodatos vinculado al hogar.");
+        addConfigTranslation(provider, "biodataRestorationRejectInsertionChance", "Probabilidad de rechazo para RECHAZADO",
+                "Probabilidad de que la TARDIS rechace el sistema si lo instala un jugador RECHAZADO.");
+        addConfigTranslation(provider, "biodataRestorationNeutralInsertionChance", "Probabilidad de rechazo para NEUTRAL",
+                "Probabilidad de que la TARDIS rechace el sistema si lo instala un jugador NEUTRAL.");
+        addConfigTranslation(provider, "biodataRestorationCompanionInsertionChance", "Probabilidad de rechazo para ACOMPAÑANTE",
+                "Probabilidad de que la TARDIS rechace el sistema si lo instala un jugador ACOMPAÑANTE.");
+        addConfigTranslation(provider, "biodataRestorationPilotInsertionChance", "Probabilidad de rechazo para PILOTO",
+                "Probabilidad de que la TARDIS rechace el sistema si lo instala un jugador PILOTO.");
+        addConfigTranslation(provider, "biodataRestorationOwnerInsertionChance", "Probabilidad de rechazo para DUEÑO",
+                "Probabilidad de que la TARDIS rechace el sistema si lo instala un jugador DUEÑO.");
+        addConfigTranslation(provider, "biodataRestorationRejectFireSeconds", "Duración del fuego al rechazar a RECHAZADO (segundos)",
+                "Tiempo que arde un jugador RECHAZADO cuando la TARDIS se niega a aceptar el sistema.");
+        addConfigTranslation(provider, "biodataRestorationInsertionLoyaltyCost", "Coste de lealtad de la instalación",
+                "Lealtad retirada al jugador que fuerza el sistema dentro de la TARDIS.");
+        addConfigTranslation(provider, "biodataRestorationRescueFuelCost", "Coste de Restauración de biodatos (AU)",
+                "Artrón consumido cuando la TARDIS restaura correctamente los biodatos de un jugador.");
+        addConfigTranslation(provider, "biodataRestorationRescueLoyaltyCost", "Coste de lealtad de la restauración",
+                "Lealtad retirada a un jugador cada vez que se restauran sus biodatos.");
+        addConfigTranslation(provider, "biodataRestorationSubsystemDamageMin", "Daño mínimo a subsistemas por restauración",
+                "Daño mínimo de durabilidad infligido a todos los subsistemas duraderos tras una restauración.");
+        addConfigTranslation(provider, "biodataRestorationSubsystemDamageMax", "Daño máximo a subsistemas por restauración",
+                "Daño máximo de durabilidad infligido a todos los subsistemas duraderos tras una restauración.");
+        addConfigTranslation(provider, "biodataRestorationJealousyPenalty", "Penalización de celos de la restauración",
+                "Lealtad retirada por cada TARDIS elegible que no fue seleccionada para la restauración.");
+        addConfigTranslation(provider, "biodataRestorationHailMaryTeleportFuelCost", "Coste de teletransporte de Hail Mary (AU)",
+                "Artrón adicional usado para introducir al jugador restaurado cuando Hail Mary está armado en el hogar exacto.");
+        addConfigTranslation(provider, "preferTotemsOverBiodataRestoration", "Priorizar tótems sobre Restauración de biodatos",
+                "Permite que un tótem vanilla o de otro mod actúe antes que la Restauración de biodatos.");
+        addConfigTranslation(provider, "homeDefenseAvailable", "Activar defensa del hogar de Handles",
+                "Permite que Handles reconozca la orden de defensa y mantiene disponibles las defensas especiales.");
+        addConfigTranslation(provider, "homeDefenseAffectsBosses", "La defensa de Handles daña jefes",
+                "Permite que las defensas especiales dañen entidades identificadas con la etiqueta de jefe.");
+        addConfigTranslation(provider, "homeDefenseRadius", "Radio de defensa de Handles (bloques)",
+                "Radio alrededor del hogar exacto en el que la defensa de Handles ataca entidades hostiles.");
+        addConfigTranslation(provider, "homeDefenseDamage", "Daño cronal de la defensa de Handles",
+                "Daño cronal infligido a cada objetivo hostil en cada pulso defensivo.");
+        addConfigTranslation(provider, "homeDefenseIntervalSeconds", "Intervalo de defensa de Handles (segundos)",
+                "Tiempo entre pulsos defensivos mientras la TARDIS está en su hogar exacto.");
+        addConfigTranslation(provider, "homeDefenseEngineDamagePerKill", "Daño al motor por baja defensiva",
+                "Durabilidad retirada al motor cuando las defensas especiales matan una entidad.");
+        addConfigTranslation(provider, "homeDefenseFuelPerSecond", "Coste de defensa de Handles (AU/segundo)",
+                "Artrón consumido cada segundo mientras las defensas especiales están activas.");
+        addConfigTranslation(provider, "homeRefuelMultiplier", "Multiplicador de repostaje en el hogar exacto",
+                "Multiplicador aplicado a la absorción ambiental y de grietas cercanas en el hogar exacto.");
+        addConfigTranslation(provider, "sculkCatalystFuelPerSecond", "Coste del Recolector de Experiencia (AU/segundo)",
+                "Artrón consumido cada segundo mientras hay un Recolector de Experiencia operativo.");
+        addConfigTranslation(provider, "sculkCatalystExperiencePerArtron", "Experiencia por artrón",
+                "Experiencia necesaria para restaurar un AU después de reparar todos los subsistemas.");
+        addConfigTranslation(provider, "sculkCatalystExperiencePerDurability", "Experiencia por punto de reparación",
+                "Experiencia necesaria para restaurar un punto de durabilidad.");
+        addConfigTranslation(provider, "enderChestFuelPerSecond", "Coste del Recolector de Objetos (AU/segundo)",
+                "Artrón consumido cada segundo mientras hay un Recolector de Objetos operativo.");
+        addConfigTranslation(provider, "telepathicCoralCooldownMinutes", "Recarga del crecimiento de coral (minutos)",
+                "Tiempo entre cosechas con polvo de hueso desde el circuito telepático en el hogar exacto.");
+        addConfigTranslation(provider, "telepathicCoralBonemealCount", "Fragmentos de coral con polvo de hueso",
+                "Cantidad de fragmentos producidos al usar polvo de hueso en el circuito telepático.");
+        addConfigTranslation(provider, "telepathicCoralShearsMin", "Mínimo de fragmentos con tijeras",
+                "Cantidad aleatoria mínima de fragmentos cortados del circuito telepático.");
+        addConfigTranslation(provider, "telepathicCoralShearsMax", "Máximo de fragmentos con tijeras",
+                "Cantidad aleatoria máxima de fragmentos cortados del circuito telepático.");
+        addConfigTranslation(provider, "telepathicCoralShearsLoyaltyPenalty", "Penalización de lealtad por usar tijeras",
+                "Lealtad retirada por cortar fragmentos del circuito telepático.");
+        addConfigTranslation(provider, "consoleRejectionPushHorizontal", "Fuerza horizontal de rechazo de la consola",
+                "Fuerza horizontal aplicada cuando la TARDIS rechaza una interacción dañina.");
+        addConfigTranslation(provider, "consoleRejectionPushVertical", "Fuerza vertical de rechazo de la consola",
+                "Fuerza vertical aplicada cuando la TARDIS rechaza una interacción dañina.");
+
+        provider.addTranslation("tooltip.ait.subsystem_item.damaged", "DAÑADO %s/%s");
+        provider.addTranslation("subsystem.ait.beacon_emanation", "Emanación de Faro");
+        provider.addTranslation("subsystem.ait.sculk_catalyst_collector", "Recolector de Experiencia");
+        provider.addTranslation("subsystem.ait.ender_chest_collector", "Recolector de Objetos");
+        provider.addTranslation("subsystem.ait.biodata_restoration", "Restauración de biodatos");
+        provider.addTranslation("tardis.message.biodata_restoration.forced",
+                "Has forzado a la TARDIS a preservar tus biodatos. Cada restauración dañará sus sistemas y vuestro vínculo.");
+        provider.addTranslation("tardis.message.biodata_restoration.jealousy",
+                "%1$s se resiente porque otra TARDIS haya restaurado tus biodatos.");
+        provider.addTranslation("message.ait.handles.requires_inserted",
+                "Solo puedo controlar las defensas especiales mientras estoy insertado en la TARDIS.");
+        provider.addTranslation("message.ait.handles.defense.home_only",
+                "Solo puedo hacer que la TARDIS te defienda si está en su hogar exacto.");
+        provider.addTranslation("message.ait.handles.defense.enabled", "Defensas especiales del hogar activadas.");
+        provider.addTranslation("message.ait.handles.defense.disabled", "Defensas especiales del hogar desactivadas.");
+        provider.addTranslation("message.ait.telepathic.coral_cooldown",
+                "El coral de la TARDIS necesita más tiempo para recuperarse.");
+        provider.addTranslation("message.ait.telepathic.coral_requires_home",
+                "La TARDIS solo puede hacer crecer coral mediante este circuito en su hogar exacto.");
+        provider.addTranslation("death.attack.chronal", "%1$s fue desplazado de la línea temporal");
+
         return provider;
+    }
+
+    private void addConfigTranslation(AmbleLanguageProvider provider, String field, String name,
+                                      String description) {
+        String key = "yacl3.config.ait:server." + field;
+        provider.addTranslation(key, name);
+        provider.addTranslation(key + ".desc", description);
     }
 
     public AmbleLanguageProvider addGermanTranslations(FabricDataOutput output,

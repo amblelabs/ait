@@ -3,6 +3,7 @@ package dev.amble.ait.core.util;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import net.minecraft.entity.ItemEntity;
@@ -58,11 +59,22 @@ public class StackUtil {
     }
 
     public static void spawn(World world, Position pos, ItemStack stack) {
-        world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), stack));
+        spawn(world, pos, stack, null);
+    }
+
+    public static void spawn(World world, Position pos, ItemStack stack, Consumer<ItemEntity> beforeSpawn) {
+        ItemEntity entity = new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), stack);
+        if (beforeSpawn != null)
+            beforeSpawn.accept(entity);
+        world.spawnEntity(entity);
     }
 
     public static void spawn(World world, BlockPos pos, ItemStack stack) {
         spawn(world, pos.toCenterPos(), stack);
+    }
+
+    public static void spawn(World world, BlockPos pos, ItemStack stack, Consumer<ItemEntity> beforeSpawn) {
+        spawn(world, pos.toCenterPos(), stack, beforeSpawn);
     }
 
     public static void playBreak(PlayerEntity player) {
