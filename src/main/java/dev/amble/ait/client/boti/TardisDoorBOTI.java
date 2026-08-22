@@ -92,11 +92,13 @@ public class TardisDoorBOTI extends BOTI {
         StatsHandler stats = tardis.stats();
         Vector3f scale = tardis.travel().getScale();
 
+
+        Vec3d vec = parent.door().getPortalPosition();
+        if (vec == null) vec = Vec3d.ZERO;
+
+        stack.translate(vec.x, -vec.y - parent.portalHeight() / 2f, vec.z);
         stack.scale((float) parent.portalWidth() * scale.x(),
                 (float) parent.portalHeight() * scale.y(), scale.z());
-        Vec3d vec = parent.door().getPortalPosition();
-        if (vec == null) vec = new Vec3d(0, 0, 0);
-        stack.translate(vec.x, vec.y - 0.575f, vec.z);
         if (tardis.travel().getState() == TravelHandlerBase.State.LANDED) {
             RenderLayer whichOne = RenderLayer.getDebugFilledBox();
             float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ?
@@ -131,8 +133,13 @@ public class TardisDoorBOTI extends BOTI {
                 // Map the player's eye through the interior doorway into the exterior world: the view rotates with
                 // the door (so every facing - not just north - looks the right way out) and parallaxes as the
                 // player moves. deltaYaw turns "looking into the interior door" into "looking out the exterior door".
+                // It must depend on BOTH the interior door's facing and the exterior's, exactly like the inverse
+                // exterior->interior transform in TardisExteriorBOTI (this reduces to its negation). The previous form
+                // used only the exterior rotation, so it collapsed to a fixed ~270 deg turn that ignored which way the
+                // interior door actually pointed - the "rotated wrong" doorway view.
                 Camera camera = client.gameRenderer.getCamera();
-                float deltaYaw = doorFacing.asRotation() - (tardis.travel().position().getRotationDegrees() - 90f);
+                Direction interiorDoorFacing = tardis.getDesktop().getDoorPos().toMinecraftDirection();
+                float deltaYaw = doorFacing.asRotation() - interiorDoorFacing.asRotation();
 
                 Vec3d interiorDoorCenter = new Vec3d(door.getPos().getX() + 0.5, door.getPos().getY() + 1.0,
                         door.getPos().getZ() + 0.5);

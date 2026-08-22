@@ -553,8 +553,8 @@ public class WorldGeometryRenderer {
      * renderer's {@code world} (already the shadow world) but decides the sky <em>type</em> - overworld sun/moon/stars
      * vs. End starfield vs. nether/no sky - from {@code client.world}, the <em>interior</em> dimension. The TARDIS
      * interior has no vanilla sky type, so nothing celestial ever drew. We momentarily point {@code client.world} at
-     * the shadow world for the duration of the sky pass so the type matches the target dimension too; the swap is
-     * restored in {@code finally}. Guarded so a sky hiccup can never take down the rest of the portal render.
+     * the shadow world for the duration of the sky pass so the type matches the target dimension too; the swap and the
+     * GL state are restored in a {@code finally} (which does not swallow exceptions - they propagate as normal).
      */
     private void renderSky(UUID id, ClientWorld portalWorld, Matrix4f portalRotation, Camera portalCamera,
                            Vec3d eyeWorldPos, float tickDelta) {
@@ -632,8 +632,6 @@ public class WorldGeometryRenderer {
                 data.renderer().renderClouds(cloudStack, portalProjection, tickDelta,
                         centerPos.getX(), centerPos.getY(), centerPos.getZ());
             }
-        } catch (Throwable t) {
-            AITMod.LOGGER.error("BOTI: failed to render exterior sky", t);
         } finally {
             portalSkyCameraPos = null;
             client.world = previousWorld;

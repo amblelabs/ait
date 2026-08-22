@@ -272,8 +272,11 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world, Wor
 
         Vec3d pos = new Vec3d(packet.getX(), packet.getY(), packet.getZ());
         entity.getTrackedPosition().setPos(pos);
+        // interpolate = true, matching ClientPlayNetworkHandler#onEntityPosition: an absolute teleport is smoothed
+        // over the interpolation steps (the entity's tick consumes them), so the body moves - and its walk/limb
+        // animation is driven off that per-tick position delta - instead of snapping and staying visually idle.
         entity.updateTrackedPositionAndAngles(pos.x, pos.y, pos.z,
-                packet.getYaw() * 360 / 256.0F, packet.getPitch() * 360 / 256.0F, 3, false);
+                packet.getYaw() * 360 / 256.0F, packet.getPitch() * 360 / 256.0F, 3, true);
         entity.setOnGround(packet.isOnGround());
     }
 
@@ -312,7 +315,11 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world, Wor
         if (entity == null)
             return;
 
-        entity.setHeadYaw(packet.getHeadYaw() * 360 / 256.0F);
+        // Mirror ClientPlayNetworkHandler: feed the head yaw into the interpolation the entity's own tick consumes
+        // (serverHeadYaw + headTrackingIncrements), NOT setHeadYaw. Setting it directly fights the per-tick head/body
+        // turn logic - the head snaps to each packet then the tick drags it back toward the (unset) tracked target,
+        // which reads as the head endlessly spinning.
+        entity.updateTrackedHeadRotation(packet.getHeadYaw() * 360 / 256.0F, 3);
     }
 
     public void onEntityTrackerUpdate(EntityTrackerUpdateS2CPacket packet) {
