@@ -46,7 +46,7 @@ public class PipeExteriorModel extends SimpleExteriorModel {
     public <T extends Entity & Linkable> void renderEntity(T falling, ModelPart root, MatrixStack matrices,
                                                            VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
         matrices.push();
-        //matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
         Tardis tardis = falling.tardis().get();
 
         if (tardis == null) return;

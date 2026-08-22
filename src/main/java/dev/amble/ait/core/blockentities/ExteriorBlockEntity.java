@@ -4,6 +4,7 @@ import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.MAX_PLAS
 
 import java.util.UUID;
 
+import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -13,6 +14,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BrushItem;
@@ -312,6 +314,8 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         if (tardis.siege().isActive()) return;
 
         if (travel.getState() == TravelHandlerBase.State.DEMAT) return;
+
+        if (entity instanceof FlightTardisEntity || entity instanceof EnderDragonEntity) return;
 
         if (!previouslyLocked && travel.getState() == TravelHandlerBase.State.MAT
                 && travel.getAlpha() >= 0.9F)

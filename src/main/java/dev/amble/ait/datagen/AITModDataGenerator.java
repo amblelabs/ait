@@ -838,10 +838,12 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItemGroups.FABRICATOR, "AIT: Fabrication");
 
         // Config
+        provider.addTranslation("text.ait.config.categories", "AIT Config");
         provider.addTranslation("category.ait.config.client", "Client Options");
         provider.addTranslation("category.ait.config.server", "Server Options");
 
         // Client config
+        provider.addTranslation("yacl3.config.ait:client.category.client", "Client");
         provider.addTranslation("yacl3.config.ait:client.interiorHumVolume", "Interior Hum Volume");
         provider.addTranslation("yacl3.config.ait:client.engineLoopVolume", "Engine Loop Volume");
         provider.addTranslation("yacl3.config.ait:client.flightMusicVolume", "Flight Music Volume");
@@ -866,6 +868,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.kelvin", "Kelvin (K)");
 
         // Server config
+        provider.addTranslation("yacl3.config.ait:server.category.server", "Server");
         provider.addTranslation("yacl3.config.ait:server.minifyJson", "Minify Json");
         provider.addTranslation("yacl3.config.ait:server.ghostMonument", "Toggle Ghost Monument");
         provider.addTranslation("yacl3.config.ait:server.lockDimensions", "Toggle Lockable Dimensions");
@@ -1171,7 +1174,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.antigravs.inactive", "Antigravs: DISENGAGED");
         provider.addTranslation("tardis.message.control.electric.fail", "System Error: Not enough fuel present! Requires %sAU");
         provider.addTranslation("tardis.message.control.rwf_disabled", "RWF is disabled in SERVER config.");
-        provider.addTranslation("tardis.message.control.rwf_creative_only", "RWF is CREATIVE only");
+        provider.addTranslation("tardis.message.control.refueler.rwf", "TARDIS cannot refuel during real world flight!");
+        provider.addTranslation("tardis.message.phase.cooldown", "Phase circuits recharging — %s more seconds!");
         provider.addTranslation("tardis.message.control.fast_return.destination_nonexistent",
                 "Fast Return: Last Position Nonexistent!");
         provider.addTranslation("tardis.message.control.fast_return.last_position", "Fast Return: LAST POSITION SET");
@@ -1595,10 +1599,33 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         // keybinds
         provider.addTranslation("category.ait.main", "Adventures in Time");
-        provider.addTranslation("key.ait.snap", "Open/Close/Lock Doors (KEY/RWF)");
+        provider.addTranslation("key.ait.snap", "Open/Close/Lock Doors (KEY)");
         provider.addTranslation("key.ait.increase_speed", "Increase Speed (RWF)");
         provider.addTranslation("key.ait.decrease_speed", "Decrease Speed (RWF)");
         provider.addTranslation("key.ait.toggle_antigravs", "Toggle Antigravs (RWF)");
+        provider.addTranslation("key.ait.phase", "Phase Through Blocks (RWF)");
+
+        // rwf overlay
+        provider.addTranslation("overlay.ait.rwf.hud.title", "FLIGHT SYSTEMS");
+        provider.addTranslation("overlay.ait.rwf.hud.velocity", "VELOCITY");
+        provider.addTranslation("overlay.ait.rwf.hud.throttle", "THROTTLE");
+        provider.addTranslation("overlay.ait.rwf.hud.grav", "GRAV");
+        provider.addTranslation("overlay.ait.rwf.hud.artron", "ARTRON");
+        provider.addTranslation("overlay.ait.rwf.hud.antigravs", "ANTIGRAVS");
+        provider.addTranslation("overlay.ait.rwf.hud.engaged", "ENGAGED");
+        provider.addTranslation("overlay.ait.rwf.hud.idle", "IDLE");
+        provider.addTranslation("overlay.ait.rwf.hud.offline", "OFFLINE");
+        provider.addTranslation("overlay.ait.rwf.hud.position", "POSITION");
+        provider.addTranslation("overlay.ait.rwf.hud.agl", "AGL");
+        provider.addTranslation("overlay.ait.rwf.hud.controls", "CONTROLS");
+        provider.addTranslation("overlay.ait.rwf.hud.action.land", "Descend / Land");
+        provider.addTranslation("overlay.ait.rwf.hud.action.ascend", "Ascend");
+        provider.addTranslation("overlay.ait.rwf.hud.action.doors", "Doors");
+        provider.addTranslation("overlay.ait.rwf.hud.action.antigravs", "Antigravs");
+        provider.addTranslation("overlay.ait.rwf.hud.action.decrease_speed", "Speed Down");
+        provider.addTranslation("overlay.ait.rwf.hud.action.increase_speed", "Speed Up");
+        provider.addTranslation("overlay.ait.rwf.hud.action.phase", "Phase");
+        provider.addTranslation("overlay.ait.rwf.dismount", "Hold %s for 3 seconds to dismount");
 
         // effects
         provider.addTranslation("effect.ait.zeiton_high", "Zeiton High");

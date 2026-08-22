@@ -25,6 +25,9 @@
     "networking.ThreadedAnvilChunkStorageMixin",
     "rwf.DismountEntityMixin",
     "rwf.LivingEntityAccessor",
+    "rwf.PlayerEntityMixin",
+    "rwf.PlayerInteractionManagerMixin",
+    "rwf.VehicleMovePhaseMixin",
     "server.BedInTardisMixin",
     "server.BellBlockMixin",
     "server.EnderDragonFightAccessor",
@@ -58,7 +61,8 @@
     "client.rendering.framebuffer.MixinRenderFramebufferTarget",
     "client.sonic.SonicItemRendererMixin",
     "client.sonic.SonicModelLoaderWrapperMixin",
-    "compat.portals.ClientTeleportationManagerMixin"
+    "compat.portals.ClientTeleportationManagerMixin",
+    "rwf.DismountMessageMixin"
   ],
   "injectors": {
     "defaultRequire": 1

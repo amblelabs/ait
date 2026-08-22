@@ -155,6 +155,8 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
             return;
         }
 
+        if (tardis.flight().isFlying()) return;
+
         tardis.door().interact((ServerWorld) world, this.getPos(), (ServerPlayerEntity) player);
     }
 
