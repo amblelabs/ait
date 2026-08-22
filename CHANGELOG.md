@@ -189,3 +189,4 @@
 - add: added carry on blacklist | by [@vmbbi](https://github.com/vmbbi) ([#2174](https://github.com/amblelabs/ait/pull/2174))
 - Add "ait:cable_block" into carryon blacklist | by [@lakehascake](https://github.com/lakehascake) ([#2176](https://github.com/amblelabs/ait/pull/2176))
 - fix: sonic screwdriver wouldnt tell you the tool or material type you need to break a block | by [@Loqor](https://github.com/Loqor) ([#2181](https://github.com/amblelabs/ait/pull/2181))
+- fix: Updated Spanish translations | by [@Peter1169](https://github.com/Peter1169) ([#2124](https://github.com/amblelabs/ait/pull/2124))
