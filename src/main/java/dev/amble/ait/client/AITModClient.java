@@ -81,6 +81,7 @@ import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
+import dev.loqor.portal.client.PortalDataManager;
 import dev.amble.ait.core.*;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -110,6 +111,7 @@ public class AITModClient implements ClientModInitializer {
 
     public static AITClientConfig CONFIG;
     private final MinecraftClient client = MinecraftClient.getInstance();
+    private final TardisExteriorBOTI exteriorBoti = new TardisExteriorBOTI();
 
     @Override
     public void onInitializeClient() {
@@ -269,6 +271,8 @@ public class AITModClient implements ClientModInitializer {
                 });
 
         ClientTardisUtil.init();
+
+        PortalDataManager.init();
 
         WorldRenderEvents.END.register((context) -> SonicRendering.getInstance().renderWorld(context));
         HudRenderCallback.EVENT.register((context, delta) -> SonicRendering.getInstance().renderGui(context, delta));
@@ -533,7 +537,8 @@ public class AITModClient implements ClientModInitializer {
 
             if (tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) {
                 int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
-                TardisExteriorBOTI.renderExteriorBoti(exterior, variant, stack, context.consumers(), model,
+                exteriorBoti.renderExteriorBoti(exterior, variant, stack,
+                        AITMod.id("textures/environment/tardis_sky.png"), model,
                         BotiPortalModel.getTexturedModelData().createModel(), light);
             }
 
@@ -567,7 +572,7 @@ public class AITModClient implements ClientModInitializer {
 
             if (tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) {
                 int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
-                TardisDoorBOTI.renderInteriorDoorBoti(tardis, door, variant, stack, context.consumers(),
+                TardisDoorBOTI.renderInteriorDoorBoti(tardis, door, variant, stack,
                         AITMod.id("textures/environment/tardis_sky.png"), model,
                         BotiPortalModel.getTexturedModelData().createModel(), light, context.tickDelta());
             }
