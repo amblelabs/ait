@@ -1,6 +1,8 @@
 package dev.amble.ait.core.item.sonic;
 
 import net.minecraft.block.*;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -68,6 +70,15 @@ public class OverloadSonicMode extends SonicMode {
         if (entityHitResult instanceof EntityHitResult entityHit
                 && entityHit.getEntity() instanceof CreeperEntity creeper
                 && canLight(ticks)) {
+
+            if (!creeper.shouldRenderOverlay()) {
+                LightningEntity lightning = EntityType.LIGHTNING_BOLT.create(world);
+                if (lightning != null) {
+                    lightning.setPosition(creeper.getX(), creeper.getY(), creeper.getZ());
+                    creeper.onStruckByLightning(world, lightning);
+                }
+            }
+
             creeper.ignite();
         }
 
