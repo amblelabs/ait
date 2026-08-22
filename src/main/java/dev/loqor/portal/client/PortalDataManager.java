@@ -52,7 +52,6 @@ public class PortalDataManager {
 
         ClientTickEvents.END_CLIENT_TICK.register(minecraftClient -> {
             for (PortalData data : new ArrayList<>(map.values())) {
-                if (data.world() == null) break;
                 // The shadow world isn't part of the client tick loop, so nothing else drains the queue that
                 // onChunkData fills - the work that applies a chunk's light data and marks its sections dirty for
                 // rebuilding. Without this the doorway only ever shows the initial (empty) build and stays blank.
