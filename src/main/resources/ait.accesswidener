@@ -21,6 +21,9 @@ mutable field net/minecraft/client/particle/ParticleManager particleAtlasTexture
 # BOTI: advance the shadow world's clock each client tick so time-driven animations (banners) stay smooth
 accessible method net/minecraft/client/world/ClientWorld tickTime ()V
 
+# BOTI: tick the shadow world's block entities each client tick so BE animations (console rotor, etc.) advance
+accessible method net/minecraft/world/World tickBlockEntities ()V
+
 # BOTI: temporarily reroute the shadow world's ambient display-tick particles into the per-portal manager
 accessible field net/minecraft/client/MinecraftClient particleManager Lnet/minecraft/client/particle/ParticleManager;
 mutable field net/minecraft/client/MinecraftClient particleManager Lnet/minecraft/client/particle/ParticleManager;

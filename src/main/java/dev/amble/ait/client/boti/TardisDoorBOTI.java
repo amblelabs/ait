@@ -127,19 +127,26 @@ public class TardisDoorBOTI extends BOTI {
             BlockPos exteriorBlockPos = exteriorPos.getPos();
 
             try {
-                Direction doorFacing = Direction.fromRotation(exteriorPos.getRotationDegrees()).getOpposite();
-                geometry.setDoorFacing(doorFacing);
+                // Use the exterior's REAL rotation, not a snapped cardinal. The exterior can sit at any of the fine
+                // RotationPropertyHelper steps (22.5 deg each), so Direction.fromRotation(...) - which rounds to
+                // N/S/E/W - threw the doorway view off by up to 45 deg for diagonally-placed boxes. The outward door
+                // normal at yaw E is (sin E, 0, -cos E) (equals fromRotation(E).getOpposite().getVector() on the
+                // cardinals); feed that exact normal to the cull so the baked volume matches the true door plane too.
+                float exteriorRotation = exteriorPos.getRotationDegrees();
+                double normalRad = Math.toRadians(exteriorRotation);
+                Vec3d doorNormal = new Vec3d(Math.sin(normalRad), 0.0, -Math.cos(normalRad));
+                geometry.setDoorNormal(doorNormal);
 
                 // Map the player's eye through the interior doorway into the exterior world: the view rotates with
                 // the door (so every facing - not just north - looks the right way out) and parallaxes as the
                 // player moves. deltaYaw turns "looking into the interior door" into "looking out the exterior door".
-                // It must depend on BOTH the interior door's facing and the exterior's, exactly like the inverse
-                // exterior->interior transform in TardisExteriorBOTI (this reduces to its negation). The previous form
-                // used only the exterior rotation, so it collapsed to a fixed ~270 deg turn that ignored which way the
-                // interior door actually pointed - the "rotated wrong" doorway view.
+                // It depends on BOTH the interior door's facing and the exterior's real rotation, exactly like the
+                // inverse exterior->interior transform in TardisExteriorBOTI (this reduces to its negation). Using the
+                // real (exteriorRotation + 180) instead of the snapped door direction is what makes the 8/16-way
+                // rotations line up instead of collapsing to the nearest cardinal.
                 Camera camera = client.gameRenderer.getCamera();
                 Direction interiorDoorFacing = tardis.getDesktop().getDoorPos().toMinecraftDirection();
-                float deltaYaw = doorFacing.asRotation() - interiorDoorFacing.asRotation();
+                float deltaYaw = (exteriorRotation + 180f) - interiorDoorFacing.asRotation();
 
                 Vec3d interiorDoorCenter = new Vec3d(door.getPos().getX() + 0.5, door.getPos().getY() + 1.0,
                         door.getPos().getZ() + 0.5);

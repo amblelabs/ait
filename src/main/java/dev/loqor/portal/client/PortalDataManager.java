@@ -69,6 +69,13 @@ public class PortalDataManager {
                 // jumping forward once a second. The periodic packet stays authoritative and corrects any drift.
                 step(data, "clock", d -> d.world().tickTime());
 
+                // Tick the shadow world's block entities exactly like ClientWorld#tickEntities does at its tail. The
+                // shadow world isn't in the client tick loop, so without this its block entities never tick - and any
+                // BE animation driven by the BE's own age/tick counter (the TARDIS console rotor reads
+                // console.getAge(); see SimpleConsoleModel) freezes through the doorway. shouldTickBlocksInChunk is
+                // always true on the client, and chunk streaming registers the BE tickers, so this drives them.
+                step(data, "block entities", d -> d.world().tickBlockEntities());
+
                 step(data, "entities", PortalData::tickEntities);
                 step(data, "particles", PortalDataManager::spawnDisplayParticles);
             }
@@ -104,13 +111,39 @@ public class PortalDataManager {
         if (center == null || center.equals(BlockPos.ORIGIN))
             return;
 
+        // Spawn the ambient display-tick particles in the VISIBLE region - in front of the portal eye, along the
+        // door normal - not around centerPos. Vanilla samples around the player/camera; centring on centerPos (the
+        // door block) put the whole sample cube behind the portal eye (NDC diag: every particle had clipW < 0, i.e.
+        // behind the near plane) so they were all clipped. The eye itself often sits in open air just outside the
+        // door, so we push the sample centre a half-radius forward along the door normal into the terrain the doorway
+        // actually shows. Falls back to centerPos until the portal has rendered once (eye/normal unknown).
+        net.minecraft.util.math.Vec3d eye = data.geometry().eyeWorldPos();
+        int radius = Math.min(data.geometry().renderDistance(), 24);
+        int cx, cy, cz;
+        if (eye != null) {
+            // Sample around the eye itself. A previous "eye + normal*radius/2" push helped the open exterior but
+            // overshot small interior rooms (sample centre landed in the void beyond the walls, so nothing spawned).
+            // Centring on the eye covers the visible region for both - the triangular nextInt spread keeps most
+            // samples near the eye where the viewer is actually looking.
+            cx = (int) Math.floor(eye.x);
+            cy = (int) Math.floor(eye.y);
+            cz = (int) Math.floor(eye.z);
+        } else {
+            cx = center.getX();
+            cy = center.getY();
+            cz = center.getZ();
+        }
+
         PortalParticleManager manager = particles.computeIfAbsent(data.id(),
                 uuid -> new PortalParticleManager(data.world(), client));
 
         ParticleManager previous = client.particleManager;
         client.particleManager = manager;
         try {
-            data.spawnDisplayParticles(center.getX(), center.getY(), center.getZ(), data.geometry().renderDistance());
+            // radius capped at vanilla's ~32: over the 48+ bake radius, 667 samples are far too sparse to hit an
+            // emitting block; vanilla concentrates its 667 samples in a ~32 cube (the nextInt-minus-nextInt spread is
+            // triangular, densest at the centre) so particles actually appear.
+            data.spawnDisplayParticles(cx, cy, cz, radius);
         } finally {
             client.particleManager = previous;
         }

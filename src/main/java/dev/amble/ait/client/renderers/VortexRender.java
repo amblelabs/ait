@@ -73,9 +73,14 @@ public class VortexRender {
 
         time = MinecraftClient.getInstance().getTickDelta() + MinecraftClient.getInstance().player.age;
 
+        float previousFogStart = RenderSystem.getShaderFogStart();
+        BackgroundRenderer.clearFog();
+
         this.renderLayer(matrixStack, 1.0F, texture);
         this.renderLayer(matrixStack, 1.5f);
         this.renderLayer(matrixStack, 2.5f);
+
+        RenderSystem.setShaderFogStart(previousFogStart);
     }
 
     public void renderLayer(MatrixStack matrixStack, float scaleFactor) {

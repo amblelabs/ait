@@ -28,6 +28,7 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisClientEvents;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.util.ClientTardisUtil;
@@ -75,6 +76,7 @@ public abstract class SkyboxMixin {
 
     @Unique private static WorldRenderContext context;
     @Unique private boolean needsSkyboxReinit = false;
+    @Unique private static long ait$skyDiagLast = 0L;
 
     static {
         TardisClientEvents.ENTER_CLIENT_TARDIS.register(tardis -> {
@@ -110,6 +112,14 @@ public abstract class SkyboxMixin {
             this.needsSkyboxReinit = false;
         }
 
+        // TEMP DIAG (sky-through-portal): logs once/sec whenever a portal sky pass is active.
+        if (SkyboxUtil.PORTAL_SKY_TARDIS != null && System.currentTimeMillis() - ait$skyDiagLast > 1000L) {
+            ait$skyDiagLast = System.currentTimeMillis();
+            AITMod.LOGGER.info("[SKYDIAG] ait$renderSky this.world={} isTardisDim={} portalSky={}",
+                    this.world.getRegistryKey().getValue(), TardisServerWorld.isTardisDimension(this.world),
+                    SkyboxUtil.PORTAL_SKY_TARDIS != null);
+        }
+
         if (TardisServerWorld.isTardisDimension(this.world)) {
             this.renderSkyDynamically(matrices, projectionMatrix, tickDelta, camera, fogCallback, ci);
             this.world.getProfiler().swap("projector");
@@ -137,7 +147,12 @@ public abstract class SkyboxMixin {
 
     @Unique private void renderSkyDynamically(MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, Camera camera,
                                               Runnable fogCallback, CallbackInfo ci) {
-        if (!AITModClient.CONFIG.environmentProjector || context == null) {
+        // When PORTAL_SKY_TARDIS is set we're drawing a specific TARDIS's interior through the exterior door for a
+        // viewer who is in no TARDIS (and may have the projector toggle off). Always render that TARDIS's configured
+        // skybox in that case; only honour the client projector toggle for the normal "I'm inside" render.
+        boolean portal = SkyboxUtil.PORTAL_SKY_TARDIS != null;
+
+        if (!portal && (!AITModClient.CONFIG.environmentProjector || context == null)) {
             SkyboxUtil.renderTardisSky(matrices);
             ci.cancel();
 
@@ -147,12 +162,27 @@ public abstract class SkyboxMixin {
         if (this.world == null)
             return;
 
-        Tardis tardis = ClientTardisUtil.getCurrentTardis();
+        // Prefer the BOTI portal's TARDIS when it's set (looking at a TARDIS from outside): the player is in no
+        // TARDIS then, so getCurrentTardis() would be null and the doorway would fall through to the interior
+        // dimension's blank vanilla sky instead of the TARDIS's configured skybox.
+        Tardis tardis = portal ? SkyboxUtil.PORTAL_SKY_TARDIS : ClientTardisUtil.getCurrentTardis();
 
-        if (tardis == null || tardis.stats() == null || tardis.stats().skybox() == null)
+        if (tardis == null || tardis.stats() == null || tardis.stats().skybox() == null) {
+            if (portal) { // no configured skybox → fall back to the default TARDIS cubemap rather than blank sky
+                SkyboxUtil.renderTardisSky(matrices);
+                ci.cancel();
+            }
             return;
+        }
 
         RegistryKey<World> skyboxWorld = tardis.stats().skybox().get();
+
+        // TEMP DIAG (sky-through-portal): which skybox branch renderSkyDynamically resolves to.
+        if (portal && System.currentTimeMillis() - ait$skyDiagLast < 50L) {
+            AITMod.LOGGER.info("[SKYDIAG] renderSkyDynamically portal={} tardisPresent={} skyboxWorld={} isVortex={} isMoon={}",
+                    portal, tardis != null, skyboxWorld.getValue(),
+                    skyboxWorld == AITDimensions.TIME_VORTEX_WORLD, skyboxWorld == AITDimensions.MOON);
+        }
         float skyboxYaw = tardis.stats().skyboxYaw().get();
         float skyboxPitch = tardis.stats().skyboxPitch().get();
 
@@ -220,7 +250,7 @@ public abstract class SkyboxMixin {
 
         DimensionRenderingRegistry.SkyRenderer renderer = DimensionRenderingRegistry.getSkyRenderer(skyboxWorld);
 
-        if (renderer != null) {
+        if (renderer != null && context != null) {
             renderer.render(context);
             ci.cancel();
         }
