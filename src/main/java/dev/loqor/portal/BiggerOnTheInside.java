@@ -226,10 +226,12 @@ public class BiggerOnTheInside implements ModInitializer {
             removeChunkTickets(entry.world, entry.pos, id);
 
             entry.proxy.setPos(extPos.getX(), extPos.getY(), extPos.getZ());
-            entry.proxy.onChunkEntered();
 
-            // Keep the mutable-box reference in sync so the packet listener's range
-            // filter uses the new position rather than the stale one.
+            // Safely trigger chunk entry only if the target chunk is present
+            if (entry.world.isChunkLoaded(extPos.getX() >> 4, extPos.getZ() >> 4)) {
+                entry.proxy.onChunkEntered();
+            }
+
             entry.posRef[0] = extPos;
             entry.pos = extPos;
 
@@ -258,7 +260,7 @@ public class BiggerOnTheInside implements ModInitializer {
         proxy.setPacketListener(packet -> forwardIfInRange(tardis, posRef[0], packet));
 
         world.spawnEntity(proxy);
-        proxy.onChunkEntered();
+        // proxy.onChunkEntered();
 
         float rain    = world.getRainGradient(1.0f);
         float thunder = world.getThunderGradient(1.0f);
@@ -372,7 +374,7 @@ public class BiggerOnTheInside implements ModInitializer {
         proxy.setPacketListener(packet -> forwardIfInRange(portalId, () -> exteriorViewers(tardis), posRef[0], packet));
 
         interior.spawnEntity(proxy);
-        proxy.onChunkEntered();
+        // proxy.onChunkEntered();
 
         float rain    = interior.getRainGradient(1.0f);
         float thunder = interior.getThunderGradient(1.0f);
