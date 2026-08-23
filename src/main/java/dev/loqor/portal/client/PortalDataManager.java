@@ -52,25 +52,44 @@ public class PortalDataManager {
 
         ClientTickEvents.END_CLIENT_TICK.register(minecraftClient -> {
             for (PortalData data : new ArrayList<>(map.values())) {
+                // Each per-tick step is isolated so a failure in one can't skip the ones after it. In particular
+                // entity ticking must run every tick regardless of the chunk/time steps: if it were skipped on the
+                // ticks one of those threw, entity age and interpolation would advance unevenly and every animation
+                // (head turn, item spin, walk) would stutter.
+
                 // The shadow world isn't part of the client tick loop, so nothing else drains the queue that
                 // onChunkData fills - the work that applies a chunk's light data and marks its sections dirty for
                 // rebuilding. Without this the doorway only ever shows the initial (empty) build and stays blank.
-                data.world().runQueuedChunkUpdates();
+                step(data, "chunk updates", d -> d.world().runQueuedChunkUpdates());
 
                 // Advance the shadow world's clock every client tick, exactly like the real ClientWorld does in
                 // MinecraftClient#tick. Time-driven block-entity animations (banners waving, etc.) read
                 // world.getTime()/getTimeOfDay() each frame; without a per-tick advance the clock only moves when a
                 // WorldTimeUpdate packet arrives from the server (once per refresh), so those animations stutter,
                 // jumping forward once a second. The periodic packet stays authoritative and corrects any drift.
-                data.world().tickTime();
+                step(data, "clock", d -> d.world().tickTime());
 
-                data.tickEntities();
-                spawnDisplayParticles(data);
+                step(data, "entities", PortalData::tickEntities);
+                step(data, "particles", PortalDataManager::spawnDisplayParticles);
             }
 
-            for (PortalParticleManager manager : new ArrayList<>(particles.values()))
-                manager.tick();
+            for (PortalParticleManager manager : new ArrayList<>(particles.values())) {
+                try {
+                    manager.tick();
+                } catch (Exception e) {
+                    AITMod.LOGGER.error("BOTI: failed to tick portal particles", e);
+                }
+            }
         });
+    }
+
+    /** Runs one isolated per-tick step for a portal, logging (but not rethrowing) any failure so later steps run. */
+    private static void step(PortalData data, String name, java.util.function.Consumer<PortalData> action) {
+        try {
+            action.accept(data);
+        } catch (Exception e) {
+            AITMod.LOGGER.error("BOTI: portal '{}' step failed", name, e);
+        }
     }
 
     /**
@@ -200,6 +219,8 @@ public class PortalDataManager {
             data.onEntityVelocity(velocity);
         } else if (packet instanceof EntitySetHeadYawS2CPacket headYaw) {
             data.onEntitySetHeadYaw(headYaw);
+        } else if (packet instanceof EntityAnimationS2CPacket animation) {
+            data.onEntityAnimation(animation);
         } else if (packet instanceof EntityTrackerUpdateS2CPacket tracker) {
             data.onEntityTrackerUpdate(tracker);
         } else if (packet instanceof EntityEquipmentUpdateS2CPacket equipment) {

@@ -16,6 +16,8 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.TrackedPosition;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Hand;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.*;
@@ -322,6 +324,25 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world, Wor
         entity.updateTrackedHeadRotation(packet.getHeadYaw() * 360 / 256.0F, 3);
     }
 
+    /**
+     * Mirrors the hand-swing / wake-up cases of {@code ClientPlayNetworkHandler#onEntityAnimation} onto the shadow
+     * world. Arm swinging is driven purely by this packet (not by any tracked data or movement), so without it the
+     * mobs and players seen through the doorway never swing when they attack, mine or use an item - the "player
+     * animations don't transfer" report. The crit / enchanted-hit cases spawn particle emitters bound to the main
+     * particle manager, which don't belong in the doorway, so they're intentionally skipped.
+     */
+    public void onEntityAnimation(EntityAnimationS2CPacket packet) {
+        if (!(this.world.getEntityById(packet.getId()) instanceof LivingEntity living))
+            return;
+
+        if (packet.getAnimationId() == EntityAnimationS2CPacket.SWING_MAIN_HAND)
+            living.swingHand(Hand.MAIN_HAND);
+        else if (packet.getAnimationId() == EntityAnimationS2CPacket.SWING_OFF_HAND)
+            living.swingHand(Hand.OFF_HAND);
+        else if (packet.getAnimationId() == EntityAnimationS2CPacket.WAKE_UP && living instanceof PlayerEntity player)
+            player.wakeUp(false, false);
+    }
+
     public void onEntityTrackerUpdate(EntityTrackerUpdateS2CPacket packet) {
         Entity entity = this.world.getEntityById(packet.id());
 
@@ -393,7 +414,21 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world, Wor
             if (entity == null || entity.isRemoved())
                 continue;
 
-            this.world.tickEntity(entity);
+            // Skip passengers here, exactly like ClientWorld#tickEntities: tickEntity walks the passenger list
+            // itself (tickPassenger). Ticking a mounted entity from this top-level loop as well would advance it
+            // twice per client tick - age and the tracked-position/head interpolation would step double-time, so
+            // its spin/head/limbs render at 2x then snap back: the "heads and item spin jitter" report.
+            if (entity.hasVehicle())
+                continue;
+
+            // One entity whose tick throws (a half-streamed mob, a block-entity-backed state read, etc.) must not
+            // abort the rest of the loop. If it did, every entity after it would silently stop ticking that frame,
+            // freezing their age/interpolation and making all their animations stutter.
+            try {
+                this.world.tickEntity(entity);
+            } catch (Throwable t) {
+                AITMod.LOGGER.error("BOTI: failed to tick shadow entity {}", entity, t);
+            }
         }
     }
 

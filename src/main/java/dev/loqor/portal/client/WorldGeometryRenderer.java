@@ -39,6 +39,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Renders the slice of the exterior world a TARDIS is standing in, as seen through the interior door.
@@ -73,6 +74,22 @@ public class WorldGeometryRenderer {
     private final Map<ChunkSectionPos, Integer> buildAttempts = new ConcurrentHashMap<>();
 
     private CompletableFuture<Void> buildFuture = null;
+
+    /** Set once {@link #close()} has run so a build still in flight can't upload (and leak) VBOs into a dead renderer. */
+    private volatile boolean closed = false;
+
+    /**
+     * Reused per-section {@link BufferBuilder} sets (one entry per in-flight batch slot, each a full set of block
+     * layers), confined to the single builder thread. Reusing them is the fix for the "leave the door open and memory
+     * overloads" OOM: the old code allocated a fresh set of seven layer buffers - several MB of direct memory, since
+     * SOLID's expected size alone is 2 MiB - for <em>every</em> section on <em>every</em> rebuild, and left them for
+     * the GC's Cleaner to reclaim. A busy exterior (flowing water, redstone, mobs) rebuilds sections constantly, so
+     * that direct-memory churn outran the Cleaner and exhausted the off-heap buffer pool. Reuse is safe because the
+     * build → apply pipeline is serialised (see {@link #dispatchBuild}): {@link #buildFuture} only completes after
+     * {@code applySection} has uploaded - and thereby released - every {@link BufferBuilder.BuiltBuffer}, so a slot's
+     * builders are always idle before the next batch calls {@code begin()} on them again.
+     */
+    private final List<Map<RenderLayer, BufferBuilder>> builderPool = new ArrayList<>();
 
     /** Dedicated single-thread builder with a large stack; serialised so our builds never race each other. */
     private final ExecutorService buildExecutor = Executors.newSingleThreadExecutor(runnable -> {
@@ -114,6 +131,12 @@ public class WorldGeometryRenderer {
 
     /** Exterior fog colour computed by the most recent {@link #render}; the doorway background is painted with it. */
     private Vec3d lastExteriorFogColor = null;
+
+    /** Periodic counter for the particle diagnostic log line (see {@link #renderParticles}). Temporary. */
+    // private static int PARTICLE_DIAG_TICK = 0;
+
+    /** One-shot guard for the cloud diagnostic log line (see {@link #renderSky}). Temporary. */
+    // private static final AtomicBoolean CLOUD_DIAG = new AtomicBoolean(false);
 
     public WorldGeometryRenderer(int renderDistance) {
         this.renderDistance = renderDistance;
@@ -213,7 +236,7 @@ public class WorldGeometryRenderer {
         float previousFogEnd = RenderSystem.getShaderFogEnd();
         FogShape previousFogShape = RenderSystem.getShaderFogShape();
         try {
-            this.lastExteriorFogColor = updateExteriorFog(portalWorld, eyeWorldPos, portalYaw, portalPitch, tickDelta);
+            this.lastExteriorFogColor = updateExteriorFog(portalWorld, eyeWorldPos, portalYaw, portalPitch, tickDelta, Math.min(client.options.getClampedViewDistance(), this.renderDistance()));
         } catch (Exception e) {
             AITMod.LOGGER.error("BOTI: failed to compute exterior fog", e);
         }
@@ -382,6 +405,9 @@ public class WorldGeometryRenderer {
     }
 
     private void dispatchBuild(World world, List<ChunkSectionPos> batch, boolean checkBehindPortal) {
+        if (closed)
+            return;
+
         // Lighting flood-fill pre-pass - MUST run on this (the render) thread, never on the async builder below.
         // The shadow world's light engine is backed by thread-unsafe fastutil sets and is also mutated on this
         // thread by PortalData as chunk/light packets arrive. Touching it from the builder thread corrupted those
@@ -405,12 +431,21 @@ public class WorldGeometryRenderer {
         if (queuedAny)
             lightingProvider.doLightUpdates();
 
-        buildFuture = CompletableFuture.runAsync(() -> {
+        // Serialised pipeline: this future only completes once the results have been uploaded (or discarded) on the
+        // render thread. Because pumpBuilds waits for it before dispatching the next batch, the reusable builder pool
+        // is never touched by the builder thread while the render thread is still reading (uploading/releasing) the
+        // previous batch's built buffers - the invariant that makes reusing the builders safe (see builderPool).
+        CompletableFuture<Void> applied = new CompletableFuture<>();
+        buildFuture = applied;
+
+        buildExecutor.execute(() -> {
             BlockRenderManager blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
             Random random = Random.create();
 
             List<SectionResult> results = new ArrayList<>(batch.size());
-            for (ChunkSectionPos sectionPos : batch) {
+            for (int slot = 0; slot < batch.size(); slot++) {
+                ChunkSectionPos sectionPos = batch.get(slot);
+
                 // Don't build a section whose column hasn't streamed into the shadow world yet: reading it would
                 // return all-air, and applySection would then *replace* the section's last good geometry with
                 // nothing - the chunk flashes in, then vanishes ("yeeted"). Re-queue and try again once it loads.
@@ -421,11 +456,14 @@ public class WorldGeometryRenderer {
                 }
 
                 try {
-                    results.add(buildSection(world, sectionPos, blockRenderManager, random, checkBehindPortal));
+                    results.add(buildSection(world, sectionPos, builderSet(slot), blockRenderManager, random, checkBehindPortal));
                 } catch (Throwable t) {
                     // One bad section (e.g. boundary data not streamed yet) must not sink the whole batch, and a
                     // StackOverflowError is a Throwable, not an Exception - catch it so it can't be swallowed by the
-                    // CompletableFuture and quietly leave the doorway blank.
+                    // CompletableFuture and quietly leave the doorway blank. The pooled builders for this slot may be
+                    // left mid-build, so throw them away and let the slot re-allocate a clean set next batch.
+                    resetBuilderSet(slot);
+
                     int attempts = buildAttempts.merge(sectionPos, 1, Integer::sum);
                     if (attempts == 1)
                         AITMod.LOGGER.error("BOTI: failed to build section {} (attempt {})", sectionPos, attempts, t);
@@ -436,10 +474,46 @@ public class WorldGeometryRenderer {
             }
 
             MinecraftClient.getInstance().execute(() -> {
-                for (SectionResult result : results)
-                    applySection(result);
+                try {
+                    if (closed) {
+                        // Renderer was torn down while this batch was building - drop the built buffers rather than
+                        // uploading them into VBOs that nothing would ever close (a GL-buffer leak per teardown).
+                        for (SectionResult result : results)
+                            for (BufferBuilder.BuiltBuffer built : result.buffers().values())
+                                built.release();
+                        return;
+                    }
+                    for (SectionResult result : results)
+                        applySection(result);
+                } finally {
+                    applied.complete(null); // frees the pipeline (and the builder pool) for the next batch
+                }
             });
-        }, buildExecutor);
+        });
+    }
+
+    /**
+     * Returns the reusable {@link BufferBuilder} set for the given batch slot, allocating it (and any lower slots)
+     * on first use. Called only on the builder thread; safe to reuse across batches because of the serialised
+     * pipeline (see {@link #builderPool}).
+     */
+    private Map<RenderLayer, BufferBuilder> builderSet(int slot) {
+        while (builderPool.size() <= slot)
+            builderPool.add(newBuilderSet());
+        return builderPool.get(slot);
+    }
+
+    private static Map<RenderLayer, BufferBuilder> newBuilderSet() {
+        Map<RenderLayer, BufferBuilder> set = new HashMap<>();
+        for (RenderLayer layer : RenderLayer.getBlockLayers())
+            set.put(layer, new BufferBuilder(layer.getExpectedBufferSize()));
+        return set;
+    }
+
+    /** Drops a slot's builders (they may be left mid-{@code begin()} after a failed build) so it re-allocates clean. */
+    private void resetBuilderSet(int slot) {
+        if (slot < builderPool.size())
+            builderPool.set(slot, newBuilderSet());
     }
 
     // ===== Volume / culling helpers (all in centerPos-relative space) =====
@@ -621,16 +695,23 @@ public class WorldGeometryRenderer {
             RenderSystem.setShaderFogShape(FogShape.CYLINDER);
 
             // Clouds are a separate pass in vanilla (WorldRenderer.renderClouds), so the doorway never drew them.
-            // Draw them now, inside the same client.world swap, positioned relative to the exterior block so they sit
-            // above the terrain shown through the door. Clouds are distant enough that the eye-vs-centre parallax is
-            // imperceptible, so centerPos is a fine camera origin. (renderClouds draws its sheet through an explicit
-            // matrix - cloudStack - so the global model-view, still identity from the sky pass, doesn't affect it.)
-            if (client.options.getCloudRenderModeValue() != CloudRenderMode.OFF) {
+            // Draw them now, inside the same client.world swap. renderClouds builds its sheet relative to the camera
+            // coords passed here and draws it through cloudStack (rotation ONLY - no eye translation, unlike the
+            // portalView that terrain/entities/particles use). So the camera coords MUST be the portal eye's world
+            // position, not centerPos: pass centerPos and the whole cloud layer is shifted by eyeRelToCenter, which is
+            // large whenever the player stands away from the interior door - the clouds slide right out of the doorway
+            // ("no clouds"). Passing eyeWorldPos puts the eye at the rotation origin, exactly matching the terrain
+            // (which is R * (blockPos - eyeWorldPos)), so the clouds line up above the visible ground.
+            CloudRenderMode cloudMode = client.options.getCloudRenderModeValue();
+            //if (CLOUD_DIAG.compareAndSet(false, true))
+            //    AITMod.LOGGER.info("BOTI cloud diag: mode={} cloudsHeight={} eyeY={} centerY={}",
+            //            cloudMode, portalWorld.getDimensionEffects().getCloudsHeight(), eyeWorldPos.y, centerPos.getY());
+            if (cloudMode != CloudRenderMode.OFF) {
                 RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
                 MatrixStack cloudStack = new MatrixStack();
                 cloudStack.multiplyPositionMatrix(portalRotation);
                 data.renderer().renderClouds(cloudStack, portalProjection, tickDelta,
-                        centerPos.getX(), centerPos.getY(), centerPos.getZ());
+                        eyeWorldPos.x, eyeWorldPos.y, eyeWorldPos.z);
             }
         } finally {
             portalSkyCameraPos = null;
@@ -654,14 +735,14 @@ public class WorldGeometryRenderer {
      *         doorway background should be painted with so the hand-off is seamless
      */
     public static Vec3d updateExteriorFog(ClientWorld portalWorld, Vec3d eyePos, float yaw, float pitch,
-                                          float tickDelta) {
+                                          float tickDelta, int renderDistance) {
         MinecraftClient client = MinecraftClient.getInstance();
 
         Camera fogCamera = new Camera();
         fogCamera.setPos(eyePos.x, eyePos.y, eyePos.z);
         fogCamera.setRotation(yaw, pitch);
 
-        BackgroundRenderer.render(fogCamera, tickDelta, portalWorld, client.options.getClampedViewDistance(),
+        BackgroundRenderer.render(fogCamera, tickDelta, portalWorld, renderDistance,
                 client.gameRenderer.getSkyDarkness(tickDelta));
         BackgroundRenderer.setFogBlack();
 
@@ -722,34 +803,60 @@ public class WorldGeometryRenderer {
 
         dispatcher.configure(portalWorld, portalCamera, client.targetedEntity);
 
-        MatrixStack matrices = new MatrixStack();
+        // Bias the whole entity pass toward the camera in depth. This is what keeps the entities' fake contact shadow
+        // (the SHADOW_LAYER) from z-fighting the block top it lies on. Vanilla relies on that layer's
+        // VIEW_OFFSET_Z_LAYERING, which pulls the decal toward the camera by scaling the model-view about its origin -
+        // but that only works under camera-relative rendering, where the origin IS the eye. We render centerPos-
+        // relative, so that scale biases toward the door centre and, once the player steps a few blocks from the door,
+        // no longer clears the surface (the "shadow glitches into the block" report). A depth-only polygon offset is
+        // camera-relative regardless of the model-view origin, so it fixes the shadow at any distance; entities aren't
+        // coplanar with terrain so the tiny bias is invisible on them. It must stay enabled for the whole loop, not
+        // just the final draw(): the shared Immediate flushes the SHADOW_LAYER mid-loop whenever the next entity asks
+        // for a different layer, so those draws need the offset live too. Matches vanilla's POLYGON_OFFSET_LAYERING.
+        RenderSystem.polygonOffset(-1.0f, -10.0f);
+        RenderSystem.enablePolygonOffset();
+        try {
+            MatrixStack matrices = new MatrixStack();
 
-        for (Entity entity : portalWorld.getEntities()) {
-            if (entity == null || !isWithinRenderBounds(entity.getBlockPos()))
-                continue;
+            for (Entity entity : portalWorld.getEntities()) {
+                if (entity == null || !isWithinRenderBounds(entity.getBlockPos()))
+                    continue;
 
-            // Interpolated render position, expressed relative to the portal centre (same convention as terrain and
-            // block entities). The dispatcher translates the matrix stack by these coordinates internally; the shared
-            // portal view matrix (set as the global model-view) then maps them onto the doorway.
-            double x = MathHelper.lerp(tickDelta, entity.lastRenderX, entity.getX()) - centerPos.getX();
-            double y = MathHelper.lerp(tickDelta, entity.lastRenderY, entity.getY()) - centerPos.getY();
-            double z = MathHelper.lerp(tickDelta, entity.lastRenderZ, entity.getZ()) - centerPos.getZ();
-            float yaw = MathHelper.lerp(tickDelta, entity.prevYaw, entity.getYaw());
+                // Interpolated render position, expressed relative to the portal centre (same convention as terrain
+                // and block entities). The dispatcher translates the matrix stack by these coordinates internally; the
+                // shared portal view matrix (set as the global model-view) then maps them onto the doorway.
+                double x = MathHelper.lerp(tickDelta, entity.lastRenderX, entity.getX()) - centerPos.getX();
+                double y = MathHelper.lerp(tickDelta, entity.lastRenderY, entity.getY()) - centerPos.getY();
+                double z = MathHelper.lerp(tickDelta, entity.lastRenderZ, entity.getZ()) - centerPos.getZ();
+                float yaw = MathHelper.lerp(tickDelta, entity.prevYaw, entity.getYaw());
 
-            try {
-                int light = dispatcher.getLight(entity, tickDelta);
-                dispatcher.render(entity, x, y, z, yaw, tickDelta, matrices, immediate, light);
-            } catch (Throwable t) {
-                // A half-synced mob (missing tracked data, etc.) must not blank the whole entity pass.
-                AITMod.LOGGER.error("BOTI: failed to render entity {}", entity, t);
+                try {
+                    int light = dispatcher.getLight(entity, tickDelta);
+                    dispatcher.render(entity, x, y, z, yaw, tickDelta, matrices, immediate, light);
+                } catch (Throwable t) {
+                    // A half-synced mob (missing tracked data, etc.) must not blank the whole entity pass.
+                    AITMod.LOGGER.error("BOTI: failed to render entity {}", entity, t);
+                }
             }
-        }
 
-        immediate.draw();
+            immediate.draw();
+        } finally {
+            RenderSystem.polygonOffset(0.0f, 0.0f);
+            RenderSystem.disablePolygonOffset();
+        }
     }
 
     private void renderParticles(UUID id, Camera portalCamera, float tickDelta) {
         PortalParticleManager manager = PortalDataManager.particles(id);
+
+        // DIAGNOSTIC (periodic, ~every 100 renders): the previous one-shot version only caught the expected first
+        // frame race (the manager is created lazily the tick after the first render sets centerPos), so it couldn't
+        // report steady state. This reports whether the manager exists and how many particles it holds over time,
+        // distinguishing a spawn failure (never created / count 0) from a render failure (count > 0, nothing shows).
+        /*if (PARTICLE_DIAG_TICK++ % 100 == 0)
+            AITMod.LOGGER.info("BOTI particle diag: manager={} count=[{}] for {}",
+                    manager != null, manager == null ? "-" : manager.getDebugString(), id);
+*/
         if (manager == null)
             return;
 
@@ -773,7 +880,7 @@ public class WorldGeometryRenderer {
 
     // ===== Section building (off-thread; no GL here) =====
 
-    private SectionResult buildSection(World world, ChunkSectionPos sectionPos,
+    private SectionResult buildSection(World world, ChunkSectionPos sectionPos, Map<RenderLayer, BufferBuilder> builders,
                                        BlockRenderManager blockRenderManager, Random random, boolean checkBehindPortal) {
 
         int startX = sectionPos.getMinX();
@@ -790,14 +897,11 @@ public class WorldGeometryRenderer {
         // crash. The pre-pass now runs on the render thread in dispatchBuild() before this build is queued, so this
         // off-thread mesh only READS light (renderBlock below), which is safe.
 
-        Map<RenderLayer, BufferBuilder> builders = new HashMap<>();
+        // builders come from the reusable pool (see builderPool); (re)begin each for this section's build.
         Set<RenderLayer> usedLayers = new HashSet<>();
 
-        for (RenderLayer layer : RenderLayer.getBlockLayers()) {
-            BufferBuilder builder = new BufferBuilder(layer.getExpectedBufferSize());
-            builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL);
-            builders.put(layer, builder);
-        }
+        for (RenderLayer layer : RenderLayer.getBlockLayers())
+            builders.get(layer).begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL);
 
         MatrixStack matrices = new MatrixStack();
         List<BlockEntity> foundBlockEntities = new ArrayList<>();
@@ -962,6 +1066,7 @@ public class WorldGeometryRenderer {
     }
 
     public void close() {
+        closed = true;
         clearBuffers();
         buildExecutor.shutdownNow();
     }

@@ -23,6 +23,7 @@ import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkRenderDistanceCenterS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityS2CPacket;
@@ -533,6 +534,7 @@ public class BiggerOnTheInside implements ModInitializer {
                 || packet instanceof EntityS2CPacket
                 || packet instanceof EntityVelocityUpdateS2CPacket
                 || packet instanceof EntitySetHeadYawS2CPacket
+                || packet instanceof EntityAnimationS2CPacket
                 || packet instanceof EntityTrackerUpdateS2CPacket
                 || packet instanceof EntityEquipmentUpdateS2CPacket
                 || packet instanceof EntitiesDestroyS2CPacket
