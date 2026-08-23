@@ -776,7 +776,9 @@ public class WorldGeometryRenderer {
 
             if (!isWithinRenderBounds(blockPos))
                 continue;
-            if ((blockEntity instanceof DoorBlockEntity || blockEntity instanceof ExteriorBlockEntity) && blockEntity.getPos() == portalCamera.getBlockPos())
+
+            Box box = new Box(portalCamera.getBlockPos()).expand(1.25f);
+            if ((blockEntity instanceof DoorBlockEntity || blockEntity instanceof ExteriorBlockEntity) && box.contains(blockEntity.getPos().toCenterPos()))
                 continue;
 
             matrices.push();
