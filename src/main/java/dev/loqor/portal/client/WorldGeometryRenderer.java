@@ -123,11 +123,6 @@ public class WorldGeometryRenderer {
     // never fires - we rebuild the interior's far plane locally for the sky so the distant vortex isn't clipped.
     private static final float SKY_FAR_PLANE = 65536.0f * 4.0f;
 
-    // TEMP DIAG (sky-through-portal): separate throttles so an overworld portal and a TARDIS-dimension portal
-    // rendering in the same frame don't hide each other's log line behind a single shared throttle.
-    private static long skyDiagLastTardis = 0L;
-    private static long skyDiagLastOther = 0L;
-
     // Shared, reused immediate for the block-entity / entity / particle passes. Allocating a new BufferBuilder per
     // pass per door per frame churned off-heap direct memory (each grows well past its initial size, then is left for
     // the GC's Cleaner to reclaim) - the main cause of the "leave the door open and memory overloads" spikes. The
@@ -732,21 +727,6 @@ public class WorldGeometryRenderer {
                 AITMod.LOGGER.error("BOTI: failed to build sky projection; far skyboxes may be clipped", e);
             }
             RenderSystem.setProjectionMatrix(skyProjection, VertexSorter.BY_DISTANCE);
-
-            // TEMP DIAG (sky-through-portal): confirm the extended far plane is actually applied. Perspective matrix
-            // far plane = m32 / (m22 + 1). Throttled separately per world-type to avoid aliasing.
-            boolean diagTardis = TardisServerWorld.isTardisDimension(portalWorld);
-            long now = System.currentTimeMillis();
-            boolean diagFire = diagTardis ? (now - skyDiagLastTardis > 1000L) : (now - skyDiagLastOther > 1000L);
-            if (diagFire) {
-                if (diagTardis) skyDiagLastTardis = now; else skyDiagLastOther = now;
-                float m22 = skyProjection.m22();
-                float m32 = skyProjection.m32();
-                float far = m32 / (m22 + 1.0f);
-                AITMod.LOGGER.info("[SKYDIAG] renderSky farPlane~={} (want {}) world={} portalSky={}", far,
-                        SKY_FAR_PLANE, portalWorld.getRegistryKey().getValue(),
-                        dev.amble.ait.client.util.SkyboxUtil.PORTAL_SKY_TARDIS != null);
-            }
 
             // Bind the position program BEFORE renderSky. Vanilla draws the upper sky dome (lightSkyBuffer, a
             // POSITION-format VBO) with whatever shader RenderSystem.getShader() happens to hold - it only sets an

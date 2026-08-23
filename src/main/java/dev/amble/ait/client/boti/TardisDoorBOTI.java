@@ -145,7 +145,7 @@ public class TardisDoorBOTI extends BOTI {
                 // real (exteriorRotation + 180) instead of the snapped door direction is what makes the 8/16-way
                 // rotations line up instead of collapsing to the nearest cardinal.
                 Camera camera = client.gameRenderer.getCamera();
-                Direction interiorDoorFacing = tardis.getDesktop().getDoorPos().toMinecraftDirection();
+                Direction interiorDoorFacing = door.getFacing().getOpposite();
                 float deltaYaw = (exteriorRotation + 180f) - interiorDoorFacing.asRotation();
 
                 Vec3d interiorDoorCenter = new Vec3d(door.getPos().getX() + 0.5, door.getPos().getY() + 1.0,

@@ -39,9 +39,6 @@ import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 
 public class TardisExteriorBOTI extends BOTI {
-    // TEMP DIAG (sky-through-portal): throttle for the exterior->interior path log.
-    private static long EXT_BOTI_DIAG_LAST = 0L;
-
     public void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, ExteriorModel frame, ModelPart mask, int light) {
         if (MinecraftClient.getInstance().world == null
                 || MinecraftClient.getInstance().player == null) return;
@@ -111,15 +108,6 @@ public class TardisExteriorBOTI extends BOTI {
         // mirror of TardisDoorBOTI's interior->exterior mapping) and draw that shadow world into the masked opening.
         // If the stream hasn't arrived yet, the doorway keeps the mask fill drawn above as a graceful fallback.
         PortalData interior = PortalDataManager.get(Portals.interiorId(tardis.getUuid()));
-        // TEMP DIAG (sky-through-portal): confirm the exterior->interior render path runs and with what world.
-        if (System.currentTimeMillis() - EXT_BOTI_DIAG_LAST > 1000L) {
-            EXT_BOTI_DIAG_LAST = System.currentTimeMillis();
-            AITMod.LOGGER.info("[SKYDIAG] extBOTI interiorNull={} interiorWorld={} desktopNull={} skybox={}",
-                    interior == null,
-                    (interior == null || interior.world() == null) ? "n/a" : interior.world().getRegistryKey().getValue(),
-                    tardis.getDesktop() == null,
-                    (tardis.stats() == null || tardis.stats().skybox() == null) ? "n/a" : tardis.stats().skybox().get().getValue());
-        }
         if (interior != null && interior.world() != null && tardis.getDesktop() != null) {
             try {
                 WorldGeometryRenderer geometry = interior.geometry();

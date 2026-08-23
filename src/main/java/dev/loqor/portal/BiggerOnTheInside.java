@@ -112,6 +112,14 @@ public class BiggerOnTheInside implements ModInitializer {
     private static final long REFRESH_INTERVAL = 5L;
 
     /**
+     * How long (ms) an interior stream is kept alive after it stops being strictly viewable (door closed, viewer
+     * momentarily out of range, interior briefly unloaded). Tearing down immediately forces a full interior re-stream
+     * - and a full client mesh rebuild - on the next door open, so a grace window lets ordinary open/close and
+     * step-in/step-out reuse the already-streamed interior instead of rebuilding it.
+     */
+    private static final long INTERIOR_GRACE_MS = 30_000L;
+
+    /**
      * Reused across refresh cycles to avoid allocating a new collection on every tick.
      * Both sets are cleared at the top of each refresh, so they never carry stale data.
      */
@@ -299,42 +307,65 @@ public class BiggerOnTheInside implements ModInitializer {
      *
      * @return {@code true} if an interior proxy is (now) active for this TARDIS
      */
+    /**
+     * Decides whether an interior stream that is not strictly viewable this cycle should stay alive. Returns
+     * {@code true} (keep it, marking it active so the tick loop won't tear it down) while inside the grace window,
+     * {@code false} once the window has elapsed (or if there is no stream to keep). Never rebuilds or re-streams -
+     * the existing proxy and its chunk tickets are simply left in place.
+     */
+    private static boolean keepDuringGrace(ProxyEntry entry) {
+        return entry != null && System.currentTimeMillis() <= entry.graceDeadline;
+    }
+
     private static boolean ensureInteriorProxy(MinecraftServer server, ServerTardis tardis) {
         UUID key = tardis.getUuid();
+        ProxyEntry entry = INTERIOR_PROXIES.get(key);
 
+        // The interior stream must NOT be tied moment-to-moment to the door being open. Tearing it down the instant
+        // the door closes means the next open re-sends the whole interior and the client rebuilds its entire mesh
+        // (confirmed in-game: open/close/open flickers a full rebuild every time). These conditions go transiently
+        // false during ordinary play - the door animating shut, a player stepping in/out (briefly in neither world or
+        // out of range), the interior momentarily unloaded - so keep an existing stream alive through a short grace
+        // window and only let it tear down once the TARDIS has genuinely stopped being viewable. Rendering is gated on
+        // the door client-side already, so streaming a little longer than strictly visible costs only some chunk
+        // tickets, and it matches the exterior stream's stability.
         if (!tardis.travel().isLanded() || !tardis.door().isOpen())
-            return false;
+            return keepDuringGrace(entry);
 
         List<ServerPlayerEntity> viewers = exteriorViewers(tardis);
         if (viewers.isEmpty())
-            return false;
+            return keepDuringGrace(entry);
 
         // Force-load the interior on demand (getOrLoad) so even an empty/unvisited TARDIS shows its room through the
         // doorway. The proxy + chunk tickets then keep it loaded while viewed; it unloads once no one is looking.
         ServerWorld interior = tardis.world();
         if (interior == null)
-            return false;
+            return keepDuringGrace(entry);
 
         BlockPos doorPos     = tardis.getDesktop().getDoorPos().getPos();
         UUID portalId        = Portals.interiorId(key);
         Set<UUID> viewerIds  = idsOf(viewers);
-
-        ProxyEntry entry = INTERIOR_PROXIES.get(key);
 
         if (entry == null) {
             INTERIOR_PROXIES.put(key, createInteriorProxy(tardis, interior, doorPos, viewerIds));
             return true;
         }
 
+        // Genuinely viewable this cycle — refresh the grace window so a later door-close/step-out is tolerated.
+        entry.graceDeadline = System.currentTimeMillis() + INTERIOR_GRACE_MS;
+
         boolean newViewer = !entry.viewers.containsAll(viewerIds);
-        entry.viewers = viewerIds;
+        boolean dimChanged = !entry.world.getRegistryKey().equals(interior.getRegistryKey());
 
         // Interior dimension changed (interior swap) or a new viewer arrived — rebuild so they get the full re-send.
-        if (!entry.world.getRegistryKey().equals(interior.getRegistryKey()) || newViewer) {
+        if (dimChanged || newViewer) {
+            entry.viewers = viewerIds;
             despawn(entry);
-            INTERIOR_PROXIES.put(key, createInteriorProxy(tardis, interior, doorPos, viewerIds));
+            ProxyEntry rebuilt = createInteriorProxy(tardis, interior, doorPos, viewerIds);
+            INTERIOR_PROXIES.put(key, rebuilt);
             return true;
         }
+        entry.viewers = viewerIds;
 
         broadcastTime(portalId, viewers, interior);
         maybeBroadcastWeather(portalId, viewers, interior, entry);
@@ -383,7 +414,9 @@ public class BiggerOnTheInside implements ModInitializer {
         broadcastWeather(portalId, viewers, rain, thunder);
         broadcastCenter(portalId, viewers, proxy);
 
-        return new ProxyEntry(portalId, proxy, interior, posRef, doorPos, viewerIds, rain, thunder);
+        ProxyEntry entry = new ProxyEntry(portalId, proxy, interior, posRef, doorPos, viewerIds, rain, thunder);
+        entry.graceDeadline = System.currentTimeMillis() + INTERIOR_GRACE_MS;
+        return entry;
     }
 
     private static void removeInteriorProxy(UUID key) {
@@ -679,6 +712,13 @@ public class BiggerOnTheInside implements ModInitializer {
         /** Last-sent weather values for change-detection. */
         float lastRain;
         float lastThunder;
+
+        /**
+         * Interior streams only: wall-clock deadline (ms) until which the stream is kept alive even when not strictly
+         * viewable, so ordinary door open/close and step-in/step-out don't force a full re-stream + client mesh
+         * rebuild. Unused (0) for exterior streams.
+         */
+        long graceDeadline;
 
         ProxyEntry(UUID tardisId, PacketProxyPlayer proxy, ServerWorld world,
                    BlockPos[] posRef, BlockPos pos, Set<UUID> viewers,

@@ -28,7 +28,6 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisClientEvents;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.util.ClientTardisUtil;
@@ -76,7 +75,6 @@ public abstract class SkyboxMixin {
 
     @Unique private static WorldRenderContext context;
     @Unique private boolean needsSkyboxReinit = false;
-    @Unique private static long ait$skyDiagLast = 0L;
 
     static {
         TardisClientEvents.ENTER_CLIENT_TARDIS.register(tardis -> {
@@ -110,14 +108,6 @@ public abstract class SkyboxMixin {
 
         if (this.needsSkyboxReinit && ClientTardisUtil.getCurrentTardis() != null) {
             this.needsSkyboxReinit = false;
-        }
-
-        // TEMP DIAG (sky-through-portal): logs once/sec whenever a portal sky pass is active.
-        if (SkyboxUtil.PORTAL_SKY_TARDIS != null && System.currentTimeMillis() - ait$skyDiagLast > 1000L) {
-            ait$skyDiagLast = System.currentTimeMillis();
-            AITMod.LOGGER.info("[SKYDIAG] ait$renderSky this.world={} isTardisDim={} portalSky={}",
-                    this.world.getRegistryKey().getValue(), TardisServerWorld.isTardisDimension(this.world),
-                    SkyboxUtil.PORTAL_SKY_TARDIS != null);
         }
 
         if (TardisServerWorld.isTardisDimension(this.world)) {
@@ -176,13 +166,6 @@ public abstract class SkyboxMixin {
         }
 
         RegistryKey<World> skyboxWorld = tardis.stats().skybox().get();
-
-        // TEMP DIAG (sky-through-portal): which skybox branch renderSkyDynamically resolves to.
-        if (portal && System.currentTimeMillis() - ait$skyDiagLast < 50L) {
-            AITMod.LOGGER.info("[SKYDIAG] renderSkyDynamically portal={} tardisPresent={} skyboxWorld={} isVortex={} isMoon={}",
-                    portal, tardis != null, skyboxWorld.getValue(),
-                    skyboxWorld == AITDimensions.TIME_VORTEX_WORLD, skyboxWorld == AITDimensions.MOON);
-        }
         float skyboxYaw = tardis.stats().skyboxYaw().get();
         float skyboxPitch = tardis.stats().skyboxPitch().get();
 
