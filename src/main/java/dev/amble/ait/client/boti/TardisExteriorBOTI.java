@@ -2,18 +2,15 @@ package dev.amble.ait.client.boti;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.amble.lib.data.DirectedGlobalPos;
+import net.minecraft.client.render.*;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.util.DyeColor;
-import net.minecraft.client.render.Camera;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
