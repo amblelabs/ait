@@ -776,7 +776,7 @@ public class WorldGeometryRenderer {
 
             if (!isWithinRenderBounds(blockPos))
                 continue;
-            if (blockEntity instanceof DoorBlockEntity || blockEntity instanceof ExteriorBlockEntity)
+            if ((blockEntity instanceof DoorBlockEntity || blockEntity instanceof ExteriorBlockEntity) && blockEntity.getPos() == portalCamera.getBlockPos())
                 continue;
 
             matrices.push();
