@@ -5,11 +5,16 @@ import java.util.Queue;
 
 import com.mojang.blaze3d.platform.GlConst;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.compat.DependencyChecker;
@@ -51,6 +56,29 @@ public class BOTI {
         src.setClearColor(r, g, b, a);
     }
 
+    /** Restores core GL state after a BOTI pass so a failure can never leave the screen black. */
+    public static void resetState() {
+        GL11.glDisable(GL11.GL_STENCIL_TEST);
+        RenderSystem.depthMask(true);
+        client.getFramebuffer().beginWrite(true);
+    }
+
+    /** Solid white block texture, tinted to fill the portal background with a flat sky colour. */
+    public static final Identifier SKY_TEXTURE = new Identifier("textures/block/white_concrete.png");
+
+    /** Snaps a portal offset (block centre → portal) to a cardinal outward normal for BOTI transforms. */
+    public static float[] horizontalNormal(double dx, double dz, float fallbackFacing) {
+        if (Math.abs(dx) < 1.0E-4 && Math.abs(dz) < 1.0E-4) {
+            Direction dir = Direction.fromRotation(fallbackFacing);
+            return new float[]{dir.getOffsetX(), dir.getOffsetZ()};
+        }
+
+        if (Math.abs(dx) >= Math.abs(dz))
+            return new float[]{Math.signum((float) dx), 0};
+
+        return new float[]{0, Math.signum((float) dz)};
+    }
+
     /**
      * Warns the user if they are missing Indium and have a non-Nvidia card.
      */
@@ -84,10 +112,10 @@ public class BOTI {
     }
 
     private static void tryWarnMac(MinecraftClient client) {
-        client.player.sendMessage(Text.literal("You appear to be playing on a Mac. Indium is required, but is not found. This may cause issues with the mod - BOTI has been disabled!").formatted(Formatting.RED), false);
+        client.player.sendMessage(Text.translatable("message.ait.boti.indium_required.mac").formatted(Formatting.RED), false);
     }
 
     private static void tryWarnAmd(MinecraftClient client) {
-        client.player.sendMessage(Text.literal("You appear to have an AMD GPU. Indium is required, but is not found. This may cause issues with the mod - BOTI has been disabled!").formatted(Formatting.RED), false);
+        client.player.sendMessage(Text.translatable("message.ait.boti.indium_required.amd").formatted(Formatting.RED), false);
     }
 }

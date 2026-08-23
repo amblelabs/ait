@@ -1,21 +1,24 @@
 package dev.amble.ait.client.boti;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.block.DoorBlock;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedGlobalPos;
+import dev.loqor.portal.client.PortalData;
+import dev.loqor.portal.client.PortalDataManager;
+import dev.loqor.portal.client.WorldGeometryRenderer;
+import net.minecraft.client.render.*;
+import net.minecraft.util.math.*;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.AnimatedModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
@@ -31,11 +34,17 @@ import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 
 public class TardisDoorBOTI extends BOTI {
-    public static void renderInteriorDoorBoti(ClientTardis tardis, DoorBlockEntity door, ClientExteriorVariantSchema variant, MatrixStack stack, VertexConsumerProvider consumers, Identifier frameTex, AnimatedModel frame, ModelPart mask, int light, float tickDelta) {
+    // The geometry renderer now lives on each PortalData (the shadow world owns it), so multiple TARDIS doors -
+    // and the new exterior->interior view - each bake/draw independently. Fetched per render via PortalDataManager.
+
+    public static void renderInteriorDoorBoti(ClientTardis tardis, DoorBlockEntity door, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, AnimatedModel frame, ModelPart mask, int light, float tickDelta) {
         ExteriorVariantSchema parent = variant.parent();
 
-        if (client.world == null
-                || client.player == null) return;
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.world == null || client.player == null) return;
+
+        PortalData portalData = PortalDataManager.get(tardis.getUuid());
+        boolean landed = tardis.travel().getState() == TravelHandlerBase.State.LANDED;
 
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
@@ -44,7 +53,25 @@ public class TardisDoorBOTI extends BOTI {
 
         BOTI_HANDLER.setupFramebuffer();
 
-        Vec3d skyColor = client.world.getSkyColor(client.player.getPos(), client.getTickDelta());
+        // Tint the doorway background with the exterior dimension's FOG colour - the horizon colour the sky pass
+        // fades the dome into, and the colour vanilla fills everything below the dome's rim with. Any other choice
+        // (the zenith sky colour used previously) reads as a mismatched band around the horizon wherever the
+        // background peeks out between the bottom of the sky and the terrain. The geometry renderer computes it
+        // every frame, so reuse last frame's value; before the first portal frame fall back to the raw sky colour,
+        // then to a daytime blue if the shadow world isn't ready at all.
+        Vec3d skyColor = new Vec3d(0.5d, 0.65d, 0.9d);
+        if (landed && portalData != null && portalData.world() != null) {
+            Vec3d exteriorFog = portalData.geometry().exteriorFogColor();
+            if (exteriorFog != null) {
+                skyColor = exteriorFog;
+            } else {
+                try {
+                    skyColor = portalData.world().getSkyColor(Vec3d.of(tardis.travel().position().getPos()), tickDelta);
+                } catch (Exception ignored) {
+                    // keep the fallback colour
+                }
+            }
+        }
         if (AITModClient.CONFIG.greenScreenBOTI)
             BOTI.setFramebufferColor(BOTI_HANDLER.afbo, 0, 1, 0, 1);
         else
@@ -64,27 +91,24 @@ public class TardisDoorBOTI extends BOTI {
         stack.push();
         StatsHandler stats = tardis.stats();
         Vector3f scale = tardis.travel().getScale();
+
+
         Vec3d vec = parent.door().getPortalPosition();
         if (vec == null) vec = Vec3d.ZERO;
 
         stack.translate(vec.x, -vec.y - parent.portalHeight() / 2f, vec.z);
         stack.scale((float) parent.portalWidth() * scale.x(),
                 (float) parent.portalHeight() * scale.y(), scale.z());
-
-        if (client.getEntityRenderDispatcher().shouldRenderHitboxes()) {
-            stack.push();
-            stack.translate(0, 0, 0.8);
-            client.getItemRenderer().renderItem(Items.BLUE_STAINED_GLASS_PANE.getDefaultStack(), ModelTransformationMode.FIXED, LightmapTextureManager.MAX_LIGHT_COORDINATE, 0, stack, consumers, client.world, 0);
-            stack.pop();
-        }
-
         if (tardis.travel().getState() == TravelHandlerBase.State.LANDED) {
-            RenderLayer whichOne = AITModClient.CONFIG.greenScreenBOTI ?
-                    RenderLayer.getDebugFilledBox() : RenderLayer.getEndGateway();
-            float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0} : new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
-            mask.render(stack, botiProvider.getBuffer(whichOne), LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, colorsForGreenScreen[0], colorsForGreenScreen[1], colorsForGreenScreen[2], 1);
+            RenderLayer whichOne = RenderLayer.getDebugFilledBox();
+            float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ?
+                    new float[]{0, 1, 0, 1} :
+                    new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
+            mask.render(stack, botiProvider.getBuffer(whichOne), 0xf000f0, OverlayTexture.DEFAULT_UV,
+                    colorsForGreenScreen[0], colorsForGreenScreen[1], colorsForGreenScreen[2], 1);
         } else {
-            mask.render(stack, botiProvider.getBuffer(RenderLayer.getEntityTranslucentCull(frameTex)), LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
+            mask.render(stack, botiProvider.getBuffer(RenderLayer.getEntityTranslucentCull(frameTex)),
+                    0xf000f0, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
         }
         botiProvider.draw();
         stack.pop();
@@ -96,8 +120,52 @@ public class TardisDoorBOTI extends BOTI {
         GL11.glStencilMask(0x00);
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
+        // ===== RENDER THE EXTERIOR WORLD THROUGH THE DOORWAY =====
+        if (landed && portalData != null && portalData.world() != null) {
+            WorldGeometryRenderer geometry = portalData.geometry();
+            CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
+            BlockPos exteriorBlockPos = exteriorPos.getPos();
+
+            try {
+                Direction doorFacing = Direction.fromRotation(exteriorPos.getRotationDegrees()).getOpposite();
+                geometry.setDoorFacing(doorFacing);
+
+                // Map the player's eye through the interior doorway into the exterior world: the view rotates with
+                // the door (so every facing - not just north - looks the right way out) and parallaxes as the
+                // player moves. deltaYaw turns "looking into the interior door" into "looking out the exterior door".
+                // It must depend on BOTH the interior door's facing and the exterior's, exactly like the inverse
+                // exterior->interior transform in TardisExteriorBOTI (this reduces to its negation). The previous form
+                // used only the exterior rotation, so it collapsed to a fixed ~270 deg turn that ignored which way the
+                // interior door actually pointed - the "rotated wrong" doorway view.
+                Camera camera = client.gameRenderer.getCamera();
+                Direction interiorDoorFacing = tardis.getDesktop().getDoorPos().toMinecraftDirection();
+                float deltaYaw = doorFacing.asRotation() - interiorDoorFacing.asRotation();
+
+                Vec3d interiorDoorCenter = new Vec3d(door.getPos().getX() + 0.5, door.getPos().getY() + 1.0,
+                        door.getPos().getZ() + 0.5);
+                Vec3d rel = camera.getPos().subtract(interiorDoorCenter);
+
+                double rad = Math.toRadians(deltaYaw);
+                double cos = Math.cos(rad);
+                double sin = Math.sin(rad);
+                Vec3d relRotated = new Vec3d(rel.x * cos - rel.z * sin, rel.y, rel.x * sin + rel.z * cos);
+                Vec3d eyeRelToCenter = new Vec3d(0.5, 1.0, 0.5).add(relRotated);
+
+                float portalYaw = camera.getYaw() + deltaYaw;
+                float portalPitch = camera.getPitch();
+
+                geometry.render(tardis.getUuid(), portalData.world(), exteriorBlockPos, eyeRelToCenter,
+                        portalYaw, portalPitch, tickDelta, true);
+            } catch (Throwable t) {
+                // A doorway effect should never take the whole game down; the framebuffer/stencil teardown below
+                // still runs, so the next frame recovers.
+                AITMod.LOGGER.error("Failed to render door BOTI interior", t);
+            }
+        }
+
+        // Render vortex/effects when in flight
         stack.push();
-        float delta = client.getTickDelta() + client.player.age;
+        float delta = MinecraftClient.getInstance().getTickDelta() + MinecraftClient.getInstance().player.age;
         if (!tardis.travel().autopilot() && tardis.travel().getState() != TravelHandlerBase.State.LANDED)
             stack.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees((delta) * (tardis.travel().speed() * 0.7f)));
         if (!tardis.crash().isNormal())
@@ -110,26 +178,23 @@ public class TardisDoorBOTI extends BOTI {
         if (!tardis.travel().isLanded() /*&& !tardis.flight().isFlying()*/) {
             util.setSpeed(tardis.travel().speed() < 1 ? 4 : tardis.travel().speed());
             util.render(stack);
-            /*// TODO not a clue if this will work but oh well - Loqor
-            stack.push();
-            stack.scale(0.9f, 0.9f, 0.9f);
-            util.renderVortex(stack);
-            stack.pop();*/
         }
         botiProvider.draw();
         stack.pop();
 
+        // Render door frame
         if (!tardis.getExterior().getCategory().equals(CategoryRegistry.GEOMETRIC)) {
             stack.push();
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
             stack.scale(scale.x, scale.y, scale.z);
 
-            // TODO: use DoorRenderer/ClientLightUtil instead.
-            frame.renderWithAnimations(tardis, door, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.getBotiInterior(variant.texture())), light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, tickDelta);
-            //((DoorModel) frame).render(stack, botiProvider.getBuffer(AITRenderLayers.getBotiInterior(variant.texture())), light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F);
+            frame.renderWithAnimations(tardis, door, frame.getPart(), stack,
+                    botiProvider.getBuffer(AITRenderLayers.getBotiInterior(variant.texture())),
+                    light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, tickDelta);
             botiProvider.draw();
             stack.pop();
 
+            // Render emissive parts
             stack.push();
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
             stack.scale(scale.x, scale.y, scale.z);
@@ -138,9 +203,9 @@ public class TardisDoorBOTI extends BOTI {
                 float t = 1;
                 float s = 1;
 
-                if ((stats.getName() != null && "partytardis".equalsIgnoreCase(stats.getName()) || !tardis.extra().getInsertedDisc().isEmpty())) {
+                if ((stats.getName() != null && "partytardis".equalsIgnoreCase(stats.getName())
+                        || (!tardis.extra().getInsertedDisc().isEmpty()))) {
                     final float[] rgb = ClientTardisUtil.getPartyColors();
-
                     u = rgb[0];
                     t = rgb[1];
                     s = rgb[2];
@@ -151,20 +216,32 @@ public class TardisDoorBOTI extends BOTI {
 
                 float red = power ? s : 0;
                 float green = power ? alarm ? 0.3f : t : 0;
-                float blue = power ? alarm ? 0.3f : u:  0;
+                float blue = power ? alarm ? 0.3f : u : 0;
 
-                frame.renderWithAnimations(tardis, door, frame.getPart(), stack, botiProvider.getBuffer((DependencyChecker.hasIris() ? AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true) : AITRenderLayers.getText(variant.emission()))), 0xf000f0, OverlayTexture.DEFAULT_UV, red, green, blue, 1.0F, tickDelta);
+                frame.renderWithAnimations(tardis, door, frame.getPart(), stack,
+                        botiProvider.getBuffer((DependencyChecker.hasIris() ?
+                                AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true) :
+                                AITRenderLayers.getText(variant.emission()))),
+                        0xf000f0, OverlayTexture.DEFAULT_UV, red, green, blue, 1.0F, tickDelta);
                 botiProvider.draw();
             }
             stack.pop();
         }
 
-        client.getFramebuffer().beginWrite(true);
+        // **NEW APPROACH: Disable stencil BEFORE switching framebuffers**
+        GL11.glDisable(GL11.GL_STENCIL_TEST);
+        GL11.glStencilMask(0x00);
 
+        // Switch to main framebuffer and copy color
+        client.getFramebuffer().beginWrite(false);  // false = don't check for errors
         BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
 
-        GL11.glDisable(GL11.GL_STENCIL_TEST);
+        // Reset all stencil state on main framebuffer
+        GL11.glStencilMask(0xFF);
+        GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
+        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
 
+        // Ensure depth mask is enabled for normal rendering
         RenderSystem.depthMask(true);
 
         stack.pop();

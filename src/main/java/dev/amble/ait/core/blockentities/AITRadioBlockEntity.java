@@ -102,7 +102,7 @@ public class AITRadioBlockEntity extends BlockEntity {
             else if (this.tickRotT >= (360F - 22.5F) * ((float) Math.PI / 180f))
                 this.tickRotT = 0;
             if (player != null)
-                player.sendMessage(Text.literal("Changing Frequency..."), true);
+                player.sendMessage(Text.translatable("message.ait.radio.changing_frequency"), true);
             world.playSound(null, pos, SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.MASTER, 0.1F,
                     this.tickRotT * this.tickRotT);
         }
@@ -136,13 +136,13 @@ public class AITRadioBlockEntity extends BlockEntity {
             if (isSneaking && !vmx && !tmx) {
                 this.toggleRadio(!this.isRadioOn());
                 if (player != null)
-                    player.sendMessage(Text.literal("Radio Off"), true);
+                    player.sendMessage(Text.translatable("message.ait.radio.off"), true);
                 world.playSound(null, pos, SoundEvents.BLOCK_CHAIN_HIT, SoundCategory.MASTER, 0.2F, 1F);
             }
         } else {
             this.toggleRadio(!this.isRadioOn());
             if (player != null)
-                player.sendMessage(Text.literal("Radio On"), true);
+                player.sendMessage(Text.translatable("message.ait.radio.on"), true);
             world.playSound(null, pos, SoundEvents.BLOCK_CHAIN_HIT, SoundCategory.MASTER, 0.2F, 2F);
         }
     }
