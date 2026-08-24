@@ -47,10 +47,7 @@ public class InteractionSonicMode extends SonicMode {
 
         if (hitResult instanceof BlockHitResult blockHit) {
             this.interactBlock(blockHit.getBlockPos(), world, user, ticks, blockHit);
-        }
-
-        HitResult entityHit = SonicMode.getHitResult(user);
-        if (entityHit instanceof EntityHitResult entity && entity.getEntity() instanceof SheepEntity sheep) {
+        } else if (hitResult instanceof EntityHitResult entity && entity.getEntity() instanceof SheepEntity sheep) {
             this.shearSheep(sheep, world, user);
         }
     }
