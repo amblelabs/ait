@@ -41,14 +41,14 @@ public class InteractionSonicMode extends SonicMode {
     }
 
     private void process(ServerWorld world, LivingEntity user, int ticks) {
-        HitResult hitResult = SonicMode.getHitResultForOutline(user);
+        HitResult hitResult = SonicMode.getHitResult(user);
 
         SonicMode.checkSonicWoodAdvancementConditions(world, user, hitResult);
 
-        if (hitResult instanceof BlockHitResult blockHit) {
-            this.interactBlock(blockHit.getBlockPos(), world, user, ticks, blockHit);
-        } else if (hitResult instanceof EntityHitResult entity && entity.getEntity() instanceof SheepEntity sheep) {
+        if (hitResult instanceof EntityHitResult entity && entity.getEntity() instanceof SheepEntity sheep) {
             this.shearSheep(sheep, world, user);
+        } else if (hitResult instanceof BlockHitResult blockHit) {
+            this.interactBlock(blockHit.getBlockPos(), world, user, ticks, blockHit);
         }
     }
 
