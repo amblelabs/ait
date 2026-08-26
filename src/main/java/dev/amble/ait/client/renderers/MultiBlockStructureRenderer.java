@@ -19,11 +19,17 @@ import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
 public class MultiBlockStructureRenderer {
 
     private final MinecraftClient client;
-    private final Profiler profiler;
 
     protected MultiBlockStructureRenderer(MinecraftClient client) {
         this.client = client;
-        this.profiler = client.getProfiler();
+    }
+
+    /**
+     * The client swaps its profiler out every frame, so this has to be fetched per call. Holding the
+     * reference from the constructor pins {@code DummyProfiler} forever and every zone below reads zero.
+     */
+    private Profiler profiler() {
+        return this.client.getProfiler();
     }
 
     private MultiBlockStructureRenderer() {
@@ -31,12 +37,16 @@ public class MultiBlockStructureRenderer {
     }
 
     public void render(MultiBlockStructure structure, BlockPos centre, BlockRenderView view, MatrixStack matrices, VertexConsumerProvider provider, boolean holographic) {
+        Profiler profiler = this.profiler();
         profiler.push("multi_block_structure");
         profiler.push("iterate_offsets");
         structure.forEach(offset -> renderOffset(offset, centre, view, matrices, provider, holographic));
+        profiler.pop();
+        profiler.pop();
     }
 
     public void renderForInterior(MultiBlockStructure structure, BlockPos centre, BlockRenderView view, MatrixStack matrices, VertexConsumerProvider provider, boolean holographic) {
+        Profiler profiler = this.profiler();
         profiler.push("multi_block_structure");
         profiler.push("iterate_offsets");
         structure.forEach(offset -> renderOffsetInterior(offset, centre, view, matrices, provider, holographic));
