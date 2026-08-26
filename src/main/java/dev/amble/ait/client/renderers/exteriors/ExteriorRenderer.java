@@ -59,8 +59,11 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
         profiler.push("find_tardis");
 
-        if (!entity.isLinked())
+        if (!entity.isLinked()) {
+            profiler.pop();
+            profiler.pop();
             return;
+        }
 
         ClientTardis tardis = entity.tardis().get().asClient();
 
@@ -121,10 +124,8 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
         CachedDirectedGlobalPos exteriorPos = travel.position();
 
-        if (exteriorPos == null) {
-            profiler.pop();
+        if (exteriorPos == null)
             return;
-        }
 
         BlockState blockState = entity.getCachedState();
         int k = blockState.get(ExteriorBlock.ROTATION);
@@ -152,7 +153,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         Identifier emission = this.variant.emission();
 
         if (MinecraftClient.getInstance().player == null) {
-            profiler.pop();
+            matrices.pop();
             return;
         }
 
@@ -178,7 +179,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
                         travel.position().getRotationDirection() == Direction.WEST ? 180f : 0f)));
 
         if (model == null) {
-            profiler.pop();
+            matrices.pop();
             return;
         }
 
