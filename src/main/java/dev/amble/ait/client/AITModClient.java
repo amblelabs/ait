@@ -184,6 +184,16 @@ public class AITModClient implements ClientModInitializer {
             TardisStar.render(context, tardis);
         });
 
+        ClientPlayNetworking.registerGlobalReceiver(AITMod.PROFILE_CLIENT, (client, handler, buf, responseSender) ->
+                client.execute(() -> {
+                    // toggleDebugProfiler is what F3+L calls. The recorder stops itself after 10s and hands
+                    // the dump path to this consumer, which is the only way to learn it without a keyboard.
+                    boolean started = client.toggleDebugProfiler(
+                            text -> AITMod.LOGGER.info("[ait-profile] {}", text.getString()));
+
+                    AITMod.LOGGER.info("[ait-profile] {}", started ? "started" : "stopped an active recording");
+                }));
+
         ClientPlayNetworking.registerGlobalReceiver(OPEN_SCREEN, (client, handler, buf, responseSender) -> {
             int id = buf.readInt();
             Screen screen = screenFromId(id);
