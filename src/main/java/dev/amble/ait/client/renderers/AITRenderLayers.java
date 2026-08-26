@@ -12,6 +12,8 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 
+import dev.amble.ait.client.util.ClientProfiling;
+
 @Environment(EnvType.CLIENT)
 public class AITRenderLayers extends RenderLayer {
 
@@ -69,6 +71,10 @@ public class AITRenderLayers extends RenderLayer {
     }
 
     public static RenderLayer getBotiInterior(Identifier texture) {
+        // Not memoized, unlike EMISSIVE_CULL_Z_OFFSET above. Counted so the per-frame allocation rate is
+        // visible rather than inferred.
+        ClientProfiling.count("ait_renderlayer_alloc");
+
         MultiPhaseParameters parameters = MultiPhaseParameters.builder()
                 .texture(new Texture(texture, false, false))
                 .program(ENTITY_CUTOUT_NONULL_PROGRAM)
