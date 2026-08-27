@@ -1,7 +1,7 @@
 package dev.amble.ait.client.boti;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 
 import com.mojang.blaze3d.platform.GlConst;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -20,13 +20,20 @@ import dev.amble.ait.core.entities.RiftEntity;
 
 public class BOTI {
     public static final MinecraftClient client = MinecraftClient.getInstance();
-    public static final Queue<RiftEntity> RIFT_RENDERING_QUEUE = new LinkedList<>();
+    public static final Collection<RiftEntity> RIFT_RENDERING_QUEUE = new LinkedHashSet<>();
     public static BOTIInit BOTI_HANDLER = new BOTIInit();
     public static AITBufferBuilderStorage AIT_BUF_BUILDER_STORAGE = new AITBufferBuilderStorage();
-    public static Queue<DoorBlockEntity> DOOR_RENDER_QUEUE = new LinkedList<>();
-    public static Queue<BOTIPaintingEntity> GALLIFREYAN_RENDER_QUEUE = new LinkedList<>();
-    public static Queue<BOTIPaintingEntity> TRENZALORE_PAINTING_QUEUE = new LinkedList<>();
-    public static Queue<ExteriorBlockEntity> EXTERIOR_RENDER_QUEUE = new LinkedList<>();
+    // Sets, not lists: a block entity is offered twice a frame, because a renderer whose
+    // rendersOutsideBoundingBox is true lands in both the per-chunk list and the global no-cull
+    // list, and vanilla renders both. Two passes over the same portal are byte-identical, since
+    // the drain rebuilds its matrix from the block entity rather than from enqueue-time state.
+    //
+    // LinkedHashSet rather than HashSet: the passes are stencilled framebuffer round-trips with no
+    // depth sort between them, so a varying iteration order would make overlapping portals flicker.
+    public static Collection<DoorBlockEntity> DOOR_RENDER_QUEUE = new LinkedHashSet<>();
+    public static Collection<BOTIPaintingEntity> GALLIFREYAN_RENDER_QUEUE = new LinkedHashSet<>();
+    public static Collection<BOTIPaintingEntity> TRENZALORE_PAINTING_QUEUE = new LinkedHashSet<>();
+    public static Collection<ExteriorBlockEntity> EXTERIOR_RENDER_QUEUE = new LinkedHashSet<>();
     private static boolean HAS_BEEN_WARNED = false;
 
     public static void copyFramebuffer(Framebuffer src, Framebuffer dest) {
