@@ -22,6 +22,7 @@ import net.minecraft.util.math.MathHelper;
 
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.ClientProfiling;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
@@ -62,10 +63,32 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
 
     @Override
     public void animateBlockEntity(ConsoleBlockEntity console, TravelHandlerBase.State state, boolean hasPower) {
+        // Split so the traversal and the keyframe work can be told apart. The traversal is the
+        // suspect: ModelPart.traverse builds a Stream per node, and a console is a few hundred nodes.
+        ClientProfiling.push("ait:console_reset");
+        ClientProfiling.count("ait_console_reset_parts", this.countParts());
         this.getPart().traverse().forEach(ModelPart::resetTransform);
 
-        if (hasPower && AITModClient.CONFIG.animateConsole)
+        ClientProfiling.swap("ait:console_keyframes");
+
+        if (hasPower && AITModClient.CONFIG.animateConsole) {
+            ClientProfiling.count("ait_console_animated");
             this.updateAnimation(console.ANIM_STATE, this.getAnimationForState(state), client.getTickDelta() + console.getAge());
+        } else {
+            ClientProfiling.count("ait_console_not_animated");
+        }
+
+        ClientProfiling.pop();
+    }
+
+    private int partCount = -1;
+
+    /** Counted once. Only used to report the traversal size into the profiler. */
+    private int countParts() {
+        if (this.partCount < 0)
+            this.partCount = (int) this.getPart().traverse().count();
+
+        return this.partCount;
     }
 
     @Override
