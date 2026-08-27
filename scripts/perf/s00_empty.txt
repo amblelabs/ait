@@ -1,0 +1,11 @@
+# S0 - empty flat world, fixed camera, no AIT content in range.
+# Establishes the noise floor and exposes any per-frame cost paid with nothing on screen.
+gamemode spectator @a
+tp @a 0 100 0 90 0
+gamerule doDaylightCycle false
+time set noon
+weather clear
+kill @e[type=item]
+SLEEP 6
+ait profile-client @a
+SLEEP 14
