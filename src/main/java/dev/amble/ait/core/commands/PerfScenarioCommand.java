@@ -140,7 +140,7 @@ public class PerfScenarioCommand {
             TardisBuilder builder = new TardisBuilder()
                     .at(CachedDirectedGlobalPos.create(world, pos, (byte) 0))
                     .owner(owner)
-                    .<FuelHandler>with(TardisComponent.Id.FUEL, fuel -> fuel.setCurrentFuel(5000))
+                    .<FuelHandler>with(TardisComponent.Id.FUEL, fuel -> fuel.setCurrentFuel(FuelHandler.TARDIS_MAX_FUEL))
                     .with(TardisComponent.Id.TRAVEL, travel -> travel.tardis().travel().autopilot(false))
                     .exterior(ExteriorVariantRegistry.getInstance().get(AITMod.id(variant)))
                     .desktop(DesktopRegistry.getInstance().get(AITMod.id("alnico")));
@@ -245,7 +245,7 @@ public class PerfScenarioCommand {
                 }
                 case "power" -> {
                     if (on) {
-                        tardis.<FuelHandler>handler(TardisComponent.Id.FUEL).setCurrentFuel(5000);
+                        tardis.<FuelHandler>handler(TardisComponent.Id.FUEL).setCurrentFuel(FuelHandler.TARDIS_MAX_FUEL);
                         tardis.subsystems().repairAll();
                         tardis.subsystems().engine().setEnabled(true);
                         tardis.<FuelHandler>handler(TardisComponent.Id.FUEL).enablePower(false);
@@ -348,6 +348,9 @@ public class PerfScenarioCommand {
 
         for (ServerTardis tardis : all) {
             if (on) {
+                // Topped up first. Flight burns fuel, so a scenario that flies more than once used
+                // to run the later flights on an unpowered TARDIS, which changes what renders.
+                tardis.<FuelHandler>handler(TardisComponent.Id.FUEL).setCurrentFuel(FuelHandler.TARDIS_MAX_FUEL);
                 tardis.travel().autopilot(false);
                 tardis.travel().handbrake(false);
                 tardis.travel().forceDemat();
