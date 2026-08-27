@@ -13,8 +13,24 @@ SCENARIOS="c01_hartnell c02_copper c04_copper_flight x20_booth"
 printf 'list\n' > /tmp/s_list.txt
 
 kill_client() {
-  powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/perf/kill_ait_java.ps1 2>/dev/null | grep -i client || true
+  # Client only. The unparameterised kill takes the server with it, and then the client has
+  # nothing to join.
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/perf/kill_ait_java.ps1 -Kind client
   sleep 5
+}
+
+require_server() {
+  if python scripts/perf/rcon.py $HOST $PORT $PASS /tmp/s_list.txt >/dev/null 2>&1; then
+    return 0
+  fi
+  echo "  server is not up, starting it"
+  nohup ./gradlew runServer --console=plain > /tmp/dd_server.log 2>&1 &
+  for _ in $(seq 1 130); do
+    python scripts/perf/rcon.py $HOST $PORT $PASS /tmp/s_list.txt >/dev/null 2>&1 && { echo "  server up"; return 0; }
+    sleep 5
+  done
+  echo "  ABORT: server never came up"
+  return 1
 }
 
 start_client() {   # $1 = extra JVM options
@@ -41,6 +57,7 @@ seed() {
 
 phase() {   # $1 = jvm opts, $2 = manifest
   kill_client
+  require_server || return 1
   start_client "$1" || return 1
   seed
   : > "$2"
