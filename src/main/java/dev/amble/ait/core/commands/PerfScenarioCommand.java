@@ -386,6 +386,11 @@ public class PerfScenarioCommand {
             for (BlockPos pos : tardis.getDesktop().getConsolePos()) {
                 if (tardis.world().getBlockEntity(pos) instanceof ConsoleBlockEntity console) {
                     console.setVariant(schema);
+
+                    // setVariant only marks the chunk for saving. Without this the server swaps the
+                    // variant and the client carries on drawing the old model, which is worse than
+                    // the command failing: the run looks fine and measures the wrong console.
+                    console.sync();
                     changed++;
                 }
             }
