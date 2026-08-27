@@ -20,6 +20,7 @@ import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
 import dev.amble.ait.client.models.items.HandlesModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.ClientProfiling;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.item.HandlesItem;
 import dev.amble.ait.data.datapack.DatapackConsole;
@@ -41,7 +42,11 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
 
         if (entity.getWorld() == null) return;
 
+        ClientProfiling.count("ait_console_dispatched");
+
         if (!entity.isLinked()) {
+            ClientProfiling.count("ait_console_unlinked");
+            ClientProfiling.count("ait_model_build");
             matrices.push();
             matrices.translate(0.5, 1.5, 0.5);
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
@@ -57,6 +62,8 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
 
         ClientTardis tardis = entity.tardis().get().asClient();
         Profiler profiler = entity.getWorld().getProfiler();
+
+        ClientProfiling.count("ait_console_drawn");
 
         profiler.push("console");
         this.renderConsole(profiler, tardis, entity, matrices, vertexConsumers, light, overlay, tickDelta);
