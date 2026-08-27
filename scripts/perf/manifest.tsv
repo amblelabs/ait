@@ -1,14 +1,20 @@
-s00_empty	run/debug/profiling/2026-08-27_09_33_03-Minecraft Server-1_20_1.zip	PERF-VERIFY total=0 powered=0 doorsOpen=0 landed=0 locked=0 siege=0 shields=0 alarm=0
-s01_one_shut	run/debug/profiling/2026-08-27_09_33_34-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=1 siege=0 shields=0 alarm=1
-s02_one_open	run/debug/profiling/2026-08-27_09_34_03-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=1 siege=0 shields=0 alarm=1
-s03_five_open	run/debug/profiling/2026-08-27_09_34_38-Minecraft Server-1_20_1.zip	PERF-VERIFY total=5 powered=5 doorsOpen=5 landed=5 locked=0 siege=0 shields=0 alarm=0
-s04_twenty_open	run/debug/profiling/2026-08-27_09_35_14-Minecraft Server-1_20_1.zip	PERF-VERIFY total=20 powered=20 doorsOpen=3 landed=20 locked=0 siege=0 shields=0 alarm=0
-s05_twenty_far	run/debug/profiling/2026-08-27_09_35_55-Minecraft Server-1_20_1.zip	PERF-VERIFY total=20 powered=20 doorsOpen=19 landed=20 locked=0 siege=0 shields=0 alarm=0
-s06_interior_console	run/debug/profiling/2026-08-27_09_36_38-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=0 siege=0 shields=0 alarm=0
-s07_interior_away	run/debug/profiling/2026-08-27_09_37_04-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=0 siege=0 shields=0 alarm=0
-s08_vortex_flight	run/debug/profiling/2026-08-27_09_37_27-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=0 siege=0 shields=0 alarm=0
-s09_exterior_back	run/debug/profiling/2026-08-27_09_38_01-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=1 landed=1 locked=0 siege=0 shields=0 alarm=0
-s10_unlinked	run/debug/profiling/2026-08-27_09_38_32-Minecraft Server-1_20_1.zip	PERF-VERIFY total=0 powered=0 doorsOpen=0 landed=0 locked=0 siege=0 shields=0 alarm=0
-s11_siege	run/debug/profiling/2026-08-27_09_39_08-Minecraft Server-1_20_1.zip	PERF-VERIFY total=5 powered=0 doorsOpen=0 landed=5 locked=5 siege=5 shields=0 alarm=0
-s12_shields	run/debug/profiling/2026-08-27_09_39_43-Minecraft Server-1_20_1.zip	PERF-VERIFY total=5 powered=5 doorsOpen=5 landed=5 locked=0 siege=0 shields=5 alarm=0
-s13_alarm	run/debug/profiling/2026-08-27_09_40_19-Minecraft Server-1_20_1.zip	PERF-VERIFY total=5 powered=5 doorsOpen=5 landed=5 locked=0 siege=0 shields=0 alarm=5
+s00_empty	run/debug/profiling/2026-08-27_09_42_42-Minecraft Server-1_20_1.zip	PERF-VERIFY total=0 powered=0 doorsOpen=0 landed=0 locked=0 siege=0 shields=0 alarm=0
+s01_one_shut	run/debug/profiling/2026-08-27_09_43_13-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=1 siege=0 shields=0 alarm=1
+s02_one_open	run/debug/profiling/2026-08-27_09_43_41-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=0 siege=0 shields=0 alarm=0
+s03_five_open	run/debug/profiling/2026-08-27_09_44_16-Minecraft Server-1_20_1.zip	PERF-VERIFY total=5 powered=5 doorsOpen=5 landed=5 locked=0 siege=0 shields=0 alarm=0
+s04_twenty_open	run/debug/profiling/2026-08-27_09_44_55-Minecraft Server-1_20_1.zip	PERF-VERIFY total=20 powered=20 doorsOpen=15 landed=20 locked=0 siege=0 shields=0 alarm=0
+s05_twenty_far	run/debug/profiling/2026-08-27_09_45_34-Minecraft Server-1_20_1.zip	PERF-VERIFY total=20 powered=20 doorsOpen=14 landed=20 locked=0 siege=0 shields=0 alarm=0
+s06_interior_console	run/debug/profiling/2026-08-27_09_46_17-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=0 siege=0 shields=0 alarm=0
+s07_interior_away	run/debug/profiling/2026-08-27_09_46_47-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=0 siege=0 shields=0 alarm=0
+s08_vortex_flight	NO_DUMP	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=0 locked=0 siege=0 shields=0 alarm=0
+s09_exterior_back	NO_DUMP	none
+s10_unlinked	NO_DUMP	none
+s11_siege	NO_DUMP	none
+s12_shields	NO_DUMP	none
+s13_alarm	NO_DUMP	none
+s14_nopower	NO_DUMP	none
+s15_coral	NO_DUMP	none
+s16_doom	NO_DUMP	none
+s17_paintings	NO_DUMP	none
+s18_forty_open	NO_DUMP	none
+s19_rift	NO_DUMP	none
