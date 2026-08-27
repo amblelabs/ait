@@ -1773,7 +1773,7 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
         return switch (state) {
             case MAT, DEMAT, FLIGHT -> ToyotaAnimations.CONSOLE_TOYOTA_FLIGHT;
             case LANDED -> ToyotaAnimations.CONSOLE_TOYOTA_IDLE;
-            default -> Animation.Builder.create(0).build();
+            default -> NO_ANIMATION;
         };
     }
 

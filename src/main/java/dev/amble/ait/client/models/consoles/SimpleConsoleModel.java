@@ -35,6 +35,13 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
 
     protected static final MinecraftClient client = MinecraftClient.getInstance();
 
+    /**
+     * Shared stand-in for a state with nothing to animate. Built once: the subclasses used to return
+     * a new empty animation every frame, which allocated for nothing and gave any cache keyed on
+     * animation identity an unbounded number of keys.
+     */
+    protected static final Animation NO_ANIMATION = Animation.Builder.create(0).build();
+
     protected float getAngle(BlockEntity console, String key, float target, float delta) {
         Object2FloatMap<String> state = ANIMATION_CACHE.computeIfAbsent(console, k -> new Object2FloatOpenHashMap<>());
         float current = state.getOrDefault(key, 0f);

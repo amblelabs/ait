@@ -1575,7 +1575,7 @@ public class AlnicoConsoleModel extends SimpleConsoleModel {
         return switch (state) {
             case FLIGHT, MAT, DEMAT -> AlnicoAnimations.CONSOLE_ALNICO_FLIGHT;
             case LANDED -> AlnicoAnimations.CONSOLE_ALNICO_IDLE;
-            default -> Animation.Builder.create(0).build();
+            default -> NO_ANIMATION;
         };
     }
 }
