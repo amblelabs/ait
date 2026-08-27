@@ -58,7 +58,12 @@ seed() {
 phase() {   # $1 = jvm opts, $2 = manifest
   kill_client
   require_server || return 1
-  start_client "$1" || return 1
+
+  if ! start_client "$1"; then
+    echo "  first launch did not join, retrying once"
+    kill_client
+    start_client "$1" || return 1
+  fi
   seed
   : > "$2"
   printf 'gamemode spectator @a\nSLEEP 4\nait profile-client @a\nSLEEP 15\n' > /tmp/warm.txt
