@@ -58,7 +58,8 @@ public class TardisMatrixItem extends Item {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
 
-        tooltip.add(Text.literal("Name: " + stack.getOrCreateNbt().getString("name")).formatted(Formatting.BLUE));
+        tooltip.add(Text.translatable("tooltip.ait.tardis_matrix.name", stack.getOrCreateNbt().getString("name"))
+                .formatted(Formatting.BLUE));
         tooltip.add(Text.literal("#" + colorToInt(getColor(stack)[0], getColor(stack)[1], getColor(stack)[2]))
                 .formatted(Formatting.GRAY));
     }
