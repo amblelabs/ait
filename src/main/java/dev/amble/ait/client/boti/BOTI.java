@@ -20,7 +20,7 @@ import dev.amble.ait.core.entities.RiftEntity;
 
 public class BOTI {
     public static final MinecraftClient client = MinecraftClient.getInstance();
-    public static final Collection<RiftEntity> RIFT_RENDERING_QUEUE = new LinkedHashSet<>();
+    public static final Collection<RiftEntity> RIFT_RENDERING_QUEUE = newQueue();
     public static BOTIInit BOTI_HANDLER = new BOTIInit();
     public static AITBufferBuilderStorage AIT_BUF_BUILDER_STORAGE = new AITBufferBuilderStorage();
     // Sets, not lists: a block entity is offered twice a frame, because a renderer whose
@@ -30,10 +30,19 @@ public class BOTI {
     //
     // LinkedHashSet rather than HashSet: the passes are stencilled framebuffer round-trips with no
     // depth sort between them, so a varying iteration order would make overlapping portals flicker.
-    public static Collection<DoorBlockEntity> DOOR_RENDER_QUEUE = new LinkedHashSet<>();
-    public static Collection<BOTIPaintingEntity> GALLIFREYAN_RENDER_QUEUE = new LinkedHashSet<>();
-    public static Collection<BOTIPaintingEntity> TRENZALORE_PAINTING_QUEUE = new LinkedHashSet<>();
-    public static Collection<ExteriorBlockEntity> EXTERIOR_RENDER_QUEUE = new LinkedHashSet<>();
+    // -Dait.dedupePortals=false restores the old duplicate-accepting queues, so the difference can
+    // be measured without a rebuild.
+    private static final boolean DEDUPE_PORTALS =
+            !"false".equalsIgnoreCase(System.getProperty("ait.dedupePortals", "true"));
+
+    private static <T> Collection<T> newQueue() {
+        return DEDUPE_PORTALS ? new LinkedHashSet<>() : new java.util.LinkedList<>();
+    }
+
+    public static Collection<DoorBlockEntity> DOOR_RENDER_QUEUE = newQueue();
+    public static Collection<BOTIPaintingEntity> GALLIFREYAN_RENDER_QUEUE = newQueue();
+    public static Collection<BOTIPaintingEntity> TRENZALORE_PAINTING_QUEUE = newQueue();
+    public static Collection<ExteriorBlockEntity> EXTERIOR_RENDER_QUEUE = newQueue();
     private static boolean HAS_BEEN_WARNED = false;
 
     public static void copyFramebuffer(Framebuffer src, Framebuffer dest) {
