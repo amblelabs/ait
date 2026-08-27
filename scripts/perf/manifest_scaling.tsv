@@ -1,0 +1,4 @@
+x1_booth	run/debug/profiling/2026-08-27_10_07_20-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=1 siege=0 shields=0 alarm=1
+x20_booth	run/debug/profiling/2026-08-27_10_08_00-Minecraft Server-1_20_1.zip	PERF-VERIFY total=20 powered=20 doorsOpen=0 landed=20 locked=0 siege=0 shields=0 alarm=0
+x40_booth	run/debug/profiling/2026-08-27_10_08_45-Minecraft Server-1_20_1.zip	PERF-VERIFY total=40 powered=40 doorsOpen=0 landed=40 locked=5 siege=0 shields=0 alarm=5
+x5_booth	run/debug/profiling/2026-08-27_10_09_25-Minecraft Server-1_20_1.zip	PERF-VERIFY total=5 powered=5 doorsOpen=0 landed=5 locked=0 siege=0 shields=0 alarm=0
