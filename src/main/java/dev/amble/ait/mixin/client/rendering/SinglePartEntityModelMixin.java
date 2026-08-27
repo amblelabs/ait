@@ -1,8 +1,8 @@
 package dev.amble.ait.mixin.client.rendering;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -49,7 +49,7 @@ public abstract class SinglePartEntityModelMixin {
         ClientProfiling.count("ait_bone_lookup");
 
         if (this.ait$boneCache == null || this.ait$cachedRoot != root) {
-            this.ait$boneCache = new HashMap<>();
+            this.ait$boneCache = new ConcurrentHashMap<>();
             this.ait$cachedRoot = root;
             ClientProfiling.count("ait_bone_map_built");
         }

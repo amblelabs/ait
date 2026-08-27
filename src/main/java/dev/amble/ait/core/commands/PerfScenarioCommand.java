@@ -27,6 +27,7 @@ import net.minecraft.util.math.Vec3d;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
@@ -36,7 +37,9 @@ import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.manager.TardisBuilder;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.DesktopRegistry;
+import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 
 /**
@@ -71,7 +74,11 @@ public class PerfScenarioCommand {
                         .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.perf", 2))
                         .then(literal("interior").executes(context -> teleport(context, true)))
                         .then(literal("exterior").executes(context -> teleport(context, false)))
-                        .then(literal("console").executes(PerfScenarioCommand::teleportToConsole))));
+                        .then(literal("console")
+                                .executes(context -> teleportToConsole(context, 35f))
+                                .then(argument("pitch", com.mojang.brigadier.arguments.FloatArgumentType.floatArg(-90f, 90f))
+                                        .executes(context -> teleportToConsole(context,
+                                                com.mojang.brigadier.arguments.FloatArgumentType.getFloat(context, "pitch")))))));
 
         dispatcher.register(literal(AITMod.MOD_ID)
                 .then(literal("perf-flight")
@@ -91,6 +98,12 @@ public class PerfScenarioCommand {
                         .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.perf", 2))
                         .then(literal("open").executes(context -> doors(context, true)))
                         .then(literal("closed").executes(context -> doors(context, false)))));
+
+        dispatcher.register(literal(AITMod.MOD_ID)
+                .then(literal("perf-console")
+                        .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.perf", 2))
+                        .then(argument("variant", StringArgumentType.string())
+                                .executes(PerfScenarioCommand::consoleVariant))));
 
         dispatcher.register(literal(AITMod.MOD_ID)
                 .then(literal("perf-verify")
@@ -290,7 +303,7 @@ public class PerfScenarioCommand {
      * {@code getDoorPos()}, which falls back to the world origin when a desktop has neither door nor
      * console, and drops the camera into the void with nothing in frame.
      */
-    private static int teleportToConsole(CommandContext<ServerCommandSource> context) {
+    private static int teleportToConsole(CommandContext<ServerCommandSource> context, float pitch) {
         ServerCommandSource source = context.getSource();
         List<ServerPlayerEntity> players = source.getServer().getPlayerManager().getPlayerList();
         List<ServerTardis> all = new ArrayList<>();
@@ -315,11 +328,11 @@ public class PerfScenarioCommand {
         Vec3d camera = new Vec3d(console.getX() + 0.5, console.getY() + 2, console.getZ() + 3.5);
 
         for (ServerPlayerEntity player : players) {
-            WorldUtil.teleportToWorld(player, tardis.world(), camera, 180f, 35f);
+            WorldUtil.teleportToWorld(player, tardis.world(), camera, 180f, pitch);
         }
 
         source.sendFeedback(() -> Text.literal("PERF-TP-CONSOLE ok console=" + console.toShortString()
-                + " consoles=" + consoles.size()), false);
+                + " consoles=" + consoles.size() + " pitch=" + pitch), false);
 
         return Command.SINGLE_SUCCESS;
     }
@@ -346,6 +359,41 @@ public class PerfScenarioCommand {
         int count = all.size();
         context.getSource().sendFeedback(
                 () -> Text.literal("Flight=" + on + " on " + count + " TARDIS(es)."), true);
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /**
+     * Switches every console to a named variant. Console cost scales with the part count and the
+     * animated bone count of the model, and those differ by an order of magnitude between variants,
+     * so a measurement is meaningless unless the variant is pinned.
+     */
+    private static int consoleVariant(CommandContext<ServerCommandSource> context) {
+        ServerCommandSource source = context.getSource();
+        String variant = StringArgumentType.getString(context, "variant");
+        ConsoleVariantSchema schema = ConsoleVariantRegistry.getInstance().get(AITMod.id(variant));
+
+        if (schema == null) {
+            source.sendFeedback(() -> Text.literal("PERF-CONSOLE failed: no variant '" + variant + "'"), false);
+            return 0;
+        }
+
+        List<ServerTardis> all = new ArrayList<>();
+        ServerTardisManager.getInstance().forEach(all::add);
+        int changed = 0;
+
+        for (ServerTardis tardis : all) {
+            for (BlockPos pos : tardis.getDesktop().getConsolePos()) {
+                if (tardis.world().getBlockEntity(pos) instanceof ConsoleBlockEntity console) {
+                    console.setVariant(schema);
+                    changed++;
+                }
+            }
+        }
+
+        int finalChanged = changed;
+        source.sendFeedback(
+                () -> Text.literal("PERF-CONSOLE set " + variant + " on " + finalChanged + " console(s)."), true);
 
         return Command.SINGLE_SUCCESS;
     }

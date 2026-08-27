@@ -1,0 +1,4 @@
+c01_hartnell	run/debug/profiling/2026-08-27_11_04_29-Minecraft Server-1_20_1.zip	none | none
+c02_copper	run/debug/profiling/2026-08-27_11_05_09-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=0 siege=0 shields=0 alarm=0 | none
+c03_hartnell_flight	run/debug/profiling/2026-08-27_11_05_34-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=0 locked=1 siege=0 shields=0 alarm=0 | none
+c04_copper_flight	NO_DUMP	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=0 locked=1 siege=0 shields=0 alarm=0 | none

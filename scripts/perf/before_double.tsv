@@ -1,0 +1,5 @@
+s00_empty	run/debug/profiling/2026-08-27_10_20_36-Minecraft Server-1_20_1.zip	PERF-VERIFY total=0 powered=0 doorsOpen=0 landed=0 locked=0 siege=0 shields=0 alarm=0
+s01_one_shut	run/debug/profiling/2026-08-27_10_21_07-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=0 siege=0 shields=0 alarm=0
+x1_booth	run/debug/profiling/2026-08-27_10_21_45-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=0 siege=0 shields=0 alarm=0
+x20_booth	run/debug/profiling/2026-08-27_10_22_24-Minecraft Server-1_20_1.zip	PERF-VERIFY total=20 powered=20 doorsOpen=0 landed=20 locked=0 siege=0 shields=0 alarm=0
+s06_interior_console	run/debug/profiling/2026-08-27_10_23_32-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=0 siege=0 shields=0 alarm=0
