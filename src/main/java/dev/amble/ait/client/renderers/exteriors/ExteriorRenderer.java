@@ -25,6 +25,7 @@ import dev.amble.ait.client.models.machines.ShieldsModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientProfiling;
+import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
@@ -61,6 +62,15 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         // One counter per exit, so "the renderer never ran" and "it ran and drew nothing" stop looking
         // identical. Without these a zero in the BOTI queue counter has several possible causes.
         ClientProfiling.count("ait_exterior_dispatched");
+
+        // Called twice a pass: once from the chunk's block entity list, once from the global no-cull
+        // list. Both draws are identical, so only the first does the work. When the section is culled
+        // the first call never arrives and the global one draws instead, which is the point of being
+        // on that list at all.
+        if (!entity.firstDrawOfPass(ClientRenderPass.current())) {
+            ClientProfiling.count("ait_exterior_duplicate_skipped");
+            return;
+        }
 
         profiler.push("find_tardis");
 

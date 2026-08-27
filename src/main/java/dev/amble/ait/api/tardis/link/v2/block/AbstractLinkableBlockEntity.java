@@ -26,8 +26,26 @@ public abstract class AbstractLinkableBlockEntity extends BlockEntity implements
 
     protected TardisRef ref;
 
+    /**
+     * The last render pass that drew this block entity, client side only. Renderers that report
+     * {@code rendersOutsideBoundingBox} are called twice a pass, once from the chunk's block entity
+     * list and once from the global no-cull list, and only the first of those needs to draw.
+     */
+    private int lastRenderPass = -1;
+
     public AbstractLinkableBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+    }
+
+    /**
+     * @return {@code true} the first time it is called for a given pass, {@code false} afterwards.
+     */
+    public boolean firstDrawOfPass(int pass) {
+        if (this.lastRenderPass == pass)
+            return false;
+
+        this.lastRenderPass = pass;
+        return true;
     }
 
     @Override

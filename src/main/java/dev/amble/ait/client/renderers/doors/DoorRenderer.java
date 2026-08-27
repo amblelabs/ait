@@ -23,6 +23,8 @@ import dev.amble.ait.client.models.AnimatedModel;
 import dev.amble.ait.client.models.doors.CapsuleDoorModel;
 import dev.amble.ait.client.models.doors.exclusive.DoomDoorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.util.ClientProfiling;
+import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -45,6 +47,18 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
                        int light, int overlay) {
         if (entity.getWorld() == null) return;
+
+        ClientProfiling.count("ait_door_dispatched");
+
+        // Called twice a pass: once from the chunk's block entity list, once from the global no-cull
+        // list. Both draws are identical, so only the first does the work. When the section is culled
+        // the first call never arrives and the global one draws instead, which is the point of being
+        // on that list at all.
+        if (!entity.firstDrawOfPass(ClientRenderPass.current())) {
+            ClientProfiling.count("ait_door_duplicate_skipped");
+            return;
+        }
+
         if (!entity.isLinked()) {
             BlockState blockState = entity.getCachedState();
             float k = blockState.get(DoorBlock.FACING).asRotation();

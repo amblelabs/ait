@@ -80,6 +80,7 @@ import dev.amble.ait.client.sonic.SonicModelLoader;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.client.util.ClientProfiling;
+import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.*;
@@ -146,6 +147,10 @@ public class AITModClient implements ClientModInitializer {
             ConfigCommand.register(dispatcher);
             DebugCommand.register(dispatcher);
         });
+
+        // Must be registered, or the pass counter never advances and the duplicate-draw guard in
+        // the renderers would let the first draw through and reject every one after it.
+        ClientRenderPass.init();
 
         AITKeyBinds.init();
 

@@ -21,6 +21,7 @@ import dev.amble.ait.client.models.items.HandlesModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientProfiling;
+import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.item.HandlesItem;
 import dev.amble.ait.data.datapack.DatapackConsole;
@@ -43,6 +44,15 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         if (entity.getWorld() == null) return;
 
         ClientProfiling.count("ait_console_dispatched");
+
+        // Called twice a pass: once from the chunk's block entity list, once from the global no-cull
+        // list. Both draws are identical, so only the first does the work. When the section is culled
+        // the first call never arrives and the global one draws instead, which is the point of being
+        // on that list at all.
+        if (!entity.firstDrawOfPass(ClientRenderPass.current())) {
+            ClientProfiling.count("ait_console_duplicate_skipped");
+            return;
+        }
 
         if (!entity.isLinked()) {
             ClientProfiling.count("ait_console_unlinked");
