@@ -34,7 +34,7 @@ import dev.amble.ait.core.engine.link.block.HorizontalFluidLinkBlock;
 @SuppressWarnings("deprecation")
 public class ArtronCollectorBlock extends HorizontalFluidLinkBlock implements BlockEntityProvider {
 
-    protected static final VoxelShape Y_SHAPE = Block.createCuboidShape(6.0, 0.0, 6.0, 10.0, 29.0, 10.0);
+    protected static final VoxelShape Y_SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 32.0, 16.0);
 
     public ArtronCollectorBlock(Settings settings) {
         super(settings);
