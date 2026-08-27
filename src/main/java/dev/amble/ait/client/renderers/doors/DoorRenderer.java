@@ -54,7 +54,7 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
         // list. Both draws are identical, so only the first does the work. When the section is culled
         // the first call never arrives and the global one draws instead, which is the point of being
         // on that list at all.
-        if (!entity.firstDrawOfPass(ClientRenderPass.current())) {
+        if (!ClientRenderPass.shouldDraw(entity)) {
             ClientProfiling.count("ait_door_duplicate_skipped");
             return;
         }

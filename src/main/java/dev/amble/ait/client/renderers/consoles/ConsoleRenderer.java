@@ -49,7 +49,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         // list. Both draws are identical, so only the first does the work. When the section is culled
         // the first call never arrives and the global one draws instead, which is the point of being
         // on that list at all.
-        if (!entity.firstDrawOfPass(ClientRenderPass.current())) {
+        if (!ClientRenderPass.shouldDraw(entity)) {
             ClientProfiling.count("ait_console_duplicate_skipped");
             return;
         }
