@@ -12,6 +12,23 @@ PORT=25632
 PASS=aitperf
 printf 'list\n' > /tmp/s_list.txt
 
+fresh_world() {
+  rm -rf run/server/perfworld
+  rm -f run/logs/latest.log run/server/logs/latest.log
+  echo "  world deleted"
+}
+
+# A killed build can leave build/resources/main half-copied, and then processResources fails while
+# compileJava reports UP-TO-DATE, so the launcher silently runs a stale binary. Verified, not assumed.
+require_build() {
+  if grep -qE "BUILD FAILED|FAILURE:" "$1"; then
+    echo "  ABORT: build failed, would have run a stale binary"
+    grep -A3 "What went wrong" "$1" | head -5
+    return 1
+  fi
+  return 0
+}
+
 kill_all() {
   powershell.exe -NoProfile -Command 'Get-CimInstance Win32_Process -Filter "Name=''java.exe''" | Where-Object { $_.CommandLine -like "*loom-cache*" -and $_.CommandLine -like "*ait*" } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }' >/dev/null 2>&1
   sleep 5
@@ -82,9 +99,12 @@ PY
 phase() {   # $1 = on|off, $2 = manifest
   set_mixin "$1"
   kill_all
+  fresh_world
   start_server || return 1
+  require_build /tmp/ab_server.log || return 1
   rules
   start_client || return 1
+  require_build /tmp/ab_client.log || return 1
   require_perf_console || return 1
   # The interior scenarios need a TARDIS with a generated desktop before the console exists.
   printf 'ait perf-clear\nSLEEP 2\nait perf-spawn 1 8 0 100 12\nSLEEP 30\nait perf-doors open\nSLEEP 4\n' > /tmp/seed.txt
