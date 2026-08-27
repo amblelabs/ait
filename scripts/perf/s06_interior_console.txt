@@ -8,5 +8,6 @@ ait perf-tp interior
 SLEEP 10
 gamemode spectator @a
 SLEEP 6
+ait perf-verify
 ait profile-client @a
 SLEEP 15

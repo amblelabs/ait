@@ -8,6 +8,7 @@ ait perf-doors open
 ait perf-state alarm true
 tp @a 0 100 0 0 10
 SLEEP 8
+ait perf-verify
 ait profile-client @a
 SLEEP 15
 ait perf-state alarm false

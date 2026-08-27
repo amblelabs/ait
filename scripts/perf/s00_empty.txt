@@ -7,5 +7,6 @@ time set noon
 weather clear
 kill @e[type=item]
 SLEEP 6
+ait perf-verify
 ait profile-client @a
 SLEEP 14

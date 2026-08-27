@@ -5,5 +5,6 @@ gamemode spectator @a
 tp @a 0 100 0 0 0
 ait perf-doors open
 SLEEP 8
+ait perf-verify
 ait profile-client @a
 SLEEP 15

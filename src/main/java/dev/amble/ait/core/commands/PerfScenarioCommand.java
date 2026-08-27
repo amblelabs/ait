@@ -79,6 +79,11 @@ public class PerfScenarioCommand {
                         .then(literal("closed").executes(context -> doors(context, false)))));
 
         dispatcher.register(literal(AITMod.MOD_ID)
+                .then(literal("perf-verify")
+                        .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.perf", 2))
+                        .executes(PerfScenarioCommand::verify)));
+
+        dispatcher.register(literal(AITMod.MOD_ID)
                 .then(literal("perf-clear")
                         .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.perf", 2))
                         .executes(PerfScenarioCommand::clear)));
@@ -113,8 +118,22 @@ public class PerfScenarioCommand {
                     .exterior(ExteriorVariantRegistry.getInstance().get(AITMod.id(variant)))
                     .desktop(DesktopRegistry.DEFAULT_CAVE);
 
-            if (ServerTardisManager.getInstance().create(builder) != null)
-                made++;
+            ServerTardis created = ServerTardisManager.getInstance().create(builder);
+
+            if (created == null)
+                continue;
+
+            // A fresh TARDIS is unpowered, and its subsystems all start disabled. enablePower() with
+            // the default engine requirement is a silent no-op in that state, so the subsystems are
+            // repaired first and the engine switched on before asking for power. Without this every
+            // power-gated render path (emission most of all) never runs and reads as free.
+            created.subsystems().repairAll();
+            created.subsystems().engine().setEnabled(true);
+            created.<FuelHandler>handler(TardisComponent.Id.FUEL).enablePower(false);
+            created.door().setLocked(false);
+            created.door().setDeadlocked(false);
+
+            made++;
         }
 
         int finalMade = made;
@@ -200,7 +219,9 @@ public class PerfScenarioCommand {
                 case "power" -> {
                     if (on) {
                         tardis.<FuelHandler>handler(TardisComponent.Id.FUEL).setCurrentFuel(5000);
-                        tardis.<FuelHandler>handler(TardisComponent.Id.FUEL).enablePower();
+                        tardis.subsystems().repairAll();
+                        tardis.subsystems().engine().setEnabled(true);
+                        tardis.<FuelHandler>handler(TardisComponent.Id.FUEL).enablePower(false);
                     } else {
                         tardis.<FuelHandler>handler(TardisComponent.Id.FUEL).disablePower();
                     }
@@ -217,6 +238,35 @@ public class PerfScenarioCommand {
         int count = all.size();
         context.getSource().sendFeedback(
                 () -> Text.literal("Set " + what + "=" + on + " on " + count + " TARDIS(es)."), true);
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /**
+     * Reports the state every render path is gated on, so a scenario can be checked before it is
+     * profiled rather than after. Several of these default to off and fail silently when set, which
+     * makes an unpowered TARDIS look like a cheap one.
+     */
+    private static int verify(CommandContext<ServerCommandSource> context) {
+        List<ServerTardis> all = new ArrayList<>();
+        ServerTardisManager.getInstance().forEach(all::add);
+
+        int powered = 0, doorsOpen = 0, landed = 0, locked = 0, siege = 0, shields = 0, alarm = 0;
+
+        for (ServerTardis tardis : all) {
+            if (tardis.fuel().hasPower()) powered++;
+            if (tardis.door().getLeftRot() > 0) doorsOpen++;
+            if (tardis.travel().isLanded()) landed++;
+            if (tardis.door().locked()) locked++;
+            if (tardis.siege().isActive()) siege++;
+            if (tardis.areVisualShieldsActive()) shields++;
+            if (tardis.alarm().isEnabled()) alarm++;
+        }
+
+        String report = String.format(
+                "PERF-VERIFY total=%d powered=%d doorsOpen=%d landed=%d locked=%d siege=%d shields=%d alarm=%d",
+                all.size(), powered, doorsOpen, landed, locked, siege, shields, alarm);
+        context.getSource().sendFeedback(() -> Text.literal(report), false);
 
         return Command.SINGLE_SUCCESS;
     }

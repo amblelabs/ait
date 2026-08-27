@@ -2,5 +2,6 @@
 # which render regardless of where the camera points.
 tp @a ~ ~ ~ 0 89
 SLEEP 8
+ait perf-verify
 ait profile-client @a
 SLEEP 15

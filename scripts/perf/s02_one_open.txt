@@ -6,5 +6,6 @@ ait perf-doors open
 SLEEP 8
 tp @a 0 100 0 0 0
 SLEEP 4
+ait perf-verify
 ait profile-client @a
 SLEEP 14
