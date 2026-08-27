@@ -30,8 +30,21 @@ require_build() {
 }
 
 kill_all() {
-  powershell.exe -NoProfile -Command 'Get-CimInstance Win32_Process -Filter "Name=''java.exe''" | Where-Object { $_.CommandLine -like "*loom-cache*" -and $_.CommandLine -like "*ait*" } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }' >/dev/null 2>&1
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/perf/kill_ait_java.ps1
   sleep 5
+
+  # Verified, not assumed. The previous version failed silently and start_server then saw the OLD
+  # server answering rcon and called it success, so every phase measured a stale binary.
+  for _ in $(seq 1 12); do
+    if ! python scripts/perf/rcon.py $HOST $PORT $PASS /tmp/s_list.txt >/dev/null 2>&1; then
+      echo "  rcon down, processes really stopped"
+      return 0
+    fi
+    sleep 3
+  done
+
+  echo "  ABORT: something is still answering rcon after the kill"
+  return 1
 }
 
 start_server() {
@@ -98,7 +111,7 @@ PY
 
 phase() {   # $1 = on|off, $2 = manifest
   set_mixin "$1"
-  kill_all
+  kill_all || return 1
   fresh_world
   start_server || return 1
   require_build /tmp/ab_server.log || return 1
