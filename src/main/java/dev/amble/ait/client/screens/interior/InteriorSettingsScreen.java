@@ -3,6 +3,7 @@ package dev.amble.ait.client.screens.interior;
 import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.CHANGE_DESKTOP;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
 
 import com.google.common.collect.Lists;
@@ -770,12 +771,12 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private void renderCurrentMode(DrawContext context) {
         Nameable current = this.modeManager.get().get();
 
-        Text modeText = Text.literal(this.modeManager.get().name().toUpperCase());
+        Text modeText = Text.translatable("screen.ait.interior_settings.mode."
+                + this.modeManager.get().name().toLowerCase(Locale.ROOT));
         context.drawText(this.textRenderer, modeText,
                 (width / 2 + 50) - this.textRenderer.getWidth(modeText) / 2,
                 height / 2 + 32, 0xffffff, true);
-        String name = current.name();
-        String currentString = Text.translatable(name).getString().toUpperCase();
+        String currentString = current.text().getString().toUpperCase(Locale.ROOT);
         context.drawText(this.textRenderer, currentString, (int) (left + (bgWidth * 0.78f)) - this.textRenderer.getWidth(currentString) / 2,
                 (int) (top + (bgHeight * 0.792f)), 0xffffff, true);
     }

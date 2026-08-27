@@ -114,7 +114,8 @@ public class HandlesResponseRegistry {
             }
 
             private Text getHelpText() {
-                return Text.literal("Available Commands: " + String.join(", ", COMMANDS_CACHE.keySet()));
+                return Text.translatable("message.ait.handles.available_commands",
+                        String.join(", ", COMMANDS_CACHE.keySet()));
             }
 
             @Override
@@ -130,11 +131,11 @@ public class HandlesResponseRegistry {
 
         register(new HandlesResponse() {
             private static final List<String> JOKES = List.of(
-                    "Why did the Dalek apply for a job? It wanted to EX-TER-MINATE its competition!",
-                    "How many Time Lords does it take to change a light bulb? None, they just change the timeline.",
-                    "Why does the TARDIS always win hide-and-seek? Because it’s in another dimension!",
-                    "What do you call a Time Lord with no time? A Lord!",
-                    "Why was the TARDIS always calm? Because it’s bigger on the inside."
+                    "message.ait.handles.joke.dalek",
+                    "message.ait.handles.joke.time_lords",
+                    "message.ait.handles.joke.hide_and_seek",
+                    "message.ait.handles.joke.no_time",
+                    "message.ait.handles.joke.calm"
             );
 
             @Override
@@ -144,7 +145,7 @@ public class HandlesResponseRegistry {
             }
 
             private Text getRandomJoke() {
-                return Text.literal(JOKES.get(AITMod.RANDOM.nextInt(JOKES.size()) - 1));
+                return Text.translatable(JOKES.get(AITMod.RANDOM.nextInt(JOKES.size())));
             }
 
             @Override
@@ -160,9 +161,9 @@ public class HandlesResponseRegistry {
 
         register(new HandlesResponse() {
             private static final List<String> FUN_FACTS = List.of(
-                    "The first TARDIS was actually painted green!",
-                    "Gallifrey has two suns and an orange sky!",
-                    "Handles once saved the Doctor’s life by solving a centuries-old riddle."
+                    "message.ait.handles.fun_fact.green_tardis",
+                    "message.ait.handles.fun_fact.gallifrey",
+                    "message.ait.handles.fun_fact.handles"
             );
 
             @Override
@@ -172,7 +173,7 @@ public class HandlesResponseRegistry {
             }
 
             private Text getRandomFunFact() {
-                return Text.literal(FUN_FACTS.get(AITMod.RANDOM.nextInt(FUN_FACTS.size()) - 1));
+                return Text.translatable(FUN_FACTS.get(AITMod.RANDOM.nextInt(FUN_FACTS.size())));
             }
 
             @Override
@@ -190,12 +191,12 @@ public class HandlesResponseRegistry {
             @Override
             public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
                 if (tardis.travel().inFlight()) {
-                    sendChat(player, Text.literal("The TARDIS is already in flight.."));
+                    sendChat(player, Text.translatable("message.ait.handles.already_in_flight"));
                     return failure(source);
                 }
 
                 tardis.travel().dematerialize();
-                sendChat(player, Text.literal("Initiating dematerialization sequence."));
+                sendChat(player, Text.translatable("message.ait.handles.dematerializing"));
                 return success(source);
             }
 
@@ -214,12 +215,12 @@ public class HandlesResponseRegistry {
             @Override
             public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
                 if (!tardis.travel().inFlight()) {
-                    sendChat(player, Text.literal("The TARDIS is not in flight."));
+                    sendChat(player, Text.translatable("message.ait.handles.not_in_flight"));
                     return failure(source);
                 }
 
                 tardis.travel().rematerialize();
-                sendChat(player, Text.literal("Rematerializing."));
+                sendChat(player, Text.translatable("message.ait.handles.rematerializing"));
                 return success(source);
             }
 
@@ -238,12 +239,12 @@ public class HandlesResponseRegistry {
             @Override
             public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
                 if (tardis.door().locked()) {
-                    sendChat(player, Text.literal("Doors already locked"));
+                    sendChat(player, Text.translatable("message.ait.handles.doors_already_locked"));
                     return failure(source);
                 }
 
                 tardis.door().setLocked(true);
-                sendChat(player, Text.literal("Locking door."));
+                sendChat(player, Text.translatable("message.ait.handles.locking_doors"));
                 return success(source);
             }
 
@@ -262,12 +263,12 @@ public class HandlesResponseRegistry {
             @Override
             public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
                 if (!tardis.door().locked()) {
-                    sendChat(player, Text.literal("Doors already unlocked"));
+                    sendChat(player, Text.translatable("message.ait.handles.doors_already_unlocked"));
                     return failure(source);
                 }
 
                 tardis.door().setLocked(false);
-                sendChat(player, Text.literal("Unlocking door."));
+                sendChat(player, Text.translatable("message.ait.handles.unlocking_doors"));
                 return success(source);
             }
 
@@ -286,11 +287,11 @@ public class HandlesResponseRegistry {
             @Override
             public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
                 if (!tardis.waypoint().hasWaypoint()) {
-                    sendChat(player, Text.literal("There is no waypoint set."));
+                    sendChat(player, Text.translatable("message.ait.handles.no_waypoint"));
                     return failure(source);
                 }
 
-                sendChat(player, Text.literal("Setting course for waypoint."));
+                sendChat(player, Text.translatable("message.ait.handles.setting_course_waypoint"));
                 tardis.waypoint().loadWaypoint();
                 return success(source);
             }
@@ -310,11 +311,11 @@ public class HandlesResponseRegistry {
             @Override
             public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
                 if (tardis.door().isOpen()) {
-                    sendChat(player, Text.literal("Doors are already open"));
+                    sendChat(player, Text.translatable("message.ait.handles.doors_already_open"));
                     return failure(source);
                 }
 
-                sendChat(player, Text.literal("Opening TARDIS doors."));
+                sendChat(player, Text.translatable("message.ait.handles.opening_doors"));
                 tardis.door().openDoors();
                 return success(source);
             }
@@ -334,11 +335,11 @@ public class HandlesResponseRegistry {
             @Override
             public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
                 if (!tardis.door().isOpen()) {
-                    sendChat(player, Text.literal("Doors are already closed"));
+                    sendChat(player, Text.translatable("message.ait.handles.doors_already_closed"));
                     return failure(source);
                 }
 
-                sendChat(player, Text.literal("Closing TARDIS doors."));
+                sendChat(player, Text.translatable("message.ait.handles.closing_doors"));
                 tardis.door().closeDoors();
                 return success(source);
             }
@@ -359,10 +360,11 @@ public class HandlesResponseRegistry {
             @Override
             public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
                 TravelHandlerBase.State state = tardis.travel().getState();
-                sendChat(player, Text.literal("TARDIS State: " + state.name()));
+                sendChat(player, Text.translatable("message.ait.handles.tardis_state", state.name()));
 
                 if (state == TravelHandlerBase.State.FLIGHT) {
-                    sendChat(player, Text.literal("Flight is " + tardis.travel().getDurationAsPercentage() + "% complete."));
+                    sendChat(player, Text.translatable("message.ait.handles.flight_complete",
+                            tardis.travel().getDurationAsPercentage()));
                 }
 
                 return success(source);
@@ -382,7 +384,7 @@ public class HandlesResponseRegistry {
         HandlesResponseRegistry.register(new HandlesResponse() {
             @Override
             public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
-                sendChat(player, Text.literal("Toggled Shields."));
+                sendChat(player, Text.translatable("message.ait.handles.toggled_shields"));
                 tardis.shields().visuallyShielded().toggle();
                 return success(source);
             }
@@ -402,11 +404,11 @@ public class HandlesResponseRegistry {
             @Override
             public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
                 if (tardis.isRefueling()) {
-                    sendChat(player, Text.literal("Refueling is already enabled."));
+                    sendChat(player, Text.translatable("message.ait.handles.refueling_already_enabled"));
                     return failure(source);
                 }
 
-                sendChat(player, Text.literal("Enabling Refueling."));
+                sendChat(player, Text.translatable("message.ait.handles.enabling_refueling"));
                 tardis.travel().handbrake(true);
                 tardis.setRefueling(true);
                 return success(source);
@@ -427,11 +429,11 @@ public class HandlesResponseRegistry {
             @Override
             public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
                 if (!tardis.isRefueling()) {
-                    sendChat(player, Text.literal("Refueling is already disabled."));
+                    sendChat(player, Text.translatable("message.ait.handles.refueling_already_disabled"));
                     return failure(source);
                 }
 
-                sendChat(player, Text.literal("Disabling Refueling."));
+                sendChat(player, Text.translatable("message.ait.handles.disabling_refueling"));
                 tardis.travel().handbrake(false);
                 tardis.setRefueling(false);
                 return success(source);
@@ -451,7 +453,7 @@ public class HandlesResponseRegistry {
         HandlesResponseRegistry.register(new HandlesResponse() {
             @Override
             public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
-                sendChat(player, Text.literal("Protocol 3 Toggled."));
+                sendChat(player, Text.translatable("message.ait.handles.protocol_3_toggled"));
                 tardis.cloak().cloaked().toggle();
                 return success(source);
             }
@@ -470,7 +472,7 @@ public class HandlesResponseRegistry {
         HandlesResponseRegistry.register(new HandlesResponse() {
             @Override
             public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
-                sendChat(player, Text.literal("Anti-Gravs Toggled."));
+                sendChat(player, Text.translatable("message.ait.handles.antigravs_toggled"));
                 tardis.travel().antigravs().toggle();
                 return success(source);
             }
