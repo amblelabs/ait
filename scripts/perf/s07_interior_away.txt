@@ -1,5 +1,7 @@
 # Still inside, camera pitched down at the floor. Splits console cost from the star and shine,
 # which render regardless of where the camera points.
+ait perf-tp console
+SLEEP 4
 tp @a ~ ~ ~ 0 89
 SLEEP 8
 ait perf-verify

@@ -4,7 +4,7 @@ SLEEP 2
 ait perf-spawn 1 8 0 100 12
 SLEEP 8
 ait perf-doors open
-ait perf-tp interior
+ait perf-tp console
 SLEEP 10
 gamemode spectator @a
 SLEEP 6

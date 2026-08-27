@@ -1,20 +1,14 @@
-s00_empty	run/debug/profiling/2026-08-27_09_11_50-Minecraft Server-1_20_1.zip
-s01_one_shut	run/debug/profiling/2026-08-27_09_12_21-Minecraft Server-1_20_1.zip
-s02_one_open	run/debug/profiling/2026-08-27_09_12_50-Minecraft Server-1_20_1.zip
-s03_five_open	run/debug/profiling/2026-08-27_09_13_24-Minecraft Server-1_20_1.zip
-s04_twenty_open	run/debug/profiling/2026-08-27_09_14_00-Minecraft Server-1_20_1.zip
-s05_twenty_far	run/debug/profiling/2026-08-27_09_14_36-Minecraft Server-1_20_1.zip
-s06_interior_console	run/debug/profiling/2026-08-27_09_15_19-Minecraft Server-1_20_1.zip
-s07_interior_away	run/debug/profiling/2026-08-27_09_15_45-Minecraft Server-1_20_1.zip
-s08_vortex_flight	run/debug/profiling/2026-08-27_09_16_08-Minecraft Server-1_20_1.zip
-s09_exterior_back	run/debug/profiling/2026-08-27_09_16_41-Minecraft Server-1_20_1.zip
-s10_unlinked	run/debug/profiling/2026-08-27_09_17_13-Minecraft Server-1_20_1.zip
-s11_siege	run/debug/profiling/2026-08-27_09_17_48-Minecraft Server-1_20_1.zip
-s12_shields	run/debug/profiling/2026-08-27_09_18_23-Minecraft Server-1_20_1.zip
-s13_alarm	run/debug/profiling/2026-08-27_09_18_59-Minecraft Server-1_20_1.zip
-s14_nopower	run/debug/profiling/2026-08-27_09_19_22-Minecraft Server-1_20_1.zip
-s15_coral	run/debug/profiling/2026-08-27_09_19_58-Minecraft Server-1_20_1.zip
-s16_doom	run/debug/profiling/2026-08-27_09_20_33-Minecraft Server-1_20_1.zip
-s17_paintings	run/debug/profiling/2026-08-27_09_21_06-Minecraft Server-1_20_1.zip
-s18_forty_open	run/debug/profiling/2026-08-27_09_21_44-Minecraft Server-1_20_1.zip
-s19_rift	run/debug/profiling/2026-08-27_09_22_17-Minecraft Server-1_20_1.zip
+s00_empty	run/debug/profiling/2026-08-27_09_33_03-Minecraft Server-1_20_1.zip	PERF-VERIFY total=0 powered=0 doorsOpen=0 landed=0 locked=0 siege=0 shields=0 alarm=0
+s01_one_shut	run/debug/profiling/2026-08-27_09_33_34-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=1 siege=0 shields=0 alarm=1
+s02_one_open	run/debug/profiling/2026-08-27_09_34_03-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=1 siege=0 shields=0 alarm=1
+s03_five_open	run/debug/profiling/2026-08-27_09_34_38-Minecraft Server-1_20_1.zip	PERF-VERIFY total=5 powered=5 doorsOpen=5 landed=5 locked=0 siege=0 shields=0 alarm=0
+s04_twenty_open	run/debug/profiling/2026-08-27_09_35_14-Minecraft Server-1_20_1.zip	PERF-VERIFY total=20 powered=20 doorsOpen=3 landed=20 locked=0 siege=0 shields=0 alarm=0
+s05_twenty_far	run/debug/profiling/2026-08-27_09_35_55-Minecraft Server-1_20_1.zip	PERF-VERIFY total=20 powered=20 doorsOpen=19 landed=20 locked=0 siege=0 shields=0 alarm=0
+s06_interior_console	run/debug/profiling/2026-08-27_09_36_38-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=0 siege=0 shields=0 alarm=0
+s07_interior_away	run/debug/profiling/2026-08-27_09_37_04-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=0 siege=0 shields=0 alarm=0
+s08_vortex_flight	run/debug/profiling/2026-08-27_09_37_27-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=1 locked=0 siege=0 shields=0 alarm=0
+s09_exterior_back	run/debug/profiling/2026-08-27_09_38_01-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=1 landed=1 locked=0 siege=0 shields=0 alarm=0
+s10_unlinked	run/debug/profiling/2026-08-27_09_38_32-Minecraft Server-1_20_1.zip	PERF-VERIFY total=0 powered=0 doorsOpen=0 landed=0 locked=0 siege=0 shields=0 alarm=0
+s11_siege	run/debug/profiling/2026-08-27_09_39_08-Minecraft Server-1_20_1.zip	PERF-VERIFY total=5 powered=0 doorsOpen=0 landed=5 locked=5 siege=5 shields=0 alarm=0
+s12_shields	run/debug/profiling/2026-08-27_09_39_43-Minecraft Server-1_20_1.zip	PERF-VERIFY total=5 powered=5 doorsOpen=5 landed=5 locked=0 siege=0 shields=5 alarm=0
+s13_alarm	run/debug/profiling/2026-08-27_09_40_19-Minecraft Server-1_20_1.zip	PERF-VERIFY total=5 powered=5 doorsOpen=5 landed=5 locked=0 siege=0 shields=0 alarm=5

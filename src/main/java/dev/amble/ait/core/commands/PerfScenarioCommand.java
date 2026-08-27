@@ -5,6 +5,7 @@ import static net.minecraft.server.command.CommandManager.literal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
@@ -14,21 +15,27 @@ import com.mojang.brigadier.context.CommandContext;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.command.argument.BlockPosArgumentType;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
+import dev.amble.ait.core.entities.BOTIPaintingEntity;
+import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.tardis.handler.ShieldHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.manager.TardisBuilder;
 import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.registry.impl.DesktopRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 
@@ -63,7 +70,14 @@ public class PerfScenarioCommand {
                 .then(literal("perf-tp")
                         .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.perf", 2))
                         .then(literal("interior").executes(context -> teleport(context, true)))
-                        .then(literal("exterior").executes(context -> teleport(context, false)))));
+                        .then(literal("exterior").executes(context -> teleport(context, false)))
+                        .then(literal("console").executes(PerfScenarioCommand::teleportToConsole))));
+
+        dispatcher.register(literal(AITMod.MOD_ID)
+                .then(literal("perf-flight")
+                        .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.perf", 2))
+                        .then(argument("on", com.mojang.brigadier.arguments.BoolArgumentType.bool())
+                                .executes(PerfScenarioCommand::flight))));
 
         dispatcher.register(literal(AITMod.MOD_ID)
                 .then(literal("perf-state")
@@ -116,7 +130,7 @@ public class PerfScenarioCommand {
                     .<FuelHandler>with(TardisComponent.Id.FUEL, fuel -> fuel.setCurrentFuel(5000))
                     .with(TardisComponent.Id.TRAVEL, travel -> travel.tardis().travel().autopilot(false))
                     .exterior(ExteriorVariantRegistry.getInstance().get(AITMod.id(variant)))
-                    .desktop(DesktopRegistry.DEFAULT_CAVE);
+                    .desktop(DesktopRegistry.getInstance().get(AITMod.id("alnico")));
 
             ServerTardis created = ServerTardisManager.getInstance().create(builder);
 
@@ -271,6 +285,71 @@ public class PerfScenarioCommand {
         return Command.SINGLE_SUCCESS;
     }
 
+    /**
+     * Puts the camera on the nearest console, looking down at it. The plain interior teleport lands on
+     * {@code getDoorPos()}, which falls back to the world origin when a desktop has neither door nor
+     * console, and drops the camera into the void with nothing in frame.
+     */
+    private static int teleportToConsole(CommandContext<ServerCommandSource> context) {
+        ServerCommandSource source = context.getSource();
+        List<ServerPlayerEntity> players = source.getServer().getPlayerManager().getPlayerList();
+        List<ServerTardis> all = new ArrayList<>();
+        ServerTardisManager.getInstance().forEach(all::add);
+
+        if (players.isEmpty() || all.isEmpty()) {
+            source.sendFeedback(() -> Text.literal("Need a player and at least one TARDIS."), false);
+            return 0;
+        }
+
+        ServerTardis tardis = all.get(0);
+        Set<BlockPos> consoles = tardis.getDesktop().getConsolePos();
+
+        if (consoles.isEmpty()) {
+            source.sendFeedback(() -> Text.literal("PERF-TP-CONSOLE failed: this desktop has no console."), false);
+            return 0;
+        }
+
+        BlockPos console = consoles.iterator().next();
+
+        // Three back on +Z and two up, facing -Z and pitched down, so the console fills the frame.
+        Vec3d camera = new Vec3d(console.getX() + 0.5, console.getY() + 2, console.getZ() + 3.5);
+
+        for (ServerPlayerEntity player : players) {
+            WorldUtil.teleportToWorld(player, tardis.world(), camera, 180f, 35f);
+        }
+
+        source.sendFeedback(() -> Text.literal("PERF-TP-CONSOLE ok console=" + console.toShortString()
+                + " consoles=" + consoles.size()), false);
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /**
+     * Puts every TARDIS into flight, or lands it. Setting power and shutting the doors does not start
+     * a flight, so the vortex scenario was measuring a landed TARDIS.
+     */
+    private static int flight(CommandContext<ServerCommandSource> context) {
+        boolean on = com.mojang.brigadier.arguments.BoolArgumentType.getBool(context, "on");
+        List<ServerTardis> all = new ArrayList<>();
+        ServerTardisManager.getInstance().forEach(all::add);
+
+        for (ServerTardis tardis : all) {
+            if (on) {
+                tardis.travel().autopilot(false);
+                tardis.travel().handbrake(false);
+                tardis.travel().forceDemat();
+            } else {
+                tardis.travel().stopHere();
+            }
+        }
+
+        int count = all.size();
+        context.getSource().sendFeedback(
+                () -> Text.literal("Flight=" + on + " on " + count + " TARDIS(es)."), true);
+
+        return Command.SINGLE_SUCCESS;
+    }
+
     private static int clear(CommandContext<ServerCommandSource> context) {
         ServerCommandSource source = context.getSource();
         List<ServerTardis> all = new ArrayList<>();
@@ -280,7 +359,28 @@ public class PerfScenarioCommand {
             ServerTardisManager.getInstance().remove(source.getServer(), tardis);
         }
 
-        source.sendFeedback(() -> Text.literal("Removed " + all.size() + " TARDIS(es)."), true);
+        // Rifts and paintings are summoned by scenarios and nothing else removes them, so they used to
+        // survive into later runs. A single leftover rift is worth about a millisecond a frame.
+        int entities = 0;
+
+        for (ServerWorld world : source.getServer().getWorlds()) {
+            List<Entity> doomed = new ArrayList<>();
+
+            for (Entity entity : world.iterateEntities()) {
+                if (entity instanceof RiftEntity || entity instanceof BOTIPaintingEntity
+                        || entity instanceof ItemEntity)
+                    doomed.add(entity);
+            }
+
+            for (Entity entity : doomed) {
+                entity.discard();
+                entities++;
+            }
+        }
+
+        int finalEntities = entities;
+        source.sendFeedback(() -> Text.literal("Removed " + all.size() + " TARDIS(es) and "
+                + finalEntities + " leftover entities."), true);
 
         return Command.SINGLE_SUCCESS;
     }
