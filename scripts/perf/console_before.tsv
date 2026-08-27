@@ -1,0 +1,4 @@
+c01_hartnell	NO_DUMP	none | PERF-CONSOLE set console/hartnell on 1 console(s).
+c02_copper	NO_DUMP	none | none
+c03_hartnell_flight	NO_DUMP	none | none
+c04_copper_flight	NO_DUMP	none | none

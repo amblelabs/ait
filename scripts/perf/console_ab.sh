@@ -66,6 +66,11 @@ start_client() {
     out=$(python scripts/perf/rcon.py $HOST $PORT $PASS /tmp/s_list.txt 2>/dev/null)
     case "$out" in
       *"There are 1 of"*) echo "  client in"; return 0 ;;
+      *"There are 2 of"*|*"There are 3 of"*)
+        echo "  ABORT: more than one client joined. profile-client @a would profile all of them,"
+        echo "         each writing its own dump, and the reader takes whichever landed last."
+        echo "         $out"
+        return 1 ;;
     esac
     sleep 5
   done
