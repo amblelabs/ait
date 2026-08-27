@@ -2,6 +2,7 @@ package dev.amble.ait.client.renderers.consoles;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
@@ -30,6 +31,9 @@ import dev.amble.ait.data.schema.console.variant.crystalline.client.ClientCrysta
 import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 
 public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntityRenderer<T> {
+
+    private static final boolean COPPER_TRANSLUCENT =
+            !"false".equalsIgnoreCase(System.getProperty("ait.copperTranslucent", "true"));
 
     private ClientConsoleVariantSchema variant;
     private ConsoleModel model;
@@ -134,10 +138,20 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         profiler.swap("animate");
         model.animateBlockEntity(entity, tardis.travel().getState(), hasPower);
 
+        profiler.swap("base_buffer");
+        ClientProfiling.count("ait_console_layer_switch");
+
+        // -Dait.copperTranslucent=false routes copper to the cutout layer like every other variant.
+        // Translucent layers pay a CPU quad sort on every draw, and copper is the only console asking
+        // for one, on the largest model in the mod.
+        boolean translucent = COPPER_TRANSLUCENT && variant.equals(ClientConsoleVariantRegistry.COPPER);
+        VertexConsumer baseBuffer = vertexConsumers.getBuffer(translucent
+                ? RenderLayer.getEntityTranslucent(variant.texture())
+                : RenderLayer.getEntityCutout(variant.texture()));
+
         profiler.swap("render");
         model.renderWithAnimations(tardis, entity, model.getPart(),
-                matrices, vertexConsumers.getBuffer(variant.equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(variant.texture()) :
-                        RenderLayer.getEntityCutout(variant.texture())), light, overlay,
+                matrices, baseBuffer, light, overlay,
                 1, 1, 1, 1, tickDelta);
 
         this.renderEmissions(profiler, matrices, vertexConsumers, tardis, entity, hasPower, light, overlay, tickDelta);
@@ -199,8 +213,14 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
 
         matrices.push();
         if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
+            profiler.swap("emission_buffer");
+            ClientProfiling.count("ait_console_layer_switch");
+            VertexConsumer emissive = vertexConsumers
+                    .getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true));
+
+            profiler.swap("emission_geometry");
             model.renderWithAnimations(tardis, entity, model.getPart(),
-                    matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xf000f0, overlay,
+                    matrices, emissive, 0xf000f0, overlay,
                     1, 1, 1, 1, tickDelta);
         }
         matrices.pop();
