@@ -56,9 +56,6 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
             int light, int overlay) {
-        Profiler profiler = entity.getWorld().getProfiler();
-        profiler.push("exterior");
-
         // One counter per exit, so "the renderer never ran" and "it ran and drew nothing" stop looking
         // identical. Without these a zero in the BOTI queue counter has several possible causes.
         ClientProfiling.count("ait_exterior_dispatched");
@@ -67,10 +64,16 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         // list. Both draws are identical, so only the first does the work. When the section is culled
         // the first call never arrives and the global one draws instead, which is the point of being
         // on that list at all.
+        //
+        // Ahead of the zone, not inside it. Opening a zone and returning without closing it leaks a
+        // push per skipped duplicate and mis-nests everything measured after it.
         if (!ClientRenderPass.shouldDraw(entity)) {
             ClientProfiling.count("ait_exterior_duplicate_skipped");
             return;
         }
+
+        Profiler profiler = entity.getWorld().getProfiler();
+        profiler.push("exterior");
 
         profiler.push("find_tardis");
 
