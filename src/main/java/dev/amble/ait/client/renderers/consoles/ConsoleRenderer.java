@@ -21,6 +21,7 @@ import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
 import dev.amble.ait.client.models.items.HandlesModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.ClientPerfFlags;
 import dev.amble.ait.client.util.ClientProfiling;
 import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
@@ -31,9 +32,6 @@ import dev.amble.ait.data.schema.console.variant.crystalline.client.ClientCrysta
 import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 
 public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntityRenderer<T> {
-
-    private static final boolean COPPER_TRANSLUCENT =
-            !"false".equalsIgnoreCase(System.getProperty("ait.copperTranslucent", "true"));
 
     private ClientConsoleVariantSchema variant;
     private ConsoleModel model;
@@ -144,7 +142,8 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         // -Dait.copperTranslucent=false routes copper to the cutout layer like every other variant.
         // Translucent layers pay a CPU quad sort on every draw, and copper is the only console asking
         // for one, on the largest model in the mod.
-        boolean translucent = COPPER_TRANSLUCENT && variant.equals(ClientConsoleVariantRegistry.COPPER);
+        boolean translucent = ClientPerfFlags.get("copperTranslucent", true)
+                && variant.equals(ClientConsoleVariantRegistry.COPPER);
         VertexConsumer baseBuffer = vertexConsumers.getBuffer(translucent
                 ? RenderLayer.getEntityTranslucent(variant.texture())
                 : RenderLayer.getEntityCutout(variant.texture()));

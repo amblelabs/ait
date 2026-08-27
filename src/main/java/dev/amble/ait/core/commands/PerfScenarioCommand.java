@@ -15,6 +15,7 @@ import com.mojang.brigadier.context.CommandContext;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.command.argument.BlockPosArgumentType;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.server.command.ServerCommandSource;
@@ -104,6 +105,13 @@ public class PerfScenarioCommand {
                         .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.perf", 2))
                         .then(argument("variant", StringArgumentType.string())
                                 .executes(PerfScenarioCommand::consoleVariant))));
+
+        dispatcher.register(literal(AITMod.MOD_ID)
+                .then(literal("perf-flag")
+                        .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.perf", 2))
+                        .then(argument("name", StringArgumentType.word())
+                                .then(argument("on", com.mojang.brigadier.arguments.BoolArgumentType.bool())
+                                        .executes(PerfScenarioCommand::perfFlag)))));
 
         dispatcher.register(literal(AITMod.MOD_ID)
                 .then(literal("perf-verify")
@@ -402,6 +410,33 @@ public class PerfScenarioCommand {
         int finalChanged = changed;
         source.sendFeedback(
                 () -> Text.literal("PERF-CONSOLE set " + variant + " on " + finalChanged + " console(s)."), true);
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /**
+     * Flips a client render switch without restarting, so the halves of a comparison can be
+     * interleaved rather than measured minutes apart.
+     */
+    private static int perfFlag(CommandContext<ServerCommandSource> context) {
+        String name = StringArgumentType.getString(context, "name");
+        boolean on = com.mojang.brigadier.arguments.BoolArgumentType.getBool(context, "on");
+
+        PacketByteBuf buf = new PacketByteBuf(io.netty.buffer.Unpooled.buffer());
+        buf.writeString(name);
+        buf.writeBoolean(on);
+
+        int sent = 0;
+
+        for (ServerPlayerEntity player : context.getSource().getServer().getPlayerManager().getPlayerList()) {
+            net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player, AITMod.PERF_FLAG,
+                    new PacketByteBuf(buf.copy()));
+            sent++;
+        }
+
+        int finalSent = sent;
+        context.getSource().sendFeedback(
+                () -> Text.literal("PERF-FLAG " + name + "=" + on + " sent to " + finalSent + " client(s)."), false);
 
         return Command.SINGLE_SUCCESS;
     }
