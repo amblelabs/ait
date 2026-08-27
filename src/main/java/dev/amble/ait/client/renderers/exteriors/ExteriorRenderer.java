@@ -24,6 +24,7 @@ import dev.amble.ait.client.models.exteriors.SiegeModeModel;
 import dev.amble.ait.client.models.machines.ShieldsModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.ClientProfiling;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
@@ -57,9 +58,14 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         Profiler profiler = entity.getWorld().getProfiler();
         profiler.push("exterior");
 
+        // One counter per exit, so "the renderer never ran" and "it ran and drew nothing" stop looking
+        // identical. Without these a zero in the BOTI queue counter has several possible causes.
+        ClientProfiling.count("ait_exterior_dispatched");
+
         profiler.push("find_tardis");
 
         if (!entity.isLinked()) {
+            ClientProfiling.count("ait_exterior_unlinked");
             profiler.pop();
             profiler.pop();
             return;
@@ -79,13 +85,24 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
                          int light, int overlay) {
         this.updateModel(tardis);
 
-        if (tardis.travel().getAlpha() > 0)
+        if (tardis.travel().getAlpha() > 0) {
+            ClientProfiling.count("ait_exterior_drawn");
             this.renderExterior(profiler, tardis, entity, tickDelta, matrices, vertexConsumers, light, overlay);
+        } else {
+            ClientProfiling.count("ait_exterior_alpha_zero");
+        }
 
-        if (tardis.door().getLeftRot() <= 0 && !variant.hasTransparentDoors()) return;
+        if (tardis.door().getLeftRot() <= 0 && !variant.hasTransparentDoors()) {
+            ClientProfiling.count("ait_exterior_doors_shut");
+            return;
+        }
 
-        if (!tardis.travel().isLanded() || tardis.siege().isActive()) return;
+        if (!tardis.travel().isLanded() || tardis.siege().isActive()) {
+            ClientProfiling.count("ait_exterior_not_landed");
+            return;
+        }
 
+        ClientProfiling.count("ait_exterior_enqueued");
         if (variant.parent().hasPortals() || !AITModClient.skipBuiltInBOTI()) BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
     }
 
