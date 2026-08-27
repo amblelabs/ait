@@ -124,17 +124,14 @@ public class ClientTardisUtil {
     }
 
     public static boolean isPlayerInATardis() {
-        return getCurrentTardis() != null;
+        return currentTardis != null;
     }
 
     /**
      * Gets the tardis the player is currently inside
      */
     public static ClientTardis getCurrentTardis() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        UUID worldTardis = TardisServerWorld.getTardisId(client.world);
-        if (currentTardis == null || worldTardis == null
-                || !worldTardis.equals(currentTardis.getId()))
+        if (currentTardis == null)
             return null;
 
         return (ClientTardis) currentTardis.get();
@@ -296,7 +293,7 @@ public class ClientTardisUtil {
     }
 
     public static int getPowerDelta() {
-        return getCurrentTardis() != null ? powerDeltaTick : 0;
+        return currentTardis != null ? powerDeltaTick : 0;
     }
 
     public static float getPowerDeltaForLerp() {
