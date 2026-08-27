@@ -162,8 +162,8 @@ public class HandlesItem extends LinkableItem {
 
             @Override
             public Text getResponseText(Tardis tardis, PlayerEntity player) {
-                return Text.literal("<Handles> Here are all the available commands: "
-                        + new ArrayList<>(RESPONSE_MAP.keySet()));
+                return Text.literal("<Handles> ").append(Text.translatable("message.ait.handles.available_commands",
+                        new ArrayList<>(RESPONSE_MAP.keySet())));
             }
 
             @Override
@@ -191,14 +191,14 @@ public class HandlesItem extends LinkableItem {
             @Override
             public Text getResponseText(Tardis tardis, PlayerEntity player) {
                 List<String> jokes = List.of(
-                        "Why did the Dalek apply for a job? It wanted to EX-TER-MINATE its competition!",
-                        "How many Time Lords does it take to change a light bulb? None, they just change the timeline.",
-                        "Why does the TARDIS always win hide-and-seek? Because it’s in another dimension!",
-                        "What do you call a Time Lord with no time? A Lord!",
-                        "Why was the TARDIS always calm? Because it’s bigger on the inside."
+                        "message.ait.handles.joke.dalek",
+                        "message.ait.handles.joke.time_lords",
+                        "message.ait.handles.joke.hide_and_seek",
+                        "message.ait.handles.joke.no_time",
+                        "message.ait.handles.joke.calm"
                 );
                 String randomJoke = jokes.get((int) (Math.random() * jokes.size()));
-                return Text.literal("<Handles> " + randomJoke);
+                return Text.literal("<Handles> ").append(Text.translatable(randomJoke));
             }
 
             @Override
@@ -230,12 +230,12 @@ public class HandlesItem extends LinkableItem {
             @Override
             public Text getResponseText(Tardis tardis, PlayerEntity player) {
                 List<String> funFacts = List.of(
-                        "The first TARDIS was actually painted green!",
-                        "Gallifrey has two suns and an orange sky!",
-                        "Handles once saved the Doctor’s life by solving a centuries-old riddle."
+                        "message.ait.handles.fun_fact.green_tardis",
+                        "message.ait.handles.fun_fact.gallifrey",
+                        "message.ait.handles.fun_fact.handles"
                 );
                 String randomFact = funFacts.get((int) (Math.random() * funFacts.size()));
-                return Text.literal("<Handles> " + randomFact);
+                return Text.literal("<Handles> ").append(Text.translatable(randomFact));
             }
 
             @Override

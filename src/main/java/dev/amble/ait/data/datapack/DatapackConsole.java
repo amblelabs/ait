@@ -13,6 +13,7 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.joml.Vector3f;
 
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
@@ -194,6 +195,11 @@ public class DatapackConsole extends ConsoleVariantSchema implements TravelAnima
         @Override
         public ControlTypes[] getControlTypes() {
             return controls.toArray(new ControlTypes[0]);
+        }
+
+        @Override
+        public Text text() {
+            return Text.literal(this.name());
         }
 
         public void register() {

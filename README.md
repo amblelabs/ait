@@ -137,7 +137,6 @@ Special compatibility with the TARDIS when playing with Ad Astra
 
  [Dr. Theo](https://theo.is-a.dev/)
 
-
  [AddieDaBaddie](https://addi3.github.io/index)
 
  [Saturn](https://github.com/Saturnorsomthing)
@@ -156,6 +155,10 @@ Special compatibility with the TARDIS when playing with Ad Astra
  Westankrang
 
  Tright
+
+ Ember808
+
+ Ember (different person)
 
  b2
 

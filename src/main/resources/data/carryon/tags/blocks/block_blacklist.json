@@ -1,0 +1,19 @@
+{
+  "replace": false,
+  "values": [
+    "ait:console",
+    "ait:environment_projector",
+    "ait:waypoint_bank",
+    "ait:console_generator",
+    "ait:engine_block",
+    "ait:food_machine",
+    "ait:exterior_block",
+    "ait:door_block",
+    "ait:plaque_block",
+    "ait:wall_monitor_block",
+    "ait:monitor_block",
+    "ait:generic_subsystem",
+    "ait:detector_block",
+    "ait:cable_block"
+  ]
+}
