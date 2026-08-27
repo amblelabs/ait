@@ -529,10 +529,15 @@ public class AITModClient implements ClientModInitializer {
 
         if (skipBuiltInBOTI()) {
             ClientProfiling.count("ait_boti_exterior_disabled");
+            BOTI.EXTERIOR_RENDER_QUEUE.clear();
             return;
         }
 
-        if (client.player == null || client.world == null) return;
+        if (client.player == null || client.world == null) {
+            BOTI.EXTERIOR_RENDER_QUEUE.clear();
+            return;
+        }
+
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
 
@@ -574,15 +579,24 @@ public class AITModClient implements ClientModInitializer {
 
         if (skipBuiltInBOTI()) {
             ClientProfiling.count("ait_boti_door_disabled");
+            BOTI.DOOR_RENDER_QUEUE.clear();
             return;
         }
 
-        if (client.player == null || client.world == null) return;
+        if (client.player == null || client.world == null) {
+            BOTI.DOOR_RENDER_QUEUE.clear();
+            return;
+        }
+
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
 
         ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
-        if (tardis == null) return;
+
+        if (tardis == null) {
+            BOTI.DOOR_RENDER_QUEUE.clear();
+            return;
+        }
 
         ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
         AnimatedModel model = variant.getDoor().model();
@@ -623,6 +637,7 @@ public class AITModClient implements ClientModInitializer {
 
         if (skipPaintingBOTI()) {
             ClientProfiling.count("ait_boti_gallifreyan_disabled");
+            BOTI.GALLIFREYAN_RENDER_QUEUE.clear();
             return;
         }
 
@@ -669,6 +684,7 @@ public class AITModClient implements ClientModInitializer {
 
         if (skipPaintingBOTI()) {
             ClientProfiling.count("ait_boti_trenzalore_disabled");
+            BOTI.TRENZALORE_PAINTING_QUEUE.clear();
             return;
         }
 
@@ -713,10 +729,15 @@ public class AITModClient implements ClientModInitializer {
 
         if (skipPaintingBOTI()) {
             ClientProfiling.count("ait_boti_rift_disabled");
+            BOTI.RIFT_RENDERING_QUEUE.clear();
             return;
         }
 
-        if (client.player == null || client.world == null) return;
+        if (client.player == null || client.world == null) {
+            BOTI.RIFT_RENDERING_QUEUE.clear();
+            return;
+        }
+
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
 
