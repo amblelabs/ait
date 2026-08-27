@@ -1,0 +1,13 @@
+# 5 exteriors with shields on. Isolates the shields branch of the exterior renderer.
+ait perf-clear
+gamemode spectator @a
+SLEEP 2
+ait perf-spawn 5 6 -6 100 20
+SLEEP 8
+ait perf-doors open
+ait perf-state shields true
+tp @a 0 100 0 0 10
+SLEEP 8
+ait profile-client @a
+SLEEP 15
+ait perf-state shields false

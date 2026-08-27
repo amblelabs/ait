@@ -1,0 +1,7 @@
+# In flight: vortex renderer plus the flight exterior path.
+ait perf-state power true
+SLEEP 2
+ait perf-doors closed
+SLEEP 4
+ait profile-client @a
+SLEEP 15

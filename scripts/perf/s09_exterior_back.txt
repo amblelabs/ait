@@ -1,0 +1,9 @@
+# Back outside, one exterior, doors open. Interior-vs-exterior comparison for the same TARDIS.
+ait perf-tp exterior
+SLEEP 8
+gamemode spectator @a
+tp @a 0 100 0 0 0
+ait perf-doors open
+SLEEP 8
+ait profile-client @a
+SLEEP 15

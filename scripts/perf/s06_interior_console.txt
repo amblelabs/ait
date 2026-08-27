@@ -1,0 +1,12 @@
+# Inside a TARDIS looking at the console. Console BER, control entities, door BOTI, eye of harmony.
+ait perf-clear
+SLEEP 2
+ait perf-spawn 1 8 0 100 12
+SLEEP 8
+ait perf-doors open
+ait perf-tp interior
+SLEEP 10
+gamemode spectator @a
+SLEEP 6
+ait profile-client @a
+SLEEP 15
