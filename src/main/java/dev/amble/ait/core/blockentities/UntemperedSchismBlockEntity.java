@@ -2,7 +2,6 @@ package dev.amble.ait.core.blockentities;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.nbt.NbtCompound;
@@ -96,10 +95,8 @@ public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements
         if (!(world instanceof ServerWorld serverWorld))
             return;
 
-        if (!UntemperedSchismBlock.canCreateAt(serverWorld, pos)) {
-            serverWorld.setBlockState(pos, Blocks.LODESTONE.getDefaultState(), Block.NOTIFY_ALL);
+        if (!UntemperedSchismBlock.canCreateAt(serverWorld, pos))
             return;
-        }
 
         if (!firstTickHandled) {
             firstTickHandled = true;

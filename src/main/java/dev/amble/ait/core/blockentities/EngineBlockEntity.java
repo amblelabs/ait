@@ -1,8 +1,10 @@
 package dev.amble.ait.core.blockentities;
 
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -36,10 +38,6 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
 
     private boolean firstTickHandled;
     private boolean suppressFillCleanup;
-
-    private record FillBlock(BlockPos pos, BlockState state) {}
-
-    private record ReplacedBlock(BlockPos pos, BlockState state) {}
 
     public EngineBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.ENGINE_BLOCK_ENTITY_TYPE, pos, state, SubSystem.Id.ENGINE);
@@ -102,40 +100,40 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
      */
     private boolean tryPlaceFillBlocks(ServerWorld world) {
         BlockPos centre = this.getPos();
-        List<FillBlock> required = new ArrayList<>(8);
+        Map<BlockPos, BlockState> required = new LinkedHashMap<>(8);
 
         for (Direction direction : HORIZONTAL_DIRECTIONS) {
-            required.add(new FillBlock(centre.offset(direction), AITBlocks.CABLE_BLOCK.getDefaultState()));
+            required.put(centre.offset(direction), AITBlocks.CABLE_BLOCK.getDefaultState());
         }
 
-        required.add(new FillBlock(centre.add(1, 0, 1), Blocks.BARRIER.getDefaultState()));
-        required.add(new FillBlock(centre.add(-1, 0, 1), Blocks.BARRIER.getDefaultState()));
-        required.add(new FillBlock(centre.add(1, 0, -1), Blocks.BARRIER.getDefaultState()));
-        required.add(new FillBlock(centre.add(-1, 0, -1), Blocks.BARRIER.getDefaultState()));
+        required.put(centre.add(1, 0, 1), Blocks.BARRIER.getDefaultState());
+        required.put(centre.add(-1, 0, 1), Blocks.BARRIER.getDefaultState());
+        required.put(centre.add(1, 0, -1), Blocks.BARRIER.getDefaultState());
+        required.put(centre.add(-1, 0, -1), Blocks.BARRIER.getDefaultState());
 
-        List<ReplacedBlock> originals = new ArrayList<>(required.size());
-        for (FillBlock fill : required) {
-            BlockState original = world.getBlockState(fill.pos());
+        Map<BlockPos, BlockState> originals = new LinkedHashMap<>(required.size());
+        for (BlockPos fillPos : required.keySet()) {
+            BlockState original = world.getBlockState(fillPos);
             if (!original.isReplaceable()) return false;
-            originals.add(new ReplacedBlock(fill.pos(), original));
+            originals.put(fillPos, original);
         }
 
-        List<ReplacedBlock> replaced = new ArrayList<>(required.size());
+        Map<BlockPos, BlockState> replaced = new LinkedHashMap<>(required.size());
 
-        for (int i = 0; i < required.size(); i++) {
-            FillBlock fill = required.get(i);
-            ReplacedBlock original = originals.get(i);
-            boolean placed = world.setBlockState(fill.pos(), fill.state());
-            BlockState current = world.getBlockState(fill.pos());
+        for (Map.Entry<BlockPos, BlockState> fill : required.entrySet()) {
+            BlockPos fillPos = fill.getKey();
+            BlockState original = originals.get(fillPos);
+            boolean placed = world.setBlockState(fillPos, fill.getValue());
+            BlockState current = world.getBlockState(fillPos);
 
             // Track only positions this placement actually changed. In particular, do not
             // restore untouched, later preflight positions if an earlier placement fails.
-            if (!current.equals(original.state()))
-                replaced.add(original);
+            if (!current.equals(original))
+                replaced.put(fillPos, original);
 
             // Cable connection and waterlogging properties can update immediately after placement.
             // The intended block type is the invariant; exact state equality is too strict here.
-            if (!placed || !current.isOf(fill.state().getBlock())) {
+            if (!placed || !current.isOf(fill.getValue().getBlock())) {
                 this.rollbackFillBlocks(world, replaced);
                 return false;
             }
@@ -144,11 +142,13 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
         return true;
     }
 
-    private void rollbackFillBlocks(ServerWorld world, List<ReplacedBlock> originals) {
-        for (int i = originals.size() - 1; i >= 0; i--) {
-            ReplacedBlock original = originals.get(i);
-            if (world.getBlockState(original.pos()).equals(original.state())) continue;
-            world.setBlockState(original.pos(), original.state());
+    private void rollbackFillBlocks(ServerWorld world, Map<BlockPos, BlockState> originals) {
+        Deque<Map.Entry<BlockPos, BlockState>> pending = new ArrayDeque<>(originals.entrySet());
+
+        while (!pending.isEmpty()) {
+            Map.Entry<BlockPos, BlockState> original = pending.removeLast();
+            if (world.getBlockState(original.getKey()).equals(original.getValue())) continue;
+            world.setBlockState(original.getKey(), original.getValue());
         }
     }
 
