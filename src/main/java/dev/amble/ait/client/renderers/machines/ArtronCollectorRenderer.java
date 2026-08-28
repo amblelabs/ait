@@ -1,9 +1,16 @@
 package dev.amble.ait.client.renderers.machines;
 
+import dev.amble.lib.animation.AnimatedBlockEntity;
+import dev.amble.lib.client.bedrock.BedrockEntityModel;
+import dev.amble.lib.client.bedrock.BedrockModelReference;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -19,29 +26,23 @@ import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
 
 public class ArtronCollectorRenderer<T extends ArtronCollectorBlockEntity> implements BlockEntityRenderer<T> {
 
-    public static final Identifier COLLECTOR_TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/machines/artron_collector.png"));
-    public static final Identifier ANIMATED_COLLECTOR_TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/machines/artron_collector_anim.png"));
-    public static final Identifier EMISSIVE_COLLECTOR_TEXTURE = new Identifier(AITMod.MOD_ID,
-            ("textures/blockentities/machines/artron_collector_emission.png"));
-    /** Number of vertically-stacked 128x128 frames in {@link #ANIMATED_COLLECTOR_TEXTURE}. */
     private static final int FRAME_COUNT = 8;
-    /** Animation speed: game ticks each frame is held before advancing. Lower is faster. */
     private static final float TICKS_PER_FRAME = 3.0F;
 
-    private final ArtronCollectorModel artronCollectorModel;
+    protected BedrockEntityModel<?> model;
 
     public ArtronCollectorRenderer(BlockEntityRendererFactory.Context ctx) {
-        this.artronCollectorModel = new ArtronCollectorModel(ArtronCollectorModel.getTexturedModelData().createModel());
     }
 
     @Override
-    public void render(ArtronCollectorBlockEntity entity, float tickDelta, MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers, int light, int overlay) {
+    public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
+        if (entity.getWorld() == null) return;
+
+        if (this.model == null) {
+            this.refreshModel(entity);
+        }
 
         BlockState blockState = entity.getCachedState();
-
         float f = blockState.get(HorizontalFacingBlock.FACING).asRotation();
 
         if (MinecraftClient.getInstance().world == null)
@@ -49,50 +50,82 @@ public class ArtronCollectorRenderer<T extends ArtronCollectorBlockEntity> imple
 
         matrices.push();
 
-        matrices.translate(0.5f, 1.5f, 0.5f);
-
+        matrices.translate(0.5D, 0, 0.5D);
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180F));
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(f));
 
-        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180));
+        ModelPart batteryLevels = this.model.getPart().getChild("main").getChild("Meter");
 
-        ModelPart batteryLevels = artronCollectorModel.getPart().getChild("Meter");
+        if (batteryLevels != null) {
+            batteryLevels.getChild("Light_1").visible = entity.getCurrentFuel() > 500;
+            batteryLevels.getChild("Light_2").visible = entity.getCurrentFuel() > 1000;
+            batteryLevels.getChild("Light_3").visible = entity.getCurrentFuel() > 1250;
+            batteryLevels.getChild("Light_4").visible = entity.getCurrentFuel() >= 1500;
+        }
 
-        batteryLevels.getChild("Light_1").visible = entity.getCurrentFuel() > 500;
-        batteryLevels.getChild("Light_2").visible = entity.getCurrentFuel() > 1000;
-        batteryLevels.getChild("Light_3").visible = entity.getCurrentFuel() > 1250;
-        batteryLevels.getChild("Light_4").visible = entity.getCurrentFuel() >= 1500;
-
-        this.artronCollectorModel.render(matrices,
-                vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(COLLECTOR_TEXTURE)), light, overlay, 1.0F,
-                1.0F, 1.0F, 1.0F);
+        this.model.render(
+                matrices,
+                vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(this.getTexture(entity))),
+                light,
+                overlay,
+                1.0f, 1.0f, 1.0f, 1.0f
+        );
 
         if (entity.getCurrentFuel() > 0) {
-            // Interpolated animated emissive: cross-fade between the current and next stacked frame.
-            long worldTime = MinecraftClient.getInstance().world.getTime();
+            long worldTime = entity.getWorld().getTime();
             float t = (worldTime + tickDelta) / TICKS_PER_FRAME;
             int frame = Math.floorMod((int) Math.floor(t), FRAME_COUNT);
             int nextFrame = (frame + 1) % FRAME_COUNT;
             float fraction = t - (float) Math.floor(t);
 
-            VertexConsumer emissive = vertexConsumers
-                    .getBuffer(RenderLayer.getEyes(ANIMATED_COLLECTOR_TEXTURE));
+            Identifier animatedTexture = getAnimatedTexture(entity);
+            if (animatedTexture == null) {
+                animatedTexture = this.getTexture(entity);
+            }
 
-            this.artronCollectorModel.render(matrices, new FrameOffsetVertexConsumer(emissive, nextFrame, FRAME_COUNT),
-                    0xF000F0, overlay, 1.0F, 1.0F, 1.0F, fraction);
+            VertexConsumer emissive = vertexConsumers.getBuffer(RenderLayer.getEyes(animatedTexture));
+
+            this.model.render(
+                    matrices,
+                    new FrameOffsetVertexConsumer(emissive, nextFrame, FRAME_COUNT),
+                    0xF000F0,
+                    overlay,
+                    1.0F, 1.0F, 1.0F,
+                    fraction
+            );
         } else {
-            this.artronCollectorModel.render(matrices,
-                    vertexConsumers.getBuffer(RenderLayer.getEntityTranslucentEmissive(EMISSIVE_COLLECTOR_TEXTURE)),
-                    0xF000F0, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+            Identifier emission = entity.getEmissionTexture();
+            if (emission != null) {
+                this.model.render(
+                        matrices,
+                        vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCullZOffset(emission)),
+                        LightmapTextureManager.MAX_LIGHT_COORDINATE,
+                        overlay,
+                        1.0f, 1.0f, 1.0f, 1.0f
+                );
+            }
         }
 
         matrices.pop();
     }
 
-    /**
-     * Wraps a {@link VertexConsumer} to sample a single frame from a vertically-stacked sprite sheet.
-     * The model UVs are baked against one 128x128 frame; this remaps each V coordinate into the
-     * selected frame's band of the taller texture: {@code v -> (v + frame) / frameCount}.
-     */
+    public Identifier getTexture(T entity) {
+        return entity.getTexture();
+    }
+
+    protected BedrockEntityModel<?> refreshModel(T entity) {
+        BedrockModelReference ref = entity.getModel();
+        if (ref == null) {
+            throw new IllegalStateException("BlockEntity " + entity + " does not have a BedrockModelReference");
+        }
+        return this.model = new BedrockEntityModel<>(ref.get().orElseThrow(() ->
+                new IllegalStateException("BedrockModel " + ref.id() + " not found for block entity " + entity)));
+    }
+
+    protected Identifier getAnimatedTexture(T entity) {
+        return getTexture(entity).withPath(s -> s.replace(".png", "_anim.png"));
+    }
+
     private record FrameOffsetVertexConsumer(VertexConsumer delegate, int frame, int frameCount)
             implements VertexConsumer {
 
