@@ -4,16 +4,16 @@ import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
 import java.util.Collection;
+import java.util.List;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import io.netty.buffer.Unpooled;
 
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -40,7 +40,7 @@ public class ProfileClientCommand {
     }
 
     private static int profileSelf(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        return profile(context, java.util.List.of(context.getSource().getPlayerOrThrow()));
+        return profile(context, List.of(context.getSource().getPlayerOrThrow()));
     }
 
     private static int profileTargets(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
@@ -50,7 +50,7 @@ public class ProfileClientCommand {
     private static int profile(CommandContext<ServerCommandSource> context,
             Collection<ServerPlayerEntity> targets) {
         for (ServerPlayerEntity player : targets) {
-            ServerPlayNetworking.send(player, AITMod.PROFILE_CLIENT, new PacketByteBuf(Unpooled.buffer()));
+            ServerPlayNetworking.send(player, AITMod.PROFILE_CLIENT, PacketByteBufs.create());
         }
 
         int count = targets.size();

@@ -4,20 +4,27 @@ import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.command.argument.BlockPosArgumentType;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -77,21 +84,21 @@ public class PerfScenarioCommand {
                         .then(literal("exterior").executes(context -> teleport(context, false)))
                         .then(literal("console")
                                 .executes(context -> teleportToConsole(context, 35f))
-                                .then(argument("pitch", com.mojang.brigadier.arguments.FloatArgumentType.floatArg(-90f, 90f))
+                                .then(argument("pitch", FloatArgumentType.floatArg(-90f, 90f))
                                         .executes(context -> teleportToConsole(context,
-                                                com.mojang.brigadier.arguments.FloatArgumentType.getFloat(context, "pitch")))))));
+                                                FloatArgumentType.getFloat(context, "pitch")))))));
 
         dispatcher.register(literal(AITMod.MOD_ID)
                 .then(literal("perf-flight")
                         .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.perf", 2))
-                        .then(argument("on", com.mojang.brigadier.arguments.BoolArgumentType.bool())
+                        .then(argument("on", BoolArgumentType.bool())
                                 .executes(PerfScenarioCommand::flight))));
 
         dispatcher.register(literal(AITMod.MOD_ID)
                 .then(literal("perf-state")
                         .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.perf", 2))
                         .then(argument("what", StringArgumentType.word())
-                                .then(argument("on", com.mojang.brigadier.arguments.BoolArgumentType.bool())
+                                .then(argument("on", BoolArgumentType.bool())
                                         .executes(PerfScenarioCommand::state)))));
 
         dispatcher.register(literal(AITMod.MOD_ID)
@@ -109,9 +116,10 @@ public class PerfScenarioCommand {
         dispatcher.register(literal(AITMod.MOD_ID)
                 .then(literal("perf-flag")
                         .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.perf", 2))
-                        .then(argument("name", StringArgumentType.word())
-                                .then(argument("on", com.mojang.brigadier.arguments.BoolArgumentType.bool())
-                                        .executes(PerfScenarioCommand::perfFlag)))));
+                        .then(argument("players", EntityArgumentType.players())
+                                .then(argument("name", StringArgumentType.word())
+                                        .then(argument("on", BoolArgumentType.bool())
+                                                .executes(PerfScenarioCommand::perfFlag))))));
 
         dispatcher.register(literal(AITMod.MOD_ID)
                 .then(literal("perf-verify")
@@ -227,7 +235,7 @@ public class PerfScenarioCommand {
      */
     private static int state(CommandContext<ServerCommandSource> context) {
         String what = StringArgumentType.getString(context, "what");
-        boolean on = com.mojang.brigadier.arguments.BoolArgumentType.getBool(context, "on");
+        boolean on = BoolArgumentType.getBool(context, "on");
 
         List<ServerTardis> all = new ArrayList<>();
         ServerTardisManager.getInstance().forEach(all::add);
@@ -350,7 +358,7 @@ public class PerfScenarioCommand {
      * a flight, so the vortex scenario was measuring a landed TARDIS.
      */
     private static int flight(CommandContext<ServerCommandSource> context) {
-        boolean on = com.mojang.brigadier.arguments.BoolArgumentType.getBool(context, "on");
+        boolean on = BoolArgumentType.getBool(context, "on");
         List<ServerTardis> all = new ArrayList<>();
         ServerTardisManager.getInstance().forEach(all::add);
 
@@ -417,26 +425,25 @@ public class PerfScenarioCommand {
     /**
      * Flips a client render switch without restarting, so the halves of a comparison can be
      * interleaved rather than measured minutes apart.
+     *
+     * <p>Explicitly targeted rather than broadcast. A flag is a measurement instrument, and sending it
+     * to every player on the server silently changes what everyone else's client is drawing.
      */
-    private static int perfFlag(CommandContext<ServerCommandSource> context) {
+    private static int perfFlag(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        Collection<ServerPlayerEntity> targets = EntityArgumentType.getPlayers(context, "players");
         String name = StringArgumentType.getString(context, "name");
-        boolean on = com.mojang.brigadier.arguments.BoolArgumentType.getBool(context, "on");
+        boolean on = BoolArgumentType.getBool(context, "on");
 
-        PacketByteBuf buf = new PacketByteBuf(io.netty.buffer.Unpooled.buffer());
-        buf.writeString(name);
-        buf.writeBoolean(on);
-
-        int sent = 0;
-
-        for (ServerPlayerEntity player : context.getSource().getServer().getPlayerManager().getPlayerList()) {
-            net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player, AITMod.PERF_FLAG,
-                    new PacketByteBuf(buf.copy()));
-            sent++;
+        for (ServerPlayerEntity player : targets) {
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeString(name);
+            buf.writeBoolean(on);
+            ServerPlayNetworking.send(player, AITMod.PERF_FLAG, buf);
         }
 
-        int finalSent = sent;
+        int sent = targets.size();
         context.getSource().sendFeedback(
-                () -> Text.literal("PERF-FLAG " + name + "=" + on + " sent to " + finalSent + " client(s)."), false);
+                () -> Text.literal("PERF-FLAG " + name + "=" + on + " sent to " + sent + " client(s)."), false);
 
         return Command.SINGLE_SUCCESS;
     }
