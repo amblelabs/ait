@@ -12,7 +12,6 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 
-import dev.amble.ait.client.util.ClientPerfFlags;
 import dev.amble.ait.client.util.ClientProfiling;
 
 @Environment(EnvType.CLIENT)
@@ -31,11 +30,26 @@ public class AITRenderLayers extends RenderLayer {
                 .depthTest(RenderPhase.LEQUAL_DEPTH_TEST)
                 .build(false);
 
-        // The last flag is what makes RenderLayer.draw sort every quad on the CPU, which for a large
-        // console is thousands of primitive centres and a full sort on each flush. It is separate from
-        // the blend mode, set above, so dropping it keeps the look and skips the sort. This layer never
-        // writes depth (COLOR_MASK), so the ordering only matters where glow overlaps glow.
-        return RenderLayer.of("emissive_cull_z_offset" + (sorted ? "" : "_unsorted"),
+        // The last flag is what makes RenderLayer.draw hand the buffer a sorter, and that is more than
+        // a sort: BufferBuilder.setSorter also builds a Vector3f per quad for the primitive centres,
+        // and build() then writes an explicit index buffer instead of reusing the shared sequential
+        // one. Copper's emission pass is around 6800 quads, so per flush that is 6800 allocations, a
+        // 6800-element sort and about 41000 index writes.
+        //
+        // It is separate from the blend mode set above. The layer never writes depth (COLOR_MASK), so
+        // ordering can only matter where emissive geometry overlaps emissive geometry inside one batch.
+        //
+        // Mostly the textures make that moot: 106 of the mod's 113 emission textures are strictly
+        // binary alpha, where SRC_ALPHA blending is order-independent. Seven are not, and one is not
+        // marginal: hourglass_default_emission.png carries 1372 partial texels including a flat run of
+        // 768 at alpha 100, which is deliberate semi-transparent glow. Crystalline (64 texels),
+        // steam_copper (24), steam_playpal (2) and bookshelf_default (34) are the rest. On those, a
+        // glow-over-glow overlap composites in submission order here where it used to composite in
+        // depth order.
+        //
+        // Vertex alpha is a separate exposure and is not covered by the texture argument at all, which
+        // is what the sorted layer below is for.
+        return RenderLayer.of(sorted ? "emissive_cull_z_offset_sorted" : "emissive_cull_z_offset_unsorted",
                 VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, VertexFormat.DrawMode.QUADS, 256,
                 false, sorted, multiPhaseParameters);
     }
@@ -46,10 +60,50 @@ public class AITRenderLayers extends RenderLayer {
     private static final BiFunction<Identifier, Boolean, RenderLayer> EMISSIVE_UNSORTED = Util
             .memoize((texture, affectsOutline) -> emissive(texture, false));
 
+    /**
+     * The emissive layer for geometry drawn at full vertex alpha, which is every caller but two.
+     *
+     * <p>Unsorted. At alpha 1 the blend leaves nothing for the ordering to change except where opaque
+     * glow overlaps opaque glow, and the sort is the single most expensive thing the console's
+     * emission pass does. Measured on Copper, interior, landed, interleaved arms inside one client
+     * session: the {@code monitor} zone went from 1.371-1.404 ms to 0.743-0.830 ms, disjoint ranges,
+     * while the two emission zones, which are negative controls this cannot affect, moved by under
+     * 0.06 ms. Frame time moved too but its per-rep ranges overlap at n=3, so it is not claimed.
+     *
+     * <p>The cost lands in {@code monitor} only when monitor text is enabled and the variant overrides
+     * {@code renderMonitorText}: that call is what next asks {@code Immediate} for a buffer, and the
+     * flush of this layer is billed to whichever zone is open at the time. With the text off it moves
+     * to {@code sonic_port} or later. It is the same work either way.
+     */
     public static RenderLayer tardisEmissiveCullZOffset(Identifier texture, boolean affectsOutline) {
-        return ClientPerfFlags.get("sortEmissive", true)
-                ? EMISSIVE_SORTED.apply(texture, affectsOutline)
-                : EMISSIVE_UNSORTED.apply(texture, affectsOutline);
+        return EMISSIVE_UNSORTED.apply(texture, affectsOutline);
+    }
+
+    /**
+     * The emissive layer for geometry drawn at partial vertex alpha, where draw order is visible.
+     *
+     * <p>Two callers. {@code TardisStar} draws two nested star models into one batch, the outer at
+     * alpha 0.5 and the inner at alpha 1, with culling disabled so both faces of both shells are
+     * submitted; unsorted, the opaque core would land last and paint over the shell that is supposed
+     * to veil it. {@code ExteriorRenderer} draws the emission at the demat and remat fade alpha, which
+     * sweeps continuously through the partial range on every takeoff and landing.
+     *
+     * <p>The star is 24 quads, so sorting it costs nothing worth measuring. The exterior is around 342,
+     * and it pays the sort on every landed TARDIS even though only demat and remat need it. That is
+     * deliberate: picking per frame on the current alpha would hand out two different layer objects for
+     * one texture, and the moment one TARDIS is fading while another sits landed that alternates every
+     * frame, which costs more than the sort it saves.
+     *
+     * <p>Exterior emission identifiers already reach both layers, because {@code ExteriorRenderer} is
+     * here while {@code DoorRenderer}, {@code FlightTardisRenderer}, {@code FallingTardisRenderer},
+     * {@code SnowGlobeRenderer} and the BOTI paths draw the same textures unsorted. {@code Immediate}
+     * keys buffers on layer identity, so that costs one extra flush when both appear in a frame. It is
+     * accepted: no {@code AITRenderLayers} layer has a dedicated buffer in {@code BufferBuilderStorage},
+     * so every switch between them already flushes. Console emissions never collide, being a separate
+     * texture directory and registry.
+     */
+    public static RenderLayer tardisEmissiveCullZOffsetSorted(Identifier texture, boolean affectsOutline) {
+        return EMISSIVE_SORTED.apply(texture, affectsOutline);
     }
 
     private AITRenderLayers(String name, VertexFormat vertexFormat, VertexFormat.DrawMode drawMode,
