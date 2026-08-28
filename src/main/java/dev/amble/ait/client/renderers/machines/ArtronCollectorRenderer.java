@@ -39,9 +39,6 @@ public class ArtronCollectorRenderer<T extends ArtronCollectorBlockEntity> imple
         BlockState blockState = entity.getCachedState();
         float f = blockState.get(HorizontalFacingBlock.FACING).asRotation();
 
-        if (MinecraftClient.getInstance().world == null)
-            return;
-
         matrices.push();
 
         matrices.translate(0.5D, 0, 0.5D);
@@ -59,52 +56,43 @@ public class ArtronCollectorRenderer<T extends ArtronCollectorBlockEntity> imple
 
         this.model.render(
                 matrices,
-                vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(this.getTexture(entity))),
+                vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(entity.getTexture())),
                 light,
                 overlay,
                 1.0f, 1.0f, 1.0f, 1.0f
         );
 
-        if (entity.getCurrentFuel() > 0) {
-            long worldTime = entity.getWorld().getTime();
-            float t = (worldTime + tickDelta) / TICKS_PER_FRAME;
-            int frame = Math.floorMod((int) Math.floor(t), FRAME_COUNT);
-            int nextFrame = (frame + 1) % FRAME_COUNT;
-            float fraction = t - (float) Math.floor(t);
+        long worldTime = entity.getWorld().getTime();
+        float t = (worldTime + tickDelta) / TICKS_PER_FRAME;
+        int frame = Math.floorMod((int) Math.floor(t), FRAME_COUNT);
+        int nextFrame = (frame + 1) % FRAME_COUNT;
+        float fraction = t - (float) Math.floor(t);
 
-            Identifier animatedTexture = getAnimatedTexture(entity);
-            if (animatedTexture == null) {
-                animatedTexture = this.getTexture(entity);
-            }
+        Identifier animatedTexture = getAnimatedTexture(entity);
+        if (animatedTexture == null) {
+            animatedTexture = entity.getTexture();
+        }
 
-            VertexConsumer emissive = vertexConsumers.getBuffer(RenderLayer.getEyes(animatedTexture));
+        VertexConsumer emissive = vertexConsumers.getBuffer(RenderLayer.getEyes(animatedTexture));
 
+        Identifier emission = entity.getEmissionTexture();
+
+        boolean bl = entity.getCurrentFuel() > 0;
+
+        VertexConsumer lastConsumer = bl ? new FrameOffsetVertexConsumer(emissive, nextFrame, FRAME_COUNT) :
+                vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCullZOffset(emission));
+
+        if (emission != null) {
             this.model.render(
                     matrices,
-                    new FrameOffsetVertexConsumer(emissive, nextFrame, FRAME_COUNT),
-                    0xF000F0,
+                    lastConsumer,
+                    LightmapTextureManager.MAX_LIGHT_COORDINATE,
                     overlay,
-                    1.0F, 1.0F, 1.0F,
-                    fraction
+                    1.0f, 1.0f, 1.0f, bl ? fraction : 1.0f
             );
-        } else {
-            Identifier emission = entity.getEmissionTexture();
-            if (emission != null) {
-                this.model.render(
-                        matrices,
-                        vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCullZOffset(emission)),
-                        LightmapTextureManager.MAX_LIGHT_COORDINATE,
-                        overlay,
-                        1.0f, 1.0f, 1.0f, 1.0f
-                );
-            }
         }
 
         matrices.pop();
-    }
-
-    public Identifier getTexture(T entity) {
-        return entity.getTexture();
     }
 
     protected BedrockEntityModel<?> refreshModel(T entity) {
@@ -117,7 +105,7 @@ public class ArtronCollectorRenderer<T extends ArtronCollectorBlockEntity> imple
     }
 
     protected Identifier getAnimatedTexture(T entity) {
-        return getTexture(entity).withPath(s -> s.replace(".png", "_anim.png"));
+        return entity.getTexture().withPath(s -> s.replace(".png", "_anim.png"));
     }
 
     private record FrameOffsetVertexConsumer(VertexConsumer delegate, int frame, int frameCount)
