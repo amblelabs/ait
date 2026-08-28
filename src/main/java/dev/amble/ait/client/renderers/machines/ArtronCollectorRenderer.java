@@ -66,16 +66,14 @@ public class ArtronCollectorRenderer<T extends ArtronCollectorBlockEntity> imple
         Identifier emission = entity.getEmissionTexture();
 
         Identifier animatedTexture = getAnimatedTexture(entity);
-        if (animatedTexture == null) {
-            animatedTexture = entity.getTexture();
-        }
 
         VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCullZOffset(emission));
-        VertexConsumer emissive = vertexConsumers.getBuffer(RenderLayer.getEyes(animatedTexture));
 
         float alpha = 1f;
 
         if (entity.getCurrentFuel() > 0) {
+            VertexConsumer emissive = vertexConsumers.getBuffer(RenderLayer.getEyes(animatedTexture));
+
             long worldTime = entity.getWorld().getTime();
             float t = (worldTime + tickDelta) / TICKS_PER_FRAME;
             int frame = Math.floorMod((int) Math.floor(t), FRAME_COUNT);
@@ -85,15 +83,13 @@ public class ArtronCollectorRenderer<T extends ArtronCollectorBlockEntity> imple
             consumer = new FrameOffsetVertexConsumer(emissive, nextFrame, FRAME_COUNT);
         }
 
-        if (emission != null) {
-            this.model.render(
-                    matrices,
-                    consumer,
-                    LightmapTextureManager.MAX_LIGHT_COORDINATE,
-                    overlay,
-                    1.0f, 1.0f, 1.0f, alpha
-            );
-        }
+        this.model.render(
+                matrices,
+                consumer,
+                LightmapTextureManager.MAX_LIGHT_COORDINATE,
+                overlay,
+                1.0f, 1.0f, 1.0f, alpha
+        );
 
         matrices.pop();
     }
