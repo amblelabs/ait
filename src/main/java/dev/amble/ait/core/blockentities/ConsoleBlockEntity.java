@@ -148,7 +148,9 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
 
     @Override
     protected Text getContainerName() {
-        return Text.translatable(tardis().isPresent() ? tardis().get().stats().getName() : "ait.console.inventory");
+        return tardis().isPresent()
+                ? Text.literal(tardis().get().stats().getName())
+                : Text.translatable("ait.console.inventory");
     }
 
     @Override

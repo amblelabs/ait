@@ -32,7 +32,7 @@ public class ScaleCommand {
     private static int runCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
         if (tardis == null) {
-            context.getSource().sendError(Text.of("Tardis not found."));
+            context.getSource().sendError(Text.translatable("command.ait.scale.not_found"));
             return 0;
         }
         double x = DoubleArgumentType.getDouble(context, "x");

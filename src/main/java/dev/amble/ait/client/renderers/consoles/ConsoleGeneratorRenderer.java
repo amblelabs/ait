@@ -112,8 +112,10 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
 
         if (/*powered && */!tardis.isUnlocked(entity.getConsoleVariant())) {
             Text text = Text.literal("\uD83D\uDD12");
-            Text requirement = Text.literal("Requires Loyalty Level: " + (entity.getConsoleVariant().requirement().isPresent() ?
-                    entity.getConsoleVariant().requirement().get().type() : "None"));
+            Text requirementLevel = entity.getConsoleVariant().requirement().isPresent()
+                    ? entity.getConsoleVariant().requirement().get().type().text()
+                    : Text.translatable("console.ait.generator.requirement.none");
+            Text requirement = Text.translatable("console.ait.generator.requires_loyalty", requirementLevel);
             float h = (float) (-textRenderer.getWidth(text) / 2);
             float p = (float) (-textRenderer.getWidth(requirement) / 2);
 
