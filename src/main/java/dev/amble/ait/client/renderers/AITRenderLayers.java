@@ -1,5 +1,6 @@
 package dev.amble.ait.client.renderers;
 
+import java.util.Set;
 import java.util.function.BiFunction;
 
 import net.fabricmc.api.EnvType;
@@ -54,6 +55,20 @@ public class AITRenderLayers extends RenderLayer {
                 false, sorted, multiPhaseParameters);
     }
 
+    /**
+     * Emission textures whose partial alpha is large enough that draw order is visible, so they get the
+     * sorted layer whoever asks for them. Sortedness is a property of the texture here, not of the call
+     * site, which keeps one texture mapped to one layer object.
+     *
+     * <p>Only hourglass qualifies. Its 1372 partial texels include a flat run of 768 at alpha 100,
+     * which is deliberate semi-transparent glow rather than an edge ramp. The other six partial-alpha
+     * emission textures are accepted unsorted: crystalline and its two recolours have 64 texels each at
+     * alpha 199, bookshelf_default 34, steam_copper 24 at alpha 4, steam_playpal 2. Crystalline was
+     * checked against a sorted arm in game and showed nothing above its own animation noise.
+     */
+    private static final Set<Identifier> SORT_SENSITIVE_EMISSION = Set.of(
+            new Identifier("ait", "textures/blockentities/consoles/hourglass_default_emission.png"));
+
     private static final BiFunction<Identifier, Boolean, RenderLayer> EMISSIVE_SORTED = Util
             .memoize((texture, affectsOutline) -> emissive(texture, true));
 
@@ -62,6 +77,8 @@ public class AITRenderLayers extends RenderLayer {
 
     /**
      * The emissive layer for geometry drawn at full vertex alpha, which is every caller but two.
+     *
+     * <p>Returns the sorted layer anyway for the textures in {@link #SORT_SENSITIVE_EMISSION}.
      *
      * <p>Unsorted. At alpha 1 the blend leaves nothing for the ordering to change except where opaque
      * glow overlaps opaque glow, and the sort is the single most expensive thing the console's
@@ -76,7 +93,9 @@ public class AITRenderLayers extends RenderLayer {
      * to {@code sonic_port} or later. It is the same work either way.
      */
     public static RenderLayer tardisEmissiveCullZOffset(Identifier texture, boolean affectsOutline) {
-        return EMISSIVE_UNSORTED.apply(texture, affectsOutline);
+        return SORT_SENSITIVE_EMISSION.contains(texture)
+                ? EMISSIVE_SORTED.apply(texture, affectsOutline)
+                : EMISSIVE_UNSORTED.apply(texture, affectsOutline);
     }
 
     /**
