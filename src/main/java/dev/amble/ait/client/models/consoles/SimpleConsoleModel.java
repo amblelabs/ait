@@ -197,14 +197,21 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
      * <p>Shared because the rate is only meaningful against how often the state runs, and that is a
      * property of the renderer rather than of any one model.
      *
-     * <p>Deliberately left at the value this branch already used. The state now runs once a frame where
-     * on the previous release it ran four times, so controls approach their targets more slowly than
-     * they used to. Compensating is not a single constant: the emission pass is skipped entirely when
-     * the console is unpowered ({@code ConsoleRenderer.renderEmissions} returns early), so an unpowered
-     * console already ran its state once a frame and is unchanged, while a powered one has gone from
-     * twice to once. A global multiplier would leave unpowered controls moving faster than they ever
-     * have. Matching the old powered feel alone would want about 0.35f here, since repeated lerp
-     * compounds as 1-(1-d)^n rather than n*d.
+     * <p>Deliberately left at the value this branch already used, because there is no single constant
+     * that restores the old feel. The number of state runs a frame is not uniform across controls:
+     *
+     * <ul>
+     * <li>most controls on a powered console: four on the last release, two on this branch, now one</li>
+     * <li>copper's two shield keys: two, then one, now one. Unchanged. Their lerp target is the part's
+     * own live pivot, so a second run in the same frame read back what the first had written and
+     * {@code lerp(d, c, c)} is a no-op</li>
+     * <li>every control on an unpowered console: two, then one, now one. Unchanged, because
+     * {@code ConsoleRenderer.renderEmissions} returns before the emission pass when unpowered</li>
+     * </ul>
+     *
+     * <p>So scaling this up to match the first row would leave the other two moving about twice as fast
+     * as they ever have, trading a disclosed slowdown for an undisclosed speed-up. Matching the first
+     * row alone would want roughly 0.35f, since repeated lerp compounds as 1-(1-d)^n rather than n*d.
      */
     protected float controlDelta() {
         return !AITModClient.CONFIG.animateControls ? 1.0f : 0.1f * client.getTickDelta();
