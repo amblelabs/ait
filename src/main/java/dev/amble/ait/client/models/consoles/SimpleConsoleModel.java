@@ -1,6 +1,8 @@
 package dev.amble.ait.client.models.consoles;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.function.Function;
 
@@ -19,6 +21,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
@@ -72,11 +75,13 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
     public void animateBlockEntity(ConsoleBlockEntity console, TravelHandlerBase.State state, boolean hasPower) {
         // Split so the traversal and the keyframe work can be told apart. The traversal is the
         // suspect: ModelPart.traverse builds a Stream per node, and a console is a few hundred nodes.
-        ClientProfiling.push("ait:console_reset");
+        Profiler profiler = client.getProfiler();
+
+        profiler.push("ait:console_reset");
         ClientProfiling.count("ait_console_reset_parts", this.countParts());
         this.getPart().traverse().forEach(ModelPart::resetTransform);
 
-        ClientProfiling.swap("ait:console_keyframes");
+        profiler.swap("ait:console_keyframes");
 
         if (hasPower && AITModClient.CONFIG.animateConsole) {
             ClientProfiling.count("ait_console_animated");
@@ -85,7 +90,62 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
             ClientProfiling.count("ait_console_not_animated");
         }
 
-        ClientProfiling.pop();
+        profiler.pop();
+    }
+
+    /**
+     * Name to part, including the names that resolve to nothing.
+     *
+     * <p>{@link SinglePartEntityModel#getChild} resolves a bone by walking the whole model with
+     * {@code ModelPart.traverse()}, which builds a Stream per node, and the keyframe animation
+     * helper asks once per animated bone per frame. A console is a few hundred parts and a couple of
+     * dozen animated bones, so a single console spends milliseconds a frame re-answering the same
+     * question.
+     *
+     * <p>Misses are cached too. A bone named in an animation but absent from the model can never
+     * short-circuit the search, so it is the most expensive lookup there is, and two consoles in
+     * this mod have one: {@code CopperAnimations} animates {@code top} and {@code
+     * RenaissanceAnimation} animates {@code undefined}.
+     *
+     * <p>A plain {@link HashMap}: this is only ever read from the render thread.
+     */
+    private Map<String, Optional<ModelPart>> boneCache;
+
+    /** The root the cache was built against, so a model that swaps its root rebuilds. */
+    private ModelPart cachedRoot;
+
+    @Override
+    public Optional<ModelPart> getChild(String name) {
+        ModelPart root = this.getPart();
+
+        if (root == null)
+            return super.getChild(name);
+
+        ClientProfiling.count("ait_bone_lookup");
+
+        if (this.boneCache == null || this.cachedRoot != root) {
+            this.boneCache = new HashMap<>();
+            this.cachedRoot = root;
+            ClientProfiling.count("ait_bone_map_built");
+        }
+
+        Optional<ModelPart> cached = this.boneCache.get(name);
+
+        if (cached != null) {
+            ClientProfiling.count("ait_bone_cache_hit");
+            return cached;
+        }
+
+        // First ask for this name on this root. Resolved the way vanilla does, so a duplicated part
+        // name still returns the first match in traversal order, then remembered.
+        ClientProfiling.count("ait_bone_traversal");
+
+        Optional<ModelPart> resolved = "root".equals(name)
+                ? Optional.of(root)
+                : root.traverse().filter(part -> part.hasChild(name)).findFirst().map(part -> part.getChild(name));
+
+        this.boneCache.put(name, resolved);
+        return resolved;
     }
 
     private int partCount = -1;

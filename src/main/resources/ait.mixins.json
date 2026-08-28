@@ -52,7 +52,6 @@
     "client.rendering.HeadFeatureRendererMixin",
     "client.rendering.HeldItemRendererMixin",
     "client.rendering.PlayerEntityRendererMixin",
-    "client.rendering.SinglePartEntityModelMixin",
     "client.rendering.SkyboxMixin",
     "client.rendering.VertexBufferWrapper",
     "client.rendering.framebuffer.MixinMainFramebufferTarget",
