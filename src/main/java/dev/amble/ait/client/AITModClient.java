@@ -39,6 +39,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.RotationPropertyHelper;
@@ -553,7 +554,8 @@ public class AITModClient implements ClientModInitializer {
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
 
-        ClientProfiling.push("ait:boti_exterior");
+        Profiler profiler = context.world().getProfiler();
+        profiler.push("ait:boti_exterior");
 
         for (ExteriorBlockEntity exterior : BOTI.EXTERIOR_RENDER_QUEUE) {
             if (exterior == null || !exterior.isLinked()) continue;
@@ -581,7 +583,7 @@ public class AITModClient implements ClientModInitializer {
             stack.pop();
         }
 
-        ClientProfiling.pop();
+        profiler.pop();
 
         BOTI.EXTERIOR_RENDER_QUEUE.clear();
     }
@@ -613,7 +615,8 @@ public class AITModClient implements ClientModInitializer {
         ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
         AnimatedModel model = variant.getDoor().model();
 
-        ClientProfiling.push("ait:boti_door");
+        Profiler profiler = context.world().getProfiler();
+        profiler.push("ait:boti_door");
 
         for (DoorBlockEntity door : BOTI.DOOR_RENDER_QUEUE) {
             if (door == null) continue;
@@ -639,7 +642,7 @@ public class AITModClient implements ClientModInitializer {
             stack.pop();
         }
 
-        ClientProfiling.pop();
+        profiler.pop();
 
         BOTI.DOOR_RENDER_QUEUE.clear();
     }
@@ -653,7 +656,8 @@ public class AITModClient implements ClientModInitializer {
             return;
         }
 
-        ClientProfiling.push("ait:boti_gallifreyan");
+        Profiler profiler = context.world().getProfiler();
+        profiler.push("ait:boti_gallifreyan");
 
         // Built before the queue is known to be non-empty, so this runs every frame even with no
         // paintings in sight. Counted separately from the per-painting builds to make that visible.
@@ -663,7 +667,7 @@ public class AITModClient implements ClientModInitializer {
         Identifier frameTex = GallifreyanPaintingEntityRenderer.GALLIFREY_FRAME_TEXTURE;
         Identifier contentsTex = GallifreyanPaintingEntityRenderer.GALLIFREY_PAINTING_TEXTURE;
         if (client.player == null || client.world == null) {
-            ClientProfiling.pop();
+            profiler.pop();
             return;
         }
         ClientWorld world = client.world;
@@ -686,7 +690,7 @@ public class AITModClient implements ClientModInitializer {
             stack.pop();
         }
 
-        ClientProfiling.pop();
+        profiler.pop();
 
         BOTI.GALLIFREYAN_RENDER_QUEUE.clear();
     }
@@ -700,7 +704,8 @@ public class AITModClient implements ClientModInitializer {
             return;
         }
 
-        ClientProfiling.push("ait:boti_trenzalore");
+        Profiler profiler = context.world().getProfiler();
+        profiler.push("ait:boti_trenzalore");
 
         ClientProfiling.count("ait_model_build");
         ClientProfiling.count("ait_model_build_eager");
@@ -708,7 +713,7 @@ public class AITModClient implements ClientModInitializer {
         Identifier frameTex = TrenzalorePaintingEntityRenderer.TRENZALORE_FRAME_TEXTURE;
         Identifier contentsTex = TrenzalorePaintingEntityRenderer.TRENZALORE_PAINTING_TEXTURE;
         if (client.player == null || client.world == null) {
-            ClientProfiling.pop();
+            profiler.pop();
             return;
         }
         ClientWorld world = client.world;
@@ -731,7 +736,7 @@ public class AITModClient implements ClientModInitializer {
             stack.pop();
         }
 
-        ClientProfiling.pop();
+        profiler.pop();
 
         BOTI.TRENZALORE_PAINTING_QUEUE.clear();
     }
@@ -753,7 +758,8 @@ public class AITModClient implements ClientModInitializer {
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
 
-        ClientProfiling.push("ait:boti_rift");
+        Profiler profiler = context.world().getProfiler();
+        profiler.push("ait:boti_rift");
 
         for (RiftEntity rift : BOTI.RIFT_RENDERING_QUEUE) {
             if (rift == null) continue;
@@ -771,7 +777,7 @@ public class AITModClient implements ClientModInitializer {
             stack.pop();
         }
 
-        ClientProfiling.pop();
+        profiler.pop();
 
         BOTI.RIFT_RENDERING_QUEUE.clear();
     }

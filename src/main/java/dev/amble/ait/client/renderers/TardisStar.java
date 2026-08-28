@@ -11,6 +11,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.decoration.TardisStarModel;
@@ -43,7 +44,8 @@ public class TardisStar {
         Vec3d cameraPos = camera.getPos();
         if (tardis.getDesktop() == null) return;
 
-        ClientProfiling.push("ait:tardis_star");
+        Profiler profiler = context.world().getProfiler();
+        profiler.push("ait:tardis_star");
         // Two full model builds every frame, unconditionally, whenever the player is in an interior.
         ClientProfiling.count("ait_model_build", 2);
 
@@ -73,7 +75,7 @@ public class TardisStar {
                 LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, 1, tardis.isGrowth() ? 0.2f : 1,
                 tardis.isGrowth() ? 0f : 1, 1f);
 
-        ClientProfiling.pop();
+        profiler.pop();
     }
 
     public static void renderShine(WorldRenderContext context, Tardis tardis) {
@@ -82,7 +84,8 @@ public class TardisStar {
         if (tardis.isGrowth())
             return;
 
-        ClientProfiling.push("ait:tardis_star_shine");
+        Profiler profiler = context.world().getProfiler();
+        profiler.push("ait:tardis_star_shine");
 
         MatrixStack matrixStack = new MatrixStack();
         VertexConsumerProvider provider = context.consumers();
@@ -141,7 +144,7 @@ public class TardisStar {
         }
 
         ClientProfiling.count("ait_star_shine_vertices", 30 * 12);
-        ClientProfiling.pop();
+        profiler.pop();
     }
 
     public static void putDeathLightSourceVertex(Tardis tardis, VertexConsumer buffer, Matrix4f matrix, int alpha) {

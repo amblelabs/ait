@@ -23,8 +23,6 @@ public final class ClientPerfFlags {
 
     private static final Map<String, Boolean> FLAGS = new ConcurrentHashMap<>();
 
-    private ClientPerfFlags() {}
-
     public static boolean get(String name, boolean fallback) {
         return FLAGS.computeIfAbsent(name, key -> {
             String property = System.getProperty("ait." + key);

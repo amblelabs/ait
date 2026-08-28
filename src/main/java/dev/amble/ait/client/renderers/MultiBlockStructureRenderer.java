@@ -20,16 +20,11 @@ public class MultiBlockStructureRenderer {
 
     private final MinecraftClient client;
 
+    // The profiler is fetched per call rather than held, because the client swaps its profiler object
+    // out every frame and a held reference pins DummyProfiler forever, making every zone read zero.
+
     protected MultiBlockStructureRenderer(MinecraftClient client) {
         this.client = client;
-    }
-
-    /**
-     * The client swaps its profiler out every frame, so this has to be fetched per call. Holding the
-     * reference from the constructor pins {@code DummyProfiler} forever and every zone below reads zero.
-     */
-    private Profiler profiler() {
-        return this.client.getProfiler();
     }
 
     private MultiBlockStructureRenderer() {
@@ -37,7 +32,7 @@ public class MultiBlockStructureRenderer {
     }
 
     public void render(MultiBlockStructure structure, BlockPos centre, BlockRenderView view, MatrixStack matrices, VertexConsumerProvider provider, boolean holographic) {
-        Profiler profiler = this.profiler();
+        Profiler profiler = this.client.getProfiler();
         profiler.push("multi_block_structure");
         profiler.push("iterate_offsets");
         structure.forEach(offset -> renderOffset(offset, centre, view, matrices, provider, holographic));
@@ -46,7 +41,7 @@ public class MultiBlockStructureRenderer {
     }
 
     public void renderForInterior(MultiBlockStructure structure, BlockPos centre, BlockRenderView view, MatrixStack matrices, VertexConsumerProvider provider, boolean holographic) {
-        Profiler profiler = this.profiler();
+        Profiler profiler = this.client.getProfiler();
         profiler.push("multi_block_structure");
         profiler.push("iterate_offsets");
         structure.forEach(offset -> renderOffsetInterior(offset, centre, view, matrices, provider, holographic));

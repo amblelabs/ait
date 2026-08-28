@@ -17,6 +17,7 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.AITModClient;
@@ -46,7 +47,8 @@ public class TardisExteriorBOTI extends BOTI {
         // Split into framebuffer work and geometry work. A single zone around the whole portal cannot
         // tell "the blits are expensive" from "drawing the interior is expensive", which is the only
         // thing worth knowing here.
-        ClientProfiling.push("ait:boti_ext_fbo_setup");
+        Profiler profiler = exterior.getWorld().getProfiler();
+        profiler.push("ait:boti_ext_fbo_setup");
         ClientProfiling.count("ait_boti_ext_portals");
 
         client.getFramebuffer().endWrite();
@@ -62,7 +64,7 @@ public class TardisExteriorBOTI extends BOTI {
         BOTI.copyFramebuffer(client.getFramebuffer(), BOTI_HANDLER.afbo);
         ClientProfiling.count("ait_boti_blit");
 
-        ClientProfiling.swap("ait:boti_ext_mask");
+        profiler.swap("ait:boti_ext_mask");
 
         VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
@@ -105,7 +107,7 @@ public class TardisExteriorBOTI extends BOTI {
         ClientProfiling.count("ait_boti_draw_flush");
         stack.pop();
 
-        ClientProfiling.swap("ait:boti_ext_fbo_depth");
+        profiler.swap("ait:boti_ext_fbo_depth");
 
         copyDepth(BOTI_HANDLER.afbo, client.getFramebuffer());
         ClientProfiling.count("ait_boti_blit");
@@ -113,7 +115,7 @@ public class TardisExteriorBOTI extends BOTI {
         BOTI_HANDLER.afbo.beginWrite(false);
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 
-        ClientProfiling.swap("ait:boti_ext_doors");
+        profiler.swap("ait:boti_ext_doors");
 
         GL11.glStencilMask(0x00);
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
@@ -131,7 +133,7 @@ public class TardisExteriorBOTI extends BOTI {
         ClientProfiling.count("ait_boti_draw_flush");
         stack.pop();
 
-        ClientProfiling.swap("ait:boti_ext_biome");
+        profiler.swap("ait:boti_ext_biome");
 
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
@@ -153,7 +155,7 @@ public class TardisExteriorBOTI extends BOTI {
         ClientProfiling.count("ait_boti_draw_flush");
         stack.pop();
 
-        ClientProfiling.swap("ait:boti_ext_emission");
+        profiler.swap("ait:boti_ext_emission");
 
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
@@ -195,7 +197,7 @@ public class TardisExteriorBOTI extends BOTI {
         }
         stack.pop();
 
-        ClientProfiling.swap("ait:boti_ext_fbo_resolve");
+        profiler.swap("ait:boti_ext_fbo_resolve");
 
         client.getFramebuffer().beginWrite(true);
 
@@ -204,7 +206,7 @@ public class TardisExteriorBOTI extends BOTI {
 
         GL11.glDisable(GL11.GL_STENCIL_TEST);
 
-        ClientProfiling.pop();
+        profiler.pop();
 
         stack.pop();
     }
