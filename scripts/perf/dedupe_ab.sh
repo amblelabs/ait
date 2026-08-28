@@ -81,9 +81,9 @@ phase() {   # $1 = jvm opts, $2 = manifest
 }
 
 echo "=========== BEFORE (dedupe off)"
-phase "-Dait.dedupeDraws=false" scripts/perf/dedupe_before.tsv || exit 1
+phase "-Dait.dedupeDraws=false" ${MANIFEST_DIR:-run/debug/perf}/dedupe_before.tsv || exit 1
 
 echo "=========== AFTER (dedupe on)"
-phase "-Dait.dedupeDraws=true" scripts/perf/dedupe_after.tsv || exit 1
+phase "-Dait.dedupeDraws=true" ${MANIFEST_DIR:-run/debug/perf}/dedupe_after.tsv || exit 1
 
 echo "=========== DONE"

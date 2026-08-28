@@ -1,22 +1,28 @@
 #!/usr/bin/env bash
-# Interleaved A/B for copper's base layer. Alternates within one client session, so machine drift
-# lands on both arms equally instead of on whichever ran second.
+# Interleaved A/B for the emissive layer's CPU quad sort. Alternates within one client session, so
+# machine drift lands on both arms equally instead of on whichever ran second.
+#
+# What it decides: the emission zones sit either side of a layer switch, and Immediate.getBuffer
+# flushes the previous layer when the new one has no dedicated buffer, so the zone that opens a layer
+# is billed for closing the one before it. If monitor's cost is really the emissive sort being billed
+# to the next zone, sortEmissive=false moves it.
 set -u
 cd "$(dirname "$0")/../.." || exit 1
 HOST=127.0.0.1; PORT=25632; PASS=aitperf
-OUT=scripts/perf/emissive_interleaved.tsv
+OUT=${MANIFEST_DIR:-run/debug/perf}/emissive_interleaved.tsv
+mkdir -p "$(dirname "$OUT")"
 : > "$OUT"
 printf 'list\n' > /tmp/s_list.txt
 newest() { ls -t run/debug/profiling/*.zip 2>/dev/null | head -1; }
 
-run_one() {   # $1 = translucent true|false, $2 = rep
-  printf 'ait perf-flag sortEmissive %s\nait perf-console "console/copper"\nSLEEP 5\nait perf-tp console\nSLEEP 5\nait perf-verify\nait profile-client @a\nSLEEP 15\n' "$1" > /tmp/one.txt
+run_one() {   # $1 = sortEmissive true|false, $2 = rep
+  printf 'ait perf-flag @a sortEmissive %s\nait perf-console "console/copper"\nSLEEP 5\nait perf-tp console\nSLEEP 5\nait perf-verify\nait profile-client @a\nSLEEP 15\n' "$1" > /tmp/one.txt
   before=$(newest)
   python scripts/perf/rcon.py $HOST $PORT $PASS /tmp/one.txt > /tmp/li_out.log 2>&1
   after=$(newest); [ "$after" = "$before" ] && after=NO_DUMP
   flag=$(grep -o 'PERF-FLAG.*' /tmp/li_out.log | tail -1)
-  printf 'translucent=%s\trep%s\t%s\t%s\n' "$1" "$2" "$after" "${flag:-none}" >> "$OUT"
-  echo "  rep$2 translucent=$1  ${flag:-NO FLAG}"
+  printf 'sortEmissive=%s\trep%s\t%s\t%s\n' "$1" "$2" "$after" "${flag:-none}" >> "$OUT"
+  echo "  rep$2 sortEmissive=$1  ${flag:-NO FLAG}"
   sleep 2
 }
 

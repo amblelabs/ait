@@ -43,7 +43,7 @@ phase() {
 }
 
 echo "=========== copper on translucent layer (current)"
-phase "-Dait.copperTranslucent=true" scripts/perf/layer_translucent.tsv || exit 1
+phase "-Dait.copperTranslucent=true" ${MANIFEST_DIR:-run/debug/perf}/layer_translucent.tsv || exit 1
 echo "=========== copper on cutout layer"
-phase "-Dait.copperTranslucent=false" scripts/perf/layer_cutout.tsv || exit 1
+phase "-Dait.copperTranslucent=false" ${MANIFEST_DIR:-run/debug/perf}/layer_cutout.tsv || exit 1
 echo "=========== DONE"

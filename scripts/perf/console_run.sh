@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# Before/after for the bone lookup cache, toggling the mixin between the two halves.
+# Brings the harness up on a fresh world and runs the console scenarios, with every step verified
+# rather than assumed: that the old processes really died, that the build actually succeeded, and
+# that exactly one client joined.
 #
-# Both halves restart the server as well as the client. perf-console is a server command, and a
-# stale server silently answers "Incorrect argument for command", which looks identical to a bad
-# argument rather than a missing command.
+# The server is restarted too, not just the client. perf-console is a server command, and a stale
+# server silently answers "Incorrect argument for command", which looks identical to a bad argument
+# rather than a missing command.
 set -u
 cd "$(dirname "$0")/../.." || exit 1
 
@@ -94,28 +96,7 @@ require_perf_console() {
   return 1
 }
 
-set_mixin() {
-  python - "$1" <<'PY'
-import collections, json, sys
-
-mode = sys.argv[1]
-path = 'src/main/resources/ait.mixins.json'
-data = json.load(open(path, encoding='utf8'), object_pairs_hook=collections.OrderedDict)
-name = "client.rendering.SinglePartEntityModelMixin"
-
-if mode == "off" and name in data["client"]:
-    data["client"].remove(name)
-if mode == "on" and name not in data["client"]:
-    data["client"].append(name)
-    data["client"].sort()
-
-open(path, 'w', encoding='utf8', newline='\n').write(json.dumps(data, indent=2) + "\n")
-print("  bone cache mixin:", mode)
-PY
-}
-
-phase() {   # $1 = on|off, $2 = manifest
-  set_mixin "$1"
+run() {   # $1 = manifest
   kill_all || return 1
   fresh_world
   start_server || return 1
@@ -127,13 +108,9 @@ phase() {   # $1 = on|off, $2 = manifest
   # The interior scenarios need a TARDIS with a generated desktop before the console exists.
   printf 'ait perf-clear\nSLEEP 2\nait perf-spawn 1 8 0 100 12\nSLEEP 30\nait perf-doors open\nSLEEP 4\n' > /tmp/seed.txt
   python scripts/perf/rcon.py $HOST $PORT $PASS /tmp/seed.txt >/dev/null 2>&1
-  bash scripts/perf/run_console.sh "$2"
+  bash scripts/perf/run_console.sh "$1"
 }
 
-echo "=========== BEFORE (bone cache off)"
-phase off scripts/perf/console_before.tsv || exit 1
-
-echo "=========== AFTER (bone cache on)"
-phase on scripts/perf/console_after.tsv || exit 1
+run "${1:-${MANIFEST_DIR:-run/debug/perf}/console.tsv}" || exit 1
 
 echo "=========== DONE"

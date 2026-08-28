@@ -1,4 +1,0 @@
-c01_hartnell	run/debug/profiling/2026-08-27_11_39_08-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=1 landed=1 locked=0 siege=0 shields=0 alarm=0 | PERF-CONSOLE set console/hartnell on 1 console(s).
-c02_copper	run/debug/profiling/2026-08-27_11_39_38-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=1 landed=1 locked=0 siege=0 shields=0 alarm=0 | PERF-CONSOLE set console/copper on 1 console(s).
-c03_hartnell_flight	run/debug/profiling/2026-08-27_11_40_13-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=0 locked=1 siege=0 shields=0 alarm=0 | PERF-CONSOLE set console/hartnell on 1 console(s).
-c04_copper_flight	run/debug/profiling/2026-08-27_11_40_49-Minecraft Server-1_20_1.zip	PERF-VERIFY total=1 powered=1 doorsOpen=0 landed=0 locked=1 siege=0 shields=0 alarm=0 | PERF-CONSOLE set console/copper on 1 console(s).

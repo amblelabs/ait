@@ -1,6 +1,0 @@
-translucent=true	rep1	run/debug/profiling/2026-08-27_12_49_56-Minecraft Server-1_20_1.zip	PERF-FLAG copperTranslucent=true sent to 1 client(s).
-translucent=false	rep1	run/debug/profiling/2026-08-27_12_50_24-Minecraft Server-1_20_1.zip	PERF-FLAG copperTranslucent=false sent to 1 client(s).
-translucent=true	rep2	run/debug/profiling/2026-08-27_12_50_51-Minecraft Server-1_20_1.zip	PERF-FLAG copperTranslucent=true sent to 1 client(s).
-translucent=false	rep2	run/debug/profiling/2026-08-27_12_51_19-Minecraft Server-1_20_1.zip	PERF-FLAG copperTranslucent=false sent to 1 client(s).
-translucent=true	rep3	run/debug/profiling/2026-08-27_12_51_46-Minecraft Server-1_20_1.zip	PERF-FLAG copperTranslucent=true sent to 1 client(s).
-translucent=false	rep3	run/debug/profiling/2026-08-27_12_52_14-Minecraft Server-1_20_1.zip	PERF-FLAG copperTranslucent=false sent to 1 client(s).

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -u
 HOST=127.0.0.1; PORT=25632; PASS=aitperf
-OUT=scripts/perf/manifest_scaling.tsv
+OUT=${MANIFEST_DIR:-run/debug/perf}/manifest_scaling.tsv
+mkdir -p "$(dirname "$OUT")"
 : > "$OUT"
 newest() { ls -t run/debug/profiling/*.zip 2>/dev/null | head -1; }
 printf 'ait perf-clear\ngamemode spectator @a\ntp @a 0 100 0 90 0\nSLEEP 4\nait profile-client @a\nSLEEP 15\n' > /tmp/warm.txt

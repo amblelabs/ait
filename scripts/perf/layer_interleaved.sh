@@ -4,13 +4,14 @@
 set -u
 cd "$(dirname "$0")/../.." || exit 1
 HOST=127.0.0.1; PORT=25632; PASS=aitperf
-OUT=scripts/perf/layer_interleaved.tsv
+OUT=${MANIFEST_DIR:-run/debug/perf}/layer_interleaved.tsv
+mkdir -p "$(dirname "$OUT")"
 : > "$OUT"
 printf 'list\n' > /tmp/s_list.txt
 newest() { ls -t run/debug/profiling/*.zip 2>/dev/null | head -1; }
 
 run_one() {   # $1 = translucent true|false, $2 = rep
-  printf 'ait perf-flag copperTranslucent %s\nait perf-console "console/copper"\nSLEEP 5\nait perf-tp console\nSLEEP 5\nait perf-verify\nait profile-client @a\nSLEEP 15\n' "$1" > /tmp/one.txt
+  printf 'ait perf-flag @a copperTranslucent %s\nait perf-console "console/copper"\nSLEEP 5\nait perf-tp console\nSLEEP 5\nait perf-verify\nait profile-client @a\nSLEEP 15\n' "$1" > /tmp/one.txt
   before=$(newest)
   python scripts/perf/rcon.py $HOST $PORT $PASS /tmp/one.txt > /tmp/li_out.log 2>&1
   after=$(newest); [ "$after" = "$before" ] && after=NO_DUMP

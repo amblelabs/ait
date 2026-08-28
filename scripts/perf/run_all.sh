@@ -3,7 +3,8 @@
 # server-side state at profile time. Order matters: some scenarios build on the previous one.
 set -u
 HOST=127.0.0.1; PORT=25632; PASS=aitperf
-OUT=scripts/perf/manifest.tsv
+OUT=${MANIFEST_DIR:-run/debug/perf}/manifest.tsv
+mkdir -p "$(dirname "$OUT")"
 : > "$OUT"
 
 newest() { ls -t run/debug/profiling/*.zip 2>/dev/null | head -1; }

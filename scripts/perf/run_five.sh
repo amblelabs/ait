@@ -8,7 +8,8 @@
 #   s06_interior_console interior and door BOTI. DoorRenderer shares the fix, so this is the canary.
 set -u
 HOST=127.0.0.1; PORT=25632; PASS=aitperf
-OUT=${1:-scripts/perf/manifest_five.tsv}
+OUT=${1:-${MANIFEST_DIR:-run/debug/perf}/manifest_five.tsv}
+mkdir -p "$(dirname "$OUT")"
 : > "$OUT"
 newest() { ls -t run/debug/profiling/*.zip 2>/dev/null | head -1; }
 
