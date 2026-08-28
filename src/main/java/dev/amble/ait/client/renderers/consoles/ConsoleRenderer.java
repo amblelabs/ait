@@ -65,7 +65,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
             HartnellConsoleModel model = new HartnellConsoleModel(HartnellConsoleModel.getTexturedModelData().createModel());
             model.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutout(ClientConsoleVariantRegistry.HARTNELL.texture())),
                     light, overlay, 1, 1, 1, 1);
-            RenderLayer layer = AITRenderLayers.tardisEmissiveCullZOffset(ClientConsoleVariantRegistry.HARTNELL.emission(), true);
+            RenderLayer layer = AITRenderLayers.tardisEmissiveCullZOffset(ClientConsoleVariantRegistry.HARTNELL.emission());
             model.render(matrices, vertexConsumers.getBuffer(layer),
                     0xf000f0, overlay, 1, 1, 1, 1);
             matrices.pop();
@@ -215,7 +215,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
             profiler.swap("emission_buffer");
             ClientProfiling.count("ait_console_layer_switch");
             VertexConsumer emissive = vertexConsumers
-                    .getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true));
+                    .getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission()));
 
             profiler.swap("emission_geometry");
             // Geometry only. The control state was applied before the base layer was drawn and does not

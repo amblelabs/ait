@@ -278,7 +278,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             // TODO the guard above tests `emission`, which DOOM reassigns per rotation, but the layer
             // below binds `variant.emission()`, the un-adjusted base. For DOOM those disagree. Left
             // alone here because changing which texture DOOM binds is not part of this change.
-           model.renderWithAnimations(tardis, entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffsetSorted(variant.emission(), true)),
+           model.renderWithAnimations(tardis, entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffsetSorted(variant.emission())),
                    0xF000F0, OverlayTexture.DEFAULT_UV, red, green, blue, alpha, tickDelta);
         }
         if (DependencyChecker.hasIris()) {

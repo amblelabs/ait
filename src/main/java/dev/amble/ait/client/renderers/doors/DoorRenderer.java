@@ -152,7 +152,7 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
             float green = alarms ? !power ? 0.01f : 0.3f : t;
             float blue = alarms ? !power ? 0.01f : 0.3f : u;
 
-            model.renderWithAnimations(tardis, entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)),
+            model.renderWithAnimations(tardis, entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission())),
                     0xf000f0, OverlayTexture.DEFAULT_UV, red, green, blue, colorAlpha, tickDelta);
         }
 

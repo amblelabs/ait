@@ -1,7 +1,7 @@
 package dev.amble.ait.client.renderers;
 
 import java.util.Set;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -69,11 +69,11 @@ public class AITRenderLayers extends RenderLayer {
     private static final Set<Identifier> SORT_SENSITIVE_EMISSION = Set.of(
             new Identifier("ait", "textures/blockentities/consoles/hourglass_default_emission.png"));
 
-    private static final BiFunction<Identifier, Boolean, RenderLayer> EMISSIVE_SORTED = Util
-            .memoize((texture, affectsOutline) -> emissive(texture, true));
+    private static final Function<Identifier, RenderLayer> EMISSIVE_SORTED = Util
+            .memoize(texture -> emissive(texture, true));
 
-    private static final BiFunction<Identifier, Boolean, RenderLayer> EMISSIVE_UNSORTED = Util
-            .memoize((texture, affectsOutline) -> emissive(texture, false));
+    private static final Function<Identifier, RenderLayer> EMISSIVE_UNSORTED = Util
+            .memoize(texture -> emissive(texture, false));
 
     /**
      * The emissive layer for geometry drawn at full vertex alpha, which is every caller but two.
@@ -92,10 +92,10 @@ public class AITRenderLayers extends RenderLayer {
      * flush of this layer is billed to whichever zone is open at the time. With the text off it moves
      * to {@code sonic_port} or later. It is the same work either way.
      */
-    public static RenderLayer tardisEmissiveCullZOffset(Identifier texture, boolean affectsOutline) {
+    public static RenderLayer tardisEmissiveCullZOffset(Identifier texture) {
         return SORT_SENSITIVE_EMISSION.contains(texture)
-                ? EMISSIVE_SORTED.apply(texture, affectsOutline)
-                : EMISSIVE_UNSORTED.apply(texture, affectsOutline);
+                ? EMISSIVE_SORTED.apply(texture)
+                : EMISSIVE_UNSORTED.apply(texture);
     }
 
     /**
@@ -121,8 +121,8 @@ public class AITRenderLayers extends RenderLayer {
      * so every switch between them already flushes. Console emissions never collide, being a separate
      * texture directory and registry.
      */
-    public static RenderLayer tardisEmissiveCullZOffsetSorted(Identifier texture, boolean affectsOutline) {
-        return EMISSIVE_SORTED.apply(texture, affectsOutline);
+    public static RenderLayer tardisEmissiveCullZOffsetSorted(Identifier texture) {
+        return EMISSIVE_SORTED.apply(texture);
     }
 
     private AITRenderLayers(String name, VertexFormat vertexFormat, VertexFormat.DrawMode drawMode,
