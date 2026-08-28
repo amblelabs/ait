@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -122,22 +123,18 @@ public class ScanningSonicMode extends SonicMode {
             return true;
         }
 
-        String toolRequirement = "item.sonic.scanning.any_tool";
+        Text toolRequirement;
         if (block instanceof ICantBreak) {
-            toolRequirement = "item.sonic.scanning.cant_break";
+            toolRequirement = Text.translatable("item.sonic.scanning.cant_break");
+        } else if (!state.isToolRequired()) {
+            toolRequirement = Text.translatable("item.sonic.scanning.no_tool");
         } else {
-            if (state.isIn(BlockTags.NEEDS_DIAMOND_TOOL)) {
-                toolRequirement = "item.sonic.scanning.diamond_tool";
-            } else if (state.isIn(BlockTags.NEEDS_IRON_TOOL)) {
-                toolRequirement = "item.sonic.scanning.iron_tool";
-            } else if (state.isIn(BlockTags.NEEDS_STONE_TOOL)) {
-                toolRequirement = "item.sonic.scanning.stone_tool";
-            } else if (!block.getDefaultState().isToolRequired()) {
-                toolRequirement = "item.sonic.scanning.no_tool";
-            }
+            MutableText toolType = toolTypeText(state);
+            MutableText tier = tierText(state);
+            toolRequirement = tier != null ? tier.append(" ").append(toolType) : toolType;
         }
 
-        Text message = Text.literal("\uD83D\uDD25: " + blastRes + " ⛏: ").append(Text.translatable(toolRequirement)).formatted(Formatting.YELLOW)
+        Text message = Text.literal("\uD83D\uDD25: " + blastRes + " ⛏: ").append(toolRequirement).formatted(Formatting.YELLOW)
                 .formatted(Formatting.GOLD);
         user.sendMessage(message, true);
 
@@ -145,6 +142,32 @@ public class ScanningSonicMode extends SonicMode {
     }
 
 
+
+    /** The tool class needed to mine the block (pickaxe/axe/shovel/hoe), or "any tool" if untagged. */
+    private static MutableText toolTypeText(BlockState state) {
+        if (state.isIn(BlockTags.PICKAXE_MINEABLE))
+            return Text.translatable("item.sonic.scanning.tool.pickaxe");
+        if (state.isIn(BlockTags.AXE_MINEABLE))
+            return Text.translatable("item.sonic.scanning.tool.axe");
+        if (state.isIn(BlockTags.SHOVEL_MINEABLE))
+            return Text.translatable("item.sonic.scanning.tool.shovel");
+        if (state.isIn(BlockTags.HOE_MINEABLE))
+            return Text.translatable("item.sonic.scanning.tool.hoe");
+
+        return Text.translatable("item.sonic.scanning.any_tool");
+    }
+
+    /** The minimum material tier the block requires (diamond/iron/stone), or null if none. */
+    private static MutableText tierText(BlockState state) {
+        if (state.isIn(BlockTags.NEEDS_DIAMOND_TOOL))
+            return Text.translatable("item.sonic.scanning.tier.diamond");
+        if (state.isIn(BlockTags.NEEDS_IRON_TOOL))
+            return Text.translatable("item.sonic.scanning.tier.iron");
+        if (state.isIn(BlockTags.NEEDS_STONE_TOOL))
+            return Text.translatable("item.sonic.scanning.tier.stone");
+
+        return null;
+    }
 
     public boolean scanRegion(ItemStack stack, World world, PlayerEntity user, BlockPos pos) {
         if (world.isClient())
