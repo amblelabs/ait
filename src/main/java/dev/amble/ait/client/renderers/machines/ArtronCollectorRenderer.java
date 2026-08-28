@@ -14,6 +14,7 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
@@ -62,33 +63,35 @@ public class ArtronCollectorRenderer<T extends ArtronCollectorBlockEntity> imple
                 1.0f, 1.0f, 1.0f, 1.0f
         );
 
-        long worldTime = entity.getWorld().getTime();
-        float t = (worldTime + tickDelta) / TICKS_PER_FRAME;
-        int frame = Math.floorMod((int) Math.floor(t), FRAME_COUNT);
-        int nextFrame = (frame + 1) % FRAME_COUNT;
-        float fraction = t - (float) Math.floor(t);
+        Identifier emission = entity.getEmissionTexture();
 
         Identifier animatedTexture = getAnimatedTexture(entity);
         if (animatedTexture == null) {
             animatedTexture = entity.getTexture();
         }
 
+        VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCullZOffset(emission));
         VertexConsumer emissive = vertexConsumers.getBuffer(RenderLayer.getEyes(animatedTexture));
 
-        Identifier emission = entity.getEmissionTexture();
+        float alpha = 1f;
 
-        boolean bl = entity.getCurrentFuel() > 0;
+        if (entity.getCurrentFuel() > 0) {
+            long worldTime = entity.getWorld().getTime();
+            float t = (worldTime + tickDelta) / TICKS_PER_FRAME;
+            int frame = Math.floorMod((int) Math.floor(t), FRAME_COUNT);
+            int nextFrame = (frame + 1) % FRAME_COUNT;
+            alpha = t - MathHelper.floor(t);
 
-        VertexConsumer lastConsumer = bl ? new FrameOffsetVertexConsumer(emissive, nextFrame, FRAME_COUNT) :
-                vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCullZOffset(emission));
+            consumer = new FrameOffsetVertexConsumer(emissive, nextFrame, FRAME_COUNT);
+        }
 
         if (emission != null) {
             this.model.render(
                     matrices,
-                    lastConsumer,
+                    consumer,
                     LightmapTextureManager.MAX_LIGHT_COORDINATE,
                     overlay,
-                    1.0f, 1.0f, 1.0f, bl ? fraction : 1.0f
+                    1.0f, 1.0f, 1.0f, alpha
             );
         }
 
