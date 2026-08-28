@@ -479,6 +479,7 @@ public class AITModClient implements ClientModInitializer {
         map.putBlock(AITBlocks.MATRIX_ENERGIZER, RenderLayer.getCutout());
         map.putBlock(AITBlocks.GENERIC_SUBSYSTEM, RenderLayer.getCutout());
         map.putBlock(AITBlocks.POTTED_SONIC_SCREWDRIVER, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.ARTRON_COLLECTOR_BLOCK, RenderLayer.getCutout());
     }
 
     public void registerItemColors() {

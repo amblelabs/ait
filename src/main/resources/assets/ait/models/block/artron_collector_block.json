@@ -1,5 +1,6 @@
 {
+  "parent": "minecraft:block/cube_all",
   "textures": {
-    "particle": "ait:blockentities/machines/artron_collector"
+    "all": "ait:blockentities/machines/artron_collector"
   }
 }
