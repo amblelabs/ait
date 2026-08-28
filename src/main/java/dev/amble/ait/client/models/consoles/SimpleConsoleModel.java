@@ -169,6 +169,58 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
         root.render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
     }
 
+    /**
+     * The transform from block space into this model's own space, applied once per geometry pass.
+     *
+     * <p>Extracted so the state-and-geometry pass and the geometry-only pass cannot drift apart. The
+     * default is a no-op to match {@link #renderWithAnimations}, which does not push or translate
+     * either: a subclass that transforms in one path and not the other would draw its glow somewhere
+     * other than its geometry.
+     */
+    protected void applyRootTransform(MatrixStack matrices) {
+    }
+
+    /**
+     * Geometry a model draws alongside its root part, on every layer.
+     *
+     * <p>Nothing state-like belongs here. It runs per layer, and the parts it touches are outside the
+     * {@code resetTransform} and keyframe pass that {@link #animateBlockEntity} performs on
+     * {@link #getPart()}.
+     */
+    protected void renderExtras(MatrixStack matrices, VertexConsumer vertices, int light, int overlay,
+            float red, float green, float blue, float alpha) {
+    }
+
+    /**
+     * The rate at which a control lerps toward its target, per frame.
+     *
+     * <p>Shared because the rate is only meaningful against how often the state runs, and that is a
+     * property of the renderer rather than of any one model.
+     *
+     * <p>Deliberately left at the value this branch already used. The state now runs once a frame where
+     * on the previous release it ran four times, so controls approach their targets more slowly than
+     * they used to. Compensating is not a single constant: the emission pass is skipped entirely when
+     * the console is unpowered ({@code ConsoleRenderer.renderEmissions} returns early), so an unpowered
+     * console already ran its state once a frame and is unchanged, while a powered one has gone from
+     * twice to once. A global multiplier would leave unpowered controls moving faster than they ever
+     * have. Matching the old powered feel alone would want about 0.35f here, since repeated lerp
+     * compounds as 1-(1-d)^n rather than n*d.
+     */
+    protected float controlDelta() {
+        return !AITModClient.CONFIG.animateControls ? 1.0f : 0.1f * client.getTickDelta();
+    }
+
+    @Override
+    public void renderGeometryOnly(ClientTardis tardis, ConsoleBlockEntity console, ModelPart root,
+            MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green,
+            float blue, float alpha, float tickDelta) {
+        matrices.push();
+        this.applyRootTransform(matrices);
+        root.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+        this.renderExtras(matrices, vertices, light, overlay, red, green, blue, alpha);
+        matrices.pop();
+    }
+
     @Override
     public void setAngles(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw,
             float headPitch) {

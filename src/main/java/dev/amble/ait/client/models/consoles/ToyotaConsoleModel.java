@@ -12,7 +12,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.animation.console.toyota.ToyotaAnimations;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
@@ -1640,12 +1639,17 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
     }
 
     @Override
-    public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
-                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = !AITModClient.CONFIG.animateControls ? 1.0f : 0.1f * client.getTickDelta();
-        matrices.push();
+    protected void applyRootTransform(MatrixStack matrices) {
         matrices.translate(0.5f, -1.5f, -0.5f);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
+    }
+
+    @Override
+    public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
+                                     VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
+        float delta = this.controlDelta();
+        matrices.push();
+        this.applyRootTransform(matrices);
 
         // Throttle
         ModelPart throttle = this.toyota.getChild("panel4").getChild("controls4").getChild("throttle");

@@ -7,7 +7,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.animation.console.hudolin.HudolinAnimations;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
@@ -1688,18 +1687,30 @@ public class HudolinConsoleModel extends SimpleConsoleModel {
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
 
         console.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
-        toolbox.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
+        this.renderExtras(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
 
         matrices.pop();
+    }
+
+    /** The toolbox is a sibling of the console root, so it is not drawn by the root part. */
+    @Override
+    protected void renderExtras(MatrixStack matrices, VertexConsumer vertices, int light, int overlay,
+            float red, float green, float blue, float alpha) {
+        this.toolbox.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+    }
+
+    @Override
+    protected void applyRootTransform(MatrixStack matrices) {
+        matrices.translate(0.5f, -1.5f, -0.5f);
+        matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
     }
 
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = !AITModClient.CONFIG.animateControls ? 1.0f : 0.1f * client.getTickDelta();
+        float delta = this.controlDelta();
         matrices.push();
-        matrices.translate(0.5f, -1.5f, -0.5f);
-        matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
+        this.applyRootTransform(matrices);
 
         // Throttle Control
         ModelPart throttle = this.dematleveryay;
@@ -1794,7 +1805,7 @@ public class HudolinConsoleModel extends SimpleConsoleModel {
         hammer.hidden = tardis.extra().getConsoleHammer() == null || tardis.extra().getConsoleHammer().isEmpty();
 
         super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
-        toolbox.render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
+        this.renderExtras(matrices, vertices, light, overlay, red, green, blue, pAlpha);
 
         matrices.pop();
     }

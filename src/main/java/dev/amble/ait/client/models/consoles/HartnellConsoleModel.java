@@ -9,7 +9,6 @@ import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.animation.console.hartnell.HartnellAnimations;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
@@ -1381,11 +1380,16 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
     }
 
     @Override
+    protected void applyRootTransform(MatrixStack matrices) {
+        matrices.translate(0.5f, -1.5f, -0.5f);
+    }
+
+    @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = !AITModClient.CONFIG.animateControls ? 1.0f : 0.1f * client.getTickDelta();
+        float delta = this.controlDelta();
         matrices.push();
-        matrices.translate(0.5f, -1.5f, -0.5f);
+        this.applyRootTransform(matrices);
 
         this.bone.getChild("panels").getChild("p_4").getChild("bone98").getChild("bone99").getChild("bone100")
                 .getChild("m_meter_2")

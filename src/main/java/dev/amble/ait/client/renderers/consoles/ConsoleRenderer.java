@@ -218,7 +218,10 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
                     .getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true));
 
             profiler.swap("emission_geometry");
-            model.renderWithAnimations(tardis, entity, model.getPart(),
+            // Geometry only. The control state was applied before the base layer was drawn and does not
+            // depend on the layer, so re-running it here would only pose the model differently under
+            // the glow than under the geometry it sits on.
+            model.renderGeometryOnly(tardis, entity, model.getPart(),
                     matrices, emissive, 0xf000f0, overlay,
                     1, 1, 1, 1, tickDelta);
         }
