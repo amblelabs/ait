@@ -29,7 +29,7 @@ public class RefreshmentControl extends Control {
         ItemStack selectedItem = DrinkUtil.setDrink(new ItemStack(AITItems.MUG), DrinkRegistry.getInstance().toList().get(currentIndex));
 
         tardis.extra().setRefreshmentItem(selectedItem);
-        player.sendMessage(Text.literal("Refreshment set to: " + selectedItem.getName().getString() + "!"), true);
+        player.sendMessage(Text.translatable("ait.foodmachine.mode.refreshement_set_to", selectedItem.getName()), true);
 
         return Result.SUCCESS;
     }

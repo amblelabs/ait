@@ -85,6 +85,11 @@ public class DatapackAnimation extends TardisAnimation {
 
     @Override
     public String name() {
-        return Text.translatable(this.nameKey).getString();
+        return this.text().getString();
+    }
+
+    @Override
+    public Text text() {
+        return Text.translatableWithFallback(this.nameKey, this.id().getPath());
     }
 }
