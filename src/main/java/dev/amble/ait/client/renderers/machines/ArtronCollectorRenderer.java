@@ -65,7 +65,15 @@ public class ArtronCollectorRenderer<T extends ArtronCollectorBlockEntity> imple
 
         Identifier emission = entity.getEmissionTexture();
 
+        if (emission == null) {
+            emission = entity.getTexture();
+        }
+
         Identifier animatedTexture = getAnimatedTexture(entity);
+
+        if (animatedTexture == null) {
+            animatedTexture = entity.getTexture();
+        }
 
         VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCullZOffset(emission));
 
