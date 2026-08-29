@@ -127,9 +127,10 @@ public class BOTI {
     }
 
     /**
-     * One-shot: read back the afbo's actual stencil values right after the mask was drawn (the read framebuffer is the
-     * afbo here). Expected pattern is 1 in the doorway (centre) and 0 outside (corner). If the corner reads 1, the mask
-     * write spread the stencil across the whole buffer - that, not the clear, is what makes the interior smear.
+     * One-shot: scan the afbo's ENTIRE stencil buffer right after the mask was drawn (the read framebuffer is the afbo
+     * here) and histogram it. This avoids the two-point sampling blind spot (the doorway may not sit under a fixed
+     * pixel). ones==0 => the mask wrote no stencil at all; ones≈whole buffer => it spread everywhere. Trust this only if
+     * the STENCIL-INDEX self-test in the functional probe reported centre=1 corner=0.
      */
     private static void logStencilPatternOnce() {
         if (STENCIL_PATTERN_LOGGED)
@@ -140,14 +141,28 @@ public class BOTI {
         int h = BOTI_HANDLER.afbo.textureHeight;
         GL11.glGetError();
 
-        ByteBuffer centre = BufferUtils.createByteBuffer(4);
-        GL11.glReadPixels(w / 2, h / 2, 1, 1, GL11.GL_STENCIL_INDEX, GL11.GL_UNSIGNED_BYTE, centre);
-        ByteBuffer corner = BufferUtils.createByteBuffer(4);
-        GL11.glReadPixels(4, 4, 1, 1, GL11.GL_STENCIL_INDEX, GL11.GL_UNSIGNED_BYTE, corner);
+        int prevAlign = GL11.glGetInteger(GL11.GL_PACK_ALIGNMENT);
+        GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1); // tightly packed rows so w*h bytes maps 1:1
+
+        ByteBuffer buf = BufferUtils.createByteBuffer(w * h);
+        GL11.glReadPixels(0, 0, w, h, GL11.GL_STENCIL_INDEX, GL11.GL_UNSIGNED_BYTE, buf);
         int readErr = GL11.glGetError();
 
-        AITMod.LOGGER.error("[BOTI-DIAG] STENCIL PATTERN after mask: centre={} corner={} readErr=0x{} (expect centre=1 corner=0; corner=1 => mask spread everywhere)",
-                centre.get(0) & 0xFF, corner.get(0) & 0xFF, Integer.toHexString(readErr));
+        GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, prevAlign);
+
+        int max = 0;
+        int ones = 0;
+        int nonzero = 0;
+        int total = w * h;
+        for (int i = 0; i < total; i++) {
+            int v = buf.get(i) & 0xFF;
+            if (v > max) max = v;
+            if (v != 0) nonzero++;
+            if (v == 1) ones++;
+        }
+
+        AITMod.LOGGER.error("[BOTI-DIAG] STENCIL HISTOGRAM after mask: max={} ones={}/{} nonzero={} ({}%) readErr=0x{}",
+                max, ones, total, nonzero, Math.round(100.0 * nonzero / total), Integer.toHexString(readErr));
     }
 
     /**

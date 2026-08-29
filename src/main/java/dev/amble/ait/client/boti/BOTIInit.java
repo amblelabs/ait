@@ -107,6 +107,18 @@ public class BOTIInit {
         GL11.glReadPixels(4, 4, 1, 1, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, corner);
         int readErr = GL11.glGetError();
 
+        // Self-test whether GL_STENCIL_INDEX readback is even trustworthy here: at this point stencil IS 1 in the
+        // centre region and 0 at the corner (the colour probe above proved that). If the stencil readback disagrees,
+        // then the STENCIL PATTERN histogram in the real pass is meaningless and must be ignored.
+        GL11.glGetError();
+        ByteBuffer sCentre = BufferUtils.createByteBuffer(4);
+        GL11.glReadPixels(w / 2, h / 2, 1, 1, GL11.GL_STENCIL_INDEX, GL11.GL_UNSIGNED_BYTE, sCentre);
+        ByteBuffer sCorner = BufferUtils.createByteBuffer(4);
+        GL11.glReadPixels(4, 4, 1, 1, GL11.GL_STENCIL_INDEX, GL11.GL_UNSIGNED_BYTE, sCorner);
+        int sErr = GL11.glGetError();
+        AITMod.LOGGER.error("[BOTI-DIAG] STENCIL-INDEX self-test centre={} corner={} err=0x{} (expect centre=1 corner=0; otherwise stencil readback is unreliable on this GPU)",
+                sCentre.get(0) & 0xFF, sCorner.get(0) & 0xFF, Integer.toHexString(sErr));
+
         AITMod.LOGGER.error("[BOTI-DIAG] STENCIL PROBE centre=({},{},{}) corner=({},{},{}) drawErr=0x{} readErr=0x{} -> {}",
                 centre.get(0) & 0xFF, centre.get(1) & 0xFF, centre.get(2) & 0xFF,
                 corner.get(0) & 0xFF, corner.get(1) & 0xFF, corner.get(2) & 0xFF,
