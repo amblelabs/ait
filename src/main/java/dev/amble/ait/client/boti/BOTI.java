@@ -12,6 +12,7 @@ import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BufferRenderer;
 import net.minecraft.client.render.GameRenderer;
@@ -62,14 +63,68 @@ public class BOTI {
         GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight, 0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_COLOR_BUFFER_BIT, GlConst.GL_NEAREST);
     }
 
+    /** Core shader (assets/ait/shaders/core/copy_depth) that samples a depth texture and writes gl_FragDepth. */
+    public static ShaderProgram COPY_DEPTH_PROGRAM;
+
+    /**
+     * Copies depth from {@code src} to {@code dest}. A glBlitFramebuffer(GL_DEPTH_BUFFER_BIT) requires identical depth
+     * formats, which the main framebuffer (depth-only) and the afbo (packed GL_DEPTH24_STENCIL8) do NOT have - so it is
+     * rejected (GL_INVALID_OPERATION) on Apple's strict GL driver and the portal's depth never reached the main buffer
+     * (world translucents like glass then drew over the doorway). Instead we sample src's depth texture and write
+     * gl_FragDepth through a full-screen quad, which is per-fragment and format-agnostic, so it works on every driver.
+     * Falls back to the blit only if the shader hasn't loaded yet.
+     */
     public static void copyDepth(Framebuffer src, Framebuffer dest) {
+        // Only Apple's strict GL driver rejects the mismatched-format depth blit; everywhere else the blit works and
+        // stays the path (unchanged, proven). Use the shader copy only where the blit is actually broken.
+        if (!MinecraftClient.IS_SYSTEM_MAC || COPY_DEPTH_PROGRAM == null || src.getDepthAttachment() <= 0) {
+            blitDepth(src, dest);
+            return;
+        }
+
+        dest.beginWrite(true); // bind dest as the draw framebuffer and set its viewport
+
+        RenderSystem.colorMask(false, false, false, false);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(GL11.GL_ALWAYS);
+        RenderSystem.disableCull();
+
+        Matrix4f prevProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
+        VertexSorter prevSorter = RenderSystem.getVertexSorting();
+        RenderSystem.setProjectionMatrix(IDENTITY_MATRIX, VertexSorter.BY_DISTANCE);
+        MatrixStack modelView = RenderSystem.getModelViewStack();
+        modelView.push();
+        modelView.loadIdentity();
+        RenderSystem.applyModelViewMatrix();
+
+        RenderSystem.setShaderTexture(0, src.getDepthAttachment());
+        RenderSystem.setShader(() -> COPY_DEPTH_PROGRAM);
+
+        BufferBuilder builder = Tessellator.getInstance().getBuffer();
+        builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+        builder.vertex(-1.0, -1.0, 0.0).texture(0.0f, 0.0f).next();
+        builder.vertex(1.0, -1.0, 0.0).texture(1.0f, 0.0f).next();
+        builder.vertex(1.0, 1.0, 0.0).texture(1.0f, 1.0f).next();
+        builder.vertex(-1.0, 1.0, 0.0).texture(0.0f, 1.0f).next();
+        BufferRenderer.drawWithGlobalProgram(builder.end());
+
+        modelView.pop();
+        RenderSystem.applyModelViewMatrix();
+        RenderSystem.setProjectionMatrix(prevProjection, prevSorter);
+
+        RenderSystem.depthFunc(GL11.GL_LEQUAL);
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableCull();
+    }
+
+    /** Fallback depth transfer via blit (works where depth formats match, e.g. NVIDIA; no-ops on Apple). */
+    private static void blitDepth(Framebuffer src, Framebuffer dest) {
         GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, src.fbo);
         GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, dest.fbo);
         GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight, 0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_DEPTH_BUFFER_BIT, GlConst.GL_NEAREST);
-        // On drivers that reject the mismatched-format depth blit (Apple) this leaves an error flagged; swallow it so it
-        // doesn't leak into Minecraft's own glGetError checks. Depth transfer simply no-ops there (portal/world depth
-        // occlusion is unaffected by the smear fix); on NVIDIA it succeeds as before and this reads GL_NO_ERROR.
-        GL11.glGetError();
+        GL11.glGetError(); // swallow a possible GL_INVALID_OPERATION so it doesn't leak into MC's error checks
     }
 
     public static void setFramebufferColor(Framebuffer src, float r, float g, float b, float a) {
