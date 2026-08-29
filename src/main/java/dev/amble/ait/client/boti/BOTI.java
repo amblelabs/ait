@@ -98,10 +98,16 @@ public class BOTI {
     }
 
     /**
-     * Draws a screen-filling quad at the far plane through the position program with identity matrices, writing only
-     * the aspects requested. Depth test is forced to ALWAYS (and enabled) so the fragments always run - without an
-     * enabled depth test the driver writes neither depth nor the stencil depth-pass op. GL state the surrounding pass
-     * relies on (depth func, colour mask, depth mask, cull) is restored on the way out.
+     * Draws a screen-filling quad through the position program with identity matrices, writing only the aspects
+     * requested. Depth test is forced to ALWAYS (and enabled) so the fragments always run - without an enabled depth
+     * test the driver writes neither depth nor the stencil depth-pass op.
+     *
+     * The quad sits at NDC z = 0 (the centre of the frustum), NOT at the far plane. A quad at z = 1 lands exactly on
+     * the far clip plane; the GL spec treats z == w as inside, but Apple's GL driver clips those fragments away, so the
+     * clear produced zero fragments and neither aspect was reset (stale stencil -> smear, stale depth -> the interior
+     * drew over the whole screen / went white). To still reset DEPTH to the far value we clamp glDepthRange to [1,1] for
+     * the duration of the write, so every fragment stores far depth regardless of its geometry z. GL state the
+     * surrounding pass relies on (depth func/range, colour mask, depth mask, cull) is restored on the way out.
      */
     private static void drawFullscreenQuad(boolean writeColor, boolean writeDepth) {
         RenderSystem.colorMask(writeColor, writeColor, writeColor, writeColor);
@@ -109,6 +115,10 @@ public class BOTI {
         RenderSystem.enableDepthTest();
         RenderSystem.depthFunc(GL11.GL_ALWAYS);
         RenderSystem.disableCull();
+
+        // Force every fragment to store the far depth value without putting the geometry on the clip boundary.
+        if (writeDepth)
+            GL11.glDepthRange(1.0, 1.0);
 
         Matrix4f prevProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
         VertexSorter prevSorter = RenderSystem.getVertexSorting();
@@ -124,15 +134,18 @@ public class BOTI {
 
         BufferBuilder builder = Tessellator.getInstance().getBuffer();
         builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
-        builder.vertex(-1.0, -1.0, 1.0).next();
-        builder.vertex(1.0, -1.0, 1.0).next();
-        builder.vertex(1.0, 1.0, 1.0).next();
-        builder.vertex(-1.0, 1.0, 1.0).next();
+        builder.vertex(-1.0, -1.0, 0.0).next();
+        builder.vertex(1.0, -1.0, 0.0).next();
+        builder.vertex(1.0, 1.0, 0.0).next();
+        builder.vertex(-1.0, 1.0, 0.0).next();
         BufferRenderer.drawWithGlobalProgram(builder.end());
 
         modelView.pop();
         RenderSystem.applyModelViewMatrix();
         RenderSystem.setProjectionMatrix(prevProjection, prevSorter);
+
+        if (writeDepth)
+            GL11.glDepthRange(0.0, 1.0);
 
         RenderSystem.depthFunc(GL11.GL_LEQUAL);
         RenderSystem.colorMask(true, true, true, true);
