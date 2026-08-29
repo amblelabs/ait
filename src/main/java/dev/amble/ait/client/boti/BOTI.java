@@ -1,6 +1,5 @@
 package dev.amble.ait.client.boti;
 
-import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -9,9 +8,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
 import org.joml.Matrix4f;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -28,7 +25,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -47,39 +43,33 @@ public class BOTI {
     public static Queue<ExteriorBlockEntity> EXTERIOR_RENDER_QUEUE = new LinkedList<>();
     private static boolean HAS_BEEN_WARNED = false;
 
-    private static boolean BLIT_DIAG_LOGGED = false;
+    // The main framebuffer and the afbo have different depth formats (main is depth-only / DEPTH32F, the afbo is packed
+    // GL_DEPTH24_STENCIL8). A glBlitFramebuffer that includes GL_DEPTH_BUFFER_BIT requires the depth formats to match
+    // exactly, or the call is GL_INVALID_OPERATION and copies NOTHING - all-or-nothing. NVIDIA quietly tolerates the
+    // mismatch; Apple's GL-over-Metal enforces the spec, so a combined COLOR|DEPTH blit failed and took the colour copy
+    // down with it. As the afbo is never cleared, its colour then never refreshed and last frame's pixels accumulated:
+    // the "smear". So colour and depth are always blitted as SEPARATE calls - the colour copy (all we need for the
+    // visible result) can never be blocked by the depth copy failing.
 
     public static void copyFramebuffer(Framebuffer src, Framebuffer dest) {
-        GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, src.fbo);
-        GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, dest.fbo);
-        boolean diag = !BLIT_DIAG_LOGGED;
-        if (diag) GL11.glGetError();
-        GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight, 0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_DEPTH_BUFFER_BIT | GlConst.GL_COLOR_BUFFER_BIT, GlConst.GL_NEAREST);
-        if (diag) AITMod.LOGGER.error("[BOTI-DIAG] copyFramebuffer blit(COLOR|DEPTH) err=0x{} src.fbo={} dest.fbo={}",
-                Integer.toHexString(GL11.glGetError()), src.fbo, dest.fbo);
+        copyColor(src, dest);
+        copyDepth(src, dest);
     }
 
     public static void copyColor(Framebuffer src, Framebuffer dest) {
         GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, src.fbo);
         GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, dest.fbo);
-        boolean diag = !BLIT_DIAG_LOGGED;
-        if (diag) GL11.glGetError();
         GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight, 0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_COLOR_BUFFER_BIT, GlConst.GL_NEAREST);
-        if (diag) {
-            AITMod.LOGGER.error("[BOTI-DIAG] copyColor blit(COLOR) err=0x{} src.fbo={} dest.fbo={}",
-                    Integer.toHexString(GL11.glGetError()), src.fbo, dest.fbo);
-            BLIT_DIAG_LOGGED = true; // copyColor is the last blit in a pass; stop after logging all three
-        }
     }
 
     public static void copyDepth(Framebuffer src, Framebuffer dest) {
         GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, src.fbo);
         GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, dest.fbo);
-        boolean diag = !BLIT_DIAG_LOGGED;
-        if (diag) GL11.glGetError();
         GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight, 0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_DEPTH_BUFFER_BIT, GlConst.GL_NEAREST);
-        if (diag) AITMod.LOGGER.error("[BOTI-DIAG] copyDepth blit(DEPTH) err=0x{} src.fbo={} dest.fbo={} (0x502=INVALID_OPERATION => mismatched depth formats, the smear)",
-                Integer.toHexString(GL11.glGetError()), src.fbo, dest.fbo);
+        // On drivers that reject the mismatched-format depth blit (Apple) this leaves an error flagged; swallow it so it
+        // doesn't leak into Minecraft's own glGetError checks. Depth transfer simply no-ops there (portal/world depth
+        // occlusion is unaffected by the smear fix); on NVIDIA it succeeds as before and this reads GL_NO_ERROR.
+        GL11.glGetError();
     }
 
     public static void setFramebufferColor(Framebuffer src, float r, float g, float b, float a) {
@@ -95,15 +85,14 @@ public class BOTI {
 
     private static final Matrix4f IDENTITY_MATRIX = new Matrix4f();
 
-    // The BOTI framebuffer's depth attachment is a *packed* depth-stencil texture (see the framebuffer mixins, which
-    // force GL_DEPTH24_STENCIL8 / GL_DEPTH32F_STENCIL8). NVIDIA honours a single-aspect glClear of one half of that
-    // combined attachment, but Apple / AMD / Intel GL drivers silently drop it - so the stencil was never actually
-    // reset and last frame's mask bled the interior across the screen (the "smear"). A per-fragment draw is honoured
-    // on every driver, so we reset each aspect by drawing a full-screen quad instead of calling glClear.
+    // The afbo's depth attachment is a packed depth-stencil texture (GL_DEPTH24_STENCIL8, see the framebuffer mixins).
+    // We reset each aspect by drawing a full-screen quad rather than a single-aspect glClear: it costs nothing extra
+    // here and a per-fragment draw is honoured identically on every driver, so the clear path can never become the
+    // odd-one-out across GPUs. (The Mac "smear" was NOT a clear problem - it was the depth-inclusive framebuffer blit
+    // failing on mismatched formats; see copyFramebuffer.)
 
     /** Resets the bound framebuffer's stencil to 0 everywhere, leaving colour and depth untouched. */
     public static void resetStencilByDraw() {
-        logClearEnvOnce();
         GL11.glEnable(GL11.GL_STENCIL_TEST);
         GL11.glStencilMask(0xFF);
         GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
@@ -113,73 +102,10 @@ public class BOTI {
 
     /** Resets the bound framebuffer's depth to the far plane, leaving colour and the current stencil mask untouched. */
     public static void resetDepthByDraw() {
-        logStencilPatternOnce(); // read back the real stencil pattern the mask produced, before we touch stencil state
         GL11.glStencilMask(0x00); // preserve the mask bits already written for this pass
         GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF); // let the quad cover the whole buffer regardless of stencil
         GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
         drawFullscreenQuad(false, true);
-    }
-
-    private static boolean CLEAR_ENV_LOGGED = false;
-    private static boolean STENCIL_PATTERN_LOGGED = false;
-
-    /** One-shot: capture the live GL environment (viewport/scissor/bound fb) when a real pass clears its stencil. */
-    private static void logClearEnvOnce() {
-        if (CLEAR_ENV_LOGGED)
-            return;
-        CLEAR_ENV_LOGGED = true;
-
-        int[] vp = new int[4];
-        GL11.glGetIntegerv(GL11.GL_VIEWPORT, vp);
-        int[] sc = new int[4];
-        GL11.glGetIntegerv(GL11.GL_SCISSOR_BOX, sc);
-        boolean scissor = GL11.glIsEnabled(GL11.GL_SCISSOR_TEST);
-        boolean stencil = GL11.glIsEnabled(GL11.GL_STENCIL_TEST);
-        int drawFb = GL11.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING);
-        int readFb = GL11.glGetInteger(GL30.GL_READ_FRAMEBUFFER_BINDING);
-
-        AITMod.LOGGER.error("[BOTI-DIAG] clearEnv viewport=[{},{},{},{}] scissorTest={} scissorBox=[{},{},{},{}] stencilTest={} drawFb={} readFb={} afbo.fbo={} afbo={}x{}",
-                vp[0], vp[1], vp[2], vp[3], scissor, sc[0], sc[1], sc[2], sc[3], stencil, drawFb, readFb,
-                BOTI_HANDLER.afbo.fbo, BOTI_HANDLER.afbo.textureWidth, BOTI_HANDLER.afbo.textureHeight);
-    }
-
-    /**
-     * One-shot: scan the afbo's ENTIRE stencil buffer right after the mask was drawn (the read framebuffer is the afbo
-     * here) and histogram it. This avoids the two-point sampling blind spot (the doorway may not sit under a fixed
-     * pixel). ones==0 => the mask wrote no stencil at all; ones≈whole buffer => it spread everywhere. Trust this only if
-     * the STENCIL-INDEX self-test in the functional probe reported centre=1 corner=0.
-     */
-    private static void logStencilPatternOnce() {
-        if (STENCIL_PATTERN_LOGGED)
-            return;
-        STENCIL_PATTERN_LOGGED = true;
-
-        int w = BOTI_HANDLER.afbo.textureWidth;
-        int h = BOTI_HANDLER.afbo.textureHeight;
-        GL11.glGetError();
-
-        int prevAlign = GL11.glGetInteger(GL11.GL_PACK_ALIGNMENT);
-        GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1); // tightly packed rows so w*h bytes maps 1:1
-
-        ByteBuffer buf = BufferUtils.createByteBuffer(w * h);
-        GL11.glReadPixels(0, 0, w, h, GL11.GL_STENCIL_INDEX, GL11.GL_UNSIGNED_BYTE, buf);
-        int readErr = GL11.glGetError();
-
-        GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, prevAlign);
-
-        int max = 0;
-        int ones = 0;
-        int nonzero = 0;
-        int total = w * h;
-        for (int i = 0; i < total; i++) {
-            int v = buf.get(i) & 0xFF;
-            if (v > max) max = v;
-            if (v != 0) nonzero++;
-            if (v == 1) ones++;
-        }
-
-        AITMod.LOGGER.error("[BOTI-DIAG] STENCIL HISTOGRAM after mask: max={} ones={}/{} nonzero={} ({}%) readErr=0x{}",
-                max, ones, total, nonzero, Math.round(100.0 * nonzero / total), Integer.toHexString(readErr));
     }
 
     /**
