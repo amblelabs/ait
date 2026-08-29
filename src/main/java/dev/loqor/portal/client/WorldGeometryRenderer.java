@@ -141,9 +141,6 @@ public class WorldGeometryRenderer {
      */
     private static Vec3d portalSkyCameraPos = null;
 
-    /** TEMP DIAG throttle for the doorway sky colour logging. */
-    private static long SKY_DIAG_LAST_MS = 0L;
-
     /** Exterior fog colour computed by the most recent {@link #render}; the doorway background is painted with it. */
     private Vec3d lastExteriorFogColor = null;
 
@@ -271,24 +268,6 @@ public class WorldGeometryRenderer {
             this.lastExteriorFogColor = updateExteriorFog(portalWorld, eyeWorldPos, portalYaw, portalPitch, tickDelta, Math.min(client.options.getClampedViewDistance(), this.renderDistance()));
         } catch (Exception e) {
             AITMod.LOGGER.error("BOTI: failed to compute exterior fog", e);
-        }
-
-        // TEMP DIAG: the doorway sky renders as a black->blue gradient. The gradient is the dome (zenith sky colour)
-        // fog-fading to the horizon fog colour; black horizon => the fog colour is coming out black. Log the actual
-        // values (throttled) so we can see whether it's the fog colour, the sky colour, or the void-plane height.
-        if (System.currentTimeMillis() - SKY_DIAG_LAST_MS > 2000L) {
-            SKY_DIAG_LAST_MS = System.currentTimeMillis();
-            try {
-                Vec3d skyCol = portalWorld.getSkyColor(eyeWorldPos, tickDelta);
-                Vec3d cloudCol = portalWorld.getCloudsColor(tickDelta);
-                AITMod.LOGGER.error("[BOTI-SKY] exteriorFog={} skyColor={} cloudColor={} eyeY={} worldTime={} dim={} skyDarken={} portalSkyCamPos={}",
-                        this.lastExteriorFogColor, skyCol, cloudCol, String.format("%.1f", eyeWorldPos.y),
-                        portalWorld.getTimeOfDay(), portalWorld.getRegistryKey().getValue(),
-                        String.format("%.2f", client.gameRenderer.getSkyDarkness(tickDelta)),
-                        WorldGeometryRenderer.getPortalSkyCameraPos());
-            } catch (Exception e) {
-                AITMod.LOGGER.error("[BOTI-SKY] diag failed", e);
-            }
         }
 
         // Sky sits at infinity, so it only takes the rotation (no eye translation) and never writes depth.
@@ -819,7 +798,15 @@ public class WorldGeometryRenderer {
         MinecraftClient client = MinecraftClient.getInstance();
 
         Camera fogCamera = new Camera();
-        fogCamera.setPos(eyePos.x, eyePos.y, eyePos.z);
+        // BackgroundRenderer darkens the fog toward black within ~32 blocks of the world bottom: it multiplies the fog
+        // by clamp((eyeY - bottomY) * horizonShadingRatio, 0, 1). Vanilla sets that ratio to 1.0 for FLAT worlds to
+        // suppress the effect (so a superflat surface a few blocks above bedrock still looks bright), but our shadow
+        // world's LevelProperties always report flatWorld=false, so it uses the normal 1/32 ratio - and a doorway onto
+        // a superflat overworld fogged its horizon to near-black. We can't cheaply learn the mirrored dimension's flat
+        // flag on the client, so compute the fog COLOUR as if the eye sat just above that shading band (bottomY + 34,
+        // where the term clamps to 1). Only the returned colour changes; the real sky/terrain still render at eyePos.
+        double fogY = Math.max(eyePos.y, portalWorld.getBottomY() + 34.0);
+        fogCamera.setPos(eyePos.x, fogY, eyePos.z);
         fogCamera.setRotation(yaw, pitch);
 
         BackgroundRenderer.render(fogCamera, tickDelta, portalWorld, renderDistance,
