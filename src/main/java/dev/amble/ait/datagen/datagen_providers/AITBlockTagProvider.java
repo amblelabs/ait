@@ -60,6 +60,15 @@ public class AITBlockTagProvider extends AmbleBlockTagProvider {
 
 
 
+        getOrCreateTagBuilder(AITTags.Blocks.PHASE_PROOF)
+                .add(Blocks.BEDROCK)
+                .add(Blocks.BARRIER)
+                .add(Blocks.COMMAND_BLOCK, Blocks.CHAIN_COMMAND_BLOCK, Blocks.REPEATING_COMMAND_BLOCK)
+                .add(Blocks.STRUCTURE_BLOCK, Blocks.STRUCTURE_VOID, Blocks.JIGSAW)
+                .add(Blocks.END_PORTAL_FRAME, Blocks.END_PORTAL, Blocks.END_GATEWAY)
+                .add(Blocks.REINFORCED_DEEPSLATE)
+                .add(Blocks.LIGHT);
+
         getOrCreateTagBuilder(BlockTags.WALLS)
                 .add(AITBlocks.TARDIS_CORAL_WALL);
         getOrCreateTagBuilder(BlockTags.FENCES)

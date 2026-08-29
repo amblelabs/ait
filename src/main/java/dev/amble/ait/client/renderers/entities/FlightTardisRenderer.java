@@ -1,6 +1,5 @@
 package dev.amble.ait.client.renderers.entities;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
@@ -36,7 +35,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
     @Override
     public void render(FlightTardisEntity entity, float yaw, float tickDelta, MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers, int light) {
+                       VertexConsumerProvider vertexConsumers, int light) {
         if (!entity.isLinked())
             return;
 
@@ -44,69 +43,72 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
         if (tardis == null) return;
 
+        float phaseAlpha = entity.isPhasing() ? 0.5f : 1f;
+
         this.updateModel(tardis);
 
-        if (entity.getControllingPassenger() == null ||
-                !(entity.getControllingPassenger() instanceof AbstractClientPlayerEntity player)) return;
+        double deltaX = 0;
+        double deltaY = 0;
+        double deltaZ = 0;
 
-        if (player.getVehicle() == null || player.getVehicle() != entity) return;
+        Vec3d vec3d = Vec3d.ZERO;
 
-        Vec3d vec3d = entity.getRotationVec(tickDelta);
-        Vec3d vec3d2 = entity.lerpVelocity(tickDelta);
+        if (entity.getControllingPassenger() instanceof AbstractClientPlayerEntity player && player.getVehicle() == entity) {
+            deltaX = player.getX() - player.prevX;
+            deltaY = player.getY() - player.prevY;
+            deltaZ = player.getZ() - player.prevZ;
 
-        double d = vec3d2.horizontalLengthSquared();
+            vec3d = player.getRotationVec(tickDelta);
+        }
+
+        double d = deltaX * deltaX + deltaZ * deltaZ;
         double e = vec3d.horizontalLengthSquared();
 
         matrices.push();
-        if (tardis.door().isClosed() && !entity.groundCollision)
-            matrices.translate(0, 0.25f * -vec3d2.getY(), 0);
+        if (tardis.door().isClosed() && !entity.isCollidingOnGround())
+            matrices.translate(0, 0.25f * -deltaY, 0);
 
         if (tardis.travel().position().getDimension() == AITDimensions.TIME_VORTEX_WORLD) {
             VortexRender vortexRender = tardis.stats().getVortexEffects().toRender();
             matrices.push();
-            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) MinecraftClient.getInstance().player.age / 100 * 360f));
+            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) entity.age / 100 * 360f));
             matrices.translate(0, 0, 500);
             vortexRender.render(matrices);
             matrices.pop();
         }
 
+        if (!entity.isCollidingOnGround()) {
+            matrices.translate(0, 2f, 0);
+            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float)(9.0d * -deltaX * 2.0d)));
+            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((float)(9.0d * deltaZ * 2.0d)));
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(((tickDelta + entity.age) * tardis.travel().speed() * 2.4f)));
+            matrices.translate(0, -2f, 0);
+        }
+
         if (d > 0.0 && e > 0.0) {
-            double l = (vec3d2.x * vec3d.x + vec3d2.z * vec3d.z) / Math.sqrt(d * e);
-            double m = vec3d2.x * vec3d.z - vec3d2.z * vec3d.x;
+            double l = (deltaX * vec3d.x + deltaZ * vec3d.z) / Math.sqrt(d * e);
+            double m = deltaX * vec3d.z - deltaZ * vec3d.x;
             double v = Math.signum(m) * Math.acos(l);
             matrices.multiply(RotationAxis.POSITIVE_Y.rotation((float) v));
         }
 
-        boolean doorsClosed = tardis.door().isClosed();
-        float deg = doorsClosed ? (float) (d * 22.5f) : (float) -d * 22.5f;
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 
-        if (!entity.verticalCollision && !doorsClosed) {
-            this.model.getPart().setAngles((float) 0, 0, 0);
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180f));
-        } else if (!entity.verticalCollision) {
-            this.model.getPart().setAngles((float) 0, ((entity.getRotation(tickDelta)) * tardis.travel().speed()), 0);
-        }
-
-        /*if (!entity.verticalCollision)
-            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((float) (2f * Math.cos(0.2f * (tickDelta + entity.age))) + deg));*/
-
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(entity.verticalCollision ? 180f : (float) (2f * Math.sin(0.2f * (tickDelta + entity.age)) + 180f)));
-
-        this.model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(getTexture(entity))), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
+        this.model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(getTexture(entity))), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, phaseAlpha);
 
         if (variant.emission() != null && tardis.fuel().hasPower()) {
             boolean alarms = tardis.alarm().isEnabled();
 
             float color = alarms ? 0.3f : 1f;
 
-            model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xf000f0, OverlayTexture.DEFAULT_UV, color, color, color, 1);
+            model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xf000f0, OverlayTexture.DEFAULT_UV, color, color, color, phaseAlpha);
         }
 
         BiomeHandler biome = tardis.handler(TardisComponent.Id.BIOME);
         Identifier biomeTexture = biome.getBiomeKey().get(variant.overrides());
 
         if (biomeTexture != null && !this.getTexture(entity).equals(biomeTexture))
-            model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(biomeTexture)), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
+            model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(biomeTexture)), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, phaseAlpha);
 
         int maxLight = 0xF000F0;
 
@@ -138,6 +140,8 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
     }
 
     private void updateModel(Tardis tardis) {
+        if (tardis.getExterior() == null)
+            return;
         ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
 
         if (this.variant != variant) {

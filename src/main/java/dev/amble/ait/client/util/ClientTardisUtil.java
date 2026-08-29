@@ -122,6 +122,17 @@ public class ClientTardisUtil {
         ClientPlayNetworking.send(TOGGLE_ANTIGRAVS, buf);
     }
 
+    public static void phasePacket(Tardis tardis) {
+        phasePacket(tardis.getUuid());
+    }
+
+    public static void phasePacket(UUID uuid) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeUuid(uuid);
+
+        ClientPlayNetworking.send(PHASE, buf);
+    }
+
     public static boolean isPlayerInATardis() {
         return currentTardis != null;
     }
@@ -144,23 +155,6 @@ public class ClientTardisUtil {
 
         BlockPos pos = player.getBlockPos();
         RegistryKey<World> dimension = player.getWorld().getRegistryKey();
-
-        // doesnt find nearest, only finds if within radius.
-        // could be more performant though
-        //
-        // ya dont say
-        //  - Theo
-        /*
-        return ClientTardisManager.getInstance().find(tardis -> {
-            if (!tardis.travel().position().getDimension().equals(dimension))
-                return false;
-
-            BlockPos tPos = tardis.travel().position().getPos();
-            double distance = Math.sqrt(pos.getSquaredDistance(tPos));
-
-            return distance < radius;
-        });
-        */
 
         double radiusSquared = Math.pow(radius, 2);
 

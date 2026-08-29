@@ -188,7 +188,7 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         if (directed == null)
             return false;
 
-        return this.isOpen() && !tardis.areShieldsActive()
+        return this.isOpen() && !tardis.flight().isFlying() && !tardis.areShieldsActive()
             && ((!tardis.travel().isLanded() && !tardis.travel().autopilot())
                 || tardis.travel().position().getDimension().equals(AITDimensions.SPACE));
     }

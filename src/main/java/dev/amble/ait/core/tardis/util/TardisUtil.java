@@ -66,6 +66,7 @@ public class TardisUtil {
     public static final Identifier SNAP = AITMod.id("snap");
     public static final Identifier FLYING_SPEED = AITMod.id("flying_speed");
     public static final Identifier TOGGLE_ANTIGRAVS = AITMod.id("toggle_antigravs");
+    public static final Identifier PHASE = AITMod.id("phase");
     public static final ExplosionBehavior EXPLOSION_BEHAVIOR = new ExplosionBehavior() {
         @Override
         public boolean canDestroyBlock(Explosion explosion, BlockView world, BlockPos pos, BlockState state, float power) {
@@ -88,14 +89,6 @@ public class TardisUtil {
                 Loyalty loyalty = tardis.loyalty().get(player);
 
                 if (tardis.flight().isFlying()) {
-                    server.execute(() -> {
-                        if (!player.isSneaking()) {
-                            tardis.door().interactAllDoors(player.getServerWorld(), null, player, true);
-                        } else {
-                            tardis.door().interactToggleLock(player);
-                        }
-                    });
-
                     return;
                 }
 
@@ -153,6 +146,16 @@ public class TardisUtil {
             ServerTardisManager.getInstance().getTardis(server, uuid, tardis -> {
                 if (!tardis.flight().isFlying()) return;
                 tardis.travel().antigravs().toggle();
+            });
+        });
+        ServerPlayNetworking.registerGlobalReceiver(PHASE, (server, player, handler, buf, responseSender) -> {
+            UUID uuid = buf.readUuid();
+            ServerTardisManager.getInstance().getTardis(server, uuid, tardis -> {
+                if (!tardis.flight().isFlying()) return;
+                server.execute(() -> {
+                    if (!(player.getVehicle() instanceof FlightTardisEntity entity)) return;
+                    entity.startPhase(player, tardis);
+                });
             });
         });
     }
