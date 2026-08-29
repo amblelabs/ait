@@ -132,11 +132,14 @@ public class AITModClient implements ClientModInitializer {
 
         // Core shader that copies a framebuffer's depth by sampling its depth texture and writing gl_FragDepth. BOTI
         // uses it instead of glBlitFramebuffer(GL_DEPTH_BUFFER_BIT), which is rejected across the main/afbo mismatched
-        // depth formats on Apple's strict GL driver (GL_INVALID_OPERATION); see BOTI.copyDepth.
-        CoreShaderRegistrationCallback.EVENT.register(context ->
-                context.register(new Identifier(AITMod.MOD_ID, "copy_depth"),
-                        net.minecraft.client.render.VertexFormats.POSITION_TEXTURE,
-                        program -> BOTI.COPY_DEPTH_PROGRAM = program));
+        // depth formats on Apple's strict GL driver (GL_INVALID_OPERATION); see BOTI.copyDepth. Registered (and thus
+        // compiled) only on macOS, the only place it's used, so it can never affect other drivers' startup.
+        if (MinecraftClient.IS_SYSTEM_MAC) {
+            CoreShaderRegistrationCallback.EVENT.register(context ->
+                    context.register(new Identifier(AITMod.MOD_ID, "copy_depth"),
+                            net.minecraft.client.render.VertexFormats.POSITION_TEXTURE,
+                            program -> BOTI.COPY_DEPTH_PROGRAM = program));
+        }
 
         ModuleRegistry.instance().onClientInit();
 
