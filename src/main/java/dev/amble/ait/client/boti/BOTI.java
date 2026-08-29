@@ -1,5 +1,6 @@
 package dev.amble.ait.client.boti;
 
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -8,7 +9,9 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
 import org.joml.Matrix4f;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -25,6 +28,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -82,6 +86,7 @@ public class BOTI {
 
     /** Resets the bound framebuffer's stencil to 0 everywhere, leaving colour and depth untouched. */
     public static void resetStencilByDraw() {
+        logClearEnvOnce();
         GL11.glEnable(GL11.GL_STENCIL_TEST);
         GL11.glStencilMask(0xFF);
         GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
@@ -91,10 +96,58 @@ public class BOTI {
 
     /** Resets the bound framebuffer's depth to the far plane, leaving colour and the current stencil mask untouched. */
     public static void resetDepthByDraw() {
+        logStencilPatternOnce(); // read back the real stencil pattern the mask produced, before we touch stencil state
         GL11.glStencilMask(0x00); // preserve the mask bits already written for this pass
         GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF); // let the quad cover the whole buffer regardless of stencil
         GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
         drawFullscreenQuad(false, true);
+    }
+
+    private static boolean CLEAR_ENV_LOGGED = false;
+    private static boolean STENCIL_PATTERN_LOGGED = false;
+
+    /** One-shot: capture the live GL environment (viewport/scissor/bound fb) when a real pass clears its stencil. */
+    private static void logClearEnvOnce() {
+        if (CLEAR_ENV_LOGGED)
+            return;
+        CLEAR_ENV_LOGGED = true;
+
+        int[] vp = new int[4];
+        GL11.glGetIntegerv(GL11.GL_VIEWPORT, vp);
+        int[] sc = new int[4];
+        GL11.glGetIntegerv(GL11.GL_SCISSOR_BOX, sc);
+        boolean scissor = GL11.glIsEnabled(GL11.GL_SCISSOR_TEST);
+        boolean stencil = GL11.glIsEnabled(GL11.GL_STENCIL_TEST);
+        int drawFb = GL11.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING);
+        int readFb = GL11.glGetInteger(GL30.GL_READ_FRAMEBUFFER_BINDING);
+
+        AITMod.LOGGER.error("[BOTI-DIAG] clearEnv viewport=[{},{},{},{}] scissorTest={} scissorBox=[{},{},{},{}] stencilTest={} drawFb={} readFb={} afbo.fbo={} afbo={}x{}",
+                vp[0], vp[1], vp[2], vp[3], scissor, sc[0], sc[1], sc[2], sc[3], stencil, drawFb, readFb,
+                BOTI_HANDLER.afbo.fbo, BOTI_HANDLER.afbo.textureWidth, BOTI_HANDLER.afbo.textureHeight);
+    }
+
+    /**
+     * One-shot: read back the afbo's actual stencil values right after the mask was drawn (the read framebuffer is the
+     * afbo here). Expected pattern is 1 in the doorway (centre) and 0 outside (corner). If the corner reads 1, the mask
+     * write spread the stencil across the whole buffer - that, not the clear, is what makes the interior smear.
+     */
+    private static void logStencilPatternOnce() {
+        if (STENCIL_PATTERN_LOGGED)
+            return;
+        STENCIL_PATTERN_LOGGED = true;
+
+        int w = BOTI_HANDLER.afbo.textureWidth;
+        int h = BOTI_HANDLER.afbo.textureHeight;
+        GL11.glGetError();
+
+        ByteBuffer centre = BufferUtils.createByteBuffer(4);
+        GL11.glReadPixels(w / 2, h / 2, 1, 1, GL11.GL_STENCIL_INDEX, GL11.GL_UNSIGNED_BYTE, centre);
+        ByteBuffer corner = BufferUtils.createByteBuffer(4);
+        GL11.glReadPixels(4, 4, 1, 1, GL11.GL_STENCIL_INDEX, GL11.GL_UNSIGNED_BYTE, corner);
+        int readErr = GL11.glGetError();
+
+        AITMod.LOGGER.error("[BOTI-DIAG] STENCIL PATTERN after mask: centre={} corner={} readErr=0x{} (expect centre=1 corner=0; corner=1 => mask spread everywhere)",
+                centre.get(0) & 0xFF, corner.get(0) & 0xFF, Integer.toHexString(readErr));
     }
 
     /**
