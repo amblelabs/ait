@@ -47,22 +47,39 @@ public class BOTI {
     public static Queue<ExteriorBlockEntity> EXTERIOR_RENDER_QUEUE = new LinkedList<>();
     private static boolean HAS_BEEN_WARNED = false;
 
+    private static boolean BLIT_DIAG_LOGGED = false;
+
     public static void copyFramebuffer(Framebuffer src, Framebuffer dest) {
         GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, src.fbo);
         GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, dest.fbo);
+        boolean diag = !BLIT_DIAG_LOGGED;
+        if (diag) GL11.glGetError();
         GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight, 0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_DEPTH_BUFFER_BIT | GlConst.GL_COLOR_BUFFER_BIT, GlConst.GL_NEAREST);
+        if (diag) AITMod.LOGGER.error("[BOTI-DIAG] copyFramebuffer blit(COLOR|DEPTH) err=0x{} src.fbo={} dest.fbo={}",
+                Integer.toHexString(GL11.glGetError()), src.fbo, dest.fbo);
     }
 
     public static void copyColor(Framebuffer src, Framebuffer dest) {
         GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, src.fbo);
         GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, dest.fbo);
+        boolean diag = !BLIT_DIAG_LOGGED;
+        if (diag) GL11.glGetError();
         GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight, 0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_COLOR_BUFFER_BIT, GlConst.GL_NEAREST);
+        if (diag) {
+            AITMod.LOGGER.error("[BOTI-DIAG] copyColor blit(COLOR) err=0x{} src.fbo={} dest.fbo={}",
+                    Integer.toHexString(GL11.glGetError()), src.fbo, dest.fbo);
+            BLIT_DIAG_LOGGED = true; // copyColor is the last blit in a pass; stop after logging all three
+        }
     }
 
     public static void copyDepth(Framebuffer src, Framebuffer dest) {
         GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, src.fbo);
         GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, dest.fbo);
+        boolean diag = !BLIT_DIAG_LOGGED;
+        if (diag) GL11.glGetError();
         GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight, 0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_DEPTH_BUFFER_BIT, GlConst.GL_NEAREST);
+        if (diag) AITMod.LOGGER.error("[BOTI-DIAG] copyDepth blit(DEPTH) err=0x{} src.fbo={} dest.fbo={} (0x502=INVALID_OPERATION => mismatched depth formats, the smear)",
+                Integer.toHexString(GL11.glGetError()), src.fbo, dest.fbo);
     }
 
     public static void setFramebufferColor(Framebuffer src, float r, float g, float b, float a) {
