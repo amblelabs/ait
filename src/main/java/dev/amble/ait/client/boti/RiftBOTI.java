@@ -34,10 +34,8 @@ public class RiftBOTI extends BOTI {
 
         VertexConsumerProvider.Immediate portalProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
-        // Enable stencil testing and clear the stencil buffer
-        GL11.glEnable(GL11.GL_STENCIL_TEST);
-        GL11.glStencilMask(0xFF);
-        GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+        // Enable stencil testing and reset the stencil buffer (driver-safe clear-by-draw; see BOTI.resetStencilByDraw)
+        BOTI.resetStencilByDraw();
         GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
         GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
 
@@ -51,7 +49,7 @@ public class RiftBOTI extends BOTI {
         copyDepth(BOTI_HANDLER.afbo, client.getFramebuffer());
 
         BOTI_HANDLER.afbo.beginWrite(false);
-        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        BOTI.resetDepthByDraw();
 
         GL11.glStencilMask(0x00);
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);

@@ -6,10 +6,19 @@ import java.util.Queue;
 import com.mojang.blaze3d.platform.GlConst;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.systems.VertexSorter;
+import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -61,6 +70,74 @@ public class BOTI {
         GL11.glDisable(GL11.GL_STENCIL_TEST);
         RenderSystem.depthMask(true);
         client.getFramebuffer().beginWrite(true);
+    }
+
+    private static final Matrix4f IDENTITY_MATRIX = new Matrix4f();
+
+    // The BOTI framebuffer's depth attachment is a *packed* depth-stencil texture (see the framebuffer mixins, which
+    // force GL_DEPTH24_STENCIL8 / GL_DEPTH32F_STENCIL8). NVIDIA honours a single-aspect glClear of one half of that
+    // combined attachment, but Apple / AMD / Intel GL drivers silently drop it - so the stencil was never actually
+    // reset and last frame's mask bled the interior across the screen (the "smear"). A per-fragment draw is honoured
+    // on every driver, so we reset each aspect by drawing a full-screen quad instead of calling glClear.
+
+    /** Resets the bound framebuffer's stencil to 0 everywhere, leaving colour and depth untouched. */
+    public static void resetStencilByDraw() {
+        GL11.glEnable(GL11.GL_STENCIL_TEST);
+        GL11.glStencilMask(0xFF);
+        GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
+        GL11.glStencilOp(GL11.GL_REPLACE, GL11.GL_REPLACE, GL11.GL_REPLACE);
+        drawFullscreenQuad(false, false);
+    }
+
+    /** Resets the bound framebuffer's depth to the far plane, leaving colour and the current stencil mask untouched. */
+    public static void resetDepthByDraw() {
+        GL11.glStencilMask(0x00); // preserve the mask bits already written for this pass
+        GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF); // let the quad cover the whole buffer regardless of stencil
+        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
+        drawFullscreenQuad(false, true);
+    }
+
+    /**
+     * Draws a screen-filling quad at the far plane through the position program with identity matrices, writing only
+     * the aspects requested. Depth test is forced to ALWAYS (and enabled) so the fragments always run - without an
+     * enabled depth test the driver writes neither depth nor the stencil depth-pass op. GL state the surrounding pass
+     * relies on (depth func, colour mask, depth mask, cull) is restored on the way out.
+     */
+    private static void drawFullscreenQuad(boolean writeColor, boolean writeDepth) {
+        RenderSystem.colorMask(writeColor, writeColor, writeColor, writeColor);
+        RenderSystem.depthMask(writeDepth);
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(GL11.GL_ALWAYS);
+        RenderSystem.disableCull();
+
+        Matrix4f prevProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
+        VertexSorter prevSorter = RenderSystem.getVertexSorting();
+        RenderSystem.setProjectionMatrix(IDENTITY_MATRIX, VertexSorter.BY_DISTANCE);
+
+        MatrixStack modelView = RenderSystem.getModelViewStack();
+        modelView.push();
+        modelView.loadIdentity();
+        RenderSystem.applyModelViewMatrix();
+
+        RenderSystem.setShader(GameRenderer::getPositionProgram);
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+
+        BufferBuilder builder = Tessellator.getInstance().getBuffer();
+        builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
+        builder.vertex(-1.0, -1.0, 1.0).next();
+        builder.vertex(1.0, -1.0, 1.0).next();
+        builder.vertex(1.0, 1.0, 1.0).next();
+        builder.vertex(-1.0, 1.0, 1.0).next();
+        BufferRenderer.drawWithGlobalProgram(builder.end());
+
+        modelView.pop();
+        RenderSystem.applyModelViewMatrix();
+        RenderSystem.setProjectionMatrix(prevProjection, prevSorter);
+
+        RenderSystem.depthFunc(GL11.GL_LEQUAL);
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableCull();
     }
 
     /** Solid white block texture, tinted to fill the portal background with a flat sky colour. */
