@@ -55,8 +55,8 @@ public class TardisDoorBOTI extends BOTI {
                 client.getFramebuffer().fbo,
                 client.getWindow().getFramebufferWidth(), client.getWindow().getFramebufferHeight());
         BOTI.BotiCompositeState composite = BOTI.beginBotiComposite();
-        int winW = client.getWindow().getFramebufferWidth();
-        int winH = client.getWindow().getFramebufferHeight();
+        int winW = composite.viewport[2];
+        int winH = composite.viewport[3];
 
         BOTI_HANDLER.setupFramebuffer();
 
