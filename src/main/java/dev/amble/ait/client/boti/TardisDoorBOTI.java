@@ -54,7 +54,9 @@ public class TardisDoorBOTI extends BOTI {
                 BOTI.currentDrawFbo(),
                 client.getFramebuffer().fbo,
                 client.getWindow().getFramebufferWidth(), client.getWindow().getFramebufferHeight());
-        client.getFramebuffer().endWrite();
+        BOTI.BotiCompositeState composite = BOTI.beginBotiComposite();
+        int winW = client.getWindow().getFramebufferWidth();
+        int winH = client.getWindow().getFramebufferHeight();
 
         BOTI_HANDLER.setupFramebuffer();
 
@@ -82,7 +84,7 @@ public class TardisDoorBOTI extends BOTI {
         else
             BOTI.setFramebufferColor(BOTI_HANDLER.afbo, (float) skyColor.x, (float) skyColor.y, (float) skyColor.z, 1);
 
-        BOTI.copyFramebuffer(client.getFramebuffer(), BOTI_HANDLER.afbo);
+        BOTI.copyFramebufferFromFbo(composite.drawFbo, winW, winH, BOTI_HANDLER.afbo);
 
         VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
@@ -115,7 +117,7 @@ public class TardisDoorBOTI extends BOTI {
         }
         botiProvider.draw();
         stack.pop();
-        copyDepth(BOTI_HANDLER.afbo, client.getFramebuffer());
+        BOTI.copyDepthToFbo(BOTI_HANDLER.afbo, composite.drawFbo, winW, winH);
 
         BOTI_HANDLER.afbo.beginWrite(false);
         BOTI.resetDepthByDraw();
@@ -238,21 +240,14 @@ public class TardisDoorBOTI extends BOTI {
             stack.pop();
         }
 
-        // **NEW APPROACH: Disable stencil BEFORE switching framebuffers**
+        // Disable stencil before blitting the composited interior back to the live target.
         GL11.glDisable(GL11.GL_STENCIL_TEST);
         GL11.glStencilMask(0x00);
 
-        // Switch to main framebuffer and copy color
-        client.getFramebuffer().beginWrite(false);  // false = don't check for errors
-        BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
-
-        // Reset all stencil state on main framebuffer
-        GL11.glStencilMask(0xFF);
-        GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
-        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
-
-        // Ensure depth mask is enabled for normal rendering
-        RenderSystem.depthMask(true);
+        // Blit afbo's colour into whatever framebuffer was live at entry (Iris's world target, or the
+        // vanilla main FB), then rebind it and restore the GL state we captured.
+        BOTI.copyColorToFbo(BOTI_HANDLER.afbo, composite.drawFbo, winW, winH);
+        BOTI.endBotiComposite(composite);
 
         stack.pop();
     }
