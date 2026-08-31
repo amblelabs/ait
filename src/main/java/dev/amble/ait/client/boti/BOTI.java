@@ -114,6 +114,112 @@ public class BOTI {
         GL11.glGetError();
     }
 
+    /** Blit a Framebuffer's colour into a raw destination FBO id (e.g. Iris's live world target). */
+    public static void copyColorToFbo(Framebuffer src, int destFbo, int w, int h) {
+        GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, src.fbo);
+        GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, destFbo);
+        GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight,
+                0, 0, w, h, GlConst.GL_COLOR_BUFFER_BIT, GlConst.GL_NEAREST);
+    }
+
+    /** Blit a raw source FBO id's colour into a Framebuffer (e.g. the live scene -> afbo backdrop). */
+    public static void copyColorFromFbo(int srcFbo, int w, int h, Framebuffer dest) {
+        GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, srcFbo);
+        GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, dest.fbo);
+        GlStateManager._glBlitFrameBuffer(0, 0, w, h,
+                0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_COLOR_BUFFER_BIT, GlConst.GL_NEAREST);
+    }
+
+    /** Copy the live scene (raw source FBO id) colour+depth into afbo, replacing copyFramebuffer(main, afbo). */
+    public static void copyFramebufferFromFbo(int srcFbo, int w, int h, Framebuffer dest) {
+        copyColorFromFbo(srcFbo, w, h, dest);
+        GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, srcFbo);
+        GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, dest.fbo);
+        GlStateManager._glBlitFrameBuffer(0, 0, w, h,
+                0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_DEPTH_BUFFER_BIT, GlConst.GL_NEAREST);
+        GL11.glGetError();
+    }
+
+    /** Copy afbo's depth into a raw destination FBO id. Mirrors copyDepth's non-Mac blit and Mac shader path. */
+    public static void copyDepthToFbo(Framebuffer src, int destFbo, int w, int h) {
+        if (!MinecraftClient.IS_SYSTEM_MAC || COPY_DEPTH_PROGRAM == null || src.getDepthAttachment() <= 0) {
+            GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, src.fbo);
+            GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, destFbo);
+            GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight,
+                    0, 0, w, h, GlConst.GL_DEPTH_BUFFER_BIT, GlConst.GL_NEAREST);
+            GL11.glGetError();
+            return;
+        }
+
+        GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, destFbo);
+        RenderSystem.viewport(0, 0, w, h);
+
+        RenderSystem.colorMask(false, false, false, false);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(GL11.GL_ALWAYS);
+        RenderSystem.disableCull();
+
+        Matrix4f prevProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
+        VertexSorter prevSorter = RenderSystem.getVertexSorting();
+        RenderSystem.setProjectionMatrix(IDENTITY_MATRIX, VertexSorter.BY_DISTANCE);
+        MatrixStack modelView = RenderSystem.getModelViewStack();
+        modelView.push();
+        modelView.loadIdentity();
+        RenderSystem.applyModelViewMatrix();
+
+        RenderSystem.setShaderTexture(0, src.getDepthAttachment());
+        RenderSystem.setShader(() -> COPY_DEPTH_PROGRAM);
+
+        BufferBuilder builder = Tessellator.getInstance().getBuffer();
+        builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+        builder.vertex(-1.0, -1.0, 0.0).texture(0.0f, 0.0f).next();
+        builder.vertex(1.0, -1.0, 0.0).texture(1.0f, 0.0f).next();
+        builder.vertex(1.0, 1.0, 0.0).texture(1.0f, 1.0f).next();
+        builder.vertex(-1.0, 1.0, 0.0).texture(0.0f, 1.0f).next();
+        BufferRenderer.drawWithGlobalProgram(builder.end());
+
+        modelView.pop();
+        RenderSystem.applyModelViewMatrix();
+        RenderSystem.setProjectionMatrix(prevProjection, prevSorter);
+
+        RenderSystem.depthFunc(GL11.GL_LEQUAL);
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableCull();
+    }
+
+    /** Captured GL state for one BOTI composite, so the callback restores exactly what it found and never
+     *  leaves Iris's next pass on the wrong target or with dirty stencil/depth state. */
+    public static final class BotiCompositeState {
+        int drawFbo;
+        final int[] viewport = new int[4];
+        boolean stencilEnabled;
+        boolean depthMask;
+    }
+
+    /** Capture the live draw target + the GL state the composite mutates. Call at the very start of a variant. */
+    public static BotiCompositeState beginBotiComposite() {
+        BotiCompositeState s = new BotiCompositeState();
+        s.drawFbo = currentDrawFbo();
+        GL11.glGetIntegerv(GL11.GL_VIEWPORT, s.viewport);
+        s.stencilEnabled = GL11.glIsEnabled(GL11.GL_STENCIL_TEST);
+        s.depthMask = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
+        return s;
+    }
+
+    /** Rebind the captured target + restore state. Call after the afbo colour has been blitted back. */
+    public static void endBotiComposite(BotiCompositeState s) {
+        GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, s.drawFbo);
+        RenderSystem.viewport(s.viewport[0], s.viewport[1], s.viewport[2], s.viewport[3]);
+        GL11.glStencilMask(0xFF);
+        GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
+        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
+        if (!s.stencilEnabled) GL11.glDisable(GL11.GL_STENCIL_TEST);
+        RenderSystem.depthMask(s.depthMask);
+        RenderSystem.enableCull();
+    }
+
     public static void setFramebufferColor(Framebuffer src, float r, float g, float b, float a) {
         src.setClearColor(r, g, b, a);
     }
