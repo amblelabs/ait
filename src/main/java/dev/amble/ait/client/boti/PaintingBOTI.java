@@ -26,11 +26,13 @@ public class PaintingBOTI extends BOTI {
 
         stack.push();
 
-        client.getFramebuffer().endWrite();
+        BOTI.BotiCompositeState composite = BOTI.beginBotiComposite();
+        int winW = composite.viewport[2];
+        int winH = composite.viewport[3];
 
         BOTI_HANDLER.setupFramebuffer();
 
-        BOTI.copyFramebuffer(client.getFramebuffer(), BOTI_HANDLER.afbo);
+        BOTI.copyFramebufferFromFbo(composite.drawFbo, winW, winH, BOTI_HANDLER.afbo);
 
         VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
@@ -50,7 +52,7 @@ public class PaintingBOTI extends BOTI {
         stack.push();
         frame.renderWithFbo(stack, botiProvider, 0xf000f0, OverlayTexture.DEFAULT_UV, 0, 0, 0, 1, frameTexture);
         botiProvider.draw();
-        BOTI.copyDepth(BOTI_HANDLER.afbo, client.getFramebuffer());
+        BOTI.copyDepthToFbo(BOTI_HANDLER.afbo, composite.drawFbo, winW, winH);
 
         BOTI_HANDLER.afbo.beginWrite(false);
         BOTI.resetDepthByDraw();
@@ -67,13 +69,8 @@ public class PaintingBOTI extends BOTI {
         botiProvider.draw();
         stack.pop();
 
-        client.getFramebuffer().beginWrite(true);
-
-        BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
-
-        GL11.glDisable(GL11.GL_STENCIL_TEST);
-
-        RenderSystem.depthMask(true);
+        BOTI.copyColorToFbo(BOTI_HANDLER.afbo, composite.drawFbo, winW, winH);
+        BOTI.endBotiComposite(composite);
 
         stack.pop();
     }

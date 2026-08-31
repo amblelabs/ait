@@ -50,7 +50,9 @@ public class TardisExteriorBOTI extends BOTI {
 
         stack.push();
 
-        MinecraftClient.getInstance().getFramebuffer().endWrite();
+        BOTI.BotiCompositeState composite = BOTI.beginBotiComposite();
+        int winW = composite.viewport[2];
+        int winH = composite.viewport[3];
 
         BOTI_HANDLER.setupFramebuffer();
 
@@ -60,7 +62,7 @@ public class TardisExteriorBOTI extends BOTI {
         else
             BOTI.setFramebufferColor(BOTI_HANDLER.afbo, (float) skyColor.x, (float) skyColor.y, (float) skyColor.z, 1);
 
-        BOTI.copyFramebuffer(MinecraftClient.getInstance().getFramebuffer(), BOTI_HANDLER.afbo);
+        BOTI.copyFramebufferFromFbo(composite.drawFbo, winW, winH, BOTI_HANDLER.afbo);
 
         VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
@@ -92,7 +94,7 @@ public class TardisExteriorBOTI extends BOTI {
         botiProvider.draw();
         stack.pop();
 
-        copyDepth(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
+        BOTI.copyDepthToFbo(BOTI_HANDLER.afbo, composite.drawFbo, winW, winH);
 
         BOTI_HANDLER.afbo.beginWrite(false);
         BOTI.resetDepthByDraw();
@@ -225,11 +227,8 @@ public class TardisExteriorBOTI extends BOTI {
         }
         stack.pop();
 
-        MinecraftClient.getInstance().getFramebuffer().beginWrite(true);
-
-        BOTI.copyColor(BOTI_HANDLER.afbo, MinecraftClient.getInstance().getFramebuffer());
-
-        GL11.glDisable(GL11.GL_STENCIL_TEST);
+        BOTI.copyColorToFbo(BOTI_HANDLER.afbo, composite.drawFbo, winW, winH);
+        BOTI.endBotiComposite(composite);
 
         stack.pop();
     }
