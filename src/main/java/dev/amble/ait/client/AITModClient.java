@@ -40,6 +40,8 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.client.render.Frustum;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec3d;
@@ -572,9 +574,17 @@ public class AITModClient implements ClientModInitializer {
 
         ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
         AnimatedModel model = variant.getDoor().model();
+        Frustum frustum = context.frustum();
         for (DoorBlockEntity door : BOTI.DOOR_RENDER_QUEUE) {
             if (door == null) continue;
             BlockPos pos = door.getPos();
+
+            // Frustum-gate the whole expensive portal render: if the doorway aperture isn't in the real player
+            // camera's view, skip it entirely (no sky/terrain/entity passes, no meshing). The shadow world keeps
+            // updating in the tick loop and the baked geometry ages out via reclaimIfIdle, so nothing is lost - the
+            // doorway simply re-bakes when looked at again. context.frustum() is non-null at AFTER_ENTITIES/END.
+            if (frustum != null && !frustum.isVisible(new Box(pos).expand(2.0)))
+                continue;
 
             stack.push();
             stack.translate(0.5, 0, 0.5);

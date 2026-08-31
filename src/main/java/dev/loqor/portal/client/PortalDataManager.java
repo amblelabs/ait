@@ -51,6 +51,11 @@ public class PortalDataManager {
         });
 
         ClientTickEvents.END_CLIENT_TICK.register(minecraftClient -> {
+            // Idle window (config, seconds -> nanos) after which an unviewed doorway's baked geometry is reclaimed.
+            // CONFIG is set at client init, well before any portal ticks; fall back to the 10s default if it isn't.
+            long idleReclaimNanos = (long) (dev.amble.ait.client.AITModClient.CONFIG != null
+                    ? dev.amble.ait.client.AITModClient.CONFIG.botiIdleReclaimSeconds : 10) * 1_000_000_000L;
+
             for (PortalData data : new ArrayList<>(map.values())) {
                 // Each per-tick step is isolated so a failure in one can't skip the ones after it. In particular
                 // entity ticking must run every tick regardless of the chunk/time steps: if it were skipped on the
@@ -78,6 +83,12 @@ public class PortalDataManager {
 
                 step(data, "entities", PortalData::tickEntities);
                 step(data, "particles", PortalDataManager::spawnDisplayParticles);
+
+                // Reclaim baked geometry for a doorway nobody has looked at recently. This runs for EVERY portal,
+                // not just the one being viewed - that's the point: a TARDIS whose interior is loaded but off-screen
+                // never calls render(), so this tick step is the only place its VBOs can be freed. GL-safe here: the
+                // client tick runs on the render thread. The shadow world stays live, so updates keep flowing in.
+                step(data, "geometry reclaim", d -> d.geometry().reclaimIfIdle(idleReclaimNanos));
             }
 
             for (PortalParticleManager manager : new ArrayList<>(particles.values())) {

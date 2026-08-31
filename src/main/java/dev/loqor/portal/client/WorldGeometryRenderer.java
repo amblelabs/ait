@@ -58,6 +58,21 @@ public class WorldGeometryRenderer {
     /** How many sections to (re)build per dispatch. Keeps each off-thread batch small so a hitch never stalls. */
     private static final int BUILD_BUDGET = 6;
 
+    /** Per-frame ceiling on the render-thread light flood-fill so a full rebuild/remesh spreads over frames. */
+    private static final long LIGHT_BUDGET_NANOS = 2_000_000L;
+
+    /** Idle frames with nothing to build before the retained builder pool's direct memory is released. */
+    private static final int POOL_RETAIN_FRAMES = 600;
+    private int idleFrames = 0;
+
+    /**
+     * {@link System#nanoTime()} of the last frame this doorway actually drew. A doorway that hasn't been drawn for
+     * longer than the configured idle window (the player looked away, or this TARDIS's interior is loaded but not
+     * currently viewed) has its baked geometry reclaimed by {@link #reclaimIfIdle} - the memory win for having several
+     * TARDISes open at once. Only the render thread writes it (in {@link #render}), only the client-tick loop reads it.
+     */
+    private long lastRenderNanos = 0L;
+
     /** Big stack so deep block-model / biome-colour recursion can't overflow the build thread (the old cause of the
      * silently-swallowed StackOverflowError that left chunks unbuilt). */
     private static final long BUILD_THREAD_STACK = 32L * 1024 * 1024;
@@ -162,6 +177,38 @@ public class WorldGeometryRenderer {
         this.dirtySections.add(pos);
     }
 
+    /**
+     * Drops this doorway's baked geometry if it hasn't been drawn for at least {@code idleNanos} - the memory reclaim
+     * for TARDISes that are loaded but not currently being looked at (their doorway is frustum-culled, or their
+     * interior isn't the one the player is standing in, so {@link #render} never runs for them). Frees the per-section
+     * VBOs (the large GL / native cost) and the block-entity lists, then arms a full rebuild so a returning viewer
+     * re-bakes on demand. The shadow world and its streamed chunks are untouched, so updates keep flowing in and the
+     * rebuild is cheap. Must be called on the render thread (it closes GL buffers); the client-tick loop qualifies.
+     *
+     * @return {@code true} if geometry was reclaimed this call
+     */
+    public boolean reclaimIfIdle(long idleNanos) {
+        if (closed || sectionBuffers.isEmpty())
+            return false;
+        if (System.nanoTime() - lastRenderNanos < idleNanos)
+            return false;
+        // Don't reclaim mid-build: a batch in flight is about to upload VBOs on the render thread (see dispatchBuild),
+        // and clearing sectionBuffers now would either race that apply or immediately orphan what it uploads. Wait for
+        // the pipeline to settle - one more idle tick and we reclaim then.
+        if (buildFuture != null && !buildFuture.isDone())
+            return false;
+
+        for (Map<RenderLayer, VertexBuffer> layerBuffers : sectionBuffers.values())
+            for (VertexBuffer vbo : layerBuffers.values())
+                vbo.close();
+        sectionBuffers.clear();
+        sectionBlockEntities.clear();
+        dirtySections.clear();
+        buildAttempts.clear();
+        needsFullRebuild = true; // a returning viewer re-bakes the whole volume from the (still-live) shadow world
+        return true;
+    }
+
     /** Cardinal convenience overload - used where the door genuinely is axis-aligned (e.g. the interior door). */
     public void setDoorFacing(Direction facing) {
         setDoorNormal(Vec3d.of(facing.getVector()));
@@ -208,6 +255,7 @@ public class WorldGeometryRenderer {
     public void render(UUID id, ClientWorld portalWorld, BlockPos centerPos, Vec3d eyeRelToCenter,
                        float portalYaw, float portalPitch, float tickDelta, boolean checkBehindPortal) {
         this.centerPos = centerPos;
+        this.lastRenderNanos = System.nanoTime(); // published for reclaimIfIdle: this doorway drew this frame
 
         // Geometry is stored relative to centerPos, so if the exterior block moved (e.g. the TARDIS re-landed) the
         // whole volume has to be rebuilt around the new origin or it would draw offset.
@@ -379,9 +427,15 @@ public class WorldGeometryRenderer {
             enqueueVolume();
         }
 
-        if (dirtySections.isEmpty())
+        if (dirtySections.isEmpty()) {
+            if (!builderPool.isEmpty() && ++idleFrames > POOL_RETAIN_FRAMES) {
+                builderPool.clear();
+                idleFrames = 0;
+            }
             return;
+        }
 
+        idleFrames = 0;
         List<ChunkSectionPos> batch = drainBatch(BUILD_BUDGET);
         if (!batch.isEmpty())
             dispatchBuild(world, batch, checkBehindPortal);
@@ -444,21 +498,36 @@ public class WorldGeometryRenderer {
         // render thread). Doing it here keeps every light mutation single-threaded; the off-thread mesh then only
         // reads light. doLightUpdates() also commits the light PortalData staged via enqueueSectionData/setStatus.
         LightingProvider lightingProvider = world.getLightingProvider();
-        boolean queuedAny = false;
         BlockPos.Mutable lightPos = new BlockPos.Mutable();
-        for (ChunkSectionPos sectionPos : batch) {
-            if (world.getChunk(sectionPos.getX(), sectionPos.getZ(), ChunkStatus.FULL, false) == null)
-                continue; // not streamed yet - the async loop re-queues it; nothing to light
+        List<ChunkSectionPos> ready = new ArrayList<>(batch.size());
+        long lightDeadline = System.nanoTime() + LIGHT_BUDGET_NANOS;
+        int scanned = 0;
+        for (; scanned < batch.size(); scanned++) {
+            ChunkSectionPos sectionPos = batch.get(scanned);
+            if (world.getChunk(sectionPos.getX(), sectionPos.getZ(), ChunkStatus.FULL, false) == null) {
+                dirtySections.add(sectionPos); // not streamed yet - retry on a later frame
+                continue;
+            }
 
             int startX = sectionPos.getMinX(), startY = sectionPos.getMinY(), startZ = sectionPos.getMinZ();
             for (int x = startX; x <= startX + 15; x++)
                 for (int y = startY; y <= startY + 15; y++)
                     for (int z = startZ; z <= startZ + 15; z++)
                         lightingProvider.checkBlock(lightPos.set(x, y, z));
-            queuedAny = true;
+            ready.add(sectionPos);
+
+            if (System.nanoTime() >= lightDeadline)
+                break;
         }
-        if (queuedAny)
-            lightingProvider.doLightUpdates();
+        // Requeue whatever the per-frame light budget didn't reach so a full rebuild / remesh spreads over frames.
+        for (int i = scanned + 1; i < batch.size(); i++)
+            dirtySections.add(batch.get(i));
+
+        if (ready.isEmpty())
+            return;
+
+        lightingProvider.doLightUpdates();
+        final List<ChunkSectionPos> buildBatch = ready;
 
         // Serialised pipeline: this future only completes once the results have been uploaded (or discarded) on the
         // render thread. Because pumpBuilds waits for it before dispatching the next batch, the reusable builder pool
@@ -471,9 +540,9 @@ public class WorldGeometryRenderer {
             BlockRenderManager blockRenderManager = MinecraftClient.getInstance().getBlockRenderManager();
             Random random = Random.create();
 
-            List<SectionResult> results = new ArrayList<>(batch.size());
-            for (int slot = 0; slot < batch.size(); slot++) {
-                ChunkSectionPos sectionPos = batch.get(slot);
+            List<SectionResult> results = new ArrayList<>(buildBatch.size());
+            for (int slot = 0; slot < buildBatch.size(); slot++) {
+                ChunkSectionPos sectionPos = buildBatch.get(slot);
 
                 // Don't build a section whose column hasn't streamed into the shadow world yet: reading it would
                 // return all-air, and applySection would then *replace* the section's last good geometry with
@@ -911,32 +980,31 @@ public class WorldGeometryRenderer {
         dispatcher.configure(portalWorld, portalCamera, client.crosshairTarget);
 
         MatrixStack matrices = new MatrixStack();
-        List<BlockEntity> snapshot = new ArrayList<>();
-        for (List<BlockEntity> sectionEntities : sectionBlockEntities.values())
-            snapshot.addAll(sectionEntities);
+        Box cameraBox = new Box(portalCamera.getBlockPos());
 
-        for (BlockEntity blockEntity : snapshot) {
-            BlockPos blockPos = blockEntity.getPos();
+        for (List<BlockEntity> sectionEntities : sectionBlockEntities.values()) {
+            for (BlockEntity blockEntity : sectionEntities) {
+                BlockPos blockPos = blockEntity.getPos();
 
-            if (!isWithinRenderBounds(blockPos))
-                continue;
+                if (!isWithinRenderBounds(blockPos))
+                    continue;
 
-            Box box = new Box(portalCamera.getBlockPos());
-            if ((blockEntity instanceof DoorBlockEntity || blockEntity instanceof ExteriorBlockEntity) && box.contains(blockEntity.getPos().toCenterPos()))
-                continue;
+                if ((blockEntity instanceof DoorBlockEntity || blockEntity instanceof ExteriorBlockEntity) && cameraBox.contains(blockPos.toCenterPos()))
+                    continue;
 
-            matrices.push();
-            matrices.translate(
-                    blockPos.getX() - centerPos.getX(),
-                    blockPos.getY() - centerPos.getY(),
-                    blockPos.getZ() - centerPos.getZ());
+                matrices.push();
+                matrices.translate(
+                        blockPos.getX() - centerPos.getX(),
+                        blockPos.getY() - centerPos.getY(),
+                        blockPos.getZ() - centerPos.getZ());
 
-            try {
-                dispatcher.render(blockEntity, tickDelta, matrices, immediate);
-            } catch (Throwable t) {
-                AITMod.LOGGER.error("BOTI: failed to render block entity {}", blockEntity, t);
-            } finally {
-                matrices.pop();
+                try {
+                    dispatcher.render(blockEntity, tickDelta, matrices, immediate);
+                } catch (Throwable t) {
+                    AITMod.LOGGER.error("BOTI: failed to render block entity {}", blockEntity, t);
+                } finally {
+                    matrices.pop();
+                }
             }
         }
 

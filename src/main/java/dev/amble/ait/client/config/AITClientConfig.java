@@ -70,6 +70,11 @@ public class AITClientConfig {
     @SerialEntry public boolean allowPortalsBoti = true;
 
     @AutoGen(category = CATEGORY)
+    @IntSlider(min = 1, max = 60, step = 1)
+    @CustomDescription("Seconds an unseen TARDIS doorway keeps its baked geometry in memory before it is dropped and rebuilt on demand. Lower saves memory when several TARDISes are open at once; higher avoids re-baking on quick glances away.")
+    @SerialEntry public int botiIdleReclaimSeconds = 10;
+
+    @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean showControlHitboxes = false;
 
