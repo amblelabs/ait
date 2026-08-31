@@ -9,6 +9,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -43,6 +44,12 @@ public class BOTI {
     public static Queue<BOTIPaintingEntity> TRENZALORE_PAINTING_QUEUE = new LinkedList<>();
     public static Queue<ExteriorBlockEntity> EXTERIOR_RENDER_QUEUE = new LinkedList<>();
     private static boolean HAS_BEEN_WARNED = false;
+
+    /** The GL id of the framebuffer currently bound for drawing. Under Iris this is Iris's live world
+     *  target, not client.getFramebuffer(); in the vanilla pipeline the two are the same. */
+    public static int currentDrawFbo() {
+        return GL11.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING);
+    }
 
     public static void copyFramebuffer(Framebuffer src, Framebuffer dest) {
         copyColor(src, dest);
