@@ -289,7 +289,15 @@ public class TardisDoorBOTI extends BOTI {
 
         // Blit afbo's colour into whatever framebuffer was live at entry (Iris's world target, or the
         // vanilla main FB), then rebind it and restore the GL state we captured.
-        BOTI.copyColorToFbo(BOTI_HANDLER.afbo, composite.drawFbo, winW, winH);
+        //
+        // Under an Iris shaderpack the interior is drawn instead by the gbuffer-injection path
+        // (GbufferInjectionProbe at AFTER_ENTITIES), which shades it via Iris's own deferred pass. Painting the
+        // unshaded afbo composite over it here would produce the "two rendered parts" conflict. So skip only the
+        // blit under a shaderpack - we still ran geometry.render() above (which meshes the volume and caches the
+        // portal matrices the injection reuses) and still restore GL state below. The door frame itself is drawn,
+        // shaded, by the normal DoorRenderer block-entity pass.
+        if (!DependencyChecker.isIrisShaderPackInUse())
+            BOTI.copyColorToFbo(BOTI_HANDLER.afbo, composite.drawFbo, winW, winH);
         BOTI.endBotiComposite(composite);
 
         stack.pop();
