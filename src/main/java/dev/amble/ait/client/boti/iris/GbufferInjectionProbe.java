@@ -130,6 +130,7 @@ public final class GbufferInjectionProbe {
                 RenderSystem.depthMask(true);
 
                 data.geometry().debugInjectTerrainIntoGbuffer();
+                data.geometry().injectBlockEntitiesAndEntities(ctx.tickDelta());
 
                 // Step 3: fully restore stencil state.
                 GL11.glStencilMask(0xFF);
@@ -139,7 +140,7 @@ public final class GbufferInjectionProbe {
                 if (!wasStencilEnabled) GL11.glDisable(GL11.GL_STENCIL_TEST);
 
                 if (!loggedSuccess) {
-                    AITMod.LOGGER.info("Phase B gbuffer-injection probe: drew STENCIL-CLIPPED interior terrain "
+                    AITMod.LOGGER.info("Phase B gbuffer-injection probe: drew STENCIL-CLIPPED interior terrain+BE+entities "
                             + "into the gbuffer at AFTER_ENTITIES (stencilEnabled={}, door={})",
                             stencilEnabled, door.getPos());
                     loggedSuccess = true;
@@ -147,10 +148,11 @@ public final class GbufferInjectionProbe {
             } else {
                 // --- Unclipped fallback: stencil not enabled or no door entity found ---
                 data.geometry().debugInjectTerrainIntoGbuffer();
+                data.geometry().injectBlockEntitiesAndEntities(ctx.tickDelta());
                 if (!loggedSuccess) {
                     String reason = !stencilEnabled ? "stencilEnabled=false (stencil clip unavailable)"
                             : "no door entity in queue (stencil clip skipped)";
-                    AITMod.LOGGER.info("Phase B gbuffer-injection probe: drew UNCLIPPED interior terrain "
+                    AITMod.LOGGER.info("Phase B gbuffer-injection probe: drew UNCLIPPED interior terrain+BE+entities "
                             + "into the gbuffer at AFTER_ENTITIES ({})", reason);
                     loggedSuccess = true;
                 }

@@ -139,6 +139,13 @@ public class WorldGeometryRenderer {
     private Matrix4f portalProjection = new Matrix4f();
     private Frustum frustum = null;
 
+    // Cached last-frame portal camera and world, used by injectBlockEntitiesAndEntities() so the gbuffer injector
+    // can reuse the same camera/world that render() used without needing them passed at injection time.
+    // One frame stale is fine for a probe; the alternative (reconstructing them in the injector) would require
+    // duplicating all of render()'s eye-position / yaw / pitch computation, which is more dangerous than stale.
+    private Camera lastPortalCamera = null;
+    private ClientWorld lastPortalWorld = null;
+
     // Far plane for the doorway's sky pass only. Some TARDIS skyboxes (the time vortex) draw their geometry tens of
     // thousands of blocks away; inside a TARDIS AIT's GameRendererMixin pushes getFarPlaneDistance() to 65536 (so the
     // projection far is 65536 * 4). Through the exterior door the client is standing in the overworld, so that mixin
@@ -299,6 +306,10 @@ public class WorldGeometryRenderer {
         Camera portalCamera = new Camera();
         portalCamera.setPos(centerPos.getX(), centerPos.getY(), centerPos.getZ());
         portalCamera.setRotation(portalYaw, portalPitch);
+
+        // Cache for the gbuffer injector (injectBlockEntitiesAndEntities). One frame stale is acceptable.
+        this.lastPortalCamera = portalCamera;
+        this.lastPortalWorld = portalWorld;
 
         Matrix4f originalProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
         RenderSystem.setProjectionMatrix(portalProjection, VertexSorter.BY_DISTANCE);
@@ -766,6 +777,10 @@ public class WorldGeometryRenderer {
         if (visible.isEmpty())
             return;
 
+        // Ensure injected terrain writes depth so it self-sorts and occludes correctly.
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthMask(true);
+
         RenderSystem.setShaderTexture(0, SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
 
         boolean phased = dev.amble.ait.client.boti.iris.IrisPhase.setTerrainSolid();
@@ -790,6 +805,60 @@ public class WorldGeometryRenderer {
         } finally {
             if (phased)
                 dev.amble.ait.client.boti.iris.IrisPhase.reset();
+        }
+    }
+
+    /**
+     * Injects the exterior portal world's block entities and entities into the currently-bound gbuffer (Iris's
+     * main gbuffer at {@code AFTER_ENTITIES}), using cached state from the previous frame's {@link #render} call.
+     * Mirrors the matrix save/restore in {@link #render} exactly so no matrix state leaks into the main render.
+     *
+     * <p>Must be called from inside the stencil-clipped section of {@link dev.amble.ait.client.boti.iris.GbufferInjectionProbe},
+     * after {@link #debugInjectTerrainIntoGbuffer()}.
+     *
+     * @param tickDelta interpolation factor from {@code WorldRenderContext.tickDelta()}
+     */
+    public void injectBlockEntitiesAndEntities(float tickDelta) {
+        if (lastPortalCamera == null || lastPortalWorld == null || centerPos == null)
+            return;
+
+        // Ensure depth writes are active for injected geometry (same guard as debugInjectTerrainIntoGbuffer).
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthMask(true);
+
+        // Save projection; set the portal projection for the duration of the draw (mirrors render()).
+        Matrix4f originalProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
+        RenderSystem.setProjectionMatrix(portalProjection, VertexSorter.BY_DISTANCE);
+
+        // Push and configure model-view to the portal view (mirrors the push in render()).
+        MatrixStack modelViewStack = RenderSystem.getModelViewStack();
+        modelViewStack.push();
+        try {
+            modelViewStack.peek().getPositionMatrix().set(portalView);
+            modelViewStack.peek().getNormalMatrix().set(new Matrix3f(portalView));
+            RenderSystem.applyModelViewMatrix();
+
+            // Block entities — wrapped in the BLOCK_ENTITIES Iris phase so gbuffers_block draws them.
+            boolean p1 = dev.amble.ait.client.boti.iris.IrisPhase.setBlockEntities();
+            try {
+                renderBlockEntities(lastPortalWorld, tickDelta, lastPortalCamera);
+            } finally {
+                if (p1) dev.amble.ait.client.boti.iris.IrisPhase.reset();
+            }
+
+            // Entities — wrapped in the ENTITIES Iris phase so gbuffers_entities draws them.
+            boolean p2 = dev.amble.ait.client.boti.iris.IrisPhase.setEntities();
+            try {
+                renderEntities(lastPortalWorld, tickDelta, lastPortalCamera);
+            } finally {
+                if (p2) dev.amble.ait.client.boti.iris.IrisPhase.reset();
+            }
+
+        } finally {
+            // Always restore — a leaked push corrupts the main game's model-view matrix next frame.
+            modelViewStack.pop();
+            RenderSystem.applyModelViewMatrix();
+            RenderSystem.setProjectionMatrix(originalProjection, VertexSorter.BY_DISTANCE);
         }
     }
 

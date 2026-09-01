@@ -37,6 +37,16 @@ public final class IrisPhase {
         return set(WorldRenderingPhase.TERRAIN_CUTOUT);
     }
 
+    /** Bind the block-entities gbuffer program for subsequent draws. Returns true iff a live pipeline accepted it. */
+    public static boolean setBlockEntities() {
+        return set(WorldRenderingPhase.BLOCK_ENTITIES);
+    }
+
+    /** Bind the entities gbuffer program for subsequent draws. Returns true iff a live pipeline accepted it. */
+    public static boolean setEntities() {
+        return set(WorldRenderingPhase.ENTITIES);
+    }
+
     /** Restore Iris's phase to NONE so Iris's own subsequent rendering isn't left mid-phase. */
     public static void reset() {
         WorldRenderingPipeline pipeline = Iris.getPipelineManager().getPipelineNullable();
