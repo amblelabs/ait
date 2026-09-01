@@ -48,6 +48,17 @@ public class TardisDoorBOTI extends BOTI {
      * currently derived entirely from {@code tardis}.
      */
     public static void drawDoorApertureMask(ClientTardis tardis, DoorBlockEntity door, MatrixStack stack) {
+        drawDoorApertureMask(tardis, door, stack, false);
+    }
+
+    /**
+     * As above, but when {@code writeDepth} is true the mask writes the door-plane DEPTH (colour suppressed,
+     * {@code depthFunc(ALWAYS)}) instead of stamping the stencil. The gbuffer-injection path uses this after drawing
+     * the portal to replace the portal-space depth in the aperture with the interior door's real main-scene depth,
+     * so main-world block-entities/particles/translucent drawn afterward occlude the portal correctly (things in
+     * front of the door draw over it; things behind stay hidden) instead of the portal covering everything.
+     */
+    public static void drawDoorApertureMask(ClientTardis tardis, DoorBlockEntity door, MatrixStack stack, boolean writeDepth) {
         ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
         ExteriorVariantSchema parent = variant.parent();
         Vector3f scale = tardis.travel().getScale();
@@ -55,9 +66,13 @@ public class TardisDoorBOTI extends BOTI {
         Vec3d vec = parent.door().getPortalPosition();
         if (vec == null) vec = Vec3d.ZERO;
 
-        // Suppress color and depth output — we only want to stamp stencil=1 in the doorway pixels.
+        // Suppress colour; either stamp stencil (writeDepth=false) or write the door-plane depth (writeDepth=true).
         RenderSystem.colorMask(false, false, false, false);
-        RenderSystem.depthMask(false);
+        RenderSystem.depthMask(writeDepth);
+        if (writeDepth) {
+            RenderSystem.enableDepthTest();
+            RenderSystem.depthFunc(GL11.GL_ALWAYS);
+        }
 
         VertexConsumerProvider.Immediate maskProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
         ModelPart maskPart = BotiPortalModel.getTexturedModelData().createModel();
@@ -71,7 +86,8 @@ public class TardisDoorBOTI extends BOTI {
         maskProvider.draw();
         stack.pop();
 
-        // Restore color/depth output for subsequent draws.
+        if (writeDepth)
+            RenderSystem.depthFunc(GL11.GL_LEQUAL);
         RenderSystem.colorMask(true, true, true, true);
         RenderSystem.depthMask(true);
     }

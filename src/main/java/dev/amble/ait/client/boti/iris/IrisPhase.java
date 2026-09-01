@@ -37,6 +37,11 @@ public final class IrisPhase {
         return set(WorldRenderingPhase.TERRAIN_CUTOUT);
     }
 
+    /** Bind the translucent-terrain program (gbuffers_water) for subsequent draws (glass/water). */
+    public static boolean setTerrainTranslucent() {
+        return set(WorldRenderingPhase.TERRAIN_TRANSLUCENT);
+    }
+
     /** Bind the block-entities gbuffer program for subsequent draws. Returns true iff a live pipeline accepted it. */
     public static boolean setBlockEntities() {
         return set(WorldRenderingPhase.BLOCK_ENTITIES);

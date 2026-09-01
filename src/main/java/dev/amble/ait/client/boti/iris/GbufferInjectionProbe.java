@@ -196,6 +196,7 @@ public final class GbufferInjectionProbe {
                 // Step 2b: inject the portal world into the aperture (shaded by Iris via the terrain/entity phases).
                 data.geometry().debugInjectTerrainIntoGbuffer();
                 data.geometry().injectBlockEntitiesAndEntities(ctx.tickDelta());
+                data.geometry().debugInjectTranslucentIntoGbuffer();
 
                 // Step 2b2: re-clear the aperture depth so the door re-render below draws reliably ON TOP of the
                 // portal - the portal's portal-space depth isn't comparable to the door's main-space depth, so a
@@ -227,11 +228,23 @@ public final class GbufferInjectionProbe {
                         dev.amble.ait.client.boti.iris.IrisPhase.reset();
                 }
 
-                // Step 2d: flatten the aperture depth to NEAR so translucent geometry drawn later (glass behind the
-                // door, rendered in the post-AFTER_ENTITIES translucent pass) is depth-occluded by the portal instead
-                // of showing through it. Stencil is still EQUAL 1, so only the aperture is affected; the already-drawn
-                // portal/door colour is untouched.
-                BOTI.writeNearDepthInStencilRegion();
+                // Step 2d: write the interior DOOR-PLANE depth into the aperture (replacing the injected portal-space
+                // depth) so main-world geometry drawn after this event (block entities, particles, translucent glass/
+                // water) occludes the portal correctly - things in front of the door draw over it, things behind stay
+                // hidden - instead of the old NEAR flatten that made the portal cover everything in front of it.
+                // Clear to far first so the door-plane depth writes regardless of the mask layer's own depth func.
+                BOTI.clearDepthInStencilRegion();
+                stack.push();
+                stack.translate(0.5, 0, 0.5);
+                stack.translate(door.getPos().getX() - camPos.x,
+                        door.getPos().getY() - camPos.y,
+                        door.getPos().getZ() - camPos.z);
+                stack.scale(1, -1, -1);
+                stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
+                        door.getCachedState().get(DoorBlock.FACING).asRotation()));
+                stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
+                TardisDoorBOTI.drawDoorApertureMask(tardis, door, stack, true);
+                stack.pop();
 
                 // Step 3: fully restore stencil state.
                 GL11.glStencilMask(0xFF);

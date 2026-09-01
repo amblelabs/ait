@@ -183,6 +183,8 @@ public class AITModClient implements ClientModInitializer {
             // THROWAWAY Phase B gbuffer-injection probe (guarded again at call time by isShaderPackInUse()).
             // AFTER_ENTITIES runs pre-deferred while the gbuffer is bound; additive to the Phase A END path.
             WorldRenderEvents.AFTER_ENTITIES.register(dev.amble.ait.client.boti.iris.GbufferInjectionProbe::run);
+            // Outside-in equivalent: injects each visible TARDIS's interior into its exterior doorway aperture.
+            WorldRenderEvents.AFTER_ENTITIES.register(dev.amble.ait.client.boti.iris.ExteriorGbufferInjection::run);
 
             // Ensure the main framebuffer (Iris's gbuffer == client.getFramebuffer()) has a stencil attachment
             // so the injection probe's stencil-clip path activates. Must run at START (before any draw into the

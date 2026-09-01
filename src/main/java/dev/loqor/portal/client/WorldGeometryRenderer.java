@@ -251,6 +251,16 @@ public class WorldGeometryRenderer {
         return this.renderDistance;
     }
 
+    /** DIAG: number of baked sections; how many pass the current frustum; whether the portal-view cache is set. */
+    public String debugState() {
+        int visible = 0;
+        for (ChunkSectionPos p : sectionBuffers.keySet())
+            if (isSectionVisible(p)) visible++;
+        return "sections=" + sectionBuffers.size() + " visible=" + visible
+                + " hasCam=" + (lastPortalCamera != null) + " hasWorld=" + (lastPortalWorld != null)
+                + " center=" + centerPos;
+    }
+
     /** The portal eye's exterior-world position as of the last {@link #render}, or {@code null} before the first. */
     public Vec3d eyeWorldPos() {
         return this.lastEyeWorldPos;
@@ -824,6 +834,45 @@ public class WorldGeometryRenderer {
         }
 
         RenderSystem.depthMask(prevDepthMask);
+    }
+
+    /**
+     * Injects the portal world's TRANSLUCENT terrain layer (glass, water, ice, stained glass) into the currently-
+     * bound gbuffer, in Iris's {@code TERRAIN_TRANSLUCENT} phase ({@code gbuffers_water}). Called by the gbuffer-
+     * injection paths AFTER {@link #debugInjectTerrainIntoGbuffer()} (so it blends over the already-injected opaque
+     * terrain) and BEFORE the door-plane depth write. Blends with the standard translucent func and tests but does
+     * NOT write depth, so it self-composites over the opaque portal terrain without occluding it.
+     */
+    public void debugInjectTranslucentIntoGbuffer() {
+        if (sectionBuffers.isEmpty())
+            return;
+
+        List<Map<RenderLayer, VertexBuffer>> visible = new ArrayList<>();
+        for (Map.Entry<ChunkSectionPos, Map<RenderLayer, VertexBuffer>> entry : sectionBuffers.entrySet()) {
+            if (isSectionVisible(entry.getKey()))
+                visible.add(entry.getValue());
+        }
+        if (visible.isEmpty())
+            return;
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.enableDepthTest();
+        boolean prevDepthMask = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
+        RenderSystem.depthMask(false); // translucent tests against the opaque portal terrain but writes no depth
+
+        RenderSystem.setShaderTexture(0, SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
+
+        boolean phased = dev.amble.ait.client.boti.iris.IrisPhase.setTerrainTranslucent();
+        try {
+            drawLayer(RenderLayer.getTranslucent(), visible);
+        } finally {
+            if (phased)
+                dev.amble.ait.client.boti.iris.IrisPhase.reset();
+        }
+
+        RenderSystem.depthMask(prevDepthMask);
+        RenderSystem.disableBlend();
     }
 
     /**

@@ -50,6 +50,11 @@ public class BOTI {
     public static Queue<BOTIPaintingEntity> GALLIFREYAN_RENDER_QUEUE = new LinkedList<>();
     public static Queue<BOTIPaintingEntity> TRENZALORE_PAINTING_QUEUE = new LinkedList<>();
     public static Queue<ExteriorBlockEntity> EXTERIOR_RENDER_QUEUE = new LinkedList<>();
+    /** Last exterior BE rendered per TARDIS, cached by TardisExteriorBOTI (which has it at END). The exterior
+     *  gbuffer-injection ({@link dev.amble.ait.client.boti.iris.ExteriorGbufferInjection}) reuses it next frame
+     *  to stamp the exterior doorway stencil aperture, because EXTERIOR_RENDER_QUEUE is empty at AFTER_ENTITIES
+     *  under Sodium (block entities render after that event) - the mirror of {@link #LAST_RENDERED_DOOR}. */
+    public static final Map<UUID, ExteriorBlockEntity> LAST_RENDERED_EXTERIOR = new HashMap<>();
     private static boolean HAS_BEEN_WARNED = false;
 
     /** The GL id of the framebuffer currently bound for drawing. Under Iris this is Iris's live world

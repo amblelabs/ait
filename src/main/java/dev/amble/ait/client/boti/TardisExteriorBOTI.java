@@ -27,6 +27,8 @@ import dev.loqor.portal.client.WorldGeometryRenderer;
 
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.models.boti.BotiPortalModel;
+import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
@@ -47,6 +49,11 @@ public class TardisExteriorBOTI extends BOTI {
             return;
 
         ClientTardis tardis = exterior.tardis().get().asClient();
+
+        // Cache this exterior BE for the exterior gbuffer-injection: it runs at AFTER_ENTITIES (before this
+        // END-phase call), and EXTERIOR_RENDER_QUEUE is empty there under Sodium, so the injection reuses last
+        // frame's exterior from here to stamp the aperture (mirror of TardisDoorBOTI's LAST_RENDERED_DOOR).
+        BOTI.LAST_RENDERED_EXTERIOR.put(tardis.getUuid(), exterior);
 
         stack.push();
 
@@ -227,9 +234,65 @@ public class TardisExteriorBOTI extends BOTI {
         }
         stack.pop();
 
-        BOTI.copyColorToFbo(BOTI_HANDLER.afbo, composite.drawFbo, winW, winH);
+        // Under a shaderpack the Phase A afbo->screen blit is suppressed: ExteriorGbufferInjection re-draws the
+        // interior into Iris's live gbuffer at AFTER_ENTITIES so the pack shades it, instead of compositing this
+        // unshaded afbo over the deferred output. We still run everything above so geometry.render() bakes the VBOs
+        // and populates its portal-view cache (which the injection reuses next frame); only the blit is skipped.
+        if (!DependencyChecker.isIrisShaderPackInUse())
+            BOTI.copyColorToFbo(BOTI_HANDLER.afbo, composite.drawFbo, winW, winH);
         BOTI.endBotiComposite(composite);
 
         stack.pop();
+    }
+
+    /**
+     * Stamps the exterior doorway portal quad into the currently-bound framebuffer's stencil buffer, leaving
+     * stencil=1 inside the aperture. The mirror of {@link TardisDoorBOTI#drawDoorApertureMask} for the outside-in
+     * direction: it uses the exterior variant's own portal position/width/height (not the door's). The caller sets
+     * up the outer door-block transform and the stencil write state ({@code glStencilFunc(GL_ALWAYS,1,0xFF)},
+     * {@code glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE)}) before calling. Color/depth masks are suppressed internally
+     * and restored on return.
+     */
+    public static void drawExteriorApertureMask(ClientTardis tardis, ClientExteriorVariantSchema variant, MatrixStack stack) {
+        drawExteriorApertureMask(tardis, variant, stack, false);
+    }
+
+    /**
+     * As above, but when {@code writeDepth} is true the mask writes the door-plane DEPTH (colour suppressed,
+     * {@code depthFunc(ALWAYS)}) instead of the stencil. The injection uses this after drawing the interior to
+     * replace the portal-space depth in the aperture with the exterior door's real main-scene depth, so main-world
+     * entities/block-entities/particles drawn afterward occlude the portal correctly (things in front of the door
+     * draw over it; glass behind it stays occluded).
+     */
+    public static void drawExteriorApertureMask(ClientTardis tardis, ClientExteriorVariantSchema variant, MatrixStack stack, boolean writeDepth) {
+        ExteriorVariantSchema parent = variant.parent();
+        Vector3f scale = tardis.travel().getScale();
+
+        Vec3d vec = parent.getPortalPosition();
+        if (vec == null) vec = Vec3d.ZERO;
+
+        RenderSystem.colorMask(false, false, false, false);
+        RenderSystem.depthMask(writeDepth);
+        if (writeDepth) {
+            RenderSystem.enableDepthTest();
+            RenderSystem.depthFunc(GL11.GL_ALWAYS);
+        }
+
+        VertexConsumerProvider.Immediate maskProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
+        ModelPart maskPart = BotiPortalModel.getTexturedModelData().createModel();
+
+        stack.push();
+        stack.translate(vec.x, -vec.y - parent.portalHeight() / 2f, vec.z);
+        stack.scale((float) parent.portalWidth() * scale.x(),
+                (float) parent.portalHeight() * scale.y(), scale.z());
+        maskPart.render(stack, maskProvider.getBuffer(RenderLayer.getDebugFilledBox()),
+                0xf000f0, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
+        maskProvider.draw();
+        stack.pop();
+
+        if (writeDepth)
+            RenderSystem.depthFunc(GL11.GL_LEQUAL);
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.depthMask(true);
     }
 }
