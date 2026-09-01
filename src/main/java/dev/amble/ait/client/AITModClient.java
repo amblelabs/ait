@@ -179,6 +179,10 @@ public class AITModClient implements ClientModInitializer {
             WorldRenderEvents.END.register(this::gallifreyanBOTI);
             WorldRenderEvents.END.register(this::trenzaloreBOTI);
             WorldRenderEvents.END.register(this::riftBOTI);
+
+            // THROWAWAY Phase B gbuffer-injection probe (guarded again at call time by isShaderPackInUse()).
+            // AFTER_ENTITIES runs pre-deferred while the gbuffer is bound; additive to the Phase A END path.
+            WorldRenderEvents.AFTER_ENTITIES.register(dev.amble.ait.client.boti.iris.GbufferInjectionProbe::run);
         } else {
             WorldRenderEvents.AFTER_ENTITIES.register(this::exteriorBOTI);
             WorldRenderEvents.AFTER_ENTITIES.register(this::doorBOTI);

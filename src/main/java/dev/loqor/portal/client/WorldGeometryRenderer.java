@@ -747,6 +747,37 @@ public class WorldGeometryRenderer {
     }
 
     /**
+     * THROWAWAY gbuffer-injection probe. Draws this doorway's baked SOLID terrain straight into whatever framebuffer
+     * is currently bound (called at {@code AFTER_ENTITIES}, that is Iris's main gbuffer, before the deferred pass),
+     * with Iris's TERRAIN_SOLID phase set so Iris substitutes {@code gbuffers_terrain}. If Iris's deferred+composite
+     * then light it, gbuffer-injection is viable. Uses the cached {@code portalView}/{@code portalProjection} from the
+     * previous frame's END render (one frame stale, fine for a probe). Unclipped by design - it will splatter over the
+     * opaque scene; clipping to the doorway is a later milestone. No afbo: we draw into the live gbuffer directly.
+     */
+    public void debugInjectTerrainIntoGbuffer() {
+        if (sectionBuffers.isEmpty())
+            return;
+
+        List<Map<RenderLayer, VertexBuffer>> visible = new ArrayList<>();
+        for (Map.Entry<ChunkSectionPos, Map<RenderLayer, VertexBuffer>> entry : sectionBuffers.entrySet()) {
+            if (isSectionVisible(entry.getKey()))
+                visible.add(entry.getValue());
+        }
+        if (visible.isEmpty())
+            return;
+
+        RenderSystem.setShaderTexture(0, SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
+
+        boolean phased = dev.amble.ait.client.boti.iris.IrisPhase.setTerrainSolid();
+        try {
+            drawLayer(RenderLayer.getSolid(), visible);
+        } finally {
+            if (phased)
+                dev.amble.ait.client.boti.iris.IrisPhase.reset();
+        }
+    }
+
+    /**
      * Draws the exterior dimension's sky into the doorway so it shows the sky for wherever the TARDIS actually is.
      * <p>
      * The doorway is already cleared to the exterior dimension's real sky colour (see {@code TardisDoorBOTI}); on top
