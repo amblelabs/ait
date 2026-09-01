@@ -62,22 +62,34 @@ public final class GbufferInjectionProbe {
         boolean stencilEnabled = AITRenderHelper.getIsStencilEnabled(
                 MinecraftClient.getInstance().getFramebuffer());
 
-        // Log once so we know whether the clip is active.
+        // Log once so we know whether the clip is active. Query the ACTUAL stencil-attachment size of the bound
+        // draw framebuffer with the core-profile-valid glGetFramebufferAttachmentParameteri (the earlier
+        // GL_STENCIL_BITS query was invalid). This is the evidence that decides the clip bleed: if the AIT flag
+        // says stencil is enabled but the bound FBO reports 0 stencil bits, then Iris owns/rebinds the target and
+        // our WindowFramebuffer stencil attachment never reaches the FBO Iris draws into - so no clip is possible
+        // via stencil and we need a different confinement.
         if (!loggedStencilBits) {
-            AITMod.LOGGER.info("Phase B gbuffer stencil probe: stencilEnabled={} (bound FBO={})",
-                    stencilEnabled, BOTI.currentDrawFbo());
+            int boundFbo = BOTI.currentDrawFbo();
+            int fboStencilSize = org.lwjgl.opengl.GL30.glGetFramebufferAttachmentParameteri(
+                    org.lwjgl.opengl.GL30.GL_DRAW_FRAMEBUFFER,
+                    org.lwjgl.opengl.GL30.GL_STENCIL_ATTACHMENT,
+                    org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE);
+            AITMod.LOGGER.info("Phase B gbuffer stencil probe: aitFlagStencilEnabled={} boundFBO={} "
+                    + "actualFboStencilBits={}", stencilEnabled, boundFbo, fboStencilSize);
             loggedStencilBits = true;
         }
 
-        // Find the interior door entity from the render queue. The queue is populated during entity rendering
-        // (before AFTER_ENTITIES) and cleared by doorBOTI which is registered after this probe, so the
-        // door is available here. We peek (not poll) so Phase A's render still has the door.
-        DoorBlockEntity door = null;
-        for (DoorBlockEntity candidate : BOTI.DOOR_RENDER_QUEUE) {
-            if (candidate != null && candidate.isLinked()
-                    && tardis.getUuid().equals(candidate.tardis().get().getUuid())) {
-                door = candidate;
-                break;
+        // Get the interior door. DOOR_RENDER_QUEUE is empty at AFTER_ENTITIES under Sodium (block entities render
+        // after this event), so prefer the cache TardisDoorBOTI populates at END (one frame stale - fine, like the
+        // portal-matrix cache). Fall back to a live queue scan in case it's populated in some setups.
+        DoorBlockEntity door = BOTI.LAST_RENDERED_DOOR.get(tardis.getUuid());
+        if (door == null) {
+            for (DoorBlockEntity candidate : BOTI.DOOR_RENDER_QUEUE) {
+                if (candidate != null && candidate.isLinked()
+                        && tardis.getUuid().equals(candidate.tardis().get().getUuid())) {
+                    door = candidate;
+                    break;
+                }
             }
         }
 
@@ -128,6 +140,13 @@ public final class GbufferInjectionProbe {
                 GL11.glStencilMask(0x00);
                 RenderSystem.colorMask(true, true, true, true);
                 RenderSystem.depthMask(true);
+
+                // Step 2a: punch a depth hole in the aperture. Without this the portal world is depth-occluded by
+                // the blocks in/behind the doorway (their main-scene depth is nearer than the portal geometry's
+                // portal-space depth), so it "doesn't render over the blocks behind the door". Clearing depth to
+                // far only where stencil==1 lets the injected world draw over them; it then writes its own depth
+                // for correct self-occlusion within the aperture.
+                BOTI.clearDepthInStencilRegion();
 
                 data.geometry().debugInjectTerrainIntoGbuffer();
                 data.geometry().injectBlockEntitiesAndEntities(ctx.tickDelta());

@@ -82,6 +82,10 @@ public class TardisDoorBOTI extends BOTI {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.world == null || client.player == null) return;
 
+        // Cache this door for the gbuffer-injection probe: it runs at AFTER_ENTITIES (before this END-phase call),
+        // and DOOR_RENDER_QUEUE is empty there under Sodium, so the probe reuses last frame's door from here.
+        BOTI.LAST_RENDERED_DOOR.put(tardis.getUuid(), door);
+
         PortalData portalData = PortalDataManager.get(tardis.getUuid());
         boolean landed = tardis.travel().getState() == TravelHandlerBase.State.LANDED;
 

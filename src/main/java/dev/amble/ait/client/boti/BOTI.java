@@ -1,7 +1,10 @@
 package dev.amble.ait.client.boti;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
+import java.util.UUID;
 
 import com.mojang.blaze3d.platform.GlConst;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -40,6 +43,10 @@ public class BOTI {
     public static BOTIInit BOTI_HANDLER = new BOTIInit();
     public static AITBufferBuilderStorage AIT_BUF_BUILDER_STORAGE = new AITBufferBuilderStorage();
     public static Queue<DoorBlockEntity> DOOR_RENDER_QUEUE = new LinkedList<>();
+    /** Last interior door rendered per TARDIS, cached by TardisDoorBOTI (which always has it, at END). The
+     *  gbuffer-injection probe reuses it next frame to stamp the doorway stencil aperture, because
+     *  DOOR_RENDER_QUEUE is empty at AFTER_ENTITIES under Sodium (block entities render after that event). */
+    public static final Map<UUID, DoorBlockEntity> LAST_RENDERED_DOOR = new HashMap<>();
     public static Queue<BOTIPaintingEntity> GALLIFREYAN_RENDER_QUEUE = new LinkedList<>();
     public static Queue<BOTIPaintingEntity> TRENZALORE_PAINTING_QUEUE = new LinkedList<>();
     public static Queue<ExteriorBlockEntity> EXTERIOR_RENDER_QUEUE = new LinkedList<>();
@@ -238,6 +245,17 @@ public class BOTI {
         GL11.glStencilMask(0x00);
         GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
         GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
+        drawFullscreenQuad(false, true);
+    }
+
+    /**
+     * Writes far depth (1.0) wherever the CURRENT stencil test passes, without touching colour. Used by the
+     * gbuffer-injection path to punch a depth "hole" in the doorway aperture: the caller sets the stencil test to
+     * the aperture (e.g. {@code glStencilFunc(GL_EQUAL,1,...)}), calls this, and the injected portal world then
+     * draws over whatever blocks were behind the door instead of being depth-occluded by them. The stencil test
+     * is left as the caller set it (this only draws; it does not change stencil func/op).
+     */
+    public static void clearDepthInStencilRegion() {
         drawFullscreenQuad(false, true);
     }
 
