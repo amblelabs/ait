@@ -179,9 +179,6 @@ public class AITModClient implements ClientModInitializer {
             WorldRenderEvents.END.register(this::gallifreyanBOTI);
             WorldRenderEvents.END.register(this::trenzaloreBOTI);
             WorldRenderEvents.END.register(this::riftBOTI);
-            // Phase B M1 feasibility probe (guarded again at call time by isShaderPackInUse()). Runs during the
-            // world pass where Iris's pipeline is live. Additive to the Phase A END path.
-            WorldRenderEvents.AFTER_TRANSLUCENT.register(dev.amble.ait.client.boti.iris.IrisNestedRenderProbe::run);
         } else {
             WorldRenderEvents.AFTER_ENTITIES.register(this::exteriorBOTI);
             WorldRenderEvents.AFTER_ENTITIES.register(this::doorBOTI);
