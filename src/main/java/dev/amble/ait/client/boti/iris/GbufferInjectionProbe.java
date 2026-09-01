@@ -141,14 +141,34 @@ public final class GbufferInjectionProbe {
                 RenderSystem.colorMask(true, true, true, true);
                 RenderSystem.depthMask(true);
 
-                // NOTE: a naive aperture depth-clear (BOTI.clearDepthInStencilRegion) makes the portal draw over
-                // blocks behind the door, but it also wipes the depth of the open door PANELS (which project into
-                // the aperture), so they flicker/get overdrawn. Left out until we do it frame-safely - either a
-                // door-plane depth (not far) so front geometry still occludes, or re-rendering the door after the
-                // injection. Tracked in the ledger as the depth-space blocker.
+                // Step 2a: punch a depth hole in the aperture so the portal draws OVER the blocks/room behind the
+                // door (their main-scene depth would otherwise occlude the portal's unrelated portal-space depth).
+                BOTI.clearDepthInStencilRegion();
 
+                // Step 2b: inject the portal world into the aperture (shaded by Iris via the terrain/entity phases).
                 data.geometry().debugInjectTerrainIntoGbuffer();
                 data.geometry().injectBlockEntitiesAndEntities(ctx.tickDelta());
+
+                // Step 2c: re-render the door on top - still stencil-clipped to the aperture, with normal depth
+                // test/write - so the open door panels/frame occlude the portal and their pixels+depth (wiped by
+                // the depth-clear and overdrawn by the injection) are restored. Using the block-entity dispatcher
+                // renders the door with its own exact transform/animation; BLOCK_ENTITIES phase so Iris shades it.
+                MinecraftClient mc = MinecraftClient.getInstance();
+                net.minecraft.util.math.Vec3d camPos = mc.gameRenderer.getCamera().getPos();
+                MatrixStack doorStack = new MatrixStack();
+                doorStack.translate(door.getPos().getX() - camPos.x,
+                        door.getPos().getY() - camPos.y,
+                        door.getPos().getZ() - camPos.z);
+                net.minecraft.client.render.VertexConsumerProvider.Immediate doorImm =
+                        BOTI.AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
+                boolean doorPhase = dev.amble.ait.client.boti.iris.IrisPhase.setBlockEntities();
+                try {
+                    mc.getBlockEntityRenderDispatcher().render(door, ctx.tickDelta(), doorStack, doorImm);
+                    doorImm.draw();
+                } finally {
+                    if (doorPhase)
+                        dev.amble.ait.client.boti.iris.IrisPhase.reset();
+                }
 
                 // Step 3: fully restore stencil state.
                 GL11.glStencilMask(0xFF);
