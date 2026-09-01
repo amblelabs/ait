@@ -27,7 +27,8 @@ import net.irisshaders.iris.pipeline.WorldRenderingPipeline;
  * unclipped, and confirm the outer render survives + the interior is shaded. Rewritten wholesale for M2+.
  */
 public final class IrisNestedRenderProbe {
-    private static boolean loggedOnce = false;
+    private static boolean loggedError = false;
+    private static boolean loggedSuccess = false;
 
     private IrisNestedRenderProbe() {}
 
@@ -44,15 +45,16 @@ public final class IrisNestedRenderProbe {
         try {
             nestedRender(client, data, ctx);
         } catch (Throwable t) {
-            if (!loggedOnce) {
+            if (!loggedError) {
                 AITMod.LOGGER.error("Phase B M1: nested render threw (feasibility probe)", t);
-                loggedOnce = true;
+                loggedError = true;
             }
         }
     }
 
     private static void nestedRender(MinecraftClient client, PortalData data, WorldRenderContext ctx) {
         PipelineManager pm = Iris.getPipelineManager();
+        // Captured for the verdict log only; the actual restore is done by preparePipeline(dimension) below, not by re-using this reference.
         WorldRenderingPipeline outerPipeline = pm.getPipelineNullable();
 
         ClientWorld outerWorld = client.world;
@@ -85,10 +87,10 @@ public final class IrisNestedRenderProbe {
             // Restore the outer pipeline reference so the rest of the outer frame has a live pipeline again.
             if (outerWorld != null)
                 pm.preparePipeline(Iris.getCurrentDimension());
-            if (!loggedOnce) {
+            if (!loggedSuccess) {
                 AITMod.LOGGER.info("Phase B M1: nested render completed; outerPipeline={} restoredTo={}",
                         outerPipeline, pm.getPipelineNullable());
-                loggedOnce = true;
+                loggedSuccess = true;
             }
         }
     }
