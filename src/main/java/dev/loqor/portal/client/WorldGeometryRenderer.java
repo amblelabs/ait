@@ -81,6 +81,10 @@ public class WorldGeometryRenderer {
      *  Iris pipeline and is a Phase B concern. */
     private boolean skyPassErrorLogged = false;
 
+    /** Separate log-once flag for the AFTER_ENTITIES sky INJECTION (as opposed to the END-phase Phase-A pass above),
+     *  so a failure there is distinguishable in the log instead of being masked by the END-phase failure. */
+    private boolean skyInjectErrorLogged = false;
+
     /** Big stack so deep block-model / biome-colour recursion can't overflow the build thread (the old cause of the
      * silently-swallowed StackOverflowError that left chunks unbuilt). */
     private static final long BUILD_THREAD_STACK = 32L * 1024 * 1024;
@@ -138,6 +142,10 @@ public class WorldGeometryRenderer {
     private BlockPos lastBuiltCenter = null;
     private Matrix4f portalView = new Matrix4f();
     private Matrix4f portalProjection = new Matrix4f();
+    /** Rotation-only portal view (no eye translation) - reused by the sky pass, which sits at infinity. Kept in
+     *  sync with {@link #portalView} by both {@link #render} and {@link #updatePortalView} so {@link #injectSky}
+     *  can render the doorway sky matching the current frame's portal orientation. */
+    private Matrix4f portalRot = new Matrix4f();
     private Frustum frustum = null;
 
     // Cached last-frame portal camera and world, used by injectBlockEntitiesAndEntities() so the gbuffer injector
@@ -251,16 +259,6 @@ public class WorldGeometryRenderer {
         return this.renderDistance;
     }
 
-    /** DIAG: number of baked sections; how many pass the current frustum; whether the portal-view cache is set. */
-    public String debugState() {
-        int visible = 0;
-        for (ChunkSectionPos p : sectionBuffers.keySet())
-            if (isSectionVisible(p)) visible++;
-        return "sections=" + sectionBuffers.size() + " visible=" + visible
-                + " hasCam=" + (lastPortalCamera != null) + " hasWorld=" + (lastPortalWorld != null)
-                + " center=" + centerPos;
-    }
-
     /** The portal eye's exterior-world position as of the last {@link #render}, or {@code null} before the first. */
     public Vec3d eyeWorldPos() {
         return this.lastEyeWorldPos;
@@ -302,6 +300,7 @@ public class WorldGeometryRenderer {
         this.portalProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
 
         Matrix4f portalRot = buildPortalRotation(portalYaw, portalPitch);
+        this.portalRot = portalRot;
         this.portalView = buildPortalView(portalRot, eyeRelToCenter);
 
         // Vanilla's Frustum convention: planes from a rotation-only view, boxes offset by the camera position. Our
@@ -352,13 +351,20 @@ public class WorldGeometryRenderer {
         // dereferences Iris's pipeline, which is null once Iris has finalised the world render (this door draws at
         // WorldRenderEvents.END). Catching here - log-once to avoid per-frame spam - lets terrain and entities still
         // render through the doorway; the afbo's exterior-fog fill stands in for the sky.
-        try {
-            renderSky(id, portalWorld, portalRot, portalCamera, eyeWorldPos, tickDelta);
-        } catch (Throwable t) {
-            if (!skyPassErrorLogged) {
-                AITMod.LOGGER.error("BOTI: sky pass failed (expected under Iris shaders at the END phase - "
-                        + "the exterior-fog fill stands in for the sky); further occurrences suppressed", t);
-                skyPassErrorLogged = true;
+        //
+        // Under a shaderpack this END-phase pass is pointless: the pipeline is null so it NPEs every frame, AND the
+        // afbo it would draw into isn't blitted to the screen (the gbuffer injectors draw the sky at AFTER_ENTITIES
+        // via injectSky instead, where the pipeline is live). So skip it entirely there - saves the wasted attempt
+        // and the caught-exception churn.
+        if (!dev.amble.ait.compat.DependencyChecker.isIrisShaderPackInUse()) {
+            try {
+                renderSky(id, portalWorld, portalRot, portalCamera, eyeWorldPos, tickDelta);
+            } catch (Throwable t) {
+                if (!skyPassErrorLogged) {
+                    AITMod.LOGGER.error("BOTI: sky pass failed (expected under Iris shaders at the END phase - "
+                            + "the exterior-fog fill stands in for the sky); further occurrences suppressed", t);
+                    skyPassErrorLogged = true;
+                }
             }
         }
 
@@ -732,9 +738,86 @@ public class WorldGeometryRenderer {
     public void updatePortalView(Vec3d eyeRelToCenter, float portalYaw, float portalPitch) {
         this.portalProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
         Matrix4f portalRot = buildPortalRotation(portalYaw, portalPitch);
+        this.portalRot = portalRot;
         this.portalView = buildPortalView(portalRot, eyeRelToCenter);
         this.frustum = new Frustum(portalRot, portalProjection);
         this.frustum.setPosition(eyeRelToCenter.x, eyeRelToCenter.y, eyeRelToCenter.z);
+    }
+
+    /**
+     * Renders the portal world's real sky (sun/moon/stars/colour at its actual time of day) into the currently-bound
+     * gbuffer at {@code AFTER_ENTITIES}, where Iris's pipeline is live (unlike the {@code END}-phase Phase-A call,
+     * where {@code renderSky} NPEs because the pipeline is already finalised). Uses the cached portal camera/eye and
+     * the per-frame {@link #portalRot}; the caller sets the stencil clip to the aperture and the SKY Iris phase. The
+     * heavy sky pass is wrapped in the same log-once guard as {@link #render}, so a failure degrades to the caller's
+     * fog backdrop instead of throwing out of the injector.
+     */
+    public void injectSky(UUID id, ClientWorld portalWorld, float tickDelta) {
+        if (lastPortalCamera == null || lastEyeWorldPos == null || centerPos == null)
+            return;
+        PortalData data = PortalDataManager.get(id);
+        if (data == null || data.renderer() == null)
+            return;
+
+        // renderSky's own finally is tuned for the Phase-A path (it deliberately LEAVES the exterior/interior fog and
+        // portalProjection applied, because the terrain/entity passes that follow in render() use them). In the
+        // INJECTION path there is no such follow-up inside our control - the very next thing to draw is the rest of
+        // the scene (the real exterior box+doors, particles, weather), so that leaked fog/projection/blend state
+        // garbles it. Snapshot everything renderSky might touch and hard-restore it afterward.
+        Matrix4f savedProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
+        VertexSorter savedSorter = RenderSystem.getVertexSorting();
+        float[] savedFogColor = RenderSystem.getShaderFogColor().clone();
+        float savedFogStart = RenderSystem.getShaderFogStart();
+        float savedFogEnd = RenderSystem.getShaderFogEnd();
+        FogShape savedFogShape = RenderSystem.getShaderFogShape();
+        float[] savedShaderColor = RenderSystem.getShaderColor().clone();
+        boolean savedBlend = GL11.glIsEnabled(GL11.GL_BLEND);
+        boolean savedCull = GL11.glIsEnabled(GL11.GL_CULL_FACE);
+        boolean savedDepthTest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
+        boolean savedDepthMask = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
+        int savedDepthFunc = GL11.glGetInteger(GL11.GL_DEPTH_FUNC);
+
+        // Iris's built-in renderSky mixin dereferences a per-WorldRenderer pipeline field that Iris only sets on the
+        // MAIN renderer - the shadow renderer's is null, so temporarily install the live main pipeline onto it for
+        // the sky pass (restored below). Without this the pass NPEs and we fall back to the fog backdrop.
+        Object prevPipeline = dev.amble.ait.client.boti.iris.IrisSkyCompat.installMainPipeline(data.renderer());
+
+        // IP-style per-dimension resample: Iris samples the sun/moon/celestial/sky uniforms ONCE per frame from the
+        // viewer's dimension (here the fixed-midnight TARDIS interior), so without this the doorway sky renders with
+        // the interior's permanent-midnight sun no matter the exterior's real time. Swap client.world to the exterior
+        // shadow world and force Iris to re-evaluate its PER_FRAME uniforms NOW, so the sky pass below draws with the
+        // exterior time of day. Reverted (world + resample) in the finally so the deferred/composite pass that lights
+        // the rest of the scene goes back to the viewer's dimension.
+        MinecraftClient mc = MinecraftClient.getInstance();
+        ClientWorld prevWorld = mc.world;
+        mc.world = portalWorld;
+        dev.amble.ait.client.boti.iris.IrisSkyCompat.resampleFrameUniforms();
+        try {
+            renderSky(id, portalWorld, portalRot, lastPortalCamera, lastEyeWorldPos, tickDelta);
+        } catch (Throwable t) {
+            if (!skyInjectErrorLogged) {
+                AITMod.LOGGER.error("BOTI: doorway sky injection (AFTER_ENTITIES) failed; falling back to the fog "
+                        + "backdrop; further occurrences suppressed", t);
+                skyInjectErrorLogged = true;
+            }
+        } finally {
+            mc.world = prevWorld;
+            dev.amble.ait.client.boti.iris.IrisSkyCompat.resampleFrameUniforms();
+            dev.amble.ait.client.boti.iris.IrisSkyCompat.restore(data.renderer(), prevPipeline);
+
+            // Hard-restore all snapshotted state so nothing leaks onto the scene rendered after this event.
+            RenderSystem.setProjectionMatrix(savedProjection, savedSorter);
+            RenderSystem.setShaderFogColor(savedFogColor[0], savedFogColor[1], savedFogColor[2], savedFogColor[3]);
+            RenderSystem.setShaderFogStart(savedFogStart);
+            RenderSystem.setShaderFogEnd(savedFogEnd);
+            RenderSystem.setShaderFogShape(savedFogShape);
+            RenderSystem.setShaderColor(savedShaderColor[0], savedShaderColor[1], savedShaderColor[2], savedShaderColor[3]);
+            if (savedBlend) RenderSystem.enableBlend(); else RenderSystem.disableBlend();
+            if (savedCull) RenderSystem.enableCull(); else RenderSystem.disableCull();
+            if (savedDepthTest) RenderSystem.enableDepthTest(); else RenderSystem.disableDepthTest();
+            RenderSystem.depthMask(savedDepthMask);
+            RenderSystem.depthFunc(savedDepthFunc);
+        }
     }
 
     // ===== Draw passes =====

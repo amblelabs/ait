@@ -10,9 +10,13 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import org.lwjgl.opengl.GL11;
 
+import org.joml.Vector3f;
+
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
@@ -20,12 +24,15 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.LightType;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.boti.AITRenderHelper;
 import dev.amble.ait.client.boti.BOTI;
 import dev.amble.ait.client.boti.TardisExteriorBOTI;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.SkyboxUtil;
 import dev.amble.ait.compat.DependencyChecker;
@@ -191,14 +198,55 @@ public final class ExteriorGbufferInjection {
         // Tell SkyboxMixin which TARDIS's interior sky to draw (the viewer is outside, so getCurrentTardis() is null).
         SkyboxUtil.PORTAL_SKY_TARDIS = tardis;
         try {
-            // Inject the interior world into the aperture, shaded by Iris via the terrain/entity phases. No occluder
-            // re-render is needed here (unlike the interior probe): the real ExteriorRenderer draws the box+doors
-            // normally AFTER this event, so re-rendering the whole BE only painted its dark backing over the opening.
+            // Draw the interior world's real skybox over the fog backdrop (inside the PORTAL_SKY_TARDIS scope so the
+            // TARDIS skybox is selected). injectSky hard-restores GL state afterward, so it no longer leaks fog onto
+            // the exterior box that renders after this event. Terrain below overdraws it where the interior has geometry.
+            boolean skyInjectPhase = IrisPhase.setSky();
+            try {
+                geometry.injectSky(Portals.interiorId(tardis.getUuid()), interior.world(), ctx.tickDelta());
+            } finally {
+                if (skyInjectPhase)
+                    IrisPhase.reset();
+            }
+
+            // Inject the interior world into the aperture, shaded by Iris via the terrain/entity phases.
             geometry.debugInjectTerrainIntoGbuffer();
             geometry.injectBlockEntitiesAndEntities(ctx.tickDelta());
             geometry.debugInjectTranslucentIntoGbuffer();
         } finally {
             SkyboxUtil.PORTAL_SKY_TARDIS = null;
+        }
+
+        // Occluder: re-render the exterior door PANELS ONLY over the injected interior, so open doors (especially
+        // inward-swinging ones, which sit BEHIND the door-plane depth written below and would otherwise be clipped
+        // by the portal) correctly cover the interior. Panels only via model.renderDoors - NOT the whole BE via the
+        // dispatcher, whose dark box backing painted the opening black. getBotiInterior uses the entity vertex format
+        // that Iris extends in BLOCK_ENTITIES phase, so the panels shade with the pack. Clear the aperture depth to
+        // far first so the panels (LEQUAL) draw over the interior regardless of the interior's portal-space depth.
+        BOTI.clearDepthInStencilRegion();
+        ExteriorModel model = variant.getCachedModel();
+        int light = LightmapTextureManager.pack(
+                mc.world.getLightLevel(LightType.BLOCK, pos), mc.world.getLightLevel(LightType.SKY, pos));
+        Vector3f doorScale = tardis.travel().getScale();
+        VertexConsumerProvider.Immediate doorImm = BOTI.AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
+        boolean doorPhase = IrisPhase.setBlockEntities();
+        stack.push();
+        stack.translate(0.5, 0, 0.5);
+        stack.translate(pos.getX() - camPos.x, pos.getY() - camPos.y, pos.getZ() - camPos.z);
+        stack.scale(1, -1, -1);
+        stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
+                RotationPropertyHelper.toDegrees(exterior.getCachedState().get(ExteriorBlock.ROTATION))));
+        stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
+        stack.scale(doorScale.x(), doorScale.y(), doorScale.z());
+        try {
+            model.renderDoors(tardis, exterior, model.getPart(), stack,
+                    doorImm.getBuffer(AITRenderLayers.getBotiInterior(variant.texture())),
+                    light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
+            doorImm.draw();
+        } finally {
+            stack.pop();
+            if (doorPhase)
+                IrisPhase.reset();
         }
 
         // Replace the injected portal-space depth in the aperture with the exterior DOOR-PLANE depth, so main-world

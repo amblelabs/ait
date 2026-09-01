@@ -42,6 +42,7 @@ public final class GbufferInjectionProbe {
     private static boolean loggedSuccess = false;
     /** Logged exactly once: the stencil-bits count of Iris's gbuffer FBO. */
     private static boolean loggedStencilBits = false;
+    private static long lastTimeDiagMs = 0;
 
     private GbufferInjectionProbe() {}
 
@@ -117,6 +118,18 @@ public final class GbufferInjectionProbe {
         // the 1-frame-stale view cached by the last END render (that lag is what smears the portal on camera turn).
         refreshPortalView(tardis, door, data);
 
+        // DIAG: compare the exterior shadow world's clock (drives the doorway sky/time) against the viewer's world.
+        long now = System.currentTimeMillis();
+        if (now - lastTimeDiagMs > 1000 && data.world() != null) {
+            lastTimeDiagMs = now;
+            net.minecraft.client.world.ClientWorld viewerWorld = MinecraftClient.getInstance().world;
+            AITMod.LOGGER.info("BOTI-TIME-DIAG shadowExterior timeOfDay={} (%24000={}) skyAngle={} | viewer={} timeOfDay={}",
+                    data.world().getTimeOfDay(), data.world().getTimeOfDay() % 24000L,
+                    data.world().getSkyAngle(1.0f),
+                    viewerWorld != null ? viewerWorld.getRegistryKey().getValue() : "null",
+                    viewerWorld != null ? viewerWorld.getTimeOfDay() % 24000L : -1);
+        }
+
         MatrixStack stack = ctx.matrixStack();
 
         try {
@@ -188,6 +201,12 @@ public final class GbufferInjectionProbe {
                         BOTI.fillColorInStencilRegion((float) fog.x, (float) fog.y, (float) fog.z);
                     else
                         BOTI.fillColorInStencilRegion(0.5f, 0.65f, 0.9f);
+
+                    // Step 2a3: draw the exterior dimension's REAL sky over the fog backdrop - sun/moon/stars/colour
+                    // at the exterior's actual time of day - so the doorway reflects the true time out there instead
+                    // of a flat fill. Runs here (AFTER_ENTITIES) where Iris's pipeline is live; the terrain injected
+                    // below overdraws it wherever there's geometry, so the sky only shows through the gaps.
+                    data.geometry().injectSky(tardis.getUuid(), data.world(), ctx.tickDelta());
                 } finally {
                     if (skyPhase)
                         dev.amble.ait.client.boti.iris.IrisPhase.reset();

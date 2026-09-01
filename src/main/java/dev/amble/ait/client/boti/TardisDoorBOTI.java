@@ -108,11 +108,6 @@ public class TardisDoorBOTI extends BOTI {
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
 
-        AITMod.LOGGER.info("BOTI-DIAG hasIris={} boundDrawFbo={} mainFbo={} win={}x{}",
-                dev.amble.ait.compat.DependencyChecker.hasIris(),
-                BOTI.currentDrawFbo(),
-                client.getFramebuffer().fbo,
-                client.getWindow().getFramebufferWidth(), client.getWindow().getFramebufferHeight());
         BOTI.BotiCompositeState composite = BOTI.beginBotiComposite();
         int winW = composite.viewport[2];
         int winH = composite.viewport[3];
