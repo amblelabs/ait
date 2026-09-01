@@ -1,11 +1,23 @@
 package dev.amble.ait.client.boti.iris;
 
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import net.minecraft.block.DoorBlock;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RotationAxis;
+import org.lwjgl.opengl.GL11;
+
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.client.boti.BOTI;
+import dev.amble.ait.client.boti.TardisDoorBOTI;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.loqor.portal.client.PortalData;
 import dev.loqor.portal.client.PortalDataManager;
 
@@ -16,12 +28,19 @@ import dev.loqor.portal.client.PortalDataManager;
  * phase set, so Iris's own deferred+composite should light it as part of the scene - with no double-composite,
  * because we are only adding draws to the existing opaque pass, not running a nested finalizeLevelRendering.
  *
- * <p>Verdict to read in-game: does the (unclipped, splattered) interior terrain come out SHADED by the pack, and
- * is the main world NOT doubled? If yes, gbuffer-injection is viable and clipping/variants are the next milestones.
+ * <p>The terrain draw is clipped to the doorway aperture via the gbuffer's stencil buffer: the aperture mask
+ * from {@link TardisDoorBOTI#drawDoorApertureMask} is stamped into stencil=1 first, then the terrain draw is
+ * restricted to stencil==1 pixels only. If the gbuffer has no stencil bits (Iris may allocate none), the draw
+ * falls back to unclipped and the probe logs {@code GL_STENCIL_BITS=0}.
+ *
+ * <p>Verdict to read in-game: does the interior terrain now appear ONLY inside the doorway, shaded by the pack,
+ * with the main world NOT doubled? And what is GL_STENCIL_BITS?
  */
 public final class GbufferInjectionProbe {
     private static boolean loggedError = false;
     private static boolean loggedSuccess = false;
+    /** Logged exactly once: the stencil-bits count of Iris's gbuffer FBO. */
+    private static boolean loggedStencilBits = false;
 
     private GbufferInjectionProbe() {}
 
@@ -37,12 +56,101 @@ public final class GbufferInjectionProbe {
         if (data == null || data.geometry() == null)
             return;
 
+        // Log the stencil depth of the currently-bound gbuffer once so we know if clipping is even possible.
+        if (!loggedStencilBits) {
+            int stencilBits = GL11.glGetInteger(GL11.GL_STENCIL_BITS);
+            AITMod.LOGGER.info("Phase B gbuffer stencil probe: GL_STENCIL_BITS={} (bound FBO={})",
+                    stencilBits, BOTI.currentDrawFbo());
+            loggedStencilBits = true;
+        }
+
+        int stencilBits = GL11.glGetInteger(GL11.GL_STENCIL_BITS);
+
+        // Find the interior door entity from the render queue. The queue is populated during entity rendering
+        // (before AFTER_ENTITIES) and cleared by doorBOTI which is registered after this probe, so the
+        // door is available here. We peek (not poll) so Phase A's render still has the door.
+        DoorBlockEntity door = null;
+        for (DoorBlockEntity candidate : BOTI.DOOR_RENDER_QUEUE) {
+            if (candidate != null && candidate.isLinked()
+                    && tardis.getUuid().equals(candidate.tardis().get().getUuid())) {
+                door = candidate;
+                break;
+            }
+        }
+
+        MatrixStack stack = ctx.matrixStack();
+
         try {
-            data.geometry().debugInjectTerrainIntoGbuffer();
-            if (!loggedSuccess) {
-                AITMod.LOGGER.info("Phase B gbuffer-injection probe: drew interior terrain into the gbuffer "
-                        + "at AFTER_ENTITIES (read in-game: shaded? main world not doubled?)");
-                loggedSuccess = true;
+            if (stencilBits > 0 && door != null) {
+                // --- Stencil-clipped injection path ---
+
+                // Capture the GL stencil state so we can restore it fully afterward.
+                boolean wasStencilEnabled = GL11.glIsEnabled(GL11.GL_STENCIL_TEST);
+                int prevStencilFunc = GL11.glGetInteger(GL11.GL_STENCIL_FUNC);
+                int prevStencilRef  = GL11.glGetInteger(GL11.GL_STENCIL_REF);
+                int prevStencilMask = GL11.glGetInteger(GL11.GL_STENCIL_VALUE_MASK);
+                int prevStencilWriteMask = GL11.glGetInteger(GL11.GL_STENCIL_WRITEMASK);
+                int prevStencilFail = GL11.glGetInteger(GL11.GL_STENCIL_FAIL);
+                int prevStencilZFail = GL11.glGetInteger(GL11.GL_STENCIL_PASS_DEPTH_FAIL);
+                int prevStencilZPass = GL11.glGetInteger(GL11.GL_STENCIL_PASS_DEPTH_PASS);
+
+                // Step 1: stamp stencil=1 in the doorway aperture.
+                // Apply the same door-position transforms that doorBOTI/renderInteriorDoorBoti use, so the
+                // aperture quad lands at the correct screen-space pixels in the live gbuffer.
+                GL11.glEnable(GL11.GL_STENCIL_TEST);
+                GL11.glStencilMask(0xFF);
+                GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+                GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+
+                Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
+                BlockPos doorPos = door.getPos();
+                stack.push();
+                // Mirror doorBOTI's outer translate: door block to camera-relative space.
+                stack.translate(0.5, 0, 0.5);
+                stack.translate(doorPos.getX() - camera.getPos().getX(),
+                        doorPos.getY() - camera.getPos().getY(),
+                        doorPos.getZ() - camera.getPos().getZ());
+                stack.scale(1, -1, -1);
+                stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(
+                        door.getCachedState().get(DoorBlock.FACING).asRotation()));
+                // Mirror renderInteriorDoorBoti's first inner push.
+                stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
+
+                // drawDoorApertureMask suppresses colorMask/depthMask internally.
+                TardisDoorBOTI.drawDoorApertureMask(tardis, door, stack);
+                stack.pop();
+
+                // Step 2: clip the terrain draw to stencil==1.
+                GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+                GL11.glStencilMask(0x00);
+                RenderSystem.colorMask(true, true, true, true);
+                RenderSystem.depthMask(true);
+
+                data.geometry().debugInjectTerrainIntoGbuffer();
+
+                // Step 3: fully restore stencil state.
+                GL11.glStencilMask(0xFF);
+                GL11.glStencilFunc(prevStencilFunc, prevStencilRef, prevStencilMask);
+                GL11.glStencilOp(prevStencilFail, prevStencilZFail, prevStencilZPass);
+                GL11.glStencilMask(prevStencilWriteMask);
+                if (!wasStencilEnabled) GL11.glDisable(GL11.GL_STENCIL_TEST);
+
+                if (!loggedSuccess) {
+                    AITMod.LOGGER.info("Phase B gbuffer-injection probe: drew STENCIL-CLIPPED interior terrain "
+                            + "into the gbuffer at AFTER_ENTITIES (GL_STENCIL_BITS={}, door={})",
+                            stencilBits, door.getPos());
+                    loggedSuccess = true;
+                }
+            } else {
+                // --- Unclipped fallback: no stencil bits or no door entity found ---
+                data.geometry().debugInjectTerrainIntoGbuffer();
+                if (!loggedSuccess) {
+                    String reason = stencilBits == 0 ? "GL_STENCIL_BITS=0 (stencil clip unavailable)"
+                            : "no door entity in queue (stencil clip skipped)";
+                    AITMod.LOGGER.info("Phase B gbuffer-injection probe: drew UNCLIPPED interior terrain "
+                            + "into the gbuffer at AFTER_ENTITIES ({})", reason);
+                    loggedSuccess = true;
+                }
             }
         } catch (Throwable t) {
             if (!loggedError) {

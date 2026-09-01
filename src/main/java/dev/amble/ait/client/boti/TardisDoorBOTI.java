@@ -21,6 +21,7 @@ import net.minecraft.util.Identifier;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.AnimatedModel;
+import dev.amble.ait.client.models.boti.BotiPortalModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.renderers.VortexRender;
 import dev.amble.ait.client.tardis.ClientTardis;
@@ -36,6 +37,44 @@ import dev.amble.ait.registry.impl.CategoryRegistry;
 public class TardisDoorBOTI extends BOTI {
     // The geometry renderer now lives on each PortalData (the shadow world owns it), so multiple TARDIS doors -
     // and the new exterior->interior view - each bake/draw independently. Fetched per render via PortalDataManager.
+
+    /**
+     * Draws the door-portal quad into the currently-bound framebuffer's stencil buffer, leaving stencil=1
+     * inside the doorway aperture. The caller is responsible for setting up the stencil write state
+     * ({@code glStencilFunc(GL_ALWAYS,1,0xFF)}, {@code glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE)}) before
+     * calling this helper. Color and depth masks are suppressed internally and restored on return.
+     *
+     * <p>The {@code door} parameter is accepted for future use (e.g. per-door offsets); the transform is
+     * currently derived entirely from {@code tardis}.
+     */
+    public static void drawDoorApertureMask(ClientTardis tardis, DoorBlockEntity door, MatrixStack stack) {
+        ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
+        ExteriorVariantSchema parent = variant.parent();
+        Vector3f scale = tardis.travel().getScale();
+
+        Vec3d vec = parent.door().getPortalPosition();
+        if (vec == null) vec = Vec3d.ZERO;
+
+        // Suppress color and depth output — we only want to stamp stencil=1 in the doorway pixels.
+        RenderSystem.colorMask(false, false, false, false);
+        RenderSystem.depthMask(false);
+
+        VertexConsumerProvider.Immediate maskProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
+        ModelPart maskPart = BotiPortalModel.getTexturedModelData().createModel();
+
+        stack.push();
+        stack.translate(vec.x, -vec.y - parent.portalHeight() / 2f, vec.z);
+        stack.scale((float) parent.portalWidth() * scale.x(),
+                (float) parent.portalHeight() * scale.y(), scale.z());
+        maskPart.render(stack, maskProvider.getBuffer(RenderLayer.getDebugFilledBox()),
+                0xf000f0, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
+        maskProvider.draw();
+        stack.pop();
+
+        // Restore color/depth output for subsequent draws.
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.depthMask(true);
+    }
 
     public static void renderInteriorDoorBoti(ClientTardis tardis, DoorBlockEntity door, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, AnimatedModel frame, ModelPart mask, int light, float tickDelta) {
         ExteriorVariantSchema parent = variant.parent();
@@ -91,6 +130,10 @@ public class TardisDoorBOTI extends BOTI {
         BOTI.resetStencilByDraw();
         GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
         GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+
+        // Write stencil=1 into the doorway aperture using the extracted reusable helper.
+        // (colorMask/depthMask are managed inside the helper; restored to true on return.)
+        drawDoorApertureMask(tardis, door, stack);
 
         RenderSystem.depthMask(true);
         stack.push();
