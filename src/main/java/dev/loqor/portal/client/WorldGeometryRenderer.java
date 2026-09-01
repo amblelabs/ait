@@ -37,6 +37,7 @@ import net.minecraft.world.chunk.light.LightingProvider;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -779,6 +780,7 @@ public class WorldGeometryRenderer {
 
         // Ensure injected terrain writes depth so it self-sorts and occludes correctly.
         RenderSystem.enableDepthTest();
+        boolean prevDepthMask = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
         RenderSystem.depthMask(true);
 
         RenderSystem.setShaderTexture(0, SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
@@ -806,6 +808,8 @@ public class WorldGeometryRenderer {
             if (phased)
                 dev.amble.ait.client.boti.iris.IrisPhase.reset();
         }
+
+        RenderSystem.depthMask(prevDepthMask);
     }
 
     /**
@@ -824,6 +828,7 @@ public class WorldGeometryRenderer {
 
         // Ensure depth writes are active for injected geometry (same guard as debugInjectTerrainIntoGbuffer).
         RenderSystem.enableDepthTest();
+        boolean prevDepthMask = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
         RenderSystem.depthMask(true);
 
         // Save projection; set the portal projection for the duration of the draw (mirrors render()).
@@ -859,6 +864,19 @@ public class WorldGeometryRenderer {
             modelViewStack.pop();
             RenderSystem.applyModelViewMatrix();
             RenderSystem.setProjectionMatrix(originalProjection, VertexSorter.BY_DISTANCE);
+
+            // Restore both dispatcher configurations to the main world/camera. renderBlockEntities and
+            // renderEntities reconfigure the shared dispatchers to point at the portal world; without this
+            // restore they stay pointed at the portal world until render()'s own finally runs at END,
+            // meaning any interior block entities drawn between AFTER_ENTITIES and END query light from
+            // the exterior dimension and get wrong (dark/transparent) lighting.
+            MinecraftClient client = MinecraftClient.getInstance();
+            Camera mainCamera = client.gameRenderer.getCamera();
+            client.getBlockEntityRenderDispatcher().configure(client.world, mainCamera, client.crosshairTarget);
+            client.getEntityRenderDispatcher().configure(client.world, mainCamera, client.targetedEntity);
+
+            // Restore the prior depth-write state so callers aren't surprised by an unconditional enable.
+            RenderSystem.depthMask(prevDepthMask);
         }
     }
 
