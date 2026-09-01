@@ -12,6 +12,7 @@ import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.client.boti.AITRenderHelper;
 import dev.amble.ait.client.boti.BOTI;
 import dev.amble.ait.client.boti.TardisDoorBOTI;
 import dev.amble.ait.client.tardis.ClientTardis;
@@ -56,15 +57,17 @@ public final class GbufferInjectionProbe {
         if (data == null || data.geometry() == null)
             return;
 
-        // Log the stencil depth of the currently-bound gbuffer once so we know if clipping is even possible.
+        // Determine stencil availability from the AIT framebuffer flag (avoids the invalid
+        // GL11.glGetInteger(GL11.GL_STENCIL_BITS) query that emits GL_INVALID_ENUM in a core GL profile).
+        boolean stencilEnabled = AITRenderHelper.getIsStencilEnabled(
+                MinecraftClient.getInstance().getFramebuffer());
+
+        // Log once so we know whether the clip is active.
         if (!loggedStencilBits) {
-            int stencilBits = GL11.glGetInteger(GL11.GL_STENCIL_BITS);
-            AITMod.LOGGER.info("Phase B gbuffer stencil probe: GL_STENCIL_BITS={} (bound FBO={})",
-                    stencilBits, BOTI.currentDrawFbo());
+            AITMod.LOGGER.info("Phase B gbuffer stencil probe: stencilEnabled={} (bound FBO={})",
+                    stencilEnabled, BOTI.currentDrawFbo());
             loggedStencilBits = true;
         }
-
-        int stencilBits = GL11.glGetInteger(GL11.GL_STENCIL_BITS);
 
         // Find the interior door entity from the render queue. The queue is populated during entity rendering
         // (before AFTER_ENTITIES) and cleared by doorBOTI which is registered after this probe, so the
@@ -81,7 +84,7 @@ public final class GbufferInjectionProbe {
         MatrixStack stack = ctx.matrixStack();
 
         try {
-            if (stencilBits > 0 && door != null) {
+            if (stencilEnabled && door != null) {
                 // --- Stencil-clipped injection path ---
 
                 // Capture the GL stencil state so we can restore it fully afterward.
@@ -137,15 +140,15 @@ public final class GbufferInjectionProbe {
 
                 if (!loggedSuccess) {
                     AITMod.LOGGER.info("Phase B gbuffer-injection probe: drew STENCIL-CLIPPED interior terrain "
-                            + "into the gbuffer at AFTER_ENTITIES (GL_STENCIL_BITS={}, door={})",
-                            stencilBits, door.getPos());
+                            + "into the gbuffer at AFTER_ENTITIES (stencilEnabled={}, door={})",
+                            stencilEnabled, door.getPos());
                     loggedSuccess = true;
                 }
             } else {
-                // --- Unclipped fallback: no stencil bits or no door entity found ---
+                // --- Unclipped fallback: stencil not enabled or no door entity found ---
                 data.geometry().debugInjectTerrainIntoGbuffer();
                 if (!loggedSuccess) {
-                    String reason = stencilBits == 0 ? "GL_STENCIL_BITS=0 (stencil clip unavailable)"
+                    String reason = !stencilEnabled ? "stencilEnabled=false (stencil clip unavailable)"
                             : "no door entity in queue (stencil clip skipped)";
                     AITMod.LOGGER.info("Phase B gbuffer-injection probe: drew UNCLIPPED interior terrain "
                             + "into the gbuffer at AFTER_ENTITIES ({})", reason);

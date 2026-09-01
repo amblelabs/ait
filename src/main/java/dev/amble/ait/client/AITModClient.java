@@ -183,6 +183,19 @@ public class AITModClient implements ClientModInitializer {
             // THROWAWAY Phase B gbuffer-injection probe (guarded again at call time by isShaderPackInUse()).
             // AFTER_ENTITIES runs pre-deferred while the gbuffer is bound; additive to the Phase A END path.
             WorldRenderEvents.AFTER_ENTITIES.register(dev.amble.ait.client.boti.iris.GbufferInjectionProbe::run);
+
+            // Ensure the main framebuffer (Iris's gbuffer == client.getFramebuffer()) has a stencil attachment
+            // so the injection probe's stencil-clip path activates. Must run at START (before any draw into the
+            // FB this frame) because setIsStencilEnabled triggers a resize()/reinit - forbidden mid-render.
+            // Idempotent: after the first frame the flag is already set so the resize is a no-op.
+            // Only under isIrisShaderPackInUse(): Phase A / no-pack must be untouched.
+            WorldRenderEvents.START.register(context -> {
+                if (!DependencyChecker.isIrisShaderPackInUse())
+                    return;
+                var fb = MinecraftClient.getInstance().getFramebuffer();
+                if (fb != null && !dev.amble.ait.client.boti.AITRenderHelper.getIsStencilEnabled(fb))
+                    dev.amble.ait.client.boti.AITRenderHelper.setIsStencilEnabled(fb, true);
+            });
         } else {
             WorldRenderEvents.AFTER_ENTITIES.register(this::exteriorBOTI);
             WorldRenderEvents.AFTER_ENTITIES.register(this::doorBOTI);

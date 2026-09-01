@@ -15,12 +15,26 @@ import net.irisshaders.iris.pipeline.WorldRenderingPipeline;
 public final class IrisPhase {
     private IrisPhase() {}
 
-    /** Bind the solid-terrain gbuffer program for subsequent draws. Returns true iff a live pipeline accepted it. */
-    public static boolean setTerrainSolid() {
+    private static boolean set(WorldRenderingPhase phase) {
         WorldRenderingPipeline pipeline = Iris.getPipelineManager().getPipelineNullable();
         if (pipeline == null) return false;
-        pipeline.setPhase(WorldRenderingPhase.TERRAIN_SOLID);
+        pipeline.setPhase(phase);
         return true;
+    }
+
+    /** Bind the solid-terrain gbuffer program for subsequent draws. Returns true iff a live pipeline accepted it. */
+    public static boolean setTerrainSolid() {
+        return set(WorldRenderingPhase.TERRAIN_SOLID);
+    }
+
+    /** Bind the cutout-mipped-terrain gbuffer program for subsequent draws. Returns true iff a live pipeline accepted it. */
+    public static boolean setTerrainCutoutMipped() {
+        return set(WorldRenderingPhase.TERRAIN_CUTOUT_MIPPED);
+    }
+
+    /** Bind the cutout-terrain gbuffer program for subsequent draws. Returns true iff a live pipeline accepted it. */
+    public static boolean setTerrainCutout() {
+        return set(WorldRenderingPhase.TERRAIN_CUTOUT);
     }
 
     /** Restore Iris's phase to NONE so Iris's own subsequent rendering isn't left mid-phase. */

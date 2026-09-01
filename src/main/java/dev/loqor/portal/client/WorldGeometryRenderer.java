@@ -775,6 +775,22 @@ public class WorldGeometryRenderer {
             if (phased)
                 dev.amble.ait.client.boti.iris.IrisPhase.reset();
         }
+
+        phased = dev.amble.ait.client.boti.iris.IrisPhase.setTerrainCutoutMipped();
+        try {
+            drawLayer(RenderLayer.getCutoutMipped(), visible);
+        } finally {
+            if (phased)
+                dev.amble.ait.client.boti.iris.IrisPhase.reset();
+        }
+
+        phased = dev.amble.ait.client.boti.iris.IrisPhase.setTerrainCutout();
+        try {
+            drawLayer(RenderLayer.getCutout(), visible);
+        } finally {
+            if (phased)
+                dev.amble.ait.client.boti.iris.IrisPhase.reset();
+        }
     }
 
     /**
