@@ -141,12 +141,11 @@ public final class GbufferInjectionProbe {
                 RenderSystem.colorMask(true, true, true, true);
                 RenderSystem.depthMask(true);
 
-                // Step 2a: punch a depth hole in the aperture. Without this the portal world is depth-occluded by
-                // the blocks in/behind the doorway (their main-scene depth is nearer than the portal geometry's
-                // portal-space depth), so it "doesn't render over the blocks behind the door". Clearing depth to
-                // far only where stencil==1 lets the injected world draw over them; it then writes its own depth
-                // for correct self-occlusion within the aperture.
-                BOTI.clearDepthInStencilRegion();
+                // NOTE: a naive aperture depth-clear (BOTI.clearDepthInStencilRegion) makes the portal draw over
+                // blocks behind the door, but it also wipes the depth of the open door PANELS (which project into
+                // the aperture), so they flicker/get overdrawn. Left out until we do it frame-safely - either a
+                // door-plane depth (not far) so front geometry still occludes, or re-rendering the door after the
+                // injection. Tracked in the ledger as the depth-space blocker.
 
                 data.geometry().debugInjectTerrainIntoGbuffer();
                 data.geometry().injectBlockEntitiesAndEntities(ctx.tickDelta());
