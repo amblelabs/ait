@@ -259,7 +259,21 @@ public class BOTI {
         drawFullscreenQuad(false, true);
     }
 
+    /**
+     * Writes NEAR depth (0.0) wherever the CURRENT stencil test passes. Called after the portal injection so
+     * translucent geometry drawn later (e.g. glass behind/around the door, rendered in the post-AFTER_ENTITIES
+     * translucent pass) is depth-occluded by the aperture instead of showing through the portal. The already-drawn
+     * portal colour is unaffected; only the depth used for subsequent tests is flattened to the front.
+     */
+    public static void writeNearDepthInStencilRegion() {
+        drawFullscreenQuad(false, true, 0.0);
+    }
+
     private static void drawFullscreenQuad(boolean writeColor, boolean writeDepth) {
+        drawFullscreenQuad(writeColor, writeDepth, 1.0);
+    }
+
+    private static void drawFullscreenQuad(boolean writeColor, boolean writeDepth, double depthValue) {
         RenderSystem.colorMask(writeColor, writeColor, writeColor, writeColor);
         RenderSystem.depthMask(writeDepth);
         RenderSystem.enableDepthTest();
@@ -267,7 +281,7 @@ public class BOTI {
         RenderSystem.disableCull();
 
         if (writeDepth)
-            GL11.glDepthRange(1.0, 1.0);
+            GL11.glDepthRange(depthValue, depthValue);
 
         Matrix4f prevProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
         VertexSorter prevSorter = RenderSystem.getVertexSorting();

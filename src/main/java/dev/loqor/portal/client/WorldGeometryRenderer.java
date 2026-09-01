@@ -713,6 +713,20 @@ public class WorldGeometryRenderer {
         return frustum.isVisible(new Box(minX, minY, minZ, minX + 16, minY + 16, minZ + 16));
     }
 
+    /**
+     * Recompute just the portal view/projection/frustum from the CURRENT camera-derived params, without meshing or
+     * drawing. The gbuffer-injection path calls this at {@code AFTER_ENTITIES} so the injected portal matches the
+     * current frame's camera instead of the 1-frame-stale view cached by the last {@code END} render - which is
+     * what smears the portal contents when the camera turns. {@code centerPos} and the baked VBOs stay as cached.
+     */
+    public void updatePortalView(Vec3d eyeRelToCenter, float portalYaw, float portalPitch) {
+        this.portalProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
+        Matrix4f portalRot = buildPortalRotation(portalYaw, portalPitch);
+        this.portalView = buildPortalView(portalRot, eyeRelToCenter);
+        this.frustum = new Frustum(portalRot, portalProjection);
+        this.frustum.setPosition(eyeRelToCenter.x, eyeRelToCenter.y, eyeRelToCenter.z);
+    }
+
     // ===== Draw passes =====
 
     private void renderTerrain() {

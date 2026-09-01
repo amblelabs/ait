@@ -93,6 +93,11 @@ public final class GbufferInjectionProbe {
             }
         }
 
+        // Recompute the portal view from the CURRENT camera so the injected content matches this frame instead of
+        // the 1-frame-stale view cached by the last END render (that lag is what smears the portal on camera turn).
+        if (door != null)
+            refreshPortalView(tardis, door, data);
+
         MatrixStack stack = ctx.matrixStack();
 
         try {
@@ -109,11 +114,18 @@ public final class GbufferInjectionProbe {
                 int prevStencilZFail = GL11.glGetInteger(GL11.GL_STENCIL_PASS_DEPTH_FAIL);
                 int prevStencilZPass = GL11.glGetInteger(GL11.GL_STENCIL_PASS_DEPTH_PASS);
 
+                // Step 0: clear the stencil buffer to 0. We added this stencil attachment ourselves; MC/Iris don't
+                // clear it each frame, so without this every frame's aperture stamp ACCUMULATES - the injection
+                // (stencil==1) then draws at every past door position too, smearing the portal across the screen as
+                // the door/camera moves. glClear honours the stencil write mask, so set it to 0xFF first.
+                GL11.glEnable(GL11.GL_STENCIL_TEST);
+                GL11.glStencilMask(0xFF);
+                GL11.glClearStencil(0);
+                GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+
                 // Step 1: stamp stencil=1 in the doorway aperture.
                 // Apply the same door-position transforms that doorBOTI/renderInteriorDoorBoti use, so the
                 // aperture quad lands at the correct screen-space pixels in the live gbuffer.
-                GL11.glEnable(GL11.GL_STENCIL_TEST);
-                GL11.glStencilMask(0xFF);
                 GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
                 GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
 
@@ -170,6 +182,12 @@ public final class GbufferInjectionProbe {
                         dev.amble.ait.client.boti.iris.IrisPhase.reset();
                 }
 
+                // Step 2d: flatten the aperture depth to NEAR so translucent geometry drawn later (glass behind the
+                // door, rendered in the post-AFTER_ENTITIES translucent pass) is depth-occluded by the portal instead
+                // of showing through it. Stencil is still EQUAL 1, so only the aperture is affected; the already-drawn
+                // portal/door colour is untouched.
+                BOTI.writeNearDepthInStencilRegion();
+
                 // Step 3: fully restore stencil state.
                 GL11.glStencilMask(0xFF);
                 GL11.glStencilFunc(prevStencilFunc, prevStencilRef, prevStencilMask);
@@ -200,6 +218,36 @@ public final class GbufferInjectionProbe {
                 AITMod.LOGGER.error("Phase B gbuffer-injection probe threw", t);
                 loggedError = true;
             }
+        }
+    }
+
+    /**
+     * Recompute the portal view from the CURRENT camera and push it into the geometry renderer, so the injected
+     * portal tracks the live camera instead of the 1-frame-stale view the END render cached. Mirrors the transform
+     * TardisDoorBOTI.renderInteriorDoorBoti feeds to geometry.render(): map the eye through the interior door into
+     * the exterior world (deltaYaw depends on the door facing and the exterior's real rotation).
+     */
+    private static void refreshPortalView(ClientTardis tardis, DoorBlockEntity door, PortalData data) {
+        try {
+            Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
+            float exteriorRotation = tardis.travel().position().getRotationDegrees();
+            net.minecraft.util.math.Direction interiorDoorFacing = door.getFacing().getOpposite();
+            float deltaYaw = (exteriorRotation + 180f) - interiorDoorFacing.asRotation();
+
+            net.minecraft.util.math.Vec3d interiorDoorCenter = new net.minecraft.util.math.Vec3d(
+                    door.getPos().getX() + 0.5, door.getPos().getY() + 1.0, door.getPos().getZ() + 0.5);
+            net.minecraft.util.math.Vec3d rel = camera.getPos().subtract(interiorDoorCenter);
+
+            double rad = Math.toRadians(deltaYaw);
+            double cos = Math.cos(rad), sin = Math.sin(rad);
+            net.minecraft.util.math.Vec3d relRotated = new net.minecraft.util.math.Vec3d(
+                    rel.x * cos - rel.z * sin, rel.y, rel.x * sin + rel.z * cos);
+            net.minecraft.util.math.Vec3d eyeRelToCenter =
+                    new net.minecraft.util.math.Vec3d(0.5, 1.0, 0.5).add(relRotated);
+
+            data.geometry().updatePortalView(eyeRelToCenter, camera.getYaw() + deltaYaw, camera.getPitch());
+        } catch (Throwable ignored) {
+            // Fall back to the cached view rather than crashing the probe.
         }
     }
 }
