@@ -47,6 +47,11 @@ public final class IrisPhase {
         return set(WorldRenderingPhase.ENTITIES);
     }
 
+    /** Bind the sky program so a fill is treated as (unlit) sky rather than lit gbuffer geometry. */
+    public static boolean setSky() {
+        return set(WorldRenderingPhase.SKY);
+    }
+
     /** Restore Iris's phase to NONE so Iris's own subsequent rendering isn't left mid-phase. */
     public static void reset() {
         WorldRenderingPipeline pipeline = Iris.getPipelineManager().getPipelineNullable();

@@ -93,15 +93,35 @@ public final class GbufferInjectionProbe {
             }
         }
 
+        // The injection needs a live door to define the aperture. If the cached door was destroyed, drop it and
+        // don't inject - otherwise the portal lingers after the door is gone. Stencil clipping is also required now
+        // that it's confirmed working (no unclipped fallback - that only ever splattered).
+        if (door != null && door.isRemoved()) {
+            BOTI.LAST_RENDERED_DOOR.remove(tardis.getUuid());
+            door = null;
+        }
+        // Only inject when the door is actually open (matches doorBOTI's render condition). A closed opaque door has
+        // no portal; without this the injection keeps drawing the (stale-cached) portal over the shut doors.
+        if (door != null) {
+            boolean doorOpen = tardis.door().getLeftRot() > 0
+                    || tardis.getExterior().getVariant().getClient().hasTransparentDoors();
+            if (!doorOpen) {
+                BOTI.LAST_RENDERED_DOOR.remove(tardis.getUuid());
+                door = null;
+            }
+        }
+        if (door == null || !stencilEnabled)
+            return;
+
         // Recompute the portal view from the CURRENT camera so the injected content matches this frame instead of
         // the 1-frame-stale view cached by the last END render (that lag is what smears the portal on camera turn).
-        if (door != null)
-            refreshPortalView(tardis, door, data);
+        refreshPortalView(tardis, door, data);
 
         MatrixStack stack = ctx.matrixStack();
 
         try {
-            if (stencilEnabled && door != null) {
+            {
+                // --- Stencil-clipped injection path ---
                 // --- Stencil-clipped injection path ---
 
                 // Capture the GL stencil state so we can restore it fully afterward.
@@ -157,9 +177,30 @@ public final class GbufferInjectionProbe {
                 // door (their main-scene depth would otherwise occlude the portal's unrelated portal-space depth).
                 BOTI.clearDepthInStencilRegion();
 
+                // Step 2a2: paint the exterior sky/fog colour as a backdrop, so aperture regions with no injected
+                // terrain (the sky) show that colour instead of the interior scene behind them. Draw it in the SKY
+                // phase so Iris treats it as (unlit) sky rather than lit gbuffer geometry - otherwise the deferred
+                // pass blows the flat quad out to white.
+                net.minecraft.util.math.Vec3d fog = data.geometry().exteriorFogColor();
+                boolean skyPhase = dev.amble.ait.client.boti.iris.IrisPhase.setSky();
+                try {
+                    if (fog != null)
+                        BOTI.fillColorInStencilRegion((float) fog.x, (float) fog.y, (float) fog.z);
+                    else
+                        BOTI.fillColorInStencilRegion(0.5f, 0.65f, 0.9f);
+                } finally {
+                    if (skyPhase)
+                        dev.amble.ait.client.boti.iris.IrisPhase.reset();
+                }
+
                 // Step 2b: inject the portal world into the aperture (shaded by Iris via the terrain/entity phases).
                 data.geometry().debugInjectTerrainIntoGbuffer();
                 data.geometry().injectBlockEntitiesAndEntities(ctx.tickDelta());
+
+                // Step 2b2: re-clear the aperture depth so the door re-render below draws reliably ON TOP of the
+                // portal - the portal's portal-space depth isn't comparable to the door's main-space depth, so a
+                // plain depth test would let the portal win. Clearing to far first makes the door (LEQUAL) always win.
+                BOTI.clearDepthInStencilRegion();
 
                 // Step 2c: re-render the door on top - still stencil-clipped to the aperture, with normal depth
                 // test/write - so the open door panels/frame occlude the portal and their pixels+depth (wiped by
@@ -167,17 +208,21 @@ public final class GbufferInjectionProbe {
                 // renders the door with its own exact transform/animation; BLOCK_ENTITIES phase so Iris shades it.
                 MinecraftClient mc = MinecraftClient.getInstance();
                 net.minecraft.util.math.Vec3d camPos = mc.gameRenderer.getCamera().getPos();
-                MatrixStack doorStack = new MatrixStack();
-                doorStack.translate(door.getPos().getX() - camPos.x,
-                        door.getPos().getY() - camPos.y,
-                        door.getPos().getZ() - camPos.z);
                 net.minecraft.client.render.VertexConsumerProvider.Immediate doorImm =
                         BOTI.AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
                 boolean doorPhase = dev.amble.ait.client.boti.iris.IrisPhase.setBlockEntities();
+                // Use the CONTEXT matrix stack (it carries the camera view rotation, same as the aperture mask
+                // uses) - a fresh identity stack renders the door billboarded to the camera. Just translate to the
+                // door's camera-relative position and let the dispatcher apply the door's own transform/animation.
+                stack.push();
+                stack.translate(door.getPos().getX() - camPos.x,
+                        door.getPos().getY() - camPos.y,
+                        door.getPos().getZ() - camPos.z);
                 try {
-                    mc.getBlockEntityRenderDispatcher().render(door, ctx.tickDelta(), doorStack, doorImm);
+                    mc.getBlockEntityRenderDispatcher().render(door, ctx.tickDelta(), stack, doorImm);
                     doorImm.draw();
                 } finally {
+                    stack.pop();
                     if (doorPhase)
                         dev.amble.ait.client.boti.iris.IrisPhase.reset();
                 }
@@ -199,17 +244,6 @@ public final class GbufferInjectionProbe {
                     AITMod.LOGGER.info("Phase B gbuffer-injection probe: drew STENCIL-CLIPPED interior terrain+BE+entities "
                             + "into the gbuffer at AFTER_ENTITIES (stencilEnabled={}, door={})",
                             stencilEnabled, door.getPos());
-                    loggedSuccess = true;
-                }
-            } else {
-                // --- Unclipped fallback: stencil not enabled or no door entity found ---
-                data.geometry().debugInjectTerrainIntoGbuffer();
-                data.geometry().injectBlockEntitiesAndEntities(ctx.tickDelta());
-                if (!loggedSuccess) {
-                    String reason = !stencilEnabled ? "stencilEnabled=false (stencil clip unavailable)"
-                            : "no door entity in queue (stencil clip skipped)";
-                    AITMod.LOGGER.info("Phase B gbuffer-injection probe: drew UNCLIPPED interior terrain+BE+entities "
-                            + "into the gbuffer at AFTER_ENTITIES ({})", reason);
                     loggedSuccess = true;
                 }
             }

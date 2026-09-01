@@ -269,6 +269,44 @@ public class BOTI {
         drawFullscreenQuad(false, true, 0.0);
     }
 
+    /**
+     * Fills the CURRENT stencil region with a solid colour (no depth write). Used as the portal's sky/fog backdrop:
+     * regions of the aperture with no injected terrain (the sky) would otherwise show the interior scene behind
+     * them; this paints the exterior fog colour there first, exactly like Phase A clears its afbo to the fog colour.
+     */
+    public static void fillColorInStencilRegion(float r, float g, float b) {
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.depthMask(false);
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(GL11.GL_ALWAYS);
+        RenderSystem.disableCull();
+
+        Matrix4f prevProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
+        VertexSorter prevSorter = RenderSystem.getVertexSorting();
+        RenderSystem.setProjectionMatrix(IDENTITY_MATRIX, VertexSorter.BY_DISTANCE);
+        MatrixStack modelView = RenderSystem.getModelViewStack();
+        modelView.push();
+        modelView.loadIdentity();
+        RenderSystem.applyModelViewMatrix();
+
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        BufferBuilder builder = Tessellator.getInstance().getBuffer();
+        builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+        builder.vertex(-1.0, -1.0, 0.0).color(r, g, b, 1f).next();
+        builder.vertex(1.0, -1.0, 0.0).color(r, g, b, 1f).next();
+        builder.vertex(1.0, 1.0, 0.0).color(r, g, b, 1f).next();
+        builder.vertex(-1.0, 1.0, 0.0).color(r, g, b, 1f).next();
+        BufferRenderer.drawWithGlobalProgram(builder.end());
+
+        modelView.pop();
+        RenderSystem.applyModelViewMatrix();
+        RenderSystem.setProjectionMatrix(prevProjection, prevSorter);
+
+        RenderSystem.depthFunc(GL11.GL_LEQUAL);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableCull();
+    }
+
     private static void drawFullscreenQuad(boolean writeColor, boolean writeDepth) {
         drawFullscreenQuad(writeColor, writeDepth, 1.0);
     }
