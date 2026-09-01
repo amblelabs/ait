@@ -73,6 +73,13 @@ public class WorldGeometryRenderer {
      */
     private long lastRenderNanos = 0L;
 
+    /** Set once the portal sky pass has failed. Under Iris the vanilla WorldRenderer.renderSky is mixin'd to touch
+     *  Iris's pipeline, which is already torn down (null) by the time a door renders at WorldRenderEvents.END, so the
+     *  sky pass throws every frame. We isolate it and log only the first failure to avoid per-frame spam; the
+     *  doorway's exterior-fog fill stands in for the sky. Live sky-through-portal under a shaderpack needs a live
+     *  Iris pipeline and is a Phase B concern. */
+    private boolean skyPassErrorLogged = false;
+
     /** Big stack so deep block-model / biome-colour recursion can't overflow the build thread (the old cause of the
      * silently-swallowed StackOverflowError that left chunks unbuilt). */
     private static final long BUILD_THREAD_STACK = 32L * 1024 * 1024;
@@ -319,7 +326,19 @@ public class WorldGeometryRenderer {
         }
 
         // Sky sits at infinity, so it only takes the rotation (no eye translation) and never writes depth.
-        renderSky(id, portalWorld, portalRot, portalCamera, eyeWorldPos, tickDelta);
+        // Isolated like the terrain/entity passes below: under Iris the mixin'd vanilla WorldRenderer.renderSky
+        // dereferences Iris's pipeline, which is null once Iris has finalised the world render (this door draws at
+        // WorldRenderEvents.END). Catching here - log-once to avoid per-frame spam - lets terrain and entities still
+        // render through the doorway; the afbo's exterior-fog fill stands in for the sky.
+        try {
+            renderSky(id, portalWorld, portalRot, portalCamera, eyeWorldPos, tickDelta);
+        } catch (Throwable t) {
+            if (!skyPassErrorLogged) {
+                AITMod.LOGGER.error("BOTI: sky pass failed (expected under Iris shaders at the END phase - "
+                        + "the exterior-fog fill stands in for the sky); further occurrences suppressed", t);
+                skyPassErrorLogged = true;
+            }
+        }
 
         // The lightmap (light coord -> final RGB; it bakes in sky darkness, time of day, the dimension's ambient
         // light and gamma) is rebuilt once per frame by GameRenderer from client.world - the *interior* dimension -
@@ -334,6 +353,18 @@ public class WorldGeometryRenderer {
         lightmap.tick();            // GameRenderer already consumed this frame's dirty flag - re-arm it
         lightmap.update(tickDelta); // recompute the ramp from the shadow world's dimension + (synced) time of day
         client.world = previousLightmapWorld;
+
+        // Exterior terrain fog distance. This is normally set at the tail of renderSky (for the terrain/entity
+        // passes that follow), but under Iris renderSky throws before reaching it (its pipeline is null at the
+        // END phase, so the mixin'd vanilla WorldRenderer.renderSky NPEs and we skip the pass). Applying it here,
+        // ahead of the terrain pass, guarantees the doorway's world gets the exterior's distant fog instead of the
+        // interior dimension's dense fog left in the shader state - which read as a flat "Minecraft-alpha" fog wall.
+        // The fog COLOUR was already set for the exterior by updateExteriorFog above; this only sets start/end/shape.
+        // In the non-Iris path renderSky sets the same values, so this is a harmless re-apply.
+        float terrainFogView = Math.max(client.gameRenderer.getViewDistance(), 32.0f);
+        RenderSystem.setShaderFogStart(terrainFogView - MathHelper.clamp(terrainFogView / 10.0f, 4.0f, 64.0f));
+        RenderSystem.setShaderFogEnd(terrainFogView);
+        RenderSystem.setShaderFogShape(FogShape.CYLINDER);
 
         MatrixStack modelViewStack = RenderSystem.getModelViewStack();
         modelViewStack.push();
