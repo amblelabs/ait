@@ -15,6 +15,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.consoles.BedrockConsoleModel;
@@ -49,6 +50,24 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
         if (entity.getWorld() == null || !entity.isLinked())
             return;
 
+
+        // Fetched per call, never held: the client swaps its profiler object out every frame. Until
+        // this was added the generator's cost sat unattributed in the vanilla block entity bucket.
+        Profiler profiler = entity.getWorld().getProfiler();
+        profiler.push("console_generator");
+        profiler.visit("ait_generator_drawn");
+
+        try {
+            this.render0(entity, profiler, matrices, vertexConsumers, light, overlay);
+        } finally {
+            profiler.pop();
+        }
+    }
+
+    private void render0(T entity, Profiler profiler, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
+            int light, int overlay) {
+        profiler.push("setup");
+
         Tardis tardis = entity.tardis().get();
 
         ConsoleVariantSchema variant = entity.getConsoleVariant();
@@ -57,6 +76,8 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
         ConsoleModel console = clientVariant.getCachedModel();
         Identifier consoleTexture = clientVariant.texture();
         Identifier consoleEmission = clientVariant.emission();
+
+        profiler.swap("frame_model");
 
         matrices.push();
 
@@ -67,6 +88,8 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
                 overlay, 1, 1, 1, 1);
 
         matrices.pop();
+
+        profiler.swap("hologram");
 
         matrices.push();
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
@@ -100,6 +123,8 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
             }
         //}
         matrices.pop();
+
+        profiler.swap("label");
 
         matrices.push();
         matrices.translate(0.5F, 2.75F, 0.5F);
@@ -143,5 +168,7 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
                     TextRenderer.TextLayerType.SEE_THROUGH, 0x000000, 0xf000f0);
             matrices.pop();
         }
+
+        profiler.pop();
     }
 }
