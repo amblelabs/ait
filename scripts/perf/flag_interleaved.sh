@@ -70,7 +70,10 @@ run_one() {   # $1 = on|off value, $2 = rep
 }
 
 echo "seeding"
-printf 'ait perf-clear\nSLEEP 2\nait perf-spawn 1 8 0 100 12\nSLEEP 32\nait perf-doors open\nSLEEP 4\ngamemode spectator @a\n' > /tmp/fi_seed.txt
+# Out of the interior BEFORE perf-clear. Deleting a TARDIS world with a player still inside
+# it crashes the server: MultiDim.kickPlayers iterates the player list while the unload
+# mutates it, and the client is left staring at a removed dimension.
+printf 'execute in minecraft:overworld run tp @a 0 100 0\nSLEEP 3\nait perf-clear\nSLEEP 2\nait perf-spawn 1 8 0 100 12\nSLEEP 32\nait perf-doors open\nSLEEP 4\ngamemode spectator @a\n' > /tmp/fi_seed.txt
 rcon /tmp/fi_seed.txt >/dev/null
 printf 'ait profile-client @a\nSLEEP 15\n' > /tmp/fi_warm.txt
 rcon /tmp/fi_warm.txt >/dev/null
