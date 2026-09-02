@@ -15,7 +15,6 @@ import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.decoration.TardisStarModel;
-import dev.amble.ait.client.util.ClientProfiling;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.world.TardisServerWorld;
@@ -47,7 +46,7 @@ public class TardisStar {
         Profiler profiler = context.world().getProfiler();
         profiler.push("ait:tardis_star");
         // Two full model builds every frame, unconditionally, whenever the player is in an interior.
-        ClientProfiling.count("ait_model_build", 2);
+        profiler.visit("ait_model_build", 2);
 
         Vec3d targetPos = new Vec3d(camera.getPos().getX(),
                 context.world().getBottomY() - (tardis.isGrowth() ? 150 : 120), camera.getPos().getZ());
@@ -143,7 +142,7 @@ public class TardisStar {
             TardisStar.putDeathLightPositiveZTerminalVertex(tardis, vertexConsumer4, matrix4f, o, p);
         }
 
-        ClientProfiling.count("ait_star_shine_vertices", 30 * 12);
+        profiler.visit("ait_star_shine_vertices", 30 * 12);
         profiler.pop();
     }
 

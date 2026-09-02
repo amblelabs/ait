@@ -24,7 +24,6 @@ import dev.amble.ait.client.models.exteriors.SiegeModeModel;
 import dev.amble.ait.client.models.machines.ShieldsModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientProfiling;
 import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
@@ -56,9 +55,14 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
             int light, int overlay) {
+        if (entity.getWorld() == null) return;
+
         // One counter per exit, so "the renderer never ran" and "it ran and drew nothing" stop looking
         // identical. Without these a zero in the BOTI queue counter has several possible causes.
-        ClientProfiling.count("ait_exterior_dispatched");
+        //
+        // Fetched per call, never held: the client swaps its profiler object out every frame.
+        Profiler profiler = entity.getWorld().getProfiler();
+        profiler.visit("ait_exterior_dispatched");
 
         // Called twice a pass: once from the chunk's block entity list, once from the global no-cull
         // list. Both draws are identical, so only the first does the work. When the section is culled
@@ -68,17 +72,16 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         // Ahead of the zone, not inside it. Opening a zone and returning without closing it leaks a
         // push per skipped duplicate and mis-nests everything measured after it.
         if (!ClientRenderPass.shouldDraw(entity)) {
-            ClientProfiling.count("ait_exterior_duplicate_skipped");
+            profiler.visit("ait_exterior_duplicate_skipped");
             return;
         }
 
-        Profiler profiler = entity.getWorld().getProfiler();
         profiler.push("exterior");
 
         profiler.push("find_tardis");
 
         if (!entity.isLinked()) {
-            ClientProfiling.count("ait_exterior_unlinked");
+            profiler.visit("ait_exterior_unlinked");
             profiler.pop();
             profiler.pop();
             return;
@@ -99,23 +102,23 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         this.updateModel(tardis);
 
         if (tardis.travel().getAlpha() > 0) {
-            ClientProfiling.count("ait_exterior_drawn");
+            profiler.visit("ait_exterior_drawn");
             this.renderExterior(profiler, tardis, entity, tickDelta, matrices, vertexConsumers, light, overlay);
         } else {
-            ClientProfiling.count("ait_exterior_alpha_zero");
+            profiler.visit("ait_exterior_alpha_zero");
         }
 
         if (tardis.door().getLeftRot() <= 0 && !variant.hasTransparentDoors()) {
-            ClientProfiling.count("ait_exterior_doors_shut");
+            profiler.visit("ait_exterior_doors_shut");
             return;
         }
 
         if (!tardis.travel().isLanded() || tardis.siege().isActive()) {
-            ClientProfiling.count("ait_exterior_not_landed");
+            profiler.visit("ait_exterior_not_landed");
             return;
         }
 
-        ClientProfiling.count("ait_exterior_enqueued");
+        profiler.visit("ait_exterior_enqueued");
         if (variant.parent().hasPortals() || !AITModClient.skipBuiltInBOTI()) BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
     }
 

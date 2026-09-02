@@ -24,7 +24,6 @@ import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientProfiling;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.core.tardis.handler.StatsHandler;
@@ -47,9 +46,9 @@ public class TardisExteriorBOTI extends BOTI {
         // Split into framebuffer work and geometry work. A single zone around the whole portal cannot
         // tell "the blits are expensive" from "drawing the interior is expensive", which is the only
         // thing worth knowing here.
-        Profiler profiler = exterior.getWorld().getProfiler();
+        Profiler profiler = client.getProfiler();
         profiler.push("ait:boti_ext_fbo_setup");
-        ClientProfiling.count("ait_boti_ext_portals");
+        profiler.visit("ait_boti_ext_portals");
 
         client.getFramebuffer().endWrite();
 
@@ -62,7 +61,7 @@ public class TardisExteriorBOTI extends BOTI {
             BOTI.setFramebufferColor(BOTI_HANDLER.afbo, (float) skyColor.x, (float) skyColor.y, (float) skyColor.z, 1);
 
         BOTI.copyFramebuffer(client.getFramebuffer(), BOTI_HANDLER.afbo);
-        ClientProfiling.count("ait_boti_blit");
+        profiler.visit("ait_boti_blit");
 
         profiler.swap("ait:boti_ext_mask");
 
@@ -104,13 +103,13 @@ public class TardisExteriorBOTI extends BOTI {
         float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0, 1} : new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
         mask.render(stack, botiProvider.getBuffer(whichOne), light, OverlayTexture.DEFAULT_UV, colorsForGreenScreen[0], colorsForGreenScreen[1], colorsForGreenScreen[2], 1);
         botiProvider.draw();
-        ClientProfiling.count("ait_boti_draw_flush");
+        profiler.visit("ait_boti_draw_flush");
         stack.pop();
 
         profiler.swap("ait:boti_ext_fbo_depth");
 
         copyDepth(BOTI_HANDLER.afbo, client.getFramebuffer());
-        ClientProfiling.count("ait_boti_blit");
+        profiler.visit("ait_boti_blit");
 
         BOTI_HANDLER.afbo.beginWrite(false);
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
@@ -130,7 +129,7 @@ public class TardisExteriorBOTI extends BOTI {
 
         frame.renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.getBotiInterior(variant.texture())), light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
         botiProvider.draw();
-        ClientProfiling.count("ait_boti_draw_flush");
+        profiler.visit("ait_boti_draw_flush");
         stack.pop();
 
         profiler.swap("ait:boti_ext_biome");
@@ -152,7 +151,7 @@ public class TardisExteriorBOTI extends BOTI {
                         light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
         }
         botiProvider.draw();
-        ClientProfiling.count("ait_boti_draw_flush");
+        profiler.visit("ait_boti_draw_flush");
         stack.pop();
 
         profiler.swap("ait:boti_ext_emission");
@@ -193,7 +192,7 @@ public class TardisExteriorBOTI extends BOTI {
             frame.renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission())), LightmapTextureManager.MAX_LIGHT_COORDINATE,
                     OverlayTexture.DEFAULT_UV, red, green, blue, 1, true);
             botiProvider.draw();
-            ClientProfiling.count("ait_boti_draw_flush");
+            profiler.visit("ait_boti_draw_flush");
         }
         stack.pop();
 
@@ -202,7 +201,7 @@ public class TardisExteriorBOTI extends BOTI {
         client.getFramebuffer().beginWrite(true);
 
         BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
-        ClientProfiling.count("ait_boti_blit");
+        profiler.visit("ait_boti_blit");
 
         GL11.glDisable(GL11.GL_STENCIL_TEST);
 

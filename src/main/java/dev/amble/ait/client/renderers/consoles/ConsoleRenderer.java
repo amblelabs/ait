@@ -22,7 +22,6 @@ import dev.amble.ait.client.models.items.HandlesModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientPerfFlags;
-import dev.amble.ait.client.util.ClientProfiling;
 import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.item.HandlesItem;
@@ -45,20 +44,22 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
 
         if (entity.getWorld() == null) return;
 
-        ClientProfiling.count("ait_console_dispatched");
+        // Fetched per call, never held: the client swaps its profiler object out every frame.
+        Profiler profiler = entity.getWorld().getProfiler();
+        profiler.visit("ait_console_dispatched");
 
         // Called twice a pass: once from the chunk's block entity list, once from the global no-cull
         // list. Both draws are identical, so only the first does the work. When the section is culled
         // the first call never arrives and the global one draws instead, which is the point of being
         // on that list at all.
         if (!ClientRenderPass.shouldDraw(entity)) {
-            ClientProfiling.count("ait_console_duplicate_skipped");
+            profiler.visit("ait_console_duplicate_skipped");
             return;
         }
 
         if (!entity.isLinked()) {
-            ClientProfiling.count("ait_console_unlinked");
-            ClientProfiling.count("ait_model_build");
+            profiler.visit("ait_console_unlinked");
+            profiler.visit("ait_model_build");
             matrices.push();
             matrices.translate(0.5, 1.5, 0.5);
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
@@ -73,9 +74,8 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         }
 
         ClientTardis tardis = entity.tardis().get().asClient();
-        Profiler profiler = entity.getWorld().getProfiler();
 
-        ClientProfiling.count("ait_console_drawn");
+        profiler.visit("ait_console_drawn");
 
         profiler.push("console");
         this.renderConsole(profiler, tardis, entity, matrices, vertexConsumers, light, overlay, tickDelta);
@@ -137,7 +137,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         model.animateBlockEntity(entity, tardis.travel().getState(), hasPower);
 
         profiler.swap("base_buffer");
-        ClientProfiling.count("ait_console_layer_switch");
+        profiler.visit("ait_console_layer_switch");
 
         // -Dait.copperTranslucent=false routes copper to the cutout layer like every other variant.
         // Translucent layers pay a CPU quad sort on every draw, and copper is the only console asking
@@ -213,7 +213,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         matrices.push();
         if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
             profiler.swap("emission_buffer");
-            ClientProfiling.count("ait_console_layer_switch");
+            profiler.visit("ait_console_layer_switch");
             VertexConsumer emissive = vertexConsumers
                     .getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission()));
 

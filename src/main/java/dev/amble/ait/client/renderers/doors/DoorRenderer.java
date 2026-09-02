@@ -23,7 +23,6 @@ import dev.amble.ait.client.models.AnimatedModel;
 import dev.amble.ait.client.models.doors.CapsuleDoorModel;
 import dev.amble.ait.client.models.doors.exclusive.DoomDoorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.client.util.ClientProfiling;
 import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.compat.DependencyChecker;
@@ -48,14 +47,16 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
                        int light, int overlay) {
         if (entity.getWorld() == null) return;
 
-        ClientProfiling.count("ait_door_dispatched");
+        // Fetched per call, never held: the client swaps its profiler object out every frame.
+        Profiler profiler = entity.getWorld().getProfiler();
+        profiler.visit("ait_door_dispatched");
 
         // Called twice a pass: once from the chunk's block entity list, once from the global no-cull
         // list. Both draws are identical, so only the first does the work. When the section is culled
         // the first call never arrives and the global one draws instead, which is the point of being
         // on that list at all.
         if (!ClientRenderPass.shouldDraw(entity)) {
-            ClientProfiling.count("ait_door_duplicate_skipped");
+            profiler.visit("ait_door_duplicate_skipped");
             return;
         }
 
@@ -74,7 +75,6 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
             return;
         }
 
-        Profiler profiler = entity.getWorld().getProfiler();
         profiler.push("door");
 
         ClientTardis tardis = entity.tardis().get().asClient();

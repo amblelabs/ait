@@ -25,7 +25,6 @@ import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientProfiling;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
@@ -78,16 +77,16 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
         Profiler profiler = client.getProfiler();
 
         profiler.push("ait:console_reset");
-        ClientProfiling.count("ait_console_reset_parts", this.countParts());
+        profiler.visit("ait_console_reset_parts", this.countParts());
         this.getPart().traverse().forEach(ModelPart::resetTransform);
 
         profiler.swap("ait:console_keyframes");
 
         if (hasPower && AITModClient.CONFIG.animateConsole) {
-            ClientProfiling.count("ait_console_animated");
+            profiler.visit("ait_console_animated");
             this.updateAnimation(console.ANIM_STATE, this.getAnimationForState(state), client.getTickDelta() + console.getAge());
         } else {
-            ClientProfiling.count("ait_console_not_animated");
+            profiler.visit("ait_console_not_animated");
         }
 
         profiler.pop();
@@ -121,24 +120,25 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
         if (root == null)
             return super.getChild(name);
 
-        ClientProfiling.count("ait_bone_lookup");
+        Profiler profiler = client.getProfiler();
+        profiler.visit("ait_bone_lookup");
 
         if (this.boneCache == null || this.cachedRoot != root) {
             this.boneCache = new HashMap<>();
             this.cachedRoot = root;
-            ClientProfiling.count("ait_bone_map_built");
+            profiler.visit("ait_bone_map_built");
         }
 
         Optional<ModelPart> cached = this.boneCache.get(name);
 
         if (cached != null) {
-            ClientProfiling.count("ait_bone_cache_hit");
+            profiler.visit("ait_bone_cache_hit");
             return cached;
         }
 
         // First ask for this name on this root. Resolved the way vanilla does, so a duplicated part
         // name still returns the first match in traversal order, then remembered.
-        ClientProfiling.count("ait_bone_traversal");
+        profiler.visit("ait_bone_traversal");
 
         Optional<ModelPart> resolved = "root".equals(name)
                 ? Optional.of(root)
