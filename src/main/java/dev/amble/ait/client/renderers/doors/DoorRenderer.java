@@ -24,6 +24,7 @@ import dev.amble.ait.client.models.doors.CapsuleDoorModel;
 import dev.amble.ait.client.models.doors.exclusive.DoomDoorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.util.ClientRenderPass;
+import dev.amble.ait.client.util.OffScreenCull;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -87,6 +88,18 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
     private void renderDoor(Profiler profiler, ClientTardis tardis, T entity, MatrixStack matrices,
                             VertexConsumerProvider vertexConsumers, int light, int overlay, float tickDelta) {
         this.updateModel(tardis);
+
+        // Same shape as the exterior, and the same reason for being here rather than in front of the
+        // duplicate guard: the bound needs the stats scale. A sphere because the renderer yaws the
+        // model by the door's facing. This covers the interior door's own BOTI enqueue below, which
+        // for a player stood inside is the likelier cost of the two.
+        double doorScale = maxScale(tardis.stats().getScale());
+
+        if (this.model != null && OffScreenCull.sphereBehindCamera(entity, this.model.getPart(),
+                new Vec3d(0.5, 0.0, 0.5), doorScale, 1.0 * doorScale)) {
+            profiler.visit("ait_door_offscreen_skipped");
+            return;
+        }
 
         BlockState blockState = entity.getCachedState();
         float k = blockState.get(DoorBlock.FACING).asRotation();
@@ -180,6 +193,11 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
 
         matrices.pop();
         profiler.pop();
+    }
+
+    /** The largest axis of a non uniform scale, since the bound is a sphere. */
+    private static double maxScale(Vector3f scale) {
+        return Math.max(1.0, Math.max(scale.x(), Math.max(scale.y(), scale.z())));
     }
 
     private void updateModel(Tardis tardis) {

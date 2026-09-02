@@ -1,6 +1,7 @@
 package dev.amble.ait.client.renderers.consoles;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -15,6 +16,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.models.consoles.BedrockConsoleModel;
 import dev.amble.ait.client.models.consoles.ConsoleModel;
 import dev.amble.ait.client.models.consoles.HartnellConsoleModel;
 import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
@@ -23,6 +25,7 @@ import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.renderers.EmissiveGeometry;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientRenderPass;
+import dev.amble.ait.client.util.OffScreenCull;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.item.HandlesItem;
 import dev.amble.ait.data.datapack.DatapackConsole;
@@ -47,6 +50,20 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         // Fetched per call, never held: the client swaps its profiler object out every frame.
         Profiler profiler = entity.getWorld().getProfiler();
         profiler.visit("ait_console_dispatched");
+
+        // Ahead of the duplicate guard, not after it, so the two counters partition the dispatches:
+        // put it second and the first call would consume the guard's entry and then skip anyway,
+        // leaving neither counter able to say what happened. Both loops share a camera, so testing
+        // first is otherwise identical.
+        //
+        // The slop budget is for everything drawn outside the model root: monitor text, which sits in
+        // a space of its own whose anchor is itself up to 1.86 blocks out and then reaches a further
+        // block and a half; the Crystalline panes at about 1.6 blocks; and Hudolin's toolbox, a
+        // genuine sibling of the root, at about 1.3. The measured extents carry the rest.
+        if (OffScreenCull.boxBehindCamera(entity, this.rootFor(entity), CONSOLE_ORIGIN, 3.0)) {
+            profiler.visit("ait_console_offscreen_skipped");
+            return;
+        }
 
         // Called twice a pass: once from the chunk's block entity list, once from the global no-cull
         // list. Both draws are identical, so only the first does the work. When the section is culled
@@ -234,6 +251,38 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
             }
         }
         matrices.pop();
+    }
+
+    /**
+     * Where a console model's own zero sits in block space: the renderer flips 180 degrees about X
+     * and every model's root transform then translates by {@code (0.5, -1.5, -0.5)}, which the flip
+     * turns into this.
+     */
+    private static final Vec3d CONSOLE_ORIGIN = new Vec3d(0.5, 1.5, 0.5);
+
+    /**
+     * The model root to bound, or null when there is nothing to bound yet.
+     *
+     * <p>Read straight from the variant rather than from {@link #updateModel}, because the cull runs
+     * before the draw does and must not be the thing that decides which model is cached.
+     */
+    private ModelPart rootFor(T entity) {
+        if (!entity.isLinked() || entity.getVariant() == null)
+            return null;
+
+        ClientConsoleVariantSchema schema = entity.getVariant().getClient();
+
+        if (schema == null)
+            return null;
+
+        ConsoleModel cached = schema.getCachedModel();
+
+        // A datapack console applies its own offset and scale inside renderWithAnimations, from
+        // fields with no bound on them, so there is nothing here that could bound it. Never culled.
+        if (cached instanceof BedrockConsoleModel)
+            return null;
+
+        return cached == null ? null : cached.getPart();
     }
 
     private void updateModel(T entity) {

@@ -25,6 +25,7 @@ import dev.amble.ait.client.models.machines.ShieldsModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientRenderPass;
+import dev.amble.ait.client.util.OffScreenCull;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
@@ -101,6 +102,36 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
                          int light, int overlay) {
         this.updateModel(tardis);
 
+        // Behind the duplicate guard rather than in front of it, unlike the console, because the
+        // bound needs the tardis: rematerialisation keyframes translate an exterior by up to six
+        // blocks and the stats scale multiplies it, so the offset and the scale are read per frame
+        // instead of padded for. Padding for the worst case would make the bound so large that
+        // nothing close behind the camera would ever be rejected.
+        //
+        // A sphere, not a box: the renderer applies an arbitrary yaw, and for a doom exterior that
+        // yaw follows the player's head, so no axis aligned bound survives. The slop covers the
+        // antigrav bob, which is a unit sine applied after the rotation.
+        double scale = maxScale(tardis.travel().getScale());
+
+        // The origin is where the renderer actually puts the model: the animation offset, then half a
+        // block in X and Z and none in Y.
+        //
+        // Slop covers what is drawn after the rotation, and it scales because those displacements do.
+        // The antigrav bob is a unit sine multiplied by the scale; the grumm and dinnerbone transform
+        // displaces about one and a half blocks before the scale is applied; and the shields bubble is
+        // a four block cube drawn outside the model entirely, so it has to be paid for whenever it is
+        // up or a player stood beside a small variant would watch the swirl pop.
+        double slop = 2.0 * scale + (tardis.areVisualShieldsActive() ? 4.5 : 0.0);
+
+        Vector3f animation = tardis.travel().getAnimationPosition(tickDelta);
+        Vec3d origin = new Vec3d(animation.x() + 0.5, animation.y(), animation.z() + 0.5);
+
+        if (this.model != null && OffScreenCull.sphereBehindCamera(entity, this.model.getPart(),
+                origin, scale, slop)) {
+            profiler.visit("ait_exterior_offscreen_skipped");
+            return;
+        }
+
         if (tardis.travel().getAlpha() > 0) {
             profiler.visit("ait_exterior_drawn");
             this.renderExterior(profiler, tardis, entity, tickDelta, matrices, vertexConsumers, light, overlay);
@@ -120,6 +151,11 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
         profiler.visit("ait_exterior_enqueued");
         if (variant.parent().hasPortals() || !AITModClient.skipBuiltInBOTI()) BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
+    }
+
+    /** The largest axis of a non uniform scale, since the bound is a sphere. */
+    private static double maxScale(Vector3f scale) {
+        return Math.max(1.0, Math.max(scale.x(), Math.max(scale.y(), scale.z())));
     }
 
     private boolean awesomeIPEmissionHack(Tardis tardis) {
