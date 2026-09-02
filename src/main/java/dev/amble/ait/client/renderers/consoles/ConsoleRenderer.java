@@ -21,7 +21,6 @@ import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
 import dev.amble.ait.client.models.items.HandlesModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientPerfFlags;
 import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.item.HandlesItem;
@@ -139,14 +138,11 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         profiler.swap("base_buffer");
         profiler.visit("ait_console_layer_switch");
 
-        // -Dait.copperTranslucent=false routes copper to the cutout layer like every other variant.
-        // Translucent layers pay a CPU quad sort on every draw, and copper is the only console asking
-        // for one, on the largest model in the mod.
-        boolean translucent = ClientPerfFlags.get("copperTranslucent", true)
-                && variant.equals(ClientConsoleVariantRegistry.COPPER);
-        VertexConsumer baseBuffer = vertexConsumers.getBuffer(translucent
-                ? RenderLayer.getEntityTranslucent(variant.texture())
-                : RenderLayer.getEntityCutout(variant.texture()));
+        // Cutout for every variant, copper included. Copper used to ask for the translucent layer,
+        // which pays a CPU quad sort on every flush, on the largest model in the mod: it cost 0.575 ms
+        // a frame in the zone that flushes this layer. Its base textures carry no partial alpha at all,
+        // so alpha testing and alpha blending produce the same pixels and the sort bought nothing.
+        VertexConsumer baseBuffer = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(variant.texture()));
 
         profiler.swap("render");
         model.renderWithAnimations(tardis, entity, model.getPart(),
@@ -218,6 +214,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
                     .getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission()));
 
             profiler.swap("emission_geometry");
+
             // Geometry only. The control state was applied before the base layer was drawn and does not
             // depend on the layer, so re-running it here would only pose the model differently under
             // the glow than under the geometry it sits on.
