@@ -60,6 +60,7 @@ import dev.amble.ait.client.models.decoration.PaintingFrameModel;
 import dev.amble.ait.client.models.decoration.RiftModel;
 import dev.amble.ait.client.models.decoration.TrenzalorePaintingModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.renderers.EmissiveGeometry;
 import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.client.renderers.TardisStar;
 import dev.amble.ait.client.renderers.consoles.ConsoleGeneratorRenderer;
@@ -152,6 +153,7 @@ public class AITModClient implements ClientModInitializer {
         // Must be registered, or the pass counter never advances and the duplicate-draw guard in
         // the renderers would let the first draw through and reject every one after it.
         ClientRenderPass.init();
+        EmissiveGeometry.init();
 
         AITKeyBinds.init();
 

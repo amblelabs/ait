@@ -20,6 +20,7 @@ import dev.amble.ait.client.models.consoles.HartnellConsoleModel;
 import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
 import dev.amble.ait.client.models.items.HandlesModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.renderers.EmissiveGeometry;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
@@ -218,9 +219,19 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
             // Geometry only. The control state was applied before the base layer was drawn and does not
             // depend on the layer, so re-running it here would only pose the model differently under
             // the glow than under the geometry it sits on.
-            model.renderGeometryOnly(tardis, entity, model.getPart(),
-                    matrices, emissive, 0xf000f0, overlay,
-                    1, 1, 1, 1, tickDelta);
+            //
+            // Restored in a finally rather than after the call: the model instance is shared by every
+            // console of this variant, and a part left hidden would be missing from the base pass and
+            // from the console generator's hologram.
+            EmissiveGeometry.Scope unlit = EmissiveGeometry.hideUnlit(model.getPart(), variant.emission());
+
+            try {
+                model.renderGeometryOnly(tardis, entity, model.getPart(),
+                        matrices, emissive, 0xf000f0, overlay,
+                        1, 1, 1, 1, tickDelta);
+            } finally {
+                unlit.restore();
+            }
         }
         matrices.pop();
     }
