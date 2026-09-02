@@ -2245,14 +2245,18 @@ public class CopperConsoleModel extends SimpleConsoleModel {
         Text positionDimensionText = WorldUtil.worldText(abpp.getDimension());
         String positionDirectionText = DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
         int y = 40;
-        renderer.drawWithOutline(Text.of("\uD83D\uDCCD").asOrderedText(), 0, y, 0x00EEFF, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 8, y, 0xFFFFFF, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 8, y + 8, 0xFFFFFF, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 8, y + 16, 0xFFFFFF, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+        renderer.draw(Text.of("\uD83D\uDCCD").asOrderedText(), 0, y, 0x00EEFF, true,
+                matrices.peek().getPositionMatrix(), vertexConsumers,
+                net.minecraft.client.font.TextRenderer.TextLayerType.POLYGON_OFFSET, 0, 0xF000F0);
+        renderer.draw(Text.of(positionPosText).asOrderedText(), 8, y, 0xFFFFFF, true,
+                matrices.peek().getPositionMatrix(), vertexConsumers,
+                net.minecraft.client.font.TextRenderer.TextLayerType.POLYGON_OFFSET, 0, 0xF000F0);
+        renderer.draw(positionDimensionText.asOrderedText(), 8, y + 8, 0xFFFFFF, true,
+                matrices.peek().getPositionMatrix(), vertexConsumers,
+                net.minecraft.client.font.TextRenderer.TextLayerType.POLYGON_OFFSET, 0, 0xF000F0);
+        renderer.draw(Text.of(positionDirectionText).asOrderedText(), 8, y + 16, 0xFFFFFF, true,
+                matrices.peek().getPositionMatrix(), vertexConsumers,
+                net.minecraft.client.font.TextRenderer.TextLayerType.POLYGON_OFFSET, 0, 0xF000F0);
         matrices.pop();
 
         matrices.push();
@@ -2265,9 +2269,10 @@ public class CopperConsoleModel extends SimpleConsoleModel {
                 ? "⏳: 0%"
                 : "⏳: " + tardis.travel().getDurationAsPercentage() + "%";
         matrices.translate(-10, -47, -48.5f);
-        renderer.drawWithOutline(Text.of(progressText).asOrderedText(),
-                -renderer.getWidth(progressText) / 2, 0, 0xffffff, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+        renderer.draw(Text.of(progressText).asOrderedText(),
+                -renderer.getWidth(progressText) / 2, 0, 0xffffff, true,
+                matrices.peek().getPositionMatrix(), vertexConsumers,
+                net.minecraft.client.font.TextRenderer.TextLayerType.POLYGON_OFFSET, 0, 0xF000F0);
         matrices.pop();
 
     }
