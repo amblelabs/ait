@@ -72,13 +72,18 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
 
     @Override
     public void animateBlockEntity(ConsoleBlockEntity console, TravelHandlerBase.State state, boolean hasPower) {
-        // Split so the traversal and the keyframe work can be told apart. The traversal is the
-        // suspect: ModelPart.traverse builds a Stream per node, and a console is a few hundred nodes.
+        // Split so the traversal and the keyframe work can be told apart. The traversal was the
+        // suspect and it was: ModelPart.traverse builds a Stream per node.
         Profiler profiler = client.getProfiler();
 
+        ModelPart[] parts = this.parts();
+
         profiler.push("ait:console_reset");
-        profiler.visit("ait_console_reset_parts", this.countParts());
-        this.getPart().traverse().forEach(ModelPart::resetTransform);
+        profiler.visit("ait_console_reset_parts", parts.length);
+
+        for (ModelPart part : parts) {
+            part.resetTransform();
+        }
 
         profiler.swap("ait:console_keyframes");
 
@@ -148,14 +153,25 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
         return resolved;
     }
 
-    private int partCount = -1;
+    private ModelPart[] flattened;
+    private ModelPart flattenedRoot;
 
-    /** Counted once. Only used to report the traversal size into the profiler. */
-    private int countParts() {
-        if (this.partCount < 0)
-            this.partCount = (int) this.getPart().traverse().count();
+    /**
+     * The model's parts as a flat array, walked once.
+     *
+     * <p>{@code ModelPart.traverse()} builds a {@code Stream} per node, so resetting the transforms of
+     * an 818 part console through it allocated 818 streams a frame for a tree that never changes.
+     * Rebuilt if the root is swapped, the same guard the bone cache uses.
+     */
+    private ModelPart[] parts() {
+        ModelPart root = this.getPart();
 
-        return this.partCount;
+        if (this.flattened == null || this.flattenedRoot != root) {
+            this.flattened = root.traverse().toArray(ModelPart[]::new);
+            this.flattenedRoot = root;
+        }
+
+        return this.flattened;
     }
 
     @Override
