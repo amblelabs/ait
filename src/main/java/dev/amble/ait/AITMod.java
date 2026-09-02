@@ -428,7 +428,6 @@ public class AITMod implements ModInitializer {
     public static final Identifier PROJECTOR_SELECTION = new Identifier(MOD_ID, "projector_selection");
     public static final Identifier PROJECTOR_ANGLES = new Identifier(MOD_ID, "projector_angles");
     public static final Identifier PROFILE_CLIENT = AITMod.id("profile_client");
-    public static final Identifier PERF_FLAG = AITMod.id("perf_flag");
 
     public static void openScreen(ServerPlayerEntity player, int id) {
         PacketByteBuf buf = PacketByteBufs.create();

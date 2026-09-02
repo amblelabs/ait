@@ -4,7 +4,6 @@ import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -18,13 +17,9 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.command.argument.BlockPosArgumentType;
-import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -112,14 +107,6 @@ public class PerfScenarioCommand {
                         .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.perf", 2))
                         .then(argument("variant", StringArgumentType.string())
                                 .executes(PerfScenarioCommand::consoleVariant))));
-
-        dispatcher.register(literal(AITMod.MOD_ID)
-                .then(literal("perf-flag")
-                        .requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.perf", 2))
-                        .then(argument("players", EntityArgumentType.players())
-                                .then(argument("name", StringArgumentType.word())
-                                        .then(argument("on", BoolArgumentType.bool())
-                                                .executes(PerfScenarioCommand::perfFlag))))));
 
         dispatcher.register(literal(AITMod.MOD_ID)
                 .then(literal("perf-verify")
@@ -418,32 +405,6 @@ public class PerfScenarioCommand {
         int finalChanged = changed;
         source.sendFeedback(
                 () -> Text.literal("PERF-CONSOLE set " + variant + " on " + finalChanged + " console(s)."), true);
-
-        return Command.SINGLE_SUCCESS;
-    }
-
-    /**
-     * Flips a client render switch without restarting, so the halves of a comparison can be
-     * interleaved rather than measured minutes apart.
-     *
-     * <p>Explicitly targeted rather than broadcast. A flag is a measurement instrument, and sending it
-     * to every player on the server silently changes what everyone else's client is drawing.
-     */
-    private static int perfFlag(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Collection<ServerPlayerEntity> targets = EntityArgumentType.getPlayers(context, "players");
-        String name = StringArgumentType.getString(context, "name");
-        boolean on = BoolArgumentType.getBool(context, "on");
-
-        for (ServerPlayerEntity player : targets) {
-            PacketByteBuf buf = PacketByteBufs.create();
-            buf.writeString(name);
-            buf.writeBoolean(on);
-            ServerPlayNetworking.send(player, AITMod.PERF_FLAG, buf);
-        }
-
-        int sent = targets.size();
-        context.getSource().sendFeedback(
-                () -> Text.literal("PERF-FLAG " + name + "=" + on + " sent to " + sent + " client(s)."), false);
 
         return Command.SINGLE_SUCCESS;
     }

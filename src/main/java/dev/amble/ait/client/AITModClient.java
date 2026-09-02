@@ -81,7 +81,6 @@ import dev.amble.ait.client.screens.*;
 import dev.amble.ait.client.sonic.SonicModelLoader;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
-import dev.amble.ait.client.util.ClientPerfFlags;
 import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
@@ -191,12 +190,6 @@ public class AITModClient implements ClientModInitializer {
                 return;
 
             TardisStar.render(context, tardis);
-        });
-
-        ClientPlayNetworking.registerGlobalReceiver(AITMod.PERF_FLAG, (client, handler, buf, responseSender) -> {
-            String name = buf.readString();
-            boolean on = buf.readBoolean();
-            client.execute(() -> ClientPerfFlags.set(name, on));
         });
 
         ClientPlayNetworking.registerGlobalReceiver(AITMod.PROFILE_CLIENT, (client, handler, buf, responseSender) ->
