@@ -23,8 +23,11 @@ import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.data.datapack.DatapackConsole;
+import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
 import dev.amble.ait.mixin.client.rendering.CuboidAccessor;
 import dev.amble.ait.mixin.client.rendering.ModelPartAccessor;
+import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 
 /**
  * Skips the parts of a model that cannot light up, on the pass that only draws emission.
@@ -32,7 +35,7 @@ import dev.amble.ait.mixin.client.rendering.ModelPartAccessor;
  * <p>A console is submitted twice a frame, once for its base texture and once for its emission, and
  * the two submissions cost about the same because they push the same geometry. But an emission
  * texture is mostly empty: the copper console's is 99.812% fully transparent, so the emission pass
- * pushes 6870 quads in order to light 0.188% of a texture.
+ * pushed 6870 quads in order to light 0.188% of a texture.
  *
  * <p>Skipping the rest is not an approximation. The emission layer draws through
  * {@code EYES_PROGRAM}, whose fragment shader is
@@ -41,27 +44,32 @@ import dev.amble.ait.mixin.client.rendering.ModelPartAccessor;
  * {@code blendFuncSeparate(SRC_ALPHA, ONE_MINUS_SRC_ALPHA, ONE, ONE_MINUS_SRC_ALPHA)}, so at a source
  * alpha of zero the colour is {@code 0 * src + 1 * dst} and the alpha is {@code 1 * 0 + 1 * dst}:
  * the destination is untouched on both. The layer never writes depth, uses no stencil, and is built
- * with no outline mode, so a skipped quad cannot affect anything else either. The texture is also
- * bound with GL_NEAREST and no mipmaps, so a quad samples exactly the texels in its own rect and
- * cannot pick up a neighbouring lit one.
+ * with no outline mode, so a skipped quad cannot affect anything else either. The texture is bound
+ * with GL_NEAREST and no mipmaps, so a quad samples exactly the texels in its own rect and cannot
+ * pick up a neighbouring lit one.
  *
  * <p>That proof is about the vanilla pipeline. Under Iris or OptiFine the shader pack supplies its
  * own program and blend state, so it does not carry over; if a pack renders transparent texels as
- * black then the current unculled output is already wrong there.
+ * black then the unculled output was already wrong there.
  *
  * <p>Parts are skipped by clearing {@link ModelPart#visible}, because {@code ModelPart.render}
  * returns on that before touching its cuboids or its children. Only the highest parts whose whole
- * subtree is unlit are cleared, so the per-frame cost is a walk of a short list rather than of every
- * part.
+ * subtree is unlit are cleared, so the per-frame cost is a walk of a short array rather than of
+ * every part.
  *
  * <p>The cull is computed for {@link #hideUnlit}'s root, while the pass also draws whatever
  * {@code renderExtras} adds. Today that is only Hudolin's toolbox, a sibling of the root and so
  * outside the frontier, which merely under-culls. A model whose extras drew a part inside the root's
  * own subtree would have that glow hidden.
  *
- * <p>Every failure path leaves the model alone. A mistake here deletes glow rather than degrading it,
- * so a missing texture, an unreadable one, or a model that appears entirely unlit all fall back to
- * drawing everything.
+ * <p>Two shapes of emission texture the mask cannot describe, neither of which ships: an animated
+ * one, where an {@code .mcmeta} makes the PNG a vertical strip of frames and a texture coordinate
+ * would index across frames rather than within one; and one whose aspect ratio differs from the
+ * model's declared texture size, which would scale the two axes differently.
+ *
+ * <p>Every failure path leaves the model alone. A mistake here deletes glow rather than degrading
+ * it, so a missing texture, an unreadable one, a coordinate that is not a finite number, or a model
+ * that appears entirely unlit all fall back to drawing everything.
  */
 @Environment(EnvType.CLIENT)
 public final class EmissiveGeometry {
@@ -71,41 +79,54 @@ public final class EmissiveGeometry {
     private static final boolean[] NO_STATE = new boolean[0];
 
     private static final Map<Identifier, Mask> MASKS = new HashMap<>();
+
     // Weakly keyed: getCachedModel never clears its field, but a datapack sync can rebuild the
-    // variant registry and hand out new schemas with new trees, and holding the old roots would
-    // leak them. ModelPart does not override equals, so this is identity keyed either way.
+    // variant registry and hand out new schemas with new trees, and holding the old roots would leak
+    // them. ModelPart does not override equals, so this is identity keyed either way.
     private static final Map<ModelPart, Map<Identifier, ModelPart[]>> FRONTIERS = new WeakHashMap<>();
 
     /**
      * Clears the unlit parts of {@code root} for a single draw. The caller must
      * {@link Scope#restore()} in a finally block, because a part left cleared would also be missing
-     * from the base pass.
+     * from the base pass and from the console generator's hologram, which share the same model.
      */
     public static Scope hideUnlit(ModelPart root, Identifier emission) {
         if (root == null || emission == null)
             return new Scope(NOTHING, NO_STATE);
 
-        ModelPart[] frontier = frontierFor(root, emission);
+        try {
+            ModelPart[] frontier = frontierFor(root, emission);
 
-        if (frontier.length == 0)
+            if (frontier.length == 0)
+                return new Scope(NOTHING, NO_STATE);
+
+            boolean[] previous = new boolean[frontier.length];
+
+            for (int i = 0; i < frontier.length; i++) {
+                ModelPart part = frontier[i];
+                previous[i] = part.visible;
+                part.visible = false;
+            }
+
+            return new Scope(frontier, previous);
+        } catch (Throwable t) {
+            // Drawing everything is always correct, and this runs inside the caller's matrix push, so
+            // letting anything escape would corrupt the matrix stack rather than lose a little speed.
+            AITMod.LOGGER.warn("could not work out what to cull for {}, drawing all of it", emission, t);
+            MASKS.put(emission, null);
             return new Scope(NOTHING, NO_STATE);
-
-        boolean[] previous = new boolean[frontier.length];
-
-        for (int i = 0; i < frontier.length; i++) {
-            ModelPart part = frontier[i];
-            previous[i] = part.visible;
-            part.visible = false;
         }
-
-        return new Scope(frontier, previous);
     }
 
     /**
-     * Drops both caches whenever client resources reload.
+     * Builds the masks up front and drops the caches, on every client resource reload.
      *
-     * <p>A resource pack can replace an emission texture, and a frontier built against the old one
-     * would hide exactly the parts the pack just lit.
+     * <p>Reading a PNG and scanning its alpha is a few milliseconds, and doing it lazily meant paying
+     * that inside the frame that first drew a variant. Reload runs off the frame and already has the
+     * manager, so the work belongs here. Anything missed is still built on demand.
+     *
+     * <p>The reload also has to happen: a resource pack can replace an emission texture, and a
+     * frontier built against the old one would hide exactly the parts the pack just lit.
      */
     public static void init() {
         ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES)
@@ -117,15 +138,28 @@ public final class EmissiveGeometry {
 
                     @Override
                     public void reload(ResourceManager manager) {
-                        invalidate();
+                        MASKS.clear();
+                        FRONTIERS.clear();
+                        prebuild(manager);
                     }
                 });
     }
 
-    /** Textures can be reloaded, and a stale mask would cull against the wrong image. */
-    public static void invalidate() {
-        MASKS.clear();
-        FRONTIERS.clear();
+    /**
+     * Reads every console emission the registry knows about.
+     *
+     * <p>Best effort. The registry is filled by a datapack sync, so on the first reload of a session
+     * it is usually empty and the masks are built on demand instead.
+     */
+    private static void prebuild(ResourceManager manager) {
+        for (ClientConsoleVariantSchema schema : ClientConsoleVariantRegistry.getInstance().toList()) {
+            Identifier emission = schema.emission();
+
+            if (emission == null || emission.equals(DatapackConsole.EMPTY) || MASKS.containsKey(emission))
+                continue;
+
+            MASKS.put(emission, readMask(manager, emission));
+        }
     }
 
     /** Restores what {@link #hideUnlit} cleared, to what it was rather than to visible. */
@@ -140,7 +174,9 @@ public final class EmissiveGeometry {
         }
 
         public void restore() {
-            for (int i = 0; i < this.previous.length; i++) {
+            // Backwards, so that if one part ever appeared twice the first value written wins and the
+            // part is not left hidden for every later pass.
+            for (int i = this.previous.length - 1; i >= 0; i--) {
                 this.hidden[i].visible = this.previous[i];
             }
         }
@@ -164,35 +200,35 @@ public final class EmissiveGeometry {
         if (mask == null)
             return NOTHING;
 
-        Map<ModelPart, Boolean> lit = new IdentityHashMap<>();
+        Map<ModelPart, Boolean> memo = new IdentityHashMap<>();
 
-        if (!subtreeLit(root, mask, lit)) {
+        if (!subtreeLit(root, mask, memo)) {
             // Nothing in the model can light up against this texture. Either it is the wrong texture
             // for this model or the read is wrong, and hiding the root would delete the glow outright.
-            AITMod.LOGGER.warn("[ait] {} lights no part of this model, not culling", emission);
+            AITMod.LOGGER.warn("{} lights no part of this model, not culling", emission);
             return NOTHING;
         }
 
         List<ModelPart> frontier = new ArrayList<>();
-        collect(root, mask, lit, frontier);
+        collect(root, mask, memo, frontier);
 
         if (AITMod.LOGGER.isDebugEnabled()) {
             long hidden = frontier.stream().mapToLong(part -> part.traverse().count()).sum();
-            AITMod.LOGGER.debug("[ait] emissive cull {}: {} subtree(s) hidden, {} of {} parts still drawn",
+            AITMod.LOGGER.debug("emissive cull {}: {} subtree(s) hidden, {} of {} parts still drawn",
                     emission, frontier.size(), root.traverse().count() - hidden, root.traverse().count());
         }
 
         return frontier.isEmpty() ? NOTHING : frontier.toArray(ModelPart[]::new);
     }
 
-    private static void collect(ModelPart part, Mask mask, Map<ModelPart, Boolean> lit, List<ModelPart> out) {
-        if (!subtreeLit(part, mask, lit)) {
+    private static void collect(ModelPart part, Mask mask, Map<ModelPart, Boolean> memo, List<ModelPart> out) {
+        if (!subtreeLit(part, mask, memo)) {
             out.add(part);
             return;
         }
 
         for (ModelPart child : children(part)) {
-            collect(child, mask, lit, out);
+            collect(child, mask, memo, out);
         }
     }
 
@@ -221,7 +257,7 @@ public final class EmissiveGeometry {
     private static boolean ownQuadsLit(ModelPart part, Mask mask) {
         for (ModelPart.Cuboid cuboid : ((ModelPartAccessor) (Object) part).ait$cuboids()) {
             for (ModelPart.Quad quad : ((CuboidAccessor) (Object) cuboid).ait$sides()) {
-                if (quad == null)
+                if (quad == null || quad.vertices.length == 0)
                     continue;
 
                 float u1 = Float.MAX_VALUE;
@@ -254,16 +290,16 @@ public final class EmissiveGeometry {
         if (MASKS.containsKey(emission))
             return MASKS.get(emission);
 
-        Mask mask = readMask(emission);
+        Mask mask = readMask(MinecraftClient.getInstance().getResourceManager(), emission);
         MASKS.put(emission, mask);
         return mask;
     }
 
-    private static Mask readMask(Identifier emission) {
-        Optional<Resource> resource = MinecraftClient.getInstance().getResourceManager().getResource(emission);
+    private static Mask readMask(ResourceManager manager, Identifier emission) {
+        Optional<Resource> resource = manager.getResource(emission);
 
         if (resource.isEmpty()) {
-            AITMod.LOGGER.warn("[ait] no emission texture at {}, not culling", emission);
+            AITMod.LOGGER.warn("no emission texture at {}, not culling", emission);
             return null;
         }
 
@@ -274,37 +310,43 @@ public final class EmissiveGeometry {
             if (width <= 0 || height <= 0)
                 return null;
 
-            boolean[] lit = new boolean[width * height];
-            int count = 0;
+            // A bit per texel rather than a byte: a 1024 square emission is 128 KiB this way instead
+            // of a megabyte, and several of these stay resident for the life of the client.
+            long[] lit = new long[(width * height + 63) >>> 6];
 
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
                     // getColor packs ABGR, so alpha is the top byte.
-                    boolean opaque = (image.getColor(x, y) >>> 24) != 0;
-                    lit[y * width + x] = opaque;
-
-                    if (opaque)
-                        count++;
+                    if ((image.getColor(x, y) >>> 24) != 0) {
+                        int index = y * width + x;
+                        lit[index >>> 6] |= 1L << (index & 63);
+                    }
                 }
             }
 
             return new Mask(width, height, lit);
         } catch (Exception e) {
-            AITMod.LOGGER.warn("[ait] could not read {}, not culling", emission, e);
+            AITMod.LOGGER.warn("could not read {}, not culling", emission, e);
             return null;
         }
     }
 
-    /** Which texels of an emission texture are not fully transparent. */
-    private record Mask(int width, int height, boolean[] lit) {
+    /** Which texels of an emission texture are not fully transparent, one bit each. */
+    private record Mask(int width, int height, long[] lit) {
 
         boolean anyLitIn(float u1, float v1, float u2, float v2) {
+            // Not a finite rect, so nothing can be concluded. Keeping the part is the safe answer:
+            // a model declaring a texture size of zero gives every coordinate as NaN, and treating
+            // that as unlit would silently delete its glow.
+            if (!Float.isFinite(u1) || !Float.isFinite(v1) || !Float.isFinite(u2) || !Float.isFinite(v2))
+                return true;
+
             int x0 = (int) Math.floor(Math.min(u1, u2) * this.width);
             int y0 = (int) Math.floor(Math.min(v1, v2) * this.height);
 
             // At least one texel per axis. A cuboid with a zero size on one axis, which the larger
-            // consoles have plenty of, gives its side quads a UV rect of zero extent, and an empty
-            // rect would report unlit and delete glow that dilation still draws.
+            // consoles have plenty of, gives its side quads a rect of zero extent, and an empty rect
+            // would report unlit and delete glow that dilation still draws.
             int x1 = Math.max(x0, (int) Math.ceil(Math.max(u1, u2) * this.width) - 1);
             int y1 = Math.max(y0, (int) Math.ceil(Math.max(v1, v2) * this.height) - 1);
 
@@ -312,9 +354,11 @@ public final class EmissiveGeometry {
                 int row = Math.floorMod(y, this.height) * this.width;
 
                 for (int x = x0; x <= x1; x++) {
-                    // Wrapped, not clamped: textures upload with GL_REPEAT, and some models do address
+                    // Wrapped, not clamped: textures upload with GL_REPEAT and some models do address
                     // past their declared texture size, so clamping would test the wrong texels.
-                    if (this.lit[row + Math.floorMod(x, this.width)])
+                    int index = row + Math.floorMod(x, this.width);
+
+                    if ((this.lit[index >>> 6] & (1L << (index & 63))) != 0)
                         return true;
                 }
             }
