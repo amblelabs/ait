@@ -110,7 +110,7 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
                         0.9450980392f, 1, entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
                 if (consoleEmission != null && !consoleEmission.equals(DatapackConsole.EMPTY)) {
                     console.render(matrices,
-                            vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleTexture) :
+                            vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleEmission) :
                                     RenderLayer.getEntityTranslucentCull(consoleEmission)), 0xf000f0, overlay, 0.3607843137f,
                             0.9450980392f, 1, entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
                 }
