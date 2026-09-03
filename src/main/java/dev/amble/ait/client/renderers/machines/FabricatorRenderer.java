@@ -56,7 +56,7 @@ public class FabricatorRenderer<T extends FabricatorBlockEntity> implements Bloc
 
         if (entity.isValid()) {
             this.fabricatorModel.render(matrices,
-                    vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(EMISSIVE_FABRICATOR_TEXTURE, true)), 0xf000f0, overlay, 1.0F,
+                    vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(EMISSIVE_FABRICATOR_TEXTURE)), 0xf000f0, overlay, 1.0F,
                     1.0F, 1.0F, 1.0F);
         }
 
