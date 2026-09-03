@@ -4,7 +4,7 @@ ait perf-clear
 gamemode spectator @a
 SLEEP 2
 ait perf-spawn 5 6 -24 100 26 "exterior/booth/default"
-SLEEP 14
+SLEEP 40
 tp @a 0 100 0 0 15
 SLEEP 6
 ait perf-verify

@@ -5,7 +5,7 @@ gamemode spectator @a
 tp @a 0 100 0 0 0
 SLEEP 2
 ait perf-spawn 1 8 0 100 12
-SLEEP 6
+SLEEP 40
 ait perf-doors closed
 tp @a 0 100 0 0 0
 SLEEP 6
