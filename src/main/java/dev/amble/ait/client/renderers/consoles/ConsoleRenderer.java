@@ -233,18 +233,15 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
             // depend on the layer, so re-running it here would only pose the model differently under
             // the glow than under the geometry it sits on.
             //
-            // Restored in a finally rather than after the call: the model instance is shared by every
-            // console of this variant, and a part left hidden would be missing from the base pass and
-            // from the console generator's hologram.
+            // The model instance is shared by every console of this variant, so the hidden parts have
+            // to be put back before anything else draws it.
             EmissiveGeometry.Scope unlit = EmissiveGeometry.hideUnlit(model.getPart(), variant.emission());
 
-            try {
-                model.renderGeometryOnly(tardis, entity, model.getPart(),
-                        matrices, emissive, 0xf000f0, overlay,
-                        1, 1, 1, 1, tickDelta);
-            } finally {
-                unlit.restore();
-            }
+            model.renderGeometryOnly(tardis, entity, model.getPart(),
+                    matrices, emissive, 0xf000f0, overlay,
+                    1, 1, 1, 1, tickDelta);
+
+            unlit.restore();
         }
         matrices.pop();
     }
