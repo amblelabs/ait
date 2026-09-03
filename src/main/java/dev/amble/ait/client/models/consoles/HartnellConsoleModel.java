@@ -1379,7 +1379,6 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
         bone.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
-
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {

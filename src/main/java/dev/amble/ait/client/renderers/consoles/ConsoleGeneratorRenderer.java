@@ -49,16 +49,13 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
         if (entity.getWorld() == null || !entity.isLinked())
             return;
 
-
         Profiler profiler = entity.getWorld().getProfiler();
         profiler.push("console_generator");
         profiler.visit("ait_generator_drawn");
 
-        try {
-            this.render0(entity, profiler, matrices, vertexConsumers, light, overlay);
-        } finally {
-            profiler.pop();
-        }
+        this.render0(entity, profiler, matrices, vertexConsumers, light, overlay);
+
+        profiler.pop();
     }
 
     private void render0(T entity, Profiler profiler, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
