@@ -28,6 +28,7 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
     private final BedrockModel model;
     private final ModelPart root;
 	private final Map<Identifier, BedrockAnimation> animationCache = new HashMap<>();
+	private ModelPart[] flattened;
 
     public BedrockConsoleModel(BedrockModel model) {
         this.model = model;
@@ -45,6 +46,24 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
     @Override
     public ModelPart getPart() {
         return root;
+    }
+
+    /**
+     * The model's parts as a flat array, walked once.
+     *
+     * <p>{@code ModelPart.traverse()} builds a {@code Stream} per node, so resetting the transforms
+     * through it allocated one per part every frame for a tree that never changes. Datapack consoles
+     * are the largest models in the mod, so this is the worst place to pay it.
+     *
+     * <p>{@link SimpleConsoleModel} caches the same walk but guards on the root it was built
+     * against, because its root can be swapped. This root is assigned once in the constructor and is
+     * final, so there is nothing to invalidate against.
+     */
+    private ModelPart[] parts() {
+        if (this.flattened == null)
+            this.flattened = this.root.traverse().toArray(ModelPart[]::new);
+
+        return this.flattened;
     }
 
     @Override
@@ -76,8 +95,9 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
             throw new IllegalStateException("DatapackConsole " + console.getVariant().id() + " has no animations defined.");
         }
 
+        for (ModelPart part : this.parts())
+            part.resetTransform();
 
-        this.getPart().traverse().forEach(ModelPart::resetTransform);
 		console.getControlEntities().forEach(this::applyControlAnimation);
 
 		BedrockAnimation anim = map.getAnimation(state);
