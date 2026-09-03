@@ -37,8 +37,11 @@ public class ControlRegistry {
         return Optional.ofNullable(REGISTRY.get(id));
     }
 
+	/** What a control id that resolves to nothing falls back to, before the first registered. */
+	private static final Identifier FALLBACK_ID = AITMod.id("throttle");
+
 	public static Control fallback() {
-		Control fallback = fromId(AITMod.id("throttle")).orElse(REGISTRY.get(0));
+		Control fallback = fromId(FALLBACK_ID).orElse(REGISTRY.get(0));
 
 		if (fallback == null)
 			throw new IllegalStateException("ControlRegistry is empty; cannot provide a fallback control");

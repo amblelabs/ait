@@ -53,7 +53,7 @@ public class ControlTypes {
 	}
 
 	public ControlTypes(Identifier controlId, float width, float height, Vector3f offset, Optional<BedrockAnimationReference> animation) {
-		this(ControlRegistry.REGISTRY.getOrEmpty(controlId).orElse(ControlRegistry.fallback()), EntityDimensions.fixed(width, height), offset, animation.orElse(null));
+		this(ControlRegistry.REGISTRY.getOrEmpty(controlId).orElseGet(ControlRegistry::fallback), EntityDimensions.fixed(width, height), offset, animation.orElse(null));
     }
 
     @Override
