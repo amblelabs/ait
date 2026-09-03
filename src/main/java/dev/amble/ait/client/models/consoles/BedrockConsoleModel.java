@@ -1,24 +1,34 @@
 package dev.amble.ait.client.models.consoles;
 
+import java.util.HashMap;
+import java.util.Map;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
 
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.entities.ConsoleControlEntity;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.datapack.TravelAnimationMap;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.lib.api.Identifiable;
 import dev.amble.lib.client.bedrock.BedrockAnimation;
+import dev.amble.lib.client.bedrock.BedrockAnimationReference;
 import dev.amble.lib.client.bedrock.BedrockModel;
+import dev.amble.lib.client.bedrock.TargetedAnimationState;
 
 public class BedrockConsoleModel implements ConsoleModel, Identifiable {
     private final BedrockModel model;
     private final ModelPart root;
+	private final Map<Identifier, BedrockAnimation> animationCache = new HashMap<>();
+	private ModelPart[] flattened;
 
     public BedrockConsoleModel(BedrockModel model) {
         this.model = model;
@@ -38,6 +48,24 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
         return root;
     }
 
+    /**
+     * The model's parts as a flat array, walked once.
+     *
+     * <p>{@code ModelPart.traverse()} builds a {@code Stream} per node, so resetting the transforms
+     * through it allocated one per part every frame for a tree that never changes. Datapack consoles
+     * are the largest models in the mod, so this is the worst place to pay it.
+     *
+     * <p>{@link SimpleConsoleModel} caches the same walk but guards on the root it was built
+     * against, because its root can be swapped. This root is assigned once in the constructor and is
+     * final, so there is nothing to invalidate against.
+     */
+    private ModelPart[] parts() {
+        if (this.flattened == null)
+            this.flattened = this.root.traverse().toArray(ModelPart[]::new);
+
+        return this.flattened;
+    }
+
     @Override
     public void renderWithAnimations(ClientTardis tardis, ConsoleBlockEntity console, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, float tickDelta) {
         matrices.push();
@@ -52,15 +80,11 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
 
     }
 
-    public void applyOffsets(MatrixStack matrices, ConsoleVariantSchema schema) {
-        if (schema instanceof DatapackConsole datapackConsole) {
-            Vec3d offset = datapackConsole.getOffset().multiply(1, -1, 1);
-            matrices.translate(offset.x, offset.y, offset.z);
-
-            Vec3d scale = datapackConsole.getScale();
-            matrices.scale((float) scale.x, (float) scale.y, (float) scale.z);
-        }
-    }
+	public void applyOffsets(MatrixStack matrices, ConsoleVariantSchema schema) {
+		if (schema instanceof DatapackConsole datapackConsole) {
+			datapackConsole.getTransformations().apply(matrices);
+		}
+	}
 
     @Override
     public void animateBlockEntity(ConsoleBlockEntity console, TravelHandlerBase.State state, boolean hasPower) {
@@ -71,12 +95,43 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
             throw new IllegalStateException("DatapackConsole " + console.getVariant().id() + " has no animations defined.");
         }
 
-        BedrockAnimation anim = map.getAnimation(state);
+        for (ModelPart part : this.parts())
+            part.resetTransform();
 
-        if (anim == null) return;
+		console.getControlEntities().forEach(this::applyControlAnimation);
 
-        this.getPart().traverse().forEach(ModelPart::resetTransform);
+		BedrockAnimation anim = map.getAnimation(state);
+		if (anim == null) return;
 
-        anim.apply(this.getPart(), console.ANIM_STATE, console.getAge(), 1F, null);
+		anim.apply(this.getPart(), console.ANIM_STATE, console.getAge(), 1F, null);
     }
+
+	private void applyControlAnimation(ConsoleControlEntity entity) {
+		if (entity.tardis().isEmpty()) return;
+
+		Control control = entity.getControl();
+		if (control == null) return;
+
+		ControlTypes type = entity.getControlType().orElse(null);
+		if (type == null) return;
+
+		BedrockAnimationReference ref = type.getAnimation().orElse(null);
+		if (ref == null) return;
+
+		// cache by the animation reference id, not the control id, so a control mapped to different
+		// animations across consoles/variants doesn't reuse the wrong cached animation
+		// memoize misses too (computeIfAbsent won't store null) so a missing animation ref isn't re-resolved every frame
+		BedrockAnimation anim;
+		if (this.animationCache.containsKey(ref.id())) {
+			anim = this.animationCache.get(ref.id());
+		} else {
+			anim = ref.get().orElse(null);
+			this.animationCache.put(ref.id(), anim);
+		}
+		if (anim == null) return;
+
+		TargetedAnimationState state = entity.getAnimationState();
+		state.setTargetProgress(control.getTargetProgress(entity.tardis().get(), entity.isOnDelay(), entity));
+		anim.apply(this.getPart(), state, entity);
+	}
 }

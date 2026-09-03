@@ -5,10 +5,12 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import org.jetbrains.annotations.Nullable;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blocks.ExteriorBlock;
+import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
@@ -92,4 +94,12 @@ public class DirectionControl extends Control {
     public SoundEvent getFallbackSound() {
         return AITSounds.DIRECTION;
     }
+
+	@Override
+	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleControlEntity entity) {
+		// return selected direction / total directions
+		CachedDirectedGlobalPos dest = tardis.travel().destination();
+		int rotation = dest.getRotation();
+		return (float) rotation / (float) ExteriorBlock.MAX_ROTATION_INDEX;
+	}
 }

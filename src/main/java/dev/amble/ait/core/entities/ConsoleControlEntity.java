@@ -1,6 +1,7 @@
 package dev.amble.ait.core.entities;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -25,7 +26,9 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -60,8 +63,11 @@ import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.core.tardis.control.impl.HammerHangerControl;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.registry.impl.ControlRegistry;
+import dev.amble.lib.animation.AnimatedEntity;
+import dev.amble.lib.client.bedrock.BedrockAnimationReference;
+import dev.amble.lib.client.bedrock.TargetedAnimationState;
 
-public class ConsoleControlEntity extends LinkableDummyEntity {
+public class ConsoleControlEntity extends LinkableDummyEntity implements AnimatedEntity {
     private static final TrackedData<Float> WIDTH = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.FLOAT);
     private static final TrackedData<Float> HEIGHT = DataTracker.registerData(ConsoleControlEntity.class,
@@ -82,8 +88,14 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             TrackedDataHandlerRegistry.BLOCK_POS);
     private static final TrackedData<String> CONTROL_ID = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.STRING);
-    private Control control;
+    private static final TrackedData<String> ANIMATION_ID = DataTracker.registerData(ConsoleControlEntity.class,
+            TrackedDataHandlerRegistry.STRING);
     public static final float MAX_DURABILITY = 1.0f;
+
+    private Control control;
+    private ControlTypes controlType;
+    private ConsoleBlockEntity linkedConsole;
+    private final TargetedAnimationState animationState = new TargetedAnimationState();
 
     public ConsoleControlEntity(EntityType<? extends Entity> entityType, World world) {
         super(entityType, world);
@@ -105,6 +117,11 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             return;
         }
 
+        if (this.linkedConsole != null) {
+            this.linkedConsole.controlEntities.remove(this);
+            this.linkedConsole = null;
+        }
+
         if (this.getWorld().getBlockEntity(this.getConsoleBlockPos()) instanceof ConsoleBlockEntity console)
             console.markNeedsControl();
     }
@@ -123,9 +140,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         this.dataTracker.startTracking(ON_DELAY, false);
         this.dataTracker.startTracking(CONSOLE_BLOCK_POS, BlockPos.ORIGIN);
         this.dataTracker.startTracking(CONTROL_ID, "");
+        this.dataTracker.startTracking(ANIMATION_ID, "");
     }
 
-    @Override
+	@Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
 
@@ -141,6 +159,14 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         nbt.putBoolean("wasSequenced", this.wasSequenced());
         nbt.putFloat("durability", this.getDurability());
         nbt.putBoolean("sticky", this.isSticky());
+
+	    // write control type via codec
+	    if (this.controlType == null) {
+		    AITMod.LOGGER.error("Control type is null for control entity at {}", this.getPos());
+		    return;
+	    }
+	    DataResult<NbtElement> result = ControlTypes.CODEC.encodeStart(NbtOps.INSTANCE, this.controlType);
+	    result.resultOrPartial(AITMod.LOGGER::error).ifPresent(nbtResult -> nbt.put("controlType", nbtResult));
     }
 
     @Override
@@ -175,6 +201,20 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
             this.setDurability(nbt.getFloat("durability"));
         if (nbt.contains("sticky"))
             this.setSticky(nbt.getBoolean("sticky"));
+
+	    if (nbt.contains("controlType")) {
+		    DataResult<ControlTypes> result = ControlTypes.CODEC.parse(NbtOps.INSTANCE, nbt.get("controlType"));
+		    result.resultOrPartial(AITMod.LOGGER::error).ifPresent(controlType -> {
+			    this.controlType = controlType;
+			    this.control = controlType.getControl();
+			    this.dataTracker.set(CONTROL_ID, this.control.id().toString());
+
+			    // Sync animation ID if present
+			    controlType.getAnimation().ifPresent(animation ->
+					    this.dataTracker.set(ANIMATION_ID, animation.id().toString())
+			    );
+		    });
+	    }
     }
 
     public void setConsolePos(BlockPos consoleBlockPos) {
@@ -264,8 +304,12 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
     @Override
     public void tick() {
-        if (this.getWorld().isClient())
+	    this.animationState.tick();
+
+	    if (this.getWorld().isClient()) {
+		    this.linkToConsole();
             return;
+	    }
 
         if (this.control == null && this.getConsoleBlockPos() != null)
             this.discard();
@@ -312,6 +356,32 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
         return control;
     }
+
+	public Optional<ControlTypes> getControlType() {
+		// On client, reconstruct controlType from synced data if local field is null
+		if (this.controlType == null && this.getWorld() != null && this.getWorld().isClient()) {
+			Control control = this.getControl();
+			if (control != null) {
+				// Parse animation from synced ID
+				BedrockAnimationReference animation = null;
+				String animationId = this.dataTracker.get(ANIMATION_ID);
+				if (animationId != null && !animationId.isEmpty()) {
+					Identifier id = Identifier.tryParse(animationId);
+					if (id != null) {
+						animation = BedrockAnimationReference.parse(id);
+					}
+				}
+
+				this.controlType = new ControlTypes(
+						control,
+						EntityDimensions.changing(this.getControlWidth(), this.getControlHeight()),
+						this.getOffset(),
+						animation
+				);
+			}
+		}
+		return Optional.ofNullable(this.controlType);
+	}
 
     public Vector3f getOffset() {
         return this.dataTracker.get(OFFSET);
@@ -523,6 +593,44 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         return result.isSuccess();
     }
 
+    /**
+     * Adds this control to its console's list, client side, where {@code spawnControls} never runs.
+     *
+     * <p>The renderer walks that list every frame to pose each control. It used to come from an
+     * expanded box query over the console, re-run on a timer, which meant a control could be posed
+     * from a list up to two minutes stale, and every console paid a world scan to build it. A
+     * control knows its own console, so it registers once and the two sides then read one list.
+     */
+    private void linkToConsole() {
+        BlockPos consolePos = this.getConsoleBlockPos();
+
+        // Nothing to do while the console we registered with is still the live one at our position.
+        // Held by instance rather than a flag: a chunk reload builds a fresh block entity with an
+        // empty list, and a control that only ever registered once would stop being posed. Every
+        // path that drops or replaces a block entity marks it removed first, so that covers the
+        // reload, and the position check covers a control re-pointed at a different console.
+        if (this.linkedConsole != null && !this.linkedConsole.isRemoved()
+                && this.linkedConsole.getPos().equals(consolePos))
+            return;
+
+        // Deliberately not getConsole(): that warns when the block entity has not loaded yet, which
+        // is the normal case for the first few ticks after a control is synced.
+        if (!(this.getWorld().getBlockEntity(consolePos) instanceof ConsoleBlockEntity console)) {
+            // Don't keep hold of a console whose chunk has gone; controls can outlive it when their
+            // offsets put them in the neighbouring chunk.
+            this.linkedConsole = null;
+            return;
+        }
+
+        if (this.linkedConsole != null && this.linkedConsole != console)
+            this.linkedConsole.controlEntities.remove(this);
+
+        if (!console.controlEntities.contains(this))
+            console.controlEntities.add(this);
+
+        this.linkedConsole = console;
+    }
+
     public ConsoleBlockEntity getConsole() {
         if (this.getConsoleBlockPos() == null)
             return null;
@@ -534,6 +642,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
         AITMod.LOGGER.warn("Control entity at {} has no console block entity at {}", this.getPos(), this.getConsoleBlockPos());
         return null;
     }
+
+	public TargetedAnimationState getAnimationState() {
+		return this.animationState;
+	}
 
     private void spark() {
         if (!(this.getWorld() instanceof ServerWorld serverWorld)) return;
@@ -573,7 +685,13 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     public void setControlData(ConsoleTypeSchema consoleType, ControlTypes type, BlockPos consoleBlockPosition, float durability, boolean sticky) {
         this.setConsolePos(consoleBlockPosition);
         this.control = type.getControl();
+        this.controlType = type;
         this.dataTracker.set(CONTROL_ID, this.control.id().toString());
+
+        // Sync animation ID if present
+        type.getAnimation().ifPresent(animation ->
+                this.dataTracker.set(ANIMATION_ID, animation.id().toString())
+        );
 
         super.setCustomName(this.control.getName(this.tardis().get()));
 

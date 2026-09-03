@@ -1,6 +1,7 @@
 package dev.amble.ait.core.blockentities;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -282,6 +283,13 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
     }
 
     public void killControls() {
+        // Server authoritative: it writes control state back and discards the entities. It reaches
+        // the client through markRemoved, where it was already a no-op while the client list was
+        // empty, so keep it one. Clearing here would strand the controls, which hold this console as
+        // their link and so would not add themselves back.
+        if (this.world == null || this.world.isClient())
+            return;
+
         for (ConsoleControlEntity entity : controlEntities) {
             Control control = entity.getControl();
             if (control != null) {
@@ -292,6 +300,20 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         controlEntities.forEach(Entity::discard);
         controlEntities.clear();
         this.markDirty();
+    }
+
+    /**
+     * The control entities belonging to this console. Server side {@link #spawnControls()} fills this;
+     * client side each control adds itself once its console has loaded, see
+     * {@code ConsoleControlEntity#linkToConsole}.
+     *
+     * @return List of control entities belonging to this console
+     */
+    public List<ConsoleControlEntity> getControlEntities() {
+        if (this.world == null)
+            return Collections.emptyList();
+
+        return this.controlEntities;
     }
 
     public void spawnControls() {
@@ -327,6 +349,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
             this.controlEntities.add(controlEntity);
         }
 
+	    this.markDirty();
         this.needsControls = false;
     }
 
