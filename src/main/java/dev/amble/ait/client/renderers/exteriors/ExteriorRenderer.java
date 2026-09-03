@@ -124,10 +124,9 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         double slop = 2.0 * scale + (tardis.areVisualShieldsActive() ? 4.5 : 0.0);
 
         Vector3f animation = tardis.travel().getAnimationPosition(tickDelta);
-        Vec3d origin = new Vec3d(animation.x() + 0.5, animation.y(), animation.z() + 0.5);
 
         if (this.model != null && OffScreenCull.sphereBehindCamera(entity, this.model.getPart(),
-                origin, scale, slop)) {
+                animation.x() + 0.5, animation.y(), animation.z() + 0.5, scale, slop)) {
             profiler.visit("ait_exterior_offscreen_skipped");
             return;
         }

@@ -7,8 +7,7 @@ import java.util.Set;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
-
-import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import net.minecraft.block.entity.BlockEntity;
 
 /**
  * Tracks which block entities have already been drawn this world render pass, so a renderer can
@@ -24,27 +23,20 @@ import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
  *
  * <p>The set lives here rather than as a field on the block entity: this is client render state, and
  * the server has no use for it.
- *
- * <p>{@code -Dait.dedupeDraws=false} turns the skipping off while leaving the counters in place, so
- * the difference can be measured, or ruled out, without a rebuild.
  */
 @Environment(EnvType.CLIENT)
 public final class ClientRenderPass {
 
-    private static final boolean DEDUPE =
-            !"false".equalsIgnoreCase(System.getProperty("ait.dedupeDraws", "true"));
-
     // Identity, not equality: two block entities at the same position are the same draw only if they
     // are the same object, and BlockEntity does not override equals anyway.
-    private static final Set<AbstractLinkableBlockEntity> DRAWN =
-            Collections.newSetFromMap(new IdentityHashMap<>());
+    private static final Set<BlockEntity> DRAWN = Collections.newSetFromMap(new IdentityHashMap<>());
 
     /**
      * @return whether this block entity should be drawn now, which is true for the first call of a
      *         pass and false for the duplicate that follows it.
      */
-    public static boolean shouldDraw(AbstractLinkableBlockEntity entity) {
-        return !DEDUPE || DRAWN.add(entity);
+    public static boolean shouldDraw(BlockEntity entity) {
+        return DRAWN.add(entity);
     }
 
     public static void init() {

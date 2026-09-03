@@ -20,9 +20,6 @@ public class MultiBlockStructureRenderer {
 
     private final MinecraftClient client;
 
-    // The profiler is fetched per call rather than held, because the client swaps its profiler object
-    // out every frame and a held reference pins DummyProfiler forever, making every zone read zero.
-
     protected MultiBlockStructureRenderer(MinecraftClient client) {
         this.client = client;
     }

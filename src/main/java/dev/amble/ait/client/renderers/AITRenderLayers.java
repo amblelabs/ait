@@ -14,6 +14,8 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 
+import dev.amble.ait.AITMod;
+
 
 @Environment(EnvType.CLIENT)
 public class AITRenderLayers extends RenderLayer {
@@ -67,7 +69,7 @@ public class AITRenderLayers extends RenderLayer {
      * checked against a sorted arm in game and showed nothing above its own animation noise.
      */
     private static final Set<Identifier> SORT_SENSITIVE_EMISSION = Set.of(
-            new Identifier("ait", "textures/blockentities/consoles/hourglass_default_emission.png"));
+            AITMod.id("textures/blockentities/consoles/hourglass_default_emission.png"));
 
     private static final Function<Identifier, RenderLayer> EMISSIVE_SORTED = Util
             .memoize(texture -> emissive(texture, true));

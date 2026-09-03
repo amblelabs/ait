@@ -182,18 +182,27 @@ public abstract class SimpleConsoleModel extends SinglePartEntityModel implement
     // Overloaded method for compatibility with older code
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
+        // No transform here on purpose. Every subclass reaches this through super from inside its own
+        // push and applyRootTransform, so applying it again would land it twice.
         root.render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
     }
 
     /**
      * The transform from block space into this model's own space, applied once per geometry pass.
      *
-     * <p>Extracted so the state-and-geometry pass and the geometry-only pass cannot drift apart. The
-     * default is a no-op to match {@link #renderWithAnimations}, which does not push or translate
-     * either: a subclass that transforms in one path and not the other would draw its glow somewhere
-     * other than its geometry.
+     * <p>Extracted so the state-and-geometry pass and the geometry-only pass cannot drift apart: a
+     * subclass that transforms in one path and not the other would draw its glow somewhere other than
+     * its geometry.
+     *
+     * <p>The default is what every model but Copper wants, so most of them need no override at all.
+     * A subclass that adds to it should call {@code super} first.
+     *
+     * <p>Applied by {@link #renderGeometryOnly} and by each subclass's own
+     * {@code renderWithAnimations}, never by this class's {@code renderWithAnimations}: that one is
+     * only ever reached through {@code super} from a subclass that has already applied it.
      */
     protected void applyRootTransform(MatrixStack matrices) {
+        matrices.translate(0.5f, -1.5f, -0.5f);
     }
 
     /**

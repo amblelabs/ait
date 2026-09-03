@@ -85,28 +85,30 @@ public final class OffScreenCull {
      * its own block, then cost nothing while the camera looks anywhere near the horizontal, because
      * a per axis test ignores the extent perpendicular to the look direction. A sphere would not.
      *
-     * @param origin the model origin in block space, since a renderer translates before it draws and
-     *               the bound is measured about the model's own zero.
+     * @param originX the model origin in block space, since a renderer translates before it draws and
+     *                the bound is measured about the model's own zero. Taken apart rather than as a
+     *                {@code Vec3d} so a caller whose origin moves per frame allocates nothing.
      * @param slop   blocks to add in every direction, for geometry a renderer draws outside the model
      *               root, such as monitor text in a space of its own.
      */
-    public static boolean boxBehindCamera(BlockEntity entity, ModelPart root, Vec3d origin, double slop) {
-        return behindCamera(entity, root, origin, 1.0, slop, true);
+    public static boolean boxBehindCamera(BlockEntity entity, ModelPart root, double originX, double originY,
+            double originZ, double slop) {
+        return behindCamera(entity, root, originX, originY, originZ, 1.0, slop, true);
     }
 
     /**
      * For a renderer that rotates the model by an arbitrary angle, where only a sphere is a valid
      * bound.
      *
-     * @param origin      the model origin in block space, including any translation the renderer
+     * @param originX     the model origin in block space, including any translation the renderer
      *                    applies before it rotates. An exterior's rematerialisation keyframes move it
      *                    several blocks, so that part is asked for per frame rather than padded for.
      * @param radiusScale a multiplier on the model, for a renderer that scales it.
      * @param slop        blocks to add, for movement applied after the rotation.
      */
-    public static boolean sphereBehindCamera(BlockEntity entity, ModelPart root, Vec3d origin,
-            double radiusScale, double slop) {
-        return behindCamera(entity, root, origin, radiusScale, slop, false);
+    public static boolean sphereBehindCamera(BlockEntity entity, ModelPart root, double originX, double originY,
+            double originZ, double radiusScale, double slop) {
+        return behindCamera(entity, root, originX, originY, originZ, radiusScale, slop, false);
     }
 
     /**
@@ -114,9 +116,9 @@ public final class OffScreenCull {
      * {@code sum(r_i * |look_i|)}, and for a sphere the corner length, which is what makes the sphere
      * rotation invariant and the box tighter.
      */
-    private static boolean behindCamera(BlockEntity entity, ModelPart root, Vec3d origin,
-            double radiusScale, double slop, boolean perAxis) {
-        if (suspended > 0 || entity == null || root == null || origin == null)
+    private static boolean behindCamera(BlockEntity entity, ModelPart root, double originX, double originY,
+            double originZ, double radiusScale, double slop, boolean perAxis) {
+        if (suspended > 0 || entity == null || root == null)
             return false;
 
         Camera camera = cameraOrNull();
@@ -133,9 +135,9 @@ public final class OffScreenCull {
         Vector3f look = camera.getHorizontalPlane();
         BlockPos pos = entity.getPos();
 
-        double cx = pos.getX() + origin.x - eye.x;
-        double cy = pos.getY() + origin.y - eye.y;
-        double cz = pos.getZ() + origin.z - eye.z;
+        double cx = pos.getX() + originX - eye.x;
+        double cy = pos.getY() + originY - eye.y;
+        double cz = pos.getZ() + originZ - eye.z;
 
         double centre = cx * look.x() + cy * look.y() + cz * look.z();
 

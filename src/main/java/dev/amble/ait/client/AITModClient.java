@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.UUID;
 
 import dev.amble.ait.client.overlays.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -111,6 +114,9 @@ import dev.amble.lib.register.AmbleRegistries;
 @Environment(value = EnvType.CLIENT)
 public class AITModClient implements ClientModInitializer {
 
+    /** Its own logger rather than a prefix on every line, so the profiler output filters cleanly. */
+    private static final Logger PROFILE_LOGGER = LoggerFactory.getLogger("ait-profile");
+
     public static AITClientConfig CONFIG;
     private final MinecraftClient client = MinecraftClient.getInstance();
 
@@ -192,15 +198,17 @@ public class AITModClient implements ClientModInitializer {
             TardisStar.render(context, tardis);
         });
 
-        ClientPlayNetworking.registerGlobalReceiver(AITMod.PROFILE_CLIENT, (client, handler, buf, responseSender) ->
-                client.execute(() -> {
-                    // toggleDebugProfiler is what F3+L calls. The recorder stops itself after 10s and hands
-                    // the dump path to this consumer, which is the only way to learn it without a keyboard.
-                    boolean started = client.toggleDebugProfiler(
-                            text -> AITMod.LOGGER.info("[ait-profile] {}", text.getString()));
+        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            ClientPlayNetworking.registerGlobalReceiver(AITMod.PROFILE_CLIENT, (client, handler, buf, responseSender) ->
+                    client.execute(() -> {
+                        // toggleDebugProfiler is what F3+L calls. The recorder stops itself after 10s and hands
+                        // the dump path to this consumer, which is the only way to learn it without a keyboard.
+                        boolean started = client.toggleDebugProfiler(
+                                text -> PROFILE_LOGGER.info(text.getString()));
 
-                    AITMod.LOGGER.info("[ait-profile] {}", started ? "started" : "stopped an active recording");
-                }));
+                        PROFILE_LOGGER.info(started ? "started" : "stopped an active recording");
+                    }));
+        }
 
         ClientPlayNetworking.registerGlobalReceiver(OPEN_SCREEN, (client, handler, buf, responseSender) -> {
             int id = buf.readInt();

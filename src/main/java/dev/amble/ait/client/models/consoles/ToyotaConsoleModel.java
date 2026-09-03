@@ -1640,7 +1640,7 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
 
     @Override
     protected void applyRootTransform(MatrixStack matrices) {
-        matrices.translate(0.5f, -1.5f, -0.5f);
+        super.applyRootTransform(matrices);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
     }
 

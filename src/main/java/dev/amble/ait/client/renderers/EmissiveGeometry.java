@@ -112,7 +112,7 @@ public final class EmissiveGeometry {
         } catch (Throwable t) {
             // Drawing everything is always correct, and this runs inside the caller's matrix push, so
             // letting anything escape would corrupt the matrix stack rather than lose a little speed.
-            AITMod.LOGGER.warn("could not work out what to cull for {}, drawing all of it", emission, t);
+            AITMod.LOGGER.warn("Could not work out what to cull for {}, drawing all of it", emission, t);
             MASKS.put(emission, null);
             return new Scope(NOTHING, NO_STATE);
         }
@@ -299,7 +299,7 @@ public final class EmissiveGeometry {
         Optional<Resource> resource = manager.getResource(emission);
 
         if (resource.isEmpty()) {
-            AITMod.LOGGER.warn("no emission texture at {}, not culling", emission);
+            AITMod.LOGGER.warn("No emission texture at {}, not culling", emission);
             return null;
         }
 
@@ -326,7 +326,7 @@ public final class EmissiveGeometry {
 
             return new Mask(width, height, lit);
         } catch (Exception e) {
-            AITMod.LOGGER.warn("could not read {}, not culling", emission, e);
+            AITMod.LOGGER.warn("Could not read {}, not culling", emission, e);
             return null;
         }
     }

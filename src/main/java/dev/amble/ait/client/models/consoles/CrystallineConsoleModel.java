@@ -1207,10 +1207,6 @@ public class CrystallineConsoleModel extends SimpleConsoleModel {
         console.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
     }
 
-    @Override
-    protected void applyRootTransform(MatrixStack matrices) {
-        matrices.translate(0.5f, -1.5f, -0.5f);
-    }
 
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {

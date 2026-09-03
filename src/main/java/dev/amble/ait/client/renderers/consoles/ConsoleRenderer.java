@@ -47,20 +47,16 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
 
         if (entity.getWorld() == null) return;
 
-        // Fetched per call, never held: the client swaps its profiler object out every frame.
         Profiler profiler = entity.getWorld().getProfiler();
         profiler.visit("ait_console_dispatched");
 
-        // Ahead of the duplicate guard, not after it, so the two counters partition the dispatches:
-        // put it second and the first call would consume the guard's entry and then skip anyway,
-        // leaving neither counter able to say what happened. Both loops share a camera, so testing
-        // first is otherwise identical.
+        // Ahead of the duplicate guard so the two counters partition the dispatches.
         //
-        // The slop budget is for everything drawn outside the model root: monitor text, which sits in
-        // a space of its own whose anchor is itself up to 1.86 blocks out and then reaches a further
-        // block and a half; the Crystalline panes at about 1.6 blocks; and Hudolin's toolbox, a
-        // genuine sibling of the root, at about 1.3. The measured extents carry the rest.
-        if (OffScreenCull.boxBehindCamera(entity, this.rootFor(entity), CONSOLE_ORIGIN, 3.0)) {
+        // Origin is the block centre a block and a half up: the renderer flips 180 degrees about X and
+        // the models then translate by (0.5, -1.5, -0.5), which the flip turns into this. Slop covers
+        // what is drawn outside the model root, the largest being monitor text at an anchor up to 1.86
+        // blocks out reaching a further 1.5.
+        if (OffScreenCull.boxBehindCamera(entity, this.rootFor(entity), 0.5, 1.5, 0.5, 3.0)) {
             profiler.visit("ait_console_offscreen_skipped");
             return;
         }
@@ -252,13 +248,6 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         }
         matrices.pop();
     }
-
-    /**
-     * Where a console model's own zero sits in block space: the renderer flips 180 degrees about X
-     * and every model's root transform then translates by {@code (0.5, -1.5, -0.5)}, which the flip
-     * turns into this.
-     */
-    private static final Vec3d CONSOLE_ORIGIN = new Vec3d(0.5, 1.5, 0.5);
 
     /**
      * The model root to bound, or null when there is nothing to bound yet.

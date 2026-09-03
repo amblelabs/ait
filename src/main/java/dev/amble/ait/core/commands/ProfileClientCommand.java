@@ -49,14 +49,24 @@ public class ProfileClientCommand {
 
     private static int profile(CommandContext<ServerCommandSource> context,
             Collection<ServerPlayerEntity> targets) {
+        int count = 0;
+
         for (ServerPlayerEntity player : targets) {
+            // Counted rather than assumed. The receiver is registered only in a development
+            // environment, so a client that cannot take the packet is a real case, and a harness that
+            // reports a profile it never started wastes a whole run before anyone notices.
+            if (!ServerPlayNetworking.canSend(player, AITMod.PROFILE_CLIENT))
+                continue;
+
             ServerPlayNetworking.send(player, AITMod.PROFILE_CLIENT, PacketByteBufs.create());
+            count++;
         }
 
-        int count = targets.size();
-        context.getSource().sendFeedback(() -> Text.literal("Started the client profiler on " + count + " client(s)."),
-                true);
+        int started = count;
+        int skipped = targets.size() - count;
+        context.getSource().sendFeedback(() -> Text.literal("Started the client profiler on " + started
+                + " client(s)." + (skipped > 0 ? " " + skipped + " could not take the packet." : "")), true);
 
-        return Command.SINGLE_SUCCESS;
+        return started > 0 ? Command.SINGLE_SUCCESS : 0;
     }
 }

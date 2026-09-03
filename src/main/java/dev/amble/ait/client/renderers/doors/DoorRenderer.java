@@ -96,7 +96,7 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
         double doorScale = maxScale(tardis.stats().getScale());
 
         if (this.model != null && OffScreenCull.sphereBehindCamera(entity, this.model.getPart(),
-                new Vec3d(0.5, 0.0, 0.5), doorScale, 1.0 * doorScale)) {
+                0.5, 0.0, 0.5, doorScale, doorScale)) {
             profiler.visit("ait_door_offscreen_skipped");
             return;
         }

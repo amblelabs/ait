@@ -260,8 +260,12 @@ public class AITMod implements ModInitializer {
             ListCommand.register(dispatcher);
             LoadCommand.register(dispatcher);
             DebugCommand.register(dispatcher);
-            ProfileClientCommand.register(dispatcher);
-            PerfScenarioCommand.register(dispatcher);
+
+            if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+                ProfileClientCommand.register(dispatcher);
+                PerfScenarioCommand.register(dispatcher);
+            }
+
             EraseChunksCommand.register(dispatcher);
             FlightCommand.register(dispatcher);
             SetDoorParticleCommand.register(dispatcher, registryAccess);

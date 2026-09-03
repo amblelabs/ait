@@ -26,7 +26,6 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
-import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 
 public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> implements BlockEntityRenderer<T> {
 
@@ -51,8 +50,6 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
             return;
 
 
-        // Fetched per call, never held: the client swaps its profiler object out every frame. Until
-        // this was added the generator's cost sat unattributed in the vanilla block entity bucket.
         Profiler profiler = entity.getWorld().getProfiler();
         profiler.push("console_generator");
         profiler.visit("ait_generator_drawn");
@@ -105,19 +102,16 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
         //if (powered) {
             if (tardis.isUnlocked(entity.getConsoleVariant())) {
                 console.render(matrices,
-                        vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleTexture) :
-                                RenderLayer.getEntityTranslucentCull(consoleTexture)), 0xf000f0, overlay, 0.3607843137f,
+                        vertexConsumers.getBuffer(clientVariant.hologramLayer(consoleTexture)), 0xf000f0, overlay, 0.3607843137f,
                         0.9450980392f, 1, entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
                 if (consoleEmission != null && !consoleEmission.equals(DatapackConsole.EMPTY)) {
                     console.render(matrices,
-                            vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleEmission) :
-                                    RenderLayer.getEntityTranslucentCull(consoleEmission)), 0xf000f0, overlay, 0.3607843137f,
+                            vertexConsumers.getBuffer(clientVariant.hologramLayer(consoleEmission)), 0xf000f0, overlay, 0.3607843137f,
                             0.9450980392f, 1, entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
                 }
             } else {
                 console.render(matrices,
-                        vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleTexture) :
-                                RenderLayer.getEntityTranslucentCull(consoleTexture)), light,
+                        vertexConsumers.getBuffer(clientVariant.hologramLayer(consoleTexture)), light,
                         OverlayTexture.DEFAULT_UV, 0.2f, 0.2f, 0.2f,
                         entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
             }
