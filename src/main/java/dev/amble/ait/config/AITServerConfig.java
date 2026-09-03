@@ -58,6 +58,12 @@ public class AITServerConfig {
     @SerialEntry public boolean hypercubesEnabled = true;
 
     @AutoGen(category = CATEGORY)
+    @IntField(min = 0)
+    @CustomDescription(value = "The levenshtein distance allows for typos when using handles. Distances lower to 0 are stricter while higher values like 5 are more lenient.")
+    @CustomImage(value = "textures/yacl3/server/levenshtein.webp", width = 1909, height = 349)
+    @SerialEntry public int handlesLevenshteinDistance = 2;
+
+    @AutoGen(category = CATEGORY)
     @CustomDescription(value = "Dimensions listed here will be excluded. Ignored when the whitelist has entries.")
     @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
     @SerialEntry public List<String> projectorBlacklist = Lists.newArrayList(
@@ -78,28 +84,6 @@ public class AITServerConfig {
     @CustomDescription(value = "When populated, only these dimensions will be allowed and the blacklist is ignored.")
     @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
     @SerialEntry public List<String> travelWhitelist = Lists.newArrayList();
-
-    @AutoGen(category = CATEGORY)
-    @CustomDescription(value = "Dimensions listed here will be excluded. Ignored when the whitelist has entries.")
-    @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
-    @SerialEntry public List<String> riftSpawnBlacklist = Lists.newArrayList(
-            "ait-tardis", "ait:tardis_dimension_type", AITDimensions.TIME_VORTEX_WORLD.getValue().toString(), "minecraft:the_end", "ait:space");
-
-    @AutoGen(category = CATEGORY)
-    @CustomDescription(value = "When populated, only these dimensions will be allowed and the blacklist is ignored.")
-    @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
-    @SerialEntry public List<String> riftSpawnWhitelist = Lists.newArrayList();
-
-    @AutoGen(category = CATEGORY)
-    @CustomDescription(value = "Dimensions listed here will be excluded. Ignored when the whitelist has entries.")
-    @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
-    @SerialEntry public List<String> riftDropBlacklist = Lists.newArrayList(
-            "ait-tardis", "ait:tardis_dimension_type", AITDimensions.TIME_VORTEX_WORLD.getValue().toString(), "minecraft:the_end", "ait:space");
-
-    @AutoGen(category = CATEGORY)
-    @CustomDescription(value = "When populated, only these dimensions will be allowed and the blacklist is ignored.")
-    @ListGroup(valueFactory = StringListFactory.class, controllerFactory = StringListFactory.class)
-    @SerialEntry public List<String> riftDropWhitelist = Lists.newArrayList();
 
     @AutoGen(category = CATEGORY)
     @IntField(min = 1)
@@ -128,6 +112,10 @@ public class AITServerConfig {
     @AutoGen(category = CATEGORY)
     @FloatSlider(min = 0, max = 16, step = 0.1f)
     @SerialEntry public float flightSoundVolume = 2f;
+
+    @AutoGen(category = CATEGORY)
+    @IntSlider(min = 1, max = 128, step = 1)
+    @SerialEntry public int maxStabilizedSpeed = 4;
 
     public static class StringListFactory implements ListGroup.ValueFactory<String>, ListGroup.ControllerFactory<String> {
 

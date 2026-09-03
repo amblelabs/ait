@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import dev.amble.lib.container.impl.ItemContainer;
-import dev.amble.lib.datagen.util.NoEnglish;
-import dev.amble.lib.item.AItemSettings;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -34,6 +31,9 @@ import dev.amble.ait.core.item.link.AbstractLinkItem;
 import dev.amble.ait.core.item.link.FluidLinkItem;
 import dev.amble.ait.core.item.link.MercurialLinkItem;
 import dev.amble.ait.core.item.part.MachinePartItem;
+import dev.amble.lib.container.impl.ItemContainer;
+import dev.amble.lib.datagen.util.NoEnglish;
+import dev.amble.lib.item.AItemSettings;
 
 public class AITItems extends ItemContainer {
 
@@ -197,9 +197,12 @@ public class AITItems extends ItemContainer {
             new AItemSettings().maxCount(1).rarity(Rarity.RARE), 169);
 
     @NoEnglish
+    public static final Item STAGE_4_MUSIC_DISC = new MusicDiscItem(15, AITSounds.STAGE_4,
+            new AItemSettings().maxCount(1).rarity(Rarity.RARE), 239);
+
+    @NoEnglish
     public static final Item WONDERFUL_TIME_IN_SPACE_MUSIC_DISC = new MusicDiscItem(1, AITSounds.WONDERFUL_TIME_IN_SPACE,
             new AItemSettings().maxCount(1).rarity(Rarity.RARE), 73);
-
 
     @NoEnglish
     public static final Item VENUS_MUSIC_DISC = new MusicDiscItem(1, AITSounds.VENUS_MUSIC,
@@ -216,6 +219,10 @@ public class AITItems extends ItemContainer {
     @NoEnglish
     public static final Item EARTH_MUSIC_DISC = new MusicDiscItem(1, AITSounds.EARTH_MUSIC,
             new AItemSettings().maxCount(1).rarity(Rarity.RARE), 315);
+
+    @NoEnglish
+    public static final Item CRASH_MUSIC_DISC = new MusicDiscItem(1, AITSounds.ARPALARM_MONO,
+            new AItemSettings().maxCount(1).rarity(Rarity.RARE), 69);
 
 
     // Block controls
@@ -267,7 +274,8 @@ public class AITItems extends ItemContainer {
             entries.addAfter(Items.MUSIC_DISC_RELIC, TWO_THOUSAND_MUSIC_DISC);
             entries.addAfter(TWO_THOUSAND_MUSIC_DISC, WONDERFUL_TIME_IN_SPACE_MUSIC_DISC);
             entries.addAfter(WONDERFUL_TIME_IN_SPACE_MUSIC_DISC, EARTH_MUSIC_DISC);
-            entries.addAfter(EARTH_MUSIC_DISC, VENUS_MUSIC_DISC, GOOD_MAN_MUSIC_DISC, AIT_THEME_MUSIC_DISC);
+            entries.addAfter(EARTH_MUSIC_DISC, VENUS_MUSIC_DISC, GOOD_MAN_MUSIC_DISC, AIT_THEME_MUSIC_DISC, CRASH_MUSIC_DISC);
+            entries.addAfter(CRASH_MUSIC_DISC, STAGE_4_MUSIC_DISC);
         });
 
 

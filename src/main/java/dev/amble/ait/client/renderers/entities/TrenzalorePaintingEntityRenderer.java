@@ -1,6 +1,7 @@
 package dev.amble.ait.client.renderers.entities;
 
 
+import dev.amble.ait.client.AITModClient;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -25,7 +26,7 @@ public class TrenzalorePaintingEntityRenderer
 
     @Override
     public void render(BOTIPaintingEntity paintingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
-        BOTI.TRENZALORE_PAINTING_QUEUE.add(paintingEntity);
+        if (!AITModClient.skipPaintingBOTI()) BOTI.TRENZALORE_PAINTING_QUEUE.add(paintingEntity);
     }
 
     @Override

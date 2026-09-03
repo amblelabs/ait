@@ -18,7 +18,9 @@ import net.minecraft.world.World;
 
 import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.engine.block.generic.GenericStructureSystemBlockEntity;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlock;
+import dev.amble.ait.core.item.RepairToolItem;
 
 public abstract class SubSystemBlock extends FluidLinkBlock {
     private final SubSystem.IdLike id;
@@ -57,9 +59,12 @@ public abstract class SubSystemBlock extends FluidLinkBlock {
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
                               BlockHitResult hit) {
-        BlockEntity blockEntity = world.getBlockEntity(pos);
         ItemStack stack = player.getStackInHand(hand);
-        if (blockEntity instanceof SubSystemBlockEntity be)
+        if (stack.getItem() instanceof RepairToolItem)
+            return ActionResult.PASS;
+
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof GenericStructureSystemBlockEntity be)
             return be.useOn(state, world, player.isSneaking(), player, stack);
 
         return ActionResult.SUCCESS;

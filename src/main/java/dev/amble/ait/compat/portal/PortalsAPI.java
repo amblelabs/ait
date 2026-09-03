@@ -1,10 +1,10 @@
 package dev.amble.ait.compat.portal;
 
+import java.util.Optional;
+
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-
-import java.util.Optional;
 
 public class PortalsAPI {
 

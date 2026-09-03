@@ -3,9 +3,6 @@ package dev.amble.ait.client.screens;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedGlobalPos;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -15,7 +12,6 @@ import net.minecraft.client.gui.widget.PressableTextWidget;
 import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.MutableText;
@@ -47,6 +43,8 @@ import dev.amble.ait.data.schema.exterior.category.PoliceBoxCategory;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedGlobalPos;
 
 public class MonitorScreen extends ConsoleScreen {
     private static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
@@ -56,7 +54,6 @@ public class MonitorScreen extends ConsoleScreen {
     private ClientExteriorVariantSchema currentVariant;
     int backgroundHeight = 166;
     int backgroundWidth = 256;
-    private int tickForSpin = 0;
     private final int APPLY_BUTTON_WIDTH = 53;
     private final int APPLY_BUTTON_HEIGHT = 20;
     private final int SMALL_ARROW_BUTTON_WIDTH = 20;
@@ -112,7 +109,7 @@ public class MonitorScreen extends ConsoleScreen {
     }
 
     public void setCurrentVariant(ExteriorVariantSchema var) {
-        setCurrentVariant(ClientExteriorVariantRegistry.withParent(var));
+        setCurrentVariant(var.getClient());
     }
 
     public void setCurrentVariant(ClientExteriorVariantSchema currentVariant) {
@@ -390,7 +387,7 @@ public class MonitorScreen extends ConsoleScreen {
         }
 
         // datapack models float for some reason
-        if (variant.model() instanceof BedrockExteriorModel) {
+        if (model instanceof BedrockExteriorModel) {
             stack.translate(0, 1.25f, 0);
         }
 
@@ -405,7 +402,7 @@ public class MonitorScreen extends ConsoleScreen {
                 LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, base, base, base, 1f);
 
         if (hasPower && emissive != null && !(emissive.equals(DatapackConsole.EMPTY))) {
-            model.render(stack, context.getVertexConsumers().getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(emissive, true)),
+            model.render(stack, context.getVertexConsumers().getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(emissive)),
                     LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, base, base, base, 1f);
         }
         stack.pop();
@@ -464,6 +461,19 @@ public class MonitorScreen extends ConsoleScreen {
         context.drawText(this.textRenderer, dDimensionText, (width / 2 - 119), (height / 2), 0xFFFFFF, true);
         context.drawText(this.textRenderer, WorldUtil.rot2Text(dabpd.getRotation()).asOrderedText(), (width / 2 - 119), (height / 2 + 10),
                 0xFFFFFF, true);
+
+        // cloak silent
+        if (this.tardis().cloak().silent().get()) {
+            float scale = 0.4f;
+            int x = width / 2 - 49;
+            int y = height / 2 + 19;
+
+            context.getMatrices().push();
+            context.getMatrices().translate(x, y, 0);
+            context.getMatrices().scale(scale, scale, 1);
+            context.drawText(this.textRenderer, Text.translatable("screen.ait.monitor.shell_cloaking_activated_message"), 0, 0, 0xFFFFFF, true);
+            context.getMatrices().pop();
+        }
     }
 
     @Override

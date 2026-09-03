@@ -10,6 +10,7 @@ import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.sounds.LoopingSound;
 import dev.amble.ait.client.sounds.PlayerFollowingLoopingSound;
@@ -23,7 +24,7 @@ import dev.amble.ait.registry.impl.CreakRegistry;
 
 public class ClientCreakHandler extends SoundHandler {
 
-    private static final Random random = new Random();
+    private static final Random random = AITMod.RANDOM;
 
     public static ClientCreakHandler create() {
         ClientCreakHandler handler = new ClientCreakHandler();

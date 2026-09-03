@@ -1,11 +1,26 @@
 package dev.amble.ait.compat.portal;
 
-import dev.amble.ait.AITMod;
+import java.util.Optional;
+import java.util.WeakHashMap;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.math.MathHelper;
+import org.joml.Matrix4f;
+import qouteall.imm_ptl.core.CHelper;
+import qouteall.imm_ptl.core.ClientWorldLoader;
+import qouteall.imm_ptl.core.api.PortalAPI;
+import qouteall.imm_ptl.core.chunk_loading.ChunkLoader;
+import qouteall.imm_ptl.core.chunk_loading.DimensionalChunkPos;
+import qouteall.imm_ptl.core.render.GuiPortalRendering;
+import qouteall.imm_ptl.core.render.MyRenderHelper;
+import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
+import qouteall.q_misc_util.my_util.DQuaternion;
+
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.SimpleFramebuffer;
 import net.minecraft.client.gui.DrawContext;
@@ -21,25 +36,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.joml.Matrix4f;
-import qouteall.imm_ptl.core.CHelper;
-import qouteall.imm_ptl.core.ClientWorldLoader;
-import qouteall.imm_ptl.core.api.PortalAPI;
-import qouteall.imm_ptl.core.chunk_loading.ChunkLoader;
-import qouteall.imm_ptl.core.chunk_loading.DimensionalChunkPos;
-import qouteall.imm_ptl.core.render.GuiPortalRendering;
-import qouteall.imm_ptl.core.render.MyRenderHelper;
-import qouteall.imm_ptl.core.render.context_management.WorldRenderInfo;
-import qouteall.q_misc_util.my_util.DQuaternion;
 
-import java.util.Optional;
-import java.util.WeakHashMap;
+import dev.amble.ait.AITMod;
 
 public class PortalVisualizerUtil {
 
     public static final Identifier OPEN_VISUALIZER = AITMod.id("ip/visualizer/open");
     public static final Identifier CLOSE_VISUALIZER = AITMod.id("ip/visualizer/close");
-    
+
     private static final WeakHashMap<ServerPlayerEntity, ChunkLoader>
         chunkLoaderMap = new WeakHashMap<>();
 
@@ -55,28 +59,28 @@ public class PortalVisualizerUtil {
     public static void clientInit() {
         GuiPortalScreen.clientInit();
     }
-    
+
     private static void removeChunkLoaderFor(ServerPlayerEntity player) {
         ChunkLoader chunkLoader = chunkLoaderMap.remove(player);
         if (chunkLoader != null) {
             PortalAPI.removeChunkLoaderForPlayer(player, chunkLoader);
         }
     }
-    
+
     public static void open(ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
         removeChunkLoaderFor(player);
-        
+
         ChunkLoader chunkLoader = new ChunkLoader(
             new DimensionalChunkPos(
                 world.getRegistryKey(), new ChunkPos(pos)
             ),
             8
         );
-        
+
         // Add the per-player additional chunk loader
         PortalAPI.addChunkLoaderForPlayer(player, chunkLoader);
         chunkLoaderMap.put(player, chunkLoader);
-        
+
         // Tell the client to open the screen
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeRegistryKey(world.getRegistryKey());
@@ -97,7 +101,7 @@ public class PortalVisualizerUtil {
         private static final int bgBorder = 9;
 
         private final RegistryKey<World> viewingDimension;
-        
+
         private final Vec3d viewingPosition;
 
         /**
@@ -109,7 +113,7 @@ public class PortalVisualizerUtil {
             ClientPlayNetworking.registerGlobalReceiver(OPEN_VISUALIZER, (client, handler, buf, sender) -> {
                 RegistryKey<World> dim = buf.readRegistryKey(RegistryKeys.WORLD);
                 BlockPos pos = buf.readBlockPos();
-    
+
                 client.execute(() -> {
                     if (frameBuffer == null)
                         frameBuffer = new SimpleFramebuffer(2, 2, true, true);
@@ -117,18 +121,18 @@ public class PortalVisualizerUtil {
                 });
             });
         }
-        
+
         public GuiPortalScreen(RegistryKey<World> viewingDimension, Vec3d viewingPosition) {
             super(Text.translatable("screen.ait.visualizer.title"));
 
             this.viewingDimension = viewingDimension;
             this.viewingPosition = viewingPosition;
         }
-        
+
         @Override
         public void close() {
             super.close();
-            
+
             ClientPlayNetworking.send(CLOSE_VISUALIZER, PacketByteBufs.create());
         }
 
@@ -139,7 +143,7 @@ public class PortalVisualizerUtil {
 
             context.drawTexture(TEXTURE, left, top, 0, 0, bgWidth, bgHeight);
 
-            double t1 = CHelper.getSmoothCycles(503);
+            double t1 = delta + MinecraftClient.getInstance().player.age;
 
             // Determine the camera transformation
             Matrix4f cameraTransformation = new Matrix4f();
@@ -147,7 +151,7 @@ public class PortalVisualizerUtil {
             cameraTransformation.mul(
                     DQuaternion.rotationByDegrees(
                             new Vec3d(0, 1, 0).normalize(),
-                            t1 * 360
+                            MathHelper.wrapDegrees(t1)
                     ).toMatrix()
             );
 
@@ -193,12 +197,12 @@ public class PortalVisualizerUtil {
             if (super.keyPressed(keyCode, scanCode, modifiers)) {
                 return true;
             }
-            
+
             if (client.options.inventoryKey.matchesKey(keyCode, scanCode)) {
                 this.close();
                 return true;
             }
-            
+
             return false;
         }
     }

@@ -1,8 +1,5 @@
 package dev.amble.ait.mixin;
 
-import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.lib.util.TeleportUtil;
 import net.fabricmc.fabric.api.util.TriState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,11 +17,17 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 
 import dev.amble.ait.api.ExtraPushableEntity;
+import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.util.SafePosSearch;
+import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.util.TeleportUtil;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements ExtraPushableEntity {
@@ -82,14 +85,17 @@ public abstract class LivingEntityMixin extends Entity implements ExtraPushableE
     @Inject(method = "tickInVoid", at = @At("HEAD"))
     public void tickVoid(CallbackInfo ci) {
         if (!this.getWorld().isClient() && this.getWorld().getRegistryKey() == AITDimensions.TIME_VORTEX_WORLD) {
-            if (WorldUtil.RIFT_DROP_WORLDS.isEmpty())
+            if (WorldUtil.getTravelWorlds().isEmpty())
                 return;
 
             LivingEntity entity = (LivingEntity) (Object) this;
-            int worldIndex = this.getWorld().getRandom().nextInt(WorldUtil.RIFT_DROP_WORLDS.size());
+            int worldIndex = this.getWorld().getRandom().nextInt(WorldUtil.getTravelWorlds().size());
 
-            TeleportUtil.teleport(entity, WorldUtil.RIFT_DROP_WORLDS.get(worldIndex),
-                    entity.getPos().add(2, -entity.getY(), -2), entity.getYaw());
+            ServerWorld world = WorldUtil.getTravelWorlds().get(worldIndex);
+            CachedDirectedGlobalPos safe = CachedDirectedGlobalPos.create(world, entity.getBlockPos(), (byte) 0);
+
+            SafePosSearch.wrapSafe(safe, SafePosSearch.Kind.MEDIAN, true,
+                    result -> TeleportUtil.teleport(entity, world, result.getPos().toCenterPos(), entity.getYaw()));
         }
     }
 }

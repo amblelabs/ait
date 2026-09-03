@@ -4,9 +4,10 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import com.google.gson.*;
-import dev.amble.lib.register.unlockable.Unlockable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
@@ -21,7 +22,7 @@ import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
-import org.jetbrains.annotations.Nullable;
+import dev.amble.lib.register.unlockable.Unlockable;
 
 /**
  * A variant for a {@link ExteriorCategorySchema} which provides a model,
@@ -124,15 +125,13 @@ public abstract class ExteriorVariantSchema extends BasicSchema implements Unloc
         return pos; // just cus some dont have portals
     }
 
-    @Nullable
-    public Vec3d getPortalPosition() {
+    @Nullable public Vec3d getPortalPosition() {
         return adjustPortalPos(Vec3d.ZERO, (byte) 0);
     }
 
-    @Nullable
-    public Vec3d getPortalPosition(Vec3d origin, float angle) {
+    @NotNull public Vec3d getPortalPosition(Vec3d origin, float angle) {
         Vec3d pos = getPortalPosition();
-        if (pos == null) return null;
+        if (pos == null) return origin;
 
         return pos.rotateX((float) Math.toRadians(180)).rotateY((float) Math.toRadians(180 - angle)).multiply(1, -1, 1).add(origin);
     }

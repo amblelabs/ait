@@ -13,7 +13,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientLoginConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +27,6 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisManager;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.TardisMap;
-import dev.amble.ait.data.properties.Value;
 import dev.amble.ait.registry.impl.TardisComponentRegistry;
 
 public class ClientTardisManager extends TardisManager<ClientTardis, MinecraftClient> {
@@ -69,18 +67,6 @@ public class ClientTardisManager extends TardisManager<ClientTardis, MinecraftCl
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> this.reset());
         ClientLoginConnectionEvents.DISCONNECT.register((client, reason) -> this.reset());
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> this.reset());
-    }
-
-    public void sendProperty(Value<?> value) {
-        PacketByteBuf buf = PacketByteBufs.create();
-
-        TardisComponent holder = value.getHolder();
-        buf.writeUuid(holder.tardis().getUuid());
-        buf.writeString(holder.getId().name());
-        buf.writeString(value.getProperty().getName());
-        value.write(buf);
-
-        ClientPlayNetworking.send(SEND_PROPERTY, buf);
     }
 
     private void remove(PacketByteBuf buf) {
@@ -137,16 +123,6 @@ public class ClientTardisManager extends TardisManager<ClientTardis, MinecraftCl
         for (int i = 0; i < count; i++) {
             this.syncTardis(buf);
         }
-    }
-
-    private void syncComponent(ClientTardis tardis, PacketByteBuf buf) {
-        String rawId = buf.readString();
-
-        TardisComponent.IdLike id = TardisComponentRegistry.getInstance().get(rawId);
-        TardisComponent component = this.networkGson.fromJson(buf.readString(), id.clazz());
-
-        id.set(tardis, component);
-        TardisComponent.init(component, tardis, TardisComponent.InitContext.deserialize());
     }
 
     private void syncDelta(PacketByteBuf buf) {

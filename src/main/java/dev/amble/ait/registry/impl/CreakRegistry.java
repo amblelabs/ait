@@ -25,7 +25,7 @@ public class CreakRegistry {
     }
 
     public static CreakSound getRandomCreak() {
-        Random rnd = new Random();
+        Random rnd = AITMod.RANDOM;
         int randomized = rnd.nextInt(Math.abs(REGISTRY.size()));
         return (CreakSound) REGISTRY.stream().toArray()[randomized];
     }

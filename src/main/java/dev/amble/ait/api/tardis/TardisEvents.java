@@ -1,16 +1,13 @@
 package dev.amble.ait.api.tardis;
 
 import java.util.Optional;
-import java.util.function.BiConsumer;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedBlockPos;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.server.MinecraftServer;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -24,6 +21,8 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 import dev.amble.ait.data.landing.LandingPadSpot;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedBlockPos;
 
 public final class TardisEvents {
 
@@ -205,8 +204,13 @@ public final class TardisEvents {
     public static final Event<EnterTardis> ENTER_TARDIS = EventFactory.createArrayBacked(EnterTardis.class,
             callbacks -> (tardis, entity) -> {
                 for (EnterTardis callback : callbacks) {
-                    callback.onEnter(tardis, entity);
+                    Interaction value = callback.onEnter(tardis, entity);
+
+                    if (value != Interaction.PASS)
+                        return value;
                 }
+
+                return Interaction.SUCCESS;
             });
 
     public static final Event<LeaveTardis> LEAVE_TARDIS = EventFactory.createArrayBacked(LeaveTardis.class,
@@ -499,7 +503,7 @@ public final class TardisEvents {
 
     @FunctionalInterface
     public interface EnterTardis {
-        void onEnter(Tardis tardis, Entity entity);
+        Interaction onEnter(Tardis tardis, Entity entity);
     }
 
     @FunctionalInterface

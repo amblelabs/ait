@@ -1,11 +1,12 @@
 package dev.amble.ait.core.util;
 
-import dev.amble.ait.data.Exclude;
+import java.lang.ref.WeakReference;
+import java.util.UUID;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
 
-import java.lang.ref.WeakReference;
-import java.util.UUID;
+import dev.amble.ait.data.Exclude;
 
 /**
  * Beloved TardisRefs now available for entities!
@@ -27,6 +28,15 @@ public class EntityRef<T extends Entity> {
         this.ref = new WeakReference<>(entity);
     }
 
+    public EntityRef(ServerWorld world, UUID id) {
+        this.id = id;
+        this.world = world;
+    }
+
+    public ServerWorld getWorld() {
+        return this.world;
+    }
+
     public void setWorld(ServerWorld world) {
         this.world = world;
     }
@@ -45,5 +55,9 @@ public class EntityRef<T extends Entity> {
         this.ref = new WeakReference<>(portal);
 
         return portal;
+    }
+
+    public UUID getId() {
+        return id;
     }
 }

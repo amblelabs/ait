@@ -5,14 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import com.mojang.datafixers.util.Pair;
-import dev.amble.ait.client.screens.AstralMapScreen;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.world.biome.Biome;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -40,15 +34,18 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.structure.Structure;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.client.screens.AstralMapScreen;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.blockentities.AstralMapBlockEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.control.impl.TelepathicControl;
 import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvider {
     public static final int MAX_ROTATION_INDEX = RotationPropertyHelper.getMax();
@@ -144,7 +141,7 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
                 if (newPos != null) {
                     player.sendMessage(Text.translatable(
                             "block.ait.astral_map.finder.found", newPos.getX(), newPos.getY(), newPos.getZ(),
-                            Math.round(Math.sqrt(newPos.getSquaredDistance(player.getPos())))), false);
+                            Math.round(Math.sqrt(newPos.getSquaredDistance(tPos.getPos())))), false);
                     tardis.travel().destination(destination -> destination.pos(newPos));
                 } else {
                     player.sendMessage(Text.translatable("block.ait.astral_map.finder.structure_not_found"), false);
@@ -172,7 +169,7 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
 
             if (r != null) {
                 BlockPos locatedBiome = r.getFirst();
-                int distance = (int) Math.round(Math.sqrt(locatedBiome.getSquaredDistance(player.getPos())));
+                int distance = (int) Math.round(Math.sqrt(locatedBiome.getSquaredDistance(start)));
                 player.sendMessage(Text.translatable("block.ait.astral_map.finder.found",
                         locatedBiome.getX(), locatedBiome.getY(), locatedBiome.getZ(), distance), false);
                 tardis.travel().destination(destination -> destination.pos(locatedBiome));

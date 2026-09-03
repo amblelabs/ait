@@ -1,16 +1,5 @@
 package dev.amble.ait.core.tardis.control.impl;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.entities.ConsoleControlEntity;
-import dev.amble.ait.core.item.ControlDiscItem;
-import dev.amble.ait.core.item.WaypointItem;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisDesktop;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.data.Waypoint;
-import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MusicDiscItem;
 import net.minecraft.nbt.NbtCompound;
@@ -23,6 +12,18 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
+
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.entities.ConsoleControlEntity;
+import dev.amble.ait.core.item.ControlDiscItem;
+import dev.amble.ait.core.item.WaypointItem;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisDesktop;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.data.Waypoint;
+import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
 
 public class ConsolePortControl extends Control {
 
@@ -92,7 +93,6 @@ public class ConsolePortControl extends Control {
             // We're going to set both cartridge and disc booleans just for parity
             tardis.waypoint().setIsDisc();
             tardis.waypoint().setHasCartridge();
-            System.out.println(ControlDiscItem.canContainPlayers(itemStack));
             if (stackNbt.get(ControlDiscItem.CAN_CONTAIN_PLAYERS) != null) {
                 tardis.waypoint().setCanContainPlayers(ControlDiscItem.canContainPlayers(itemStack));
             }

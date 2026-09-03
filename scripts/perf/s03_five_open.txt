@@ -1,0 +1,12 @@
+# 5 capsule exteriors, doors open, camera fixed on the grid.
+ait perf-clear
+gamemode spectator @a
+SLEEP 2
+ait perf-spawn 5 6 -20 100 30
+SLEEP 40
+ait perf-doors open
+tp @a 0 100 0 0 20
+SLEEP 8
+ait perf-verify
+ait profile-client @a
+SLEEP 15

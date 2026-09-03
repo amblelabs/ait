@@ -1,7 +1,5 @@
 package dev.amble.ait.core.tardis.handler.travel;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -17,6 +15,7 @@ import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.ait.data.properties.integer.IntProperty;
 import dev.amble.ait.data.properties.integer.IntValue;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
@@ -33,6 +32,9 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
     protected final BoolValue handbrake = HANDBRAKE.create(this);
     protected final BoolValue autopilot = AUTOPILOT.create(this);
+
+    private int missedEvents;
+    private int missedHardCap;
 
     public ProgressiveTravelHandler(Id id) {
         super(id);
@@ -95,6 +97,16 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
     public void recalculate() {
         this.setTargetTicks(TravelUtil.getFlightDuration(this.position(), this.destination()));
         this.setFlightTicks(this.isInFlight() ? MathHelper.clamp(this.getFlightTicks(), 0, this.getTargetTicks()) : 0);
+        int prevCap = this.missedHardCap;
+        this.missedHardCap = TravelUtil.getHardCap(this.getTargetTicks());
+
+        // Rescale the missed events into the new cap. prevCap is zero on a TARDIS that has never
+        // flown, which crashed the server thread the first time anything set a destination. The
+        // ratio is taken in floating point as well, since an int division truncated every value
+        // below the old cap to nothing.
+        this.missedEvents = prevCap == 0
+                ? 0
+                : MathHelper.floor((float) this.missedEvents / prevCap * this.missedHardCap);
     }
 
     protected void startFlight() {
@@ -158,7 +170,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
     @Override
     protected int clampSpeed(int value) {
-        int max = this.autopilot() ? 1 : this.maxSpeed.get();
+        int max = this.autopilot() ? AITMod.CONFIG.maxStabilizedSpeed : this.maxSpeed.get();
         if (!this.tardis.subsystems().stabilisers().isEnabled()) max = 3;
 
         return MathHelper.clamp(value, 0, max);
@@ -201,12 +213,34 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
     public void triggerSequencingDuringFlight(Tardis tardis) {
         SequenceHandler sequences = tardis.sequence();
+        int maxSpeed = this.maxSpeed().get();
 
-        if (!this.autopilot.get() && this.getDurationAsPercentage() < 100
-                && this.getState() == TravelHandlerBase.State.FLIGHT && !sequences.hasActiveSequence()
-                && !this.position().equals(this.destination()) && this.getTargetTicks() > 100
-                && random.nextBetween(0, 110 /*230*/ / (this.speed() == 0 ? 1 : this.speed())) == 7) {
+        if (this.autopilot.get()) return;
+
+        if (this.getDurationAsPercentage() >= 100) return;
+
+        if (this.getState() != State.FLIGHT) return;
+
+        if (sequences.hasActiveSequence()) return;
+
+        if (this.getTargetTicks() <= 100) return;
+
+        if (this.speed() == 0 || (this.speed()) < (maxSpeed / this.speed())) return;
+
+        if (random.nextBetween(0, (15 * maxSpeed) / this.speed()) == maxSpeed) {
             sequences.triggerRandomSequence(true);
         }
+    }
+
+    public void missEvent() {
+        this.missedEvents += 1;
+        if (this.missedEvents >= this.missedHardCap) {
+            this.tardis().crash();
+            this.resetMissed();
+        }
+    }
+
+    public void resetMissed() {
+        this.missedEvents = 0;
     }
 }

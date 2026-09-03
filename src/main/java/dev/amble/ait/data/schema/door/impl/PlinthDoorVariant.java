@@ -1,9 +1,10 @@
 package dev.amble.ait.data.schema.door.impl;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
@@ -33,7 +34,7 @@ public class PlinthDoorVariant extends DoorSchema {
     }
 
     @Override
-    public Vec3d adjustPortalPos(Vec3d pos, Direction direction) {
-        return pos.add(0, 0.05, -0.4);
+    public @Nullable Vec3d getPortalPosition() {
+        return new Vec3d(0, 0, -0.4);
     }
 }

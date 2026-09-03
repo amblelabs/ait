@@ -13,9 +13,19 @@ public class AITSounds {
     // public static final SoundEvent SECRET_MUSIC = init("music/secret_music"); // removed for its large size - if you bring it back, COMPRESS IT
     public static final SoundEvent EVEN_MORE_SECRET_MUSIC = register("music/even_more_secret_music");
     public static final SoundEvent WONDERFUL_TIME_IN_SPACE = register("music/wonderful_time_in_space");
+    public static final SoundEvent ENTER_TARDIS = register("tardis/enter_tardis");
     public static final SoundEvent EARTH_MUSIC = register("music/earth_nitrogenez");
     public static final SoundEvent VENUS_MUSIC = register("music/venus_nitrogenez");
     public static final SoundEvent GOOD_MAN_MUSIC = register("music/good_man_dian");
+
+    // Flight music
+    public static final SoundEvent FLIGHT = register("music/flight");
+    public static final SoundEvent FLIGHT1 = register("music/flight1");
+
+    // Ambient tracks in TARDIS biome
+    public static final SoundEvent AMBIENT = register("music/ambient");
+    public static final SoundEvent AMBIENT1 = register("music/ambient1");
+    public static final SoundEvent AMBIENT2 = register("music/ambient2");
 
     // Screw chronology, lets go ait theme!
     public static final SoundEvent AIT_THEME = register("music/ait_theme");
@@ -23,7 +33,10 @@ public class AITSounds {
     public static final SoundEvent MAD_MAN_MUSIC = register("music/mad_man_dian");
     public static final SoundEvent SPACE = register("music/space");
     public static final SoundEvent TWO_THOUSAND = register("music/two_thousand");
+    // Scary
+    public static final SoundEvent STAGE_4 = register("tardis/secret/stage_4");
     public static final SoundEvent ARPALARM = register("tardis/arpalarm");
+    public static final SoundEvent ARPALARM_MONO = register("tardis/arpalarm_mono");
 
     // TARDIS
     public static final SoundEvent DEMAT = register("tardis/demat");
@@ -210,7 +223,6 @@ public class AITSounds {
     public static final SoundEvent DING = register("tools/goes_ding");
     public static final SoundEvent STASER = register("tools/staser");
     public static final SoundEvent REMOTE = register("tools/remote");
-    public static final SoundEvent REDSTONE_CONTROL_SWITCHAROO = register("tools/redstone_control_switcharoo");
     public static final SoundEvent HAMMER_HIT = register("tools/hammer_hit");
     public static final SoundEvent COFFEE_MACHINE = register("tardis/coffee_machine");
 
@@ -221,7 +233,7 @@ public class AITSounds {
     public static final SoundEvent RIFT_SUCCESS = register("rift/success");
     public static final SoundEvent RIFT_FAIL = register("rift/fail");
     public static final SoundEvent RIFT_SONIC = register("rift/sonic_charge");
-
+    public static final SoundEvent DRUMS = register("rift/drums");
 
     // Fabricator
     public static final SoundEvent FABRICATOR_START = register("tools/fabricator/start");

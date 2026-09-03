@@ -7,18 +7,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import dev.amble.lib.block.ABlockSettings;
-import dev.amble.lib.container.impl.BlockContainer;
-import dev.amble.lib.container.impl.NoBlockItem;
-import dev.amble.lib.datagen.util.AutomaticModel;
-import dev.amble.lib.datagen.util.NoBlockDrop;
-import dev.amble.lib.datagen.util.NoEnglish;
-import dev.amble.lib.datagen.util.PickaxeMineable;
-import dev.amble.lib.item.AItemSettings;
+import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.enums.Instrument;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.item.Item;
@@ -32,6 +26,14 @@ import dev.amble.ait.core.blocks.*;
 import dev.amble.ait.core.blocks.DoorBlock;
 import dev.amble.ait.core.blocks.control.RedstoneControlBlock;
 import dev.amble.ait.core.engine.block.generic.GenericSubSystemBlock;
+import dev.amble.lib.block.ABlockSettings;
+import dev.amble.lib.container.impl.BlockContainer;
+import dev.amble.lib.container.impl.NoBlockItem;
+import dev.amble.lib.datagen.util.AutomaticModel;
+import dev.amble.lib.datagen.util.NoBlockDrop;
+import dev.amble.lib.datagen.util.NoEnglish;
+import dev.amble.lib.datagen.util.PickaxeMineable;
+import dev.amble.lib.item.AItemSettings;
 
 
 public class AITBlocks extends BlockContainer {
@@ -77,7 +79,7 @@ public class AITBlocks extends BlockContainer {
     @PickaxeMineable
     @NoEnglish
     public static final Block ARTRON_COLLECTOR_BLOCK = new ArtronCollectorBlock(
-            FabricBlockSettings.create().noBlockBreakParticles().requiresTool().strength(1F)
+            FabricBlockSettings.create().noBlockBreakParticles().requiresTool().strength(1F).nonOpaque().lightLevel(6)
                     .instrument(Instrument.BANJO).pistonBehavior(PistonBehavior.IGNORE));
 
     // Coral Blocks
@@ -89,31 +91,26 @@ public class AITBlocks extends BlockContainer {
             .luminance(light -> 0).instrument(Instrument.COW_BELL)
             .strength(1.5F, 6.0F).requiresTool().sounds(BlockSoundGroup.ANVIL).pistonBehavior(PistonBehavior.IGNORE));
 
-    @PickaxeMineable(tool = PickaxeMineable.Tool.DIAMOND)
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     public static final Block TARDIS_CORAL_BLOCK = new Block(FabricBlockSettings.create().mapColor(MapColor.GOLD).solid().instrument(Instrument.BASEDRUM).requiresTool().strength(7f, 6.0f));
 
-    @PickaxeMineable(tool = PickaxeMineable.Tool.DIAMOND)
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     public static final Block TARDIS_CORAL_STAIRS = new StairsBlock(TARDIS_CORAL_BLOCK.getDefaultState(), FabricBlockSettings.create().mapColor(MapColor.GOLD).solid().instrument(Instrument.BASEDRUM).requiresTool().strength(7f, 6.0f));
 
-    @PickaxeMineable(tool = PickaxeMineable.Tool.STONE)
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     public static final Block TARDIS_CORAL_FENCE = new FenceBlock(FabricBlockSettings.create().mapColor(MapColor.GOLD).solid().instrument(Instrument.BASEDRUM).requiresTool().strength(7f, 6.0f));
 
-    @PickaxeMineable(tool = PickaxeMineable.Tool.STONE)
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     public static final Block TARDIS_CORAL_WALL = new WallBlock(FabricBlockSettings.create().mapColor(MapColor.GOLD).solid().instrument(Instrument.BASEDRUM).requiresTool().strength(7f, 6.0f));
 
-    @PickaxeMineable(tool = PickaxeMineable.Tool.STONE)
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     public static final Block TARDIS_CORAL_LEAVES = new LeavesBlock(ABlockSettings.copyOf(Blocks.CHERRY_LEAVES));
 
-    @PickaxeMineable(tool = PickaxeMineable.Tool.DIAMOND)
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     public static final Block TARDIS_CORAL_SLAB = new SlabBlock(FabricBlockSettings.create().mapColor(MapColor.GOLD).solid().instrument(Instrument.BASEDRUM).requiresTool().strength(7f, 6.0f));
 
-    @PickaxeMineable(tool = PickaxeMineable.Tool.DIAMOND)
+    @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     public static final Block TARDIS_CORAL_FAN = new TardisCoralFanBlock(FabricBlockSettings.create().mapColor(MapColor.GOLD).noCollision().breakInstantly().sounds(BlockSoundGroup.WET_GRASS).pistonBehavior(PistonBehavior.DESTROY).requiresTool().strength(7f, 6.0f));
-
-    @PickaxeMineable(tool = PickaxeMineable.Tool.DIAMOND)
-    @NoBlockItem
-    public static final Block TARDIS_CORAL_WALL_FAN = new TardisCoralWallBlock(FabricBlockSettings.create().mapColor(MapColor.GOLD).noCollision().breakInstantly().sounds(BlockSoundGroup.WET_GRASS).pistonBehavior(PistonBehavior.DESTROY).requiresTool().strength(7f, 6.0f));
-
 
     // TARDIS Blocks
 
@@ -183,7 +180,7 @@ public class AITBlocks extends BlockContainer {
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     @NoEnglish
     public static final Block GENERIC_SUBSYSTEM = new GenericSubSystemBlock(ABlockSettings.create().lightLevel(5)
-            .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR))
+            .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).nonOpaque()
             .requiresTool().instrument(Instrument.COW_BELL).strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.DESTROY));
 
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
@@ -259,7 +256,7 @@ public class AITBlocks extends BlockContainer {
             .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).nonOpaque()
             .instrument(Instrument.GUITAR).strength(1.5F, 6.0F));
 
-    public static final Block RIFT_RIPPER = new RiftRipperBlock(ABlockSettings.create().itemSettings(
+    public static final Block UNTEMPERED_SCHISM = new UntemperedSchismBlock(ABlockSettings.create().itemSettings(
             new AItemSettings().group(AITItemGroups.MAIN)).lightLevel(7)
     );
 

@@ -1,5 +1,6 @@
 package dev.amble.ait.core.engine.link.block;
 
+import net.minecraft.block.BlockEntityProvider;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -15,7 +16,7 @@ import dev.amble.ait.core.engine.link.IFluidLink;
 import dev.amble.ait.core.engine.link.IFluidSource;
 import dev.amble.ait.core.world.TardisServerWorld;
 
-public abstract class FluidLinkBlock extends BlockWithEntity implements IFluidLink {
+public abstract class FluidLinkBlock extends Block implements IFluidLink, BlockEntityProvider {
     public FluidLinkBlock(Settings settings) {
         super(settings);
     }

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import com.google.gson.*;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.item.Item;
@@ -26,6 +25,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.enummap.Ordered;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public abstract class SubSystem extends Initializable<SubSystem.InitContext> implements Disposable {
     @Exclude protected Tardis tardis;

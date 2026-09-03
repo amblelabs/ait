@@ -1,0 +1,38 @@
+{
+  "output": {
+    "id": "ait:untempered_schism",
+    "Count": 1
+  },
+  "inputs": [
+    {
+      "item": "ait:cable_block",
+      "maxCount": 2,
+      "minCount": 1
+    },
+    {
+      "item": "minecraft:gold_ingot",
+      "maxCount": 4,
+      "minCount": 3
+    },
+    {
+      "item": "minecraft:iron_ingot",
+      "maxCount": 8,
+      "minCount": 5
+    },
+    {
+      "item": "ait:artron_collector",
+      "maxCount": 2,
+      "minCount": 1
+    },
+    {
+      "item": "ait:zeiton_shard",
+      "maxCount": 8,
+      "minCount": 5
+    },
+    {
+      "item": "ait:artron_mercurial_link",
+      "maxCount": 3,
+      "minCount": 1
+    }
+  ]
+}

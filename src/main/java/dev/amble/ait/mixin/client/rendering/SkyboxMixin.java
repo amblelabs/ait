@@ -2,7 +2,6 @@ package dev.amble.ait.mixin.client.rendering;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.amble.ait.api.tardis.TardisClientEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.DimensionRenderingRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
@@ -29,7 +28,7 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-import dev.amble.ait.api.ClientWorldEvents;
+import dev.amble.ait.api.tardis.TardisClientEvents;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.client.util.SkyboxUtil;
@@ -92,8 +91,7 @@ public abstract class SkyboxMixin {
         WorldRenderEvents.AFTER_SETUP.register(ctx -> context = ctx);
     }
 
-    @Unique
-    private static void ait$applySkyboxRotation(MatrixStack matrices, float yaw, float pitch) {
+    @Unique private static void ait$applySkyboxRotation(MatrixStack matrices, float yaw, float pitch) {
         if (yaw != 0f) {
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yaw));
         }

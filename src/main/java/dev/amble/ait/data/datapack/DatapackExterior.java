@@ -1,10 +1,24 @@
 package dev.amble.ait.data.datapack;
 
+import static dev.amble.ait.data.datapack.DatapackConsole.EMPTY;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.util.PortalOffsets;
 import dev.amble.ait.data.Loyalty;
@@ -15,18 +29,6 @@ import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 import dev.amble.lib.client.bedrock.BedrockAnimationReference;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-import org.jetbrains.annotations.Nullable;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static dev.amble.ait.data.datapack.DatapackConsole.EMPTY;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class DatapackExterior extends ExteriorVariantSchema implements AnimatedDoor, TravelAnimationMap.Holder {
@@ -34,18 +36,6 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     public static final Identifier DEFAULT_TEXTURE = new Identifier(AITMod.MOD_ID,
             "textures/gui/tardis/desktop/missing_preview.png");
 
-    protected final Identifier parent;
-    protected final Identifier texture;
-    protected final Identifier emission;
-    protected final BiomeOverrides overrides;
-    protected final Vec3d seatTranslations;
-    protected final boolean initiallyDatapack;
-    protected final boolean hasTransparentDoors;
-    protected final Identifier model;
-    protected final Identifier doorId;
-    protected final PortalOffsets portalOffsets;
-    protected final BedrockAnimationReference leftAnimation;
-    protected final BedrockAnimationReference rightAnimation;
     public static final Codec<DatapackExterior> CODEC = RecordCodecBuilder.create(instance -> instance
             .group(Identifier.CODEC.fieldOf("id").forGetter(ExteriorVariantSchema::id),
                     Identifier.CODEC.fieldOf("category").forGetter(ExteriorVariantSchema::categoryId),
@@ -59,19 +49,30 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
                     Codec.BOOL.optionalFieldOf("has_transparent_doors", false).forGetter(DatapackExterior::hasTransparentDoors),
                     Identifier.CODEC.optionalFieldOf("model").forGetter(DatapackExterior::model),
                     Identifier.CODEC.optionalFieldOf("door").forGetter(DatapackExterior::getDoorId),
-                    PortalOffsets.CODEC.optionalFieldOf("portal_info").forGetter(DatapackExterior::portalOffsets),
-                    BedrockAnimationReference.CODEC.optionalFieldOf("left_animation").forGetter(DatapackExterior::getRawLeftAnimation),
-                    BedrockAnimationReference.CODEC.optionalFieldOf("right_animation").forGetter(DatapackExterior::getRawRightAnimation),
-                    DoorAnimationReferences.CODEC.optionalFieldOf("door_animations", DoorAnimationReferences.EMPTY)
-                            .forGetter(DatapackExterior::getDoorAnimations),
-                    Vec3d.CODEC.optionalFieldOf("scale", new Vec3d(1, 1, 1)).forGetter(DatapackExterior::getScale)
+                    PortalOffsets.CODEC.optionalFieldOf("portal_info").forGetter(ext -> Optional.ofNullable(ext.getPortalOffsets())),
+                    DoorAnimationReferences.LEGACY_AWARE_CODEC.forGetter(DatapackExterior::getDoorAnimations),
+                    Vec3d.CODEC.optionalFieldOf("scale", new Vec3d(1, 1, 1)).forGetter(DatapackExterior::getScale),
+                    TravelAnimationMap.CODEC.optionalFieldOf("animations", new TravelAnimationMap())
+                            .forGetter(DatapackExterior::getAnimations)
             ).apply(instance, DatapackExterior::new)
-        );
+    );
+
+    protected final Identifier parent;
+    protected final Identifier texture;
+    protected final Identifier emission;
+    protected final BiomeOverrides overrides;
+    protected final Vec3d seatTranslations;
+    protected final boolean initiallyDatapack;
+    protected final boolean hasTransparentDoors;
+    protected final Identifier model;
+    protected final Identifier doorId;
+    protected final PortalOffsets portalOffsets;
     protected final DoorAnimationReferences doorAnimations;
     protected final Vec3d scale;
+    protected final TravelAnimationMap animations;
 
     public DatapackExterior(Identifier id, Identifier category, Identifier parent, Identifier texture,
-                            Identifier emission, Optional<Loyalty> loyalty, BiomeOverrides overrides, Vec3d seatTranslations, boolean hasTransparentDoors, Optional<Identifier> model, Optional<Identifier> door, Optional<PortalOffsets> offsets, Optional<BedrockAnimationReference> leftAnimation, Optional<BedrockAnimationReference> rightAnimation, DoorAnimationReferences doorAnimations, Vec3d scale) {
+                            Identifier emission, Optional<Loyalty> loyalty, BiomeOverrides overrides, Vec3d seatTranslations, boolean hasTransparentDoors, Optional<Identifier> model, Optional<Identifier> door, Optional<PortalOffsets> offsets, DoorAnimationReferences doorAnimations, Vec3d scale, TravelAnimationMap animations) {
         super(category, id, loyalty);
         this.parent = parent;
         this.texture = texture;
@@ -83,10 +84,9 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
         this.model = model.orElse(null);
         this.doorId = door.orElse(null);
         this.portalOffsets = offsets.orElse(null);
-        this.leftAnimation = leftAnimation.orElse(null);
-        this.rightAnimation = rightAnimation.orElse(null);
         this.doorAnimations = doorAnimations;
         this.scale = scale;
+        this.animations = animations;
     }
 
     public static DatapackExterior fromInputStream(InputStream stream) {
@@ -118,13 +118,11 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
 
     @Override
     public DoorSchema door() {
-        if (doorId == null) {
-            ExteriorVariantSchema parent = this.getParent();
-            if (parent == null) return null;
-            return parent.door();
-        }
-
         ExteriorVariantSchema parent = this.getParent();
+
+        if (doorId == null)
+            return parent != null ? parent.door() : null;
+
         return DoorRegistry.getInstance().getOrElse(doorId, parent != null ? parent.door() : null);
     }
 
@@ -149,7 +147,7 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     @Override
     public boolean hasPortals() {
         if (this.getPortalOffsets() != null) {
-            return this.getPortalOffsets().isEnabled();
+            return this.getPortalOffsets().enabled();
         }
 
         return this.getParent().hasPortals();
@@ -158,7 +156,7 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     @Override
     public @Nullable Vec3d getPortalPosition() {
         if (this.getPortalOffsets() != null) {
-            return this.getPortalOffsets().apply(Vec3d.ZERO, (byte) 0);
+            return this.getPortalOffsets().offset();
         }
 
         return this.getParent().getPortalPosition();
@@ -167,7 +165,7 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     @Override
     public double portalWidth() {
         if (this.getPortalOffsets() != null) {
-            return this.getPortalOffsets().getWidth();
+            return this.getPortalOffsets().width();
         }
 
         return this.getParent().portalWidth();
@@ -176,7 +174,7 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     @Override
     public double portalHeight() {
         if (this.getPortalOffsets() != null) {
-            return this.getPortalOffsets().getHeight();
+            return this.getPortalOffsets().height();
         }
 
         return this.getParent().portalHeight();
@@ -201,36 +199,18 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
         return Optional.ofNullable(this.model);
     }
 
-    public Optional<PortalOffsets> portalOffsets() {
-        return Optional.ofNullable(this.portalOffsets);
-    }
-
     public PortalOffsets getPortalOffsets() {
         return this.portalOffsets;
     }
 
-    private Optional<BedrockAnimationReference> getRawLeftAnimation() {
-        return Optional.ofNullable(this.leftAnimation);
-    }
-
-    private Optional<BedrockAnimationReference> getRawRightAnimation() {
-        return Optional.ofNullable(this.rightAnimation);
-    }
-
     @Override
     public Optional<BedrockAnimationReference> getLeftAnimation() {
-        if (!doorAnimations.isEmpty() && doorAnimations.getLeft().isPresent()) {
-            return doorAnimations.getLeft();
-        }
-        return Optional.ofNullable(this.leftAnimation);
+        return doorAnimations.getLeft();
     }
 
     @Override
     public Optional<BedrockAnimationReference> getRightAnimation() {
-        if (!doorAnimations.isEmpty() && doorAnimations.getRight().isPresent()) {
-            return doorAnimations.getRight();
-        }
-        return Optional.ofNullable(this.rightAnimation);
+        return doorAnimations.getRight();
     }
 
     @Override
@@ -254,6 +234,6 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
 
     @Override
     public TravelAnimationMap getAnimations() {
-        return new TravelAnimationMap();
+        return animations;
     }
 }

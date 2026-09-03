@@ -1,5 +1,21 @@
 package dev.amble.ait.client.screens;
 
+import java.util.Collections;
+import java.util.List;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.widget.CheckboxWidget;
+import net.minecraft.client.gui.widget.PressableTextWidget;
+import net.minecraft.client.gui.widget.TextWidget;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.screens.widget.CompassYawWidget;
 import dev.amble.ait.client.screens.widget.PitchLadderWidget;
@@ -8,26 +24,14 @@ import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blocks.EnvironmentProjectorBlock;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.util.WorldUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.CheckboxWidget;
-import net.minecraft.client.gui.widget.PressableTextWidget;
-import net.minecraft.client.gui.widget.TextWidget;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
 
 public class EnvironmentProjectorScreen extends TardisScreen {
-    private static final Identifier DEFAULT_TEXTURE = AITMod.id("textures/gui/tardis/monitor/environment_menu_sky.png");
-    private static final Identifier DIRECTION_TEXTURE = AITMod.id("textures/gui/tardis/monitor/environment_menu_direction_compass.png");
+    private static final Identifier DEFAULT_TEXTURE = AITMod.id("textures/gui/block/environment_projector/environment_menu_sky.png");
+    private static final Identifier DIRECTION_TEXTURE = AITMod.id("textures/gui/block/environment_projector/environment_menu_direction_compass.png");
 
     private GuiSelection currentGuiSelection = GuiSelection.SKY;
     private final BlockPos projectorPos;
+    private List<RegistryKey<World>> availableWorlds = Collections.emptyList();
     private WorldListWidget worldList;
     private TextWidget enabledLabel;
     private CheckboxWidget enabledCheckbox;
@@ -44,9 +48,13 @@ public class EnvironmentProjectorScreen extends TardisScreen {
     private enum GuiSelection { SKY, DIRECTION }
 
     public EnvironmentProjectorScreen(ClientTardis tardis, BlockPos projectorPos) {
-        super(Text.of("screen." + AITMod.MOD_ID + ".environment_projector"), tardis);
+        super(Text.translatable("screen." + AITMod.MOD_ID + ".environment_projector"), tardis);
         this.client = MinecraftClient.getInstance();
         this.projectorPos = projectorPos;
+    }
+
+    public void setAvailableWorlds(List<RegistryKey<World>> worlds) {
+        this.availableWorlds = worlds;
     }
 
     public void apply(Tardis tardis, BlockState state) {
@@ -80,10 +88,10 @@ public class EnvironmentProjectorScreen extends TardisScreen {
 
         AITMod.sendProjectorSelection(projectorPos, key.getValue());
 
-        if (state.get(EnvironmentProjectorBlock.ENABLED)) {
-            this.apply(tardis(), state);
+        ClientTardis tardis = tardis();
+        if (tardis != null && state.get(EnvironmentProjectorBlock.ENABLED)) {
+            this.apply(tardis, state);
         }
-
     }
 
     private void sendAngles() {
@@ -106,44 +114,41 @@ public class EnvironmentProjectorScreen extends TardisScreen {
         sendAngles();
     }
 
-    private void renderTabButtons(){
-        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("Sky")) / 2 - 85), (height / 2 - 71),
-                this.textRenderer.getWidth(Text.literal("Sky")), 10, Text.literal("Sky"), button -> switchToSkyTab(), this.textRenderer));
+    private Text projectorText(String key) {
+        return Text.translatable("screen." + AITMod.MOD_ID + ".environment_projector." + key);
+    }
 
-        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("Direction")) / 2 - 35), (height / 2 - 71),
-                this.textRenderer.getWidth(Text.literal("Direction")), 10, Text.literal("Direction"), button -> switchToDirectionTab(), this.textRenderer));
+    private void addTabButton(Text text, int xOffset, Runnable action) {
+        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(text) / 2 + xOffset),
+                (height / 2 - 71), this.textRenderer.getWidth(text), 10, text, button -> action.run(),
+                this.textRenderer));
+    }
+
+    private void addDirectionButton(Direction direction, String key, int xOffset, int yOffset) {
+        Text text = this.projectorText("direction." + key);
+        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(text) / 2 + xOffset),
+                (height / 2 + yOffset), this.textRenderer.getWidth(text), 10, text,
+                button -> snapToDirection(direction), this.textRenderer));
+    }
+
+    private void renderTabButtons(){
+        this.addTabButton(this.projectorText("tab.sky"), -85, this::switchToSkyTab);
+        this.addTabButton(this.projectorText("tab.direction"), -35, this::switchToDirectionTab);
     }
 
     private void directionTab(){
         //north
-        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("NORTH")) / 2 + 0), (height / 2 - 40),
-                this.textRenderer.getWidth(Text.literal("NORTH")), 10, Text.literal("NORTH"),
-                button -> snapToDirection(Direction.NORTH), this.textRenderer));
-
+        this.addDirectionButton(Direction.NORTH, "north", 0, -40);
         //south
-        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("SOUTH")) / 2 + 0), (height / 2 + 45),
-                this.textRenderer.getWidth(Text.literal("SOUTH")), 10, Text.literal("SOUTH"),
-                button -> snapToDirection(Direction.SOUTH), this.textRenderer));
-
+        this.addDirectionButton(Direction.SOUTH, "south", 0, 45);
         //west
-        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("WEST")) / 2 - 45), (height / 2 + 2),
-                this.textRenderer.getWidth(Text.literal("WEST")), 10, Text.literal("WEST"),
-                button -> snapToDirection(Direction.WEST), this.textRenderer));
-
+        this.addDirectionButton(Direction.WEST, "west", -45, 2);
         //east
-        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("EAST")) / 2 + 47), (height / 2 + 2),
-                this.textRenderer.getWidth(Text.literal("EAST")), 10, Text.literal("EAST"),
-                button -> snapToDirection(Direction.EAST), this.textRenderer));
-
+        this.addDirectionButton(Direction.EAST, "east", 47, 2);
         //up
-        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("UP")) / 2 - 90), (height / 2 - 50),
-                this.textRenderer.getWidth(Text.literal("UP")), 10, Text.literal("UP"),
-                button -> snapToDirection(Direction.UP), this.textRenderer));
-
+        this.addDirectionButton(Direction.UP, "up", -90, -50);
         //down
-        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("DOWN")) / 2 + 83), (height / 2 - 50),
-                this.textRenderer.getWidth(Text.literal("DOWN")), 10, Text.literal("DOWN"),
-                button -> snapToDirection(Direction.DOWN), this.textRenderer));
+        this.addDirectionButton(Direction.DOWN, "down", 83, -50);
         int ladderW = 40;
         int ladderH = 80;
         int ladderX = width / 2 - 80 - ladderW / 2;
@@ -179,24 +184,26 @@ public class EnvironmentProjectorScreen extends TardisScreen {
 
         this.worldList = new WorldListWidget(this.client, listWidth, listHeight, listTop, listTop + listHeight, itemHeight, listLeft, this::onWorldSelected);
 
-        for (ServerWorld world : WorldUtil.getProjectorWorlds()) {
-            Identifier id = world.getRegistryKey().getValue();
+        for (RegistryKey<World> key : this.availableWorlds) {
+            Identifier id = key.getValue();
             Text label = Text.translatableWithFallback(id.toTranslationKey("dimension"), WorldUtil.fakeTranslate(id.getPath()));
-            this.worldList.addWorld(world.getRegistryKey(), label);
+            this.worldList.addWorld(key, label);
         }
         this.addDrawableChild(this.worldList);
 
         BlockState state = this.client.world.getBlockState(projectorPos);
         boolean enabled = state.get(EnvironmentProjectorBlock.ENABLED);
 
-        int labelW = this.textRenderer.getWidth("OFF");
+        Text onText = this.projectorText("enabled.on");
+        Text offText = this.projectorText("enabled.off");
+        int labelW = Math.max(this.textRenderer.getWidth(onText), this.textRenderer.getWidth(offText));
         int checkboxX = width / 2 + 76;
         this.enabledLabel = new TextWidget(
                 checkboxX - labelW - 4,
                 (height / 2 - 53) + 6,
                 labelW,
                 10,
-                Text.literal(enabled ? "ON" : "OFF"),
+                enabled ? onText : offText,
                 this.textRenderer
         );
         this.enabledLabel.alignRight();
@@ -211,19 +218,19 @@ public class EnvironmentProjectorScreen extends TardisScreen {
             public void onPress() {
                 super.onPress();
                 boolean checked = this.isChecked();
-                EnvironmentProjectorScreen.this.enabledLabel.setMessage(Text.literal(checked ? "ON" : "OFF"));
+                EnvironmentProjectorScreen.this.enabledLabel.setMessage(EnvironmentProjectorScreen.this.projectorText(
+                        checked ? "enabled.on" : "enabled.off"));
                 AITMod.sendProjectorToggle(projectorPos, checked);
             }});
+        Text currentLabel = this.projectorText("current");
         this.addDrawable(new TextWidget(
-                (width / 2 - this.textRenderer.getWidth("CURRENT: ") / 2 - 72),
+                (width / 2 - this.textRenderer.getWidth(currentLabel) / 2 - 72),
                 (height / 2 - 52),
-                this.textRenderer.getWidth("CURRENT: "),
+                this.textRenderer.getWidth(currentLabel),
                 10,
-                Text.literal("CURRENT: "), this.textRenderer));
-        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("Sky")) / 2 - 85), (height / 2 - 71),
-                this.textRenderer.getWidth(Text.literal("Sky")), 10, Text.literal("Sky"), button -> switchToSkyTab(), this.textRenderer));
-        this.addDrawableChild(new PressableTextWidget((width / 2 - this.textRenderer.getWidth(Text.literal("Direction")) / 2 - 35), (height / 2 - 71),
-                this.textRenderer.getWidth(Text.literal("Direction")), 10, Text.literal("Direction"), button -> switchToDirectionTab(), this.textRenderer));
+                currentLabel, this.textRenderer));
+        this.addTabButton(this.projectorText("tab.sky"), -85, this::switchToSkyTab);
+        this.addTabButton(this.projectorText("tab.direction"), -35, this::switchToDirectionTab);
     }
 
     @Override

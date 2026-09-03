@@ -2,8 +2,6 @@ package dev.amble.ait.registry.impl;
 
 import java.util.Random;
 
-import dev.amble.lib.register.datapack.DatapackRegistry;
-import dev.amble.lib.register.unlockable.UnlockableRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 
 import net.minecraft.resource.ResourceType;
@@ -13,6 +11,8 @@ import dev.amble.ait.data.datapack.DatapackDesktop;
 import dev.amble.ait.data.schema.desktop.DefaultCaveDesktop;
 import dev.amble.ait.data.schema.desktop.DevDesktop;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
+import dev.amble.lib.register.datapack.DatapackRegistry;
+import dev.amble.lib.register.unlockable.UnlockableRegistry;
 
 public class DesktopRegistry extends UnlockableRegistry<TardisDesktopSchema> {
 

@@ -4,7 +4,6 @@ import static dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase.State.L
 
 import java.util.List;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.item.TooltipContext;
@@ -27,6 +26,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.impl.DirectionControl;
 import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class RemoteItem extends LinkableItem {
 
@@ -56,17 +56,17 @@ public class RemoteItem extends LinkableItem {
             if (!tardis.travel().inFlight()) {
                 if (!tardis.fuel().hasPower()) {
                     tardis.fuel().enablePower();
-                    player.sendMessage(Text.literal("TARDIS Powering Up..."), true);
+                    player.sendMessage(Text.translatable("message.ait.remoteitem.powering_up"), true);
                     tardis.getExterior().playSound(AITSounds.POWERUP, SoundCategory.BLOCKS);
                     world.playSound(null, pos, AITSounds.REMOTE, SoundCategory.BLOCKS);
                 } else {
                     tardis.fuel().disablePower();
-                    player.sendMessage(Text.literal("TARDIS Powering Down..."), true);
+                    player.sendMessage(Text.translatable("message.ait.remoteitem.powering_down"), true);
                     tardis.getExterior().playSound(AITSounds.SHUTDOWN, SoundCategory.BLOCKS);
                     world.playSound(null, pos, AITSounds.REMOTE, SoundCategory.BLOCKS);
                 }
             } else if (tardis.travel().inFlight() || !tardis.travel().isLanded()) {
-                player.sendMessage(Text.literal("TARDIS in flight. Power Switch Disabled."), true);
+                player.sendMessage(Text.translatable("message.ait.remoteitem.power_switch_disabled"), true);
             }
             return ActionResult.PASS;
         }
@@ -101,7 +101,7 @@ public class RemoteItem extends LinkableItem {
                     TravelUtil.travelTo(tardis, CachedDirectedGlobalPos.create(serverWorld, temp, DirectionControl
                             .getGeneralizedRotation(RotationPropertyHelper.fromYaw(player.getBodyYaw()))));
                 } else {
-                    player.sendMessage(Text.literal("Takeoff Failed, TARDIS powered off..."), true);
+                    player.sendMessage(Text.translatable("message.ait.remoteitem.takeoff_failed_powered_off"), true);
                 }
             } else {
             world.playSound(null, pos, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.BLOCKS, 1F,

@@ -99,7 +99,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
             float color = alarms ? 0.3f : 1f;
 
-            model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xf000f0, OverlayTexture.DEFAULT_UV, color, color, color, 1);
+            model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission())), 0xf000f0, OverlayTexture.DEFAULT_UV, color, color, color, 1);
         }
 
         BiomeHandler biome = tardis.handler(TardisComponent.Id.BIOME);
@@ -124,7 +124,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
     private ExteriorModel getModel(Tardis tardis) {
         if (model == null)
-            model = tardis.getExterior().getVariant().getClient().model();
+            model = tardis.getExterior().getVariant().getClient().getCachedModel();
 
         return model;
     }
@@ -142,7 +142,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
         if (this.variant != variant) {
             this.variant = variant;
-            this.model = variant.model();
+            this.model = variant.getCachedModel();
         }
     }
 }

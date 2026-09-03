@@ -1,6 +1,7 @@
 package dev.amble.ait.data.datapack;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.amble.lib.client.bedrock.BedrockAnimationReference;
 
@@ -22,6 +23,33 @@ public class DoorAnimationReferences {
                     BedrockAnimationReference.CODEC.optionalFieldOf("right_close").forGetter(DoorAnimationReferences::getRightClose)
             ).apply(instance, DoorAnimationReferences::new)
     );
+
+    /**
+     * Reads the grouped {@code door_animations} object together with the legacy top level
+     * {@code left_animation} / {@code right_animation} keys, so a pack written against either
+     * spelling still loads. The grouped values win where a door supplies both.
+     *
+     * <p>This occupies a single {@code group} slot, which matters for schemas already close to
+     * {@link RecordCodecBuilder}'s sixteen field ceiling. Re-serializing writes everything back
+     * under {@code door_animations}.
+     */
+    public static final MapCodec<DoorAnimationReferences> LEGACY_AWARE_CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+            .group(
+                    CODEC.optionalFieldOf("door_animations", EMPTY).forGetter(refs -> refs),
+                    BedrockAnimationReference.CODEC.optionalFieldOf("left_animation").forGetter(refs -> Optional.empty()),
+                    BedrockAnimationReference.CODEC.optionalFieldOf("right_animation").forGetter(refs -> Optional.empty())
+            ).apply(instance, DoorAnimationReferences::withLegacy)
+    );
+
+    private static DoorAnimationReferences withLegacy(DoorAnimationReferences grouped,
+                                                      Optional<BedrockAnimationReference> legacyLeft,
+                                                      Optional<BedrockAnimationReference> legacyRight) {
+        if (legacyLeft.isEmpty() && legacyRight.isEmpty())
+            return grouped;
+
+        return new DoorAnimationReferences(grouped.getLeft().or(() -> legacyLeft),
+                grouped.getRight().or(() -> legacyRight), grouped.getLeftClose(), grouped.getRightClose());
+    }
 
     private final BedrockAnimationReference left;
     private final BedrockAnimationReference right;

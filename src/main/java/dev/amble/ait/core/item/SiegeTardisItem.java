@@ -2,7 +2,6 @@ package dev.amble.ait.core.item;
 
 import java.util.List;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.item.TooltipContext;
@@ -20,12 +19,25 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.api.tardis.link.LinkableItem;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 // todo fix so many issues with having more than one of this item
 public class SiegeTardisItem extends LinkableItem {
+    static {
+        TardisEvents.ENTER_TARDIS.register((tardis, entity) -> {
+            if (!(entity instanceof ServerPlayerEntity player))
+                return TardisEvents.Interaction.PASS;
+            boolean hasSiege = player.getInventory().containsAny(stack -> stack.isOf(AITItems.SIEGE_ITEM));
+            if (!hasSiege) return TardisEvents.Interaction.PASS;
+
+            player.sendMessage(Text.translatable("ait.tooltip.siege_item.enter").formatted(Formatting.RED), true);
+            return TardisEvents.Interaction.FAIL;
+        });
+    }
 
     public static final String CURRENT_TEXTURE_KEY = "siege_current_texture";
 

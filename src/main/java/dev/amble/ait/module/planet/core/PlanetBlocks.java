@@ -1,10 +1,5 @@
 package dev.amble.ait.module.planet.core;
 
-import dev.amble.lib.container.impl.BlockContainer;
-import dev.amble.lib.datagen.util.AutomaticModel;
-import dev.amble.lib.datagen.util.NoBlockDrop;
-import dev.amble.lib.datagen.util.PickaxeMineable;
-import dev.amble.lib.item.AItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 import net.minecraft.block.*;
@@ -14,6 +9,11 @@ import net.minecraft.item.Item;
 import dev.amble.ait.core.blocks.FlagBlock;
 import dev.amble.ait.module.planet.PlanetModule;
 import dev.amble.ait.module.planet.core.block.OxygenatorBlock;
+import dev.amble.lib.container.impl.BlockContainer;
+import dev.amble.lib.datagen.util.AutomaticModel;
+import dev.amble.lib.datagen.util.NoBlockDrop;
+import dev.amble.lib.datagen.util.PickaxeMineable;
+import dev.amble.lib.item.AItemSettings;
 
 public class PlanetBlocks extends BlockContainer {
 
@@ -255,11 +255,11 @@ public class PlanetBlocks extends BlockContainer {
 
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     public static final Block INFESTED_MARTIAN_STONE = new InfestedBlock(
-            Blocks.INFESTED_STONE, AbstractBlock.Settings.copy(Blocks.INFESTED_STONE));
+            PlanetBlocks.MARTIAN_STONE, AbstractBlock.Settings.copy(Blocks.INFESTED_STONE));
 
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     public static final Block INFESTED_MARTIAN_COBBLESTONE = new InfestedBlock(
-            Blocks.INFESTED_COBBLESTONE, AbstractBlock.Settings.copy(Blocks.INFESTED_COBBLESTONE));
+            PlanetBlocks.MARTIAN_COBBLESTONE, AbstractBlock.Settings.copy(Blocks.INFESTED_COBBLESTONE));
 
 
 

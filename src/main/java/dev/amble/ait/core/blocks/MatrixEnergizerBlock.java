@@ -1,10 +1,16 @@
 package dev.amble.ait.core.blocks;
 
+import static dev.amble.ait.client.util.TooltipUtil.addMultilineTooltip;
 import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 import java.util.List;
 
-import net.minecraft.item.NetherStarItem;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.core.blockentities.MatrixEnergizerBlockEntity;
+import dev.amble.ait.core.item.TardisMatrixItem;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -42,13 +48,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.event.Vibrations;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.core.blockentities.MatrixEnergizerBlockEntity;
-import dev.amble.ait.core.item.TardisMatrixItem;
 
 public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
     private final VoxelShape DEFAULT = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 11.0, 16.0);
@@ -136,8 +135,6 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
                 world.addParticle(AITMod.CORAL_PARTICLE, centre.getX(), centre.getY() - 0.65f, centre.getZ(), offsetX, offsetY, offsetZ);
                 world.addParticle(ParticleTypes.SCULK_SOUL, centre.getX(), centre.getY() - 0.65f, centre.getZ(), offsetX, offsetY, offsetZ);
                 world.addParticle(ParticleTypes.SOUL_FIRE_FLAME, centre.getX(), centre.getY() - 0.65f, centre.getZ(), offsetX, offsetY, offsetZ);
-
-
             }
         }
     }
@@ -153,29 +150,27 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
         shriekerShrieks(state, world, pos);
     }
 
-    public void shriekerShrieks(BlockState thisState, World world, BlockPos pos) {
-        if (world.isClient()) return;
-        if (!(world.getBlockState(pos.down()).getBlock() instanceof SculkShriekerBlock) || !world.getBlockState(pos.down())
-                .get(SculkShriekerBlock.CAN_SUMMON)) {
-            return;
-        }
+    public void shriekerShrieks(BlockState state, World world, BlockPos pos) {
+        if (!(world instanceof ServerWorld serverWorld)) return;
+        if (!hasPower(state)) return;
 
-        if (!world.getBlockState(pos.down()).get(SculkShriekerBlock.SHRIEKING)) {
-            return;
-        }
+        BlockState shriekerState = world.getBlockState(pos.down());
 
-        if (!hasPower(world.getBlockState(pos))) return;
-        BlockEntity be = world.getBlockEntity(pos);
-        BlockState state = world.getBlockState(pos.down());
-        if (be instanceof MatrixEnergizerBlockEntity mbe) {
-            if (mbe.getVibrationCallback().accepts((ServerWorld) world, pos, GameEvent.SHRIEK, GameEvent.Emitter.of(thisState))) {
-                mbe.getEventListener().forceListen((ServerWorld) world, GameEvent.SHRIEK, GameEvent.Emitter.of(state),
-                        new Vec3d(pos.down().getX(), pos.down().getY(), pos.down().getZ()));
-                int i = this.getAge(thisState);
+        if (!(shriekerState.getBlock() instanceof SculkShriekerBlock))
+            return;
+
+        if (!shriekerState.get(SculkShriekerBlock.CAN_SUMMON) || !shriekerState.get(SculkShriekerBlock.SHRIEKING))
+            return;
+
+        if (world.getBlockEntity(pos) instanceof MatrixEnergizerBlockEntity mbe) {
+            if (mbe.getVibrationCallback().accepts(serverWorld, pos, GameEvent.SHRIEK, GameEvent.Emitter.of(state))) {
+                mbe.getEventListener().forceListen(serverWorld, GameEvent.SHRIEK, GameEvent.Emitter.of(state), pos.down().toCenterPos());
+                int i = this.getAge(state);
+
                 if (i < this.getMaxAge()) {
-                    world.setBlockState(pos, thisState.with(AGE, i + 1), 2);
+                    world.setBlockState(pos, state.with(AGE, i + 1), 2);
                 } else {
-                    tryCreate(world, pos, thisState);
+                    tryCreate(world, pos, state);
                 }
             }
         }
@@ -215,6 +210,7 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
 
         return false;
     }
+
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
             ItemStack itemStack) {
@@ -261,7 +257,8 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
         super.appendTooltip(stack, world, tooltip, options);
 
         addShiftHiddenTooltip(stack, tooltip, tooltips -> {
-            tooltip.add(Text.translatable("tooltip.ait.matrix_energizer").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
+            addMultilineTooltip(tooltips, Text.translatable("tooltip.ait.matrix_energizer")
+                    .formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
         });
     }
 

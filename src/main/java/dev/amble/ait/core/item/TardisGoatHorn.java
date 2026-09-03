@@ -5,8 +5,6 @@ import static net.minecraft.block.entity.BeaconBlockEntity.playSound;
 import java.util.Iterator;
 import java.util.Optional;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -31,6 +29,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.data.enummap.EnumSet;
 import dev.amble.ait.data.enummap.Ordered;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class TardisGoatHorn extends LinkableItem {
 
@@ -84,9 +83,9 @@ public class TardisGoatHorn extends LinkableItem {
             if (tardis == null || tardis.travel() == null) return TypedActionResult.fail(itemStack);
             CachedDirectedGlobalPos abpd = tardis.travel().destination();
             BlockPos abpdPos = abpd.getPos();
-            Text message = Text.literal("X: " + abpdPos.getX() + " Y: " + abpdPos.getY() + " Z: " + abpdPos.getZ() + " Dim: ")
-                    .formatted(Formatting.GRAY)
-                    .append(WorldUtil.worldText(abpd.getDimension(), false)).formatted(Formatting.GRAY);
+            Text message = Text.translatable("message.ait.tardis_goat_horn.destination", abpdPos.getX(),
+                    abpdPos.getY(), abpdPos.getZ(), WorldUtil.worldText(abpd.getDimension(), false))
+                    .formatted(Formatting.GRAY);
 
             user.sendMessage(message, true);
 

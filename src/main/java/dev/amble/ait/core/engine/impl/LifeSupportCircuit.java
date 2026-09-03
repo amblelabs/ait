@@ -2,8 +2,6 @@ package dev.amble.ait.core.engine.impl;
 
 import java.util.List;
 
-import dev.amble.lib.util.ServerLifecycleHooks;
-
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -15,6 +13,7 @@ import dev.amble.ait.core.engine.StructureHolder;
 import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.lib.util.ServerLifecycleHooks;
 
 public class LifeSupportCircuit extends DurableSubSystem implements StructureHolder {
 

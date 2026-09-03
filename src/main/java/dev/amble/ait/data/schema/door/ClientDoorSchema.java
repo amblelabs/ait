@@ -3,7 +3,6 @@ package dev.amble.ait.data.schema.door;
 import java.lang.reflect.Type;
 
 import com.google.gson.*;
-import dev.amble.lib.api.Identifiable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -14,6 +13,7 @@ import dev.amble.ait.client.models.AnimatedModel;
 import dev.amble.ait.data.schema.door.impl.CapsuleDoorVariant;
 import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
+import dev.amble.lib.api.Identifiable;
 
 @Environment(EnvType.CLIENT)
 public abstract class ClientDoorSchema implements Identifiable {

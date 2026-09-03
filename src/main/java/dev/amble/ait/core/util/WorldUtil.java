@@ -1,19 +1,13 @@
 package dev.amble.ait.core.util;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.AITWorldOptions;
-import dev.amble.ait.client.util.ClientTardisUtil;
-import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.mixin.server.EnderDragonFightAccessor;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.util.ServerLifecycleHooks;
+import java.util.*;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.loader.api.FabricLoader;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -35,15 +29,19 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
 
-import java.util.*;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.mixin.server.EnderDragonFightAccessor;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.util.ServerLifecycleHooks;
 
 public class WorldUtil {
 
     private static final List<ServerWorld> PROJECTOR_WORLDS = new ArrayList<>();
     private static final List<ServerWorld> TRAVEL_WORLDS = new ArrayList<>();
-
-    private static final Set<ServerWorld> RIFT_SPAWN_WORLDS = new HashSet<>();
-    public static final List<ServerWorld> RIFT_DROP_WORLDS = new ArrayList<>();
 
     private static ServerWorld OVERWORLD;
     private static ServerWorld TIME_VORTEX;
@@ -83,21 +81,8 @@ public class WorldUtil {
     }
 
     private static void generateWorldCache(MinecraftServer server) {
-        for (ServerWorld world : server.getWorlds()) {
-            if (world instanceof AITWorldOptions options)
-                options.ait$setCanRiftsSpawn(false);
-        }
-
         generateWorldCache(server, "environment projector", AITMod.CONFIG.projectorBlacklist, AITMod.CONFIG.projectorWhitelist, PROJECTOR_WORLDS, false);
         generateWorldCache(server, "travel", AITMod.CONFIG.travelBlacklist, AITMod.CONFIG.travelWhitelist, TRAVEL_WORLDS, true);
-
-        generateWorldCache(server, "rift spawn", AITMod.CONFIG.riftSpawnBlacklist, AITMod.CONFIG.riftSpawnWhitelist, RIFT_SPAWN_WORLDS, true);
-        generateWorldCache(server, "rift drop", AITMod.CONFIG.riftDropBlacklist, AITMod.CONFIG.riftDropWhitelist, RIFT_DROP_WORLDS, true);
-
-        for (ServerWorld riftSpawnable : RIFT_SPAWN_WORLDS) {
-            if (riftSpawnable instanceof AITWorldOptions options)
-                options.ait$setCanRiftsSpawn(true);
-        }
     }
 
     private static void generateWorldCache(MinecraftServer server, String cacheName, List<String> blacklist, List<String> whitelist,
@@ -174,9 +159,6 @@ public class WorldUtil {
     private static void clearWorldCache(MinecraftServer server) {
         PROJECTOR_WORLDS.clear();
         TRAVEL_WORLDS.clear();
-
-        RIFT_DROP_WORLDS.clear();
-        RIFT_SPAWN_WORLDS.clear();
     }
 
     /**
@@ -190,10 +172,6 @@ public class WorldUtil {
         }
 
         return -1;
-    }
-
-    public static boolean canRiftsSpawn(ServerWorld world) {
-        return world instanceof AITWorldOptions options && options.ait$canRiftsSpawn();
     }
 
     public static List<ServerWorld> getProjectorWorlds() {

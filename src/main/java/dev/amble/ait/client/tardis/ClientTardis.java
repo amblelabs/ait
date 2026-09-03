@@ -10,6 +10,7 @@ import net.minecraft.client.MinecraftClient;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.Disposable;
 import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.util.ClientShakeUtil;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.tardis.Tardis;
@@ -49,15 +50,8 @@ public class ClientTardis extends Tardis implements Disposable {
         ClientTardisUtil.tickPowerDelta();
         ClientTardisUtil.tickAlarmDelta();
 
-        // referencing client stuff where it COULD be server causes problems
-        if (!ClientShakeUtil.shouldShake(this))
-            return;
-
-        if (this.flight().falling().get()) {
-            ClientShakeUtil.shakeFromEverywhere();
-        } else {
-            ClientShakeUtil.shakeFromConsole();
-        }
+        float amount = ClientShakeUtil.getShakeAmount(this) * AITModClient.CONFIG.screenShake;
+        ClientShakeUtil.shake(amount);
     }
 
     @Override
@@ -80,16 +74,7 @@ public class ClientTardis extends Tardis implements Disposable {
     }
 
     @Override
-    public void dispose() {
-        this.desktop.dispose();
-        this.desktop = null;
-
-        this.exterior.dispose();
-        this.exterior = null;
-
-        this.handlers.dispose();
-        this.handlers = null;
-    }
+    public void dispose() { }
 
     @Override
     public String toString() {

@@ -1,29 +1,46 @@
 package dev.amble.ait.core.tardis.control.impl;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.AITSounds;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import org.jetbrains.annotations.Nullable;
+
 import dev.amble.ait.core.entities.ConsoleControlEntity;
-import dev.amble.ait.core.item.KeyItem;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.manager.old.DeprecatedServerTardisManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.BlockPos;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.item.KeyItem;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.core.tardis.util.TardisUtil;
 
 public class SecurityControl extends Control {
 
     public SecurityControl() {
         // ⨷ ?
         super(AITMod.id("protocol_19"));
+    }
+
+    public static boolean cannotAccess(ServerTardis tardis, ServerPlayerEntity player) {
+        if (!tardis.hasWorld() || tardis.world() != player.getServerWorld())
+            return true; // To verify the packet is coming from a player in the TARDIS' dimension
+
+        return tardis.stats().security().get() && !SecurityControl.hasMatchingKey(player, tardis);
+    }
+
+    public static DeprecatedServerTardisManager.Receiver withLoyaltyCheck(DeprecatedServerTardisManager.Receiver receiver) {
+        return (tardis, server, player, handler, buf, sender) -> {
+              if (cannotAccess(tardis, player)) return;
+              receiver.receive(tardis, server, player, handler, buf, sender);
+        };
     }
 
     @Override
@@ -45,8 +62,6 @@ public class SecurityControl extends Control {
 
         if (!security && !isDiscShouldLeave)
             return;
-
-        System.out.println(isDiscShouldLeave);
 
         List<ServerPlayerEntity> forRemoval = new ArrayList<>();
 

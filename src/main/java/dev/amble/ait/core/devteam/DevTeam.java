@@ -3,6 +3,8 @@ package dev.amble.ait.core.devteam;
 import java.util.Set;
 import java.util.UUID;
 
+import net.minecraft.client.MinecraftClient;
+
 /**
  * @author Loqor
  * Don't worry, we're not pulling a Dalek Mod and forcing creative for ourselves. Lol. - Loqor
@@ -26,8 +28,7 @@ public class DevTeam {
     public static final UUID NYX = UUID.fromString("5a9bb737-ceb2-4d45-876c-b0e4531a811f");
     public static final UUID LAKE = UUID.fromString("12a4e062-da90-4797-a788-c42fd18c94d7");
     public static final UUID MAX = UUID.fromString("6f30a849-061a-4ac5-8e47-9fcd2a9cda2a");
-
-
+    public static final UUID RAT = UUID.fromString("188057b6-fdbc-42ee-8875-59ce0f5afe36");
 
     // junior devs not sure about these ones
     public static final UUID CROW = UUID.fromString("d6ec02fa-f335-47cb-8081-80270bd5f5ab"); // crow
@@ -35,14 +36,18 @@ public class DevTeam {
     public static final UUID COSMIC = UUID.fromString("e0c801c3-4de4-47ad-b51b-ef6dc1b78eff"); // cosmic_fire
     public static final UUID NANO = UUID.fromString("bc130267-59b4-4d96-8397-0dd9b209a45f"); // nanowu
 
-
     // WOW NOT EVEN ME :SOB: - Tendo // sorry - monke
 
     public static final Set<UUID> PLAYERS = Set.of(
-            LOQOR, DUZO, THEO, OURO, CLASSIC, ADDIE, VENWHOVIAN, MONKE, PAN, SATURN, MAGGIE, MAX, CROW, K_KING, DIAN, RHYNO, TREE, ECHO, NYX, LAKE, COSMIC, NANO
+            LOQOR, DUZO, THEO, OURO, CLASSIC, ADDIE, VENWHOVIAN, MONKE, PAN, SATURN, 
+            MAGGIE, MAX, CROW, K_KING, DIAN, RHYNO, TREE, ECHO, NYX, LAKE, COSMIC, NANO, RAT
     );
 
     public static boolean isDev(UUID uuid) {
         return PLAYERS.contains(uuid);
+    }
+
+    public static boolean isDev() {
+        return isDev(MinecraftClient.getInstance().getSession().getProfile().getId());
     }
 }

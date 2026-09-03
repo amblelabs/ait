@@ -2,14 +2,17 @@ package dev.amble.ait.core.item.sonic;
 
 import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -38,11 +41,13 @@ public class InteractionSonicMode extends SonicMode {
     }
 
     private void process(ServerWorld world, LivingEntity user, int ticks) {
-        HitResult hitResult = SonicMode.getHitResultForOutline(user);
+        HitResult hitResult = SonicMode.getHitResult(user);
 
         SonicMode.checkSonicWoodAdvancementConditions(world, user, hitResult);
 
-        if (hitResult instanceof BlockHitResult blockHit) {
+        if (hitResult instanceof EntityHitResult entity && entity.getEntity() instanceof SheepEntity sheep) {
+            this.shearSheep(sheep, world, user);
+        } else if (hitResult instanceof BlockHitResult blockHit) {
             this.interactBlock(blockHit.getBlockPos(), world, user, ticks, blockHit);
         }
     }
@@ -89,6 +94,13 @@ public class InteractionSonicMode extends SonicMode {
             button.onUse(state, world, pos, player, player.getActiveHand(), blockHit);
             return;
         }
+    }
+
+    private void shearSheep(SheepEntity sheep, ServerWorld world, LivingEntity user) {
+        if (!sheep.isShearable()) return;
+
+        sheep.sheared(SoundCategory.PLAYERS);
+        world.emitGameEvent(user, GameEvent.SHEAR, sheep.getBlockPos());
     }
 
     @Override

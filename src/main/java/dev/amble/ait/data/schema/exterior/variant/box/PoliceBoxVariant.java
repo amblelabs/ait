@@ -1,5 +1,7 @@
 package dev.amble.ait.data.schema.exterior.variant.box;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.AITMod;
@@ -30,18 +32,8 @@ public abstract class PoliceBoxVariant extends ExteriorVariantSchema {
     }
 
     @Override
-    public Vec3d adjustPortalPos(Vec3d pos, byte direction) {
-        return switch (direction) {
-            case 0 -> pos.add(0, -0.052, -0.591); // NORTH
-            case 1, 2, 3 -> pos.add(0.43, -0.052, -0.43); // NORTH EAST p n
-            case 4 -> pos.add(0.591, -0.052, 0); // EAST
-            case 5, 6, 7 -> pos.add(0.43, -0.052, 0.43); // SOUTH EAST p p
-            case 8 -> pos.add(0, -0.052, 0.591); // SOUTH
-            case 9, 10, 11 -> pos.add(-0.43, -0.052, 0.43); // SOUTH WEST n p
-            case 12 -> pos.add(-0.591, -0.052, 0); // WEST
-            case 13, 14, 15 -> pos.add(-0.43, -0.052, -0.43); // NORTH WEST n n
-            default -> pos;
-        };
+    public @Nullable Vec3d getPortalPosition() {
+        return new Vec3d(0, 0, -0.591);
     }
 
     @Override

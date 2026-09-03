@@ -1,5 +1,14 @@
 package dev.amble.ait.client.models.consoles;
 
+import java.util.HashMap;
+import java.util.Map;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
+
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
@@ -14,14 +23,6 @@ import dev.amble.lib.client.bedrock.BedrockAnimation;
 import dev.amble.lib.client.bedrock.BedrockAnimationReference;
 import dev.amble.lib.client.bedrock.BedrockModel;
 import dev.amble.lib.client.bedrock.TargetedAnimationState;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class BedrockConsoleModel implements ConsoleModel, Identifiable {
     private final BedrockModel model;
@@ -52,7 +53,7 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
 
         ConsoleVariantSchema schema = console.getVariant();
 
-	    this.applyOffsets(matrices, schema);
+        this.applyOffsets(matrices, schema);
 
         getPart().render(matrices, vertices, light, overlay);
 
@@ -66,7 +67,7 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
 		}
 	}
 
-	@Override
+    @Override
     public void animateBlockEntity(ConsoleBlockEntity console, TravelHandlerBase.State state, boolean hasPower) {
         if (!(console.getVariant() instanceof TravelAnimationMap.Holder schema)) return;
 
