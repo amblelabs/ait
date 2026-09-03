@@ -27,7 +27,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
@@ -65,11 +64,6 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
     public final AnimationState ANIM_STATE = new AnimationState();
 
     private boolean needsControls = true;
-
-	private static final int CLIENT_CACHE_REFRESH_INTERVAL = 2400; // Lazy refresh
-	// Client-side cache for control entities
-	private List<ConsoleControlEntity> cachedClientControls = null;
-	private int lastClientCacheRefreshAge = -CLIENT_CACHE_REFRESH_INTERVAL;
 
     private ConsoleTypeSchema type;
     private ConsoleVariantSchema variant;
@@ -289,6 +283,13 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
     }
 
     public void killControls() {
+        // Server authoritative: it writes control state back and discards the entities. It reaches
+        // the client through markRemoved, where it was already a no-op while the client list was
+        // empty, so keep it one. Clearing here would strand the controls, which hold this console as
+        // their link and so would not add themselves back.
+        if (this.world == null || this.world.isClient())
+            return;
+
         for (ConsoleControlEntity entity : controlEntities) {
             Control control = entity.getControl();
             if (control != null) {
@@ -301,50 +302,18 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         this.markDirty();
     }
 
-	/**
-	 * Gets the control entities for this console.
-	 * On the server, returns the cached list.
-	 * On the client, returns a cached query that refreshes periodically.
-	 *
-	 * @return List of control entities belonging to this console
-	 */
-	public List<ConsoleControlEntity> getControlEntities() {
-		if (this.world == null) return Collections.emptyList();
+    /**
+     * The control entities belonging to this console. Server side {@link #spawnControls()} fills this;
+     * client side each control adds itself once its console has loaded, see
+     * {@code ConsoleControlEntity#linkToConsole}.
+     *
+     * @return List of control entities belonging to this console
+     */
+    public List<ConsoleControlEntity> getControlEntities() {
+        if (this.world == null)
+            return Collections.emptyList();
 
-		// On client, use cached list that refreshes periodically
-		if (this.world.isClient()) {
-			if (cachedClientControls == null || this.age - lastClientCacheRefreshAge >= CLIENT_CACHE_REFRESH_INTERVAL) {
-				cachedClientControls = findControlEntitiesInWorld();
-				lastClientCacheRefreshAge = this.age;
-			}
-			return cachedClientControls;
-		}
-
-		// On server, use the cached list
-		return this.controlEntities;
-	}
-
-	/**
-	 * Invalidates the client-side control entity cache, forcing a refresh on next access.
-	 */
-	public void invalidateClientCache() {
-		this.cachedClientControls = null;
-	}
-
-	/**
-	 * Finds all ConsoleControlEntity instances in the world that belong to this console.
-	 * Works on both client and server.
-	 *
-	 * @return List of control entities referencing this console's position
-	 */
-	public List<ConsoleControlEntity> findControlEntitiesInWorld() {
-		if (this.world == null) return Collections.emptyList();
-
-		return this.world.getEntitiesByClass(
-				ConsoleControlEntity.class,
-				new Box(this.pos).expand(3.0),
-				entity -> this.pos.equals(entity.getConsoleBlockPos())
-		);
+        return this.controlEntities;
     }
 
     public void spawnControls() {

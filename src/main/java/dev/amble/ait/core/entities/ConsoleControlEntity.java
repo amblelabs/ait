@@ -94,6 +94,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
 
     private Control control;
     private ControlTypes controlType;
+    private ConsoleBlockEntity linkedConsole;
     private final TargetedAnimationState animationState = new TargetedAnimationState();
 
     public ConsoleControlEntity(EntityType<? extends Entity> entityType, World world) {
@@ -114,6 +115,11 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
         if (this.getConsoleBlockPos() == null) {
             super.onRemoved();
             return;
+        }
+
+        if (this.linkedConsole != null) {
+            this.linkedConsole.controlEntities.remove(this);
+            this.linkedConsole = null;
         }
 
         if (this.getWorld().getBlockEntity(this.getConsoleBlockPos()) instanceof ConsoleBlockEntity console)
@@ -300,8 +306,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
     public void tick() {
 	    this.animationState.tick();
 
-	    if (this.getWorld().isClient())
+	    if (this.getWorld().isClient()) {
+		    this.linkToConsole();
             return;
+	    }
 
         if (this.control == null && this.getConsoleBlockPos() != null)
             this.discard();
@@ -583,6 +591,44 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
         }
 
         return result.isSuccess();
+    }
+
+    /**
+     * Adds this control to its console's list, client side, where {@code spawnControls} never runs.
+     *
+     * <p>The renderer walks that list every frame to pose each control. It used to come from an
+     * expanded box query over the console, re-run on a timer, which meant a control could be posed
+     * from a list up to two minutes stale, and every console paid a world scan to build it. A
+     * control knows its own console, so it registers once and the two sides then read one list.
+     */
+    private void linkToConsole() {
+        BlockPos consolePos = this.getConsoleBlockPos();
+
+        // Nothing to do while the console we registered with is still the live one at our position.
+        // Held by instance rather than a flag: a chunk reload builds a fresh block entity with an
+        // empty list, and a control that only ever registered once would stop being posed. Every
+        // path that drops or replaces a block entity marks it removed first, so that covers the
+        // reload, and the position check covers a control re-pointed at a different console.
+        if (this.linkedConsole != null && !this.linkedConsole.isRemoved()
+                && this.linkedConsole.getPos().equals(consolePos))
+            return;
+
+        // Deliberately not getConsole(): that warns when the block entity has not loaded yet, which
+        // is the normal case for the first few ticks after a control is synced.
+        if (!(this.getWorld().getBlockEntity(consolePos) instanceof ConsoleBlockEntity console)) {
+            // Don't keep hold of a console whose chunk has gone; controls can outlive it when their
+            // offsets put them in the neighbouring chunk.
+            this.linkedConsole = null;
+            return;
+        }
+
+        if (this.linkedConsole != null && this.linkedConsole != console)
+            this.linkedConsole.controlEntities.remove(this);
+
+        if (!console.controlEntities.contains(this))
+            console.controlEntities.add(this);
+
+        this.linkedConsole = console;
     }
 
     public ConsoleBlockEntity getConsole() {
