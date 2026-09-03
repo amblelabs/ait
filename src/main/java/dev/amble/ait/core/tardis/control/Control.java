@@ -1,5 +1,17 @@
 package dev.amble.ait.core.tardis.control;
 
+import java.util.Map;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import org.jetbrains.annotations.Nullable;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITItems;
@@ -13,18 +25,6 @@ import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.lib.api.Identifiable;
 
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Map;
 
 public class Control implements Identifiable {
 
@@ -58,6 +58,14 @@ public class Control implements Identifiable {
         } catch (Control.ControlSequencedException e) {
             return Result.SEQUENCE;
         }
+    }
+
+    /**
+     * The label shown for this control (e.g. when scanning it with the sonic). May vary with live
+     * TARDIS state; the default implementation returns the static, translatable control name.
+     */
+    public Text getName(Tardis tardis) {
+        return Text.translatable(id.toTranslationKey("control"));
     }
 
     protected boolean shouldBeAddedToSequence(Tardis tardis) {

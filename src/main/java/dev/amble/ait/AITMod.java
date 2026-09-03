@@ -2,18 +2,11 @@ package dev.amble.ait;
 
 import static dev.amble.ait.module.planet.core.space.planet.Crater.CRATER_ID;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
-import dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity;
-import dev.amble.ait.core.blockentities.PottedSonicScrewdriverBlockEntity;
-import dev.amble.ait.core.blocks.EnvironmentProjectorBlock;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.lib.container.RegistryContainer;
-import dev.amble.lib.register.AmbleRegistries;
-import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.drtheo.multidim.MultiDim;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
@@ -29,16 +22,12 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.ActionResult;
-import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.minecraft.entity.SpawnGroup;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootPool;
 import net.minecraft.loot.LootTables;
@@ -52,10 +41,13 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.GameRules;
+import net.minecraft.world.World;
+import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.ProbabilityConfig;
 import net.minecraft.world.gen.feature.PlacedFeature;
@@ -64,11 +56,17 @@ import dev.amble.ait.api.AITModInitializer;
 import dev.amble.ait.config.AITServerConfig;
 import dev.amble.ait.core.*;
 import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity;
+import dev.amble.ait.core.blockentities.PottedSonicScrewdriverBlockEntity;
+import dev.amble.ait.core.blocks.EnvironmentProjectorBlock;
 import dev.amble.ait.core.commands.*;
+import dev.amble.ait.core.devteam.BetaTokenPrefs;
+import dev.amble.ait.core.devteam.DevTeam;
 import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.engine.registry.SubSystemRegistry;
 import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.entities.RiftEntity;
+import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.item.blueprint.BlueprintRegistry;
 import dev.amble.ait.core.item.component.AbstractTardisPart;
 import dev.amble.ait.core.item.part.MachineItem;
@@ -76,7 +74,7 @@ import dev.amble.ait.core.likes.ItemOpinionRegistry;
 import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.ait.core.loot.SetBlueprintLootFunction;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
-import dev.amble.ait.core.sounds.travel.TravelSoundRegistry;
+import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.animation.v2.blockbench.BlockbenchParser;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
@@ -98,6 +96,9 @@ import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.container.RegistryContainer;
+import dev.amble.lib.register.AmbleRegistries;
+import dev.amble.lib.util.ServerLifecycleHooks;
 
 public class AITMod implements ModInitializer {
 
@@ -128,7 +129,7 @@ public class AITMod implements ModInitializer {
     public static final String BRANCH;
 
     static {
-        // 1.x.xx-BRANCH+mc.1.20.1
+        // 1.x.xx-[BRANCH-]dev+mc.1.20.1
         String version = FabricLoader.getInstance().getModContainer(MOD_ID).get().getMetadata().getVersion().getFriendlyString();
         // get the part of the version string between the - and +
         BRANCH = version.substring(version.indexOf("-") + 1, version.indexOf("+"));
@@ -136,6 +137,14 @@ public class AITMod implements ModInitializer {
 
     public static boolean isUnsafeBranch() {
         return !BRANCH.contains("release");
+    }
+
+    public static boolean isOfficialBeta() {
+        return BRANCH.contains("dev");
+    }
+
+    public static boolean isBetaLocked() {
+        return isOfficialBeta() && !DevTeam.isDev() && !BetaTokenPrefs.isTokenValid();
     }
 
     public void registerParticles() {
@@ -164,7 +173,6 @@ public class AITMod implements ModInitializer {
                 DesktopRegistry.getInstance(),
                 ConsoleVariantRegistry.getInstance(),
                 MachineRecipeRegistry.getInstance(),
-                TravelSoundRegistry.getInstance(),
                 FlightSoundRegistry.getInstance(),
                 VortexReferenceRegistry.getInstance(),
                 BlueprintRegistry.getInstance(),
@@ -252,6 +260,12 @@ public class AITMod implements ModInitializer {
             ListCommand.register(dispatcher);
             LoadCommand.register(dispatcher);
             DebugCommand.register(dispatcher);
+
+            if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+                ProfileClientCommand.register(dispatcher);
+                PerfScenarioCommand.register(dispatcher);
+            }
+
             EraseChunksCommand.register(dispatcher);
             FlightCommand.register(dispatcher);
             SetDoorParticleCommand.register(dispatcher, registryAccess);
@@ -417,6 +431,7 @@ public class AITMod implements ModInitializer {
     public static final Identifier TOGGLE_PROJECTOR = AITMod.id("toggle_projector");
     public static final Identifier PROJECTOR_SELECTION = new Identifier(MOD_ID, "projector_selection");
     public static final Identifier PROJECTOR_ANGLES = new Identifier(MOD_ID, "projector_angles");
+    public static final Identifier PROFILE_CLIENT = AITMod.id("profile_client");
 
     public static void openScreen(ServerPlayerEntity player, int id) {
         PacketByteBuf buf = PacketByteBufs.create();
@@ -444,6 +459,11 @@ public class AITMod implements ModInitializer {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeInt(id);
         buf.writeBlockPos(console);
+
+        List<ServerWorld> worlds = WorldUtil.getProjectorWorlds();
+        buf.writeVarInt(worlds.size());
+        for (ServerWorld world : worlds)
+            buf.writeIdentifier(world.getRegistryKey().getValue());
 
         ServerPlayNetworking.send(player, OPEN_SCREEN_PROJECTOR, buf);
     }

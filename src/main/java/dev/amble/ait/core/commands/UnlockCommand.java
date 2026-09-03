@@ -8,9 +8,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import dev.amble.lib.api.Identifiable;
-import dev.amble.lib.register.unlockable.Unlockable;
-import dev.amble.lib.register.unlockable.UnlockableRegistry;
 
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -25,6 +22,9 @@ import dev.amble.ait.data.Wildcard;
 import dev.amble.ait.registry.impl.DesktopRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.api.Identifiable;
+import dev.amble.lib.register.unlockable.Unlockable;
+import dev.amble.lib.register.unlockable.UnlockableRegistry;
 
 public class UnlockCommand {
 
@@ -50,7 +50,7 @@ public class UnlockCommand {
     }
 
     private static <T extends Identifiable & Unlockable & Nameable> int unlock(
-            CommandContext<ServerCommandSource> context, String type, Wildcard<T> wildcard,
+            CommandContext<ServerCommandSource> context, Text type, Wildcard<T> wildcard,
             UnlockableRegistry<T> registry) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
@@ -73,17 +73,17 @@ public class UnlockCommand {
     }
 
     private static int unlockConsole(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        return unlock(context, "console", IdentifierWildcardArgumentType.getConsoleVariantArgument(context, "console"),
-                ConsoleVariantRegistry.getInstance());
+        return unlock(context, Text.translatable("command.ait.unlock.type.console"),
+                IdentifierWildcardArgumentType.getConsoleVariantArgument(context, "console"), ConsoleVariantRegistry.getInstance());
     }
 
     private static int unlockDesktop(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        return unlock(context, "desktop", IdentifierWildcardArgumentType.getDesktopArgument(context, "desktop"),
-                DesktopRegistry.getInstance());
+        return unlock(context, Text.translatable("command.ait.unlock.type.desktop"),
+                IdentifierWildcardArgumentType.getDesktopArgument(context, "desktop"), DesktopRegistry.getInstance());
     }
 
     private static int unlockExterior(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        return unlock(context, "exterior variant",
+        return unlock(context, Text.translatable("command.ait.unlock.type.exterior_variant"),
                 IdentifierWildcardArgumentType.getExteriorVariantArgument(context, "exterior"),
                 ExteriorVariantRegistry.getInstance());
     }

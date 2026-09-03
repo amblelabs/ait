@@ -4,13 +4,14 @@ import static dev.amble.ait.AITMod.*;
 import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
 import static dev.amble.ait.core.item.TardisMatrixItem.colorToInt;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
-import dev.amble.ait.client.screens.*;
-import dev.amble.lib.register.AmbleRegistries;
+import dev.amble.ait.client.overlays.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -38,12 +39,16 @@ import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
+import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.boti.*;
@@ -58,10 +63,7 @@ import dev.amble.ait.client.models.decoration.PaintingFrameModel;
 import dev.amble.ait.client.models.decoration.RiftModel;
 import dev.amble.ait.client.models.decoration.TrenzalorePaintingModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
-import dev.amble.ait.client.overlays.ExteriorAxeOverlay;
-import dev.amble.ait.client.overlays.FabricatorOverlay;
-import dev.amble.ait.client.overlays.RWFOverlay;
-import dev.amble.ait.client.overlays.SonicOverlay;
+import dev.amble.ait.client.renderers.EmissiveGeometry;
 import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.client.renderers.TardisStar;
 import dev.amble.ait.client.renderers.consoles.ConsoleGeneratorRenderer;
@@ -78,9 +80,11 @@ import dev.amble.ait.client.renderers.machines.*;
 import dev.amble.ait.client.renderers.monitors.MonitorRenderer;
 import dev.amble.ait.client.renderers.monitors.WallMonitorRenderer;
 import dev.amble.ait.client.renderers.sky.MarsSkyProperties;
+import dev.amble.ait.client.screens.*;
 import dev.amble.ait.client.sonic.SonicModelLoader;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
+import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.*;
@@ -89,13 +93,13 @@ import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.blocks.AstralMapBlock;
 import dev.amble.ait.core.blocks.ExteriorBlock;
+import dev.amble.ait.core.devteam.BetaVerification;
 import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.drinks.DrinkUtil;
 import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.*;
 import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.module.ModuleRegistry;
@@ -105,11 +109,16 @@ import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
+import dev.amble.lib.register.AmbleRegistries;
 
 @Environment(value = EnvType.CLIENT)
 public class AITModClient implements ClientModInitializer {
 
+    /** Its own logger rather than a prefix on every line, so the profiler output filters cleanly. */
+    private static final Logger PROFILE_LOGGER = LoggerFactory.getLogger("ait-profile");
+
     public static AITClientConfig CONFIG;
+    private final MinecraftClient client = MinecraftClient.getInstance();
 
     @Override
     public void onInitializeClient() {
@@ -146,6 +155,11 @@ public class AITModClient implements ClientModInitializer {
             DebugCommand.register(dispatcher);
         });
 
+        // Must be registered, or the pass counter never advances and the duplicate-draw guard in
+        // the renderers would let the first draw through and reject every one after it.
+        ClientRenderPass.init();
+        EmissiveGeometry.init();
+
         AITKeyBinds.init();
 
         ClientLandingManager.init();
@@ -154,6 +168,7 @@ public class AITModClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register(new RWFOverlay());
         HudRenderCallback.EVENT.register(new FabricatorOverlay());
         HudRenderCallback.EVENT.register(new ExteriorAxeOverlay());
+        HudRenderCallback.EVENT.register(new UntemperedSchismOverlay());
 
         ClientPreAttackCallback.EVENT.register((client, player, clickCount) -> (player.getMainHandStack().getItem() instanceof BaseGunItem));
 
@@ -182,6 +197,18 @@ public class AITModClient implements ClientModInitializer {
 
             TardisStar.render(context, tardis);
         });
+
+        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            ClientPlayNetworking.registerGlobalReceiver(AITMod.PROFILE_CLIENT, (client, handler, buf, responseSender) ->
+                    client.execute(() -> {
+                        // toggleDebugProfiler is what F3+L calls. The recorder stops itself after 10s and hands
+                        // the dump path to this consumer, which is the only way to learn it without a keyboard.
+                        boolean started = client.toggleDebugProfiler(
+                                text -> PROFILE_LOGGER.info(text.getString()));
+
+                        PROFILE_LOGGER.info(started ? "started" : "stopped an active recording");
+                    }));
+        }
 
         ClientPlayNetworking.registerGlobalReceiver(OPEN_SCREEN, (client, handler, buf, responseSender) -> {
             int id = buf.readInt();
@@ -226,10 +253,19 @@ public class AITModClient implements ClientModInitializer {
             int id = buf.readInt();
             BlockPos projector = buf.readBlockPos();
 
+            List<RegistryKey<World>> worldKeys = buf.readList(b -> b.readRegistryKey(RegistryKeys.WORLD));
+
             client.execute(() -> {
                 ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
+
+                if (tardis == null)
+                    return; // not in a TARDIS
+
                 Screen screen = screenFromId(id, tardis, projector);
-                if (screen != null) client.setScreenAndRender(screen);
+                if (screen instanceof EnvironmentProjectorScreen projectorScreen) {
+                    projectorScreen.setAvailableWorlds(worldKeys);
+                    client.setScreenAndRender(screen);
+                }
             });
         });
 
@@ -274,7 +310,10 @@ public class AITModClient implements ClientModInitializer {
         });
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn(client));
+
+        BetaVerification.init();
     }
+
     public static Screen screenFromId(int id) {
         return screenFromId(id, null, null);
     }
@@ -419,7 +458,7 @@ public class AITModClient implements ClientModInitializer {
                 FoodMachineRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ASTRAL_MAP, AstralMapRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.POTTED_SONIC_SCREWDRIVER_BLOCK_ENTITY_TYPE, PottedSonicScrewdriverRenderer::new);
-        BlockEntityRendererFactories.register(AITBlockEntityTypes.RIFT_RIPPER_BLOCK_ENTITY_TYPE, RiftRipperRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.RIFT_RIPPER_BLOCK_ENTITY_TYPE, UntemperedSchismRenderer::new);
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             BlockEntityRendererFactories.register(AITBlockEntityTypes.SNOW_GLOBE_BLOCK_ENTITY_TYPE,
                     SnowGlobeRenderer::new);
@@ -449,20 +488,20 @@ public class AITModClient implements ClientModInitializer {
         map.putBlock(AITBlocks.SMALL_ZEITON_BUD, RenderLayer.getCutout());
         map.putBlock(AITBlocks.MACHINE_CASING, RenderLayer.getCutout());
         map.putBlock(AITBlocks.FABRICATOR, RenderLayer.getTranslucent());
-        map.putBlock(AITBlocks.ENVIRONMENT_PROJECTOR, RenderLayer.getTranslucent());
+        map.putBlock(AITBlocks.ENVIRONMENT_PROJECTOR, RenderLayer.getCutout());
         map.putBlock(AITBlocks.WAYPOINT_BANK, RenderLayer.getCutout());
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
             map.putBlock(AITBlocks.SNOW_GLOBE, RenderLayer.getCutout());
         }
         map.putBlock(AITBlocks.TARDIS_CORAL_BLOCK, RenderLayer.getCutout());
         map.putBlock(AITBlocks.TARDIS_CORAL_FAN, RenderLayer.getCutout());
-        map.putBlock(AITBlocks.TARDIS_CORAL_WALL_FAN, RenderLayer.getCutout());
         map.putBlock(AITBlocks.TARDIS_CORAL_WALL, RenderLayer.getCutout());
         map.putBlock(AITBlocks.TARDIS_CORAL_FENCE, RenderLayer.getCutout());
         map.putBlock(AITBlocks.TARDIS_CORAL_LEAVES, RenderLayer.getCutout());
         map.putBlock(AITBlocks.MATRIX_ENERGIZER, RenderLayer.getCutout());
-        map.putBlock(AITBlocks.GENERIC_SUBSYSTEM, RenderLayer.getTranslucent());
+        map.putBlock(AITBlocks.GENERIC_SUBSYSTEM, RenderLayer.getCutout());
         map.putBlock(AITBlocks.POTTED_SONIC_SCREWDRIVER, RenderLayer.getCutout());
+        map.putBlock(AITBlocks.ARTRON_COLLECTOR_BLOCK, RenderLayer.getCutout());
     }
 
     public void registerItemColors() {
@@ -491,89 +530,149 @@ public class AITModClient implements ClientModInitializer {
         ParticleFactoryRegistry.getInstance().register(CORAL_PARTICLE, EndRodParticle.Factory::new);
     }
 
-    private boolean skipBuiltInBOTI() {
+    public static boolean skipBuiltInBOTI() {
         return (DependencyChecker.hasPortals() && CONFIG.allowPortalsBoti) || !CONFIG.enableTardisBOTI;
     }
 
-    private boolean skipPaintingBOTI() {
+    public static boolean skipPaintingBOTI() {
         return DependencyChecker.hasPortals() || !CONFIG.enableTardisBOTI;
     }
 
     public void exteriorBOTI(WorldRenderContext context) {
-        if (skipBuiltInBOTI()) return;
+        // Counted before the guard on purpose. BOTI disables itself on Macs and on non-Nvidia cards
+        // without Indium, and a counter inside the loop cannot tell that apart from an empty queue.
+        Profiler profiler = context.world().getProfiler();
+        profiler.visit("ait_boti_exterior_queued", BOTI.EXTERIOR_RENDER_QUEUE.size());
 
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player == null || client.world == null) return;
+        if (skipBuiltInBOTI()) {
+            profiler.visit("ait_boti_exterior_disabled");
+            BOTI.EXTERIOR_RENDER_QUEUE.clear();
+            return;
+        }
+
+        if (client.player == null || client.world == null) {
+            BOTI.EXTERIOR_RENDER_QUEUE.clear();
+            return;
+        }
+
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
-        var exteriorQueue = new ArrayList<>(BOTI.EXTERIOR_RENDER_QUEUE);
-        for (ExteriorBlockEntity exterior : exteriorQueue) {
-            if (exterior == null || !exterior.isLinked() || exterior.tardis().isEmpty()) continue;
+
+        profiler.push("ait:boti_exterior");
+
+        for (ExteriorBlockEntity exterior : BOTI.EXTERIOR_RENDER_QUEUE) {
+            if (exterior == null || !exterior.isLinked()) continue;
             Tardis tardis = exterior.tardis().get();
-            if (tardis == null || tardis.getExterior() == null) return;
+
             ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
-            ExteriorModel model = variant.model();
+            ExteriorModel model = variant.getCachedModel();
             BlockPos pos = exterior.getPos();
             stack.push();
             stack.translate(0.5, 0, 0.5);
             stack.translate(pos.getX() - context.camera().getPos().getX(), pos.getY() - context.camera().getPos().getY(), pos.getZ() - context.camera().getPos().getZ());
             stack.scale(1, -1, -1);
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(RotationPropertyHelper.toDegrees(exterior.getCachedState().get(ExteriorBlock.ROTATION))));
-            int light = world.getLightLevel(pos);
-            if ((tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) && !tardis.isGrowth()) {
-                light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
-                TardisExteriorBOTI boti = new TardisExteriorBOTI();
-                boti.renderExteriorBoti(exterior, variant, stack,
-                        AITMod.id("textures/environment/tardis_sky.png"), model,
+
+            if (tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) {
+                int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
+                profiler.visit("ait_boti_exterior_drawn");
+                profiler.visit("ait_model_build");
+                TardisExteriorBOTI.renderExteriorBoti(exterior, variant, stack, context.consumers(), model,
                         BotiPortalModel.getTexturedModelData().createModel(), light);
+            } else {
+                profiler.visit("ait_boti_exterior_culled");
             }
+
             stack.pop();
         }
+
+        profiler.pop();
+
         BOTI.EXTERIOR_RENDER_QUEUE.clear();
     }
 
     public void doorBOTI(WorldRenderContext context) {
-        if (skipBuiltInBOTI()) return;
+        Profiler profiler = context.world().getProfiler();
+        profiler.visit("ait_boti_door_queued", BOTI.DOOR_RENDER_QUEUE.size());
 
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player == null || client.world == null) return;
+        if (skipBuiltInBOTI()) {
+            profiler.visit("ait_boti_door_disabled");
+            BOTI.DOOR_RENDER_QUEUE.clear();
+            return;
+        }
+
+        if (client.player == null || client.world == null) {
+            BOTI.DOOR_RENDER_QUEUE.clear();
+            return;
+        }
+
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
-        boolean bl = TardisServerWorld.isTardisDimension(world);
-        if (bl) {
-            ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
-            if (tardis == null || tardis.getDesktop() == null) return;
-            ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
-            AnimatedModel model = variant.getDoor().model();
-            for (DoorBlockEntity door : BOTI.DOOR_RENDER_QUEUE) {
-                if (door == null) continue;
-                BlockPos pos = door.getPos();
-                stack.push();
-                stack.translate(0.5, 0, 0.5);
-                stack.translate(pos.getX() - context.camera().getPos().getX(), pos.getY() - context.camera().getPos().getY(), pos.getZ() - context.camera().getPos().getZ());
-                stack.scale(1, -1, -1);
-                stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(door.getCachedState().get(DoorBlock.FACING).asRotation()));
-                int light = world.getLightLevel(pos.up());
-                if ((tardis.door().getLeftRot() > 0  || variant.hasTransparentDoors()) && !tardis.isGrowth()) {
-                    light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
-                    TardisDoorBOTI.renderInteriorDoorBoti(tardis, door, variant, stack,
-                            AITMod.id("textures/environment/tardis_sky.png"), model,
-                            BotiPortalModel.getTexturedModelData().createModel(), light, context.tickDelta());
-                }
-                stack.pop();
-            }
+
+        ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
+
+        if (tardis == null) {
             BOTI.DOOR_RENDER_QUEUE.clear();
+            return;
         }
+
+        ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
+        AnimatedModel model = variant.getDoor().model();
+
+        profiler.push("ait:boti_door");
+
+        for (DoorBlockEntity door : BOTI.DOOR_RENDER_QUEUE) {
+            if (door == null) continue;
+            BlockPos pos = door.getPos();
+
+            stack.push();
+            stack.translate(0.5, 0, 0.5);
+            stack.translate(pos.getX() - context.camera().getPos().getX(), pos.getY() - context.camera().getPos().getY(), pos.getZ() - context.camera().getPos().getZ());
+            stack.scale(1, -1, -1);
+            stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(door.getCachedState().get(DoorBlock.FACING).asRotation()));
+
+            if (tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) {
+                int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
+                profiler.visit("ait_boti_door_drawn");
+                profiler.visit("ait_model_build");
+                TardisDoorBOTI.renderInteriorDoorBoti(tardis, door, variant, stack, context.consumers(),
+                        AITMod.id("textures/environment/tardis_sky.png"), model,
+                        BotiPortalModel.getTexturedModelData().createModel(), light, context.tickDelta());
+            } else {
+                profiler.visit("ait_boti_door_culled");
+            }
+
+            stack.pop();
+        }
+
+        profiler.pop();
+
+        BOTI.DOOR_RENDER_QUEUE.clear();
     }
 
     public void gallifreyanBOTI(WorldRenderContext context) {
-        if (skipPaintingBOTI()) return;
+        Profiler profiler = context.world().getProfiler();
+        profiler.visit("ait_boti_gallifreyan_queued", BOTI.GALLIFREYAN_RENDER_QUEUE.size());
 
-        MinecraftClient client = MinecraftClient.getInstance();
+        if (skipPaintingBOTI()) {
+            profiler.visit("ait_boti_gallifreyan_disabled");
+            BOTI.GALLIFREYAN_RENDER_QUEUE.clear();
+            return;
+        }
+
+        profiler.push("ait:boti_gallifreyan");
+
+        // Built before the queue is known to be non-empty, so this runs every frame even with no
+        // paintings in sight. Counted separately from the per-painting builds to make that visible.
+        profiler.visit("ait_model_build");
+        profiler.visit("ait_model_build_eager");
         SinglePartEntityModel contents = new GallifreyFallsModel(GallifreyFallsModel.getTexturedModelData().createModel());
         Identifier frameTex = GallifreyanPaintingEntityRenderer.GALLIFREY_FRAME_TEXTURE;
         Identifier contentsTex = GallifreyanPaintingEntityRenderer.GALLIFREY_PAINTING_TEXTURE;
-        if (client.player == null || client.world == null) return;
+        if (client.player == null || client.world == null) {
+            profiler.pop();
+            return;
+        }
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
         for (BOTIPaintingEntity painting : BOTI.GALLIFREYAN_RENDER_QUEUE) {
@@ -585,6 +684,7 @@ public class AITModClient implements ClientModInitializer {
             stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(painting.getBodyYaw()));
             stack.translate(0, -0.5f, 0.5);
+            profiler.visit("ait_model_build");
             PaintingFrameModel frame = new PaintingFrameModel(PaintingFrameModel.getTexturedModelData().createModel());
             BlockPos blockPos = BlockPos.ofFloored(painting.getClientCameraPosVec(client.getTickDelta()));
             PaintingBOTI.renderBOTIPainting(stack, frame,
@@ -592,17 +692,33 @@ public class AITModClient implements ClientModInitializer {
                             world.getLightLevel(LightType.SKY, blockPos)), contents, frameTex, contentsTex);
             stack.pop();
         }
+
+        profiler.pop();
+
         BOTI.GALLIFREYAN_RENDER_QUEUE.clear();
     }
 
     public void trenzaloreBOTI(WorldRenderContext context) {
-        if (skipPaintingBOTI()) return;
+        Profiler profiler = context.world().getProfiler();
+        profiler.visit("ait_boti_trenzalore_queued", BOTI.TRENZALORE_PAINTING_QUEUE.size());
 
-        MinecraftClient client = MinecraftClient.getInstance();
+        if (skipPaintingBOTI()) {
+            profiler.visit("ait_boti_trenzalore_disabled");
+            BOTI.TRENZALORE_PAINTING_QUEUE.clear();
+            return;
+        }
+
+        profiler.push("ait:boti_trenzalore");
+
+        profiler.visit("ait_model_build");
+        profiler.visit("ait_model_build_eager");
         SinglePartEntityModel contents = new TrenzalorePaintingModel(TrenzalorePaintingModel.getTexturedModelData().createModel());
         Identifier frameTex = TrenzalorePaintingEntityRenderer.TRENZALORE_FRAME_TEXTURE;
         Identifier contentsTex = TrenzalorePaintingEntityRenderer.TRENZALORE_PAINTING_TEXTURE;
-        if (client.player == null || client.world == null) return;
+        if (client.player == null || client.world == null) {
+            profiler.pop();
+            return;
+        }
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
         for (BOTIPaintingEntity painting : BOTI.TRENZALORE_PAINTING_QUEUE) {
@@ -614,6 +730,7 @@ public class AITModClient implements ClientModInitializer {
             stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(painting.getBodyYaw()));
             stack.translate(0, -0.5f, 0.5);
+            profiler.visit("ait_model_build");
             PaintingFrameModel frame = new PaintingFrameModel(PaintingFrameModel.getTexturedModelData().createModel());
             BlockPos blockPos = BlockPos.ofFloored(painting.getClientCameraPosVec(client.getTickDelta()));
             PaintingBOTI.renderBOTIPainting(stack, frame,
@@ -621,32 +738,50 @@ public class AITModClient implements ClientModInitializer {
                             world.getLightLevel(LightType.SKY, blockPos)), contents, frameTex, contentsTex);
             stack.pop();
         }
+
+        profiler.pop();
+
         BOTI.TRENZALORE_PAINTING_QUEUE.clear();
     }
 
     public void riftBOTI(WorldRenderContext context) {
-        if (skipPaintingBOTI()) return;
+        Profiler profiler = context.world().getProfiler();
+        profiler.visit("ait_boti_rift_queued", BOTI.RIFT_RENDERING_QUEUE.size());
 
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player == null || client.world == null) return;
+        if (skipPaintingBOTI()) {
+            profiler.visit("ait_boti_rift_disabled");
+            BOTI.RIFT_RENDERING_QUEUE.clear();
+            return;
+        }
+
+        if (client.player == null || client.world == null) {
+            BOTI.RIFT_RENDERING_QUEUE.clear();
+            return;
+        }
+
         ClientWorld world = client.world;
         MatrixStack stack = context.matrixStack();
+
+        profiler.push("ait:boti_rift");
+
         for (RiftEntity rift : BOTI.RIFT_RENDERING_QUEUE) {
             if (rift == null) continue;
             Vec3d pos = rift.getPos();
             stack.push();
             stack.translate(pos.getX() - context.camera().getPos().getX(),
                     pos.getY() - context.camera().getPos().getY(), pos.getZ() - context.camera().getPos().getZ());
-            stack.translate(0, 0.5, 0);
-            stack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(5f * (MinecraftClient.getInstance().player.age + MinecraftClient.getInstance().getTickDelta())));
+            stack.translate(0, 1.5f, 0);
+            stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rift.getYaw()));
             stack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(rift.getPitch()));
-            stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rift.getBodyYaw()));
-            stack.translate(0, 1f, 0);
+            profiler.visit("ait_model_build");
             RiftModel riftModel = new RiftModel(RiftModel.getTexturedModelData().createModel());
             BlockPos blockPos = BlockPos.ofFloored(rift.getClientCameraPosVec(client.getTickDelta()));
             RiftBOTI.renderRiftBoti(stack, riftModel, LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, blockPos), world.getLightLevel(LightType.SKY, blockPos)));
             stack.pop();
         }
+
+        profiler.pop();
+
         BOTI.RIFT_RENDERING_QUEUE.clear();
     }
     public static void resourcepackRegister() {

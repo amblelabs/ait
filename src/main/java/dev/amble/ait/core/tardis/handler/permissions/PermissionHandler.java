@@ -4,11 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import dev.amble.ait.client.screens.widget.SwitcherManager;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
@@ -41,7 +40,7 @@ public class PermissionHandler extends KeyedTardisComponent {
 
     static {
         ServerPlayNetworking.registerGlobalReceiver(P19_LOYALTY_SYNC,
-                ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+                ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
                     if (tardis == null)
                         return;
 
@@ -49,7 +48,7 @@ public class PermissionHandler extends KeyedTardisComponent {
                     Loyalty.Type type = buf.readEnumConstant(Loyalty.Type.class);
 
                     permissions.p19Loyalty.set(type);
-                }));
+                })));
     }
 
     @Override
@@ -58,11 +57,7 @@ public class PermissionHandler extends KeyedTardisComponent {
     }
 
     public static void p19Loyalty(ClientTardis tardis, Loyalty.Type type) {
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeUuid(tardis.getUuid());
-        buf.writeEnumConstant(type);
-
-        ClientPlayNetworking.send(P19_LOYALTY_SYNC, buf);
+        SwitcherManager.sync(tardis, buf -> buf.writeEnumConstant(type), P19_LOYALTY_SYNC);
     }
 
     public Value<Loyalty.Type> p19Loyalty() {

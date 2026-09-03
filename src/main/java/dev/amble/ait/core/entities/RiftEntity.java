@@ -1,15 +1,11 @@
 package dev.amble.ait.core.entities;
 
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.lib.util.TeleportUtil;
-
 import net.minecraft.block.*;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -17,21 +13,20 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.*;
 import net.minecraft.world.chunk.Chunk;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.*;
+import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.entities.base.DummyAmbientEntity;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.util.StackUtil;
 import dev.amble.ait.core.util.TagsUtil;
 import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.module.planet.core.util.ISpaceImmune;
+import dev.amble.lib.util.TeleportUtil;
 
 public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
     private int interactAmount = 0;
@@ -39,9 +34,7 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
     private int currentSoundIndex = 0;
 
     private static final SoundEvent[] RIFT_SOUNDS = {
-            AITSounds.RIFT1_AMBIENT,
-            AITSounds.RIFT2_AMBIENT,
-            AITSounds.RIFT3_AMBIENT
+            AITSounds.DRUMS,
     };
 
     @Override
@@ -50,13 +43,15 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
     }
 
     private static final int[] RIFT_DURATIONS = {
-            15 * 20,
-            13 * 20,
-            14 * 20
+            20,
     };
 
-    public RiftEntity(EntityType<?> type, World world) {
-        super(AITEntityTypes.RIFT_ENTITY, world);
+    public RiftEntity(EntityType<RiftEntity> type, World world) {
+        super(type, world);
+    }
+
+    public RiftEntity(World world) {
+        this(AITEntityTypes.RIFT_ENTITY, world);
     }
 
     @Override
@@ -198,29 +193,10 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
             if (ambientSoundCooldown > 0) {
                 ambientSoundCooldown--;
             } else {
-                this.getWorld().playSound(null, this.getBlockPos(), RIFT_SOUNDS[currentSoundIndex], SoundCategory.AMBIENT, 1.0f, 1.0f);
+                this.getWorld().playSound(null, this.getBlockPos(), RIFT_SOUNDS[currentSoundIndex], SoundCategory.AMBIENT, 0.7f, 1.0f);
                 ambientSoundCooldown = RIFT_DURATIONS[currentSoundIndex];
                 currentSoundIndex = (currentSoundIndex + 1) % RIFT_SOUNDS.length;
             }
         }
-    }
-
-    @Override
-    public void onSpawnPacket(EntitySpawnS2CPacket packet) {
-        double d = packet.getX();
-        double e = packet.getY();
-        double f = packet.getZ();
-        float g = packet.getYaw();
-        float h = packet.getPitch();
-        this.updateTrackedPosition(d, e, f);
-        this.bodyYaw = packet.getHeadYaw();
-        this.headYaw = packet.getHeadYaw();
-        this.prevBodyYaw = this.bodyYaw;
-        this.prevHeadYaw = this.headYaw;
-        this.setId(packet.getId());
-        this.setUuid(packet.getUuid());
-        this.updatePositionAndAngles(d, e, f, g, h);
-        this.setVelocity(packet.getVelocityX(), packet.getVelocityY(), packet.getVelocityZ());
-        this.updatePosition(d, e, f);
     }
 }

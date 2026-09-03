@@ -30,6 +30,11 @@ src/main/generated
 
 # java
 
+# python
+__pycache__/
+*.py[cod]
+*$py.class
+
 # nix
 .direnv
 

@@ -1,7 +1,5 @@
 package dev.amble.ait.core.tardis.handler;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
@@ -21,6 +19,7 @@ import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class SelfDestructHandler extends KeyedTardisComponent implements TardisTickable {
 

@@ -9,8 +9,6 @@ import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dev.amble.lib.data.DirectedBlockPos;
-import dev.amble.lib.data.DirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.entity.BlockEntity;
@@ -52,13 +50,10 @@ import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.TardisComponentRegistry;
+import dev.amble.lib.data.DirectedBlockPos;
+import dev.amble.lib.data.DirectedGlobalPos;
 
 public abstract class TardisManager<T extends Tardis, C> {
-
-    public static final Identifier SEND_PROPERTY = AITMod.id("send_property");
-
-    public static final Identifier ASK = AITMod.id("ask_tardis");
-
     public static final Identifier SEND = AITMod.id("tardis/send");
     public static final Identifier SEND_BULK = AITMod.id("tardis/send_bulk");
 

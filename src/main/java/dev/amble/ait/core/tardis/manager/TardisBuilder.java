@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import dev.amble.ait.AITMod;
@@ -20,6 +18,7 @@ import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.DesktopRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class TardisBuilder {
 

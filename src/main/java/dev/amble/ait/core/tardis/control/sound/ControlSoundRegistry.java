@@ -1,7 +1,5 @@
 package dev.amble.ait.core.tardis.control.sound;
 
-import dev.amble.lib.register.AmbleRegistries;
-import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 
 import net.minecraft.registry.Registry;
@@ -15,6 +13,8 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.control.impl.*;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
+import dev.amble.lib.register.AmbleRegistries;
+import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
 
 public class ControlSoundRegistry extends SimpleDatapackRegistry<ControlSound> {
     private static final ControlSoundRegistry instance = new ControlSoundRegistry();

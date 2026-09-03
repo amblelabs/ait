@@ -5,7 +5,7 @@ import static dev.amble.ait.core.AITItems.isUnlockedOnThisDay;
 
 import java.util.Calendar;
 
-import dev.amble.lib.container.impl.BlockEntityContainer;
+import dev.amble.lib.animation.HasBedrockModel;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 
 import net.minecraft.block.entity.BlockEntityType;
@@ -17,6 +17,7 @@ import dev.amble.ait.core.engine.block.generic.GenericStructureSystemBlockEntity
 import dev.amble.ait.core.engine.link.block.CableBlockEntity;
 import dev.amble.ait.core.engine.link.block.FullCableBlockEntity;
 import dev.amble.ait.module.planet.core.PlanetBlocks;
+import dev.amble.lib.container.impl.BlockEntityContainer;
 
 public class AITBlockEntityTypes implements BlockEntityContainer {
     public static BlockEntityType<SnowGlobeBlockEntity> SNOW_GLOBE_BLOCK_ENTITY_TYPE;
@@ -36,6 +37,7 @@ public class AITBlockEntityTypes implements BlockEntityContainer {
             .create(MonitorBlockEntity::new, AITBlocks.MONITOR_BLOCK).build();
     public static BlockEntityType<DetectorBlockEntity> DETECTOR_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
             .create(DetectorBlockEntity::new, AITBlocks.DETECTOR_BLOCK).build();
+    @HasBedrockModel
     public static BlockEntityType<ArtronCollectorBlockEntity> ARTRON_COLLECTOR_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
             .create(ArtronCollectorBlockEntity::new, AITBlocks.ARTRON_COLLECTOR_BLOCK).build();
     public static BlockEntityType<PlaqueBlockEntity> PLAQUE_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
@@ -72,8 +74,8 @@ public class AITBlockEntityTypes implements BlockEntityContainer {
             .create(AstralMapBlockEntity::new, AITBlocks.ASTRAL_MAP).build();
     public static BlockEntityType<PottedSonicScrewdriverBlockEntity> POTTED_SONIC_SCREWDRIVER_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
             .create(PottedSonicScrewdriverBlockEntity::new, AITBlocks.POTTED_SONIC_SCREWDRIVER).build();
-    public static BlockEntityType<RiftRipperBlockEntity> RIFT_RIPPER_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
-            .create(RiftRipperBlockEntity::new, AITBlocks.RIFT_RIPPER).build();
+    public static BlockEntityType<UntemperedSchismBlockEntity> RIFT_RIPPER_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
+            .create(UntemperedSchismBlockEntity::new, AITBlocks.UNTEMPERED_SCHISM).build();
     // TODO ADVENT might have to make this work like the block as well
     static {
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {

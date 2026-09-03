@@ -5,7 +5,6 @@ import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 import java.util.List;
 import java.util.UUID;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -50,6 +49,7 @@ import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.exterior.variant.growth.CoralGrowthVariant;
 import dev.amble.ait.registry.impl.DesktopRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 @SuppressWarnings("deprecation")
 public class CoralPlantBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
@@ -163,11 +163,13 @@ public class CoralPlantBlock extends HorizontalDirectionalBlock implements Block
 
         if (!RiftChunkManager.isRiftChunk((ServerWorld) world, pos) && !TardisServerWorld.isTardisDimension((ServerWorld) world)) {
             world.breakBlock(pos, !placer.isPlayer() || !player.isCreative());
+            player.sendMessage(Text.translatable("ait.tooltip.coral_riftchunk").formatted(Formatting.RED), true);
             return;
         }
 
         if (!(world.getBlockState(pos.down()).getBlock() instanceof SoulSandBlock)) {
             world.breakBlock(pos, !placer.isPlayer() || !player.isCreative());
+            player.sendMessage(Text.translatable("ait.tooltip.coral_soulsand").formatted(Formatting.RED), true);
             return;
         }
 

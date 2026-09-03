@@ -4,8 +4,6 @@ import java.util.HashSet;
 import java.util.UUID;
 import java.util.function.Function;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedGlobalPos;
 import org.joml.Vector2i;
 
 import net.minecraft.item.ItemStack;
@@ -18,6 +16,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedGlobalPos;
 
 public class Property<T> {
 

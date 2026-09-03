@@ -4,9 +4,6 @@ import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.MAX_PLAS
 
 import java.util.UUID;
 
-import dev.amble.ait.core.tardis.control.impl.SecurityControl;
-import dev.amble.ait.data.Loyalty;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -51,14 +48,17 @@ import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.item.sonic.SonicMode;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.core.tardis.handler.SonicHandler;
 import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.category.AdaptiveCategory;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements BlockEntityTicker<ExteriorBlockEntity> {
     private UUID seatEntityUUID = null;

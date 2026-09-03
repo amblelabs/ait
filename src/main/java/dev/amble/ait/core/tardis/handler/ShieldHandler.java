@@ -1,7 +1,5 @@
 package dev.amble.ait.core.tardis.handler;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -27,6 +25,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class ShieldHandler extends KeyedTardisComponent implements TardisTickable {
     private static final BoolProperty IS_SHIELDED = new BoolProperty("is_shielded", false);

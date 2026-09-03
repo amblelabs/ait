@@ -2,20 +2,19 @@ package dev.amble.ait.core.tardis.handler;
 
 import java.util.Optional;
 
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.core.item.ControlDiscItem;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.core.item.ControlDiscItem;
 import dev.amble.ait.core.item.WaypointItem;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Waypoint;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class WaypointHandler extends KeyedTardisComponent {
     public static final BoolProperty HAS_CARTRIDGE = new BoolProperty("has_cartridge", false);

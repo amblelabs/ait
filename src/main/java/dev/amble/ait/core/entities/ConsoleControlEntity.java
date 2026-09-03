@@ -1,34 +1,19 @@
 package dev.amble.ait.core.entities;
 
+import java.util.List;
+import java.util.Optional;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITEntityTypes;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.entities.base.LinkableDummyEntity;
-import dev.amble.ait.core.item.RepairToolItem;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.item.control.ControlBlockItem;
-import dev.amble.ait.core.item.sonic.SonicMode;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisManager;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.core.tardis.control.ControlTypes;
-import dev.amble.ait.core.tardis.control.impl.HammerHangerControl;
-import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
-import dev.amble.ait.registry.impl.ControlRegistry;
-import dev.amble.lib.animation.AnimatedEntity;
-import dev.amble.lib.client.bedrock.BedrockAnimationReference;
-import dev.amble.lib.client.bedrock.TargetedAnimationState;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
 import io.netty.handler.codec.EncoderException;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
+
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.*;
@@ -56,13 +41,31 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 
-import java.util.List;
-import java.util.Optional;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITEntityTypes;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.entities.base.LinkableDummyEntity;
+import dev.amble.ait.core.item.RepairToolItem;
+import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.core.item.control.ControlBlockItem;
+import dev.amble.ait.core.item.sonic.SonicMode;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisManager;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.core.tardis.control.ControlTypes;
+import dev.amble.ait.core.tardis.control.impl.HammerHangerControl;
+import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
+import dev.amble.ait.registry.impl.ControlRegistry;
+import dev.amble.lib.animation.AnimatedEntity;
+import dev.amble.lib.client.bedrock.BedrockAnimationReference;
+import dev.amble.lib.client.bedrock.TargetedAnimationState;
 
 public class ConsoleControlEntity extends LinkableDummyEntity implements AnimatedEntity {
     private static final TrackedData<Float> WIDTH = DataTracker.registerData(ConsoleControlEntity.class,
@@ -81,18 +84,17 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
             TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> ON_DELAY = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.BOOLEAN);
-
     private static final TrackedData<BlockPos> CONSOLE_BLOCK_POS = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.BLOCK_POS);
-	private static final TrackedData<String> CONTROL_ID = DataTracker.registerData(ConsoleControlEntity.class,
-			TrackedDataHandlerRegistry.STRING);
-	private static final TrackedData<String> ANIMATION_ID = DataTracker.registerData(ConsoleControlEntity.class,
-			TrackedDataHandlerRegistry.STRING);
-	public static final float MAX_DURABILITY = 1.0f;
+    private static final TrackedData<String> CONTROL_ID = DataTracker.registerData(ConsoleControlEntity.class,
+            TrackedDataHandlerRegistry.STRING);
+    private static final TrackedData<String> ANIMATION_ID = DataTracker.registerData(ConsoleControlEntity.class,
+            TrackedDataHandlerRegistry.STRING);
+    public static final float MAX_DURABILITY = 1.0f;
 
-	private Control control;
-	private ControlTypes controlType;
-	private final TargetedAnimationState animationState = new TargetedAnimationState();
+    private Control control;
+    private ControlTypes controlType;
+    private final TargetedAnimationState animationState = new TargetedAnimationState();
 
     public ConsoleControlEntity(EntityType<? extends Entity> entityType, World world) {
         super(entityType, world);
@@ -131,8 +133,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
         this.dataTracker.startTracking(WAS_SEQUENCED, false);
         this.dataTracker.startTracking(ON_DELAY, false);
         this.dataTracker.startTracking(CONSOLE_BLOCK_POS, BlockPos.ORIGIN);
-	    this.dataTracker.startTracking(CONTROL_ID, "");
-	    this.dataTracker.startTracking(ANIMATION_ID, "");
+        this.dataTracker.startTracking(CONTROL_ID, "");
+        this.dataTracker.startTracking(ANIMATION_ID, "");
     }
 
 	@Override
@@ -227,6 +229,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
     public ActionResult interact(PlayerEntity player, Hand hand) {
         ItemStack handStack = player.getStackInHand(hand);
 
+        if (handStack.isOf(AITItems.REPAIR_TOOL) && this.getDurability() < MAX_DURABILITY) {
+            return ActionResult.PASS;
+        }
+
         if (player.getOffHandStack().isOf(Items.COMMAND_BLOCK)) {
             controlEditorHandler(player);
             return ActionResult.SUCCESS;
@@ -257,8 +263,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
 
             if (player.getOffHandStack().isOf(Items.COMMAND_BLOCK))
                 controlEditorHandler(player);
-
-            else if (!this.run((PlayerEntity) source.getAttacker(), source.getAttacker().getWorld(), true))
+            else if (!this.run(player, player.getWorld(), true))
                 this.playFailFx();
         }
 
@@ -302,8 +307,11 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
             this.discard();
 
         switch (this.getDurabilityState(this.getDurability())) {
-            case JAMMED, SPARKING -> this.spark();
+            case SPARKY -> this.spark();
+            case OCCASIONALY_JAM -> this.smoke();
             case CATCH_FIRE -> this.onFire();
+            // Don't have the COMPLETELY BROKEN one show anything, this is the player's fault
+            default -> {}
         }
     }
 
@@ -329,15 +337,15 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
     }
 
     public Control getControl() {
-	    // On client, look up control from synced ID if local field is null
-	    if (this.control == null && this.getWorld() != null && this.getWorld().isClient()) {
-		    String controlId = this.dataTracker.get(CONTROL_ID);
-		    if (!controlId.isEmpty()) {
-			    Identifier parsed = Identifier.tryParse(controlId);
-			    if (parsed != null)
-				    this.control = ControlRegistry.fromId(parsed).orElse(null);
-		    }
-	    }
+        // The control field is only assigned server-side (see setControlData), so on the client we
+        // resolve it lazily from the synced id.
+        if (this.control == null) {
+            String id = this.dataTracker.get(CONTROL_ID);
+
+            if (!id.isEmpty())
+                this.control = ControlRegistry.REGISTRY.get(Identifier.tryParse(id));
+        }
+
         return control;
     }
 
@@ -446,7 +454,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
     }
 
     public void addDurability(float durability) {
-        this.setDurability(Math.min(durability, MAX_DURABILITY));
+        this.setDurability(Math.min(this.getDurability() + durability, MAX_DURABILITY));
     }
 
     public void subtractDurability(float durability) {
@@ -492,16 +500,24 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
         Tardis tardis = this.tardis().get();
 
         ItemStack stack = player.getMainHandStack();
-        if (((stack.isOf(AITItems.SONIC_SCREWDRIVER) && SonicItem.mode(stack) == SonicMode.Modes.TARDIS) || stack.getItem() instanceof RepairToolItem) && this.getDurability() < 1.0f) {
+        if (tardis.travel().isLanded() && ((stack.isOf(AITItems.SONIC_SCREWDRIVER) && SonicItem.mode(stack) == SonicMode.Modes.TARDIS) || stack.getItem() instanceof RepairToolItem) && this.getDurability() < 1.0f) {
             Vec3d pos = this.getPos();
             this.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
             ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.WAX_ON,
                     pos.getX(), pos.getY(), pos.getZ(), 2, 0.2, 0.4, 0.2, 0.02);
-            this.setDurability(MAX_DURABILITY);
+            this.addDurability(0.1f);
             return true;
         }
 
         control.runAnimation(tardis, (ServerPlayerEntity) player, (ServerWorld) world);
+
+        DurabilityStates state = this.getDurabilityState(this.getDurability());
+        boolean hasMallet = player.getMainHandStack().isOf(AITItems.HAMMER);
+
+        if (state == DurabilityStates.CATCH_FIRE && !hasMallet) {
+            player.setFireTicks(random.nextBetween(20*2, 20*6));
+            player.damage(world.getDamageSources().hotFloor(), 4);
+        }
 
         if (this.isOnDelay())
             return false;
@@ -513,40 +529,34 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
             this.getWorld().playSound(null, this.getBlockPos(), AITSounds.EVEN_MORE_SECRET_MUSIC, SoundCategory.MASTER,
                     1F, 1F);
 
-        boolean hasMallet = player.getMainHandStack().isOf(AITItems.HAMMER);
-
         if (hasMallet) {
             this.playSound(AITSounds.KNOCK, 1, 0.25f);
             Vec3d pos = this.getPos();
             ((ServerWorld) world).spawnParticles(ParticleTypes.SCRAPE,
                     pos.getX(), pos.getY(), pos.getZ(), 2, 0.2, 0.4, 0.2, 0.02);
-        }
 
-        DurabilityStates state = this.getDurabilityState(this.getDurability());
-
-        if (state == DurabilityStates.FULL && !(this.getControl() instanceof HammerHangerControl)) {
-            if (hasMallet)
-                this.subtractDurability(0.4f);
+            if (!(this.getControl() instanceof HammerHangerControl)) {
+                this.subtractDurability(random.nextBetween(1, 4) / 25f * this.getDurability());
+            }
         }
 
         if (state == DurabilityStates.JAMMED) {
+            if (hasMallet && random.nextBetween(0, 5) < 2)
+                tardis.subsystems().engine().removeDurability(random.nextBetween(0, 7));
+
+            return false;
+        }
+
+        if (state == DurabilityStates.SPARKY && random.nextBetween(0, 20) < 10) {
+            if (hasMallet) {
+                this.setDurability(state.next().durability);
+            } else {
+                return false;
+            }
+        }
+
+        if (state == DurabilityStates.OCCASIONALY_JAM && random.nextBetween(0, 25) < 5) {
             if (!hasMallet) return false;
-        }
-
-        if (state == DurabilityStates.OCCASIONALLY_JAM && random.nextBetween(0, 10) == 5) {
-            if (hasMallet) {
-                this.setDurability(state.next().durability);
-            } else {
-                return false;
-            }
-        }
-
-        if (state == DurabilityStates.SPARKING && random.nextBetween(0, 10) < 5) {
-            if (hasMallet) {
-                this.setDurability(state.next().durability);
-            } else {
-                return false;
-            }
         }
 
         if (this.control.shouldHaveDelay(tardis) && !this.isOnDelay()) {
@@ -559,10 +569,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
         Control.Result result = this.control.handleRun(tardis, (ServerPlayerEntity) player, (ServerWorld) world, this.getConsoleBlockPos(), leftClick);
 
         if (result == Control.Result.SEQUENCE) {
-            // THIS IS LITERALLY A FEATURE DON'T REMOVE UNLESS I SAY SO DAMMIT - Loqor
             if (random.nextBetween(0, 8) == 5) {
-                int subtractCauseICan = random.nextBetween(0, 200);
-                this.subtractDurability(subtractCauseICan / 200f);
+                // Clamping the random variance to avoid extreme swings
+                float variance = (float) random.nextGaussian() * 0.15f + 0.5f;
+                this.subtractDurability(MathHelper.clamp(variance, 0.1f, 0.9f));
             }
         }
 
@@ -592,23 +602,28 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
 	}
 
     private void spark() {
-        if (this.getEntityWorld().isClient()) return;
+        if (!(this.getWorld() instanceof ServerWorld serverWorld)) return;
         Vec3d pos = this.getPos();
-        ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.SMOKE, pos.getX(), pos.getY(), pos.getZ(), 1, 0, 0.1, 0, 0.01f);
-        if (random.nextBetween(0, 40) == 5 && random.nextBoolean()) {
+        if (serverWorld.getServer().getTicks() % 15 == 0 && random.nextBoolean()) {
             this.playSound(SoundEvents.BLOCK_CHAIN_BREAK, 0.1f, random.nextBoolean() ? 1f : 2f);
-            ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.ELECTRIC_SPARK, pos.getX(), pos.getY(), pos.getZ(), 5, 0.2, 0.2, 0.2, 0.01);
-            ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.LAVA, pos.getX(), pos.getY(), pos.getZ(), 3, 0.1, 0.1, 0.1, 0.01);
+            serverWorld.spawnParticles(ParticleTypes.ELECTRIC_SPARK, pos.getX(), pos.getY(), pos.getZ(), 5, 0.2, 0.2, 0.2, 0.01);
+            serverWorld.spawnParticles(ParticleTypes.LAVA, pos.getX(), pos.getY(), pos.getZ(), 3, 0.1, 0.1, 0.1, 0.01);
         }
-        this.onFire();
+    }
+
+    private void smoke() {
+        if (!(this.getWorld() instanceof ServerWorld serverWorld)) return;
+        Vec3d pos = this.getPos();
+        if (serverWorld.getServer().getTicks() % 10 == 0)
+            serverWorld.spawnParticles(ParticleTypes.SMOKE, pos.getX(), pos.getY(), pos.getZ(), 1, 0, 0, 0, 0.0f);
     }
 
     private void onFire() {
-        if (this.getEntityWorld().isClient()) return;
+        if (!(this.getWorld() instanceof ServerWorld serverWorld)) return;
         Vec3d pos = this.getPos();
-        ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.SMOKE, pos.getX(), pos.getY(), pos.getZ(), 1, 0, 0, 0, 0.0f);
-        if (this.getEntityWorld().getServer().getTicks() % 10 == 0)
-            ((ServerWorld) this.getEntityWorld()).spawnParticles(ParticleTypes.SMALL_FLAME, pos.getX(), pos.getY() + 0.2f, pos.getZ(), 1, 0, 0.075f, 0, 0);
+        serverWorld.spawnParticles(ParticleTypes.SMOKE, pos.getX(), pos.getY(), pos.getZ(), 1, 0, 0, 0, 0.0f);
+        if (serverWorld.getServer().getTicks() % 10 == 0)
+            serverWorld.spawnParticles(ParticleTypes.SMALL_FLAME, pos.getX(), pos.getY() + 0.2f, pos.getZ(), 1, 0, 0.075f, 0, 0);
     }
 
     public BlockPos getConsoleBlockPos() {
@@ -624,15 +639,15 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
     public void setControlData(ConsoleTypeSchema consoleType, ControlTypes type, BlockPos consoleBlockPosition, float durability, boolean sticky) {
         this.setConsolePos(consoleBlockPosition);
         this.control = type.getControl();
-	    this.controlType = type;
-	    this.dataTracker.set(CONTROL_ID, this.control.id().toString());
+        this.controlType = type;
+        this.dataTracker.set(CONTROL_ID, this.control.id().toString());
 
-	    // Sync animation ID if present
-	    type.getAnimation().ifPresent(animation ->
-			    this.dataTracker.set(ANIMATION_ID, animation.id().toString())
-	    );
+        // Sync animation ID if present
+        type.getAnimation().ifPresent(animation ->
+                this.dataTracker.set(ANIMATION_ID, animation.id().toString())
+        );
 
-	    updateCustomName();
+        super.setCustomName(this.control.getName(this.tardis().get()));
 
         if (consoleType != null) {
             this.setControlWidth(type.getScale().width);
@@ -642,10 +657,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
             this.setSticky(sticky);
         }
     }
-
-	private void updateCustomName() {
-		super.setCustomName(Text.translatable(this.getControl().id().toTranslationKey("control")));
-	}
 
     public void logConsoleJson() {
         // convert all controls into json
@@ -672,7 +683,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
         if (player.getMainHandStack().getItem() == Items.PAPER && !player.getWorld().isClient()) {
             logConsoleJson();
 
-            player.sendMessage(Text.literal("JSON Data logged to Java Console!"));
+            player.sendMessage(Text.translatable("message.ait.console_control.json_logged"));
 
             return;
         }
@@ -713,8 +724,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
     public enum DurabilityStates {
         JAMMED(0.0f),
         CATCH_FIRE(0.25f),
-        SPARKING(0.5f),
-        OCCASIONALLY_JAM(0.75f),
+        OCCASIONALY_JAM(0.5f),
+        SPARKY(0.75f),
         FULL(ConsoleControlEntity.MAX_DURABILITY);
         public final float durability;
         DurabilityStates(float durabilityLevel) {
@@ -746,9 +757,9 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
         public DurabilityStates next() {
             return switch (this) {
                 case JAMMED -> CATCH_FIRE;
-                case CATCH_FIRE -> SPARKING;
-                case SPARKING -> OCCASIONALLY_JAM;
-                case OCCASIONALLY_JAM -> FULL;
+                case CATCH_FIRE -> OCCASIONALY_JAM;
+                case OCCASIONALY_JAM -> SPARKY;
+                case SPARKY -> FULL;
                 case FULL -> JAMMED;
             };
         }

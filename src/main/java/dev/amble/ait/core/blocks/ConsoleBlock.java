@@ -1,8 +1,5 @@
 package dev.amble.ait.core.blocks;
 
-import java.util.Random;
-
-import dev.amble.lib.api.ICantBreak;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,6 +24,8 @@ import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -41,6 +40,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.console.type.CopperType;
 import dev.amble.ait.data.schema.console.type.CrystallineType;
+import dev.amble.lib.api.ICantBreak;
 
 public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEntityProvider, ICantBreak {
 
@@ -138,7 +138,7 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof ConsoleBlockEntity console && console.isLinked()) {
             Tardis tardis = console.tardis().get();
-            if (console.tardis().get().fuel().hasPower()) {
+            if (tardis.fuel().hasPower()) {
                 return 15;
             }
         }
@@ -155,17 +155,17 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
     public void onSteppedOn(World world, BlockPos pos, BlockState state, Entity entity) {
         if (!TardisServerWorld.isTardisDimension(world)) return;
         if (entity instanceof PlayerEntity player) {
-            Random random = new Random();
-            int x_random = random.nextInt(1, 10);
-            int y_random = random.nextInt(1, 10);
-            int z_random = random.nextInt(1, 10);
+            Random random = world.random;
+            int x_random = random.nextBetween(1, 10);
+            int y_random = random.nextBetween(1, 10);
+            int z_random = random.nextBetween(1, 10);
 
             boolean is_x_negative = false;
             boolean is_z_negative = false;
-            if (random.nextInt(1, 3) == 1) {
+            if (random.nextBetween(1, 3) == 1) {
                 is_x_negative = true;
             }
-            if (random.nextInt(1, 3) == 1) {
+            if (random.nextBetween(1, 3) == 1) {
                 is_z_negative = true;
             }
 
@@ -177,9 +177,9 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
             if (player instanceof ServerPlayerEntity) {
                 for (int i = 0; i < 100; i++) {
                     ((ServerWorld) world).spawnParticles(ParticleTypes.ANGRY_VILLAGER,
-                            pos.getX() + random.nextFloat(-2, 3), pos.getY() + random.nextFloat(2),
-                            pos.getZ() + random.nextFloat(-2, 3), 1, random.nextFloat(-5, 5), random.nextFloat(-5, 5),
-                            random.nextFloat(-5, 5), 1f);
+                            pos.getX() + MathHelper.nextFloat(random, -2.0F, 3.0F), pos.getY() + MathHelper.nextFloat(random, 0.0F, 2.0F),
+                            pos.getZ() + MathHelper.nextFloat(random, -2.0F, 3.0F), 1, MathHelper.nextFloat(random, -5.0F, 5.0F), MathHelper.nextFloat(random, -5.0F, 5.0F),
+                            MathHelper.nextFloat(random, -5.0F, 5.0F), 1f);
                 }
             }
         }

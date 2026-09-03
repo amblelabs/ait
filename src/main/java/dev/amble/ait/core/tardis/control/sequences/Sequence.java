@@ -120,6 +120,7 @@ public class Sequence {
 
         @Override
         public void executeMissed(Tardis tardis, @Nullable ServerPlayerEntity player) {
+            tardis.travel().missEvent();
             this.executeMissed.run(tardis);
         }
 

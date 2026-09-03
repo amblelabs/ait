@@ -2,7 +2,6 @@ package dev.amble.ait.core.tardis.animation.v2;
 
 import java.util.UUID;
 
-import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.drtheo.queue.api.ActionQueue;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -34,6 +33,7 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.Loyalty;
+import dev.amble.lib.util.ServerLifecycleHooks;
 
 public class AnimationHolder implements TardisTickable, Disposable, Linkable {
     public static final Identifier UPDATE_PACKET = AITMod.id("sync/ext_anim");
@@ -195,8 +195,12 @@ public class AnimationHolder implements TardisTickable, Disposable, Linkable {
     public float getAlpha(float delta) {
         if (this.isLinked()) {
             Tardis tardis = this.tardis().get();
-            if (tardis.cloak().cloaked().get())
+            if (tardis.cloak().cloaked().get()) {
+                if (tardis.cloak().silent().get())
+                    return 0f;
+
                 return cloakAlpha(tardis);
+            }
 
             if (tardis.travel().isLanded() && tardis.travel().handbrake() && tardis.travel().speed() > 0)
                 return handbrakeAlpha(tardis);

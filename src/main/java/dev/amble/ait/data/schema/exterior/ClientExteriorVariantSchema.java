@@ -3,7 +3,6 @@ package dev.amble.ait.data.schema.exterior;
 import java.lang.reflect.Type;
 
 import com.google.gson.*;
-import dev.amble.lib.api.Identifiable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.joml.Vector3f;
@@ -18,6 +17,7 @@ import dev.amble.ait.data.schema.door.ClientDoorSchema;
 import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.api.Identifiable;
 
 @Environment(EnvType.CLIENT)
 public abstract class ClientExteriorVariantSchema implements Identifiable {
@@ -26,6 +26,7 @@ public abstract class ClientExteriorVariantSchema implements Identifiable {
     private final Identifier id;
 
     private ClientDoorSchema door;
+    private ExteriorModel model;
 
     protected ClientExteriorVariantSchema(Identifier parent, Identifier id) {
         this.parent = parent;
@@ -58,6 +59,10 @@ public abstract class ClientExteriorVariantSchema implements Identifiable {
     public abstract Identifier emission();
 
     public abstract ExteriorModel model();
+
+    public ExteriorModel getCachedModel() {
+        return this.model != null ? this.model : (this.model = this.model());
+    }
 
     public abstract Vector3f sonicItemTranslations();
 

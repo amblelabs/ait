@@ -2,8 +2,6 @@ package dev.amble.ait.module.planet.core.space.planet;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.amble.lib.util.ServerLifecycleHooks;
-import dev.amble.lib.util.TeleportUtil;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.registry.RegistryKey;
@@ -13,6 +11,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
 import dev.amble.ait.core.AITDimensions;
+import dev.amble.lib.util.ServerLifecycleHooks;
+import dev.amble.lib.util.TeleportUtil;
 
 /**
  * Represents a transition between two planets.

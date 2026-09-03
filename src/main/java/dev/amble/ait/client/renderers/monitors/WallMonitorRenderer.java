@@ -1,7 +1,5 @@
 package dev.amble.ait.client.renderers.monitors;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -26,6 +24,7 @@ import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class WallMonitorRenderer<T extends WallMonitorBlockEntity> implements BlockEntityRenderer<T> {
 
@@ -110,8 +109,8 @@ public class WallMonitorRenderer<T extends WallMonitorBlockEntity> implements Bl
         this.textRenderer.drawWithOutline(Text.of(arrow).asOrderedText(),
                 (18 - xVal) - ((float) this.textRenderer.getWidth(arrow) / 2), 42, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(Text.of("-===========-").asOrderedText(),
-                (v - xVal) - ((float) this.textRenderer.getWidth("-===========-") / 2), 55, 0x00F0FF, 0x000000,
+        this.textRenderer.drawWithOutline(Text.of("----------").asOrderedText(),
+                (v - xVal) - ((float) this.textRenderer.getWidth("----------") / 2), 55, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         this.textRenderer.drawWithOutline(Text.of(destinationPosText).asOrderedText(),
                 (v - xVal) - ((float) this.textRenderer.getWidth(destinationPosText) / 2), 67, 0xFFFFFF, 0x000000,
@@ -123,8 +122,9 @@ public class WallMonitorRenderer<T extends WallMonitorBlockEntity> implements Bl
                 (18 - xVal) - ((float) this.textRenderer.getWidth(arrow2) / 2), 75, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
 
-        this.textRenderer.drawWithOutline(Text.of("⛽").asOrderedText(),
-                (53 - xVal) - ((float) this.textRenderer.getWidth("⛽") / 2), 40, 0xFAF000, 0x000000,
+        Text au = Text.translatable("ait.monitor.fuel");
+        this.textRenderer.drawWithOutline(au.asOrderedText(),
+                (53 - xVal) - ((float) this.textRenderer.getWidth(au) / 2), 40, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         this.textRenderer.drawWithOutline(Text.of(fuelText).asOrderedText(),
                 (53 - xVal) - ((float) this.textRenderer.getWidth(fuelText) / 2), 48, 0xFFFFFF, 0x000000,
@@ -134,7 +134,7 @@ public class WallMonitorRenderer<T extends WallMonitorBlockEntity> implements Bl
                 : tardis.travel().getDurationAsPercentage() + "%";
 
         this.textRenderer.drawWithOutline(Text.of("⏳").asOrderedText(),
-                (53 - xVal) - ((float) this.textRenderer.getWidth("⏳") / 2), 60, 0x00FF0F, 0x000000,
+                (53 - xVal) - ((float) this.textRenderer.getWidth("⏳") / 2), 60, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         this.textRenderer.drawWithOutline(Text.of(flightTimeText).asOrderedText(),
                 (53 - xVal) - ((float) this.textRenderer.getWidth(flightTimeText) / 2), 68, 0xFFFFFF, 0x000000,

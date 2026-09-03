@@ -1,15 +1,18 @@
 package dev.amble.ait.mixin.compat.portals;
 
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.core.world.TardisServerWorld;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import qouteall.imm_ptl.core.teleportation.ServerTeleportationManager;
+
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.Vec3d;
+
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
 
 @Mixin(ServerTeleportationManager.class)
 public class ServerTeleportationManagerMixin {
@@ -20,6 +23,8 @@ public class ServerTeleportationManagerMixin {
             TardisEvents.LEAVE_TARDIS.invoker().onLeave(tsw.getTardis(), player);
 
         if (toWorld instanceof TardisServerWorld tsw)
-            TardisEvents.ENTER_TARDIS.invoker().onEnter(tsw.getTardis(), player);
+            if (TardisEvents.ENTER_TARDIS.invoker().onEnter(tsw.getTardis(), player) == TardisEvents.Interaction.FAIL) {
+                TardisUtil.teleportOutside(tsw.getTardis(), player);
+            }
     }
 }

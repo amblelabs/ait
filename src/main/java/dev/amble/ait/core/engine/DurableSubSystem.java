@@ -1,12 +1,10 @@
 package dev.amble.ait.core.engine;
 
-import dev.amble.ait.core.item.RepairToolItem;
-import dev.amble.lib.util.ServerLifecycleHooks;
-
 import net.minecraft.item.ItemStack;
 
 import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.item.RepairToolItem;
+import dev.amble.lib.util.ServerLifecycleHooks;
 
 public abstract class DurableSubSystem extends SubSystem {
     public static final int MAX_DURABILITY = 1250;
@@ -73,10 +71,6 @@ public abstract class DurableSubSystem extends SubSystem {
     }
     protected abstract float cost();
     protected abstract boolean shouldDurabilityChange();
-
-    public boolean isRepairItem(ItemStack stack) {
-        return stack.getItem() instanceof RepairToolItem;
-    }
 
     @Override
     public void tick() {

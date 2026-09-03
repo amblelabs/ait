@@ -12,7 +12,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.amble.lib.api.Identifiable;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -22,6 +21,7 @@ import net.minecraft.text.Texts;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
+import dev.amble.lib.api.Identifiable;
 
 public record BlueprintSchema(Identifier id, Text text, InputList inputs, ItemStack output) implements Identifiable {
     public static Codec<BlueprintSchema> CODEC = RecordCodecBuilder.create(instance -> instance.group(

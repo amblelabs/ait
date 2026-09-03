@@ -16,7 +16,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "ait:chronology_music_disc",
+          "name": "ait:ait_theme_music_disc",
           "weight": 1
         },
         {
@@ -97,7 +97,7 @@
         {
           "type": "minecraft:item",
           "name": "ait:handles",
-          "weight": 1
+          "weight": 5
         },
         {
           "type": "minecraft:item",
@@ -121,7 +121,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "ait:drifting_music_disc",
+          "name": "ait:two_thousand_music_disc",
           "weight": 1
         }
       ],

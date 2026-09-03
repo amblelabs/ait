@@ -10,6 +10,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
@@ -22,7 +23,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.control.RedstoneControlBlockEntity;
 import dev.amble.ait.core.tardis.Tardis;
 
@@ -99,7 +99,7 @@ public class RedstoneControlBlock extends ControlBlock {
         }
 
         world.setBlockState(pos, Mode.set(state, Mode.get(state).next())); // set to next mode
-        world.playSound(null, pos, AITSounds.REDSTONE_CONTROL_SWITCHAROO, SoundCategory.BLOCKS, 0.1f, 0f);
+        world.playSound(null, pos, SoundEvents.BLOCK_STONE_BUTTON_CLICK_ON, SoundCategory.BLOCKS, 0.1f, 0.5f);
 
         return ActionResult.SUCCESS;
     }

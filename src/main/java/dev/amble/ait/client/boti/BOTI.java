@@ -1,7 +1,7 @@
 package dev.amble.ait.client.boti;
 
+import java.util.Collection;
 import java.util.LinkedList;
-import java.util.Queue;
 
 import com.mojang.blaze3d.platform.GlConst;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -19,13 +19,14 @@ import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 
 public class BOTI {
-    public static final Queue<RiftEntity> RIFT_RENDERING_QUEUE = new LinkedList<>();
+    public static final MinecraftClient client = MinecraftClient.getInstance();
+    public static final Collection<RiftEntity> RIFT_RENDERING_QUEUE = new LinkedList<>();
     public static BOTIInit BOTI_HANDLER = new BOTIInit();
     public static AITBufferBuilderStorage AIT_BUF_BUILDER_STORAGE = new AITBufferBuilderStorage();
-    public static Queue<DoorBlockEntity> DOOR_RENDER_QUEUE = new LinkedList<>();
-    public static Queue<BOTIPaintingEntity> GALLIFREYAN_RENDER_QUEUE = new LinkedList<>();
-    public static Queue<BOTIPaintingEntity> TRENZALORE_PAINTING_QUEUE = new LinkedList<>();
-    public static Queue<ExteriorBlockEntity> EXTERIOR_RENDER_QUEUE = new LinkedList<>();
+    public static Collection<DoorBlockEntity> DOOR_RENDER_QUEUE = new LinkedList<>();
+    public static Collection<BOTIPaintingEntity> GALLIFREYAN_RENDER_QUEUE = new LinkedList<>();
+    public static Collection<BOTIPaintingEntity> TRENZALORE_PAINTING_QUEUE = new LinkedList<>();
+    public static Collection<ExteriorBlockEntity> EXTERIOR_RENDER_QUEUE = new LinkedList<>();
     private static boolean HAS_BEEN_WARNED = false;
 
     public static void copyFramebuffer(Framebuffer src, Framebuffer dest) {
@@ -83,10 +84,10 @@ public class BOTI {
     }
 
     private static void tryWarnMac(MinecraftClient client) {
-        client.player.sendMessage(Text.literal("You appear to be playing on a Mac. Indium is required, but is not found. This may cause issues with the mod - BOTI has been disabled!").formatted(Formatting.RED), false);
+        client.player.sendMessage(Text.translatable("message.ait.boti.indium_required.mac").formatted(Formatting.RED), false);
     }
 
     private static void tryWarnAmd(MinecraftClient client) {
-        client.player.sendMessage(Text.literal("You appear to have an AMD GPU. Indium is required, but is not found. This may cause issues with the mod - BOTI has been disabled!").formatted(Formatting.RED), false);
+        client.player.sendMessage(Text.translatable("message.ait.boti.indium_required.amd").formatted(Formatting.RED), false);
     }
 }

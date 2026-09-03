@@ -7,7 +7,6 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import com.google.gson.InstanceCreator;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -19,6 +18,7 @@ import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class ServerTardis extends Tardis {
 
@@ -109,10 +109,7 @@ public class ServerTardis extends Tardis {
     }
 
     public boolean shouldTick() {
-        if (world == null)
-            return false;
-
-        return !this.travel().isLanded() || world.shouldTick() || this.shouldTickExterior();
+        return !this.travel().isLanded() || (world != null && world.shouldTick()) || this.shouldTickExterior();
     }
 
     public boolean shouldTickExterior() {

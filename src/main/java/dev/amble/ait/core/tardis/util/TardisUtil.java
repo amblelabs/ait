@@ -3,10 +3,6 @@ package dev.amble.ait.core.tardis.util;
 import java.util.*;
 import java.util.function.Predicate;
 
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedBlockPos;
-import dev.amble.lib.util.ServerLifecycleHooks;
-import dev.amble.lib.util.TeleportUtil;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -58,6 +54,10 @@ import dev.amble.ait.mixin.lookup.EntityTrackingSectionAccessor;
 import dev.amble.ait.mixin.lookup.SectionedEntityCacheAccessor;
 import dev.amble.ait.mixin.lookup.SimpleEntityLookupAccessor;
 import dev.amble.ait.mixin.lookup.WorldInvoker;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedBlockPos;
+import dev.amble.lib.util.ServerLifecycleHooks;
+import dev.amble.lib.util.TeleportUtil;
 
 @SuppressWarnings("unused")
 public class TardisUtil {
@@ -66,7 +66,6 @@ public class TardisUtil {
     public static final Identifier SNAP = AITMod.id("snap");
     public static final Identifier FLYING_SPEED = AITMod.id("flying_speed");
     public static final Identifier TOGGLE_ANTIGRAVS = AITMod.id("toggle_antigravs");
-    public static final Identifier FIND_PLAYER = AITMod.id("find_player");
     public static final ExplosionBehavior EXPLOSION_BEHAVIOR = new ExplosionBehavior() {
         @Override
         public boolean canDestroyBlock(Explosion explosion, BlockView world, BlockPos pos, BlockState state, float power) {
@@ -156,30 +155,6 @@ public class TardisUtil {
                 tardis.travel().antigravs().toggle();
             });
         });
-
-        ServerPlayNetworking.registerGlobalReceiver(FIND_PLAYER,
-                (server, currentPlayer, handler, buf, responseSender) -> {
-                    UUID tardisId = buf.readUuid();
-                    UUID playerUuid = buf.readUuid();
-
-                    ServerTardisManager.getInstance().getTardis(server, tardisId, tardis -> {
-                        ServerPlayerEntity serverPlayer = server.getPlayerManager().getPlayer(playerUuid);
-
-                        if (serverPlayer == null) {
-                            tardis.getDesktop().playSoundAtEveryConsole(SoundEvents.BLOCK_SCULK_SHRIEKER_BREAK,
-                                    SoundCategory.BLOCKS, 3f, 1f);
-                            return;
-                        }
-
-                        tardis.travel()
-                                .forceDestination(CachedDirectedGlobalPos.create((ServerWorld) serverPlayer.getWorld(),
-                                        serverPlayer.getBlockPos(),
-                                        (byte) RotationPropertyHelper.fromYaw(serverPlayer.getBodyYaw())));
-
-                        tardis.getDesktop().playSoundAtEveryConsole(SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME,
-                                SoundCategory.BLOCKS, 3f, 1f);
-                    });
-                });
     }
 
     public static boolean inBox(Box a, Box b) {
@@ -262,13 +237,13 @@ public class TardisUtil {
     }
 
     public static void teleportInside(ServerTardis tardis, Entity entity) {
-        TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity);
+        if (TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity) == TardisEvents.Interaction.FAIL) return;
         TardisUtil.teleportWithDoorOffset(tardis.world(), entity, tardis.getDesktop().getDoorPos());
     }
 
     public static void teleportToInteriorPosition(ServerTardis tardis, Entity entity, BlockPos pos) {
         if (entity instanceof ServerPlayerEntity player) {
-            TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity);
+            if (TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity) == TardisEvents.Interaction.FAIL) return;
 
             WorldUtil.teleportToWorld(player, tardis.world(),
                     new Vec3d(pos.getX(), pos.getY(), pos.getZ()), entity.getYaw(), player.getPitch());
@@ -496,10 +471,10 @@ public class TardisUtil {
         return Math.sqrt(tPos.getSquaredDistance(pPos));
     }
 
-    public static double estimatedFuelCost(PlayerEntity player, Tardis tardis, double distance){
+    public static double estimatedFuelCost(PlayerEntity player, Tardis tardis, double distance) {
         int speed = Math.max(tardis.travel().speed(), 1);
         double ticksRequired = distance / speed;
-        double perTick = FuelHandler.getPerTickFuelCost(speed, tardis.travel().instability());
+        double perTick = FuelHandler.getPerTickFuelCost(speed, tardis.travel().instability(), tardis.travel().autopilot());
         return perTick * ticksRequired;
     }
 }
