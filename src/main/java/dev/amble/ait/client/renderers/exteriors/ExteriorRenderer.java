@@ -24,6 +24,8 @@ import dev.amble.ait.client.models.exteriors.SiegeModeModel;
 import dev.amble.ait.client.models.machines.ShieldsModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.ClientRenderPass;
+import dev.amble.ait.client.util.OffScreenCull;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
@@ -54,13 +56,37 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
             int light, int overlay) {
+        if (entity.getWorld() == null) return;
+
+        // One counter per exit, so "the renderer never ran" and "it ran and drew nothing" stop looking
+        // identical. Without these a zero in the BOTI queue counter has several possible causes.
+        //
+        // Fetched per call, never held: the client swaps its profiler object out every frame.
         Profiler profiler = entity.getWorld().getProfiler();
+        profiler.visit("ait_exterior_dispatched");
+
+        // Called twice a pass: once from the chunk's block entity list, once from the global no-cull
+        // list. Both draws are identical, so only the first does the work. When the section is culled
+        // the first call never arrives and the global one draws instead, which is the point of being
+        // on that list at all.
+        //
+        // Ahead of the zone, not inside it. Opening a zone and returning without closing it leaks a
+        // push per skipped duplicate and mis-nests everything measured after it.
+        if (!ClientRenderPass.shouldDraw(entity)) {
+            profiler.visit("ait_exterior_duplicate_skipped");
+            return;
+        }
+
         profiler.push("exterior");
 
         profiler.push("find_tardis");
 
-        if (!entity.isLinked())
+        if (!entity.isLinked()) {
+            profiler.visit("ait_exterior_unlinked");
+            profiler.pop();
+            profiler.pop();
             return;
+        }
 
         ClientTardis tardis = entity.tardis().get().asClient();
 
@@ -76,14 +102,59 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
                          int light, int overlay) {
         this.updateModel(tardis);
 
-        if (tardis.travel().getAlpha() > 0)
+        // Behind the duplicate guard rather than in front of it, unlike the console, because the
+        // bound needs the tardis: rematerialisation keyframes translate an exterior by up to six
+        // blocks and the stats scale multiplies it, so the offset and the scale are read per frame
+        // instead of padded for. Padding for the worst case would make the bound so large that
+        // nothing close behind the camera would ever be rejected.
+        //
+        // A sphere, not a box: the renderer applies an arbitrary yaw, and for a doom exterior that
+        // yaw follows the player's head, so no axis aligned bound survives. The slop covers the
+        // antigrav bob, which is a unit sine applied after the rotation.
+        double scale = maxScale(tardis.travel().getScale());
+
+        // The origin is where the renderer actually puts the model: the animation offset, then half a
+        // block in X and Z and none in Y.
+        //
+        // Slop covers what is drawn after the rotation, and it scales because those displacements do.
+        // The antigrav bob is a unit sine multiplied by the scale; the grumm and dinnerbone transform
+        // displaces about one and a half blocks before the scale is applied; and the shields bubble is
+        // a four block cube drawn outside the model entirely, so it has to be paid for whenever it is
+        // up or a player stood beside a small variant would watch the swirl pop.
+        double slop = 2.0 * scale + (tardis.areVisualShieldsActive() ? 4.5 : 0.0);
+
+        Vector3f animation = tardis.travel().getAnimationPosition(tickDelta);
+
+        if (this.model != null && OffScreenCull.sphereBehindCamera(entity, this.model.getPart(),
+                animation.x() + 0.5, animation.y(), animation.z() + 0.5, scale, slop)) {
+            profiler.visit("ait_exterior_offscreen_skipped");
+            return;
+        }
+
+        if (tardis.travel().getAlpha() > 0) {
+            profiler.visit("ait_exterior_drawn");
             this.renderExterior(profiler, tardis, entity, tickDelta, matrices, vertexConsumers, light, overlay);
+        } else {
+            profiler.visit("ait_exterior_alpha_zero");
+        }
 
-        if (tardis.door().getLeftRot() <= 0 && !variant.hasTransparentDoors()) return;
+        if (tardis.door().getLeftRot() <= 0 && !variant.hasTransparentDoors()) {
+            profiler.visit("ait_exterior_doors_shut");
+            return;
+        }
 
-        if (!tardis.travel().isLanded() || tardis.siege().isActive()) return;
+        if (!tardis.travel().isLanded() || tardis.siege().isActive()) {
+            profiler.visit("ait_exterior_not_landed");
+            return;
+        }
 
+        profiler.visit("ait_exterior_enqueued");
         if (variant.parent().hasPortals() || !AITModClient.skipBuiltInBOTI()) BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
+    }
+
+    /** The largest axis of a non uniform scale, since the bound is a sphere. */
+    private static double maxScale(Vector3f scale) {
+        return Math.max(1.0, Math.max(scale.x(), Math.max(scale.y(), scale.z())));
     }
 
     private boolean awesomeIPEmissionHack(Tardis tardis) {
@@ -121,10 +192,8 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
 
         CachedDirectedGlobalPos exteriorPos = travel.position();
 
-        if (exteriorPos == null) {
-            profiler.pop();
+        if (exteriorPos == null)
             return;
-        }
 
         BlockState blockState = entity.getCachedState();
         int k = blockState.get(ExteriorBlock.ROTATION);
@@ -152,7 +221,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         Identifier emission = this.variant.emission();
 
         if (MinecraftClient.getInstance().player == null) {
-            profiler.pop();
+            matrices.pop();
             return;
         }
 
@@ -178,7 +247,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
                         travel.position().getRotationDirection() == Direction.WEST ? 180f : 0f)));
 
         if (model == null) {
-            profiler.pop();
+            matrices.pop();
             return;
         }
 
@@ -241,7 +310,13 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
                     ? !power ? 0.01f : 0.3f
                     : u - colorAlpha;
 
-           model.renderWithAnimations(tardis, entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)),
+            // Sorted, not unsorted: alpha here is the demat and remat fade, which sweeps through the
+            // partial range where draw order is visible.
+            //
+            // TODO the guard above tests `emission`, which DOOM reassigns per rotation, but the layer
+            // below binds `variant.emission()`, the un-adjusted base. For DOOM those disagree. Left
+            // alone here because changing which texture DOOM binds is not part of this change.
+           model.renderWithAnimations(tardis, entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffsetSorted(variant.emission())),
                    0xF000F0, OverlayTexture.DEFAULT_UV, red, green, blue, alpha, tickDelta);
         }
         if (DependencyChecker.hasIris()) {

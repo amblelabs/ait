@@ -17,6 +17,7 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.AITModClient;
@@ -42,6 +43,13 @@ public class TardisExteriorBOTI extends BOTI {
 
         stack.push();
 
+        // Split into framebuffer work and geometry work. A single zone around the whole portal cannot
+        // tell "the blits are expensive" from "drawing the interior is expensive", which is the only
+        // thing worth knowing here.
+        Profiler profiler = client.getProfiler();
+        profiler.push("ait:boti_ext_fbo_setup");
+        profiler.visit("ait_boti_ext_portals");
+
         client.getFramebuffer().endWrite();
 
         BOTI_HANDLER.setupFramebuffer();
@@ -53,6 +61,9 @@ public class TardisExteriorBOTI extends BOTI {
             BOTI.setFramebufferColor(BOTI_HANDLER.afbo, (float) skyColor.x, (float) skyColor.y, (float) skyColor.z, 1);
 
         BOTI.copyFramebuffer(client.getFramebuffer(), BOTI_HANDLER.afbo);
+        profiler.visit("ait_boti_blit");
+
+        profiler.swap("ait:boti_ext_mask");
 
         VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
@@ -92,12 +103,18 @@ public class TardisExteriorBOTI extends BOTI {
         float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0, 1} : new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
         mask.render(stack, botiProvider.getBuffer(whichOne), light, OverlayTexture.DEFAULT_UV, colorsForGreenScreen[0], colorsForGreenScreen[1], colorsForGreenScreen[2], 1);
         botiProvider.draw();
+        profiler.visit("ait_boti_draw_flush");
         stack.pop();
 
+        profiler.swap("ait:boti_ext_fbo_depth");
+
         copyDepth(BOTI_HANDLER.afbo, client.getFramebuffer());
+        profiler.visit("ait_boti_blit");
 
         BOTI_HANDLER.afbo.beginWrite(false);
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+
+        profiler.swap("ait:boti_ext_doors");
 
         GL11.glStencilMask(0x00);
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
@@ -112,7 +129,10 @@ public class TardisExteriorBOTI extends BOTI {
 
         frame.renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.getBotiInterior(variant.texture())), light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
         botiProvider.draw();
+        profiler.visit("ait_boti_draw_flush");
         stack.pop();
+
+        profiler.swap("ait:boti_ext_biome");
 
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
@@ -131,7 +151,10 @@ public class TardisExteriorBOTI extends BOTI {
                         light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
         }
         botiProvider.draw();
+        profiler.visit("ait_boti_draw_flush");
         stack.pop();
+
+        profiler.swap("ait:boti_ext_emission");
 
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
@@ -166,17 +189,23 @@ public class TardisExteriorBOTI extends BOTI {
             float green = power ? alarms ? 0.3f : t : 0;
             float blue = power ? alarms ? 0.3f : u : 0;
 
-            frame.renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), LightmapTextureManager.MAX_LIGHT_COORDINATE,
+            frame.renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission())), LightmapTextureManager.MAX_LIGHT_COORDINATE,
                     OverlayTexture.DEFAULT_UV, red, green, blue, 1, true);
             botiProvider.draw();
+            profiler.visit("ait_boti_draw_flush");
         }
         stack.pop();
+
+        profiler.swap("ait:boti_ext_fbo_resolve");
 
         client.getFramebuffer().beginWrite(true);
 
         BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
+        profiler.visit("ait_boti_blit");
 
         GL11.glDisable(GL11.GL_STENCIL_TEST);
+
+        profiler.pop();
 
         stack.pop();
     }

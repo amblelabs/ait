@@ -23,6 +23,8 @@ import dev.amble.ait.client.models.AnimatedModel;
 import dev.amble.ait.client.models.doors.CapsuleDoorModel;
 import dev.amble.ait.client.models.doors.exclusive.DoomDoorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.util.ClientRenderPass;
+import dev.amble.ait.client.util.OffScreenCull;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -45,6 +47,20 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
                        int light, int overlay) {
         if (entity.getWorld() == null) return;
+
+        // Fetched per call, never held: the client swaps its profiler object out every frame.
+        Profiler profiler = entity.getWorld().getProfiler();
+        profiler.visit("ait_door_dispatched");
+
+        // Called twice a pass: once from the chunk's block entity list, once from the global no-cull
+        // list. Both draws are identical, so only the first does the work. When the section is culled
+        // the first call never arrives and the global one draws instead, which is the point of being
+        // on that list at all.
+        if (!ClientRenderPass.shouldDraw(entity)) {
+            profiler.visit("ait_door_duplicate_skipped");
+            return;
+        }
+
         if (!entity.isLinked()) {
             BlockState blockState = entity.getCachedState();
             float k = blockState.get(DoorBlock.FACING).asRotation();
@@ -60,7 +76,6 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
             return;
         }
 
-        Profiler profiler = entity.getWorld().getProfiler();
         profiler.push("door");
 
         ClientTardis tardis = entity.tardis().get().asClient();
@@ -73,6 +88,18 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
     private void renderDoor(Profiler profiler, ClientTardis tardis, T entity, MatrixStack matrices,
                             VertexConsumerProvider vertexConsumers, int light, int overlay, float tickDelta) {
         this.updateModel(tardis);
+
+        // Same shape as the exterior, and the same reason for being here rather than in front of the
+        // duplicate guard: the bound needs the stats scale. A sphere because the renderer yaws the
+        // model by the door's facing. This covers the interior door's own BOTI enqueue below, which
+        // for a player stood inside is the likelier cost of the two.
+        double doorScale = maxScale(tardis.stats().getScale());
+
+        if (this.model != null && OffScreenCull.sphereBehindCamera(entity, this.model.getPart(),
+                0.5, 0.0, 0.5, doorScale, doorScale)) {
+            profiler.visit("ait_door_offscreen_skipped");
+            return;
+        }
 
         BlockState blockState = entity.getCachedState();
         float k = blockState.get(DoorBlock.FACING).asRotation();
@@ -138,7 +165,7 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
             float green = alarms ? !power ? 0.01f : 0.3f : t;
             float blue = alarms ? !power ? 0.01f : 0.3f : u;
 
-            model.renderWithAnimations(tardis, entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)),
+            model.renderWithAnimations(tardis, entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission())),
                     0xf000f0, OverlayTexture.DEFAULT_UV, red, green, blue, colorAlpha, tickDelta);
         }
 
@@ -166,6 +193,11 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
 
         matrices.pop();
         profiler.pop();
+    }
+
+    /** The largest axis of a non uniform scale, since the bound is a sphere. */
+    private static double maxScale(Vector3f scale) {
+        return Math.max(1.0, Math.max(scale.x(), Math.max(scale.y(), scale.z())));
     }
 
     private void updateModel(Tardis tardis) {
