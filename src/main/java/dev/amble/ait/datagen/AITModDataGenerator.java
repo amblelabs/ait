@@ -816,6 +816,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.console_control.json_logged", "JSON data logged to Java console!");
         provider.addTranslation("message.ait.control.direction.rotation", "Rotation Direction: %s | %s");
         provider.addTranslation("message.ait.control.monitor.status", "X: %s Y: %s Z: %s Dim: %s Fuel: %s/50000");
+        provider.addTranslation("message.ait.coral.home_occupied",
+                "This coral won't grow here: another TARDIS claims this spot.");
         provider.addTranslation("message.ait.dimension.unlocked", "%s unlocked!");
         provider.addTranslation("message.ait.handles.already_in_flight", "The TARDIS is already in flight...");
         provider.addTranslation("message.ait.handles.antigravs_toggled", "Anti-Gravs Toggled.");
@@ -832,6 +834,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.handles.fun_fact.gallifrey", "Gallifrey has two suns and an orange sky!");
         provider.addTranslation("message.ait.handles.fun_fact.green_tardis", "The first TARDIS was actually painted green!");
         provider.addTranslation("message.ait.handles.fun_fact.handles", "Handles once saved the Doctor's life by solving a centuries-old riddle.");
+        provider.addTranslation("message.ait.handles.go_home", "Destination set to home. Taking off.");
+        provider.addTranslation("message.ait.handles.home_unavailable", "I cannot locate the TARDIS home.");
         provider.addTranslation("message.ait.handles.joke.calm", "Why was the TARDIS always calm? Because it's bigger on the inside.");
         provider.addTranslation("message.ait.handles.joke.dalek", "Why did the Dalek apply for a job? It wanted to EX-TER-MINATE its competition!");
         provider.addTranslation("message.ait.handles.joke.hide_and_seek", "Why does the TARDIS always win hide-and-seek? Because it's in another dimension!");
@@ -848,6 +852,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.handles.setting_course_waypoint", "Setting course for waypoint.");
         provider.addTranslation("message.ait.handles.tardis_state", "TARDIS State: %s");
         provider.addTranslation("message.ait.handles.toggled_shields", "Toggled Shields.");
+        provider.addTranslation("message.ait.handles.travel_failed", "I cannot begin the journey.");
         provider.addTranslation("message.ait.handles.unlocking_doors", "Unlocking door.");
         provider.addTranslation("message.ait.radio.changing_frequency", "Changing Frequency...");
         provider.addTranslation("message.ait.radio.off", "Radio Off");
@@ -988,6 +993,11 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.crashSoundVolume", "Crash Sound Volume");
         provider.addTranslation("yacl3.config.ait:server.flightSoundVolume", "Flight Sound Volume");
         provider.addTranslation("yacl3.config.ait:server.maxStabilizedSpeed", "Max Stabilized Speed");
+        provider.addTranslation("yacl3.config.ait:server.category.tardis_home", "TARDIS Home");
+        provider.addTranslation("yacl3.config.ait:server.homeRelocationCooldownMinutes",
+                "Home Relocation Cooldown (Minutes)");
+        provider.addTranslation("yacl3.config.ait:server.homeRelocationCooldownMinutes.desc",
+                "Minimum time after changing the TARDIS home before a player can change it again. Set to 0 for no cooldown.");
         provider.addTranslation("yacl3.config.ait:server.projectorBlacklist", "Environment Projector Blacklist");
         provider.addTranslation("yacl3.config.ait:server.projectorWhitelist", "Environment Projector Whitelist");
         provider.addTranslation("yacl3.config.ait:server.travelBlacklist", "TARDIS Travel Blacklist");
@@ -1307,6 +1317,12 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.telepathic.home_updated", "TARDIS home location changed.");
         provider.addTranslation("tardis.message.control.telepathic.home_denied", "The TARDIS refuses to change its home for you. Loyalty level PILOT required.");
         provider.addTranslation("tardis.message.control.telepathic.home_denied_nether", "The TARDIS rejects Nether as home. Loyalty level OWNER required.");
+        provider.addTranslation("tardis.message.control.telepathic.home_cooldown",
+                "The TARDIS refuses to move its home again so soon.");
+        provider.addTranslation("tardis.message.control.telepathic.home_occupied",
+                "Another TARDIS has already claimed this exact home position.");
+        provider.addTranslation("tardis.message.control.telepathic.home_unavailable",
+                "The TARDIS cannot verify this home position right now.");
         provider.addTranslation("tardis.message.control.engine_overdrive.primed", "Dump Artron? Press again to confirm.");
         provider.addTranslation("tardis.message.control.engine_overdrive.insufficient_fuel", "ERROR, TARDIS REQUIRES AT LEAST 25K ARTRON TO EXECUTE THIS ACTION.");
         provider.addTranslation("tardis.message.control.engine_overdrive.dumping_artron", "DUMPING ARTRON");
@@ -2570,6 +2586,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.control.ylandtype.floor", "SUELO");
         provider.addTranslation("message.ait.control.ylandtype.median", "MEDIO");
         provider.addTranslation("message.ait.control.ylandtype.none", "NINGUNO");
+        provider.addTranslation("message.ait.coral.home_occupied",
+                "Este coral no crecerá aquí: otra TARDIS reclama este lugar.");
         provider.addTranslation("message.ait.date_created", "Fecha de creación:");
         provider.addTranslation("message.ait.dimension.unlocked", "Desbloqueado: %s");
         provider.addTranslation("message.ait.enter_landing_code", "Código de aterrizaje");
@@ -2600,6 +2618,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.handles.fun_fact.gallifrey", "Gallifrey tiene dos soles y un cielo naranja.");
         provider.addTranslation("message.ait.handles.fun_fact.green_tardis", "La primera TARDIS en realidad estaba pintada de verde.");
         provider.addTranslation("message.ait.handles.fun_fact.handles", "Handles salvó una vez la vida del Doctor resolviendo un acertijo de siglos de antigüedad.");
+        provider.addTranslation("message.ait.handles.go_home", "Destino fijado en el hogar. Despegando.");
+        provider.addTranslation("message.ait.handles.home_unavailable", "No puedo localizar el hogar de la TARDIS.");
         provider.addTranslation("message.ait.handles.joke.calm", "¿Por qué la TARDIS siempre estaba tranquila? Porque es más grande por dentro.");
         provider.addTranslation("message.ait.handles.joke.dalek", "¿Por qué solicitó trabajo un Dalek? Porque quería EX-TER-MI-NAR a la competencia.");
         provider.addTranslation("message.ait.handles.joke.hide_and_seek", "¿Por qué la TARDIS siempre gana al escondite? Porque está en otra dimensión.");
@@ -2624,6 +2644,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.handles.toggle_lock", "<Handles> Cambiando estado del bloqueo.");
         provider.addTranslation("message.ait.handles.toggle_shields", "<Handles> Cambiando estado de los escudos.");
         provider.addTranslation("message.ait.handles.toggled_shields", "Escudos cambiados.");
+        provider.addTranslation("message.ait.handles.travel_failed", "No puedo iniciar el viaje.");
         provider.addTranslation("message.ait.handles.unlocking_doors", "Desbloqueando puertas.");
         provider.addTranslation("message.ait.handles.when", "<Handles> Afirmativo.");
         provider.addTranslation("message.ait.hypercubes.disabled", "Los hipercubos están desactivados en la configuración del SERVIDOR.");
@@ -2842,8 +2863,11 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.siege.enabled", "Modo asedio: ACTIVADO");
         provider.addTranslation("tardis.message.control.telepathic.choosing", "La TARDIS está eligiendo...");
         provider.addTranslation("tardis.message.control.telepathic.failed", "Destino no encontrado");
+        provider.addTranslation("tardis.message.control.telepathic.home_cooldown", "La TARDIS se niega a volver a cambiar de hogar tan pronto.");
         provider.addTranslation("tardis.message.control.telepathic.home_denied", "La TARDIS se niega a que cambies su hogar. Se requiere nivel de lealtad PILOTO.");
         provider.addTranslation("tardis.message.control.telepathic.home_denied_nether", "La TARDIS rechaza el Nether como hogar. Se requiere nivel de lealtad PROPIETARIO.");
+        provider.addTranslation("tardis.message.control.telepathic.home_occupied", "Otra TARDIS ya ha reclamado esta posición exacta como hogar.");
+        provider.addTranslation("tardis.message.control.telepathic.home_unavailable", "La TARDIS no puede verificar esta posición de hogar ahora mismo.");
         provider.addTranslation("tardis.message.control.telepathic.home_updated", "Hogar de la TARDIS actualizado.");
         provider.addTranslation("tardis.message.control.telepathic.success", "Destino encontrado");
         provider.addTranslation("tardis.message.destination_biome", "Bioma de destino: ");
@@ -2956,10 +2980,15 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.allowPortalsBoti", "[EXPERIMENTAL] ¿Permitir IP BOTI? (requiere reiniciar)");
         provider.addTranslation("yacl3.config.ait:server.astralMapBiomeLocatorRange", "Radio en bloques del buscador de biomas del mapa astral");
         provider.addTranslation("yacl3.config.ait:server.category.server", "AIT (Servidor)");
+        provider.addTranslation("yacl3.config.ait:server.category.tardis_home", "Hogar de la TARDIS");
         provider.addTranslation("yacl3.config.ait:server.crashSoundVolume", "Volumen del sonido de impacto de la TARDIS");
         provider.addTranslation("yacl3.config.ait:server.disableSafeguards", "Desactivar protecciones");
         provider.addTranslation("yacl3.config.ait:server.flightSoundVolume", "Volumen del sonido de vuelo");
         provider.addTranslation("yacl3.config.ait:server.ghostMonument", "Monumento fantasma");
+        provider.addTranslation("yacl3.config.ait:server.homeRelocationCooldownMinutes",
+                "Tiempo de espera para cambiar de hogar (minutos)");
+        provider.addTranslation("yacl3.config.ait:server.homeRelocationCooldownMinutes.desc",
+                "Tiempo mínimo que debe pasar después de cambiar el hogar de la TARDIS antes de que un jugador pueda volver a cambiarlo. Establécelo en 0 para no aplicar tiempo de espera.");
         provider.addTranslation("yacl3.config.ait:server.hypercubesEnabled", "¿Activar hipercubos?");
         provider.addTranslation("yacl3.config.ait:server.lockDimensions", "¿Bloquear dimensiones?");
         provider.addTranslation("yacl3.config.ait:server.maxStabilizedSpeed", "Velocidad máxima estabilizada");

@@ -10,21 +10,16 @@ import java.util.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import dev.amble.ait.core.tardis.control.impl.SecurityControl;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import org.joml.Vector3f;
-
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.resource.Resource;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.core.sounds.flight.FlightSound;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.travel.AnimatedTravelHandler;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager.HomeClaimStatus;
+import dev.amble.ait.core.tardis.util.TardisHomeUtil;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
 import dev.amble.ait.core.util.Lazy;
@@ -42,6 +37,15 @@ import dev.amble.ait.registry.impl.DesktopRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.register.unlockable.Unlockable;
 import dev.amble.lib.util.ServerLifecycleHooks;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import org.joml.Vector3f;
+
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.resource.Resource;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
+import net.minecraft.world.World;
 
 public class StatsHandler extends KeyedTardisComponent {
 
@@ -73,6 +77,8 @@ public class StatsHandler extends KeyedTardisComponent {
     private static final DoubleProperty TARDIS_Y_SCALE = new DoubleProperty("tardis_y_scale", 1);
     private static final DoubleProperty TARDIS_Z_SCALE = new DoubleProperty("tardis_z_scale", 1);
     private static final Property<CachedDirectedGlobalPos> HOME = new Property<>(Property.CDIRECTED_GLOBAL_POS, "home", (CachedDirectedGlobalPos) null);
+    private static final Property<Long> LAST_HOME_RELOCATION = new Property<>(
+            Property.LONG, "last_home_relocation", 0L);
 
     private final Value<String> tardisName = NAME.create(this);
     private final Value<String> playerCreatorName = PLAYER_CREATOR_NAME.create(this);
@@ -91,6 +97,7 @@ public class StatsHandler extends KeyedTardisComponent {
     private final DoubleValue tardisYScale = TARDIS_Y_SCALE.create(this);
     private final DoubleValue tardisZScale = TARDIS_Z_SCALE.create(this);
     private final Value<CachedDirectedGlobalPos> home = HOME.create(this);
+    private final Value<Long> lastHomeRelocation = LAST_HOME_RELOCATION.create(this);
 
     @Exclude
     private Lazy<FlightSound> flightFxCache;
@@ -158,6 +165,7 @@ public class StatsHandler extends KeyedTardisComponent {
         tardisYScale.of(this, TARDIS_Y_SCALE);
         tardisZScale.of(this, TARDIS_Z_SCALE);
         home.of(this, HOME);
+        lastHomeRelocation.of(this, LAST_HOME_RELOCATION);
         if (home.get() == null)
             this.setHome(this.tardis().travel().position());
         vortexId.addListener((id) -> {
@@ -174,6 +182,16 @@ public class StatsHandler extends KeyedTardisComponent {
         for (Iterator<TardisDesktopSchema> it = DesktopRegistry.getInstance().iterator(); it.hasNext();) {
             this.unlock(it.next(), false);
         }
+    }
+
+    @Override
+    public void postInit(InitContext ctx) {
+        if (this.isClient())
+            return;
+
+        MinecraftServer server = ServerLifecycleHooks.get();
+        if (server != null)
+            this.home.ifPresent(cached -> cached.init(server), false);
     }
 
     public boolean isUnlocked(Unlockable unlockable) {
@@ -233,8 +251,89 @@ public class StatsHandler extends KeyedTardisComponent {
         if (cached == null)
             return;
 
+        if (this.tardis instanceof ServerTardis serverTardis) {
+            MinecraftServer server = ServerLifecycleHooks.get();
+            ServerTardisManager manager = ServerTardisManager.getInstance();
+            boolean requiresClaim = this.home.get() != null
+                    || manager != null && manager.getLoadedTardis(serverTardis.getUuid()) == serverTardis;
+            if (requiresClaim) {
+                if (server == null || manager == null
+                        || !manager.canClaimExactHome(server, serverTardis.getUuid(), cached))
+                    return;
+            }
+        }
+
+        this.setHomeUnchecked(cached);
+    }
+
+    private void setHomeUnchecked(CachedDirectedGlobalPos cached) {
         cached.init(ServerLifecycleHooks.get());
         this.home.set(cached);
+
+        if (this.tardis instanceof ServerTardis serverTardis) {
+            MinecraftServer server = ServerLifecycleHooks.get();
+            ServerTardisManager manager = ServerTardisManager.getInstance();
+            if (server != null && manager != null
+                    && manager.getLoadedTardis(serverTardis.getUuid()) == serverTardis)
+                manager.updateExactHomeClaim(server, serverTardis.getUuid(), cached);
+        }
+    }
+
+    public boolean trySetHome(ServerPlayerEntity player, CachedDirectedGlobalPos cached) {
+        return this.trySetHomeResult(player, cached).isSuccess();
+    }
+
+    public HomeSetResult trySetHomeResult(ServerPlayerEntity player, CachedDirectedGlobalPos cached) {
+        if (player == null || player.getServer() == null)
+            return HomeSetResult.INVALID;
+
+        return this.trySetHomeResult(player.getServer(), player, cached, true);
+    }
+
+    public HomeSetResult trySetHomeResult(MinecraftServer server, CachedDirectedGlobalPos cached) {
+        return this.trySetHomeResult(server, null, cached, false);
+    }
+
+    private HomeSetResult trySetHomeResult(MinecraftServer server, ServerPlayerEntity player,
+                                           CachedDirectedGlobalPos cached, boolean enforceCooldown) {
+        ServerTardisManager manager = ServerTardisManager.getInstance();
+        if (server == null || cached == null || cached.getDimension() == null || cached.getPos() == null
+                || manager == null || this.tardis.getUuid() == null)
+            return HomeSetResult.INVALID;
+
+        CachedDirectedGlobalPos current = this.getHome();
+        if (TardisHomeUtil.sameHome(current, cached))
+            return HomeSetResult.UNCHANGED;
+
+        long now = server.getOverworld().getTime();
+        long cooldown = Math.max(0L, AITMod.CONFIG.homeRelocationCooldownMinutes) * 60L * 20L;
+        long previous = this.lastHomeRelocation.get();
+        if (enforceCooldown && cooldown > 0 && previous > 0 && now >= previous && now - previous < cooldown)
+            return HomeSetResult.COOLDOWN;
+
+        HomeClaimStatus claim = manager.exactHomeStatus(server, this.tardis.getUuid(), cached);
+        if (claim == HomeClaimStatus.UNAVAILABLE)
+            return HomeSetResult.UNAVAILABLE;
+        if (claim == HomeClaimStatus.OCCUPIED)
+            return HomeSetResult.OCCUPIED;
+
+        this.setHomeUnchecked(cached);
+        if (player != null)
+            this.lastHomeRelocation.set(now);
+        return HomeSetResult.UPDATED;
+    }
+
+    public enum HomeSetResult {
+        UPDATED,
+        UNCHANGED,
+        COOLDOWN,
+        OCCUPIED,
+        UNAVAILABLE,
+        INVALID;
+
+        public boolean isSuccess() {
+            return this == UPDATED || this == UNCHANGED;
+        }
     }
 
     public String getPlayerCreatorName() {
