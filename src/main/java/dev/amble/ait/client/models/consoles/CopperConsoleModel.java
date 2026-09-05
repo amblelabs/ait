@@ -11,7 +11,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.animation.console.copper.CopperAnimations;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
@@ -2110,11 +2109,16 @@ public class CopperConsoleModel extends SimpleConsoleModel {
     }
 
     @Override
+    protected void applyRootTransform(MatrixStack matrices) {
+        matrices.translate(0.5f, -1.52f, -0.5f);
+    }
+
+    @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = !AITModClient.CONFIG.animateControls ? 1.0f : 0.1f * client.getTickDelta();
+        float delta = this.controlDelta();
         matrices.push();
-        matrices.translate(0.5f, -1.52f, -0.5f);
+        this.applyRootTransform(matrices);
 
         // Fuel Gauge
         float fuelTarget = (float) ((tardis.getFuel() / FuelHandler.TARDIS_MAX_FUEL) * 3f);
@@ -2241,14 +2245,18 @@ public class CopperConsoleModel extends SimpleConsoleModel {
         Text positionDimensionText = WorldUtil.worldText(abpp.getDimension());
         String positionDirectionText = DirectionControl.rotationToDirection(abpp.getRotation()).toUpperCase();
         int y = 40;
-        renderer.drawWithOutline(Text.of("\uD83D\uDCCD").asOrderedText(), 0, y, 0x00EEFF, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionPosText).asOrderedText(), 8, y, 0xFFFFFF, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(positionDimensionText.asOrderedText(), 8, y + 8, 0xFFFFFF, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        renderer.drawWithOutline(Text.of(positionDirectionText).asOrderedText(), 8, y + 16, 0xFFFFFF, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+        renderer.draw(Text.of("\uD83D\uDCCD").asOrderedText(), 0, y, 0x00EEFF, true,
+                matrices.peek().getPositionMatrix(), vertexConsumers,
+                net.minecraft.client.font.TextRenderer.TextLayerType.POLYGON_OFFSET, 0, 0xF000F0);
+        renderer.draw(Text.of(positionPosText).asOrderedText(), 8, y, 0xFFFFFF, true,
+                matrices.peek().getPositionMatrix(), vertexConsumers,
+                net.minecraft.client.font.TextRenderer.TextLayerType.POLYGON_OFFSET, 0, 0xF000F0);
+        renderer.draw(positionDimensionText.asOrderedText(), 8, y + 8, 0xFFFFFF, true,
+                matrices.peek().getPositionMatrix(), vertexConsumers,
+                net.minecraft.client.font.TextRenderer.TextLayerType.POLYGON_OFFSET, 0, 0xF000F0);
+        renderer.draw(Text.of(positionDirectionText).asOrderedText(), 8, y + 16, 0xFFFFFF, true,
+                matrices.peek().getPositionMatrix(), vertexConsumers,
+                net.minecraft.client.font.TextRenderer.TextLayerType.POLYGON_OFFSET, 0, 0xF000F0);
         matrices.pop();
 
         matrices.push();
@@ -2261,9 +2269,10 @@ public class CopperConsoleModel extends SimpleConsoleModel {
                 ? "⏳: 0%"
                 : "⏳: " + tardis.travel().getDurationAsPercentage() + "%";
         matrices.translate(-10, -47, -48.5f);
-        renderer.drawWithOutline(Text.of(progressText).asOrderedText(),
-                -renderer.getWidth(progressText) / 2, 0, 0xffffff, 0x000000,
-                matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
+        renderer.draw(Text.of(progressText).asOrderedText(),
+                -renderer.getWidth(progressText) / 2, 0, 0xffffff, true,
+                matrices.peek().getPositionMatrix(), vertexConsumers,
+                net.minecraft.client.font.TextRenderer.TextLayerType.POLYGON_OFFSET, 0, 0xF000F0);
         matrices.pop();
 
     }
