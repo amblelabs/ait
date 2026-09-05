@@ -2,8 +2,6 @@ package dev.amble.ait.api.tardis;
 
 import java.util.function.Supplier;
 
-import org.jetbrains.annotations.Nullable;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.*;
@@ -17,6 +15,7 @@ import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.enummap.Ordered;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Base class for all tardis components.
@@ -132,7 +131,8 @@ public abstract class TardisComponent extends Initializable<TardisComponent.Init
         CHAMELEON(ChameleonHandler.class, ChameleonHandler::new),
         SELF_DESTRUCT(SelfDestructHandler.class, SelfDestructHandler::new),
         OPINION(OpinionHandler.class, OpinionHandler::new),
-        SUBSYSTEM(SubSystemHandler.class, SubSystemHandler::new),;
+        SUBSYSTEM(SubSystemHandler.class, SubSystemHandler::new),
+        TEMPERAMENT(TardisTemperamentHandler.class, TardisTemperamentHandler::new),;
 
         private final Supplier<TardisComponent> creator;
 

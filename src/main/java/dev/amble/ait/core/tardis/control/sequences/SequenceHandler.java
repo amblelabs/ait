@@ -2,6 +2,14 @@ package dev.amble.ait.core.tardis.control.sequences;
 
 import java.util.UUID;
 
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.core.tardis.TardisDesktop;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.data.Exclude;
+import dev.amble.ait.data.properties.bool.BoolProperty;
+import dev.amble.ait.data.properties.bool.BoolValue;
+import dev.amble.ait.registry.impl.SequenceRegistry;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -15,15 +23,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
-
-import dev.amble.ait.api.tardis.KeyedTardisComponent;
-import dev.amble.ait.api.tardis.TardisTickable;
-import dev.amble.ait.core.tardis.TardisDesktop;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.properties.bool.BoolProperty;
-import dev.amble.ait.data.properties.bool.BoolValue;
-import dev.amble.ait.registry.impl.SequenceRegistry;
 
 public class SequenceHandler extends KeyedTardisComponent implements TardisTickable {
 
@@ -164,6 +163,7 @@ public class SequenceHandler extends KeyedTardisComponent implements TardisTicka
             this.setActiveSequence(null, true);
         } else if (this.getActiveSequence().wasMissed(this.recent, ticks)) {
             recent.clear();
+            this.tardis.temperament().onFlightEventFailed();
             this.getActiveSequence().executeMissed(this.tardis(), this.getActivePlayer());
 
             this.doMissedControlEffects(console);
