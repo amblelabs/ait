@@ -16,6 +16,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.AITMod;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
@@ -57,6 +58,14 @@ public class TardisExteriorBOTI extends BOTI {
 
         stack.push();
 
+        // Split into framebuffer work and geometry work. A single zone around the whole portal cannot
+        // tell "the blits are expensive" from "drawing the interior is expensive", which is the only
+        // thing worth knowing here.
+        Profiler profiler = client.getProfiler();
+        profiler.push("ait:boti_ext_fbo_setup");
+        profiler.visit("ait_boti_ext_portals");
+
+        client.getFramebuffer().endWrite();
         BOTI.BotiCompositeState composite = BOTI.beginBotiComposite();
         int winW = composite.viewport[2];
         int winH = composite.viewport[3];
@@ -70,6 +79,9 @@ public class TardisExteriorBOTI extends BOTI {
             BOTI.setFramebufferColor(BOTI_HANDLER.afbo, (float) skyColor.x, (float) skyColor.y, (float) skyColor.z, 1);
 
         BOTI.copyFramebufferFromFbo(composite.drawFbo, winW, winH, BOTI_HANDLER.afbo);
+        profiler.visit("ait_boti_blit");
+
+        profiler.swap("ait:boti_ext_mask");
 
         VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
@@ -99,12 +111,17 @@ public class TardisExteriorBOTI extends BOTI {
         float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0, 1} : new float[] {0f, 0f, 0f};
         mask.render(stack, botiProvider.getBuffer(whichOne), light, OverlayTexture.DEFAULT_UV, colorsForGreenScreen[0], colorsForGreenScreen[1], colorsForGreenScreen[2], 1);
         botiProvider.draw();
+        profiler.visit("ait_boti_draw_flush");
         stack.pop();
 
+        profiler.swap("ait:boti_ext_fbo_depth");
         BOTI.copyDepthToFbo(BOTI_HANDLER.afbo, composite.drawFbo, winW, winH);
+        profiler.visit("ait_boti_blit");
 
         BOTI_HANDLER.afbo.beginWrite(false);
         BOTI.resetDepthByDraw();
+
+        profiler.swap("ait:boti_ext_doors");
 
         GL11.glStencilMask(0x00);
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
@@ -169,7 +186,10 @@ public class TardisExteriorBOTI extends BOTI {
 
         frame.renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.getBotiInterior(variant.texture())), light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
         botiProvider.draw();
+        profiler.visit("ait_boti_draw_flush");
         stack.pop();
+
+        profiler.swap("ait:boti_ext_biome");
 
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
@@ -188,7 +208,10 @@ public class TardisExteriorBOTI extends BOTI {
                         light, OverlayTexture.DEFAULT_UV, 1, 1F, 1.0F, 1.0F, true);
         }
         botiProvider.draw();
+        profiler.visit("ait_boti_draw_flush");
         stack.pop();
+
+        profiler.swap("ait:boti_ext_emission");
 
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
@@ -228,12 +251,16 @@ public class TardisExteriorBOTI extends BOTI {
             float green = power ? alarms ? 0.3f : t : 0;
             float blue = power ? alarms ? 0.3f : u : 0;
 
-            frame.renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xf000f0,
+            frame.renderDoors(tardis, exterior, frame.getPart(), stack, botiProvider.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission())), LightmapTextureManager.MAX_LIGHT_COORDINATE,
                     OverlayTexture.DEFAULT_UV, red, green, blue, 1, true);
             botiProvider.draw();
+            profiler.visit("ait_boti_draw_flush");
         }
         stack.pop();
 
+        profiler.swap("ait:boti_ext_fbo_resolve");
+
+        client.getFramebuffer().beginWrite(true);
         // Under a shaderpack the Phase A afbo->screen blit is suppressed: ExteriorGbufferInjection re-draws the
         // interior into Iris's live gbuffer at AFTER_ENTITIES so the pack shades it, instead of compositing this
         // unshaded afbo over the deferred output. We still run everything above so geometry.render() bakes the VBOs
@@ -270,6 +297,7 @@ public class TardisExteriorBOTI extends BOTI {
 
         Vec3d vec = parent.getPortalPosition();
         if (vec == null) vec = Vec3d.ZERO;
+        BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
 
         RenderSystem.colorMask(false, false, false, false);
         RenderSystem.depthMask(writeDepth);
@@ -288,6 +316,7 @@ public class TardisExteriorBOTI extends BOTI {
         maskPart.render(stack, maskProvider.getBuffer(RenderLayer.getDebugFilledBox()),
                 0xf000f0, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
         maskProvider.draw();
+
         stack.pop();
 
         if (writeDepth)

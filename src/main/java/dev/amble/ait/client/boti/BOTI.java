@@ -1,6 +1,7 @@
 package dev.amble.ait.client.boti;
 
 import java.util.HashMap;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -39,9 +40,13 @@ import dev.amble.ait.core.entities.RiftEntity;
 
 public class BOTI {
     public static final MinecraftClient client = MinecraftClient.getInstance();
-    public static final Queue<RiftEntity> RIFT_RENDERING_QUEUE = new LinkedList<>();
+    public static final Collection<RiftEntity> RIFT_RENDERING_QUEUE = new LinkedList<>();
     public static BOTIInit BOTI_HANDLER = new BOTIInit();
     public static AITBufferBuilderStorage AIT_BUF_BUILDER_STORAGE = new AITBufferBuilderStorage();
+    public static Collection<DoorBlockEntity> DOOR_RENDER_QUEUE = new LinkedList<>();
+    public static Collection<BOTIPaintingEntity> GALLIFREYAN_RENDER_QUEUE = new LinkedList<>();
+    public static Collection<BOTIPaintingEntity> TRENZALORE_PAINTING_QUEUE = new LinkedList<>();
+    public static Collection<ExteriorBlockEntity> EXTERIOR_RENDER_QUEUE = new LinkedList<>();
     public static Queue<DoorBlockEntity> DOOR_RENDER_QUEUE = new LinkedList<>();
     /** Last interior door rendered per TARDIS, cached by TardisDoorBOTI (which always has it, at END). The
      *  gbuffer-injection probe reuses it next frame to stamp the doorway stencil aperture, because
