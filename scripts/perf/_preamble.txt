@@ -1,0 +1,8 @@
+gamerule doDaylightCycle false
+gamerule doWeatherCycle false
+gamerule randomTickSpeed 0
+gamerule doMobSpawning false
+gamerule doMobLoot false
+time set noon
+weather clear
+kill @e[type=item]
