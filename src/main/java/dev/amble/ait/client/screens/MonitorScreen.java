@@ -402,7 +402,7 @@ public class MonitorScreen extends ConsoleScreen {
                 LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, base, base, base, 1f);
 
         if (hasPower && emissive != null && !(emissive.equals(DatapackConsole.EMPTY))) {
-            model.render(stack, context.getVertexConsumers().getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(emissive, true)),
+            model.render(stack, context.getVertexConsumers().getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(emissive)),
                     LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, base, base, base, 1f);
         }
         stack.pop();

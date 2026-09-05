@@ -263,6 +263,12 @@ public class AITMod implements ModInitializer {
             ListCommand.register(dispatcher);
             LoadCommand.register(dispatcher);
             DebugCommand.register(dispatcher);
+
+            if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+                ProfileClientCommand.register(dispatcher);
+                PerfScenarioCommand.register(dispatcher);
+            }
+
             EraseChunksCommand.register(dispatcher);
             FlightCommand.register(dispatcher);
             SetDoorParticleCommand.register(dispatcher, registryAccess);
@@ -428,6 +434,7 @@ public class AITMod implements ModInitializer {
     public static final Identifier TOGGLE_PROJECTOR = AITMod.id("toggle_projector");
     public static final Identifier PROJECTOR_SELECTION = new Identifier(MOD_ID, "projector_selection");
     public static final Identifier PROJECTOR_ANGLES = new Identifier(MOD_ID, "projector_angles");
+    public static final Identifier PROFILE_CLIENT = AITMod.id("profile_client");
 
     public static void openScreen(ServerPlayerEntity player, int id) {
         PacketByteBuf buf = PacketByteBufs.create();

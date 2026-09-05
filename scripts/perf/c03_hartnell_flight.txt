@@ -1,0 +1,13 @@
+# Hartnell in flight. The landed scenario runs the idle animation; flight runs a different bone set
+# (18 rather than 19) and actually advances, so the keyframe path and the control lerps are both
+# live rather than sitting at a resting pose.
+ait perf-console "console/hartnell"
+SLEEP 4
+ait perf-flight true
+SLEEP 8
+ait perf-tp console
+SLEEP 6
+ait perf-verify
+ait profile-client @a
+SLEEP 15
+ait perf-flight false

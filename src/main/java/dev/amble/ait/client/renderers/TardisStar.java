@@ -11,6 +11,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.util.profiler.Profiler;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.decoration.TardisStarModel;
@@ -42,6 +43,11 @@ public class TardisStar {
         Vec3d cameraPos = camera.getPos();
         if (tardis.getDesktop() == null) return;
 
+        Profiler profiler = context.world().getProfiler();
+        profiler.push("ait:tardis_star");
+        // Two full model builds every frame, unconditionally, whenever the player is in an interior.
+        profiler.visit("ait_model_build", 2);
+
         Vec3d targetPos = new Vec3d(camera.getPos().getX(),
                 context.world().getBottomY() - (tardis.isGrowth() ? 150 : 120), camera.getPos().getZ());
 
@@ -58,15 +64,17 @@ public class TardisStar {
                 .rotationDegrees(delta));
 
         TardisStarModel.getTexturedModelData().createModel().render(matrixStack,
-                provider.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(TARDIS_STAR_TEXTURE, true)),
+                provider.getBuffer(AITRenderLayers.tardisEmissiveCullZOffsetSorted(TARDIS_STAR_TEXTURE)),
                 LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, tardis.isGrowth() ? 0.1f : 1,
                 tardis.isGrowth() ? 0.1f : 1, tardis.isGrowth() ? 0.1f : 1, 0.5f);
 
         matrixStack.scale(0.9f, 0.9f, 0.9f);
         TardisStarModel.getTexturedModelData().createModel().render(matrixStack,
-                provider.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(TARDIS_STAR_TEXTURE, true)),
+                provider.getBuffer(AITRenderLayers.tardisEmissiveCullZOffsetSorted(TARDIS_STAR_TEXTURE)),
                 LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, 1, tardis.isGrowth() ? 0.2f : 1,
                 tardis.isGrowth() ? 0f : 1, 1f);
+
+        profiler.pop();
     }
 
     public static void renderShine(WorldRenderContext context, Tardis tardis) {
@@ -74,6 +82,9 @@ public class TardisStar {
 
         if (tardis.isGrowth())
             return;
+
+        Profiler profiler = context.world().getProfiler();
+        profiler.push("ait:tardis_star_shine");
 
         MatrixStack matrixStack = new MatrixStack();
         VertexConsumerProvider provider = context.consumers();
@@ -130,6 +141,9 @@ public class TardisStar {
             TardisStar.putDeathLightPositiveZTerminalVertex(tardis, vertexConsumer4, matrix4f, o, p);
             TardisStar.putDeathLightPositiveZTerminalVertex(tardis, vertexConsumer4, matrix4f, o, p);
         }
+
+        profiler.visit("ait_star_shine_vertices", 30 * 12);
+        profiler.pop();
     }
 
     public static void putDeathLightSourceVertex(Tardis tardis, VertexConsumer buffer, Matrix4f matrix, int alpha) {
