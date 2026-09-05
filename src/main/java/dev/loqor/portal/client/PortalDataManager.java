@@ -79,9 +79,25 @@ public class PortalDataManager {
                 // BE animation driven by the BE's own age/tick counter (the TARDIS console rotor reads
                 // console.getAge(); see SimpleConsoleModel) freezes through the doorway. shouldTickBlocksInChunk is
                 // always true on the client, and chunk streaming registers the BE tickers, so this drives them.
-                step(data, "block entities", d -> d.world().tickBlockEntities());
+                //
+                // Route particles spawned during the shadow world's simulation into the portal's manager, exactly
+                // like spawnDisplayParticles does. Block entities (campfire smoke, spawner swirls, brewing bubbles)
+                // and entities (mob ambient, potion effects, item bob) spawn via world.addParticle, which targets
+                // MinecraftClient#particleManager; without this swap those particles land in the dimension the player
+                // is standing in at the shadow world's (exterior) coordinates - appearing off in the distance with no
+                // visible emitter. The portal manager is ticked below and rendered in the doorway, so they show
+                // through the portal where they belong.
+                PortalParticleManager simManager = particles.computeIfAbsent(data.id(),
+                        uuid -> new PortalParticleManager(data.world(), client));
+                ParticleManager prevManager = client.particleManager;
+                client.particleManager = simManager;
+                try {
+                    step(data, "block entities", d -> d.world().tickBlockEntities());
+                    step(data, "entities", PortalData::tickEntities);
+                } finally {
+                    client.particleManager = prevManager;
+                }
 
-                step(data, "entities", PortalData::tickEntities);
                 step(data, "particles", PortalDataManager::spawnDisplayParticles);
 
                 // Reclaim baked geometry for a doorway nobody has looked at recently. This runs for EVERY portal,

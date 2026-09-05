@@ -611,11 +611,9 @@ public class AITModClient implements ClientModInitializer {
 
             if (tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) {
                 int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
-                exteriorBoti.renderExteriorBoti(exterior, variant, stack,
-                        AITMod.id("textures/environment/tardis_sky.png"), model,
                 profiler.visit("ait_boti_exterior_drawn");
                 profiler.visit("ait_model_build");
-                TardisExteriorBOTI.renderExteriorBoti(exterior, variant, stack, context.consumers(), model,
+                exteriorBoti.renderExteriorBoti(exterior, variant, stack, AITMod.id("textures/environment/tardis_sky.png"), model,
                         BotiPortalModel.getTexturedModelData().createModel(), light);
             } else {
                 profiler.visit("ait_boti_exterior_culled");
@@ -681,7 +679,7 @@ public class AITModClient implements ClientModInitializer {
                 int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
                 profiler.visit("ait_boti_door_drawn");
                 profiler.visit("ait_model_build");
-                TardisDoorBOTI.renderInteriorDoorBoti(tardis, door, variant, stack, context.consumers(),
+                TardisDoorBOTI.renderInteriorDoorBoti(tardis, door, variant, stack,
                         AITMod.id("textures/environment/tardis_sky.png"), model,
                         BotiPortalModel.getTexturedModelData().createModel(), light, context.tickDelta());
             } else {
