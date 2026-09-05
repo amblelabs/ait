@@ -26,6 +26,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
 
 import dev.amble.ait.core.blockentities.UntemperedSchismBlockEntity;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
@@ -57,7 +58,22 @@ public class UntemperedSchismBlock extends HorizontalFluidLinkBlock implements B
 
     @Nullable @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
+        if (ctx.getWorld() instanceof ServerWorld serverWorld && !canCreateAt(serverWorld, ctx.getBlockPos())) {
+            if (ctx.getPlayer() != null)
+                ctx.getPlayer().sendMessage(Text.translatable("message.ait.riftscanner.info3"));
+
+            serverWorld.playSound(null, ctx.getBlockPos(), SoundEvents.BLOCK_BEACON_DEACTIVATE,
+                    SoundCategory.BLOCKS, 1, 0.5f);
+            return null;
+        }
+
         return this.getDefaultState().with(HorizontalFacingBlock.FACING, ctx.getHorizontalPlayerFacing().getOpposite()).with(ENABLED, false);
+    }
+
+    @Override
+    public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
+        return super.canPlaceAt(state, world, pos)
+                && (!(world instanceof ServerWorld serverWorld) || canCreateAt(serverWorld, pos));
     }
 
     @Override
@@ -82,26 +98,14 @@ public class UntemperedSchismBlock extends HorizontalFluidLinkBlock implements B
 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
-        if (!(world instanceof ServerWorld serverWorld)) return;
-
-        RiftChunkManager manager = RiftChunkManager.getInstance(serverWorld);
-        ChunkPos chunkPos = new ChunkPos(pos);
-
-        if (!isConsumable(manager, chunkPos)) {
-            if (placer != null) {
-                placer.sendMessage(Text.translatable("message.ait.riftscanner.info3"));
-            }
-            world.playSound(null, pos, SoundEvents.BLOCK_BEACON_DEACTIVATE,
-                    SoundCategory.BLOCKS, 1, 0.5f);
-            return;
-        }
+        if (world.isClient()) return;
 
         world.playSound(null, pos, SoundEvents.BLOCK_BEACON_ACTIVATE,
                 SoundCategory.BLOCKS, 1, 1.5f);
     }
 
-    private static boolean isConsumable(RiftChunkManager manager, ChunkPos pos) {
-        return manager.isRiftChunk(pos);
+    public static boolean canCreateAt(ServerWorld world, BlockPos pos) {
+        return RiftChunkManager.isRiftChunk(world, new ChunkPos(pos));
     }
 
     @Override

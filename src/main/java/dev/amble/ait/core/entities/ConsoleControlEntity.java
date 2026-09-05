@@ -38,9 +38,11 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.WorldChunk;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
@@ -100,13 +102,10 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
 
     @Override
     public void onRemoved() {
-        if (this.getConsoleBlockPos() == null) {
-            super.onRemoved();
-            return;
-        }
+        ConsoleBlockEntity console = this.findLoadedConsole(false);
+        if (console != null) console.markNeedsControl();
 
-        if (this.getWorld().getBlockEntity(this.getConsoleBlockPos()) instanceof ConsoleBlockEntity console)
-            console.markNeedsControl();
+        super.onRemoved();
     }
 
     @Override
@@ -362,13 +361,25 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     }
 
     public float getDurability() {
-        if (this.getControl() == null || this.getConsole() == null) return MAX_DURABILITY;
-        return this.getConsole().controlStateMap.getOrDefault(this.getControl(), new Control.ControlState()).damage();//this.dataTracker.get(DURABILITY);
+        Control control = this.getControl();
+        if (control == null) return MAX_DURABILITY;
+
+        ConsoleBlockEntity console = this.getConsole();
+        if (console == null) return MAX_DURABILITY;
+
+        Control.ControlState state = console.controlStateMap.get(control);
+        return state == null ? MAX_DURABILITY : state.damage();
     }
 
     public boolean isSticky() {
-        if (this.getControl() == null || this.getConsole() == null) return false;
-        return this.getConsole().controlStateMap.getOrDefault(this.getControl(), new Control.ControlState()).sticky();//this.dataTracker.get(DURABILITY);
+        Control control = this.getControl();
+        if (control == null) return false;
+
+        ConsoleBlockEntity console = this.getConsole();
+        if (console == null) return false;
+
+        Control.ControlState state = console.controlStateMap.get(control);
+        return state != null && state.sticky();
     }
 
     public DurabilityStates getDurabilityState(float durability) {
@@ -524,14 +535,25 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
     }
 
     public ConsoleBlockEntity getConsole() {
-        if (this.getConsoleBlockPos() == null)
+        return this.findLoadedConsole(true);
+    }
+
+    private ConsoleBlockEntity findLoadedConsole(boolean warnIfMissing) {
+        BlockPos consolePos = this.getConsoleBlockPos();
+        if (consolePos == null)
             return null;
 
-        BlockEntity blockEntity = this.getWorld().getBlockEntity(this.getConsoleBlockPos());
+        ChunkPos chunkPos = new ChunkPos(consolePos);
+        WorldChunk chunk = this.getWorld().getChunkManager().getWorldChunk(chunkPos.x, chunkPos.z);
+        if (chunk == null) return null;
+
+        BlockEntity blockEntity = chunk.getBlockEntity(consolePos);
         if (blockEntity instanceof ConsoleBlockEntity console)
             return console;
 
-        AITMod.LOGGER.warn("Control entity at {} has no console block entity at {}", this.getPos(), this.getConsoleBlockPos());
+        if (warnIfMissing)
+            AITMod.LOGGER.warn("Control entity at {} has no console block entity at {}", this.getPos(), consolePos);
+
         return null;
     }
 

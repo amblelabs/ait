@@ -11,7 +11,6 @@ import net.minecraft.world.World;
 import dev.amble.ait.api.ArtronHolderItem;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisTickable;
-import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
 
@@ -72,23 +71,7 @@ public class ButlerHandler extends KeyedTardisComponent implements ArtronHolderI
 
     @Override
     public void tick(MinecraftServer server) {
-        if (server.getTicks() % 10 != 0)
-            return;
-
-        ItemStack handlesItem = this.handles.get();
-
-        if (handlesItem != null) {
-            if (this.hasMaxFuel(handlesItem))
-                return;
-
-            // Safe to get as ^ that method runs the check for us
-            ServerTardis tardis = this.tardis.asServer();
-
-            if (!tardis.fuel().hasPower())
-                return;
-
-            this.addFuel(10, handlesItem);
-            tardis.fuel().removeFuel(10);
-        }
+        // Handles have no Artron storage or consumption. Keep this no-op and both implemented
+        // interfaces for compatibility with addons compiled against the original handler shape.
     }
 }
