@@ -2,20 +2,24 @@ package dev.amble.ait.core.engine.impl;
 
 import java.util.List;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.engine.CoreBoundDurableSubSystem;
+import dev.amble.ait.core.engine.StructureHolder;
+import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.util.TardisHomeUtil;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.data.Loyalty;
+import dev.amble.lib.util.ServerLifecycleHooks;
+
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.Item;
+import net.minecraft.server.network.ServerPlayerEntity;
 
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.engine.DurableSubSystem;
-import dev.amble.ait.core.engine.StructureHolder;
-import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.lib.util.ServerLifecycleHooks;
-
-public class LifeSupportCircuit extends DurableSubSystem implements StructureHolder {
+public class LifeSupportCircuit extends CoreBoundDurableSubSystem implements StructureHolder {
 
     private static final int TICK_RATE = 20;
 
@@ -64,6 +68,25 @@ public class LifeSupportCircuit extends DurableSubSystem implements StructureHol
 
         for (LivingEntity entity : entities) {
             entity.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, TICK_RATE * 2, 1, true, false));
+        }
+
+        if (!this.isUsable() || !tardis.fuel().hasPower() || !TardisHomeUtil.isParkedAtExactHome(tardis))
+            return;
+
+        int saturationAmplifier = Math.max(0, AITMod.CONFIG.exactHomeSaturationLevel - 1);
+        int resistanceLevel = AITMod.CONFIG.exactHomeOwnerResistanceLevel;
+        int resistanceAmplifier = Math.max(0, resistanceLevel - 1);
+
+        for (ServerPlayerEntity player : tardis.world().getPlayers()) {
+            Loyalty loyalty = tardis.loyalty().get(player);
+            if (!loyalty.isOf(Loyalty.Type.COMPANION))
+                continue;
+
+            player.addStatusEffect(new StatusEffectInstance(StatusEffects.SATURATION,
+                    TICK_RATE * 2, saturationAmplifier, true, false));
+            if (loyalty.isOf(Loyalty.Type.OWNER))
+                player.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE,
+                        TICK_RATE * 2, resistanceAmplifier, true, false));
         }
     }
 }

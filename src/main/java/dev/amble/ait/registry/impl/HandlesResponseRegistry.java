@@ -3,6 +3,17 @@ package dev.amble.ait.registry.impl;
 import java.util.HashMap;
 import java.util.List;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.handles.HandlesResponse;
+import dev.amble.ait.core.handles.HandlesSound;
+import dev.amble.ait.core.item.HandlesItem;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.tardis.util.TardisHomeUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 
@@ -16,17 +27,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.handles.HandlesResponse;
-import dev.amble.ait.core.handles.HandlesSound;
-import dev.amble.ait.core.item.HandlesItem;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.impl.SecurityControl;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.world.TardisServerWorld;
 
 /**
  * Registry for Handles responses.
@@ -486,6 +486,42 @@ public class HandlesResponseRegistry {
             @Override
             public Identifier id() {
                 return AITMod.id("toggle_antigravs");
+            }
+        });
+
+        HandlesResponseRegistry.register(new HandlesResponse() {
+            @Override
+            public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
+                if (!AITMod.CONFIG.homeDefenseAvailable)
+                    return failure(source);
+
+                ItemStack handles = tardis.butler().getHandles();
+                if (handles == null || handles.isEmpty()) {
+                    sendChat(player, Text.translatable("message.ait.handles.requires_inserted"));
+                    return failure(source);
+                }
+
+                boolean enabled = tardis.homeSystems().defenseEnabled();
+                if (!enabled && !TardisHomeUtil.isParkedAtExactHome(tardis)) {
+                    sendChat(player, Text.translatable("message.ait.handles.defense.home_only"));
+                    return failure(source);
+                }
+
+                tardis.homeSystems().defenseEnabled(!enabled);
+                sendChat(player, Text.translatable(enabled
+                        ? "message.ait.handles.defense.disabled"
+                        : "message.ait.handles.defense.enabled"));
+                return success(source);
+            }
+
+            @Override
+            public List<String> getCommandWords() {
+                return List.of("defense", "defence", "toggle defense", "toggle defence");
+            }
+
+            @Override
+            public Identifier id() {
+                return AITMod.id("home_defense");
             }
         });
     }
