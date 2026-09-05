@@ -125,6 +125,10 @@ dependencies {
 
     modCompileOnly "maven.modrinth:k9-mod:${project.k9_version}"
 
+    // Iris + Sodium: compile-only for Phase B BOTI-under-Iris integration
+    modCompileOnly "maven.modrinth:iris:1.7.0+1.20.1"
+    modCompileOnly "maven.modrinth:sodium:mc1.20.1-0.5.8"
+
     modImplementation("mezz.jei:jei-${project.minecraft_version}-fabric-api:${project.jei_version}")
 
 

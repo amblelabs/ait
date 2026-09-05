@@ -44,6 +44,8 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.client.render.Frustum;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec3d;
@@ -87,6 +89,7 @@ import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
+import dev.loqor.portal.client.PortalDataManager;
 import dev.amble.ait.core.*;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -119,6 +122,7 @@ public class AITModClient implements ClientModInitializer {
 
     public static AITClientConfig CONFIG;
     private final MinecraftClient client = MinecraftClient.getInstance();
+    private final TardisExteriorBOTI exteriorBoti = new TardisExteriorBOTI();
 
     @Override
     public void onInitializeClient() {
@@ -136,6 +140,17 @@ public class AITModClient implements ClientModInitializer {
         );
 
         ClientTardisManager.init();
+
+        // Core shader that copies a framebuffer's depth by sampling its depth texture and writing gl_FragDepth. BOTI
+        // uses it instead of glBlitFramebuffer(GL_DEPTH_BUFFER_BIT), which is rejected across the main/afbo mismatched
+        // depth formats on Apple's strict GL driver (GL_INVALID_OPERATION); see BOTI.copyDepth. Registered (and thus
+        // compiled) only on macOS, the only place it's used, so it can never affect other drivers' startup.
+        if (MinecraftClient.IS_SYSTEM_MAC) {
+            CoreShaderRegistrationCallback.EVENT.register(context ->
+                    context.register(new Identifier(AITMod.MOD_ID, "copy_depth"),
+                            net.minecraft.client.render.VertexFormats.POSITION_TEXTURE,
+                            program -> BOTI.COPY_DEPTH_PROGRAM = program));
+        }
 
         ModuleRegistry.instance().onClientInit();
 
@@ -178,6 +193,25 @@ public class AITModClient implements ClientModInitializer {
             WorldRenderEvents.END.register(this::gallifreyanBOTI);
             WorldRenderEvents.END.register(this::trenzaloreBOTI);
             WorldRenderEvents.END.register(this::riftBOTI);
+
+            // THROWAWAY Phase B gbuffer-injection probe (guarded again at call time by isShaderPackInUse()).
+            // AFTER_ENTITIES runs pre-deferred while the gbuffer is bound; additive to the Phase A END path.
+            WorldRenderEvents.AFTER_ENTITIES.register(dev.amble.ait.client.boti.iris.GbufferInjectionProbe::run);
+            // Outside-in equivalent: injects each visible TARDIS's interior into its exterior doorway aperture.
+            WorldRenderEvents.AFTER_ENTITIES.register(dev.amble.ait.client.boti.iris.ExteriorGbufferInjection::run);
+
+            // Ensure the main framebuffer (Iris's gbuffer == client.getFramebuffer()) has a stencil attachment
+            // so the injection probe's stencil-clip path activates. Must run at START (before any draw into the
+            // FB this frame) because setIsStencilEnabled triggers a resize()/reinit - forbidden mid-render.
+            // Idempotent: after the first frame the flag is already set so the resize is a no-op.
+            // Only under isIrisShaderPackInUse(): Phase A / no-pack must be untouched.
+            WorldRenderEvents.START.register(context -> {
+                if (!DependencyChecker.isIrisShaderPackInUse())
+                    return;
+                var fb = MinecraftClient.getInstance().getFramebuffer();
+                if (fb != null && !dev.amble.ait.client.boti.AITRenderHelper.getIsStencilEnabled(fb))
+                    dev.amble.ait.client.boti.AITRenderHelper.setIsStencilEnabled(fb, true);
+            });
         } else {
             WorldRenderEvents.AFTER_ENTITIES.register(this::exteriorBOTI);
             WorldRenderEvents.AFTER_ENTITIES.register(this::doorBOTI);
@@ -295,6 +329,8 @@ public class AITModClient implements ClientModInitializer {
                 });
 
         ClientTardisUtil.init();
+
+        PortalDataManager.init();
 
         WorldRenderEvents.END.register((context) -> SonicRendering.getInstance().renderWorld(context));
         HudRenderCallback.EVENT.register((context, delta) -> SonicRendering.getInstance().renderGui(context, delta));
@@ -577,7 +613,7 @@ public class AITModClient implements ClientModInitializer {
                 int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
                 profiler.visit("ait_boti_exterior_drawn");
                 profiler.visit("ait_model_build");
-                TardisExteriorBOTI.renderExteriorBoti(exterior, variant, stack, context.consumers(), model,
+                exteriorBoti.renderExteriorBoti(exterior, variant, stack, AITMod.id("textures/environment/tardis_sky.png"), model,
                         BotiPortalModel.getTexturedModelData().createModel(), light);
             } else {
                 profiler.visit("ait_boti_exterior_culled");
@@ -618,12 +654,20 @@ public class AITModClient implements ClientModInitializer {
 
         ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
         AnimatedModel model = variant.getDoor().model();
+        Frustum frustum = context.frustum();
 
         profiler.push("ait:boti_door");
 
         for (DoorBlockEntity door : BOTI.DOOR_RENDER_QUEUE) {
             if (door == null) continue;
             BlockPos pos = door.getPos();
+
+            // Frustum-gate the whole expensive portal render: if the doorway aperture isn't in the real player
+            // camera's view, skip it entirely (no sky/terrain/entity passes, no meshing). The shadow world keeps
+            // updating in the tick loop and the baked geometry ages out via reclaimIfIdle, so nothing is lost - the
+            // doorway simply re-bakes when looked at again. context.frustum() is non-null at AFTER_ENTITIES/END.
+            if (frustum != null && !frustum.isVisible(new Box(pos).expand(2.0)))
+                continue;
 
             stack.push();
             stack.translate(0.5, 0, 0.5);
@@ -635,7 +679,7 @@ public class AITModClient implements ClientModInitializer {
                 int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
                 profiler.visit("ait_boti_door_drawn");
                 profiler.visit("ait_model_build");
-                TardisDoorBOTI.renderInteriorDoorBoti(tardis, door, variant, stack, context.consumers(),
+                TardisDoorBOTI.renderInteriorDoorBoti(tardis, door, variant, stack,
                         AITMod.id("textures/environment/tardis_sky.png"), model,
                         BotiPortalModel.getTexturedModelData().createModel(), light, context.tickDelta());
             } else {

@@ -38,6 +38,14 @@ public class SkyboxUtil extends WorldRenderer {
     private static final Identifier TARDIS_SKY = AITMod.id("textures/environment/tardis_sky.png");
     private static final Identifier SUN = AITMod.id("textures/environment/tardis_star.png");
 
+    /**
+     * When non-null, the TARDIS whose configured interior skybox {@link SkyboxMixin} should render this pass, instead
+     * of {@code ClientTardisUtil.getCurrentTardis()}. Set by the BOTI exterior->interior pass so that looking at a
+     * TARDIS from OUTSIDE (where the player is in no TARDIS, so getCurrentTardis() is null) still shows that TARDIS's
+     * chosen skybox through the doorway rather than the interior dimension's blank vanilla sky. Cleared in a finally.
+     */
+    public static Tardis PORTAL_SKY_TARDIS = null;
+
     public static final Quaternionf[] LOOKUP = new Quaternionf[]{null, RotationAxis.POSITIVE_X.rotationDegrees(90.0f),
             RotationAxis.POSITIVE_X.rotationDegrees(-90.0f), RotationAxis.POSITIVE_X.rotationDegrees(180.0f),
             RotationAxis.POSITIVE_Z.rotationDegrees(90.0f), RotationAxis.POSITIVE_Z.rotationDegrees(-90.0f), null};
