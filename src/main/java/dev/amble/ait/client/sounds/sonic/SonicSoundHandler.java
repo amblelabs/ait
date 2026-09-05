@@ -3,10 +3,10 @@ package dev.amble.ait.client.sounds.sonic;
 import java.util.HashMap;
 import java.util.UUID;
 
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-
 import dev.amble.ait.api.ClientWorldEvents;
 import dev.amble.ait.client.sounds.ClientSoundManager;
+
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 
 public class SonicSoundHandler {
     private final HashMap<UUID, SonicSound> sounds;
@@ -14,8 +14,7 @@ public class SonicSoundHandler {
     static {
         ClientWorldEvents.CHANGE_WORLD.register((client, world) -> {
             SonicSoundHandler handler = ClientSoundManager.getSonicSound();
-            handler.sounds.values().forEach(SonicSound::stop);
-            handler.sounds.clear();
+            handler.stopAll();
         });
     }
 
@@ -36,5 +35,10 @@ public class SonicSoundHandler {
 
     public void onFinishUse(AbstractClientPlayerEntity user) {
         this.get(user).onFinishUse();
+    }
+
+    public void stopAll() {
+        this.sounds.values().forEach(SonicSound::stop);
+        this.sounds.clear();
     }
 }
