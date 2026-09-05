@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 
 import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.enums.Instrument;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.item.Item;
@@ -77,7 +79,7 @@ public class AITBlocks extends BlockContainer {
     @PickaxeMineable
     @NoEnglish
     public static final Block ARTRON_COLLECTOR_BLOCK = new ArtronCollectorBlock(
-            FabricBlockSettings.create().noBlockBreakParticles().requiresTool().strength(1F)
+            FabricBlockSettings.create().noBlockBreakParticles().requiresTool().strength(1F).nonOpaque().lightLevel(6)
                     .instrument(Instrument.BANJO).pistonBehavior(PistonBehavior.IGNORE));
 
     // Coral Blocks
