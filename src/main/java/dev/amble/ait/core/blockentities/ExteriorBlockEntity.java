@@ -4,32 +4,6 @@ import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.MAX_PLAS
 
 import java.util.UUID;
 
-import dev.drtheo.scheduler.api.TimeUnit;
-import dev.drtheo.scheduler.api.common.Scheduler;
-import dev.drtheo.scheduler.api.common.TaskStage;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BrushItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particle.BlockStateParticleEffect;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.*;
-import net.minecraft.world.World;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
@@ -59,6 +33,31 @@ import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.category.AdaptiveCategory;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.decoration.ArmorStandEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BrushItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.particle.BlockStateParticleEffect;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.*;
+import net.minecraft.world.World;
 
 public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements BlockEntityTicker<ExteriorBlockEntity> {
     private UUID seatEntityUUID = null;
@@ -313,13 +312,15 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
 
         if (travel.getState() == TravelHandlerBase.State.DEMAT) return;
 
-        if (!previouslyLocked && travel.getState() == TravelHandlerBase.State.MAT
-                && travel.getAlpha() >= 0.9F)
-            TardisUtil.teleportInside(tardis, entity);
+        if (tardis.returnHome().tryCompleteHailMaryRescue(entity))
+            return;
 
-        if (!tardis.door().isClosed()
+        if (!previouslyLocked && travel.getState() == TravelHandlerBase.State.MAT
+                && travel.getAlpha() >= 0.9F) {
+            TardisUtil.teleportInsideThroughExterior(tardis, entity, false);
+        } else if (tardis.door().isOpen()
                 && (!(DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti) || !tardis.getExterior().getVariant().hasPortals()))
-            TardisUtil.teleportInside(tardis, entity);
+            TardisUtil.teleportInsideThroughExterior(tardis, entity, true);
 
         if (tardis.door().isClosed()
                 && entity instanceof PlayerEntity player

@@ -4,14 +4,15 @@ import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.FuelHandler;
+import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class TravelUtil {
 
@@ -77,11 +78,35 @@ public class TravelUtil {
 
         boolean hasDirChanged = source.getRotation() != destination.getRotation();
         boolean hasDimChanged = !source.getDimension().equals(destination.getDimension());
-        
+
         if (distance < QUICK_FLIGHT_THRESHOLD && !hasDimChanged)
             return 1; // fast travel
 
         return (int) (BASE_FLIGHT_TICKS + (distance / 10f) + (hasDirChanged ? 100 : 0) + (hasDimChanged ? 600 : 0));
+    }
+
+    /**
+     * Calculates the nominal fuel cost of the complete {@link TravelHandlerBase.State#FLIGHT FLIGHT} leg.
+     * This mirrors the flight progress cadence before any automatic travel shortens its target time and
+     * deliberately excludes the fuel consumed during dematerialization and materialization.
+     */
+    public static double getNominalFlightFuelCost(TravelHandler travel, CachedDirectedGlobalPos source,
+                                                   CachedDirectedGlobalPos destination) {
+        return getNominalFlightFuelCost(travel, source, destination, Math.max(travel.speed(), 1),
+                travel.autopilot());
+    }
+
+    public static double getNominalFlightFuelCost(TravelHandler travel, CachedDirectedGlobalPos source,
+                                                   CachedDirectedGlobalPos destination, int speed,
+                                                   boolean autopilot) {
+        int effectiveSpeed = Math.max(speed, 1);
+        int instability = travel.instability();
+        int progressPerUpdate = AITMod.CONFIG.travelPerTick + instability - 1;
+        int updateCadence = Math.max(travel.maxSpeed().get() - effectiveSpeed + 1, 1);
+        int updatesRequired = MathHelper.ceil((float) getFlightDuration(source, destination) / progressPerUpdate);
+        long nominalFlightTicks = (long) updatesRequired * updateCadence;
+
+        return nominalFlightTicks * FuelHandler.getPerTickFuelCost(effectiveSpeed, instability, autopilot);
     }
 
     public static CachedDirectedGlobalPos jukePos(CachedDirectedGlobalPos pos, int min, int max, int multiplier) {
@@ -98,6 +123,17 @@ public class TravelUtil {
 
     public static int getHardCap(int targetTicks) {
         if (targetTicks <= QUICK_FLIGHT_THRESHOLD) return 1;
-        return 1 + MathHelper.floor(1d/6d * MathHelper.sqrt(targetTicks - QUICK_FLIGHT_THRESHOLD));
+        return 1 + MathHelper.floor(1d / 6d * MathHelper.sqrt(targetTicks - QUICK_FLIGHT_THRESHOLD));
+    }
+
+    static int rescaleMissedEvents(int missedEvents, int previousHardCap, int newHardCap) {
+        int normalizedHardCap = Math.max(newHardCap, 1);
+        int maximumMissedEvents = normalizedHardCap - 1;
+
+        if (missedEvents <= 0) return 0;
+        if (previousHardCap <= 0) return MathHelper.clamp(missedEvents, 0, maximumMissedEvents);
+
+        long proportionalMisses = (long) missedEvents * normalizedHardCap / previousHardCap;
+        return MathHelper.clamp((int) Math.min(proportionalMisses, Integer.MAX_VALUE), 0, maximumMissedEvents);
     }
 }

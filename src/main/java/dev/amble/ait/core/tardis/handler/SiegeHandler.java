@@ -3,23 +3,10 @@ package dev.amble.ait.core.tardis.handler;
 import java.util.Objects;
 import java.util.UUID;
 
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.api.tardis.TardisTickable;
-import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.item.SiegeTardisItem;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
@@ -28,6 +15,16 @@ import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
+import dev.amble.lib.util.ServerLifecycleHooks;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
 
 public class SiegeHandler extends KeyedTardisComponent implements TardisTickable {
 
@@ -68,14 +65,7 @@ public class SiegeHandler extends KeyedTardisComponent implements TardisTickable
                 if (!Objects.equals(tardis.siege().getHeldPlayerUUID(), player.getUuid()))
                     return;
 
-                for (ItemStack itemStack : player.getInventory().main) {
-                    if (itemStack.isOf(AITItems.SIEGE_ITEM)) {
-                        if (tardis.getUuid().equals(SiegeTardisItem.getTardisIdStatic(itemStack))) {
-                            player.getInventory().setStack(player.getInventory().getSlotWithStack(itemStack), Items.AIR.getDefaultStack());
-                        }
-                    }
-                }
-                SiegeTardisItem.placeTardis(tardis, SiegeTardisItem.fromEntity(player));
+                SiegeTardisItem.placeTardis(tardis, SiegeTardisItem.fromEntity(player), player);
             });
         });
     }
@@ -119,6 +109,19 @@ public class SiegeHandler extends KeyedTardisComponent implements TardisTickable
         if (this.tardis.getFuel() <= (0.01 * FuelHandler.TARDIS_MAX_FUEL))
             return; // The required amount of fuel to enable/disable siege mode
 
+        if (!siege && this.active.get()) {
+            boolean exteriorExists = this.tardis.getExterior().hasValidExteriorBlock();
+            if (exteriorExists && this.tardis.returnHome().isOwnInteriorPosition(this.tardis.travel().position())) {
+                if (!SiegeTardisItem.placeTardis(this.tardis, this.tardis.travel().position()))
+                    return;
+            } else if (exteriorExists) {
+                if (!this.tardis.returnHome().prepareSiegeExteriorPlacement(ServerLifecycleHooks.get()))
+                    return;
+            } else if (!SiegeTardisItem.placeTardis(this.tardis, this.tardis.travel().position())) {
+                return;
+            }
+        }
+
         SoundEvent sound;
 
         if (siege) {
@@ -137,10 +140,6 @@ public class SiegeHandler extends KeyedTardisComponent implements TardisTickable
             this.tardis.door().setLocked(false);
 
             this.tardis.alarm().disable();
-
-            if (this.tardis.getExterior().findExteriorBlock().isEmpty()) {
-                this.tardis.travel().placeExterior(false);
-            }
 
             this.siegeTime = 0;
         }
