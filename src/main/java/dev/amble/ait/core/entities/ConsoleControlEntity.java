@@ -1,7 +1,6 @@
 package dev.amble.ait.core.entities;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -46,6 +45,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.client.tardis.ControlAnimationState;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITEntityTypes;
 import dev.amble.ait.core.AITItems;
@@ -63,11 +63,8 @@ import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.core.tardis.control.impl.HammerHangerControl;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.registry.impl.ControlRegistry;
-import dev.amble.lib.animation.AnimatedEntity;
-import dev.amble.lib.client.bedrock.BedrockAnimationReference;
-import dev.amble.lib.client.bedrock.TargetedAnimationState;
 
-public class ConsoleControlEntity extends LinkableDummyEntity implements AnimatedEntity {
+public class ConsoleControlEntity extends LinkableDummyEntity {
     private static final TrackedData<Float> WIDTH = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.FLOAT);
     private static final TrackedData<Float> HEIGHT = DataTracker.registerData(ConsoleControlEntity.class,
@@ -88,14 +85,18 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
             TrackedDataHandlerRegistry.BLOCK_POS);
     private static final TrackedData<String> CONTROL_ID = DataTracker.registerData(ConsoleControlEntity.class,
             TrackedDataHandlerRegistry.STRING);
-    private static final TrackedData<String> ANIMATION_ID = DataTracker.registerData(ConsoleControlEntity.class,
-            TrackedDataHandlerRegistry.STRING);
+    /**
+     * This control's slot in its console's {@code getControlTypes()}. -1 until set, because 0 is a
+     * real slot and an unset index must not drive another control's animation.
+     */
+    private static final TrackedData<Integer> CONTROL_INDEX = DataTracker.registerData(ConsoleControlEntity.class,
+            TrackedDataHandlerRegistry.INTEGER);
     public static final float MAX_DURABILITY = 1.0f;
 
+    /** Whether the last cooldown pushed to the console was set, so release can be pushed too. */
+    private boolean pushedOnDelay;
     private Control control;
     private ControlTypes controlType;
-    private ConsoleBlockEntity linkedConsole;
-    private final TargetedAnimationState animationState = new TargetedAnimationState();
 
     public ConsoleControlEntity(EntityType<? extends Entity> entityType, World world) {
         super(entityType, world);
@@ -112,16 +113,11 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
 
     @Override
     public void onRemoved() {
-        if (this.getConsoleBlockPos() == null) {
-            super.onRemoved();
-            return;
-        }
+        super.onRemoved();
 
-        if (this.linkedConsole != null) {
-            this.linkedConsole.controlEntities.remove(this);
-            this.linkedConsole = null;
-        }
-
+        // No unset case to guard: CONSOLE_BLOCK_POS defaults to BlockPos.ORIGIN and is never
+        // null, so a control with no console simply finds no block entity there. The old guard
+        // meant super was never reached on the live path.
         if (this.getWorld().getBlockEntity(this.getConsoleBlockPos()) instanceof ConsoleBlockEntity console)
             console.markNeedsControl();
     }
@@ -140,7 +136,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
         this.dataTracker.startTracking(ON_DELAY, false);
         this.dataTracker.startTracking(CONSOLE_BLOCK_POS, BlockPos.ORIGIN);
         this.dataTracker.startTracking(CONTROL_ID, "");
-        this.dataTracker.startTracking(ANIMATION_ID, "");
+        this.dataTracker.startTracking(CONTROL_INDEX, -1);
     }
 
 	@Override
@@ -159,6 +155,7 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
         nbt.putBoolean("wasSequenced", this.wasSequenced());
         nbt.putFloat("durability", this.getDurability());
         nbt.putBoolean("sticky", this.isSticky());
+        nbt.putInt("controlIndex", this.getControlIndex());
 
 	    // write control type via codec
 	    if (this.controlType == null) {
@@ -197,6 +194,9 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
         if (nbt.contains("wasSequenced"))
             this.setWasSequenced(nbt.getBoolean("wasSequenced"));
 
+        if (nbt.contains("controlIndex"))
+            this.setControlIndex(nbt.getInt("controlIndex"));
+
         if (nbt.contains("durability"))
             this.setDurability(nbt.getFloat("durability"));
         if (nbt.contains("sticky"))
@@ -209,10 +209,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
 			    this.control = controlType.getControl();
 			    this.dataTracker.set(CONTROL_ID, this.control.id().toString());
 
-			    // Sync animation ID if present
-			    controlType.getAnimation().ifPresent(animation ->
-					    this.dataTracker.set(ANIMATION_ID, animation.id().toString())
-			    );
 		    });
 	    }
     }
@@ -304,10 +300,8 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
 
     @Override
     public void tick() {
-	    this.animationState.tick();
-
 	    if (this.getWorld().isClient()) {
-		    this.linkToConsole();
+		    this.pushCooldown();
             return;
 	    }
 
@@ -356,33 +350,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
 
         return control;
     }
-
-	public Optional<ControlTypes> getControlType() {
-		// On client, reconstruct controlType from synced data if local field is null
-		if (this.controlType == null && this.getWorld() != null && this.getWorld().isClient()) {
-			Control control = this.getControl();
-			if (control != null) {
-				// Parse animation from synced ID
-				BedrockAnimationReference animation = null;
-				String animationId = this.dataTracker.get(ANIMATION_ID);
-				if (animationId != null && !animationId.isEmpty()) {
-					Identifier id = Identifier.tryParse(animationId);
-					if (id != null) {
-						animation = BedrockAnimationReference.parse(id);
-					}
-				}
-
-				this.controlType = new ControlTypes(
-						control,
-						EntityDimensions.changing(this.getControlWidth(), this.getControlHeight()),
-						this.getOffset(),
-						animation
-				);
-			}
-		}
-		return Optional.ofNullable(this.controlType);
-	}
-
     public Vector3f getOffset() {
         return this.dataTracker.get(OFFSET);
     }
@@ -594,41 +561,49 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
     }
 
     /**
-     * Adds this control to its console's list, client side, where {@code spawnControls} never runs.
+     * Reports this control's cooldown to its console, which is what the renderer reads.
      *
-     * <p>The renderer walks that list every frame to pose each control. It used to come from an
-     * expanded box query over the console, re-run on a timer, which meant a control could be posed
-     * from a list up to two minutes stale, and every console paid a world scan to build it. A
-     * control knows its own console, so it registers once and the two sides then read one list.
+     * <p>The console owns the animation state; this entity owns nothing but the cooldown flag,
+     * which is server authoritative and reaches the client only as tracked data. Pushing rather
+     * than being read means no block entity reference is held across ticks, so a console that
+     * goes away without warning cannot be observed stale.
+     *
+     * <p>Pushes while on cooldown and once more on release, then goes quiet. A control with
+     * nothing to report costs nothing, so a console with thirty controls does not pay a block
+     * entity lookup per control per tick; and because release is pushed rather than inferred, a
+     * cooldown ends when it ends instead of when the console stops trusting the last push.
      */
-    private void linkToConsole() {
-        BlockPos consolePos = this.getConsoleBlockPos();
+    private void pushCooldown() {
+        boolean onDelay = this.isOnDelay();
 
-        // Nothing to do while the console we registered with is still the live one at our position.
-        // Held by instance rather than a flag: a chunk reload builds a fresh block entity with an
-        // empty list, and a control that only ever registered once would stop being posed. Every
-        // path that drops or replaces a block entity marks it removed first, so that covers the
-        // reload, and the position check covers a control re-pointed at a different console.
-        if (this.linkedConsole != null && !this.linkedConsole.isRemoved()
-                && this.linkedConsole.getPos().equals(consolePos))
+        if (!onDelay && !this.pushedOnDelay)
             return;
 
-        // Deliberately not getConsole(): that warns when the block entity has not loaded yet, which
-        // is the normal case for the first few ticks after a control is synced.
-        if (!(this.getWorld().getBlockEntity(consolePos) instanceof ConsoleBlockEntity console)) {
-            // Don't keep hold of a console whose chunk has gone; controls can outlive it when their
-            // offsets put them in the neighbouring chunk.
-            this.linkedConsole = null;
+        int index = this.getControlIndex();
+
+        if (index < 0)
+            return;
+
+        // Deliberately not getConsole(): that warns when the block entity has not loaded yet,
+        // which is the normal case for the first few ticks after a control is synced.
+        if (!(this.getWorld().getBlockEntity(this.getConsoleBlockPos()) instanceof ConsoleBlockEntity console)) {
+            // Nothing to deliver a release to. Forget it rather than retrying every tick: the
+            // console expires an unrenewed cooldown on its own, and a console that comes back
+            // comes back with fresh state anyway.
+            this.pushedOnDelay = false;
             return;
         }
 
-        if (this.linkedConsole != null && this.linkedConsole != console)
-            this.linkedConsole.controlEntities.remove(this);
+        ControlAnimationState state = console.controlAnimation(index);
 
-        if (!console.controlEntities.contains(this))
-            console.controlEntities.add(this);
+        if (state == null) {
+            // Not a slot on this console any more, so this control has nothing to drive.
+            this.pushedOnDelay = false;
+            return;
+        }
 
-        this.linkedConsole = console;
+        state.push(onDelay, console.getAge());
+        this.pushedOnDelay = onDelay;
     }
 
     public ConsoleBlockEntity getConsole() {
@@ -642,10 +617,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
         AITMod.LOGGER.warn("Control entity at {} has no console block entity at {}", this.getPos(), this.getConsoleBlockPos());
         return null;
     }
-
-	public TargetedAnimationState getAnimationState() {
-		return this.animationState;
-	}
 
     private void spark() {
         if (!(this.getWorld() instanceof ServerWorld serverWorld)) return;
@@ -672,6 +643,14 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
             serverWorld.spawnParticles(ParticleTypes.SMALL_FLAME, pos.getX(), pos.getY() + 0.2f, pos.getZ(), 1, 0, 0.075f, 0, 0);
     }
 
+    public int getControlIndex() {
+        return this.dataTracker.get(CONTROL_INDEX);
+    }
+
+    public void setControlIndex(int index) {
+        this.dataTracker.set(CONTROL_INDEX, index);
+    }
+
     public BlockPos getConsoleBlockPos() {
         return this.dataTracker.get(CONSOLE_BLOCK_POS);
     }
@@ -687,11 +666,6 @@ public class ConsoleControlEntity extends LinkableDummyEntity implements Animate
         this.control = type.getControl();
         this.controlType = type;
         this.dataTracker.set(CONTROL_ID, this.control.id().toString());
-
-        // Sync animation ID if present
-        type.getAnimation().ifPresent(animation ->
-                this.dataTracker.set(ANIMATION_ID, animation.id().toString())
-        );
 
         super.setCustomName(this.control.getName(this.tardis().get()));
 

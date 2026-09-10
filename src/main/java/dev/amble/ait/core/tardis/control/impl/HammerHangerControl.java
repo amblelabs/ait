@@ -1,7 +1,7 @@
 package dev.amble.ait.core.tardis.control.impl;
 
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.item.HammerItem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
@@ -61,7 +61,7 @@ public class HammerHangerControl extends Control {
     }
 
 	@Override
-	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleControlEntity entity) {
+	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleBlockEntity console) {
 		ExtraHandler handler = tardis.extra();
 		return (handler.getConsoleHammer() != null && !handler.getConsoleHammer().isEmpty()) ? 1.0f : 0.0f;
 	}

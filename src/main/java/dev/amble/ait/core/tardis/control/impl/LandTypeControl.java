@@ -3,7 +3,6 @@ package dev.amble.ait.core.tardis.control.impl;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.util.SafePosSearch;
@@ -76,7 +75,7 @@ public class LandTypeControl extends Control {
     }
 
 	@Override
-	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleControlEntity entity) {
+	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleBlockEntity console) {
 		boolean horizontal = tardis.travel().horizontalSearch().get();
 		SafePosSearch.Kind vertical = tardis.travel().verticalSearch().get();
 

@@ -13,9 +13,9 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
@@ -85,7 +85,7 @@ public class DimensionControl extends Control {
     }
 
 	@Override
-	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleControlEntity entity) {
+	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleBlockEntity console) {
 		// return selected dim / all dims
 		CachedDirectedGlobalPos dest = tardis.travel().destination();
 		int index = Math.max(0, WorldUtil.travelWorldIndex(dest.getWorld()));

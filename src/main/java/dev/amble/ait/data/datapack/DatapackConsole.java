@@ -69,6 +69,7 @@ public class DatapackConsole extends ConsoleVariantSchema implements TravelAnima
 	protected Transformations transformations;
     protected boolean initiallyDatapack;
 	protected TravelAnimationMap animations;
+	private boolean animationsResolved;
 
     public DatapackConsole(Identifier id,
                            Optional<Identifier> category,
@@ -169,8 +170,14 @@ public class DatapackConsole extends ConsoleVariantSchema implements TravelAnima
 
     @Override
     public TravelAnimationMap getAnimations() {
-	    if (animations.isEmpty() && getSameParent(val -> val instanceof DatapackConsole val2 && !val2.animations.isEmpty()) instanceof DatapackConsole datapackParent) {
-		    this.animations = datapackParent.getAnimations();
+	    // Resolved once. This is read every frame by the console renderer, and a variant with no
+	    // animations of its own and no sibling to borrow from re-ran the whole sibling search, and
+	    // logged from it, on each of those frames.
+	    if (!this.animationsResolved) {
+		    this.animationsResolved = true;
+
+		    if (animations.isEmpty() && getSameParent(val -> val instanceof DatapackConsole val2 && !val2.animations.isEmpty()) instanceof DatapackConsole datapackParent)
+			    this.animations = datapackParent.getAnimations();
 	    }
 
         return animations;

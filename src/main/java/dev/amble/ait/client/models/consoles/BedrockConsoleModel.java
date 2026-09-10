@@ -2,6 +2,7 @@ package dev.amble.ait.client.models.consoles;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -10,8 +11,9 @@ import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.tardis.ControlAnimationState;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.entities.ConsoleControlEntity;
+import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
@@ -22,12 +24,11 @@ import dev.amble.lib.api.Identifiable;
 import dev.amble.lib.client.bedrock.BedrockAnimation;
 import dev.amble.lib.client.bedrock.BedrockAnimationReference;
 import dev.amble.lib.client.bedrock.BedrockModel;
-import dev.amble.lib.client.bedrock.TargetedAnimationState;
 
 public class BedrockConsoleModel implements ConsoleModel, Identifiable {
     private final BedrockModel model;
     private final ModelPart root;
-	private final Map<Identifier, BedrockAnimation> animationCache = new HashMap<>();
+	private final Map<Identifier, Optional<BedrockAnimation>> animationCache = new HashMap<>();
 	private ModelPart[] flattened;
 
     public BedrockConsoleModel(BedrockModel model) {
@@ -98,7 +99,7 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
         for (ModelPart part : this.parts())
             part.resetTransform();
 
-		console.getControlEntities().forEach(this::applyControlAnimation);
+		this.applyControlAnimations(console);
 
 		BedrockAnimation anim = map.getAnimation(state);
 		if (anim == null) return;
@@ -106,32 +107,56 @@ public class BedrockConsoleModel implements ConsoleModel, Identifiable {
 		anim.apply(this.getPart(), console.ANIM_STATE, console.getAge(), 1F, null);
     }
 
-	private void applyControlAnimation(ConsoleControlEntity entity) {
-		if (entity.tardis().isEmpty()) return;
+	/**
+	 * Poses every control slot on the console.
+	 *
+	 * <p>Driven off the console's type schema rather than its control entities. The control, its
+	 * animation reference and its offsets are all schema data, and the only per control state a
+	 * render needs is progress and cooldown, both of which the console holds. Slots are addressed by
+	 * index so a console listing the same control more than once, as Copper does with its handbrake,
+	 * keeps one animation per lever instead of sharing one between them.
+	 */
+	private void applyControlAnimations(ConsoleBlockEntity console) {
+		if (console.tardis().isEmpty()) return;
 
-		Control control = entity.getControl();
-		if (control == null) return;
+		Tardis tardis = console.tardis().get();
+		ControlTypes[] types = console.controlTypes();
 
-		ControlTypes type = entity.getControlType().orElse(null);
-		if (type == null) return;
+		for (int i = 0; i < types.length; i++) {
+			BedrockAnimationReference ref = types[i].getAnimation().orElse(null);
+			if (ref == null) continue;
 
-		BedrockAnimationReference ref = type.getAnimation().orElse(null);
-		if (ref == null) return;
+			BedrockAnimation anim = this.animation(ref);
+			if (anim == null) continue;
 
-		// cache by the animation reference id, not the control id, so a control mapped to different
-		// animations across consoles/variants doesn't reuse the wrong cached animation
-		// memoize misses too (computeIfAbsent won't store null) so a missing animation ref isn't re-resolved every frame
-		BedrockAnimation anim;
-		if (this.animationCache.containsKey(ref.id())) {
-			anim = this.animationCache.get(ref.id());
-		} else {
-			anim = ref.get().orElse(null);
-			this.animationCache.put(ref.id(), anim);
+			ControlAnimationState slot = console.controlAnimation(i);
+			if (slot == null) continue;
+
+			Control control = types[i].getControl();
+
+			slot.state().setTargetProgress(
+					control.getTargetProgress(tardis, slot.cooldown(console.getAge()), console));
+
+			anim.apply(this.getPart(), slot.state(), console);
 		}
-		if (anim == null) return;
+	}
 
-		TargetedAnimationState state = entity.getAnimationState();
-		state.setTargetProgress(control.getTargetProgress(entity.tardis().get(), entity.isOnDelay(), entity));
-		anim.apply(this.getPart(), state, entity);
+	/**
+	 * The animation a reference resolves to, or null.
+	 *
+	 * <p>Keyed on the reference id rather than the control id, so a control mapped to a different
+	 * animation per console or variant does not reuse the wrong one. Values are Optional so a miss is
+	 * a cached empty rather than an absent key, which keeps this to one map lookup and stops a
+	 * datapack naming a missing animation re-resolving every frame.
+	 */
+	private @Nullable BedrockAnimation animation(BedrockAnimationReference ref) {
+		Optional<BedrockAnimation> cached = this.animationCache.get(ref.id());
+
+		if (cached == null) {
+			cached = ref.get();
+			this.animationCache.put(ref.id(), cached);
+		}
+
+		return cached.orElse(null);
 	}
 }

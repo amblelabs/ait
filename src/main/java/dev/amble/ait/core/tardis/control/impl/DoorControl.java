@@ -1,8 +1,8 @@
 package dev.amble.ait.core.tardis.control.impl;
 
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -34,7 +34,7 @@ public class DoorControl extends Control {
     }
 
 	@Override
-	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleControlEntity entity) {
+	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleBlockEntity console) {
 		// Door open progress
 		float left = tardis.door().isLeftOpen() ? 1.0f : 0.0f;
 		float right = tardis.door().isRightOpen() ? 1.0f : 0.0f;

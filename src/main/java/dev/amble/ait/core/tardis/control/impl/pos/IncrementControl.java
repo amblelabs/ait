@@ -1,8 +1,8 @@
 package dev.amble.ait.core.tardis.control.impl.pos;
 
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -50,7 +50,7 @@ public class IncrementControl extends Control {
     }
 
 	@Override
-	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleControlEntity entity) {
+	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleBlockEntity console) {
 		int size = IncrementManager.getIncrementSize();
 		if (size <= 1) return 0.0f;
 

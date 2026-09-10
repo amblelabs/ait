@@ -12,12 +12,12 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
@@ -168,7 +168,7 @@ public class Control implements Identifiable {
 	 * A float to decide where the animation should run to.
 	 * 1 is the entire animation, 0 is none of it.
 	 */
-	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleControlEntity entity) {
+	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleBlockEntity console) {
 		return cooldown ? 1.0F : 0.0F;
 	}
 

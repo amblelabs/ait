@@ -1,7 +1,6 @@
 package dev.amble.ait.core.tardis.control.impl;
 
 import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.entities.ConsoleControlEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -97,11 +96,10 @@ public class SonicPortControl extends Control {
     }
 
     @Override
-    public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleControlEntity entity) {
+    public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleBlockEntity console) {
         if (cooldown) return 1.0F;
 
         ButlerHandler butler = tardis.butler();
-        ConsoleBlockEntity console = entity != null ? entity.getConsole() : null;
 
         boolean hasSonic = (console != null && console.getSonicScrewdriver() != null && !console.getSonicScrewdriver().isEmpty()) || butler.getHandles() != null;
 

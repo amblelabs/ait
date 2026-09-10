@@ -1,9 +1,9 @@
 package dev.amble.ait.core.tardis.control.impl;
 
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.handler.CloakHandler;
@@ -63,7 +63,7 @@ public class CloakControl extends Control {
     }
 
 	@Override
-	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleControlEntity entity) {
+	public float getTargetProgress(Tardis tardis, boolean cooldown, @Nullable ConsoleBlockEntity console) {
 		CloakHandler cloak = tardis.handler(TardisComponent.Id.CLOAK);
 		return cloak.cloaked().get() ? 1.0f : 0.0f;
 	}
