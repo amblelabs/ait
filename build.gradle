@@ -65,6 +65,12 @@ loom {
     accessWidenerPath = file("src/main/resources/ait.accesswidener")
 
     runs {
+        // The client keeps the default run/ so an existing setup still applies. The dedicated server
+        // needs its own, or the two race on run/logs/latest.log and run/debug/profiling/.
+        server {
+            runDir "run/server"
+        }
+
         // This adds a new gradle task that runs the datagen API
         datagen {
             inherit server

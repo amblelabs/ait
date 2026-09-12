@@ -99,7 +99,14 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
         this.setFlightTicks(this.isInFlight() ? MathHelper.clamp(this.getFlightTicks(), 0, this.getTargetTicks()) : 0);
         int prevCap = this.missedHardCap;
         this.missedHardCap = TravelUtil.getHardCap(this.getTargetTicks());
-        this.missedEvents = MathHelper.floor((float) (this.missedEvents / prevCap * this.missedHardCap));
+
+        // Rescale the missed events into the new cap. prevCap is zero on a TARDIS that has never
+        // flown, which crashed the server thread the first time anything set a destination. The
+        // ratio is taken in floating point as well, since an int division truncated every value
+        // below the old cap to nothing.
+        this.missedEvents = prevCap == 0
+                ? 0
+                : MathHelper.floor((float) this.missedEvents / prevCap * this.missedHardCap);
     }
 
     protected void startFlight() {

@@ -1,0 +1,12 @@
+# Hartnell console, 335 parts, 19 animated bones in the landed animation. The variant is pinned
+# rather than left to the desktop default: part count and bone count differ by an order of
+# magnitude between variants, so an unpinned variant makes before/after meaningless.
+ait perf-console "console/hartnell"
+SLEEP 6
+ait perf-tp console
+SLEEP 8
+gamemode spectator @a
+SLEEP 4
+ait perf-verify
+ait profile-client @a
+SLEEP 15

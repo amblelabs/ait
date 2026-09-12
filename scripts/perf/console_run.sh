@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+# Brings the harness up on a fresh world and runs the console scenarios, with every step verified
+# rather than assumed: that the old processes really died, that the build actually succeeded, and
+# that exactly one client joined.
+#
+# The server is restarted too, not just the client. perf-console is a server command, and a stale
+# server silently answers "Incorrect argument for command", which looks identical to a bad argument
+# rather than a missing command.
+set -u
+cd "$(dirname "$0")/../.." || exit 1
+
+HOST=127.0.0.1
+PORT=25632
+PASS=aitperf
+printf 'list\n' > /tmp/s_list.txt
+
+fresh_world() {
+  rm -rf run/server/perfworld
+  rm -f run/logs/latest.log run/server/logs/latest.log
+  echo "  world deleted"
+}
+
+# A killed build can leave build/resources/main half-copied, and then processResources fails while
+# compileJava reports UP-TO-DATE, so the launcher silently runs a stale binary. Verified, not assumed.
+require_build() {
+  if grep -qE "BUILD FAILED|FAILURE:" "$1"; then
+    echo "  ABORT: build failed, would have run a stale binary"
+    grep -A3 "What went wrong" "$1" | head -5
+    return 1
+  fi
+  return 0
+}
+
+kill_all() {
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/perf/kill_ait_java.ps1
+  sleep 5
+
+  # Verified, not assumed. The previous version failed silently and start_server then saw the OLD
+  # server answering rcon and called it success, so every phase measured a stale binary.
+  for _ in $(seq 1 12); do
+    if ! python scripts/perf/rcon.py $HOST $PORT $PASS /tmp/s_list.txt >/dev/null 2>&1; then
+      echo "  rcon down, processes really stopped"
+      return 0
+    fi
+    sleep 3
+  done
+
+  echo "  ABORT: something is still answering rcon after the kill"
+  return 1
+}
+
+start_server() {
+  nohup ./gradlew runServer --console=plain > /tmp/ab_server.log 2>&1 &
+  for _ in $(seq 1 130); do
+    if python scripts/perf/rcon.py $HOST $PORT $PASS /tmp/s_list.txt >/dev/null 2>&1; then
+      echo "  server up"
+      return 0
+    fi
+    sleep 5
+  done
+  echo "  server never came up"
+  return 1
+}
+
+start_client() {
+  nohup ./gradlew runClient --console=plain --args="--quickPlayMultiplayer 127.0.0.1:25565" > /tmp/ab_client.log 2>&1 &
+  for _ in $(seq 1 140); do
+    out=$(python scripts/perf/rcon.py $HOST $PORT $PASS /tmp/s_list.txt 2>/dev/null)
+    case "$out" in
+      *"There are 1 of"*) echo "  client in"; return 0 ;;
+      *"There are 2 of"*|*"There are 3 of"*)
+        echo "  ABORT: more than one client joined. profile-client @a would profile all of them,"
+        echo "         each writing its own dump, and the reader takes whichever landed last."
+        echo "         $out"
+        return 1 ;;
+    esac
+    sleep 5
+  done
+  echo "  client never joined"
+  return 1
+}
+
+rules() {
+  printf 'gamerule doDaylightCycle false\ngamerule doWeatherCycle false\ngamerule randomTickSpeed 0\ngamerule doMobSpawning false\ngamerule doMobLoot false\ntime set noon\nweather clear\n' > /tmp/h_rules.txt
+  python scripts/perf/rcon.py $HOST $PORT $PASS /tmp/h_rules.txt >/dev/null 2>&1
+}
+
+# Sanity gate: refuse to measure if the server does not know the command that pins the variant.
+require_perf_console() {
+  printf 'ait perf-console "console/hartnell"\n' > /tmp/s_pc.txt
+  if python scripts/perf/rcon.py $HOST $PORT $PASS /tmp/s_pc.txt 2>&1 | grep -q "PERF-CONSOLE"; then
+    echo "  perf-console present"
+    return 0
+  fi
+  echo "  ABORT: server does not have perf-console, the variant would not be pinned"
+  return 1
+}
+
+run() {   # $1 = manifest
+  kill_all || return 1
+  fresh_world
+  start_server || return 1
+  require_build /tmp/ab_server.log || return 1
+  rules
+  start_client || return 1
+  require_build /tmp/ab_client.log || return 1
+  require_perf_console || return 1
+  # The interior scenarios need a TARDIS with a generated desktop before the console exists.
+  printf 'ait perf-clear\nSLEEP 2\nait perf-spawn 1 8 0 100 12\nSLEEP 30\nait perf-doors open\nSLEEP 4\n' > /tmp/seed.txt
+  python scripts/perf/rcon.py $HOST $PORT $PASS /tmp/seed.txt >/dev/null 2>&1
+  bash scripts/perf/run_console.sh "$1"
+}
+
+run "${1:-${MANIFEST_DIR:-run/debug/perf}/console.tsv}" || exit 1
+
+echo "=========== DONE"

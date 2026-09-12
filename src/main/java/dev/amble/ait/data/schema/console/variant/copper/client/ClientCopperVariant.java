@@ -2,6 +2,7 @@ package dev.amble.ait.data.schema.console.variant.copper.client;
 
 import org.joml.Vector3f;
 
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
 
 import dev.amble.ait.AITMod;
@@ -28,6 +29,12 @@ public class ClientCopperVariant extends ClientConsoleVariantSchema {
     @Override
     public Identifier emission() {
         return EMISSION;
+    }
+
+    @Override
+    public RenderLayer hologramLayer(Identifier texture) {
+        // No back face culling: the copper model has single sided geometry that disappears without it.
+        return RenderLayer.getEntityTranslucent(texture);
     }
 
     @Override

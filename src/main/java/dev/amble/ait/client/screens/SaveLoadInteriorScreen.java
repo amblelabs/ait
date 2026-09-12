@@ -27,6 +27,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 
+import dev.amble.ait.client.util.OffScreenCull;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
@@ -230,21 +231,32 @@ public class SaveLoadInteriorScreen extends ConsoleScreen {
 
         // Render block entities separately (they need immediate drawing)
         if (ENABLE_BLOCK_ENTITIES) {
-            for (BlockPos pos : blockEntityPositions) {
-                BlockEntity blockEntity = world.getBlockEntity(pos);
-                if (blockEntity != null) {
-                    matrices.push();
+            // This preview calls the block entity renderers itself, with the camera arithmetic above
+            // and a matrix stack of its own, while the block entity render dispatcher still holds
+            // whatever camera the last world pass left. The blocks are the real ones in
+            // client.world, so the off screen cull cannot tell this apart from a world pass and
+            // would reject whatever sits behind that stale camera.
+            OffScreenCull.suspend();
 
-                    matrices.translate(
-                            pos.getX() - playerPos.getX(),
-                            pos.getY() - playerPos.getY(),
-                            pos.getZ() - playerPos.getZ()
-                    );
+            try {
+                for (BlockPos pos : blockEntityPositions) {
+                    BlockEntity blockEntity = world.getBlockEntity(pos);
+                    if (blockEntity != null) {
+                        matrices.push();
 
-                    renderBlockEntity(blockEntity, matrices, immediate, delta);
+                        matrices.translate(
+                                pos.getX() - playerPos.getX(),
+                                pos.getY() - playerPos.getY(),
+                                pos.getZ() - playerPos.getZ()
+                        );
 
-                    matrices.pop();
+                        renderBlockEntity(blockEntity, matrices, immediate, delta);
+
+                        matrices.pop();
+                    }
                 }
+            } finally {
+                OffScreenCull.resume();
             }
         }
     }

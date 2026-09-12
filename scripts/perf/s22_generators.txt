@@ -1,0 +1,12 @@
+# Two console generators either side of the console. Decorative holograms that draw the whole
+# console model, so this is the scenario where they are visible at once.
+ait perf-tp console
+SLEEP 6
+execute at @p run setblock ~-3 ~-2 ~-4 ait:console_generator
+execute at @p run setblock ~3 ~-2 ~-4 ait:console_generator
+SLEEP 6
+ait perf-tp console 20
+SLEEP 8
+ait perf-verify
+ait profile-client @a
+SLEEP 15

@@ -1,0 +1,6 @@
+# In flight: the vortex renderer plus the flight exterior path.
+ait perf-flight true
+SLEEP 6
+ait perf-verify
+ait profile-client @a
+SLEEP 15

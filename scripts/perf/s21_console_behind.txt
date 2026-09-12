@@ -1,0 +1,10 @@
+# Inside, camera backed well past the console and facing away from it. The interior equivalent of
+# s20. Relative teleports run through "execute at @s" so they resolve in the player's own dimension
+# rather than the command source's, which is the overworld over rcon.
+ait perf-tp console
+SLEEP 6
+execute as @a at @s run tp @s ~ ~ ~8 0 0
+SLEEP 8
+ait perf-verify
+ait profile-client @a
+SLEEP 15

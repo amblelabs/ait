@@ -27,7 +27,7 @@ public class DatapackDoor extends DoorSchema implements AnimatedDoor {
             Identifier.CODEC.fieldOf("close_sound").forGetter(DatapackDoor::getCloseSoundId),
             Identifier.CODEC.fieldOf("model").forGetter(DatapackDoor::getModelId),
             Codec.BOOL.fieldOf("is_double").forGetter(DoorSchema::isDouble),
-            PortalOffsets.CODEC.optionalFieldOf("portal_info", null).forGetter(DatapackDoor::getPortalOffsets),
+            PortalOffsets.CODEC.optionalFieldOf("portal_info").forGetter(door -> Optional.ofNullable(door.getPortalOffsets())),
             BedrockAnimationReference.CODEC.optionalFieldOf("left_animation").forGetter(DatapackDoor::getLeftAnimation),
             BedrockAnimationReference.CODEC.optionalFieldOf("right_animation").forGetter(DatapackDoor::getRightAnimation),
             Vec3d.CODEC.optionalFieldOf("scale", new Vec3d(1, 1, 1)).forGetter(DatapackDoor::getScale),
@@ -47,14 +47,14 @@ public class DatapackDoor extends DoorSchema implements AnimatedDoor {
     protected final Vec3d offset;
     protected final boolean initiallyDatapack;
 
-    public DatapackDoor(Identifier id, Identifier openSound, Identifier closeSound, Identifier model, boolean isDouble, PortalOffsets portalOffsets, Optional<BedrockAnimationReference> leftAnimation, Optional<BedrockAnimationReference> rightAnimation, Vec3d scale, Vec3d offset, boolean initiallyDatapack) {
+    public DatapackDoor(Identifier id, Identifier openSound, Identifier closeSound, Identifier model, boolean isDouble, Optional<PortalOffsets> portalOffsets, Optional<BedrockAnimationReference> leftAnimation, Optional<BedrockAnimationReference> rightAnimation, Vec3d scale, Vec3d offset, boolean initiallyDatapack) {
         super(id);
 
         this.openSound = openSound;
         this.closeSound = closeSound;
         this.model = model;
         this.isDouble = isDouble;
-        this.portalOffsets = portalOffsets;
+        this.portalOffsets = portalOffsets.orElse(null);
         this.leftAnimation = leftAnimation.orElse(null);
         this.rightAnimation = rightAnimation.orElse(null);
         this.scale = scale;

@@ -1,0 +1,12 @@
+# Copper in flight: worst case on both axes at once, 818 parts and 28 bones with one that does not
+# exist in the model, while the animation is advancing.
+ait perf-console "console/copper"
+SLEEP 4
+ait perf-flight true
+SLEEP 8
+ait perf-tp console
+SLEEP 6
+ait perf-verify
+ait profile-client @a
+SLEEP 15
+ait perf-flight false

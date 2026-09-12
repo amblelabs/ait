@@ -1,5 +1,11 @@
 package dev.amble.ait.core.blockentities;
 
+import dev.amble.ait.AITMod;
+import dev.amble.lib.AmbleKit;
+import dev.amble.lib.animation.BedrockModelProvider;
+import dev.amble.lib.client.bedrock.BedrockModelReference;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -9,6 +15,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
@@ -23,8 +30,9 @@ import dev.amble.ait.core.item.ArtronCollectorItem;
 import dev.amble.ait.core.item.ChargedZeitonCrystalItem;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
+import org.jetbrains.annotations.Nullable;
 
-public class ArtronCollectorBlockEntity extends FluidLinkBlockEntity implements BlockEntityTicker<ArtronCollectorBlockEntity>, ArtronHolder {
+public class ArtronCollectorBlockEntity extends FluidLinkBlockEntity implements BedrockModelProvider, BlockEntityTicker<ArtronCollectorBlockEntity>, ArtronHolder {
 
     public static final int FLOW_AMOUNT = 3;
 
@@ -142,5 +150,15 @@ public class ArtronCollectorBlockEntity extends FluidLinkBlockEntity implements 
             return;
 
         this.world.updateListeners(this.getPos(), this.getCachedState(), state, Block.NOTIFY_ALL);
+    }
+
+    @Override
+    public String getTexturePrefix() {
+        return "blockentities/machines";
+    }
+
+    @Override
+    public @Nullable BedrockModelReference getModel() {
+        return new BedrockModelReference(AITMod.MOD_ID, "artron_collector");
     }
 }

@@ -12,7 +12,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 
 import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.animation.console.coral.CoralAnimations;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
@@ -2423,9 +2422,9 @@ public class CoralConsoleModel extends SimpleConsoleModel {
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = !AITModClient.CONFIG.animateControls ? 1.0f : 0.1f * client.getTickDelta();
+        float delta = this.controlDelta();
         matrices.push();
-        matrices.translate(0.5f, -1.5f, -0.5f);
+        this.applyRootTransform(matrices);
 
         ModelPart controls = this.console.getChild("controls");
 

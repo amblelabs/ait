@@ -1,0 +1,11 @@
+# S2 - identical to S1 but doors OPEN, so BOTI runs. The S1/S2 delta is the BOTI cost,
+# with the caveat that opening also animates the door and reveals interior chunks.
+gamemode spectator @a
+tp @a 0 100 0 0 0
+ait perf-doors open
+SLEEP 8
+tp @a 0 100 0 0 0
+SLEEP 4
+ait perf-verify
+ait profile-client @a
+SLEEP 14
