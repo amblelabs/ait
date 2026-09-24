@@ -65,6 +65,9 @@ public record DistressCall(Sender sender, String message, int lifetime, int crea
     public void summon(Tardis tardis, @Nullable ItemStack held) {
         CachedDirectedGlobalPos target = this.sender().position();
 
+        if (target == null)
+            return;
+
         tardis.travel().destination(target, true);
 
         tardis.getDesktop().playSoundAtEveryConsole(AITSounds.WAYPOINT_ACTIVATE);
