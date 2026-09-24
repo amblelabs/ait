@@ -2,7 +2,6 @@ package dev.amble.ait.core.blockentities.control;
 
 import java.util.Optional;
 
-import dev.amble.ait.api.tardis.link.v2.TardisRef;
 import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
 import dev.amble.ait.core.blocks.control.RedstoneControlBlock;
 import dev.amble.ait.core.item.control.ControlBlockItem;
@@ -95,9 +94,7 @@ public abstract class ControlBlockEntity extends InteriorLinkableBlockEntity {
         if (this.getControl() == null || this.onDelay)
             return false;
 
-        TardisRef found = this.tardis();
-
-        if (!(found.get() instanceof ServerTardis tardis))
+        if (!this.isLinked() || !(this.tardis().get() instanceof ServerTardis tardis))
             return false;
 
         if (!this.control.canRun(tardis, user))
