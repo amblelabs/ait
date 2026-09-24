@@ -131,7 +131,7 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
 
             @Override
             public float[] sonicItemRotations() {
-                if (variant.sonicRotation().isEmpty()) {
+                if (variant.sonicRotation().size() < 2) {
                     if (getSameParent() == null) return new float[]{0, 0};
 
                     return getSameParent().sonicItemRotations();
@@ -159,7 +159,7 @@ public class ClientConsoleVariantRegistry extends DatapackRegistry<ClientConsole
 
             @Override
             public float[] handlesRotations() {
-                if (variant.handlesRotation().isEmpty()) {
+                if (variant.handlesRotation().size() < 2) {
                     if (getSameParent() == null) return new float[]{0, 0};
 
                     return getSameParent().handlesRotations();
