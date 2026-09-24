@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.iris.IrisCompat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.joml.Matrix4f;
@@ -117,7 +118,7 @@ public final class OffScreenCull {
      */
     private static boolean behindCamera(BlockEntity entity, ModelPart root, double originX, double originY,
             double originZ, double radiusScale, double slop, boolean perAxis) {
-        if (suspended > 0 || entity == null || root == null)
+        if (suspended > 0 || entity == null || root == null || IrisCompat.isRenderingShadowPass())
             return false;
 
         Camera camera = cameraOrNull();
