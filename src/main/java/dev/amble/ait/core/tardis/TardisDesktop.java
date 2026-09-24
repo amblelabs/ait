@@ -62,6 +62,8 @@ public class TardisDesktop extends TardisComponent {
                 ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
                     BlockPos console = buf.readBlockPos();
 
+                    if (!player.getWorld().isChunkLoaded(console)) return;
+
                     if (!(player.getWorld().getBlockEntity(console) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
 
                     if (tardis == null)

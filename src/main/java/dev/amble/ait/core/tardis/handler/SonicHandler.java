@@ -41,6 +41,8 @@ public class SonicHandler extends KeyedTardisComponent implements ArtronHolderIt
 
                     if (!tardis.isUnlocked(SonicRegistry.getInstance().get(id))) return;
 
+                    if (!tardis.world().isChunkLoaded(pos)) return;
+
                     if (!(tardis.world().getBlockEntity(pos) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
 
                     ItemStack sonic = consoleBlockEntity.getSonicScrewdriver();

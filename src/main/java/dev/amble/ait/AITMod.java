@@ -276,6 +276,9 @@ public class AITMod implements ModInitializer {
                     String landingCode = buf.readString();
 
                     server.execute(() -> {
+                        if (!player.getWorld().isChunkLoaded(pos))
+                            return;
+
                         LandingPadRegion region = LandingPadManager.getInstance((ServerWorld) player.getWorld()).getRegionAt(pos);
 
                         if (region == null)
@@ -327,6 +330,10 @@ public class AITMod implements ModInitializer {
 
             server.execute(() -> {
                 World world = player.getWorld();
+
+                if (!world.isChunkLoaded(pos))
+                    return;
+
                 BlockState state = world.getBlockState(pos);
 
                 if (!(world.getBlockEntity(pos) instanceof EnvironmentProjectorBlockEntity projector))
@@ -343,7 +350,7 @@ public class AITMod implements ModInitializer {
             Identifier id = buf.readIdentifier();
             server.execute(() -> {
                 ServerWorld world = player.getServerWorld();
-                if (world != null && world.getBlockEntity(pos) instanceof dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity projector) {
+                if (world.isChunkLoaded(pos) && world.getBlockEntity(pos) instanceof EnvironmentProjectorBlockEntity projector) {
                     RegistryKey<World> key = RegistryKey.of(RegistryKeys.WORLD, id);
                     projector.setCurrentFromClient(key, player);
                 }
@@ -356,7 +363,7 @@ public class AITMod implements ModInitializer {
             float pitch = buf.readFloat();
             server.execute(() -> {
                 ServerWorld world = player.getServerWorld();
-                if (world != null && world.getBlockEntity(pos) instanceof dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity projector) {
+                if (world.isChunkLoaded(pos) && world.getBlockEntity(pos) instanceof EnvironmentProjectorBlockEntity projector) {
                     projector.setAnglesFromClient(yaw, pitch, player);
                 }
             });
