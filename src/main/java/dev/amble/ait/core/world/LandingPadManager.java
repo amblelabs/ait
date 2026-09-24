@@ -134,6 +134,8 @@ public class LandingPadManager {
                 if (region == null)
                     return;
 
+                world.getChunk(pos.x, pos.z).setAttached(PERSISTENT, region);
+
                 for (ServerPlayerEntity player : PlayerLookup.tracking(world, pos)) {
                     NetworkUtil.send(player, buf, SYNC, LandingPadRegion.CODEC, region);
                 }
