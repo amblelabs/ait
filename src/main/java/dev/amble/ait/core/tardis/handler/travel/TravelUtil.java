@@ -9,7 +9,6 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 
@@ -21,28 +20,27 @@ public class TravelUtil {
     public static void randomPos(Tardis tardis, int limit, int max, Consumer<CachedDirectedGlobalPos> consumer) {
         TravelHandler travel = tardis.travel();
 
-        CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
+        CompletableFuture.supplyAsync(() -> {
             CachedDirectedGlobalPos dest = travel.destination();
-            ServerWorld world = dest.getWorld();
+            // runs off thread, world.random is a CheckedRandom and crashes on concurrent use
+            Random random = AITMod.RANDOM;
 
             int posX = dest.getPos().getX();
             int posZ = dest.getPos().getZ();
 
             for (int i = 0; i <= limit; i++) {
                 dest = dest.pos(
-                        world.random.nextBoolean()
-                                ? world.random.nextInt(max) == 0 ? posX + 1 : posX + world.random.nextInt(max)
-                                : world.random.nextInt(max) == -0 ? posX - 1 : posX - world.random.nextInt(max),
+                        random.nextBoolean()
+                                ? random.nextInt(max) == 0 ? posX + 1 : posX + random.nextInt(max)
+                                : random.nextInt(max) == -0 ? posX - 1 : posX - random.nextInt(max),
                         dest.getPos().getY(),
-                        world.random.nextBoolean()
-                                ? world.random.nextInt(max) == 0 ? posZ + 1 : posZ + world.random.nextInt(max)
-                                : world.random.nextInt(max) == -0 ? posZ - 1 : posZ - world.random.nextInt(max));
+                        random.nextBoolean()
+                                ? random.nextInt(max) == 0 ? posZ + 1 : posZ + random.nextInt(max)
+                                : random.nextInt(max) == -0 ? posZ - 1 : posZ - random.nextInt(max));
             }
 
             return dest;
-        }).thenAccept(consumer);
-
-        AsyncLocatorUtil.LOCATING_EXECUTOR_SERVICE.submit(() -> future);
+        }, AsyncLocatorUtil.LOCATING_EXECUTOR_SERVICE).thenAcceptAsync(consumer, TravelHandlerBase.server());
     }
 
     public static void travelTo(Tardis tardis, CachedDirectedGlobalPos pos) {
