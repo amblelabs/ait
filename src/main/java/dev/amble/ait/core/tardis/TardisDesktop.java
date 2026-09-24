@@ -125,8 +125,18 @@ public class TardisDesktop extends TardisComponent {
         if (pos.equals(this.enginePos))
             return;
 
+        BlockPos previous = this.enginePos;
         this.enginePos = pos;
-        TardisEvents.ENGINE_MOVE.invoker().onMove(tardis.asServer(), pos, this.enginePos);
+        TardisEvents.ENGINE_MOVE.invoker().onMove(tardis.asServer(), pos, previous);
+    }
+
+    public void removeEngine(EngineBlockEntity engine) {
+        if (engine == null || this.enginePos == null || !this.enginePos.equals(engine.getPos()))
+            return;
+
+        BlockPos previous = this.enginePos;
+        this.enginePos = null;
+        TardisEvents.ENGINE_MOVE.invoker().onMove(tardis.asServer(), null, previous);
     }
 
     public void removeDoor(DoorBlockEntity door) {

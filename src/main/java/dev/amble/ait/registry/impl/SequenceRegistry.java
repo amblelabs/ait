@@ -71,7 +71,7 @@ public class SequenceRegistry {
     public static void init() {
         AVOID_DEBRIS = register(Sequence.Builder.create(AITMod.id("avoid_debris"),
                 finishedTardis -> finishedTardis.travel().decreaseFlightTime(100), missedTardis -> {
-                    missedTardis.removeFuel(-random.nextBetween(45, 125));
+                    missedTardis.removeFuel(random.nextBetween(45, 125));
                     missedTardis.door().openDoors();
 
                     missedTardis.travel().increaseFlightTime(700);

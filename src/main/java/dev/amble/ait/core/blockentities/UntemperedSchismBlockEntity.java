@@ -9,12 +9,13 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 
 import dev.amble.ait.api.ArtronHolder;
 import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITEntityTypes;
+import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.blocks.UntemperedSchismBlock;
 import dev.amble.ait.core.engine.link.IFluidLink;
 import dev.amble.ait.core.engine.link.IFluidSource;
@@ -25,6 +26,10 @@ import dev.amble.ait.core.util.EntityRef;
 import dev.amble.ait.core.world.RiftChunkManager;
 
 public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements BlockEntityTicker<UntemperedSchismBlockEntity>, ArtronHolder, IFluidSource {
+
+    private static final String ARTRON_KEY = "artronAmount";
+    private static final String CREATED_KEY = "hasCreatedRift";
+    private static final String RIFT_ID_KEY = "riftId";
 
     private boolean firstTickHandled;
     public double artronAmount = 0;
@@ -38,27 +43,32 @@ public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements
     @Override
     public void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
-        nbt.putDouble("artronAmount", this.artronAmount);
-        nbt.putBoolean("hasCreatedRift", this.hasCreatedRift);
-        if (this.riftRef != null) {
-            nbt.putUuid("riftId", this.riftRef.getId());
-        }
+        nbt.putDouble(ARTRON_KEY, this.artronAmount);
+        nbt.putBoolean(CREATED_KEY, this.hasCreatedRift);
+
+        if (this.riftRef != null)
+            nbt.putUuid(RIFT_ID_KEY, this.riftRef.getId());
     }
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        if (nbt.contains("artronAmount"))
-            this.setCurrentFuel(nbt.getDouble("artronAmount"));
-        if (nbt.contains("hasCreatedRift"))
-            this.hasCreatedRift = nbt.getBoolean("hasCreatedRift");
-        if (nbt.contains("riftId"))
-            this.riftRef = new EntityRef<>(null, nbt.getUuid("riftId"));
         super.readNbt(nbt);
+        this.setCurrentFuel(nbt.getDouble(ARTRON_KEY));
+        this.hasCreatedRift = nbt.getBoolean(CREATED_KEY);
+        this.riftRef = nbt.containsUuid(RIFT_ID_KEY) ? new EntityRef<>(null, nbt.getUuid(RIFT_ID_KEY)) : null;
     }
 
     @Override
     public void setCurrentFuel(double artronAmount) {
-        this.artronAmount = artronAmount;
+        double before = this.artronAmount;
+        double normalized = Double.isFinite(artronAmount) ? artronAmount : 0;
+        double clamped = MathHelper.clamp(normalized, 0, this.getMaxFuel());
+
+        if (Double.compare(this.artronAmount, clamped) == 0)
+            return;
+
+        this.artronAmount = clamped;
+        this.onChange(before, clamped);
         this.updateListeners(this.getCachedState());
     }
 
@@ -74,9 +84,10 @@ public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements
 
     @Override
     public NbtCompound toInitialChunkDataNbt() {
-        NbtCompound nbtCompound = super.toInitialChunkDataNbt();
-        nbtCompound.putDouble("artronAmount", this.artronAmount);
-        return nbtCompound;
+        NbtCompound nbt = super.toInitialChunkDataNbt();
+        nbt.putDouble(ARTRON_KEY, this.artronAmount);
+        nbt.putBoolean(CREATED_KEY, this.hasCreatedRift);
+        return nbt;
     }
 
     @Override
@@ -84,7 +95,7 @@ public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements
         if (!(world instanceof ServerWorld serverWorld))
             return;
 
-        if (this.hasCreatedRift)
+        if (!UntemperedSchismBlock.canCreateAt(serverWorld, pos))
             return;
 
         if (!firstTickHandled) {
@@ -92,55 +103,75 @@ public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements
             FluidNetwork.rebuildFrom(serverWorld, pos);
         }
 
-        int centerX = pos.getX();
-        int centerZ = pos.getZ();
+        if (this.hasCreatedRift)
+            return;
 
-        double targetY = pos.getY() + 2.5d;
-
-        double endX = centerX + 0.5;
-        double endZ = centerZ + 0.5;
-
-        RiftChunkManager manager = RiftChunkManager.getInstance(serverWorld);
         if (this.getCurrentFuel() >= this.getMaxFuel()) {
-            RiftEntity riftEntity = new RiftEntity(serverWorld);
-            this.riftRef = new EntityRef<>(serverWorld, riftEntity);
-
-            float rotation = this.getCachedState().get(HorizontalFacingBlock.FACING).asRotation();
-
-            float adjustedRotation = rotation + 180.0f;
-
-            riftEntity.updatePositionAndAngles(endX, targetY, endZ, adjustedRotation, 0);
-
-            riftEntity.setYaw(adjustedRotation);
-            riftEntity.setHeadYaw(adjustedRotation);
-            riftEntity.setBodyYaw(adjustedRotation);
-
-            serverWorld.spawnEntity(riftEntity);
-            this.hasCreatedRift = true;
-
-            serverWorld.setBlockState(pos, state.with(UntemperedSchismBlock.ENABLED, true));
-            this.updateListeners(state);
-
-            serverWorld.playSound(null, pos, SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(),
-                    SoundCategory.BLOCKS, 1.5f, 0.5f);
-        } else if (manager.getArtron(new ChunkPos(pos)) > UntemperedSchismBlock.ARTRON_PER_TICK && serverWorld.getServer().getTicks() % 20 == 4 && !state.get(UntemperedSchismBlock.ENABLED)) {
-            double percentage = (this.getCurrentFuel() * 100d) / this.getMaxFuel();
-            serverWorld.playSound(null, this.getPos(), SoundEvents.BLOCK_END_PORTAL_FRAME_FILL, SoundCategory.BLOCKS, 5.0f, 0.5f + (float) percentage / 40);
+            this.tryCreateRift(serverWorld, pos);
+            return;
         }
 
-        this.updateListeners(state);
+        RiftChunkManager manager = RiftChunkManager.getInstance(serverWorld);
+        Chunk chunk = serverWorld.getChunk(pos);
+
+        if (manager.getArtron(chunk) > UntemperedSchismBlock.ARTRON_PER_TICK
+                && serverWorld.getServer().getTicks() % 20 == 4
+                && !state.get(UntemperedSchismBlock.ENABLED)) {
+            double percentage = (this.getCurrentFuel() * 100d) / this.getMaxFuel();
+            serverWorld.playSound(null, this.getPos(), SoundEvents.BLOCK_END_PORTAL_FRAME_FILL,
+                    SoundCategory.BLOCKS, 5.0f, 0.5f + (float) percentage / 40);
+        }
+    }
+
+    private void tryCreateRift(ServerWorld world, BlockPos pos) {
+        RiftEntity rift = new RiftEntity(world);
+        float rotation = this.getCachedState().get(HorizontalFacingBlock.FACING).asRotation() + 180.0f;
+
+        rift.updatePositionAndAngles(pos.getX() + 0.5, pos.getY() + 2.5, pos.getZ() + 0.5, rotation, 0);
+        rift.setYaw(rotation);
+        rift.setHeadYaw(rotation);
+        rift.setBodyYaw(rotation);
+
+        if (!world.spawnEntity(rift))
+            return;
+
+        double cost = this.getMaxFuel();
+        double consumed = this.extractLevel(cost);
+
+        if (consumed < cost) {
+            if (consumed > 0)
+                this.insertLevel(consumed);
+            rift.discard();
+            return;
+        }
+
+        BlockState current = world.getBlockState(pos);
+        if (!current.isOf(AITBlocks.UNTEMPERED_SCHISM)
+                || !world.setBlockState(pos, current.with(UntemperedSchismBlock.ENABLED, true), Block.NOTIFY_ALL)) {
+            this.insertLevel(consumed);
+            rift.discard();
+            return;
+        }
+
+        this.riftRef = new EntityRef<>(world, rift);
+        this.hasCreatedRift = true;
+        this.updateListeners(world.getBlockState(pos));
+
+        world.playSound(null, pos, SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(),
+                SoundCategory.BLOCKS, 1.5f, 0.5f);
     }
 
     @Override
     public void onBroken(World world, BlockPos pos) {
-        this.onLoseFluid(); // always.
-
         if (this.riftRef != null && world instanceof ServerWorld serverWorld) {
             this.riftRef.setWorld(serverWorld);
-            if (this.riftRef.get() != null)
-                this.riftRef.get().discard();
+            RiftEntity rift = this.riftRef.get();
+
+            if (rift != null)
+                rift.discard();
         }
 
+        this.riftRef = null;
         super.onBroken(world, pos);
     }
 
@@ -150,7 +181,7 @@ public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements
         if (!this.hasWorld())
             return;
 
-        this.world.updateListeners(this.getPos(), this.getCachedState(), state, Block.NOTIFY_ALL);
+        this.world.updateListeners(this.getPos(), this.getCachedState(), state, Block.NOTIFY_LISTENERS);
     }
 
     @Override
@@ -166,9 +197,8 @@ public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements
     }
 
     private void rebuildOwnNetwork() {
-        if (this.getWorld() instanceof ServerWorld serverWorld) {
+        if (this.getWorld() instanceof ServerWorld serverWorld)
             FluidNetwork.rebuildFrom(serverWorld, this.getPos());
-        }
     }
 
     @Override

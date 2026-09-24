@@ -1,10 +1,16 @@
 package dev.amble.ait.config;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.google.common.collect.Lists;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.controller.ControllerBuilder;
+import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.ConfigField;
@@ -20,6 +26,12 @@ import dev.amble.ait.core.AITDimensions;
 public class AITServerConfig {
 
     public static final String CATEGORY = "server";
+    public static final String ARTRON_CATEGORY = "artron";
+
+    static {
+        OptionFactory.register(ArtronMinimumField.class, new ArtronMinimumFactory());
+        OptionFactory.register(ArtronMaximumField.class, new ArtronMaximumFactory());
+    }
 
     public static final ConfigClassHandler<AITServerConfig> INSTANCE = ConfigClassHandler.createBuilder(AITServerConfig.class)
             .id(YACLPlatform.rl(AITMod.MOD_ID, "server"))
@@ -116,6 +128,118 @@ public class AITServerConfig {
     @AutoGen(category = CATEGORY)
     @IntSlider(min = 1, max = 128, step = 1)
     @SerialEntry public int maxStabilizedSpeed = 4;
+
+    @AutoGen(category = ARTRON_CATEGORY)
+    @ArtronMinimumField
+    @SerialEntry public int riftChunkMinArtron = ArtronConfigSettings.DEFAULT_RIFT_CHUNK_MIN_ARTRON;
+
+    @AutoGen(category = ARTRON_CATEGORY)
+    @ArtronMaximumField
+    @SerialEntry public int riftChunkMaxArtron = ArtronConfigSettings.DEFAULT_RIFT_CHUNK_MAX_ARTRON;
+
+    @AutoGen(category = ARTRON_CATEGORY)
+    @DoubleField(min = 0)
+    @SerialEntry public double riftChunkArtronRegenPerSecond = ArtronConfigSettings.DEFAULT_RIFT_CHUNK_REGEN_PER_SECOND;
+
+    @AutoGen(category = ARTRON_CATEGORY)
+    @DoubleField(min = 0)
+    @SerialEntry public double tardisAmbientRefuelPerSecond = ArtronConfigSettings.DEFAULT_TARDIS_AMBIENT_REFUEL_PER_SECOND;
+
+    @AutoGen(category = ARTRON_CATEGORY)
+    @DoubleField(min = 0)
+    @SerialEntry public double tardisRiftRefuelBonusPerSecond = ArtronConfigSettings.DEFAULT_TARDIS_RIFT_REFUEL_BONUS_PER_SECOND;
+
+    public ArtronConfigSettings.Bounds getRiftChunkArtronBounds() {
+        return ArtronConfigSettings.normalizeBounds(this.riftChunkMinArtron, this.riftChunkMaxArtron);
+    }
+
+    public double getRiftChunkArtronRegenPerSecond() {
+        return ArtronConfigSettings.normalizeRate(this.riftChunkArtronRegenPerSecond,
+                ArtronConfigSettings.DEFAULT_RIFT_CHUNK_REGEN_PER_SECOND);
+    }
+
+    public double getTardisAmbientRefuelPerSecond() {
+        return ArtronConfigSettings.normalizeRate(this.tardisAmbientRefuelPerSecond,
+                ArtronConfigSettings.DEFAULT_TARDIS_AMBIENT_REFUEL_PER_SECOND);
+    }
+
+    public double getTardisRiftRefuelBonusPerSecond() {
+        return ArtronConfigSettings.normalizeRate(this.tardisRiftRefuelBonusPerSecond,
+                ArtronConfigSettings.DEFAULT_TARDIS_RIFT_REFUEL_BONUS_PER_SECOND);
+    }
+
+    public boolean normalizeArtronSettings() {
+        ArtronConfigSettings.Bounds bounds = this.getRiftChunkArtronBounds();
+        double regeneration = this.getRiftChunkArtronRegenPerSecond();
+        double ambientRefuel = this.getTardisAmbientRefuelPerSecond();
+        double riftRefuelBonus = this.getTardisRiftRefuelBonusPerSecond();
+
+        boolean changed = this.riftChunkMinArtron != bounds.minimum()
+                || this.riftChunkMaxArtron != bounds.maximum()
+                || Double.compare(this.riftChunkArtronRegenPerSecond, regeneration) != 0
+                || Double.compare(this.tardisAmbientRefuelPerSecond, ambientRefuel) != 0
+                || Double.compare(this.tardisRiftRefuelBonusPerSecond, riftRefuelBonus) != 0;
+
+        this.riftChunkMinArtron = bounds.minimum();
+        this.riftChunkMaxArtron = bounds.maximum();
+        this.riftChunkArtronRegenPerSecond = regeneration;
+        this.tardisAmbientRefuelPerSecond = ambientRefuel;
+        this.tardisRiftRefuelBonusPerSecond = riftRefuelBonus;
+
+        return changed;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    private @interface ArtronMinimumField {
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    private @interface ArtronMaximumField {
+    }
+
+    private static class ArtronMinimumFactory extends SimpleOptionFactory<ArtronMinimumField, Integer> {
+
+        @Override
+        protected ControllerBuilder<Integer> createController(ArtronMinimumField annotation, ConfigField<Integer> field,
+                                                               OptionAccess storage, Option<Integer> option) {
+            return IntegerFieldControllerBuilder.create(option).range(0, Integer.MAX_VALUE);
+        }
+
+        @Override
+        protected void listener(ArtronMinimumField annotation, ConfigField<Integer> field, OptionAccess storage,
+                                Option<Integer> option, Integer value) {
+            updateLinkedOption(storage, "riftChunkMaxArtron", linked -> {
+                if (linked.pendingValue() < value)
+                    linked.requestSet(value);
+            });
+        }
+    }
+
+    private static class ArtronMaximumFactory extends SimpleOptionFactory<ArtronMaximumField, Integer> {
+
+        @Override
+        protected ControllerBuilder<Integer> createController(ArtronMaximumField annotation, ConfigField<Integer> field,
+                                                               OptionAccess storage, Option<Integer> option) {
+            return IntegerFieldControllerBuilder.create(option).range(0, Integer.MAX_VALUE);
+        }
+
+        @Override
+        protected void listener(ArtronMaximumField annotation, ConfigField<Integer> field, OptionAccess storage,
+                                Option<Integer> option, Integer value) {
+            updateLinkedOption(storage, "riftChunkMinArtron", linked -> {
+                if (linked.pendingValue() > value)
+                    linked.requestSet(value);
+            });
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void updateLinkedOption(OptionAccess storage, String fieldName,
+                                           Consumer<Option<Integer>> operation) {
+        storage.scheduleOptionOperation(fieldName, option -> operation.accept((Option<Integer>) option));
+    }
 
     public static class StringListFactory implements ListGroup.ValueFactory<String>, ListGroup.ControllerFactory<String> {
 

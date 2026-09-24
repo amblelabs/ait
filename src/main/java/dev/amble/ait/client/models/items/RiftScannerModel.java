@@ -15,6 +15,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
@@ -113,11 +114,17 @@ public class RiftScannerModel extends Model {
 
         clientWorld = this.getClientWorld(entity, clientWorld);
 
-        return clientWorld == null ? 0.0F : this.getAngle(RiftScannerItem.getTarget(stack)
-                .getCenterAtY(75), clientWorld, i, entity);
+        if (clientWorld == null)
+            return 0.0F;
+
+        ChunkPos target = RiftScannerItem.isTargetIn(stack, clientWorld)
+                ? RiftScannerItem.getTrackedTarget(stack) : null;
+        BlockPos targetPos = target == null ? null : target.getCenterAtY(75);
+
+        return this.getAngle(targetPos, clientWorld, i, entity);
     }
 
-    private float getAngle(BlockPos target, ClientWorld world, int seed, Entity entity) {
+    private float getAngle(@Nullable BlockPos target, ClientWorld world, int seed, Entity entity) {
         long l = world.getTime();
         return !this.canPointTo(entity, target, world)
                 ? this.getAimlessAngle(seed, l)

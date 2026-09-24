@@ -9,10 +9,13 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.api.ArtronHolder;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
@@ -21,7 +24,9 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.engine.impl.EmergencyPower;
 import dev.amble.ait.core.engine.impl.EngineSystem;
+import dev.amble.ait.core.engine.link.tracker.FluidNetwork;
 import dev.amble.ait.core.item.KeyItem;
+import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -36,6 +41,7 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
 public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, TardisTickable {
     public static final double TARDIS_MAX_FUEL = 50000;
     private static final double AUTOPILOT_COST = 1.5d;
+    private static final double TRANSFER_EPSILON = 0.000_001d;
 
     private static final DoubleProperty FUEL = new DoubleProperty("fuel", 1000d);
     private static final BoolProperty REFUELING = new BoolProperty("refueling", false);
@@ -125,29 +131,82 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
     @Override
     public void setCurrentFuel(double fuel) {
         double prev = this.getCurrentFuel();
-        this.fuel.set(MathHelper.clamp(fuel, 0, this.getMaxFuel()));
+        double normalized = Double.isFinite(fuel) ? fuel : 0;
+        this.fuel.set(MathHelper.clamp(normalized, 0, this.getMaxFuel()));
 
         if (this.isOutOfFuel() && prev != 0) {
-            EmergencyPower backup = this.tardis().subsystems().emergency();
-            if (backup.hasBackupPower()) {
-                this.setCurrentFuel(backup.getCurrentFuel());
-                backup.setCurrentFuel(0);
-                TardisEvents.USE_BACKUP_POWER.invoker().onUse(this.tardis(), this.getCurrentFuel());
+            if (this.activateEmergencyPower())
                 return;
-            }
 
             TardisEvents.OUT_OF_FUEL.invoker().onNoFuel(this.tardis);
         }
+
+        this.rebuildFluidNetworkIfThresholdChanged(prev, this.getCurrentFuel());
     }
 
     @Override
     public double addFuel(double var) {
+        if (!Double.isFinite(var) || var <= 0)
+            return 0;
+
+        double remainder = var;
         EmergencyPower backup = this.tardis().subsystems().emergency();
+
         if (backup.isEnabled() && !backup.isFull()) {
-            return backup.addFuel(var);
+            remainder = backup.addFuel(remainder);
         }
 
-        return ArtronHolder.super.addFuel(var);
+        return remainder > 0 ? ArtronHolder.super.addFuel(remainder) : 0;
+    }
+
+    @Override
+    public double extractFuel(double amount) {
+        if (!Double.isFinite(amount) || amount <= 0)
+            return 0;
+
+        double current = this.getCurrentFuel();
+        if (!Double.isFinite(current) || current < 0 || current > this.getMaxFuel()) {
+            this.setCurrentFuel(current);
+            current = this.getCurrentFuel();
+        }
+
+        // A reserve can legitimately be charged while the primary tank is already
+        // empty (refueling fills an enabled reserve first). Activate it before
+        // attempting the withdrawal so that it remains usable as emergency power.
+        if (current <= 0 && this.activateEmergencyPower())
+            current = this.getCurrentFuel();
+
+        double extracted = Math.min(amount, Math.max(current, 0));
+        if (extracted <= 0)
+            return 0;
+
+        this.setCurrentFuel(current - extracted);
+
+        double remaining = amount - extracted;
+        if (remaining <= 0)
+            return extracted;
+
+        // Emptying the primary tank may have transferred the enabled reserve into
+        // it. Consume the outstanding request from that transferred fuel and count
+        // only the amount actually removed across both stores.
+        current = Math.max(this.getCurrentFuel(), 0);
+        double reserveExtracted = Math.min(remaining, current);
+
+        if (reserveExtracted > 0)
+            this.setCurrentFuel(current - reserveExtracted);
+
+        return extracted + reserveExtracted;
+    }
+
+    private boolean activateEmergencyPower() {
+        EmergencyPower backup = this.tardis().subsystems().emergency();
+        if (!backup.hasBackupPower())
+            return false;
+
+        this.setCurrentFuel(backup.getCurrentFuel());
+        backup.setCurrentFuel(0);
+        TardisEvents.USE_BACKUP_POWER.invoker().onUse(this.tardis(), this.getCurrentFuel());
+        return true;
     }
 
     @Override
@@ -184,29 +243,80 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
     }
 
     private void tickIdle() {
-        if (this.refueling().get() && this.getCurrentFuel() < FuelHandler.TARDIS_MAX_FUEL) {
-            TravelHandler travel = tardis.travel();
+        if (this.refueling().get() && this.getAvailableFuelCapacity() > 0) {
+            double ambient = Math.min(AITMod.CONFIG.getTardisAmbientRefuelPerSecond(), this.getAvailableFuelCapacity());
+            this.addFuel(ambient);
 
-            CachedDirectedGlobalPos pos = travel.position();
-            ServerWorld world = pos.getWorld();
+            double riftCapacity = this.getAvailableFuelCapacity();
+            double riftBonus = AITMod.CONFIG.getTardisRiftRefuelBonusPerSecond();
 
-            RiftChunkManager manager = RiftChunkManager.getInstance(world);
-            ChunkPos chunk = new ChunkPos(pos.getPos());
+            if (riftCapacity > 0 && riftBonus > 0) {
+                TravelHandler travel = tardis.travel();
+                CachedDirectedGlobalPos pos = travel.position();
+                ServerWorld world = pos.getWorld();
 
-            double toAdd = 7;
+                if (world != null && !TardisServerWorld.isTardisDimension(world)) {
+                    RiftChunkManager manager = RiftChunkManager.getInstance(world);
+                    ChunkPos chunkPos = new ChunkPos(pos.getPos());
+                    Chunk chunk = manager.getLoadedChunk(chunkPos);
 
-            if (manager.getArtron(chunk) > 0 && !TardisServerWorld.isTardisDimension(world)) {
-                manager.removeFuel(chunk, 2);
-                toAdd += 2;
+                    if (chunk != null && manager.isRiftChunk(chunkPos)) {
+                        double requested = Math.min(riftBonus, riftCapacity);
+                        double extracted = manager.extractFuel(chunk, requested);
+                        double remainder = this.addFuel(extracted);
+
+                        // Capacity was preflighted, but return any unexpected remainder to its
+                        // consumable source rather than silently destroying Rift energy.
+                        if (remainder > 0)
+                            manager.insertFuel(chunk, remainder);
+                    }
+                }
             }
-
-            this.addFuel(20 * toAdd);
         }
 
         if (!this.refueling().get() && tardis.fuel().hasPower() && !tardis.isGrowth()) {
             double instability = tardis.travel().instability();
-            this.removeFuel(20d * 0.25d * instability < 1 ? 1 : instability);
+            this.removeFuel(Math.max(1d, instability));
         }
+    }
+
+    /**
+     * Returns the total AU that can currently be accepted by the enabled reserve and primary tank.
+     */
+    public double getAvailableFuelCapacity() {
+        double available = Math.max(this.getMaxFuel() - this.getCurrentFuel(), 0);
+        EmergencyPower backup = this.tardis().subsystems().emergency();
+
+        if (backup.isEnabled())
+            available += Math.max(backup.getMaxFuel() - backup.getCurrentFuel(), 0);
+
+        return available;
+    }
+
+    /**
+     * Inserts the complete amount or leaves both stores unchanged when there is not enough room.
+     */
+    public boolean tryInsertFuelFully(double amount) {
+        if (!Double.isFinite(amount) || amount <= 0)
+            return false;
+
+        if (this.getAvailableFuelCapacity() + TRANSFER_EPSILON < amount)
+            return false;
+
+        return this.addFuel(amount) <= TRANSFER_EPSILON;
+    }
+
+    private void rebuildFluidNetworkIfThresholdChanged(double before, double after) {
+        if ((before > 0) == (after > 0))
+            return;
+
+        if (!(this.tardis() instanceof ServerTardis serverTardis) || !serverTardis.hasWorld())
+            return;
+
+        BlockPos enginePos = this.tardis().getDesktop().getEnginePos();
+
+        if (enginePos != null)
+            FluidNetwork.rebuildFrom(serverTardis.world(), enginePos);
     }
 
     public BoolValue refueling() {

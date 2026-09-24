@@ -39,15 +39,15 @@ public abstract class FluidLinkBlockEntity extends InteriorLinkableBlockEntity i
 
     @Override
     public void onGainFluid() {
-        if (this.hasWorld() && this.getGainPowerSound() != null) {
-            this.getGainPowerSound().play((ServerWorld) this.getWorld(), this.getPos());
+        if (this.getWorld() instanceof ServerWorld serverWorld && this.getGainPowerSound() != null) {
+            this.getGainPowerSound().play(serverWorld, this.getPos());
         }
     }
 
     @Override
     public void onLoseFluid() {
-        if (this.hasWorld() && this.getLosePowerSound() != null) {
-            this.getLosePowerSound().play((ServerWorld) this.getWorld(), this.getPos());
+        if (this.getWorld() instanceof ServerWorld serverWorld && this.getLosePowerSound() != null) {
+            this.getLosePowerSound().play(serverWorld, this.getPos());
         }
     }
     protected SoundData getLosePowerSound() {
@@ -57,8 +57,12 @@ public abstract class FluidLinkBlockEntity extends InteriorLinkableBlockEntity i
         return new SoundData(AITSounds.FLUID_LINK_CONNECT, SoundCategory.BLOCKS, 0.1F, 0.75F);
     }
 
+    public boolean isConnected() {
+        return this.source != null;
+    }
+
     public boolean isPowered() {
-        return this.powered && this.source != null;
+        return this.powered && this.isConnected();
     }
 
     @Override
@@ -127,7 +131,7 @@ public abstract class FluidLinkBlockEntity extends InteriorLinkableBlockEntity i
 
         this.world.emitGameEvent(GameEvent.BLOCK_CHANGE, this.getPos(), GameEvent.Emitter.of(this.getCachedState()));
         this.markDirty();
-        this.getWorld().updateListeners(this.getPos(), this.getCachedState(), this.getCachedState(), Block.NOTIFY_ALL);
+        this.getWorld().updateListeners(this.getPos(), this.getCachedState(), this.getCachedState(), Block.NOTIFY_LISTENERS);
     }
 
     public void onBroken(World world, BlockPos pos) {

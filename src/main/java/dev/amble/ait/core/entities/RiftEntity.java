@@ -16,6 +16,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.*;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkStatus;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.*;
@@ -69,12 +70,20 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
         ItemStack stack = player.getStackInHand(hand);
 
         if (stack.getItem() instanceof SonicItem sonic) {
-            if (!this.getWorld().isClient()) {
-                sonic.addFuel(1000, stack);
-                this.getWorld().playSound(null, this.getBlockPos(), AITSounds.RIFT_SONIC, SoundCategory.AMBIENT, 1f, 1f);
-                StackUtil.spawn(this.getWorld(), this.getBlockPos(), new ItemStack(AITItems.CORAL_FRAGMENT));
-                this.discard();
-            }
+            double transfer = 1000;
+            double available = Math.max(sonic.getMaxFuel(stack) - sonic.getCurrentFuel(stack), 0);
+
+            if (available < transfer)
+                return ActionResult.FAIL;
+
+            double remainder = sonic.addFuel(transfer, stack);
+
+            if (remainder > 0)
+                return ActionResult.FAIL;
+
+            this.getWorld().playSound(null, this.getBlockPos(), AITSounds.RIFT_SONIC, SoundCategory.AMBIENT, 1f, 1f);
+            StackUtil.spawn(this.getWorld(), this.getBlockPos(), new ItemStack(AITItems.CORAL_FRAGMENT));
+            this.discard();
             return ActionResult.SUCCESS;
 
         }
@@ -125,10 +134,13 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
     private void spreadTardisCoral(World world, BlockPos pos) {
         int radius = 4;
 
-        Chunk chunk = world.getChunk(pos);
         for (BlockPos targetPos : BlockPos.iterate(pos.add(-radius, 0, -radius), pos.add(radius, 0, radius))) {
             if (world.random.nextBetween(0, 10) < 3) { // 30% chance per block
-                targetPos = targetPos.withY(chunk.sampleHeightmap(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
+                Chunk targetChunk = getLoadedChunk(world, targetPos);
+                if (targetChunk == null)
+                    continue;
+
+                targetPos = targetPos.withY(targetChunk.sampleHeightmap(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES,
                         targetPos.getX() & 15, targetPos.getZ() & 15));
 
                 BlockState currentState = world.getBlockState(targetPos);
@@ -151,18 +163,31 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
     private BlockState getReplacementBlock(BlockState currentState) {
         Block block = currentState.getBlock();
 
-        if (block instanceof SlabBlock) return AITBlocks.TARDIS_CORAL_SLAB.getDefaultState()
-                .with(Properties.SLAB_TYPE, currentState.get(Properties.SLAB_TYPE));
+        if (block instanceof SlabBlock) {
+            BlockState replacement = AITBlocks.TARDIS_CORAL_SLAB.getDefaultState()
+                    .with(Properties.SLAB_TYPE, currentState.get(Properties.SLAB_TYPE));
+            return copyWaterlogged(currentState, replacement);
+        }
 
-        if (block instanceof StairsBlock) return AITBlocks.TARDIS_CORAL_STAIRS.getDefaultState()
-                .with(Properties.HORIZONTAL_FACING, currentState.get(Properties.HORIZONTAL_FACING))
-                .with(Properties.SLAB_TYPE, currentState.get(Properties.SLAB_TYPE))
-                .with(Properties.STAIR_SHAPE, currentState.get(Properties.STAIR_SHAPE));
+        if (block instanceof StairsBlock) {
+            BlockState replacement = AITBlocks.TARDIS_CORAL_STAIRS.getDefaultState()
+                    .with(Properties.HORIZONTAL_FACING, currentState.get(Properties.HORIZONTAL_FACING))
+                    .with(Properties.BLOCK_HALF, currentState.get(Properties.BLOCK_HALF))
+                    .with(Properties.STAIR_SHAPE, currentState.get(Properties.STAIR_SHAPE));
+            return copyWaterlogged(currentState, replacement);
+        }
 
 
         if (canTransform(block)) return AITBlocks.TARDIS_CORAL_BLOCK.getDefaultState();
 
         return null;
+    }
+
+    private BlockState copyWaterlogged(BlockState currentState, BlockState replacement) {
+        if (currentState.contains(Properties.WATERLOGGED) && replacement.contains(Properties.WATERLOGGED))
+            return replacement.with(Properties.WATERLOGGED, currentState.get(Properties.WATERLOGGED));
+
+        return replacement;
     }
 
     private boolean canTransform(Block block) {
@@ -171,14 +196,24 @@ public class RiftEntity extends DummyAmbientEntity implements ISpaceImmune {
     }
 
     private void placeCoralFans(World world, BlockPos pos) {
+        if (!isCoralBlock(world.getBlockState(pos)))
+            return;
+
         for (Direction dir : Direction.values()) {
             BlockPos adjacent = pos.offset(dir);
-            if (world.getBlockState(adjacent).isAir() && isCoralBlock(world.getBlockState(pos))) {
+            if (getLoadedChunk(world, adjacent) == null)
+                continue;
+
+            if (world.getBlockState(adjacent).isAir()) {
                 world.setBlockState(adjacent, AITBlocks.TARDIS_CORAL_FAN.getDefaultState()
                         .with(Properties.WATERLOGGED,false)
                         .with(Properties.FACING, dir), Block.NOTIFY_ALL);
             }
         }
+    }
+
+    private Chunk getLoadedChunk(World world, BlockPos pos) {
+        return world.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, false);
     }
 
     private boolean isCoralBlock(BlockState state) {

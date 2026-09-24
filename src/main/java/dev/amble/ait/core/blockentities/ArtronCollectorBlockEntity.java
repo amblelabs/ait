@@ -1,11 +1,8 @@
 package dev.amble.ait.core.blockentities;
 
 import dev.amble.ait.AITMod;
-import dev.amble.lib.AmbleKit;
 import dev.amble.lib.animation.BedrockModelProvider;
 import dev.amble.lib.client.bedrock.BedrockModelReference;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -15,10 +12,11 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 
 import dev.amble.ait.api.ArtronHolder;
 import dev.amble.ait.api.ArtronHolderItem;
@@ -27,9 +25,7 @@ import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 import dev.amble.ait.core.item.ArtronCollectorItem;
-import dev.amble.ait.core.item.ChargedZeitonCrystalItem;
 import dev.amble.ait.core.world.RiftChunkManager;
-import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
 import org.jetbrains.annotations.Nullable;
 
 public class ArtronCollectorBlockEntity extends FluidLinkBlockEntity implements BedrockModelProvider, BlockEntityTicker<ArtronCollectorBlockEntity>, ArtronHolder {
@@ -55,41 +51,64 @@ public class ArtronCollectorBlockEntity extends FluidLinkBlockEntity implements 
         super.readNbt(nbt);
     }
 
+    /**
+     * Compatibility overload for addons compiled against the original main-hand-only method.
+     */
     public void useOn(World world, boolean sneaking, PlayerEntity player) {
+        this.useOn(world, sneaking, player, Hand.MAIN_HAND);
+    }
+
+    public void useOn(World world, boolean sneaking, PlayerEntity player, Hand hand) {
         if (!world.isClient()) {
             player.sendMessage(Text.literal(this.getCurrentFuel() + "/" + ArtronCollectorItem.COLLECTOR_MAX_FUEL)
                     .formatted(Formatting.GOLD));
-            ItemStack stack = player.getMainHandStack();
-            if (stack.getItem() instanceof ArtronCollectorItem) {
-                double residual = ArtronCollectorItem.addFuel(stack, this.getCurrentFuel());
-                this.setCurrentFuel(residual);
-            } else if (stack.getItem() instanceof ArtronHolderItem artronHolderItem) {
-                double residual = artronHolderItem.addFuel(this.getCurrentFuel(), stack);
-                this.setCurrentFuel(residual);
-            } else if (stack.getItem() instanceof ChargedZeitonCrystalItem crystal) {
-                double residual = crystal.addFuel(this.getCurrentFuel(), stack);
-                this.setCurrentFuel(residual);
-            } else if (stack.getItem() instanceof StaserBoltMagazine magazine) {
-                double residual = magazine.addFuel(this.getCurrentFuel(), stack);
-                this.setCurrentFuel(residual);
+            ItemStack stack = player.getStackInHand(hand);
+
+            if (stack.getItem() instanceof ArtronHolderItem holder) {
+                double accepted = holder.insertFuel(this.getCurrentFuel(), stack);
+                this.extractFuel(accepted);
             }
+
             if (stack.isOf(AITBlocks.ZEITON_CLUSTER.asItem())) {
                 if (sneaking) {
-                    player.getInventory().setStack(player.getInventory().selectedSlot,
-                            new ItemStack(AITItems.CHARGED_ZEITON_CRYSTAL));
+                    this.convertCluster(player, hand, stack);
                     return;
                 }
 
-                this.addFuel(15);
-                stack.decrement(1);
+                if (this.getMaxFuel() - this.getCurrentFuel() < 15)
+                    return;
+
+                if (this.insertFuel(15) == 15 && !player.isCreative())
+                    stack.decrement(1);
             }
         }
     }
 
+    private void convertCluster(PlayerEntity player, Hand hand, ItemStack clusters) {
+        ItemStack crystal = new ItemStack(AITItems.CHARGED_ZEITON_CRYSTAL);
+
+        if (!player.isCreative() && clusters.getCount() == 1) {
+            player.setStackInHand(hand, crystal);
+            return;
+        }
+
+        if (!player.isCreative())
+            clusters.decrement(1);
+
+        player.getInventory().offerOrDrop(crystal);
+    }
+
     @Override
     public void setCurrentFuel(double artronAmount) {
-        this.artronAmount = artronAmount;
-        this.updateListeners(this.getCachedState());
+        double effective = Double.isFinite(artronAmount)
+                ? MathHelper.clamp(artronAmount, 0, this.getMaxFuel())
+                : 0;
+
+        if (Double.compare(this.artronAmount, effective) == 0)
+            return;
+
+        this.artronAmount = effective;
+        this.updateListeners();
     }
 
     @Override
@@ -114,42 +133,40 @@ public class ArtronCollectorBlockEntity extends FluidLinkBlockEntity implements 
         if (!(world instanceof ServerWorld serverWorld))
             return;
 
-        if (serverWorld.getServer().getTicks() % 3 == 0)
+        if (serverWorld.getServer().getTicks() % 3 != 0)
             return;
 
-        ChunkPos chunk = new ChunkPos(pos);
+        Chunk chunk = serverWorld.getChunk(pos);
         RiftChunkManager manager = RiftChunkManager.getInstance(serverWorld);
 
-        if (shouldDrainChunk(manager, chunk)) {
-            manager.removeFuel(chunk, FLOW_AMOUNT);
-            this.addFuel(FLOW_AMOUNT);
+        double chunkRequest = Math.min(FLOW_AMOUNT, this.getMaxFuel() - this.getCurrentFuel());
+        if (chunkRequest > 0) {
+            double extracted = manager.extractFuel(chunk, chunkRequest);
+            double remainder = this.addFuel(extracted);
 
-            this.updateListeners(state);
+            if (remainder > 0)
+                manager.insertFuel(chunk, remainder);
         }
 
-        if (shouldDrawFluid()) {
-            this.removeFuel(FLOW_AMOUNT);
-            blockEntity.source().addLevel(FLOW_AMOUNT);
-            this.updateListeners(state);
-        }
+        if (blockEntity.source() == null)
+            return;
+
+        double sourceCapacity = Math.max(0, blockEntity.source().maxLevel() - blockEntity.source().level());
+        double transferable = Math.min(FLOW_AMOUNT, Math.min(this.getCurrentFuel(), sourceCapacity));
+        double collectorExtracted = this.extractFuel(transferable);
+        double accepted = blockEntity.source().insertLevel(collectorExtracted);
+
+        if (accepted < collectorExtracted)
+            this.addFuel(collectorExtracted - accepted);
     }
 
-    private boolean shouldDrainChunk(RiftChunkManager manager, ChunkPos pos) {
-        return this.getCurrentFuel() < ArtronCollectorItem.COLLECTOR_MAX_FUEL
-                && manager.getArtron(pos) >= FLOW_AMOUNT;
-    }
-
-    private boolean shouldDrawFluid() {
-        return this.getCurrentFuel() >= FLOW_AMOUNT && source() != null && !source().isLevelFull();
-    }
-
-    private void updateListeners(BlockState state) {
+    private void updateListeners() {
         this.markDirty();
 
         if (!this.hasWorld())
             return;
 
-        this.world.updateListeners(this.getPos(), this.getCachedState(), state, Block.NOTIFY_ALL);
+        this.world.updateListeners(this.getPos(), this.getCachedState(), this.getCachedState(), Block.NOTIFY_LISTENERS);
     }
 
     @Override
