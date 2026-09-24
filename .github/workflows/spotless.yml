@@ -36,6 +36,7 @@ jobs:
           if [[ -n "$(git status --porcelain)" ]]; then
             git add .
             git commit -m "chore: apply spotless formatting"
+            git pull --rebase origin main
             git push origin main
           else
             echo "No changes to commit."
