@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -112,12 +113,17 @@ public class TardisFileManager<T extends Tardis> {
     }
 
     public List<UUID> getTardisList(MinecraftServer server) {
-        try {
-            return Files.list(TardisFileManager.getRootSavePath(server)).filter(path -> path.toString().endsWith(".json")).map(path -> {
+        Path root = TardisFileManager.getRootSavePath(server);
+
+        if (Files.notExists(root))
+            return List.of();
+
+        try (Stream<Path> files = Files.list(root)) {
+            return files.filter(path -> path.toString().endsWith(".json")).map(path -> {
                 String name = path.getFileName().toString();
                 return UUID.fromString(name.substring(0, name.indexOf('.')));
             }).toList();
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             AITMod.LOGGER.error("Failed to list TARDIS files", e);
         }
 
