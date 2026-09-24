@@ -32,6 +32,7 @@ import net.minecraft.world.World;
 public abstract class LivingEntityMixin extends Entity implements ExtraPushableEntity {
 
     @Unique private TriState ait$pushable = TriState.DEFAULT;
+    @Unique private boolean ait$isSearchingVoid;
 
     @Shadow public abstract ItemStack getEquippedStack(EquipmentSlot var1);
 
@@ -84,7 +85,7 @@ public abstract class LivingEntityMixin extends Entity implements ExtraPushableE
     @Inject(method = "tickInVoid", at = @At("HEAD"))
     public void tickVoid(CallbackInfo ci) {
         if (!this.getWorld().isClient() && this.getWorld().getRegistryKey() == AITDimensions.TIME_VORTEX_WORLD) {
-            if (WorldUtil.getTravelWorlds().isEmpty())
+            if (this.ait$isSearchingVoid || WorldUtil.getTravelWorlds().isEmpty())
                 return;
 
             LivingEntity entity = (LivingEntity) (Object) this;
@@ -93,8 +94,13 @@ public abstract class LivingEntityMixin extends Entity implements ExtraPushableE
             ServerWorld world = WorldUtil.getTravelWorlds().get(worldIndex);
             CachedDirectedGlobalPos safe = CachedDirectedGlobalPos.create(world, entity.getBlockPos(), (byte) 0);
 
-            SafePosSearch.wrapSafe(safe, SafePosSearch.Kind.MEDIAN, true,
-                    result -> TeleportUtil.teleport(entity, world, result.getPos().toCenterPos(), entity.getYaw()));
+            this.ait$isSearchingVoid = true;
+            SafePosSearch.wrapSafe(safe, SafePosSearch.Kind.MEDIAN, true, result -> {
+                this.ait$isSearchingVoid = false;
+
+                if (entity.isAlive())
+                    TeleportUtil.teleport(entity, world, result.getPos().toCenterPos(), entity.getYaw());
+            });
         }
     }
 }
