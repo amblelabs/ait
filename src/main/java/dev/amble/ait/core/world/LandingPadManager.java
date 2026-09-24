@@ -32,7 +32,7 @@ public class LandingPadManager {
     );
 
     public static void init() {
-
+        Network.init();
     }
 
     private final ServerWorld world;
@@ -97,8 +97,11 @@ public class LandingPadManager {
         public static final Identifier REQUEST = AITMod.id("landingpad_request");
 
         public static void syncForPlayer(Action action, ServerPlayerEntity player) {
+            syncForPlayer(action, player, player.getChunkPos());
+        }
+
+        public static void syncForPlayer(Action action, ServerPlayerEntity player, ChunkPos pos) {
             ServerWorld world = player.getServerWorld();
-            ChunkPos pos = player.getChunkPos();
 
             PacketByteBuf buf = PacketByteBufs.create();
             buf.writeEnumConstant(action);
@@ -146,7 +149,7 @@ public class LandingPadManager {
             }
         }
 
-        static {
+        private static void init() {
             ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
                 syncForPlayer(Action.ADD, handler.getPlayer());
             });
@@ -157,7 +160,14 @@ public class LandingPadManager {
             });
 
             ServerPlayNetworking.registerGlobalReceiver(LandingPadManager.Network.REQUEST, (server, player, handler, buf, responseSender) -> {
-                syncForPlayer(Action.ADD, player);
+                ChunkPos pos = new ChunkPos(buf.readNbt().getLong("Chunk"));
+
+                server.execute(() -> {
+                    ServerWorld world = player.getServerWorld();
+
+                    if (world.isChunkLoaded(pos.x, pos.z) && PlayerLookup.tracking(world, pos).contains(player))
+                        syncForPlayer(Action.ADD, player, pos);
+                });
             });
         }
 
