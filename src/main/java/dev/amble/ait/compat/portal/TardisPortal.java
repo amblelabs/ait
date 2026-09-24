@@ -7,7 +7,6 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.util.EntityRef;
 import qouteall.imm_ptl.core.portal.Portal;
-import qouteall.imm_ptl.core.portal.PortalManipulation;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
@@ -42,25 +41,23 @@ public class TardisPortal extends Portal {
             return;
 
         this.tardis = ServerTardisManager.getInstance().demandTardis(serverWorld.getServer(), nbt.getUuid("Tardis"));
+    }
 
-        if (this.tardis == null) {
-            PortalManipulation.removeConnectedPortals(this, (p) -> {});
-            this.discard();
-            return;
-        }
+    @Override
+    public boolean isPortalValid() {
+        return super.isPortalValid() && (this.getWorld().isClient() || this.isCurrent());
+    }
 
-        PortalsHandler portalsHandler = this.tardis.handler(PortalsHandler.ID);
+    private boolean isCurrent() {
+        if (this.tardis == null || !(this.tardis.handler(PortalsHandler.ID) instanceof PortalsHandler portalsHandler))
+            return false;
 
         EntityRef<TardisPortal> extPortal = portalsHandler.getExteriorRef();
         EntityRef<TardisPortal> intPortal = portalsHandler.getInteriorRef();
 
         UUID id = this.getUuid();
 
-        if ((extPortal == null || !id.equals(extPortal.getId())) &&
-                (intPortal == null || !id.equals(intPortal.getId()))) {
-            PortalManipulation.removeConnectedPortals(this, (p) -> {});
-            this.discard();
-        }
+        return (extPortal != null && id.equals(extPortal.getId())) || (intPortal != null && id.equals(intPortal.getId()));
     }
 
     @Override
