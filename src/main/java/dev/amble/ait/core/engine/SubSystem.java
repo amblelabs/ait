@@ -1,8 +1,6 @@
 package dev.amble.ait.core.engine;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
 
 import com.google.gson.*;
@@ -12,7 +10,6 @@ import dev.amble.ait.api.tardis.Initializable;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.engine.impl.*;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
@@ -23,7 +20,6 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 
 public abstract class SubSystem extends Initializable<SubSystem.InitContext> implements Disposable {
@@ -32,7 +28,6 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
     @Exclude(strategy = Exclude.Strategy.NETWORK)
     private final IdLike id;
     private boolean enabled = false;
-    private boolean isReal = false;
 
     protected SubSystem(IdLike id) {
         this.id = id;
@@ -67,11 +62,6 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
         return enabled;
     }
 
-    // TODO this is such a patch fix but this subsystem implementation is not real bro its just not real (its bad) - Loqor
-    public boolean isReal() {
-        return isReal;
-    }
-
     public boolean isUsable() {
         return this.isEnabled();
     }
@@ -87,9 +77,6 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
     }
 
     protected void onEnable() {
-        if (!this.isReal) {
-            this.isReal = true;
-        }
         TardisEvents.SUBSYSTEM_ENABLE.invoker().onEnable(this);
     }
 
@@ -99,20 +86,6 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
 
     public void tick() {
 
-    }
-
-    /**
-     * TEMPORARY - will be removed when ARS is implemented
-     */
-    public List<ItemStack> toStacks() {
-        List<ItemStack> stacks = new ArrayList<>();
-
-        if (this instanceof StructureHolder holder && holder.getStructure() != null && !holder.getStructure().isEmpty())
-            stacks.addAll(holder.getStructure().toStacks());
-
-        stacks.add(this.asItem().getDefaultStack());
-        stacks.add(AITBlocks.GENERIC_SUBSYSTEM.asItem().getDefaultStack());
-        return stacks;
     }
 
     protected void sync() {

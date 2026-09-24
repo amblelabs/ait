@@ -203,19 +203,11 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
         if (travel.getState() == TravelHandler.State.FLIGHT && !travel.isCrashing() && !tardis.isGrowth())
             travel.crash();
-
-        restorationChestContents = new ArrayList<>();
-
-        for (SubSystem system : tardis.subsystems()) {
-            if (!system.isReal())
-                continue;
-
-            restorationChestContents.addAll(system.toStacks());
-            AITMod.LOGGER.debug("Storing Subsystem, {} ({}) => {}", system.getId(), system.isEnabled(), system.toStacks());
-        }
     }
 
     private void changeInterior() {
+        restorationChestContents = new ArrayList<>();
+
         tardis.getDesktop().changeInterior(this.getQueuedInterior(), true, true)
                 .thenRun(() -> {
                     this.queued.set(false);
@@ -255,6 +247,14 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         BlockPos pos = position.getPos();
 
         world.playSound(null, pos, AITSounds.TARDIS_BLING, SoundCategory.BLOCKS, 10.0F, 1.0F);
+    }
+
+    public boolean addRestorationStack(ItemStack stack) {
+        if (restorationChestContents == null || !tardis.getDesktop().isChanging())
+            return false;
+
+        restorationChestContents.add(stack);
+        return true;
     }
 
     private void restoreSubsystemsToConsole() {
