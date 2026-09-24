@@ -286,7 +286,7 @@ public class AITMod implements ModInitializer {
 
                         region.setLandingCode(landingCode);
                         LandingPadManager.Network.syncTracked(LandingPadManager.Network.Action.ADD, player.getServerWorld(),
-                                new ChunkPos(player.getBlockPos()));
+                                new ChunkPos(pos));
                     });
                 });
 
