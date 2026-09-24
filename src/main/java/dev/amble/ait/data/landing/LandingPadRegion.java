@@ -47,13 +47,11 @@ public class LandingPadRegion {
         this.landingCode = landingCode;
 
         this.defaultY = y;
-
-        if (spots.isEmpty())
-            this.createAllSpots();
     }
 
     public LandingPadRegion(ChunkPos pos, int y, String landingCode) {
         this(pos, y, new ArrayList<>(), landingCode);
+        this.createAllSpots();
     }
 
     public @Nullable LandingPadSpot getFreeSpot() {
