@@ -116,6 +116,8 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
 
         // place cable blocks adjacent
         for (Direction dir : Direction.values()) {
+            if (dir == Direction.UP || dir == Direction.DOWN) continue;
+
             BlockPos offset = centre.offset(dir);
             tryRemoveIfMatches(world, offset, AITBlocks.CABLE_BLOCK);
         }
