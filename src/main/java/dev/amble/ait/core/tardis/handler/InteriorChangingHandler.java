@@ -15,6 +15,7 @@ import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.lock.LockedDimension;
 import dev.amble.ait.core.lock.LockedDimensionRegistry;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -120,10 +121,10 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         TardisEvents.LOSE_POWER.register(tardis -> tardis.interiorChangingHandler().queued.set(false));
 
         ServerPlayNetworking.registerGlobalReceiver(InteriorChangingHandler.CHANGE_DESKTOP,
-                ServerTardisManager.receiveTardis(((tardis, server, player, handler, buf, responseSender) -> {
+                ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
                     TardisDesktopSchema desktop = DesktopRegistry.getInstance().get(buf.readIdentifier());
 
-                    if (tardis == null || desktop == null)
+                    if (tardis == null || desktop == null || !tardis.isUnlocked(desktop))
                         return;
 
                     if (tardis.travel().getState() != TravelHandler.State.LANDED)

@@ -8,6 +8,7 @@ import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.client.screens.interior.InteriorSettingsScreen;
 import dev.amble.ait.client.screens.widget.DynamicPressableTextWidget;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.properties.Property;
@@ -84,7 +85,7 @@ public class GravityHandler extends KeyedTardisComponent implements TardisTickab
 
     public static void init() {
         ServerPlayNetworking.registerGlobalReceiver(SYNC,
-                ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+                ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
                     if (tardis == null)
                         return;
 
@@ -92,7 +93,7 @@ public class GravityHandler extends KeyedTardisComponent implements TardisTickab
                     Direction direction = buf.readEnumConstant(Direction.class);
 
                     gravity.direction.set(direction);
-                }));
+                })));
 
         TardisComponentRegistry.getInstance().register(ID);
 
