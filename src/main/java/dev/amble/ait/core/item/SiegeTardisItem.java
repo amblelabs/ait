@@ -118,7 +118,7 @@ public class SiegeTardisItem extends LinkableItem {
     }
 
     public static void pickupTardis(Tardis tardis, ServerPlayerEntity player) {
-        if (tardis.travel().handbrake())
+        if (tardis.travel().handbrake() || player.getInventory().getEmptySlot() == -1)
             return;
 
         tardis.travel().deleteExterior();
