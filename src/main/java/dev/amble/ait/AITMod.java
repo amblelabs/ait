@@ -247,7 +247,7 @@ public class AITMod implements ModInitializer {
             HomeCommand.register(dispatcher);
             SetMaxSpeedCommand.register(dispatcher);
             SetSiegeCommand.register(dispatcher);
-             LinkCommand.register(dispatcher);
+            LinkCommand.register(dispatcher);
             UnLinkCommand.register(dispatcher);
             RemoveCommand.register(dispatcher);
             PermissionCommand.register(dispatcher);
