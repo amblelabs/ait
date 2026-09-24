@@ -37,7 +37,7 @@ jobs:
 
     - name: Restore DataGen cache
       id: cache-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v6
       with:
         path: src/main/generated
         key: datagen-${{ github.run_id }}
@@ -49,7 +49,7 @@ jobs:
 
     - name: Save DataGen cache
       id: cache-save
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v6
       with:
         path: src/main/generated
         key: ${{ steps.cache-restore.outputs.cache-primary-key }}
