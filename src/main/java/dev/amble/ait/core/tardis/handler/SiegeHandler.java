@@ -115,6 +115,9 @@ public class SiegeHandler extends KeyedTardisComponent implements TardisTickable
     }
 
     public void setActive(boolean siege) {
+        if (this.isActive() == siege)
+            return;
+
         if (this.tardis.getFuel() <= (0.01 * FuelHandler.TARDIS_MAX_FUEL))
             return; // The required amount of fuel to enable/disable siege mode
 
