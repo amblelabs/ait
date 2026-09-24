@@ -58,28 +58,30 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
 
     static {
         ServerPlayNetworking.registerGlobalReceiver(REQUEST_SEARCH, (server, player, handler, buf, responseSender) -> {
-            try {
-                ServerWorld checkWorld = player.getServerWorld();
-                BlockPos playerPos = player.getBlockPos();
-                boolean hasAccess = false;
-                for (BlockPos nearby : BlockPos.iterateOutwards(playerPos, 4, 4, 4)) {
-                    if (checkWorld.getBlockState(nearby).getBlock() instanceof AstralMapBlock) {
-                        hasAccess = true;
-                        break;
+            Identifier target = buf.readIdentifier();
+            AstralMapScreen.Category category = buf.readEnumConstant(AstralMapScreen.Category.class);
+
+            server.execute(() -> {
+                try {
+                    ServerWorld checkWorld = player.getServerWorld();
+                    BlockPos playerPos = player.getBlockPos();
+                    boolean hasAccess = false;
+                    for (BlockPos nearby : BlockPos.iterateOutwards(playerPos, 4, 4, 4)) {
+                        if (checkWorld.getBlockState(nearby).getBlock() instanceof AstralMapBlock) {
+                            hasAccess = true;
+                            break;
+                        }
                     }
-                }
-                if (!hasAccess) return;
+                    if (!hasAccess) return;
 
-                Identifier target = buf.readIdentifier();
-                AstralMapScreen.Category category = buf.readEnumConstant(AstralMapScreen.Category.class);
-
-                switch(category) {
-                    case BIOMES -> handleBiomeRequest(player, target);
-                    case STRUCTURES -> handleStructureRequest(player, target);
+                    switch(category) {
+                        case BIOMES -> handleBiomeRequest(player, target);
+                        case STRUCTURES -> handleStructureRequest(player, target);
+                    }
+                } catch (Exception e) {
+                    AITMod.LOGGER.error("Error handling search request", e);
                 }
-            } catch (Exception e) {
-                AITMod.LOGGER.error("Error handling search request", e);
-            }
+            });
         });
     }
 
@@ -151,31 +153,30 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
 
     private static void handleBiomeRequest(ServerPlayerEntity player, Identifier target) {
         player.sendMessage(Text.translatable("block.ait.astral_map.finder.searching_for_biome"), false);
-        player.getServer().execute(() -> {
-            ServerWorld world = player.getServerWorld();
-            if (!TardisServerWorld.isTardisDimension(world))
-                return;
 
-            ServerTardis tardis = ((TardisServerWorld) world).getTardis();
-            CachedDirectedGlobalPos currentPos = tardis.travel().position();
-            ServerWorld targetWorld = currentPos.getWorld();
-            BlockPos start = currentPos.getPos();
-            RegistryKey<Biome> biomeKey = RegistryKey.of(RegistryKeys.BIOME, target);
+        ServerWorld world = player.getServerWorld();
+        if (!TardisServerWorld.isTardisDimension(world))
+            return;
 
-            Pair<BlockPos, RegistryEntry<Biome>> r = targetWorld.locateBiome(
-                    entry -> entry.matchesKey(biomeKey),
-                    start, AITMod.CONFIG.astralMapBiomeLocatorRange, 32, 64);
+        ServerTardis tardis = ((TardisServerWorld) world).getTardis();
+        CachedDirectedGlobalPos currentPos = tardis.travel().position();
+        ServerWorld targetWorld = currentPos.getWorld();
+        BlockPos start = currentPos.getPos();
+        RegistryKey<Biome> biomeKey = RegistryKey.of(RegistryKeys.BIOME, target);
 
-            if (r != null) {
-                BlockPos locatedBiome = r.getFirst();
-                int distance = (int) Math.round(Math.sqrt(locatedBiome.getSquaredDistance(start)));
-                player.sendMessage(Text.translatable("block.ait.astral_map.finder.found",
-                        locatedBiome.getX(), locatedBiome.getY(), locatedBiome.getZ(), distance), false);
-                tardis.travel().destination(destination -> destination.pos(locatedBiome));
-            } else {
-                player.sendMessage(Text.translatable("block.ait.astral_map.finder.biome_not_found"), false);
-            }
-        });
+        Pair<BlockPos, RegistryEntry<Biome>> r = targetWorld.locateBiome(
+                entry -> entry.matchesKey(biomeKey),
+                start, AITMod.CONFIG.astralMapBiomeLocatorRange, 32, 64);
+
+        if (r != null) {
+            BlockPos locatedBiome = r.getFirst();
+            int distance = (int) Math.round(Math.sqrt(locatedBiome.getSquaredDistance(start)));
+            player.sendMessage(Text.translatable("block.ait.astral_map.finder.found",
+                    locatedBiome.getX(), locatedBiome.getY(), locatedBiome.getZ(), distance), false);
+            tardis.travel().destination(destination -> destination.pos(locatedBiome));
+        } else {
+            player.sendMessage(Text.translatable("block.ait.astral_map.finder.biome_not_found"), false);
+        }
     }
 
     private static void sendStructuresAndOpenScreen(ServerWorld world, ServerPlayerEntity target) {
