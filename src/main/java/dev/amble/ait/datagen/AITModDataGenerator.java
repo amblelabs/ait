@@ -809,6 +809,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("command.tardis.ait.name", "TARDIS name: %s");
         provider.addTranslation("console.ait.generator.requirement.none", "None");
         provider.addTranslation("console.ait.generator.requires_loyalty", "Requires Loyalty Level: %s");
+        provider.addTranslation("container.ait.temporal_recovery", "Temporal Recovery");
         provider.addTranslation("text.ait.config.title", "Adventures in Time");
         provider.addTranslation("message.ait.boti.indium_required.amd", "You appear to have an AMD GPU. Indium is required, but is not found. This may cause issues with the mod - BOTI has been disabled!");
         provider.addTranslation("message.ait.boti.indium_required.mac", "You appear to be playing on a Mac. Indium is required, but is not found. This may cause issues with the mod - BOTI has been disabled!");
@@ -992,6 +993,31 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.projectorWhitelist", "Environment Projector Whitelist");
         provider.addTranslation("yacl3.config.ait:server.travelBlacklist", "TARDIS Travel Blacklist");
         provider.addTranslation("yacl3.config.ait:server.travelWhitelist", "TARDIS Travel Whitelist");
+        provider.addTranslation("yacl3.config.ait:server.category.temporal_recovery", "Temporal Recovery");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryLoyaltyCost",
+                "Temporal Recovery Loyalty Cost");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryLoyaltyCost.description",
+                "Loyalty removed when a destroyed item stack is recovered through the console port.");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryEngineDamage",
+                "Temporal Recovery Engine Damage");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryEngineDamage.description",
+                "Engine durability removed when a destroyed item stack is recovered.");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryUnstackableFuelCost",
+                "Unstackable Item Recovery Cost (AU)");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryUnstackableFuelCost.description",
+                "Base Artron cost for recovering an item which cannot stack.");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryStackItemFuelCost",
+                "Stacked Item Recovery Cost (AU Each)");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryStackItemFuelCost.description",
+                "Artron cost per item when recovering a stackable item.");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryCommonFuelCost",
+                "Common Item Recovery Cost (AU)");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryUncommonFuelCost",
+                "Uncommon Item Recovery Cost (AU)");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryRareFuelCost",
+                "Rare Item Recovery Cost (AU)");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryEpicFuelCost",
+                "Epic Item Recovery Cost (AU)");
 
         provider.addTranslation(AITMod.TARDIS_GRIEFING.getTranslationKey(), "TARDIS Griefing");
         provider.addTranslation(AITMod.TARDIS_FIRE_GRIEFING.getTranslationKey(), "TARDIS Fire Griefing");
@@ -2236,6 +2262,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("console.ait.toyota_blue", "Toyota azul");
         provider.addTranslation("console.ait.toyota_legacy", "Toyota legado");
         provider.addTranslation("console.ait.variant_label", "Tipo de consola: ");
+        provider.addTranslation("container.ait.temporal_recovery", "Recuperación temporal");
         provider.addTranslation("control.ait.alarms", "Alarmas");
         provider.addTranslation("control.ait.antigravs", "Antigravedad");
         provider.addTranslation("control.ait.console_port", "Puerto de consola");
@@ -2956,6 +2983,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.allowPortalsBoti", "[EXPERIMENTAL] ¿Permitir IP BOTI? (requiere reiniciar)");
         provider.addTranslation("yacl3.config.ait:server.astralMapBiomeLocatorRange", "Radio en bloques del buscador de biomas del mapa astral");
         provider.addTranslation("yacl3.config.ait:server.category.server", "AIT (Servidor)");
+        provider.addTranslation("yacl3.config.ait:server.category.temporal_recovery", "Recuperación temporal");
         provider.addTranslation("yacl3.config.ait:server.crashSoundVolume", "Volumen del sonido de impacto de la TARDIS");
         provider.addTranslation("yacl3.config.ait:server.disableSafeguards", "Desactivar protecciones");
         provider.addTranslation("yacl3.config.ait:server.flightSoundVolume", "Volumen del sonido de vuelo");
@@ -2969,6 +2997,18 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.projectorWhitelist", "Dimensiones permitidas para el proyector ambiental (sustituye a las bloqueadas)");
         provider.addTranslation("yacl3.config.ait:server.rwfEnabled", "¿Activar RWF?");
         provider.addTranslation("yacl3.config.ait:server.sendBulk", "¿Enviar en lote?");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryCommonFuelCost", "Coste de recuperar un objeto común (UA)");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryEngineDamage", "Daño al motor de la recuperación temporal");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryEngineDamage.description", "Durabilidad eliminada del motor al recuperar una pila de objetos destruida.");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryEpicFuelCost", "Coste de recuperar un objeto épico (UA)");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryLoyaltyCost", "Coste de lealtad de la recuperación temporal");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryLoyaltyCost.description", "Lealtad eliminada al recuperar una pila de objetos destruida mediante el puerto de la consola.");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryRareFuelCost", "Coste de recuperar un objeto raro (UA)");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryStackItemFuelCost", "Coste por objeto apilable recuperado (UA)");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryStackItemFuelCost.description", "Coste de Artron por cada objeto de una pila recuperada.");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryUncommonFuelCost", "Coste de recuperar un objeto poco común (UA)");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryUnstackableFuelCost", "Coste de recuperar un objeto no apilable (UA)");
+        provider.addTranslation("yacl3.config.ait:server.temporalRecoveryUnstackableFuelCost.description", "Coste base de Artron para recuperar un objeto que no se puede apilar.");
         provider.addTranslation("yacl3.config.ait:server.tntCanTeleportThroughDoors", "¿Puede la TNT teletransportarse a través de puertas?");
         provider.addTranslation("yacl3.config.ait:server.travelBlacklist", "Dimensiones bloqueadas para viaje de TARDIS");
         provider.addTranslation("yacl3.config.ait:server.travelPerTick", "Viaje por tick");

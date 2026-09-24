@@ -3,6 +3,8 @@ package dev.amble.ait.config;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITDimensions;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.controller.ControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
@@ -14,12 +16,10 @@ import dev.isxander.yacl3.config.v2.api.autogen.Boolean;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import dev.isxander.yacl3.platform.YACLPlatform;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITDimensions;
-
 public class AITServerConfig {
 
     public static final String CATEGORY = "server";
+    public static final String TEMPORAL_RECOVERY_CATEGORY = "temporal_recovery";
 
     public static final ConfigClassHandler<AITServerConfig> INSTANCE = ConfigClassHandler.createBuilder(AITServerConfig.class)
             .id(YACLPlatform.rl(AITMod.MOD_ID, "server"))
@@ -36,6 +36,38 @@ public class AITServerConfig {
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean ghostMonument = true;
+
+    @AutoGen(category = TEMPORAL_RECOVERY_CATEGORY)
+    @IntField(min = 0, max = 500)
+    @SerialEntry public int temporalRecoveryLoyaltyCost = 25;
+
+    @AutoGen(category = TEMPORAL_RECOVERY_CATEGORY)
+    @IntField(min = 0, max = 1250)
+    @SerialEntry public int temporalRecoveryEngineDamage = 50;
+
+    @AutoGen(category = TEMPORAL_RECOVERY_CATEGORY)
+    @IntField(min = 0, max = 25_000)
+    @SerialEntry public int temporalRecoveryUnstackableFuelCost = 500;
+
+    @AutoGen(category = TEMPORAL_RECOVERY_CATEGORY)
+    @IntField(min = 0, max = 25_000)
+    @SerialEntry public int temporalRecoveryStackItemFuelCost = 20;
+
+    @AutoGen(category = TEMPORAL_RECOVERY_CATEGORY)
+    @IntField(min = 0, max = 25_000)
+    @SerialEntry public int temporalRecoveryCommonFuelCost = 5;
+
+    @AutoGen(category = TEMPORAL_RECOVERY_CATEGORY)
+    @IntField(min = 0, max = 25_000)
+    @SerialEntry public int temporalRecoveryUncommonFuelCost = 15;
+
+    @AutoGen(category = TEMPORAL_RECOVERY_CATEGORY)
+    @IntField(min = 0, max = 25_000)
+    @SerialEntry public int temporalRecoveryRareFuelCost = 50;
+
+    @AutoGen(category = TEMPORAL_RECOVERY_CATEGORY)
+    @IntField(min = 0, max = 25_000)
+    @SerialEntry public int temporalRecoveryEpicFuelCost = 200;
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
