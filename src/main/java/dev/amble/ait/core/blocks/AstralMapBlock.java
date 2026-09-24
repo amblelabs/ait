@@ -10,6 +10,7 @@ import dev.amble.ait.client.screens.AstralMapScreen;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.blockentities.AstralMapBlockEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.control.impl.TelepathicControl;
 import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
@@ -64,6 +65,10 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
             server.execute(() -> {
                 try {
                     ServerWorld checkWorld = player.getServerWorld();
+
+                    if (checkWorld instanceof TardisServerWorld tardisWorld && SecurityControl.cannotAccess(tardisWorld.getTardis(), player))
+                        return;
+
                     BlockPos playerPos = player.getBlockPos();
                     boolean hasAccess = false;
                     for (BlockPos nearby : BlockPos.iterateOutwards(playerPos, 4, 4, 4)) {
