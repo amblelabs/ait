@@ -1,5 +1,18 @@
 package dev.amble.ait.compat.gravity;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisClientEvents;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.client.screens.interior.InteriorSettingsScreen;
+import dev.amble.ait.client.screens.widget.DynamicPressableTextWidget;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.data.Exclude;
+import dev.amble.ait.data.properties.Property;
+import dev.amble.ait.data.properties.Value;
+import dev.amble.ait.registry.impl.TardisComponentRegistry;
 import gravity_changer.EntityTags;
 import gravity_changer.api.GravityChangerAPI;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -16,20 +29,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.Direction;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.KeyedTardisComponent;
-import dev.amble.ait.api.tardis.TardisClientEvents;
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.api.tardis.TardisTickable;
-import dev.amble.ait.client.screens.interior.InteriorSettingsScreen;
-import dev.amble.ait.client.screens.widget.DynamicPressableTextWidget;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.properties.Property;
-import dev.amble.ait.data.properties.Value;
-import dev.amble.ait.registry.impl.TardisComponentRegistry;
-
 public class GravityHandler extends KeyedTardisComponent implements TardisTickable {
 
     private static final Identifier SYNC = AITMod.id("sync_gravity");
@@ -41,6 +40,12 @@ public class GravityHandler extends KeyedTardisComponent implements TardisTickab
     @Exclude
     private Direction tempDirection = Direction.DOWN;
 
+    @Exclude
+    private Direction temperamentDirection;
+
+    @Exclude
+    private long temperamentDirectionUntil;
+
     public GravityHandler() {
         super(ID);
     }
@@ -49,18 +54,51 @@ public class GravityHandler extends KeyedTardisComponent implements TardisTickab
     public void onLoaded() {
         direction.of(this, DIRECTION);
         this.tempDirection = Direction.DOWN;
+        this.temperamentDirection = null;
+        this.temperamentDirectionUntil = 0;
     }
 
     @Override
     public void tick(MinecraftServer server) {
         if (server.getTicks() % 20 == 0)
-            this.onTick();
+            this.onTick(server.getTicks());
     }
 
-    private void onTick() {
-        for (Entity entity : this.tardis.asServer().world().getEntitiesByType(TypeFilter.instanceOf(LivingEntity.class), EntityTags::canChangeGravity)) {
-            GravityChangerAPI.getGravityComponent(entity).setBaseGravityDirection(this.direction.get());
+    private void onTick(long currentTick) {
+        Direction applied = this.direction.get();
+
+        if (this.temperamentDirection != null) {
+            if (AITMod.CONFIG.tardisTemperament && currentTick < this.temperamentDirectionUntil) {
+                applied = this.temperamentDirection;
+            } else {
+                this.temperamentDirection = null;
+                this.temperamentDirectionUntil = 0;
+            }
         }
+
+        for (Entity entity : this.tardis.asServer().world().getEntitiesByType(
+                TypeFilter.instanceOf(LivingEntity.class), EntityTags::canChangeGravity)) {
+            GravityChangerAPI.getGravityComponent(entity).setBaseGravityDirection(applied);
+        }
+    }
+
+    public static void activateTemperamentOverride(Tardis tardis, long untilTick) {
+        GravityHandler gravity = tardis.handler(ID);
+        if (gravity == null || !tardis.asServer().hasWorld())
+            return;
+
+        Direction[] directions = {
+                Direction.UP,
+                Direction.NORTH,
+                Direction.SOUTH,
+                Direction.EAST,
+                Direction.WEST
+        };
+        MinecraftServer server = tardis.asServer().world().getServer();
+        gravity.temperamentDirection = directions[
+                tardis.asServer().world().getRandom().nextInt(directions.length)];
+        gravity.temperamentDirectionUntil = untilTick;
+        gravity.onTick(server.getTicks());
     }
 
     private static void syncToServer(Tardis tardis, Direction direction) {

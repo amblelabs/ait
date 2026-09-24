@@ -1,5 +1,13 @@
 package dev.amble.ait.core.item;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.blocks.PeanutBlock;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.tardis.util.TardisUtil;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -19,15 +27,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.blocks.PeanutBlock;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.tardis.util.TardisUtil;
 
 public class HammerItem extends SwordItem {
 
@@ -67,6 +66,15 @@ public class HammerItem extends SwordItem {
 
         if (player.getItemCooldownManager().isCoolingDown(stack.getItem()))
             return ActionResult.PASS;
+
+        if (player instanceof ServerPlayerEntity serverPlayer
+                && tardis.temperament().handleHammer(serverPlayer, world)) {
+            world.playSound(null, consoleBlockEntity.getPos(), AITSounds.HAMMER_HIT,
+                    SoundCategory.BLOCKS, 1f, 1f);
+            player.getItemCooldownManager().set(stack.getItem(),
+                    AITMod.CONFIG.temperamentHammerCooldownTicks);
+            return ActionResult.SUCCESS;
+        }
 
         if (!(tardis.travel().getState() == TravelHandlerBase.State.FLIGHT)) {
 

@@ -5,7 +5,30 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.client.tardis.manager.ClientTardisManager;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.blocks.ExteriorBlock;
+import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.lock.LockedDimension;
+import dev.amble.ait.core.lock.LockedDimensionRegistry;
+import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
+import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
+import dev.amble.ait.core.tardis.control.impl.EngineOverloadControl;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
+import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.util.NetworkUtil;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.util.SafePosSearch;
+import dev.amble.ait.core.util.UnsafePosSearch;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.core.world.RiftChunkManager;
+import dev.amble.ait.data.Exclude;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
@@ -30,28 +53,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.client.tardis.manager.ClientTardisManager;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.blocks.ExteriorBlock;
-import dev.amble.ait.core.lock.LockedDimension;
-import dev.amble.ait.core.lock.LockedDimensionRegistry;
-import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
-import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
-import dev.amble.ait.core.tardis.control.impl.EngineOverloadControl;
-import dev.amble.ait.core.tardis.control.impl.SecurityControl;
-import dev.amble.ait.core.tardis.handler.TardisCrashHandler;
-import dev.amble.ait.core.tardis.util.NetworkUtil;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.core.util.SafePosSearch;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.core.world.RiftChunkManager;
-import dev.amble.ait.data.Exclude;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public final class TravelHandler extends AnimatedTravelHandler implements CrashableTardisTravel {
 
@@ -441,6 +442,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         if (tardis.stats().security().get() || !tardis.waypoint().canContainPlayers()) {
             SecurityControl.runSecurityProtocols(this.tardis);
         }
+        this.tardis.temperament().finishDematerialization();
     }
 
     public void cancelDemat() {
@@ -504,8 +506,21 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
         // this method MAY get called twice.
         if (!wasWaiting) {
-            SafePosSearch.wrapSafe(finalPos, this.vGroundSearch.get(),
-                    this.hGroundSearch.get(), this::finishForceRemat);
+            this.tardis.temperament().prepareLanding(this.tardis.temperament().isDestinationHome());
+            if (this.tardis.temperament().useUnsafeLanding()) {
+                SubSystem gravitational = this.tardis.subsystems().get(SubSystem.Id.GRAVITATIONAL);
+                boolean gravityDisabled = gravitational == null || !gravitational.isUsable();
+                UnsafePosSearch.find(finalPos, gravityDisabled).ifPresentOrElse(
+                        unsafe -> {
+                            this.tardis.temperament().unsafeLandingHostile(unsafe.hostileId());
+                            this.finishForceRemat(unsafe.position());
+                        },
+                        () -> SafePosSearch.wrapSafe(finalPos, this.vGroundSearch.get(),
+                                this.hGroundSearch.get(), this::finishForceRemat));
+            } else {
+                SafePosSearch.wrapSafe(finalPos, this.vGroundSearch.get(),
+                        this.hGroundSearch.get(), this::finishForceRemat);
+            }
         }
 
         return Optional.of(this.queueFor(State.LANDED));
