@@ -4,9 +4,6 @@ import java.lang.reflect.Type;
 import java.util.UUID;
 
 import com.google.gson.InstanceCreator;
-
-import net.minecraft.client.MinecraftClient;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.Disposable;
 import dev.amble.ait.api.tardis.TardisComponent;
@@ -17,6 +14,8 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.TardisExterior;
 import dev.amble.ait.data.Exclude;
+
+import net.minecraft.client.MinecraftClient;
 
 public class ClientTardis extends Tardis implements Disposable {
 

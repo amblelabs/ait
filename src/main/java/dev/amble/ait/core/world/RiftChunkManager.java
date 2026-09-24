@@ -1,6 +1,9 @@
 package dev.amble.ait.core.world;
 
 import com.mojang.serialization.Codec;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.events.ServerChunkEvents;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 
@@ -13,10 +16,6 @@ import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.ProtoChunk;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.events.ServerChunkEvents;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 @SuppressWarnings("UnstableApiUsage")
 public record RiftChunkManager(ServerWorld world) {

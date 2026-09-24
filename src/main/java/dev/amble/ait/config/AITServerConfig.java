@@ -3,6 +3,8 @@ package dev.amble.ait.config;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITDimensions;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.controller.ControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
@@ -13,9 +15,6 @@ import dev.isxander.yacl3.config.v2.api.autogen.*;
 import dev.isxander.yacl3.config.v2.api.autogen.Boolean;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import dev.isxander.yacl3.platform.YACLPlatform;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITDimensions;
 
 public class AITServerConfig {
 

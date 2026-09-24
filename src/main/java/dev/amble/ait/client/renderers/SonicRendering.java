@@ -3,6 +3,17 @@ package dev.amble.ait.client.renderers;
 import java.util.Locale;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.blocks.DetectorBlock;
+import dev.amble.ait.core.engine.DurableSubSystem;
+import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
+import dev.amble.ait.core.engine.impl.EngineSystem;
+import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.core.item.sonic.SonicMode;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -24,18 +35,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.blocks.DetectorBlock;
-import dev.amble.ait.core.engine.DurableSubSystem;
-import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
-import dev.amble.ait.core.engine.impl.EngineSystem;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.item.sonic.SonicMode;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.core.world.TardisServerWorld;
 
 public class SonicRendering {
     private static final Identifier SELECTED = AITMod.id("textures/marker/landing.png");

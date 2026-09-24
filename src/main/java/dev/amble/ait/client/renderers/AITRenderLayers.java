@@ -3,6 +3,7 @@ package dev.amble.ait.client.renderers;
 import java.util.Set;
 import java.util.function.Function;
 
+import dev.amble.ait.AITMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -13,8 +14,6 @@ import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-
-import dev.amble.ait.AITMod;
 
 
 @Environment(EnvType.CLIENT)

@@ -7,6 +7,7 @@ import java.util.Set;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+
 import net.minecraft.block.entity.BlockEntity;
 
 /**

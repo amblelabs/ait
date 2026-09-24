@@ -2,6 +2,9 @@ package dev.amble.ait.core.blockentities;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Dynamic;
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.blocks.MatrixEnergizerBlock;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -21,10 +24,6 @@ import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.event.PositionSource;
 import net.minecraft.world.event.Vibrations;
 import net.minecraft.world.event.listener.GameEventListener;
-
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.blocks.MatrixEnergizerBlock;
 
 public class MatrixEnergizerBlockEntity
         extends BlockEntity

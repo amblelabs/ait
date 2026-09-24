@@ -4,6 +4,9 @@ import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 import java.util.List;
 
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.FabricatorBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -29,10 +32,6 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.explosion.Explosion;
-
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blockentities.FabricatorBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 
 public class FabricatorBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
 

@@ -1,6 +1,11 @@
 package dev.amble.ait.client.renderers;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.decoration.TardisStarModel;
+import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.world.TardisServerWorld;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import org.joml.Matrix4f;
 
@@ -12,12 +17,6 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.profiler.Profiler;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.decoration.TardisStarModel;
-import dev.amble.ait.compat.DependencyChecker;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.world.TardisServerWorld;
 
 public class TardisStar {
 

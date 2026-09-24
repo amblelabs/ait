@@ -3,6 +3,11 @@ package dev.amble.ait.datagen.datagen_providers;
 
 import java.util.concurrent.CompletableFuture;
 
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.module.ModuleRegistry;
+import dev.amble.ait.module.planet.core.PlanetItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import org.jetbrains.annotations.Nullable;
@@ -13,12 +18,6 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagKey;
-
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.module.ModuleRegistry;
-import dev.amble.ait.module.planet.core.PlanetItems;
 
 public class AITItemTagProvider extends FabricTagProvider<Item> {
     public AITItemTagProvider(FabricDataOutput output,

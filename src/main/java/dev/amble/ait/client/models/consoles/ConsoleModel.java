@@ -1,13 +1,13 @@
 package dev.amble.ait.client.models.consoles;
 
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-
 import dev.amble.ait.client.models.AnimatedModel;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
 
 public interface ConsoleModel extends AnimatedModel<ConsoleBlockEntity> {
     void animateBlockEntity(ConsoleBlockEntity console, TravelHandlerBase.State state, boolean hasPower);

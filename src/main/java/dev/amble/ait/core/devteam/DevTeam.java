@@ -39,7 +39,7 @@ public class DevTeam {
     // WOW NOT EVEN ME :SOB: - Tendo // sorry - monke
 
     public static final Set<UUID> PLAYERS = Set.of(
-            LOQOR, DUZO, THEO, OURO, CLASSIC, ADDIE, VENWHOVIAN, MONKE, PAN, SATURN, 
+            LOQOR, DUZO, THEO, OURO, CLASSIC, ADDIE, VENWHOVIAN, MONKE, PAN, SATURN,
             MAGGIE, MAX, CROW, K_KING, DIAN, RHYNO, TREE, ECHO, NYX, LAKE, COSMIC, NANO, RAT
     );
 

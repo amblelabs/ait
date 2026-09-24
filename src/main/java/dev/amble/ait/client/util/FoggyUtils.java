@@ -1,6 +1,13 @@
 package dev.amble.ait.client.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.module.planet.core.space.planet.Planet;
+import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
+import dev.amble.ait.module.planet.core.space.system.Space;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.FogShape;
@@ -11,14 +18,6 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.MathHelper;
-
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.module.planet.core.space.planet.Planet;
-import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
-import dev.amble.ait.module.planet.core.space.system.Space;
 
 public class FoggyUtils {
     private static final MinecraftClient mc = MinecraftClient.getInstance();

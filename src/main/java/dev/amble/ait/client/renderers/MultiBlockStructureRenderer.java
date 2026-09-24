@@ -1,5 +1,7 @@
 package dev.amble.ait.client.renderers;
 
+import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -12,8 +14,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.BlockRenderView;
-
-import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
 
 
 public class MultiBlockStructureRenderer {

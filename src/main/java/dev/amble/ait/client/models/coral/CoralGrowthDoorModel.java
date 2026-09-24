@@ -1,13 +1,13 @@
 package dev.amble.ait.client.models.coral;
 
+import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.client.models.doors.DoorModel;
+import dev.amble.ait.client.tardis.ClientTardis;
+
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
-import dev.amble.ait.client.models.doors.DoorModel;
-import dev.amble.ait.client.tardis.ClientTardis;
 
 public class CoralGrowthDoorModel extends DoorModel {
     private final ModelPart coral;

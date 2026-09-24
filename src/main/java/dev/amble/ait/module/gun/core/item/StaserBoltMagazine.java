@@ -2,6 +2,10 @@ package dev.amble.ait.module.gun.core.item;
 
 import java.util.List;
 
+import dev.amble.ait.api.ArtronHolderItem;
+import dev.amble.ait.core.item.ZeitonShardItem;
+import dev.amble.ait.module.gun.core.entity.GunEntityTypes;
+import dev.amble.ait.module.gun.core.entity.StaserBoltEntity;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.item.TooltipContext;
@@ -17,11 +21,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ClickType;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
-
-import dev.amble.ait.api.ArtronHolderItem;
-import dev.amble.ait.core.item.ZeitonShardItem;
-import dev.amble.ait.module.gun.core.entity.GunEntityTypes;
-import dev.amble.ait.module.gun.core.entity.StaserBoltEntity;
 
 public class StaserBoltMagazine extends Item implements ArtronHolderItem {
     public StaserBoltMagazine(Settings settings) {

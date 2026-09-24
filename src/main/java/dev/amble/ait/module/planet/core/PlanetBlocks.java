@@ -1,11 +1,5 @@
 package dev.amble.ait.module.planet.core;
 
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-
-import net.minecraft.block.*;
-import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.item.Item;
-
 import dev.amble.ait.core.blocks.FlagBlock;
 import dev.amble.ait.module.planet.PlanetModule;
 import dev.amble.ait.module.planet.core.block.OxygenatorBlock;
@@ -14,6 +8,11 @@ import dev.amble.lib.datagen.util.AutomaticModel;
 import dev.amble.lib.datagen.util.NoBlockDrop;
 import dev.amble.lib.datagen.util.PickaxeMineable;
 import dev.amble.lib.item.AItemSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+
+import net.minecraft.block.*;
+import net.minecraft.block.piston.PistonBehavior;
+import net.minecraft.item.Item;
 
 public class PlanetBlocks extends BlockContainer {
 

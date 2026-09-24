@@ -4,10 +4,13 @@ import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 import java.util.List;
 
-import net.minecraft.block.*;
+import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
+import dev.amble.ait.core.engine.link.block.HorizontalFluidLinkBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
@@ -23,10 +26,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.blockentities.ArtronCollectorBlockEntity;
-import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
-import dev.amble.ait.core.engine.link.block.HorizontalFluidLinkBlock;
 
 @SuppressWarnings("deprecation")
 public class ArtronCollectorBlock extends HorizontalFluidLinkBlock implements BlockEntityProvider {

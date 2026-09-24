@@ -1,10 +1,5 @@
 package dev.amble.ait.data.schema.exterior.variant.classic;
 
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.door.DoorSchema;
@@ -12,6 +7,10 @@ import dev.amble.ait.data.schema.door.impl.ClassicDoorVariant;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.category.ClassicCategory;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 
 // a useful class for creating tardim variants as they all have the same filepath you know
 public abstract class ClassicBoxVariant extends ExteriorVariantSchema {

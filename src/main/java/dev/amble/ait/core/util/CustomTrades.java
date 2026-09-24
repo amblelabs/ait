@@ -1,15 +1,14 @@
 package dev.amble.ait.core.util;
 
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.AITVillagers;
+import dev.amble.ait.module.planet.core.PlanetBlocks;
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.village.TradeOffer;
-
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.AITVillagers;
-import dev.amble.ait.module.planet.core.PlanetBlocks;
 
 public class CustomTrades {
     public static void register() {

@@ -1,5 +1,6 @@
 package dev.amble.ait.mixin.client.experimental_screen;
 
+import dev.amble.ait.client.AITModClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -8,8 +9,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.server.integrated.IntegratedServerLoader;
-
-import dev.amble.ait.client.AITModClient;
 
 @Mixin(value = IntegratedServerLoader.class)
 public abstract class WorldOpenFlowsMixin {

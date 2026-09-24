@@ -1,14 +1,14 @@
 package dev.amble.ait.client.models.exteriors.exclusive;
 
-import net.minecraft.client.model.*;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+
+import net.minecraft.client.model.*;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 
 public class DoomExteriorModel extends SimpleExteriorModel {
     private final ModelPart doom;

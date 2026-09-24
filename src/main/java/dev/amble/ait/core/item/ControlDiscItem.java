@@ -2,6 +2,13 @@ package dev.amble.ait.core.item;
 
 import java.util.List;
 
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.item.sonic.SonicMode;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.data.Waypoint;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.item.TooltipContext;
@@ -13,14 +20,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.item.sonic.SonicMode;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.data.Waypoint;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedGlobalPos;
 
 
 public class ControlDiscItem extends AbstractCoordinateModifierItem {

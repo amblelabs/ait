@@ -3,12 +3,13 @@ package dev.amble.ait.client.util;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import dev.amble.ait.AITMod;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
@@ -16,8 +17,6 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-
-import dev.amble.ait.AITMod;
 
 /**
  * Rejects a block entity whose geometry is entirely behind the camera.

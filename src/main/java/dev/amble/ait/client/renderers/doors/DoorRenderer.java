@@ -1,6 +1,23 @@
 package dev.amble.ait.client.renderers.doors;
 
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.boti.BOTI;
+import dev.amble.ait.client.models.AnimatedModel;
+import dev.amble.ait.client.models.doors.CapsuleDoorModel;
+import dev.amble.ait.client.models.doors.exclusive.DoomDoorModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.ClientRenderPass;
+import dev.amble.ait.client.util.OffScreenCull;
+import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.core.blockentities.DoorBlockEntity;
+import dev.amble.ait.core.blocks.DoorBlock;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.BiomeHandler;
+import dev.amble.ait.data.datapack.DatapackConsole;
+import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -16,24 +33,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
-
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.client.boti.BOTI;
-import dev.amble.ait.client.models.AnimatedModel;
-import dev.amble.ait.client.models.doors.CapsuleDoorModel;
-import dev.amble.ait.client.models.doors.exclusive.DoomDoorModel;
-import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.client.util.ClientRenderPass;
-import dev.amble.ait.client.util.OffScreenCull;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.compat.DependencyChecker;
-import dev.amble.ait.core.blockentities.DoorBlockEntity;
-import dev.amble.ait.core.blocks.DoorBlock;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.BiomeHandler;
-import dev.amble.ait.data.datapack.DatapackConsole;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
-import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 
 public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRenderer<T> {
 

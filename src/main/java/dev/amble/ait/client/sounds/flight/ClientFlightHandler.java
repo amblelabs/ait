@@ -1,13 +1,13 @@
 package dev.amble.ait.client.sounds.flight;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.sound.SoundCategory;
-
 import dev.amble.ait.api.tardis.TardisClientEvents;
 import dev.amble.ait.client.sounds.ClientSoundManager;
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.sound.SoundCategory;
 
 // FIXME: god this is so stupid
 //   why does the client have to go through the trouble of finding every tardis in some radius

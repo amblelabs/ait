@@ -1,15 +1,5 @@
 package dev.amble.ait.core.tardis.control;
 
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITItems;
@@ -21,6 +11,16 @@ import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.lib.api.Identifiable;
+
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 
 
 public class Control implements Identifiable {

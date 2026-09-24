@@ -12,13 +12,6 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.util.PortalOffsets;
 import dev.amble.ait.data.Loyalty;
@@ -29,6 +22,12 @@ import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 import dev.amble.lib.client.bedrock.BedrockAnimationReference;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class DatapackExterior extends ExteriorVariantSchema implements AnimatedDoor, TravelAnimationMap.Holder {

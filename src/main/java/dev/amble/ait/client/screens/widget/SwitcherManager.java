@@ -1,12 +1,10 @@
 package dev.amble.ait.client.screens.widget;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.sounds.ClientSoundManager;
@@ -26,6 +24,7 @@ import dev.amble.ait.data.hum.Hum;
 import dev.amble.ait.registry.impl.HumRegistry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 

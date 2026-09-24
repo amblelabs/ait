@@ -1,7 +1,29 @@
 package dev.amble.ait.client.renderers.exteriors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.boti.BOTI;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.models.exteriors.SiegeModeModel;
+import dev.amble.ait.client.models.machines.ShieldsModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.ClientRenderPass;
+import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.client.util.OffScreenCull;
+import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.blocks.ExteriorBlock;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.BiomeHandler;
+import dev.amble.ait.core.tardis.handler.SiegeHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.data.datapack.DatapackConsole;
+import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -15,29 +37,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import net.minecraft.util.profiler.Profiler;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.client.boti.BOTI;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
-import dev.amble.ait.client.models.exteriors.SiegeModeModel;
-import dev.amble.ait.client.models.machines.ShieldsModel;
-import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientRenderPass;
-import dev.amble.ait.client.util.OffScreenCull;
-import dev.amble.ait.client.util.ClientTardisUtil;
-import dev.amble.ait.compat.DependencyChecker;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.blocks.ExteriorBlock;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.BiomeHandler;
-import dev.amble.ait.core.tardis.handler.SiegeHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.data.datapack.DatapackConsole;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
-import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEntityRenderer<T> {
 
