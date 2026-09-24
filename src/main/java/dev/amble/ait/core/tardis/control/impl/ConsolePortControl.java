@@ -109,7 +109,7 @@ public class ConsolePortControl extends Control {
         for (ServerPlayerEntity otherPlayer : world.getPlayers()) {
             otherPlayer.networkHandler.sendPacket(stopPacket);
         }
-        player.giveItemStack(tardis.extra().getInsertedDisc());
+        player.getInventory().offerOrDrop(tardis.extra().getInsertedDisc());
         tardis.extra().setInsertedDisc(ItemStack.EMPTY);
         currentMusic = null;
     }
