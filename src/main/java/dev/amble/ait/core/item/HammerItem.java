@@ -5,6 +5,7 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.blocks.PeanutBlock;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -61,6 +62,9 @@ public class HammerItem extends SwordItem {
             return ActionResult.PASS;
 
         Tardis tardis = consoleBlockEntity.tardis().get();
+
+        if (SecurityControl.cannotAccess(tardis.asServer(), (ServerPlayerEntity) player))
+            return ActionResult.PASS;
 
         TravelHandler travel = tardis.travel();
 
