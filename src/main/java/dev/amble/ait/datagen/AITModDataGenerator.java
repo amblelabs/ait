@@ -1358,7 +1358,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.cage.empty", "(Place this in a rift chunk)");
         provider.addTranslation("tardis.message.engine.system_is_weakened", "This System Is Showing Signs Of Weakness, But Is Still Functional!");
         provider.addTranslation("tardis.message.subsystem.requires_link", "LINK TO ENGINE VIA ARTRON CABLES");
-        provider.addTranslation("tardis.message.engine.no_space", "Engine requires a 3x3 space to function!");
 
         // Achievements
         provider.addTranslation("achievement.ait.title.root", "Adventures in Time");
@@ -2847,7 +2846,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.telepathic.home_updated", "Hogar de la TARDIS actualizado.");
         provider.addTranslation("tardis.message.control.telepathic.success", "Destino encontrado");
         provider.addTranslation("tardis.message.destination_biome", "Bioma de destino: ");
-        provider.addTranslation("tardis.message.engine.no_space", "¡El motor requiere un espacio de 3x3 para funcionar!");
         provider.addTranslation("tardis.message.engine.phasing", "MOTORES DESFASÁNDOSE");
         provider.addTranslation("tardis.message.engine.system_is_weakened", "¡Este sistema muestra señales de debilidad, pero sigue funcionando!");
         provider.addTranslation("tardis.message.growth.hint", "Lanza la matriz de TARDIS al agua para darle vida...");
