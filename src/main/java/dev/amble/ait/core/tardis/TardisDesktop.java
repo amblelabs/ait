@@ -61,21 +61,19 @@ public class TardisDesktop extends TardisComponent {
                 ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
                     BlockPos console = buf.readBlockPos();
 
-                    server.execute(() -> {
-                        if (!(player.getWorld().getBlockEntity(console) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
+                    if (!(player.getWorld().getBlockEntity(console) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
 
-                        if (tardis == null)
-                            return;
+                    if (tardis == null)
+                        return;
 
-                        if (consoleBlockEntity.isLinked() && consoleBlockEntity.getSonicScrewdriver() != null && !consoleBlockEntity.getSonicScrewdriver().isEmpty()) {
-                            player.getWorld().playSound(null, player.getBlockPos(), AITSounds.BWEEP,
-                                    SoundCategory.PLAYERS, 1f, 1f);
-                            player.sendMessage(Text.translatable("tardis.message.console.has_sonic_in_port"), true);
-                            return;
-                        }
+                    if (consoleBlockEntity.isLinked() && consoleBlockEntity.getSonicScrewdriver() != null && !consoleBlockEntity.getSonicScrewdriver().isEmpty()) {
+                        player.getWorld().playSound(null, player.getBlockPos(), AITSounds.BWEEP,
+                                SoundCategory.PLAYERS, 1f, 1f);
+                        player.sendMessage(Text.translatable("tardis.message.console.has_sonic_in_port"), true);
+                        return;
+                    }
 
-                        tardis.getDesktop().cacheConsole(console);
-                    });
+                    tardis.getDesktop().cacheConsole(console);
                 }));
     }
 
