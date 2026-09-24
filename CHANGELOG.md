@@ -203,3 +203,4 @@
 - tweak: console controls animate more slowly. The old rate was a side effect of the same work being done several times a frame | by [@duzos](https://github.com/duzos) ([#2186](https://github.com/amblelabs/ait/pull/2186))
 - Chore/actions bump | by [@vmbbi](https://github.com/vmbbi) ([#2193](https://github.com/amblelabs/ait/pull/2193))
 - bumped more actions versions cause i forgor | by [@vmbbi](https://github.com/vmbbi) ([#2194](https://github.com/amblelabs/ait/pull/2194))
+- trust bro trust | by [@vmbbi](https://github.com/vmbbi) ([#2196](https://github.com/amblelabs/ait/pull/2196))
