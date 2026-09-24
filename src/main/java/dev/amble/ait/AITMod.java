@@ -352,6 +352,10 @@ public class AITMod implements ModInitializer {
                 ServerWorld world = player.getServerWorld();
                 if (world.isChunkLoaded(pos) && world.getBlockEntity(pos) instanceof EnvironmentProjectorBlockEntity projector) {
                     RegistryKey<World> key = RegistryKey.of(RegistryKeys.WORLD, id);
+
+                    if (!WorldUtil.getProjectorWorlds().contains(server.getWorld(key)))
+                        return;
+
                     projector.setCurrentFromClient(key, player);
                 }
             });
