@@ -3,8 +3,8 @@ package dev.amble.ait.core.blocks;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
-import com.mojang.datafixers.util.Pair;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.screens.AstralMapScreen;
 import dev.amble.ait.core.AITBlockEntityTypes;
@@ -169,19 +169,22 @@ public class AstralMapBlock extends BlockWithEntity implements BlockEntityProvid
         BlockPos start = currentPos.getPos();
         RegistryKey<Biome> biomeKey = RegistryKey.of(RegistryKeys.BIOME, target);
 
-        Pair<BlockPos, RegistryEntry<Biome>> r = targetWorld.locateBiome(
+        CompletableFuture.supplyAsync(() -> targetWorld.locateBiome(
                 entry -> entry.matchesKey(biomeKey),
-                start, AITMod.CONFIG.astralMapBiomeLocatorRange, 32, 64);
-
-        if (r != null) {
-            BlockPos locatedBiome = r.getFirst();
-            int distance = (int) Math.round(Math.sqrt(locatedBiome.getSquaredDistance(start)));
-            player.sendMessage(Text.translatable("block.ait.astral_map.finder.found",
-                    locatedBiome.getX(), locatedBiome.getY(), locatedBiome.getZ(), distance), false);
-            tardis.travel().destination(destination -> destination.pos(locatedBiome));
-        } else {
-            player.sendMessage(Text.translatable("block.ait.astral_map.finder.biome_not_found"), false);
-        }
+                start, AITMod.CONFIG.astralMapBiomeLocatorRange, 32, 64), AsyncLocatorUtil.LOCATING_EXECUTOR_SERVICE).thenAcceptAsync(r -> {
+            if (r != null) {
+                BlockPos locatedBiome = r.getFirst();
+                int distance = (int) Math.round(Math.sqrt(locatedBiome.getSquaredDistance(start)));
+                player.sendMessage(Text.translatable("block.ait.astral_map.finder.found",
+                        locatedBiome.getX(), locatedBiome.getY(), locatedBiome.getZ(), distance), false);
+                tardis.travel().destination(destination -> destination.pos(locatedBiome));
+            } else {
+                player.sendMessage(Text.translatable("block.ait.astral_map.finder.biome_not_found"), false);
+            }
+        }, player.getServer()).exceptionally(e -> {
+            AITMod.LOGGER.error("Error locating biome {}", target, e);
+            return null;
+        });
     }
 
     private static void sendStructuresAndOpenScreen(ServerWorld world, ServerPlayerEntity target) {
