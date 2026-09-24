@@ -115,7 +115,6 @@ public class HammerItem extends SwordItem {
         int hammerUses = travel.getHammerUses();
 
         double fuel = tardis.fuel().getCurrentFuel();
-        double maxFuel = tardis.fuel().getMaxFuel();
 
         double fuelCost = bonus / 5.0;
 
@@ -124,7 +123,7 @@ public class HammerItem extends SwordItem {
             fuelCost += (150 * travel.speed() * hammerUses) / 7.0;
         }
 
-        if (!world.isClient() && fuel + fuelCost > maxFuel) {
+        if (!world.isClient() && fuel < fuelCost) {
             travel.crash();
 
             tardis.fuel().setCurrentFuel(0.0);
