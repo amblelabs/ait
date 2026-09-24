@@ -204,3 +204,4 @@
 - Chore/actions bump | by [@vmbbi](https://github.com/vmbbi) ([#2193](https://github.com/amblelabs/ait/pull/2193))
 - bumped more actions versions cause i forgor | by [@vmbbi](https://github.com/vmbbi) ([#2194](https://github.com/amblelabs/ait/pull/2194))
 - trust bro trust | by [@vmbbi](https://github.com/vmbbi) ([#2196](https://github.com/amblelabs/ait/pull/2196))
+- add Hailrake to dev team list | ([#2206](https://github.com/amblelabs/ait/pull/2206))
