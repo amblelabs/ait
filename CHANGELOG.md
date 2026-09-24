@@ -201,3 +201,4 @@
 - fix: a copper console generator drew its base texture over itself instead of its glow | by [@duzos](https://github.com/duzos) ([#2186](https://github.com/amblelabs/ait/pull/2186))
 - fix: a client memory leak where portal render queues grew forever while BOTI was disabled | by [@duzos](https://github.com/duzos) ([#2186](https://github.com/amblelabs/ait/pull/2186))
 - tweak: console controls animate more slowly. The old rate was a side effect of the same work being done several times a frame | by [@duzos](https://github.com/duzos) ([#2186](https://github.com/amblelabs/ait/pull/2186))
+- Chore/actions bump | by [@vmbbi](https://github.com/vmbbi) ([#2193](https://github.com/amblelabs/ait/pull/2193))
