@@ -3,32 +3,6 @@ package dev.amble.ait.core.tardis.control.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.drtheo.queue.api.ActionQueue;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.NameTagItem;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.registry.tag.StructureTags;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.structure.Structure;
-import net.minecraft.world.gen.structure.StructureKeys;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.LinkableItem;
 import dev.amble.ait.core.AITItems;
@@ -51,8 +25,36 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
 import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
+import dev.amble.ait.core.tardis.util.TardisHomeUtil;
+import dev.amble.ait.core.util.StackUtil;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.drtheo.queue.api.ActionQueue;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.NameTagItem;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList;
+import net.minecraft.registry.tag.StructureTags;
+import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.gen.structure.Structure;
+import net.minecraft.world.gen.structure.StructureKeys;
 
 public class TelepathicControl extends Control {
 
@@ -71,6 +73,49 @@ public class TelepathicControl extends Control {
 
         ItemStack held = player.getMainHandStack();
         Item type = held.getItem();
+
+        if (!leftClick && held.isOf(Items.BONE_MEAL)) {
+            if (!TardisHomeUtil.isParkedAtExactHome(tardis)) {
+                player.sendMessage(Text.translatable("message.ait.telepathic.coral_requires_home"), true);
+                return Result.FAILURE;
+            }
+
+            int amount = Math.max(0, AITMod.CONFIG.telepathicCoralBonemealCount);
+            if (amount == 0 || !tardis.homeSystems().markCoralHarvest(world.getServer())) {
+                player.sendMessage(Text.translatable("message.ait.telepathic.coral_cooldown"), true);
+                return Result.FAILURE;
+            }
+
+            StackUtil.spawn(world, console.up(), new ItemStack(AITItems.CORAL_FRAGMENT, amount));
+            if (!player.isCreative())
+                held.decrement(1);
+            return Result.SUCCESS;
+        }
+
+        if (!leftClick && held.isOf(Items.SHEARS)) {
+            if (!TardisHomeUtil.isParkedAtExactHome(tardis)) {
+                player.sendMessage(Text.translatable("message.ait.telepathic.coral_requires_home"), true);
+                return Result.FAILURE;
+            }
+
+            int configuredMin = Math.max(0, AITMod.CONFIG.telepathicCoralShearsMin);
+            int configuredMax = Math.max(0, AITMod.CONFIG.telepathicCoralShearsMax);
+            int min = Math.min(configuredMin, configuredMax);
+            int max = Math.max(configuredMin, configuredMax);
+            int amount = max == min ? min : min + AITMod.RANDOM.nextInt(max - min + 1);
+
+            if (amount > 0)
+                StackUtil.spawn(world, console.up(), new ItemStack(AITItems.CORAL_FRAGMENT, amount));
+
+            if (!player.isCreative())
+                held.damage(1, player, broken -> broken.sendToolBreakStatus(Hand.MAIN_HAND));
+
+            tardis.alarm().enable();
+            tardis.homeSystems().rejectHarvest(player, console);
+            tardis.loyalty().subLevel(player,
+                    Math.max(0, AITMod.CONFIG.telepathicCoralShearsLoyaltyPenalty));
+            return Result.SUCCESS;
+        }
 
         if (type == Items.BRICK) {
             tardis.siege().texture().set(SiegeHandler.BRICK_TEXTURE);

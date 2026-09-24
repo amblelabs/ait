@@ -3,8 +3,36 @@ package dev.amble.ait.core.tardis.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.core.AITDamageTypes;
+import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.engine.CoreBoundDurableSubSystem;
+import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.engine.impl.HomeBoundSubSystem;
+import dev.amble.ait.core.lock.LockedDimension;
+import dev.amble.ait.core.lock.LockedDimensionRegistry;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.data.Exclude;
+import dev.amble.ait.data.properties.Property;
+import dev.amble.ait.data.properties.Value;
+import dev.amble.ait.data.properties.bool.BoolProperty;
+import dev.amble.ait.data.properties.bool.BoolValue;
+import dev.amble.ait.data.properties.integer.IntProperty;
+import dev.amble.ait.data.properties.integer.IntValue;
+import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
+import dev.amble.ait.registry.impl.CategoryRegistry;
+import dev.amble.ait.registry.impl.DesktopRegistry;
+import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedGlobalPos;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -25,33 +53,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.KeyedTardisComponent;
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.api.tardis.TardisTickable;
-import dev.amble.ait.core.AITDamageTypes;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.lock.LockedDimension;
-import dev.amble.ait.core.lock.LockedDimensionRegistry;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.properties.Property;
-import dev.amble.ait.data.properties.Value;
-import dev.amble.ait.data.properties.bool.BoolProperty;
-import dev.amble.ait.data.properties.bool.BoolValue;
-import dev.amble.ait.data.properties.integer.IntProperty;
-import dev.amble.ait.data.properties.integer.IntValue;
-import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
-import dev.amble.ait.registry.impl.CategoryRegistry;
-import dev.amble.ait.registry.impl.DesktopRegistry;
-import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
-import dev.amble.lib.data.DirectedGlobalPos;
 
 public class InteriorChangingHandler extends KeyedTardisComponent implements TardisTickable {
     public static final Identifier CHANGE_DESKTOP = AITMod.id("change_desktop");
@@ -208,6 +209,9 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         restorationChestContents = new ArrayList<>();
 
         for (SubSystem system : tardis.subsystems()) {
+            if (system instanceof HomeBoundSubSystem || system instanceof CoreBoundDurableSubSystem)
+                continue;
+
             if (!system.isReal())
                 continue;
 
@@ -217,6 +221,9 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
     }
 
     private void changeInterior() {
+        this.storeHomeBoundSubsystems();
+        this.storeCoreBoundDurableSubsystems();
+
         tardis.getDesktop().changeInterior(this.getQueuedInterior(), true, true)
                 .thenRun(() -> {
                     this.queued.set(false);
@@ -248,6 +255,34 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                     tardis.door().setLocked(false);
                     Scheduler.get().runTaskLater(() -> tardis.door().setDoorParticles(null), TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 3);
                 }).execute();
+    }
+
+    private void storeCoreBoundDurableSubsystems() {
+        if (this.restorationChestContents == null)
+            this.restorationChestContents = new ArrayList<>();
+
+        for (SubSystem system : this.tardis.subsystems()) {
+            if (!(system instanceof CoreBoundDurableSubSystem durable))
+                continue;
+
+            List<ItemStack> stacks = durable.extractForInteriorChange();
+            this.restorationChestContents.addAll(stacks);
+            AITMod.LOGGER.debug("Storing durable core-installed subsystem, {} => {}", system.getId(), stacks);
+        }
+    }
+
+    private void storeHomeBoundSubsystems() {
+        if (this.restorationChestContents == null)
+            this.restorationChestContents = new ArrayList<>();
+
+        for (SubSystem system : this.tardis.subsystems()) {
+            if (!(system instanceof HomeBoundSubSystem homeBound))
+                continue;
+
+            List<ItemStack> stacks = homeBound.extractForInteriorChange();
+            this.restorationChestContents.addAll(stacks);
+            AITMod.LOGGER.debug("Storing home-bound subsystem, {} => {}", system.getId(), stacks);
+        }
     }
 
     private void playReconfigureCompleteSound() {

@@ -9,6 +9,25 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Either;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.api.tardis.WorldWithTardis;
+import dev.amble.ait.core.events.ServerCrashEvent;
+import dev.amble.ait.core.events.WorldSaveEvent;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisManager;
+import dev.amble.ait.core.tardis.manager.BiodataRestorationManager;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.manager.TardisBuilder;
+import dev.amble.ait.core.tardis.manager.TardisFileManager;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.data.Exclude;
+import dev.amble.ait.data.TardisMap;
+import dev.amble.ait.data.properties.Value;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.multidim.MultiDim;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -25,25 +44,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.api.tardis.WorldWithTardis;
-import dev.amble.ait.core.events.ServerCrashEvent;
-import dev.amble.ait.core.events.WorldSaveEvent;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisManager;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.tardis.manager.TardisBuilder;
-import dev.amble.ait.core.tardis.manager.TardisFileManager;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.TardisMap;
-import dev.amble.ait.data.properties.Value;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public abstract class DeprecatedServerTardisManager extends TardisManager<ServerTardis, MinecraftServer> implements TardisFileManager.TardisLoader<ServerTardis> {
 
@@ -65,10 +65,14 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
 
         ServerTickEvents.START_SERVER_TICK.register(server -> {
             this.forEach(tardis -> {
-                if (tardis.isRemoved() || !tardis.shouldTick())
+                if (tardis.isRemoved())
                     return;
 
-                tardis.tick(server);
+                tardis.homeSystems().tickDormant(server);
+                tardis.subsystems().tickDormant(server);
+
+                if (tardis.shouldTick())
+                    tardis.tick(server);
             });
         });
     }
@@ -191,6 +195,7 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
         MultiDim.get(server).queueRemove(TardisServerWorld.keyForTardis(tardis));
 
         this.sendTardisRemoval(server, tardis);
+        BiodataRestorationManager.removeTardis(server, tardis.getUuid());
 
         this.lookup.remove(tardis.getUuid());
         this.fileManager.delete(server, tardis.getUuid());

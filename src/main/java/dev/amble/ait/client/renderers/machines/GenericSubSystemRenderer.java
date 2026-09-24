@@ -1,20 +1,19 @@
 package dev.amble.ait.client.renderers.machines;
 
+import dev.amble.ait.client.models.machines.GenericSubSystemModel;
+import dev.amble.ait.core.engine.block.generic.GenericStructureSystemBlockEntity;
 import org.joml.Vector3f;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.client.models.machines.GenericSubSystemModel;
-import dev.amble.ait.core.engine.block.generic.GenericStructureSystemBlockEntity;
 
 public class GenericSubSystemRenderer<T extends GenericStructureSystemBlockEntity> implements BlockEntityRenderer<T> {
     private final GenericSubSystemModel model;
@@ -46,7 +45,10 @@ public class GenericSubSystemRenderer<T extends GenericStructureSystemBlockEntit
             matrices.translate(0, -0.95f + (offset / 2), 0);
 
             Vector3f scale = client.getItemRenderer().getModel(stack, entity.getWorld(), null, 0).getTransformation().firstPersonRightHand.scale;
-            matrices.scale(0.9f, 0.9f, 0.9f);
+            boolean isLargeHomeModule = stack.isOf(Items.BEACON) || stack.isOf(Items.ENDER_CHEST)
+                    || stack.isOf(Items.SCULK_CATALYST);
+            float itemScale = isLargeHomeModule ? 1.85f : 0.9f;
+            matrices.scale(itemScale, itemScale, itemScale);
             matrices.scale(scale.x, scale.y, scale.z);
 
             client.getItemRenderer().renderItem(stack, ModelTransformationMode.GROUND, 0xf000f0,

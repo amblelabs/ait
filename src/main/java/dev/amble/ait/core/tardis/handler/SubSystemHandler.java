@@ -5,11 +5,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import com.google.gson.*;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.server.MinecraftServer;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
@@ -21,6 +16,10 @@ import dev.amble.ait.core.engine.registry.SubSystemRegistry;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.enummap.ConcurrentEnumMap;
 import dev.amble.lib.util.ArrayIterator;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+
+import net.minecraft.server.MinecraftServer;
 
 public class SubSystemHandler extends KeyedTardisComponent implements TardisTickable, Iterable<SubSystem> {
     @Exclude
@@ -29,6 +28,18 @@ public class SubSystemHandler extends KeyedTardisComponent implements TardisTick
 
     static {
         TardisEvents.OUT_OF_FUEL.register(tardis -> tardis.fuel().disablePower());
+        TardisEvents.LOSE_POWER.register(tardis -> tardis.subsystems().ejectHomeBoundSystems());
+        TardisEvents.ENTER_FLIGHT.register(tardis -> tardis.subsystems().ejectHomeBoundSystems());
+        TardisEvents.START_FALLING.register(tardis -> tardis.subsystems().ejectHomeBoundSystems());
+        TardisEvents.SUBSYSTEM_DISABLE.register(system -> {
+            if (system instanceof HomeBoundSubSystem homeBound) {
+                homeBound.eject();
+                return;
+            }
+
+            if (system.getId() == SubSystem.Id.LIFE_SUPPORT && system.tardis() != null)
+                system.tardis().subsystems().ejectLifeSupportBoundSystems();
+        });
         TardisEvents.LANDED.register(tardis -> {
             if (tardis.travel().autopilot()) {
                 if (tardis.travel().isCrashing())
@@ -107,6 +118,30 @@ public class SubSystemHandler extends KeyedTardisComponent implements TardisTick
         }
     }
 
+    public void tickDormant(MinecraftServer server) {
+        if (Math.floorMod(this.tardis.getUuid().hashCode(), 20) != Math.floorMod(server.getTicks(), 20))
+            return;
+
+        for (SubSystem next : this) {
+            if (next instanceof HomeBoundSubSystem homeBound)
+                homeBound.tickDormant(server);
+        }
+    }
+
+    public void ejectHomeBoundSystems() {
+        for (SubSystem next : this) {
+            if (next instanceof HomeBoundSubSystem homeBound)
+                homeBound.eject();
+        }
+    }
+
+    public void ejectLifeSupportBoundSystems() {
+        for (SubSystem next : this) {
+            if (next instanceof HomeBoundSubSystem homeBound && homeBound.requiresLifeSupport())
+                homeBound.eject();
+        }
+    }
+
     public void repairAll() {
         AITMod.LOGGER.info("Repairing all subsystems for {}", this.tardis);
 
@@ -144,6 +179,23 @@ public class SubSystemHandler extends KeyedTardisComponent implements TardisTick
 
     public ChameleonCircuit chameleon() {
         return this.get(SubSystem.Id.CHAMELEON);
+    }
+
+    public BeaconEmanation beaconEmanation() {
+        return this.get(SubSystem.Id.BEACON_EMANATION);
+    }
+
+
+    public SculkCatalystCollector sculkCatalystCollector() {
+        return this.get(SubSystem.Id.SCULK_CATALYST_COLLECTOR);
+    }
+
+    public EnderChestCollector enderChestCollector() {
+        return this.get(SubSystem.Id.ENDER_CHEST_COLLECTOR);
+    }
+
+    public BiodataRestoration biodataRestoration() {
+        return this.get(SubSystem.Id.BIODATA_RESTORATION);
     }
 
     @ApiStatus.Internal

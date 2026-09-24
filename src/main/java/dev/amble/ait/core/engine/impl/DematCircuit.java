@@ -1,15 +1,15 @@
 package dev.amble.ait.core.engine.impl;
 
 
-import net.minecraft.item.Item;
-
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.engine.DurableSubSystem;
+import dev.amble.ait.core.engine.CoreBoundDurableSubSystem;
 import dev.amble.ait.core.engine.StructureHolder;
 import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
 
-public class DematCircuit extends DurableSubSystem implements StructureHolder {
+import net.minecraft.item.Item;
+
+public class DematCircuit extends CoreBoundDurableSubSystem implements StructureHolder {
 
     static {
         TardisEvents.DEMAT.register(tardis -> {

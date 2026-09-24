@@ -7,10 +7,13 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import com.google.gson.*;
-
 import dev.amble.ait.AITMod;
+import dev.amble.ait.core.engine.CoreInstallableSubSystem;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.lib.register.Registry;
+
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
 public class SubSystemRegistry implements Registry {
 
@@ -18,6 +21,7 @@ public class SubSystemRegistry implements Registry {
 
     private final Map<String, SubSystem.IdLike> REGISTRY = new HashMap<>();
     private SubSystem.IdLike[] LOOKUP;
+    private volatile Map<Item, SubSystem.IdLike> itemLookup;
 
     private boolean frozen = false;
 
@@ -72,6 +76,32 @@ public class SubSystemRegistry implements Registry {
 
     public Collection<SubSystem.IdLike> getValues() {
         return REGISTRY.values();
+    }
+
+    public SubSystem.IdLike get(ItemStack stack) {
+        if (stack == null || stack.isEmpty())
+            return null;
+
+        if (this.itemLookup == null)
+            this.createItemLookup();
+
+        return this.itemLookup.get(stack.getItem());
+    }
+
+    private synchronized void createItemLookup() {
+        if (this.itemLookup != null)
+            return;
+
+        Map<Item, SubSystem.IdLike> lookup = new HashMap<>();
+        if (this.LOOKUP != null) {
+            for (SubSystem.IdLike id : this.LOOKUP) {
+                SubSystem system = id.create();
+                if (system instanceof CoreInstallableSubSystem && system.asItem() != null)
+                    lookup.putIfAbsent(system.asItem(), id);
+            }
+        }
+
+        this.itemLookup = lookup;
     }
 
     public static SubSystemRegistry getInstance() {

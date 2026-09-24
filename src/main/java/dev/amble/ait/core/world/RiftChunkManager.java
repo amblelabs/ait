@@ -1,6 +1,9 @@
 package dev.amble.ait.core.world;
 
 import com.mojang.serialization.Codec;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.events.ServerChunkEvents;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 
@@ -13,10 +16,6 @@ import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.ProtoChunk;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.events.ServerChunkEvents;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 @SuppressWarnings("UnstableApiUsage")
 public record RiftChunkManager(ServerWorld world) {
@@ -62,6 +61,43 @@ public record RiftChunkManager(ServerWorld world) {
             return 0;
 
         return protoChunk.getAttachedOrCreate(ARTRON, () -> (double) world.getRandom().nextBetween(MIN_ARTRON_AMOUNT, MAX_ARTRON_AMOUNT));
+    }
+
+    /**
+     * Reads fuel from an already loaded rift chunk without generating or loading
+     * candidate chunks while an exact-home TARDIS scans its surroundings.
+     */
+    public double getLoadedArtron(ChunkPos pos) {
+        if (!this.isRiftChunk(pos) || !this.world.getChunkManager().isChunkLoaded(pos.x, pos.z))
+            return 0;
+
+        Chunk chunk = this.world.getChunkManager().getChunk(pos.x, pos.z, ChunkStatus.FULL, false);
+        if (chunk == null)
+            return 0;
+
+        return chunk.getAttachedOrCreate(ARTRON,
+                () -> (double) world.getRandom().nextBetween(MIN_ARTRON_AMOUNT, MAX_ARTRON_AMOUNT));
+    }
+
+    public double drainLoadedFuel(ChunkPos pos, double amount) {
+        if (!this.isRiftChunk(pos) || !Double.isFinite(amount) || amount <= 0)
+            return 0;
+        if (!this.world.getChunkManager().isChunkLoaded(pos.x, pos.z))
+            return 0;
+
+        Chunk chunk = this.world.getChunkManager().getChunk(pos.x, pos.z, ChunkStatus.FULL, false);
+        if (chunk == null)
+            return 0;
+
+        double current = chunk.getAttachedOrCreate(ARTRON,
+                () -> (double) world.getRandom().nextBetween(MIN_ARTRON_AMOUNT, MAX_ARTRON_AMOUNT));
+        if (!Double.isFinite(current) || current <= 0)
+            return 0;
+
+        double consumed = Math.min(current, Math.max(0, amount));
+        double remaining = current - consumed;
+        chunk.setAttached(ARTRON, remaining);
+        return consumed;
     }
 
     public double getMaxArtron(ChunkPos pos) {
