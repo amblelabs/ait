@@ -38,6 +38,15 @@ public class PaintingBOTI extends BOTI {
 
         stack.translate(0, 0, -0.125);
 
+        boolean stencil = GL11.glIsEnabled(GL11.GL_STENCIL_TEST);
+        int func = GL11.glGetInteger(GL11.GL_STENCIL_FUNC);
+        int ref = GL11.glGetInteger(GL11.GL_STENCIL_REF);
+        int valueMask = GL11.glGetInteger(GL11.GL_STENCIL_VALUE_MASK);
+        int writeMask = GL11.glGetInteger(GL11.GL_STENCIL_WRITEMASK);
+        int fail = GL11.glGetInteger(GL11.GL_STENCIL_FAIL);
+        int zFail = GL11.glGetInteger(GL11.GL_STENCIL_PASS_DEPTH_FAIL);
+        int zPass = GL11.glGetInteger(GL11.GL_STENCIL_PASS_DEPTH_PASS);
+
         // Enable stencil testing and clear the stencil buffer
         GL11.glEnable(GL11.GL_STENCIL_TEST);
         GL11.glStencilMask(0xFF);
@@ -72,7 +81,12 @@ public class PaintingBOTI extends BOTI {
 
         BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
 
-        GL11.glDisable(GL11.GL_STENCIL_TEST);
+        GL11.glStencilFunc(func, ref, valueMask);
+        GL11.glStencilOp(fail, zFail, zPass);
+        GL11.glStencilMask(writeMask);
+
+        if (!stencil)
+            GL11.glDisable(GL11.GL_STENCIL_TEST);
 
         RenderSystem.depthMask(true);
 
