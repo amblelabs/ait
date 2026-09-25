@@ -14,6 +14,7 @@ import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.client.util.OffScreenCull;
 import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.compat.iris.IrisCompat;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.tardis.Tardis;
@@ -148,7 +149,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         }
 
         profiler.visit("ait_exterior_enqueued");
-        if (variant.parent().hasPortals() || !AITModClient.skipBuiltInBOTI()) BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
+        if (!IrisCompat.isRenderingShadowPass() && (variant.parent().hasPortals() || !AITModClient.skipBuiltInBOTI())) BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
     }
 
     /** The largest axis of a non uniform scale, since the bound is a sphere. */

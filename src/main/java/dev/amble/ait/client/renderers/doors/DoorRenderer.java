@@ -11,6 +11,7 @@ import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.util.OffScreenCull;
 import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.compat.iris.IrisCompat;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blocks.DoorBlock;
 import dev.amble.ait.core.tardis.Tardis;
@@ -187,7 +188,7 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
             }
         }
 
-        if ((tardis.door().getLeftRot() > 0 || this.variant.hasTransparentDoors()) && !tardis.isGrowth() && !AITModClient.skipBuiltInBOTI())
+        if (!IrisCompat.isRenderingShadowPass() && (tardis.door().getLeftRot() > 0 || this.variant.hasTransparentDoors()) && !tardis.isGrowth() && !AITModClient.skipBuiltInBOTI())
             BOTI.DOOR_RENDER_QUEUE.add(entity);
 
         matrices.pop();
