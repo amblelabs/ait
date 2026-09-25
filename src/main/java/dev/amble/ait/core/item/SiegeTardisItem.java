@@ -58,8 +58,9 @@ public class SiegeTardisItem extends LinkableItem {
             return;
         }
 
-        if (!tardis.siege().isActive()) {
+        if (!tardis.siege().isSiegeBeingHeld()) {
             tardis.setSiegeBeingHeld(null);
+            stack.setCount(0);
             return;
         }
 
@@ -67,10 +68,6 @@ public class SiegeTardisItem extends LinkableItem {
             tardis.siege().setSiegeBeingHeld(player.getUuid());
 
         tardis.travel().forcePosition(fromEntity(entity));
-
-        if (!tardis.isSiegeBeingHeld()) {
-            tardis.setSiegeBeingHeld(entity.getUuid());
-        }
     }
 
 
@@ -91,7 +88,7 @@ public class SiegeTardisItem extends LinkableItem {
         if (tardis == null)
             return ActionResult.CONSUME;
 
-        if (!tardis.siege().isActive()) {
+        if (!tardis.siege().isSiegeBeingHeld()) {
             tardis.setSiegeBeingHeld(null);
             return ActionResult.SUCCESS;
         }
@@ -121,7 +118,7 @@ public class SiegeTardisItem extends LinkableItem {
     }
 
     public static void pickupTardis(Tardis tardis, ServerPlayerEntity player) {
-        if (tardis.travel().handbrake())
+        if (tardis.travel().handbrake() || player.getInventory().getEmptySlot() == -1)
             return;
 
         tardis.travel().deleteExterior();

@@ -36,7 +36,9 @@ public class ServerWorldMixin {
                 return;
 
             // kill ourselves and place down the exterior
-            SiegeTardisItem.placeTardis(found, SiegeTardisItem.fromEntity(entity));
+            if (found.siege().isSiegeBeingHeld())
+                SiegeTardisItem.placeTardis(found, SiegeTardisItem.fromEntity(entity));
+
             entity.kill();
         }
     }
