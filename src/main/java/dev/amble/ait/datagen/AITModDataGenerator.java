@@ -977,6 +977,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.lockDimensions", "Toggle Lockable Dimensions");
         provider.addTranslation("yacl3.config.ait:server.rwfEnabled", "[EXPERIMENTAL] Toggle RWF");
         provider.addTranslation("yacl3.config.ait:server.allowPortalsBoti", "Toggle Immersive Portals BOTI");
+        provider.addTranslation("yacl3.config.ait:server.allowPortalsInteraction", "Toggle Immersive Portals Door Interaction");
         provider.addTranslation("yacl3.config.ait:server.tntCanTeleportThroughDoors", "Toggle TNT Door Teleporting");
         provider.addTranslation("yacl3.config.ait:server.hypercubesEnabled", "Toggle Hypercubes");
         provider.addTranslation("yacl3.config.ait:server.handlesLevenshteinDistance", "Levenshtein Distance For Handles");

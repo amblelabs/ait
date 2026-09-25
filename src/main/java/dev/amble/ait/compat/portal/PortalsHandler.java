@@ -251,7 +251,7 @@ public class PortalsHandler extends KeyedTardisComponent {
         portal.setDestination(exteriorAdjust);
 
         //portal.renderingMergable = true;w
-        portal.setInteractable(false);
+        portal.setInteractable(AITMod.CONFIG.allowPortalsInteraction);
         portal.hasCrossPortalCollision = false;
         portal.setIsVisible(open);
         portal.setTeleportable(open);
