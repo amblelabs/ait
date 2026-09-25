@@ -205,3 +205,5 @@
 - bumped more actions versions cause i forgor | by [@vmbbi](https://github.com/vmbbi) ([#2194](https://github.com/amblelabs/ait/pull/2194))
 - trust bro trust | by [@vmbbi](https://github.com/vmbbi) ([#2196](https://github.com/amblelabs/ait/pull/2196))
 - add Hailrake to dev team list | ([#2206](https://github.com/amblelabs/ait/pull/2206))
+- fix: console monitor animations are visible again on Renaissance and Toyota | by [@duzos](https://github.com/duzos) ([#2191](https://github.com/amblelabs/ait/pull/2191))
+- fix: emissive lights no longer draw through the panels in front of them | by [@duzos](https://github.com/duzos) ([#2191](https://github.com/amblelabs/ait/pull/2191))
