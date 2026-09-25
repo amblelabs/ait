@@ -615,7 +615,7 @@ public class AITModClient implements ClientModInitializer {
         }
 
         ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
-        AnimatedModel model = variant.getDoor().model();
+        AnimatedModel model = variant.getDoor().getCachedModel();
 
         profiler.push("ait:boti_door");
 

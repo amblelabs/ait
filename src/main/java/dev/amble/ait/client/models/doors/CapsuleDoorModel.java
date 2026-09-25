@@ -113,8 +113,7 @@ public class CapsuleDoorModel extends DoorModel {
             this.body.getChild("doors").getChild("door_right").yaw = (float) -Math.toRadians(maxRot*door.getRightRot());
         }
 
-        if (AITModClient.CONFIG.enableTardisBOTI)
-            this.getPart().getChild("middle").getChild("back").visible = false;
+        this.getPart().getChild("middle").getChild("back").visible = !AITModClient.CONFIG.enableTardisBOTI;
 
         super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);
 

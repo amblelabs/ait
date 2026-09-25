@@ -206,7 +206,7 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
 
         if (this.variant != variant) {
             this.variant = variant;
-            this.model = variant.getDoor().model();
+            this.model = variant.getDoor().getCachedModel();
         }
     }
 
