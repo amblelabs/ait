@@ -44,7 +44,10 @@ public class ClientFlightMusicHandler extends SoundHandler {
     public void tick(MinecraftClient client) {
         ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
 
-        if (tardis == null) return;
+        if (tardis == null) {
+            this.stopSounds();
+            return;
+        }
 
         if (this.sounds == null)
             this.generate();

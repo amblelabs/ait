@@ -38,13 +38,7 @@ public class ClientHumHandler extends SoundHandler {
     }
 
     private static void refresh() {
-        if (MinecraftClient.getInstance().world == null)
-            return;
-
-        ClientHumHandler handler = ClientSoundManager.getHum();
-        handler.stopSounds();
-        handler.current = null;
-        handler.needsReinit = true;
+        ClientSoundManager.getHum().reset();
     }
 
     protected ClientHumHandler() {
@@ -67,7 +61,17 @@ public class ClientHumHandler extends SoundHandler {
     }
 
     public void onSynced() {
+        this.reset();
         this.sounds = registryToList();
+    }
+
+    public void reset() {
+        if (this.current != null)
+            this.stopSound(this.current);
+
+        this.stopSounds();
+        this.current = null;
+        this.needsReinit = true;
     }
 
     public LoopingSound getHum(ClientTardis tardis) {
@@ -136,12 +140,12 @@ public class ClientHumHandler extends SoundHandler {
         if (this.sounds == null)
             this.generateHums();
 
-        if (this.suppressed) {
-            this.stopSounds();
+        if (this.suppressed || tardis == null) {
+            this.reset();
             return;
         }
 
-        if (this.needsReinit && tardis != null) {
+        if (this.needsReinit) {
             this.needsReinit = false;
             this.current = null;
             this.getHum(tardis);
