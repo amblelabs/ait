@@ -224,6 +224,7 @@ public class PortalsHandler extends KeyedTardisComponent {
 
         //portal.renderingMergable = true;w
         portal.setInteractable(false);
+        portal.hasCrossPortalCollision = false;
         portal.getWorld().spawnEntity(portal);
 
         return portal;
