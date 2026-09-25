@@ -13,6 +13,7 @@ import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blockentities.EngineBlockEntity;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -58,25 +59,25 @@ public class TardisDesktop extends TardisComponent {
         CORNERS = new Corners(first.multiply(-1), first);
 
         ServerPlayNetworking.registerGlobalReceiver(TardisDesktop.CACHE_CONSOLE,
-                ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+                ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
                     BlockPos console = buf.readBlockPos();
 
-                    server.execute(() -> {
-                        if (!(player.getWorld().getBlockEntity(console) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
+                    if (!player.getWorld().isChunkLoaded(console)) return;
 
-                        if (tardis == null)
-                            return;
+                    if (!(player.getWorld().getBlockEntity(console) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
 
-                        if (consoleBlockEntity.isLinked() && consoleBlockEntity.getSonicScrewdriver() != null && !consoleBlockEntity.getSonicScrewdriver().isEmpty()) {
-                            player.getWorld().playSound(null, player.getBlockPos(), AITSounds.BWEEP,
-                                    SoundCategory.PLAYERS, 1f, 1f);
-                            player.sendMessage(Text.translatable("tardis.message.console.has_sonic_in_port"), true);
-                            return;
-                        }
+                    if (tardis == null)
+                        return;
 
-                        tardis.getDesktop().cacheConsole(console);
-                    });
-                }));
+                    if (consoleBlockEntity.isLinked() && consoleBlockEntity.getSonicScrewdriver() != null && !consoleBlockEntity.getSonicScrewdriver().isEmpty()) {
+                        player.getWorld().playSound(null, player.getBlockPos(), AITSounds.BWEEP,
+                                SoundCategory.PLAYERS, 1f, 1f);
+                        player.sendMessage(Text.translatable("tardis.message.console.has_sonic_in_port"), true);
+                        return;
+                    }
+
+                    tardis.getDesktop().cacheConsole(console);
+                })));
     }
 
     private boolean changingDesktop = false;

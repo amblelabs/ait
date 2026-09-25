@@ -10,6 +10,7 @@ import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
@@ -34,16 +35,22 @@ public class SonicHandler extends KeyedTardisComponent implements ArtronHolderIt
                                                                                 // keyhole
     static {
         ServerPlayNetworking.registerGlobalReceiver(CHANGE_SONIC,
-                ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+                ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
                     Identifier id = buf.readIdentifier();
                     BlockPos pos = buf.readBlockPos();
-                    server.execute(() -> {
-                        if (!tardis.isUnlocked(SonicRegistry.getInstance().get(id))) return;
 
-                        if (!(tardis.world().getBlockEntity(pos) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
+                    if (!tardis.isUnlocked(SonicRegistry.getInstance().get(id))) return;
 
-                        SonicItem.setSchema(consoleBlockEntity.getSonicScrewdriver(), id);});
-                }));
+                    if (!tardis.world().isChunkLoaded(pos)) return;
+
+                    if (!(tardis.world().getBlockEntity(pos) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
+
+                    ItemStack sonic = consoleBlockEntity.getSonicScrewdriver();
+
+                    if (sonic.isEmpty()) return;
+
+                    SonicItem.setSchema(sonic, id);
+                })));
         TardisEvents.DEMAT.register(tardis ->
                 tardis.sonic().getExteriorSonic() != null ? TardisEvents.Interaction.FAIL : TardisEvents.Interaction.PASS);
     }

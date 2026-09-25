@@ -929,7 +929,6 @@
   "yacl3.config.ait:server.astralMapBiomeLocatorRange": "星圖生物群落查找器方塊半徑",
   "yacl3.config.ait:server.category.server": "AIT(伺服端)",
   "yacl3.config.ait:server.crashSoundVolume": "塔迪斯墜毀聲音量",
-  "yacl3.config.ait:server.disableSafeguards": "停用安全保護",
   "yacl3.config.ait:server.flightSoundVolume": "飛行聲音量",
   "yacl3.config.ait:server.ghostMonument": "幽靈紀念碑",
   "yacl3.config.ait:server.hypercubesEnabled": "啟用超立方體",

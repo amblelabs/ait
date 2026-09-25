@@ -8,6 +8,7 @@ import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.core.util.StackUtil;
@@ -34,20 +35,18 @@ public class TardisExterior extends TardisComponent {
     private ExteriorVariantSchema variant;
 
     static {
-        ServerPlayNetworking.registerGlobalReceiver(CHANGE_EXTERIOR, ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(CHANGE_EXTERIOR, ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
             boolean variantChange = buf.readBoolean();
             Identifier variantValue = buf.readIdentifier();
 
             ExteriorVariantSchema schema = ExteriorVariantRegistry.getInstance()
                     .get(variantValue);
 
-            server.execute(() -> {
-                if (!tardis.getExterior().update(schema, variantChange))
-                    return;
+            if (!tardis.getExterior().update(schema, variantChange))
+                return;
 
-                StackUtil.playBreak(player);
-            });
-        }));
+            StackUtil.playBreak(player);
+        })));
     }
 
     private boolean update(ExteriorVariantSchema variant, boolean variantChange) {

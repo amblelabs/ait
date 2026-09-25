@@ -86,6 +86,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
@@ -276,6 +277,9 @@ public class AITMod implements ModInitializer {
                     String landingCode = buf.readString();
 
                     server.execute(() -> {
+                        if (player.getEyePos().squaredDistanceTo(pos.toCenterPos()) > ServerPlayNetworkHandler.MAX_BREAK_SQUARED_DISTANCE)
+                            return;
+
                         LandingPadRegion region = LandingPadManager.getInstance((ServerWorld) player.getWorld()).getRegionAt(pos);
 
                         if (region == null)
@@ -283,7 +287,7 @@ public class AITMod implements ModInitializer {
 
                         region.setLandingCode(landingCode);
                         LandingPadManager.Network.syncTracked(LandingPadManager.Network.Action.ADD, player.getServerWorld(),
-                                new ChunkPos(player.getBlockPos()));
+                                new ChunkPos(pos));
                     });
                 });
 
@@ -327,6 +331,10 @@ public class AITMod implements ModInitializer {
 
             server.execute(() -> {
                 World world = player.getWorld();
+
+                if (player.getEyePos().squaredDistanceTo(pos.toCenterPos()) > ServerPlayNetworkHandler.MAX_BREAK_SQUARED_DISTANCE)
+                    return;
+
                 BlockState state = world.getBlockState(pos);
 
                 if (!(world.getBlockEntity(pos) instanceof EnvironmentProjectorBlockEntity projector))
@@ -343,8 +351,13 @@ public class AITMod implements ModInitializer {
             Identifier id = buf.readIdentifier();
             server.execute(() -> {
                 ServerWorld world = player.getServerWorld();
-                if (world != null && world.getBlockEntity(pos) instanceof dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity projector) {
+                if (player.getEyePos().squaredDistanceTo(pos.toCenterPos()) <= ServerPlayNetworkHandler.MAX_BREAK_SQUARED_DISTANCE
+                        && world.getBlockEntity(pos) instanceof EnvironmentProjectorBlockEntity projector) {
                     RegistryKey<World> key = RegistryKey.of(RegistryKeys.WORLD, id);
+
+                    if (!WorldUtil.getProjectorWorlds().contains(server.getWorld(key)))
+                        return;
+
                     projector.setCurrentFromClient(key, player);
                 }
             });
@@ -356,7 +369,8 @@ public class AITMod implements ModInitializer {
             float pitch = buf.readFloat();
             server.execute(() -> {
                 ServerWorld world = player.getServerWorld();
-                if (world != null && world.getBlockEntity(pos) instanceof dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity projector) {
+                if (player.getEyePos().squaredDistanceTo(pos.toCenterPos()) <= ServerPlayNetworkHandler.MAX_BREAK_SQUARED_DISTANCE
+                        && world.getBlockEntity(pos) instanceof EnvironmentProjectorBlockEntity projector) {
                     projector.setAnglesFromClient(yaw, pitch, player);
                 }
             });
