@@ -39,6 +39,7 @@
   ],
   "client": [
     "client.DefaultLogoMixin",
+    "client.GameRendererMixin",
     "client.ItemRendererMixin",
     "client.MinecraftClientMixin",
     "client.TitleScreenMixin",
