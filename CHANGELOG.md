@@ -207,3 +207,5 @@
 - add Hailrake to dev team list | ([#2206](https://github.com/amblelabs/ait/pull/2206))
 - fix: console monitor animations are visible again on Renaissance and Toyota | by [@duzos](https://github.com/duzos) ([#2191](https://github.com/amblelabs/ait/pull/2191))
 - fix: emissive lights no longer draw through the panels in front of them | by [@duzos](https://github.com/duzos) ([#2191](https://github.com/amblelabs/ait/pull/2191))
+- fix: fixed tardis sometimes landing a block too low | ([#2204](https://github.com/amblelabs/ait/pull/2204))
+- fix: fixed mobs duplicating in the vortex | ([#2204](https://github.com/amblelabs/ait/pull/2204))
