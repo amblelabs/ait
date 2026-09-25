@@ -50,7 +50,7 @@ public class StaserBoltMagazine extends Item implements ArtronHolderItem {
             if (stack.getItem() instanceof StaserBoltMagazine mag) {
                 double ammo = mag.getCurrentFuel(stack);
                 if (clickType == ClickType.RIGHT && mag.getCurrentFuel(stack) < mag.getMaxFuel(stack)) {
-                    int residual = (int) ((ammo + shardCount) - mag.getCurrentFuel(stack));
+                    int residual = (int) Math.min(shardCount, Math.ceil(MAX_FUEL - ammo));
                     mag.setCurrentFuel(Math.min(MAX_FUEL, ammo + shardCount), stack);
                     otherStack.decrement(residual);
                     return true;

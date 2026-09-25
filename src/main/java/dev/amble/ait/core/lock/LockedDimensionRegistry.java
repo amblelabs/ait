@@ -70,6 +70,7 @@ public class LockedDimensionRegistry extends SimpleDatapackRegistry<LockedDimens
         if (!AITMod.CONFIG.lockDimensions) return false;
 
         List<LockedDimension> dims = getInstance().forStack(held);
+        dims.removeIf(tardis::isUnlocked);
 
         if (dims.isEmpty()) return false;
 

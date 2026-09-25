@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
 import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.item.blueprint.Blueprint;
 import dev.amble.ait.core.item.blueprint.BlueprintItem;
@@ -179,11 +178,6 @@ public class FabricatorBlockEntity extends InteriorLinkableBlockEntity {
     public void onBroken() {
         if (this.hasBlueprint()) {
             this.getBlueprint().ifPresent(blueprint -> {
-                ItemStack stack = AITItems.BLUEPRINT.getDefaultStack();
-                BlueprintItem.setSchema(stack, blueprint.getSource());
-
-                StackUtil.spawn(this.getWorld(), this.getPos(), stack);
-
                 List<ItemStack> inputs = blueprint.getInsertedItems();
                 StackUtil.scatter(this.getWorld(), this.getPos(), inputs);
             });

@@ -89,7 +89,7 @@ public class WaypointBankBlockEntity extends InteriorLinkableBlockEntity {
         this.waypoints[slot] = null;
         this.sync(state);
 
-        player.giveItemStack(waypoint.toStack());
+        player.getInventory().offerOrDrop(waypoint.toStack());
         return ActionResult.SUCCESS;
     }
 
