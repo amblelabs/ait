@@ -210,3 +210,5 @@
 - fix: fixed tardis sometimes landing a block too low | ([#2204](https://github.com/amblelabs/ait/pull/2204))
 - fix: fixed mobs duplicating in the vortex | ([#2204](https://github.com/amblelabs/ait/pull/2204))
 - fix: fixed a few server and client crashes | ([#2197](https://github.com/amblelabs/ait/pull/2197))
+- fix: fixed landing pad changes not saving | ([#2205](https://github.com/amblelabs/ait/pull/2205))
+- fix: fixed rift chunks not regenerating artron | ([#2205](https://github.com/amblelabs/ait/pull/2205))
