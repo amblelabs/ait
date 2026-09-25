@@ -71,14 +71,10 @@ public abstract class SonicMode implements Ordered {
         }
 
         public static SonicMode getAndWrap(Integer index) {
-            if (index == null)
+            if (index == null || index < 0)
                 return INACTIVE;
 
-            while (index >= VALUES.length) {
-                index -= VALUES.length;
-            }
-
-            return get(index);
+            return get(index % VALUES.length);
         }
 
         public static int size() {

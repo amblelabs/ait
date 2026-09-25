@@ -107,7 +107,7 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     }
 
     public ExteriorVariantSchema getParent() {
-        return ExteriorVariantRegistry.getInstance().get(this.getParentId());
+        return ExteriorVariantRegistry.getInstance().getOrFallback(this.getParentId());
     }
 
     public Identifier getParentId() {

@@ -65,6 +65,9 @@ public record DistressCall(Sender sender, String message, int lifetime, int crea
     public void summon(Tardis tardis, @Nullable ItemStack held) {
         CachedDirectedGlobalPos target = this.sender().position();
 
+        if (target == null)
+            return;
+
         tardis.travel().destination(target, true);
 
         tardis.getDesktop().playSoundAtEveryConsole(AITSounds.WAYPOINT_ACTIVATE);
@@ -201,7 +204,7 @@ public record DistressCall(Sender sender, String message, int lifetime, int crea
 
         public TardisSender(UUID id) {
             this.id = id;
-            this.ref = TardisRef.createAs(ServerLifecycleHooks.get().getOverworld(), this.getUuid());
+            this.ref = new TardisRef(id, real -> ServerTardisManager.getInstance().demandTardis(ServerLifecycleHooks.get(), real));
         }
         public TardisSender(Tardis tardis) {
             this(tardis.getUuid());

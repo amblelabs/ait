@@ -65,7 +65,8 @@ public class EnvironmentProjectorBlockEntity extends InteriorLinkableBlockEntity
 
         if (player.isSneaking()) {
             state = state.cycle(ENABLED);
-            AITMod.sendProjectorToggle(pos, state.get(ENABLED));
+            world.setBlockState(pos, state, Block.NOTIFY_ALL);
+            EnvironmentProjectorBlock.toggle(tardis, null, world, pos, state, state.get(ENABLED));
         }
 
         return ActionResult.SUCCESS;

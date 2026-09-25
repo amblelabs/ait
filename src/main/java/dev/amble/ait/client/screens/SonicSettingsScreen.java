@@ -59,7 +59,10 @@ public class SonicSettingsScreen extends ConsoleScreen {
 
     @Override
     protected void init() {
-        if (!(MinecraftClient.getInstance().world.getBlockEntity(this.console) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
+        if (!(MinecraftClient.getInstance().world.getBlockEntity(this.console) instanceof ConsoleBlockEntity consoleBlockEntity)) {
+            this.backToInteriorSettings();
+            return;
+        }
         SonicSchema schema = SonicItem.schema(consoleBlockEntity.getSonicScrewdriver()/*tardis().sonic().getConsoleSonic()*/);
 
         this.selectedSonic = SonicRegistry.getInstance().toList().indexOf(schema);

@@ -136,7 +136,7 @@ public class CoralPlantBlock extends HorizontalDirectionalBlock implements Block
     }
 
     private void createTardis(ServerWorld world, BlockPos pos, UUID creatorId, BlockState state) {
-        if (!(world.getPlayerByUuid(creatorId) instanceof ServerPlayerEntity player))
+        if (creatorId == null || !(world.getPlayerByUuid(creatorId) instanceof ServerPlayerEntity player))
             return;
 
         TardisBuilder builder = new TardisBuilder().at(CachedDirectedGlobalPos.create(world, pos,

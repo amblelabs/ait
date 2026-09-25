@@ -1,6 +1,7 @@
 package dev.amble.ait.core.tardis.manager.old;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -178,7 +179,7 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
         CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
 
         if (exteriorPos != null) {
-            if (tardis.hasWorld()) tardis.world().getPlayers().forEach(player
+            if (tardis.hasWorld()) List.copyOf(tardis.world().getPlayers()).forEach(player
                     -> TardisUtil.teleportOutside(tardis, player));
 
             World world = exteriorPos.getWorld();
