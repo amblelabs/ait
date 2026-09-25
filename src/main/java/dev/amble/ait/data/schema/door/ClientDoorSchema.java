@@ -19,6 +19,8 @@ public abstract class ClientDoorSchema implements Identifiable {
     private final Identifier parent;
     private final Identifier id;
 
+    private AnimatedModel model;
+
     protected ClientDoorSchema(Identifier parent, Identifier id) {
         this.parent = parent;
         this.id = id;
@@ -53,6 +55,10 @@ public abstract class ClientDoorSchema implements Identifiable {
     // public abstract Identifier texture();
     // public abstract Identifier emission();
     public abstract AnimatedModel model();
+
+    public AnimatedModel getCachedModel() {
+        return this.model != null ? this.model : (this.model = this.model());
+    }
 
     public static Object serializer() {
         return new Serializer();
