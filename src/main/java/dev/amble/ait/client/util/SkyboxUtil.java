@@ -77,6 +77,7 @@ public class SkyboxUtil extends WorldRenderer {
         matrices.scale(scale, scale, scale);
 
         util.setSpeed(4);
+        BackgroundRenderer.clearFog();
         util.render(matrices);
         matrices.pop();
     }
