@@ -2,7 +2,6 @@ package dev.amble.ait.client.renderers;
 
 import java.util.function.Function;
 
-import dev.amble.ait.AITMod;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
