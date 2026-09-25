@@ -533,7 +533,7 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public static boolean skipPaintingBOTI() {
-        return DependencyChecker.hasPortals() || !CONFIG.enableTardisBOTI;
+        return !CONFIG.enableTardisBOTI;
     }
 
     public void exteriorBOTI(WorldRenderContext context) {
