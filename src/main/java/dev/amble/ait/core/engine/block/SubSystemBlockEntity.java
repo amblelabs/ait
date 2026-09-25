@@ -10,6 +10,7 @@ import dev.amble.ait.core.util.SoundData;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -53,6 +54,14 @@ public class SubSystemBlockEntity extends FluidLinkBlockEntity {
 
         if (this.system() == null) return;
         this.system().setEnabled(false);
+    }
+
+    @Override
+    public void onBroken(World world, BlockPos pos) {
+        super.onBroken(world, pos);
+
+        if (this.isLinked())
+            this.tardis().get().interiorChanging().addRestorationStack(new ItemStack(this.getCachedState().getBlock()));
     }
 
     @Override

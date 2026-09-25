@@ -750,7 +750,6 @@
   "tardis.message.control.telepathic.failed": "Destino Não Encontrado",
   "tardis.message.control.telepathic.success": "Destino Encontrado",
   "tardis.message.destination_biome": "Bioma de Destino: ",
-  "tardis.message.engine.no_space": "O motor requer um espaço de 3x3 para funcionar!",
   "tardis.message.engine.phasing": "MOTORES FASEANDO",
   "tardis.message.engine.system_is_weakened": "Este Sistema Está Apresentando Sinais de Defeito, Mas Ainda Funciona!",
   "tardis.message.growth.hint": "Jogue a Matriz de Personalidade na água para dar vida...",

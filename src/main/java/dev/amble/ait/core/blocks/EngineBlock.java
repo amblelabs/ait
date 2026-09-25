@@ -44,6 +44,14 @@ public class EngineBlock extends SubSystemBlock implements BlockEntityProvider {
 
     @Nullable @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
+        World world = ctx.getWorld();
+        BlockPos pos = ctx.getBlockPos();
+
+        for (BlockPos offset : BlockPos.iterate(pos.add(-1, 0, -1), pos.add(1, 0, 1))) {
+            if (!offset.equals(pos) && !world.getBlockState(offset).isReplaceable())
+                return null;
+        }
+
         return this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing().getOpposite());
     }
 

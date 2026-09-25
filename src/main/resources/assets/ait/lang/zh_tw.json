@@ -836,7 +836,6 @@
   "tardis.message.control.telepathic.home_updated": "塔迪斯家的位置已更改。",
   "tardis.message.control.telepathic.success": "已找到目的地",
   "tardis.message.destination_biome": "目的地生物群落：",
-  "tardis.message.engine.no_space": "引擎需要 3×3 的空間才能放下來！",
   "tardis.message.engine.phasing": "引擎相位調節！",
   "tardis.message.engine.system_is_weakened": "該子系統耐久不足！無法安全拆除！",
   "tardis.message.growth.hint": "將塔迪斯矩陣扔入水中來賦予塔迪斯生命",
