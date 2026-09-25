@@ -218,8 +218,10 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
         cached.init(TravelHandlerBase.server());
 
         BlockPos pos = cached.getPos();
+        WorldBorder border = cached.getWorld().getWorldBorder();
         WorldBorder targetBorder = new WorldBorder();
-        targetBorder.setSize(cached.getWorld().getWorldBorder().getSize() - 3);
+        targetBorder.setCenter(border.getCenterX(), border.getCenterZ());
+        targetBorder.setSize(border.getSize() - 3);
 
         cached = targetBorder.contains(pos) ? cached : cached.pos(targetBorder.clamp(pos.getX(), pos.getY(), pos.getZ()));
 
