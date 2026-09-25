@@ -52,6 +52,14 @@ public class PortalsHandler extends KeyedTardisComponent {
 
         TardisComponentRegistry.getInstance().register(ID);
 
+        PortalsAPI.BEHIND_EXTERIOR = (tardis, entity) -> {
+            if (!(tardis.handler(ID) instanceof PortalsHandler handler))
+                return false;
+
+            TardisPortal portal = handler.getExterior();
+            return portal != null && portal.getDistanceToPlane(entity.getEyePos()) < 0;
+        };
+
         // TODO: re-use the same two portal entities
         //  for exterior changing this could be achieved by moving the portals & changing their size
         //  for opening and closing doors, portals' rendering can be turned off

@@ -2,6 +2,8 @@ package dev.amble.ait.core.blockentities;
 
 import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.MAX_PLASMIC_MATERIAL_AMOUNT;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import dev.amble.ait.AITMod;
@@ -10,6 +12,7 @@ import dev.amble.ait.api.tardis.link.v2.TardisRef;
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.compat.portal.PortalsAPI;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITItems;
@@ -61,6 +64,7 @@ import net.minecraft.world.World;
 
 public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements BlockEntityTicker<ExteriorBlockEntity> {
     private UUID seatEntityUUID = null;
+    private final Map<UUID, long[]> behindPortal = new HashMap<>();
 
     public ExteriorBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.EXTERIOR_BLOCK_ENTITY_TYPE, pos, state);
@@ -316,15 +320,39 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
                 && travel.getAlpha() >= 0.9F)
             TardisUtil.teleportInside(tardis, entity);
 
-        if (!tardis.door().isClosed()
-                && (!(DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti) || !tardis.getExterior().getVariant().hasPortals()))
-            TardisUtil.teleportInside(tardis, entity);
+        if (!tardis.door().isClosed()) {
+            if (!(DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti) || !tardis.getExterior().getVariant().hasPortals())
+                TardisUtil.teleportInside(tardis, entity);
+            else if (entity instanceof PlayerEntity && this.stuckBehindPortal(tardis, entity))
+                TardisUtil.teleportInside(tardis, entity);
+        }
 
         if (tardis.door().isClosed()
                 && entity instanceof PlayerEntity player
                 && tardis.isGrowth()) {
             player.sendMessage(Text.translatable("tardis.message.growth.in_progress").formatted(Formatting.RED), true);
         }
+    }
+
+    private boolean stuckBehindPortal(Tardis tardis, Entity entity) {
+        if (!PortalsAPI.BEHIND_EXTERIOR.test(tardis, entity)) {
+            this.behindPortal.remove(entity.getUuid());
+            return false;
+        }
+
+        long now = this.world.getTime();
+        long[] seen = this.behindPortal.computeIfAbsent(entity.getUuid(), id -> new long[] {now, now});
+
+        if (seen[1] < now - 40)
+            seen[0] = now;
+
+        seen[1] = now;
+
+        if (now - seen[0] < 20)
+            return false;
+
+        this.behindPortal.remove(entity.getUuid());
+        return true;
     }
 
     @Override
