@@ -213,3 +213,4 @@
 - fix: fixed landing pad changes not saving | ([#2205](https://github.com/amblelabs/ait/pull/2205))
 - fix: fixed rift chunks not regenerating artron | ([#2205](https://github.com/amblelabs/ait/pull/2205))
 - fix: fixed /ait data mangling numbers | ([#2210](https://github.com/amblelabs/ait/pull/2210))
+- fix: fixed diagonal tardises ignoring right clicks with immersive portals | ([#2208](https://github.com/amblelabs/ait/pull/2208))
