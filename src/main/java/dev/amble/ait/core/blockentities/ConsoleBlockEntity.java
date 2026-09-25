@@ -425,7 +425,7 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         if (ServerLifecycleHooks.get().getTicks() % 10 != 0)
             return;
 
-        if (sonicScrewdriver != null) {
+        if (!sonicScrewdriver.isEmpty()) {
             if (this.hasMaxFuel(sonicScrewdriver))
                 return;
 

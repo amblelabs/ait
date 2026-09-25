@@ -57,6 +57,8 @@ public class InteractionSonicMode extends SonicMode {
         Block block = state.getBlock();
 
         if (!state.isIn(AITTags.Blocks.SONIC_INTERACTABLE)) return;
+        if (!(user instanceof PlayerEntity player) || !world.canPlayerModifyAt(player, pos)) return;
+        if (!player.canModifyBlocks() && !(block instanceof ButtonBlock)) return;
 
         if (block == Blocks.IRON_DOOR && state.contains(Properties.OPEN)) {
             boolean isOpen = state.get(Properties.OPEN);
@@ -90,7 +92,7 @@ public class InteractionSonicMode extends SonicMode {
             return;
         }
 
-        if (user instanceof PlayerEntity player && block instanceof ButtonBlock button) {
+        if (block instanceof ButtonBlock button) {
             button.onUse(state, world, pos, player, player.getActiveHand(), blockHit);
             return;
         }

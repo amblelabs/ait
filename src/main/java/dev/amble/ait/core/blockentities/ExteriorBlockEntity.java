@@ -128,7 +128,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         }
 
         if (hasSonic) {
-            if (shouldEject) {
+            if (shouldEject && (!tardis.stats().security().get() || SecurityControl.hasMatchingKey((ServerPlayerEntity) player, tardis))) {
                 player.getInventory().offerOrDrop(handler.takeExteriorSonic());
                 world.playSound(null, pos, SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(), SoundCategory.BLOCKS, 1F,
                         0.2F);

@@ -144,8 +144,8 @@ public class Control implements Identifiable {
 
         boolean security = tardis.stats().security().get();
 
-        if (!this.ignoresSecurity(user) && security)
-            return SecurityControl.hasMatchingKey(user, tardis);
+        if (!this.ignoresSecurity(user) && security && !SecurityControl.hasMatchingKey(user, tardis))
+            return false;
 
         SubSystem.IdLike dependent = this.requiredSubSystem();
 
