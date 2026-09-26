@@ -4,11 +4,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.ait.mixin.client.rendering.VertexBufferWrapper;
 
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
-
-import dev.amble.ait.mixin.client.rendering.VertexBufferWrapper;
 
 public class BOTIVBO {
     public static final VertexFormat format = VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL;

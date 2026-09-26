@@ -9,6 +9,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.animation.v2.keyframe.AnimationKeyframe;
+import dev.amble.ait.core.tardis.animation.v2.keyframe.KeyframeTracker;
+import dev.amble.lib.AmbleKit;
+import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -28,12 +33,6 @@ import net.minecraft.resource.ResourceType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.animation.v2.keyframe.AnimationKeyframe;
-import dev.amble.ait.core.tardis.animation.v2.keyframe.KeyframeTracker;
-import dev.amble.lib.AmbleKit;
-import dev.amble.lib.util.ServerLifecycleHooks;
 
 
 // TODO - replace this with the better BedrockAnimation stuff when i can be bothered.

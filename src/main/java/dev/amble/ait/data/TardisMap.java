@@ -4,9 +4,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.mojang.datafixers.util.Either;
-import org.jetbrains.annotations.Nullable;
-
 import dev.amble.ait.core.tardis.Tardis;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class TardisMap<T> extends ConcurrentHashMap<UUID, T> {
 

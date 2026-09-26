@@ -2,6 +2,8 @@ package dev.amble.ait.core.item;
 
 import java.util.List;
 
+import dev.amble.ait.api.ArtronHolderItem;
+import dev.amble.ait.core.AITBlocks;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -17,9 +19,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
-
-import dev.amble.ait.api.ArtronHolderItem;
-import dev.amble.ait.core.AITBlocks;
 
 public class ChargedZeitonCrystalItem extends Item implements ArtronHolderItem {
     public static final double MAX_FUEL = 5000;

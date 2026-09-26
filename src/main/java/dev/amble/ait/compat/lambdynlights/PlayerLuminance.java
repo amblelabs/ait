@@ -1,5 +1,6 @@
 package dev.amble.ait.compat.lambdynlights;
 
+import dev.amble.ait.core.item.SonicItem;
 import dev.lambdaurora.lambdynlights.api.entity.luminance.EntityLuminance;
 import dev.lambdaurora.lambdynlights.api.item.ItemLightSourceManager;
 import org.jetbrains.annotations.NotNull;
@@ -9,8 +10,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
-
-import dev.amble.ait.core.item.SonicItem;
 
 public class PlayerLuminance implements EntityLuminance {
 

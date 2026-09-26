@@ -1,15 +1,14 @@
 package dev.amble.ait.data.schema.exterior.variant.exclusive.doom.client;
 
-import org.joml.Vector3f;
-
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.client.models.exteriors.exclusive.DoomExteriorModel;
 import dev.amble.ait.client.renderers.exteriors.DoomConstants;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.variant.exclusive.doom.DoomVariant;
+import org.joml.Vector3f;
+
+import net.minecraft.util.Identifier;
 
 public class ClientDoomVariant extends ClientExteriorVariantSchema {
 

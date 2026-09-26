@@ -3,6 +3,8 @@ package dev.amble.ait.core.blocks;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.core.blockentities.PottedSonicScrewdriverBlockEntity;
+import dev.amble.ait.core.item.SonicItem;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -25,9 +27,6 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
-
-import dev.amble.ait.core.blockentities.PottedSonicScrewdriverBlockEntity;
-import dev.amble.ait.core.item.SonicItem;
 
 public class PottedSonicScrewdriverBlock extends BlockWithEntity {
     public static final int MAX_SONICS = 6;

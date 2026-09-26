@@ -3,6 +3,9 @@ package dev.amble.ait.core.blockentities;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.blocks.PottedSonicScrewdriverBlock;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.item.ItemStack;
@@ -13,9 +16,6 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
-
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.blocks.PottedSonicScrewdriverBlock;
 
 public class PottedSonicScrewdriverBlockEntity extends BlockEntity {
 

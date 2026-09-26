@@ -1,6 +1,7 @@
 package dev.amble.ait.core.tardis.manager.old;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -12,6 +13,7 @@ import com.mojang.datafixers.util.Either;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.api.tardis.WorldWithTardis;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.events.ServerCrashEvent;
 import dev.amble.ait.core.events.WorldSaveEvent;
 import dev.amble.ait.core.tardis.ServerTardis;
@@ -182,14 +184,17 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
         CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
 
         if (exteriorPos != null) {
-            if (tardis.hasWorld()) tardis.world().getPlayers().forEach(player
+            if (tardis.hasWorld()) List.copyOf(tardis.world().getPlayers()).forEach(player
                     -> TardisUtil.teleportOutside(tardis, player));
 
             World world = exteriorPos.getWorld();
             BlockPos pos = exteriorPos.getPos();
 
-            world.removeBlock(pos, false);
-            world.removeBlockEntity(pos);
+            if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior && exterior.isLinked()
+                    && exterior.tardis().contains(tardis)) {
+                world.removeBlock(pos, false);
+                world.removeBlockEntity(pos);
+            }
         }
 
         MultiDim.get(server).queueRemove(TardisServerWorld.keyForTardis(tardis));

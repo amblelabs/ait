@@ -10,21 +10,13 @@ import java.util.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import dev.amble.ait.core.tardis.control.impl.SecurityControl;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import org.joml.Vector3f;
-
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.resource.Resource;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.core.sounds.flight.FlightSound;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.travel.AnimatedTravelHandler;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
 import dev.amble.ait.core.util.Lazy;
@@ -42,6 +34,13 @@ import dev.amble.ait.registry.impl.DesktopRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.register.unlockable.Unlockable;
 import dev.amble.lib.util.ServerLifecycleHooks;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import org.joml.Vector3f;
+
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.resource.Resource;
+import net.minecraft.util.Identifier;
+import net.minecraft.world.World;
 
 public class StatsHandler extends KeyedTardisComponent {
 

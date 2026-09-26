@@ -1,11 +1,11 @@
 package dev.amble.ait.core;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
-
 import dev.amble.ait.core.entities.*;
 import dev.amble.lib.container.AssignedName;
 import dev.amble.lib.container.impl.EntityContainer;
+
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnGroup;
 
 public class AITEntityTypes implements EntityContainer {
 

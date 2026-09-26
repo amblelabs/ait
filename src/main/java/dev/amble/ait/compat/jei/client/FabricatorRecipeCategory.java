@@ -1,5 +1,9 @@
 package dev.amble.ait.compat.jei.client;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.item.blueprint.BlueprintItem;
+import dev.amble.ait.core.item.blueprint.BlueprintSchema;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -12,11 +16,6 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.item.blueprint.BlueprintItem;
-import dev.amble.ait.core.item.blueprint.BlueprintSchema;
 
 public class FabricatorRecipeCategory implements IRecipeCategory<BlueprintSchema> {
 

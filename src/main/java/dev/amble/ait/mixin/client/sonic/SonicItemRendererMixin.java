@@ -1,5 +1,8 @@
 package dev.amble.ait.mixin.client.sonic;
 
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.data.schema.sonic.SonicSchema;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,10 +19,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.data.schema.sonic.SonicSchema;
 
 @Mixin(ItemRenderer.class)
 public class SonicItemRendererMixin {

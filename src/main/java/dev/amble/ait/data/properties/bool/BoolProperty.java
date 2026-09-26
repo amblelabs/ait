@@ -2,11 +2,11 @@ package dev.amble.ait.data.properties.bool;
 
 import java.util.function.Function;
 
-import net.minecraft.network.PacketByteBuf;
-
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.PropertyType;
+
+import net.minecraft.network.PacketByteBuf;
 
 public class BoolProperty extends Property<Boolean> {
 
