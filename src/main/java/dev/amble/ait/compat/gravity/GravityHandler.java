@@ -92,7 +92,7 @@ public class GravityHandler extends KeyedTardisComponent implements TardisTickab
                     GravityHandler gravity = tardis.handler(ID);
                     Direction direction = buf.readEnumConstant(Direction.class);
 
-                    gravity.direction.set(direction);
+                    server.execute(() -> gravity.direction.set(direction));
                 })));
 
         TardisComponentRegistry.getInstance().register(ID);

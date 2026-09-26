@@ -233,10 +233,8 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
 
     public static ServerPlayNetworking.PlayChannelHandler receiveTardis(Receiver receiver) {
         return (server, player, handler, buf, responseSender) -> {
-            ServerTardisManager.getInstance().getTardis(server, buf.readUuid(), tardis -> {
-                PacketByteBuf copy = PacketByteBufs.copy(buf);
-                server.execute(() -> receiver.receive(tardis, server, player, handler, copy, responseSender));
-            });
+            ServerTardisManager.getInstance().getTardis(server, buf.readUuid(),
+                    tardis -> receiver.receive(tardis, server, player, handler, buf, responseSender));
         };
     }
 

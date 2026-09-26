@@ -38,18 +38,19 @@ public class SonicHandler extends KeyedTardisComponent implements ArtronHolderIt
                 ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
                     Identifier id = buf.readIdentifier();
                     BlockPos pos = buf.readBlockPos();
+                    server.execute(() -> {
+                        if (!tardis.isUnlocked(SonicRegistry.getInstance().get(id))) return;
 
-                    if (!tardis.isUnlocked(SonicRegistry.getInstance().get(id))) return;
+                        if (!tardis.world().isChunkLoaded(pos)) return;
 
-                    if (!tardis.world().isChunkLoaded(pos)) return;
+                        if (!(tardis.world().getBlockEntity(pos) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
 
-                    if (!(tardis.world().getBlockEntity(pos) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
+                        ItemStack sonic = consoleBlockEntity.getSonicScrewdriver();
 
-                    ItemStack sonic = consoleBlockEntity.getSonicScrewdriver();
+                        if (sonic.isEmpty()) return;
 
-                    if (sonic.isEmpty()) return;
-
-                    SonicItem.setSchema(sonic, id);
+                        SonicItem.setSchema(sonic, id);
+                    });
                 })));
         TardisEvents.DEMAT.register(tardis ->
                 tardis.sonic().getExteriorSonic() != null ? TardisEvents.Interaction.FAIL : TardisEvents.Interaction.PASS);

@@ -124,15 +124,17 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                 ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
                     TardisDesktopSchema desktop = DesktopRegistry.getInstance().get(buf.readIdentifier());
 
-                    if (tardis == null || desktop == null || !tardis.isUnlocked(desktop))
-                        return;
+                    server.execute(() -> {
+                        if (tardis == null || desktop == null || !tardis.isUnlocked(desktop))
+                            return;
 
-                    if (tardis.travel().getState() != TravelHandler.State.LANDED)
-                        return;
+                        if (tardis.travel().getState() != TravelHandler.State.LANDED)
+                            return;
 
-                    TardisCriterions.REDECORATE.trigger(player);
-                    tardis.interiorChangingHandler().queueInteriorChange(desktop);
-                    tardis.alarm().enable();
+                        TardisCriterions.REDECORATE.trigger(player);
+                        tardis.interiorChangingHandler().queueInteriorChange(desktop);
+                        tardis.alarm().enable();
+                    });
                 })));
     }
 
