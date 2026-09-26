@@ -1,4 +1,4 @@
-package dev.loqor.portal;
+package dev.drtheo.portal;
 
 import dev.amble.ait.AITMod;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;

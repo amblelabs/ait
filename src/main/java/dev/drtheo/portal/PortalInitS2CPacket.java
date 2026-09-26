@@ -1,4 +1,4 @@
-package dev.loqor.portal;
+package dev.drtheo.portal;
 
 import java.util.UUID;
 

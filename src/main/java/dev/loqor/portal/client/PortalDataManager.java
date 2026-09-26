@@ -2,8 +2,8 @@ package dev.loqor.portal.client;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.boti.PortalParticleManager;
-import dev.loqor.portal.PortalInitS2CPacket;
-import dev.loqor.portal.WrappedPacketS2CPacket;
+import dev.drtheo.portal.PortalInitS2CPacket;
+import dev.drtheo.portal.WrappedPacketS2CPacket;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;

@@ -1,5 +1,8 @@
 package dev.loqor.portal;
 
+import dev.drtheo.portal.PortalInitS2CPacket;
+import dev.drtheo.portal.WrappedPacketS2CPacket;
+
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 

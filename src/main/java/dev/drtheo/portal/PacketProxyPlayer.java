@@ -1,4 +1,4 @@
-package dev.loqor.portal;
+package dev.drtheo.portal;
 
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.entity.FakePlayer;

@@ -10,6 +10,9 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import dev.amble.ait.AITMod;
+import dev.drtheo.portal.PacketProxyPlayer;
+import dev.drtheo.portal.PortalInitS2CPacket;
+import dev.drtheo.portal.WrappedPacketS2CPacket;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;

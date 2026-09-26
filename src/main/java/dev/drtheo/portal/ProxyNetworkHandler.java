@@ -1,4 +1,4 @@
-package dev.loqor.portal;
+package dev.drtheo.portal;
 
 import net.fabricmc.fabric.impl.networking.UntrackedNetworkHandler;
 import net.minecraft.network.ClientConnection;

@@ -3,6 +3,7 @@ package dev.loqor.portal.client;
 import com.mojang.datafixers.util.Pair;
 
 import dev.amble.ait.AITMod;
+import dev.drtheo.portal.PortalInitS2CPacket;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -457,7 +458,7 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world, Wor
 
     /**
      * Builds a shadow world mirroring the given dimension. The server tells us which dimension a TARDIS's
-     * exterior is in (see {@link dev.loqor.portal.PortalInitS2CPacket}) so the doorway renders with the correct
+     * exterior is in (see {@link PortalInitS2CPacket}) so the doorway renders with the correct
      * lighting, sky and height limits instead of the interior dimension's.
      */
     public static PortalData create(UUID id, RegistryKey<World> dimension, RegistryKey<DimensionType> dimensionType) {
