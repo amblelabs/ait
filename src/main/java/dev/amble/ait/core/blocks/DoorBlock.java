@@ -6,6 +6,7 @@ import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.util.ShapeUtil;
+import dev.amble.ait.data.ShapeMap;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,6 +43,7 @@ import net.minecraft.world.WorldAccess;
 public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntityProvider, Waterloggable {
 
     public static final VoxelShape NORTH_SHAPE = Block.createCuboidShape(0.0, 0.0, 12.1, 16.0, 32.0, 16.0);
+    private static final ShapeMap SHAPES = ShapeUtil.rotations(Direction.NORTH, NORTH_SHAPE).build();
     public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
     public static final IntProperty LEVEL_4 = ExteriorBlock.LEVEL_4;
 
@@ -104,7 +106,7 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
                 door.tardis().get().siege() != null && door.tardis().get().siege().isActive())
             return VoxelShapes.empty();
 
-        return ShapeUtil.rotate(Direction.NORTH, state.get(FACING), NORTH_SHAPE);
+        return SHAPES.get(state.get(FACING));
     }
 
     @Override

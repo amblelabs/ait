@@ -13,6 +13,7 @@ import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.ShapeUtil;
+import dev.amble.ait.data.ShapeMap;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
@@ -109,6 +110,11 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
 
         DIAGONAL_SHAPE = shape;
     }
+
+    private static final ShapeMap CUBE_SHAPES = ShapeUtil.rotations(Direction.NORTH, CUBE_NORTH_SHAPE).build();
+    private static final ShapeMap PORTALS_SHAPES = ShapeUtil.rotations(Direction.NORTH, PORTALS_SHAPE).build();
+    private static final ShapeMap DIAGONAL_SHAPES = ShapeUtil.rotations(Direction.NORTH, DIAGONAL_SHAPE).build();
+    private static final ShapeMap PORTALS_DIAGONAL_SHAPES = ShapeUtil.rotations(Direction.NORTH, PORTALS_SHAPE_DIAGONAL).build();
 
     public ExteriorBlock(Settings settings) {
         super(settings.nonOpaque());
@@ -245,21 +251,20 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         return VoxelShapes.empty();
     }
 
-    // TODO cache this.
     public VoxelShape getNormalShape(BlockState state, boolean ignorePortals) {
         Direction direction = RotationPropertyHelper.toDirection(state.get(ROTATION))
                 .orElse(null);
 
-        VoxelShape shape;
+        ShapeMap shapes;
 
         if (direction == null) {
-            shape = DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti && !ignorePortals ? PORTALS_SHAPE_DIAGONAL : DIAGONAL_SHAPE;
+            shapes = DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti && !ignorePortals ? PORTALS_DIAGONAL_SHAPES : DIAGONAL_SHAPES;
             direction = approximateDirection(state.get(ROTATION));
         } else {
-            shape = DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti && !ignorePortals ? PORTALS_SHAPE : CUBE_NORTH_SHAPE;
+            shapes = DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti && !ignorePortals ? PORTALS_SHAPES : CUBE_SHAPES;
         }
 
-        return ShapeUtil.rotate(Direction.NORTH, direction, shape);
+        return shapes.get(direction);
     }
 
     public Direction approximateDirection(int rotation) {
