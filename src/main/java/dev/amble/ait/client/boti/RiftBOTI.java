@@ -35,7 +35,6 @@ public class RiftBOTI extends BOTI {
 
         VertexConsumerProvider.Immediate portalProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
-        // Enable stencil testing and reset the stencil buffer (driver-safe clear-by-draw; see BOTI.resetStencilByDraw)
         BOTI.resetStencilByDraw();
         GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
         GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);

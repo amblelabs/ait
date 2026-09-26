@@ -33,11 +33,6 @@ public final class ClientRenderPass {
     // are the same object, and BlockEntity does not override equals anyway.
     private static final Set<BlockEntity> DRAWN = Collections.newSetFromMap(new IdentityHashMap<>());
 
-    /**
-     * Depth of the nesting that is drawing a block entity outside the normal block entity pass, such
-     * as the BOTI gbuffer injection re-rendering the interior door clipped to its doorway. Such a draw
-     * must neither be skipped nor use up the entry, or the real pass that follows skips the model.
-     */
     private static int suspended;
 
     public static void suspend() {

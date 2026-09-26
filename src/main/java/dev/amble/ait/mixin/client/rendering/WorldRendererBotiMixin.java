@@ -11,20 +11,6 @@ import net.minecraft.util.math.Vec3d;
 
 import dev.loqor.portal.client.WorldGeometryRenderer;
 
-/**
- * While the BOTI doorway draws the exterior dimension's sky through a shadow {@link WorldRenderer}, vanilla
- * {@code renderSky} still reads two positions from the real session - i.e. the INTERIOR:
- * <ul>
- *   <li>{@code client.player.getCameraPosVec(...)} decides whether to draw the black below-horizon "void plane"
- *   (drawn whenever the eye is below the sky darkness height, y=63 in the overworld). TARDIS interiors sit below
- *   that, so the doorway always showed a black band along the horizon even with the exterior on the surface.</li>
- *   <li>{@code gameRenderer.getCamera().getPos()} chooses the biome the zenith sky colour is sampled from;
- *   interior coordinates aren't loaded in the shadow world, so it fell back to the default biome's colour.</li>
- * </ul>
- * During the portal sky pass {@link WorldGeometryRenderer} publishes the portal eye's exterior position; these
- * redirects substitute it so both decisions are made with exterior coordinates. Outside the portal pass the
- * override is null and vanilla behaviour is untouched.
- */
 @Mixin(WorldRenderer.class)
 public abstract class WorldRendererBotiMixin {
 

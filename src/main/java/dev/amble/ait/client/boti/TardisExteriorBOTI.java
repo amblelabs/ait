@@ -62,9 +62,6 @@ public class TardisExteriorBOTI extends BOTI {
 
         ClientTardis tardis = exterior.tardis().get().asClient();
 
-        // Cache this exterior BE for the exterior gbuffer-injection: it runs at AFTER_ENTITIES (before this
-        // END-phase call), and EXTERIOR_RENDER_QUEUE is empty there under Sodium, so the injection reuses last
-        // frame's exterior from here to stamp the aperture (mirror of TardisDoorBOTI's LAST_RENDERED_DOOR).
         BOTI.LAST_RENDERED_EXTERIOR.put(tardis.getUuid(), exterior);
 
         stack.push();
@@ -136,11 +133,6 @@ public class TardisExteriorBOTI extends BOTI {
         GL11.glStencilMask(0x00);
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
-        // ===== RENDER THE LIVE INTERIOR THROUGH THE EXTERIOR DOORWAY =====
-        // The server streams the interior (around its door) into a shadow world under the derived interior id. Map
-        // the player's eye - taken relative to the exterior door - through into the interior door's frame (the
-        // mirror of TardisDoorBOTI's interior->exterior mapping) and draw that shadow world into the masked opening.
-        // If the stream hasn't arrived yet, the doorway keeps the mask fill drawn above as a graceful fallback.
         PortalData interior = PortalDataManager.get(Portals.interiorId(tardis.getUuid()));
         if (interior != null && interior.world() != null && tardis.getDesktop() != null) {
             try {
@@ -155,7 +147,6 @@ public class TardisExteriorBOTI extends BOTI {
                 Direction exteriorFacing = Direction.fromRotation(exteriorPos.getRotationDegrees()).getOpposite();
                 Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
 
-                // Reverse of the interior->exterior turn: looking into the exterior door looks out the interior door.
                 float deltaYaw = interiorFacing.asRotation() - (tardis.travel().position().getRotationDegrees());
 
                 BlockPos extBlock = exteriorPos.getPos();
@@ -171,9 +162,6 @@ public class TardisExteriorBOTI extends BOTI {
                 float portalYaw = camera.getYaw() + deltaYaw;
                 float portalPitch = camera.getPitch();
 
-                // Tell SkyboxMixin which TARDIS's interior sky to draw for this pass. Without it, getCurrentTardis()
-                // is null (the viewer is outside, in no TARDIS) and the interior would render the dimension's blank
-                // vanilla sky instead of the TARDIS's chosen skybox. Cleared in the finally so nothing else uses it.
                 SkyboxUtil.PORTAL_SKY_TARDIS = tardis;
                 try {
                     geometry.render(Portals.interiorId(tardis.getUuid()), interior.world(), interiorDoorPos,
@@ -270,10 +258,6 @@ public class TardisExteriorBOTI extends BOTI {
 
         profiler.swap("ait:boti_ext_fbo_resolve");
 
-        // Under a shaderpack the Phase A afbo->screen blit is suppressed: ExteriorGbufferInjection re-draws the
-        // interior into Iris's live gbuffer at AFTER_ENTITIES so the pack shades it, instead of compositing this
-        // unshaded afbo over the deferred output. We still run everything above so geometry.render() bakes the VBOs
-        // and populates its portal-view cache (which the injection reuses next frame); only the blit is skipped.
         if (!DependencyChecker.isIrisShaderPackInUse())
             BOTI.copyColorToFbo(BOTI_HANDLER.afbo, composite.drawFbo, winW, winH);
         BOTI.endBotiComposite(composite);
@@ -281,25 +265,10 @@ public class TardisExteriorBOTI extends BOTI {
         stack.pop();
     }
 
-    /**
-     * Stamps the exterior doorway portal quad into the currently-bound framebuffer's stencil buffer, leaving
-     * stencil=1 inside the aperture. The mirror of {@link TardisDoorBOTI#drawDoorApertureMask} for the outside-in
-     * direction: it uses the exterior variant's own portal position/width/height (not the door's). The caller sets
-     * up the outer door-block transform and the stencil write state ({@code glStencilFunc(GL_ALWAYS,1,0xFF)},
-     * {@code glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE)}) before calling. Color/depth masks are suppressed internally
-     * and restored on return.
-     */
     public static void drawExteriorApertureMask(ClientTardis tardis, ClientExteriorVariantSchema variant, MatrixStack stack) {
         drawExteriorApertureMask(tardis, variant, stack, false);
     }
 
-    /**
-     * As above, but when {@code writeDepth} is true the mask writes the door-plane DEPTH (colour suppressed,
-     * {@code depthFunc(ALWAYS)}) instead of the stencil. The injection uses this after drawing the interior to
-     * replace the portal-space depth in the aperture with the exterior door's real main-scene depth, so main-world
-     * entities/block-entities/particles drawn afterward occlude the portal correctly (things in front of the door
-     * draw over it; glass behind it stays occluded).
-     */
     public static void drawExteriorApertureMask(ClientTardis tardis, ClientExteriorVariantSchema variant, MatrixStack stack, boolean writeDepth) {
         ExteriorVariantSchema parent = variant.parent();
         Vector3f scale = tardis.travel().getScale();

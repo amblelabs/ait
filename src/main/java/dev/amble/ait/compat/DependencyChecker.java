@@ -62,7 +62,7 @@ public class DependencyChecker {
         try {
             return net.irisshaders.iris.api.v0.IrisApi.getInstance().isShaderPackInUse();
         } catch (Throwable t) {
-            return false; // Iris internals moved / not initialised yet
+            return false;
         }
     }
 }

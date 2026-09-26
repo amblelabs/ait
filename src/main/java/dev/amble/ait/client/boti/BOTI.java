@@ -49,22 +49,13 @@ public class BOTI {
     public static BOTIInit BOTI_HANDLER = new BOTIInit();
     public static AITBufferBuilderStorage AIT_BUF_BUILDER_STORAGE = new AITBufferBuilderStorage();
     public static Queue<DoorBlockEntity> DOOR_RENDER_QUEUE = new LinkedList<>();
-    /** Last interior door rendered per TARDIS, cached by TardisDoorBOTI (which always has it, at END). The
-     *  gbuffer-injection probe reuses it next frame to stamp the doorway stencil aperture, because
-     *  DOOR_RENDER_QUEUE is empty at AFTER_ENTITIES under Sodium (block entities render after that event). */
     public static final Map<UUID, DoorBlockEntity> LAST_RENDERED_DOOR = new HashMap<>();
     public static Queue<BOTIPaintingEntity> GALLIFREYAN_RENDER_QUEUE = new LinkedList<>();
     public static Queue<BOTIPaintingEntity> TRENZALORE_PAINTING_QUEUE = new LinkedList<>();
     public static Queue<ExteriorBlockEntity> EXTERIOR_RENDER_QUEUE = new LinkedList<>();
-    /** Last exterior BE rendered per TARDIS, cached by TardisExteriorBOTI (which has it at END). The exterior
-     *  gbuffer-injection ({@link dev.amble.ait.client.boti.iris.ExteriorGbufferInjection}) reuses it next frame
-     *  to stamp the exterior doorway stencil aperture, because EXTERIOR_RENDER_QUEUE is empty at AFTER_ENTITIES
-     *  under Sodium (block entities render after that event) - the mirror of {@link #LAST_RENDERED_DOOR}. */
     public static final Map<UUID, ExteriorBlockEntity> LAST_RENDERED_EXTERIOR = new HashMap<>();
     private static boolean HAS_BEEN_WARNED = false;
 
-    /** The GL id of the framebuffer currently bound for drawing. Under Iris this is Iris's live world
-     *  target, not client.getFramebuffer(); in the vanilla pipeline the two are the same. */
     public static int currentDrawFbo() {
         return GL11.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING);
     }
@@ -132,7 +123,6 @@ public class BOTI {
         GL11.glGetError();
     }
 
-    /** Blit a Framebuffer's colour into a raw destination FBO id (e.g. Iris's live world target). */
     public static void copyColorToFbo(Framebuffer src, int destFbo, int w, int h) {
         GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, src.fbo);
         GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, destFbo);
@@ -140,7 +130,6 @@ public class BOTI {
                 0, 0, w, h, GlConst.GL_COLOR_BUFFER_BIT, GlConst.GL_NEAREST);
     }
 
-    /** Blit a raw source FBO id's colour into a Framebuffer (e.g. the live scene -> afbo backdrop). */
     public static void copyColorFromFbo(int srcFbo, int w, int h, Framebuffer dest) {
         GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, srcFbo);
         GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, dest.fbo);
@@ -148,7 +137,6 @@ public class BOTI {
                 0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_COLOR_BUFFER_BIT, GlConst.GL_NEAREST);
     }
 
-    /** Copy the live scene (raw source FBO id) colour+depth into afbo, replacing copyFramebuffer(main, afbo). */
     public static void copyFramebufferFromFbo(int srcFbo, int w, int h, Framebuffer dest) {
         copyColorFromFbo(srcFbo, w, h, dest);
         GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, srcFbo);
@@ -158,7 +146,6 @@ public class BOTI {
         GL11.glGetError();
     }
 
-    /** Copy afbo's depth into a raw destination FBO id. Mirrors copyDepth's non-Mac blit and Mac shader path. */
     public static void copyDepthToFbo(Framebuffer src, int destFbo, int w, int h) {
         if (!MinecraftClient.IS_SYSTEM_MAC || COPY_DEPTH_PROGRAM == null || src.getDepthAttachment() <= 0) {
             GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, src.fbo);
@@ -207,8 +194,6 @@ public class BOTI {
         RenderSystem.enableCull();
     }
 
-    /** Captured GL state for one BOTI composite, so the callback restores exactly what it found and never
-     *  leaves Iris's next pass on the wrong target or with dirty stencil/depth state. */
     public static final class BotiCompositeState {
         int drawFbo;
         final int[] viewport = new int[4];
@@ -216,7 +201,6 @@ public class BOTI {
         boolean depthMask;
     }
 
-    /** Capture the live draw target + the GL state the composite mutates. Call at the very start of a variant. */
     public static BotiCompositeState beginBotiComposite() {
         BotiCompositeState s = new BotiCompositeState();
         s.drawFbo = currentDrawFbo();
@@ -226,7 +210,6 @@ public class BOTI {
         return s;
     }
 
-    /** Rebind the captured target + restore state. Call after the afbo colour has been blitted back. */
     public static void endBotiComposite(BotiCompositeState s) {
         GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, s.drawFbo);
         RenderSystem.viewport(s.viewport[0], s.viewport[1], s.viewport[2], s.viewport[3]);
@@ -259,32 +242,14 @@ public class BOTI {
         drawFullscreenQuad(false, true);
     }
 
-    /**
-     * Writes far depth (1.0) wherever the CURRENT stencil test passes, without touching colour. Used by the
-     * gbuffer-injection path to punch a depth "hole" in the doorway aperture: the caller sets the stencil test to
-     * the aperture (e.g. {@code glStencilFunc(GL_EQUAL,1,...)}), calls this, and the injected portal world then
-     * draws over whatever blocks were behind the door instead of being depth-occluded by them. The stencil test
-     * is left as the caller set it (this only draws; it does not change stencil func/op).
-     */
     public static void clearDepthInStencilRegion() {
         drawFullscreenQuad(false, true);
     }
 
-    /**
-     * Writes NEAR depth (0.0) wherever the CURRENT stencil test passes. Called after the portal injection so
-     * translucent geometry drawn later (e.g. glass behind/around the door, rendered in the post-AFTER_ENTITIES
-     * translucent pass) is depth-occluded by the aperture instead of showing through the portal. The already-drawn
-     * portal colour is unaffected; only the depth used for subsequent tests is flattened to the front.
-     */
     public static void writeNearDepthInStencilRegion() {
         drawFullscreenQuad(false, true, 0.0);
     }
 
-    /**
-     * Fills the CURRENT stencil region with a solid colour (no depth write). Used as the portal's sky/fog backdrop:
-     * regions of the aperture with no injected terrain (the sky) would otherwise show the interior scene behind
-     * them; this paints the exterior fog colour there first, exactly like Phase A clears its afbo to the fog colour.
-     */
     public static void fillColorInStencilRegion(float r, float g, float b) {
         RenderSystem.colorMask(true, true, true, true);
         RenderSystem.depthMask(false);

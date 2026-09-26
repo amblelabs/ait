@@ -2,23 +2,6 @@ package dev.loqor.portal.client;
 
 import net.minecraft.client.render.VertexConsumer;
 
-/**
- * A {@link VertexConsumer} that adds a constant positional offset to every vertex before forwarding to a delegate,
- * leaving colour / texture / light / normal / overlay untouched.
- * <p>
- * It exists for exactly one job: <b>fluids</b>. Unlike {@code renderBlock},
- * {@link net.minecraft.client.render.block.BlockRenderManager#renderFluid renderFluid} takes <em>no</em>
- * {@link net.minecraft.client.util.math.MatrixStack} - it bakes its vertices at <em>section-local</em> coordinates
- * ({@code pos.getX() & 15}, {@code pos.getY() & 15}, {@code pos.getZ() & 15}). That is how vanilla chunk meshing
- * works: a section's whole buffer is built at 0..15 and later drawn with a model-view translated to the section
- * origin. The BOTI geometry builder instead bakes <em>everything</em> relative to the portal centre and draws every
- * section with one shared view matrix, so the unshifted fluid quads came out at 0..15 in <em>every</em> section -
- * i.e. all the water piled up in a single 16-block box at the origin.
- * <p>
- * Wrapping the fluid's buffer in this consumer with {@code offset = sectionMin - centre} shifts those section-local
- * coordinates into the same centre-relative space the solid blocks already use, lining the water back up. The offset
- * is constant per section because {@code (worldPos - centre) - (worldPos & 15) == sectionMin - centre}.
- */
 public class OffsetVertexConsumer implements VertexConsumer {
     private final VertexConsumer delegate;
     private final double offsetX;

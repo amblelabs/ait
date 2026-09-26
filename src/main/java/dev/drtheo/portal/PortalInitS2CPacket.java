@@ -12,14 +12,6 @@ import net.minecraft.world.dimension.DimensionType;
 
 import dev.amble.ait.AITMod;
 
-/**
- * Sent just before a TARDIS's exterior chunks start streaming, telling the client which dimension the shadow
- * world for this TARDIS should mirror.
- * <p>
- * The client (re)builds its {@link dev.loqor.portal.client.PortalData} with the matching dimension + dimension
- * type and drops any stale geometry from a previous landing, so the doorway shows the correct world (including
- * Nether/End lighting) and never bleeds chunks across a relocation.
- */
 public record PortalInitS2CPacket(UUID id, RegistryKey<World> dimension,
                                   RegistryKey<DimensionType> dimensionType) implements FabricPacket {
 

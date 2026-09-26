@@ -181,10 +181,6 @@ public class AITModClient implements ClientModInitializer {
 
         ClientTardisManager.init();
 
-        // Core shader that copies a framebuffer's depth by sampling its depth texture and writing gl_FragDepth. BOTI
-        // uses it instead of glBlitFramebuffer(GL_DEPTH_BUFFER_BIT), which is rejected across the main/afbo mismatched
-        // depth formats on Apple's strict GL driver (GL_INVALID_OPERATION); see BOTI.copyDepth. Registered (and thus
-        // compiled) only on macOS, the only place it's used, so it can never affect other drivers' startup.
         if (MinecraftClient.IS_SYSTEM_MAC) {
             CoreShaderRegistrationCallback.EVENT.register(context ->
                     context.register(new Identifier(AITMod.MOD_ID, "copy_depth"),
@@ -234,17 +230,9 @@ public class AITModClient implements ClientModInitializer {
             WorldRenderEvents.END.register(this::trenzaloreBOTI);
             WorldRenderEvents.END.register(this::riftBOTI);
 
-            // THROWAWAY Phase B gbuffer-injection probe (guarded again at call time by isShaderPackInUse()).
-            // AFTER_ENTITIES runs pre-deferred while the gbuffer is bound; additive to the Phase A END path.
             WorldRenderEvents.AFTER_ENTITIES.register(dev.amble.ait.client.boti.iris.GbufferInjectionProbe::run);
-            // Outside-in equivalent: injects each visible TARDIS's interior into its exterior doorway aperture.
             WorldRenderEvents.AFTER_ENTITIES.register(dev.amble.ait.client.boti.iris.ExteriorGbufferInjection::run);
 
-            // Ensure the main framebuffer (Iris's gbuffer == client.getFramebuffer()) has a stencil attachment
-            // so the injection probe's stencil-clip path activates. Must run at START (before any draw into the
-            // FB this frame) because setIsStencilEnabled triggers a resize()/reinit - forbidden mid-render.
-            // Idempotent: after the first frame the flag is already set so the resize is a no-op.
-            // Only under isIrisShaderPackInUse(): Phase A / no-pack must be untouched.
             WorldRenderEvents.START.register(context -> {
                 if (!DependencyChecker.isIrisShaderPackInUse())
                     return;
@@ -702,10 +690,6 @@ public class AITModClient implements ClientModInitializer {
             if (door == null) continue;
             BlockPos pos = door.getPos();
 
-            // Frustum-gate the whole expensive portal render: if the doorway aperture isn't in the real player
-            // camera's view, skip it entirely (no sky/terrain/entity passes, no meshing). The shadow world keeps
-            // updating in the tick loop and the baked geometry ages out via reclaimIfIdle, so nothing is lost - the
-            // doorway simply re-bakes when looked at again. context.frustum() is non-null at AFTER_ENTITIES/END.
             if (frustum != null && !frustum.isVisible(new Box(pos).expand(2.0)))
                 continue;
 

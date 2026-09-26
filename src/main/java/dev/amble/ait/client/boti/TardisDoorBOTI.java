@@ -49,29 +49,10 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 
 public class TardisDoorBOTI extends BOTI {
-    // The geometry renderer now lives on each PortalData (the shadow world owns it), so multiple TARDIS doors -
-    // and the new exterior->interior view - each bake/draw independently. Fetched per render via PortalDataManager.
-
-    /**
-     * Draws the door-portal quad into the currently-bound framebuffer's stencil buffer, leaving stencil=1
-     * inside the doorway aperture. The caller is responsible for setting up the stencil write state
-     * ({@code glStencilFunc(GL_ALWAYS,1,0xFF)}, {@code glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE)}) before
-     * calling this helper. Color and depth masks are suppressed internally and restored on return.
-     *
-     * <p>The {@code door} parameter is accepted for future use (e.g. per-door offsets); the transform is
-     * currently derived entirely from {@code tardis}.
-     */
     public static void drawDoorApertureMask(ClientTardis tardis, DoorBlockEntity door, MatrixStack stack) {
         drawDoorApertureMask(tardis, door, stack, false);
     }
 
-    /**
-     * As above, but when {@code writeDepth} is true the mask writes the door-plane DEPTH (colour suppressed,
-     * {@code depthFunc(ALWAYS)}) instead of stamping the stencil. The gbuffer-injection path uses this after drawing
-     * the portal to replace the portal-space depth in the aperture with the interior door's real main-scene depth,
-     * so main-world block-entities/particles/translucent drawn afterward occlude the portal correctly (things in
-     * front of the door draw over it; things behind stay hidden) instead of the portal covering everything.
-     */
     public static void drawDoorApertureMask(ClientTardis tardis, DoorBlockEntity door, MatrixStack stack, boolean writeDepth) {
         ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
         ExteriorVariantSchema parent = variant.parent();
@@ -80,7 +61,6 @@ public class TardisDoorBOTI extends BOTI {
         Vec3d vec = parent.door().getPortalPosition();
         if (vec == null) vec = Vec3d.ZERO;
 
-        // Suppress colour; either stamp stencil (writeDepth=false) or write the door-plane depth (writeDepth=true).
         RenderSystem.colorMask(false, false, false, false);
         RenderSystem.depthMask(writeDepth);
         if (writeDepth) {
@@ -112,8 +92,6 @@ public class TardisDoorBOTI extends BOTI {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.world == null || client.player == null) return;
 
-        // Cache this door for the gbuffer-injection probe: it runs at AFTER_ENTITIES (before this END-phase call),
-        // and DOOR_RENDER_QUEUE is empty there under Sodium, so the probe reuses last frame's door from here.
         BOTI.LAST_RENDERED_DOOR.put(tardis.getUuid(), door);
 
         PortalData portalData = PortalDataManager.get(tardis.getUuid());
@@ -128,12 +106,6 @@ public class TardisDoorBOTI extends BOTI {
 
         BOTI_HANDLER.setupFramebuffer();
 
-        // Tint the doorway background with the exterior dimension's FOG colour - the horizon colour the sky pass
-        // fades the dome into, and the colour vanilla fills everything below the dome's rim with. Any other choice
-        // (the zenith sky colour used previously) reads as a mismatched band around the horizon wherever the
-        // background peeks out between the bottom of the sky and the terrain. The geometry renderer computes it
-        // every frame, so reuse last frame's value; before the first portal frame fall back to the raw sky colour,
-        // then to a daytime blue if the shadow world isn't ready at all.
         Vec3d skyColor = new Vec3d(0.5d, 0.65d, 0.9d);
         if (landed && portalData != null && portalData.world() != null) {
             Vec3d exteriorFog = portalData.geometry().exteriorFogColor();
@@ -143,7 +115,6 @@ public class TardisDoorBOTI extends BOTI {
                 try {
                     skyColor = portalData.world().getSkyColor(Vec3d.of(tardis.travel().position().getPos()), tickDelta);
                 } catch (Exception ignored) {
-                    // keep the fallback colour
                 }
             }
         }
@@ -160,8 +131,6 @@ public class TardisDoorBOTI extends BOTI {
         GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
         GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
 
-        // Write stencil=1 into the doorway aperture using the extracted reusable helper.
-        // (colorMask/depthMask are managed inside the helper; restored to true on return.)
         drawDoorApertureMask(tardis, door, stack);
 
         RenderSystem.depthMask(true);
@@ -197,30 +166,17 @@ public class TardisDoorBOTI extends BOTI {
         GL11.glStencilMask(0x00);
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 
-        // ===== RENDER THE EXTERIOR WORLD THROUGH THE DOORWAY =====
         if (landed && portalData != null && portalData.world() != null) {
             WorldGeometryRenderer geometry = portalData.geometry();
             CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
             BlockPos exteriorBlockPos = exteriorPos.getPos();
 
             try {
-                // Use the exterior's REAL rotation, not a snapped cardinal. The exterior can sit at any of the fine
-                // RotationPropertyHelper steps (22.5 deg each), so Direction.fromRotation(...) - which rounds to
-                // N/S/E/W - threw the doorway view off by up to 45 deg for diagonally-placed boxes. The outward door
-                // normal at yaw E is (sin E, 0, -cos E) (equals fromRotation(E).getOpposite().getVector() on the
-                // cardinals); feed that exact normal to the cull so the baked volume matches the true door plane too.
                 float exteriorRotation = exteriorPos.getRotationDegrees();
                 double normalRad = Math.toRadians(exteriorRotation);
                 Vec3d doorNormal = new Vec3d(Math.sin(normalRad), 0.0, -Math.cos(normalRad));
                 geometry.setDoorNormal(doorNormal);
 
-                // Map the player's eye through the interior doorway into the exterior world: the view rotates with
-                // the door (so every facing - not just north - looks the right way out) and parallaxes as the
-                // player moves. deltaYaw turns "looking into the interior door" into "looking out the exterior door".
-                // It depends on BOTH the interior door's facing and the exterior's real rotation, exactly like the
-                // inverse exterior->interior transform in TardisExteriorBOTI (this reduces to its negation). Using the
-                // real (exteriorRotation + 180) instead of the snapped door direction is what makes the 8/16-way
-                // rotations line up instead of collapsing to the nearest cardinal.
                 Camera camera = client.gameRenderer.getCamera();
                 Direction interiorDoorFacing = door.getFacing().getOpposite();
                 float deltaYaw = (exteriorRotation + 180f) - interiorDoorFacing.asRotation();
@@ -241,8 +197,6 @@ public class TardisDoorBOTI extends BOTI {
                 geometry.render(tardis.getUuid(), portalData.world(), exteriorBlockPos, eyeRelToCenter,
                         portalYaw, portalPitch, tickDelta, true);
             } catch (Throwable t) {
-                // A doorway effect should never take the whole game down; the framebuffer/stencil teardown below
-                // still runs, so the next frame recovers.
                 AITMod.LOGGER.error("Failed to render door BOTI interior", t);
             }
         }
@@ -308,19 +262,9 @@ public class TardisDoorBOTI extends BOTI {
             stack.pop();
         }
 
-        // Disable stencil before blitting the composited interior back to the live target.
         GL11.glDisable(GL11.GL_STENCIL_TEST);
         GL11.glStencilMask(0x00);
 
-        // Blit afbo's colour into whatever framebuffer was live at entry (Iris's world target, or the
-        // vanilla main FB), then rebind it and restore the GL state we captured.
-        //
-        // Under an Iris shaderpack the interior is drawn instead by the gbuffer-injection path
-        // (GbufferInjectionProbe at AFTER_ENTITIES), which shades it via Iris's own deferred pass. Painting the
-        // unshaded afbo composite over it here would produce the "two rendered parts" conflict. So skip only the
-        // blit under a shaderpack - we still ran geometry.render() above (which meshes the volume and caches the
-        // portal matrices the injection reuses) and still restore GL state below. The door frame itself is drawn,
-        // shaded, by the normal DoorRenderer block-entity pass.
         if (!DependencyChecker.isIrisShaderPackInUse())
             BOTI.copyColorToFbo(BOTI_HANDLER.afbo, composite.drawFbo, winW, winH);
         BOTI.endBotiComposite(composite);
