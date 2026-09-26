@@ -4,6 +4,9 @@ import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 import java.util.List;
 
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.FabricatorBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -27,12 +30,6 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.explosion.Explosion;
-
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blockentities.FabricatorBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 
 public class FabricatorBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
 
@@ -52,21 +49,11 @@ public class FabricatorBlock extends HorizontalDirectionalBlock implements Block
     }
 
     @Override
-    public void onDestroyedByExplosion(World world, BlockPos pos, Explosion explosion) {
-        if (world.getBlockEntity(pos) instanceof FabricatorBlockEntity be) {
+    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        if (!state.isOf(newState.getBlock()) && world.getBlockEntity(pos) instanceof FabricatorBlockEntity be)
             be.onBroken();
-        }
 
-        super.onDestroyedByExplosion(world, pos, explosion);
-    }
-
-    @Override
-    public void onBroken(WorldAccess world, BlockPos pos, BlockState state) {
-        if (world.getBlockEntity(pos) instanceof FabricatorBlockEntity be) {
-            be.onBroken();
-        }
-
-        super.onBroken(world, pos, state);
+        super.onStateReplaced(state, world, pos, newState, moved);
     }
 
     @Override

@@ -1,5 +1,17 @@
 package dev.amble.ait.core.blockentities;
 
+import dev.amble.ait.api.ArtronHolder;
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.blocks.UntemperedSchismBlock;
+import dev.amble.ait.core.engine.link.IFluidLink;
+import dev.amble.ait.core.engine.link.IFluidSource;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
+import dev.amble.ait.core.engine.link.tracker.FluidNetwork;
+import dev.amble.ait.core.entities.RiftEntity;
+import dev.amble.ait.core.util.EntityRef;
+import dev.amble.ait.core.world.RiftChunkManager;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
@@ -12,18 +24,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-
-import dev.amble.ait.api.ArtronHolder;
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.blocks.UntemperedSchismBlock;
-import dev.amble.ait.core.engine.link.IFluidLink;
-import dev.amble.ait.core.engine.link.IFluidSource;
-import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
-import dev.amble.ait.core.engine.link.tracker.FluidNetwork;
-import dev.amble.ait.core.entities.RiftEntity;
-import dev.amble.ait.core.util.EntityRef;
-import dev.amble.ait.core.world.RiftChunkManager;
 
 public class UntemperedSchismBlockEntity extends FluidLinkBlockEntity implements BlockEntityTicker<UntemperedSchismBlockEntity>, ArtronHolder, IFluidSource {
 

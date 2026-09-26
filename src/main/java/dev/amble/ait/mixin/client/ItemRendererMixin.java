@@ -1,5 +1,9 @@
 package dev.amble.ait.mixin.client;
 
+import dev.amble.ait.client.models.items.HandlesModel;
+import dev.amble.ait.client.models.items.RiftScannerModel;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.module.planet.core.PlanetItems;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -16,11 +20,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-
-import dev.amble.ait.client.models.items.HandlesModel;
-import dev.amble.ait.client.models.items.RiftScannerModel;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.module.planet.core.PlanetItems;
 
 @Mixin(ItemRenderer.class)
 public class ItemRendererMixin {

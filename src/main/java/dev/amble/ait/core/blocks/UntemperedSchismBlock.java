@@ -1,5 +1,9 @@
 package dev.amble.ait.core.blocks;
 
+import dev.amble.ait.core.blockentities.UntemperedSchismBlockEntity;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
+import dev.amble.ait.core.engine.link.block.HorizontalFluidLinkBlock;
+import dev.amble.ait.core.world.RiftChunkManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -27,11 +31,6 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
-
-import dev.amble.ait.core.blockentities.UntemperedSchismBlockEntity;
-import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
-import dev.amble.ait.core.engine.link.block.HorizontalFluidLinkBlock;
-import dev.amble.ait.core.world.RiftChunkManager;
 
 /**
  * @author Loqor

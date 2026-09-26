@@ -6,6 +6,11 @@ import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.function.Function;
 
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 
@@ -22,12 +27,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.profiler.Profiler;
-
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
 @SuppressWarnings("rawtypes")
 public abstract class SimpleConsoleModel extends SinglePartEntityModel implements ConsoleModel {

@@ -2,13 +2,6 @@ package dev.amble.ait.registry.impl;
 
 import java.util.Optional;
 
-import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
-
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.SimpleRegistry;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.control.Control;
 import dev.amble.ait.core.tardis.control.impl.*;
@@ -18,6 +11,12 @@ import dev.amble.ait.core.tardis.control.impl.pos.YControl;
 import dev.amble.ait.core.tardis.control.impl.pos.ZControl;
 import dev.amble.ait.core.tardis.control.impl.waypoint.LoadWaypointControl;
 import dev.amble.ait.core.tardis.control.impl.waypoint.SaveWaypointControl;
+import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.SimpleRegistry;
+import net.minecraft.util.Identifier;
 
 public class ControlRegistry {
 

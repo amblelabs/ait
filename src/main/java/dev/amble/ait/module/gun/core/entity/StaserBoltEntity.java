@@ -1,5 +1,11 @@
 package dev.amble.ait.module.gun.core.entity;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.devteam.DevTeam;
+import dev.amble.ait.module.gun.core.item.GunItems;
+import dev.amble.ait.module.planet.core.util.ISpaceImmune;
+
 import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -22,12 +28,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.devteam.DevTeam;
-import dev.amble.ait.module.gun.core.item.GunItems;
-import dev.amble.ait.module.planet.core.util.ISpaceImmune;
 
 public class StaserBoltEntity extends PersistentProjectileEntity implements ISpaceImmune {
     public StaserBoltEntity(EntityType<? extends StaserBoltEntity> entityType, World world) {

@@ -3,6 +3,30 @@ package dev.amble.ait.core.tardis.control.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.core.drinks.DrinkUtil;
+import dev.amble.ait.core.item.HandlesItem;
+import dev.amble.ait.core.item.HypercubeItem;
+import dev.amble.ait.core.item.KeyItem;
+import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.core.likes.ItemOpinion;
+import dev.amble.ait.core.likes.ItemOpinionRegistry;
+import dev.amble.ait.core.lock.LockedDimensionRegistry;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
+import dev.amble.ait.core.tardis.handler.SiegeHandler;
+import dev.amble.ait.core.tardis.handler.distress.DistressCall;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
+import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
+import dev.amble.ait.data.Loyalty;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.queue.api.ActionQueue;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,31 +52,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.Structure;
 import net.minecraft.world.gen.structure.StructureKeys;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.link.LinkableItem;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.core.drinks.DrinkUtil;
-import dev.amble.ait.core.item.HandlesItem;
-import dev.amble.ait.core.item.HypercubeItem;
-import dev.amble.ait.core.item.KeyItem;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.likes.ItemOpinion;
-import dev.amble.ait.core.likes.ItemOpinionRegistry;
-import dev.amble.ait.core.lock.LockedDimensionRegistry;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
-import dev.amble.ait.core.tardis.handler.SiegeHandler;
-import dev.amble.ait.core.tardis.handler.distress.DistressCall;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
-import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
-import dev.amble.ait.data.Loyalty;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class TelepathicControl extends Control {
 

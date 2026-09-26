@@ -1,5 +1,8 @@
 package dev.amble.ait.core.tardis.util.network.s2c;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
@@ -12,10 +15,6 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
 
 public class BOTISyncS2CPacket implements FabricPacket {
     public static final PacketType<BOTISyncS2CPacket> TYPE = PacketType.create(AITMod.id("boti_sync"), BOTISyncS2CPacket::new);

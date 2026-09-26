@@ -4,6 +4,14 @@ import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 import java.util.List;
 
+import dev.amble.ait.api.ConsumableBlock;
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.core.engine.link.IFluidSource;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
+import dev.amble.ait.core.engine.link.block.HorizontalFluidLinkBlock;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -23,15 +31,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-
-import dev.amble.ait.api.ConsumableBlock;
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.core.engine.link.IFluidSource;
-import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
-import dev.amble.ait.core.engine.link.block.HorizontalFluidLinkBlock;
 
 public class PowerConverterBlock extends HorizontalFluidLinkBlock implements ConsumableBlock {
     private static final double ARTRON_PER_ITEM = 175;

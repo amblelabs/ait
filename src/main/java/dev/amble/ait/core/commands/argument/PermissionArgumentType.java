@@ -11,13 +11,12 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.handler.permissions.Permission;
 
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.handler.permissions.Permission;
 
 public class PermissionArgumentType implements ArgumentType<Permission> {
 

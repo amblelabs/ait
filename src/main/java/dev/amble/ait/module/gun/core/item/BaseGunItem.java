@@ -3,6 +3,9 @@ package dev.amble.ait.module.gun.core.item;
 import java.util.List;
 import java.util.function.Predicate;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITStatusEffects;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -36,10 +39,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.AITStatusEffects;
 
 public class BaseGunItem extends RangedWeaponItem {
     public static final Identifier SHOOT = AITMod.id("shoot_gun");

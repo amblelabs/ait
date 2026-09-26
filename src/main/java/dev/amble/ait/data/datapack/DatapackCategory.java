@@ -9,11 +9,10 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
+
+import net.minecraft.util.Identifier;
 
 public class DatapackCategory extends ExteriorCategorySchema {
     public static final Codec<ExteriorCategorySchema> CODEC = RecordCodecBuilder.create(instance -> instance

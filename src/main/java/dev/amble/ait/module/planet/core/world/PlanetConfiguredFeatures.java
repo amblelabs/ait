@@ -2,6 +2,9 @@ package dev.amble.ait.module.planet.core.world;
 
 import java.util.List;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.module.planet.core.PlanetBlocks;
+
 import net.minecraft.registry.Registerable;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -11,9 +14,6 @@ import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.OreFeatureConfig;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.module.planet.core.PlanetBlocks;
 
 public class PlanetConfiguredFeatures {
    public static final RegistryKey<ConfiguredFeature<?, ?>> MARTIAN_COAL_ORE = registryKey("martian_coal_ore");

@@ -1,5 +1,6 @@
 package dev.amble.ait.core.blockentities;
 
+import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
@@ -18,8 +19,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Nameable;
 import net.minecraft.util.math.BlockPos;
-
-import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
 
 public abstract class AbstractConsoleBlockEntity extends InteriorLinkableBlockEntity implements Inventory,
         NamedScreenHandlerFactory,

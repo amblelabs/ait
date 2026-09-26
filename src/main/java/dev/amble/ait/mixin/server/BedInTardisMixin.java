@@ -1,5 +1,9 @@
 package dev.amble.ait.mixin.server;
 
+import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.data.Loyalty;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,11 +22,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.client.util.ClientTardisUtil;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.data.Loyalty;
 
 @Mixin(BedBlock.class)
 public class BedInTardisMixin {

@@ -1,5 +1,18 @@
 package dev.amble.ait.compat.gravity;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisClientEvents;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.client.screens.interior.InteriorSettingsScreen;
+import dev.amble.ait.client.screens.widget.DynamicPressableTextWidget;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.data.Exclude;
+import dev.amble.ait.data.properties.Property;
+import dev.amble.ait.data.properties.Value;
+import dev.amble.ait.registry.impl.TardisComponentRegistry;
 import gravity_changer.EntityTags;
 import gravity_changer.api.GravityChangerAPI;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -15,20 +28,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.Direction;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.KeyedTardisComponent;
-import dev.amble.ait.api.tardis.TardisClientEvents;
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.api.tardis.TardisTickable;
-import dev.amble.ait.client.screens.interior.InteriorSettingsScreen;
-import dev.amble.ait.client.screens.widget.DynamicPressableTextWidget;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.properties.Property;
-import dev.amble.ait.data.properties.Value;
-import dev.amble.ait.registry.impl.TardisComponentRegistry;
 
 public class GravityHandler extends KeyedTardisComponent implements TardisTickable {
 

@@ -10,17 +10,16 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
-
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
 import dev.amble.ait.core.tardis.animation.v2.blockbench.BlockbenchParser;
 import dev.amble.ait.core.tardis.animation.v2.keyframe.KeyframeTracker;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
+
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 public class DatapackAnimation extends TardisAnimation {
     public static final Codec<TardisAnimation> CODEC = RecordCodecBuilder.create(instance -> instance

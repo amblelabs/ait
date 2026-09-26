@@ -3,6 +3,10 @@ package dev.amble.ait.core.item;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import dev.amble.ait.config.ArtronConfigSettings;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.world.RiftChunkManager;
+import dev.amble.ait.core.world.TardisServerWorld;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.Entity;
@@ -21,11 +25,6 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-
-import dev.amble.ait.config.ArtronConfigSettings;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.world.RiftChunkManager;
-import dev.amble.ait.core.world.TardisServerWorld;
 
 public class RiftScannerItem extends Item {
     private static final int MAX_ITERATIONS = 32;

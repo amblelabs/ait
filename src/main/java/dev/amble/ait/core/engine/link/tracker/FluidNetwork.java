@@ -13,6 +13,10 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.engine.link.IFluidLink;
+import dev.amble.ait.core.engine.link.IFluidSource;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -26,11 +30,6 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.engine.link.IFluidLink;
-import dev.amble.ait.core.engine.link.IFluidSource;
-import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 
 /**
  * Synchronous, transactional rebuilds of loaded fluid-link components.

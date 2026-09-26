@@ -1,5 +1,7 @@
 package dev.amble.ait.mixin.compat.portals;
 
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.world.TardisServerWorld;
 import dev.drtheo.multidim.api.MultiDimServerWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -16,9 +18,6 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.world.TardisServerWorld;
 
 @Mixin(TardisServerWorld.class)
 public class TardisServerWorldMixin {

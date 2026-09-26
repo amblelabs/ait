@@ -4,10 +4,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.ServerTardis;
+
+import net.minecraft.util.Identifier;
 
 public interface MoodDictatedEvent {
 
