@@ -1,11 +1,10 @@
 package dev.amble.ait.compat.permissionapi;
 
+import dev.amble.ait.compat.DependencyChecker;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.api.ModInitializer;
 
 import net.minecraft.server.command.ServerCommandSource;
-
-import dev.amble.ait.compat.DependencyChecker;
 
 public class PermissionAPICompat implements ModInitializer {
 

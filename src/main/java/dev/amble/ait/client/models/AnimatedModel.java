@@ -1,11 +1,11 @@
 package dev.amble.ait.client.models;
 
+import dev.amble.ait.client.tardis.ClientTardis;
+
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
-
-import dev.amble.ait.client.tardis.ClientTardis;
 
 public interface AnimatedModel<T extends BlockEntity> {
     void renderWithAnimations(ClientTardis tardis, T linkableBlockEntity, ModelPart root, MatrixStack matrices,

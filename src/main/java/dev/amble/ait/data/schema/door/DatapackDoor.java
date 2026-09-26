@@ -10,15 +10,14 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.util.PortalOffsets;
+import dev.amble.lib.client.bedrock.BedrockAnimationReference;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.util.PortalOffsets;
-import dev.amble.lib.client.bedrock.BedrockAnimationReference;
 
 public class DatapackDoor extends DoorSchema implements AnimatedDoor {
     public static final Codec<DatapackDoor> CODEC = RecordCodecBuilder.create(instance -> instance.group(

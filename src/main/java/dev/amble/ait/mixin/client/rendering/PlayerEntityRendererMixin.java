@@ -3,6 +3,12 @@ package dev.amble.ait.mixin.client.rendering;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.client.renderers.wearables.RespiratorFeatureRenderer;
+import dev.amble.ait.core.entities.FlightTardisEntity;
+import dev.amble.ait.core.item.PsychpaperItem;
+import dev.amble.ait.module.planet.client.models.wearables.SpacesuitModel;
+import dev.amble.ait.module.planet.client.renderers.wearables.SpacesuitFeatureRenderer;
+import dev.amble.ait.module.planet.core.item.SpacesuitItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -25,13 +31,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
-
-import dev.amble.ait.client.renderers.wearables.RespiratorFeatureRenderer;
-import dev.amble.ait.core.entities.FlightTardisEntity;
-import dev.amble.ait.core.item.PsychpaperItem;
-import dev.amble.ait.module.planet.client.models.wearables.SpacesuitModel;
-import dev.amble.ait.module.planet.client.renderers.wearables.SpacesuitFeatureRenderer;
-import dev.amble.ait.module.planet.core.item.SpacesuitItem;
 
 @Mixin(PlayerEntityRenderer.class)
 public abstract class PlayerEntityRendererMixin

@@ -4,20 +4,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import dev.amble.ait.client.screens.widget.SwitcherManager;
-import dev.amble.ait.core.tardis.control.impl.SecurityControl;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.client.screens.widget.SwitcherManager;
 import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
 
 public class PermissionHandler extends KeyedTardisComponent {
 

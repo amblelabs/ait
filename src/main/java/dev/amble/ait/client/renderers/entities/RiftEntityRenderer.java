@@ -1,8 +1,15 @@
 package dev.amble.ait.client.renderers.entities;
 
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.boti.BOTI;
+import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.core.entities.RiftEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
@@ -13,14 +20,6 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.compat.DependencyChecker;
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.boti.BOTI;
-import dev.amble.ait.core.entities.RiftEntity;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
 
 @Environment(EnvType.CLIENT)
 public class RiftEntityRenderer extends EntityRenderer<RiftEntity> {

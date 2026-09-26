@@ -1,19 +1,5 @@
 package dev.amble.ait.core.tardis.handler;
 
-import net.fabricmc.fabric.api.util.TriState;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.api.tardis.TardisTickable;
@@ -31,6 +17,19 @@ import dev.amble.ait.data.properties.flt.FloatProperty;
 import dev.amble.ait.data.properties.flt.FloatValue;
 import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.lib.data.DirectedBlockPos;
+import net.fabricmc.fabric.api.util.TriState;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.particle.ParticleEffect;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 public class DoorHandler extends KeyedTardisComponent implements TardisTickable {
     private static final long KNOCK_RESET_TIME_MS = 2500;

@@ -44,7 +44,9 @@ public class ServerWorldMixin {
 
             // Converting a siege item into its exterior is not item destruction.
             ((TemporalItemOwnership) itemEntity).ait$suppressTemporalDestruction();
-            SiegeTardisItem.placeTardis(found, SiegeTardisItem.fromEntity(entity));
+            if (found.siege().isSiegeBeingHeld())
+                SiegeTardisItem.placeTardis(found, SiegeTardisItem.fromEntity(entity));
+
             entity.kill();
         }
     }

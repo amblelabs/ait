@@ -2,6 +2,14 @@ package dev.amble.ait.core.util;
 
 import java.util.*;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.mixin.server.EnderDragonFightAccessor;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -28,15 +36,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.util.ClientTardisUtil;
-import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.mixin.server.EnderDragonFightAccessor;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.util.ServerLifecycleHooks;
 
 public class WorldUtil {
 

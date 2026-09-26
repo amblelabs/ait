@@ -1,8 +1,6 @@
 package dev.amble.ait.data.schema.exterior.variant.easter_head;
 
 
-import net.minecraft.util.math.Vec3d;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.door.DoorSchema;
@@ -10,6 +8,8 @@ import dev.amble.ait.data.schema.door.impl.EasterHeadDoorVariant;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.category.EasterHeadCategory;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
+
+import net.minecraft.util.math.Vec3d;
 
 // a useful class for creating easter_head variants as they all have the same filepath you know
 public abstract class EasterHeadVariant extends ExteriorVariantSchema {

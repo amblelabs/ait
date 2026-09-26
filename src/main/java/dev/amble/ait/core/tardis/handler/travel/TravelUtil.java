@@ -4,14 +4,14 @@ import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 
 public class TravelUtil {
 
@@ -77,7 +77,7 @@ public class TravelUtil {
 
         boolean hasDirChanged = source.getRotation() != destination.getRotation();
         boolean hasDimChanged = !source.getDimension().equals(destination.getDimension());
-        
+
         if (distance < QUICK_FLIGHT_THRESHOLD && !hasDimChanged)
             return 1; // fast travel
 

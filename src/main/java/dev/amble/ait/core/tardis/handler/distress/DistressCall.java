@@ -2,6 +2,17 @@ package dev.amble.ait.core.tardis.handler.distress;
 
 import java.util.UUID;
 
+import dev.amble.ait.api.tardis.link.v2.TardisRef;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.item.HypercubeItem;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.util.TextUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
@@ -21,18 +32,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec3d;
-
-import dev.amble.ait.api.tardis.link.v2.TardisRef;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.item.HypercubeItem;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.core.util.TextUtil;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.util.ServerLifecycleHooks;
 
 public record DistressCall(Sender sender, String message, int lifetime, int creationTime, boolean isSourceCall) {
     private static final int DEFAULT_LIFETIME = 120 * 20; // 2 minute default lifetime
@@ -65,6 +64,9 @@ public record DistressCall(Sender sender, String message, int lifetime, int crea
 
     public void summon(Tardis tardis, @Nullable ItemStack held) {
         CachedDirectedGlobalPos target = this.sender().position();
+
+        if (target == null)
+            return;
 
         tardis.travel().destination(target, true);
 
@@ -202,7 +204,7 @@ public record DistressCall(Sender sender, String message, int lifetime, int crea
 
         public TardisSender(UUID id) {
             this.id = id;
-            this.ref = TardisRef.createAs(ServerLifecycleHooks.get().getOverworld(), this.getUuid());
+            this.ref = new TardisRef(id, real -> ServerTardisManager.getInstance().demandTardis(ServerLifecycleHooks.get(), real));
         }
         public TardisSender(Tardis tardis) {
             this(tardis.getUuid());

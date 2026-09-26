@@ -1,10 +1,5 @@
 package dev.amble.ait.module.planet.core;
 
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.item.*;
-
 import dev.amble.ait.core.item.HandlesItem;
 import dev.amble.ait.module.planet.PlanetModule;
 import dev.amble.ait.module.planet.core.item.AnorthositeSwordItem;
@@ -12,6 +7,10 @@ import dev.amble.ait.module.planet.core.item.PlanetToolMaterial;
 import dev.amble.ait.module.planet.core.item.SpacesuitItem;
 import dev.amble.lib.container.impl.ItemContainer;
 import dev.amble.lib.item.AItemSettings;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.item.*;
 
 public class PlanetItems extends ItemContainer {
 

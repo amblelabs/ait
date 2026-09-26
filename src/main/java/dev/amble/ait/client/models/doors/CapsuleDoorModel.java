@@ -1,15 +1,15 @@
 package dev.amble.ait.client.models.doors;
 
+import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.tardis.handler.DoorHandler;
+
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.core.tardis.handler.DoorHandler;
 
 public class CapsuleDoorModel extends DoorModel {
     private final ModelPart body;
@@ -113,8 +113,7 @@ public class CapsuleDoorModel extends DoorModel {
             this.body.getChild("doors").getChild("door_right").yaw = (float) -Math.toRadians(maxRot*door.getRightRot());
         }
 
-        if (AITModClient.CONFIG.enableTardisBOTI)
-            this.getPart().getChild("middle").getChild("back").visible = false;
+        this.getPart().getChild("middle").getChild("back").visible = !AITModClient.CONFIG.enableTardisBOTI;
 
         super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);
 

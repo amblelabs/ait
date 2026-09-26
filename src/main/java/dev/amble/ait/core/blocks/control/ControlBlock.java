@@ -2,6 +2,11 @@ package dev.amble.ait.core.blocks.control;
 
 import java.util.Optional;
 
+import dev.amble.ait.core.blockentities.control.ControlBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
+import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.core.item.control.ControlBlockItem;
+import dev.amble.ait.core.item.sonic.SonicMode;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockEntityProvider;
@@ -20,12 +25,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.blockentities.control.ControlBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.item.control.ControlBlockItem;
-import dev.amble.ait.core.item.sonic.SonicMode;
 
 public abstract class ControlBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
 

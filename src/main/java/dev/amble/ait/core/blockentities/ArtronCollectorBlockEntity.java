@@ -1,25 +1,6 @@
 package dev.amble.ait.core.blockentities;
 
 import dev.amble.ait.AITMod;
-import dev.amble.lib.AmbleKit;
-import dev.amble.lib.animation.BedrockModelProvider;
-import dev.amble.lib.client.bedrock.BedrockModelReference;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.World;
-
 import dev.amble.ait.api.ArtronHolder;
 import dev.amble.ait.api.ArtronHolderItem;
 import dev.amble.ait.core.AITBlockEntityTypes;
@@ -30,7 +11,22 @@ import dev.amble.ait.core.item.ArtronCollectorItem;
 import dev.amble.ait.core.item.ChargedZeitonCrystalItem;
 import dev.amble.ait.core.world.RiftChunkManager;
 import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
+import dev.amble.lib.animation.BedrockModelProvider;
+import dev.amble.lib.client.bedrock.BedrockModelReference;
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.World;
 
 public class ArtronCollectorBlockEntity extends FluidLinkBlockEntity implements BedrockModelProvider, BlockEntityTicker<ArtronCollectorBlockEntity>, ArtronHolder {
 

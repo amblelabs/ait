@@ -2,6 +2,10 @@ package dev.amble.ait.client.renderers;
 
 import java.util.List;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.data.ClientLandingManager;
+import dev.amble.ait.data.landing.LandingPadRegion;
+import dev.amble.ait.data.landing.LandingPadSpot;
 import org.joml.Matrix4f;
 
 import net.minecraft.client.MinecraftClient;
@@ -14,11 +18,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.profiler.Profiler;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.data.ClientLandingManager;
-import dev.amble.ait.data.landing.LandingPadRegion;
-import dev.amble.ait.data.landing.LandingPadSpot;
 
 public class LandingRegionRenderer {
 

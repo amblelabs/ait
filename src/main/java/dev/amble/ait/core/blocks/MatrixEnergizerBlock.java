@@ -181,12 +181,12 @@ public class MatrixEnergizerBlock extends Block implements BlockEntityProvider {
         if (!hasPower(state)) return;
 
         // Drop if the block has power, gets broken, and isn't at finished producing the matrix. - Loqor
-        ItemStack netherStar = new ItemStack(Items.NETHER_STAR);
-        dropStack((World) world, pos, netherStar);
-
         if (this.getAge(state) == this.getMaxAge()) {
             ItemStack pmStack = TardisMatrixItem.randomize();
             dropStack((World) world, pos, pmStack);
+        } else {
+            ItemStack netherStar = new ItemStack(Items.NETHER_STAR);
+            dropStack((World) world, pos, netherStar);
         }
         super.onBroken(world, pos, state);
     }

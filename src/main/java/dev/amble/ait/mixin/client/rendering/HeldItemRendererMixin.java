@@ -1,5 +1,7 @@
 package dev.amble.ait.mixin.client.rendering;
 
+import dev.amble.ait.api.AITUseActions;
+import dev.amble.ait.core.AITTags;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,9 +18,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Arm;
 import net.minecraft.util.UseAction;
-
-import dev.amble.ait.api.AITUseActions;
-import dev.amble.ait.core.AITTags;
 
 @Mixin(HeldItemRenderer.class)
 public class HeldItemRendererMixin {

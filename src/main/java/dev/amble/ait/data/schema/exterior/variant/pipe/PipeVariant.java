@@ -1,7 +1,5 @@
 package dev.amble.ait.data.schema.exterior.variant.pipe;
 
-import net.minecraft.util.math.Vec3d;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.door.DoorSchema;
@@ -9,6 +7,8 @@ import dev.amble.ait.data.schema.door.impl.PipeDoorVariant;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.category.PipeCategory;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
+
+import net.minecraft.util.math.Vec3d;
 
 public abstract class PipeVariant extends ExteriorVariantSchema {
     protected static final String TEXTURE_PATH = "textures/blockentities/exteriors/pipe/pipe_";
