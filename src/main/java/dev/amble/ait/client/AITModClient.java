@@ -8,6 +8,50 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
+import dev.amble.ait.client.overlays.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.*;
+import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.loader.api.FabricLoader;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.block.DoorBlock;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.item.ModelPredicateProviderRegistry;
+import net.minecraft.client.particle.EndRodParticle;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.minecraft.client.render.entity.model.SinglePartEntityModel;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.client.render.Frustum;
+import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.RotationPropertyHelper;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.LightType;
+import net.minecraft.world.World;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.boti.*;
 import dev.amble.ait.client.commands.ConfigCommand;
@@ -46,6 +90,7 @@ import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
+import dev.loqor.portal.client.PortalDataManager;
 import dev.amble.ait.core.*;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -117,6 +162,7 @@ public class AITModClient implements ClientModInitializer {
 
     public static AITClientConfig CONFIG;
     private final MinecraftClient client = MinecraftClient.getInstance();
+    private final TardisExteriorBOTI exteriorBoti = new TardisExteriorBOTI();
 
     @Override
     public void onInitializeClient() {
@@ -134,6 +180,13 @@ public class AITModClient implements ClientModInitializer {
         );
 
         ClientTardisManager.init();
+
+        if (MinecraftClient.IS_SYSTEM_MAC) {
+            CoreShaderRegistrationCallback.EVENT.register(context ->
+                    context.register(new Identifier(AITMod.MOD_ID, "copy_depth"),
+                            net.minecraft.client.render.VertexFormats.POSITION_TEXTURE,
+                            program -> BOTI.COPY_DEPTH_PROGRAM = program));
+        }
 
         ModuleRegistry.instance().onClientInit();
 
@@ -176,6 +229,17 @@ public class AITModClient implements ClientModInitializer {
             WorldRenderEvents.END.register(this::gallifreyanBOTI);
             WorldRenderEvents.END.register(this::trenzaloreBOTI);
             WorldRenderEvents.END.register(this::riftBOTI);
+
+            WorldRenderEvents.AFTER_ENTITIES.register(dev.amble.ait.client.boti.iris.GbufferInjectionProbe::run);
+            WorldRenderEvents.AFTER_ENTITIES.register(dev.amble.ait.client.boti.iris.ExteriorGbufferInjection::run);
+
+            WorldRenderEvents.START.register(context -> {
+                if (!DependencyChecker.isIrisShaderPackInUse())
+                    return;
+                var fb = MinecraftClient.getInstance().getFramebuffer();
+                if (fb != null && !dev.amble.ait.client.boti.AITRenderHelper.getIsStencilEnabled(fb))
+                    dev.amble.ait.client.boti.AITRenderHelper.setIsStencilEnabled(fb, true);
+            });
         } else {
             WorldRenderEvents.AFTER_ENTITIES.register(this::exteriorBOTI);
             WorldRenderEvents.AFTER_ENTITIES.register(this::doorBOTI);
@@ -293,6 +357,8 @@ public class AITModClient implements ClientModInitializer {
                 });
 
         ClientTardisUtil.init();
+
+        PortalDataManager.init();
 
         WorldRenderEvents.END.register((context) -> SonicRendering.getInstance().renderWorld(context));
         HudRenderCallback.EVENT.register((context, delta) -> SonicRendering.getInstance().renderGui(context, delta));
@@ -575,7 +641,7 @@ public class AITModClient implements ClientModInitializer {
                 int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
                 profiler.visit("ait_boti_exterior_drawn");
                 profiler.visit("ait_model_build");
-                TardisExteriorBOTI.renderExteriorBoti(exterior, variant, stack, context.consumers(), model,
+                exteriorBoti.renderExteriorBoti(exterior, variant, stack, AITMod.id("textures/environment/tardis_sky.png"), model,
                         BotiPortalModel.getTexturedModelData().createModel(), light);
             } else {
                 profiler.visit("ait_boti_exterior_culled");
@@ -616,12 +682,16 @@ public class AITModClient implements ClientModInitializer {
 
         ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
         AnimatedModel model = variant.getDoor().getCachedModel();
+        Frustum frustum = context.frustum();
 
         profiler.push("ait:boti_door");
 
         for (DoorBlockEntity door : BOTI.DOOR_RENDER_QUEUE) {
             if (door == null) continue;
             BlockPos pos = door.getPos();
+
+            if (frustum != null && !frustum.isVisible(new Box(pos).expand(2.0)))
+                continue;
 
             stack.push();
             stack.translate(0.5, 0, 0.5);
@@ -633,7 +703,7 @@ public class AITModClient implements ClientModInitializer {
                 int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
                 profiler.visit("ait_boti_door_drawn");
                 profiler.visit("ait_model_build");
-                TardisDoorBOTI.renderInteriorDoorBoti(tardis, door, variant, stack, context.consumers(),
+                TardisDoorBOTI.renderInteriorDoorBoti(tardis, door, variant, stack,
                         AITMod.id("textures/environment/tardis_sky.png"), model,
                         BotiPortalModel.getTexturedModelData().createModel(), light, context.tickDelta());
             } else {

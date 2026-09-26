@@ -33,13 +33,23 @@ public final class ClientRenderPass {
     // are the same object, and BlockEntity does not override equals anyway.
     private static final Set<BlockEntity> DRAWN = Collections.newSetFromMap(new IdentityHashMap<>());
 
+    private static int suspended;
+
+    public static void suspend() {
+        suspended++;
+    }
+
+    public static void resume() {
+        suspended--;
+    }
+
     /**
      * @return whether this block entity should be drawn now, which is true for the first call of a
      *         pass and false for the duplicate that follows it. Always true in Iris's shadow pass,
      *         which runs inside the same world render and must not use up the entry.
      */
     public static boolean shouldDraw(BlockEntity entity) {
-        return IrisCompat.isRenderingShadowPass() || DRAWN.add(entity);
+        return suspended > 0 || IrisCompat.isRenderingShadowPass() || DRAWN.add(entity);
     }
 
     public static void init() {

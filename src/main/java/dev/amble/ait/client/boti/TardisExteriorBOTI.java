@@ -1,6 +1,8 @@
 package dev.amble.ait.client.boti;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.lib.data.DirectedGlobalPos;
+import net.minecraft.client.render.*;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
@@ -15,30 +17,52 @@ import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.passive.SheepEntity;
-import net.minecraft.item.Items;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 
+import dev.amble.ait.AITMod;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedBlockPos;
+import dev.loqor.portal.Portals;
+import dev.loqor.portal.client.PortalData;
+import dev.loqor.portal.client.PortalDataManager;
+import dev.loqor.portal.client.WorldGeometryRenderer;
+
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.models.boti.BotiPortalModel;
+import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.SkyboxUtil;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.tardis.handler.BiomeHandler;
+import dev.amble.ait.core.tardis.handler.StatsHandler;
+import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
+
 public class TardisExteriorBOTI extends BOTI {
-    public static void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, VertexConsumerProvider consumers, ExteriorModel frame, ModelPart mask, int light) {
-        if (client.world == null
-                || client.player == null) return;
+    public void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, Identifier frameTex, ExteriorModel frame, ModelPart mask, int light) {
+        if (MinecraftClient.getInstance().world == null
+                || MinecraftClient.getInstance().player == null) return;
 
         if (!exterior.isLinked())
             return;
 
         ClientTardis tardis = exterior.tardis().get().asClient();
+
+        BOTI.LAST_RENDERED_EXTERIOR.put(tardis.getUuid(), exterior);
 
         stack.push();
 
@@ -49,26 +73,26 @@ public class TardisExteriorBOTI extends BOTI {
         profiler.push("ait:boti_ext_fbo_setup");
         profiler.visit("ait_boti_ext_portals");
 
-        client.getFramebuffer().endWrite();
+        BOTI.BotiCompositeState composite = BOTI.beginBotiComposite();
+        int winW = composite.viewport[2];
+        int winH = composite.viewport[3];
 
         BOTI_HANDLER.setupFramebuffer();
 
-        Vec3d skyColor = client.world.getSkyColor(client.player.getPos(), client.getTickDelta());
+        Vec3d skyColor = MinecraftClient.getInstance().world.getSkyColor(MinecraftClient.getInstance().player.getPos(), MinecraftClient.getInstance().getTickDelta());
         if (AITModClient.CONFIG.greenScreenBOTI)
             BOTI.setFramebufferColor(BOTI_HANDLER.afbo, 0, 1, 0, 1);
         else
             BOTI.setFramebufferColor(BOTI_HANDLER.afbo, (float) skyColor.x, (float) skyColor.y, (float) skyColor.z, 1);
 
-        BOTI.copyFramebuffer(client.getFramebuffer(), BOTI_HANDLER.afbo);
+        BOTI.copyFramebufferFromFbo(composite.drawFbo, winW, winH, BOTI_HANDLER.afbo);
         profiler.visit("ait_boti_blit");
 
         profiler.swap("ait:boti_ext_mask");
 
         VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
-        GL11.glEnable(GL11.GL_STENCIL_TEST);
-        GL11.glStencilMask(0xFF);
-        GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+        BOTI.resetStencilByDraw();
         GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
         GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
 
@@ -83,40 +107,72 @@ public class TardisExteriorBOTI extends BOTI {
             stack.translate(0, scale.y() + 0.25f, scale.z() - 1.7f);
         }
         ExteriorVariantSchema parent = variant.parent();
+
         Vec3d vec = parent.getPortalPosition();
         if (vec == null) vec = Vec3d.ZERO;
 
         stack.translate(vec.x, -vec.y - parent.portalHeight() / 2f, vec.z);
         stack.scale((float) parent.portalWidth() * scale.x(),
                 (float) parent.portalHeight() * scale.y(), scale.z());
-
-        if (client.getEntityRenderDispatcher().shouldRenderHitboxes()) {
-            stack.push();
-            stack.translate(0, 0, 0.8);
-            client.getItemRenderer().renderItem(Items.BLUE_STAINED_GLASS_PANE.getDefaultStack(), ModelTransformationMode.FIXED, LightmapTextureManager.MAX_LIGHT_COORDINATE, 0, stack, consumers, client.world, 0);
-            stack.pop();
-        }
-
-        RenderLayer whichOne = AITModClient.CONFIG.greenScreenBOTI ?
-                RenderLayer.getDebugFilledBox() : RenderLayer.getEndGateway();
-        float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0, 1} : new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
+        RenderLayer whichOne = RenderLayer.getDebugFilledBox();
+        float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0, 1} : new float[] {0f, 0f, 0f};
         mask.render(stack, botiProvider.getBuffer(whichOne), light, OverlayTexture.DEFAULT_UV, colorsForGreenScreen[0], colorsForGreenScreen[1], colorsForGreenScreen[2], 1);
         botiProvider.draw();
         profiler.visit("ait_boti_draw_flush");
         stack.pop();
 
         profiler.swap("ait:boti_ext_fbo_depth");
-
-        copyDepth(BOTI_HANDLER.afbo, client.getFramebuffer());
+        BOTI.copyDepthToFbo(BOTI_HANDLER.afbo, composite.drawFbo, winW, winH);
         profiler.visit("ait_boti_blit");
 
         BOTI_HANDLER.afbo.beginWrite(false);
-        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        BOTI.resetDepthByDraw();
 
         profiler.swap("ait:boti_ext_doors");
 
         GL11.glStencilMask(0x00);
         GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+
+        PortalData interior = PortalDataManager.get(Portals.interiorId(tardis.getUuid()));
+        if (interior != null && interior.world() != null && tardis.getDesktop() != null) {
+            try {
+                WorldGeometryRenderer geometry = interior.geometry();
+
+                DirectedBlockPos interiorDoor = tardis.getDesktop().getDoorPos();
+                BlockPos interiorDoorPos = interiorDoor.getPos();
+                Direction interiorFacing = interiorDoor.toMinecraftDirection().getOpposite();
+                geometry.setDoorFacing(interiorFacing);
+
+                CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
+                Direction exteriorFacing = Direction.fromRotation(exteriorPos.getRotationDegrees()).getOpposite();
+                Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
+
+                float deltaYaw = interiorFacing.asRotation() - (tardis.travel().position().getRotationDegrees());
+
+                BlockPos extBlock = exteriorPos.getPos();
+                Vec3d exteriorDoorCenter = new Vec3d(extBlock.getX() + 0.5, extBlock.getY() + 1.0, extBlock.getZ() + 0.5);
+                Vec3d rel = camera.getPos().subtract(exteriorDoorCenter);
+
+                double rad = Math.toRadians(deltaYaw);
+                double cos = Math.cos(rad);
+                double sin = Math.sin(rad);
+                Vec3d relRotated = new Vec3d(rel.x * cos - rel.z * sin, rel.y, rel.x * sin + rel.z * cos);
+                Vec3d eyeRelToCenter = new Vec3d(0.5, 1.0, 0.5).add(relRotated);
+
+                float portalYaw = camera.getYaw() + deltaYaw;
+                float portalPitch = camera.getPitch();
+
+                SkyboxUtil.PORTAL_SKY_TARDIS = tardis;
+                try {
+                    geometry.render(Portals.interiorId(tardis.getUuid()), interior.world(), interiorDoorPos,
+                            eyeRelToCenter, portalYaw, portalPitch, MinecraftClient.getInstance().getTickDelta(), true);
+                } finally {
+                    SkyboxUtil.PORTAL_SKY_TARDIS = null;
+                }
+            } catch (Throwable t) {
+                AITMod.LOGGER.error("Failed to render exterior BOTI interior", t);
+            }
+        }
 
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
@@ -142,7 +198,7 @@ public class TardisExteriorBOTI extends BOTI {
         stack.scale(scale.x(), scale.y(), scale.z());
 
         if (variant != ClientExteriorVariantRegistry.CORAL_GROWTH) {
-            BiomeHandler handler = tardis.handler(TardisComponent.Id.BIOME);
+            BiomeHandler handler = exterior.tardis().get().handler(TardisComponent.Id.BIOME);
             Identifier biomeTexture = handler.getBiomeKey().get(variant.overrides());
             if (biomeTexture != null)
                 frame.renderDoors(tardis, exterior, frame.getPart(), stack,
@@ -163,22 +219,27 @@ public class TardisExteriorBOTI extends BOTI {
         }
         stack.scale(scale.x(), scale.y(), scale.z());
         if (variant.emission() != null) {
-            float u = 1;
-            float t = 1;
-            float s = 1;
+            float u;
+            float t;
+            float s;
 
-            if ((stats.getName() != null && "partytardis".equalsIgnoreCase(stats.getName()) || !tardis.extra().getInsertedDisc().isEmpty())) {
+            if ((stats.getName() != null && "partytardis".equals(stats.getName().toLowerCase()) || (!exterior.tardis().get().extra().getInsertedDisc().isEmpty()))) {
                 int m = 25;
-                int n = client.player.age / m + client.player.getId();
+                int n = MinecraftClient.getInstance().player.age / m + MinecraftClient.getInstance().player.getId();
                 int o = DyeColor.values().length;
                 int p = n % o;
                 int q = (n + 1) % o;
-                float r = ((float) (client.player.age % m)) / m;
+                float r = ((float) (MinecraftClient.getInstance().player.age % m)) / m;
                 float[] fs = SheepEntity.getRgbColor(DyeColor.byId(p));
                 float[] gs = SheepEntity.getRgbColor(DyeColor.byId(q));
                 s = fs[0] * (1f - r) + gs[0] * r;
                 t = fs[1] * (1f - r) + gs[1] * r;
                 u = fs[2] * (1f - r) + gs[2] * r;
+            } else {
+                float[] hs = new float[]{1.0f, 1.0f, 1.0f};
+                s = hs[0];
+                t = hs[1];
+                u = hs[2];
             }
 
             boolean power = tardis.fuel().hasPower();
@@ -197,15 +258,47 @@ public class TardisExteriorBOTI extends BOTI {
 
         profiler.swap("ait:boti_ext_fbo_resolve");
 
-        client.getFramebuffer().beginWrite(true);
-
-        BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
-        profiler.visit("ait_boti_blit");
-
-        GL11.glDisable(GL11.GL_STENCIL_TEST);
-
-        profiler.pop();
+        if (!DependencyChecker.isIrisShaderPackInUse())
+            BOTI.copyColorToFbo(BOTI_HANDLER.afbo, composite.drawFbo, winW, winH);
+        BOTI.endBotiComposite(composite);
 
         stack.pop();
+    }
+
+    public static void drawExteriorApertureMask(ClientTardis tardis, ClientExteriorVariantSchema variant, MatrixStack stack) {
+        drawExteriorApertureMask(tardis, variant, stack, false);
+    }
+
+    public static void drawExteriorApertureMask(ClientTardis tardis, ClientExteriorVariantSchema variant, MatrixStack stack, boolean writeDepth) {
+        ExteriorVariantSchema parent = variant.parent();
+        Vector3f scale = tardis.travel().getScale();
+
+        Vec3d vec = parent.getPortalPosition();
+        if (vec == null) vec = Vec3d.ZERO;
+
+        RenderSystem.colorMask(false, false, false, false);
+        RenderSystem.depthMask(writeDepth);
+        if (writeDepth) {
+            RenderSystem.enableDepthTest();
+            RenderSystem.depthFunc(GL11.GL_ALWAYS);
+        }
+
+        VertexConsumerProvider.Immediate maskProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
+        ModelPart maskPart = BotiPortalModel.getTexturedModelData().createModel();
+
+        stack.push();
+        stack.translate(vec.x, -vec.y - parent.portalHeight() / 2f, vec.z);
+        stack.scale((float) parent.portalWidth() * scale.x(),
+                (float) parent.portalHeight() * scale.y(), scale.z());
+        maskPart.render(stack, maskProvider.getBuffer(RenderLayer.getDebugFilledBox()),
+                0xf000f0, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
+        maskProvider.draw();
+
+        stack.pop();
+
+        if (writeDepth)
+            RenderSystem.depthFunc(GL11.GL_LEQUAL);
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.depthMask(true);
     }
 }

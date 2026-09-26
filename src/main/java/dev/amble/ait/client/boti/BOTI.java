@@ -1,10 +1,36 @@
 package dev.amble.ait.client.boti;
 
+import java.util.HashMap;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
+import java.util.UUID;
 
 import com.mojang.blaze3d.platform.GlConst;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.systems.VertexSorter;
+import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.client.gl.ShaderProgram;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -22,16 +48,21 @@ public class BOTI {
     public static final Collection<RiftEntity> RIFT_RENDERING_QUEUE = new LinkedList<>();
     public static BOTIInit BOTI_HANDLER = new BOTIInit();
     public static AITBufferBuilderStorage AIT_BUF_BUILDER_STORAGE = new AITBufferBuilderStorage();
-    public static Collection<DoorBlockEntity> DOOR_RENDER_QUEUE = new LinkedList<>();
-    public static Collection<BOTIPaintingEntity> GALLIFREYAN_RENDER_QUEUE = new LinkedList<>();
-    public static Collection<BOTIPaintingEntity> TRENZALORE_PAINTING_QUEUE = new LinkedList<>();
-    public static Collection<ExteriorBlockEntity> EXTERIOR_RENDER_QUEUE = new LinkedList<>();
+    public static Queue<DoorBlockEntity> DOOR_RENDER_QUEUE = new LinkedList<>();
+    public static final Map<UUID, DoorBlockEntity> LAST_RENDERED_DOOR = new HashMap<>();
+    public static Queue<BOTIPaintingEntity> GALLIFREYAN_RENDER_QUEUE = new LinkedList<>();
+    public static Queue<BOTIPaintingEntity> TRENZALORE_PAINTING_QUEUE = new LinkedList<>();
+    public static Queue<ExteriorBlockEntity> EXTERIOR_RENDER_QUEUE = new LinkedList<>();
+    public static final Map<UUID, ExteriorBlockEntity> LAST_RENDERED_EXTERIOR = new HashMap<>();
     private static boolean HAS_BEEN_WARNED = false;
 
+    public static int currentDrawFbo() {
+        return GL11.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING);
+    }
+
     public static void copyFramebuffer(Framebuffer src, Framebuffer dest) {
-        GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, src.fbo);
-        GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, dest.fbo);
-        GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight, 0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_DEPTH_BUFFER_BIT | GlConst.GL_COLOR_BUFFER_BIT, GlConst.GL_NEAREST);
+        copyColor(src, dest);
+        copyDepth(src, dest);
     }
 
     public static void copyColor(Framebuffer src, Framebuffer dest) {
@@ -40,19 +71,265 @@ public class BOTI {
         GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight, 0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_COLOR_BUFFER_BIT, GlConst.GL_NEAREST);
     }
 
+    public static ShaderProgram COPY_DEPTH_PROGRAM;
+
     public static void copyDepth(Framebuffer src, Framebuffer dest) {
+        if (!MinecraftClient.IS_SYSTEM_MAC || COPY_DEPTH_PROGRAM == null || src.getDepthAttachment() <= 0) {
+            blitDepth(src, dest);
+            return;
+        }
+
+        dest.beginWrite(true);
+
+        RenderSystem.colorMask(false, false, false, false);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(GL11.GL_ALWAYS);
+        RenderSystem.disableCull();
+
+        Matrix4f prevProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
+        VertexSorter prevSorter = RenderSystem.getVertexSorting();
+        RenderSystem.setProjectionMatrix(IDENTITY_MATRIX, VertexSorter.BY_DISTANCE);
+        MatrixStack modelView = RenderSystem.getModelViewStack();
+        modelView.push();
+        modelView.loadIdentity();
+        RenderSystem.applyModelViewMatrix();
+
+        RenderSystem.setShaderTexture(0, src.getDepthAttachment());
+        RenderSystem.setShader(() -> COPY_DEPTH_PROGRAM);
+
+        BufferBuilder builder = Tessellator.getInstance().getBuffer();
+        builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+        builder.vertex(-1.0, -1.0, 0.0).texture(0.0f, 0.0f).next();
+        builder.vertex(1.0, -1.0, 0.0).texture(1.0f, 0.0f).next();
+        builder.vertex(1.0, 1.0, 0.0).texture(1.0f, 1.0f).next();
+        builder.vertex(-1.0, 1.0, 0.0).texture(0.0f, 1.0f).next();
+        BufferRenderer.drawWithGlobalProgram(builder.end());
+
+        modelView.pop();
+        RenderSystem.applyModelViewMatrix();
+        RenderSystem.setProjectionMatrix(prevProjection, prevSorter);
+
+        RenderSystem.depthFunc(GL11.GL_LEQUAL);
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableCull();
+    }
+
+    private static void blitDepth(Framebuffer src, Framebuffer dest) {
         GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, src.fbo);
         GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, dest.fbo);
         GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight, 0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_DEPTH_BUFFER_BIT, GlConst.GL_NEAREST);
+        GL11.glGetError();
+    }
+
+    public static void copyColorToFbo(Framebuffer src, int destFbo, int w, int h) {
+        GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, src.fbo);
+        GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, destFbo);
+        GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight,
+                0, 0, w, h, GlConst.GL_COLOR_BUFFER_BIT, GlConst.GL_NEAREST);
+    }
+
+    public static void copyColorFromFbo(int srcFbo, int w, int h, Framebuffer dest) {
+        GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, srcFbo);
+        GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, dest.fbo);
+        GlStateManager._glBlitFrameBuffer(0, 0, w, h,
+                0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_COLOR_BUFFER_BIT, GlConst.GL_NEAREST);
+    }
+
+    public static void copyFramebufferFromFbo(int srcFbo, int w, int h, Framebuffer dest) {
+        copyColorFromFbo(srcFbo, w, h, dest);
+        GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, srcFbo);
+        GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, dest.fbo);
+        GlStateManager._glBlitFrameBuffer(0, 0, w, h,
+                0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_DEPTH_BUFFER_BIT, GlConst.GL_NEAREST);
+        GL11.glGetError();
+    }
+
+    public static void copyDepthToFbo(Framebuffer src, int destFbo, int w, int h) {
+        if (!MinecraftClient.IS_SYSTEM_MAC || COPY_DEPTH_PROGRAM == null || src.getDepthAttachment() <= 0) {
+            GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, src.fbo);
+            GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, destFbo);
+            GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight,
+                    0, 0, w, h, GlConst.GL_DEPTH_BUFFER_BIT, GlConst.GL_NEAREST);
+            GL11.glGetError();
+            return;
+        }
+
+        GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, destFbo);
+        RenderSystem.viewport(0, 0, w, h);
+
+        RenderSystem.colorMask(false, false, false, false);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(GL11.GL_ALWAYS);
+        RenderSystem.disableCull();
+
+        Matrix4f prevProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
+        VertexSorter prevSorter = RenderSystem.getVertexSorting();
+        RenderSystem.setProjectionMatrix(IDENTITY_MATRIX, VertexSorter.BY_DISTANCE);
+        MatrixStack modelView = RenderSystem.getModelViewStack();
+        modelView.push();
+        modelView.loadIdentity();
+        RenderSystem.applyModelViewMatrix();
+
+        RenderSystem.setShaderTexture(0, src.getDepthAttachment());
+        RenderSystem.setShader(() -> COPY_DEPTH_PROGRAM);
+
+        BufferBuilder builder = Tessellator.getInstance().getBuffer();
+        builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+        builder.vertex(-1.0, -1.0, 0.0).texture(0.0f, 0.0f).next();
+        builder.vertex(1.0, -1.0, 0.0).texture(1.0f, 0.0f).next();
+        builder.vertex(1.0, 1.0, 0.0).texture(1.0f, 1.0f).next();
+        builder.vertex(-1.0, 1.0, 0.0).texture(0.0f, 1.0f).next();
+        BufferRenderer.drawWithGlobalProgram(builder.end());
+
+        modelView.pop();
+        RenderSystem.applyModelViewMatrix();
+        RenderSystem.setProjectionMatrix(prevProjection, prevSorter);
+
+        RenderSystem.depthFunc(GL11.GL_LEQUAL);
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableCull();
+    }
+
+    public static final class BotiCompositeState {
+        int drawFbo;
+        final int[] viewport = new int[4];
+        boolean stencilEnabled;
+        boolean depthMask;
+    }
+
+    public static BotiCompositeState beginBotiComposite() {
+        BotiCompositeState s = new BotiCompositeState();
+        s.drawFbo = currentDrawFbo();
+        GL11.glGetIntegerv(GL11.GL_VIEWPORT, s.viewport);
+        s.stencilEnabled = GL11.glIsEnabled(GL11.GL_STENCIL_TEST);
+        s.depthMask = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
+        return s;
+    }
+
+    public static void endBotiComposite(BotiCompositeState s) {
+        GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, s.drawFbo);
+        RenderSystem.viewport(s.viewport[0], s.viewport[1], s.viewport[2], s.viewport[3]);
+        GL11.glStencilMask(0xFF);
+        GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
+        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
+        if (!s.stencilEnabled) GL11.glDisable(GL11.GL_STENCIL_TEST);
+        RenderSystem.depthMask(s.depthMask);
+        RenderSystem.enableCull();
     }
 
     public static void setFramebufferColor(Framebuffer src, float r, float g, float b, float a) {
         src.setClearColor(r, g, b, a);
     }
 
-    /**
-     * Warns the user if they are missing Indium and have a non-Nvidia card.
-     */
+    private static final Matrix4f IDENTITY_MATRIX = new Matrix4f();
+
+    public static void resetStencilByDraw() {
+        GL11.glEnable(GL11.GL_STENCIL_TEST);
+        GL11.glStencilMask(0xFF);
+        GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
+        GL11.glStencilOp(GL11.GL_REPLACE, GL11.GL_REPLACE, GL11.GL_REPLACE);
+        drawFullscreenQuad(false, false);
+    }
+
+    public static void resetDepthByDraw() {
+        GL11.glStencilMask(0x00);
+        GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
+        GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
+        drawFullscreenQuad(false, true);
+    }
+
+    public static void clearDepthInStencilRegion() {
+        drawFullscreenQuad(false, true);
+    }
+
+    public static void writeNearDepthInStencilRegion() {
+        drawFullscreenQuad(false, true, 0.0);
+    }
+
+    public static void fillColorInStencilRegion(float r, float g, float b) {
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.depthMask(false);
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(GL11.GL_ALWAYS);
+        RenderSystem.disableCull();
+
+        Matrix4f prevProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
+        VertexSorter prevSorter = RenderSystem.getVertexSorting();
+        RenderSystem.setProjectionMatrix(IDENTITY_MATRIX, VertexSorter.BY_DISTANCE);
+        MatrixStack modelView = RenderSystem.getModelViewStack();
+        modelView.push();
+        modelView.loadIdentity();
+        RenderSystem.applyModelViewMatrix();
+
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        BufferBuilder builder = Tessellator.getInstance().getBuffer();
+        builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+        builder.vertex(-1.0, -1.0, 0.0).color(r, g, b, 1f).next();
+        builder.vertex(1.0, -1.0, 0.0).color(r, g, b, 1f).next();
+        builder.vertex(1.0, 1.0, 0.0).color(r, g, b, 1f).next();
+        builder.vertex(-1.0, 1.0, 0.0).color(r, g, b, 1f).next();
+        BufferRenderer.drawWithGlobalProgram(builder.end());
+
+        modelView.pop();
+        RenderSystem.applyModelViewMatrix();
+        RenderSystem.setProjectionMatrix(prevProjection, prevSorter);
+
+        RenderSystem.depthFunc(GL11.GL_LEQUAL);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableCull();
+    }
+
+    private static void drawFullscreenQuad(boolean writeColor, boolean writeDepth) {
+        drawFullscreenQuad(writeColor, writeDepth, 1.0);
+    }
+
+    private static void drawFullscreenQuad(boolean writeColor, boolean writeDepth, double depthValue) {
+        RenderSystem.colorMask(writeColor, writeColor, writeColor, writeColor);
+        RenderSystem.depthMask(writeDepth);
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(GL11.GL_ALWAYS);
+        RenderSystem.disableCull();
+
+        if (writeDepth)
+            GL11.glDepthRange(depthValue, depthValue);
+
+        Matrix4f prevProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
+        VertexSorter prevSorter = RenderSystem.getVertexSorting();
+        RenderSystem.setProjectionMatrix(IDENTITY_MATRIX, VertexSorter.BY_DISTANCE);
+
+        MatrixStack modelView = RenderSystem.getModelViewStack();
+        modelView.push();
+        modelView.loadIdentity();
+        RenderSystem.applyModelViewMatrix();
+
+        RenderSystem.setShader(GameRenderer::getPositionProgram);
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+
+        BufferBuilder builder = Tessellator.getInstance().getBuffer();
+        builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
+        builder.vertex(-1.0, -1.0, 0.0).next();
+        builder.vertex(1.0, -1.0, 0.0).next();
+        builder.vertex(1.0, 1.0, 0.0).next();
+        builder.vertex(-1.0, 1.0, 0.0).next();
+        BufferRenderer.drawWithGlobalProgram(builder.end());
+
+        modelView.pop();
+        RenderSystem.applyModelViewMatrix();
+        RenderSystem.setProjectionMatrix(prevProjection, prevSorter);
+
+        if (writeDepth)
+            GL11.glDepthRange(0.0, 1.0);
+
+        RenderSystem.depthFunc(GL11.GL_LEQUAL);
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableCull();
+    }
+
     public static void tryWarn(MinecraftClient client) {
         if (HAS_BEEN_WARNED)
             return;
@@ -62,31 +339,10 @@ public class BOTI {
         HAS_BEEN_WARNED = true;
     }
 
-    /**
-     * @return {@code true} if successfully warned the player, {@code false} otherwise
-     */
     private static boolean warn(MinecraftClient client) {
-        if (DependencyChecker.hasMacOs()) {
-            tryWarnMac(client);
-            return true;
-        }
-
         if (DependencyChecker.hasIndium())
             return false;
 
-        if (!DependencyChecker.hasNvidiaCard()) {
-            tryWarnAmd(client);
-            return true;
-        }
-
         return false;
-    }
-
-    private static void tryWarnMac(MinecraftClient client) {
-        client.player.sendMessage(Text.translatable("message.ait.boti.indium_required.mac").formatted(Formatting.RED), false);
-    }
-
-    private static void tryWarnAmd(MinecraftClient client) {
-        client.player.sendMessage(Text.translatable("message.ait.boti.indium_required.amd").formatted(Formatting.RED), false);
     }
 }
