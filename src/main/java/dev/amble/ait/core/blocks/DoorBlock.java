@@ -30,6 +30,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
@@ -37,6 +38,7 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
+import net.minecraft.world.chunk.WorldChunk;
 
 @SuppressWarnings("deprecation")
 public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntityProvider, Waterloggable {
@@ -51,7 +53,13 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
             BlockPos exteriorPos = globalPos.getPos();
             World exteriorWorld = globalPos.getWorld();
 
-            BlockState exteriorState = exteriorWorld.getBlockState(exteriorPos);
+            WorldChunk chunk = exteriorWorld.getChunkManager().getWorldChunk(ChunkSectionPos.getSectionCoord(exteriorPos.getX()),
+                    ChunkSectionPos.getSectionCoord(exteriorPos.getZ()));
+
+            if (chunk == null)
+                return;
+
+            BlockState exteriorState = chunk.getBlockState(exteriorPos);
             if (!tardis.travel().inFlight() && exteriorState.getBlock() instanceof ExteriorBlock)
                 setDoorLight(tardis.asServer(), exteriorState.get(ExteriorBlock.LEVEL_4));
         });
