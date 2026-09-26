@@ -22,6 +22,7 @@ import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.QueuedTardisStructureTemplate;
 import dev.amble.ait.data.Corners;
+import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.lib.data.DirectedBlockPos;
 import dev.drtheo.queue.api.ActionQueue;
@@ -90,7 +91,8 @@ public class TardisDesktop extends TardisComponent {
     }
 
     private boolean changingDesktop = false;
-    private transient List<ChunkPos> heldChunks;
+    @Exclude
+    private List<ChunkPos> heldChunks;
 
     public TardisDesktop(TardisDesktopSchema schema) {
         super(Id.DESKTOP);
