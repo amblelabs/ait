@@ -221,3 +221,4 @@
 - fix: cached door and exterior shapes, less work per frame near a tardis | ([#2219](https://github.com/amblelabs/ait/pull/2219))
 - fix: fixed some ways around tardis security | ([#2199](https://github.com/amblelabs/ait/pull/2199))
 - fix: fixed some tardis packets not checking permissions | ([#2198](https://github.com/amblelabs/ait/pull/2198))
+- fix: fixed immersive portals showing the outside late when opening the door | ([#2218](https://github.com/amblelabs/ait/pull/2218))
