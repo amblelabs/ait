@@ -5,6 +5,7 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.blocks.PeanutBlock;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -62,6 +63,9 @@ public class HammerItem extends SwordItem {
 
         Tardis tardis = consoleBlockEntity.tardis().get();
 
+        if (SecurityControl.cannotAccess(tardis.asServer(), (ServerPlayerEntity) player))
+            return ActionResult.PASS;
+
         TravelHandler travel = tardis.travel();
 
         if (player.getItemCooldownManager().isCoolingDown(stack.getItem()))
@@ -115,7 +119,6 @@ public class HammerItem extends SwordItem {
         int hammerUses = travel.getHammerUses();
 
         double fuel = tardis.fuel().getCurrentFuel();
-        double maxFuel = tardis.fuel().getMaxFuel();
 
         double fuelCost = bonus / 5.0;
 
@@ -124,7 +127,7 @@ public class HammerItem extends SwordItem {
             fuelCost += (150 * travel.speed() * hammerUses) / 7.0;
         }
 
-        if (!world.isClient() && fuel + fuelCost > maxFuel) {
+        if (!world.isClient() && fuel < fuelCost) {
             travel.crash();
 
             tardis.fuel().setCurrentFuel(0.0);
