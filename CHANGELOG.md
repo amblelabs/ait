@@ -220,3 +220,4 @@
 - fix: fixed getting stuck in the tardis when its door is blocked with immersive portals | ([#2211](https://github.com/amblelabs/ait/pull/2211))
 - fix: cached door and exterior shapes, less work per frame near a tardis | ([#2219](https://github.com/amblelabs/ait/pull/2219))
 - fix: fixed some ways around tardis security | ([#2199](https://github.com/amblelabs/ait/pull/2199))
+- fix: fixed some tardis packets not checking permissions | ([#2198](https://github.com/amblelabs/ait/pull/2198))
