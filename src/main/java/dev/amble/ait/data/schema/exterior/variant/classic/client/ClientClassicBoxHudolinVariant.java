@@ -5,6 +5,7 @@ import dev.amble.ait.client.models.exteriors.ClassicHudolinExteriorModel;
 import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
+
 import net.minecraft.util.Identifier;
 
 public class ClientClassicBoxHudolinVariant extends ClientClassicBoxVariant {

@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -105,7 +106,10 @@ public class TardisFileManager<T extends Tardis> {
                                      @NotNull T tardis) {
         try {
             Path savePath = TardisFileManager.getSavePath(server, tardis.getUuid(), "json");
-            Files.writeString(savePath, manager.getFileGson().toJson(tardis, ServerTardis.class));
+            Path tempPath = TardisFileManager.getSavePath(server, tardis.getUuid(), "json.tmp");
+
+            Files.writeString(tempPath, manager.getFileGson().toJson(tardis, ServerTardis.class));
+            Files.move(tempPath, savePath, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
             if (tardis instanceof ServerTardis serverTardis)
                 serverTardis.markPersistentChangesSaved();
             return true;

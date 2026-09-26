@@ -1,7 +1,30 @@
 package dev.amble.ait.client.renderers.exteriors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.boti.BOTI;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.models.exteriors.SiegeModeModel;
+import dev.amble.ait.client.models.machines.ShieldsModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.ClientRenderPass;
+import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.client.util.OffScreenCull;
+import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.compat.iris.IrisCompat;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.blocks.ExteriorBlock;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.BiomeHandler;
+import dev.amble.ait.core.tardis.handler.SiegeHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.data.datapack.DatapackConsole;
+import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -15,29 +38,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import net.minecraft.util.profiler.Profiler;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.client.boti.BOTI;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
-import dev.amble.ait.client.models.exteriors.SiegeModeModel;
-import dev.amble.ait.client.models.machines.ShieldsModel;
-import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.client.util.ClientRenderPass;
-import dev.amble.ait.client.util.OffScreenCull;
-import dev.amble.ait.client.util.ClientTardisUtil;
-import dev.amble.ait.compat.DependencyChecker;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.blocks.ExteriorBlock;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.BiomeHandler;
-import dev.amble.ait.core.tardis.handler.SiegeHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.data.datapack.DatapackConsole;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
-import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEntityRenderer<T> {
 
@@ -149,7 +149,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         }
 
         profiler.visit("ait_exterior_enqueued");
-        if (variant.parent().hasPortals() || !AITModClient.skipBuiltInBOTI()) BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
+        if (!IrisCompat.isRenderingShadowPass() && (variant.parent().hasPortals() || !AITModClient.skipBuiltInBOTI())) BOTI.EXTERIOR_RENDER_QUEUE.add(entity);
     }
 
     /** The largest axis of a non uniform scale, since the bound is a sphere. */
@@ -310,13 +310,10 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
                     ? !power ? 0.01f : 0.3f
                     : u - colorAlpha;
 
-            // Sorted, not unsorted: alpha here is the demat and remat fade, which sweeps through the
-            // partial range where draw order is visible.
-            //
             // TODO the guard above tests `emission`, which DOOM reassigns per rotation, but the layer
             // below binds `variant.emission()`, the un-adjusted base. For DOOM those disagree. Left
             // alone here because changing which texture DOOM binds is not part of this change.
-           model.renderWithAnimations(tardis, entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffsetSorted(variant.emission())),
+           model.renderWithAnimations(tardis, entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission())),
                    0xF000F0, OverlayTexture.DEFAULT_UV, red, green, blue, alpha, tickDelta);
         }
         if (DependencyChecker.hasIris()) {

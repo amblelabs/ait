@@ -1,10 +1,11 @@
 package dev.amble.ait.client.renderers.machines;
 
+import dev.amble.ait.client.models.machines.GenericSubSystemModel;
+import dev.amble.ait.core.engine.block.generic.GenericStructureSystemBlockEntity;
 import org.joml.Vector3f;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
@@ -12,9 +13,6 @@ import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.client.models.machines.GenericSubSystemModel;
-import dev.amble.ait.core.engine.block.generic.GenericStructureSystemBlockEntity;
 
 public class GenericSubSystemRenderer<T extends GenericStructureSystemBlockEntity> implements BlockEntityRenderer<T> {
     private final GenericSubSystemModel model;

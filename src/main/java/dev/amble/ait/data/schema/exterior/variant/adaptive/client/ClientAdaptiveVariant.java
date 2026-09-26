@@ -1,14 +1,13 @@
 package dev.amble.ait.data.schema.exterior.variant.adaptive.client;
 
-import org.joml.Vector3f;
-
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.exteriors.CapsuleExteriorModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import org.joml.Vector3f;
+
+import net.minecraft.util.Identifier;
 
 public class ClientAdaptiveVariant extends ClientExteriorVariantSchema {
 

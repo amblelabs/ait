@@ -175,7 +175,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
-        VoxelShape normal = this.getNormalShape(state, false);
+        VoxelShape normal = this.getNormalShape(state, true);
 
         if (!(blockEntity instanceof ExteriorBlockEntity exterior))
             return normal;

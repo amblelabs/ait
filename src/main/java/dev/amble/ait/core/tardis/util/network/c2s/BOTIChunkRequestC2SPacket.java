@@ -1,5 +1,7 @@
 package dev.amble.ait.core.tardis.util.network.c2s;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.util.network.s2c.BOTIDataS2CPacket;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
@@ -16,9 +18,6 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.util.network.s2c.BOTIDataS2CPacket;
 
 public class BOTIChunkRequestC2SPacket implements FabricPacket {
     public static final PacketType<BOTIChunkRequestC2SPacket> TYPE = PacketType.create(AITMod.id("request_chunk_data"), BOTIChunkRequestC2SPacket::new);

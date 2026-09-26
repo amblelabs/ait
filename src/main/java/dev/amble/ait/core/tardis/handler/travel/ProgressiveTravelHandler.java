@@ -214,7 +214,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
             return;
         }
 
-        if (server.getTicks() % (this.maxSpeed.get() - this.speed() + 1) == 0)
+        if (server.getTicks() % Math.max(1, this.maxSpeed.get() - this.speed() + 1) == 0)
             this.setFlightTicks(this.getFlightTicks() + AITMod.CONFIG.travelPerTick
                     + this.instability() - 1);
     }

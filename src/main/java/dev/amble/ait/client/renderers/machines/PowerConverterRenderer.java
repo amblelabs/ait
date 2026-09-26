@@ -1,5 +1,10 @@
 package dev.amble.ait.client.renderers.machines;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.machines.PowerConverterModel;
+import dev.amble.ait.core.blocks.PlaqueBlock;
+import dev.amble.ait.core.blocks.PowerConverterBlock;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -9,11 +14,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.machines.PowerConverterModel;
-import dev.amble.ait.core.blocks.PlaqueBlock;
-import dev.amble.ait.core.blocks.PowerConverterBlock;
 
 public class PowerConverterRenderer<T extends PowerConverterBlock.BlockEntity> implements BlockEntityRenderer<T> {
 

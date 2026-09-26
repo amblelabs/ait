@@ -1,5 +1,12 @@
 package dev.amble.ait.core.blocks;
 
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.blockentities.DoorBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.util.ShapeUtil;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
@@ -30,14 +37,6 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
-
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.blockentities.DoorBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.util.ShapeUtil;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 @SuppressWarnings("deprecation")
 public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntityProvider, Waterloggable {

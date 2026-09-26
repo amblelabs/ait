@@ -209,7 +209,7 @@ public class ServerTardisManager extends DeprecatedServerTardisManager {
 
     public boolean isFull() {
         int max = AITMod.CONFIG.maxTardises;
-        return max > 0 && this.lookup.size() >= max;
+        return max > 0 && this.knownTardisCount() >= max;
     }
 
     private static boolean isInvalid(ServerTardis tardis) {

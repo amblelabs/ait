@@ -1,12 +1,6 @@
 package dev.amble.ait.registry.impl.door;
 
 
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-
 import dev.amble.ait.client.models.AnimatedModel;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -20,6 +14,12 @@ import dev.amble.ait.data.schema.door.impl.exclusive.ClientDoomDoorVariant;
 import dev.amble.lib.client.bedrock.BedrockModel;
 import dev.amble.lib.client.bedrock.BedrockModelRegistry;
 import dev.amble.lib.register.datapack.DatapackRegistry;
+
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 public class ClientDoorRegistry extends DatapackRegistry<ClientDoorSchema> {
     private static final ClientDoorRegistry INSTANCE = new ClientDoorRegistry();

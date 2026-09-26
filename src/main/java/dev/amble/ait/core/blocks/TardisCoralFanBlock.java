@@ -62,7 +62,7 @@ public class TardisCoralFanBlock extends Block implements Waterloggable {
         BlockPos attachedPos = pos.offset(face.getOpposite());
         BlockState attachedState = world.getBlockState(attachedPos);
 
-        if (canPlaceOn(attachedState, face.getOpposite())) {
+        if (canPlaceOn(world, attachedPos, attachedState, face.getOpposite())) {
             return this.getDefaultState()
                     .with(FACING, face)
                     .with(WATERLOGGED, ctx.getWorld().getFluidState(ctx.getBlockPos()).getFluid() == Fluids.WATER);
@@ -71,7 +71,7 @@ public class TardisCoralFanBlock extends Block implements Waterloggable {
         for (Direction direction : FACING.getValues()) {
             attachedPos = pos.offset(direction.getOpposite());
             attachedState = world.getBlockState(attachedPos);
-            if (canPlaceOn(attachedState, direction.getOpposite())) {
+            if (canPlaceOn(world, attachedPos, attachedState, direction.getOpposite())) {
                 return this.getDefaultState()
                         .with(FACING, direction)
                         .with(WATERLOGGED, ctx.getWorld().getFluidState(ctx.getBlockPos()).getFluid() == Fluids.WATER);
@@ -86,12 +86,11 @@ public class TardisCoralFanBlock extends Block implements Waterloggable {
         Direction facing = state.get(FACING);
         BlockPos attachedPos = pos.offset(facing.getOpposite());
         BlockState attachedState = world.getBlockState(attachedPos);
-        return canPlaceOn(attachedState, facing.getOpposite());
+        return canPlaceOn(world, attachedPos, attachedState, facing.getOpposite());
     }
 
-    private boolean canPlaceOn(BlockState state, Direction direction) {
-        return state.isSideSolidFullSquare(
-                BlockView.class.cast(null), BlockPos.ORIGIN, direction);
+    private boolean canPlaceOn(WorldView world, BlockPos pos, BlockState state, Direction direction) {
+        return state.isSideSolidFullSquare(world, pos, direction);
     }
 
     @Override

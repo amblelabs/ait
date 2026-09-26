@@ -1,7 +1,9 @@
 package dev.amble.ait.core.tardis.manager.old;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Set;
@@ -16,6 +18,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.api.tardis.WorldWithTardis;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.events.ServerCrashEvent;
 import dev.amble.ait.core.events.WorldSaveEvent;
 import dev.amble.ait.core.tardis.ServerTardis;
@@ -445,14 +448,17 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
         CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
 
         if (exteriorPos != null) {
-            if (tardis.hasWorld()) tardis.world().getPlayers().forEach(player
+            if (tardis.hasWorld()) List.copyOf(tardis.world().getPlayers()).forEach(player
                     -> TardisUtil.teleportOutside(tardis, player));
 
             World world = exteriorPos.getWorld();
             BlockPos pos = exteriorPos.getPos();
 
-            world.removeBlock(pos, false);
-            world.removeBlockEntity(pos);
+            if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior && exterior.isLinked()
+                    && exterior.tardis().contains(tardis)) {
+                world.removeBlock(pos, false);
+                world.removeBlockEntity(pos);
+            }
         }
 
         MultiDim.get(server).queueRemove(TardisServerWorld.keyForTardis(tardis));
@@ -465,9 +471,16 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
         this.dormantAuditQueued.remove(id);
         this.dormantAuditSchedules.remove(id);
         this.dormantAuditLoaded.remove(id);
-        this.knownTardisIds.remove(id);
         this.lookup.remove(id);
-        this.fileManager.delete(server, id);
+
+        try {
+            this.fileManager.delete(server, id);
+            if (!this.fileManager.hasTardisFileChecked(server, id))
+                this.knownTardisIds.remove(id);
+        } catch (IOException | RuntimeException exception) {
+            AITMod.LOGGER.warn("Could not confirm removal of TARDIS {}; retaining its capacity reservation",
+                    id, exception);
+        }
     }
 
     protected int knownTardisCount() {

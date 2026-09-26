@@ -1,5 +1,11 @@
 package dev.amble.ait.core.blocks;
 
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.FoodMachineBlockEntity;
+import dev.amble.ait.core.drinks.DrinkRegistry;
+import dev.amble.ait.core.drinks.DrinkUtil;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import org.jetbrains.annotations.Nullable;
@@ -20,13 +26,6 @@ import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blockentities.FoodMachineBlockEntity;
-import dev.amble.ait.core.drinks.DrinkRegistry;
-import dev.amble.ait.core.drinks.DrinkUtil;
 
 public class FoodMachineBlock extends BlockWithEntity implements BlockEntityProvider {
     public static final int MAX_ROTATION_INDEX = RotationPropertyHelper.getMax();

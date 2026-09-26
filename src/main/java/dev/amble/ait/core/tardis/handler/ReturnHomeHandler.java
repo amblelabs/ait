@@ -15,6 +15,7 @@ import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.engine.impl.EmergencyPower;
 import dev.amble.ait.core.item.SiegeInventoryUtil;
 import dev.amble.ait.core.item.SiegeTardisItem;
@@ -2242,8 +2243,27 @@ public class ReturnHomeHandler extends KeyedTardisComponent implements TardisTic
         this.clearSiegeItemTransferPending();
     }
 
+    private boolean canTrackSiegeItem(MinecraftServer server) {
+        if (server == null || !this.tardis.siege().isActive())
+            return false;
+
+        CachedDirectedGlobalPos position = this.tardis.travel().position();
+        if (position == null || position.getDimension() == null || position.getPos() == null)
+            return false;
+
+        position.init(server);
+        ServerWorld world = position.getWorld();
+        if (world == null || !world.isChunkLoaded(position.getPos()))
+            // Keep an established locator authoritative while its carrier changes chunks.
+            return this.primarySiegeItemLocator() != null;
+
+        BlockEntity blockEntity = world.getBlockEntity(position.getPos());
+        return !(blockEntity instanceof ExteriorBlockEntity exterior)
+                || exterior.tardis() == null || !this.tardis.getUuid().equals(exterior.tardis().getId());
+    }
+
     public void trackSiegeItemContainer(ServerWorld world, BlockPos pos) {
-        if (world == null || pos == null)
+        if (world == null || pos == null || !this.canTrackSiegeItem(world.getServer()))
             return;
 
         CachedDirectedGlobalPos location = CachedDirectedGlobalPos.create(world, pos, (byte) 0);
@@ -2254,7 +2274,8 @@ public class ReturnHomeHandler extends KeyedTardisComponent implements TardisTic
     public void trackSiegeItemEntity(Entity entity) {
         if (!(entity.getWorld() instanceof ServerWorld world)
                 || entity.isRemoved() && entity.getRemovalReason() != null
-                && entity.getRemovalReason().shouldDestroy())
+                && entity.getRemovalReason().shouldDestroy()
+                || !this.canTrackSiegeItem(world.getServer()))
             return;
 
         if (this.observeSiegeItemLocator(world.getServer(), new SiegeItemLocator(null, entity.getUuid()), entity))

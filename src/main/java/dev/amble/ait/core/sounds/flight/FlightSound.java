@@ -9,16 +9,15 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.Nameable;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.lib.api.Identifiable;
 
 import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.Nameable;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.lib.api.Identifiable;
 
 public record FlightSound(Identifier id, Identifier soundId, int length, String name) implements Identifiable, Nameable {
 

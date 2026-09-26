@@ -1,5 +1,7 @@
 package dev.amble.ait.module.planet.mixin.gravity;
 
+import dev.amble.ait.module.planet.core.space.planet.Planet;
+import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -10,9 +12,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-
-import dev.amble.ait.module.planet.core.space.planet.Planet;
-import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 
 
 @Mixin({BoatEntity.class})

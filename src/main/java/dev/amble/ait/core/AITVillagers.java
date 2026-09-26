@@ -1,6 +1,7 @@
 package dev.amble.ait.core;
 
 import com.google.common.collect.ImmutableSet;
+import dev.amble.ait.AITMod;
 import net.fabricmc.fabric.api.object.builder.v1.world.poi.PointOfInterestHelper;
 
 import net.minecraft.block.Block;
@@ -11,8 +12,6 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.poi.PointOfInterestType;
-
-import dev.amble.ait.AITMod;
 
 public class AITVillagers {
     public static final RegistryKey<PointOfInterestType> FABRICATOR_ENGINEER_POI_KEY = poiKey("fabricator_engineer_poi");

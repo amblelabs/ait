@@ -1,11 +1,5 @@
 package dev.amble.ait.client.models.consoles;
 
-import net.minecraft.client.model.*;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.animation.Animation;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.RotationAxis;
-
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.animation.console.hudolin.HudolinAnimations;
 import dev.amble.ait.client.tardis.ClientTardis;
@@ -13,6 +7,12 @@ import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.tardis.control.impl.pos.IncrementManager;
 import dev.amble.ait.core.tardis.handler.CloakHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+
+import net.minecraft.client.model.*;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.entity.animation.Animation;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.RotationAxis;
 
 public class HudolinConsoleModel extends SimpleConsoleModel {
     public final ModelPart console;

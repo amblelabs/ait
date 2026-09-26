@@ -5,14 +5,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import dev.amble.ait.AITMod;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
 
 public class SoundHandler {
 
