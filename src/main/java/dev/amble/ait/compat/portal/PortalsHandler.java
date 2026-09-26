@@ -23,6 +23,7 @@ import qouteall.imm_ptl.core.api.PortalAPI;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.imm_ptl.core.render.PortalEntityRenderer;
+import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.q_misc_util.MiscNetworking;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
@@ -100,6 +101,7 @@ public class PortalsHandler extends KeyedTardisComponent {
         //  > ...idk, need to discuss this - Theo
 
         PortalVisualizerUtil.clientInit();
+        PortalsAPI.RENDERING_PORTAL = PortalRendering::isRendering;
 
         if (TardisPortal.ENTITY_TYPE != null)
             EntityRendererRegistry.register(TardisPortal.ENTITY_TYPE, PortalEntityRenderer::new);

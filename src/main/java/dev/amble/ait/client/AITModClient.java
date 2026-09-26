@@ -46,6 +46,7 @@ import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.compat.portal.PortalsAPI;
 import dev.amble.ait.core.*;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -533,7 +534,7 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public static boolean skipPaintingBOTI() {
-        return DependencyChecker.hasPortals() || !CONFIG.enableTardisBOTI;
+        return !CONFIG.enableTardisBOTI;
     }
 
     public void exteriorBOTI(WorldRenderContext context) {
@@ -649,6 +650,9 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void gallifreyanBOTI(WorldRenderContext context) {
+        if (PortalsAPI.RENDERING_PORTAL.getAsBoolean())
+            return;
+
         Profiler profiler = context.world().getProfiler();
         profiler.visit("ait_boti_gallifreyan_queued", BOTI.GALLIFREYAN_RENDER_QUEUE.size());
 
@@ -697,6 +701,9 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void trenzaloreBOTI(WorldRenderContext context) {
+        if (PortalsAPI.RENDERING_PORTAL.getAsBoolean())
+            return;
+
         Profiler profiler = context.world().getProfiler();
         profiler.visit("ait_boti_trenzalore_queued", BOTI.TRENZALORE_PAINTING_QUEUE.size());
 
