@@ -251,6 +251,7 @@ public class PortalsHandler extends KeyedTardisComponent {
         portal.setDestination(exteriorAdjust);
 
         //portal.renderingMergable = true;w
+        // closed door = invisible + no tp, ip won't let you interact through it anyway
         portal.setInteractable(AITMod.CONFIG.allowPortalsInteraction);
         portal.hasCrossPortalCollision = false;
         portal.setIsVisible(open);

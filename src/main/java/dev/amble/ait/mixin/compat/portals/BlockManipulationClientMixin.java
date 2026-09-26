@@ -13,6 +13,8 @@ import net.minecraft.util.hit.BlockHitResult;
 @Mixin(value = BlockManipulationClient.class, remap = false)
 public class BlockManipulationClientMixin {
 
+    // door sits in the portal plane so vanilla's hit always wins, push it out of range and let ip pick through
+    // ray's still capped at reach, server rechecks
     @Inject(method = "getCurrentTargetDistance", at = @At("HEAD"), cancellable = true)
     private static void ignoreDoor(CallbackInfoReturnable<Double> cir) {
         MinecraftClient client = MinecraftClient.getInstance();
