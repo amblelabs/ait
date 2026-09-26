@@ -55,8 +55,11 @@ public class BaseGunItem extends RangedWeaponItem {
         boolean shoot = buf.readBoolean();
         boolean isAds = buf.readBoolean();
 
-        if (shoot) {
-            if (player.getMainHandStack().getItem() instanceof BaseGunItem gun) {
+        if (!shoot)
+            return;
+
+        server.execute(() -> {
+            if (player.getMainHandStack().getItem() instanceof BaseGunItem gun && !player.getItemCooldownManager().isCoolingDown(gun)) {
                 if (gun.getCurrentAmmo(player.getMainHandStack()) <= 0) {
                     player.getWorld().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BLOCK_STONE_BUTTON_CLICK_OFF, SoundCategory.PLAYERS, 1.0f, 1.0f);
                     return;
@@ -73,7 +76,7 @@ public class BaseGunItem extends RangedWeaponItem {
                     compound.putDouble(AMMO_KEY, current - removableAmmo <= 0 ? 0 : current - removableAmmo);
                 }
             }
-        }
+        });
         });
     }
 

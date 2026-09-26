@@ -17,6 +17,7 @@ import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blockentities.EngineBlockEntity;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -69,10 +70,12 @@ public class TardisDesktop extends TardisComponent {
         CORNERS = new Corners(first.multiply(-1), first);
 
         ServerPlayNetworking.registerGlobalReceiver(TardisDesktop.CACHE_CONSOLE,
-                ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+                ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
                     BlockPos console = buf.readBlockPos();
 
                     server.execute(() -> {
+                        if (!player.getWorld().isChunkLoaded(console)) return;
+
                         if (!(player.getWorld().getBlockEntity(console) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
 
                         if (tardis == null)
@@ -87,7 +90,7 @@ public class TardisDesktop extends TardisComponent {
 
                         tardis.getDesktop().cacheConsole(console);
                     });
-                }));
+                })));
     }
 
     private boolean changingDesktop = false;

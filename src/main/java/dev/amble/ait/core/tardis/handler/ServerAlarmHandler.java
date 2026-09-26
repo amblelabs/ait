@@ -58,7 +58,7 @@ public class ServerAlarmHandler extends KeyedTardisComponent implements TardisTi
             if (tardis == null)
                 return;
 
-            tardis.alarm().hostilePresence().set(bool);
+            server.execute(() -> tardis.alarm().hostilePresence().set(bool));
         })));
     }
 

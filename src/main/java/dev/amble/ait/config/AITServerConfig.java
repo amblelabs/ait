@@ -101,10 +101,6 @@ public class AITServerConfig {
     @SerialEntry public int maxTardises = -1;
 
     @AutoGen(category = CATEGORY)
-    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
-    @SerialEntry public boolean disableSafeguards = false;
-
-    @AutoGen(category = CATEGORY)
     @FloatSlider(min = 0, max = 16, step = 0.1f)
     @SerialEntry public float crashSoundVolume = 1f;
 

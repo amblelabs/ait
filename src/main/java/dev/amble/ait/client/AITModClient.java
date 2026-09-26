@@ -301,10 +301,11 @@ public class AITModClient implements ClientModInitializer {
         SonicModelLoader.init();
 
         ClientPlayNetworking.registerGlobalReceiver(AstralMapBlock.OPEN_ASTRAL_MAP, (client, handler, buf, responseSender) -> {
+            BlockPos pos = buf.readBlockPos();
             List<Identifier> ids = buf.readList(PacketByteBuf::readIdentifier);
             client.execute(() -> {
                 AstralMapBlock.structureIds = ids;
-                client.setScreen(new AstralMapScreen());
+                client.setScreen(new AstralMapScreen(pos));
             });
         });
 
@@ -325,7 +326,6 @@ public class AITModClient implements ClientModInitializer {
         return switch (id) {
             case 0 -> new MonitorScreen(tardis, console);
             case 1 -> new BlueprintFabricatorScreen();
-            case 2 -> new AstralMapScreen();
             case 3 -> new EnvironmentProjectorScreen(tardis, console);
             default -> null;
         };
