@@ -38,6 +38,11 @@ import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+
 public class BOTI {
     public static final MinecraftClient client = MinecraftClient.getInstance();
     public static final Collection<RiftEntity> RIFT_RENDERING_QUEUE = new LinkedList<>();

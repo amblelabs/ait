@@ -3,7 +3,6 @@ package dev.amble.ait.core.devteam;
 import java.util.prefs.Preferences;
 
 import com.google.gson.Gson;
-
 import dev.amble.ait.AITMod;
 
 public class BetaTokenPrefs {

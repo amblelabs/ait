@@ -3,12 +3,11 @@ package dev.amble.ait.mixin;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.api.AITUseActions;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 import net.minecraft.util.UseAction;
-
-import dev.amble.ait.api.AITUseActions;
 
 @Mixin(UseAction.class)
 public class UseActionMixin implements AITUseActions {

@@ -1,6 +1,7 @@
 package dev.amble.ait.core.tardis.manager.old;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -9,6 +10,25 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Either;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.api.tardis.WorldWithTardis;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.events.ServerCrashEvent;
+import dev.amble.ait.core.events.WorldSaveEvent;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisManager;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.manager.TardisBuilder;
+import dev.amble.ait.core.tardis.manager.TardisFileManager;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.data.Exclude;
+import dev.amble.ait.data.TardisMap;
+import dev.amble.ait.data.properties.Value;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.multidim.MultiDim;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -25,25 +45,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.api.tardis.WorldWithTardis;
-import dev.amble.ait.core.events.ServerCrashEvent;
-import dev.amble.ait.core.events.WorldSaveEvent;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisManager;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.tardis.manager.TardisBuilder;
-import dev.amble.ait.core.tardis.manager.TardisFileManager;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.TardisMap;
-import dev.amble.ait.data.properties.Value;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public abstract class DeprecatedServerTardisManager extends TardisManager<ServerTardis, MinecraftServer> implements TardisFileManager.TardisLoader<ServerTardis> {
 
@@ -178,14 +179,17 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
         CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
 
         if (exteriorPos != null) {
-            if (tardis.hasWorld()) tardis.world().getPlayers().forEach(player
+            if (tardis.hasWorld()) List.copyOf(tardis.world().getPlayers()).forEach(player
                     -> TardisUtil.teleportOutside(tardis, player));
 
             World world = exteriorPos.getWorld();
             BlockPos pos = exteriorPos.getPos();
 
-            world.removeBlock(pos, false);
-            world.removeBlockEntity(pos);
+            if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior && exterior.isLinked()
+                    && exterior.tardis().contains(tardis)) {
+                world.removeBlock(pos, false);
+                world.removeBlockEntity(pos);
+            }
         }
 
         MultiDim.get(server).queueRemove(TardisServerWorld.keyForTardis(tardis));

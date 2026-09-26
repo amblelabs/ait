@@ -124,6 +124,7 @@ dependencies {
     modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 
     modCompileOnly "maven.modrinth:k9-mod:${project.k9_version}"
+    modCompileOnly "maven.modrinth:iris:1.7.0+1.20.1"
 
     // Iris + Sodium: compile-only for Phase B BOTI-under-Iris integration
     modCompileOnly "maven.modrinth:iris:1.7.0+1.20.1"

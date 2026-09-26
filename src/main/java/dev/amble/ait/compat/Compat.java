@@ -1,10 +1,10 @@
 package dev.amble.ait.compat;
 
-import net.fabricmc.api.ClientModInitializer;
-
 import dev.amble.ait.api.AITModInitializer;
 import dev.amble.ait.compat.gravity.GravityHandler;
+import dev.amble.ait.compat.iris.IrisCompat;
 import dev.amble.ait.compat.portal.PortalsHandler;
+import net.fabricmc.api.ClientModInitializer;
 
 public class Compat implements AITModInitializer, ClientModInitializer {
 
@@ -24,5 +24,8 @@ public class Compat implements AITModInitializer, ClientModInitializer {
 
         if (DependencyChecker.hasPortals())
             PortalsHandler.clientInit();
+
+        if (DependencyChecker.hasIris())
+            IrisCompat.clientInit();
     }
 }

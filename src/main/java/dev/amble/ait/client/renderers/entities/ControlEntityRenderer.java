@@ -1,5 +1,13 @@
 package dev.amble.ait.client.renderers.entities;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.models.consoles.ControlModel;
+import dev.amble.ait.client.renderers.SonicRendering;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.entities.ConsoleControlEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.Control;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.joml.Matrix4f;
@@ -20,15 +28,6 @@ import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.models.consoles.ControlModel;
-import dev.amble.ait.client.renderers.SonicRendering;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.entities.ConsoleControlEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.control.Control;
 
 @Environment(value = EnvType.CLIENT)
 public class ControlEntityRenderer extends EntityRenderer<ConsoleControlEntity> {

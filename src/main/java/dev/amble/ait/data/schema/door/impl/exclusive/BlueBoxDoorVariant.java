@@ -1,12 +1,11 @@
 package dev.amble.ait.data.schema.door.impl.exclusive;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.data.schema.door.DoorSchema;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.data.schema.door.DoorSchema;
 
 public class BlueBoxDoorVariant extends DoorSchema {
     public static final Identifier REFERENCE = AITMod.id("door/blue_box");

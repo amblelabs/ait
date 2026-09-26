@@ -1,9 +1,5 @@
 package dev.amble.ait.data.schema.exterior.variant.tardim;
 
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.util.math.Vec3d;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.door.DoorSchema;
@@ -11,6 +7,9 @@ import dev.amble.ait.data.schema.door.impl.TardimDoorVariant;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.category.TardimCategory;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.util.math.Vec3d;
 
 // a useful class for creating tardim variants as they all have the same filepath you know
 public abstract class TardimVariant extends ExteriorVariantSchema {

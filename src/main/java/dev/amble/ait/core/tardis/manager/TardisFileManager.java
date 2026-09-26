@@ -3,22 +3,23 @@ package dev.amble.ait.core.tardis.manager;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Either;
-import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.WorldSavePath;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisManager;
+import org.jetbrains.annotations.NotNull;
+
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.WorldSavePath;
 
 public class TardisFileManager<T extends Tardis> {
 
@@ -94,7 +95,10 @@ public class TardisFileManager<T extends Tardis> {
     public void saveTardis(MinecraftServer server, TardisManager<T, ?> manager, @NotNull T tardis) {
         try {
             Path savePath = TardisFileManager.getSavePath(server, tardis.getUuid(), "json");
-            Files.writeString(savePath, manager.getFileGson().toJson(tardis, ServerTardis.class));
+            Path tempPath = TardisFileManager.getSavePath(server, tardis.getUuid(), "json.tmp");
+
+            Files.writeString(tempPath, manager.getFileGson().toJson(tardis, ServerTardis.class));
+            Files.move(tempPath, savePath, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             AITMod.LOGGER.warn("Couldn't save TARDIS {}", tardis.getUuid(), e);
         }
@@ -109,12 +113,17 @@ public class TardisFileManager<T extends Tardis> {
     }
 
     public List<UUID> getTardisList(MinecraftServer server) {
-        try {
-            return Files.list(TardisFileManager.getRootSavePath(server)).map(path -> {
+        Path root = TardisFileManager.getRootSavePath(server);
+
+        if (Files.notExists(root))
+            return List.of();
+
+        try (Stream<Path> files = Files.list(root)) {
+            return files.filter(path -> path.toString().endsWith(".json")).map(path -> {
                 String name = path.getFileName().toString();
                 return UUID.fromString(name.substring(0, name.indexOf('.')));
             }).toList();
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             AITMod.LOGGER.error("Failed to list TARDIS files", e);
         }
 

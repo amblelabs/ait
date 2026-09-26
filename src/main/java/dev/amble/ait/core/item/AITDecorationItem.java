@@ -3,6 +3,9 @@ package dev.amble.ait.core.item;
 import java.util.List;
 import java.util.Optional;
 
+import dev.amble.ait.core.AITEntityTypes;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.item.TooltipContext;
@@ -20,10 +23,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
-
-import dev.amble.ait.core.AITEntityTypes;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.entities.BOTIPaintingEntity;
 
 public class AITDecorationItem extends Item {
     private final EntityType<? extends AbstractDecorationEntity> entityType;

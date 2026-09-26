@@ -3,6 +3,7 @@ package dev.amble.ait.mixin.client.rendering.framebuffer;
 import static org.lwjgl.opengl.GL30.GL_DEPTH32F_STENCIL8;
 import static org.lwjgl.opengl.GL30.GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
 
+import dev.amble.ait.client.boti.StencilFrameBuffer;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.GL30;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,8 +13,6 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.WindowFramebuffer;
-
-import dev.amble.ait.client.boti.StencilFrameBuffer;
 
 @Mixin(WindowFramebuffer.class)
 public abstract class MixinMainFramebufferTarget extends Framebuffer {

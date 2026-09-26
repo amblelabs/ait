@@ -3,22 +3,23 @@ package dev.amble.ait.data.schema.door;
 import java.lang.reflect.Type;
 
 import com.google.gson.*;
+import dev.amble.ait.client.models.AnimatedModel;
+import dev.amble.ait.data.schema.door.impl.CapsuleDoorVariant;
+import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
+import dev.amble.ait.registry.impl.door.DoorRegistry;
+import dev.amble.lib.api.Identifiable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 
-import dev.amble.ait.client.models.AnimatedModel;
-import dev.amble.ait.data.schema.door.impl.CapsuleDoorVariant;
-import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
-import dev.amble.ait.registry.impl.door.DoorRegistry;
-import dev.amble.lib.api.Identifiable;
-
 @Environment(EnvType.CLIENT)
 public abstract class ClientDoorSchema implements Identifiable {
     private final Identifier parent;
     private final Identifier id;
+
+    private AnimatedModel model;
 
     protected ClientDoorSchema(Identifier parent, Identifier id) {
         this.parent = parent;
@@ -54,6 +55,10 @@ public abstract class ClientDoorSchema implements Identifiable {
     // public abstract Identifier texture();
     // public abstract Identifier emission();
     public abstract AnimatedModel model();
+
+    public AnimatedModel getCachedModel() {
+        return this.model != null ? this.model : (this.model = this.model());
+    }
 
     public static Object serializer() {
         return new Serializer();

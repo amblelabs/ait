@@ -1,6 +1,7 @@
 package dev.amble.ait.core.advancement;
 
 import com.google.gson.JsonObject;
+import dev.amble.ait.AITMod;
 import org.jetbrains.annotations.ApiStatus;
 
 import net.minecraft.advancement.criterion.AbstractCriterion;
@@ -10,8 +11,6 @@ import net.minecraft.predicate.entity.AdvancementEntityPredicateDeserializer;
 import net.minecraft.predicate.entity.LootContextPredicate;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
 
 
 public class SimpleCriterion extends AbstractCriterion<SimpleCriterion.Conditions> {

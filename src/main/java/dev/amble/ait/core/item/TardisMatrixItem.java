@@ -2,6 +2,8 @@ package dev.amble.ait.core.item;
 
 import java.util.List;
 
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.tardis.handler.StatsHandler;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.item.TooltipContext;
@@ -11,9 +13,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.tardis.handler.StatsHandler;
 
 public class TardisMatrixItem extends Item {
     public TardisMatrixItem(Settings settings) {

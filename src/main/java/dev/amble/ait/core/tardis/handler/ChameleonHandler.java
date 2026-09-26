@@ -5,6 +5,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.util.NetworkUtil;
+import dev.amble.ait.data.Exclude;
+import dev.amble.ait.data.schema.exterior.variant.adaptive.AdaptiveVariant;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.gaslighter.Gaslighter3000;
 import dev.drtheo.gaslighter.api.FakeBlockEvents;
 import dev.drtheo.gaslighter.impl.FakeStructureWorldAccess;
@@ -30,17 +40,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.*;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.KeyedTardisComponent;
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.util.NetworkUtil;
-import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.schema.exterior.variant.adaptive.AdaptiveVariant;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class ChameleonHandler extends KeyedTardisComponent {
 

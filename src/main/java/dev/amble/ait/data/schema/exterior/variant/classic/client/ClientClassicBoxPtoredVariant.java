@@ -1,12 +1,11 @@
 package dev.amble.ait.data.schema.exterior.variant.classic.client;
 
-import org.joml.Vector3f;
-
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
+import org.joml.Vector3f;
+
+import net.minecraft.util.Identifier;
 
 public class ClientClassicBoxPtoredVariant extends ClientClassicBoxVariant {
     protected static final Identifier BIOME_IDENTIFIER = new Identifier(AITMod.MOD_ID, CATEGORY_PATH + "/biome" + "/classic_ptored.png");

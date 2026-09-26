@@ -1,11 +1,5 @@
 package dev.amble.ait.core.tardis.handler.travel;
 
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.random.Random;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITSounds;
@@ -16,6 +10,12 @@ import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.ait.data.properties.integer.IntProperty;
 import dev.amble.ait.data.properties.integer.IntValue;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.random.Random;
 
 public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
 
@@ -206,7 +206,7 @@ public abstract class ProgressiveTravelHandler extends TravelHandlerBase {
             return;
         }
 
-        if (server.getTicks() % (this.maxSpeed.get() - this.speed() + 1) == 0)
+        if (server.getTicks() % Math.max(1, this.maxSpeed.get() - this.speed() + 1) == 0)
             this.setFlightTicks(this.getFlightTicks() + AITMod.CONFIG.travelPerTick
                     + this.instability() - 1);
     }

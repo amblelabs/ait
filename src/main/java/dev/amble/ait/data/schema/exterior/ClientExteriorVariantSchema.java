@@ -3,13 +3,6 @@ package dev.amble.ait.data.schema.exterior;
 import java.lang.reflect.Type;
 
 import com.google.gson.*;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import org.joml.Vector3f;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.data.datapack.exterior.BiomeOverrides;
@@ -18,6 +11,12 @@ import dev.amble.ait.registry.impl.door.ClientDoorRegistry;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 import dev.amble.lib.api.Identifiable;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import org.joml.Vector3f;
+
+import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
 
 @Environment(EnvType.CLIENT)
 public abstract class ClientExteriorVariantSchema implements Identifiable {

@@ -1,11 +1,14 @@
 package dev.amble.ait.core.world;
 
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.function.BooleanSupplier;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITDimensions;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.drtheo.multidim.MultiDim;
 import dev.drtheo.multidim.MultiDimMod;
 import dev.drtheo.multidim.api.MultiDimServerWorld;
@@ -30,11 +33,6 @@ import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.level.ServerWorldProperties;
 import net.minecraft.world.level.storage.LevelStorage;
 import net.minecraft.world.spawner.Spawner;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.lib.util.ServerLifecycleHooks;
 
 public class TardisServerWorld extends MultiDimServerWorld {
 
