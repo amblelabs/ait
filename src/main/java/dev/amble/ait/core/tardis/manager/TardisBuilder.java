@@ -42,6 +42,14 @@ public class TardisBuilder {
         return this;
     }
 
+    public UUID getUuid() {
+        return this.uuid;
+    }
+
+    public CachedDirectedGlobalPos getPosition() {
+        return this.pos;
+    }
+
     public TardisBuilder desktop(TardisDesktopSchema desktop) {
         this.desktop = desktop;
         return this;

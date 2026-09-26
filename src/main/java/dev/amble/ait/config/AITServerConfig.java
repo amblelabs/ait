@@ -19,6 +19,7 @@ import dev.isxander.yacl3.platform.YACLPlatform;
 public class AITServerConfig {
 
     public static final String CATEGORY = "server";
+    public static final String HOME_CATEGORY = "tardis_home";
 
     public static final ConfigClassHandler<AITServerConfig> INSTANCE = ConfigClassHandler.createBuilder(AITServerConfig.class)
             .id(YACLPlatform.rl(AITMod.MOD_ID, "server"))
@@ -115,6 +116,10 @@ public class AITServerConfig {
     @AutoGen(category = CATEGORY)
     @IntSlider(min = 1, max = 128, step = 1)
     @SerialEntry public int maxStabilizedSpeed = 4;
+
+    @AutoGen(category = HOME_CATEGORY)
+    @IntField(min = 0, max = 525_600)
+    @SerialEntry public int homeRelocationCooldownMinutes = 60;
 
     public static class StringListFactory implements ListGroup.ValueFactory<String>, ListGroup.ControllerFactory<String> {
 
