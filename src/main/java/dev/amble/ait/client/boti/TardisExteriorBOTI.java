@@ -76,7 +76,6 @@ public class TardisExteriorBOTI extends BOTI {
         profiler.push("ait:boti_ext_fbo_setup");
         profiler.visit("ait_boti_ext_portals");
 
-        client.getFramebuffer().endWrite();
         BOTI.BotiCompositeState composite = BOTI.beginBotiComposite();
         int winW = composite.viewport[2];
         int winH = composite.viewport[3];
@@ -271,7 +270,6 @@ public class TardisExteriorBOTI extends BOTI {
 
         profiler.swap("ait:boti_ext_fbo_resolve");
 
-        client.getFramebuffer().beginWrite(true);
         // Under a shaderpack the Phase A afbo->screen blit is suppressed: ExteriorGbufferInjection re-draws the
         // interior into Iris's live gbuffer at AFTER_ENTITIES so the pack shades it, instead of compositing this
         // unshaded afbo over the deferred output. We still run everything above so geometry.render() bakes the VBOs
@@ -308,7 +306,6 @@ public class TardisExteriorBOTI extends BOTI {
 
         Vec3d vec = parent.getPortalPosition();
         if (vec == null) vec = Vec3d.ZERO;
-        BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
 
         RenderSystem.colorMask(false, false, false, false);
         RenderSystem.depthMask(writeDepth);

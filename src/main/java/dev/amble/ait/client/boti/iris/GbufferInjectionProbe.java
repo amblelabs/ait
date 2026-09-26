@@ -16,6 +16,7 @@ import dev.amble.ait.client.boti.AITRenderHelper;
 import dev.amble.ait.client.boti.BOTI;
 import dev.amble.ait.client.boti.TardisDoorBOTI;
 import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -238,10 +239,14 @@ public final class GbufferInjectionProbe {
                 stack.translate(door.getPos().getX() - camPos.x,
                         door.getPos().getY() - camPos.y,
                         door.getPos().getZ() - camPos.z);
+                // Suspend the per-pass draw dedupe: this aperture-clipped re-render would otherwise use up the door's
+                // entry, and the real block-entity pass after AFTER_ENTITIES would then skip the whole door model.
+                ClientRenderPass.suspend();
                 try {
                     mc.getBlockEntityRenderDispatcher().render(door, ctx.tickDelta(), stack, doorImm);
                     doorImm.draw();
                 } finally {
+                    ClientRenderPass.resume();
                     stack.pop();
                     if (doorPhase)
                         dev.amble.ait.client.boti.iris.IrisPhase.reset();
