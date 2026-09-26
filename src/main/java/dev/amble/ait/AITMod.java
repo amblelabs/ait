@@ -21,6 +21,7 @@ import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.engine.registry.SubSystemRegistry;
 import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.entities.RiftEntity;
+import dev.amble.ait.core.item.SiegeInventoryUtil;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.item.blueprint.BlueprintRegistry;
 import dev.amble.ait.core.item.component.AbstractTardisPart;
@@ -154,6 +155,7 @@ public class AITMod implements ModInitializer {
     public void onInitialize() {
         AITServerConfig.INSTANCE.load();
         CONFIG = AITServerConfig.INSTANCE.instance();
+        CONFIG.normalizeLinkedRanges();
 
         ServerLifecycleHooks.init();
         AsyncLocatorUtil.init();
@@ -221,6 +223,7 @@ public class AITMod implements ModInitializer {
         TardisUtil.init();
 
         ServerTardisManager.init();
+        SiegeInventoryUtil.init();
         TardisCriterions.init();
 
         entityAttributeRegister();

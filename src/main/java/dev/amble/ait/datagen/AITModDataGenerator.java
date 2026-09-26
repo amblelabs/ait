@@ -816,6 +816,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.console_control.json_logged", "JSON data logged to Java console!");
         provider.addTranslation("message.ait.control.direction.rotation", "Rotation Direction: %s | %s");
         provider.addTranslation("message.ait.control.monitor.status", "X: %s Y: %s Z: %s Dim: %s Fuel: %s/50000");
+        provider.addTranslation("message.ait.coral.home_occupied",
+                "This coral won't grow here: another TARDIS claims this spot.");
         provider.addTranslation("message.ait.dimension.unlocked", "%s unlocked!");
         provider.addTranslation("message.ait.handles.already_in_flight", "The TARDIS is already in flight...");
         provider.addTranslation("message.ait.handles.antigravs_toggled", "Anti-Gravs Toggled.");
@@ -832,6 +834,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.handles.fun_fact.gallifrey", "Gallifrey has two suns and an orange sky!");
         provider.addTranslation("message.ait.handles.fun_fact.green_tardis", "The first TARDIS was actually painted green!");
         provider.addTranslation("message.ait.handles.fun_fact.handles", "Handles once saved the Doctor's life by solving a centuries-old riddle.");
+        provider.addTranslation("message.ait.handles.go_home", "Destination set to home. Taking off.");
+        provider.addTranslation("message.ait.handles.home_unavailable", "I cannot locate the TARDIS home.");
         provider.addTranslation("message.ait.handles.joke.calm", "Why was the TARDIS always calm? Because it's bigger on the inside.");
         provider.addTranslation("message.ait.handles.joke.dalek", "Why did the Dalek apply for a job? It wanted to EX-TER-MINATE its competition!");
         provider.addTranslation("message.ait.handles.joke.hide_and_seek", "Why does the TARDIS always win hide-and-seek? Because it's in another dimension!");
@@ -848,6 +852,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.handles.setting_course_waypoint", "Setting course for waypoint.");
         provider.addTranslation("message.ait.handles.tardis_state", "TARDIS State: %s");
         provider.addTranslation("message.ait.handles.toggled_shields", "Toggled Shields.");
+        provider.addTranslation("message.ait.handles.travel_failed", "I cannot begin the journey.");
         provider.addTranslation("message.ait.handles.unlocking_doors", "Unlocking door.");
         provider.addTranslation("message.ait.radio.changing_frequency", "Changing Frequency...");
         provider.addTranslation("message.ait.radio.off", "Radio Off");
@@ -974,6 +979,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         // Server config
         provider.addTranslation("yacl3.config.ait:server.minifyJson", "Minify Json");
         provider.addTranslation("yacl3.config.ait:server.ghostMonument", "Toggle Ghost Monument");
+        addEnglishHomewardProtocolConfigTranslations(provider);
         provider.addTranslation("yacl3.config.ait:server.lockDimensions", "Toggle Lockable Dimensions");
         provider.addTranslation("yacl3.config.ait:server.rwfEnabled", "[EXPERIMENTAL] Toggle RWF");
         provider.addTranslation("yacl3.config.ait:server.allowPortalsBoti", "Toggle Immersive Portals BOTI");
@@ -988,6 +994,11 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.crashSoundVolume", "Crash Sound Volume");
         provider.addTranslation("yacl3.config.ait:server.flightSoundVolume", "Flight Sound Volume");
         provider.addTranslation("yacl3.config.ait:server.maxStabilizedSpeed", "Max Stabilized Speed");
+        provider.addTranslation("yacl3.config.ait:server.category.tardis_home", "TARDIS Home");
+        provider.addTranslation("yacl3.config.ait:server.homeRelocationCooldownMinutes",
+                "Home Relocation Cooldown (Minutes)");
+        provider.addTranslation("yacl3.config.ait:server.homeRelocationCooldownMinutes.desc",
+                "Minimum time after changing the TARDIS home before a player can change it again. Set to 0 for no cooldown.");
         provider.addTranslation("yacl3.config.ait:server.projectorBlacklist", "Environment Projector Blacklist");
         provider.addTranslation("yacl3.config.ait:server.projectorWhitelist", "Environment Projector Whitelist");
         provider.addTranslation("yacl3.config.ait:server.travelBlacklist", "TARDIS Travel Blacklist");
@@ -1271,6 +1282,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.protocol_116.active", "Stabiliser: ENGAGED");
         provider.addTranslation("tardis.message.control.hail_mary.engaged", "Hail Mary: ENGAGED");
         provider.addTranslation("tardis.message.control.hail_mary.disengaged", "Hail Mary: DISENGAGED");
+        provider.addTranslation("tardis.message.hail_mary.return_home_countdown",
+                "Alarm active: home in %ss. Disable it to cancel.");
         provider.addTranslation("tardis.message.control.protocol_116.inactive", "Stabilisers: DISENGAGED");
         provider.addTranslation("tardis.message.console.has_sonic_in_port", "Cannot cache console with sonic in port");
         provider.addTranslation("ait.tardis.control.throttle.stabilisers_disabled", "Stabilisers not connected to engine, speed limited!");
@@ -1307,6 +1320,12 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.telepathic.home_updated", "TARDIS home location changed.");
         provider.addTranslation("tardis.message.control.telepathic.home_denied", "The TARDIS refuses to change its home for you. Loyalty level PILOT required.");
         provider.addTranslation("tardis.message.control.telepathic.home_denied_nether", "The TARDIS rejects Nether as home. Loyalty level OWNER required.");
+        provider.addTranslation("tardis.message.control.telepathic.home_cooldown",
+                "The TARDIS refuses to move its home again so soon.");
+        provider.addTranslation("tardis.message.control.telepathic.home_occupied",
+                "Another TARDIS has already claimed this exact home position.");
+        provider.addTranslation("tardis.message.control.telepathic.home_unavailable",
+                "The TARDIS cannot verify this home position right now.");
         provider.addTranslation("tardis.message.control.engine_overdrive.primed", "Dump Artron? Press again to confirm.");
         provider.addTranslation("tardis.message.control.engine_overdrive.insufficient_fuel", "ERROR, TARDIS REQUIRES AT LEAST 25K ARTRON TO EXECUTE THIS ACTION.");
         provider.addTranslation("tardis.message.control.engine_overdrive.dumping_artron", "DUMPING ARTRON");
@@ -2570,6 +2589,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.control.ylandtype.floor", "SUELO");
         provider.addTranslation("message.ait.control.ylandtype.median", "MEDIO");
         provider.addTranslation("message.ait.control.ylandtype.none", "NINGUNO");
+        provider.addTranslation("message.ait.coral.home_occupied",
+                "Este coral no crecerá aquí: otra TARDIS reclama este lugar.");
         provider.addTranslation("message.ait.date_created", "Fecha de creación:");
         provider.addTranslation("message.ait.dimension.unlocked", "Desbloqueado: %s");
         provider.addTranslation("message.ait.enter_landing_code", "Código de aterrizaje");
@@ -2600,6 +2621,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.handles.fun_fact.gallifrey", "Gallifrey tiene dos soles y un cielo naranja.");
         provider.addTranslation("message.ait.handles.fun_fact.green_tardis", "La primera TARDIS en realidad estaba pintada de verde.");
         provider.addTranslation("message.ait.handles.fun_fact.handles", "Handles salvó una vez la vida del Doctor resolviendo un acertijo de siglos de antigüedad.");
+        provider.addTranslation("message.ait.handles.go_home", "Destino fijado en el hogar. Despegando.");
+        provider.addTranslation("message.ait.handles.home_unavailable", "No puedo localizar el hogar de la TARDIS.");
         provider.addTranslation("message.ait.handles.joke.calm", "¿Por qué la TARDIS siempre estaba tranquila? Porque es más grande por dentro.");
         provider.addTranslation("message.ait.handles.joke.dalek", "¿Por qué solicitó trabajo un Dalek? Porque quería EX-TER-MI-NAR a la competencia.");
         provider.addTranslation("message.ait.handles.joke.hide_and_seek", "¿Por qué la TARDIS siempre gana al escondite? Porque está en otra dimensión.");
@@ -2624,6 +2647,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.handles.toggle_lock", "<Handles> Cambiando estado del bloqueo.");
         provider.addTranslation("message.ait.handles.toggle_shields", "<Handles> Cambiando estado de los escudos.");
         provider.addTranslation("message.ait.handles.toggled_shields", "Escudos cambiados.");
+        provider.addTranslation("message.ait.handles.travel_failed", "No puedo iniciar el viaje.");
         provider.addTranslation("message.ait.handles.unlocking_doors", "Desbloqueando puertas.");
         provider.addTranslation("message.ait.handles.when", "<Handles> Afirmativo.");
         provider.addTranslation("message.ait.hypercubes.disabled", "Los hipercubos están desactivados en la configuración del SERVIDOR.");
@@ -2842,14 +2866,18 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.siege.enabled", "Modo asedio: ACTIVADO");
         provider.addTranslation("tardis.message.control.telepathic.choosing", "La TARDIS está eligiendo...");
         provider.addTranslation("tardis.message.control.telepathic.failed", "Destino no encontrado");
+        provider.addTranslation("tardis.message.control.telepathic.home_cooldown", "La TARDIS se niega a volver a cambiar de hogar tan pronto.");
         provider.addTranslation("tardis.message.control.telepathic.home_denied", "La TARDIS se niega a que cambies su hogar. Se requiere nivel de lealtad PILOTO.");
         provider.addTranslation("tardis.message.control.telepathic.home_denied_nether", "La TARDIS rechaza el Nether como hogar. Se requiere nivel de lealtad PROPIETARIO.");
+        provider.addTranslation("tardis.message.control.telepathic.home_occupied", "Otra TARDIS ya ha reclamado esta posición exacta como hogar.");
+        provider.addTranslation("tardis.message.control.telepathic.home_unavailable", "La TARDIS no puede verificar esta posición de hogar ahora mismo.");
         provider.addTranslation("tardis.message.control.telepathic.home_updated", "Hogar de la TARDIS actualizado.");
         provider.addTranslation("tardis.message.control.telepathic.success", "Destino encontrado");
         provider.addTranslation("tardis.message.destination_biome", "Bioma de destino: ");
         provider.addTranslation("tardis.message.engine.no_space", "¡El motor requiere un espacio de 3x3 para funcionar!");
         provider.addTranslation("tardis.message.engine.phasing", "MOTORES DESFASÁNDOSE");
         provider.addTranslation("tardis.message.engine.system_is_weakened", "¡Este sistema muestra señales de debilidad, pero sigue funcionando!");
+        provider.addTranslation("tardis.message.hail_mary.return_home_countdown", "Alarma activa: hogar en %ss. Desactívala para cancelar.");
         provider.addTranslation("tardis.message.growth.hint", "Lanza la matriz de TARDIS al agua para darle vida...");
         provider.addTranslation("tardis.message.growth.in_progress", "El crecimiento del coral sigue en progreso...");
         provider.addTranslation("tardis.message.growth.no_cage", "¡Coloca una jaula alrededor del coral de TARDIS para iniciar el recubrimiento plásmico!");
@@ -2955,11 +2983,17 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.kelvin", "Kelvin (K)");
         provider.addTranslation("yacl3.config.ait:server.allowPortalsBoti", "[EXPERIMENTAL] ¿Permitir IP BOTI? (requiere reiniciar)");
         provider.addTranslation("yacl3.config.ait:server.astralMapBiomeLocatorRange", "Radio en bloques del buscador de biomas del mapa astral");
+        addSpanishHomewardProtocolConfigTranslations(provider);
         provider.addTranslation("yacl3.config.ait:server.category.server", "AIT (Servidor)");
+        provider.addTranslation("yacl3.config.ait:server.category.tardis_home", "Hogar de la TARDIS");
         provider.addTranslation("yacl3.config.ait:server.crashSoundVolume", "Volumen del sonido de impacto de la TARDIS");
         provider.addTranslation("yacl3.config.ait:server.disableSafeguards", "Desactivar protecciones");
         provider.addTranslation("yacl3.config.ait:server.flightSoundVolume", "Volumen del sonido de vuelo");
         provider.addTranslation("yacl3.config.ait:server.ghostMonument", "Monumento fantasma");
+        provider.addTranslation("yacl3.config.ait:server.homeRelocationCooldownMinutes",
+                "Tiempo de espera para cambiar de hogar (minutos)");
+        provider.addTranslation("yacl3.config.ait:server.homeRelocationCooldownMinutes.desc",
+                "Tiempo mínimo que debe pasar después de cambiar el hogar de la TARDIS antes de que un jugador pueda volver a cambiarlo. Establécelo en 0 para no aplicar tiempo de espera.");
         provider.addTranslation("yacl3.config.ait:server.hypercubesEnabled", "¿Activar hipercubos?");
         provider.addTranslation("yacl3.config.ait:server.lockDimensions", "¿Bloquear dimensiones?");
         provider.addTranslation("yacl3.config.ait:server.maxStabilizedSpeed", "Velocidad máxima estabilizada");
@@ -2975,6 +3009,99 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.travelWhitelist", "Dimensiones permitidas para viaje de TARDIS (sustituye a las bloqueadas)");
 
         return provider;
+    }
+
+    private void addEnglishHomewardProtocolConfigTranslations(AmbleLanguageProvider provider) {
+        provider.addTranslation("yacl3.config.ait:server.category.homeward_protocols", "Homeward Protocols");
+        addConfigTranslation(provider, "ghostMonumentReturnHomeDelayMinutes",
+                "Ghost Monument Return Home Delay (Minutes)",
+                "Minutes Ghost Monument may remain active without a nearby player before the TARDIS returns home. Set to 0 to disable this return.");
+        addConfigTranslation(provider, "siegeReturnHomeDelayMinutes", "Siege Return Home Delay (Minutes)",
+                "Minutes a TARDIS may remain in siege mode with its handbrake released before returning home. Set to 0 to disable this return.");
+        addConfigTranslation(provider, "homeRadius", "Home Area Radius (Blocks)",
+                "Radius around home used by automatic return and proximity checks. A different dimension is always outside the home area.");
+        addConfigTranslation(provider, "automaticFlightTimeReduction", "Automatic Flight Time Reduction (Ticks)",
+                "Flight ticks removed from eligible automatic journeys. Their Artron cost is calculated before this reduction.");
+        addConfigTranslation(provider, "automaticRefuelMinimum", "Automatic Refuel Power Threshold (AU)",
+                "Minimum stored Artron required before an automatically refueling TARDIS powers itself back on.");
+        addConfigTranslation(provider, "forcedEntryArtronDumpFuel", "Forced Entry Artron Dump Fuel (AU)",
+                "Artron added when an untrusted intruder breaks into an unpowered TARDIS before its automatic crash journey home.");
+        addConfigTranslation(provider, "hailMaryReturnDelaySeconds", "Hail Mary Return Delay (Seconds)",
+                "Time after the rescued player enters before Hail Mary starts a normal journey home unless the alarm is disabled.");
+        addConfigTranslation(provider, "netherReturnMinDelayMinutes", "Nether Return Minimum Delay (Minutes)",
+                "Minimum random delay before an empty, unbraked TARDIS abandons the Nether when its last pilot had less than PILOT loyalty. Setting either delay to -1 sets both to 0.");
+        addConfigTranslation(provider, "netherReturnMaxDelayMinutes", "Nether Return Maximum Delay (Minutes)",
+                "Maximum random delay before an empty, unbraked TARDIS abandons the Nether when its last pilot had less than PILOT loyalty. Setting either delay to -1 sets both to 0.");
+        addConfigTranslation(provider, "bossDetectionRadius", "Boss Detection Radius (Blocks)",
+                "Radius around the exterior used to detect hostile boss entities that can make an empty, unbraked TARDIS flee home.");
+        addConfigTranslation(provider, "automaticThreatCheckIntervalSeconds", "Automatic Threat Check Interval (Seconds)",
+                "Interval between staggered checks for automatic Nether returns, nearby bosses and pending boss-return journeys.");
+        addConfigTranslation(provider, "bossMissingGraceSeconds", "Missing Boss Grace (Seconds)",
+                "Consecutive seconds a tracked boss may remain absent from the origin range before the TARDIS returns.");
+        addConfigTranslation(provider, "missingExteriorCheckIntervalSeconds", "Missing Exterior Check Interval (Seconds)",
+                "Interval between staggered checks that restore a missing TARDIS exterior at its exact home.");
+        addConfigTranslation(provider, "hailMaryFallAndVoidRescue", "Hail Mary Fall and Void Rescue",
+                "Allows Hail Mary to catch its linked player at their exact position during an imminent fatal fall or fall into the void.");
+        addConfigTranslation(provider, "hailMaryFallRescueRange", "Hail Mary Fall Rescue Range (Blocks)",
+                "Maximum distance to safe ground or the void threshold at which the special Hail Mary fall rescue may trigger.");
+        addConfigTranslation(provider, "hailMaryLevitationSeconds", "Hail Mary Rescue Levitation (Seconds)",
+                "Maximum levitation duration applied during a Hail Mary fall rescue. It is removed when the player enters.");
+        addConfigTranslation(provider, "hailMaryRescuePullStrength", "Hail Mary Rescue Pull Strength",
+                "Force pulling the rescued player toward the TARDIS after it lands.");
+        addConfigTranslation(provider, "keepHailMaryActive", "Keep Hail Mary Active",
+                "Keeps Hail Mary enabled after it is used until a player manually disables it.");
+        addConfigTranslation(provider, "hailMaryActivatesDespiteTotems", "Activate Hail Mary despite Usable Totems",
+                "Allows Hail Mary to activate before a usable Totem of Undying. When disabled, the totem is allowed to activate first.");
+    }
+
+    private void addSpanishHomewardProtocolConfigTranslations(AmbleLanguageProvider provider) {
+        provider.addTranslation("yacl3.config.ait:server.category.homeward_protocols", "Protocolos de regreso al hogar");
+        addConfigTranslation(provider, "ghostMonumentReturnHomeDelayMinutes",
+                "Espera de regreso de Monumento Fantasma (minutos)",
+                "Minutos que Monumento Fantasma puede permanecer activo sin un jugador cercano antes de que la TARDIS regrese al hogar. Establécelo en 0 para desactivar este regreso.");
+        addConfigTranslation(provider, "siegeReturnHomeDelayMinutes", "Espera de regreso en modo asedio (minutos)",
+                "Minutos que una TARDIS puede permanecer en modo asedio con el freno de mano quitado antes de regresar al hogar. Establécelo en 0 para desactivar este regreso.");
+        addConfigTranslation(provider, "homeRadius", "Radio del área del hogar (bloques)",
+                "Radio alrededor del hogar usado para regresos automáticos y comprobaciones de proximidad. Otra dimensión siempre está fuera del área del hogar.");
+        addConfigTranslation(provider, "automaticFlightTimeReduction", "Reducción del viaje automático (ticks)",
+                "Ticks de vuelo retirados de los viajes automáticos compatibles. Su coste de artrón se calcula antes de aplicar esta reducción.");
+        addConfigTranslation(provider, "automaticRefuelMinimum", "Umbral de encendido automático (AU)",
+                "Artrón mínimo almacenado antes de que una TARDIS que reposta automáticamente vuelva a encenderse.");
+        addConfigTranslation(provider, "forcedEntryArtronDumpFuel", "Artrón para descarga por intrusión (AU)",
+                "Artrón añadido cuando un intruso no fiable fuerza una TARDIS apagada antes de su viaje accidentado de regreso al hogar.");
+        addConfigTranslation(provider, "hailMaryReturnDelaySeconds", "Espera de regreso de Último Recurso (segundos)",
+                "Tiempo desde que entra el jugador rescatado hasta que Último Recurso inicia un viaje normal al hogar, salvo que se desactive la alarma.");
+        addConfigTranslation(provider, "netherReturnMinDelayMinutes", "Espera mínima de regreso del Nether (minutos)",
+                "Espera aleatoria mínima antes de que una TARDIS vacía y sin freno de mano abandone el Nether si su último piloto tenía una lealtad inferior a PILOT. Poner -1 en cualquiera de las esperas establece ambas en 0.");
+        addConfigTranslation(provider, "netherReturnMaxDelayMinutes", "Espera máxima de regreso del Nether (minutos)",
+                "Espera aleatoria máxima antes de que una TARDIS vacía y sin freno de mano abandone el Nether si su último piloto tenía una lealtad inferior a PILOT. Poner -1 en cualquiera de las esperas establece ambas en 0.");
+        addConfigTranslation(provider, "bossDetectionRadius", "Radio de detección de jefes (bloques)",
+                "Radio alrededor del exterior usado para detectar jefes hostiles que pueden hacer que una TARDIS vacía y sin freno de mano huya al hogar.");
+        addConfigTranslation(provider, "automaticThreatCheckIntervalSeconds", "Intervalo de amenazas automáticas (segundos)",
+                "Intervalo entre comprobaciones escalonadas de regresos del Nether, jefes cercanos y viajes pendientes de vuelta tras huir.");
+        addConfigTranslation(provider, "bossMissingGraceSeconds", "Margen de ausencia del jefe (segundos)",
+                "Segundos consecutivos que un jefe seguido puede permanecer ausente del área de origen antes de que la TARDIS regrese.");
+        addConfigTranslation(provider, "missingExteriorCheckIntervalSeconds", "Intervalo de exterior ausente (segundos)",
+                "Intervalo entre comprobaciones escalonadas que restauran en el hogar exacto un exterior de TARDIS desaparecido.");
+        addConfigTranslation(provider, "hailMaryFallAndVoidRescue", "Último Recurso rescata de caídas y del vacío",
+                "Permite que Último Recurso recoja a su jugador vinculado en su posición exacta ante una caída mortal o una caída al vacío inminente.");
+        addConfigTranslation(provider, "hailMaryFallRescueRange", "Rango de rescate en caída (bloques)",
+                "Distancia máxima hasta suelo seguro o el límite del vacío a la que puede activarse el rescate especial de Último Recurso.");
+        addConfigTranslation(provider, "hailMaryLevitationSeconds", "Levitación del rescate (segundos)",
+                "Duración máxima de la levitación aplicada durante un rescate en caída. Se elimina cuando entra el jugador.");
+        addConfigTranslation(provider, "hailMaryRescuePullStrength", "Fuerza de atracción del rescate",
+                "Fuerza que atrae al jugador rescatado hacia la TARDIS después de que aterrice.");
+        addConfigTranslation(provider, "keepHailMaryActive", "Mantener Último Recurso activo",
+                "Mantiene Último Recurso activado después de usarlo hasta que un jugador lo desactive manualmente.");
+        addConfigTranslation(provider, "hailMaryActivatesDespiteTotems", "Activar Último Recurso pese a tener tótems",
+                "Permite que Último Recurso se active antes que un Tótem de inmortalidad utilizable. Al desactivarlo se permite que el tótem actúe primero.");
+    }
+
+    private void addConfigTranslation(AmbleLanguageProvider provider, String field, String name,
+                                      String description) {
+        String key = "yacl3.config.ait:server." + field;
+        provider.addTranslation(key, name);
+        provider.addTranslation(key + ".desc", description);
     }
 
     public AmbleLanguageProvider addGermanTranslations(FabricDataOutput output,

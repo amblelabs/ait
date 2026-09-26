@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.Identifier;
 
 
 public class AITEntityTypeTagProvider extends FabricTagProvider.EntityTypeTagProvider {
@@ -24,6 +25,8 @@ public class AITEntityTypeTagProvider extends FabricTagProvider.EntityTypeTagPro
 
         getOrCreateTagBuilder(AITTags.EntityTypes.BOSS)
                 .add(EntityType.ENDER_DRAGON).add(EntityType.WITHER)
-                .add(EntityType.WARDEN).add(EntityType.ELDER_GUARDIAN);
+                .add(EntityType.WARDEN).add(EntityType.ELDER_GUARDIAN)
+                .addOptionalTag(new Identifier("c", "bosses"))
+                .addOptionalTag(new Identifier("forge", "bosses"));
     }
 }

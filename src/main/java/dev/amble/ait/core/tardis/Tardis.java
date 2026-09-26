@@ -254,6 +254,11 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
         return this.handler(TardisComponent.Id.SUBSYSTEM);
     }
 
+    public ReturnHomeHandler returnHome() {
+        return this.handler(TardisComponent.Id.RETURN_HOME);
+    }
+
+
     public ShieldHandler shields() {
         return this.handler(TardisComponent.Id.SHIELDS);
     }
