@@ -1,5 +1,9 @@
 package dev.amble.ait.client.sounds.sonic;
 
+import dev.amble.ait.client.sounds.PositionedLoopingSound;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.AITSounds;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -8,10 +12,6 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.World;
-
-import dev.amble.ait.client.sounds.PositionedLoopingSound;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.AITSounds;
 
 public class SonicSound extends PositionedLoopingSound {
     private final AbstractClientPlayerEntity player;

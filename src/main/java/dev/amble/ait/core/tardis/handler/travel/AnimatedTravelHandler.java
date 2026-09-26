@@ -2,6 +2,14 @@ package dev.amble.ait.core.tardis.handler.travel;
 
 import java.util.UUID;
 
+import dev.amble.ait.client.tardis.manager.ClientTardisManager;
+import dev.amble.ait.core.tardis.animation.v2.AnimationHolder;
+import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
+import dev.amble.ait.core.tardis.animation.v2.TardisAnimationMap;
+import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
+import dev.amble.ait.data.Exclude;
+import dev.amble.ait.data.properties.Property;
+import dev.amble.ait.data.properties.Value;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -12,15 +20,6 @@ import org.joml.Vector3f;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.client.tardis.manager.ClientTardisManager;
-import dev.amble.ait.core.tardis.animation.v2.AnimationHolder;
-import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
-import dev.amble.ait.core.tardis.animation.v2.TardisAnimationMap;
-import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
-import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.properties.Property;
-import dev.amble.ait.data.properties.Value;
 
 public abstract class AnimatedTravelHandler extends ProgressiveTravelHandler {
     private static final Property<Identifier> DEMAT_FX = new Property<>(Property.IDENTIFIER, "demat_fx", TardisAnimationRegistry.DEFAULT_DEMAT);
@@ -107,6 +106,7 @@ public abstract class AnimatedTravelHandler extends ProgressiveTravelHandler {
         if (!this.getAnimations().isRunning()) {
             if (this.isAnimationInvalidated) {
                 this.animations = null;
+                this.isAnimationInvalidated = false;
             }
         }
 

@@ -5,6 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,12 +20,6 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.link.LinkableItem;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 
 public class HandlesItem extends LinkableItem {
     private static final Map<String, HandlesResponses> RESPONSE_MAP = new HashMap<>();

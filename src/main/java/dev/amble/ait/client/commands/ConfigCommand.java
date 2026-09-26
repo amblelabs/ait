@@ -4,12 +4,11 @@ import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.lit
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.config.AITConfigScreen;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
 import net.minecraft.client.MinecraftClient;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.config.AITConfigScreen;
 
 
 public class ConfigCommand {

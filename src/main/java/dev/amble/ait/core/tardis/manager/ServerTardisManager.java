@@ -23,6 +23,7 @@ import dev.amble.ait.data.properties.Value;
 import dev.amble.ait.registry.impl.TardisComponentRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.util.ServerLifecycleHooks;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -44,6 +45,7 @@ public class ServerTardisManager extends DeprecatedServerTardisManager {
     private static ServerTardisManager instance;
 
     private final Set<ServerTardis> delta = new HashSet<>();
+    private final Set<UUID> ids = new HashSet<>();
     private final Map<UUID, ExactHome> exactHomesByTardis = new HashMap<>();
     private final Map<ExactHome, Set<UUID>> exactHomeClaims = new HashMap<>();
     private final ArrayDeque<UUID> exactHomeClaimQueue = new ArrayDeque<>();
@@ -57,6 +59,8 @@ public class ServerTardisManager extends DeprecatedServerTardisManager {
     }
 
     private ServerTardisManager() {
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> this.ids.addAll(this.fileManager.getTardisList(server)));
+
         TardisEvents.SYNC_TARDIS.register(WorldWithTardis.forSync((player, tardisSet) -> {
             if (this.fileManager.isLocked())
                 return;
@@ -123,6 +127,7 @@ public class ServerTardisManager extends DeprecatedServerTardisManager {
         if (result == null)
             return null;
 
+        this.ids.add(result.getUuid());
         this.updateExactHomeClaim(server, result.getUuid(), result.stats().getHome());
         this.sendTardisAll(Set.of(result));
         return result;
@@ -299,6 +304,7 @@ public class ServerTardisManager extends DeprecatedServerTardisManager {
 
         try {
             if (!this.fileManager.hasTardisFileChecked(server, uuid)) {
+                this.ids.remove(uuid);
                 this.replaceExactHomeClaim(uuid, null);
                 if (this.exactHomeIndexState != ExactHomeIndexState.READY)
                     this.exactHomeClaimOverrides.add(uuid);
@@ -415,6 +421,7 @@ public class ServerTardisManager extends DeprecatedServerTardisManager {
     @Override
     public void reset() {
         this.delta.clear();
+        this.ids.clear();
         this.exactHomesByTardis.clear();
         this.exactHomeClaims.clear();
         this.exactHomeClaimQueue.clear();
@@ -427,7 +434,7 @@ public class ServerTardisManager extends DeprecatedServerTardisManager {
 
     public boolean isFull() {
         int max = AITMod.CONFIG.maxTardises;
-        return max > 0 && this.lookup.size() >= max;
+        return max > 0 && this.ids.size() >= max;
     }
 
     private record ExactHome(Identifier dimension, BlockPos position) {

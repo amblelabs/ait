@@ -6,6 +6,7 @@ import static org.lwjgl.opengl.GL30.GL_UNSIGNED_INT_24_8;
 
 import java.util.Objects;
 
+import dev.amble.ait.client.boti.StencilFrameBuffer;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL30C;
@@ -20,8 +21,6 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
-
-import dev.amble.ait.client.boti.StencilFrameBuffer;
 
 @Mixin(Framebuffer.class)
 public abstract class MixinRenderFramebufferTarget implements StencilFrameBuffer {

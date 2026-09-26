@@ -1,5 +1,8 @@
 package dev.amble.ait.core.item.sonic;
 
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.data.schema.sonic.SonicSchema;
+
 import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.SheepEntity;
@@ -17,9 +20,6 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
-
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.data.schema.sonic.SonicSchema;
 
 public class InteractionSonicMode extends SonicMode {
 

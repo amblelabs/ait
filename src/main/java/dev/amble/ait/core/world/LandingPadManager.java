@@ -1,5 +1,8 @@
 package dev.amble.ait.core.world;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.tardis.util.NetworkUtil;
+import dev.amble.ait.data.landing.LandingPadRegion;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
@@ -20,10 +23,6 @@ import net.minecraft.world.Heightmap;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.tardis.util.NetworkUtil;
-import dev.amble.ait.data.landing.LandingPadRegion;
 
 @SuppressWarnings("UnstableApiUsage")
 public class LandingPadManager {
@@ -134,6 +133,8 @@ public class LandingPadManager {
 
                 if (region == null)
                     return;
+
+                world.getChunk(pos.x, pos.z).setAttached(PERSISTENT, region);
 
                 for (ServerPlayerEntity player : PlayerLookup.tracking(world, pos)) {
                     NetworkUtil.send(player, buf, SYNC, LandingPadRegion.CODEC, region);

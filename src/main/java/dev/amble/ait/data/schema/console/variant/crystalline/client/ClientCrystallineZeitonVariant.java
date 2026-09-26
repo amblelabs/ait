@@ -1,15 +1,14 @@
 package dev.amble.ait.data.schema.console.variant.crystalline.client;
 
 
-import org.joml.Vector3f;
-
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.consoles.CrystallineConsoleModel;
 import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
 import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
 import dev.amble.ait.data.schema.console.variant.crystalline.CrystallineZeitonVariant;
+import org.joml.Vector3f;
+
+import net.minecraft.util.Identifier;
 
 public class ClientCrystallineZeitonVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,

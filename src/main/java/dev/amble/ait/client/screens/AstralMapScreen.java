@@ -2,6 +2,10 @@ package dev.amble.ait.client.screens;
 
 import java.util.*;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.screens.widget.CallbackCheckboxWidget;
+import dev.amble.ait.core.blocks.AstralMapBlock;
+import dev.amble.ait.core.util.WorldUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -21,11 +25,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.screens.widget.CallbackCheckboxWidget;
-import dev.amble.ait.core.blocks.AstralMapBlock;
-import dev.amble.ait.core.util.WorldUtil;
 
 @Environment(EnvType.CLIENT)
 public class AstralMapScreen extends Screen {
