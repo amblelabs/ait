@@ -34,6 +34,7 @@ public class TardisPortal extends Portal {
         return super.isVisible() && AITModClient.CONFIG.allowPortalsBoti;
     }
 
+    // closed door portal only goes to players inside, ip relays sound through hidden portals too
     @Override
     public boolean canBeSpectated(ServerPlayerEntity spectator) {
         return super.canBeSpectated(spectator) && (super.isVisible() || spectator.getWorld() == this.getWorld());
