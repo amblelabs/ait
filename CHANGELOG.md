@@ -218,3 +218,4 @@
 - fix: fixed tardis portals staying around after the doors close with immersive portals | ([#2207](https://github.com/amblelabs/ait/pull/2207))
 - fix: fixed changing the interior taking minutes | ([#2215](https://github.com/amblelabs/ait/pull/2215))
 - fix: fixed getting stuck in the tardis when its door is blocked with immersive portals | ([#2211](https://github.com/amblelabs/ait/pull/2211))
+- fix: cached door and exterior shapes, less work per frame near a tardis | ([#2219](https://github.com/amblelabs/ait/pull/2219))
