@@ -10,6 +10,7 @@ import qouteall.imm_ptl.core.portal.Portal;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 
@@ -31,6 +32,11 @@ public class TardisPortal extends Portal {
     @Override
     public boolean isVisible() {
         return super.isVisible() && AITModClient.CONFIG.allowPortalsBoti;
+    }
+
+    @Override
+    public boolean canBeSpectated(ServerPlayerEntity spectator) {
+        return super.canBeSpectated(spectator) && (super.isVisible() || spectator.getWorld() == this.getWorld());
     }
 
     @Override
