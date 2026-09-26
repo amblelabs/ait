@@ -9,6 +9,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.WeakHashMap;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.data.datapack.DatapackConsole;
+import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
+import dev.amble.ait.mixin.client.rendering.CuboidAccessor;
+import dev.amble.ait.mixin.client.rendering.ModelPartAccessor;
+import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -21,13 +27,6 @@ import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.data.datapack.DatapackConsole;
-import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
-import dev.amble.ait.mixin.client.rendering.CuboidAccessor;
-import dev.amble.ait.mixin.client.rendering.ModelPartAccessor;
-import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 
 /**
  * Skips the parts of a model that cannot light up, on the pass that only draws emission.

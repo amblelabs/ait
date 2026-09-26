@@ -1,5 +1,7 @@
 package dev.amble.ait.mixin.server;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.events.ServerCrashEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -7,9 +9,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.crash.CrashReport;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.events.ServerCrashEvent;
 
 @Mixin(MinecraftServer.class)
 public abstract class MinecraftServerMixin {

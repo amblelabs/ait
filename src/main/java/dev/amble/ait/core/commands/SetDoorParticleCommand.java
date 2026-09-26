@@ -7,17 +7,16 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
+import dev.amble.ait.core.commands.argument.TardisArgumentType;
+import dev.amble.ait.core.tardis.ServerTardis;
 
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.ParticleEffectArgumentType;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
-import dev.amble.ait.core.commands.argument.TardisArgumentType;
-import dev.amble.ait.core.tardis.ServerTardis;
 
 public class SetDoorParticleCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access) {

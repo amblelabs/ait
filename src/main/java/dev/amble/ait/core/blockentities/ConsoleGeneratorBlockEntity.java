@@ -5,6 +5,16 @@ import static dev.amble.ait.core.blockentities.ConsoleBlockEntity.nextVariant;
 import static dev.amble.ait.core.blockentities.ConsoleBlockEntity.previousConsole;
 import static dev.amble.ait.core.blockentities.ConsoleBlockEntity.previousVariant;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
+import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
+import dev.amble.ait.registry.impl.console.ConsoleRegistry;
+import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
@@ -23,17 +33,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
-import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
-import dev.amble.ait.registry.impl.console.ConsoleRegistry;
-import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 
 public class ConsoleGeneratorBlockEntity extends FluidLinkBlockEntity {
     public static final Identifier SYNC_TYPE = AITMod.id("sync_gen_type");

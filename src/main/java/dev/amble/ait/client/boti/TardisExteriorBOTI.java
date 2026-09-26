@@ -1,6 +1,17 @@
 package dev.amble.ait.client.boti;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.models.exteriors.ExteriorModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.tardis.handler.BiomeHandler;
+import dev.amble.ait.core.tardis.handler.StatsHandler;
+import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
@@ -18,18 +29,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
-
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.models.exteriors.ExteriorModel;
-import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.handler.BiomeHandler;
-import dev.amble.ait.core.tardis.handler.StatsHandler;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
-import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
-import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 
 public class TardisExteriorBOTI extends BOTI {
     public static void renderExteriorBoti(ExteriorBlockEntity exterior, ClientExteriorVariantSchema variant, MatrixStack stack, VertexConsumerProvider consumers, ExteriorModel frame, ModelPart mask, int light) {

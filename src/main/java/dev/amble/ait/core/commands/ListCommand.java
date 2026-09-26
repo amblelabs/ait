@@ -11,15 +11,14 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.util.TextUtil;
+
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.Text;
 
 public class ListCommand {
 

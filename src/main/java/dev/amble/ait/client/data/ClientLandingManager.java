@@ -3,6 +3,9 @@ package dev.amble.ait.client.data;
 import java.util.HashMap;
 import java.util.Map;
 
+import dev.amble.ait.core.tardis.util.NetworkUtil;
+import dev.amble.ait.core.world.LandingPadManager;
+import dev.amble.ait.data.landing.LandingPadRegion;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -16,10 +19,6 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
-
-import dev.amble.ait.core.tardis.util.NetworkUtil;
-import dev.amble.ait.core.world.LandingPadManager;
-import dev.amble.ait.data.landing.LandingPadRegion;
 
 public class ClientLandingManager {
 

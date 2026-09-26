@@ -2,6 +2,14 @@ package dev.amble.ait.core.blockentities.control;
 
 import java.util.Optional;
 
+import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
+import dev.amble.ait.core.blocks.control.RedstoneControlBlock;
+import dev.amble.ait.core.item.control.ControlBlockItem;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
+import dev.amble.ait.registry.impl.ControlRegistry;
+import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -13,16 +21,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-
-import dev.amble.ait.api.tardis.link.v2.TardisRef;
-import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
-import dev.amble.ait.core.blocks.control.RedstoneControlBlock;
-import dev.amble.ait.core.item.control.ControlBlockItem;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
-import dev.amble.ait.registry.impl.ControlRegistry;
-import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 
 public abstract class ControlBlockEntity extends InteriorLinkableBlockEntity {
 
@@ -96,9 +94,7 @@ public abstract class ControlBlockEntity extends InteriorLinkableBlockEntity {
         if (this.getControl() == null || this.onDelay)
             return false;
 
-        TardisRef found = this.tardis();
-
-        if (!(found.get() instanceof ServerTardis tardis))
+        if (!this.isLinked() || !(this.tardis().get() instanceof ServerTardis tardis))
             return false;
 
         if (!this.control.canRun(tardis, user))

@@ -4,6 +4,14 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import com.google.gson.*;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.data.Loyalty;
+import dev.amble.ait.data.schema.BasicSchema;
+import dev.amble.ait.data.schema.door.DoorSchema;
+import dev.amble.ait.registry.impl.CategoryRegistry;
+import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
+import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.register.unlockable.Unlockable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.NotNull;
@@ -14,15 +22,6 @@ import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.data.Loyalty;
-import dev.amble.ait.data.schema.BasicSchema;
-import dev.amble.ait.data.schema.door.DoorSchema;
-import dev.amble.ait.registry.impl.CategoryRegistry;
-import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
-import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
-import dev.amble.lib.register.unlockable.Unlockable;
 
 /**
  * A variant for a {@link ExteriorCategorySchema} which provides a model,

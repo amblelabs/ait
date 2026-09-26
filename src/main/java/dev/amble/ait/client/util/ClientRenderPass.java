@@ -4,9 +4,11 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Set;
 
+import dev.amble.ait.compat.iris.IrisCompat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+
 import net.minecraft.block.entity.BlockEntity;
 
 /**
@@ -33,10 +35,11 @@ public final class ClientRenderPass {
 
     /**
      * @return whether this block entity should be drawn now, which is true for the first call of a
-     *         pass and false for the duplicate that follows it.
+     *         pass and false for the duplicate that follows it. Always true in Iris's shadow pass,
+     *         which runs inside the same world render and must not use up the entry.
      */
     public static boolean shouldDraw(BlockEntity entity) {
-        return DRAWN.add(entity);
+        return IrisCompat.isRenderingShadowPass() || DRAWN.add(entity);
     }
 
     public static void init() {

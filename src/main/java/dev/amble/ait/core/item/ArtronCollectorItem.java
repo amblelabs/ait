@@ -3,6 +3,8 @@ package dev.amble.ait.core.item;
 import java.util.List;
 import java.util.UUID;
 
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.item.TooltipContext;
@@ -16,9 +18,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 
 public class ArtronCollectorItem extends Item {
     public static final String AU_LEVEL = "au_level";

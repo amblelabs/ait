@@ -2,6 +2,7 @@ package dev.amble.ait.core.util;
 
 import java.util.function.Consumer;
 
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.queue.api.util.Value;
 import dev.drtheo.scheduler.api.TimeUnit;
@@ -18,8 +19,6 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class SafePosSearch {
 
@@ -241,7 +240,7 @@ public class SafePosSearch {
 
             floor = current;
             current = above;
-            above = chunk.getBlockState(cursor);
+            above = chunk.getBlockState(cursor.up());
 
             return Iter.CONTINUE;
         }
@@ -283,29 +282,25 @@ public class SafePosSearch {
                 return DoubleIter.FAIL;
 
             if (canGoUp) {
-                if (isSafe(floorUp, curUp, aboveUp)) {
-                    upCursor = upCursor.down();
+                if (isSafe(floorUp, curUp, aboveUp))
                     return DoubleIter.SUCCESS_A;
-                }
 
                 upCursor = upCursor.up();
 
                 floorUp = curUp;
                 curUp = aboveUp;
-                aboveUp = chunk.getBlockState(upCursor);
+                aboveUp = chunk.getBlockState(upCursor.up());
             }
 
             if (canGoDown) {
-                if (isSafe(floorDown, curDown, aboveDown)) {
-                    downCursor = downCursor.up();
+                if (isSafe(floorDown, curDown, aboveDown))
                     return DoubleIter.SUCCESS_B;
-                }
 
                 downCursor = downCursor.down();
 
-                curDown = aboveDown;
-                aboveDown = floorDown;
-                floorDown = chunk.getBlockState(downCursor);
+                aboveDown = curDown;
+                curDown = floorDown;
+                floorDown = chunk.getBlockState(downCursor.down());
             }
 
             return DoubleIter.CONTINUE;

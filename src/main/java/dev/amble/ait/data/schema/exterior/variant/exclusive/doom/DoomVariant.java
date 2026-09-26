@@ -1,14 +1,14 @@
 package dev.amble.ait.data.schema.exterior.variant.exclusive.doom;
 
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.ait.data.schema.door.impl.exclusive.DoomDoorVariant;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.category.ExclusiveCategory;
 import dev.amble.ait.registry.impl.door.DoorRegistry;
+
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 
 public class DoomVariant extends ExteriorVariantSchema {
     public static final Identifier REFERENCE = AITMod.id("exterior/exclusive/doom");

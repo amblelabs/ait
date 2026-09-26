@@ -7,14 +7,13 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
+import dev.amble.ait.core.engine.link.IFluidLink;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-
-import dev.amble.ait.core.engine.link.IFluidLink;
 
 public class WorldFluidTracker {
     public static HashMap<Direction, IFluidLink> getConnections(ServerWorld world, BlockPos pos, @Nullable Direction ignore) {
