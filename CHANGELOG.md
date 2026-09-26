@@ -216,3 +216,4 @@
 - fix: fixed diagonal tardises ignoring right clicks with immersive portals | ([#2208](https://github.com/amblelabs/ait/pull/2208))
 - fix: fixed gallifrey falls and trenzalore paintings being invisible with immersive portals | ([#2213](https://github.com/amblelabs/ait/pull/2213))
 - fix: fixed tardis portals staying around after the doors close with immersive portals | ([#2207](https://github.com/amblelabs/ait/pull/2207))
+- fix: fixed changing the interior taking minutes | ([#2215](https://github.com/amblelabs/ait/pull/2215))
