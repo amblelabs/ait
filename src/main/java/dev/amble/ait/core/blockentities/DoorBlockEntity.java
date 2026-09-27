@@ -10,6 +10,7 @@ import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 import dev.amble.ait.core.item.KeyItem;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.SonicHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
@@ -145,7 +146,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
         if (tardis.sonic().getExteriorSonic() != null) {
             SonicHandler handler = tardis.sonic();
-            if (pos != null) {
+            if (pos != null && (!tardis.stats().security().get() || SecurityControl.hasMatchingKey((ServerPlayerEntity) player, tardis))) {
                 player.getInventory().offerOrDrop(handler.takeExteriorSonic());
                 world.playSound(null, pos, SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(), SoundCategory.BLOCKS, 1F,
                         0.2F);

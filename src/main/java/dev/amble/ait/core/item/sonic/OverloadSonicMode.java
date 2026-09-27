@@ -161,6 +161,9 @@ public class OverloadSonicMode extends SonicMode {
             return;
         }
 
+        if (!(user instanceof PlayerEntity player) || !world.canPlayerModifyAt(player, pos)) return;
+        if (!player.canModifyBlocks() && !(block instanceof LeverBlock)) return;
+
         if (block instanceof DaylightDetectorBlock) {
             activateBlock(world, pos, user, state, blockHit);
         }

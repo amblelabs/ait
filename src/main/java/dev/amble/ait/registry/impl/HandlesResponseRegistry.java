@@ -509,6 +509,10 @@ public class HandlesResponseRegistry {
                 Tardis tardis = item.getTardis(player.getWorld(), stack);
 
                 if (tardis.butler().getHandles() == null) {
+                    if (response.requiresSudo() && tardis.stats().security().get()
+                            && !SecurityControl.hasMatchingKey(player, tardis))
+                        return true;
+
                     response.run(player, HandlesSound.of(player), tardis.asServer());
                     return false;
                 }

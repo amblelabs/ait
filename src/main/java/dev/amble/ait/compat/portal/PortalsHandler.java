@@ -17,18 +17,22 @@ import dev.amble.lib.data.DirectedGlobalPos;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.api.PortalAPI;
+import qouteall.imm_ptl.core.chunk_loading.NewChunkTrackingGraph;
 import qouteall.imm_ptl.core.portal.Portal;
 import qouteall.imm_ptl.core.portal.PortalManipulation;
 import qouteall.imm_ptl.core.render.PortalEntityRenderer;
+import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.q_misc_util.MiscNetworking;
 import qouteall.q_misc_util.my_util.DQuaternion;
 
 import net.minecraft.network.packet.Packet;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec3d;
@@ -63,7 +67,19 @@ public class PortalsHandler extends KeyedTardisComponent {
 
         TardisEvents.REAL_DOOR_CLOSE.register((tdis) -> {
             PortalsHandler handler = tdis.handler(ID);
-            handler.removePortals();
+            handler.closePortals();
+        });
+
+        TardisEvents.LANDED.register((tdis) -> {
+            PortalsHandler handler = tdis.handler(ID);
+
+            if (!tdis.door().isOpen()) handler.closePortals();
+        });
+
+        TardisEvents.TOGGLE_SIEGE.register((tdis, active) -> {
+            PortalsHandler handler = tdis.handler(ID);
+
+            if (!tdis.door().isOpen()) handler.closePortals();
         });
 
         TardisEvents.ENTER_FLIGHT.register((tdis) -> {
@@ -76,6 +92,7 @@ public class PortalsHandler extends KeyedTardisComponent {
             handler.removePortals();
 
             if (tdis.door().isOpen()) handler.generatePortals();
+            else handler.closePortals();
         });
 
         TardisEvents.EXTERIOR_CHANGE.register((tdis) -> {
@@ -83,6 +100,7 @@ public class PortalsHandler extends KeyedTardisComponent {
             handler.removePortals();
 
             if (tdis.door().isOpen()) handler.generatePortals();
+            else handler.closePortals();
         });
 
         ServerPlayConnectionEvents.JOIN.register((serverPlayNetworkHandler, packetSender, minecraftServer) -> {
@@ -100,6 +118,7 @@ public class PortalsHandler extends KeyedTardisComponent {
         //  > ...idk, need to discuss this - Theo
 
         PortalVisualizerUtil.clientInit();
+        PortalsAPI.RENDERING_PORTAL = PortalRendering::isRendering;
 
         if (TardisPortal.ENTITY_TYPE != null)
             EntityRendererRegistry.register(TardisPortal.ENTITY_TYPE, PortalEntityRenderer::new);
@@ -150,7 +169,15 @@ public class PortalsHandler extends KeyedTardisComponent {
         if (!tardis.getExterior().getVariant().hasPortals()) return;
 
         this.exteriorRef = new EntityRef<>(exteriorPos.getWorld(), createExteriorPortal());
-        this.interiorRef = new EntityRef<>(interiorPos.getWorld(), createInteriorPortal());
+        this.interiorRef = new EntityRef<>(interiorPos.getWorld(), createInteriorPortal(true));
+    }
+
+    private void closePortals() {
+        removePortals();
+
+        if (!tardis.travel().isLanded() || tardis.siege().isActive() || !tardis.getExterior().getVariant().hasPortals()) return;
+
+        this.interiorRef = new EntityRef<>(tardis.asServer().world(), createInteriorPortal(false));
     }
 
     private TardisPortal createExteriorPortal() {
@@ -187,11 +214,12 @@ public class PortalsHandler extends KeyedTardisComponent {
         //portal.renderingMergable = true;
         portal.setInteractable(false);
         portal.getWorld().spawnEntity(portal);
+        updateLoading(portal);
 
         return portal;
     }
 
-    private TardisPortal createInteriorPortal() {
+    private TardisPortal createInteriorPortal(boolean open) {
         DirectedBlockPos doorPos = tardis.getDesktop().getDoorPos();
         CachedDirectedGlobalPos exteriorPos = tardis.travel().getState() == TravelHandlerBase.State.LANDED
                 ? tardis.travel().position() : tardis.travel().getProgress();
@@ -223,8 +251,13 @@ public class PortalsHandler extends KeyedTardisComponent {
         portal.setDestination(exteriorAdjust);
 
         //portal.renderingMergable = true;w
-        portal.setInteractable(false);
+        // closed door = invisible + no tp, ip won't let you interact through it anyway
+        portal.setInteractable(AITMod.CONFIG.allowPortalsInteraction);
+        portal.hasCrossPortalCollision = false;
+        portal.setIsVisible(open);
+        portal.setTeleportable(open);
         portal.getWorld().spawnEntity(portal);
+        updateLoading(portal);
 
         return portal;
     }
@@ -249,6 +282,11 @@ public class PortalsHandler extends KeyedTardisComponent {
 
         removePortal(this.getExterior());
         this.exteriorRef = null;
+    }
+
+    private static void updateLoading(Portal portal) {
+        for (ServerPlayerEntity player : PlayerLookup.tracking(portal))
+            NewChunkTrackingGraph.getPlayerInfo(player).shouldUpdateImmediately = true;
     }
 
     private static void removePortal(Portal portal) {
