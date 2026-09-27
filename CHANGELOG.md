@@ -224,3 +224,4 @@
 - fix: fixed immersive portals showing the outside late when opening the door | ([#2218](https://github.com/amblelabs/ait/pull/2218))
 - fix: fixed the top half of tardis doors and exteriors not being clickable | ([#2212](https://github.com/amblelabs/ait/pull/2212))
 - fix: fixed subsystems duplicating when changing the interior | ([#2200](https://github.com/amblelabs/ait/pull/2200))
+- add: added a server option to break and place blocks through an open tardis door with immersive portals | ([#2220](https://github.com/amblelabs/ait/pull/2220))
