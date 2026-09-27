@@ -9,6 +9,7 @@ import dev.amble.ait.core.util.EntityRef;
 import qouteall.imm_ptl.core.portal.Portal;
 
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -29,9 +30,20 @@ public class TardisPortal extends Portal {
         super(type, world);
     }
 
+    // ip calls this server side too (isInteractableBy) and there's no AITModClient on a dedi
     @Override
     public boolean isVisible() {
-        return super.isVisible() && AITModClient.CONFIG.allowPortalsBoti;
+        return super.isVisible() && (!this.getWorld().isClient() || AITModClient.CONFIG.allowPortalsBoti);
+    }
+
+    @Override
+    public boolean isInteractableBy(PlayerEntity player) {
+        if (!super.isInteractableBy(player))
+            return false;
+
+        // client picks the target: sneak + item only, so normal door/console clicks stay inside
+        return !this.getWorld().isClient() || (player.shouldCancelInteraction()
+                && !(player.getMainHandStack().isEmpty() && player.getOffHandStack().isEmpty()));
     }
 
     // closed door portal only goes to players inside, ip relays sound through hidden portals too
