@@ -37,6 +37,8 @@ public class SkyboxUtil extends WorldRenderer {
     private static final Identifier TARDIS_SKY = AITMod.id("textures/environment/tardis_sky.png");
     private static final Identifier SUN = AITMod.id("textures/environment/tardis_star.png");
 
+    public static Tardis PORTAL_SKY_TARDIS = null;
+
     public static final Quaternionf[] LOOKUP = new Quaternionf[]{null, RotationAxis.POSITIVE_X.rotationDegrees(90.0f),
             RotationAxis.POSITIVE_X.rotationDegrees(-90.0f), RotationAxis.POSITIVE_X.rotationDegrees(180.0f),
             RotationAxis.POSITIVE_Z.rotationDegrees(90.0f), RotationAxis.POSITIVE_Z.rotationDegrees(-90.0f), null};

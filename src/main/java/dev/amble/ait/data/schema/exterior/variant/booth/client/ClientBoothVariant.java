@@ -57,6 +57,6 @@ public abstract class ClientBoothVariant extends ClientExteriorVariantSchema {
 
     @Override
     public boolean hasTransparentDoors() {
-        return true;
+        return false;
     }
 }
