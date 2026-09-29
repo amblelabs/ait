@@ -1,5 +1,5 @@
 plugins {
-    id "fabric-loom" version "$loom_version"
+    id "net.fabricmc.fabric-loom-remap" version "$loom_version"
     id "maven-publish"
 
     id "com.diffplug.spotless" version "8.8.0"
@@ -82,6 +82,8 @@ loom {
             runDir "build/datagen"
         }
     }
+
+    runs.configureEach { preferGradleTask.set(true) }
 }
 
 // Add the generated resources to the main source set
@@ -173,7 +175,7 @@ tasks.withType(JavaCompile).configureEach {
 java {
     withSourcesJar()
 
-    sourceCompatibility = JavaVersion.VERSION_22
+    sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
 
