@@ -131,7 +131,8 @@ public abstract class TardisComponent extends Initializable<TardisComponent.Init
         CHAMELEON(ChameleonHandler.class, ChameleonHandler::new),
         SELF_DESTRUCT(SelfDestructHandler.class, SelfDestructHandler::new),
         OPINION(OpinionHandler.class, OpinionHandler::new),
-        SUBSYSTEM(SubSystemHandler.class, SubSystemHandler::new),;
+        SUBSYSTEM(SubSystemHandler.class, SubSystemHandler::new),
+        RETURN_HOME(ReturnHomeHandler.class, ReturnHomeHandler::new);
 
         private final Supplier<TardisComponent> creator;
 

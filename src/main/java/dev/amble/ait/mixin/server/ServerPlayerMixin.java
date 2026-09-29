@@ -1,6 +1,7 @@
 package dev.amble.ait.mixin.server;
 
 import dev.amble.ait.core.entities.FlightTardisEntity;
+import dev.amble.ait.core.item.SiegeInventoryUtil;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -18,6 +19,9 @@ public class ServerPlayerMixin {
     @Inject(method = "tick", at = @At("TAIL"))
     private void ait$tick(CallbackInfo ci) {
         ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
+
+        if (Math.floorMod(player.age + player.getUuid().hashCode(), 200) == 0)
+            SiegeInventoryUtil.track(player);
 
         // if player is in tardis and y is less than -100 save them
         // if leave-behind is on, and they do not have a key + enough loyalty, then evict them instead

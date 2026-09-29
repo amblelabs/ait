@@ -55,6 +55,14 @@ public sealed interface CrashableTardisTravel permits TravelHandler {
      * crash will not be executed.
      */
     default void crash() {
+        this.crash(true);
+    }
+
+    /**
+     * Performs a crash, optionally allowing the normal flight loop to choose the
+     * final landing position before materialization.
+     */
+    default void crash(boolean rematerialize) {
         if (this.getState() != TravelHandler.State.FLIGHT || this.isCrashing())
             return;
 
@@ -93,7 +101,8 @@ public sealed interface CrashableTardisTravel permits TravelHandler {
         this.resetHammerUses();
         this.setCrashing(true);
         this.speed(0);
-        this.forceRemat();
+        if (rematerialize)
+            this.forceRemat();
 
         int repairTicks = 1200 * power;
         tardis.crash().setRepairTicks(repairTicks);

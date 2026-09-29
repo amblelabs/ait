@@ -3,9 +3,7 @@ package dev.amble.ait.module.planet.mixin.gravity;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITStatusEffects;
 import dev.amble.ait.core.entities.FlightTardisEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.data.Loyalty;
+import dev.amble.ait.core.util.FallDamageUtil;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import dev.amble.ait.module.planet.core.util.ISpaceImmune;
@@ -119,25 +117,8 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "handleFallDamage", at = @At("HEAD"), cancellable = true)
     private void ait$handleFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource, CallbackInfoReturnable<Boolean> cir) {
-        World world = this.getWorld();
-        Planet planet = PlanetRegistry.getInstance().get(world);
-
-        if (planet != null) {
-            if (planet.hasNoFallDamage())
-                cir.setReturnValue(false);
-            return;
-        }
-
-        // Prevent fall damage in TARDIS for loyalty OWNER (and working life support)
         LivingEntity entity = (LivingEntity)(Object) this;
-        if (world instanceof TardisServerWorld tardisWorld
-                && entity instanceof PlayerEntity player) {
-
-            Tardis tardis = tardisWorld.getTardis();
-            boolean hasLifeSupport = tardis.subsystems().lifeSupport().isUsable();
-
-            if (hasLifeSupport && tardis.loyalty().get(player).isOf(Loyalty.Type.OWNER))
-                cir.setReturnValue(false);
-        }
+        if (FallDamageUtil.isPreventedByAIT(entity))
+            cir.setReturnValue(false);
     }
 }
