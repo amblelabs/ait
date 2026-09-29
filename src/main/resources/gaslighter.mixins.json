@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "dev.drtheo.gaslighter.mixin",
-  "compatibilityLevel": "skip ci: undo",
+  "compatibilityLevel": "JAVA_17",
   "mixins": [
     "ServerPlayNetworkHandlerMixin",
     "ServerWorldMixin"
