@@ -28,10 +28,10 @@ jobs:
       with:
         cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
-    - name: Set up JDK 17
+    - name: Set up JDK 25
       uses: actions/setup-java@v6
       with:
-        java-version: '21'
+        java-version: '25'
         distribution: 'temurin'
         cache: 'gradle'
 
