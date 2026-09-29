@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.api.TemporalItemOwnership;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.api.tardis.TardisTickable;
@@ -388,8 +389,13 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
                         }
                     }
 
-                    if (this.queued.get())
-                        entity.discard();
+                    if (this.queued.get()) {
+                        stack.decrement(1);
+                        if (stack.isEmpty()) {
+                            ((TemporalItemOwnership) item).ait$suppressTemporalDestruction();
+                            entity.discard();
+                        }
+                    }
                 });
     }
 

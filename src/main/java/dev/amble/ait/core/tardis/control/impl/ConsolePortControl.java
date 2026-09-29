@@ -8,6 +8,7 @@ import dev.amble.ait.core.item.WaypointItem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.core.tardis.manager.TemporalRecoveryState;
 import dev.amble.ait.data.Waypoint;
 import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
 
@@ -43,6 +44,10 @@ public class ConsolePortControl extends Control {
             tardis.waypoint().spawnItem(console);
             return Result.SUCCESS;
         }
+
+        if (player.isSneaking() && TemporalRecoveryState.get(world.getServer())
+                .open(tardis.asServer(), player))
+            return Result.SUCCESS;
 
         ItemStack itemStack = player.getMainHandStack();
 
