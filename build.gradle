@@ -82,6 +82,8 @@ loom {
             runDir "build/datagen"
         }
     }
+
+    runs.configureEach { preferGradleTask.set(true) }
 }
 
 // Add the generated resources to the main source set
