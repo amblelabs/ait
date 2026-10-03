@@ -4,8 +4,10 @@ import java.util.UUID;
 
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
 import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.util.EntityRef;
+import org.jetbrains.annotations.Nullable;
 import qouteall.imm_ptl.core.portal.Portal;
 
 import net.minecraft.entity.EntityType;
@@ -28,6 +30,18 @@ public class TardisPortal extends Portal {
 
     public TardisPortal(EntityType<TardisPortal> type, World world) {
         super(type, world);
+    }
+
+    public @Nullable ServerTardis getServerTardis() {
+        Tardis tardis = this.tardis != null ? this.tardis.get() : null;
+        return tardis instanceof ServerTardis serverTardis ? serverTardis : null;
+    }
+
+    public boolean isExteriorPortal() {
+        ServerTardis serverTardis = this.getServerTardis();
+        PortalsHandler portals = serverTardis == null ? null : serverTardis.handler(PortalsHandler.ID);
+        EntityRef<TardisPortal> exterior = portals == null ? null : portals.getExteriorRef();
+        return exterior != null && this.getUuid().equals(exterior.getId());
     }
 
     // ip calls this server side too (isInteractableBy) and there's no AITModClient on a dedi

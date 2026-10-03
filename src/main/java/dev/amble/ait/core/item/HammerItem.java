@@ -71,6 +71,15 @@ public class HammerItem extends SwordItem {
         if (player.getItemCooldownManager().isCoolingDown(stack.getItem()))
             return ActionResult.PASS;
 
+        if (player instanceof ServerPlayerEntity serverPlayer
+                && tardis.temperament().handleHammer(serverPlayer, world)) {
+            world.playSound(null, consoleBlockEntity.getPos(), AITSounds.HAMMER_HIT,
+                    SoundCategory.BLOCKS, 1f, 1f);
+            player.getItemCooldownManager().set(stack.getItem(),
+                    AITMod.CONFIG.temperamentHammerCooldownTicks);
+            return ActionResult.SUCCESS;
+        }
+
         if (!(tardis.travel().getState() == TravelHandlerBase.State.FLIGHT)) {
 
             if (!player.getItemCooldownManager().isCoolingDown(stack.getItem())) {

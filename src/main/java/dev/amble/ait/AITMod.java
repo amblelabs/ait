@@ -33,6 +33,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.animation.v2.blockbench.BlockbenchParser;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
+import dev.amble.ait.core.tardis.handler.LoyaltyHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -222,6 +223,7 @@ public class AITMod implements ModInitializer {
         TardisUtil.init();
 
         ServerTardisManager.init();
+        LoyaltyHandler.init();
         TardisCriterions.init();
 
         entityAttributeRegister();
