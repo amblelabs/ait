@@ -6,6 +6,7 @@ import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.util.ShapeUtil;
+import dev.amble.ait.data.ShapeMap;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,6 +31,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
@@ -37,11 +39,13 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
+import net.minecraft.world.chunk.WorldChunk;
 
 @SuppressWarnings("deprecation")
 public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntityProvider, Waterloggable {
 
     public static final VoxelShape NORTH_SHAPE = Block.createCuboidShape(0.0, 0.0, 12.1, 16.0, 32.0, 16.0);
+    private static final ShapeMap SHAPES = ShapeUtil.rotations(Direction.NORTH, NORTH_SHAPE).build();
     public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
     public static final IntProperty LEVEL_4 = ExteriorBlock.LEVEL_4;
 
@@ -51,7 +55,13 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
             BlockPos exteriorPos = globalPos.getPos();
             World exteriorWorld = globalPos.getWorld();
 
-            BlockState exteriorState = exteriorWorld.getBlockState(exteriorPos);
+            WorldChunk chunk = exteriorWorld.getChunkManager().getWorldChunk(ChunkSectionPos.getSectionCoord(exteriorPos.getX()),
+                    ChunkSectionPos.getSectionCoord(exteriorPos.getZ()));
+
+            if (chunk == null)
+                return;
+
+            BlockState exteriorState = chunk.getBlockState(exteriorPos);
             if (!tardis.travel().inFlight() && exteriorState.getBlock() instanceof ExteriorBlock)
                 setDoorLight(tardis.asServer(), exteriorState.get(ExteriorBlock.LEVEL_4));
         });
@@ -104,7 +114,7 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
                 door.tardis().get().siege() != null && door.tardis().get().siege().isActive())
             return VoxelShapes.empty();
 
-        return ShapeUtil.rotate(Direction.NORTH, state.get(FACING), NORTH_SHAPE);
+        return SHAPES.get(state.get(FACING));
     }
 
     @Override

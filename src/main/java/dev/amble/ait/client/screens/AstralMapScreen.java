@@ -25,6 +25,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 
 @Environment(EnvType.CLIENT)
 public class AstralMapScreen extends Screen {
@@ -37,6 +38,7 @@ public class AstralMapScreen extends Screen {
     int bgWidth = 324;
     int left, top;
 
+    private final BlockPos pos;
     private TextFieldWidget searchBox;
     private AstralMapListWidget entryList;
     private CallbackCheckboxWidget showStructuresCheckbox;
@@ -57,9 +59,10 @@ public class AstralMapScreen extends Screen {
         }
     }
 
-    public AstralMapScreen() {
+    public AstralMapScreen(BlockPos pos) {
         super(Text.translatable("screen." + AITMod.MOD_ID + ".astral_map"));
         this.client = MinecraftClient.getInstance();
+        this.pos = pos;
     }
 
     @Override
@@ -125,6 +128,7 @@ public class AstralMapScreen extends Screen {
     private void exit(AstralMapListWidget.Entry entry) {
         var packetByteBuf = PacketByteBufs.create().writeIdentifier(entry.identifier);
         packetByteBuf.writeEnumConstant(entry.category);
+        packetByteBuf.writeBlockPos(this.pos);
         ClientPlayNetworking.send(AstralMapBlock.REQUEST_SEARCH, packetByteBuf);
         this.client.setScreen(null);
     }

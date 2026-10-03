@@ -103,7 +103,7 @@ public class StatsHandler extends KeyedTardisComponent {
             if (tardis == null || id == null)
                 return;
 
-            tardis.stats().setVortexEffects(id);
+            server.execute(() -> tardis.stats().setVortexEffects(id));
         })));
 
         ServerPlayNetworking.registerGlobalReceiver(FLIGHT_SOUND_PACKET, ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
@@ -112,7 +112,7 @@ public class StatsHandler extends KeyedTardisComponent {
             if (tardis == null || id == null)
                 return;
 
-            tardis.stats().setFlightEffects(id);
+            server.execute(() -> tardis.stats().setFlightEffects(id));
         })));
 
         ServerPlayNetworking.registerGlobalReceiver(SHOULD_RECEIVE_CALLS, ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
@@ -120,7 +120,7 @@ public class StatsHandler extends KeyedTardisComponent {
 
             if (tardis == null) return;
 
-            tardis.stats().receiveCalls().set(bool);
+            server.execute(() -> tardis.stats().receiveCalls().set(bool));
         })));
     }
 

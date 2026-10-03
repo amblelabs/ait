@@ -62,6 +62,11 @@ public class AITServerConfig {
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
+    @CustomDescription(value = "Lets players inside a TARDIS break and place blocks outside through the open door while sneaking with an item in hand. Claim mods may not protect blocks broken this way.")
+    @SerialEntry public boolean allowPortalsInteraction = false;
+
+    @AutoGen(category = CATEGORY)
+    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean tntCanTeleportThroughDoors = true;
 
     @AutoGen(category = CATEGORY)
@@ -111,10 +116,6 @@ public class AITServerConfig {
     @AutoGen(category = CATEGORY)
     @IntField(min = -1)
     @SerialEntry public int maxTardises = -1;
-
-    @AutoGen(category = CATEGORY)
-    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
-    @SerialEntry public boolean disableSafeguards = false;
 
     @AutoGen(category = CATEGORY)
     @FloatSlider(min = 0, max = 16, step = 0.1f)

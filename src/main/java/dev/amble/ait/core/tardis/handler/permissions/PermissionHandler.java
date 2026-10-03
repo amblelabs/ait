@@ -46,7 +46,7 @@ public class PermissionHandler extends KeyedTardisComponent {
                     PermissionHandler permissions = tardis.handler(Id.PERMISSIONS);
                     Loyalty.Type type = buf.readEnumConstant(Loyalty.Type.class);
 
-                    permissions.p19Loyalty.set(type);
+                    server.execute(() -> permissions.p19Loyalty.set(type));
                 })));
     }
 
