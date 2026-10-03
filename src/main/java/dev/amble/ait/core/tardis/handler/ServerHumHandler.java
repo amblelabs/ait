@@ -28,7 +28,7 @@ public class ServerHumHandler extends TardisComponent {
                     if (hum == null)
                         return;
 
-                    tardis.hum().set(hum);
+                    server.execute(() -> tardis.hum().set(hum));
                 })));
     }
 

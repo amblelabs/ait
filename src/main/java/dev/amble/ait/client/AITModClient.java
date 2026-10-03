@@ -46,6 +46,7 @@ import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.compat.portal.PortalsAPI;
 import dev.amble.ait.core.*;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -313,10 +314,11 @@ public class AITModClient implements ClientModInitializer {
         SonicModelLoader.init();
 
         ClientPlayNetworking.registerGlobalReceiver(AstralMapBlock.OPEN_ASTRAL_MAP, (client, handler, buf, responseSender) -> {
+            BlockPos pos = buf.readBlockPos();
             List<Identifier> ids = buf.readList(PacketByteBuf::readIdentifier);
             client.execute(() -> {
                 AstralMapBlock.structureIds = ids;
-                client.setScreen(new AstralMapScreen());
+                client.setScreen(new AstralMapScreen(pos));
             });
         });
 
@@ -337,7 +339,6 @@ public class AITModClient implements ClientModInitializer {
         return switch (id) {
             case 0 -> new MonitorScreen(tardis, console);
             case 1 -> new BlueprintFabricatorScreen();
-            case 2 -> new AstralMapScreen();
             case 3 -> new EnvironmentProjectorScreen(tardis, console);
             default -> null;
         };
@@ -546,7 +547,7 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public static boolean skipPaintingBOTI() {
-        return DependencyChecker.hasPortals() || !CONFIG.enableTardisBOTI;
+        return !CONFIG.enableTardisBOTI;
     }
 
     public void exteriorBOTI(WorldRenderContext context) {
@@ -662,6 +663,9 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void gallifreyanBOTI(WorldRenderContext context) {
+        if (PortalsAPI.RENDERING_PORTAL.getAsBoolean())
+            return;
+
         Profiler profiler = context.world().getProfiler();
         profiler.visit("ait_boti_gallifreyan_queued", BOTI.GALLIFREYAN_RENDER_QUEUE.size());
 
@@ -710,6 +714,9 @@ public class AITModClient implements ClientModInitializer {
     }
 
     public void trenzaloreBOTI(WorldRenderContext context) {
+        if (PortalsAPI.RENDERING_PORTAL.getAsBoolean())
+            return;
+
         Profiler profiler = context.world().getProfiler();
         profiler.visit("ait_boti_trenzalore_queued", BOTI.TRENZALORE_PAINTING_QUEUE.size());
 

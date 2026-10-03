@@ -58,7 +58,7 @@ public class LandingPadHandler extends KeyedTardisComponent {
 
             String input = buf.readString();
 
-            tardis.landingPad().code().set(input);
+            server.execute(() -> tardis.landingPad().code().set(input));
         })));
     }
 

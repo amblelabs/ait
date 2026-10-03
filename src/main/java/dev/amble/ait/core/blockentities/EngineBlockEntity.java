@@ -16,10 +16,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -50,21 +47,8 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
 
         this.tardis().ifPresent(tardis -> tardis.subsystems().engine().setEnabled(true));
 
-        if (tryPlaceFillBlocks()) {
-            this.rebuildOwnNetwork();
-            return;
-        }
-
-        this.onBroken(world, pos);
-        world.setBlockState(pos, Blocks.AIR.getDefaultState());
-
-        if (placer == null) return;
-
-        Block.dropStack(world, pos, AITBlocks.ENGINE_BLOCK.asItem().getDefaultStack());
-
-        if (!(placer instanceof ServerPlayerEntity player)) return;
-
-        player.sendMessage(Text.translatable("tardis.message.engine.no_space").formatted(Formatting.RED), true);
+        this.tryPlaceFillBlocks();
+        this.rebuildOwnNetwork();
     }
 
     @Override
@@ -132,6 +116,8 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
 
         // place cable blocks adjacent
         for (Direction dir : Direction.values()) {
+            if (dir == Direction.UP || dir == Direction.DOWN) continue;
+
             BlockPos offset = centre.offset(dir);
             tryRemoveIfMatches(world, offset, AITBlocks.CABLE_BLOCK);
         }

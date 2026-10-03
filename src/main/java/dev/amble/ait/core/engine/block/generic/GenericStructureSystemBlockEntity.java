@@ -181,8 +181,12 @@ public class GenericStructureSystemBlockEntity extends StructureSystemBlockEntit
     public void onBroken(World world, BlockPos pos) {
         super.onBroken(world, pos);
 
-        if (world.isClient() || this.idSource == null) return;
-        StackUtil.spawn(world, pos, this.extractSystem());
+        if (world.isClient() || this.idSource == null || this.idSource.isEmpty()) return;
+        ItemStack stack = this.extractSystem();
+
+        if (this.isLinked() && this.tardis().get().interiorChanging().addRestorationStack(stack)) return;
+
+        StackUtil.spawn(world, pos, stack);
     }
 
     @Override

@@ -1,8 +1,5 @@
 package dev.amble.ait.core.engine.impl;
 
-import java.util.List;
-
-import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.engine.CoreInstallableSubSystem;
 import dev.amble.ait.core.engine.StructureHolder;
 import dev.amble.ait.core.engine.SubSystem;
@@ -132,33 +129,6 @@ public abstract class HomeBoundSubSystem extends SubSystem implements StructureH
         this.eject(holder);
     }
 
-    /**
-     * Removes the exact installed stack before an interior regeneration erases
-     * its holder. This keeps these core-installed systems out of the legacy
-     * {@link SubSystem#isReal()} restoration latch.
-     */
-    public final List<ItemStack> extractForInteriorChange() {
-        if (!this.isInstalled() || !this.isServer())
-            return List.of();
-
-        GenericStructureSystemBlockEntity holder = this.findHolder(true);
-        if (holder == null || !holder.holdsSystem(this)) {
-            this.clearMissingHolder();
-            return List.of();
-        }
-
-        ItemStack stack = holder.extractSystem();
-        if (stack.isEmpty())
-            return List.of();
-
-        return List.of(stack, AITBlocks.GENERIC_SUBSYSTEM.asItem().getDefaultStack());
-    }
-
-    @Override
-    public final List<ItemStack> toStacks() {
-        return List.of();
-    }
-
     protected void tickAtHome(MinecraftServer server) {
     }
 
@@ -213,9 +183,14 @@ public abstract class HomeBoundSubSystem extends SubSystem implements StructureH
 
     private void eject(GenericStructureSystemBlockEntity holder) {
         ItemStack stack = holder.extractSystem();
-        if (!stack.isEmpty())
-            StackUtil.spawn(holder.getWorld(), holder.getPos().up(), stack,
-                    HomeEntityCapture::excludeFromItemCapture);
+        if (stack.isEmpty())
+            return;
+
+        if (this.tardis().interiorChanging().addRestorationStack(stack))
+            return;
+
+        StackUtil.spawn(holder.getWorld(), holder.getPos().up(), stack,
+                HomeEntityCapture::excludeFromItemCapture);
     }
 
     private void clearMissingHolder() {

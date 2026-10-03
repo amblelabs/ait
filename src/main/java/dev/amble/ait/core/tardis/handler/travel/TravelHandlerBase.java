@@ -79,7 +79,7 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
 
             if (tardis == null) return;
 
-            tardis.travel().leaveBehind().set(bool);
+            server.execute(() -> tardis.travel().leaveBehind().set(bool));
         })));
     }
 

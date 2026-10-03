@@ -1,15 +1,10 @@
 package dev.amble.ait.core.engine;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.engine.block.generic.GenericStructureSystemBlockEntity;
-import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.data.Exclude;
-import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.item.ItemStack;
@@ -94,34 +89,6 @@ public abstract class CoreBoundDurableSubSystem extends DurableSubSystem impleme
         return this.coreInstallationPos != null;
     }
 
-    /**
-     * Removes the exact installed item before an interior regeneration erases
-     * its block entity, while retaining the structure materials restored by the
-     * legacy subsystem flow.
-     */
-    public List<ItemStack> extractForInteriorChange() {
-        if (!this.isInstalledInCore() || !this.isServer())
-            return List.of();
-
-        GenericStructureSystemBlockEntity holder = this.findHolder(true);
-        if (holder == null || !holder.holdsSystem(this)) {
-            this.clearCoreInstallation();
-            return List.of();
-        }
-
-        ItemStack stack = holder.extractSystem();
-        if (stack.isEmpty())
-            return List.of();
-
-        List<ItemStack> stacks = new ArrayList<>();
-        if (this instanceof StructureHolder structureHolder && structureHolder.getStructure() != null
-                && !structureHolder.getStructure().isEmpty())
-            stacks.addAll(structureHolder.getStructure().toStacks());
-        stacks.add(stack);
-        stacks.add(AITBlocks.GENERIC_SUBSYSTEM.asItem().getDefaultStack());
-        return stacks;
-    }
-
     public void clearCoreInstallation() {
         if (this.coreInstallationId == null && this.coreInstallationPos == null)
             return;
@@ -141,20 +108,6 @@ public abstract class CoreBoundDurableSubSystem extends DurableSubSystem impleme
         this.coreInstallationId = installationId;
         this.coreInstallationPos = position;
         this.sync();
-    }
-
-    @Nullable private GenericStructureSystemBlockEntity findHolder(boolean loadInterior) {
-        if (this.coreInstallationPos == null || !(this.tardis() instanceof ServerTardis tardis))
-            return null;
-
-        if (!loadInterior && !tardis.hasWorld())
-            return null;
-
-        if (!loadInterior && !tardis.world().isChunkLoaded(this.coreInstallationPos))
-            return null;
-
-        BlockEntity blockEntity = tardis.world().getBlockEntity(this.coreInstallationPos);
-        return blockEntity instanceof GenericStructureSystemBlockEntity generic ? generic : null;
     }
 
     private boolean hasLiveBoundCore(GenericStructureSystemBlockEntity context) {

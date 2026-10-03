@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import com.google.gson.annotations.SerializedName;
 import dev.amble.ait.api.ArtronHolder;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITItems;
@@ -31,6 +32,8 @@ public class EmergencyPower extends SubSystem implements ArtronHolder, Structure
     @Exclude(strategy = Exclude.Strategy.NETWORK)
     private Set<UUID> poweredCircuitIds = new HashSet<>();
     private boolean circuitTrackingInitialized;
+    @SerializedName("isReal")
+    private boolean legacyCircuitInstalled;
 
     static {
         TardisEvents.USE_BACKUP_POWER.register((tdis, power) -> {
@@ -92,7 +95,7 @@ public class EmergencyPower extends SubSystem implements ArtronHolder, Structure
 
         // Old saves only persisted the shared 1000 AU buffer. Until their core
         // loads and gains an identity, retain that single-circuit capacity.
-        return this.getCurrentFuel() > 0 || this.isEnabled() || this.isReal() ? 1 : 0;
+        return this.getCurrentFuel() > 0 || this.isEnabled() || this.legacyCircuitInstalled ? 1 : 0;
     }
 
     @Override
