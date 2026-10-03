@@ -1,7 +1,5 @@
 package dev.amble.ait.core.engine.impl;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -23,7 +21,6 @@ import dev.amble.lib.util.ServerLifecycleHooks;
 import org.joml.Vector3f;
 
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -99,15 +96,6 @@ public class EngineSystem extends DurableSubSystem {
         if (this.durability() <= 5) {
             this.tardis.alarm().enable();
         }
-    }
-
-    @Override
-    public List<ItemStack> toStacks() {
-        List<ItemStack> stacks = new ArrayList<>();
-
-        stacks.add(AITBlocks.ENGINE_BLOCK.asItem().getDefaultStack());
-
-        return stacks;
     }
 
     public Phaser phaser() {

@@ -978,6 +978,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.lockDimensions", "Toggle Lockable Dimensions");
         provider.addTranslation("yacl3.config.ait:server.rwfEnabled", "[EXPERIMENTAL] Toggle RWF");
         provider.addTranslation("yacl3.config.ait:server.allowPortalsBoti", "Toggle Immersive Portals BOTI");
+        provider.addTranslation("yacl3.config.ait:server.allowPortalsInteraction", "Toggle Immersive Portals Door Interaction");
         provider.addTranslation("yacl3.config.ait:server.tntCanTeleportThroughDoors", "Toggle TNT Door Teleporting");
         provider.addTranslation("yacl3.config.ait:server.hypercubesEnabled", "Toggle Hypercubes");
         provider.addTranslation("yacl3.config.ait:server.handlesLevenshteinDistance", "Levenshtein Distance For Handles");
@@ -985,7 +986,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.astralMapBiomeLocatorRange", "Astral Map Biome Locator Range");
         provider.addTranslation("yacl3.config.ait:server.sendBulk", "Toggle Send Bulk TARDIS Data");
         provider.addTranslation("yacl3.config.ait:server.maxTardises", "Max TARDISes");
-        provider.addTranslation("yacl3.config.ait:server.disableSafeguards", "Disable In-Built Safeguards");
         provider.addTranslation("yacl3.config.ait:server.crashSoundVolume", "Crash Sound Volume");
         provider.addTranslation("yacl3.config.ait:server.flightSoundVolume", "Flight Sound Volume");
         provider.addTranslation("yacl3.config.ait:server.maxStabilizedSpeed", "Max Stabilized Speed");
@@ -3007,7 +3007,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:server.category.server", "AIT (Servidor)");
         provider.addTranslation("yacl3.config.ait:server.category.tardis_temperament", "Temperamento de la TARDIS");
         provider.addTranslation("yacl3.config.ait:server.crashSoundVolume", "Volumen del sonido de impacto de la TARDIS");
-        provider.addTranslation("yacl3.config.ait:server.disableSafeguards", "Desactivar protecciones");
         provider.addTranslation("yacl3.config.ait:server.flightSoundVolume", "Volumen del sonido de vuelo");
         provider.addTranslation("yacl3.config.ait:server.ghostMonument", "Monumento fantasma");
         provider.addTranslation("yacl3.config.ait:server.handlesRejectWarningChance", "Probabilidad de aviso de Handles a REJECT (%)");

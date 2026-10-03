@@ -512,6 +512,10 @@ public class HandlesResponseRegistry {
                     if (tardis.temperament().tryWarnRejectedPlayer(player))
                         return false;
 
+                    if (response.requiresSudo() && tardis.stats().security().get()
+                            && !SecurityControl.hasMatchingKey(player, tardis))
+                        return true;
+
                     response.run(player, HandlesSound.of(player), tardis.asServer());
                     return false;
                 }

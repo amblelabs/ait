@@ -4,6 +4,7 @@ package dev.amble.ait.client.renderers.entities;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.boti.BOTI;
+import dev.amble.ait.compat.portal.PortalsAPI;
 import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -25,7 +26,7 @@ public class GallifreyanPaintingEntityRenderer
 
     @Override
     public void render(BOTIPaintingEntity paintingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
-        if (!AITModClient.skipPaintingBOTI()) BOTI.GALLIFREYAN_RENDER_QUEUE.add(paintingEntity);
+        if (!AITModClient.skipPaintingBOTI() && !PortalsAPI.RENDERING_PORTAL.getAsBoolean()) BOTI.GALLIFREYAN_RENDER_QUEUE.add(paintingEntity);
     }
 
     @Override

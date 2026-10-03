@@ -150,7 +150,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
             if (tardis == null || state == null || id == null)
                 return;
 
-            tardis.travel().setAnimationFor(state, id);
+            server.execute(() -> tardis.travel().setAnimationFor(state, id));
         })));
 
         if (EnvType.CLIENT == FabricLoader.getInstance().getEnvironmentType()) initializeClient();

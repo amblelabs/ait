@@ -15,6 +15,7 @@ import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.lock.LockedDimension;
 import dev.amble.ait.core.lock.LockedDimensionRegistry;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -120,18 +121,20 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         TardisEvents.LOSE_POWER.register(tardis -> tardis.interiorChangingHandler().queued.set(false));
 
         ServerPlayNetworking.registerGlobalReceiver(InteriorChangingHandler.CHANGE_DESKTOP,
-                ServerTardisManager.receiveTardis(((tardis, server, player, handler, buf, responseSender) -> {
+                ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
                     TardisDesktopSchema desktop = DesktopRegistry.getInstance().get(buf.readIdentifier());
 
-                    if (tardis == null || desktop == null)
-                        return;
+                    server.execute(() -> {
+                        if (tardis == null || desktop == null || !tardis.isUnlocked(desktop))
+                            return;
 
-                    if (tardis.travel().getState() != TravelHandler.State.LANDED)
-                        return;
+                        if (tardis.travel().getState() != TravelHandler.State.LANDED)
+                            return;
 
-                    TardisCriterions.REDECORATE.trigger(player);
-                    tardis.interiorChangingHandler().queueInteriorChange(desktop);
-                    tardis.alarm().enable();
+                        TardisCriterions.REDECORATE.trigger(player);
+                        tardis.interiorChangingHandler().queueInteriorChange(desktop);
+                        tardis.alarm().enable();
+                    });
                 })));
     }
 
@@ -203,19 +206,11 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
         if (travel.getState() == TravelHandler.State.FLIGHT && !travel.isCrashing() && !tardis.isGrowth())
             travel.crash();
-
-        restorationChestContents = new ArrayList<>();
-
-        for (SubSystem system : tardis.subsystems()) {
-            if (!system.isReal())
-                continue;
-
-            restorationChestContents.addAll(system.toStacks());
-            AITMod.LOGGER.debug("Storing Subsystem, {} ({}) => {}", system.getId(), system.isEnabled(), system.toStacks());
-        }
     }
 
     private void changeInterior() {
+        restorationChestContents = new ArrayList<>();
+
         tardis.getDesktop().changeInterior(this.getQueuedInterior(), true, true)
                 .thenRun(() -> {
                     this.queued.set(false);
@@ -255,6 +250,14 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         BlockPos pos = position.getPos();
 
         world.playSound(null, pos, AITSounds.TARDIS_BLING, SoundCategory.BLOCKS, 10.0F, 1.0F);
+    }
+
+    public boolean addRestorationStack(ItemStack stack) {
+        if (restorationChestContents == null || !tardis.getDesktop().isChanging())
+            return false;
+
+        restorationChestContents.add(stack);
+        return true;
     }
 
     private void restoreSubsystemsToConsole() {
