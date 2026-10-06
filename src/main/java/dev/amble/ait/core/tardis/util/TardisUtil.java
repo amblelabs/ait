@@ -317,6 +317,12 @@ public class TardisUtil {
                 } else {
                     entity.teleport(world, to.x, to.y, to.z, Set.of(), yaw, entity.getPitch());
                 }
+
+                // the copy's spawn packet doesn't always carry its motion, sync it through the tracker
+                Entity moved = world.getEntity(entity.getUuid());
+
+                if (moved != null)
+                    moved.velocityModified = true;
             }
             if (entity instanceof ExtraPushableEntity pushable)
                 Scheduler.get().runTaskLater(() -> pushable.ait$setPushBehaviour(TriState.DEFAULT),
