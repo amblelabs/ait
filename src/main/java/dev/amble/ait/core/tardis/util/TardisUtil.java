@@ -18,6 +18,7 @@ import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.Loyalty;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.mixin.lookup.EntityTrackingSectionAccessor;
 import dev.amble.ait.mixin.lookup.SectionedEntityCacheAccessor;
 import dev.amble.ait.mixin.lookup.SimpleEntityLookupAccessor;
@@ -207,7 +208,7 @@ public class TardisUtil {
     public static void teleportOutside(Tardis tardis, Entity entity) {
         TardisEvents.LEAVE_TARDIS.invoker().onLeave(tardis, entity);
         TardisUtil.teleportWithDoorOffset(tardis.travel().position().getWorld(), entity,
-                tardis.travel().position().toPos());
+                tardis.travel().position().toPos(), tardis.getDesktop().getDoorPos(), tardis.getExterior().getVariant());
     }
 
     public static void dropOutside(Tardis tardis, Entity entity) {
@@ -236,7 +237,8 @@ public class TardisUtil {
 
     public static void teleportInside(ServerTardis tardis, Entity entity) {
         if (TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity) == TardisEvents.Interaction.FAIL) return;
-        TardisUtil.teleportWithDoorOffset(tardis.world(), entity, tardis.getDesktop().getDoorPos());
+        TardisUtil.teleportWithDoorOffset(tardis.world(), entity, tardis.getDesktop().getDoorPos(),
+                tardis.travel().position().toPos(), tardis.getExterior().getVariant());
     }
 
     public static void teleportToInteriorPosition(ServerTardis tardis, Entity entity, BlockPos pos) {
@@ -250,7 +252,8 @@ public class TardisUtil {
         }
     }
 
-    private static void teleportWithDoorOffset(ServerWorld world, Entity entity, DirectedBlockPos directed) {
+    private static void teleportWithDoorOffset(ServerWorld world, Entity entity, DirectedBlockPos directed,
+                                               DirectedBlockPos from, ExteriorVariantSchema variant) {
         if (!AITMod.CONFIG.tntCanTeleportThroughDoors && entity instanceof TntEntity) {
             return;
         }
@@ -282,16 +285,37 @@ public class TardisUtil {
                 if (entity.getType().isIn(AITTags.EntityTypes.BOSS))
                     return;
 
+                float yaw = RotationPropertyHelper.toDegrees(directed.getRotation()) + (isDoor ? 0 : 180f);
+
+                // carry the offset in the doorway and the motion over, turned from the other door's frame into this one
+                float turn = (float) Math.toRadians(RotationPropertyHelper.toDegrees(from.getRotation()) - RotationPropertyHelper.toDegrees(directed.getRotation()));
+                Vec3d rel = entity.getPos().subtract(offset(isDoor ? TardisUtil.offsetDoorPosition(from).add(0, 0.125, 0)
+                        : TardisUtil.offsetInteriorDoorPos(from), from, -0.5f)).rotateY(turn);
+
+                double cos = Math.cos(Math.toRadians(yaw));
+                double sin = Math.sin(Math.toRadians(yaw));
+                double half = Math.max(0, (variant.portalWidth() - entity.getWidth()) / 2);
+                double side = MathHelper.clamp(rel.x * cos + rel.z * sin, -half, half);
+
+                Vec3d to = offset(vec, directed, -0.5f).add(side * cos,
+                        MathHelper.clamp(rel.y, 0, Math.max(0, variant.portalHeight() - entity.getHeight())), side * sin);
+
+                // diagonal exteriors put that spot on the box's edge, step out along the heading, a door is a block deep
+                Vec3d step = new Vec3d(-sin / 16, 0, cos / 16);
+                Vec3d at = to;
+
+                for (int i = 0; i < 16 && !world.isSpaceEmpty(entity, entity.getDimensions(entity.getPose()).getBoxAt(at)); i++)
+                    at = at.add(step);
+
+                if (world.isSpaceEmpty(entity, entity.getDimensions(entity.getPose()).getBoxAt(at)))
+                    to = at;
+
+                entity.setVelocity(entity.getVelocity().rotateY(turn));
+
                 if (entity.getWorld().getRegistryKey() == world.getRegistryKey()) {
-                    entity.refreshPositionAndAngles(offset(vec, directed, -0.5f).x, vec.y,
-                            offset(vec, directed, -0.5f).z,
-                            RotationPropertyHelper.toDegrees(directed.getRotation()) + (isDoor ? 0 : 180f),
-                            entity.getPitch());
+                    entity.refreshPositionAndAngles(to.x, to.y, to.z, yaw, entity.getPitch());
                 } else {
-                    entity.teleport(world, offset(vec, directed, -0.5f).x, vec.y, offset(vec, directed, -0.5f).z,
-                            Set.of(),
-                            RotationPropertyHelper.toDegrees(directed.getRotation()) + (isDoor ? 0 : 180f),
-                            entity.getPitch());
+                    entity.teleport(world, to.x, to.y, to.z, Set.of(), yaw, entity.getPitch());
                 }
             }
             if (entity instanceof ExtraPushableEntity pushable)
