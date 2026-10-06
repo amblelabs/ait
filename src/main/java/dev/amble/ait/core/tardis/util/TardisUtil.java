@@ -300,15 +300,20 @@ public class TardisUtil {
                 Vec3d to = offset(vec, directed, -0.5f).add(side * cos,
                         MathHelper.clamp(rel.y, 0, Math.max(0, variant.portalHeight() - entity.getHeight())), side * sin);
 
-                // diagonal exteriors put that spot on the box's edge, step out along the heading, a door is a block deep
-                Vec3d step = new Vec3d(-sin / 16, 0, cos / 16);
-                Vec3d at = to;
+                // diagonal exteriors put that spot on the box's edge and anything over the door's block walks back in,
+                // so start wholly in front of that block and step out along the heading until clear of the box
+                Vec3d heading = new Vec3d(-sin, 0, cos);
+                double reach = (1 + entity.getWidth()) / 2 * (Math.abs(sin) + Math.abs(cos));
+                Vec3d front = to.add(heading.multiply(Math.max(0, reach - to.subtract(pos.toCenterPos()).dotProduct(heading))));
 
-                for (int i = 0; i < 16 && !world.isSpaceEmpty(entity, entity.getDimensions(entity.getPose()).getBoxAt(at)); i++)
-                    at = at.add(step);
+                for (int i = 0; i <= 16; i++) {
+                    Vec3d at = front.add(heading.multiply(i / 16d));
 
-                if (world.isSpaceEmpty(entity, entity.getDimensions(entity.getPose()).getBoxAt(at)))
-                    to = at;
+                    if (world.isSpaceEmpty(entity, entity.getDimensions(entity.getPose()).getBoxAt(at))) {
+                        to = at;
+                        break;
+                    }
+                }
 
                 entity.setVelocity(entity.getVelocity().rotateY(turn));
 
