@@ -19,7 +19,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
@@ -198,7 +197,7 @@ public class BiggerOnTheInside implements ModInitializer {
         proxy.setPos(pos.getX(), pos.getY(), pos.getZ());
         proxy.setPacketListener(packet -> forwardIfInRange(tardis, posRef[0], packet));
 
-        world.spawnEntity(proxy);
+        proxy.attach();
         // proxy.onChunkEntered();
 
         float rain    = world.getRainGradient(1.0f);
@@ -219,7 +218,7 @@ public class BiggerOnTheInside implements ModInitializer {
 
     private static void despawn(ProxyEntry entry) {
         removeChunkTickets(entry.world, entry.pos, entry.tardisId);
-        entry.world.removePlayer(entry.proxy, Entity.RemovalReason.DISCARDED);
+        entry.proxy.release();
     }
 
     private static boolean keepDuringGrace(ProxyEntry entry) {
@@ -306,7 +305,7 @@ public class BiggerOnTheInside implements ModInitializer {
         proxy.setPos(doorPos.getX(), doorPos.getY(), doorPos.getZ());
         proxy.setPacketListener(packet -> forwardInteriorIfInRange(portalId, tardis, posRef[0], dirtyRef, missedEntities, packet));
 
-        interior.spawnEntity(proxy);
+        proxy.attach();
         // proxy.onChunkEntered();
 
         float rain    = interior.getRainGradient(1.0f);
