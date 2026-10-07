@@ -288,12 +288,12 @@ public class TardisUtil {
                 float yaw = RotationPropertyHelper.toDegrees(directed.getRotation()) + (isDoor ? 0 : 180f);
 
                 // carry the offset in the doorway and the motion over, turned from the other door's frame into this one
-                float turn = (float) Math.toRadians(RotationPropertyHelper.toDegrees(from.getRotation()) - RotationPropertyHelper.toDegrees(directed.getRotation()));
+                float turn = (RotationPropertyHelper.toDegrees(from.getRotation()) - RotationPropertyHelper.toDegrees(directed.getRotation())) * MathHelper.RADIANS_PER_DEGREE;
                 Vec3d rel = entity.getPos().subtract(offset(isDoor ? TardisUtil.offsetDoorPosition(from).add(0, 0.125, 0)
                         : TardisUtil.offsetInteriorDoorPos(from), from, -0.5f)).rotateY(turn);
 
-                double cos = Math.cos(Math.toRadians(yaw));
-                double sin = Math.sin(Math.toRadians(yaw));
+                double cos = MathHelper.cos(yaw * MathHelper.RADIANS_PER_DEGREE);
+                double sin = MathHelper.sin(yaw * MathHelper.RADIANS_PER_DEGREE);
                 double half = Math.max(0, (variant.portalWidth() - entity.getWidth()) / 2);
                 double side = MathHelper.clamp(rel.x * cos + rel.z * sin, -half, half);
 
