@@ -17,8 +17,11 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BundleS2CPacket;
@@ -69,6 +72,8 @@ public class BiggerOnTheInside implements ModInitializer {
     private static final long REFRESH_INTERVAL = 5L;
 
     private static final long INTERIOR_GRACE_MS = 30_000L;
+
+    private static boolean warnedTooBig;
 
     private final Set<UUID> activeThisTick = new HashSet<>();
     private final List<UUID> staleIds      = new ArrayList<>();
@@ -538,10 +543,30 @@ public class BiggerOnTheInside implements ModInitializer {
     }
 
     private static void send(List<ServerPlayerEntity> targets, FabricPacket packet) {
+        Packet<ClientPlayPacketListener> wrapped = null;
+
         for (ServerPlayerEntity player : targets) {
             if (player instanceof PacketProxyPlayer)
                 continue;
-            ServerPlayNetworking.send(player, packet);
+
+            if (wrapped == null) {
+                PacketByteBuf buf = PacketByteBufs.create();
+                packet.write(buf);
+
+                try {
+                    wrapped = ServerPlayNetworking.createS2CPacket(packet.getType().getId(), buf);
+                } catch (IllegalArgumentException e) {
+                    // vanilla sends chunks up to 2 MiB, a custom payload stops at 1 MiB
+                    if (!warnedTooBig) {
+                        warnedTooBig = true;
+                        AITMod.LOGGER.warn("Dropping a BOTI packet too big to forward ({} bytes)", buf.writerIndex());
+                    }
+
+                    return;
+                }
+            }
+
+            player.networkHandler.sendPacket(wrapped);
         }
     }
 
