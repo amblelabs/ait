@@ -17,6 +17,12 @@ public class PacketProxyPlayer extends FakePlayer {
         this.networkHandler = new ProxyNetworkHandler(this);
     }
 
+    // stands in for viewers, so sleeping, mob targeting, spawning and despawning leave it out like any spectator
+    @Override
+    public boolean isSpectator() {
+        return true;
+    }
+
     public void setPacketListener(ProxyPacketListener listener) {
         ((ProxyNetworkHandler) this.networkHandler).setListener(listener);
     }
