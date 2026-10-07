@@ -327,7 +327,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         if (world.isClient())
             return;
 
-        if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior)
+        if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior && !exterior.isWallHit(entity))
             exterior.onEntityCollision(entity);
     }
 
