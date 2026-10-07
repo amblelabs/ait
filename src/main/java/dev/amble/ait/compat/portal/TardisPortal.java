@@ -84,7 +84,7 @@ public class TardisPortal extends Portal {
     @Override
     protected void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
-        if (tardis != null) {
+        if (tardis != null && tardis.getId() != null) {
             nbt.putUuid("Tardis", tardis.getId());
         }
     }

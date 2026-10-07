@@ -302,8 +302,8 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         if (!TardisServerWorld.isTardisDimension((ServerWorld) this.getWorld()))
             return;
 
-        // a removed tardis' interior can keep ticking until its world goes, and the ref still hands out the removed tardis
-        if (!this.isLinked() || this.tardis().get().asServer().isRemoved())
+        // a removed tardis' interior can keep ticking until its world goes
+        if (!this.isLinked())
             return;
 
         this.killControls();
