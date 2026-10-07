@@ -194,7 +194,7 @@ public class BiggerOnTheInside implements ModInitializer {
 
         BlockPos[] posRef = { pos };
 
-        PacketProxyPlayer proxy = new PacketProxyPlayer(world);
+        PacketProxyPlayer proxy = new PacketProxyPlayer(world, id);
         proxy.setPos(pos.getX(), pos.getY(), pos.getZ());
         proxy.setPacketListener(packet -> forwardIfInRange(tardis, posRef[0], packet));
 
@@ -302,7 +302,7 @@ public class BiggerOnTheInside implements ModInitializer {
         boolean[] dirtyRef = { false };
         List<Packet<?>> missedEntities = new ArrayList<>();
 
-        PacketProxyPlayer proxy = new PacketProxyPlayer(interior);
+        PacketProxyPlayer proxy = new PacketProxyPlayer(interior, portalId);
         proxy.setPos(doorPos.getX(), doorPos.getY(), doorPos.getZ());
         proxy.setPacketListener(packet -> forwardInteriorIfInRange(portalId, tardis, posRef[0], dirtyRef, missedEntities, packet));
 
