@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.compat.DependencyChecker;
 import dev.drtheo.portal.PacketProxyPlayer;
 import dev.drtheo.portal.PortalInitS2CPacket;
 import dev.drtheo.portal.WrappedPacketS2CPacket;
@@ -81,6 +82,10 @@ public class BiggerOnTheInside implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        // immersive portals shows the doorways then, read once like PortalsHandler
+        if (DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti)
+            return;
+
         ServerTickEvents.END_SERVER_TICK.register(this::onServerTick);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::clearAll);
     }

@@ -1,6 +1,7 @@
 package dev.loqor.portal.client;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.boti.PortalParticleManager;
 import dev.drtheo.portal.PortalInitS2CPacket;
 import dev.drtheo.portal.WrappedPacketS2CPacket;
@@ -31,11 +32,13 @@ public class PortalDataManager {
 
     public static void init() {
         ClientPlayNetworking.registerGlobalReceiver(WrappedPacketS2CPacket.TYPE, (wrapped, player, packetSender) -> {
-            handle(wrapped);
+            if (!AITModClient.skipBuiltInBOTI())
+                handle(wrapped);
         });
 
         ClientPlayNetworking.registerGlobalReceiver(PortalInitS2CPacket.TYPE, (packet, player, packetSender) -> {
-            handleInit(packet.id(), packet.dimension(), packet.dimensionType());
+            if (!AITModClient.skipBuiltInBOTI())
+                handleInit(packet.id(), packet.dimension(), packet.dimensionType());
         });
 
         ClientPlayConnectionEvents.DISCONNECT.register((clientPlayNetworkHandler, minecraftClient) -> {
