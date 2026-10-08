@@ -74,10 +74,15 @@ public class PortalDataManager {
             }
 
             for (PortalParticleManager manager : new ArrayList<>(particles.values())) {
+                // emitters and drips spawn their particles through the client's manager
+                ParticleManager previous = client.particleManager;
+                client.particleManager = manager;
                 try {
                     manager.tick();
                 } catch (Exception e) {
                     AITMod.LOGGER.error("BOTI: failed to tick portal particles", e);
+                } finally {
+                    client.particleManager = previous;
                 }
             }
         });
