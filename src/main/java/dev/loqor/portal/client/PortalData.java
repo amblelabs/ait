@@ -59,10 +59,6 @@ import java.util.UUID;
 
 public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world, WorldGeometryRenderer geometry) {
 
-    private static int renderDistanceBlocks() {
-        return AITMod.CONFIG.botiRenderDistance * 16;
-    }
-
     public void onChunkDeltaUpdate(ChunkDeltaUpdateS2CPacket packet) {
         packet.visitUpdates(this::handleBlockUpdate);
     }
@@ -479,10 +475,10 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world, Wor
         ClientWorld old = MinecraftClient.getInstance().world;
         RegistryKey<DimensionType> type = old.getDimensionEntry().getKey().orElse(DimensionTypes.OVERWORLD);
 
-        return create(id, old.getRegistryKey(), type);
+        return create(id, old.getRegistryKey(), type, AITMod.CONFIG.botiRenderDistance);
     }
 
-    public static PortalData create(UUID id, RegistryKey<World> dimension, RegistryKey<DimensionType> dimensionType) {
+    public static PortalData create(UUID id, RegistryKey<World> dimension, RegistryKey<DimensionType> dimensionType, int radius) {
         MinecraftClient client = MinecraftClient.getInstance();
         ClientWorld old = client.world;
 
@@ -520,7 +516,7 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world, Wor
 
         worldRenderer.setWorld(world);
 
-        WorldGeometryRenderer geometry = new WorldGeometryRenderer(renderDistanceBlocks());
+        WorldGeometryRenderer geometry = new WorldGeometryRenderer(radius * 16);
 
         return new PortalData(id, worldRenderer, world, geometry);
     }

@@ -40,7 +40,7 @@ public class PortalDataManager {
 
         ClientPlayNetworking.registerGlobalReceiver(PortalInitS2CPacket.TYPE, (packet, player, packetSender) -> {
             if (!AITModClient.skipBuiltInBOTI())
-                handleInit(packet.id(), packet.dimension(), packet.dimensionType());
+                handleInit(packet.id(), packet.dimension(), packet.dimensionType(), packet.radius());
         });
 
         ClientPlayConnectionEvents.DISCONNECT.register((clientPlayNetworkHandler, minecraftClient) -> {
@@ -128,14 +128,14 @@ public class PortalDataManager {
         }
     }
 
-    public static void handleInit(UUID id, RegistryKey<World> dimension, RegistryKey<DimensionType> dimensionType) {
+    public static void handleInit(UUID id, RegistryKey<World> dimension, RegistryKey<DimensionType> dimensionType, int radius) {
         if (!client.isOnThread()) {
-            client.executeSync(() -> handleInit(id, dimension, dimensionType));
+            client.executeSync(() -> handleInit(id, dimension, dimensionType, radius));
             return;
         }
 
         free(id);
-        map.put(id, PortalData.create(id, dimension, dimensionType));
+        map.put(id, PortalData.create(id, dimension, dimensionType, radius));
     }
 
     public static void reset() {

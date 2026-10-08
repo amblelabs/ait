@@ -13,7 +13,7 @@ import net.minecraft.world.dimension.DimensionType;
 import dev.amble.ait.AITMod;
 
 public record PortalInitS2CPacket(UUID id, RegistryKey<World> dimension,
-                                  RegistryKey<DimensionType> dimensionType) implements FabricPacket {
+                                  RegistryKey<DimensionType> dimensionType, int radius) implements FabricPacket {
 
     public static final PacketType<PortalInitS2CPacket> TYPE =
             PacketType.create(AITMod.id("portal_init"), PortalInitS2CPacket::read);
@@ -21,7 +21,8 @@ public record PortalInitS2CPacket(UUID id, RegistryKey<World> dimension,
     private static PortalInitS2CPacket read(PacketByteBuf buf) {
         return new PortalInitS2CPacket(buf.readUuid(),
                 buf.readRegistryKey(RegistryKeys.WORLD),
-                buf.readRegistryKey(RegistryKeys.DIMENSION_TYPE));
+                buf.readRegistryKey(RegistryKeys.DIMENSION_TYPE),
+                buf.readVarInt());
     }
 
     @Override
@@ -29,6 +30,7 @@ public record PortalInitS2CPacket(UUID id, RegistryKey<World> dimension,
         buf.writeUuid(this.id);
         buf.writeRegistryKey(this.dimension);
         buf.writeRegistryKey(this.dimensionType);
+        buf.writeVarInt(this.radius);
     }
 
     @Override

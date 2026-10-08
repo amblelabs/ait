@@ -167,7 +167,8 @@ public class BiggerOnTheInside implements ModInitializer {
         boolean newViewer = !entry.viewers.containsAll(viewers);
         entry.viewers = viewers;
 
-        if (!entry.world.getRegistryKey().equals(extWorld.getRegistryKey()) || newViewer) {
+        if (!entry.world.getRegistryKey().equals(extWorld.getRegistryKey()) || newViewer
+                || entry.radius != AITMod.CONFIG.botiRenderDistance) {
             despawn(entry);
             PROXIES.put(id, createProxy(tardis, extWorld, extPos, viewers));
             return true;
@@ -181,7 +182,7 @@ public class BiggerOnTheInside implements ModInitializer {
                 || entry.pos.getY() != extPos.getY();
 
         if (movedChunk) {
-            removeChunkTickets(entry.world, entry.pos, id);
+            removeChunkTickets(entry.world, entry.pos, id, entry.radius);
 
             entry.proxy.setPos(extPos.getX(), extPos.getY(), extPos.getZ());
 
@@ -192,7 +193,7 @@ public class BiggerOnTheInside implements ModInitializer {
             entry.posRef[0] = extPos;
             entry.pos = extPos;
 
-            addChunkTickets(extWorld, extPos, id);
+            addChunkTickets(extWorld, extPos, id, entry.radius);
             broadcastCenter(tardis, entry.proxy);
         }
 
@@ -202,9 +203,10 @@ public class BiggerOnTheInside implements ModInitializer {
     private static ProxyEntry createProxy(ServerTardis tardis, ServerWorld world,
                                           BlockPos pos, Set<UUID> viewers) {
         UUID id = tardis.getUuid();
+        int radius = AITMod.CONFIG.botiRenderDistance;
 
-        broadcastInit(tardis, world);
-        addChunkTickets(world, pos, id);
+        broadcastInit(tardis, world, radius);
+        addChunkTickets(world, pos, id, radius);
 
         BlockPos[] posRef = { pos };
 
@@ -222,7 +224,7 @@ public class BiggerOnTheInside implements ModInitializer {
         broadcastWeather(tardis, rain, thunder);
         broadcastCenter(tardis, proxy);
 
-        return new ProxyEntry(id, proxy, world, posRef, pos, viewers, rain, thunder);
+        return new ProxyEntry(id, proxy, world, posRef, pos, viewers, radius, rain, thunder);
     }
 
     private static void removeProxy(UUID id) {
@@ -232,7 +234,7 @@ public class BiggerOnTheInside implements ModInitializer {
     }
 
     private static void despawn(ProxyEntry entry) {
-        removeChunkTickets(entry.world, entry.pos, entry.tardisId);
+        removeChunkTickets(entry.world, entry.pos, entry.tardisId, entry.radius);
         entry.proxy.release();
     }
 
@@ -271,7 +273,7 @@ public class BiggerOnTheInside implements ModInitializer {
 
         boolean dirtyWhileUnviewed = entry.worldDirtyRef != null && entry.worldDirtyRef[0];
 
-        if (dimChanged || newViewer || dirtyWhileUnviewed) {
+        if (dimChanged || newViewer || dirtyWhileUnviewed || entry.radius != AITMod.CONFIG.botiRenderDistance) {
             entry.viewers = viewerIds;
             despawn(entry);
             ProxyEntry rebuilt = createInteriorProxy(tardis, interior, doorPos, viewerIds);
@@ -289,14 +291,14 @@ public class BiggerOnTheInside implements ModInitializer {
                 || entry.pos.getY() != doorPos.getY();
 
         if (movedChunk) {
-            removeChunkTickets(entry.world, entry.pos, portalId);
+            removeChunkTickets(entry.world, entry.pos, portalId, entry.radius);
 
             entry.proxy.setPos(doorPos.getX(), doorPos.getY(), doorPos.getZ());
             entry.proxy.onChunkEntered();
             entry.posRef[0] = doorPos;
             entry.pos = doorPos;
 
-            addChunkTickets(interior, doorPos, portalId);
+            addChunkTickets(interior, doorPos, portalId, entry.radius);
             broadcastCenter(portalId, viewers, entry.proxy);
         }
 
@@ -307,9 +309,10 @@ public class BiggerOnTheInside implements ModInitializer {
                                                   BlockPos doorPos, Set<UUID> viewerIds) {
         UUID portalId = Portals.interiorId(tardis.getUuid());
         List<ServerPlayerEntity> viewers = exteriorViewers(tardis);
+        int radius = AITMod.CONFIG.botiRenderDistance;
 
-        broadcastInit(portalId, viewers, interior);
-        addChunkTickets(interior, doorPos, portalId);
+        broadcastInit(portalId, viewers, interior, radius);
+        addChunkTickets(interior, doorPos, portalId, radius);
 
         BlockPos[] posRef = { doorPos };
 
@@ -330,7 +333,7 @@ public class BiggerOnTheInside implements ModInitializer {
         broadcastWeather(portalId, viewers, rain, thunder);
         broadcastCenter(portalId, viewers, proxy);
 
-        ProxyEntry entry = new ProxyEntry(portalId, proxy, interior, posRef, doorPos, viewerIds, rain, thunder);
+        ProxyEntry entry = new ProxyEntry(portalId, proxy, interior, posRef, doorPos, viewerIds, radius, rain, thunder);
         entry.graceDeadline = System.currentTimeMillis() + INTERIOR_GRACE_MS;
         entry.worldDirtyRef = dirtyRef;
         entry.missedEntities = missedEntities;
@@ -373,10 +376,10 @@ public class BiggerOnTheInside implements ModInitializer {
         return ids;
     }
 
-    private static void addChunkTickets(ServerWorld world, BlockPos center, UUID tardisId) {
+    private static void addChunkTickets(ServerWorld world, BlockPos center, UUID tardisId, int radius) {
         ChunkPos origin = new ChunkPos(center);
-        for (int dx = -AITMod.CONFIG.botiRenderDistance; dx <= AITMod.CONFIG.botiRenderDistance; dx++) {
-            for (int dz = -AITMod.CONFIG.botiRenderDistance; dz <= AITMod.CONFIG.botiRenderDistance; dz++) {
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dz = -radius; dz <= radius; dz++) {
                 world.getChunkManager().addTicket(
                         PORTAL_TICKET,
                         new ChunkPos(origin.x + dx, origin.z + dz),
@@ -386,10 +389,10 @@ public class BiggerOnTheInside implements ModInitializer {
         }
     }
 
-    private static void removeChunkTickets(ServerWorld world, BlockPos center, UUID tardisId) {
+    private static void removeChunkTickets(ServerWorld world, BlockPos center, UUID tardisId, int radius) {
         ChunkPos origin = new ChunkPos(center);
-        for (int dx = -AITMod.CONFIG.botiRenderDistance; dx <= AITMod.CONFIG.botiRenderDistance; dx++) {
-            for (int dz = -AITMod.CONFIG.botiRenderDistance; dz <= AITMod.CONFIG.botiRenderDistance; dz++) {
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dz = -radius; dz <= radius; dz++) {
                 world.getChunkManager().removeTicket(
                         PORTAL_TICKET,
                         new ChunkPos(origin.x + dx, origin.z + dz),
@@ -523,8 +526,8 @@ public class BiggerOnTheInside implements ModInitializer {
                 || packet instanceof ExplosionS2CPacket;
     }
 
-    private static void broadcastInit(ServerTardis tardis, ServerWorld world) {
-        broadcastInit(tardis.getUuid(), interiorViewers(tardis), world);
+    private static void broadcastInit(ServerTardis tardis, ServerWorld world, int radius) {
+        broadcastInit(tardis.getUuid(), interiorViewers(tardis), world, radius);
     }
 
     private static void broadcastCenter(ServerTardis tardis, PacketProxyPlayer proxy) {
@@ -543,9 +546,9 @@ public class BiggerOnTheInside implements ModInitializer {
         broadcastWeather(tardis.getUuid(), interiorViewers(tardis), rain, thunder);
     }
 
-    private static void broadcastInit(UUID portalId, List<ServerPlayerEntity> targets, ServerWorld mirrored) {
+    private static void broadcastInit(UUID portalId, List<ServerPlayerEntity> targets, ServerWorld mirrored, int radius) {
         RegistryKey<DimensionType> type = mirrored.getDimensionEntry().getKey().orElse(DimensionTypes.OVERWORLD);
-        send(targets, new PortalInitS2CPacket(portalId, mirrored.getRegistryKey(), type));
+        send(targets, new PortalInitS2CPacket(portalId, mirrored.getRegistryKey(), type, radius));
     }
 
     private static void broadcastCenter(UUID portalId, List<ServerPlayerEntity> targets, PacketProxyPlayer proxy) {
@@ -643,6 +646,8 @@ public class BiggerOnTheInside implements ModInitializer {
 
         final BlockPos[] posRef;
 
+        final int radius;
+
         BlockPos pos;
         Set<UUID> viewers;
 
@@ -655,7 +660,7 @@ public class BiggerOnTheInside implements ModInitializer {
         List<Packet<?>> missedEntities;
 
         ProxyEntry(UUID tardisId, PacketProxyPlayer proxy, ServerWorld world,
-                   BlockPos[] posRef, BlockPos pos, Set<UUID> viewers,
+                   BlockPos[] posRef, BlockPos pos, Set<UUID> viewers, int radius,
                    float lastRain, float lastThunder) {
             this.tardisId  = tardisId;
             this.proxy     = proxy;
@@ -663,6 +668,7 @@ public class BiggerOnTheInside implements ModInitializer {
             this.posRef    = posRef;
             this.pos       = pos;
             this.viewers   = viewers;
+            this.radius    = radius;
             this.lastRain  = lastRain;
             this.lastThunder = lastThunder;
         }
