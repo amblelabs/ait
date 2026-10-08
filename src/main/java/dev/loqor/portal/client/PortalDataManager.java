@@ -10,8 +10,10 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.particle.ParticleManager;
+import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.math.random.Random;
@@ -154,6 +156,18 @@ public class PortalDataManager {
 
     public static PortalParticleManager particles(UUID id) {
         return particles.get(id);
+    }
+
+    public static Vec3d particleOrigin(WorldRenderer renderer) {
+        if (map.isEmpty())
+            return null;
+
+        for (PortalData data : map.values()) {
+            if (data.renderer() == renderer)
+                return data.geometry().eyeWorldPos();
+        }
+
+        return null;
     }
 
     public static PortalData getOrCreate(UUID id) {
