@@ -180,15 +180,22 @@ public class PortalDataManager {
     private static PortalData handle0(UUID id, Packet<?> packet) {
         PortalData data = getOrCreate(id);
 
-        if (packet instanceof BundleS2CPacket bundle) {
-            for (Packet<?> otherPacket : bundle.getPackets()) {
-                handle0(data, otherPacket);
-            }
+        // particles from statuses, damage or pickups belong to the portal world
+        ParticleManager previous = client.particleManager;
+        client.particleManager = particles.computeIfAbsent(id, uuid -> new PortalParticleManager(data.world(), client));
 
-            return data;
+        try {
+            if (packet instanceof BundleS2CPacket bundle) {
+                for (Packet<?> otherPacket : bundle.getPackets()) {
+                    handle0(data, otherPacket);
+                }
+            } else {
+                handle0(data, packet);
+            }
+        } finally {
+            client.particleManager = previous;
         }
 
-        handle0(data, packet);
         return data;
     }
 
@@ -229,6 +236,20 @@ public class PortalDataManager {
             data.onEntitiesDestroy(destroy);
         } else if (packet instanceof ParticleS2CPacket particle) {
             onParticle(data, particle);
+        } else if (packet instanceof BlockEntityUpdateS2CPacket update) {
+            data.onBlockEntityUpdate(update);
+        } else if (packet instanceof EntityStatusS2CPacket status) {
+            data.onEntityStatus(status);
+        } else if (packet instanceof EntityDamageS2CPacket damage) {
+            data.onEntityDamage(damage);
+        } else if (packet instanceof ExperienceOrbSpawnS2CPacket orb) {
+            data.onExperienceOrbSpawn(orb);
+        } else if (packet instanceof EntityPassengersSetS2CPacket passengers) {
+            data.onEntityPassengersSet(passengers);
+        } else if (packet instanceof EntityAttachS2CPacket attach) {
+            data.onEntityAttach(attach);
+        } else if (packet instanceof ItemPickupAnimationS2CPacket pickup) {
+            data.onItemPickupAnimation(pickup);
         } else if (packet instanceof ChunkBiomeDataS2CPacket biome) {
 //          this.onChunkBiomeData(biome); // - uncomment if it breaks everything
         }

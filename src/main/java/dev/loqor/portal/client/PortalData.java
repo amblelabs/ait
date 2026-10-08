@@ -10,21 +10,30 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.client.particle.ItemPickupParticle;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.ExperienceOrbEntity;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.TrackedPosition;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
@@ -308,6 +317,86 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world, Wor
         }
     }
 
+    public void onBlockEntityUpdate(BlockEntityUpdateS2CPacket packet) {
+        this.world.getBlockEntity(packet.getPos(), packet.getBlockEntityType()).ifPresent(blockEntity -> {
+            NbtCompound nbt = packet.getNbt();
+
+            if (nbt != null)
+                blockEntity.readNbt(nbt);
+        });
+    }
+
+    public void onEntityStatus(EntityStatusS2CPacket packet) {
+        Entity entity = packet.getEntity(this.world);
+
+        if (entity == null)
+            return;
+
+        switch (packet.getStatus()) {
+            case EntityStatuses.PLAY_GUARDIAN_ATTACK_SOUND, EntityStatuses.START_DIGGING -> {
+            }
+            case EntityStatuses.USE_TOTEM_OF_UNDYING -> MinecraftClient.getInstance().particleManager.addEmitter(entity, ParticleTypes.TOTEM_OF_UNDYING, 30);
+            default -> entity.handleStatus(packet.getStatus());
+        }
+    }
+
+    public void onEntityDamage(EntityDamageS2CPacket packet) {
+        Entity entity = this.world.getEntityById(packet.entityId());
+
+        if (entity != null)
+            entity.onDamaged(packet.createDamageSource(this.world));
+    }
+
+    public void onExperienceOrbSpawn(ExperienceOrbSpawnS2CPacket packet) {
+        ExperienceOrbEntity orb = new ExperienceOrbEntity(this.world, packet.getX(), packet.getY(), packet.getZ(), packet.getExperience());
+        orb.updateTrackedPosition(packet.getX(), packet.getY(), packet.getZ());
+        orb.setYaw(0);
+        orb.setPitch(0);
+        orb.setId(packet.getId());
+        this.world.addEntity(packet.getId(), orb);
+    }
+
+    public void onEntityPassengersSet(EntityPassengersSetS2CPacket packet) {
+        Entity entity = this.world.getEntityById(packet.getId());
+
+        if (entity == null)
+            return;
+
+        entity.removeAllPassengers();
+
+        for (int id : packet.getPassengerIds()) {
+            Entity passenger = this.world.getEntityById(id);
+
+            if (passenger != null)
+                passenger.startRiding(entity, true);
+        }
+    }
+
+    public void onEntityAttach(EntityAttachS2CPacket packet) {
+        if (this.world.getEntityById(packet.getAttachedEntityId()) instanceof MobEntity mob)
+            mob.setHoldingEntityId(packet.getHoldingEntityId());
+    }
+
+    public void onItemPickupAnimation(ItemPickupAnimationS2CPacket packet) {
+        Entity entity = this.world.getEntityById(packet.getEntityId());
+
+        if (entity == null || !(this.world.getEntityById(packet.getCollectorEntityId()) instanceof LivingEntity collector))
+            return;
+
+        MinecraftClient client = MinecraftClient.getInstance();
+        client.particleManager.addParticle(new ItemPickupParticle(client.getEntityRenderDispatcher(), client.getBufferBuilders(), this.world, entity, collector));
+
+        if (entity instanceof ItemEntity item) {
+            ItemStack stack = item.getStack();
+            stack.decrement(packet.getStackAmount());
+
+            if (stack.isEmpty())
+                this.world.removeEntity(packet.getEntityId(), Entity.RemovalReason.DISCARDED);
+        } else if (!(entity instanceof ExperienceOrbEntity)) {
+            this.world.removeEntity(packet.getEntityId(), Entity.RemovalReason.DISCARDED);
+        }
+    }
+
     public void onEntitiesDestroy(EntitiesDestroyS2CPacket packet) {
         for (int i = 0; i < packet.getEntityIds().size(); i++) {
             int id = packet.getEntityIds().getInt(i);
@@ -391,11 +480,27 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world, Wor
                 client.getBufferBuilders()
         );
 
+        // its positions belong to another dimension, so it never plays a sound
         ClientWorld world = new ClientWorld(client.getNetworkHandler(), new ClientWorld.Properties(Difficulty.NORMAL,
                 false, false), dimension,
                 typeEntry,
                 12, old.getSimulationDistance(), client::getProfiler, worldRenderer,
-                old.isDebugWorld(), old.getBiomeAccess().seed);
+                old.isDebugWorld(), old.getBiomeAccess().seed) {
+            @Override
+            public void playSound(PlayerEntity except, double x, double y, double z, RegistryEntry<SoundEvent> sound, SoundCategory category,
+                                  float volume, float pitch, long seed) {
+            }
+
+            @Override
+            public void playSoundFromEntity(PlayerEntity except, Entity entity, RegistryEntry<SoundEvent> sound, SoundCategory category,
+                                            float volume, float pitch, long seed) {
+            }
+
+            @Override
+            public void playSound(double x, double y, double z, SoundEvent sound, SoundCategory category, float volume, float pitch,
+                                  boolean useDistance) {
+            }
+        };
 
         worldRenderer.setWorld(world);
 

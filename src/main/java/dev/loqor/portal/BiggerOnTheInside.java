@@ -23,6 +23,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BundleS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
@@ -30,14 +31,20 @@ import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkRenderDistanceCenterS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityAttachS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityDamageS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityPassengersSetS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntitySetHeadYawS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.ExperienceOrbSpawnS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
+import net.minecraft.network.packet.s2c.play.ItemPickupAnimationS2CPacket;
 import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import net.minecraft.network.packet.s2c.play.UnloadChunkS2CPacket;
@@ -440,6 +447,7 @@ public class BiggerOnTheInside implements ModInitializer {
         return packet instanceof BundleS2CPacket
                 || packet instanceof EntitySpawnS2CPacket
                 || packet instanceof PlayerSpawnS2CPacket
+                || packet instanceof ExperienceOrbSpawnS2CPacket
                 || packet instanceof EntitiesDestroyS2CPacket;
     }
 
@@ -459,6 +467,9 @@ public class BiggerOnTheInside implements ModInitializer {
             BlockPos bp = p.getPos();
             return outOfRange(bp.getX() >> 4, bp.getZ() >> 4, originX, originZ);
         }
+
+        if (packet instanceof BlockEntityUpdateS2CPacket p)
+            return outOfRange(p.getPos().getX() >> 4, p.getPos().getZ() >> 4, originX, originZ);
 
         if (packet instanceof UnloadChunkS2CPacket p)
             return outOfRange(p.getX(), p.getZ(), originX, originZ);
@@ -487,7 +498,14 @@ public class BiggerOnTheInside implements ModInitializer {
                 || packet instanceof EntityTrackerUpdateS2CPacket
                 || packet instanceof EntityEquipmentUpdateS2CPacket
                 || packet instanceof EntitiesDestroyS2CPacket
-                || packet instanceof ParticleS2CPacket;
+                || packet instanceof ParticleS2CPacket
+                || packet instanceof BlockEntityUpdateS2CPacket
+                || packet instanceof EntityStatusS2CPacket
+                || packet instanceof EntityDamageS2CPacket
+                || packet instanceof ExperienceOrbSpawnS2CPacket
+                || packet instanceof EntityPassengersSetS2CPacket
+                || packet instanceof EntityAttachS2CPacket
+                || packet instanceof ItemPickupAnimationS2CPacket;
     }
 
     private static void broadcastInit(ServerTardis tardis, ServerWorld world) {
