@@ -255,6 +255,12 @@ public class PortalDataManager {
             data.onEntityAttach(attach);
         } else if (packet instanceof ItemPickupAnimationS2CPacket pickup) {
             data.onItemPickupAnimation(pickup);
+        } else if (packet instanceof BlockEventS2CPacket event) {
+            data.onBlockEvent(event);
+        } else if (packet instanceof WorldEventS2CPacket event) {
+            data.onWorldEvent(event);
+        } else if (packet instanceof ExplosionS2CPacket explosion) {
+            data.onExplosion(explosion);
         } else if (packet instanceof ChunkBiomeDataS2CPacket biome) {
 //          this.onChunkBiomeData(biome); // - uncomment if it breaks everything
         }

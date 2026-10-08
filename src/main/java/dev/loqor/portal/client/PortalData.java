@@ -42,12 +42,14 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldEvents;
 import net.minecraft.world.chunk.ChunkNibbleArray;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.chunk.light.LightingProvider;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.dimension.DimensionTypes;
+import net.minecraft.world.explosion.Explosion;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -395,6 +397,20 @@ public record PortalData(UUID id, WorldRenderer renderer, ClientWorld world, Wor
         } else if (!(entity instanceof ExperienceOrbEntity)) {
             this.world.removeEntity(packet.getEntityId(), Entity.RemovalReason.DISCARDED);
         }
+    }
+
+    public void onBlockEvent(BlockEventS2CPacket packet) {
+        this.world.addSyncedBlockEvent(packet.getPos(), packet.getBlock(), packet.getType(), packet.getData());
+    }
+
+    public void onWorldEvent(WorldEventS2CPacket packet) {
+        // the song goes straight to the sound manager and the hud, not through the world
+        if (packet.getEventId() != WorldEvents.JUKEBOX_STARTS_PLAYING)
+            this.world.syncWorldEvent(packet.getEventId(), packet.getPos(), packet.getData());
+    }
+
+    public void onExplosion(ExplosionS2CPacket packet) {
+        new Explosion(this.world, null, packet.getX(), packet.getY(), packet.getZ(), packet.getRadius(), packet.getAffectedBlocks()).affectWorld(true);
     }
 
     public void onEntitiesDestroy(EntitiesDestroyS2CPacket packet) {

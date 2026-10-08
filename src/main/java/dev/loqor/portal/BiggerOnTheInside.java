@@ -24,6 +24,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.BlockEventS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BundleS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDataS2CPacket;
@@ -43,11 +44,13 @@ import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ExperienceOrbSpawnS2CPacket;
+import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
 import net.minecraft.network.packet.s2c.play.ItemPickupAnimationS2CPacket;
 import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import net.minecraft.network.packet.s2c.play.UnloadChunkS2CPacket;
+import net.minecraft.network.packet.s2c.play.WorldEventS2CPacket;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
@@ -471,6 +474,15 @@ public class BiggerOnTheInside implements ModInitializer {
         if (packet instanceof BlockEntityUpdateS2CPacket p)
             return outOfRange(p.getPos().getX() >> 4, p.getPos().getZ() >> 4, originX, originZ);
 
+        if (packet instanceof BlockEventS2CPacket p)
+            return outOfRange(p.getPos().getX() >> 4, p.getPos().getZ() >> 4, originX, originZ);
+
+        if (packet instanceof WorldEventS2CPacket p)
+            return outOfRange(p.getPos().getX() >> 4, p.getPos().getZ() >> 4, originX, originZ);
+
+        if (packet instanceof ExplosionS2CPacket p)
+            return outOfRange(ChunkSectionPos.getSectionCoord(p.getX()), ChunkSectionPos.getSectionCoord(p.getZ()), originX, originZ);
+
         if (packet instanceof UnloadChunkS2CPacket p)
             return outOfRange(p.getX(), p.getZ(), originX, originZ);
 
@@ -505,7 +517,10 @@ public class BiggerOnTheInside implements ModInitializer {
                 || packet instanceof ExperienceOrbSpawnS2CPacket
                 || packet instanceof EntityPassengersSetS2CPacket
                 || packet instanceof EntityAttachS2CPacket
-                || packet instanceof ItemPickupAnimationS2CPacket;
+                || packet instanceof ItemPickupAnimationS2CPacket
+                || packet instanceof BlockEventS2CPacket
+                || packet instanceof WorldEventS2CPacket
+                || packet instanceof ExplosionS2CPacket;
     }
 
     private static void broadcastInit(ServerTardis tardis, ServerWorld world) {
