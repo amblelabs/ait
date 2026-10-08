@@ -33,6 +33,7 @@
     "server.ServerPlayerMixin",
     "server.ServerWorldMixin",
     "server.StructureTemplateMixin",
+    "server.multidim.MultiDimKickFix",
     "server.multidim.MultiDimLoadFix",
     "server.multidim.ShutUpMultiDim",
     "server.structure.StructureTemplateAccessor"
