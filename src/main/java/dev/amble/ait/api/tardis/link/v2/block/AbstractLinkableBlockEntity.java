@@ -86,9 +86,8 @@ public abstract class AbstractLinkableBlockEntity extends BlockEntity implements
     }
 
     private void mark() {
-        if (this.world instanceof ServerWorld serverWorld)
-            ServerTardisManager.getInstance().mark(serverWorld, (ServerTardis) this.tardis().get(),
-                    new ChunkPos(this.pos));
+        if (this.world instanceof ServerWorld serverWorld && this.tardis().get() instanceof ServerTardis tardis)
+            ServerTardisManager.getInstance().mark(serverWorld, tardis, new ChunkPos(this.pos));
     }
 
     private void handleLink() {

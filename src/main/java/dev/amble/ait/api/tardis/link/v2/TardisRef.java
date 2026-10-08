@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import dev.amble.ait.api.tardis.Disposable;
+import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisManager;
 
@@ -61,6 +62,11 @@ public class TardisRef implements Disposable {
     }
 
     public Tardis get() {
+        if (this.cached instanceof ServerTardis server && server.isRemoved()) {
+            this.cached = null;
+            this.id = null;
+        }
+
         if (this.cached != null && !this.shouldInvalidate())
             return this.cached;
 

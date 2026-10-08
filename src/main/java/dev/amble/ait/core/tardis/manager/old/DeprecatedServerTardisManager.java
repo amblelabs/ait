@@ -174,7 +174,6 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
         Objects.requireNonNull(tardis);
 
         tardis.door().closeDoors();
-        tardis.setRemoved(true);
 
         CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
 
@@ -192,6 +191,8 @@ public abstract class DeprecatedServerTardisManager extends TardisManager<Server
             }
         }
 
+        // after the exterior check, refs stop resolving a removed tardis
+        tardis.setRemoved(true);
         MultiDim.get(server).queueRemove(TardisServerWorld.keyForTardis(tardis));
 
         this.sendTardisRemoval(server, tardis);
