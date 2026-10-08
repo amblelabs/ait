@@ -2,6 +2,7 @@ package dev.amble.ait.core.blockentities;
 
 import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.MAX_PLASMIC_MATERIAL_AMOUNT;
 
+import java.util.List;
 import java.util.UUID;
 
 import dev.amble.ait.AITMod;
@@ -39,6 +40,7 @@ import dev.drtheo.scheduler.api.common.TaskStage;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -57,10 +59,12 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.*;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
 
 public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements BlockEntityTicker<ExteriorBlockEntity> {
     private UUID seatEntityUUID = null;
+    private Doorway doorway;
 
     public ExteriorBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.EXTERIOR_BLOCK_ENTITY_TYPE, pos, state);
@@ -292,6 +296,116 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         return ((ServerWorld) world).getEntity(seatEntityUUID);
     }
 
+    public boolean isWallHit(Entity entity) {
+        if (!this.isLinked())
+            return false;
+
+        Tardis tardis = this.tardis().get();
+
+        if (tardis.door().isClosed() || (!tardis.door().previouslyLocked().get() && tardis.travel().getState() == TravelHandlerBase.State.MAT)
+                || (DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti && tardis.getExterior().getVariant().hasPortals()))
+            return false;
+
+        Doorway doorway = this.doorway(this.getWorld(), tardis);
+        return !doorway.walls().isEmpty() && !doorway.inFront(entity);
+    }
+
+    private void tickDoorway(World world, Tardis tardis) {
+        if (tardis.door().isClosed() || (DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti && tardis.getExterior().getVariant().hasPortals()))
+            return;
+
+        Doorway doorway = this.doorway(world, tardis);
+
+        for (Entity entity : world.getOtherEntities(null, doorway.query(), TardisUtil.CAN_PASS_DOOR)) {
+            if (doorway.crosses(entity))
+                this.onEntityCollision(entity);
+        }
+    }
+
+    private Doorway doorway(World world, Tardis tardis) {
+        BlockState state = this.getCachedState();
+        ExteriorVariantSchema variant = tardis.getExterior().getVariant();
+        // not the 2 arg one, that's the shape cached for the state, built without the tardis
+        VoxelShape shell = state.getCollisionShape(world, this.getPos(), ShapeContext.absent());
+
+        if (this.doorway == null || this.doorway.state() != state || this.doorway.variant() != variant || this.doorway.shell() != shell)
+            this.doorway = Doorway.of(this.getPos(), state, variant, shell);
+
+        return this.doorway;
+    }
+
+    private record Doorway(BlockState state, ExteriorVariantSchema variant, VoxelShape shell, Vec3d center, Vec3d out,
+                           Vec3d side, Vec3d plane, double half, double height, Box block, Box query, List<Box> walls) {
+
+        // Entity#checkBlockCollision shrinks the box by this too
+        private static final double MARGIN = 1.0E-7;
+        // so something stopped flush against the face still crosses
+        private static final double FACE_GAP = 1.0E-3;
+
+        static Doorway of(BlockPos pos, BlockState state, ExteriorVariantSchema variant, VoxelShape shell) {
+            float deg = RotationPropertyHelper.toDegrees(state.get(ExteriorBlock.ROTATION));
+            float rad = deg * MathHelper.RADIANS_PER_DEGREE;
+            Vec3d out = new Vec3d(MathHelper.sin(rad), 0, -MathHelper.cos(rad));
+            Vec3d center = pos.toCenterPos();
+            Vec3d plane = variant.getPortalPosition(center, deg).withAxis(Direction.Axis.Y, pos.getY());
+            // at least a block, some variants report 0
+            double half = Math.max(1, variant.portalWidth()) / 2;
+            double height = Math.max(1, variant.portalHeight());
+
+            // a portal behind the shell's face can't be reached, the doorway starts at the face then
+            Vec3d mid = plane.withAxis(Direction.Axis.Y, pos.getY() + 0.5);
+            BlockHitResult face = shell.raycast(mid.add(out.multiply(2)), mid.subtract(out.multiply(2)), pos);
+
+            if (face != null)
+                plane = plane.add(out.multiply(Math.max(0, face.getPos().subtract(plane).dotProduct(out) + FACE_GAP)));
+
+            Box block = new Box(pos);
+
+            return new Doorway(state, variant, shell, center, out, new Vec3d(-out.z, 0, out.x), plane, half, height, block,
+                    block.stretch(0, height - 1, 0).expand(TardisUtil.DOOR_REACH + half, 0, TardisUtil.DOOR_REACH + half),
+                    shell.offset(pos.getX(), pos.getY(), pos.getZ()).getBoundingBoxes());
+        }
+
+        boolean inFront(Entity entity) {
+            Box box = entity.getBoundingBox();
+
+            if (!box.intersects(this.block))
+                return false;
+
+            Vec3d from = new Vec3d(entity.prevX, entity.prevY, entity.prevZ);
+
+            return from.subtract(this.center).dotProduct(this.out) > 0
+                    && Math.abs(entity.getPos().subtract(this.plane).dotProduct(this.side)) < 0.5 && this.clearOfWalls(box);
+        }
+
+        // the box's leading edge goes from in front of the doorway's plane to behind it, inside the doorway
+        boolean crosses(Entity entity) {
+            Vec3d from = new Vec3d(entity.prevX, entity.prevY, entity.prevZ);
+            Vec3d to = entity.getPos();
+            double w = entity.getWidth() / 2 - MARGIN;
+            double depth = w * (Math.abs(this.out.x) + Math.abs(this.out.z));
+            double a = from.subtract(this.plane).dotProduct(this.out) - depth;
+            double b = to.subtract(this.plane).dotProduct(this.out) - depth;
+
+            if (a <= 0 || b > 0)
+                return false;
+
+            Vec3d at = from.lerp(to, a / (a - b));
+
+            return Math.abs(at.subtract(this.plane).dotProduct(this.side)) - w * (Math.abs(this.side.x) + Math.abs(this.side.z)) < this.half
+                    && at.y < this.plane.y + this.height && at.y + entity.getHeight() > this.plane.y;
+        }
+
+        private boolean clearOfWalls(Box box) {
+            for (Box wall : this.walls) {
+                if (box.intersects(wall))
+                    return false;
+            }
+
+            return true;
+        }
+    }
+
     public void onEntityCollision(Entity entity) {
         if (!this.validateExteriorPosition()) return;
 
@@ -343,6 +457,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
             if (tardis.travel().isLanded())
                 world.scheduleBlockTick(this.getPos(), AITBlocks.EXTERIOR_BLOCK, 2);
 
+            this.tickDoorway(world, tardis);
             return;
         }
 
