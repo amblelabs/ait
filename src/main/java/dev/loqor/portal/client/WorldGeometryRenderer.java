@@ -754,6 +754,9 @@ public class WorldGeometryRenderer {
 
         MinecraftClient client = MinecraftClient.getInstance();
         ClientWorld previousWorld = client.world;
+        // render never runs on this renderer, so iris never hands it a pipeline
+        Object irisPipeline = dev.amble.ait.compat.DependencyChecker.hasIris()
+                ? dev.amble.ait.client.boti.iris.IrisSkyCompat.installMainPipeline(data.renderer()) : null;
 
         MatrixStack modelViewStack = RenderSystem.getModelViewStack();
         modelViewStack.push();
@@ -806,6 +809,9 @@ public class WorldGeometryRenderer {
                     && !TardisServerWorld.isTardisDimension(portalWorld) && portalWorld.getRegistryKey() != AITDimensions.TIME_VORTEX_WORLD)
                 renderPortalClouds(portalWorld, portalRotation, tickDelta, eyeWorldPos);
         } finally {
+            if (dev.amble.ait.compat.DependencyChecker.hasIris())
+                dev.amble.ait.client.boti.iris.IrisSkyCompat.restore(data.renderer(), irisPipeline);
+
             portalSkyCameraPos = null;
             client.world = previousWorld;
             gameCamera.setPos(savedCamPos.x, savedCamPos.y, savedCamPos.z);

@@ -224,12 +224,16 @@ public class AITModClient implements ClientModInitializer {
 
         ClientPreAttackCallback.EVENT.register((client, player, clickCount) -> (player.getMainHandStack().getItem() instanceof BaseGunItem));
 
+        WorldRenderEvents.AFTER_ENTITIES.register(context -> {
+            if (!DependencyChecker.isIrisShaderPackInUse())
+                this.renderBOTI(context);
+        });
+
         if (DependencyChecker.hasIris()) {
-            WorldRenderEvents.END.register(this::exteriorBOTI);
-            WorldRenderEvents.END.register(this::doorBOTI);
-            WorldRenderEvents.END.register(this::gallifreyanBOTI);
-            WorldRenderEvents.END.register(this::trenzaloreBOTI);
-            WorldRenderEvents.END.register(this::riftBOTI);
+            WorldRenderEvents.END.register(context -> {
+                if (DependencyChecker.isIrisShaderPackInUse())
+                    this.renderBOTI(context);
+            });
 
             WorldRenderEvents.AFTER_ENTITIES.register(dev.amble.ait.client.boti.iris.GbufferInjectionProbe::run);
             WorldRenderEvents.AFTER_ENTITIES.register(dev.amble.ait.client.boti.iris.ExteriorGbufferInjection::run);
@@ -241,12 +245,6 @@ public class AITModClient implements ClientModInitializer {
                 if (fb != null && !dev.amble.ait.client.boti.AITRenderHelper.getIsStencilEnabled(fb))
                     dev.amble.ait.client.boti.AITRenderHelper.setIsStencilEnabled(fb, true);
             });
-        } else {
-            WorldRenderEvents.AFTER_ENTITIES.register(this::exteriorBOTI);
-            WorldRenderEvents.AFTER_ENTITIES.register(this::doorBOTI);
-            WorldRenderEvents.AFTER_ENTITIES.register(this::gallifreyanBOTI);
-            WorldRenderEvents.AFTER_ENTITIES.register(this::trenzaloreBOTI);
-            WorldRenderEvents.AFTER_ENTITIES.register(this::riftBOTI);
         }
 
         // @TODO idk why but this gets rid of other important stuff, not sure
@@ -601,6 +599,14 @@ public class AITModClient implements ClientModInitializer {
 
     public static boolean skipPaintingBOTI() {
         return !CONFIG.enableTardisBOTI;
+    }
+
+    private void renderBOTI(WorldRenderContext context) {
+        this.exteriorBOTI(context);
+        this.doorBOTI(context);
+        this.gallifreyanBOTI(context);
+        this.trenzaloreBOTI(context);
+        this.riftBOTI(context);
     }
 
     public void exteriorBOTI(WorldRenderContext context) {
