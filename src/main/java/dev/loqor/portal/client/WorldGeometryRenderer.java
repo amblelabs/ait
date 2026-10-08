@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
 import dev.amble.ait.AITMod;
+import dev.amble.ait.client.boti.BOTI;
 import dev.amble.ait.client.boti.PortalParticleManager;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -610,6 +611,7 @@ public class WorldGeometryRenderer {
 
     private void drawLayer(RenderLayer layer, List<Map<RenderLayer, VertexBuffer>> visible) {
         layer.startDrawing();
+        restoreTarget();
 
         for (Map<RenderLayer, VertexBuffer> layerBuffers : visible) {
             VertexBuffer vbo = layerBuffers.get(layer);
@@ -621,6 +623,13 @@ public class WorldGeometryRenderer {
 
         VertexBuffer.unbind();
         layer.endDrawing();
+        restoreTarget();
+    }
+
+    // fabulous layers bind the world's own targets, put back the one boti draws into
+    private static void restoreTarget() {
+        if (MinecraftClient.isFabulousGraphicsOrBetter())
+            BOTI.BOTI_HANDLER.afbo.beginWrite(false);
     }
 
     public void debugInjectTerrainIntoGbuffer() {
@@ -938,6 +947,7 @@ public class WorldGeometryRenderer {
                         blockPos.getZ() - centerPos.getZ());
 
                 try {
+                    restoreTarget();
                     dispatcher.render(blockEntity, tickDelta, matrices, immediate);
                 } catch (Throwable t) {
                     AITMod.LOGGER.error("BOTI: failed to render block entity {}", blockEntity, t);
@@ -948,6 +958,7 @@ public class WorldGeometryRenderer {
         }
 
         immediate.draw();
+        restoreTarget();
     }
 
     private void renderEntities(ClientWorld portalWorld, float tickDelta, Camera portalCamera) {
@@ -972,6 +983,7 @@ public class WorldGeometryRenderer {
 
                 try {
                     int light = dispatcher.getLight(entity, tickDelta);
+                    restoreTarget();
                     dispatcher.render(entity, x, y, z, yaw, tickDelta, matrices, immediate, light);
                 } catch (Throwable t) {
                     AITMod.LOGGER.error("BOTI: failed to render entity {}", entity, t);
@@ -979,6 +991,7 @@ public class WorldGeometryRenderer {
             }
 
             immediate.draw();
+            restoreTarget();
         } finally {
             RenderSystem.polygonOffset(0.0f, 0.0f);
             RenderSystem.disablePolygonOffset();
@@ -995,6 +1008,7 @@ public class WorldGeometryRenderer {
         manager.renderParticles(new MatrixStack(), immediate, client.gameRenderer.getLightmapTextureManager(),
                 portalCamera, tickDelta);
         immediate.draw();
+        restoreTarget();
     }
 
     private boolean isWithinRenderBounds(BlockPos blockPos) {
