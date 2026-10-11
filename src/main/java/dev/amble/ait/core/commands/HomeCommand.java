@@ -14,6 +14,7 @@ import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.handler.StatsHandler.HomeSetResult;
 import dev.amble.ait.core.tardis.util.CommandUtil;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
@@ -102,7 +103,6 @@ public final class HomeCommand {
             }
 
             homePos = CachedDirectedGlobalPos.create(world, manualPos, rotation);
-            tardis.stats().setHome(homePos);
         } else {
             CachedDirectedGlobalPos current = tardis.travel().position();
 
@@ -110,7 +110,15 @@ public final class HomeCommand {
                 return -1;
 
             homePos = current;
-            tardis.stats().setHome(current);
+        }
+
+        HomeSetResult result = tardis.stats().trySetHomeResult(context.getSource().getServer(), homePos);
+        if (!result.isSuccess()) {
+            context.getSource().sendError(Text.translatable(
+                    result == HomeSetResult.OCCUPIED
+                            ? "tardis.message.control.telepathic.home_occupied"
+                            : "tardis.message.control.telepathic.home_unavailable"));
+            return -1;
         }
 
         return printHome(context, homePos);
