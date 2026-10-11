@@ -49,11 +49,13 @@ public class ClientTardisUtil {
     public static void init() {
         ClientWorldEvents.CHANGE_WORLD.register((client, world) -> {
             UUID id = TardisServerWorld.getTardisId(world);
-            currentTardis = new TardisRef(id, uuid -> ClientTardisManager.getInstance().demandTardis(uuid));
             if (id == null) {
+                currentTardis = null;
                 TardisClientEvents.ENTER_CLIENT_TARDIS.invoker().enterClientTardis(null);
                 return;
             }
+
+            currentTardis = new TardisRef(id, uuid -> ClientTardisManager.getInstance().demandTardis(uuid));
             if (currentTardis.isEmpty()) {
                 ClientTardisManager.getInstance().subscribers.put(id, clientTardis -> {
                     TardisClientEvents.ENTER_CLIENT_TARDIS.invoker().enterClientTardis(clientTardis);
