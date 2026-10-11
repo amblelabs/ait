@@ -2,13 +2,13 @@ package dev.amble.ait.core.engine.impl;
 
 
 import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.engine.DurableSubSystem;
+import dev.amble.ait.core.engine.CoreBoundDurableSubSystem;
 import dev.amble.ait.core.engine.StructureHolder;
 import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
 
 import net.minecraft.item.Item;
 
-public class ShieldsCircuit extends DurableSubSystem implements StructureHolder {
+public class ShieldsCircuit extends CoreBoundDurableSubSystem implements StructureHolder {
 
     public ShieldsCircuit() {
         super(Id.SHIELDS);

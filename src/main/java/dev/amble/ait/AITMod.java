@@ -33,8 +33,10 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.animation.v2.blockbench.BlockbenchParser;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
+import dev.amble.ait.core.tardis.manager.BiodataRestorationManager;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
+import dev.amble.ait.core.tardis.util.BiodataRestorationNetwork;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
 import dev.amble.ait.core.util.CustomTrades;
@@ -155,6 +157,7 @@ public class AITMod implements ModInitializer {
     public void onInitialize() {
         AITServerConfig.INSTANCE.load();
         CONFIG = AITServerConfig.INSTANCE.instance();
+        CONFIG.normalizeLinkedRanges();
 
         ServerLifecycleHooks.init();
         AsyncLocatorUtil.init();
@@ -222,6 +225,8 @@ public class AITMod implements ModInitializer {
         TardisUtil.init();
 
         ServerTardisManager.init();
+        BiodataRestorationManager.init();
+        BiodataRestorationNetwork.init();
         TardisCriterions.init();
 
         entityAttributeRegister();

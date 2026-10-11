@@ -14,6 +14,8 @@ import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.likes.ItemOpinion;
 import dev.amble.ait.core.likes.ItemOpinionRegistry;
 import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.manager.BiodataRestorationManager;
+import dev.amble.ait.core.tardis.util.TardisHomeUtil;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
@@ -64,6 +66,10 @@ public class LoyaltyHandler extends TardisComponent implements TardisTickable {
         this.data.put(player.getUuid(), loyalty);
         this.unlock(player, loyalty);
 
+        if (this.tardis instanceof ServerTardis serverTardis)
+            BiodataRestorationManager.updateEligibility(serverTardis, player.getUuid(),
+                    loyalty.isOf(Loyalty.Type.COMPANION));
+
         this.sync();
         return loyalty;
     }
@@ -88,7 +94,10 @@ public class LoyaltyHandler extends TardisComponent implements TardisTickable {
             if (AITMod.RANDOM.nextInt(0, 20) != 14)
                 continue;
 
-            this.addLevel(player, 1);
+            int amount = loyalty.isOf(Loyalty.Type.PILOT) && TardisHomeUtil.isParkedAtExactHome(this.tardis)
+                    ? Math.max(1, AITMod.CONFIG.exactHomeLoyaltyMultiplier)
+                    : 1;
+            this.addLevel(player, amount);
         }
     }
 

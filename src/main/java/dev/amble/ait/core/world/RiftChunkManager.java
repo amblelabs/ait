@@ -63,6 +63,43 @@ public record RiftChunkManager(ServerWorld world) {
         return protoChunk.getAttachedOrCreate(ARTRON, () -> (double) world.getRandom().nextBetween(MIN_ARTRON_AMOUNT, MAX_ARTRON_AMOUNT));
     }
 
+    /**
+     * Reads fuel from an already loaded rift chunk without generating or loading
+     * candidate chunks while an exact-home TARDIS scans its surroundings.
+     */
+    public double getLoadedArtron(ChunkPos pos) {
+        if (!this.isRiftChunk(pos) || !this.world.getChunkManager().isChunkLoaded(pos.x, pos.z))
+            return 0;
+
+        Chunk chunk = this.world.getChunkManager().getChunk(pos.x, pos.z, ChunkStatus.FULL, false);
+        if (chunk == null)
+            return 0;
+
+        return chunk.getAttachedOrCreate(ARTRON,
+                () -> (double) world.getRandom().nextBetween(MIN_ARTRON_AMOUNT, MAX_ARTRON_AMOUNT));
+    }
+
+    public double drainLoadedFuel(ChunkPos pos, double amount) {
+        if (!this.isRiftChunk(pos) || !Double.isFinite(amount) || amount <= 0)
+            return 0;
+        if (!this.world.getChunkManager().isChunkLoaded(pos.x, pos.z))
+            return 0;
+
+        Chunk chunk = this.world.getChunkManager().getChunk(pos.x, pos.z, ChunkStatus.FULL, false);
+        if (chunk == null)
+            return 0;
+
+        double current = chunk.getAttachedOrCreate(ARTRON,
+                () -> (double) world.getRandom().nextBetween(MIN_ARTRON_AMOUNT, MAX_ARTRON_AMOUNT));
+        if (!Double.isFinite(current) || current <= 0)
+            return 0;
+
+        double consumed = Math.min(current, Math.max(0, amount));
+        double remaining = current - consumed;
+        chunk.setAttached(ARTRON, remaining);
+        return consumed;
+    }
+
     public double getMaxArtron(ChunkPos pos) {
         if (!this.isRiftChunk(pos))
             return 0;

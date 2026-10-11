@@ -20,6 +20,7 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 
 public abstract class SubSystem extends Initializable<SubSystem.InitContext> implements Disposable {
@@ -34,6 +35,28 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
     }
 
     public abstract Item asItem();
+
+    /**
+     * Creates the physical item representation of this subsystem, including any
+     * state which must survive removal from a subsystem core.
+     */
+    public ItemStack toItemStack() {
+        ItemStack stack = this.asItem().getDefaultStack();
+        this.writeItemData(stack);
+        return stack;
+    }
+
+    /**
+     * Writes persistent subsystem state to its physical item representation.
+     */
+    public void writeItemData(ItemStack stack) {
+    }
+
+    /**
+     * Restores persistent subsystem state from its physical item representation.
+     */
+    public void readItemData(ItemStack stack) {
+    }
 
     public IdLike getId() {
         return id;
@@ -113,7 +136,11 @@ public abstract class SubSystem extends Initializable<SubSystem.InitContext> imp
         CHAMELEON(ChameleonCircuit.class, ChameleonCircuit::new),
         EMERGENCY_POWER(EmergencyPower.class, EmergencyPower::new),
         STABILISERS(Stabilisers.class, Stabilisers::new),
-        GRAVITATIONAL(GravitationalCircuit.class, GravitationalCircuit::new),;
+        GRAVITATIONAL(GravitationalCircuit.class, GravitationalCircuit::new),
+        BEACON_EMANATION(BeaconEmanation.class, BeaconEmanation::new),
+        SCULK_CATALYST_COLLECTOR(SculkCatalystCollector.class, SculkCatalystCollector::new),
+        ENDER_CHEST_COLLECTOR(EnderChestCollector.class, EnderChestCollector::new),
+        BIODATA_RESTORATION(BiodataRestoration.class, BiodataRestoration::new),;
         private final Supplier<SubSystem> creator;
 
         private final Class<? extends SubSystem> clazz;

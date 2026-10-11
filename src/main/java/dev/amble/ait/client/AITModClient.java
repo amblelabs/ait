@@ -56,6 +56,7 @@ import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.devteam.BetaVerification;
 import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.drinks.DrinkUtil;
+import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.*;
@@ -75,6 +76,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
@@ -101,6 +103,8 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
@@ -135,6 +139,15 @@ public class AITModClient implements ClientModInitializer {
         );
 
         ClientTardisManager.init();
+        BiodataRestorationClient.init();
+        ItemTooltipCallback.EVENT.register((stack, context, tooltip) -> {
+            DurableSubSystem.StackDurability durability = DurableSubSystem.getItemDurability(stack);
+            if (durability != null && durability.durability() < durability.maximum()) {
+                tooltip.add(Text.translatable("tooltip.ait.subsystem_item.damaged",
+                        Math.round(durability.durability()), Math.round(durability.maximum()))
+                        .formatted(Formatting.GOLD));
+            }
+        });
 
         ModuleRegistry.instance().onClientInit();
 
