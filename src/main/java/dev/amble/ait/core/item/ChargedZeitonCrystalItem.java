@@ -4,6 +4,7 @@ import java.util.List;
 
 import dev.amble.ait.api.ArtronHolderItem;
 import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.blocks.UntemperedSchismBlock;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -15,6 +16,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
@@ -84,9 +86,21 @@ public class ChargedZeitonCrystalItem extends Item implements ArtronHolderItem {
                         Text.of(" " + this.getCurrentFuel(stack) + "/" + this.getMaxFuel(stack))), true);
                 return ActionResult.PASS;
             }
+
+            if (!(context.getWorld() instanceof ServerWorld serverWorld))
+                return ActionResult.SUCCESS;
+
+            if (!UntemperedSchismBlock.canCreateAt(serverWorld, context.getBlockPos())) {
+                player.sendMessage(Text.translatable("message.ait.riftscanner.info3"), true);
+                return ActionResult.FAIL;
+            }
+
             Block block = AITBlocks.UNTEMPERED_SCHISM;
-            context.getWorld().setBlockState(context.getBlockPos(), block.getDefaultState());
-            AITBlocks.UNTEMPERED_SCHISM.onPlaced(player.getWorld(), context.getBlockPos(), block.getDefaultState(), player, stack);
+
+            if (!serverWorld.setBlockState(context.getBlockPos(), block.getDefaultState(), Block.NOTIFY_ALL))
+                return ActionResult.FAIL;
+
+            AITBlocks.UNTEMPERED_SCHISM.onPlaced(serverWorld, context.getBlockPos(), block.getDefaultState(), player, stack);
             if (!player.isCreative()) context.getStack().decrement(1);
             return ActionResult.SUCCESS;
         }
