@@ -124,20 +124,31 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
 
     @Override
     public void setCurrentFuel(double fuel) {
-        double prev = this.getCurrentFuel();
+        double previous = this.getCurrentFuel();
+        this.setCurrentFuelSilently(fuel);
+
+        if (this.isOutOfFuel() && previous != 0)
+            this.runFuelDepletionProtocols();
+    }
+
+    /** Updates fuel without running depletion protocols. */
+    public void setCurrentFuelSilently(double fuel) {
         this.fuel.set(MathHelper.clamp(fuel, 0, this.getMaxFuel()));
+    }
 
-        if (this.isOutOfFuel() && prev != 0) {
-            EmergencyPower backup = this.tardis().subsystems().emergency();
-            if (backup.hasBackupPower()) {
-                this.setCurrentFuel(backup.getCurrentFuel());
-                backup.setCurrentFuel(0);
-                TardisEvents.USE_BACKUP_POWER.invoker().onUse(this.tardis(), this.getCurrentFuel());
-                return;
-            }
+    private void runFuelDepletionProtocols() {
+        if (this.tardis().returnHome().handleFuelDepletion())
+            return;
 
-            TardisEvents.OUT_OF_FUEL.invoker().onNoFuel(this.tardis);
+        EmergencyPower backup = this.tardis().subsystems().emergency();
+        if (backup.hasBackupPower()) {
+            this.setCurrentFuelSilently(backup.getCurrentFuel());
+            backup.setCurrentFuel(0);
+            TardisEvents.USE_BACKUP_POWER.invoker().onUse(this.tardis(), this.getCurrentFuel());
+            return;
         }
+
+        TardisEvents.OUT_OF_FUEL.invoker().onNoFuel(this.tardis);
     }
 
     @Override
@@ -177,7 +188,8 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
             return;
 
         TravelHandler travel = this.tardis.travel();
-        this.removeFuel(20 * FuelHandler.getPerTickFuelCost(travel));
+        if (!this.tardis.returnHome().skipsFlightFuelCost())
+            this.removeFuel(20 * FuelHandler.getPerTickFuelCost(travel));
 
         if (!tardis.fuel().hasPower())
             travel.crash();

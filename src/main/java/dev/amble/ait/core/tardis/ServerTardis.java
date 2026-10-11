@@ -31,6 +31,9 @@ public class ServerTardis extends Tardis {
     private final Set<TardisComponent> delta = new HashSet<>(32);
 
     @Exclude
+    private boolean persistentDirty;
+
+    @Exclude
     private TardisServerWorld world;
 
     @Exclude
@@ -77,7 +80,21 @@ public class ServerTardis extends Tardis {
         if (component.tardis() != this)
             return;
 
+        this.persistentDirty = true;
         this.delta.add(component);
+    }
+
+    /** Marks server-side state dirty without scheduling a network component delta. */
+    public void markPersistentDirty() {
+        this.persistentDirty = true;
+    }
+
+    public boolean hasPersistentChanges() {
+        return this.persistentDirty;
+    }
+
+    public void markPersistentChangesSaved() {
+        this.persistentDirty = false;
     }
 
     public void consumeDelta(Consumer<TardisComponent> consumer) {
@@ -108,7 +125,8 @@ public class ServerTardis extends Tardis {
     }
 
     public boolean shouldTick() {
-        return !this.travel().isLanded() || (world != null && world.shouldTick()) || this.shouldTickExterior();
+        return !this.travel().isLanded() || (world != null && world.shouldTick()) || this.shouldTickExterior()
+                || this.returnHome().needsTick();
     }
 
     public boolean shouldTickExterior() {

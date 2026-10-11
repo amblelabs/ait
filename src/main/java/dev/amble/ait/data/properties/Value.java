@@ -73,6 +73,16 @@ public class Value<T> implements Disposable {
         this.set(value, true);
     }
 
+    /** Updates persisted server state without sending this value to clients. */
+    public void setPersistent(T value) {
+        if (property.getType().equals(this.value, value))
+            return;
+
+        this.set(value, false);
+        if (this.holder != null && this.holder.tardis() instanceof ServerTardis tardis)
+            tardis.markPersistentDirty();
+    }
+
     public void set(T value, boolean sync) {
         if (property.getType().equals(this.value, value))
             return;
