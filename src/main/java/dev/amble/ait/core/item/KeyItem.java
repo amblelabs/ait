@@ -104,6 +104,9 @@ public class KeyItem extends LinkableItem {
         if (tardis == null)
             return;
 
+        if (tardis.temperament().tryPunishLinkedKey(player, stack))
+            return;
+
         KeyItem.hailMary(tardis, stack, player);
     }
 

@@ -508,7 +508,10 @@ public class HandlesResponseRegistry {
             if (stack.getItem() instanceof HandlesItem item && item.isLinked(stack)) {
                 Tardis tardis = item.getTardis(player.getWorld(), stack);
 
-                if (tardis.butler().getHandles() == null) {
+                if (tardis != null && tardis.butler().getHandles() == null) {
+                    if (tardis.temperament().tryWarnRejectedPlayer(player))
+                        return false;
+
                     if (response.requiresSudo() && tardis.stats().security().get()
                             && !SecurityControl.hasMatchingKey(player, tardis))
                         return true;
@@ -528,6 +531,9 @@ public class HandlesResponseRegistry {
 
         if (tardis.butler().getHandles() == null)
             return true;
+
+        if (tardis.temperament().tryWarnRejectedPlayer(player))
+            return false;
 
         if (response.requiresSudo() && tardis.stats().security().get()
                 && !SecurityControl.hasMatchingKey(player, tardis))
