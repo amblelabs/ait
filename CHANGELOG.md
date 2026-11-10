@@ -227,3 +227,4 @@
 - add: added a server option to break and place blocks through an open tardis door with immersive portals | ([#2220](https://github.com/amblelabs/ait/pull/2220))
 - chore: bump loom & try out fun stuff | by [@drtheodor](https://github.com/drtheodor), [@vmbbi](https://github.com/vmbbi) ([#2221](https://github.com/amblelabs/ait/pull/2221))
 - fix: control disc dupe | by [@drtheodor](https://github.com/drtheodor) ([#2222](https://github.com/amblelabs/ait/pull/2222))
+- feat: smooth door animations! | by [@Loqor](https://github.com/Loqor) ([#2235](https://github.com/amblelabs/ait/pull/2235))
