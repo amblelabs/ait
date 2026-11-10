@@ -10,22 +10,18 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.engine.impl.GravitationalCircuit;
 import dev.amble.ait.core.entities.FallingTardisEntity;
 import dev.amble.ait.core.entities.FlightTardisEntity;
-import dev.amble.ait.core.tardis.control.impl.DirectionControl;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationPropertyHelper;
 
@@ -133,6 +129,7 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
         tardis.travel().forceDestination(tardis.travel().position());
         tardis.travel().placeExterior(false);
 
+        tardis.travel().placeExterior(false);
         tardis.travel().finishRemat();
     }
 
@@ -142,7 +139,6 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
         tardis.travel().speed(0);
         tardis.travel().forcePosition(cached -> cached.world(world.getRegistryKey()).pos(pos));
         tardis.travel().forceDestination(tardis.travel().position());
-        tardis.travel().placeExterior(false);
 
         tardis.travel().finishRemat();
     }

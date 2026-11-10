@@ -66,7 +66,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
         door.tickDoorway(world, tardis);
 
-        if (world.getServer().getTicks() % 5 != 0)
+        if (world.getServer().getTicks() % 20 != 0)
             return;
 
         CachedDirectedGlobalPos globalExteriorPos = tardis.travel().position();
@@ -81,18 +81,8 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
         if (exteriorWorld == null)
             return;
 
-        BlockState blockstate1 = blockState.with(DoorBlock.LEVEL_4, exteriorWorld.getLightLevel(exteriorPos.up()));
-
-        if (world.getServer().getTicks() % 20 != 0) {
-            if (!open) {
-                blockstate1 = blockstate1.with(DoorBlock.LEVEL_4, 0);
-            }
-            world.setBlockState(pos, blockstate1, Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
-            return;
-        }
-
         if (!open || tardis.areShieldsActive()) {
-            world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, false),
+            world.setBlockState(pos, world.getBlockState(pos).with(Properties.WATERLOGGED, false),
                 Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
             return;
         }
@@ -114,7 +104,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
         boolean waterlogged = exteriorWorld.getBlockState(exteriorPos).get(Properties.WATERLOGGED);
 
-        world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, waterlogged),
+        world.setBlockState(pos, world.getBlockState(pos).with(Properties.WATERLOGGED, waterlogged),
                 Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
 
         world.emitGameEvent(null, GameEvent.BLOCK_CHANGE, pos);
