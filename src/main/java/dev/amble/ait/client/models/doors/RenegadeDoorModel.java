@@ -89,7 +89,7 @@ public class RenegadeDoorModel extends DoorModel {
             renegade.getChild("door").yaw = tardis.door().isOpen() ? 1.75f : 0f;
         } else {
             float maxRot = 90f;
-            renegade.getChild("door").yaw = (float) Math.toRadians(maxRot*tardis.door().getLeftRot());
+            renegade.getChild("door").yaw = (float) Math.toRadians(maxRot*leftRot(tardis.door(), tickDelta));
         }
         super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);
 

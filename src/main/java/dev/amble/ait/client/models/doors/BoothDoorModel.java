@@ -74,7 +74,7 @@ public class BoothDoorModel extends DoorModel {
             this.k2.getChild("Door").yaw = tardis.door().isOpen() ? 1.575F : 0.0F;
         else {
             float maxRot = 90f;
-            this.k2.getChild("Door").yaw = (float) Math.toRadians(maxRot*tardis.door().getLeftRot());
+            this.k2.getChild("Door").yaw = (float) Math.toRadians(maxRot*leftRot(tardis.door(), tickDelta));
         }
 
         matrices.scale(1f, 1f, 1f);

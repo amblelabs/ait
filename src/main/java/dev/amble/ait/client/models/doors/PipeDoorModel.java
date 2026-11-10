@@ -31,7 +31,7 @@ public class PipeDoorModel extends DoorModel {
         matrices.translate(0, -1f, 0);
         matrices.multiply(RotationAxis.NEGATIVE_X.rotationDegrees(90f));
 
-        this.tardis.pivotY = !tardis.door().isOpen() ? -22f : -8f;
+        this.tardis.pivotY = !tardis.door().isVisuallyOpen() ? -22f : -8f;
         super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);
         matrices.pop();
     }

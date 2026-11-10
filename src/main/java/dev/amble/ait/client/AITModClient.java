@@ -572,7 +572,7 @@ public class AITModClient implements ClientModInitializer {
             stack.scale(1, -1, -1);
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(RotationPropertyHelper.toDegrees(exterior.getCachedState().get(ExteriorBlock.ROTATION))));
 
-            if (tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) {
+            if (tardis.door().isVisuallyOpen() || variant.hasTransparentDoors()) {
                 int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
                 profiler.visit("ait_boti_exterior_drawn");
                 profiler.visit("ait_model_build");
@@ -630,7 +630,7 @@ public class AITModClient implements ClientModInitializer {
             stack.scale(1, -1, -1);
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(door.getCachedState().get(DoorBlock.FACING).asRotation()));
 
-            if (tardis.door().getLeftRot() > 0 || variant.hasTransparentDoors()) {
+            if (tardis.door().isVisuallyOpen() || variant.hasTransparentDoors()) {
                 int light = LightmapTextureManager.pack(world.getLightLevel(LightType.BLOCK, pos), world.getLightLevel(LightType.SKY, pos));
                 profiler.visit("ait_boti_door_drawn");
                 profiler.visit("ait_model_build");

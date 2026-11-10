@@ -88,8 +88,8 @@ public class ClassicDoorModel extends DoorModel {
                     : 0.0F;
         } else {
             float maxRot = 90f;
-            this.classic.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*tardis.door().getLeftRot());
-            this.classic.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(maxRot*tardis.door().getRightRot());
+            this.classic.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*leftRot(tardis.door(), tickDelta));
+            this.classic.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(maxRot*rightRot(tardis.door(), tickDelta));
         }
 
         super.renderWithAnimations(tardis, doorEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);

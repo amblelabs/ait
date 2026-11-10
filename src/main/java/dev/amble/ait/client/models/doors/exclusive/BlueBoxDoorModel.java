@@ -111,8 +111,8 @@ public class BlueBoxDoorModel extends DoorModel {
                     : 0.0F;
         } else {
             float maxRot = 80f;
-            this.left_door2.yaw = (float) Math.toRadians(maxRot*tardis.door().getLeftRot());
-            this.right_door2.yaw = (float) -Math.toRadians(maxRot*tardis.door().getRightRot());
+            this.left_door2.yaw = (float) Math.toRadians(maxRot*leftRot(tardis.door(), tickDelta));
+            this.right_door2.yaw = (float) -Math.toRadians(maxRot*rightRot(tardis.door(), tickDelta));
         }
 
         matrices.push();

@@ -157,8 +157,8 @@ public class ClassicExteriorModel extends SimpleExteriorModel {
             float maxRot = 90f;
 
             DoorHandler door = tardis.door();
-            this.classic.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot * door.getLeftRot());
-            this.classic.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot * door.getRightRot());
+            this.classic.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot * leftRot(door));
+            this.classic.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot * rightRot(door));
         }
 
         if (isBOTI) {
@@ -191,8 +191,8 @@ public class ClassicExteriorModel extends SimpleExteriorModel {
             float maxRot = 90f;
 
             DoorHandler door = falling.tardis().get().door();
-            this.classic.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot * door.getLeftRot());
-            this.classic.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot * door.getRightRot());
+            this.classic.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot * leftRot(door));
+            this.classic.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot * rightRot(door));
         }
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);

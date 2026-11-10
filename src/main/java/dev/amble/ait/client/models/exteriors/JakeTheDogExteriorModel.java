@@ -50,7 +50,7 @@ public class JakeTheDogExteriorModel  extends SimpleExteriorModel {
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
         matrices.push();
         matrices.translate(0, -1.5f, 0);
-        jake.getChild("door").pivotZ = tardis.door().isOpen() ? 2.0f : 0f;
+        jake.getChild("door").pivotZ = tardis.door().isVisuallyOpen() ? 2.0f : 0f;
 
         super.renderWithAnimations(tardis, exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();

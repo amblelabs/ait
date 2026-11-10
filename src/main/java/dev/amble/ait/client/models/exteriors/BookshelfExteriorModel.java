@@ -182,8 +182,8 @@ public class BookshelfExteriorModel extends SimpleExteriorModel {
             this.bookshelf.getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen()) ? 4.75F : 0.0F;
         } else {
             float maxRot = 90f;
-            this.bookshelf.getChild("left_door").yaw = -(float) Math.toRadians(maxRot * falling.tardis().get().door().getLeftRot());
-            this.bookshelf.getChild("right_door").yaw = (float) Math.toRadians(maxRot * falling.tardis().get().door().getRightRot());
+            this.bookshelf.getChild("left_door").yaw = -(float) Math.toRadians(maxRot * leftRot(falling.tardis().get().door()));
+            this.bookshelf.getChild("right_door").yaw = (float) Math.toRadians(maxRot * rightRot(falling.tardis().get().door()));
         }
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
@@ -199,8 +199,8 @@ public class BookshelfExteriorModel extends SimpleExteriorModel {
             this.bookshelf.getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen()) ? 4.75F : 0.0F;
         } else {
             float maxRot = 90f;
-            this.bookshelf.getChild("left_door").yaw = -(float) Math.toRadians(maxRot * door.getLeftRot());
-            this.bookshelf.getChild("right_door").yaw = (float) Math.toRadians(maxRot * door.getRightRot());
+            this.bookshelf.getChild("left_door").yaw = -(float) Math.toRadians(maxRot * leftRot(door));
+            this.bookshelf.getChild("right_door").yaw = (float) Math.toRadians(maxRot * rightRot(door));
         }
 
       if (isBOTI) {

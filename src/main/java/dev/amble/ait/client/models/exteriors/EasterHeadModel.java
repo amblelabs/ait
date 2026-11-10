@@ -54,7 +54,7 @@ public class EasterHeadModel extends SimpleExteriorModel {
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
         matrices.push();
         matrices.translate(0, -1.5f, 0);
-        this.head.getChild("door").pitch = (tardis.door().isOpen()) ? -45f : 0f;
+        this.head.getChild("door").pitch = (tardis.door().isVisuallyOpen()) ? -45f : 0f;
 
         super.renderWithAnimations(tardis, exterior, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
@@ -67,7 +67,7 @@ public class EasterHeadModel extends SimpleExteriorModel {
 
         matrices.push();
         matrices.translate(0, -1.5f, 0);
-        this.head.getChild("door").pitch = (falling.tardis().get().door().isOpen()) ? -45f : 0f;
+        this.head.getChild("door").pitch = (falling.tardis().get().door().isVisuallyOpen()) ? -45f : 0f;
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
         matrices.pop();

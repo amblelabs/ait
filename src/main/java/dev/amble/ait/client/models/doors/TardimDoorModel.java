@@ -67,8 +67,8 @@ public class TardimDoorModel extends DoorModel {
             float maxRot = 90f;
 
             DoorHandler handler = tardis.door();
-            this.tardis.getChild("left_door").yaw = (float) -Math.toRadians(maxRot*handler.getLeftRot());
-            this.tardis.getChild("right_door").yaw = (float) Math.toRadians(maxRot*handler.getRightRot());
+            this.tardis.getChild("left_door").yaw = (float) -Math.toRadians(maxRot*leftRot(handler, tickDelta));
+            this.tardis.getChild("right_door").yaw = (float) Math.toRadians(maxRot*rightRot(handler, tickDelta));
         }
 
         super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);

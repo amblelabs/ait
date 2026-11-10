@@ -65,8 +65,8 @@ public class PresentExteriorModel extends SimpleExteriorModel {
                     : 0.0F;
         } else {
             float maxRot = 90f;
-            this.present.getChild("left_door").yaw = (float) Math.toRadians(falling.tardis().get().door().getLeftRot() * maxRot);
-            this.present.getChild("right_door").yaw = -(float) Math.toRadians(falling.tardis().get().door().getRightRot() * maxRot);
+            this.present.getChild("left_door").yaw = (float) Math.toRadians(leftRot(falling.tardis().get().door()) * maxRot);
+            this.present.getChild("right_door").yaw = -(float) Math.toRadians(rightRot(falling.tardis().get().door()) * maxRot);
         }
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
@@ -89,8 +89,8 @@ public class PresentExteriorModel extends SimpleExteriorModel {
                     : 0.0F;
         } else {
             float maxRot = 90f;
-            this.present.getChild("left_door").yaw = (float) Math.toRadians(tardis.door().getLeftRot() * maxRot);
-            this.present.getChild("right_door").yaw = -(float) Math.toRadians(tardis.door().getRightRot() * maxRot);
+            this.present.getChild("left_door").yaw = (float) Math.toRadians(leftRot(tardis.door()) * maxRot);
+            this.present.getChild("right_door").yaw = -(float) Math.toRadians(rightRot(tardis.door()) * maxRot);
         }
 
         if (isBOTI) {

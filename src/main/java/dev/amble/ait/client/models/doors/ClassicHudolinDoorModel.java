@@ -81,8 +81,8 @@ public class ClassicHudolinDoorModel extends DoorModel {
                     : 0.0F;
         } else {
             float maxRot = 90f;
-            this.hudolin.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*tardis.door().getLeftRot());
-            this.hudolin.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(maxRot*tardis.door().getRightRot());
+            this.hudolin.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*leftRot(tardis.door(), tickDelta));
+            this.hudolin.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(maxRot*rightRot(tardis.door(), tickDelta));
         }
 
         super.renderWithAnimations(tardis, doorEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);

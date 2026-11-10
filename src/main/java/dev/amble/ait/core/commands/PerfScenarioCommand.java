@@ -283,7 +283,7 @@ public class PerfScenarioCommand {
 
         for (ServerTardis tardis : all) {
             if (tardis.fuel().hasPower()) powered++;
-            if (tardis.door().getLeftRot() > 0) doorsOpen++;
+            if (!tardis.door().isClosed()) doorsOpen++;
             if (tardis.travel().isLanded()) landed++;
             if (tardis.door().locked()) locked++;
             if (tardis.siege().isActive()) siege++;

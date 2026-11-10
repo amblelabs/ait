@@ -52,8 +52,8 @@ public class BookshelfDoorModel extends DoorModel {
             this.bookshelf.getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen()) ? -4.75F : 0.0F;
         } else {
             float maxRot = 90f;
-            this.bookshelf.getChild("left_door").yaw = (float) Math.toRadians(maxRot*door.getRightRot());
-            this.bookshelf.getChild("right_door").yaw = (float) -Math.toRadians(maxRot*door.getLeftRot());
+            this.bookshelf.getChild("left_door").yaw = (float) Math.toRadians(maxRot*rightRot(door, tickDelta));
+            this.bookshelf.getChild("right_door").yaw = (float) -Math.toRadians(maxRot*leftRot(door, tickDelta));
         }
 
         matrices.push();
