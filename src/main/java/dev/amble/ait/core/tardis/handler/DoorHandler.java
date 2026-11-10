@@ -8,6 +8,9 @@ import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
+import dev.amble.ait.core.blocks.DoorBlock;
+import dev.amble.ait.core.blocks.ExteriorBlock;
+import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.Exclude;
@@ -18,12 +21,15 @@ import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.ait.data.properties.integer.IntProperty;
 import dev.amble.ait.data.properties.integer.IntValue;
 import dev.amble.ait.data.schema.door.DoorSchema;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.data.DirectedBlockPos;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.util.TriState;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.server.MinecraftServer;
@@ -34,6 +40,9 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec3d;
 
 public class DoorHandler extends KeyedTardisComponent implements TardisTickable {
@@ -116,6 +125,8 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
 
         if (wasClosed != this.isClosed())
             TardisEvents.REAL_DOOR_CLOSE.invoker().onClose(tardis);
+
+        this.tickDoorLight();
 
         if (this.doorOpenParticles != null && !this.tardis().crash().isNormal() && server.getTicks() % 5 == 0 && tardis.door().isOpen() && !tardis.cloak().silent().get()) {
             Vec3d exteriorPosition = TardisUtil.offsetPos(tardis.travel().position().toPos(), -0.15F);
@@ -231,6 +242,69 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
 
         if (this.hasDoubleDoor())
             this.setDoorState(DoorState.BOTH);
+    }
+
+    private void tickDoorLight() {
+        if (!(this.tardis instanceof ServerTardis tardis))
+            return;
+
+        boolean lit = !this.isClosed();
+
+        CachedDirectedGlobalPos exterior = tardis.travel().position();
+        ServerWorld exteriorWorld = exterior == null ? null : exterior.getWorld();
+        BlockState exteriorState = null;
+
+        if (exteriorWorld != null && isLoaded(exteriorWorld, exterior.getPos())) {
+            BlockState state = exteriorWorld.getBlockState(exterior.getPos());
+
+            if (state.getBlock() instanceof ExteriorBlock)
+                exteriorState = state;
+        }
+
+        DirectedBlockPos door = tardis.getDesktop().getDoorPos();
+        ServerWorld interior = tardis.hasWorld() ? tardis.world() : null;
+        BlockState doorState = null;
+
+        if (interior != null && door != null && isLoaded(interior, door.getPos())) {
+            BlockState state = interior.getBlockState(door.getPos());
+
+            if (state.getBlock() instanceof DoorBlock)
+                doorState = state;
+        }
+
+        if (doorState != null) {
+            int level = 0;
+
+            if (lit && exteriorWorld != null && (exteriorState != null || tardis.flight().isFlying())) {
+                int rotation = exteriorState != null ? exteriorState.get(ExteriorBlock.ROTATION) : exterior.getRotation();
+                level = sampleLight(exteriorWorld, exterior.getPos(), RotationPropertyHelper.toDegrees(rotation) + 180f);
+            }
+
+            if (doorState.get(DoorBlock.LEVEL_4) != level)
+                interior.setBlockState(door.getPos(), doorState.with(DoorBlock.LEVEL_4, level), Block.NOTIFY_ALL);
+        }
+
+        if (exteriorState != null && tardis.travel().getState() == TravelHandlerBase.State.LANDED) {
+            int level = tardis.fuel().hasPower() ? 4 : 0;
+
+            if (lit && doorState != null && !tardis.cloak().cloaked().get())
+                level = Math.max(level, sampleLight(interior, door.getPos(), RotationPropertyHelper.toDegrees(door.getRotation())));
+
+            if (exteriorState.get(ExteriorBlock.LEVEL_4) != level)
+                exteriorWorld.setBlockState(exterior.getPos(), exteriorState.with(ExteriorBlock.LEVEL_4, level), Block.NOTIFY_ALL);
+        }
+    }
+
+    private static boolean isLoaded(ServerWorld world, BlockPos pos) {
+        return world.getChunkManager().isChunkLoaded(ChunkSectionPos.getSectionCoord(pos.getX()),
+                ChunkSectionPos.getSectionCoord(pos.getZ()));
+    }
+
+    private static int sampleLight(ServerWorld world, BlockPos pos, float yaw) {
+        float rad = yaw * MathHelper.RADIANS_PER_DEGREE;
+        BlockPos front = pos.add(Math.round(-MathHelper.sin(rad)), 0, Math.round(MathHelper.cos(rad)));
+
+        return Math.max(world.getLightLevel(front), world.getLightLevel(front.up()));
     }
 
     public void closeDoors() {

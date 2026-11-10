@@ -49,43 +49,6 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
     public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
     public static final IntProperty LEVEL_4 = ExteriorBlock.LEVEL_4;
 
-    static {
-        TardisEvents.DOOR_OPEN.register(tardis -> {
-            CachedDirectedGlobalPos globalPos = tardis.travel().position();
-            BlockPos exteriorPos = globalPos.getPos();
-            World exteriorWorld = globalPos.getWorld();
-
-            WorldChunk chunk = exteriorWorld.getChunkManager().getWorldChunk(ChunkSectionPos.getSectionCoord(exteriorPos.getX()),
-                    ChunkSectionPos.getSectionCoord(exteriorPos.getZ()));
-
-            if (chunk == null)
-                return;
-
-            BlockState exteriorState = chunk.getBlockState(exteriorPos);
-            if (!tardis.travel().inFlight() && exteriorState.getBlock() instanceof ExteriorBlock)
-                setDoorLight(tardis.asServer(), exteriorState.get(ExteriorBlock.LEVEL_4));
-        });
-
-        TardisEvents.REAL_DOOR_CLOSE.register(tardis -> setDoorLight(tardis.asServer(), 0));
-    }
-
-    private static void setDoorLight(ServerTardis tardis, int level) {
-        if (!tardis.hasWorld() || !tardis.world().shouldTick()) return;
-
-        ServerWorld world = tardis.world();
-
-        // FIXME: ensure the DOOR_OPEN and DOOR_CLOSE events always get called on the main thread instead of doing this
-        world.getServer().execute(() -> {
-            BlockPos pos = tardis.getDesktop().getDoorPos().getPos();
-
-            BlockState state = world.getBlockState(pos);
-            if (!(state.getBlock() instanceof DoorBlock))
-                return;
-
-            world.setBlockState(pos, state.with(LEVEL_4, level));
-        });
-    }
-
     @Override
     public float getBlastResistance() {
         return 10000f;
