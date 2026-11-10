@@ -27,6 +27,9 @@ public class EngineOverloadControl extends Control {
 
     private static final Random RANDOM = AITMod.RANDOM;
     private static final String[] SPINNER = {"/", "-", "\\", "|"};
+    public static final int ARTRON_DUMP_STAGES = 4;
+    public static final int ARTRON_DUMP_STAGE_DAMAGE = 250;
+    public static final int FULL_ARTRON_DUMP_DAMAGE = ARTRON_DUMP_STAGES * ARTRON_DUMP_STAGE_DAMAGE;
 
     public EngineOverloadControl() {
         super(AITMod.id("engine_overload"));
@@ -72,7 +75,8 @@ public class EngineOverloadControl extends Control {
                 tardis.travel().decreaseFlightTime(999999999);
                 tardis.setRefueling(false);
 
-                Scheduler.get().runTaskLater(() -> triggerExplosion(world, console, tardis, 4), TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 0);
+                Scheduler.get().runTaskLater(() -> triggerExplosion(world, console, tardis, ARTRON_DUMP_STAGES),
+                        TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 0);
             });
         });
 
@@ -84,18 +88,23 @@ public class EngineOverloadControl extends Control {
 
         //DONT BUFF THE DAMAGE, THIS HAPPENS EACH TIME THE CONSOLE EXPLODES SO 4x IT
         tardis.alarm().enable();
-        tardis.subsystems().demat().removeDurability(250);
-        tardis.subsystems().chameleon().removeDurability(250);
-        tardis.subsystems().shields().removeDurability(250);
-        tardis.subsystems().lifeSupport().removeDurability(250);
-        tardis.subsystems().engine().removeDurability(250);
-        tardis.crash().addRepairTicks(999999999);
+        damageSystemsForArtronDump(tardis, ARTRON_DUMP_STAGE_DAMAGE);
 
         spawnParticles(world, console);
         Scheduler.get().runTaskLater(() -> spawnExteriorParticles(tardis), TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, 3);
 
-        int nextDelay = (stage == 4) ? 2 : 3;
+        int nextDelay = (stage == ARTRON_DUMP_STAGES) ? 2 : 3;
         Scheduler.get().runTaskLater(() -> triggerExplosion(world, console, tardis, stage - 1), TaskStage.END_SERVER_TICK, TimeUnit.SECONDS, nextDelay);
+    }
+
+    /** Applies the mechanical damage shared by manual and automatic artron dumps. */
+    public static void damageSystemsForArtronDump(Tardis tardis, int damage) {
+        tardis.subsystems().demat().removeDurability(damage);
+        tardis.subsystems().chameleon().removeDurability(damage);
+        tardis.subsystems().shields().removeDurability(damage);
+        tardis.subsystems().lifeSupport().removeDurability(damage);
+        tardis.subsystems().engine().removeDurability(damage);
+        tardis.crash().addRepairTicks(999999999);
     }
 
     private void runDumpingArtronSequence(ServerPlayerEntity player, Runnable onFinish) {

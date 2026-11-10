@@ -71,6 +71,7 @@ public class Control implements Identifiable {
 
     public void addToControlSequence(Tardis tardis, ServerPlayerEntity player, BlockPos pos) {
         tardis.sequence().add(this, player, pos);
+        tardis.returnHome().recordControlUse(player);
 
         if (AITMod.RANDOM.nextInt(0, 20) == 4) {
             tardis.loyalty().addLevel(player, 1);

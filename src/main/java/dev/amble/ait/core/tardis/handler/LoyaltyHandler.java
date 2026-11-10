@@ -57,7 +57,14 @@ public class LoyaltyHandler extends TardisComponent implements TardisTickable {
     }
 
     public Loyalty get(PlayerEntity player) {
-        return this.data.getOrDefault(player.getUuid(), new Loyalty(Loyalty.Type.NEUTRAL));
+        return this.get(player.getUuid());
+    }
+
+    public Loyalty get(UUID playerId) {
+        if (playerId == null)
+            return new Loyalty(Loyalty.Type.NEUTRAL);
+
+        return this.data.getOrDefault(playerId, new Loyalty(Loyalty.Type.NEUTRAL));
     }
 
     public Loyalty set(ServerPlayerEntity player, Loyalty loyalty) {

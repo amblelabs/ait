@@ -312,13 +312,15 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
 
         if (travel.getState() == TravelHandlerBase.State.DEMAT) return;
 
-        if (!previouslyLocked && travel.getState() == TravelHandlerBase.State.MAT
-                && travel.getAlpha() >= 0.9F)
-            TardisUtil.teleportInside(tardis, entity);
+        if (tardis.returnHome().tryCompleteHailMaryRescue(entity))
+            return;
 
-        if (!tardis.door().isClosed()
+        if (!previouslyLocked && travel.getState() == TravelHandlerBase.State.MAT
+                && travel.getAlpha() >= 0.9F) {
+            TardisUtil.teleportInsideThroughExterior(tardis, entity, false);
+        } else if (tardis.door().isOpen()
                 && (!(DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti) || !tardis.getExterior().getVariant().hasPortals()))
-            TardisUtil.teleportInside(tardis, entity);
+            TardisUtil.teleportInsideThroughExterior(tardis, entity, true);
 
         if (tardis.door().isClosed()
                 && entity instanceof PlayerEntity player

@@ -7,7 +7,6 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.api.tardis.TardisTickable;
-import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.item.SiegeTardisItem;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
@@ -16,6 +15,7 @@ import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
+import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -65,11 +65,7 @@ public class SiegeHandler extends KeyedTardisComponent implements TardisTickable
                 if (!Objects.equals(tardis.siege().getHeldPlayerUUID(), player.getUuid()))
                     return;
 
-                player.getInventory().remove(
-                        stack -> stack.isOf(AITItems.SIEGE_ITEM) && tardis.getUuid().equals(SiegeTardisItem.getTardisIdStatic(stack)),
-                        -1, player.playerScreenHandler.getCraftingInput());
-
-                SiegeTardisItem.placeTardis(tardis, SiegeTardisItem.fromEntity(player));
+                SiegeTardisItem.placeTardis(tardis, SiegeTardisItem.fromEntity(player), player);
             });
         });
     }
@@ -116,6 +112,19 @@ public class SiegeHandler extends KeyedTardisComponent implements TardisTickable
         if (this.tardis.getFuel() <= (0.01 * FuelHandler.TARDIS_MAX_FUEL))
             return; // The required amount of fuel to enable/disable siege mode
 
+        if (!siege && this.active.get()) {
+            boolean exteriorExists = this.tardis.getExterior().hasValidExteriorBlock();
+            if (exteriorExists && this.tardis.returnHome().isOwnInteriorPosition(this.tardis.travel().position())) {
+                if (!SiegeTardisItem.placeTardis(this.tardis, this.tardis.travel().position()))
+                    return;
+            } else if (exteriorExists) {
+                if (!this.tardis.returnHome().prepareSiegeExteriorPlacement(ServerLifecycleHooks.get()))
+                    return;
+            } else if (!SiegeTardisItem.placeTardis(this.tardis, this.tardis.travel().position())) {
+                return;
+            }
+        }
+
         SoundEvent sound;
 
         if (siege) {
@@ -134,10 +143,6 @@ public class SiegeHandler extends KeyedTardisComponent implements TardisTickable
             this.tardis.door().setLocked(false);
 
             this.tardis.alarm().disable();
-
-            if (this.tardis.getExterior().findExteriorBlock().isEmpty()) {
-                this.tardis.travel().placeExterior(false);
-            }
 
             this.siegeTime = 0;
         }

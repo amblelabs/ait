@@ -127,6 +127,13 @@ public class SequenceHandler extends KeyedTardisComponent implements TardisTicka
         this.activeSequence.sendMessageToInteriorPlayers(tardis.asServer().world().getPlayers());
     }
 
+    public void cancelActiveSequence() {
+        if (this.recent != null)
+            this.recent.clear();
+        this.playerUUID = null;
+        this.setActiveSequence(null, true);
+    }
+
     public void triggerRandomSequence(boolean setTicksTo0) {
         if (setTicksTo0)
             ticks = 0;
