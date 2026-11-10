@@ -1,5 +1,6 @@
 package dev.amble.ait.mixin.client;
 
+import dev.amble.ait.client.util.FlightCameraEffects;
 import dev.amble.ait.core.blocks.DoorBlock;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import org.objectweb.asm.Opcodes;
@@ -9,11 +10,14 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -55,5 +59,21 @@ public class GameRendererMixin {
 
         this.client.crosshairTarget = new BlockHitResult(new Vec3d(at.x, Math.min(at.y, pos.getY() + 1), at.z),
                 hit.getSide(), pos, hit.isInsideBlock());
+    }
+
+    @Inject(method = "getFov(Lnet/minecraft/client/render/Camera;FZ)D", at = @At("RETURN"), cancellable = true)
+    private void ait$flightFov(Camera camera, float tickDelta, boolean changingFov, CallbackInfoReturnable<Double> cir) {
+        if (!changingFov)
+            return;
+
+        double multiplier = FlightCameraEffects.fovMultiplier(tickDelta);
+
+        if (multiplier != 1)
+            cir.setReturnValue(cir.getReturnValueD() * multiplier);
+    }
+
+    @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;update(Lnet/minecraft/world/BlockView;Lnet/minecraft/entity/Entity;ZZF)V", shift = At.Shift.AFTER))
+    private void ait$flightTilt(float tickDelta, long limitTime, MatrixStack matrices, CallbackInfo ci) {
+        FlightCameraEffects.applyTilt(matrices, tickDelta);
     }
 }

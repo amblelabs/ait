@@ -23,7 +23,6 @@ import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
 
 public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
@@ -52,18 +51,11 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
         double deltaY = 0;
         double deltaZ = 0;
 
-        Vec3d vec3d = Vec3d.ZERO;
-
         if (entity.getControllingPassenger() instanceof AbstractClientPlayerEntity player && player.getVehicle() == entity) {
             deltaX = player.getX() - player.prevX;
             deltaY = player.getY() - player.prevY;
             deltaZ = player.getZ() - player.prevZ;
-
-            vec3d = player.getRotationVec(tickDelta);
         }
-
-        double d = deltaX * deltaX + deltaZ * deltaZ;
-        double e = vec3d.horizontalLengthSquared();
 
         matrices.push();
         if (tardis.door().isClosed() && !entity.isCollidingOnGround())
@@ -82,16 +74,10 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
             matrices.translate(0, 2f, 0);
             matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float)(9.0d * -deltaX * 2.0d)));
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((float)(9.0d * deltaZ * 2.0d)));
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(((tickDelta + entity.age) * tardis.travel().speed() * 2.4f)));
             matrices.translate(0, -2f, 0);
         }
 
-        if (d > 0.0 && e > 0.0) {
-            double l = (deltaX * vec3d.x + deltaZ * vec3d.z) / Math.sqrt(d * e);
-            double m = deltaX * vec3d.z - deltaZ * vec3d.x;
-            double v = Math.signum(m) * Math.acos(l);
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotation((float) v));
-        }
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(entity.getVisualYaw(tickDelta)));
 
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 
@@ -102,7 +88,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
             float color = alarms ? 0.3f : 1f;
 
-            model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)), 0xf000f0, OverlayTexture.DEFAULT_UV, color, color, color, phaseAlpha);
+            model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission())), 0xf000f0, OverlayTexture.DEFAULT_UV, color, color, color, phaseAlpha);
         }
 
         BiomeHandler biome = tardis.handler(TardisComponent.Id.BIOME);

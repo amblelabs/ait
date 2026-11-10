@@ -46,6 +46,7 @@
     "client.GameRendererMixin",
     "client.ItemRendererMixin",
     "client.MinecraftClientMixin",
+    "client.SeamlessDoorNetworkMixin",
     "client.TitleScreenMixin",
     "client.experimental_screen.CreateWorldScreenMixin",
     "client.experimental_screen.WorldOpenFlowsMixin",

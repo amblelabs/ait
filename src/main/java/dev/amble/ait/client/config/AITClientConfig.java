@@ -101,6 +101,23 @@ public class AITClientConfig {
     @SerialEntry public boolean animateDoors = true;
 
     @AutoGen(category = CATEGORY)
+    @FloatSlider(min = 0.5f, max = 2.0f, step = 0.05f)
+    @CustomDescription("Scales the real world flight HUD. Default value is 1.0.")
+    @SerialEntry public float rwfHudScale = 1.0f;
+
+    @AutoGen(category = CATEGORY)
+    @CustomFormat(ValueFormatters.PercentFormatter.class)
+    @FloatSlider(min = 0f, max = 1f, step = 0.05f)
+    @CustomDescription("How much the field of view widens as you go faster during real world flight. Turn to 0 to disable.")
+    @SerialEntry public float rwfFovEffect = 1.0f;
+
+    @AutoGen(category = CATEGORY)
+    @CustomFormat(ValueFormatters.PercentFormatter.class)
+    @FloatSlider(min = 0f, max = 1f, step = 0.05f)
+    @CustomDescription("How much the camera banks and pitches with your movement during real world flight. Turn to 0 to disable.")
+    @SerialEntry public float rwfCameraTilt = 1.0f;
+
+    @AutoGen(category = CATEGORY)
     @EnumCycler
     @SerialEntry public TemperatureType temperatureType = TemperatureType.CELSIUS;
 

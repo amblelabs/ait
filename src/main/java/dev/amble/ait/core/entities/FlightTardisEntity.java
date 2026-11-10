@@ -123,6 +123,17 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     private int collisionEffectCooldown = 0;
 
+    private static final int RIDERLESS_GRACE = 40;
+
+    private int riderlessTicks = 0;
+
+    private static final float SPIN_PER_SPEED = 2.4f;
+    private static final float SETTLE_EASE = 0.2f;
+
+    private boolean visualYawInit = false;
+    private float visualYaw;
+    private float prevVisualYaw;
+
     public FlightTardisEntity(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
         this.setInvulnerable(true);
@@ -137,9 +148,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         this.setPosition(pos.getPos().toCenterPos().subtract(0, 0.5, 0));
         this.setVelocity(Vec3d.ZERO);
 
-        this.setRotation(RotationPropertyHelper.toDegrees(
-                DirectionControl.getGeneralizedRotation(pos.getRotation())
-        ), 0);
+        this.setRotation(RotationPropertyHelper.toDegrees(pos.getRotation()), 0);
     }
 
     public static FlightTardisEntity createAndSpawn(ServerPlayerEntity player, ServerTardis tardis) {
@@ -192,10 +201,22 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
         this.noClip = this.dataTracker.get(PHASING);
 
+        if (this.getWorld().isClient() && this.isLinked())
+            this.tickVisualYaw(this.tardis().get());
+
         PlayerEntity player = this.getPlayer();
 
-        if (player == null)
+        if (player == null) {
+            if (this.getWorld() instanceof ServerWorld serverWorld && this.isLinked()
+                    && ++this.riderlessTicks > RIDERLESS_GRACE) {
+                this.tardis().get().flight().abandonFlight(serverWorld, this.getBlockPos());
+                this.discard();
+            }
+
             return;
+        }
+
+        this.riderlessTicks = 0;
 
         if (!this.isLinked())
             return;
@@ -597,6 +618,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         tardis.travel().destination(cached -> cached.pos(surfacePos));
         tardis.travel().forceRemat();
 
+        player.stopRiding();
         TardisUtil.teleportInside(tardis.asServer(), player);
 
         this.discard();
@@ -613,6 +635,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
         tardis.flight().exitFlight(serverPlayer);
         tardis.travel().speed(0);
+        serverPlayer.stopRiding();
 
         if (this.interiorPos == null) {
             TardisUtil.teleportInside(tardis.asServer(), serverPlayer);
@@ -713,6 +736,38 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         return 0.5f;
     }
 
+    private static float restingYaw(Tardis tardis) {
+        return -(RotationPropertyHelper.toDegrees(tardis.travel().position().getRotation()) + 180f);
+    }
+
+    private void tickVisualYaw(Tardis tardis) {
+        if (!this.visualYawInit) {
+            this.visualYaw = restingYaw(tardis);
+            this.prevVisualYaw = this.visualYaw;
+            this.visualYawInit = true;
+            return;
+        }
+
+        this.prevVisualYaw = this.visualYaw;
+
+        if (this.isCollidingOnGround()) {
+            float target = this.visualYaw + MathHelper.wrapDegrees(restingYaw(tardis) - this.visualYaw);
+            this.visualYaw = MathHelper.lerp(SETTLE_EASE, this.visualYaw, target);
+        } else {
+            this.visualYaw += tardis.travel().speed() * SPIN_PER_SPEED;
+        }
+
+        if (Math.abs(this.visualYaw) > 3600f) {
+            float wrap = this.visualYaw - MathHelper.wrapDegrees(this.visualYaw);
+            this.visualYaw -= wrap;
+            this.prevVisualYaw -= wrap;
+        }
+    }
+
+    public float getVisualYaw(float tickDelta) {
+        return MathHelper.lerp(tickDelta, this.prevVisualYaw, this.visualYaw);
+    }
+
     public float getRotation(float tickDelta) {
         return ((float) this.age + tickDelta) / 20.0f;
     }
@@ -734,11 +789,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
 
-        if (nbt.contains("InteriorPos")) {
-            this.interiorPos = BlockPos.fromLong(nbt.getLong("InteriorPos"));
-        } else {
-            this.interiorPos = BlockPos.ORIGIN;
-        }
+        this.interiorPos = nbt.contains("InteriorPos") ? BlockPos.fromLong(nbt.getLong("InteriorPos")) : null;
     }
 
     @Override
@@ -747,19 +798,8 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         if (this.getWorld().isClient()) return;
         if (!this.isLinked()) return;
 
-
-        TardisDesktop desktop = tardis().get().getDesktop();
-
-        if (interiorPos == null)
-            interiorPos = desktop.getConsolePos().iterator().next();
-
-        if (interiorPos == null)
-            interiorPos = desktop.getDoorPos().getPos();
-
-        if (interiorPos == null)
-            interiorPos = new BlockPos(0, 0, 0);
-
-        nbt.putLong("InteriorPos", interiorPos.asLong());
+        if (interiorPos != null)
+            nbt.putLong("InteriorPos", interiorPos.asLong());
     }
 
     public static DefaultAttributeContainer.Builder createDummyAttributes() {

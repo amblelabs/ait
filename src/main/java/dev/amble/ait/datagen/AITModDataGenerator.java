@@ -968,6 +968,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.animateConsole", "Toggle Animated Consoles");
         provider.addTranslation("yacl3.config.ait:client.animateControls", "Toggle Smoothly Animated Controls");
         provider.addTranslation("yacl3.config.ait:client.animateDoors", "Toggle Smoothly Animated Doors");
+        provider.addTranslation("yacl3.config.ait:client.rwfHudScale", "Real World Flight HUD Scale");
+        provider.addTranslation("yacl3.config.ait:client.rwfFovEffect", "Real World Flight FOV Effect");
+        provider.addTranslation("yacl3.config.ait:client.rwfCameraTilt", "Real World Flight Camera Tilt");
         provider.addTranslation("yacl3.config.ait:client.temperatureType", "Temperature Type");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.celsius", "Celsius (°C)");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.fahrenheit", "Fahrenheit (°F)");

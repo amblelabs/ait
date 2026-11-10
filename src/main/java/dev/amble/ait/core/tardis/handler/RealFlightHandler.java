@@ -10,6 +10,7 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.engine.impl.GravitationalCircuit;
 import dev.amble.ait.core.entities.FallingTardisEntity;
 import dev.amble.ait.core.entities.FlightTardisEntity;
+import dev.amble.ait.core.tardis.control.impl.DirectionControl;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
@@ -68,9 +69,8 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
 
     public void tickFlight(ServerPlayerEntity player, BlockPos pos) {
         tardis.travel().forcePosition(cached -> cached.pos(pos)
-                .rotation(DirectionControl.getGeneralizedRotation(
-                        RotationPropertyHelper.fromYaw(player.getYaw()))));
-        if (player.age % 20 != 0) {
+                .rotation((byte) RotationPropertyHelper.fromYaw(player.getYaw())));
+        if (player.age % 20 == 0) {
             GravitationalCircuit circuit = tardis.subsystems().get(GRAVITATIONAL);
             if (circuit.isEnabled()) {
                 circuit.removeDurability(0.05f); // it takes wayyyy too much away from the gravitational circuit,
@@ -113,6 +113,9 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
         TardisUtil.teleportOutside(tardis, player);
 
         Scheduler.get().runTaskLater(() -> {
+            if (player.isRemoved() || player.isDead() || entity.isRemoved())
+                return;
+
             player.startRiding(entity);
         }, TaskStage.END_SERVER_TICK, TimeUnit.TICKS, 2);
 
@@ -125,9 +128,18 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
         player.setInvisible(false);
         player.setInvulnerable(false);
 
-        tardis.travel().forcePosition(cached -> cached.rotation(DirectionControl.getGeneralizedRotation(
-                        RotationPropertyHelper.fromYaw(player.getYaw())))
+        tardis.travel().forcePosition(cached -> cached.rotation((byte) RotationPropertyHelper.fromYaw(player.getYaw()))
                 .world(player.getServerWorld()));
+        tardis.travel().placeExterior(false);
+
+        tardis.travel().finishRemat();
+    }
+
+    public void abandonFlight(ServerWorld world, BlockPos pos) {
+        this.flying.set(false);
+
+        tardis.travel().speed(0);
+        tardis.travel().forcePosition(cached -> cached.world(world.getRegistryKey()).pos(pos));
         tardis.travel().placeExterior(false);
 
         tardis.travel().finishRemat();

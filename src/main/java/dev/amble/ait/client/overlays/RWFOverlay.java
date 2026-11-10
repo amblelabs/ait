@@ -15,6 +15,7 @@ import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.Heightmap;
 
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.core.AITKeyBinds;
 import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.SubSystem;
@@ -59,6 +60,10 @@ public class RWFOverlay implements HudRenderCallback {
 
     private static float velocity;
 
+    private static float scale = 1f;
+    private static int screenWidth;
+    private static int screenHeight;
+
     @Override
     public void onHudRender(DrawContext context, float tickDelta) {
         MinecraftClient client = MinecraftClient.getInstance();
@@ -74,10 +79,24 @@ public class RWFOverlay implements HudRenderCallback {
 
         velocity = MathHelper.lerp(0.15f, velocity, (float) instantVelocity(player));
 
+        scale = MathHelper.clamp(AITModClient.CONFIG.rwfHudScale, 0.25f, 4f);
+        screenWidth = Math.round(context.getScaledWindowWidth() / scale);
+        screenHeight = Math.round(context.getScaledWindowHeight() / scale);
+
+        context.getMatrices().push();
+        context.getMatrices().scale(scale, scale, 1);
+
         heading(context, client, player);
         systems(context, client, tardis, player.age + tickDelta);
         position(context, client, player);
         controls(context, client);
+
+        context.getMatrices().pop();
+    }
+
+    private static void scissor(DrawContext context, int x1, int y1, int x2, int y2) {
+        context.enableScissor(MathHelper.floor(x1 * scale), MathHelper.floor(y1 * scale),
+                MathHelper.ceil(x2 * scale), MathHelper.ceil(y2 * scale));
     }
 
     private static double instantVelocity(AbstractClientPlayerEntity player) {
@@ -91,7 +110,7 @@ public class RWFOverlay implements HudRenderCallback {
     private static void heading(DrawContext context, MinecraftClient client, AbstractClientPlayerEntity player) {
         TextRenderer font = client.textRenderer;
 
-        int screen = context.getScaledWindowWidth();
+        int screen = screenWidth;
         int width = MathHelper.clamp(screen - 2 * (MARGIN + PANEL_W + GUTTER), 120, 240);
         int x = (screen - width) / 2;
         int centre = x + width / 2;
@@ -101,7 +120,7 @@ public class RWFOverlay implements HudRenderCallback {
         float bearing = MathHelper.wrapDegrees(player.getYaw() - 180);
         float perDegree = width / (float) HEADING_SPAN;
 
-        context.enableScissor(x + 1, MARGIN + 1, x + width - 1, MARGIN + TAPE_H - 1);
+        scissor(context, x + 1, MARGIN + 1, x + width - 1, MARGIN + TAPE_H - 1);
 
         for (int tick = 0; tick < 360; tick += 15) {
             int tx = centre + Math.round(MathHelper.wrapDegrees(tick - bearing) * perDegree);
@@ -207,9 +226,9 @@ public class RWFOverlay implements HudRenderCallback {
     private static void position(DrawContext context, MinecraftClient client, AbstractClientPlayerEntity player) {
         TextRenderer font = client.textRenderer;
 
-        int screen = context.getScaledWindowWidth();
+        int screen = screenWidth;
         int tapeX = screen - MARGIN - ALT_TAPE_W;
-        int tapeH = MathHelper.clamp(context.getScaledWindowHeight() - 2 * MARGIN - 62, 80, 150);
+        int tapeH = MathHelper.clamp(screenHeight - 2 * MARGIN - 62, 80, 150);
         int centreY = MARGIN + tapeH / 2;
 
         String coords = Math.round(player.getX()) + " / " + Math.round(player.getZ());
@@ -227,7 +246,7 @@ public class RWFOverlay implements HudRenderCallback {
         float perBlock = tapeH / (float) ALT_SPAN;
         int first = MathHelper.floor((altitude - ALT_SPAN / 2f) / 8) * 8;
 
-        context.enableScissor(tapeX + 1, MARGIN + 1, tapeX + ALT_TAPE_W - 1, MARGIN + tapeH - 1);
+        scissor(context, tapeX + 1, MARGIN + 1, tapeX + ALT_TAPE_W - 1, MARGIN + tapeH - 1);
 
         for (int level = first; level <= altitude + ALT_SPAN / 2f; level += 8) {
             int ly = centreY - Math.round((float) (level - altitude) * perBlock);
@@ -288,7 +307,7 @@ public class RWFOverlay implements HudRenderCallback {
 
         int width = capW + labelW + 15;
         int height = HEADER_H + binds.length * 12 + 4;
-        int y = context.getScaledWindowHeight() - 30 - height;
+        int y = screenHeight - 30 - height;
 
         panel(context, MARGIN, y, width, height);
         header(context, font, MARGIN, y, width, Text.translatable("overlay.ait.rwf.hud.controls"));
