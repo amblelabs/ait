@@ -1,6 +1,11 @@
 package dev.amble.ait.core.blockentities;
 
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.engine.SubSystem;
@@ -16,13 +21,22 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSource {
+    private static final Direction[] HORIZONTAL_DIRECTIONS = {
+            Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST
+    };
+
     private boolean firstTickHandled;
+    private boolean suppressFillCleanup;
 
     public EngineBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.ENGINE_BLOCK_ENTITY_TYPE, pos, state, SubSystem.Id.ENGINE);
@@ -35,26 +49,46 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
         super.tick(world, pos, state);
         if (!firstTickHandled && !world.isClient()) {
             firstTickHandled = true;
+            this.registerEnginePosition();
             FluidNetwork.rebuildFrom((ServerWorld) world, pos);
         }
     }
 
     @Override
     public void onPlaced(World world, BlockPos pos, @Nullable LivingEntity placer) {
-        super.onPlaced(world, pos, placer);
-        if (world.isClient())
+        if (world.isClient()) {
+            super.onPlaced(world, pos, placer);
             return;
+        }
 
+        if (!this.tryPlaceFillBlocks((ServerWorld) world)) {
+            this.suppressFillCleanup = true;
+            boolean removed = world.setBlockState(pos, Blocks.AIR.getDefaultState());
+            if (!removed) this.suppressFillCleanup = false;
+
+            if (!removed || placer == null) return;
+
+            if (!(placer instanceof PlayerEntity player) || !player.isCreative())
+                Block.dropStack(world, pos, AITBlocks.ENGINE_BLOCK.asItem().getDefaultStack());
+
+            if (!(placer instanceof ServerPlayerEntity player)) return;
+
+            player.sendMessage(Text.translatable("tardis.message.engine.no_space").formatted(Formatting.RED), true);
+            return;
+        }
+
+        super.onPlaced(world, pos, placer);
+        this.registerEnginePosition();
         this.tardis().ifPresent(tardis -> tardis.subsystems().engine().setEnabled(true));
-
-        this.tryPlaceFillBlocks();
-        this.rebuildOwnNetwork();
     }
 
     @Override
     public void onBroken(World world, BlockPos pos) {
-        this.onLoseFluid(); // always.
-        this.tryRemoveFillBlocks();
+        if (!world.isClient() && !this.suppressFillCleanup) {
+            this.onLoseFluid(); // always.
+            this.tryRemoveFillBlocks();
+            this.tardis().ifPresent(tardis -> tardis.getDesktop().removeEngine(this));
+        }
 
         super.onBroken(world, pos);
     }
@@ -63,44 +97,58 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
      * Places cable blocks adjacent and barrier blocks in corners
      * @return true if all blocks were placed
      */
-    private boolean tryPlaceFillBlocks() {
-        if (this.getWorld().isClient()) return false;
-
-        boolean success = true;
-
+    private boolean tryPlaceFillBlocks(ServerWorld world) {
         BlockPos centre = this.getPos();
-        ServerWorld world = (ServerWorld) this.getWorld();
+        Map<BlockPos, BlockState> required = new LinkedHashMap<>(8);
 
-        // place cable blocks adjacent
-        for (Direction dir : Direction.values()) {
-            if (dir == Direction.UP || dir == Direction.DOWN) continue;
-
-            BlockPos offset = centre.offset(dir);
-            success = success && tryPlace(world, offset, AITBlocks.CABLE_BLOCK.getDefaultState());
+        for (Direction direction : HORIZONTAL_DIRECTIONS) {
+            required.put(centre.offset(direction), AITBlocks.CABLE_BLOCK.getDefaultState());
         }
 
-        // place barrier blocks in corners
-        BlockPos corner = centre.add(1, 0, 1);
-        success = success && tryPlace(world, corner, Blocks.BARRIER.getDefaultState());
+        required.put(centre.add(1, 0, 1), Blocks.BARRIER.getDefaultState());
+        required.put(centre.add(-1, 0, 1), Blocks.BARRIER.getDefaultState());
+        required.put(centre.add(1, 0, -1), Blocks.BARRIER.getDefaultState());
+        required.put(centre.add(-1, 0, -1), Blocks.BARRIER.getDefaultState());
 
-        corner = centre.add(-1, 0, 1);
-        success = success && tryPlace(world, corner, Blocks.BARRIER.getDefaultState());
+        Map<BlockPos, BlockState> originals = new LinkedHashMap<>(required.size());
+        for (BlockPos fillPos : required.keySet()) {
+            BlockState original = world.getBlockState(fillPos);
+            if (!original.isReplaceable()) return false;
+            originals.put(fillPos, original);
+        }
 
-        corner = centre.add(1, 0, -1);
-        success = success && tryPlace(world, corner, Blocks.BARRIER.getDefaultState());
+        Map<BlockPos, BlockState> replaced = new LinkedHashMap<>(required.size());
 
-        corner = centre.add(-1, 0, -1);
-        success = success && tryPlace(world, corner, Blocks.BARRIER.getDefaultState());
+        for (Map.Entry<BlockPos, BlockState> fill : required.entrySet()) {
+            BlockPos fillPos = fill.getKey();
+            BlockState original = originals.get(fillPos);
+            boolean placed = world.setBlockState(fillPos, fill.getValue());
+            BlockState current = world.getBlockState(fillPos);
 
-        return success;
+            // Track only positions this placement actually changed. In particular, do not
+            // restore untouched, later preflight positions if an earlier placement fails.
+            if (!current.equals(original))
+                replaced.put(fillPos, original);
+
+            // Cable connection and waterlogging properties can update immediately after placement.
+            // The intended block type is the invariant; exact state equality is too strict here.
+            if (!placed || !current.isOf(fill.getValue().getBlock())) {
+                this.rollbackFillBlocks(world, replaced);
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    private boolean tryPlace(ServerWorld world, BlockPos pos, BlockState state) {
-        if (world.getBlockState(pos).isReplaceable()) {
-            world.setBlockState(pos, state);
-            return true;
+    private void rollbackFillBlocks(ServerWorld world, Map<BlockPos, BlockState> originals) {
+        Deque<Map.Entry<BlockPos, BlockState>> pending = new ArrayDeque<>(originals.entrySet());
+
+        while (!pending.isEmpty()) {
+            Map.Entry<BlockPos, BlockState> original = pending.removeLast();
+            if (world.getBlockState(original.getKey()).equals(original.getValue())) continue;
+            world.setBlockState(original.getKey(), original.getValue());
         }
-        return false;
     }
 
     /**
@@ -114,12 +162,9 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
         BlockPos centre = this.getPos();
         ServerWorld world = (ServerWorld) this.getWorld();
 
-        // place cable blocks adjacent
-        for (Direction dir : Direction.values()) {
-            if (dir == Direction.UP || dir == Direction.DOWN) continue;
-
-            BlockPos offset = centre.offset(dir);
-            tryRemoveIfMatches(world, offset, AITBlocks.CABLE_BLOCK);
+        // remove only the four horizontal cables created for this engine
+        for (Direction direction : HORIZONTAL_DIRECTIONS) {
+            tryRemoveIfMatches(world, centre.offset(direction), AITBlocks.CABLE_BLOCK);
         }
 
         // place barrier blocks in corners
@@ -148,31 +193,24 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
         world.removeBlock(pos, false);
     }
 
-    @Override
-    public void onLinked() {
+    private void registerEnginePosition() {
         this.tardis().ifPresent(tardis -> tardis.getDesktop().setEnginePos(this));
     }
 
     @Override
     public void onGainFluid() {
         super.onGainFluid();
-        this.rebuildOwnNetwork();
     }
 
     @Override
     public void onLoseFluid() {
         super.onLoseFluid();
-        this.rebuildOwnNetwork();
-    }
-
-    private void rebuildOwnNetwork() {
-        if (this.hasWorld() && !this.getWorld().isClient()) {
-            FluidNetwork.rebuildFrom((ServerWorld) this.getWorld(), this.getPos());
-        }
     }
 
     @Override
     public Tardis getTardisForFluid() {
+        if (!this.isLinked() || this.tardis().isEmpty()) return null;
+
         return this.tardis().get();
     }
 

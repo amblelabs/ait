@@ -156,6 +156,9 @@ public class AITMod implements ModInitializer {
         AITServerConfig.INSTANCE.load();
         CONFIG = AITServerConfig.INSTANCE.instance();
 
+        if (CONFIG.normalizeArtronSettings())
+            AITServerConfig.INSTANCE.save();
+
         ServerLifecycleHooks.init();
         AsyncLocatorUtil.init();
         MultiDim.init();

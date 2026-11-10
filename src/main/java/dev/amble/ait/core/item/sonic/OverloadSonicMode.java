@@ -123,12 +123,16 @@ public class OverloadSonicMode extends SonicMode {
             ItemStack lowerStack = lowerFuelPlayer.getMainHandStack();
             ItemStack higherStack = higherFuelPlayer.getMainHandStack();
 
-            double transferAmount = 10.0;
-            double actualRemoved = Math.min(transferAmount,
-                    ((SonicItem) higherStack.getItem()).getCurrentFuel(higherStack));
+            SonicItem lowerSonic = (SonicItem) lowerStack.getItem();
+            SonicItem higherSonic = (SonicItem) higherStack.getItem();
+            double capacity = Math.max(lowerSonic.getMaxFuel(lowerStack)
+                    - lowerSonic.getCurrentFuel(lowerStack), 0);
+            double requested = Math.min(10, capacity);
+            double extracted = higherSonic.extractFuel(requested, higherStack);
+            double accepted = lowerSonic.insertFuel(extracted, lowerStack);
 
-            ((SonicItem) higherStack.getItem()).removeFuel(actualRemoved, higherStack);
-            ((SonicItem) lowerStack.getItem()).addFuel(actualRemoved, lowerStack);
+            if (accepted < extracted)
+                higherSonic.addFuel(extracted - accepted, higherStack);
 
             playSparkEffect(world, lowerFuelPlayer);
 
