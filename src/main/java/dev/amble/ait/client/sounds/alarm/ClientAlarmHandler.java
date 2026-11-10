@@ -42,16 +42,16 @@ public class ClientAlarmHandler extends SoundHandler {
     }
 
     private boolean shouldPlaySound(ClientTardis tardis) {
-        return tardis != null && tardis.alarm().isEnabled();
+        return tardis != null && tardis.alarm() != null && tardis.alarm().isEnabled();
     }
 
     public void tick(MinecraftClient client) {
         ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
 
-        if (this.sounds == null)
-            this.generate();
-
         if (this.shouldPlaySound(tardis)) {
+            if (this.sounds == null)
+                this.generate();
+
             this.startIfNotPlaying(this.getInteriorCloister());
             ClientShakeUtil.shake(0.15f);
         } else {

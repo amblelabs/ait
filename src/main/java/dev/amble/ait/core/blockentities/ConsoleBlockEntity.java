@@ -202,7 +202,9 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         if (world.getRegistryKey().equals(World.OVERWORLD)) {
             return super.toInitialChunkDataNbt();
         }
-        this.markNeedsControl();
+        // only when they're gone, this runs on every sync too
+        if (this.controlEntities.isEmpty() || this.controlEntities.stream().anyMatch(Entity::isRemoved))
+            this.markNeedsControl();
         return super.toInitialChunkDataNbt();
     }
 

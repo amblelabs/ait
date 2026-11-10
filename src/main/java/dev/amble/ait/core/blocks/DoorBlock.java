@@ -164,20 +164,22 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
 //        if (door.tardis().get().stats().getYScale() == 0)
 //            return;
 
+        if (reaches(entity, this.getOutlineShape(state, world, pos, ShapeContext.of(entity)).getBoundingBox().offset(pos)))
+            door.onEntityCollision(entity);
+    }
+
+    public static boolean reaches(Entity entity, Box door) {
         Vec3d expansionBehind = new Vec3d(entity.prevX, entity.prevY, entity.prevZ).subtract(entity.getPos());
         Vec3d expansionForward = entity.getVelocity();
 
         Box entityBox = entity.getBoundingBox().stretch(expansionForward.multiply(1.2)).stretch(expansionBehind);
 
-        Box doorShape = this.getOutlineShape(state, world, pos, ShapeContext.of(entity)).getBoundingBox().offset(pos);
-
         double insideBlockExpanded = 1.0E-7D;
 
         Box biggerEntityBox = entityBox.expand(insideBlockExpanded);
-        Box biggerDoorShape = doorShape.expand(insideBlockExpanded);
+        Box biggerDoorShape = door.expand(insideBlockExpanded);
 
-        if (biggerEntityBox.intersects(biggerDoorShape))
-            door.onEntityCollision(entity);
+        return biggerEntityBox.intersects(biggerDoorShape);
     }
 
     @Override

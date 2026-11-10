@@ -21,7 +21,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 
-
 public class ControlDiscItem extends AbstractCoordinateModifierItem {
 
     public static final String CAN_CONTAIN_PLAYERS = "can_contain_players";
@@ -32,34 +31,33 @@ public class ControlDiscItem extends AbstractCoordinateModifierItem {
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-        // if (world.isClient()) return TypedActionResult.consume(user.getMainHandStack()); //<-- Not sure if it being on either is an issue or not - Loqor
-        ItemStack offhand = user.getOffHandStack();
-        ItemStack mainhand = user.getMainHandStack();
-
         if (TardisServerWorld.isTardisDimension(world)) {
             user.sendMessage(Text.translatable("ait.control_disc.unusable_in_tardis_world"), true);
-            return TypedActionResult.fail(user.getMainHandStack());
+            return TypedActionResult.fail(user.getStackInHand(hand));
         }
-        if (offhand.getItem() instanceof SonicItem sonic) {
-            if (sonic.isLinked(offhand)) {
-                SonicMode mode = SonicItem.mode(offhand);
-                if (mode.equals(SonicMode.Modes.INTERACTION) && AbstractCoordinateModifierItem.getPos(mainhand) == null) {
-                    CachedDirectedGlobalPos targetPos = CachedDirectedGlobalPos.create(world.getRegistryKey(),
-                            user.getBlockPos(), DirectedGlobalPos.getGeneralizedRotation(user.getMovementDirection()));
-                    AbstractCoordinateModifierItem.setPos(user.getMainHandStack(), targetPos);
-                    ControlDiscItem.setCanContainPlayers(mainhand, true);
-                    user.playSound(AITSounds.DING, 1f, 1f);
-                    user.sendMessage(Text.translatable("ait.control_disc.set_position")
-                            .append(Text.literal(" > " + targetPos)
-                                    .formatted(Formatting.BLUE)), true);
-                } else if (mode.equals(SonicMode.Modes.OVERLOAD) && AbstractCoordinateModifierItem.getPos(mainhand) != null) {
-                    ControlDiscItem.setCanContainPlayers(mainhand, !ControlDiscItem.canContainPlayers(mainhand));
-                    user.playSound(AITSounds.DING, 1f, 0.1f);
-                    user.sendMessage(Text.translatable("ait.control_disc.can_contain_players.toggle", ControlDiscItem.canContainPlayers(mainhand))
-                                    .formatted(Formatting.BLUE), true);
-                }
+
+        ItemStack discStack = user.getStackInHand(hand);
+        ItemStack otherStack = user.getStackInHand(hand == Hand.MAIN_HAND ? Hand.OFF_HAND : Hand.MAIN_HAND);
+
+        if (otherStack.getItem() instanceof SonicItem sonic && sonic.isLinked(otherStack)) {
+            SonicMode mode = SonicItem.mode(otherStack);
+            if (mode.equals(SonicMode.Modes.INTERACTION) && AbstractCoordinateModifierItem.getPos(discStack) == null) {
+                CachedDirectedGlobalPos targetPos = CachedDirectedGlobalPos.create(world.getRegistryKey(),
+                        user.getBlockPos(), DirectedGlobalPos.getGeneralizedRotation(user.getMovementDirection()));
+                AbstractCoordinateModifierItem.setPos(discStack, targetPos);
+                ControlDiscItem.setCanContainPlayers(discStack, true);
+                user.playSound(AITSounds.DING, 1f, 1f);
+                user.sendMessage(Text.translatable("ait.control_disc.set_position")
+                        .append(Text.literal(" > " + targetPos)
+                                .formatted(Formatting.BLUE)), true);
+            } else if (mode.equals(SonicMode.Modes.OVERLOAD) && AbstractCoordinateModifierItem.getPos(discStack) != null) {
+                ControlDiscItem.setCanContainPlayers(discStack, !ControlDiscItem.canContainPlayers(discStack));
+                user.playSound(AITSounds.DING, 1f, 0.1f);
+                user.sendMessage(Text.translatable("ait.control_disc.can_contain_players.toggle", ControlDiscItem.canContainPlayers(discStack))
+                                .formatted(Formatting.BLUE), true);
             }
         }
+
         return super.use(world, user, hand);
     }
 

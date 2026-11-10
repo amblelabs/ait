@@ -226,3 +226,4 @@
 - fix: fixed subsystems duplicating when changing the interior | ([#2200](https://github.com/amblelabs/ait/pull/2200))
 - add: added a server option to break and place blocks through an open tardis door with immersive portals | ([#2220](https://github.com/amblelabs/ait/pull/2220))
 - chore: bump loom & try out fun stuff | by [@drtheodor](https://github.com/drtheodor), [@vmbbi](https://github.com/vmbbi) ([#2221](https://github.com/amblelabs/ait/pull/2221))
+- fix: control disc dupe | by [@drtheodor](https://github.com/drtheodor) ([#2222](https://github.com/amblelabs/ait/pull/2222))

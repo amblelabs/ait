@@ -75,6 +75,10 @@ public class TardisUtil {
             return super.canDestroyBlock(explosion, world, pos, state, power);
         }
     };
+    // a crossbow arrow (3.15 a tick) times the door's 1.2 stretch, rounded up
+    public static final double DOOR_REACH = 4;
+    // noclip things never reach a block's collision callback, riders go with their vehicle
+    public static final Predicate<Entity> CAN_PASS_DOOR = entity -> !entity.noClip && !entity.hasVehicle();
 
     public static boolean doCreateFire(World world) {
         return world.getGameRules().getBoolean(AITMod.TARDIS_FIRE_GRIEFING);
