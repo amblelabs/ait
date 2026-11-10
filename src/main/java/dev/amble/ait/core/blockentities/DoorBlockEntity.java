@@ -83,7 +83,6 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
         BlockState blockstate1 = blockState.with(DoorBlock.LEVEL_4, exteriorWorld.getLightLevel(exteriorPos.up()));
 
-        // exit early for light updates
         if (world.getServer().getTicks() % 20 != 0) {
             if (!open) {
                 blockstate1 = blockstate1.with(DoorBlock.LEVEL_4, 0);
@@ -113,7 +112,6 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
         if (!(exteriorState.getBlock() instanceof ExteriorBlock))
             return;
 
-        // TODO: performance sink. this should ideally be done in the exterior block code...
         boolean waterlogged = exteriorWorld.getBlockState(exteriorPos).get(Properties.WATERLOGGED);
 
         world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, waterlogged),
@@ -141,7 +139,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
                 tardis.door().interactToggleLock((ServerPlayerEntity) player);
             } else {
                 world.playSound(null, pos, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.BLOCKS, 1F, 0.2F);
-                player.sendMessage(Text.translatable("tardis.key.identity_error"), true); // TARDIS does not identify with key
+                player.sendMessage(Text.translatable("tardis.key.identity_error"), true);
             }
 
             return;
@@ -180,7 +178,6 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
         door = door.withMaxY(Math.max(door.maxY, pos.getY() + tardis.getExterior().getVariant().portalHeight()));
 
         for (Entity entity : world.getOtherEntities(null, door.expand(TardisUtil.DOOR_REACH, 0, TardisUtil.DOOR_REACH), TardisUtil.CAN_PASS_DOOR)) {
-            // things that didn't move this tick (stuck arrows, frames) stay put
             if (entity.getPos().squaredDistanceTo(entity.prevX, entity.prevY, entity.prevZ) != 0 && DoorBlock.reaches(entity, door))
                 this.onEntityCollision(entity);
         }
