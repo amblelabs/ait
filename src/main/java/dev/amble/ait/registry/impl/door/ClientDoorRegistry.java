@@ -2,6 +2,7 @@ package dev.amble.ait.registry.impl.door;
 
 
 import dev.amble.ait.client.models.AnimatedModel;
+import dev.amble.ait.client.models.doors.DoorModel;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.data.schema.door.AnimatedDoor;
@@ -137,7 +138,7 @@ public class ClientDoorRegistry extends DatapackRegistry<ClientDoorSchema> {
 
                         if (schema instanceof AnimatedDoor animDoor) {
                             this.getPart().traverse().forEach(ModelPart::resetTransform);
-                            animDoor.runAnimations(root, matrices, tickDelta, tardis);
+                            animDoor.runAnimations(root, matrices, DoorModel.leftRot(tardis.door(), tickDelta), DoorModel.rightRot(tardis.door(), tickDelta));
                         }
                         root.render(matrices, vertices, light, overlay, red, green, blue, pAlpha);
 

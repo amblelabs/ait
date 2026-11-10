@@ -121,8 +121,8 @@ public class BlueBoxExteriorModel extends SimpleExteriorModel {
             this.left_door2.yaw = (door.isRightOpen() || door.areBothOpen()) ? 4.75F : 0.0F;
         } else {
             float maxRot = 90f;
-            this.right_door2.yaw = -(float) Math.toRadians(maxRot * door.getLeftRot());
-            this.right_door2.yaw = (float) Math.toRadians(maxRot * door.getRightRot());
+            this.right_door2.yaw = -(float) Math.toRadians(maxRot * leftRot(door));
+            this.right_door2.yaw = (float) Math.toRadians(maxRot * rightRot(door));
         }
     }
 

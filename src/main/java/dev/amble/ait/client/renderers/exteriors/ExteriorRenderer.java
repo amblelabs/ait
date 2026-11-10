@@ -138,7 +138,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             profiler.visit("ait_exterior_alpha_zero");
         }
 
-        if (tardis.door().getLeftRot() <= 0 && !variant.hasTransparentDoors()) {
+        if (!tardis.door().isVisuallyOpen() && !variant.hasTransparentDoors()) {
             profiler.visit("ait_exterior_doors_shut");
             return;
         }

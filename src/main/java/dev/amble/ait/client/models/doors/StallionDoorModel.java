@@ -82,8 +82,8 @@ public class StallionDoorModel extends DoorModel {
             float maxLeftRot = 87f;
             float maxRightRot = 150f;
 
-            body.getChild("door").yaw = -(float) Math.toRadians(maxLeftRot*tardis.door().getLeftRot());
-            body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(maxRightRot*tardis.door().getLeftRot());
+            body.getChild("door").yaw = -(float) Math.toRadians(maxLeftRot*leftRot(tardis.door(), tickDelta));
+            body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(maxRightRot*leftRot(tardis.door(), tickDelta));
         }
 
         super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);

@@ -115,7 +115,7 @@ public class RenegadeExteriorModel extends SimpleExteriorModel {
         if (!AITModClient.CONFIG.animateDoors)
             renegade.getChild("door").yaw = tardis.door().isOpen() ? 1.75f : 0f;
         else {
-            renegade.getChild("door").yaw = (float) Math.toRadians(90f * tardis.door().getLeftRot());
+            renegade.getChild("door").yaw = (float) Math.toRadians(90f * leftRot(tardis.door()));
         }
 
         if (isBOTI) {

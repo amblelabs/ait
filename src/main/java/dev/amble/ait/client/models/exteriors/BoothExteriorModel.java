@@ -103,7 +103,7 @@ public class BoothExteriorModel extends SimpleExteriorModel {
             this.k2.getChild("Door").yaw = tardis.door().isOpen() ? 1.575F : 0.0F;
         else {
             float maxRot = 90f;
-            this.k2.getChild("Door").yaw = (float) Math.toRadians(maxRot * tardis.door().getLeftRot());
+            this.k2.getChild("Door").yaw = (float) Math.toRadians(maxRot * leftRot(tardis.door()));
         }
 
         if (isBOTI) {
@@ -126,7 +126,7 @@ public class BoothExteriorModel extends SimpleExteriorModel {
             this.k2.getChild("Door").yaw = falling.tardis().get().door().isOpen() ? 1.575F : 0.0F;
         else {
             float maxRot = 90f;
-            this.k2.getChild("Door").yaw = (float) Math.toRadians(maxRot * falling.tardis().get().door().getLeftRot());
+            this.k2.getChild("Door").yaw = (float) Math.toRadians(maxRot * leftRot(falling.tardis().get().door()));
         }
         matrices.scale(1f, 1f, 1f);
         matrices.translate(0, -1.5f, 0);

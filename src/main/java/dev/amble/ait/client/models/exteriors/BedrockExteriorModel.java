@@ -2,6 +2,7 @@ package dev.amble.ait.client.models.exteriors;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.v2.Linkable;
+import dev.amble.ait.client.models.doors.DoorModel;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
@@ -44,7 +45,7 @@ public class BedrockExteriorModel implements ExteriorModel, Identifiable {
 
         if (schema instanceof AnimatedDoor animDoor) {
             this.getPart().traverse().forEach(ModelPart::resetTransform);
-            animDoor.runAnimations(root, matrices, tickDelta, tardis);
+            animDoor.runAnimations(root, matrices, DoorModel.leftRot(tardis.door(), tickDelta), DoorModel.rightRot(tardis.door(), tickDelta));
         }
 
         if (schema instanceof TravelAnimationMap.Holder holder) {

@@ -32,7 +32,7 @@ public class DefaultLogoMixin {
         int screenWidth = MinecraftClient.getInstance().getWindow().getScaledWidth();
         int centerX = screenWidth / 2 - 121;
         int screenHeight = MinecraftClient.getInstance().getWindow().getScaledHeight();
-        int centerY = screenHeight / 5 - 21;
+        int centerY = screenHeight / 5 - 50;
         context.drawTexture(AIT_LOGO, centerX, centerY, 0, 0, 242, 42, 242, 42);
     }
 

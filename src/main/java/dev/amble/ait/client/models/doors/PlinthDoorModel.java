@@ -52,7 +52,7 @@ public class PlinthDoorModel extends DoorModel {
             plinth.getChild("door").yaw = tardis.door().isOpen() ? -1.75f : 0f;
         } else {
             float maxRot = 90f;
-            plinth.getChild("door").yaw = -(float) Math.toRadians(maxRot*tardis.door().getLeftRot());
+            plinth.getChild("door").yaw = -(float) Math.toRadians(maxRot*leftRot(tardis.door(), tickDelta));
         }
         super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);
 

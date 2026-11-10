@@ -176,8 +176,8 @@ public class PoliceBoxCoralDoorModel extends DoorModel {
                     : 0.0F;
         } else {
             float maxRot = 90f;
-            this.TARDIS.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*door.getLeftRot());
-            this.TARDIS.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(maxRot*door.getRightRot());
+            this.TARDIS.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*leftRot(door, tickDelta));
+            this.TARDIS.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(maxRot*rightRot(door, tickDelta));
         }
 
         matrices.push();

@@ -48,14 +48,9 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
                        int light, int overlay) {
         if (entity.getWorld() == null) return;
 
-        // Fetched per call, never held: the client swaps its profiler object out every frame.
         Profiler profiler = entity.getWorld().getProfiler();
         profiler.visit("ait_door_dispatched");
 
-        // Called twice a pass: once from the chunk's block entity list, once from the global no-cull
-        // list. Both draws are identical, so only the first does the work. When the section is culled
-        // the first call never arrives and the global one draws instead, which is the point of being
-        // on that list at all.
         if (!ClientRenderPass.shouldDraw(entity)) {
             profiler.visit("ait_door_duplicate_skipped");
             return;
@@ -89,10 +84,6 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
                             VertexConsumerProvider vertexConsumers, int light, int overlay, float tickDelta) {
         this.updateModel(tardis);
 
-        // Same shape as the exterior, and the same reason for being here rather than in front of the
-        // duplicate guard: the bound needs the stats scale. A sphere because the renderer yaws the
-        // model by the door's facing. This covers the interior door's own BOTI enqueue below, which
-        // for a player stood inside is the likelier cost of the two.
         double doorScale = maxScale(tardis.stats().getScale());
 
         if (this.model != null && OffScreenCull.sphereBehindCamera(entity, this.model.getPart(),
@@ -107,7 +98,7 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
         Identifier texture = this.variant.texture();
 
         if (this.variant.equals(ClientExteriorVariantRegistry.DOOM))
-            texture = tardis.door().isOpen() ? DoomDoorModel.DOOM_DOOR_OPEN : DoomDoorModel.DOOM_DOOR;
+            texture = tardis.door().isVisuallyOpen() ? DoomDoorModel.DOOM_DOOR_OPEN : DoomDoorModel.DOOM_DOOR;
 
         matrices.push();
         matrices.translate(0.5, 0, 0.5);
@@ -188,14 +179,13 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
             }
         }
 
-        if (!IrisCompat.isRenderingShadowPass() && (tardis.door().getLeftRot() > 0 || this.variant.hasTransparentDoors()) && !tardis.isGrowth() && !AITModClient.skipBuiltInBOTI())
+        if (!IrisCompat.isRenderingShadowPass() && (tardis.door().isVisuallyOpen() || this.variant.hasTransparentDoors()) && !tardis.isGrowth() && !AITModClient.skipBuiltInBOTI())
             BOTI.DOOR_RENDER_QUEUE.add(entity);
 
         matrices.pop();
         profiler.pop();
     }
 
-    /** The largest axis of a non uniform scale, since the bound is a sphere. */
     private static double maxScale(Vector3f scale) {
         return Math.max(1.0, Math.max(scale.x(), Math.max(scale.y(), scale.z())));
     }

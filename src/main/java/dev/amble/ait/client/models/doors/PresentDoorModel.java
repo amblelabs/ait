@@ -49,8 +49,8 @@ public class PresentDoorModel extends DoorModel {
                     : 0.0F;
         } else {
             float maxRot = 90f;
-            this.present.getChild("left_door").yaw = (float) Math.toRadians(maxRot*door.getLeftRot());
-            this.present.getChild("right_door").yaw = (float) -Math.toRadians(maxRot*door.getRightRot());
+            this.present.getChild("left_door").yaw = (float) Math.toRadians(maxRot*leftRot(door, tickDelta));
+            this.present.getChild("right_door").yaw = (float) -Math.toRadians(maxRot*rightRot(door, tickDelta));
         }
 
         matrices.push();

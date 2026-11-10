@@ -106,8 +106,8 @@ public class StallionExteriorModel extends SimpleExteriorModel {
             body.getChild("door").yaw = tardis.door().isOpen() ? -1.35f : 0f;
             body.getChild("door").getChild("door_two").yaw = tardis.door().isOpen() ? 2.65f : 0f;
         } else {
-            body.getChild("door").yaw = -(float) Math.toRadians(87f * tardis.door().getLeftRot());
-            body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(150f * tardis.door().getLeftRot());
+            body.getChild("door").yaw = -(float) Math.toRadians(87f * leftRot(tardis.door()));
+            body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(150f * leftRot(tardis.door()));
         }
 
         if (isBOTI) {
@@ -145,8 +145,8 @@ public class StallionExteriorModel extends SimpleExteriorModel {
         } else {
             float maxLeftRot = 87f;
             float maxRightRot = 150f;
-            body.getChild("door").yaw = -(float) Math.toRadians(maxLeftRot * falling.tardis().get().door().getLeftRot());
-            body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(maxRightRot * falling.tardis().get().door().getLeftRot());
+            body.getChild("door").yaw = -(float) Math.toRadians(maxLeftRot * leftRot(falling.tardis().get().door()));
+            body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(maxRightRot * leftRot(falling.tardis().get().door()));
         }
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);

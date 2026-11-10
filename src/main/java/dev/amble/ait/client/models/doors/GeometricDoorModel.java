@@ -42,7 +42,7 @@ public class GeometricDoorModel extends DoorModel {
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, float tickDelta) {
         DoorHandler door = tardis.door();
 
-        this.geometric.getChild("door").pivotZ = door.isOpen() ? 5.05f : 1f;
+        this.geometric.getChild("door").pivotZ = door.isVisuallyOpen() ? 5.05f : 1f;
 
         matrices.push();
         matrices.scale(1F, 1F, 1F);

@@ -46,7 +46,7 @@ public class DoomConstants {
             "textures/blockentities/exteriors/exclusive/doom/doom_front_back_open_emission.png");
 
     public static Identifier getTextureForRotation(float rotation, Tardis tardis) {
-        boolean bl = tardis.door().isOpen();
+        boolean bl = tardis.door().isVisuallyOpen();
         if (rotation > 70 && rotation < 110) {
             return bl ? DOOM_RIGHT_SIDE_OPEN : DOOM_RIGHT_SIDE;
         } else if (rotation < -90 && rotation > -110) {
@@ -63,7 +63,7 @@ public class DoomConstants {
     }
 
     public static Identifier getEmissionForRotation(Identifier identifier, Tardis tardis) {
-        boolean bl = tardis.door().isOpen();
+        boolean bl = tardis.door().isVisuallyOpen();
         if (identifier == DOOM_RIGHT_DIAGONAL || identifier == DOOM_RIGHT_DIAGONAL_OPEN) {
             return bl ? DOOM_RIGHT_DIAGONAL_OPEN_EMISSION : DOOM_DIAGONAL_EMISSION;
         } else if (identifier == DOOM_LEFT_DIAGONAL || identifier == DOOM_LEFT_DIAGONAL_OPEN) {
