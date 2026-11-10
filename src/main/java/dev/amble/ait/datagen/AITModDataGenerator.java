@@ -815,6 +815,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.console_generator.not_unlocked", "This console is not unlocked yet!");
         provider.addTranslation("message.ait.console_control.json_logged", "JSON data logged to Java console!");
         provider.addTranslation("message.ait.control.direction.rotation", "Rotation Direction: %s | %s");
+        provider.addTranslation("message.ait.control.direction.auto_turn.enabled", "Auto-Turn: Enabled");
+        provider.addTranslation("message.ait.control.direction.auto_turn.disabled", "Auto-Turn: Disabled");
+        provider.addTranslation("tardis.message.auto_turn.rotated", "Entrance obstructed, rotated by %s°");
+        provider.addTranslation("tardis.message.auto_turn.blocked", "Entrance obstructed in every direction");
         provider.addTranslation("message.ait.control.monitor.status", "X: %s Y: %s Z: %s Dim: %s Fuel: %s/50000");
         provider.addTranslation("message.ait.dimension.unlocked", "%s unlocked!");
         provider.addTranslation("message.ait.handles.already_in_flight", "The TARDIS is already in flight...");

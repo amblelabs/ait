@@ -54,6 +54,7 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
     private static final Property<SafePosSearch.Kind> VGROUND_SEARCH = Property.forEnum("vground_search", SafePosSearch.Kind.class,
             SafePosSearch.Kind.CEILING);
     private static final BoolProperty HGROUND_SEARCH = new BoolProperty("hground_search", true);
+    private static final BoolProperty AUTO_TURN = new BoolProperty("auto_turn", true);
 
     protected final Value<State> state = STATE.create(this);
     protected final Value<CachedDirectedGlobalPos> position = POSITION.create(this);
@@ -69,6 +70,7 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
 
     protected final Value<SafePosSearch.Kind> vGroundSearch = VGROUND_SEARCH.create(this);
     protected final BoolValue hGroundSearch = HGROUND_SEARCH.create(this);
+    protected final BoolValue autoTurn = AUTO_TURN.create(this);
 
     @Exclude(strategy = Exclude.Strategy.NETWORK)
     protected int hammerUses = 0;
@@ -104,6 +106,7 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
 
         vGroundSearch.of(this, VGROUND_SEARCH);
         hGroundSearch.of(this, HGROUND_SEARCH);
+        autoTurn.of(this, AUTO_TURN);
 
         // fix a bug of old versions having negative hammer uses.
         this.hammerUses = Math.max(this.hammerUses, 1);
@@ -251,6 +254,10 @@ public abstract class TravelHandlerBase extends KeyedTardisComponent implements 
 
     public BoolValue horizontalSearch() {
         return hGroundSearch;
+    }
+
+    public BoolValue autoTurn() {
+        return autoTurn;
     }
 
     public Value<SafePosSearch.Kind> verticalSearch() {

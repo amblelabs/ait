@@ -44,12 +44,15 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.world.World;
 
 public final class TravelHandler extends AnimatedTravelHandler implements CrashableTardisTravel {
@@ -521,10 +524,63 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
         this.tardis.getDesktop().forcePlaySoundAtEveryConsole(sound, SoundCategory.BLOCKS);
 
+        pos = this.avoidObstruction(pos, null);
+
         this.destination(pos);
         this.forcePosition(this.destination());
 
         this.placeExterior(true); // we schedule block update in #finishRemat
+    }
+
+    public CachedDirectedGlobalPos avoidObstruction(CachedDirectedGlobalPos pos, @Nullable ServerPlayerEntity pilot) {
+        ServerWorld world = pos.getWorld();
+
+        if (!this.autoTurn.get() || world == null || !isEntranceBlocked(world, pos.getPos(), pos.getRotation()))
+            return pos;
+
+        for (int step = 1; step <= 8; step++) {
+            for (int sign = 1; sign >= -1; sign -= 2) {
+                if (step == 8 && sign == -1)
+                    continue;
+
+                byte rotation = (byte) Math.floorMod(pos.getRotation() + step * sign, 16);
+
+                if (isEntranceBlocked(world, pos.getPos(), rotation))
+                    continue;
+
+                float degrees = step * 22.5f;
+                String shown = degrees % 1 == 0 ? String.valueOf((int) degrees) : String.valueOf(degrees);
+
+                this.notifyObstruction(Text.translatable("tardis.message.auto_turn.rotated", shown), pilot);
+                return pos.rotation(rotation);
+            }
+        }
+
+        this.notifyObstruction(Text.translatable("tardis.message.auto_turn.blocked"), pilot);
+        return pos;
+    }
+
+    private void notifyObstruction(Text text, @Nullable ServerPlayerEntity pilot) {
+        Text message = text.copy().formatted(Formatting.YELLOW);
+
+        TardisUtil.sendMessageToInterior(this.tardis.asServer(), message);
+
+        if (pilot != null)
+            pilot.sendMessage(message, true);
+    }
+
+    private static boolean isEntranceBlocked(ServerWorld world, BlockPos pos, int rotation) {
+        float yaw = (RotationPropertyHelper.toDegrees(rotation) + 180f) * MathHelper.RADIANS_PER_DEGREE;
+        BlockPos front = pos.add(Math.round(-MathHelper.sin(yaw)), 0, Math.round(MathHelper.cos(yaw)));
+
+        for (int y = 0; y < 2; y++) {
+            BlockPos at = front.up(y);
+
+            if (!world.getBlockState(at).getCollisionShape(world, at).isEmpty())
+                return true;
+        }
+
+        return false;
     }
 
     public void finishRemat() {

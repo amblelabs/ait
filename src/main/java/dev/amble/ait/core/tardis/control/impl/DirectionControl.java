@@ -27,6 +27,17 @@ public class DirectionControl extends Control {
         super.runServer(tardis, player, world, console, leftClick);
 
         TravelHandler travel = tardis.travel();
+
+        if (!leftClick && player.isSneaking()) {
+            boolean enabled = !travel.autoTurn().get();
+            travel.autoTurn().set(enabled);
+
+            player.sendMessage(Text.translatable(enabled
+                    ? "message.ait.control.direction.auto_turn.enabled"
+                    : "message.ait.control.direction.auto_turn.disabled"), true);
+            return Result.SUCCESS_ALT;
+        }
+
         CachedDirectedGlobalPos dest = travel.destination();
 
         byte rotation = dest.getRotation();
