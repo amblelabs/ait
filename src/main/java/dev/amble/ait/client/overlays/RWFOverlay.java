@@ -1,22 +1,20 @@
 package dev.amble.ait.client.overlays;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.amble.ait.core.entities.FlightTardisEntity;
-import dev.amble.ait.core.tardis.Tardis;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.ColorHelper;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RotationAxis;
 import net.minecraft.world.Heightmap;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.core.AITKeyBinds;
 import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.entities.FlightTardisEntity;
@@ -24,39 +22,46 @@ import dev.amble.ait.core.tardis.Tardis;
 
 public class RWFOverlay implements HudRenderCallback {
 
-    private static final int PANEL = 0xB4061323; // console room shadow
-    private static final int TRACK = 0xFF0B1B2B;
-    private static final int EDGE = 0xFF1B4C77;
-    private static final int BRACKET = 0xFFE0A94A; // police box lamp
-    private static final int ROTOR = 0xFF6FD8F5;
-    private static final int ROTOR_DIM = 0xFF1E4A63;
+    private static final Identifier TEXTURE = AITMod.id("textures/gui/overlay/rwf_overlay.png");
 
     private static final int TEXT = 0xFFD7E9F7;
     private static final int TEXT_DIM = 0xFF6D93AD;
     private static final int GOOD = 0xFF63D68A;
     private static final int WARN = 0xFFE8B44A;
     private static final int ALERT = 0xFFE5484D;
+    private static final int TRACK = 0x80000000;
 
-    private static final int MARGIN = 6;
-    private static final int GUTTER = 4;
-    private static final int BRACKET_LEN = 5;
-    private static final int BAR_H = 4;
+    private static final int BEZEL_W = 256;
+    private static final int BEZEL_H = 143;
+    private static final int BEZEL_SLICE = 6;
+    private static final int INSET = 4;
 
-    private static final int PANEL_W = 112;
-    private static final int HEADER_H = 12;
-    private static final int VELOCITY_H = 26;
-    private static final int GAUGE_H = 20;
-    private static final int STATUS_H = 14;
+    private static final int QUARTER_U = 96, QUARTER_V = 182, QUARTER_W = 67, QUARTER_H = 56;
+    private static final int BAR_U = 96, BAR_V = 238, BAR_W = 75, BAR_H = 17;
+    private static final int TAPE_U = 172, TAPE_V = 146, TAPE_W = 17, TAPE_H = 109;
+    private static final int TAPE_TOP = 6, TAPE_BOTTOM = 103;
+    private static final int DIAL_U = 190, DIAL_V = 214, DIAL_W = 65, DIAL_H = 41;
+    private static final float DIAL_CX = 32.5f, DIAL_CY = 29f;
+    private static final int NEEDLE_LEN = 17;
 
-    private static final int ROUNDEL = 7;
-    private static final int ROUNDEL_PITCH = 11;
+    private static final int MINOR_U = 19, MINOR_W = 3, MINOR_H = 4;
+    private static final int MAJOR_U = 10, MAJOR_W = 3, MAJOR_H = 6;
+    private static final int TICK_V = 145;
 
-    private static final int TAPE_H = 16;
-    private static final int HEADING_SPAN = 120; // degrees visible across the heading tape
+    private static final int DOT_U = 4, DOT_V = 200, DOT_W = 3, DOT_H = 3;
+    private static final int CURSOR_U = 15, CURSOR_V = 200, CURSOR_W = 6, CURSOR_H = 4;
+    private static final int DASH_U = 29, DASH_V = 200, DASH_W = 6, DASH_H = 2;
+
+    private static final int ICON_LIT_V = 161;
+    private static final int ICON_DIM_V = 175;
+    private static final int ICON_H = 11;
+    private static final int[] ICON_U = {4, 19, 31, 44, 59};
+    private static final int[] ICON_W = {7, 7, 8, 8, 10};
+    private static final int ICON_PITCH = 13;
+
+    private static final int HEADING_SPAN = 120;
     private static final String[] CARDINALS = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
-
-    private static final int ALT_TAPE_W = 36;
-    private static final int ALT_SPAN = 64; // blocks visible across the altitude tape
+    private static final int ALT_SPAN = 64;
 
     private static float velocity;
 
@@ -83,20 +88,22 @@ public class RWFOverlay implements HudRenderCallback {
         screenWidth = Math.round(context.getScaledWindowWidth() / scale);
         screenHeight = Math.round(context.getScaledWindowHeight() / scale);
 
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+
         context.getMatrices().push();
         context.getMatrices().scale(scale, scale, 1);
 
-        heading(context, client, player);
-        systems(context, client, tardis, player.age + tickDelta);
-        position(context, client, player);
-        controls(context, client);
+        bezel(context);
+        quarter(context, client.textRenderer, tardis);
+        heading(context, client.textRenderer, player);
+        altitude(context, client.textRenderer, player);
+        dial(context, client.textRenderer, tardis);
+        statusLights(context, entity, tardis, player);
 
         context.getMatrices().pop();
-    }
 
-    private static void scissor(DrawContext context, int x1, int y1, int x2, int y2) {
-        context.enableScissor(MathHelper.floor(x1 * scale), MathHelper.floor(y1 * scale),
-                MathHelper.ceil(x2 * scale), MathHelper.ceil(y2 * scale));
+        RenderSystem.disableBlend();
     }
 
     private static double instantVelocity(AbstractClientPlayerEntity player) {
@@ -107,322 +114,174 @@ public class RWFOverlay implements HudRenderCallback {
         return Math.sqrt(dx * dx + dy * dy + dz * dz) * 20;
     }
 
-    private static void heading(DrawContext context, MinecraftClient client, AbstractClientPlayerEntity player) {
-        TextRenderer font = client.textRenderer;
+    private static void bezel(DrawContext context) {
+        int s = BEZEL_SLICE;
+        int w = screenWidth;
+        int h = screenHeight;
+        int midW = BEZEL_W - 2 * s;
+        int midH = BEZEL_H - 2 * s;
 
-        int screen = screenWidth;
-        int width = MathHelper.clamp(screen - 2 * (MARGIN + PANEL_W + GUTTER), 120, 240);
-        int x = (screen - width) / 2;
+        sprite(context, 0, 0, 0, 0, s, s);
+        sprite(context, w - s, 0, BEZEL_W - s, 0, s, s);
+        sprite(context, 0, h - s, 0, BEZEL_H - s, s, s);
+        sprite(context, w - s, h - s, BEZEL_W - s, BEZEL_H - s, s, s);
+
+        stretch(context, s, 0, w - 2 * s, s, s, 0, midW, s);
+        stretch(context, s, h - s, w - 2 * s, s, s, BEZEL_H - s, midW, s);
+        stretch(context, 0, s, s, h - 2 * s, 0, s, s, midH);
+        stretch(context, w - s, s, s, h - 2 * s, BEZEL_W - s, s, s, midH);
+    }
+
+    private static void quarter(DrawContext context, TextRenderer font, Tardis tardis) {
+        int x = INSET;
+        int y = INSET;
+
+        sprite(context, x, y, QUARTER_U, QUARTER_V, QUARTER_W, QUARTER_H);
+
+        String reading = String.valueOf(Math.round(velocity));
+
+        MatrixStack matrices = context.getMatrices();
+        matrices.push();
+        matrices.translate(x + 5, y + 6, 0);
+        matrices.scale(2, 2, 1);
+        context.drawText(font, reading, 0, 0, TEXT, false);
+        matrices.pop();
+
+        context.drawText(font, "m/s", x + 5 + font.getWidth(reading) * 2 + 3, y + 14, TEXT_DIM, false);
+
+        float artron = (float) (tardis.fuel().getCurrentFuel() / tardis.fuel().getMaxFuel());
+        bar(context, x + 5, y + 27, 34, 3, artron, gaugeColor(artron));
+    }
+
+    private static void heading(DrawContext context, TextRenderer font, AbstractClientPlayerEntity player) {
+        int width = MathHelper.clamp(screenWidth - 2 * (INSET + QUARTER_W + 8), 100, 200);
+        int x = (screenWidth - width) / 2;
         int centre = x + width / 2;
-
-        panel(context, x, MARGIN, width, TAPE_H);
+        int y = INSET + 1;
 
         float bearing = MathHelper.wrapDegrees(player.getYaw() - 180);
         float perDegree = width / (float) HEADING_SPAN;
 
-        scissor(context, x + 1, MARGIN + 1, x + width - 1, MARGIN + TAPE_H - 1);
+        scissor(context, x, y, x + width, y + 18);
 
         for (int tick = 0; tick < 360; tick += 15) {
             int tx = centre + Math.round(MathHelper.wrapDegrees(tick - bearing) * perDegree);
 
             if (tick % 45 != 0) {
-                vline(context, tx, MARGIN + 2, 3, alpha(ROTOR, 0.4f));
+                sprite(context, tx - 1, y, MINOR_U, TICK_V, MINOR_W, MINOR_H);
                 continue;
             }
 
-            vline(context, tx, MARGIN + 1, 4, ROTOR);
+            sprite(context, tx - 1, y, MAJOR_U, TICK_V, MAJOR_W, MAJOR_H);
 
             String label = CARDINALS[tick / 45];
-            int color = tick == 0 ? BRACKET : tick % 90 == 0 ? TEXT : TEXT_DIM;
-
-            context.drawText(font, label, tx - font.getWidth(label) / 2, MARGIN + 6, color, false);
+            int color = tick == 0 ? ALERT : tick % 90 == 0 ? TEXT : TEXT_DIM;
+            context.drawText(font, label, tx - font.getWidth(label) / 2, y + 8, color, true);
         }
 
         context.disableScissor();
-        vline(context, centre, MARGIN + 1, TAPE_H - 2, BRACKET);
 
-        // exact bearing, in a notch hanging off the bottom of the tape
+        sprite(context, centre - 1, y + 18, DOT_U, DOT_V, DOT_W, DOT_H);
+
         String exact = String.format("%03d°", Math.floorMod(Math.round(bearing), 360));
-        int notchW = font.getWidth(exact) + 10;
-        int notchX = centre - notchW / 2;
-        int notchY = MARGIN + TAPE_H - 1;
+        context.drawText(font, exact, centre - font.getWidth(exact) / 2, y + 23, TEXT, true);
 
-        context.fill(notchX, notchY, notchX + notchW, notchY + 12, PANEL);
-        hline(context, notchX, notchY + 11, notchW, BRACKET);
-        vline(context, notchX, notchY, 12, EDGE);
-        vline(context, notchX + notchW - 1, notchY, 12, EDGE);
-        context.drawText(font, exact, notchX + 5, notchY + 2, BRACKET, false);
+        String coords = Math.round(player.getX()) + " / " + Math.round(player.getZ());
+        context.drawText(font, coords, centre - font.getWidth(coords) / 2, y + 33, TEXT_DIM, true);
     }
 
-    private static void systems(DrawContext context, MinecraftClient client, Tardis tardis, float time) {
-        TextRenderer font = client.textRenderer;
+    private static void altitude(DrawContext context, TextRenderer font, AbstractClientPlayerEntity player) {
+        int x = screenWidth - INSET - 2 - TAPE_W;
+        int y = (screenHeight - TAPE_H) / 2;
+
+        sprite(context, x, y, TAPE_U, TAPE_V, TAPE_W, TAPE_H);
+
+        int altitude = MathHelper.floor(player.getY());
+        int ground = player.getWorld().getTopY(Heightmap.Type.MOTION_BLOCKING, player.getBlockX(), player.getBlockZ());
+        int agl = Math.max(0, altitude - ground);
+
+        float clearance = MathHelper.clamp(agl / (float) ALT_SPAN, 0, 1);
+        int cursorY = y + TAPE_BOTTOM - Math.round(clearance * (TAPE_BOTTOM - TAPE_TOP)) - CURSOR_H / 2;
+
+        sprite(context, x + 5, cursorY, CURSOR_U, CURSOR_V, CURSOR_W, CURSOR_H);
+
+        String aglText = String.valueOf(agl);
+        int aglColor = agl < 6 ? ALERT : agl < 20 ? WARN : GOOD;
+        context.drawText(font, aglText, x - 3 - font.getWidth(aglText), cursorY - 2, aglColor, true);
+
+        String altText = String.valueOf(altitude);
+        context.drawText(font, altText, x - 3 - font.getWidth(altText), y, TEXT, true);
+    }
+
+    private static void dial(DrawContext context, TextRenderer font, Tardis tardis) {
+        int x = (screenWidth - DIAL_W) / 2;
+        int y = screenHeight - INSET - DIAL_H;
+
+        sprite(context, x, y, DIAL_U, DIAL_V, DIAL_W, DIAL_H);
 
         int speed = tardis.travel().speed();
         int maxSpeed = Math.max(1, tardis.travel().maxSpeed().get());
-        float throttle = speed / (float) maxSpeed;
+        float throttle = MathHelper.clamp(speed / (float) maxSpeed, 0, 1);
 
-        int height = HEADER_H + VELOCITY_H + 3 * GAUGE_H + STATUS_H + 4;
-        int left = MARGIN + 3 + ROUNDEL + 4;
-        int content = PANEL_W - (left - MARGIN) - 5;
+        MatrixStack matrices = context.getMatrices();
+        matrices.push();
+        matrices.translate(x + DIAL_CX, y + DIAL_CY, 0);
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180f + 180f * throttle));
 
-        panel(context, MARGIN, MARGIN, PANEL_W, height);
-        header(context, font, MARGIN, MARGIN, PANEL_W, Text.translatable("overlay.ait.rwf.hud.title"));
+        context.fill(0, 0, NEEDLE_LEN - DASH_W, 1, ALERT);
+        sprite(context, NEEDLE_LEN - DASH_W, 0, DASH_U, DASH_V, DASH_W, DASH_H);
 
-        // the rotor runs faster the harder she's pushed
-        rail(context, MARGIN + 3, MARGIN + HEADER_H + 2, height - HEADER_H - 5, time * (0.04f + 0.14f * throttle));
+        matrices.pop();
 
-        int y = MARGIN + HEADER_H + 3;
-
-        context.drawText(font, Text.translatable("overlay.ait.rwf.hud.velocity"), left, y, TEXT_DIM, false);
-
-        String reading = String.valueOf(Math.round(velocity));
-        context.getMatrices().push();
-        context.getMatrices().translate(left, y + 9, 0);
-        context.getMatrices().scale(2, 2, 1);
-        context.drawText(font, reading, 0, 0, TEXT, false);
-        context.getMatrices().pop();
-        context.drawText(font, "m/s", left + font.getWidth(reading) * 2 + 4, y + 17, TEXT_DIM, false);
-
-        y += VELOCITY_H;
-
-        gauge(context, font, left, y, content, Text.translatable("overlay.ait.rwf.hud.throttle"),
-                speed + "/" + maxSpeed, throttleColor(throttle));
-        throttleBar(context, left, y + 10, content, speed, maxSpeed);
-
-        y = gravCircuit(context, font, left, y + GAUGE_H, content, tardis);
-
-        float artron = (float) (tardis.fuel().getCurrentFuel() / tardis.fuel().getMaxFuel());
-        gauge(context, font, left, y, content, Text.translatable("overlay.ait.rwf.hud.artron"),
-                Math.round(artron * 100) + "%", gaugeColor(artron));
-        bar(context, left, y + 10, content, artron, gaugeColor(artron));
-
-        y += GAUGE_H;
-
-        boolean antigravs = tardis.travel().antigravs().get();
-        context.drawText(font, Text.translatable("overlay.ait.rwf.hud.antigravs"), left, y, TEXT_DIM, false);
-        pill(context, font, left + content, y, Text.translatable(antigravs
-                ? "overlay.ait.rwf.hud.engaged" : "overlay.ait.rwf.hud.idle"), antigravs ? GOOD : TEXT_DIM);
+        String reading = speed + "/" + maxSpeed;
+        context.drawText(font, reading, Math.round(x + DIAL_CX) - font.getWidth(reading) / 2,
+                Math.round(y + DIAL_CY) + 2, throttleColor(throttle), true);
     }
 
-    private static int gravCircuit(DrawContext context, TextRenderer font, int x, int y, int width, Tardis tardis) {
-        if (!(tardis.subsystems().get(SubSystem.Id.GRAVITATIONAL) instanceof DurableSubSystem circuit))
-            return y;
+    private static void statusLights(DrawContext context, FlightTardisEntity entity, Tardis tardis,
+            AbstractClientPlayerEntity player) {
+        int x = INSET;
+        int y = screenHeight - INSET - BAR_H;
 
-        float percent = circuit.durability() / DurableSubSystem.MAX_DURABILITY;
-        Text label = Text.translatable("overlay.ait.rwf.hud.grav");
+        sprite(context, x, y, BAR_U, BAR_V, BAR_W, BAR_H);
 
-        if (circuit.isUsable()) {
-            gauge(context, font, x, y, width, label, Math.round(percent * 100) + "%", gaugeColor(percent));
-            bar(context, x, y + 10, width, percent, gaugeColor(percent));
-        } else {
-            gauge(context, font, x, y, width, label,
-                    Text.translatable("overlay.ait.rwf.hud.offline").getString(), ALERT);
-            bar(context, x, y + 10, width, percent, alpha(ALERT, 0.5f));
-        }
+        boolean gravUsable = tardis.subsystems().get(SubSystem.Id.GRAVITATIONAL) instanceof DurableSubSystem circuit
+                && circuit.isUsable();
 
-        return y + GAUGE_H;
-    }
+        boolean[] lit = {
+                player.getY() - player.prevY > 0.01,
+                tardis.travel().antigravs().get(),
+                gravUsable,
+                entity.isPhasing(),
+                tardis.fuel().hasPower() && tardis.travel().speed() > 0
+        };
 
-    private static void position(DrawContext context, MinecraftClient client, AbstractClientPlayerEntity player) {
-        TextRenderer font = client.textRenderer;
-
-        int screen = screenWidth;
-        int tapeX = screen - MARGIN - ALT_TAPE_W;
-        int tapeH = MathHelper.clamp(screenHeight - 2 * MARGIN - 62, 80, 150);
-        int centreY = MARGIN + tapeH / 2;
-
-        String coords = Math.round(player.getX()) + " / " + Math.round(player.getZ());
-        int coordW = Math.max(76, font.getWidth(coords) + 10);
-        int coordX = tapeX - GUTTER - coordW;
-
-        panel(context, coordX, MARGIN, coordW, 24);
-        context.drawText(font, Text.translatable("overlay.ait.rwf.hud.position"), coordX + 5, MARGIN + 4, TEXT_DIM,
-                false);
-        context.drawText(font, coords, coordX + 5, MARGIN + 13, TEXT, false);
-
-        panel(context, tapeX, MARGIN, ALT_TAPE_W, tapeH);
-
-        double altitude = player.getY();
-        float perBlock = tapeH / (float) ALT_SPAN;
-        int first = MathHelper.floor((altitude - ALT_SPAN / 2f) / 8) * 8;
-
-        scissor(context, tapeX + 1, MARGIN + 1, tapeX + ALT_TAPE_W - 1, MARGIN + tapeH - 1);
-
-        for (int level = first; level <= altitude + ALT_SPAN / 2f; level += 8) {
-            int ly = centreY - Math.round((float) (level - altitude) * perBlock);
-            boolean major = level % 32 == 0;
-            int length = major ? 7 : 4;
-
-            hline(context, tapeX + ALT_TAPE_W - 1 - length, ly, length, major ? ROTOR : alpha(ROTOR, 0.4f));
-
-            if (major)
-                context.drawText(font, String.valueOf(level), tapeX + 4, ly - 3, TEXT_DIM, false);
-        }
-
-        context.disableScissor();
-        altimeter(context, font, tapeX, centreY, MathHelper.floor(altitude));
-
-        // ground clearance, for landing
-        int ground = player.getWorld().getTopY(Heightmap.Type.MOTION_BLOCKING, player.getBlockX(), player.getBlockZ());
-        int agl = Math.max(0, MathHelper.floor(altitude) - ground);
-        int aglY = MARGIN + tapeH + GUTTER;
-
-        panel(context, tapeX, aglY, ALT_TAPE_W, 22);
-        context.drawText(font, Text.translatable("overlay.ait.rwf.hud.agl"), tapeX + 5, aglY + 4, TEXT_DIM, false);
-        context.drawText(font, String.valueOf(agl), tapeX + 5, aglY + 13, agl < 6 ? ALERT : agl < 20 ? WARN : TEXT,
-                false);
-    }
-
-    private static void altimeter(DrawContext context, TextRenderer font, int tapeX, int centreY, int altitude) {
-        String reading = String.valueOf(altitude);
-        int width = Math.max(32, font.getWidth(reading) + 12);
-        int x = tapeX - width;
-        int y = centreY - 7;
-
-        context.fill(x, y, x + width, y + 14, PANEL);
-        hline(context, x, y, width, BRACKET);
-        hline(context, x, y + 13, width, BRACKET);
-        vline(context, x, y, 14, BRACKET);
-        context.drawText(font, reading, x + width - 6 - font.getWidth(reading), y + 3, BRACKET, false);
-
-        for (int i = 0; i < 4; i++)
-            context.fill(tapeX + i, centreY - 3 + i, tapeX + i + 1, centreY + 4 - i, BRACKET);
-    }
-
-    private static void controls(DrawContext context, MinecraftClient client) {
-        TextRenderer font = client.textRenderer;
-
-        KeyBinding[] binds = {client.options.sneakKey, client.options.jumpKey,
-                AITKeyBinds.TOGGLE_ANTIGRAVS.binding(), AITKeyBinds.DECREASE_SPEED.binding(),
-                AITKeyBinds.INCREASE_SPEED.binding(), AITKeyBinds.PHASE.binding()};
-        String[] actions = {"land", "ascend", "antigravs", "decrease_speed", "increase_speed", "phase"};
-
-        int capW = 0;
-        int labelW = 0;
-
-        for (int i = 0; i < binds.length; i++) {
-            capW = Math.max(capW, font.getWidth(binds[i].getBoundKeyLocalizedText()) + 8);
-            labelW = Math.max(labelW, font.getWidth(Text.translatable("overlay.ait.rwf.hud.action." + actions[i])));
-        }
-
-        int width = capW + labelW + 15;
-        int height = HEADER_H + binds.length * 12 + 4;
-        int y = screenHeight - 30 - height;
-
-        panel(context, MARGIN, y, width, height);
-        header(context, font, MARGIN, y, width, Text.translatable("overlay.ait.rwf.hud.controls"));
-
-        y += HEADER_H + 3;
-
-        for (int i = 0; i < binds.length; i++) {
-            keycap(context, font, MARGIN + 5, y - 2, capW, binds[i].getBoundKeyLocalizedText());
-            context.drawText(font, Text.translatable("overlay.ait.rwf.hud.action." + actions[i]),
-                    MARGIN + 10 + capW, y, TEXT_DIM, false);
-
-            y += 12;
+        for (int i = 0; i < lit.length; i++) {
+            int iconX = x + 4 + i * ICON_PITCH + (ICON_PITCH - 3 - ICON_W[i]) / 2;
+            sprite(context, iconX, y + 5, ICON_U[i], lit[i] ? ICON_LIT_V : ICON_DIM_V, ICON_W[i], ICON_H);
         }
     }
 
-    private static void panel(DrawContext context, int x, int y, int width, int height) {
-        context.fill(x, y, x + width, y + height, PANEL);
-
-        hline(context, x, y, width, EDGE);
-        hline(context, x, y + height - 1, width, EDGE);
-        vline(context, x, y, height, EDGE);
-        vline(context, x + width - 1, y, height, EDGE);
-
-        int right = x + width - BRACKET_LEN;
-        int bottom = y + height - BRACKET_LEN;
-
-        hline(context, x, y, BRACKET_LEN, BRACKET);
-        hline(context, right, y, BRACKET_LEN, BRACKET);
-        hline(context, x, y + height - 1, BRACKET_LEN, BRACKET);
-        hline(context, right, y + height - 1, BRACKET_LEN, BRACKET);
-
-        vline(context, x, y, BRACKET_LEN, BRACKET);
-        vline(context, x, bottom, BRACKET_LEN, BRACKET);
-        vline(context, x + width - 1, y, BRACKET_LEN, BRACKET);
-        vline(context, x + width - 1, bottom, BRACKET_LEN, BRACKET);
+    private static void bar(DrawContext context, int x, int y, int width, int height, float percent, int color) {
+        context.fill(x, y, x + width, y + height, TRACK);
+        context.fill(x, y, x + Math.round(width * MathHelper.clamp(percent, 0, 1)), y + height, color);
     }
 
-    private static void header(DrawContext context, TextRenderer font, int x, int y, int width, Text title) {
-        context.drawText(font, title, x + 5, y + 3, BRACKET, false);
-        hline(context, x + 1, y + HEADER_H - 1, width - 2, EDGE);
+    private static void sprite(DrawContext context, int x, int y, int u, int v, int width, int height) {
+        context.drawTexture(TEXTURE, x, y, u, v, width, height);
     }
 
-    private static void rail(DrawContext context, int x, int y, int height, float phase) {
-        for (int i = 0; i * ROUNDEL_PITCH + ROUNDEL <= height; i++) {
-            float glow = Math.max(0, MathHelper.sin(phase - i * 0.7f));
-
-            roundel(context, x, y + i * ROUNDEL_PITCH, mix(ROTOR_DIM, ROTOR, glow * glow));
-        }
-    }
-
-    private static void roundel(DrawContext context, int x, int y, int core) {
-        context.fill(x + 1, y, x + ROUNDEL - 1, y + 1, ROTOR_DIM);
-        context.fill(x + 1, y + ROUNDEL - 1, x + ROUNDEL - 1, y + ROUNDEL, ROTOR_DIM);
-        context.fill(x, y + 1, x + 1, y + ROUNDEL - 1, ROTOR_DIM);
-        context.fill(x + ROUNDEL - 1, y + 1, x + ROUNDEL, y + ROUNDEL - 1, ROTOR_DIM);
-        context.fill(x + 2, y + 2, x + ROUNDEL - 2, y + ROUNDEL - 2, core);
-    }
-
-    private static void gauge(DrawContext context, TextRenderer font, int x, int y, int width, Text label,
-            String value, int color) {
-        context.drawText(font, label, x, y, TEXT_DIM, false);
-        context.drawText(font, value, x + width - font.getWidth(value), y, color, false);
-    }
-
-    private static void bar(DrawContext context, int x, int y, int width, float percent, int color) {
-        context.fill(x, y, x + width, y + BAR_H, TRACK);
-        context.fill(x, y, x + Math.round(width * MathHelper.clamp(percent, 0, 1)), y + BAR_H, color);
-
-        for (int i = 1; i < 4; i++)
-            vline(context, x + width * i / 4, y, BAR_H, TRACK);
-    }
-
-    private static void throttleBar(DrawContext context, int x, int y, int width, int speed, int max) {
-        if (max * 3 > width) {
-            bar(context, x, y, width, speed / (float) max, throttleColor(speed / (float) max));
+    private static void stretch(DrawContext context, int x, int y, int width, int height, int u, int v,
+            int regionWidth, int regionHeight) {
+        if (width <= 0 || height <= 0)
             return;
-        }
 
-        context.fill(x, y, x + width, y + BAR_H, TRACK);
-
-        for (int i = 0; i < max; i++) {
-            int start = x + Math.round(width * (i / (float) max));
-            int end = x + Math.round(width * ((i + 1) / (float) max));
-
-            context.fill(start, y, end - 1, y + BAR_H, i < speed ? throttleColor((i + 1f) / max) : alpha(ROTOR, 0.15f));
-        }
+        context.drawTexture(TEXTURE, x, y, width, height, u, v, regionWidth, regionHeight, 256, 256);
     }
 
-    private static void pill(DrawContext context, TextRenderer font, int right, int y, Text text, int color) {
-        int width = font.getWidth(text) + 8;
-        int x = right - width;
-
-        context.fill(x, y - 2, x + width, y + 10, TRACK);
-        hline(context, x, y - 2, width, color);
-        hline(context, x, y + 9, width, color);
-        context.drawText(font, text, x + 4, y, color, false);
-    }
-
-    private static void keycap(DrawContext context, TextRenderer font, int x, int y, int width, Text key) {
-        context.fill(x, y, x + width, y + 12, TRACK);
-
-        hline(context, x, y, width, EDGE);
-        hline(context, x, y + 11, width, EDGE);
-        vline(context, x, y, 12, EDGE);
-        vline(context, x + width - 1, y, 12, EDGE);
-
-        context.drawText(font, key, x + (width - font.getWidth(key)) / 2, y + 2, BRACKET, false);
-    }
-
-    private static void hline(DrawContext context, int x, int y, int width, int color) {
-        context.fill(x, y, x + width, y + 1, color);
-    }
-
-    private static void vline(DrawContext context, int x, int y, int height, int color) {
-        context.fill(x, y, x + 1, y + height, color);
+    private static void scissor(DrawContext context, int x1, int y1, int x2, int y2) {
+        context.enableScissor(MathHelper.floor(x1 * scale), MathHelper.floor(y1 * scale),
+                MathHelper.ceil(x2 * scale), MathHelper.ceil(y2 * scale));
     }
 
     private static int gaugeColor(float percent) {
@@ -437,18 +296,5 @@ public class RWFOverlay implements HudRenderCallback {
             return ALERT;
 
         return percent > 0.4f ? WARN : GOOD;
-    }
-
-    private static int alpha(int color, float percent) {
-        return (color & 0xFFFFFF) | Math.round(255 * percent) << 24;
-    }
-
-    private static int mix(int from, int to, float delta) {
-        return ColorHelper.Argb.getArgb(channel(from, to, delta, 24), channel(from, to, delta, 16),
-                channel(from, to, delta, 8), channel(from, to, delta, 0));
-    }
-
-    private static int channel(int from, int to, float delta, int shift) {
-        return Math.round(MathHelper.lerp(delta, (from >> shift) & 0xFF, (to >> shift) & 0xFF));
     }
 }

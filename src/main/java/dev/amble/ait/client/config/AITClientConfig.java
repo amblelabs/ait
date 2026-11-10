@@ -103,7 +103,7 @@ public class AITClientConfig {
     @AutoGen(category = CATEGORY)
     @FloatSlider(min = 0.5f, max = 2.0f, step = 0.05f)
     @CustomDescription("Scales the real world flight HUD. Default value is 1.0.")
-    @SerialEntry public float rwfHudScale = 1.0f;
+    @SerialEntry public float rwfHudScale = 1.5f;
 
     @AutoGen(category = CATEGORY)
     @CustomFormat(ValueFormatters.PercentFormatter.class)
