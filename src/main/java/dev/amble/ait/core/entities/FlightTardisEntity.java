@@ -127,6 +127,9 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     private int riderlessTicks = 0;
 
+    private Vec3d lastServerPos;
+    private Vec3d serverMotion = Vec3d.ZERO;
+
     private static final float SPIN_PER_SPEED = 2.4f;
     private static final float SETTLE_EASE = 0.2f;
 
@@ -241,6 +244,10 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
         tardis.flight().tickFlight((ServerPlayerEntity) player, this.getBlockPos());
 
+        Vec3d serverPos = this.getPos();
+        this.serverMotion = this.lastServerPos == null ? Vec3d.ZERO : serverPos.subtract(this.lastServerPos);
+        this.lastServerPos = serverPos;
+
         this.applyGravCircuitDamageEffects(tardis);
 
         this.crushFallenOnEntities();
@@ -314,7 +321,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         if (this.noClip)
             return;
 
-        double fallSpeed = -this.incomingVelocity.y;
+        double fallSpeed = -this.serverMotion.y;
 
         if (fallSpeed < CRUSH_MIN_SPEED)
             return;
@@ -324,7 +331,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
                 .and(EntityPredicates.VALID_LIVING_ENTITY)
                 .and(entity -> entity != passenger && !(entity instanceof FlightTardisEntity));
 
-        Box box = this.getBoundingBox().expand(0.1).stretch(0, -0.35, 0);
+        Box box = this.getBoundingBox().expand(0.1).stretch(0, -0.35, 0).stretch(0, fallSpeed, 0);
         List<Entity> victims = this.getWorld().getOtherEntities(this, box, predicate);
 
         if (victims.isEmpty())

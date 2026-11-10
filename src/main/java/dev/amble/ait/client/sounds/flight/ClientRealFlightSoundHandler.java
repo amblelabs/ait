@@ -97,7 +97,7 @@ public class ClientRealFlightSoundHandler extends SoundHandler {
     }
 
     private void tickVworp(Tardis tardis, EntitySounds state) {
-        if (tardis.fuel().hasPower() && tardis.travel().speed() > 0) {
+        if (tardis.fuel().hasPower() && tardis.travel().speed() > 0 && !tardis.cloak().cloaked().get()) {
             state.vworp.setPitch(pitch(tardis));
             this.startIfNotPlaying(state.vworp);
         } else {
