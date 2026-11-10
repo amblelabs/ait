@@ -110,7 +110,6 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         SonicHandler handler = tardis.sonic();
 
         boolean hasSonic = handler.getExteriorSonic() != null;
-        boolean shouldEject = player.isSneaking();
 
         if (hand.getItem() instanceof BrushItem && tardis.<BiomeHandler>handler(TardisComponent.Id.BIOME).getBiomeKey()
                 != BiomeHandler.BiomeType.DEFAULT) {
@@ -132,17 +131,24 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         }
 
         if (hasSonic) {
-            if (shouldEject && (!tardis.stats().security().get() || SecurityControl.hasMatchingKey((ServerPlayerEntity) player, tardis))) {
+            Text remaining = Text.literal(": " + tardis.crash().getRepairTicksAsSeconds() + "s")
+                    .formatted(Formatting.BOLD, Formatting.GOLD);
+
+            if (!tardis.stats().security().get() || SecurityControl.hasMatchingKey((ServerPlayerEntity) player, tardis)) {
                 player.getInventory().offerOrDrop(handler.takeExteriorSonic());
                 world.playSound(null, pos, SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(), SoundCategory.BLOCKS, 1F,
                         0.2F);
+
+                Text message = tardis.crash().getRepairTicks() > 0
+                        ? Text.translatable("tardis.exterior.sonic.removed_early").append(remaining)
+                        : Text.translatable("tardis.exterior.sonic.removed");
+
+                player.sendMessage(message, true);
                 return;
             }
 
-            player.sendMessage(Text.translatable("tardis.exterior.sonic.repairing")
-                    .append(Text.literal(": " + tardis.crash().getRepairTicksAsSeconds() + "s")
-                            .formatted(Formatting.BOLD, Formatting.GOLD)),
-                    true);
+            player.sendMessage(Text.translatable("tardis.exterior.sonic.repairing").append(remaining)
+                    .append(Text.translatable("tardis.exterior.sonic.needs_key")), true);
             return;
         }
 

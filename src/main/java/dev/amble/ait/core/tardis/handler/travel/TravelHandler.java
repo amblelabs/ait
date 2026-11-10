@@ -351,8 +351,10 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
         if (this.getState() != State.LANDED)
             return Optional.empty();
 
-        if (!this.tardis.fuel().hasPower())
+        if (!this.tardis.fuel().hasPower()) {
+            this.notifyDematFailure("no_power");
             return Optional.empty();
+        }
 
         if (this.autopilot()) {
             // fulfill all the prerequisites
@@ -376,12 +378,47 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     }
 
     private void failDemat() {
+        this.notifyDematFailure(this.dematFailReason());
+
         // demat will be cancelled
         this.position().getWorld().playSound(null, this.position().getPos(), AITSounds.FAIL_DEMAT, SoundCategory.BLOCKS,
                 2f, 1f);
 
         this.tardis.getDesktop().playSoundAtEveryConsole(AITSounds.FAIL_DEMAT, SoundCategory.BLOCKS, 2f, 1f);
         this.createCooldown();
+    }
+
+    private String dematFailReason() {
+        if (this.travelCooldown)
+            return "cooldown";
+
+        if (this.tardis.door().isOpen())
+            return "door_open";
+
+        if (!this.tardis.subsystems().demat().isEnabled() || this.tardis.subsystems().demat().isBroken())
+            return "demat_circuit";
+
+        if (this.tardis.siege().isActive())
+            return "siege";
+
+        if (this.tardis.fuel().refueling().get())
+            return "refueling";
+
+        if (this.tardis.sonic().getExteriorSonic() != null)
+            return "sonic";
+
+        if (this.tardis.isGrowth() || this.tardis.interiorChangingHandler().queued().get())
+            return "interior_changing";
+
+        if (this.tardis.flight().falling().get())
+            return "falling";
+
+        return "unknown";
+    }
+
+    private void notifyDematFailure(String reason) {
+        TardisUtil.sendMessageToInterior(this.tardis.asServer(), Text.translatable("tardis.message.demat_fail",
+                Text.translatable("tardis.message.demat_fail." + reason)).formatted(Formatting.RED));
     }
 
     private void failRemat() {
