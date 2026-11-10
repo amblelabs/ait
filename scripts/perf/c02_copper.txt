@@ -1,0 +1,11 @@
+# Copper console: 818 parts and 28 animated bones, one of which ("top") does not exist in the
+# model. A name that is absent can never short-circuit the search, so it costs a guaranteed full
+# traversal every frame. This is the mod's worst case on the bone lookup path, and the only
+# scenario that tells a cache which stores misses apart from one which only stores hits.
+ait perf-console "console/copper"
+SLEEP 6
+ait perf-tp console
+SLEEP 6
+ait perf-verify
+ait profile-client @a
+SLEEP 15

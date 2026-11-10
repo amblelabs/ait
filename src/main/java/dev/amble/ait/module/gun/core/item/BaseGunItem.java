@@ -3,6 +3,9 @@ package dev.amble.ait.module.gun.core.item;
 import java.util.List;
 import java.util.function.Predicate;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITStatusEffects;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -37,10 +40,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.AITStatusEffects;
-
 public class BaseGunItem extends RangedWeaponItem {
     public static final Identifier SHOOT = AITMod.id("shoot_gun");
     public static final Predicate<ItemStack> GUN_PROJECTILES = itemStack -> itemStack.isOf(GunItems.STASER_BOLT_MAGAZINE);
@@ -56,8 +55,11 @@ public class BaseGunItem extends RangedWeaponItem {
         boolean shoot = buf.readBoolean();
         boolean isAds = buf.readBoolean();
 
-        if (shoot) {
-            if (player.getMainHandStack().getItem() instanceof BaseGunItem gun) {
+        if (!shoot)
+            return;
+
+        server.execute(() -> {
+            if (player.getMainHandStack().getItem() instanceof BaseGunItem gun && !player.getItemCooldownManager().isCoolingDown(gun)) {
                 if (gun.getCurrentAmmo(player.getMainHandStack()) <= 0) {
                     player.getWorld().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BLOCK_STONE_BUTTON_CLICK_OFF, SoundCategory.PLAYERS, 1.0f, 1.0f);
                     return;
@@ -74,7 +76,7 @@ public class BaseGunItem extends RangedWeaponItem {
                     compound.putDouble(AMMO_KEY, current - removableAmmo <= 0 ? 0 : current - removableAmmo);
                 }
             }
-        }
+        });
         });
     }
 

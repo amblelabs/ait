@@ -1,22 +1,10 @@
 package dev.amble.ait.core.tardis.handler;
 
-import net.fabricmc.fabric.api.util.TriState;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -27,10 +15,26 @@ import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
-import dev.amble.ait.data.properties.flt.FloatProperty;
-import dev.amble.ait.data.properties.flt.FloatValue;
+import dev.amble.ait.data.properties.integer.IntProperty;
+import dev.amble.ait.data.properties.integer.IntValue;
 import dev.amble.ait.data.schema.door.DoorSchema;
 import dev.amble.lib.data.DirectedBlockPos;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.util.TriState;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.particle.ParticleEffect;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 public class DoorHandler extends KeyedTardisComponent implements TardisTickable {
     private static final long KNOCK_RESET_TIME_MS = 2500;
@@ -48,8 +52,11 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
     private static final Property<DoorState> DOOR_STATE = Property.forEnum("door_state", DoorState.class, DoorState.CLOSED);
     private static final Property<AnimationDoorState> ANIMATION_STATE = Property.forEnum("animation_state", AnimationDoorState.class, AnimationDoorState.CLOSED);
 
-    private static final FloatProperty LEFT_DOOR_ROT = new FloatProperty("left_door_rot");
-    private static final FloatProperty RIGHT_DOOR_ROT = new FloatProperty("right_door_rot");
+    public static final int OPEN_TICKS = 14;
+    public static final int CLOSE_TICKS = 17;
+
+    private static final IntProperty LEFT_DOOR_TICKS = new IntProperty("left_door_ticks");
+    private static final IntProperty RIGHT_DOOR_TICKS = new IntProperty("right_door_ticks");
 
     private final BoolValue locked = LOCKED_DOORS.create(this);
     private final BoolValue previouslyLocked = PREVIOUSLY_LOCKED.create(this);
@@ -57,17 +64,12 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
 
     private final Value<DoorState> doorState = DOOR_STATE.create(this);
 
-    private final FloatValue leftDoorRot = LEFT_DOOR_ROT.create(this);
-    private final FloatValue rightDoorRot = RIGHT_DOOR_ROT.create(this);
+    private final IntValue leftTicks = LEFT_DOOR_TICKS.create(this);
+    private final IntValue rightTicks = RIGHT_DOOR_TICKS.create(this);
 
     @Exclude
-    @Nullable private ParticleEffect doorOpenParticles = null; // server-only
+    @Nullable private ParticleEffect doorOpenParticles = null;
 
-    /*
-     this is the previous state before it was changed, used for
-     checking when the door has been changed so the animation can start.
-      Set on server, used on client
-     */
     @Exclude(strategy = Exclude.Strategy.FILE)
     public final Value<AnimationDoorState> animationState = ANIMATION_STATE.create(this);
 
@@ -100,8 +102,8 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         doorState.of(this, DOOR_STATE);
         animationState.of(this, ANIMATION_STATE);
 
-        leftDoorRot.of(this, LEFT_DOOR_ROT);
-        rightDoorRot.of(this, RIGHT_DOOR_ROT);
+        leftTicks.of(this, LEFT_DOOR_TICKS);
+        rightTicks.of(this, RIGHT_DOOR_TICKS);
     }
 
     @Override
@@ -109,11 +111,8 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         if (this.shouldSucc())
             this.succ();
 
-        // blame loqor.
         boolean wasClosed = this.isClosed();
-
-        leftDoorRot.flatMap(rot -> this.tryUpdateRot(rot, this.getDoorState() != DoorState.CLOSED));
-        rightDoorRot.flatMap(rot -> this.tryUpdateRot(rot, this.getDoorState() == DoorState.BOTH));
+        this.countDown();
 
         if (wasClosed != this.isClosed())
             TardisEvents.REAL_DOOR_CLOSE.invoker().onClose(tardis);
@@ -129,42 +128,38 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
                     0.25D, 0.025D);
         }
 
-        // Reset knock count if enough time has passed since last knock
         if (System.currentTimeMillis() - lastKnockTime > KNOCK_RESET_TIME_MS && knockCount > 0) {
             knockCount = 0;
         }
     }
 
-    private float tryUpdateRot(float rot, boolean opening) {
-        if (this.isClosed())
-            return rot;
+    @Override
+    @Environment(EnvType.CLIENT)
+    public void tick(MinecraftClient client) {
+        if (client.isPaused())
+            return;
 
-        if (opening && rot == 1)
-            return rot;
-
-        if (!opening && rot == 0)
-            return rot;
-
-        return this.calculateRotation(rot, opening);
+        this.countDown();
     }
 
-    public float calculateRotation(float currentRotation, boolean opening) {
-        if (opening) {
-            currentRotation = (float) Math.min(currentRotation + (0.13f - currentRotation * 0.1), 1.0f);
-        } else {
-            currentRotation = Math.max(currentRotation - 0.055f, 0.0f);
-        }
+    private void countDown() {
+        if (this.leftTicks.get() > 0)
+            this.leftTicks.flatMap(ticks -> --ticks, false);
 
-        return currentRotation;
+        if (this.rightTicks.get() > 0)
+            this.rightTicks.flatMap(ticks -> --ticks, false);
     }
 
-    /**
-     * Moves entities in the Tardis interior towards the door.
-     */
+    private static int reverse(int remaining, boolean opening) {
+        int from = opening ? CLOSE_TICKS : OPEN_TICKS;
+        int to = opening ? OPEN_TICKS : CLOSE_TICKS;
+
+        return Math.round(to - remaining * (float) to / from);
+    }
+
     private void succ() {
-        // Get all entities in the Tardis interior
         TardisUtil.getLivingEntitiesInInterior(tardis.asServer()).stream()
-                .filter(entity -> !entity.isSpectator()) // Exclude spectators
+                .filter(entity -> !entity.isSpectator())
                 .forEach(entity -> {
                     DirectedBlockPos directed = tardis.getDesktop().getDoorPos();
                     if (!(tardis.asServer().world().getBlockEntity(directed.getPos()) instanceof DoorBlockEntity))
@@ -175,7 +170,6 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
                     float suckValue = tardis.travel().position().getDimension().equals(AITDimensions.SPACE) ? 0.1f: 0.08f;
                     Vec3d motion = pos.subtract(entity.getPos()).normalize().multiply(suckValue);
 
-                    // Apply the motion to the entity
                     entity.setVelocity(entity.getVelocity().add(motion));
                     entity.velocityDirty = true;
                     entity.velocityModified = true;
@@ -225,11 +219,11 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
     }
 
     public boolean isClosed() {
-        return rightDoorRot.get() <= 0 && leftDoorRot.get() <= 0 && this.doorState.get() == DoorState.CLOSED;
+        return this.leftTicks.get() <= 0 && this.rightTicks.get() <= 0 && this.doorState.get() == DoorState.CLOSED;
     }
 
     public boolean areBothOpen() {
-        return rightDoorRot.get() <= 0 && this.doorState.get() == DoorState.BOTH;
+        return this.doorState.get() == DoorState.BOTH;
     }
 
     public void openDoors() {
@@ -252,12 +246,20 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         if (oldState != newState) {
             this.animationState.set(AnimationDoorState.match(newState, oldState));
 
+            boolean leftOpening = newState != DoorState.CLOSED;
+            boolean rightOpening = newState == DoorState.BOTH;
+
+            if (leftOpening == (oldState == DoorState.CLOSED))
+                this.leftTicks.set(reverse(this.leftTicks.get(), leftOpening));
+
+            if (rightOpening != (oldState == DoorState.BOTH))
+                this.rightTicks.set(reverse(this.rightTicks.get(), rightOpening));
+
             if (oldState == DoorState.CLOSED)
                 TardisEvents.DOOR_OPEN.invoker().onOpen(tardis());
 
-            if (newState == DoorState.CLOSED) {
+            if (newState == DoorState.CLOSED)
                 TardisEvents.DOOR_CLOSE.invoker().onClose(tardis());
-            }
         }
 
         this.doorState.set(newState);
@@ -310,7 +312,6 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
             if (player != null && pos != null) {
                 player.sendMessage(Text.literal("\uD83D\uDD12"), true);
 
-                // Knock logic
                 long now = System.currentTimeMillis();
                 if (now - lastKnockTime > KNOCK_RESET_TIME_MS) {
                     knockCount = 0;
@@ -406,12 +407,20 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         return this.previouslyLocked;
     }
 
-    public float getLeftRot() {
-        return this.leftDoorRot.get();
+    @Environment(EnvType.CLIENT)
+    public boolean isVisuallyOpen() {
+        if (!AITModClient.CONFIG.animateDoors)
+            return this.isOpen();
+
+        return this.isOpen() || this.leftTicks.get() > 0 || this.rightTicks.get() > 0;
     }
 
-    public float getRightRot() {
-        return this.rightDoorRot.get();
+    public int getLeftTicks() {
+        return this.leftTicks.get();
+    }
+
+    public int getRightTicks() {
+        return this.rightTicks.get();
     }
 
     /**
@@ -507,7 +516,6 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
                 animState = AnimationDoorState.FIRST;
 
             if (animState == null) {
-                //AITMod.LOGGER.info("Couldn't predict door animation state for {}->{}", oldState, newState);
                 animState = CLOSED;
             }
 

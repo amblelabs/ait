@@ -3,6 +3,7 @@ package dev.amble.ait.mixin.server;
 import java.util.Iterator;
 import java.util.List;
 
+import dev.amble.ait.core.entities.ConsoleControlEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,8 +19,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.entities.ConsoleControlEntity;
 
 @Mixin(StructureTemplate.class)
 public abstract class StructureTemplateMixin {

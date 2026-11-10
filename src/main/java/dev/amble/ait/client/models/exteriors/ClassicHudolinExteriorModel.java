@@ -1,15 +1,15 @@
 package dev.amble.ait.client.models.exteriors;
 
-import net.minecraft.client.model.*;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
+
+import net.minecraft.client.model.*;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 
 public class ClassicHudolinExteriorModel extends SimpleExteriorModel {
     private final ModelPart classic;
@@ -150,8 +150,8 @@ public class ClassicHudolinExteriorModel extends SimpleExteriorModel {
             float maxRot = 90f;
 
             DoorHandler door = tardis.door();
-            this.classic.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot * door.getLeftRot());
-            this.classic.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot * door.getRightRot());
+            this.classic.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot * leftRot(door));
+            this.classic.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot * rightRot(door));
         }
 
         if (isBOTI) {

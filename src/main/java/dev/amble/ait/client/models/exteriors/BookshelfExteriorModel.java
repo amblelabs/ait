@@ -2,17 +2,17 @@ package dev.amble.ait.client.models.exteriors; // Made with Blockbench 4.10.1
 // Exported for Minecraft version 1.17+ for Yarn
 // Paste this class into your mod and generate all required imports
 
-import net.minecraft.client.model.*;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.RotationAxis;
-
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
+
+import net.minecraft.client.model.*;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.RotationAxis;
 
 public class BookshelfExteriorModel extends SimpleExteriorModel {
     private final ModelPart bookshelf;
@@ -182,8 +182,8 @@ public class BookshelfExteriorModel extends SimpleExteriorModel {
             this.bookshelf.getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen()) ? 4.75F : 0.0F;
         } else {
             float maxRot = 90f;
-            this.bookshelf.getChild("left_door").yaw = -(float) Math.toRadians(maxRot * falling.tardis().get().door().getLeftRot());
-            this.bookshelf.getChild("right_door").yaw = (float) Math.toRadians(maxRot * falling.tardis().get().door().getRightRot());
+            this.bookshelf.getChild("left_door").yaw = -(float) Math.toRadians(maxRot * leftRot(falling.tardis().get().door()));
+            this.bookshelf.getChild("right_door").yaw = (float) Math.toRadians(maxRot * rightRot(falling.tardis().get().door()));
         }
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
@@ -199,8 +199,8 @@ public class BookshelfExteriorModel extends SimpleExteriorModel {
             this.bookshelf.getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen()) ? 4.75F : 0.0F;
         } else {
             float maxRot = 90f;
-            this.bookshelf.getChild("left_door").yaw = -(float) Math.toRadians(maxRot * door.getLeftRot());
-            this.bookshelf.getChild("right_door").yaw = (float) Math.toRadians(maxRot * door.getRightRot());
+            this.bookshelf.getChild("left_door").yaw = -(float) Math.toRadians(maxRot * leftRot(door));
+            this.bookshelf.getChild("right_door").yaw = (float) Math.toRadians(maxRot * rightRot(door));
         }
 
       if (isBOTI) {

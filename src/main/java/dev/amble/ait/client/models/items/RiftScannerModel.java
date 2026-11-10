@@ -1,5 +1,9 @@
 package dev.amble.ait.client.models.items;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.util.AngleInterpolator;
+import dev.amble.ait.core.item.RiftScannerItem;
+import dev.amble.ait.core.world.TardisServerWorld;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.model.*;
@@ -17,11 +21,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.util.AngleInterpolator;
-import dev.amble.ait.core.item.RiftScannerItem;
-import dev.amble.ait.core.world.TardisServerWorld;
 
 public class RiftScannerModel extends Model {
 

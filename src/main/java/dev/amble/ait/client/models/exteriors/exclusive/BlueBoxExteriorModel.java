@@ -1,16 +1,16 @@
 package dev.amble.ait.client.models.exteriors.exclusive;
 
-import net.minecraft.client.model.*;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
+
+import net.minecraft.client.model.*;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 
 public class BlueBoxExteriorModel extends SimpleExteriorModel {
     private final ModelPart box;
@@ -121,8 +121,8 @@ public class BlueBoxExteriorModel extends SimpleExteriorModel {
             this.left_door2.yaw = (door.isRightOpen() || door.areBothOpen()) ? 4.75F : 0.0F;
         } else {
             float maxRot = 90f;
-            this.right_door2.yaw = -(float) Math.toRadians(maxRot * door.getLeftRot());
-            this.right_door2.yaw = (float) Math.toRadians(maxRot * door.getRightRot());
+            this.right_door2.yaw = -(float) Math.toRadians(maxRot * leftRot(door));
+            this.right_door2.yaw = (float) Math.toRadians(maxRot * rightRot(door));
         }
     }
 

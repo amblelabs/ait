@@ -1,0 +1,14 @@
+# S1 - one capsule exterior 12 blocks ahead, doors SHUT. Capsule has opaque doors,
+# so BOTI must not be queued here. Asserted via ait_boti_exterior_queued == 0.
+ait perf-clear
+gamemode spectator @a
+tp @a 0 100 0 0 0
+SLEEP 2
+ait perf-spawn 1 8 0 100 12
+SLEEP 40
+ait perf-doors closed
+tp @a 0 100 0 0 0
+SLEEP 6
+ait perf-verify
+ait profile-client @a
+SLEEP 14

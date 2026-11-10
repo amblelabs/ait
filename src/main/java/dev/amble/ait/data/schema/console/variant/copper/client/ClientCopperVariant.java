@@ -1,14 +1,14 @@
 package dev.amble.ait.data.schema.console.variant.copper.client;
 
-import org.joml.Vector3f;
-
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.consoles.CopperConsoleModel;
 import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
 import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
 import dev.amble.ait.data.schema.console.variant.copper.CopperVariant;
+import org.joml.Vector3f;
+
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.util.Identifier;
 
 public class ClientCopperVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,
@@ -28,6 +28,12 @@ public class ClientCopperVariant extends ClientConsoleVariantSchema {
     @Override
     public Identifier emission() {
         return EMISSION;
+    }
+
+    @Override
+    public RenderLayer hologramLayer(Identifier texture) {
+        // No back face culling: the copper model has single sided geometry that disappears without it.
+        return RenderLayer.getEntityTranslucent(texture);
     }
 
     @Override

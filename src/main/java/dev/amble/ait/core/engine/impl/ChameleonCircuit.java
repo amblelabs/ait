@@ -1,7 +1,5 @@
 package dev.amble.ait.core.engine.impl;
 
-import net.minecraft.item.Item;
-
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.engine.DurableSubSystem;
@@ -9,6 +7,8 @@ import dev.amble.ait.core.engine.StructureHolder;
 import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
 import dev.amble.ait.core.tardis.TardisExterior;
 import dev.amble.ait.registry.impl.CategoryRegistry;
+
+import net.minecraft.item.Item;
 
 public class ChameleonCircuit extends DurableSubSystem implements StructureHolder {
     static {

@@ -1,14 +1,14 @@
 package dev.amble.ait.client.models.exteriors;
 
-import net.minecraft.client.model.*;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+
+import net.minecraft.client.model.*;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 
 public class RenegadeExteriorModel extends SimpleExteriorModel {
     private final ModelPart renegade;
@@ -115,7 +115,7 @@ public class RenegadeExteriorModel extends SimpleExteriorModel {
         if (!AITModClient.CONFIG.animateDoors)
             renegade.getChild("door").yaw = tardis.door().isOpen() ? 1.75f : 0f;
         else {
-            renegade.getChild("door").yaw = (float) Math.toRadians(90f * tardis.door().getLeftRot());
+            renegade.getChild("door").yaw = (float) Math.toRadians(90f * leftRot(tardis.door()));
         }
 
         if (isBOTI) {

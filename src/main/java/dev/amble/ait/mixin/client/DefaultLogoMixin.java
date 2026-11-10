@@ -1,5 +1,7 @@
 package dev.amble.ait.mixin.client;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.AITModClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,9 +13,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.LogoDrawer;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.AITModClient;
 
 @Mixin(LogoDrawer.class)
 public class DefaultLogoMixin {
@@ -33,7 +32,7 @@ public class DefaultLogoMixin {
         int screenWidth = MinecraftClient.getInstance().getWindow().getScaledWidth();
         int centerX = screenWidth / 2 - 121;
         int screenHeight = MinecraftClient.getInstance().getWindow().getScaledHeight();
-        int centerY = screenHeight / 5 - 21;
+        int centerY = screenHeight / 5 - 50;
         context.drawTexture(AIT_LOGO, centerX, centerY, 0, 0, 242, 42, 242, 42);
     }
 

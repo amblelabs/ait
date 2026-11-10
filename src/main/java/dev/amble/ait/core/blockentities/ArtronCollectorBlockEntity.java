@@ -1,5 +1,20 @@
 package dev.amble.ait.core.blockentities;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.ArtronHolder;
+import dev.amble.ait.api.ArtronHolderItem;
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
+import dev.amble.ait.core.item.ArtronCollectorItem;
+import dev.amble.ait.core.item.ChargedZeitonCrystalItem;
+import dev.amble.ait.core.world.RiftChunkManager;
+import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
+import dev.amble.lib.animation.BedrockModelProvider;
+import dev.amble.lib.client.bedrock.BedrockModelReference;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -13,18 +28,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 
-import dev.amble.ait.api.ArtronHolder;
-import dev.amble.ait.api.ArtronHolderItem;
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
-import dev.amble.ait.core.item.ArtronCollectorItem;
-import dev.amble.ait.core.item.ChargedZeitonCrystalItem;
-import dev.amble.ait.core.world.RiftChunkManager;
-import dev.amble.ait.module.gun.core.item.StaserBoltMagazine;
-
-public class ArtronCollectorBlockEntity extends FluidLinkBlockEntity implements BlockEntityTicker<ArtronCollectorBlockEntity>, ArtronHolder {
+public class ArtronCollectorBlockEntity extends FluidLinkBlockEntity implements BedrockModelProvider, BlockEntityTicker<ArtronCollectorBlockEntity>, ArtronHolder {
 
     public static final int FLOW_AMOUNT = 3;
 
@@ -142,5 +146,15 @@ public class ArtronCollectorBlockEntity extends FluidLinkBlockEntity implements 
             return;
 
         this.world.updateListeners(this.getPos(), this.getCachedState(), state, Block.NOTIFY_ALL);
+    }
+
+    @Override
+    public String getTexturePrefix() {
+        return "blockentities/machines";
+    }
+
+    @Override
+    public @Nullable BedrockModelReference getModel() {
+        return new BedrockModelReference(AITMod.MOD_ID, "artron_collector");
     }
 }

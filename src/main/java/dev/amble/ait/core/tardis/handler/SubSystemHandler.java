@@ -5,11 +5,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import com.google.gson.*;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.server.MinecraftServer;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
@@ -21,6 +16,10 @@ import dev.amble.ait.core.engine.registry.SubSystemRegistry;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.enummap.ConcurrentEnumMap;
 import dev.amble.lib.util.ArrayIterator;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+
+import net.minecraft.server.MinecraftServer;
 
 public class SubSystemHandler extends KeyedTardisComponent implements TardisTickable, Iterable<SubSystem> {
     @Exclude

@@ -1,12 +1,12 @@
 package dev.amble.ait.core.blockentities;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-
 import dev.amble.ait.api.tardis.link.v2.block.InteriorLinkableBlockEntity;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.drinks.DrinkRegistry;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
 
 public class FoodMachineBlockEntity extends InteriorLinkableBlockEntity {
     private Mode currentMode = Mode.FOOD_CUBES;

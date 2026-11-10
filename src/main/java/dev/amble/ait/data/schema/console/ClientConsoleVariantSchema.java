@@ -3,18 +3,18 @@ package dev.amble.ait.data.schema.console;
 import java.lang.reflect.Type;
 
 import com.google.gson.*;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import org.joml.Vector3f;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
-
 import dev.amble.ait.client.models.consoles.ConsoleModel;
 import dev.amble.ait.data.schema.console.variant.hartnell.HartnellVariant;
 import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 import dev.amble.lib.api.Identifiable;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import org.joml.Vector3f;
+
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
 
 @Environment(EnvType.CLIENT)
 public abstract class ClientConsoleVariantSchema implements Identifiable {
@@ -53,6 +53,16 @@ public abstract class ClientConsoleVariantSchema implements Identifiable {
     public abstract Identifier texture();
 
     public abstract Identifier emission();
+
+    /**
+     * The layer a console generator draws this variant's hologram on.
+     *
+     * <p>Overridable so a variant can pick its own rather than have the renderer special case it.
+     * The hologram is drawn at partial alpha, so this is a translucent layer by default.
+     */
+    public RenderLayer hologramLayer(Identifier texture) {
+        return RenderLayer.getEntityTranslucentCull(texture);
+    }
 
     @Environment(EnvType.CLIENT)
     public abstract ConsoleModel model();

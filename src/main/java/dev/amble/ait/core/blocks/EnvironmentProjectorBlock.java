@@ -4,6 +4,10 @@ import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 import java.util.List;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
+import dev.amble.ait.core.tardis.Tardis;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -32,11 +36,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
-import dev.amble.ait.core.tardis.Tardis;
 
 @SuppressWarnings("deprecation")
 public class EnvironmentProjectorBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {

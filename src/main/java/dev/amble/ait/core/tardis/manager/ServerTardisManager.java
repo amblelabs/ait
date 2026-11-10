@@ -3,17 +3,6 @@ package dev.amble.ait.core.tardis.manager;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.ChunkPos;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
@@ -25,18 +14,32 @@ import dev.amble.ait.core.tardis.manager.old.DeprecatedServerTardisManager;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.data.properties.Value;
 import dev.amble.ait.registry.impl.TardisComponentRegistry;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.ChunkPos;
 
 public class ServerTardisManager extends DeprecatedServerTardisManager {
 
     private static ServerTardisManager instance;
 
     private final Set<ServerTardis> delta = new HashSet<>();
+    private final Set<UUID> ids = new HashSet<>();
 
     public static void init() {
         instance = new ServerTardisManager();
     }
 
     private ServerTardisManager() {
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> this.ids.addAll(this.fileManager.getTardisList(server)));
+
         TardisEvents.SYNC_TARDIS.register(WorldWithTardis.forSync((player, tardisSet) -> {
             if (this.fileManager.isLocked())
                 return;
@@ -104,6 +107,7 @@ public class ServerTardisManager extends DeprecatedServerTardisManager {
         if (this.isFull()) return null;
 
         ServerTardis result = super.create(builder);
+        this.ids.add(result.getUuid());
         this.sendTardisAll(Set.of(result));
 
         return result;
@@ -213,14 +217,21 @@ public class ServerTardisManager extends DeprecatedServerTardisManager {
     }
 
     @Override
+    public void remove(MinecraftServer server, ServerTardis tardis) {
+        super.remove(server, tardis);
+        this.ids.remove(tardis.getUuid());
+    }
+
+    @Override
     public void reset() {
         this.delta.clear();
+        this.ids.clear();
         super.reset();
     }
 
     public boolean isFull() {
         int max = AITMod.CONFIG.maxTardises;
-        return max > 0 && this.lookup.size() >= max;
+        return max > 0 && this.ids.size() >= max;
     }
 
     private static boolean isInvalid(ServerTardis tardis) {

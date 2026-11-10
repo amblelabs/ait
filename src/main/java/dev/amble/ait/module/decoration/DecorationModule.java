@@ -3,16 +3,6 @@ package dev.amble.ait.module.decoration;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-
-import net.minecraft.advancement.Advancement;
-import net.minecraft.block.Blocks;
-import net.minecraft.data.client.BlockStateModelGenerator;
-import net.minecraft.data.client.ItemModelGenerator;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.datagen.datagen_providers.AITBlockTagProvider;
 import dev.amble.ait.datagen.datagen_providers.AITItemTagProvider;
@@ -26,6 +16,15 @@ import dev.amble.lib.container.impl.ItemContainer;
 import dev.amble.lib.datagen.lang.AmbleLanguageProvider;
 import dev.amble.lib.datagen.model.AmbleModelProvider;
 import dev.amble.lib.itemgroup.AItemGroup;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+
+import net.minecraft.advancement.Advancement;
+import net.minecraft.block.Blocks;
+import net.minecraft.data.client.BlockStateModelGenerator;
+import net.minecraft.data.client.ItemModelGenerator;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
 
 
 

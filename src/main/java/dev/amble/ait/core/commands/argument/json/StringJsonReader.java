@@ -26,7 +26,7 @@ public class StringJsonReader {
     private static final char SQUARE_CLOSE_BRACKET = ']';
     private static final char RIGHT_CURLY_BRACKET = '}';
     private static final char LEFT_CURLY_BRACKET = '{';
-    private static final Pattern FLOAT_PATTERN = Pattern.compile("[-+]?(?:[0-9]+[.]?|[0-9]*[.][0-9]+)(?:e[-+]?[0-9]+)?",
+    private static final Pattern FLOAT_PATTERN = Pattern.compile("[-+]?(?:[0-9]+[.]?|[0-9]*[.][0-9]+)(?:e[-+]?[0-9]+)?f",
             2);
     private static final Pattern INT_PATTERN = Pattern.compile("[-+]?(?:0|[1-9][0-9]*)");
     private final StringReader reader;

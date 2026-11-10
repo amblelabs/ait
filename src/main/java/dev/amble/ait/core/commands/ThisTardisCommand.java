@@ -7,16 +7,15 @@ import java.util.UUID;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.core.util.TextUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.link.LinkableItem;
-import dev.amble.ait.core.util.TextUtil;
-import dev.amble.ait.core.world.TardisServerWorld;
 
 public class ThisTardisCommand {
 

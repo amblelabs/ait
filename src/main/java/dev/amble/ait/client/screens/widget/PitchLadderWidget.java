@@ -31,7 +31,7 @@ public class PitchLadderWidget extends ClickableWidget {
 
     public PitchLadderWidget(int x, int y, int width, int height, float initial,
                              TextRenderer textRenderer, Consumer<Float> onChange) {
-        super(x, y, width, height, Text.literal("Pitch"));
+        super(x, y, width, height, Text.translatable("screen.ait.environment_projector.pitch"));
         this.value = MathHelper.clamp(initial, MIN, MAX);
         this.lastClickValue = this.value;
         this.textRenderer = textRenderer;
@@ -116,7 +116,7 @@ public class PitchLadderWidget extends ClickableWidget {
         String readout = String.format("%+.0f", this.value);
         int readoutX = this.getX() + this.getWidth() - textRenderer.getWidth(readout);
         context.drawText(textRenderer, readout, readoutX, needleY - 3, accent, true);
-        String title = "Pitch";
+        Text title = Text.translatable("screen.ait.environment_projector.pitch");
         context.drawText(textRenderer, title,
                 this.getX() + (this.getWidth() - textRenderer.getWidth(title)) / 2,
                 top - 11, 0xFFFFFFFF, false);

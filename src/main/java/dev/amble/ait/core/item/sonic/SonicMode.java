@@ -2,6 +2,11 @@ package dev.amble.ait.core.item.sonic;
 
 import java.util.function.Function;
 
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.data.enummap.Ordered;
+import dev.amble.ait.data.schema.sonic.SonicSchema;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -16,11 +21,6 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.data.enummap.Ordered;
-import dev.amble.ait.data.schema.sonic.SonicSchema;
 
 public abstract class SonicMode implements Ordered {
 
@@ -71,14 +71,10 @@ public abstract class SonicMode implements Ordered {
         }
 
         public static SonicMode getAndWrap(Integer index) {
-            if (index == null)
+            if (index == null || index < 0)
                 return INACTIVE;
 
-            while (index >= VALUES.length) {
-                index -= VALUES.length;
-            }
-
-            return get(index);
+            return get(index % VALUES.length);
         }
 
         public static int size() {

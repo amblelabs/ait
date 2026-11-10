@@ -1,5 +1,12 @@
 package dev.amble.ait.core.item.component;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.core.item.link.AbstractLinkItem;
+import dev.amble.ait.core.item.sonic.SonicMode;
+import dev.amble.ait.core.util.StackUtil;
+import dev.amble.ait.data.schema.MachineRecipeSchema;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -15,14 +22,6 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ClickType;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.item.link.AbstractLinkItem;
-import dev.amble.ait.core.item.sonic.SonicMode;
-import dev.amble.ait.core.util.StackUtil;
-import dev.amble.ait.data.schema.MachineRecipeSchema;
 
 public class AbstractTardisPart extends Item {
 

@@ -1,8 +1,11 @@
 package dev.amble.ait.client.renderers.machines;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.machines.UntemperedSchismModel;
+import dev.amble.ait.core.blockentities.UntemperedSchismBlockEntity;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -10,10 +13,6 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.machines.UntemperedSchismModel;
-import dev.amble.ait.core.blockentities.UntemperedSchismBlockEntity;
 
 public class UntemperedSchismRenderer<T extends UntemperedSchismBlockEntity> implements BlockEntityRenderer<T> {
 

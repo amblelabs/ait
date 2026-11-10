@@ -2,6 +2,13 @@ package dev.amble.ait.core.tardis.handler;
 
 import java.util.List;
 
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.data.properties.bool.BoolProperty;
+import dev.amble.ait.data.properties.bool.BoolValue;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.mob.CreeperEntity;
@@ -9,13 +16,6 @@ import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
-
-import dev.amble.ait.api.tardis.KeyedTardisComponent;
-import dev.amble.ait.api.tardis.TardisTickable;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.data.properties.bool.BoolProperty;
-import dev.amble.ait.data.properties.bool.BoolValue;
 
 public class HadsHandler extends KeyedTardisComponent implements TardisTickable {
 

@@ -3,6 +3,12 @@ package dev.amble.ait.core.blocks;
 import static dev.amble.ait.core.blockentities.ConsoleBlockEntity.previousConsole;
 import static dev.amble.ait.core.blockentities.ConsoleBlockEntity.previousVariant;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlock;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.lib.api.ICantBreak;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockEntityProvider;
@@ -17,13 +23,6 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
-import dev.amble.ait.core.engine.link.block.FluidLinkBlock;
-import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.lib.api.ICantBreak;
 
 public class ConsoleGeneratorBlock extends FluidLinkBlock implements BlockEntityProvider, ICantBreak {
 

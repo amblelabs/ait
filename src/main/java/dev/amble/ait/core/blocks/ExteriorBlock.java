@@ -2,6 +2,22 @@ package dev.amble.ait.core.blocks;
 
 import java.util.function.ToIntFunction;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.BiomeHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.util.ShapeUtil;
+import dev.amble.ait.data.ShapeMap;
+import dev.amble.ait.module.planet.core.space.planet.Planet;
+import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
+import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.api.ICantBreak;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,6 +48,7 @@ import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
@@ -39,22 +56,6 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.compat.DependencyChecker;
-import dev.amble.ait.core.AITBlocks;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.BiomeHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.util.ShapeUtil;
-import dev.amble.ait.module.planet.core.space.planet.Planet;
-import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
-import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
-import dev.amble.lib.api.ICantBreak;
 
 @SuppressWarnings("deprecation")
 public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBreak, Waterloggable {
@@ -70,46 +71,13 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
     public static final VoxelShape PORTALS_SHAPE = VoxelShapes.union(
             Block.createCuboidShape(0.0, 0.0, 11.0, 16.0, 32.0, 16.0), Block.createCuboidShape(0, 0, -3.5, 16, 1, 16));
 
-    public static final VoxelShape PORTALS_SHAPE_DIAGONAL = VoxelShapes.union(
-            Block.createCuboidShape(11.0, 0.0, 11.0, 16.0, 32.0, 16.0), Block.createCuboidShape(0, 0, -3.5, 16, 1, 16));
     public static final VoxelShape SIEGE_SHAPE = Block.createCuboidShape(4.0, 0.0, 4.0, 12.0, 8.0, 12.0);
-    public static final VoxelShape DIAGONAL_SHAPE;
 
-    static {
-        VoxelShape shape = VoxelShapes.empty();
-        shape = VoxelShapes.combineAndSimplify(shape, VoxelShapes.cuboid(-0.125, 0, -0.125, 0.875, 0.0625, 0.875),
-                BooleanBiFunction.OR);
-        shape = VoxelShapes.combineAndSimplify(shape, VoxelShapes.cuboid(0.25, 0.0625, 0.25, 0.875, 2, 0.875),
-                BooleanBiFunction.OR);
-        shape = VoxelShapes.combineAndSimplify(shape, VoxelShapes.cuboid(0.3125, 0.0625, 0.1875, 0.875, 2, 0.25),
-                BooleanBiFunction.OR);
-        shape = VoxelShapes.combineAndSimplify(shape, VoxelShapes.cuboid(0.1875, 0.0625, 0.3125, 0.25, 2, 0.875),
-                BooleanBiFunction.OR);
-        shape = VoxelShapes.combineAndSimplify(shape, VoxelShapes.cuboid(0.125, 0.0625, 0.375, 0.1875, 2, 0.875),
-                BooleanBiFunction.OR);
-        shape = VoxelShapes.combineAndSimplify(shape, VoxelShapes.cuboid(0.4375, 0.0625, 0.0625, 0.875, 2, 0.125),
-                BooleanBiFunction.OR);
-        shape = VoxelShapes.combineAndSimplify(shape, VoxelShapes.cuboid(0.375, 0.0625, 0.125, 0.875, 2, 0.1875),
-                BooleanBiFunction.OR);
-        shape = VoxelShapes.combineAndSimplify(shape, VoxelShapes.cuboid(0.5625, 0.0625, -0.0625, 0.875, 2, 0),
-                BooleanBiFunction.OR);
-        shape = VoxelShapes.combineAndSimplify(shape, VoxelShapes.cuboid(0.5, 0.0625, 0, 0.875, 2, 0.0625),
-                BooleanBiFunction.OR);
-        shape = VoxelShapes.combineAndSimplify(shape, VoxelShapes.cuboid(0.625, 0.0625, -0.125, 0.875, 2, -0.0625),
-                BooleanBiFunction.OR);
-        shape = VoxelShapes.combineAndSimplify(shape, VoxelShapes.cuboid(0.0625, 0.0625, 0.4375, 0.125, 2, 0.875),
-                BooleanBiFunction.OR);
-        shape = VoxelShapes.combineAndSimplify(shape, VoxelShapes.cuboid(0, 0.0625, 0.5, 0.0625, 2, 0.875),
-                BooleanBiFunction.OR);
-        shape = VoxelShapes.combineAndSimplify(shape, VoxelShapes.cuboid(-0.0625, 0.0625, 0.5625, 0, 2, 0.875),
-                BooleanBiFunction.OR);
-        shape = VoxelShapes.combineAndSimplify(shape, VoxelShapes.cuboid(-0.125, 0.0625, 0.625, -0.0625, 2, 0.875),
-                BooleanBiFunction.OR);
-        shape = VoxelShapes.combineAndSimplify(shape, VoxelShapes.cuboid(-0.3125, 0, -0.3125, 0.625, 0.0625, 0.625),
-                BooleanBiFunction.OR);
-
-        DIAGONAL_SHAPE = shape;
-    }
+    private static final ShapeMap CUBE_SHAPES = ShapeUtil.rotations(Direction.NORTH, CUBE_NORTH_SHAPE).build();
+    private static final ShapeMap PORTALS_SHAPES = ShapeUtil.rotations(Direction.NORTH, PORTALS_SHAPE).build();
+    private static final VoxelShape[] TURNED_SHAPES = turnedShapes(5);
+    // a turned mob reaches further ahead with its box corner, 3px deeper lets a pig reach the portal like it does straight
+    private static final VoxelShape[] TURNED_PORTALS_SHAPES = turnedShapes(14);
 
     public ExteriorBlock(Settings settings) {
         super(settings.nonOpaque());
@@ -173,7 +141,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
-        VoxelShape normal = this.getNormalShape(state, false);
+        VoxelShape normal = this.getNormalShape(state, true);
 
         if (!(blockEntity instanceof ExteriorBlockEntity exterior))
             return normal;
@@ -246,30 +214,62 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         return VoxelShapes.empty();
     }
 
-    // TODO cache this.
     public VoxelShape getNormalShape(BlockState state, boolean ignorePortals) {
-        Direction direction = RotationPropertyHelper.toDirection(state.get(ROTATION))
-                .orElse(null);
+        int rotation = state.get(ROTATION);
+        Direction direction = RotationPropertyHelper.toDirection(rotation).orElse(null);
+        boolean portals = DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti && !ignorePortals;
 
-        VoxelShape shape;
+        if (direction == null)
+            return portals ? TURNED_PORTALS_SHAPES[rotation] : TURNED_SHAPES[rotation];
 
-        if (direction == null) {
-            shape = DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti && !ignorePortals ? PORTALS_SHAPE_DIAGONAL : DIAGONAL_SHAPE;
-            direction = approximateDirection(state.get(ROTATION));
-        } else {
-            shape = DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti && !ignorePortals ? PORTALS_SHAPE : CUBE_NORTH_SHAPE;
-        }
-
-        return ShapeUtil.rotate(Direction.NORTH, direction, shape);
+        return (portals ? PORTALS_SHAPES : CUBE_SHAPES).get(direction);
     }
 
-    public Direction approximateDirection(int rotation) {
-        return switch (rotation) {
-            default -> Direction.NORTH;
-            case 1, 2, 3 -> Direction.EAST;
-            case 5, 6, 7 -> Direction.SOUTH;
-            case 9, 10, 11 -> Direction.WEST;
-        };
+    // shapes are axis aligned, so the turned body and ledge are filled in 1px columns
+    private static VoxelShape[] turnedShapes(double recess) {
+        VoxelShape[] shapes = new VoxelShape[MAX_ROTATIONS];
+
+        for (int rotation = 0; rotation < MAX_ROTATIONS; rotation++) {
+            if (RotationPropertyHelper.toDirection(rotation).isPresent())
+                continue;
+
+            float rad = RotationPropertyHelper.toDegrees(rotation) * MathHelper.RADIANS_PER_DEGREE;
+            double cos = MathHelper.cos(rad);
+            double sin = MathHelper.sin(rad);
+            VoxelShape shape = VoxelShapes.empty();
+
+            for (int x = -8; x < 24; x++) {
+                int from = 24, to = -8, bodyFrom = 24, bodyTo = -8;
+
+                for (int z = -8; z < 24; z++) {
+                    double dx = (x + 0.5) / 16 - 0.5;
+                    double dz = (z + 0.5) / 16 - 0.5;
+                    double across = dx * cos + dz * sin + 0.5;
+                    double depth = dz * cos - dx * sin + 0.5;
+
+                    if (across < 0 || across > 1 || depth < -3.5 / 16 || depth > 1)
+                        continue;
+
+                    from = Math.min(from, z);
+                    to = Math.max(to, z + 1);
+
+                    if (depth >= recess / 16) {
+                        bodyFrom = Math.min(bodyFrom, z);
+                        bodyTo = Math.max(bodyTo, z + 1);
+                    }
+                }
+
+                if (to > from)
+                    shape = VoxelShapes.combine(shape, Block.createCuboidShape(x, 0, from, x + 1, 1, to), BooleanBiFunction.OR);
+
+                if (bodyTo > bodyFrom)
+                    shape = VoxelShapes.combine(shape, Block.createCuboidShape(x, 0, bodyFrom, x + 1, 32, bodyTo), BooleanBiFunction.OR);
+            }
+
+            shapes[rotation] = shape.simplify();
+        }
+
+        return shapes;
     }
 
     @Override
@@ -323,7 +323,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
         if (world.isClient())
             return;
 
-        if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior)
+        if (world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior && !exterior.isWallHit(entity))
             exterior.onEntityCollision(entity);
     }
 

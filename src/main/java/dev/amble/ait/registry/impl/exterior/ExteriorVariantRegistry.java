@@ -4,14 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.server.network.ServerPlayerEntity;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.AITRegistryEvents;
 import dev.amble.ait.data.datapack.DatapackExterior;
@@ -54,6 +46,13 @@ import dev.amble.ait.data.schema.exterior.variant.tardim.TardimFireVariant;
 import dev.amble.ait.data.schema.exterior.variant.tardim.TardimSoulVariant;
 import dev.amble.lib.register.datapack.DatapackRegistry;
 import dev.amble.lib.register.unlockable.UnlockableRegistry;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.resource.ResourceType;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 public class ExteriorVariantRegistry extends UnlockableRegistry<ExteriorVariantSchema> {
     private static ExteriorVariantRegistry INSTANCE;

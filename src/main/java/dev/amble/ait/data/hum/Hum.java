@@ -1,10 +1,11 @@
 package dev.amble.ait.data.hum;
 
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.api.Nameable;
 import dev.amble.lib.api.Identifiable;
+
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 public class Hum implements Identifiable, Nameable {
     private final Identifier id;
@@ -30,6 +31,11 @@ public class Hum implements Identifiable, Nameable {
 
     @Override
     public String name() {
-        return this.id().toTranslationKey("hum");
+        return this.id().getPath();
+    }
+
+    @Override
+    public Text text() {
+        return Text.translatableWithFallback(this.id().toTranslationKey("hum"), this.name());
     }
 }

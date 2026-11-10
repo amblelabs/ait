@@ -1,14 +1,14 @@
 package dev.amble.ait.client.models.exteriors;
 
-import net.minecraft.client.model.*;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+
+import net.minecraft.client.model.*;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 
 public class PlinthExteriorModel extends SimpleExteriorModel {
     private final ModelPart plinth;
@@ -64,7 +64,7 @@ public class PlinthExteriorModel extends SimpleExteriorModel {
             plinth.getChild("door").yaw = falling.tardis().get().door().isOpen() ? -1.75f : 0f;
         else {
             float maxRot = 90f;
-            plinth.getChild("door").yaw = (float) Math.toRadians(maxRot*falling.tardis().get().door().getLeftRot());
+            plinth.getChild("door").yaw = (float) Math.toRadians(maxRot*leftRot(falling.tardis().get().door()));
         }
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
@@ -78,7 +78,7 @@ public class PlinthExteriorModel extends SimpleExteriorModel {
             plinth.getChild("door").yaw = tardis.door().isOpen() ? -1.75f : 0f;
         else {
             float maxRot = 90f;
-            plinth.getChild("door").yaw = -(float) Math.toRadians(maxRot*tardis.door().getLeftRot());
+            plinth.getChild("door").yaw = -(float) Math.toRadians(maxRot*leftRot(tardis.door()));
         }
 
         if (isBOTI) {

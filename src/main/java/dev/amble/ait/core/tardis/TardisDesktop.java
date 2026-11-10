@@ -1,29 +1,12 @@
 package dev.amble.ait.core.tardis;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import dev.drtheo.queue.api.ActionQueue;
-import dev.drtheo.queue.api.util.block.ChunkEraser;
-import dev.drtheo.queue.api.util.structure.QueuedStructureTemplate;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-
-import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.decoration.AbstractDecorationEntity;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.structure.StructurePlacementData;
-import net.minecraft.structure.StructureTemplate;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.World;
+import java.util.concurrent.CompletableFuture;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
@@ -34,13 +17,41 @@ import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blockentities.EngineBlockEntity;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.core.world.QueuedTardisStructureTemplate;
 import dev.amble.ait.data.Corners;
+import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.lib.data.DirectedBlockPos;
+import dev.drtheo.queue.api.ActionQueue;
+import dev.drtheo.queue.api.util.block.ChunkEraser;
+import dev.drtheo.queue.api.util.structure.QueuedStructureTemplate;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+
+import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.decoration.AbstractDecorationEntity;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.server.world.ChunkTicketType;
+import net.minecraft.server.world.ServerChunkManager;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.structure.StructurePlacementData;
+import net.minecraft.structure.StructureTemplate;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockBox;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.world.ChunkSerializer;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.ChunkStatus;
 
 public class TardisDesktop extends TardisComponent {
 
@@ -52,6 +63,7 @@ public class TardisDesktop extends TardisComponent {
     private final Corners corners;
     private final Set<BlockPos> consolePos;
     public static final int RADIUS = 500;
+    private static final ChunkTicketType<ChunkPos> CHANGING_TICKET = ChunkTicketType.create("ait_desktop_change", Comparator.comparingLong(ChunkPos::toLong));
     private static final Corners CORNERS;
 
     static {
@@ -59,10 +71,12 @@ public class TardisDesktop extends TardisComponent {
         CORNERS = new Corners(first.multiply(-1), first);
 
         ServerPlayNetworking.registerGlobalReceiver(TardisDesktop.CACHE_CONSOLE,
-                ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+                ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
                     BlockPos console = buf.readBlockPos();
 
                     server.execute(() -> {
+                        if (!player.getWorld().isChunkLoaded(console)) return;
+
                         if (!(player.getWorld().getBlockEntity(console) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
 
                         if (tardis == null)
@@ -77,10 +91,12 @@ public class TardisDesktop extends TardisComponent {
 
                         tardis.getDesktop().cacheConsole(console);
                     });
-                }));
+                })));
     }
 
     private boolean changingDesktop = false;
+    @Exclude
+    private List<ChunkPos> heldChunks;
 
     public TardisDesktop(TardisDesktopSchema schema) {
         super(Id.DESKTOP);
@@ -182,11 +198,14 @@ public class TardisDesktop extends TardisComponent {
         }
 
         QueuedStructureTemplate template = new QueuedTardisStructureTemplate(optional.get(), tardis);
+        // a carved pumpkin's golem check looks 2 blocks out
+        BlockBox box = optional.get().calculateBoundingBox(SETTINGS, BlockPos.ofFloored(corners.getBox().getCenter())).expand(2);
 
         Optional<ActionQueue> optionalQueue = template.place(world, BlockPos.ofFloored(corners.getBox().getCenter()),
                 BlockPos.ofFloored(corners.getBox().getCenter()), SETTINGS, world.getRandom(), Block.FORCE_STATE);
 
-        optionalQueue.ifPresentOrElse(queue -> queue.thenRun(
+        // nothing else holds these, they unload mid generation
+        optionalQueue.ifPresentOrElse(queue -> queue.firstRun(() -> this.holdChunks(world, box)).thenRun(
                         () -> AITMod.LOGGER.warn("Time taken to generate interior: {}ms",
                                 System.currentTimeMillis() - start)),
                 () -> AITMod.LOGGER.error("Failed to generate interior for {}",
@@ -204,12 +223,76 @@ public class TardisDesktop extends TardisComponent {
         TardisUtil.getEntitiesInBox(AbstractDecorationEntity.class, world, corners.getBox(), frame -> true)
                 .forEach(frame -> frame.remove(Entity.RemovalReason.DISCARDED));
 
-        return new ChunkEraser.Builder().withFlags(Block.FORCE_STATE).build(
-                world, -chunkRadius, -chunkRadius, chunkRadius, chunkRadius
-        ).thenRun(() -> {
+        int[] bounds = {Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE};
+
+        return new ActionQueue().thenRun(done -> {
+            ServerChunkManager chunks = world.getChunkManager();
+            List<CompletableFuture<?>> reads = new ArrayList<>();
+
+            for (int x = -chunkRadius; x <= chunkRadius; x++) {
+                for (int z = -chunkRadius; z <= chunkRadius; z++) {
+                    ChunkPos pos = new ChunkPos(x, z);
+
+                    if (chunks.isChunkLoaded(x, z)) {
+                        include(bounds, pos);
+                        continue;
+                    }
+
+                    reads.add(chunks.threadedAnvilChunkStorage.getNbt(pos).thenAccept(nbt -> nbt
+                            .filter(chunk -> ChunkSerializer.getChunkType(chunk) == ChunkStatus.ChunkType.LEVELCHUNK)
+                            .ifPresent(chunk -> include(bounds, pos))));
+                }
+            }
+
+            CompletableFuture.allOf(reads.toArray(CompletableFuture[]::new))
+                    .whenComplete((v, e) -> world.getServer().execute(done::finish));
+        }).thenRun(done -> {
+            if (bounds[0] > bounds[2]) {
+                done.finish();
+                return;
+            }
+
+            ServerChunkManager chunks = world.getChunkManager();
+            this.heldChunks = new ArrayList<>();
+
+            for (int x = bounds[0]; x <= bounds[2]; x++) {
+                for (int z = bounds[1]; z <= bounds[3]; z++) {
+                    ChunkPos pos = new ChunkPos(x, z);
+                    chunks.addTicket(CHANGING_TICKET, pos, 0, pos);
+                    this.heldChunks.add(pos);
+                }
+            }
+
+            new ChunkEraser.Builder().withFlags(Block.FORCE_STATE).build(world, bounds[0], bounds[1], bounds[2] + 1, bounds[3] + 1)
+                    .thenRun(done::finish).execute();
+        }).thenRun(() -> {
             this.consolePos.clear();
             this.doorPos = null;
         });
+    }
+
+    private void holdChunks(ServerWorld world, BlockBox box) {
+        if (this.heldChunks == null)
+            this.heldChunks = new ArrayList<>();
+
+        ServerChunkManager chunks = world.getChunkManager();
+
+        for (int x = ChunkSectionPos.getSectionCoord(box.getMinX()); x <= ChunkSectionPos.getSectionCoord(box.getMaxX()); x++) {
+            for (int z = ChunkSectionPos.getSectionCoord(box.getMinZ()); z <= ChunkSectionPos.getSectionCoord(box.getMaxZ()); z++) {
+                ChunkPos pos = new ChunkPos(x, z);
+                chunks.addTicket(CHANGING_TICKET, pos, 0, pos);
+                this.heldChunks.add(pos);
+            }
+        }
+    }
+
+    private static void include(int[] bounds, ChunkPos pos) {
+        synchronized (bounds) {
+            bounds[0] = Math.min(bounds[0], pos.x);
+            bounds[1] = Math.min(bounds[1], pos.z);
+            bounds[2] = Math.max(bounds[2], pos.x);
+            bounds[3] = Math.max(bounds[3], pos.z);
+        }
     }
 
     public void startQueue(boolean interact) {
@@ -221,6 +304,12 @@ public class TardisDesktop extends TardisComponent {
     }
 
     private void completeQueue() {
+        if (this.heldChunks != null) {
+            ServerChunkManager chunks = this.tardis.asServer().world().getChunkManager();
+            this.heldChunks.forEach(pos -> chunks.removeTicket(CHANGING_TICKET, pos, 0, pos));
+            this.heldChunks = null;
+        }
+
         this.tardis.door().setLocked(false);
         this.tardis.door().setDeadlocked(false);
         this.tardis.alarm().disable();

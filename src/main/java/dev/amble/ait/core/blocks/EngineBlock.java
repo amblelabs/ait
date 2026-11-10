@@ -1,12 +1,21 @@
 package dev.amble.ait.core.blocks;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.blockentities.EngineBlockEntity;
+import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.engine.block.SubSystemBlock;
+import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
+import dev.amble.ait.core.world.TardisServerWorld;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.*;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
@@ -15,13 +24,6 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.blockentities.EngineBlockEntity;
-import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.engine.block.SubSystemBlock;
-import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
-import dev.amble.ait.core.world.TardisServerWorld;
 
 public class EngineBlock extends SubSystemBlock implements BlockEntityProvider {
     public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
@@ -45,6 +47,18 @@ public class EngineBlock extends SubSystemBlock implements BlockEntityProvider {
 
     @Nullable @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
+        World world = ctx.getWorld();
+        BlockPos pos = ctx.getBlockPos();
+
+        for (BlockPos offset : BlockPos.iterate(pos.add(-1, 0, -1), pos.add(1, 0, 1))) {
+            if (!offset.equals(pos) && !world.getBlockState(offset).isReplaceable()) {
+                if (ctx.getPlayer() instanceof ServerPlayerEntity player)
+                    player.sendMessage(Text.translatable("tardis.message.engine.no_space").formatted(Formatting.RED), true);
+
+                return null;
+            }
+        }
+
         return this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing().getOpposite());
     }
 

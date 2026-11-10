@@ -1,0 +1,12 @@
+# 5 booth exteriors. Booth has transparent doors, so BOTI queues without depending on the
+# door animation, which does not run for TARDISes whose interiors are not ticking.
+ait perf-clear
+gamemode spectator @a
+SLEEP 2
+ait perf-spawn 5 6 -24 100 26 "exterior/booth/default"
+SLEEP 40
+tp @a 0 100 0 0 15
+SLEEP 6
+ait perf-verify
+ait profile-client @a
+SLEEP 15

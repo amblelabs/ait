@@ -1,5 +1,8 @@
 package dev.amble.ait.module.gun.client.render;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.entities.projectiles.StaserBoltEntityModel;
+import dev.amble.ait.module.gun.core.entity.StaserBoltEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -11,10 +14,6 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.entities.projectiles.StaserBoltEntityModel;
-import dev.amble.ait.module.gun.core.entity.StaserBoltEntity;
 
 @Environment(value=EnvType.CLIENT)
 public class StaserBoltEntityRenderer

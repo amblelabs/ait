@@ -1,0 +1,7 @@
+# Still inside, camera pitched down away from the console. Splits console cost from the star
+# and shine, which render regardless of where the camera points.
+ait perf-tp console 88
+SLEEP 8
+ait perf-verify
+ait profile-client @a
+SLEEP 15

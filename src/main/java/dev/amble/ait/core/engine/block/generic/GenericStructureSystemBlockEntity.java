@@ -2,7 +2,17 @@ package dev.amble.ait.core.engine.block.generic;
 
 import java.util.Optional;
 
+import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.engine.DurableSubSystem;
+import dev.amble.ait.core.engine.StructureHolder;
+import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
+import dev.amble.ait.core.engine.block.multi.StructureSystemBlockEntity;
+import dev.amble.ait.core.engine.item.SubSystemItem;
+import dev.amble.ait.core.util.StackUtil;
 import dev.amble.ait.core.world.TardisServerWorld;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -14,16 +24,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.AITBlockEntityTypes;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.engine.DurableSubSystem;
-import dev.amble.ait.core.engine.StructureHolder;
-import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.engine.block.multi.MultiBlockStructure;
-import dev.amble.ait.core.engine.block.multi.StructureSystemBlockEntity;
-import dev.amble.ait.core.engine.item.SubSystemItem;
-import dev.amble.ait.core.util.StackUtil;
 
 /**
  * a mutable version of the structure system block entity
@@ -136,8 +136,12 @@ public class GenericStructureSystemBlockEntity extends StructureSystemBlockEntit
     public void onBroken(World world, BlockPos pos) {
         super.onBroken(world, pos);
 
-        if (world.isClient() || this.idSource == null) return;
-        StackUtil.spawn(world, pos, this.idSource.copyAndEmpty());
+        if (world.isClient() || this.idSource == null || this.idSource.isEmpty()) return;
+        ItemStack stack = this.idSource.copyAndEmpty();
+
+        if (this.isLinked() && this.tardis().get().interiorChanging().addRestorationStack(stack)) return;
+
+        StackUtil.spawn(world, pos, stack);
     }
 
     @Override

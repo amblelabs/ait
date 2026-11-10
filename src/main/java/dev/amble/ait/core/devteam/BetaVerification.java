@@ -14,10 +14,9 @@ import java.util.function.UnaryOperator;
 
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpServer;
+import dev.amble.ait.AITMod;
 
 import net.minecraft.util.Util;
-
-import dev.amble.ait.AITMod;
 
 public class BetaVerification {
 

@@ -1,6 +1,9 @@
 package dev.amble.ait.client.boti;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.models.decoration.PaintingFrameModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.render.OverlayTexture;
@@ -8,10 +11,6 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.models.decoration.PaintingFrameModel;
-import dev.amble.ait.client.renderers.AITRenderLayers;
 
 public class PaintingBOTI extends BOTI {
     public static void renderBOTIPainting(MatrixStack stack, PaintingFrameModel frame,
@@ -38,6 +37,15 @@ public class PaintingBOTI extends BOTI {
         botiProvider.draw();
 
         stack.translate(0, 0, -0.125);
+
+        boolean stencil = GL11.glIsEnabled(GL11.GL_STENCIL_TEST);
+        int func = GL11.glGetInteger(GL11.GL_STENCIL_FUNC);
+        int ref = GL11.glGetInteger(GL11.GL_STENCIL_REF);
+        int valueMask = GL11.glGetInteger(GL11.GL_STENCIL_VALUE_MASK);
+        int writeMask = GL11.glGetInteger(GL11.GL_STENCIL_WRITEMASK);
+        int fail = GL11.glGetInteger(GL11.GL_STENCIL_FAIL);
+        int zFail = GL11.glGetInteger(GL11.GL_STENCIL_PASS_DEPTH_FAIL);
+        int zPass = GL11.glGetInteger(GL11.GL_STENCIL_PASS_DEPTH_PASS);
 
         // Enable stencil testing and clear the stencil buffer
         GL11.glEnable(GL11.GL_STENCIL_TEST);
@@ -73,7 +81,12 @@ public class PaintingBOTI extends BOTI {
 
         BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
 
-        GL11.glDisable(GL11.GL_STENCIL_TEST);
+        GL11.glStencilFunc(func, ref, valueMask);
+        GL11.glStencilOp(fail, zFail, zPass);
+        GL11.glStencilMask(writeMask);
+
+        if (!stencil)
+            GL11.glDisable(GL11.GL_STENCIL_TEST);
 
         RenderSystem.depthMask(true);
 

@@ -1,0 +1,17 @@
+# Inside a TARDIS, camera on the console. Console BER, control entities, door BOTI, eye of harmony.
+# The desktop generates asynchronously and its console is not cached for a good while after the
+# TARDIS is built, so this waits before teleporting rather than landing in the void.
+ait perf-clear
+SLEEP 2
+ait perf-spawn 1 8 0 100 12
+SLEEP 90
+ait perf-doors open
+SLEEP 6
+ait perf-tp console
+SLEEP 8
+gamemode spectator @a
+SLEEP 4
+ait perf-verify
+data get entity @p Dimension
+ait profile-client @a
+SLEEP 15

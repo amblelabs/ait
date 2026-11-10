@@ -1,11 +1,11 @@
 package dev.amble.ait.client.screens;
 
+import dev.amble.ait.AITMod;
+
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
 
 public class BlueprintFabricatorScreen extends Screen {
 
@@ -14,7 +14,7 @@ public class BlueprintFabricatorScreen extends Screen {
     int backgroundWidth = 176;
 
     public BlueprintFabricatorScreen() {
-        super(Text.literal("Blueprint Fabricator")); // todo translatable
+        super(Text.translatable("screen.ait.blueprint_fabricator"));
     }
 
     protected void drawBackground(DrawContext context) {

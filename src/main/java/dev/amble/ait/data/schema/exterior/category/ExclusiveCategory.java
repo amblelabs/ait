@@ -2,11 +2,11 @@ package dev.amble.ait.data.schema.exterior.category;
 
 import java.util.UUID;
 
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.devteam.DevTeam;
 import dev.amble.ait.data.schema.exterior.ExteriorCategorySchema;
+
+import net.minecraft.util.Identifier;
 
 /**
  * Used for dev exclusives.

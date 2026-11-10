@@ -2,6 +2,8 @@ package dev.amble.ait.client.renderers.decoration;
 
 import java.util.List;
 
+import dev.amble.ait.core.blockentities.PottedSonicScrewdriverBlockEntity;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -11,8 +13,6 @@ import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.core.blockentities.PottedSonicScrewdriverBlockEntity;
 
 public class PottedSonicScrewdriverRenderer implements BlockEntityRenderer<PottedSonicScrewdriverBlockEntity> {
     private static final float SCALE = 0.5f;

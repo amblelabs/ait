@@ -4,6 +4,7 @@ import static dev.amble.ait.client.util.TooltipUtil.addShiftHiddenTooltip;
 
 import java.util.List;
 
+import dev.amble.ait.core.engine.SubSystem;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.item.TooltipContext;
@@ -12,8 +13,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.engine.SubSystem;
 
 public class SubSystemItem extends Item {
     protected final SubSystem.IdLike id;
@@ -33,7 +32,7 @@ public class SubSystemItem extends Item {
         super.appendTooltip(stack, world, tooltip, context);
 
         addShiftHiddenTooltip(stack, tooltip, tooltips -> {
-            tooltip.add(Text.literal(this.id().name().replace("_", " ")).formatted(Formatting.YELLOW));
+            tooltip.add(Text.translatable(this.id().toTranslationKey()).formatted(Formatting.YELLOW));
             tooltip.add(Text.translatable("tooltip.ait.subsystem_item").formatted(Formatting.DARK_GRAY, Formatting.ITALIC));
         });
     }

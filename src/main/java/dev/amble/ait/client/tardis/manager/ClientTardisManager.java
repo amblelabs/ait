@@ -7,6 +7,15 @@ import java.util.function.Consumer;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.GsonBuilder;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.TardisComponent;
+import dev.amble.ait.client.sounds.ClientSoundManager;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisManager;
+import dev.amble.ait.data.Exclude;
+import dev.amble.ait.data.TardisMap;
+import dev.amble.ait.registry.impl.TardisComponentRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginConnectionEvents;
@@ -18,16 +27,6 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.client.sounds.ClientSoundManager;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisManager;
-import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.TardisMap;
-import dev.amble.ait.registry.impl.TardisComponentRegistry;
 
 public class ClientTardisManager extends TardisManager<ClientTardis, MinecraftClient> {
 

@@ -1,12 +1,12 @@
 package dev.amble.ait.client.models.doors;
 
-import net.minecraft.client.model.*;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
+
+import net.minecraft.client.model.*;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
 
 public class GeometricDoorModel extends DoorModel {
 
@@ -42,7 +42,7 @@ public class GeometricDoorModel extends DoorModel {
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, float tickDelta) {
         DoorHandler door = tardis.door();
 
-        this.geometric.getChild("door").pivotZ = door.isOpen() ? 5.05f : 1f;
+        this.geometric.getChild("door").pivotZ = door.isVisuallyOpen() ? 5.05f : 1f;
 
         matrices.push();
         matrices.scale(1F, 1F, 1F);

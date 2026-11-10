@@ -1,6 +1,19 @@
 package dev.amble.ait.client.renderers;
 
+import java.util.Locale;
+
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.blocks.DetectorBlock;
+import dev.amble.ait.core.engine.DurableSubSystem;
+import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
+import dev.amble.ait.core.engine.impl.EngineSystem;
+import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.core.item.sonic.SonicMode;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -22,18 +35,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.blocks.DetectorBlock;
-import dev.amble.ait.core.engine.DurableSubSystem;
-import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
-import dev.amble.ait.core.engine.impl.EngineSystem;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.item.sonic.SonicMode;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.core.world.TardisServerWorld;
 
 public class SonicRendering {
     private static final Identifier SELECTED = AITMod.id("textures/marker/landing.png");
@@ -210,7 +211,9 @@ public class SonicRendering {
         BlockState state = world.getBlockState(pos);
         if (!(state.getBlock() instanceof DetectorBlock)) return;
         DetectorBlock.Type type = state.get(DetectorBlock.TYPE);
-        context.drawCenteredTextWithShadow(client.textRenderer, type.name().toUpperCase(), getCentreX(), (int) (getMaxY() * 0.4), Colors.WHITE);
+        context.drawCenteredTextWithShadow(client.textRenderer,
+                Text.translatable("block.ait.detector.type." + type.name().toLowerCase(Locale.ROOT)), getCentreX(),
+                (int) (getMaxY() * 0.4), Colors.WHITE);
     }
 
     private void renderSubSystemInfo(DrawContext context, BlockPos pos) {

@@ -2,10 +2,10 @@ package dev.amble.ait.module.planet.core.item;
 
 import java.util.function.Supplier;
 
+import dev.amble.ait.module.planet.core.PlanetBlocks;
+
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.recipe.Ingredient;
-
-import dev.amble.ait.module.planet.core.PlanetBlocks;
 
 public enum PlanetToolMaterial implements ToolMaterial {
     MARTIAN_STONE(1, 201, 4.0f, 1.0f, 6,

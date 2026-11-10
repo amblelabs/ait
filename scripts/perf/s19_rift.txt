@@ -1,0 +1,14 @@
+# Rift entities in view: the fifth BOTI pass.
+ait perf-clear
+gamemode creative @a
+tp @a 0 100 0 0 0
+SLEEP 4
+summon ait:rift_entity 0 100 8
+summon ait:rift_entity 3 100 8
+SLEEP 6
+gamemode spectator @a
+tp @a 0 100 0 0 0
+SLEEP 6
+ait perf-verify
+ait profile-client @a
+SLEEP 15

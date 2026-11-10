@@ -1,16 +1,16 @@
 package dev.amble.ait.client.models.exteriors;
 
-import net.minecraft.client.model.*;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
+
+import net.minecraft.client.model.*;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 
 public class CapsuleExteriorModel extends SimpleExteriorModel {
     private final ModelPart body;
@@ -156,8 +156,8 @@ public class CapsuleExteriorModel extends SimpleExteriorModel {
                     : 0.0F;
         } else {
             float maxRot = 90f;
-            this.body.getChild("doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot * falling.tardis().get().door().getLeftRot());
-            this.body.getChild("doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot * falling.tardis().get().door().getRightRot());
+            this.body.getChild("doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot * leftRot(falling.tardis().get().door()));
+            this.body.getChild("doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot * rightRot(falling.tardis().get().door()));
         }
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
@@ -176,8 +176,8 @@ public class CapsuleExteriorModel extends SimpleExteriorModel {
                     : 0.0F;
         } else {
             float maxRot = 90f;
-            this.body.getChild("doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot * tardis.door().getLeftRot());
-            this.body.getChild("doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot * tardis.door().getRightRot());
+            this.body.getChild("doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot * leftRot(tardis.door()));
+            this.body.getChild("doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot * rightRot(tardis.door()));
         }
 
         if (isBOTI) {

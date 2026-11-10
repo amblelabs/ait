@@ -1,5 +1,7 @@
 package dev.amble.ait.core.blocks;
 
+import dev.amble.ait.core.blockentities.WallMonitorBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -20,9 +22,6 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.blockentities.WallMonitorBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
 
 public class WallMonitorBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
     protected static final VoxelShape SHAPE = Block.createCuboidShape(-0.25 * 16, 0.125 * 16, 0.875 * 16, 1.25 * 16,

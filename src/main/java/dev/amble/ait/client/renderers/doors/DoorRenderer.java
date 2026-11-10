@@ -1,6 +1,24 @@
 package dev.amble.ait.client.renderers.doors;
 
+import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.boti.BOTI;
+import dev.amble.ait.client.models.AnimatedModel;
+import dev.amble.ait.client.models.doors.CapsuleDoorModel;
+import dev.amble.ait.client.models.doors.exclusive.DoomDoorModel;
+import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.ClientRenderPass;
+import dev.amble.ait.client.util.OffScreenCull;
+import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.compat.iris.IrisCompat;
+import dev.amble.ait.core.blockentities.DoorBlockEntity;
+import dev.amble.ait.core.blocks.DoorBlock;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.handler.BiomeHandler;
+import dev.amble.ait.data.datapack.DatapackConsole;
+import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
+import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -17,22 +35,6 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 
-import dev.amble.ait.api.tardis.TardisComponent;
-import dev.amble.ait.client.boti.BOTI;
-import dev.amble.ait.client.models.AnimatedModel;
-import dev.amble.ait.client.models.doors.CapsuleDoorModel;
-import dev.amble.ait.client.models.doors.exclusive.DoomDoorModel;
-import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.compat.DependencyChecker;
-import dev.amble.ait.core.blockentities.DoorBlockEntity;
-import dev.amble.ait.core.blocks.DoorBlock;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.BiomeHandler;
-import dev.amble.ait.data.datapack.DatapackConsole;
-import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
-import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
-
 public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRenderer<T> {
 
     private ClientExteriorVariantSchema variant;
@@ -45,6 +47,15 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
                        int light, int overlay) {
         if (entity.getWorld() == null) return;
+
+        Profiler profiler = entity.getWorld().getProfiler();
+        profiler.visit("ait_door_dispatched");
+
+        if (!ClientRenderPass.shouldDraw(entity)) {
+            profiler.visit("ait_door_duplicate_skipped");
+            return;
+        }
+
         if (!entity.isLinked()) {
             BlockState blockState = entity.getCachedState();
             float k = blockState.get(DoorBlock.FACING).asRotation();
@@ -60,7 +71,6 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
             return;
         }
 
-        Profiler profiler = entity.getWorld().getProfiler();
         profiler.push("door");
 
         ClientTardis tardis = entity.tardis().get().asClient();
@@ -74,13 +84,21 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
                             VertexConsumerProvider vertexConsumers, int light, int overlay, float tickDelta) {
         this.updateModel(tardis);
 
+        double doorScale = maxScale(tardis.stats().getScale());
+
+        if (this.model != null && OffScreenCull.sphereBehindCamera(entity, this.model.getPart(),
+                0.5, 0.0, 0.5, doorScale, doorScale)) {
+            profiler.visit("ait_door_offscreen_skipped");
+            return;
+        }
+
         BlockState blockState = entity.getCachedState();
         float k = blockState.get(DoorBlock.FACING).asRotation();
 
         Identifier texture = this.variant.texture();
 
         if (this.variant.equals(ClientExteriorVariantRegistry.DOOM))
-            texture = tardis.door().isOpen() ? DoomDoorModel.DOOM_DOOR_OPEN : DoomDoorModel.DOOM_DOOR;
+            texture = tardis.door().isVisuallyOpen() ? DoomDoorModel.DOOM_DOOR_OPEN : DoomDoorModel.DOOM_DOOR;
 
         matrices.push();
         matrices.translate(0.5, 0, 0.5);
@@ -138,7 +156,7 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
             float green = alarms ? !power ? 0.01f : 0.3f : t;
             float blue = alarms ? !power ? 0.01f : 0.3f : u;
 
-            model.renderWithAnimations(tardis, entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission(), true)),
+            model.renderWithAnimations(tardis, entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission())),
                     0xf000f0, OverlayTexture.DEFAULT_UV, red, green, blue, colorAlpha, tickDelta);
         }
 
@@ -161,11 +179,15 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
             }
         }
 
-        if ((tardis.door().getLeftRot() > 0 || this.variant.hasTransparentDoors()) && !tardis.isGrowth() && !AITModClient.skipBuiltInBOTI())
+        if (!IrisCompat.isRenderingShadowPass() && (tardis.door().isVisuallyOpen() || this.variant.hasTransparentDoors()) && !tardis.isGrowth() && !AITModClient.skipBuiltInBOTI())
             BOTI.DOOR_RENDER_QUEUE.add(entity);
 
         matrices.pop();
         profiler.pop();
+    }
+
+    private static double maxScale(Vector3f scale) {
+        return Math.max(1.0, Math.max(scale.x(), Math.max(scale.y(), scale.z())));
     }
 
     private void updateModel(Tardis tardis) {
@@ -174,7 +196,7 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
 
         if (this.variant != variant) {
             this.variant = variant;
-            this.model = variant.getDoor().model();
+            this.model = variant.getDoor().getCachedModel();
         }
     }
 

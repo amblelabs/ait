@@ -1,18 +1,6 @@
 // Made with Blockbench 4.9.3
 package dev.amble.ait.client.models.consoles;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.model.*;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.animation.Animation;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.animation.console.toyota.ToyotaAnimations;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
@@ -24,6 +12,17 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.model.*;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.animation.Animation;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RotationAxis;
 
 public class ToyotaConsoleModel extends SimpleConsoleModel {
     private final ModelPart toyota;
@@ -1640,12 +1639,17 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
     }
 
     @Override
+    protected void applyRootTransform(MatrixStack matrices) {
+        super.applyRootTransform(matrices);
+        matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
+    }
+
+    @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = !AITModClient.CONFIG.animateControls ? 1.0f : 0.1f * client.getTickDelta();
+        float delta = this.controlDelta();
         matrices.push();
-        matrices.translate(0.5f, -1.5f, -0.5f);
-        matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
+        this.applyRootTransform(matrices);
 
         // Throttle
         ModelPart throttle = this.toyota.getChild("panel4").getChild("controls4").getChild("throttle");
@@ -1773,7 +1777,7 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
         return switch (state) {
             case MAT, DEMAT, FLIGHT -> ToyotaAnimations.CONSOLE_TOYOTA_FLIGHT;
             case LANDED -> ToyotaAnimations.CONSOLE_TOYOTA_IDLE;
-            default -> Animation.Builder.create(0).build();
+            default -> NO_ANIMATION;
         };
     }
 

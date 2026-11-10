@@ -1,5 +1,14 @@
 package dev.amble.ait.core.blocks;
 
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
+import dev.amble.ait.core.item.HammerItem;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.data.schema.console.type.CopperType;
+import dev.amble.ait.data.schema.console.type.CrystallineType;
+import dev.amble.lib.api.ICantBreak;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,16 +40,6 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
-
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
-import dev.amble.ait.core.item.HammerItem;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.data.schema.console.type.CopperType;
-import dev.amble.ait.data.schema.console.type.CrystallineType;
-import dev.amble.lib.api.ICantBreak;
 
 public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEntityProvider, ICantBreak {
 

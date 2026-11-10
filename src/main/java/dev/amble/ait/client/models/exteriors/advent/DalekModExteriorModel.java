@@ -1,16 +1,16 @@
 package dev.amble.ait.client.models.exteriors.advent;
 
-import net.minecraft.client.model.*;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-
 import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
+
+import net.minecraft.client.model.*;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 
 public class DalekModExteriorModel extends SimpleExteriorModel {
     private final ModelPart dalekmod;
@@ -83,8 +83,8 @@ public class DalekModExteriorModel extends SimpleExteriorModel {
                     ? 5F
                     : 0.0F;
         } else {
-            this.dalekmod.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(80f*door.getLeftRot());
-            this.dalekmod.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(80f*door.getRightRot());
+            this.dalekmod.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(80f*leftRot(door));
+            this.dalekmod.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(80f*rightRot(door));
         }
 
         if (isBOTI) {
@@ -115,8 +115,8 @@ public class DalekModExteriorModel extends SimpleExteriorModel {
                     : 0.0F;
         } else {
             float maxRot = 80;
-            this.dalekmod.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*door.getLeftRot());
-            this.dalekmod.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(maxRot*door.getRightRot());
+            this.dalekmod.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*leftRot(door));
+            this.dalekmod.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(maxRot*rightRot(door));
         }
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);

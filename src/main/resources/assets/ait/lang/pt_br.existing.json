@@ -833,7 +833,6 @@
   "yacl3.config.ait:client.temperatureType.unit.kelvin": "Kelvin (K)",
   "yacl3.config.ait:server.category.server": "AIT (Servidor)",
   "yacl3.config.ait:server.crashSoundVolume": "Volume do som de colisão da TARDIS",
-  "yacl3.config.ait:server.disableSafeguards": "Desativar Salva-guardas",
   "yacl3.config.ait:server.ghostMonument": "Monumento Fantasma",
   "yacl3.config.ait:server.hypercubesEnabled": "Ativar Hipercubos?",
   "yacl3.config.ait:server.lockDimensions": "Bloquear dimensões?",

@@ -2,15 +2,6 @@ package dev.amble.ait.core.tardis.handler;
 
 import java.util.function.Consumer;
 
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.ArtronHolderItem;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
@@ -19,11 +10,20 @@ import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.data.properties.Property;
 import dev.amble.ait.data.properties.Value;
 import dev.amble.ait.registry.impl.SonicRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public class SonicHandler extends KeyedTardisComponent implements ArtronHolderItem, TardisTickable {
 
@@ -35,16 +35,23 @@ public class SonicHandler extends KeyedTardisComponent implements ArtronHolderIt
                                                                                 // keyhole
     static {
         ServerPlayNetworking.registerGlobalReceiver(CHANGE_SONIC,
-                ServerTardisManager.receiveTardis((tardis, server, player, handler, buf, responseSender) -> {
+                ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
                     Identifier id = buf.readIdentifier();
                     BlockPos pos = buf.readBlockPos();
                     server.execute(() -> {
                         if (!tardis.isUnlocked(SonicRegistry.getInstance().get(id))) return;
 
+                        if (!tardis.world().isChunkLoaded(pos)) return;
+
                         if (!(tardis.world().getBlockEntity(pos) instanceof ConsoleBlockEntity consoleBlockEntity)) return;
 
-                        SonicItem.setSchema(consoleBlockEntity.getSonicScrewdriver(), id);});
-                }));
+                        ItemStack sonic = consoleBlockEntity.getSonicScrewdriver();
+
+                        if (sonic.isEmpty()) return;
+
+                        SonicItem.setSchema(sonic, id);
+                    });
+                })));
         TardisEvents.DEMAT.register(tardis ->
                 tardis.sonic().getExteriorSonic() != null ? TardisEvents.Interaction.FAIL : TardisEvents.Interaction.PASS);
     }

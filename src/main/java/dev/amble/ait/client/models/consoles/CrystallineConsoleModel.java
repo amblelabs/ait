@@ -1,17 +1,5 @@
 package dev.amble.ait.client.models.consoles;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.model.*;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.animation.Animation;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.animation.console.crystalline.CrystallineAnimations;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
@@ -23,6 +11,17 @@ import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.model.*;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.animation.Animation;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RotationAxis;
 
 public class CrystallineConsoleModel extends SimpleConsoleModel {
     private final ModelPart console;
@@ -1210,9 +1209,9 @@ public class CrystallineConsoleModel extends SimpleConsoleModel {
 
     @Override
     public void renderWithAnimations(ConsoleBlockEntity console, ClientTardis tardis, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha) {
-        float delta = !AITModClient.CONFIG.animateControls ? 1.0f : 0.1f * client.getTickDelta();
+        float delta = this.controlDelta();
         matrices.push();
-        matrices.translate(0.5f, -1.5f, -0.5f);
+        this.applyRootTransform(matrices);
 
         // Throttle Control
         ModelPart throttle = this.console.getChild("pannel2").getChild("pillars2").getChild("pillars3").getChild("leveer2");

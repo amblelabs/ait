@@ -14,16 +14,17 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: main
           token: ${{ secrets.BOT_TOKEN }} # use bot token for pushing
 
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
-          distribution: temurin
-          java-version: 21
+          java-version: '21'
+          distribution: 'microsoft'
+          cache: 'gradle'
 
       - name: Run Spotless Apply
         run: ./gradlew spotlessApply
@@ -36,6 +37,7 @@ jobs:
           if [[ -n "$(git status --porcelain)" ]]; then
             git add .
             git commit -m "chore: apply spotless formatting"
+            git pull --rebase origin main
             git push origin main
           else
             echo "No changes to commit."

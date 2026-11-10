@@ -1,5 +1,18 @@
 package dev.amble.ait.core.item.sonic;
 
+import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.item.SonicItem;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.control.Control;
+import dev.amble.ait.core.tardis.control.impl.HADSControl;
+import dev.amble.ait.core.tardis.control.impl.HandBrakeControl;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.data.Loyalty;
+import dev.amble.ait.data.schema.sonic.SonicSchema;
+
 import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.CreeperEntity;
@@ -21,19 +34,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
-
-import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.item.SonicItem;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.control.Control;
-import dev.amble.ait.core.tardis.control.impl.HADSControl;
-import dev.amble.ait.core.tardis.control.impl.HandBrakeControl;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.data.Loyalty;
-import dev.amble.ait.data.schema.sonic.SonicSchema;
 
 public class OverloadSonicMode extends SonicMode {
 
@@ -160,6 +160,9 @@ public class OverloadSonicMode extends SonicMode {
             playFx(world, pos);
             return;
         }
+
+        if (!(user instanceof PlayerEntity player) || !world.canPlayerModifyAt(player, pos)) return;
+        if (!player.canModifyBlocks() && !(block instanceof LeverBlock)) return;
 
         if (block instanceof DaylightDetectorBlock) {
             activateBlock(world, pos, user, state, blockHit);

@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import dev.amble.ait.core.util.StackUtil;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.core.util.StackUtil;
 
 public class Blueprint {
     private final BlueprintSchema source;

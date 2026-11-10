@@ -1,13 +1,5 @@
 package dev.amble.ait.client.renderers.decoration;
 
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.RotationAxis;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.decoration.SnowGlobeModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
@@ -17,6 +9,14 @@ import dev.amble.ait.core.blocks.SnowGlobeBlock;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
+
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.block.entity.BlockEntityRenderer;
+import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.RotationAxis;
 
 public class SnowGlobeRenderer<T extends SnowGlobeBlockEntity> implements BlockEntityRenderer<T> {
     public static final Identifier SNOW_GLOBE_TEXTURE = new Identifier(AITMod.MOD_ID,
@@ -42,7 +42,7 @@ public class SnowGlobeRenderer<T extends SnowGlobeBlockEntity> implements BlockE
         ExteriorModel model = schema.model();
 
         model.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(schema.texture())), light, overlay, 1, 1, 1, 1);
-        model.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(schema.emission(), true)), 0xf000f0, overlay, 1, 1, 1, 1);
+        model.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(schema.emission())), 0xf000f0, overlay, 1, 1, 1, 1);
         model.render(matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityCutoutNoCullZOffset(schema.overrides().get(BiomeHandler.BiomeType.SNOWY), false)), light, overlay, 1, 1, 1, 1);
 
         matrices.pop();

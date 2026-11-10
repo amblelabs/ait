@@ -1,7 +1,13 @@
 package dev.amble.ait.core.item;
 
 import java.util.List;
+import java.util.UUID;
 
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.item.TooltipContext;
@@ -9,7 +15,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -18,12 +23,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.api.tardis.link.LinkableItem;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 // todo fix so many issues with having more than one of this item
 public class SiegeTardisItem extends LinkableItem {
@@ -59,8 +58,9 @@ public class SiegeTardisItem extends LinkableItem {
             return;
         }
 
-        if (!tardis.siege().isActive()) {
+        if (!tardis.siege().isSiegeBeingHeld()) {
             tardis.setSiegeBeingHeld(null);
+            stack.setCount(0);
             return;
         }
 
@@ -68,10 +68,6 @@ public class SiegeTardisItem extends LinkableItem {
             tardis.siege().setSiegeBeingHeld(player.getUuid());
 
         tardis.travel().forcePosition(fromEntity(entity));
-
-        if (!tardis.isSiegeBeingHeld()) {
-            tardis.setSiegeBeingHeld(entity.getUuid());
-        }
     }
 
 
@@ -92,7 +88,7 @@ public class SiegeTardisItem extends LinkableItem {
         if (tardis == null)
             return ActionResult.CONSUME;
 
-        if (!tardis.siege().isActive()) {
+        if (!tardis.siege().isSiegeBeingHeld()) {
             tardis.setSiegeBeingHeld(null);
             return ActionResult.SUCCESS;
         }
@@ -103,9 +99,9 @@ public class SiegeTardisItem extends LinkableItem {
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        NbtCompound tag = stack.getOrCreateNbt();
-        String text = tag.contains("tardis-uuid")
-                ? tag.getUuid("tardis-uuid").toString().substring(0, 8)
+        UUID id = this.getTardisId(stack);
+        String text = id != null
+                ? id.toString().substring(0, 8)
                 : Text.translatable("tooltip.ait.remoteitem.notardis").getString();
 
         tooltip.add(Text.literal("→ " + text).formatted(Formatting.BLUE));
@@ -122,7 +118,7 @@ public class SiegeTardisItem extends LinkableItem {
     }
 
     public static void pickupTardis(Tardis tardis, ServerPlayerEntity player) {
-        if (tardis.travel().handbrake())
+        if (tardis.travel().handbrake() || player.getInventory().getEmptySlot() == -1)
             return;
 
         tardis.travel().deleteExterior();

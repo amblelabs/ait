@@ -1,15 +1,15 @@
 package dev.amble.ait.client.models.exteriors;
 
+import dev.amble.ait.api.tardis.link.v2.Linkable;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
+
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.api.tardis.link.v2.Linkable;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
 
 public class PipeExteriorModel extends SimpleExteriorModel {
     private final ModelPart tardis;
@@ -51,7 +51,7 @@ public class PipeExteriorModel extends SimpleExteriorModel {
 
         if (tardis == null) return;
 
-        this.tardis.pivotY = !tardis.door().isOpen() ? 22F : 8f;
+        this.tardis.pivotY = !tardis.door().isVisuallyOpen() ? 22F : 8f;
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
         matrices.pop();
@@ -64,6 +64,6 @@ public class PipeExteriorModel extends SimpleExteriorModel {
 
     @Override
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
-        this.tardis.pivotY = !tardis.door().isOpen() ? -14F : 0;
+        this.tardis.pivotY = !tardis.door().isVisuallyOpen() ? -14F : 0;
     }
 }

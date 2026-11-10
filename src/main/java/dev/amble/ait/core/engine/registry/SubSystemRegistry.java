@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import com.google.gson.*;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.lib.register.Registry;

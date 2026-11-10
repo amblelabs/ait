@@ -1,7 +1,11 @@
 package dev.amble.ait.client.renderers.entities;
 
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.boti.BOTI;
+import dev.amble.ait.compat.portal.PortalsAPI;
+import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -10,10 +14,6 @@ import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.boti.BOTI;
-import dev.amble.ait.core.entities.BOTIPaintingEntity;
 
 @Environment(value=EnvType.CLIENT)
 public class TrenzalorePaintingEntityRenderer
@@ -26,7 +26,7 @@ public class TrenzalorePaintingEntityRenderer
 
     @Override
     public void render(BOTIPaintingEntity paintingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
-        if (!AITModClient.skipPaintingBOTI()) BOTI.TRENZALORE_PAINTING_QUEUE.add(paintingEntity);
+        if (!AITModClient.skipPaintingBOTI() && !PortalsAPI.RENDERING_PORTAL.getAsBoolean()) BOTI.TRENZALORE_PAINTING_QUEUE.add(paintingEntity);
     }
 
     @Override

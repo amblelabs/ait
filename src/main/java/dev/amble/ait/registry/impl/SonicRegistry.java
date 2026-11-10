@@ -7,13 +7,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.data.datapack.DatapackSonic;
 import dev.amble.ait.data.schema.sonic.BuiltinSonic;
 import dev.amble.ait.data.schema.sonic.SonicSchema;
 import dev.amble.lib.register.unlockable.UnlockableRegistry;
+
+import net.minecraft.util.Identifier;
 
 public class SonicRegistry extends UnlockableRegistry<SonicSchema> {
 

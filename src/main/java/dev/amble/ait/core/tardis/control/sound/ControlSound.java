@@ -9,12 +9,6 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
-import net.minecraft.registry.Registries;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.control.Control;
@@ -22,6 +16,11 @@ import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.registry.impl.ControlRegistry;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.lib.api.Identifiable;
+
+import net.minecraft.registry.Registries;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Identifier;
 
 /**
  * Represents a sound that is played when a control is used

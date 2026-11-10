@@ -1,15 +1,15 @@
 package dev.amble.ait.client.models.doors;
 
+import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.tardis.handler.DoorHandler;
+
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.tardis.ClientTardis;
-import dev.amble.ait.core.tardis.handler.DoorHandler;
 
 public class TardimDoorModel extends DoorModel {
 
@@ -67,8 +67,8 @@ public class TardimDoorModel extends DoorModel {
             float maxRot = 90f;
 
             DoorHandler handler = tardis.door();
-            this.tardis.getChild("left_door").yaw = (float) -Math.toRadians(maxRot*handler.getLeftRot());
-            this.tardis.getChild("right_door").yaw = (float) Math.toRadians(maxRot*handler.getRightRot());
+            this.tardis.getChild("left_door").yaw = (float) -Math.toRadians(maxRot*leftRot(handler, tickDelta));
+            this.tardis.getChild("right_door").yaw = (float) Math.toRadians(maxRot*rightRot(handler, tickDelta));
         }
 
         super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);

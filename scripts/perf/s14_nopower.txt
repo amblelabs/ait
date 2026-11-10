@@ -1,0 +1,8 @@
+# 5 exteriors with power cut. The emission branch is gated on power or alarms, so this is the
+# other half of the alarm scenario.
+ait perf-state power false
+SLEEP 6
+ait perf-verify
+ait profile-client @a
+SLEEP 15
+ait perf-state power true

@@ -8,15 +8,14 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.compat.permissionapi.PermissionAPICompat;
 import dev.amble.ait.core.commands.argument.TardisArgumentType;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.handler.StatsHandler;
+
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.Text;
 
 public class ScaleCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
@@ -32,7 +31,7 @@ public class ScaleCommand {
     private static int runCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerTardis tardis = TardisArgumentType.getTardis(context, "tardis");
         if (tardis == null) {
-            context.getSource().sendError(Text.of("Tardis not found."));
+            context.getSource().sendError(Text.translatable("command.ait.scale.not_found"));
             return 0;
         }
         double x = DoubleArgumentType.getDouble(context, "x");

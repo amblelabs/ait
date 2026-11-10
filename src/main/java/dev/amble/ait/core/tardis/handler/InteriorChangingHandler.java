@@ -3,8 +3,35 @@ package dev.amble.ait.core.tardis.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.KeyedTardisComponent;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.api.tardis.TardisTickable;
+import dev.amble.ait.core.AITDamageTypes;
+import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.advancement.TardisCriterions;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.lock.LockedDimension;
+import dev.amble.ait.core.lock.LockedDimensionRegistry;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.data.Exclude;
+import dev.amble.ait.data.properties.Property;
+import dev.amble.ait.data.properties.Value;
+import dev.amble.ait.data.properties.bool.BoolProperty;
+import dev.amble.ait.data.properties.bool.BoolValue;
+import dev.amble.ait.data.properties.integer.IntProperty;
+import dev.amble.ait.data.properties.integer.IntValue;
+import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
+import dev.amble.ait.registry.impl.CategoryRegistry;
+import dev.amble.ait.registry.impl.DesktopRegistry;
+import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedGlobalPos;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -25,33 +52,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.KeyedTardisComponent;
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.api.tardis.TardisTickable;
-import dev.amble.ait.core.AITDamageTypes;
-import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.advancement.TardisCriterions;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.lock.LockedDimension;
-import dev.amble.ait.core.lock.LockedDimensionRegistry;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.properties.Property;
-import dev.amble.ait.data.properties.Value;
-import dev.amble.ait.data.properties.bool.BoolProperty;
-import dev.amble.ait.data.properties.bool.BoolValue;
-import dev.amble.ait.data.properties.integer.IntProperty;
-import dev.amble.ait.data.properties.integer.IntValue;
-import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
-import dev.amble.ait.registry.impl.CategoryRegistry;
-import dev.amble.ait.registry.impl.DesktopRegistry;
-import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
-import dev.amble.lib.data.DirectedGlobalPos;
 
 public class InteriorChangingHandler extends KeyedTardisComponent implements TardisTickable {
     public static final Identifier CHANGE_DESKTOP = AITMod.id("change_desktop");
@@ -121,18 +121,20 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         TardisEvents.LOSE_POWER.register(tardis -> tardis.interiorChangingHandler().queued.set(false));
 
         ServerPlayNetworking.registerGlobalReceiver(InteriorChangingHandler.CHANGE_DESKTOP,
-                ServerTardisManager.receiveTardis(((tardis, server, player, handler, buf, responseSender) -> {
+                ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
                     TardisDesktopSchema desktop = DesktopRegistry.getInstance().get(buf.readIdentifier());
 
-                    if (tardis == null || desktop == null)
-                        return;
+                    server.execute(() -> {
+                        if (tardis == null || desktop == null || !tardis.isUnlocked(desktop))
+                            return;
 
-                    if (tardis.travel().getState() != TravelHandler.State.LANDED)
-                        return;
+                        if (tardis.travel().getState() != TravelHandler.State.LANDED)
+                            return;
 
-                    TardisCriterions.REDECORATE.trigger(player);
-                    tardis.interiorChangingHandler().queueInteriorChange(desktop);
-                    tardis.alarm().enable();
+                        TardisCriterions.REDECORATE.trigger(player);
+                        tardis.interiorChangingHandler().queueInteriorChange(desktop);
+                        tardis.alarm().enable();
+                    });
                 })));
     }
 
@@ -204,19 +206,11 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
         if (travel.getState() == TravelHandler.State.FLIGHT && !travel.isCrashing() && !tardis.isGrowth())
             travel.crash();
-
-        restorationChestContents = new ArrayList<>();
-
-        for (SubSystem system : tardis.subsystems()) {
-            if (!system.isReal())
-                continue;
-
-            restorationChestContents.addAll(system.toStacks());
-            AITMod.LOGGER.debug("Storing Subsystem, {} ({}) => {}", system.getId(), system.isEnabled(), system.toStacks());
-        }
     }
 
     private void changeInterior() {
+        restorationChestContents = new ArrayList<>();
+
         tardis.getDesktop().changeInterior(this.getQueuedInterior(), true, true)
                 .thenRun(() -> {
                     this.queued.set(false);
@@ -256,6 +250,14 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         BlockPos pos = position.getPos();
 
         world.playSound(null, pos, AITSounds.TARDIS_BLING, SoundCategory.BLOCKS, 10.0F, 1.0F);
+    }
+
+    public boolean addRestorationStack(ItemStack stack) {
+        if (restorationChestContents == null || !tardis.getDesktop().isChanging())
+            return false;
+
+        restorationChestContents.add(stack);
+        return true;
     }
 
     private void restoreSubsystemsToConsole() {

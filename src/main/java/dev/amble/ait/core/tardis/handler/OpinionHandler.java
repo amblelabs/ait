@@ -3,13 +3,13 @@ package dev.amble.ait.core.tardis.handler;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.core.likes.ItemOpinionRegistry;
 import dev.amble.ait.core.likes.Opinion;
 import dev.amble.ait.core.likes.OpinionCache;
 import dev.amble.ait.data.Exclude;
+
+import net.minecraft.util.Identifier;
 
 public class OpinionHandler extends KeyedTardisComponent {
     private static final int MAX_ITEM_LIKES = 4;

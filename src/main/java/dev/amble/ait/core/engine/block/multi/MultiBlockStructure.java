@@ -5,23 +5,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.structure.StructureTemplate;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.mixin.server.structure.StructureTemplateAccessor;
 import dev.amble.lib.util.ServerLifecycleHooks;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.structure.StructureTemplate;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 
 public class MultiBlockStructure extends ArrayList<MultiBlockStructure.BlockOffset> {
     public static final MultiBlockStructure EMPTY = new MultiBlockStructure();
@@ -75,17 +72,6 @@ public class MultiBlockStructure extends ArrayList<MultiBlockStructure.BlockOffs
         Optional<BlockOffset> prev = this.remove(offset.offset);
         this.add(offset);
         return prev;
-    }
-
-    public List<ItemStack> toStacks() {
-        SimpleInventory inv = new SimpleInventory(256);
-        for (BlockOffset blockOffset : this) {
-            for (ItemStack stack : blockOffset.toStacks()) {
-                inv.addStack(stack);
-            }
-        }
-
-        return inv.clearToList();
     }
 
     public static MultiBlockStructure testInteriorRendering(Identifier structure) {
@@ -194,14 +180,6 @@ public class MultiBlockStructure extends ArrayList<MultiBlockStructure.BlockOffs
                     "block=" + block +
                     ", offset=" + offset +
                     '}';
-        }
-
-        public List<ItemStack> toStacks() {
-            List<ItemStack> stacks = new ArrayList<>();
-            for (Block block : this.block) {
-                stacks.add(new ItemStack(block));
-            }
-            return stacks;
         }
 
         public static List<BlockOffset> corners(Block block, int x, int y, int z) {

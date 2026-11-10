@@ -1,5 +1,6 @@
 package dev.amble.ait.mixin.compat.gravity;
 
+import dev.amble.ait.core.entities.ConsoleControlEntity;
 import gravity_changer.EntityTags;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -7,8 +8,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.entity.Entity;
-
-import dev.amble.ait.core.entities.ConsoleControlEntity;
 
 @Mixin(EntityTags.class)
 public class EntityTagsMixin {

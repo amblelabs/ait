@@ -1,14 +1,13 @@
 package dev.amble.ait.data.schema.console.variant.alnico.client;
 
-import org.joml.Vector3f;
-
-import net.minecraft.util.Identifier;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.models.consoles.AlnicoConsoleModel;
 import dev.amble.ait.client.models.consoles.SimpleConsoleModel;
 import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
 import dev.amble.ait.data.schema.console.variant.alnico.AlnicoVariant;
+import org.joml.Vector3f;
+
+import net.minecraft.util.Identifier;
 
 public class ClientAlnicoVariant extends ClientConsoleVariantSchema {
     public static final Identifier TEXTURE = new Identifier(AITMod.MOD_ID,

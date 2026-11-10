@@ -1,13 +1,13 @@
 package dev.amble.ait.client.models.doors;
 
+import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.tardis.ClientTardis;
+
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.client.tardis.ClientTardis;
 
 public class StallionDoorModel extends DoorModel {
     private final ModelPart body;
@@ -82,8 +82,8 @@ public class StallionDoorModel extends DoorModel {
             float maxLeftRot = 87f;
             float maxRightRot = 150f;
 
-            body.getChild("door").yaw = -(float) Math.toRadians(maxLeftRot*tardis.door().getLeftRot());
-            body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(maxRightRot*tardis.door().getLeftRot());
+            body.getChild("door").yaw = -(float) Math.toRadians(maxLeftRot*leftRot(tardis.door(), tickDelta));
+            body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(maxRightRot*leftRot(tardis.door(), tickDelta));
         }
 
         super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);

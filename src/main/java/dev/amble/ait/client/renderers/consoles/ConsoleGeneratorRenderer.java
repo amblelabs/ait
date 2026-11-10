@@ -1,5 +1,14 @@
 package dev.amble.ait.client.renderers.consoles;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.consoles.BedrockConsoleModel;
+import dev.amble.ait.client.models.consoles.ConsoleGeneratorModel;
+import dev.amble.ait.client.models.consoles.ConsoleModel;
+import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.data.datapack.DatapackConsole;
+import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
+import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import org.joml.Matrix4f;
 
 import net.minecraft.client.MinecraftClient;
@@ -15,17 +24,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.consoles.BedrockConsoleModel;
-import dev.amble.ait.client.models.consoles.ConsoleGeneratorModel;
-import dev.amble.ait.client.models.consoles.ConsoleModel;
-import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.data.datapack.DatapackConsole;
-import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
-import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
-import dev.amble.ait.registry.impl.console.variant.ClientConsoleVariantRegistry;
+import net.minecraft.util.profiler.Profiler;
 
 public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> implements BlockEntityRenderer<T> {
 
@@ -49,6 +48,19 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
         if (entity.getWorld() == null || !entity.isLinked())
             return;
 
+        Profiler profiler = entity.getWorld().getProfiler();
+        profiler.push("console_generator");
+        profiler.visit("ait_generator_drawn");
+
+        this.render0(entity, profiler, matrices, vertexConsumers, light, overlay);
+
+        profiler.pop();
+    }
+
+    private void render0(T entity, Profiler profiler, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
+            int light, int overlay) {
+        profiler.push("setup");
+
         Tardis tardis = entity.tardis().get();
 
         ConsoleVariantSchema variant = entity.getConsoleVariant();
@@ -57,6 +69,8 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
         ConsoleModel console = clientVariant.getCachedModel();
         Identifier consoleTexture = clientVariant.texture();
         Identifier consoleEmission = clientVariant.emission();
+
+        profiler.swap("frame_model");
 
         matrices.push();
 
@@ -67,6 +81,8 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
                 overlay, 1, 1, 1, 1);
 
         matrices.pop();
+
+        profiler.swap("hologram");
 
         matrices.push();
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
@@ -82,24 +98,23 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
         //if (powered) {
             if (tardis.isUnlocked(entity.getConsoleVariant())) {
                 console.render(matrices,
-                        vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleTexture) :
-                                RenderLayer.getEntityTranslucentCull(consoleTexture)), 0xf000f0, overlay, 0.3607843137f,
+                        vertexConsumers.getBuffer(clientVariant.hologramLayer(consoleTexture)), 0xf000f0, overlay, 0.3607843137f,
                         0.9450980392f, 1, entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
                 if (consoleEmission != null && !consoleEmission.equals(DatapackConsole.EMPTY)) {
                     console.render(matrices,
-                            vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleTexture) :
-                                    RenderLayer.getEntityTranslucentCull(consoleEmission)), 0xf000f0, overlay, 0.3607843137f,
+                            vertexConsumers.getBuffer(clientVariant.hologramLayer(consoleEmission)), 0xf000f0, overlay, 0.3607843137f,
                             0.9450980392f, 1, entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
                 }
             } else {
                 console.render(matrices,
-                        vertexConsumers.getBuffer(entity.getConsoleVariant().getClient().equals(ClientConsoleVariantRegistry.COPPER) ? RenderLayer.getEntityTranslucent(consoleTexture) :
-                                RenderLayer.getEntityTranslucentCull(consoleTexture)), light,
+                        vertexConsumers.getBuffer(clientVariant.hologramLayer(consoleTexture)), light,
                         OverlayTexture.DEFAULT_UV, 0.2f, 0.2f, 0.2f,
                         entity.getWorld().random.nextInt(32) != 6 ? 0.4f : 0.05f);
             }
         //}
         matrices.pop();
+
+        profiler.swap("label");
 
         matrices.push();
         matrices.translate(0.5F, 2.75F, 0.5F);
@@ -112,8 +127,10 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
 
         if (/*powered && */!tardis.isUnlocked(entity.getConsoleVariant())) {
             Text text = Text.literal("\uD83D\uDD12");
-            Text requirement = Text.literal("Requires Loyalty Level: " + (entity.getConsoleVariant().requirement().isPresent() ?
-                    entity.getConsoleVariant().requirement().get().type() : "None"));
+            Text requirementLevel = entity.getConsoleVariant().requirement().isPresent()
+                    ? entity.getConsoleVariant().requirement().get().type().text()
+                    : Text.translatable("console.ait.generator.requirement.none");
+            Text requirement = Text.translatable("console.ait.generator.requires_loyalty", requirementLevel);
             float h = (float) (-textRenderer.getWidth(text) / 2);
             float p = (float) (-textRenderer.getWidth(requirement) / 2);
 
@@ -141,5 +158,7 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
                     TextRenderer.TextLayerType.SEE_THROUGH, 0x000000, 0xf000f0);
             matrices.pop();
         }
+
+        profiler.pop();
     }
 }

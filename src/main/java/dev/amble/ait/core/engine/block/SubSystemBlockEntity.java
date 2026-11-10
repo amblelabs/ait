@@ -1,19 +1,20 @@
 package dev.amble.ait.core.engine.block;
 
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 import dev.amble.ait.core.engine.registry.SubSystemRegistry;
 import dev.amble.ait.core.util.SoundData;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public class SubSystemBlockEntity extends FluidLinkBlockEntity {
     protected SubSystem.IdLike id;
@@ -53,6 +54,14 @@ public class SubSystemBlockEntity extends FluidLinkBlockEntity {
 
         if (this.system() == null) return;
         this.system().setEnabled(false);
+    }
+
+    @Override
+    public void onBroken(World world, BlockPos pos) {
+        super.onBroken(world, pos);
+
+        if (this.isLinked())
+            this.tardis().get().interiorChanging().addRestorationStack(new ItemStack(this.getCachedState().getBlock()));
     }
 
     @Override

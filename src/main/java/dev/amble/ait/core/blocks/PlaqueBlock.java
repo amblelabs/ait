@@ -1,5 +1,9 @@
 package dev.amble.ait.core.blocks;
 
+import dev.amble.ait.core.blockentities.PlaqueBlockEntity;
+import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
+import dev.amble.ait.core.util.ShapeUtil;
+import dev.amble.ait.data.ShapeMap;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -22,14 +26,11 @@ import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
-import dev.amble.ait.core.blockentities.PlaqueBlockEntity;
-import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
-import dev.amble.ait.core.util.ShapeUtil;
-
 public class PlaqueBlock extends HorizontalDirectionalBlock implements BlockEntityProvider {
 
     protected static final VoxelShape SHAPE = Block.createCuboidShape(-0.25 * 16, 0.125 * 16, 0.875 * 16, 1.25 * 16,
             0.875 * 16, 16);
+    private static final ShapeMap SHAPES = ShapeUtil.rotations(Direction.NORTH, SHAPE).build();
 
     public PlaqueBlock(Settings settings) {
         super(settings);
@@ -38,7 +39,7 @@ public class PlaqueBlock extends HorizontalDirectionalBlock implements BlockEnti
 
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return ShapeUtil.rotate(Direction.NORTH, state.get(FACING), SHAPE);
+        return SHAPES.get(state.get(FACING));
     }
 
     @Override
@@ -53,7 +54,7 @@ public class PlaqueBlock extends HorizontalDirectionalBlock implements BlockEnti
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return ShapeUtil.rotate(Direction.NORTH, state.get(FACING), SHAPE);
+        return SHAPES.get(state.get(FACING));
     }
 
     @Override

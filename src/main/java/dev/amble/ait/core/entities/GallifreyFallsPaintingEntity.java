@@ -1,5 +1,6 @@
 package dev.amble.ait.core.entities;
 
+import dev.amble.ait.core.AITItems;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.Entity;
@@ -9,8 +10,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.AITItems;
 
 
 public class GallifreyFallsPaintingEntity extends BOTIPaintingEntity {

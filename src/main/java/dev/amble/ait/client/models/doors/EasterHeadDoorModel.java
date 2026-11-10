@@ -1,12 +1,12 @@
 package dev.amble.ait.client.models.doors;
 
 
+import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
+import dev.amble.ait.client.tardis.ClientTardis;
+
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
-
-import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
-import dev.amble.ait.client.tardis.ClientTardis;
 
 public class EasterHeadDoorModel extends DoorModel {
     private final ModelPart bottom;
@@ -42,7 +42,7 @@ public class EasterHeadDoorModel extends DoorModel {
         matrices.push();
         matrices.translate(0, -1.5f, 0);
 
-        this.bottom.pivotY = tardis.door().isOpen() ? 22 : 54;
+        this.bottom.pivotY = tardis.door().isVisuallyOpen() ? 22 : 54;
 
         super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);
 

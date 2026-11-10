@@ -1,5 +1,11 @@
 package dev.amble.ait.client.renderers.decoration;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.client.models.decoration.PlaqueModel;
+import dev.amble.ait.core.blockentities.PlaqueBlockEntity;
+import dev.amble.ait.core.blocks.PlaqueBlock;
+import dev.amble.ait.core.tardis.Tardis;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -12,12 +18,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.client.models.decoration.PlaqueModel;
-import dev.amble.ait.core.blockentities.PlaqueBlockEntity;
-import dev.amble.ait.core.blocks.PlaqueBlock;
-import dev.amble.ait.core.tardis.Tardis;
 
 public class PlaqueRenderer<T extends PlaqueBlockEntity> implements BlockEntityRenderer<T> {
 
@@ -66,8 +66,9 @@ public class PlaqueRenderer<T extends PlaqueBlockEntity> implements BlockEntityR
         this.textRenderer.drawWithOutline(Text.of(tardis.stats().getCreationString()).asOrderedText(),
                 xVal - ((float) this.textRenderer.getWidth(tardis.stats().getCreationString()) / 2), 35, 0xFFFFFF,
                 0x000000, matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
-        this.textRenderer.drawWithOutline(Text.of(entity.getPlaqueText()).asOrderedText(),
-                xVal - ((float) this.textRenderer.getWidth(entity.getPlaqueText()) / 2), 55, 0xFFFFFF, 0x000000,
+        Text plaqueTypeText = entity.getPlaqueText();
+        this.textRenderer.drawWithOutline(plaqueTypeText.asOrderedText(),
+                xVal - ((float) this.textRenderer.getWidth(plaqueTypeText) / 2), 55, 0xFFFFFF, 0x000000,
                 matrices.peek().getPositionMatrix(), vertexConsumers, 0xF000F0);
         this.textRenderer.drawWithOutline(Text.of(tardis.stats().getName()).asOrderedText(),
                 xVal - ((float) this.textRenderer.getWidth(tardis.stats().getName()) / 2), 75, 0xFFFFFF, 0x000000,

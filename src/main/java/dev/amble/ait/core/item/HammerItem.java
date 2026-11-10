@@ -1,5 +1,14 @@
 package dev.amble.ait.core.item;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.blocks.PeanutBlock;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
+import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.core.tardis.util.TardisUtil;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -19,15 +28,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
-import dev.amble.ait.core.blocks.PeanutBlock;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
-import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
-import dev.amble.ait.core.tardis.util.TardisUtil;
 
 public class HammerItem extends SwordItem {
 
@@ -62,6 +62,9 @@ public class HammerItem extends SwordItem {
             return ActionResult.PASS;
 
         Tardis tardis = consoleBlockEntity.tardis().get();
+
+        if (SecurityControl.cannotAccess(tardis.asServer(), (ServerPlayerEntity) player))
+            return ActionResult.PASS;
 
         TravelHandler travel = tardis.travel();
 
@@ -116,7 +119,6 @@ public class HammerItem extends SwordItem {
         int hammerUses = travel.getHammerUses();
 
         double fuel = tardis.fuel().getCurrentFuel();
-        double maxFuel = tardis.fuel().getMaxFuel();
 
         double fuelCost = bonus / 5.0;
 
@@ -125,7 +127,7 @@ public class HammerItem extends SwordItem {
             fuelCost += (150 * travel.speed() * hammerUses) / 7.0;
         }
 
-        if (!world.isClient() && fuel + fuelCost > maxFuel) {
+        if (!world.isClient() && fuel < fuelCost) {
             travel.crash();
 
             tardis.fuel().setCurrentFuel(0.0);

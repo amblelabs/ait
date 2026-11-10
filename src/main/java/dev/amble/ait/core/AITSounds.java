@@ -2,12 +2,12 @@ package dev.amble.ait.core;
 
 import java.util.List;
 
+import dev.amble.ait.AITMod;
+
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
-
-import dev.amble.ait.AITMod;
 
 public class AITSounds {
     // public static final SoundEvent SECRET_MUSIC = init("music/secret_music"); // removed for its large size - if you bring it back, COMPRESS IT

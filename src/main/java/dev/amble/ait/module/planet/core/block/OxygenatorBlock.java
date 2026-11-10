@@ -1,5 +1,6 @@
 package dev.amble.ait.module.planet.core.block;
 
+import dev.amble.ait.module.planet.core.blockentities.OxygenatorBlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,8 +12,6 @@ import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import dev.amble.ait.module.planet.core.blockentities.OxygenatorBlockEntity;
 
 public class OxygenatorBlock extends BlockWithEntity {
     public OxygenatorBlock(Settings settings) {

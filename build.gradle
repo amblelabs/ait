@@ -1,5 +1,5 @@
 plugins {
-    id "fabric-loom" version "$loom_version"
+    id "net.fabricmc.fabric-loom-remap" version "$loom_version"
     id "maven-publish"
 
     id "com.diffplug.spotless" version "8.8.0"
@@ -65,6 +65,18 @@ loom {
     accessWidenerPath = file("src/main/resources/ait.accesswidener")
 
     runs {
+        // Loom swaps in an LWJGL 3.3.2 snapshot on some platforms, which Sodium's early driver scan
+        // rejects (it wants exactly 3.3.1). The mismatch is harmless in dev, so skip the check.
+        client {
+            vmArg "-Dsodium.checks.issue2561=false"
+        }
+
+        // The client keeps the default run/ so an existing setup still applies. The dedicated server
+        // needs its own, or the two race on run/logs/latest.log and run/debug/profiling/.
+        server {
+            runDir "run/server"
+        }
+
         // This adds a new gradle task that runs the datagen API
         datagen {
             inherit server
@@ -76,6 +88,8 @@ loom {
             runDir "build/datagen"
         }
     }
+
+    runs.configureEach { preferGradleTask.set(true) }
 }
 
 // Add the generated resources to the main source set
@@ -118,6 +132,7 @@ dependencies {
     modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 
     modCompileOnly "maven.modrinth:k9-mod:${project.k9_version}"
+    modCompileOnly "maven.modrinth:iris:1.7.0+1.20.1"
 
     modImplementation("mezz.jei:jei-${project.minecraft_version}-fabric-api:${project.jei_version}")
 
@@ -166,7 +181,7 @@ tasks.withType(JavaCompile).configureEach {
 java {
     withSourcesJar()
 
-    sourceCompatibility = JavaVersion.VERSION_22
+    sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
 

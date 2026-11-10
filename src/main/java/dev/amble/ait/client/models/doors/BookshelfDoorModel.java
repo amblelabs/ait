@@ -1,13 +1,13 @@
 package dev.amble.ait.client.models.doors;
 
-import net.minecraft.client.model.*;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
+
+import net.minecraft.client.model.*;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.util.math.MatrixStack;
 
 public class BookshelfDoorModel extends DoorModel {
     private final ModelPart bookshelf;
@@ -52,8 +52,8 @@ public class BookshelfDoorModel extends DoorModel {
             this.bookshelf.getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen()) ? -4.75F : 0.0F;
         } else {
             float maxRot = 90f;
-            this.bookshelf.getChild("left_door").yaw = (float) Math.toRadians(maxRot*door.getRightRot());
-            this.bookshelf.getChild("right_door").yaw = (float) -Math.toRadians(maxRot*door.getLeftRot());
+            this.bookshelf.getChild("left_door").yaw = (float) Math.toRadians(maxRot*rightRot(door, tickDelta));
+            this.bookshelf.getChild("right_door").yaw = (float) -Math.toRadians(maxRot*leftRot(door, tickDelta));
         }
 
         matrices.push();

@@ -11,17 +11,17 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import org.joml.Vector3f;
-
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.control.ControlTypes;
 import dev.amble.ait.data.codec.MoreCodec;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
+import org.joml.Vector3f;
+
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 
 // Example usage
 /*
@@ -194,6 +194,11 @@ public class DatapackConsole extends ConsoleVariantSchema implements TravelAnima
         @Override
         public ControlTypes[] getControlTypes() {
             return controls.toArray(new ControlTypes[0]);
+        }
+
+        @Override
+        public Text text() {
+            return Text.literal(this.name());
         }
 
         public void register() {

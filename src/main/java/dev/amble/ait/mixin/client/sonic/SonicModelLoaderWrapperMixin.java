@@ -1,5 +1,6 @@
 package dev.amble.ait.mixin.client.sonic;
 
+import dev.amble.ait.client.sonic.SonicResourceFinder;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -10,8 +11,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.render.model.ModelLoader;
 import net.minecraft.resource.ResourceFinder;
-
-import dev.amble.ait.client.sonic.SonicResourceFinder;
 
 @Mixin(ModelLoader.class)
 public class SonicModelLoaderWrapperMixin {

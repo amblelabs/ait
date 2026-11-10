@@ -3,6 +3,30 @@ package dev.amble.ait.core.tardis.util;
 import java.util.*;
 import java.util.function.Predicate;
 
+import dev.amble.ait.AITMod;
+import dev.amble.ait.api.ExtraPushableEntity;
+import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.blockentities.DoorBlockEntity;
+import dev.amble.ait.core.entities.FlightTardisEntity;
+import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.TardisDesktop;
+import dev.amble.ait.core.tardis.handler.FuelHandler;
+import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.ait.core.util.WorldUtil;
+import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.ait.data.Loyalty;
+import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
+import dev.amble.ait.mixin.lookup.EntityTrackingSectionAccessor;
+import dev.amble.ait.mixin.lookup.SectionedEntityCacheAccessor;
+import dev.amble.ait.mixin.lookup.SimpleEntityLookupAccessor;
+import dev.amble.ait.mixin.lookup.WorldInvoker;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
+import dev.amble.lib.data.DirectedBlockPos;
+import dev.amble.lib.util.ServerLifecycleHooks;
+import dev.amble.lib.util.TeleportUtil;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -22,7 +46,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TypeFilter;
@@ -34,30 +57,6 @@ import net.minecraft.world.entity.EntityLike;
 import net.minecraft.world.entity.EntityTrackingSection;
 import net.minecraft.world.explosion.Explosion;
 import net.minecraft.world.explosion.ExplosionBehavior;
-
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.ExtraPushableEntity;
-import dev.amble.ait.api.tardis.TardisEvents;
-import dev.amble.ait.core.AITSounds;
-import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.blockentities.DoorBlockEntity;
-import dev.amble.ait.core.entities.FlightTardisEntity;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisDesktop;
-import dev.amble.ait.core.tardis.handler.FuelHandler;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.util.WorldUtil;
-import dev.amble.ait.core.world.TardisServerWorld;
-import dev.amble.ait.data.Loyalty;
-import dev.amble.ait.mixin.lookup.EntityTrackingSectionAccessor;
-import dev.amble.ait.mixin.lookup.SectionedEntityCacheAccessor;
-import dev.amble.ait.mixin.lookup.SimpleEntityLookupAccessor;
-import dev.amble.ait.mixin.lookup.WorldInvoker;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.lib.data.DirectedBlockPos;
-import dev.amble.lib.util.ServerLifecycleHooks;
-import dev.amble.lib.util.TeleportUtil;
 
 @SuppressWarnings("unused")
 public class TardisUtil {
@@ -77,6 +76,10 @@ public class TardisUtil {
             return super.canDestroyBlock(explosion, world, pos, state, power);
         }
     };
+    // a crossbow arrow (3.15 a tick) times the door's 1.2 stretch, rounded up
+    public static final double DOOR_REACH = 4;
+    // noclip things never reach a block's collision callback, riders go with their vehicle
+    public static final Predicate<Entity> CAN_PASS_DOOR = entity -> !entity.noClip && !entity.hasVehicle();
 
     public static boolean doCreateFire(World world) {
         return world.getGameRules().getBoolean(AITMod.TARDIS_FIRE_GRIEFING);
@@ -212,7 +215,7 @@ public class TardisUtil {
     public static void teleportOutside(Tardis tardis, Entity entity) {
         TardisEvents.LEAVE_TARDIS.invoker().onLeave(tardis, entity);
         TardisUtil.teleportWithDoorOffset(tardis.travel().position().getWorld(), entity,
-                tardis.travel().position().toPos());
+                tardis.travel().position().toPos(), tardis.getDesktop().getDoorPos(), tardis.getExterior().getVariant());
     }
 
     public static void dropOutside(Tardis tardis, Entity entity) {
@@ -241,7 +244,8 @@ public class TardisUtil {
 
     public static void teleportInside(ServerTardis tardis, Entity entity) {
         if (TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity) == TardisEvents.Interaction.FAIL) return;
-        TardisUtil.teleportWithDoorOffset(tardis.world(), entity, tardis.getDesktop().getDoorPos());
+        TardisUtil.teleportWithDoorOffset(tardis.world(), entity, tardis.getDesktop().getDoorPos(),
+                tardis.travel().position().toPos(), tardis.getExterior().getVariant());
     }
 
     public static void teleportToInteriorPosition(ServerTardis tardis, Entity entity, BlockPos pos) {
@@ -255,7 +259,8 @@ public class TardisUtil {
         }
     }
 
-    private static void teleportWithDoorOffset(ServerWorld world, Entity entity, DirectedBlockPos directed) {
+    private static void teleportWithDoorOffset(ServerWorld world, Entity entity, DirectedBlockPos directed,
+                                               DirectedBlockPos from, ExteriorVariantSchema variant) {
         if (!AITMod.CONFIG.tntCanTeleportThroughDoors && entity instanceof TntEntity) {
             return;
         }
@@ -287,17 +292,45 @@ public class TardisUtil {
                 if (entity.getType().isIn(AITTags.EntityTypes.BOSS))
                     return;
 
-                if (entity.getWorld().getRegistryKey() == world.getRegistryKey()) {
-                    entity.refreshPositionAndAngles(offset(vec, directed, -0.5f).x, vec.y,
-                            offset(vec, directed, -0.5f).z,
-                            RotationPropertyHelper.toDegrees(directed.getRotation()) + (isDoor ? 0 : 180f),
-                            entity.getPitch());
-                } else {
-                    entity.teleport(world, offset(vec, directed, -0.5f).x, vec.y, offset(vec, directed, -0.5f).z,
-                            Set.of(),
-                            RotationPropertyHelper.toDegrees(directed.getRotation()) + (isDoor ? 0 : 180f),
-                            entity.getPitch());
+                float yaw = RotationPropertyHelper.toDegrees(directed.getRotation()) + (isDoor ? 0 : 180f);
+
+                float turn = (RotationPropertyHelper.toDegrees(from.getRotation()) - RotationPropertyHelper.toDegrees(directed.getRotation())) * MathHelper.RADIANS_PER_DEGREE;
+                Vec3d rel = entity.getPos().subtract(offset(isDoor ? TardisUtil.offsetDoorPosition(from).add(0, 0.125, 0)
+                        : TardisUtil.offsetInteriorDoorPos(from), from, -0.5f)).rotateY(turn);
+
+                double cos = MathHelper.cos(yaw * MathHelper.RADIANS_PER_DEGREE);
+                double sin = MathHelper.sin(yaw * MathHelper.RADIANS_PER_DEGREE);
+                double half = Math.max(0, (variant.portalWidth() - entity.getWidth()) / 2);
+                double side = MathHelper.clamp(rel.x * cos + rel.z * sin, -half, half);
+
+                Vec3d to = offset(vec, directed, -0.5f).add(side * cos,
+                        MathHelper.clamp(rel.y, 0, Math.max(0, variant.portalHeight() - entity.getHeight())), side * sin);
+
+                Vec3d heading = new Vec3d(-sin, 0, cos);
+                double reach = (1 + entity.getWidth()) / 2 * (Math.abs(sin) + Math.abs(cos));
+                Vec3d front = to.add(heading.multiply(Math.max(0, reach - to.subtract(pos.toCenterPos()).dotProduct(heading))));
+
+                for (int i = 0; i <= 16; i++) {
+                    Vec3d at = front.add(heading.multiply(i / 16d));
+
+                    if (world.isSpaceEmpty(entity, entity.getDimensions(entity.getPose()).getBoxAt(at))) {
+                        to = at;
+                        break;
+                    }
                 }
+
+                entity.setVelocity(entity.getVelocity().rotateY(turn));
+
+                if (entity.getWorld().getRegistryKey() == world.getRegistryKey()) {
+                    entity.refreshPositionAndAngles(to.x, to.y, to.z, yaw, entity.getPitch());
+                } else {
+                    entity.teleport(world, to.x, to.y, to.z, Set.of(), yaw, entity.getPitch());
+                }
+
+                Entity moved = world.getEntity(entity.getUuid());
+
+                if (moved != null)
+                    moved.velocityModified = true;
             }
             if (entity instanceof ExtraPushableEntity pushable)
                 Scheduler.get().runTaskLater(() -> pushable.ait$setPushBehaviour(TriState.DEFAULT),
