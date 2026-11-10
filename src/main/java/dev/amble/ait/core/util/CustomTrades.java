@@ -3,6 +3,8 @@ package dev.amble.ait.core.util;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITVillagers;
+import dev.amble.ait.core.item.blueprint.BlueprintItem;
+import dev.amble.ait.core.item.blueprint.BlueprintRegistry;
 import dev.amble.ait.module.planet.core.PlanetBlocks;
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
 
@@ -88,7 +90,7 @@ public class CustomTrades {
 
             factories.add((entity, random) -> new TradeOffer(
                     new ItemStack(Items.EMERALD, 2 + random.nextInt(2)),
-                    new ItemStack(AITItems.BLUEPRINT, 1),
+                    BlueprintItem.createStack(BlueprintRegistry.getInstance().getRandom()),
                     1, 4, 0.35f));
 
             factories.add((entity, random) -> new TradeOffer(
