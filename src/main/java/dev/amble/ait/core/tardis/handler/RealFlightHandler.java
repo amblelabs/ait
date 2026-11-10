@@ -130,6 +130,7 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
 
         tardis.travel().forcePosition(cached -> cached.rotation((byte) RotationPropertyHelper.fromYaw(player.getYaw()))
                 .world(player.getServerWorld()));
+        tardis.travel().forceDestination(tardis.travel().position());
         tardis.travel().placeExterior(false);
 
         tardis.travel().finishRemat();
@@ -140,6 +141,7 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
 
         tardis.travel().speed(0);
         tardis.travel().forcePosition(cached -> cached.world(world.getRegistryKey()).pos(pos));
+        tardis.travel().forceDestination(tardis.travel().position());
         tardis.travel().placeExterior(false);
 
         tardis.travel().finishRemat();

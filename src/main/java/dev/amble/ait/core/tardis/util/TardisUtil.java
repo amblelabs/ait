@@ -9,6 +9,7 @@ import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.AITTags;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
+import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
@@ -228,10 +229,30 @@ public class TardisUtil {
                 pos.getZ() + value * (double) directed.getVector().getZ());
     }
 
+    private static DirectedBlockPos exteriorDirectedPos(Tardis tardis) {
+        CachedDirectedGlobalPos position = tardis.travel().position();
+        ServerWorld world = position.getWorld();
+
+        if (world != null) {
+            BlockState state = world.getBlockState(position.getPos());
+
+            if (state.getBlock() instanceof ExteriorBlock) {
+                byte rotation = (byte) (int) state.get(ExteriorBlock.ROTATION);
+
+                if (rotation != position.getRotation())
+                    tardis.travel().forcePosition(cached -> cached.rotation(rotation));
+
+                return DirectedBlockPos.create(position.getPos(), rotation);
+            }
+        }
+
+        return position.toPos();
+    }
+
     public static void teleportOutside(Tardis tardis, Entity entity) {
         TardisEvents.LEAVE_TARDIS.invoker().onLeave(tardis, entity);
         TardisUtil.teleportWithDoorOffset(tardis.travel().position().getWorld(), entity,
-                tardis.travel().position().toPos(), tardis.getDesktop().getDoorPos(), tardis.getExterior().getVariant());
+                exteriorDirectedPos(tardis), tardis.getDesktop().getDoorPos(), tardis.getExterior().getVariant());
     }
 
     public static void dropOutside(Tardis tardis, Entity entity) {
@@ -261,7 +282,7 @@ public class TardisUtil {
     public static void teleportInside(ServerTardis tardis, Entity entity) {
         if (TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity) == TardisEvents.Interaction.FAIL) return;
         TardisUtil.teleportWithDoorOffset(tardis.world(), entity, tardis.getDesktop().getDoorPos(),
-                tardis.travel().position().toPos(), tardis.getExterior().getVariant());
+                exteriorDirectedPos(tardis), tardis.getExterior().getVariant());
     }
 
     public static void teleportToInteriorPosition(ServerTardis tardis, Entity entity, BlockPos pos) {
