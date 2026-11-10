@@ -287,7 +287,6 @@ public class TardisUtil {
 
                 float yaw = RotationPropertyHelper.toDegrees(directed.getRotation()) + (isDoor ? 0 : 180f);
 
-                // carry the offset in the doorway and the motion over, turned from the other door's frame into this one
                 float turn = (RotationPropertyHelper.toDegrees(from.getRotation()) - RotationPropertyHelper.toDegrees(directed.getRotation())) * MathHelper.RADIANS_PER_DEGREE;
                 Vec3d rel = entity.getPos().subtract(offset(isDoor ? TardisUtil.offsetDoorPosition(from).add(0, 0.125, 0)
                         : TardisUtil.offsetInteriorDoorPos(from), from, -0.5f)).rotateY(turn);
@@ -300,8 +299,6 @@ public class TardisUtil {
                 Vec3d to = offset(vec, directed, -0.5f).add(side * cos,
                         MathHelper.clamp(rel.y, 0, Math.max(0, variant.portalHeight() - entity.getHeight())), side * sin);
 
-                // diagonal exteriors put that spot on the box's edge and anything over the door's block walks back in,
-                // so start wholly in front of that block and step out along the heading until clear of the box
                 Vec3d heading = new Vec3d(-sin, 0, cos);
                 double reach = (1 + entity.getWidth()) / 2 * (Math.abs(sin) + Math.abs(cos));
                 Vec3d front = to.add(heading.multiply(Math.max(0, reach - to.subtract(pos.toCenterPos()).dotProduct(heading))));
@@ -323,7 +320,6 @@ public class TardisUtil {
                     entity.teleport(world, to.x, to.y, to.z, Set.of(), yaw, entity.getPitch());
                 }
 
-                // the copy's spawn packet doesn't always carry its motion, sync it through the tracker
                 Entity moved = world.getEntity(entity.getUuid());
 
                 if (moved != null)
