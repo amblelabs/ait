@@ -36,6 +36,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationPropertyHelper;
@@ -63,6 +64,8 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
         Tardis tardis = door.tardis().get();
 
+        door.tickDoorway(world, tardis);
+
         if (world.getServer().getTicks() % 5 != 0)
             return;
 
@@ -80,7 +83,6 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
 
         BlockState blockstate1 = blockState.with(DoorBlock.LEVEL_4, exteriorWorld.getLightLevel(exteriorPos.up()));
 
-        // exit early for light updates
         if (world.getServer().getTicks() % 20 != 0) {
             if (!open) {
                 blockstate1 = blockstate1.with(DoorBlock.LEVEL_4, 0);
@@ -110,7 +112,6 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
         if (!(exteriorState.getBlock() instanceof ExteriorBlock))
             return;
 
-        // TODO: performance sink. this should ideally be done in the exterior block code...
         boolean waterlogged = exteriorWorld.getBlockState(exteriorPos).get(Properties.WATERLOGGED);
 
         world.setBlockState(pos, blockState.with(Properties.WATERLOGGED, waterlogged),
@@ -138,7 +139,7 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
                 tardis.door().interactToggleLock((ServerPlayerEntity) player);
             } else {
                 world.playSound(null, pos, SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.BLOCKS, 1F, 0.2F);
-                player.sendMessage(Text.translatable("tardis.key.identity_error"), true); // TARDIS does not identify with key
+                player.sendMessage(Text.translatable("tardis.key.identity_error"), true);
             }
 
             return;
@@ -165,6 +166,21 @@ public class DoorBlockEntity extends InteriorLinkableBlockEntity {
     @Nullable @Override
     public Packet<ClientPlayPacketListener> toUpdatePacket() {
         return BlockEntityUpdateS2CPacket.create(this);
+    }
+
+    private void tickDoorway(World world, Tardis tardis) {
+        if (tardis.door().isClosed() || tardis.siege().isActive()
+                || (DependencyChecker.hasPortals() && AITMod.CONFIG.allowPortalsBoti && tardis.getExterior().getVariant().hasPortals()))
+            return;
+
+        BlockPos pos = this.getPos();
+        Box door = this.getCachedState().getOutlineShape(world, pos).getBoundingBox().offset(pos);
+        door = door.withMaxY(Math.max(door.maxY, pos.getY() + tardis.getExterior().getVariant().portalHeight()));
+
+        for (Entity entity : world.getOtherEntities(null, door.expand(TardisUtil.DOOR_REACH, 0, TardisUtil.DOOR_REACH), TardisUtil.CAN_PASS_DOOR)) {
+            if (entity.getPos().squaredDistanceTo(entity.prevX, entity.prevY, entity.prevZ) != 0 && DoorBlock.reaches(entity, door))
+                this.onEntityCollision(entity);
+        }
     }
 
     public void onEntityCollision(Entity entity) {
