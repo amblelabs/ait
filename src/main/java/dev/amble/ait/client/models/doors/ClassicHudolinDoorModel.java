@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.doors;
 
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
@@ -72,18 +71,9 @@ public class ClassicHudolinDoorModel extends DoorModel {
         matrices.translate(0, -1.5, 0.35);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180));
 
-        if (!AITModClient.CONFIG.animateDoors) {
-            DoorHandler door = tardis.door();
-
-            this.hudolin.getChild("Doors").getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? -5F : 0.0F;
-            this.hudolin.getChild("Doors").getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen())
-                    ? 5F
-                    : 0.0F;
-        } else {
-            float maxRot = 90f;
-            this.hudolin.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*leftRot(tardis.door(), tickDelta));
-            this.hudolin.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(maxRot*rightRot(tardis.door(), tickDelta));
-        }
+        float maxRot = 90f;
+        this.hudolin.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*leftRot(tardis.door(), tickDelta));
+        this.hudolin.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(maxRot*rightRot(tardis.door(), tickDelta));
 
         super.renderWithAnimations(tardis, doorEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);
         matrices.pop();

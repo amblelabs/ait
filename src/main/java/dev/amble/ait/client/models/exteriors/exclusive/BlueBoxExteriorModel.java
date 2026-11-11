@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.exteriors.exclusive;
 
 import dev.amble.ait.api.tardis.link.v2.Linkable;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
@@ -116,14 +115,9 @@ public class BlueBoxExteriorModel extends SimpleExteriorModel {
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
         DoorHandler door = tardis.door();
 
-        if (!AITModClient.CONFIG.animateDoors) {
-            this.left_door2.yaw = (door.isLeftOpen() || door.isOpen()) ? -4.75F : 0.0F;
-            this.left_door2.yaw = (door.isRightOpen() || door.areBothOpen()) ? 4.75F : 0.0F;
-        } else {
-            float maxRot = 90f;
-            this.right_door2.yaw = -(float) Math.toRadians(maxRot * leftRot(door));
-            this.right_door2.yaw = (float) Math.toRadians(maxRot * rightRot(door));
-        }
+        float maxRot = 90f;
+        this.right_door2.yaw = -(float) Math.toRadians(maxRot * leftRot(door));
+        this.right_door2.yaw = (float) Math.toRadians(maxRot * rightRot(door));
     }
 
     @Override

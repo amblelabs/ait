@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.doors;
 
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 
 import net.minecraft.client.model.*;
@@ -75,16 +74,11 @@ public class StallionDoorModel extends DoorModel {
         matrices.translate(0, -1.5f, 0);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
 
-        if (!AITModClient.CONFIG.animateDoors) {
-            body.getChild("door").yaw = tardis.door().isOpen() ? -1.35f : 0f;
-            body.getChild("door").getChild("door_two").yaw = tardis.door().isOpen() ? 2.65f : 0f;
-        } else {
-            float maxLeftRot = 87f;
-            float maxRightRot = 150f;
+        float maxLeftRot = 87f;
+        float maxRightRot = 150f;
 
-            body.getChild("door").yaw = -(float) Math.toRadians(maxLeftRot*leftRot(tardis.door(), tickDelta));
-            body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(maxRightRot*leftRot(tardis.door(), tickDelta));
-        }
+        body.getChild("door").yaw = -(float) Math.toRadians(maxLeftRot*leftRot(tardis.door(), tickDelta));
+        body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(maxRightRot*leftRot(tardis.door(), tickDelta));
 
         super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);
 

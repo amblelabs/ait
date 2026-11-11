@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.doors;
 
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.exteriors.BoothExteriorModel;
 import dev.amble.ait.client.tardis.ClientTardis;
 
@@ -70,12 +69,8 @@ public class BoothDoorModel extends DoorModel {
     public void renderWithAnimations(ClientTardis tardis, AbstractLinkableBlockEntity linkableBlockEntity, ModelPart root, MatrixStack matrices,
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, float tickDelta) {
         matrices.push();
-        if (!AITModClient.CONFIG.animateDoors)
-            this.k2.getChild("Door").yaw = tardis.door().isOpen() ? 1.575F : 0.0F;
-        else {
-            float maxRot = 90f;
-            this.k2.getChild("Door").yaw = (float) Math.toRadians(maxRot*leftRot(tardis.door(), tickDelta));
-        }
+        float maxRot = 90f;
+        this.k2.getChild("Door").yaw = (float) Math.toRadians(maxRot*leftRot(tardis.door(), tickDelta));
 
         matrices.scale(1f, 1f, 1f);
         matrices.translate(0, -1.5f, 0);

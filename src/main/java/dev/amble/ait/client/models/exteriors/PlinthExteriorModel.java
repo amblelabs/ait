@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.exteriors;
 
 import dev.amble.ait.api.tardis.link.v2.Linkable;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 
@@ -60,12 +59,8 @@ public class PlinthExteriorModel extends SimpleExteriorModel {
         matrices.push();
         matrices.translate(0, -1.5f, 0);
 
-        if (!AITModClient.CONFIG.animateDoors)
-            plinth.getChild("door").yaw = falling.tardis().get().door().isOpen() ? -1.75f : 0f;
-        else {
-            float maxRot = 90f;
-            plinth.getChild("door").yaw = (float) Math.toRadians(maxRot*leftRot(falling.tardis().get().door()));
-        }
+        float maxRot = 90f;
+        plinth.getChild("door").yaw = (float) Math.toRadians(maxRot*leftRot(falling.tardis().get().door()));
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
 
@@ -74,12 +69,8 @@ public class PlinthExteriorModel extends SimpleExteriorModel {
 
     @Override
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
-        if (!AITModClient.CONFIG.animateDoors)
-            plinth.getChild("door").yaw = tardis.door().isOpen() ? -1.75f : 0f;
-        else {
-            float maxRot = 90f;
-            plinth.getChild("door").yaw = -(float) Math.toRadians(maxRot*leftRot(tardis.door()));
-        }
+        float maxRot = 90f;
+        plinth.getChild("door").yaw = -(float) Math.toRadians(maxRot*leftRot(tardis.door()));
 
         if (isBOTI) {
             matrices.push();

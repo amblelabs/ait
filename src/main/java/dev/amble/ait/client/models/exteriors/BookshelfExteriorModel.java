@@ -3,7 +3,6 @@ package dev.amble.ait.client.models.exteriors; // Made with Blockbench 4.10.1
 // Paste this class into your mod and generate all required imports
 
 import dev.amble.ait.api.tardis.link.v2.Linkable;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
@@ -175,16 +174,9 @@ public class BookshelfExteriorModel extends SimpleExteriorModel {
         matrices.scale(1F, 1F, 1F);
         matrices.translate(0, -1.5f, 0);
 
-        if (!AITModClient.CONFIG.animateDoors) {
-            DoorHandler door = falling.tardis().get().door();
-
-            this.bookshelf.getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? -4.75F : 0.0F;
-            this.bookshelf.getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen()) ? 4.75F : 0.0F;
-        } else {
-            float maxRot = 90f;
-            this.bookshelf.getChild("left_door").yaw = -(float) Math.toRadians(maxRot * leftRot(falling.tardis().get().door()));
-            this.bookshelf.getChild("right_door").yaw = (float) Math.toRadians(maxRot * rightRot(falling.tardis().get().door()));
-        }
+        float maxRot = 90f;
+        this.bookshelf.getChild("left_door").yaw = -(float) Math.toRadians(maxRot * leftRot(falling.tardis().get().door()));
+        this.bookshelf.getChild("right_door").yaw = (float) Math.toRadians(maxRot * rightRot(falling.tardis().get().door()));
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
         matrices.pop();
@@ -194,14 +186,9 @@ public class BookshelfExteriorModel extends SimpleExteriorModel {
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
         DoorHandler door = tardis.door();
 
-        if (!AITModClient.CONFIG.animateDoors) {
-            this.bookshelf.getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? -4.75F : 0.0F;
-            this.bookshelf.getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen()) ? 4.75F : 0.0F;
-        } else {
-            float maxRot = 90f;
-            this.bookshelf.getChild("left_door").yaw = -(float) Math.toRadians(maxRot * leftRot(door));
-            this.bookshelf.getChild("right_door").yaw = (float) Math.toRadians(maxRot * rightRot(door));
-        }
+        float maxRot = 90f;
+        this.bookshelf.getChild("left_door").yaw = -(float) Math.toRadians(maxRot * leftRot(door));
+        this.bookshelf.getChild("right_door").yaw = (float) Math.toRadians(maxRot * rightRot(door));
 
       if (isBOTI) {
           matrices.push();

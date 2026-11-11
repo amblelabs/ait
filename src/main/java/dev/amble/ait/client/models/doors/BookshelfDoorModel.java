@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.doors;
 
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
@@ -47,14 +46,9 @@ public class BookshelfDoorModel extends DoorModel {
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, float tickDelta) {
         DoorHandler door = tardis.door();
 
-        if (!AITModClient.CONFIG.animateDoors) {
-            this.bookshelf.getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? 4.75F : 0.0F;
-            this.bookshelf.getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen()) ? -4.75F : 0.0F;
-        } else {
-            float maxRot = 90f;
-            this.bookshelf.getChild("left_door").yaw = (float) Math.toRadians(maxRot*rightRot(door, tickDelta));
-            this.bookshelf.getChild("right_door").yaw = (float) -Math.toRadians(maxRot*leftRot(door, tickDelta));
-        }
+        float maxRot = 90f;
+        this.bookshelf.getChild("left_door").yaw = (float) Math.toRadians(maxRot*rightRot(door, tickDelta));
+        this.bookshelf.getChild("right_door").yaw = (float) -Math.toRadians(maxRot*leftRot(door, tickDelta));
 
         matrices.push();
         matrices.scale(1F, 1F, 1F);

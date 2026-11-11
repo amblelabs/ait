@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.exteriors;
 
 import dev.amble.ait.api.tardis.link.v2.Linkable;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
@@ -139,20 +138,11 @@ public class ClassicHudolinExteriorModel extends SimpleExteriorModel {
 
     @Override
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
-        if (!AITModClient.CONFIG.animateDoors) {
-            DoorHandler door = tardis.door();
+        float maxRot = 90f;
 
-            this.classic.getChild("Doors").getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? -5F : 0.0F;
-            this.classic.getChild("Doors").getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen())
-                    ? 5F
-                    : 0.0F;
-        } else {
-            float maxRot = 90f;
-
-            DoorHandler door = tardis.door();
-            this.classic.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot * leftRot(door));
-            this.classic.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot * rightRot(door));
-        }
+        DoorHandler door = tardis.door();
+        this.classic.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot * leftRot(door));
+        this.classic.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot * rightRot(door));
 
         if (isBOTI) {
             matrices.push();
@@ -168,20 +158,11 @@ public class ClassicHudolinExteriorModel extends SimpleExteriorModel {
                                                            VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
         ClientTardis tardis = falling.tardis().get().asClient();
 
-        if (!AITModClient.CONFIG.animateDoors) {
-            DoorHandler door = tardis.door();
+        float maxRot = 90f;
 
-            this.classic.getChild("Doors").getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? -5F : 0.0F;
-            this.classic.getChild("Doors").getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen())
-                    ? 5F
-                    : 0.0F;
-        } else {
-            float maxRot = 90f;
-
-            DoorHandler door = falling.tardis().get().door();
-            this.classic.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot * leftRot(door));
-            this.classic.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot * rightRot(door));
-        }
+        DoorHandler door = falling.tardis().get().door();
+        this.classic.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot * leftRot(door));
+        this.classic.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot * rightRot(door));
 
         matrices.push();
         matrices.scale(0.64F, 0.64F, 0.64F);

@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.doors;
 
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 
 import net.minecraft.client.model.*;
@@ -48,12 +47,8 @@ public class PlinthDoorModel extends DoorModel {
         matrices.translate(0, -1.5f, 0);
         matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(180f));
 
-        if (!AITModClient.CONFIG.animateDoors) {
-            plinth.getChild("door").yaw = tardis.door().isOpen() ? -1.75f : 0f;
-        } else {
-            float maxRot = 90f;
-            plinth.getChild("door").yaw = -(float) Math.toRadians(maxRot*leftRot(tardis.door(), tickDelta));
-        }
+        float maxRot = 90f;
+        plinth.getChild("door").yaw = -(float) Math.toRadians(maxRot*leftRot(tardis.door(), tickDelta));
         super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);
 
         matrices.pop();
