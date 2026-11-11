@@ -68,7 +68,8 @@ public class AITBlocks extends BlockContainer {
     @PickaxeMineable(tool = PickaxeMineable.Tool.IRON)
     public static final Block ENGINE_BLOCK = new EngineBlock(ABlockSettings.create()
             .itemSettings(new AItemSettings().group(AITItemGroups.FABRICATOR)).requiresTool()
-            .instrument(Instrument.BASEDRUM).nonOpaque().strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.IGNORE));
+            .instrument(Instrument.BASEDRUM).nonOpaque().strength(1.5F, 6.0F).pistonBehavior(PistonBehavior.IGNORE)
+            .luminance(state -> state.get(EngineBlock.LIGHT)));
     @PickaxeMineable
     public static final Block CONSOLE_GENERATOR = new ConsoleGeneratorBlock(
             FabricBlockSettings.create().nonOpaque().noBlockBreakParticles().requiresTool().strength(1.5F)

@@ -14,6 +14,8 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.IntProperty;
+import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
@@ -27,12 +29,13 @@ import net.minecraft.world.WorldView;
 
 public class EngineBlock extends SubSystemBlock implements BlockEntityProvider {
     public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
+    public static final IntProperty LIGHT = Properties.LEVEL_15;
 
     protected static final VoxelShape Y_SHAPE = VoxelShapes.fullCube();
 
     public EngineBlock(Settings settings) {
         super(settings, SubSystem.Id.ENGINE);
-        this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH));
+        this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH).with(LIGHT, 0));
     }
 
     @Override
@@ -64,7 +67,7 @@ public class EngineBlock extends SubSystemBlock implements BlockEntityProvider {
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, LIGHT);
     }
 
     @Override
