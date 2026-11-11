@@ -57,12 +57,9 @@ public class RWFOverlay implements HudRenderCallback {
     private static final int POINT_SIZE = 12;
     private static final double NAV_MIN_MOTION = 0.01;
 
-    private static final Identifier NAVBALL_TOP = AITMod.id("textures/gui/tardis/navball/top.png");
-    private static final Identifier NAVBALL_BOTTOM = AITMod.id("textures/gui/tardis/navball/bottom.png");
-    private static final Identifier NAVBALL_SIDE = AITMod.id("textures/gui/tardis/navball/side.png");
-    private static final Identifier NAVBALL_NORTH = AITMod.id("textures/gui/tardis/navball/side_north.png");
-    private static final Identifier NAVBALL_SOUTH = AITMod.id("textures/gui/tardis/navball/side_south.png");
-    private static final Identifier NAVBALL_POINT = AITMod.id("textures/gui/tardis/navball/point.png");
+    private static final Identifier NAVBALL = AITMod.id("textures/gui/tardis/navball.png");
+    private static final int NAVBALL_FRAMES = 6;
+    private static final int NAVBALL_POINT_FRAME = 5;
     private static final float NEEDLE_EASE = 0.25f;
 
     private static final int MINOR_U = 19, MINOR_W = 3, MINOR_H = 4;
@@ -293,8 +290,8 @@ public class RWFOverlay implements HudRenderCallback {
 
         attitudeCube(context, cx, cy);
 
-        context.drawTexture(NAVBALL_POINT, Math.round(cx) - POINT_SIZE / 2, Math.round(cy) - POINT_SIZE / 2, 0, 0,
-                POINT_SIZE, POINT_SIZE, POINT_SIZE, POINT_SIZE);
+        context.drawTexture(NAVBALL, Math.round(cx) - POINT_SIZE / 2, Math.round(cy) - POINT_SIZE / 2,
+                NAVBALL_POINT_FRAME * POINT_SIZE, 0, POINT_SIZE, POINT_SIZE, NAVBALL_FRAMES * POINT_SIZE, POINT_SIZE);
 
         ringMarker(context, cx, cy, MathHelper.lerp(shownThrottle, SPEED_EMPTY, SPEED_FULL), 0xFFFFFFFF);
         ringMarker(context, cx, cy, MathHelper.lerp(shownFuel, FUEL_EMPTY, FUEL_FULL), gaugeColor(shownFuel));
@@ -375,6 +372,11 @@ public class RWFOverlay implements HudRenderCallback {
         RenderSystem.disableCull();
         RenderSystem.disableDepthTest();
 
+        RenderSystem.setShaderTexture(0, NAVBALL);
+
+        BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+
         for (Direction direction : Direction.values()) {
             Vec3d normal = Vec3d.of(direction.getVector());
             float facing = (float) normal.dotProduct(forward);
@@ -384,10 +386,7 @@ public class RWFOverlay implements HudRenderCallback {
 
             int shade = Math.round(255 * (0.6f + 0.4f * facing));
 
-            RenderSystem.setShaderTexture(0, navballTexture(direction));
-
-            BufferBuilder buffer = Tessellator.getInstance().getBuffer();
-            buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+            int frame = navballFrame(direction);
 
             for (int corner = 0; corner < 4; corner++) {
                 float a = corner == 1 || corner == 2 ? 1 : -1;
@@ -411,23 +410,23 @@ public class RWFOverlay implements HudRenderCallback {
                 float sx = cx + (float) point.dotProduct(right) * CUBE_SIZE;
                 float sy = cy - (float) point.dotProduct(up) * CUBE_SIZE;
 
-                buffer.vertex(matrix, sx, sy, 0).texture(u, v).color(shade, shade, shade, 255).next();
+                buffer.vertex(matrix, sx, sy, 0).texture((frame + u) / NAVBALL_FRAMES, v).color(shade, shade, shade, 255).next();
             }
-
-            BufferRenderer.drawWithGlobalProgram(buffer.end());
         }
+
+        BufferRenderer.drawWithGlobalProgram(buffer.end());
 
         RenderSystem.enableDepthTest();
         RenderSystem.enableCull();
     }
 
-    private static Identifier navballTexture(Direction direction) {
+    private static int navballFrame(Direction direction) {
         return switch (direction) {
-            case UP -> NAVBALL_TOP;
-            case DOWN -> NAVBALL_BOTTOM;
-            case NORTH -> NAVBALL_NORTH;
-            case SOUTH -> NAVBALL_SOUTH;
-            default -> NAVBALL_SIDE;
+            case UP -> 0;
+            case DOWN -> 1;
+            case NORTH -> 3;
+            case SOUTH -> 4;
+            default -> 2;
         };
     }
 

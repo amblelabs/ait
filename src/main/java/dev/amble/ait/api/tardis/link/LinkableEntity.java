@@ -16,6 +16,18 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
 
+/**
+ * <h2>IMPORTANT: TARDIS syncing is tied to entity tracking</h2>
+ * Whenever a player starts tracking a linked entity, {@link dev.amble.ait.core.tardis.manager.ServerTardisManager}
+ * sends that player the <b>entire</b> linked TARDIS. Keep two things in mind when writing or using linkable entities:
+ * <ul>
+ *     <li><b>Ordering is not guaranteed.</b> The entity's spawn packet can reach the client before its TARDIS data,
+ *     so client-side code (renderers, models, sounds, HUDs) must not assume {@code tardis().get()} is non-null or
+ *     fully populated on the first ticks or frames after the entity appears.</li>
+ *     <li><b>Every tracked linkable entity costs a full TARDIS sync.</b> Spawning many of them, or ones that
+ *     players start and stop tracking often, repeatedly resends the whole TARDIS. Avoid that.</li>
+ * </ul>
+ */
 public abstract class LinkableEntity extends Entity {
 
     public static final TrackedData<Optional<UUID>> TARDIS_ID  = DataTracker.registerData(

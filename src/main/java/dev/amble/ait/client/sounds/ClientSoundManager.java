@@ -7,7 +7,6 @@ import dev.amble.ait.client.sounds.engine.ClientEngineLoopSoundHandler;
 import dev.amble.ait.client.sounds.fall.ClientFallSoundHandler;
 import dev.amble.ait.client.sounds.flight.ClientFlightHandler;
 import dev.amble.ait.client.sounds.flight.ClientFlightMusicHandler;
-import dev.amble.ait.client.sounds.flight.ClientRealFlightSoundHandler;
 import dev.amble.ait.client.sounds.hum.exterior.ExteriorHumHandler;
 import dev.amble.ait.client.sounds.hum.interior.ClientCreakHandler;
 import dev.amble.ait.client.sounds.hum.interior.ClientHumHandler;
@@ -42,7 +41,6 @@ public class ClientSoundManager {
     private static ClientEngineLoopSoundHandler engineLoopSound;
     private static ExteriorHumHandler exteriorHum;
     private static ClientFlightMusicHandler flightMusic;
-    private static ClientRealFlightSoundHandler realFlight;
 
     public static ClientHumHandler getHum() {
         if (hum == null)
@@ -150,13 +148,6 @@ public class ClientSoundManager {
         return flightMusic;
     }
 
-    public static ClientRealFlightSoundHandler getRealFlight() {
-        if (realFlight == null)
-            realFlight = ClientRealFlightSoundHandler.create();
-
-        return realFlight;
-    }
-
     public static void tick(MinecraftClient client) {
         if (getAlarm() != null)
             getAlarm().tick(client);
@@ -196,9 +187,6 @@ public class ClientSoundManager {
 
         if (getFlightMusic() != null)
             getFlightMusic().tick(client);
-
-        if (getRealFlight() != null)
-            getRealFlight().tick(client);
 
         getExteriorHum().tick(client);
     }

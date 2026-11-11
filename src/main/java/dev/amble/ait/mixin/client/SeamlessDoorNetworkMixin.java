@@ -1,9 +1,10 @@
 package dev.amble.ait.mixin.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.MinecraftClient;
@@ -16,12 +17,12 @@ import dev.amble.ait.client.util.SeamlessDoorTransition;
 @Mixin(ClientPlayNetworkHandler.class)
 public class SeamlessDoorNetworkMixin {
 
-    @Redirect(method = "onPlayerRespawn", at = @At(value = "INVOKE",
+    @WrapOperation(method = "onPlayerRespawn", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/MinecraftClient;setScreen(Lnet/minecraft/client/gui/screen/Screen;)V",
             ordinal = 0))
-    private void ait$skipTerrainScreen(MinecraftClient client, Screen screen) {
+    private void ait$skipTerrainScreen(MinecraftClient client, Screen screen, Operation<Void> original) {
         if (!SeamlessDoorTransition.isActive())
-            client.setScreen(screen);
+            original.call(client, screen);
     }
 
     @Inject(method = "onPlayerPositionLook", at = @At("TAIL"))

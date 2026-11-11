@@ -975,6 +975,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.rwfHudScale", "Real World Flight HUD Scale");
         provider.addTranslation("yacl3.config.ait:client.rwfFovEffect", "Real World Flight FOV Effect");
         provider.addTranslation("yacl3.config.ait:client.rwfCameraTilt", "Real World Flight Camera Tilt");
+        provider.addTranslation("yacl3.config.ait:client.rwfHudScale.desc", "Scales the real world flight HUD.");
+        provider.addTranslation("yacl3.config.ait:client.rwfFovEffect.desc", "How much the field of view widens as you go faster during real world flight. Turn to 0 to disable.");
+        provider.addTranslation("yacl3.config.ait:client.rwfCameraTilt.desc", "How much the camera banks and pitches with your movement during real world flight. Turn to 0 to disable.");
         provider.addTranslation("yacl3.config.ait:client.temperatureType", "Temperature Type");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.celsius", "Celsius (°C)");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.fahrenheit", "Fahrenheit (°F)");

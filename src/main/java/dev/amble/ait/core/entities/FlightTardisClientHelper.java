@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.Perspective;
 
+import dev.amble.ait.client.sounds.flight.FlightTardisSounds;
 import dev.amble.ait.client.util.FlightCameraEffects;
 import dev.amble.ait.core.tardis.Tardis;
 
@@ -18,6 +19,10 @@ public final class FlightTardisClientHelper {
     }
 
     public static void init() {
+        FlightTardisEntity.CLIENT_TICK = FlightTardisClientHelper::clientFlightTick;
+        FlightTardisEntity.CLIENT_LAND = FlightTardisClientHelper::finishLandClient;
+        FlightTardisEntity.CLIENT_SOUNDS = FlightTardisSounds::tick;
+
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (previousPerspective == null)
                 return;

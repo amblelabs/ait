@@ -127,7 +127,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
     }
 
     private void updateModel(Tardis tardis) {
-        if (tardis.getExterior() == null)
+        if (tardis.getExterior() == null) // FIXME: dirty fix for data races
             return;
         ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
 

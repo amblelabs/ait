@@ -68,7 +68,7 @@
     "compat.portals.BlockManipulationClientMixin",
     "compat.portals.ClientTeleportationManagerMixin",
     "rwf.DismountMessageMixin",
-    "rwf.MountHealthMixin"
+    "rwf.FlightHudMixin"
   ],
   "injectors": {
     "defaultRequire": 1

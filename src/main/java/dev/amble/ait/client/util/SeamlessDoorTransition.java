@@ -16,8 +16,6 @@ public final class SeamlessDoorTransition {
     private static boolean pending;
     private static long startedAt;
 
-    private static float yaw;
-    private static float pitch;
     private static Vec3d velocity = Vec3d.ZERO;
 
     private SeamlessDoorTransition() {
@@ -40,8 +38,6 @@ public final class SeamlessDoorTransition {
         pending = true;
         startedAt = System.currentTimeMillis();
 
-        yaw = player.getYaw() + turn;
-        pitch = player.getPitch();
         velocity = player.getVelocity().rotateY(-turn * MathHelper.RADIANS_PER_DEGREE);
     }
 
@@ -58,8 +54,9 @@ public final class SeamlessDoorTransition {
 
         pending = false;
 
-        player.setYaw(yaw);
-        player.setPitch(pitch);
+        float yaw = player.getYaw();
+        float pitch = player.getPitch();
+
         player.prevYaw = yaw;
         player.prevPitch = pitch;
         player.renderYaw = yaw;

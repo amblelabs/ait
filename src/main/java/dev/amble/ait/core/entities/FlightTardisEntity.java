@@ -5,11 +5,12 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.LinkableLivingEntity;
-import dev.amble.ait.client.util.ClientShakeUtil;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITEntityTypes;
 import dev.amble.ait.core.AITSounds;
@@ -84,6 +85,12 @@ import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class FlightTardisEntity extends LinkableLivingEntity implements JumpingMount {
+
+    public static BiConsumer<FlightTardisEntity, Tardis> CLIENT_TICK = (entity, tardis) -> { };
+    public static Runnable CLIENT_LAND = () -> { };
+    public static Consumer<FlightTardisEntity> CLIENT_SOUNDS = entity -> { };
+
+    public Object clientSounds;
 
     private static final List<ItemStack> EMPTY = List.of();
     private static final ItemStack AIR = new ItemStack(Items.AIR);
@@ -207,6 +214,9 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         if (this.getWorld().isClient() && this.isLinked())
             this.tickVisualYaw(this.tardis().get());
 
+        if (this.getWorld().isClient())
+            CLIENT_SOUNDS.accept(this);
+
         PlayerEntity player = this.getPlayer();
 
         if (player == null) {
@@ -232,7 +242,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         this.tickBounce(player);
 
         if (this.getWorld().isClient()) {
-            FlightTardisClientHelper.clientFlightTick(this, tardis);
+            CLIENT_TICK.accept(this, tardis);
             return;
         }
 
@@ -571,8 +581,13 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     }
 
     private boolean intersectsPhaseProof(Box box) {
-        return BlockPos.stream(box.contract(0.001)).anyMatch(pos ->
-                this.getWorld().getBlockState(pos).isIn(AITTags.Blocks.PHASE_PROOF));
+        return BlockPos.stream(box.contract(0.001)).anyMatch(this::isPhaseProof);
+    }
+
+    private boolean isPhaseProof(BlockPos pos) {
+        BlockState state = this.getWorld().getBlockState(pos);
+
+        return state.getHardness(this.getWorld(), pos) < 0 || state.isIn(AITTags.Blocks.PHASE_PROOF);
     }
 
     private Vec3d clampPhaseProofMovement(Vec3d movement) {
@@ -633,7 +648,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     private void finishLand(Tardis tardis, PlayerEntity player) {
         if (this.getWorld().isClient()) {
-            FlightTardisClientHelper.finishLandClient();
+            CLIENT_LAND.run();
             return;
         }
 

@@ -237,7 +237,7 @@ public class TardisUtil {
             BlockState state = world.getBlockState(position.getPos());
 
             if (state.getBlock() instanceof ExteriorBlock) {
-                byte rotation = (byte) (int) state.get(ExteriorBlock.ROTATION);
+                byte rotation = state.get(ExteriorBlock.ROTATION).byteValue();
 
                 if (rotation != position.getRotation())
                     tardis.travel().forcePosition(cached -> cached.rotation(rotation));

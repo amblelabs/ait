@@ -5,7 +5,6 @@ import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.MAX_PLAS
 import java.util.List;
 import java.util.UUID;
 
-import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
@@ -15,7 +14,6 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BrushItem;
@@ -43,6 +41,7 @@ import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITTags;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.engine.impl.EngineSystem;
 import dev.amble.ait.core.item.KeyItem;
@@ -460,7 +459,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
 
         if (travel.getState() == TravelHandlerBase.State.DEMAT) return;
 
-        if (entity instanceof FlightTardisEntity || entity instanceof EnderDragonEntity) return;
+        if (entity.getType().isIn(AITTags.EntityTypes.CANNOT_ENTER_TARDIS)) return;
 
         if (!previouslyLocked && travel.getState() == TravelHandlerBase.State.MAT
                 && travel.getAlpha() >= 0.9F)

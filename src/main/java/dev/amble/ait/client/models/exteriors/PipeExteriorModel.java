@@ -49,7 +49,10 @@ public class PipeExteriorModel extends SimpleExteriorModel {
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
         Tardis tardis = falling.tardis().get();
 
-        if (tardis == null) return;
+        if (tardis == null) {
+            matrices.pop();
+            return;
+        }
 
         this.tardis.pivotY = !tardis.door().isVisuallyOpen() ? 22F : 8f;
 

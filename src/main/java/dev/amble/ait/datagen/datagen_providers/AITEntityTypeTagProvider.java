@@ -22,6 +22,9 @@ public class AITEntityTypeTagProvider extends FabricTagProvider.EntityTypeTagPro
         getOrCreateTagBuilder(AITTags.EntityTypes.NON_DISMOUNTABLE)
                 .add(AITEntityTypes.FLIGHT_TARDIS_TYPE);
 
+        getOrCreateTagBuilder(AITTags.EntityTypes.CANNOT_ENTER_TARDIS)
+                .add(AITEntityTypes.FLIGHT_TARDIS_TYPE).add(EntityType.ENDER_DRAGON);
+
         getOrCreateTagBuilder(AITTags.EntityTypes.BOSS)
                 .add(EntityType.ENDER_DRAGON).add(EntityType.WITHER)
                 .add(EntityType.WARDEN).add(EntityType.ELDER_GUARDIAN);
