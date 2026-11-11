@@ -174,7 +174,7 @@ public class TardisUtil {
 
         Tardis tardis = entity.tardis().get();
 
-        if (tardis == null || !tardis.getUuid().equals(uuid) || !tardis.flight().isFlying())
+        if (tardis == null || !tardis.flight().isFlying() || tardis.getUuid().equals(uuid))
             return null;
 
         return tardis;
