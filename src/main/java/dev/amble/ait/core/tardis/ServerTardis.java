@@ -108,7 +108,8 @@ public class ServerTardis extends Tardis {
     }
 
     public boolean shouldTick() {
-        return !this.travel().isLanded() || (world != null && world.shouldTick()) || this.shouldTickExterior();
+        return !this.travel().isLanded() || (world != null && world.shouldTick()) || this.shouldTickExterior()
+                || this.temperament().needsTick();
     }
 
     public boolean shouldTickExterior() {

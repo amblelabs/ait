@@ -163,6 +163,7 @@ public class SequenceHandler extends KeyedTardisComponent implements TardisTicka
             this.setActiveSequence(null, true);
         } else if (this.getActiveSequence().wasMissed(this.recent, ticks)) {
             recent.clear();
+            this.tardis.temperament().onFlightEventFailed();
             this.getActiveSequence().executeMissed(this.tardis(), this.getActivePlayer());
 
             this.doMissedControlEffects(console);
