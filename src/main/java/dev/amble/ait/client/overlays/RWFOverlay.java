@@ -20,7 +20,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.Heightmap;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.AITModClient;
@@ -54,11 +53,16 @@ public class RWFOverlay implements HudRenderCallback {
     private static final int RING_LABEL = 35;
     private static final float SPEED_EMPTY = 165f, SPEED_FULL = 255f;
     private static final float FUEL_EMPTY = 15f, FUEL_FULL = -75f;
-    private static final float CUBE_SIZE = 8f;
+    private static final float CUBE_SIZE = 10f;
+    private static final int POINT_SIZE = 12;
+    private static final double NAV_MIN_MOTION = 0.01;
 
-    private static final int SKY = 0xFF3FA8E0;
-    private static final int GROUND = 0xFF8A5A2B;
-    private static final int NORTH_MARK = 0xFFE5484D;
+    private static final Identifier NAVBALL_TOP = AITMod.id("textures/gui/tardis/navball/top.png");
+    private static final Identifier NAVBALL_BOTTOM = AITMod.id("textures/gui/tardis/navball/bottom.png");
+    private static final Identifier NAVBALL_SIDE = AITMod.id("textures/gui/tardis/navball/side.png");
+    private static final Identifier NAVBALL_NORTH = AITMod.id("textures/gui/tardis/navball/side_north.png");
+    private static final Identifier NAVBALL_SOUTH = AITMod.id("textures/gui/tardis/navball/side_south.png");
+    private static final Identifier NAVBALL_POINT = AITMod.id("textures/gui/tardis/navball/point.png");
     private static final float NEEDLE_EASE = 0.25f;
 
     private static final int MINOR_U = 19, MINOR_W = 3, MINOR_H = 4;
@@ -78,11 +82,13 @@ public class RWFOverlay implements HudRenderCallback {
 
     private static final int HEADING_SPAN = 120;
     private static final String[] CARDINALS = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
-    private static final int ALT_SPAN = 64;
 
     private static float velocity;
     private static float shownThrottle;
     private static float shownFuel;
+    private static float navYaw;
+    private static float navPitch;
+    private static boolean navReady;
 
     private static float scale = 1f;
     private static int screenWidth;
@@ -95,8 +101,10 @@ public class RWFOverlay implements HudRenderCallback {
         if (client.player == null || client.world == null)
             return;
 
-        if (!(client.player.getVehicle() instanceof FlightTardisEntity entity) || !entity.isLinked())
+        if (!(client.player.getVehicle() instanceof FlightTardisEntity entity) || !entity.isLinked()) {
+            navReady = false;
             return;
+        }
 
         AbstractClientPlayerEntity player = client.player;
         Tardis tardis = entity.tardis().get();
@@ -108,6 +116,8 @@ public class RWFOverlay implements HudRenderCallback {
 
         shownThrottle = MathHelper.lerp(ease, shownThrottle, MathHelper.clamp(tardis.travel().speed() / (float) maxSpeed, 0, 1));
         shownFuel = MathHelper.lerp(ease, shownFuel, (float) MathHelper.clamp(tardis.fuel().getCurrentFuel() / tardis.fuel().getMaxFuel(), 0, 1));
+
+        tickNavball(entity, player, ease);
 
         scale = MathHelper.clamp(AITModClient.CONFIG.rwfHudScale, 0.25f, 4f);
         screenWidth = Math.round(context.getScaledWindowWidth() / scale);
@@ -122,7 +132,7 @@ public class RWFOverlay implements HudRenderCallback {
         bezel(context);
         quarter(context, client.textRenderer, player);
         heading(context, client.textRenderer, player);
-        altitude(context, client.textRenderer, player);
+        altitude(context, client.textRenderer, player, tickDelta);
         dial(context, client.textRenderer, player, tardis, tickDelta);
         statusLights(context, entity, tardis, player);
 
@@ -236,27 +246,40 @@ public class RWFOverlay implements HudRenderCallback {
         context.drawText(font, exact, centre - font.getWidth(exact) / 2, y + 23, TEXT, true);
     }
 
-    private static void altitude(DrawContext context, TextRenderer font, AbstractClientPlayerEntity player) {
+    private static void altitude(DrawContext context, TextRenderer font, AbstractClientPlayerEntity player, float tickDelta) {
         int x = screenWidth - INSET - 2 - TAPE_W;
         int y = (screenHeight - TAPE_H) / 2;
 
         sprite(context, x, y, TAPE_U, TAPE_V, TAPE_W, TAPE_H);
 
-        int altitude = MathHelper.floor(player.getY());
-        int ground = player.getWorld().getTopY(Heightmap.Type.MOTION_BLOCKING, player.getBlockX(), player.getBlockZ());
-        int agl = Math.max(0, altitude - ground);
+        int bottom = player.getWorld().getBottomY();
+        int top = player.getWorld().getTopY();
+        double height = MathHelper.lerp(tickDelta, player.prevY, player.getY());
 
-        float clearance = MathHelper.clamp(agl / (float) ALT_SPAN, 0, 1);
-        int cursorY = y + TAPE_BOTTOM - Math.round(clearance * (TAPE_BOTTOM - TAPE_TOP)) - CURSOR_H / 2;
+        float fraction = (float) MathHelper.clamp((height - bottom) / (top - bottom), 0, 1);
+        float cursorY = y + TAPE_BOTTOM - fraction * (TAPE_BOTTOM - TAPE_TOP) - CURSOR_H / 2f;
 
-        sprite(context, x + 5, cursorY, CURSOR_U, CURSOR_V, CURSOR_W, CURSOR_H);
+        MatrixStack matrices = context.getMatrices();
+        matrices.push();
+        matrices.translate(x + 5, cursorY, 0);
+        sprite(context, 0, 0, CURSOR_U, CURSOR_V, CURSOR_W, CURSOR_H);
+        matrices.pop();
 
-        String aglText = String.valueOf(agl);
-        int aglColor = agl < 6 ? ALERT : agl < 20 ? WARN : GOOD;
-        context.drawText(font, aglText, x - 3 - font.getWidth(aglText), cursorY - 2, aglColor, true);
+        float labelY = cursorY + CURSOR_H / 2f - 4;
 
-        String altText = String.valueOf(altitude);
-        context.drawText(font, altText, x - 3 - font.getWidth(altText), y, TEXT, true);
+        String topText = String.valueOf(top);
+        if (Math.abs(labelY - (y + TAPE_TOP - 4)) >= 9)
+            context.drawText(font, topText, x - 3 - font.getWidth(topText), y + TAPE_TOP - 4, TEXT_DIM, true);
+
+        String bottomText = String.valueOf(bottom);
+        if (Math.abs(labelY - (y + TAPE_BOTTOM - 4)) >= 9)
+            context.drawText(font, bottomText, x - 3 - font.getWidth(bottomText), y + TAPE_BOTTOM - 4, TEXT_DIM, true);
+
+        String current = String.format("%.1f", height);
+        matrices.push();
+        matrices.translate(x - 3 - font.getWidth(current), labelY, 0);
+        context.drawText(font, current, 0, 0, TEXT, true);
+        matrices.pop();
     }
 
     private static void dial(DrawContext context, TextRenderer font, AbstractClientPlayerEntity player, Tardis tardis,
@@ -268,16 +291,13 @@ public class RWFOverlay implements HudRenderCallback {
 
         sprite(context, x, y, DIAL_U, DIAL_V, DIAL_W, DIAL_H);
 
-        attitudeCube(context, cx, cy, player, tickDelta);
+        attitudeCube(context, cx, cy);
 
-        context.fill(Math.round(cx) - 3, Math.round(cy), Math.round(cx) + 4, Math.round(cy) + 1, WARN);
-        context.fill(Math.round(cx), Math.round(cy) - 2, Math.round(cx) + 1, Math.round(cy) + 1, WARN);
+        context.drawTexture(NAVBALL_POINT, Math.round(cx) - POINT_SIZE / 2, Math.round(cy) - POINT_SIZE / 2, 0, 0,
+                POINT_SIZE, POINT_SIZE, POINT_SIZE, POINT_SIZE);
 
         ringMarker(context, cx, cy, MathHelper.lerp(shownThrottle, SPEED_EMPTY, SPEED_FULL), 0xFFFFFFFF);
         ringMarker(context, cx, cy, MathHelper.lerp(shownFuel, FUEL_EMPTY, FUEL_FULL), gaugeColor(shownFuel));
-
-        ringLabel(context, font, cx, cy, FUEL_FULL - 8, "F", TEXT);
-        ringLabel(context, font, cx, cy, FUEL_EMPTY + 8, "E", ALERT);
 
         String velocityText = Math.round(velocity) + " m/s";
         context.drawText(font, velocityText, Math.round(cx) - font.getWidth(velocityText) / 2, y - 10, TEXT, true);
@@ -311,10 +331,34 @@ public class RWFOverlay implements HudRenderCallback {
         context.drawText(font, text, lx, ly, color, true);
     }
 
-    private static void attitudeCube(DrawContext context, float cx, float cy, AbstractClientPlayerEntity player,
-            float tickDelta) {
-        float yaw = player.getYaw(tickDelta) * MathHelper.RADIANS_PER_DEGREE;
-        float pitch = player.getPitch(tickDelta) * MathHelper.RADIANS_PER_DEGREE;
+    private static void tickNavball(FlightTardisEntity entity, AbstractClientPlayerEntity player, float ease) {
+        if (!navReady) {
+            navYaw = player.getYaw();
+            navPitch = 0;
+            navReady = true;
+        }
+
+        double dx = entity.getX() - entity.prevX;
+        double dy = entity.getY() - entity.prevY;
+        double dz = entity.getZ() - entity.prevZ;
+        double horizontal = Math.sqrt(dx * dx + dz * dz);
+
+        if (horizontal * horizontal + dy * dy < NAV_MIN_MOTION * NAV_MIN_MOTION)
+            return;
+
+        float targetPitch = (float) Math.toDegrees(-MathHelper.atan2(dy, horizontal));
+
+        if (horizontal >= NAV_MIN_MOTION) {
+            float targetYaw = (float) Math.toDegrees(MathHelper.atan2(-dx, dz));
+            navYaw += MathHelper.wrapDegrees(targetYaw - navYaw) * ease;
+        }
+
+        navPitch = MathHelper.lerp(ease, navPitch, targetPitch);
+    }
+
+    private static void attitudeCube(DrawContext context, float cx, float cy) {
+        float yaw = navYaw * MathHelper.RADIANS_PER_DEGREE;
+        float pitch = navPitch * MathHelper.RADIANS_PER_DEGREE;
 
         float sinYaw = MathHelper.sin(yaw), cosYaw = MathHelper.cos(yaw);
         float sinPitch = MathHelper.sin(pitch), cosPitch = MathHelper.cos(pitch);
@@ -326,13 +370,10 @@ public class RWFOverlay implements HudRenderCallback {
         context.draw();
 
         Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
-        BufferBuilder buffer = Tessellator.getInstance().getBuffer();
 
-        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
         RenderSystem.disableCull();
         RenderSystem.disableDepthTest();
-
-        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 
         for (Direction direction : Direction.values()) {
             Vec3d normal = Vec3d.of(direction.getVector());
@@ -341,52 +382,53 @@ public class RWFOverlay implements HudRenderCallback {
             if (facing <= 0.01f)
                 continue;
 
-            float shade = 0.55f + 0.45f * facing;
-            CubeView view = new CubeView(matrix, buffer, cx, cy, right, up);
+            int shade = Math.round(255 * (0.6f + 0.4f * facing));
 
-            if (direction.getAxis() == Direction.Axis.Y) {
-                view.quad(normal, new Vec3d(1, 0, 0), new Vec3d(0, 0, 1), -1, 1, -1, 1,
-                        direction == Direction.UP ? SKY : GROUND, shade);
-                continue;
+            RenderSystem.setShaderTexture(0, navballTexture(direction));
+
+            BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+            buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+
+            for (int corner = 0; corner < 4; corner++) {
+                float a = corner == 1 || corner == 2 ? 1 : -1;
+                float b = corner >= 2 ? 1 : -1;
+
+                Vec3d point;
+                float u;
+                float v;
+
+                if (direction.getAxis() == Direction.Axis.Y) {
+                    point = normal.add(a, 0, b);
+                    u = (a + 1) / 2;
+                    v = direction == Direction.UP ? (b + 1) / 2 : (1 - b) / 2;
+                } else {
+                    Vec3d across = new Vec3d(-normal.z, 0, normal.x);
+                    point = normal.add(across.multiply(a)).add(0, b, 0);
+                    u = (1 - a) / 2;
+                    v = (1 - b) / 2;
+                }
+
+                float sx = cx + (float) point.dotProduct(right) * CUBE_SIZE;
+                float sy = cy - (float) point.dotProduct(up) * CUBE_SIZE;
+
+                buffer.vertex(matrix, sx, sy, 0).texture(u, v).color(shade, shade, shade, 255).next();
             }
 
-            Vec3d across = new Vec3d(-normal.z, 0, normal.x);
-            Vec3d vertical = new Vec3d(0, 1, 0);
-
-            view.quad(normal, across, vertical, -1, 1, 0, 1, SKY, shade);
-            view.quad(normal, across, vertical, -1, 1, -1, 0, GROUND, shade);
-
-            if (direction == Direction.NORTH)
-                view.quad(normal, across, vertical, -0.3f, 0.3f, 0.3f, 0.8f, NORTH_MARK, shade);
+            BufferRenderer.drawWithGlobalProgram(buffer.end());
         }
-
-        BufferRenderer.drawWithGlobalProgram(buffer.end());
 
         RenderSystem.enableDepthTest();
         RenderSystem.enableCull();
     }
 
-    private record CubeView(Matrix4f matrix, BufferBuilder buffer, float cx, float cy, Vec3d right, Vec3d up) {
-
-        void quad(Vec3d normal, Vec3d u, Vec3d v, float u0, float u1, float v0, float v1, int color, float shade) {
-            int r = Math.round(((color >> 16) & 0xFF) * shade);
-            int g = Math.round(((color >> 8) & 0xFF) * shade);
-            int b = Math.round((color & 0xFF) * shade);
-
-            this.vertex(normal, u, v, u0, v0, r, g, b);
-            this.vertex(normal, u, v, u1, v0, r, g, b);
-            this.vertex(normal, u, v, u1, v1, r, g, b);
-            this.vertex(normal, u, v, u0, v1, r, g, b);
-        }
-
-        private void vertex(Vec3d normal, Vec3d u, Vec3d v, float a, float b, int r, int g, int bl) {
-            Vec3d corner = normal.add(u.multiply(a)).add(v.multiply(b));
-
-            float sx = this.cx + (float) corner.dotProduct(this.right) * CUBE_SIZE;
-            float sy = this.cy - (float) corner.dotProduct(this.up) * CUBE_SIZE;
-
-            this.buffer.vertex(this.matrix, sx, sy, 0).color(r, g, bl, 255).next();
-        }
+    private static Identifier navballTexture(Direction direction) {
+        return switch (direction) {
+            case UP -> NAVBALL_TOP;
+            case DOWN -> NAVBALL_BOTTOM;
+            case NORTH -> NAVBALL_NORTH;
+            case SOUTH -> NAVBALL_SOUTH;
+            default -> NAVBALL_SIDE;
+        };
     }
 
     private static void statusLights(DrawContext context, FlightTardisEntity entity, Tardis tardis,
@@ -409,7 +451,14 @@ public class RWFOverlay implements HudRenderCallback {
 
         for (int i = 0; i < lit.length; i++) {
             int iconX = x + 4 + i * ICON_PITCH + (ICON_PITCH - 3 - ICON_W[i]) / 2;
-            sprite(context, iconX, y + 5, ICON_U[i], lit[i] ? ICON_LIT_V : ICON_DIM_V, ICON_W[i], ICON_H);
+            if (lit[i]) {
+                sprite(context, iconX, y + 5, ICON_U[i], ICON_LIT_V, ICON_W[i], ICON_H);
+                continue;
+            }
+
+            RenderSystem.setShaderColor(0.45f, 0.45f, 0.45f, 0.55f);
+            sprite(context, iconX, y + 5, ICON_U[i], ICON_DIM_V, ICON_W[i], ICON_H);
+            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         }
     }
 
