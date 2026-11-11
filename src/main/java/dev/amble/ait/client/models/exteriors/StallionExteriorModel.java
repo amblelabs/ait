@@ -2,7 +2,6 @@ package dev.amble.ait.client.models.exteriors;
 
 
 import dev.amble.ait.api.tardis.link.v2.Linkable;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 
@@ -102,13 +101,8 @@ public class StallionExteriorModel extends SimpleExteriorModel {
 
     @Override
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
-        if (!AITModClient.CONFIG.animateDoors) {
-            body.getChild("door").yaw = tardis.door().isOpen() ? -1.35f : 0f;
-            body.getChild("door").getChild("door_two").yaw = tardis.door().isOpen() ? 2.65f : 0f;
-        } else {
-            body.getChild("door").yaw = -(float) Math.toRadians(87f * leftRot(tardis.door()));
-            body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(150f * leftRot(tardis.door()));
-        }
+        body.getChild("door").yaw = -(float) Math.toRadians(87f * leftRot(tardis.door()));
+        body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(150f * leftRot(tardis.door()));
 
         if (isBOTI) {
             matrices.push();
@@ -139,15 +133,10 @@ public class StallionExteriorModel extends SimpleExteriorModel {
         matrices.scale(0.95f, 0.95f, 0.95f);
         matrices.translate(0, -1.5f, 0);
 
-        if (!AITModClient.CONFIG.animateDoors) {
-            body.getChild("door").yaw = falling.tardis().get().door().isOpen() ? -1.35f : 0f;
-            body.getChild("door").getChild("door_two").yaw = falling.tardis().get().door().isOpen() ? 2.65f : 0f;
-        } else {
-            float maxLeftRot = 87f;
-            float maxRightRot = 150f;
-            body.getChild("door").yaw = -(float) Math.toRadians(maxLeftRot * leftRot(falling.tardis().get().door()));
-            body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(maxRightRot * leftRot(falling.tardis().get().door()));
-        }
+        float maxLeftRot = 87f;
+        float maxRightRot = 150f;
+        body.getChild("door").yaw = -(float) Math.toRadians(maxLeftRot * leftRot(falling.tardis().get().door()));
+        body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(maxRightRot * leftRot(falling.tardis().get().door()));
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
         matrices.pop();

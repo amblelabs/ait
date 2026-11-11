@@ -948,10 +948,12 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation(AITItemGroups.FABRICATOR, "AIT: Fabrication");
 
         // Config
+        provider.addTranslation("text.ait.config.categories", "AIT Config");
         provider.addTranslation("category.ait.config.client", "Client Options");
         provider.addTranslation("category.ait.config.server", "Server Options");
 
         // Client config
+        provider.addTranslation("yacl3.config.ait:client.category.client", "Client");
         provider.addTranslation("yacl3.config.ait:client.interiorHumVolume", "Interior Hum Volume");
         provider.addTranslation("yacl3.config.ait:client.engineLoopVolume", "Engine Loop Volume");
         provider.addTranslation("yacl3.config.ait:client.flightMusicVolume", "Flight Music Volume");
@@ -970,12 +972,19 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.animateConsole", "Toggle Animated Consoles");
         provider.addTranslation("yacl3.config.ait:client.animateControls", "Toggle Smoothly Animated Controls");
         provider.addTranslation("yacl3.config.ait:client.animateDoors", "Toggle Smoothly Animated Doors");
+        provider.addTranslation("yacl3.config.ait:client.rwfHudScale", "Real World Flight HUD Scale");
+        provider.addTranslation("yacl3.config.ait:client.rwfFovEffect", "Real World Flight FOV Effect");
+        provider.addTranslation("yacl3.config.ait:client.rwfCameraTilt", "Real World Flight Camera Tilt");
+        provider.addTranslation("yacl3.config.ait:client.rwfHudScale.desc", "Scales the real world flight HUD.");
+        provider.addTranslation("yacl3.config.ait:client.rwfFovEffect.desc", "How much the field of view widens as you go faster during real world flight. Turn to 0 to disable.");
+        provider.addTranslation("yacl3.config.ait:client.rwfCameraTilt.desc", "How much the camera banks and pitches with your movement during real world flight. Turn to 0 to disable.");
         provider.addTranslation("yacl3.config.ait:client.temperatureType", "Temperature Type");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.celsius", "Celsius (°C)");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.fahrenheit", "Fahrenheit (°F)");
         provider.addTranslation("yacl3.config.ait:client.temperatureType.unit.kelvin", "Kelvin (K)");
 
         // Server config
+        provider.addTranslation("yacl3.config.ait:server.category.server", "Server");
         provider.addTranslation("yacl3.config.ait:server.minifyJson", "Minify Json");
         provider.addTranslation("yacl3.config.ait:server.ghostMonument", "Toggle Ghost Monument");
         provider.addTranslation("yacl3.config.ait:server.lockDimensions", "Toggle Lockable Dimensions");
@@ -1282,7 +1291,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.control.antigravs.inactive", "Antigravs: DISENGAGED");
         provider.addTranslation("tardis.message.control.electric.fail", "System Error: Not enough fuel present! Requires %sAU");
         provider.addTranslation("tardis.message.control.rwf_disabled", "RWF is disabled in SERVER config.");
-        provider.addTranslation("tardis.message.control.rwf_creative_only", "RWF is CREATIVE only");
+        provider.addTranslation("tardis.message.control.refueler.rwf", "TARDIS cannot refuel during real world flight!");
+        provider.addTranslation("tardis.message.phase.cooldown", "Phase circuits recharging — %s more seconds!");
         provider.addTranslation("tardis.message.control.fast_return.destination_nonexistent",
                 "Fast Return: Last Position Nonexistent!");
         provider.addTranslation("tardis.message.control.fast_return.last_position", "Fast Return: LAST POSITION SET");
@@ -1760,10 +1770,14 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         // keybinds
         provider.addTranslation("category.ait.main", "Adventures in Time");
-        provider.addTranslation("key.ait.snap", "Open/Close/Lock Doors (KEY/RWF)");
+        provider.addTranslation("key.ait.snap", "Open/Close/Lock Doors (KEY)");
         provider.addTranslation("key.ait.increase_speed", "Increase Speed (RWF)");
         provider.addTranslation("key.ait.decrease_speed", "Decrease Speed (RWF)");
         provider.addTranslation("key.ait.toggle_antigravs", "Toggle Antigravs (RWF)");
+        provider.addTranslation("key.ait.phase", "Phase Through Blocks (RWF)");
+
+        // rwf overlay
+        provider.addTranslation("overlay.ait.rwf.dismount", "Hold %s for 3 seconds to dismount");
 
         // effects
         provider.addTranslation("effect.ait.zeiton_high", "Zeiton High");

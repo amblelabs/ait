@@ -102,16 +102,9 @@ public class CapsuleDoorModel extends DoorModel {
 
         DoorHandler door = tardis.door();
 
-        if (!AITModClient.CONFIG.animateDoors) {
-            this.body.getChild("doors").getChild("door_left").yaw = (door.isLeftOpen() || door.isOpen()) ? -5F : 0.0F;
-            this.body.getChild("doors").getChild("door_right").yaw = (door.isRightOpen() || door.areBothOpen())
-                    ? 5F
-                    : 0.0F;
-        } else {
-            float maxRot = 90f;
-            this.body.getChild("doors").getChild("door_left").yaw = (float) Math.toRadians(maxRot*leftRot(door, tickDelta));
-            this.body.getChild("doors").getChild("door_right").yaw = (float) -Math.toRadians(maxRot*rightRot(door, tickDelta));
-        }
+        float maxRot = 90f;
+        this.body.getChild("doors").getChild("door_left").yaw = (float) Math.toRadians(maxRot*leftRot(door, tickDelta));
+        this.body.getChild("doors").getChild("door_right").yaw = (float) -Math.toRadians(maxRot*rightRot(door, tickDelta));
 
         this.getPart().getChild("middle").getChild("back").visible = !AITModClient.CONFIG.enableTardisBOTI;
 

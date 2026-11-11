@@ -36,10 +36,10 @@ public class VisualiserControl extends Control {
     }
 
     @Override
-    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean rightClick) {
-        super.runServer(tardis, player, world, console, rightClick);
+    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+        super.runServer(tardis, player, world, console, leftClick);
 
-        if (!AITMod.CONFIG.rwfEnabled) {
+        if (DependencyChecker.hasPortals() && leftClick) {
             if (!tardis.travel().isLanded()) return Result.FAILURE;
 
             return PortalsAPI.VISUALIZER.map(visualizer -> {
@@ -49,8 +49,7 @@ public class VisualiserControl extends Control {
             }).orElse(Result.FAILURE);
         }
 
-        if (!player.isCreative()) {
-            player.sendMessage(Text.translatable("tardis.message.control.rwf_creative_only"), true);
+        if (!AITMod.CONFIG.rwfEnabled) {
             return Result.FAILURE;
         }
 

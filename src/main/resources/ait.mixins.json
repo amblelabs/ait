@@ -25,6 +25,9 @@
     "networking.ThreadedAnvilChunkStorageMixin",
     "rwf.DismountEntityMixin",
     "rwf.LivingEntityAccessor",
+    "rwf.PlayerEntityMixin",
+    "rwf.PlayerInteractionManagerMixin",
+    "rwf.VehicleMovePhaseMixin",
     "server.BedInTardisMixin",
     "server.BellBlockMixin",
     "server.EnderDragonFightAccessor",
@@ -43,13 +46,13 @@
     "client.GameRendererMixin",
     "client.ItemRendererMixin",
     "client.MinecraftClientMixin",
+    "client.SeamlessDoorNetworkMixin",
     "client.TitleScreenMixin",
     "client.experimental_screen.CreateWorldScreenMixin",
     "client.experimental_screen.WorldOpenFlowsMixin",
     "client.rendering.ArmorFeatureRendererMixin",
     "client.rendering.ArmorStandEntityRendererMixin",
     "client.rendering.BGRendererMixin",
-    "client.rendering.BakedModelManagerMixin",
     "client.rendering.CuboidAccessor",
     "client.rendering.DebugRendererMixin",
     "client.rendering.HeadFeatureRendererMixin",
@@ -63,7 +66,9 @@
     "client.sonic.SonicItemRendererMixin",
     "client.sonic.SonicModelLoaderWrapperMixin",
     "compat.portals.BlockManipulationClientMixin",
-    "compat.portals.ClientTeleportationManagerMixin"
+    "compat.portals.ClientTeleportationManagerMixin",
+    "rwf.DismountMessageMixin",
+    "rwf.FlightHudMixin"
   ],
   "injectors": {
     "defaultRequire": 1

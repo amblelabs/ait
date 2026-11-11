@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.exteriors;
 
 import dev.amble.ait.api.tardis.link.v2.Linkable;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
@@ -157,16 +156,9 @@ public class PoliceBoxCoralModel extends SimpleExteriorModel {
 
         DoorHandler door = falling.tardis().get().door();
 
-        if (!AITModClient.CONFIG.animateDoors) {
-            this.TARDIS.getChild("Doors").getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? -5F : 0.0F;
-            this.TARDIS.getChild("Doors").getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen())
-                    ? 5F
-                    : 0.0F;
-        } else {
-            float maxRot = 90f;
-            this.TARDIS.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*leftRot(door));
-            this.TARDIS.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot*rightRot(door));
-        }
+        float maxRot = 90f;
+        this.TARDIS.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*leftRot(door));
+        this.TARDIS.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot*rightRot(door));
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
         matrices.pop();
@@ -176,17 +168,9 @@ public class PoliceBoxCoralModel extends SimpleExteriorModel {
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
         DoorHandler door = tardis.door();
 
-        if (!AITModClient.CONFIG.animateDoors) {
-
-            this.TARDIS.getChild("Doors").getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? -5F : 0.0F;
-            this.TARDIS.getChild("Doors").getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen())
-                    ? 5F
-                    : 0.0F;
-        } else {
-            float maxRot = 90f;
-            this.TARDIS.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*leftRot(door));
-            this.TARDIS.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot*rightRot(door));
-        }
+        float maxRot = 90f;
+        this.TARDIS.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*leftRot(door));
+        this.TARDIS.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot*rightRot(door));
 
         if (isBOTI) {
             matrices.push();

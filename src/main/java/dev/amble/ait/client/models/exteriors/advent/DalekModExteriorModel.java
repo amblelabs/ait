@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.exteriors.advent;
 
 import dev.amble.ait.api.tardis.link.v2.Linkable;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.models.exteriors.SimpleExteriorModel;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
@@ -77,15 +76,8 @@ public class DalekModExteriorModel extends SimpleExteriorModel {
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
         DoorHandler door = tardis.door();
 
-        if (!AITModClient.CONFIG.animateDoors) {
-            this.dalekmod.getChild("Doors").getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? -5F : 0.0F;
-            this.dalekmod.getChild("Doors").getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen())
-                    ? 5F
-                    : 0.0F;
-        } else {
-            this.dalekmod.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(80f*leftRot(door));
-            this.dalekmod.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(80f*rightRot(door));
-        }
+        this.dalekmod.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(80f*leftRot(door));
+        this.dalekmod.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(80f*rightRot(door));
 
         if (isBOTI) {
             matrices.push();
@@ -104,20 +96,13 @@ public class DalekModExteriorModel extends SimpleExteriorModel {
 
         matrices.push();
         matrices.scale(0.945F, 0.945F, 0.945F);
-        matrices.translate(1, -1.5f, 0);
+        matrices.translate(0, -1.5f, 0);
 
         DoorHandler door = falling.tardis().get().door();
 
-        if (!AITModClient.CONFIG.animateDoors) {
-            this.dalekmod.getChild("Doors").getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? -5F : 0.0F;
-            this.dalekmod.getChild("Doors").getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen())
-                    ? 5F
-                    : 0.0F;
-        } else {
-            float maxRot = 80;
-            this.dalekmod.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*leftRot(door));
-            this.dalekmod.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(maxRot*rightRot(door));
-        }
+        float maxRot = 80;
+        this.dalekmod.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*leftRot(door));
+        this.dalekmod.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(maxRot*rightRot(door));
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
         matrices.pop();

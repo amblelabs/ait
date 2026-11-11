@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.exteriors;
 
 import dev.amble.ait.api.tardis.link.v2.Linkable;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
@@ -56,18 +55,9 @@ public class PresentExteriorModel extends SimpleExteriorModel {
         matrices.push();
         matrices.translate(0, -1.5f, 0);
 
-        if (!AITModClient.CONFIG.animateDoors) {
-            DoorHandler door = falling.tardis().get().door();
-
-            this.present.getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? 8F : 0.0F;
-            this.present.getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen())
-                    ? -8F
-                    : 0.0F;
-        } else {
-            float maxRot = 90f;
-            this.present.getChild("left_door").yaw = (float) Math.toRadians(leftRot(falling.tardis().get().door()) * maxRot);
-            this.present.getChild("right_door").yaw = -(float) Math.toRadians(rightRot(falling.tardis().get().door()) * maxRot);
-        }
+        float maxRot = 90f;
+        this.present.getChild("left_door").yaw = (float) Math.toRadians(leftRot(falling.tardis().get().door()) * maxRot);
+        this.present.getChild("right_door").yaw = -(float) Math.toRadians(rightRot(falling.tardis().get().door()) * maxRot);
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
         matrices.pop();
@@ -80,18 +70,9 @@ public class PresentExteriorModel extends SimpleExteriorModel {
 
     @Override
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
-        if (!AITModClient.CONFIG.animateDoors) {
-            DoorHandler door = tardis.door();
-
-            this.present.getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? 8F : 0.0F;
-            this.present.getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen())
-                    ? -8F
-                    : 0.0F;
-        } else {
-            float maxRot = 90f;
-            this.present.getChild("left_door").yaw = (float) Math.toRadians(leftRot(tardis.door()) * maxRot);
-            this.present.getChild("right_door").yaw = -(float) Math.toRadians(rightRot(tardis.door()) * maxRot);
-        }
+        float maxRot = 90f;
+        this.present.getChild("left_door").yaw = (float) Math.toRadians(leftRot(tardis.door()) * maxRot);
+        this.present.getChild("right_door").yaw = -(float) Math.toRadians(rightRot(tardis.door()) * maxRot);
 
         if (isBOTI) {
             matrices.push();

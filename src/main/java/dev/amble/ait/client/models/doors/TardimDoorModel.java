@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.doors;
 
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
@@ -58,18 +57,11 @@ public class TardimDoorModel extends DoorModel {
         matrices.translate(0, -1.5f, 0);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180f));
 
-        if (!AITModClient.CONFIG.animateDoors) {
-            DoorHandler handler = tardis.door();
+        float maxRot = 90f;
 
-            this.tardis.getChild("left_door").yaw = (handler.isLeftOpen() || handler.isOpen()) ? -1.575f : 0.0F;
-            this.tardis.getChild("right_door").yaw = (handler.isRightOpen() || handler.areBothOpen()) ? 1.575f : 0.0F;
-        } else {
-            float maxRot = 90f;
-
-            DoorHandler handler = tardis.door();
-            this.tardis.getChild("left_door").yaw = (float) -Math.toRadians(maxRot*leftRot(handler, tickDelta));
-            this.tardis.getChild("right_door").yaw = (float) Math.toRadians(maxRot*rightRot(handler, tickDelta));
-        }
+        DoorHandler handler = tardis.door();
+        this.tardis.getChild("left_door").yaw = (float) -Math.toRadians(maxRot*leftRot(handler, tickDelta));
+        this.tardis.getChild("right_door").yaw = (float) Math.toRadians(maxRot*rightRot(handler, tickDelta));
 
         super.renderWithAnimations(tardis, linkableBlockEntity, root, matrices, vertices, light, overlay, red, green, blue, pAlpha, tickDelta);
         matrices.pop();

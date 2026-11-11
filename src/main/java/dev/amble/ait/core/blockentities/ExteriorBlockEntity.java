@@ -5,6 +5,32 @@ import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.MAX_PLAS
 import java.util.List;
 import java.util.UUID;
 
+import dev.drtheo.scheduler.api.TimeUnit;
+import dev.drtheo.scheduler.api.common.Scheduler;
+import dev.drtheo.scheduler.api.common.TaskStage;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.decoration.ArmorStandEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BrushItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.particle.BlockStateParticleEffect;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.*;
+import net.minecraft.world.World;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
@@ -15,6 +41,7 @@ import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITTags;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.engine.impl.EngineSystem;
 import dev.amble.ait.core.item.KeyItem;
@@ -431,6 +458,8 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
         if (tardis.siege().isActive()) return;
 
         if (travel.getState() == TravelHandlerBase.State.DEMAT) return;
+
+        if (entity.getType().isIn(AITTags.EntityTypes.CANNOT_ENTER_TARDIS)) return;
 
         if (!previouslyLocked && travel.getState() == TravelHandlerBase.State.MAT
                 && travel.getAlpha() >= 0.9F)

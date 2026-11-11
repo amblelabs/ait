@@ -8,13 +8,16 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.api.tardis.WorldWithTardis;
+import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.manager.old.DeprecatedServerTardisManager;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.data.properties.Value;
 import dev.amble.ait.registry.impl.TardisComponentRegistry;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.EntityTrackingEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -53,6 +56,19 @@ public class ServerTardisManager extends DeprecatedServerTardisManager {
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server)
                 -> this.sendTardisAll(handler.getPlayer(), NetworkUtil.findLinkedItems(handler.getPlayer())));
+
+        EntityTrackingEvents.START_TRACKING.register((trackedEntity, player) -> {
+            if (this.fileManager.isLocked())
+                return;
+
+            if (!(trackedEntity instanceof Linkable linkable) || !linkable.isLinked())
+                return;
+
+            Tardis tardis = linkable.tardis().get();
+
+            if (tardis instanceof ServerTardis serverTardis && !isInvalid(serverTardis))
+                this.sendTardisAll(player, Set.of(serverTardis));
+        });
 
         if (DEMENTIA) {
             TardisEvents.UNLOAD_TARDIS.register(WorldWithTardis.forDesync((player, tardisSet) -> {

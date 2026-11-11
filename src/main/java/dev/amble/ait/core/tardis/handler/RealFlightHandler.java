@@ -16,22 +16,16 @@ import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.drtheo.scheduler.api.TimeUnit;
 import dev.drtheo.scheduler.api.common.Scheduler;
 import dev.drtheo.scheduler.api.common.TaskStage;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationPropertyHelper;
 
 public class RealFlightHandler extends KeyedTardisComponent implements TardisTickable {
-
-    private static final Identifier ENTER_FLIGHT = AITMod.id("enter_flight");
-    private static final Identifier EXIT_FLIGHT = AITMod.id("exit_flight");
 
     private static final BoolProperty IS_FALLING = new BoolProperty("falling", false);
     private static final BoolProperty FLYING = new BoolProperty("flying", false);
@@ -69,13 +63,19 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
             this.tardis.door().setLocked(true);
     }
 
-    public void tickFlight(ServerPlayerEntity player) {
-        tardis.travel().forcePosition(cached -> cached.pos(player.getBlockPos())
-                .rotation((byte) RotationPropertyHelper.fromYaw(player.getYaw())));
-        if (player.age % 20 != 0) {
+    public void tickFlight(ServerPlayerEntity player, BlockPos pos, boolean grounded) {
+        if (grounded) {
+            tardis.travel().forcePosition(cached -> cached.pos(pos));
+        } else {
+            tardis.travel().forcePosition(cached -> cached.pos(pos)
+                    .rotation((byte) RotationPropertyHelper.fromYaw(player.getYaw())));
+        }
+
+        if (player.age % 20 == 0) {
             GravitationalCircuit circuit = tardis.subsystems().get(GRAVITATIONAL);
             if (circuit.isEnabled()) {
-                circuit.removeDurability(0.5f);
+                circuit.removeDurability(0.05f); // it takes wayyyy too much away from the gravitational circuit,
+                // it should be a more negligible amount so it doesnt run out so quick
             }
         }
     }
@@ -105,6 +105,7 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
         this.tardis.door().closeDoors();
         this.tardis().travel().autopilot(false);
         this.tardis.travel().handbrake(true);
+        this.tardis().setRefueling(false);
         this.flying.set(true);
 
         FlightTardisEntity entity = FlightTardisEntity.createAndSpawn(
@@ -113,34 +114,37 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
         TardisUtil.teleportOutside(tardis, player);
 
         Scheduler.get().runTaskLater(() -> {
+            if (player.isRemoved() || player.isDead() || entity.isRemoved())
+                return;
+
             player.startRiding(entity);
-            this.sendEnterFlightPacket(player);
         }, TaskStage.END_SERVER_TICK, TimeUnit.TICKS, 2);
 
         tardis.travel().finishDemat();
     }
-
-    private void sendEnterFlightPacket(ServerPlayerEntity player) {
-        if (!AITMod.CONFIG.rwfEnabled) return;
-        ServerPlayNetworking.send(player, ENTER_FLIGHT, PacketByteBufs.create());
-  }
 
     public void exitFlight(ServerPlayerEntity player) {
         this.flying.set(false);
 
         player.setInvisible(false);
         player.setInvulnerable(false);
-        this.sendExitFlightPacket(player);
 
-        tardis.travel().forcePosition(cached -> cached.rotation((byte) RotationPropertyHelper.fromYaw(player.getYaw())));
-        tardis.travel().forcePosition(tardis.travel().avoidObstruction(tardis.travel().position(), player));
+        tardis.travel().forcePosition(cached -> cached.world(player.getServerWorld()));
+        tardis.travel().forceDestination(tardis.travel().position());
         tardis.travel().placeExterior(false);
 
+        tardis.travel().placeExterior(false);
         tardis.travel().finishRemat();
     }
 
-    private void sendExitFlightPacket(ServerPlayerEntity player) {
-        ServerPlayNetworking.send(player, EXIT_FLIGHT, PacketByteBufs.create());
+    public void abandonFlight(ServerWorld world, BlockPos pos) {
+        this.flying.set(false);
+
+        tardis.travel().speed(0);
+        tardis.travel().forcePosition(cached -> cached.world(world.getRegistryKey()).pos(pos));
+        tardis.travel().forceDestination(tardis.travel().position());
+
+        tardis.travel().finishRemat();
     }
 
     public BoolValue falling() {

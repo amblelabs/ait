@@ -59,7 +59,7 @@ public class ClientVortexSoundsHandler extends SoundHandler {
     }
 
     private boolean shouldPlaySound(ClientTardis tardis) {
-        return tardis != null && tardis.travel().getState() == TravelHandlerBase.State.FLIGHT;
+        return tardis != null && !tardis.flight().isFlying() && tardis.travel().getState() == TravelHandlerBase.State.FLIGHT;
     }
 
     private float calculateVolume(ClientTardis tardis) {

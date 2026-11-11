@@ -42,7 +42,7 @@ public class AITServerConfig {
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
-    @SerialEntry public boolean rwfEnabled = false;
+    @SerialEntry public boolean rwfEnabled = true;
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)

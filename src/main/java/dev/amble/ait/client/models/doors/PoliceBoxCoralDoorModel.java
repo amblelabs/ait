@@ -1,7 +1,6 @@
 package dev.amble.ait.client.models.doors;
 
 import dev.amble.ait.api.tardis.link.v2.block.AbstractLinkableBlockEntity;
-import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.tardis.handler.DoorHandler;
 
@@ -169,16 +168,9 @@ public class PoliceBoxCoralDoorModel extends DoorModel {
                                      VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, float tickDelta) {
         DoorHandler door = tardis.door();
 
-        if (!AITModClient.CONFIG.animateDoors) {
-            this.TARDIS.getChild("Doors").getChild("left_door").yaw = (door.isLeftOpen() || door.isOpen()) ? -5F : 0.0F;
-            this.TARDIS.getChild("Doors").getChild("right_door").yaw = (door.isRightOpen() || door.areBothOpen())
-                    ? 5F
-                    : 0.0F;
-        } else {
-            float maxRot = 90f;
-            this.TARDIS.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*leftRot(door, tickDelta));
-            this.TARDIS.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(maxRot*rightRot(door, tickDelta));
-        }
+        float maxRot = 90f;
+        this.TARDIS.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*leftRot(door, tickDelta));
+        this.TARDIS.getChild("Doors").getChild("right_door").yaw = (float) -Math.toRadians(maxRot*rightRot(door, tickDelta));
 
         matrices.push();
         matrices.scale(0.631F, 0.631F, 0.631F);

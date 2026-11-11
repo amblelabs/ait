@@ -101,6 +101,23 @@ public class AITClientConfig {
     @SerialEntry public boolean animateDoors = true;
 
     @AutoGen(category = CATEGORY)
+    @FloatSlider(min = 0.5f, max = 2.0f, step = 0.05f)
+    @CustomDescription("yacl3.config.ait:client.rwfHudScale.desc")
+    @SerialEntry public float rwfHudScale = 1.5f;
+
+    @AutoGen(category = CATEGORY)
+    @CustomFormat(ValueFormatters.PercentFormatter.class)
+    @FloatSlider(min = 0f, max = 1f, step = 0.05f)
+    @CustomDescription("yacl3.config.ait:client.rwfFovEffect.desc")
+    @SerialEntry public float rwfFovEffect = 1.0f;
+
+    @AutoGen(category = CATEGORY)
+    @CustomFormat(ValueFormatters.PercentFormatter.class)
+    @FloatSlider(min = 0f, max = 1f, step = 0.05f)
+    @CustomDescription("yacl3.config.ait:client.rwfCameraTilt.desc")
+    @SerialEntry public float rwfCameraTilt = 1.0f;
+
+    @AutoGen(category = CATEGORY)
     @EnumCycler
     @SerialEntry public TemperatureType temperatureType = TemperatureType.CELSIUS;
 

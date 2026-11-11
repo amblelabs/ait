@@ -59,6 +59,9 @@ public class AITBlockTagProvider extends AmbleBlockTagProvider {
 
 
 
+        getOrCreateTagBuilder(AITTags.Blocks.PHASE_PROOF)
+                .add(Blocks.REINFORCED_DEEPSLATE);
+
         getOrCreateTagBuilder(BlockTags.WALLS)
                 .add(AITBlocks.TARDIS_CORAL_WALL);
         getOrCreateTagBuilder(BlockTags.FENCES)

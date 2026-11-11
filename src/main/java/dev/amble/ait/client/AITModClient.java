@@ -45,6 +45,8 @@ import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.client.util.FlightCameraEffects;
+import dev.amble.ait.client.util.SeamlessDoorTransition;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.compat.portal.PortalsAPI;
 import dev.amble.ait.core.*;
@@ -57,6 +59,7 @@ import dev.amble.ait.core.devteam.BetaVerification;
 import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.drinks.DrinkUtil;
 import dev.amble.ait.core.entities.BOTIPaintingEntity;
+import dev.amble.ait.core.entities.FlightTardisClientHelper;
 import dev.amble.ait.core.entities.RiftEntity;
 import dev.amble.ait.core.item.*;
 import dev.amble.ait.core.tardis.Tardis;
@@ -162,6 +165,9 @@ public class AITModClient implements ClientModInitializer {
         AITKeyBinds.init();
 
         ClientLandingManager.init();
+        FlightCameraEffects.init();
+        FlightTardisClientHelper.init();
+        SeamlessDoorTransition.init();
 
         HudRenderCallback.EVENT.register(new SonicOverlay());
         HudRenderCallback.EVENT.register(new RWFOverlay());
@@ -614,6 +620,8 @@ public class AITModClient implements ClientModInitializer {
             BOTI.DOOR_RENDER_QUEUE.clear();
             return;
         }
+
+        if (tardis.flight().isFlying()) return;
 
         ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
         AnimatedModel model = variant.getDoor().getCachedModel();

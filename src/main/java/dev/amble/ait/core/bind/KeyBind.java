@@ -41,6 +41,10 @@ public class KeyBind {
                 this.code, "category." + AITMod.MOD_ID + "." + category));
     }
 
+    public KeyBinding binding() {
+        return this.self;
+    }
+
     protected boolean shouldTrigger(MinecraftClient client) {
         return this.self.isPressed();
     }
