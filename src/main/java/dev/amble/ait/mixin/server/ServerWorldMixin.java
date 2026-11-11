@@ -1,5 +1,6 @@
 package dev.amble.ait.mixin.server;
 
+import dev.amble.ait.api.TemporalItemOwnership;
 import dev.amble.ait.core.events.WorldSaveEvent;
 import dev.amble.ait.core.item.SiegeTardisItem;
 import dev.amble.ait.core.tardis.Tardis;
@@ -35,7 +36,14 @@ public class ServerWorldMixin {
             if (found == null)
                 return;
 
-            // kill ourselves and place down the exterior
+            if (!found.siege().isActive()) {
+                ((TemporalItemOwnership) itemEntity).ait$suppressTemporalDestruction();
+                entity.discard();
+                return;
+            }
+
+            // Converting a siege item into its exterior is not item destruction.
+            ((TemporalItemOwnership) itemEntity).ait$suppressTemporalDestruction();
             if (found.siege().isSiegeBeingHeld())
                 SiegeTardisItem.placeTardis(found, SiegeTardisItem.fromEntity(entity));
 
