@@ -2,8 +2,10 @@ package dev.amble.ait.core.engine.block;
 
 
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.engine.CoreInstallableSubSystem;
 import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.engine.block.generic.GenericStructureSystemBlockEntity;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 import dev.amble.ait.core.engine.registry.SubSystemRegistry;
 import dev.amble.ait.core.util.SoundData;
@@ -41,19 +43,33 @@ public class SubSystemBlockEntity extends FluidLinkBlockEntity {
     public void onGainFluid() {
         super.onGainFluid();
 
-        if (this.system() == null) return;
-        if (this.system() instanceof DurableSubSystem durable) {
+        SubSystem system = this.system();
+        if (system == null) return;
+        if (system instanceof DurableSubSystem durable) {
             if (durable.isBroken()) return;
         }
-        this.system().setEnabled(true);
+        if (this.updateManagedCorePower(system, true)) return;
+        system.setEnabled(true);
     }
 
     @Override
     public void onLoseFluid() {
         super.onLoseFluid();
 
-        if (this.system() == null) return;
-        this.system().setEnabled(false);
+        SubSystem system = this.system();
+        if (system == null) return;
+        if (this.updateManagedCorePower(system, false)) return;
+        system.setEnabled(false);
+    }
+
+    private boolean updateManagedCorePower(SubSystem system, boolean powered) {
+        if (!(this instanceof GenericStructureSystemBlockEntity core)
+                || !(system instanceof CoreInstallableSubSystem installable)
+                || !installable.managesCorePowerState())
+            return false;
+
+        installable.onCorePowerChanged(core, powered);
+        return true;
     }
 
     @Override

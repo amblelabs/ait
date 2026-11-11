@@ -29,6 +29,7 @@
     "rwf.PlayerInteractionManagerMixin",
     "rwf.VehicleMovePhaseMixin",
     "server.BedInTardisMixin",
+    "server.BiodataRestorationMixin",
     "server.BellBlockMixin",
     "server.EnderDragonFightAccessor",
     "server.ItemEntityMixin",
@@ -39,7 +40,9 @@
     "server.multidim.MultiDimKickFix",
     "server.multidim.MultiDimLoadFix",
     "server.multidim.ShutUpMultiDim",
-    "server.structure.StructureTemplateAccessor"
+    "server.structure.StructureTemplateAccessor",
+    "server.ExperienceOrbAccessor",
+    "server.ExperienceOrbEntityMixin"
   ],
   "client": [
     "client.DefaultLogoMixin",
