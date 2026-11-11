@@ -1,16 +1,25 @@
 package dev.amble.ait.client.overlays;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import org.joml.Matrix4f;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Heightmap;
 
 import dev.amble.ait.AITMod;
@@ -29,7 +38,6 @@ public class RWFOverlay implements HudRenderCallback {
     private static final int GOOD = 0xFF63D68A;
     private static final int WARN = 0xFFE8B44A;
     private static final int ALERT = 0xFFE5484D;
-    private static final int TRACK = 0x80000000;
 
     private static final int BEZEL_W = 256;
     private static final int BEZEL_H = 143;
@@ -42,7 +50,16 @@ public class RWFOverlay implements HudRenderCallback {
     private static final int TAPE_TOP = 6, TAPE_BOTTOM = 103;
     private static final int DIAL_U = 190, DIAL_V = 214, DIAL_W = 65, DIAL_H = 41;
     private static final float DIAL_CX = 32.5f, DIAL_CY = 29f;
-    private static final int NEEDLE_LEN = 17;
+    private static final int RING_INNER = 21;
+    private static final int RING_LABEL = 35;
+    private static final float SPEED_EMPTY = 165f, SPEED_FULL = 255f;
+    private static final float FUEL_EMPTY = 15f, FUEL_FULL = -75f;
+    private static final float CUBE_SIZE = 8f;
+
+    private static final int SKY = 0xFF3FA8E0;
+    private static final int GROUND = 0xFF8A5A2B;
+    private static final int NORTH_MARK = 0xFFE5484D;
+    private static final float NEEDLE_EASE = 0.25f;
 
     private static final int MINOR_U = 19, MINOR_W = 3, MINOR_H = 4;
     private static final int MAJOR_U = 10, MAJOR_W = 3, MAJOR_H = 6;
@@ -64,6 +81,8 @@ public class RWFOverlay implements HudRenderCallback {
     private static final int ALT_SPAN = 64;
 
     private static float velocity;
+    private static float shownThrottle;
+    private static float shownFuel;
 
     private static float scale = 1f;
     private static int screenWidth;
@@ -84,6 +103,12 @@ public class RWFOverlay implements HudRenderCallback {
 
         velocity = MathHelper.lerp(0.15f, velocity, (float) instantVelocity(player));
 
+        float ease = 1f - (float) Math.pow(1f - NEEDLE_EASE, client.getLastFrameDuration());
+        int maxSpeed = Math.max(1, tardis.travel().maxSpeed().get());
+
+        shownThrottle = MathHelper.lerp(ease, shownThrottle, MathHelper.clamp(tardis.travel().speed() / (float) maxSpeed, 0, 1));
+        shownFuel = MathHelper.lerp(ease, shownFuel, (float) MathHelper.clamp(tardis.fuel().getCurrentFuel() / tardis.fuel().getMaxFuel(), 0, 1));
+
         scale = MathHelper.clamp(AITModClient.CONFIG.rwfHudScale, 0.25f, 4f);
         screenWidth = Math.round(context.getScaledWindowWidth() / scale);
         screenHeight = Math.round(context.getScaledWindowHeight() / scale);
@@ -95,10 +120,10 @@ public class RWFOverlay implements HudRenderCallback {
         context.getMatrices().scale(scale, scale, 1);
 
         bezel(context);
-        quarter(context, client.textRenderer, tardis);
+        quarter(context, client.textRenderer, player);
         heading(context, client.textRenderer, player);
         altitude(context, client.textRenderer, player);
-        dial(context, client.textRenderer, tardis);
+        dial(context, client.textRenderer, player, tardis, tickDelta);
         statusLights(context, entity, tardis, player);
 
         context.getMatrices().pop();
@@ -132,25 +157,49 @@ public class RWFOverlay implements HudRenderCallback {
         stretch(context, w - s, s, s, h - 2 * s, BEZEL_W - s, s, s, midH);
     }
 
-    private static void quarter(DrawContext context, TextRenderer font, Tardis tardis) {
+    private static void quarter(DrawContext context, TextRenderer font, AbstractClientPlayerEntity player) {
         int x = INSET;
         int y = INSET;
 
         sprite(context, x, y, QUARTER_U, QUARTER_V, QUARTER_W, QUARTER_H);
 
-        String reading = String.valueOf(Math.round(velocity));
+        String[] lines = {
+                dimensionName(player.getWorld().getRegistryKey().getValue().getPath()),
+                "X " + player.getBlockX(),
+                "Y " + player.getBlockY(),
+                "Z " + player.getBlockZ()
+        };
 
-        MatrixStack matrices = context.getMatrices();
-        matrices.push();
-        matrices.translate(x + 5, y + 6, 0);
-        matrices.scale(2, 2, 1);
-        context.drawText(font, reading, 0, 0, TEXT, false);
-        matrices.pop();
+        for (int i = 0; i < lines.length; i++) {
+            int lineY = y + 5 + i * 10;
+            float depth = (lineY - y + 8f) / QUARTER_H;
+            float room = QUARTER_W * MathHelper.sqrt(Math.max(0, 1 - depth * depth)) - 8;
+            int width = font.getWidth(lines[i]);
+            float fit = width > room ? Math.max(0.5f, room / width) : 1f;
 
-        context.drawText(font, "m/s", x + 5 + font.getWidth(reading) * 2 + 3, y + 14, TEXT_DIM, false);
+            MatrixStack matrices = context.getMatrices();
+            matrices.push();
+            matrices.translate(x + 5, lineY, 0);
+            matrices.scale(fit, fit, 1);
+            context.drawText(font, lines[i], 0, 0, i == 0 ? TEXT : TEXT_DIM, true);
+            matrices.pop();
+        }
+    }
 
-        float artron = (float) (tardis.fuel().getCurrentFuel() / tardis.fuel().getMaxFuel());
-        bar(context, x + 5, y + 27, 34, 3, artron, gaugeColor(artron));
+    private static String dimensionName(String path) {
+        StringBuilder name = new StringBuilder();
+
+        for (String word : path.split("_")) {
+            if (word.isEmpty())
+                continue;
+
+            if (!name.isEmpty())
+                name.append(' ');
+
+            name.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+        }
+
+        return name.toString();
     }
 
     private static void heading(DrawContext context, TextRenderer font, AbstractClientPlayerEntity player) {
@@ -185,9 +234,6 @@ public class RWFOverlay implements HudRenderCallback {
 
         String exact = String.format("%03d°", Math.floorMod(Math.round(bearing), 360));
         context.drawText(font, exact, centre - font.getWidth(exact) / 2, y + 23, TEXT, true);
-
-        String coords = Math.round(player.getX()) + " / " + Math.round(player.getZ());
-        context.drawText(font, coords, centre - font.getWidth(coords) / 2, y + 33, TEXT_DIM, true);
     }
 
     private static void altitude(DrawContext context, TextRenderer font, AbstractClientPlayerEntity player) {
@@ -213,29 +259,134 @@ public class RWFOverlay implements HudRenderCallback {
         context.drawText(font, altText, x - 3 - font.getWidth(altText), y, TEXT, true);
     }
 
-    private static void dial(DrawContext context, TextRenderer font, Tardis tardis) {
+    private static void dial(DrawContext context, TextRenderer font, AbstractClientPlayerEntity player, Tardis tardis,
+            float tickDelta) {
         int x = (screenWidth - DIAL_W) / 2;
         int y = screenHeight - INSET - DIAL_H;
+        float cx = x + DIAL_CX;
+        float cy = y + DIAL_CY;
 
         sprite(context, x, y, DIAL_U, DIAL_V, DIAL_W, DIAL_H);
 
+        attitudeCube(context, cx, cy, player, tickDelta);
+
+        context.fill(Math.round(cx) - 3, Math.round(cy), Math.round(cx) + 4, Math.round(cy) + 1, WARN);
+        context.fill(Math.round(cx), Math.round(cy) - 2, Math.round(cx) + 1, Math.round(cy) + 1, WARN);
+
+        ringMarker(context, cx, cy, MathHelper.lerp(shownThrottle, SPEED_EMPTY, SPEED_FULL), 0xFFFFFFFF);
+        ringMarker(context, cx, cy, MathHelper.lerp(shownFuel, FUEL_EMPTY, FUEL_FULL), gaugeColor(shownFuel));
+
+        ringLabel(context, font, cx, cy, FUEL_FULL - 8, "F", TEXT);
+        ringLabel(context, font, cx, cy, FUEL_EMPTY + 8, "E", ALERT);
+
+        String velocityText = Math.round(velocity) + " m/s";
+        context.drawText(font, velocityText, Math.round(cx) - font.getWidth(velocityText) / 2, y - 10, TEXT, true);
+
         int speed = tardis.travel().speed();
         int maxSpeed = Math.max(1, tardis.travel().maxSpeed().get());
-        float throttle = MathHelper.clamp(speed / (float) maxSpeed, 0, 1);
+        String reading = speed + "/" + maxSpeed;
+        context.drawText(font, reading, x - 3 - font.getWidth(reading), y + DIAL_H - 9,
+                throttleColor(speed / (float) maxSpeed), true);
+    }
 
+    private static void ringMarker(DrawContext context, float cx, float cy, float angle, int tint) {
         MatrixStack matrices = context.getMatrices();
         matrices.push();
-        matrices.translate(x + DIAL_CX, y + DIAL_CY, 0);
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180f + 180f * throttle));
+        matrices.translate(cx, cy, 0);
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(angle));
 
-        context.fill(0, 0, NEEDLE_LEN - DASH_W, 1, ALERT);
-        sprite(context, NEEDLE_LEN - DASH_W, 0, DASH_U, DASH_V, DASH_W, DASH_H);
+        RenderSystem.setShaderColor(((tint >> 16) & 0xFF) / 255f, ((tint >> 8) & 0xFF) / 255f, (tint & 0xFF) / 255f, 1f);
+        sprite(context, RING_INNER, -1, DASH_U, DASH_V, DASH_W, DASH_H);
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
         matrices.pop();
+    }
 
-        String reading = speed + "/" + maxSpeed;
-        context.drawText(font, reading, Math.round(x + DIAL_CX) - font.getWidth(reading) / 2,
-                Math.round(y + DIAL_CY) + 2, throttleColor(throttle), true);
+    private static void ringLabel(DrawContext context, TextRenderer font, float cx, float cy, float angle, String text,
+            int color) {
+        float rad = angle * MathHelper.RADIANS_PER_DEGREE;
+        int lx = Math.round(cx + MathHelper.cos(rad) * RING_LABEL) - font.getWidth(text) / 2;
+        int ly = Math.round(cy + MathHelper.sin(rad) * RING_LABEL) - 4;
+
+        context.drawText(font, text, lx, ly, color, true);
+    }
+
+    private static void attitudeCube(DrawContext context, float cx, float cy, AbstractClientPlayerEntity player,
+            float tickDelta) {
+        float yaw = player.getYaw(tickDelta) * MathHelper.RADIANS_PER_DEGREE;
+        float pitch = player.getPitch(tickDelta) * MathHelper.RADIANS_PER_DEGREE;
+
+        float sinYaw = MathHelper.sin(yaw), cosYaw = MathHelper.cos(yaw);
+        float sinPitch = MathHelper.sin(pitch), cosPitch = MathHelper.cos(pitch);
+
+        Vec3d forward = new Vec3d(-sinYaw * cosPitch, -sinPitch, cosYaw * cosPitch);
+        Vec3d right = new Vec3d(-cosYaw, 0, -sinYaw);
+        Vec3d up = new Vec3d(-sinYaw * sinPitch, cosPitch, cosYaw * sinPitch);
+
+        context.draw();
+
+        Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
+        BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+        RenderSystem.disableCull();
+        RenderSystem.disableDepthTest();
+
+        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+
+        for (Direction direction : Direction.values()) {
+            Vec3d normal = Vec3d.of(direction.getVector());
+            float facing = (float) normal.dotProduct(forward);
+
+            if (facing <= 0.01f)
+                continue;
+
+            float shade = 0.55f + 0.45f * facing;
+            CubeView view = new CubeView(matrix, buffer, cx, cy, right, up);
+
+            if (direction.getAxis() == Direction.Axis.Y) {
+                view.quad(normal, new Vec3d(1, 0, 0), new Vec3d(0, 0, 1), -1, 1, -1, 1,
+                        direction == Direction.UP ? SKY : GROUND, shade);
+                continue;
+            }
+
+            Vec3d across = new Vec3d(-normal.z, 0, normal.x);
+            Vec3d vertical = new Vec3d(0, 1, 0);
+
+            view.quad(normal, across, vertical, -1, 1, 0, 1, SKY, shade);
+            view.quad(normal, across, vertical, -1, 1, -1, 0, GROUND, shade);
+
+            if (direction == Direction.NORTH)
+                view.quad(normal, across, vertical, -0.3f, 0.3f, 0.3f, 0.8f, NORTH_MARK, shade);
+        }
+
+        BufferRenderer.drawWithGlobalProgram(buffer.end());
+
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableCull();
+    }
+
+    private record CubeView(Matrix4f matrix, BufferBuilder buffer, float cx, float cy, Vec3d right, Vec3d up) {
+
+        void quad(Vec3d normal, Vec3d u, Vec3d v, float u0, float u1, float v0, float v1, int color, float shade) {
+            int r = Math.round(((color >> 16) & 0xFF) * shade);
+            int g = Math.round(((color >> 8) & 0xFF) * shade);
+            int b = Math.round((color & 0xFF) * shade);
+
+            this.vertex(normal, u, v, u0, v0, r, g, b);
+            this.vertex(normal, u, v, u1, v0, r, g, b);
+            this.vertex(normal, u, v, u1, v1, r, g, b);
+            this.vertex(normal, u, v, u0, v1, r, g, b);
+        }
+
+        private void vertex(Vec3d normal, Vec3d u, Vec3d v, float a, float b, int r, int g, int bl) {
+            Vec3d corner = normal.add(u.multiply(a)).add(v.multiply(b));
+
+            float sx = this.cx + (float) corner.dotProduct(this.right) * CUBE_SIZE;
+            float sy = this.cy - (float) corner.dotProduct(this.up) * CUBE_SIZE;
+
+            this.buffer.vertex(this.matrix, sx, sy, 0).color(r, g, bl, 255).next();
+        }
     }
 
     private static void statusLights(DrawContext context, FlightTardisEntity entity, Tardis tardis,
@@ -260,11 +411,6 @@ public class RWFOverlay implements HudRenderCallback {
             int iconX = x + 4 + i * ICON_PITCH + (ICON_PITCH - 3 - ICON_W[i]) / 2;
             sprite(context, iconX, y + 5, ICON_U[i], lit[i] ? ICON_LIT_V : ICON_DIM_V, ICON_W[i], ICON_H);
         }
-    }
-
-    private static void bar(DrawContext context, int x, int y, int width, int height, float percent, int color) {
-        context.fill(x, y, x + width, y + height, TRACK);
-        context.fill(x, y, x + Math.round(width * MathHelper.clamp(percent, 0, 1)), y + height, color);
     }
 
     private static void sprite(DrawContext context, int x, int y, int u, int v, int width, int height) {

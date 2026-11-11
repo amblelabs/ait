@@ -67,7 +67,8 @@
     "client.sonic.SonicModelLoaderWrapperMixin",
     "compat.portals.BlockManipulationClientMixin",
     "compat.portals.ClientTeleportationManagerMixin",
-    "rwf.DismountMessageMixin"
+    "rwf.DismountMessageMixin",
+    "rwf.MountHealthMixin"
   ],
   "injectors": {
     "defaultRequire": 1
