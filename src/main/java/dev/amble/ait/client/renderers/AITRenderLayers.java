@@ -60,6 +60,29 @@ public class AITRenderLayers extends RenderLayer {
         return EMISSIVE.apply(texture);
     }
 
+    private static RenderLayer depth(Identifier texture) {
+        MultiPhaseParameters parameters = MultiPhaseParameters.builder()
+                .program(ENTITY_TRANSLUCENT_CULL_PROGRAM)
+                .texture(new RenderPhase.Texture(texture, false, false))
+                .cull(ENABLE_CULLING)
+                .transparency(NO_TRANSPARENCY)
+                .lightmap(ENABLE_LIGHTMAP)
+                .overlay(ENABLE_OVERLAY_COLOR)
+                .depthTest(LEQUAL_DEPTH_TEST)
+                .writeMaskState(DEPTH_MASK)
+                .build(false);
+
+        return RenderLayer.of("tardis_depth",
+                VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, VertexFormat.DrawMode.QUADS, 256,
+                false, false, parameters);
+    }
+
+    private static final Function<Identifier, RenderLayer> DEPTH = Util.memoize(AITRenderLayers::depth);
+
+    public static RenderLayer tardisDepth(Identifier texture) {
+        return DEPTH.apply(texture);
+    }
+
     private AITRenderLayers(String name, VertexFormat vertexFormat, VertexFormat.DrawMode drawMode,
                             int expectedBufferSize, boolean hasCrumbling, boolean translucent, Runnable startAction,
                             Runnable endAction) {

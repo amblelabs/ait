@@ -1,5 +1,9 @@
 package dev.amble.ait.client.renderers.exteriors;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
@@ -25,6 +29,9 @@ import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import net.minecraft.block.BlockState;
@@ -161,6 +168,100 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         return DependencyChecker.hasPortals() && ClientTardisUtil.getCurrentTardis() == tardis;
     }
 
+    private static final VertexConsumerProvider.Immediate FADE_BUFFERS = VertexConsumerProvider.immediate(new BufferBuilder(1024));
+    private static final List<Consumer<VertexConsumerProvider.Immediate>> DEFERRED_BODIES = new ArrayList<>();
+    private static final List<Consumer<VertexConsumerProvider.Immediate>> DEFERRED_EMISSION = new ArrayList<>();
+    private static boolean inWorldPass;
+
+    public static void clearDeferred(WorldRenderContext context) {
+        DEFERRED_BODIES.clear();
+        DEFERRED_EMISSION.clear();
+        inWorldPass = true;
+    }
+
+    public static void drawDeferred(WorldRenderContext context) {
+        runFades();
+        inWorldPass = false;
+    }
+
+    private static void runFades() {
+        for (Consumer<VertexConsumerProvider.Immediate> job : DEFERRED_BODIES)
+            job.accept(FADE_BUFFERS);
+
+        for (Consumer<VertexConsumerProvider.Immediate> job : DEFERRED_EMISSION)
+            job.accept(FADE_BUFFERS);
+
+        DEFERRED_BODIES.clear();
+        DEFERRED_EMISSION.clear();
+    }
+
+    private static boolean isFading(float alpha) {
+        return alpha < 1f && !IrisCompat.isRenderingShadowPass();
+    }
+
+    private static boolean canDefer() {
+        return inWorldPass && !IrisCompat.isShaderPackInUse();
+    }
+
+    private static MatrixStack replay(Matrix4f position, Matrix3f normal) {
+        MatrixStack stack = new MatrixStack();
+        stack.peek().getPositionMatrix().set(position);
+        stack.peek().getNormalMatrix().set(normal);
+        return stack;
+    }
+
+    private void renderBody(ClientTardis tardis, T entity, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
+                            Identifier texture, int light, int overlay, float alpha, float tickDelta) {
+        ExteriorModel model = this.model;
+
+        if (isFading(alpha)) {
+            Matrix4f position = new Matrix4f(matrices.peek().getPositionMatrix());
+            Matrix3f normal = new Matrix3f(matrices.peek().getNormalMatrix());
+
+            DEFERRED_BODIES.add(buffers -> {
+                MatrixStack stack = replay(position, normal);
+                RenderLayer depth = AITRenderLayers.tardisDepth(texture);
+                RenderLayer layer = AITRenderLayers.getEntityTranslucentCull(texture);
+
+                model.renderWithAnimations(tardis, entity, model.getPart(), stack, buffers.getBuffer(depth),
+                        light, overlay, 1, 1, 1, 1, tickDelta);
+                buffers.draw(depth);
+
+                model.renderWithAnimations(tardis, entity, model.getPart(), stack, buffers.getBuffer(layer),
+                        light, overlay, 1, 1, 1, alpha, tickDelta);
+                buffers.draw(layer);
+            });
+            return;
+        }
+
+        model.renderWithAnimations(tardis, entity, model.getPart(), matrices,
+                vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)),
+                light, overlay, 1, 1, 1, alpha, tickDelta);
+    }
+
+    private void renderEmission(ClientTardis tardis, T entity, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
+                                Identifier emission, float red, float green, float blue, float alpha, float tickDelta) {
+        ExteriorModel model = this.model;
+
+        if (isFading(alpha)) {
+            Matrix4f position = new Matrix4f(matrices.peek().getPositionMatrix());
+            Matrix3f normal = new Matrix3f(matrices.peek().getNormalMatrix());
+
+            DEFERRED_EMISSION.add(buffers -> {
+                RenderLayer layer = AITRenderLayers.tardisEmissiveCullZOffset(emission);
+
+                model.renderWithAnimations(tardis, entity, model.getPart(), replay(position, normal),
+                        buffers.getBuffer(layer), 0xF000F0, OverlayTexture.DEFAULT_UV, red, green, blue, alpha, tickDelta);
+                buffers.draw(layer);
+            });
+            return;
+        }
+
+        model.renderWithAnimations(tardis, entity, model.getPart(), matrices,
+                vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(emission)),
+                0xF000F0, OverlayTexture.DEFAULT_UV, red, green, blue, alpha, tickDelta);
+    }
+
     private void renderExterior(Profiler profiler, ClientTardis tardis, T entity, float tickDelta, MatrixStack matrices,
                                 VertexConsumerProvider vertexConsumers, int light, int overlay) {
         final float alpha = tardis.travel().getAlpha(tickDelta);
@@ -256,11 +357,8 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             matrices.translate(0, sinFunc, 0);
         }
 
-        if (!DependencyChecker.hasIris()) {
-            model.renderWithAnimations(tardis, entity, this.model.getPart(),
-                    matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)), light, overlay, 1, 1,
-                    1, alpha, tickDelta);
-        }
+        if (!DependencyChecker.hasIris())
+            this.renderBody(tardis, entity, matrices, vertexConsumers, texture, light, overlay, alpha, tickDelta);
 
         profiler.push("emission");
 
@@ -313,14 +411,13 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
             // TODO the guard above tests `emission`, which DOOM reassigns per rotation, but the layer
             // below binds `variant.emission()`, the un-adjusted base. For DOOM those disagree. Left
             // alone here because changing which texture DOOM binds is not part of this change.
-           model.renderWithAnimations(tardis, entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission())),
-                   0xF000F0, OverlayTexture.DEFAULT_UV, red, green, blue, alpha, tickDelta);
+            this.renderEmission(tardis, entity, matrices, vertexConsumers, variant.emission(), red, green, blue, alpha, tickDelta);
         }
-        if (DependencyChecker.hasIris()) {
-            model.renderWithAnimations(tardis, entity, this.model.getPart(),
-                    matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(texture)), light, overlay, 1, 1,
-                    1, alpha, tickDelta);
-        }
+        if (DependencyChecker.hasIris())
+            this.renderBody(tardis, entity, matrices, vertexConsumers, texture, light, overlay, alpha, tickDelta);
+
+        if (isFading(alpha) && !canDefer())
+            runFades();
 
         profiler.swap("biome");
 
