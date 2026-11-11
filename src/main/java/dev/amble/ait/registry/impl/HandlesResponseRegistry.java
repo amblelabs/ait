@@ -13,6 +13,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.world.TardisServerWorld;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 
@@ -304,6 +305,47 @@ public class HandlesResponseRegistry {
             @Override
             public Identifier id() {
                 return AITMod.id("travel_waypoint");
+            }
+        });
+
+        register(new HandlesResponse() {
+            @Override
+            public boolean run(ServerPlayerEntity player, HandlesSound source, ServerTardis tardis) {
+                if (tardis.travel().inFlight()) {
+                    sendChat(player, Text.translatable("message.ait.handles.already_in_flight"));
+                    return failure(source);
+                }
+
+                CachedDirectedGlobalPos home = tardis.stats().getHome();
+                if (home == null || player.getServer() == null) {
+                    sendChat(player, Text.translatable("message.ait.handles.home_unavailable"));
+                    return failure(source);
+                }
+
+                home.init(player.getServer());
+                if (home.getWorld() == null) {
+                    sendChat(player, Text.translatable("message.ait.handles.home_unavailable"));
+                    return failure(source);
+                }
+
+                tardis.travel().forceDestination(home);
+                if (tardis.travel().dematerialize().isEmpty()) {
+                    sendChat(player, Text.translatable("message.ait.handles.travel_failed"));
+                    return failure(source);
+                }
+
+                sendChat(player, Text.translatable("message.ait.handles.go_home"));
+                return success(source);
+            }
+
+            @Override
+            public List<String> getCommandWords() {
+                return List.of("go home");
+            }
+
+            @Override
+            public Identifier id() {
+                return AITMod.id("go_home");
             }
         });
 
