@@ -136,7 +136,9 @@ public abstract class SkyboxMixin {
 
     @Unique private void renderSkyDynamically(MatrixStack matrices, Matrix4f projectionMatrix, float tickDelta, Camera camera,
                                               Runnable fogCallback, CallbackInfo ci) {
-        if (!AITModClient.CONFIG.environmentProjector || context == null) {
+        boolean portal = SkyboxUtil.PORTAL_SKY_TARDIS != null;
+
+        if (!portal && (!AITModClient.CONFIG.environmentProjector || context == null)) {
             SkyboxUtil.renderTardisSky(matrices);
             ci.cancel();
 
@@ -146,10 +148,15 @@ public abstract class SkyboxMixin {
         if (this.world == null)
             return;
 
-        Tardis tardis = ClientTardisUtil.getCurrentTardis();
+        Tardis tardis = portal ? SkyboxUtil.PORTAL_SKY_TARDIS : ClientTardisUtil.getCurrentTardis();
 
-        if (tardis == null || tardis.stats() == null || tardis.stats().skybox() == null)
+        if (tardis == null || tardis.stats() == null || tardis.stats().skybox() == null) {
+            if (portal) {
+                SkyboxUtil.renderTardisSky(matrices);
+                ci.cancel();
+            }
             return;
+        }
 
         RegistryKey<World> skyboxWorld = tardis.stats().skybox().get();
         float skyboxYaw = tardis.stats().skyboxYaw().get();
@@ -219,7 +226,7 @@ public abstract class SkyboxMixin {
 
         DimensionRenderingRegistry.SkyRenderer renderer = DimensionRenderingRegistry.getSkyRenderer(skyboxWorld);
 
-        if (renderer != null) {
+        if (renderer != null && context != null) {
             renderer.render(context);
             ci.cancel();
         }
