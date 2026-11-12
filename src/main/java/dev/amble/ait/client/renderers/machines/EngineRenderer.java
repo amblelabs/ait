@@ -1,8 +1,5 @@
 package dev.amble.ait.client.renderers.machines;
 
-import java.util.Map;
-import java.util.WeakHashMap;
-
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.animation.machines.EngineAnimation;
 import dev.amble.ait.client.models.machines.EngineBlockModel;
@@ -13,13 +10,11 @@ import dev.amble.ait.core.tardis.Tardis;
 import org.joml.Vector3f;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.render.entity.animation.AnimationHelper;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
@@ -36,10 +31,6 @@ public class EngineRenderer<T extends EngineBlockEntity> implements BlockEntityR
     private static final float MIN_HEALTH_SPEED = 0.4f;
     private static final float ERROR_SPEED = 1.35f;
     private static final float THROTTLE_SPEED = 0.15f;
-    private static final float SPEED_EASE = 0.05f;
-
-    private static final Map<EngineBlockEntity, Spin> SPINS = new WeakHashMap<>();
-    private static final Vector3f TEMP = new Vector3f();
 
     private final EngineBlockModel engineModel;
 
@@ -83,27 +74,10 @@ public class EngineRenderer<T extends EngineBlockEntity> implements BlockEntityR
 
     private void animate(EngineBlockEntity entity, Tardis tardis, EngineSystem.Status status, boolean powered,
             float health, float worldTicks) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        Spin spin = SPINS.computeIfAbsent(entity, key -> new Spin());
+        float speed = targetSpeed(tardis, status, powered, health, worldTicks);
 
-        float target = targetSpeed(tardis, status, powered, health, worldTicks);
-
-        if (!client.isPaused()) {
-            float frame = client.getLastFrameDuration();
-            float ease = 1f - (float) Math.pow(1f - SPEED_EASE, frame);
-
-            spin.speed = MathHelper.lerp(ease, spin.speed, target);
-            spin.time += frame * 50f * spin.speed;
-
-            float length = EngineAnimation.ENGINE_IDLE.lengthInSeconds() * 1000f;
-            if (spin.time > length * 64)
-                spin.time %= length;
-        }
-
-        for (ModelPart part : this.engineModel.getPart().traverse().toList())
-            part.resetTransform();
-
-        AnimationHelper.animate(this.engineModel, EngineAnimation.ENGINE_IDLE, (long) spin.time, 1.0F, TEMP);
+        this.engineModel.animate(entity, EngineAnimation.ENGINE_IDLE,
+                MinecraftClient.getInstance().getTickDelta() + entity.getAge(), speed);
     }
 
     private static float targetSpeed(Tardis tardis, EngineSystem.Status status, boolean powered, float health,
@@ -128,10 +102,5 @@ public class EngineRenderer<T extends EngineBlockEntity> implements BlockEntityR
         float wave = MathHelper.sin(seconds * 2.3f) * MathHelper.sin(seconds * 5.1f + 1.7f);
 
         return MathHelper.clamp(0.55f + 0.9f * wave, 0.05f, 1.3f);
-    }
-
-    private static final class Spin {
-        float time;
-        float speed;
     }
 }

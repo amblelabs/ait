@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.AnimationState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -29,6 +30,9 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
 
     private boolean firstTickHandled;
 
+    public final AnimationState ANIM_STATE = new AnimationState();
+    private int age;
+
     public EngineBlockEntity(BlockPos pos, BlockState state) {
         super(AITBlockEntityTypes.ENGINE_BLOCK_ENTITY_TYPE, pos, state, SubSystem.Id.ENGINE);
 
@@ -38,6 +42,12 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
     @Override
     public void tick(World world, BlockPos pos, BlockState state) {
         super.tick(world, pos, state);
+
+        if (world.isClient()) {
+            this.age++;
+            ANIM_STATE.startIfNotRunning(this.age);
+        }
+
         if (!firstTickHandled && !world.isClient()) {
             firstTickHandled = true;
             FluidNetwork.rebuildFrom((ServerWorld) world, pos);
@@ -47,14 +57,21 @@ public class EngineBlockEntity extends SubSystemBlockEntity implements ITardisSo
             this.updateLight(world, pos, state);
     }
 
+    public int getAge() {
+        return age;
+    }
+
     private void updateLight(World world, BlockPos pos, BlockState state) {
         if (!state.contains(EngineBlock.LIGHT))
             return;
 
         int level = 0;
 
-        if (this.isLinked() && this.tardis().get().fuel().hasPower()) {
-            FuelHandler fuel = this.tardis().get().fuel();
+        if (this.isLinked()) return;
+
+        FuelHandler fuel = this.tardis().get().fuel();
+
+        if (fuel.hasPower()) {
             level = MathHelper.clamp((int) Math.round(15 * fuel.getCurrentFuel() / fuel.getMaxFuel()), 0, 15);
         }
 

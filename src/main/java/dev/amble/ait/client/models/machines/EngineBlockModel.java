@@ -1,10 +1,12 @@
 package dev.amble.ait.client.models.machines;
 
+import dev.amble.ait.core.blockentities.EngineBlockEntity;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.tardis.Tardis;
 
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.render.entity.model.SinglePartEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
@@ -479,6 +481,11 @@ public class EngineBlockModel extends SinglePartEntityModel {
 	public void render(Tardis tardis, MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float red,
 					   float green, float blue, float alpha) {
 		engine.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
+	}
+
+	public void animate(EngineBlockEntity engine, Animation animation, float progress, float speed) {
+		this.getPart().traverse().forEach(ModelPart::resetTransform);
+		this.updateAnimation(engine.ANIM_STATE, animation, progress, speed);
 	}
 
 	@Override
