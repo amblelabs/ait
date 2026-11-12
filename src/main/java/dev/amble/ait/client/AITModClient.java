@@ -177,6 +177,9 @@ public class AITModClient implements ClientModInitializer {
 
         ClientPreAttackCallback.EVENT.register((client, player, clickCount) -> (player.getMainHandStack().getItem() instanceof BaseGunItem));
 
+        WorldRenderEvents.START.register(ExteriorRenderer::clearDeferred);
+        WorldRenderEvents.AFTER_TRANSLUCENT.register(ExteriorRenderer::drawDeferred);
+
         if (DependencyChecker.hasIris()) {
             WorldRenderEvents.END.register(this::exteriorBOTI);
             WorldRenderEvents.END.register(this::doorBOTI);
