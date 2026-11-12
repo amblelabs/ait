@@ -230,3 +230,4 @@
 - feat: smooth door animations! | by [@Loqor](https://github.com/Loqor) ([#2235](https://github.com/amblelabs/ait/pull/2235))
 - fix: rwf? by loqor | by [@drtheodor](https://github.com/drtheodor), [@Loqor](https://github.com/Loqor), [@rapbattlegod32](https://github.com/rapbattlegod32) ([#2183](https://github.com/amblelabs/ait/pull/2183))
 - chore: update modkit to .16 | by [@drtheodor](https://github.com/drtheodor) ([#2236](https://github.com/amblelabs/ait/pull/2236))
+- feat: new engine model from Ember! (the evil one) | by [@Loqor](https://github.com/Loqor) ([#2237](https://github.com/amblelabs/ait/pull/2237))
