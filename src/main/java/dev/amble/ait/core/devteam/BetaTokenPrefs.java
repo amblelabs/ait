@@ -31,6 +31,7 @@ public class BetaTokenPrefs {
     }
 
     public static boolean isTokenValid() {
+        if (BetaVerification.SERVER_DATA == null) return false;
         if (verified != null) return verified;
 
         String jwt = loadToken();
