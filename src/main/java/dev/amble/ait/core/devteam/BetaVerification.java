@@ -73,7 +73,7 @@ public class BetaVerification {
     public static CompletableFuture<Void> fetchServerData() {
         return downloadAsString("https://amblelabs.dev/data.json").exceptionally(throwable -> {
             AITMod.LOGGER.error("Failed to access the server data, falling back", throwable);
-            return new Gson().toJson(new ServerData("https://amble-verifier.drtheo.workers.dev"));
+            return new Gson().toJson(new ServerData("https://amble-verifier.amblelabs.workers.dev"));
         }).thenAccept(s -> {
             SERVER_DATA = new Gson().fromJson(s, ServerData.class);
             AITMod.LOGGER.info("Successfully fetched server data: {}", SERVER_DATA);
