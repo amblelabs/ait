@@ -32,7 +32,7 @@ public class BetaVerification {
     public record ServerData(String verifier) { }
 
     public static void init() {
-        if (!AITMod.isBetaLocked()) return;
+        if (!AITMod.isOfficialBeta()) return;
 
         BetaVerification.fetchServerData().thenAcceptAsync(unused
                 -> BetaTokenPrefs.isTokenValid());
