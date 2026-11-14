@@ -1,4 +1,5 @@
 {
+  "loyalty": "COMPANION",
   "id": "ait:eighth_demat",
   "expected_state": "demat",
   "sound": "ait:tardis/eighth_demat",

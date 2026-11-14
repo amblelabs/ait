@@ -2,12 +2,12 @@ package dev.amble.ait.core.sounds.flight;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITSounds;
-import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
+import dev.amble.lib.register.unlockable.UnlockableRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 
 import net.minecraft.resource.ResourceType;
 
-public class FlightSoundRegistry extends SimpleDatapackRegistry<FlightSound> {
+public class FlightSoundRegistry extends UnlockableRegistry<FlightSound> {
     private static final FlightSoundRegistry instance = new FlightSoundRegistry();
 
     // just for spotless apply to apply

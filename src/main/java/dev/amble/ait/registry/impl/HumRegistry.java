@@ -4,16 +4,17 @@ package dev.amble.ait.registry.impl;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.sounds.ClientSoundManager;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.data.Loyalty;
 import dev.amble.ait.data.hum.DatapackHum;
 import dev.amble.ait.data.hum.Hum;
-import dev.amble.lib.register.datapack.SimpleDatapackRegistry;
+import dev.amble.lib.register.unlockable.UnlockableRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.sound.SoundEvents;
 
-public class HumRegistry extends SimpleDatapackRegistry<Hum> {
+public class HumRegistry extends UnlockableRegistry<Hum> {
     private static final HumRegistry instance = new HumRegistry();
 
     protected HumRegistry() {
@@ -38,7 +39,7 @@ public class HumRegistry extends SimpleDatapackRegistry<Hum> {
     @Override
     protected void defaults() {
         CORAL = register(Hum.create(AITMod.MOD_ID, "coral", AITSounds.CORAL_HUM));
-        CHRISTMAS = register(Hum.create(AITMod.MOD_ID, "christmas", AITSounds.CHRISTMAS_HUM));
+        CHRISTMAS = register(Hum.create(AITMod.MOD_ID, "christmas", AITSounds.CHRISTMAS_HUM, new Loyalty(Loyalty.Type.COMPANION)));
         OFF = register(Hum.create(AITMod.MOD_ID, "off", SoundEvents.INTENTIONALLY_EMPTY));
     }
 

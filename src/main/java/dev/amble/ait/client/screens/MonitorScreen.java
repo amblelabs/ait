@@ -10,6 +10,7 @@ import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.screens.interior.InteriorSettingsScreen;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.client.util.LockedDisplay;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
@@ -164,6 +165,9 @@ public class MonitorScreen extends ConsoleScreen {
 
     public static void sendExteriorPacket(ClientTardis tardis, ExteriorCategorySchema category,
             ClientExteriorVariantSchema variant) {
+        if (!tardis.isUnlocked(variant.parent()))
+            return;
+
         if (category != tardis.getExterior().getCategory() || variant.parent() != tardis.getExterior().getVariant()) {
             ClientTardisUtil.changeExteriorWithScreen(tardis, variant.id(),
                     variant.parent() != tardis.getExterior().getVariant());
@@ -415,6 +419,9 @@ public class MonitorScreen extends ConsoleScreen {
         stack.translate(0, 0, 50f);
         context.drawCenteredTextWithShadow(this.textRenderer, isExtUnlocked ? "" : "\uD83D\uDD12", x, y, 0xFFFFFF);
         stack.pop();
+
+        if (!isExtUnlocked)
+            LockedDisplay.drawRequirement(context, this.textRenderer, variant.parent(), x, y + 12);
 
         stack.pop();
     }

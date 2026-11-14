@@ -1,4 +1,5 @@
 {
+  "loyalty": "OWNER",
   "id": "ait:self_destruct",
   "expected_state": "landed",
   "sound": "ait:tardis/crumple"

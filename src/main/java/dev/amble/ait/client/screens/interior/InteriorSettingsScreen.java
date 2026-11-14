@@ -15,6 +15,8 @@ import dev.amble.ait.api.tardis.TardisClientEvents;
 import dev.amble.ait.client.models.exteriors.BedrockExteriorModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
+import dev.amble.ait.client.util.LockedDisplay;
+import dev.amble.lib.register.unlockable.Unlockable;
 import dev.amble.ait.client.screens.ConsoleScreen;
 import dev.amble.ait.client.screens.SaveLoadInteriorScreen;
 import dev.amble.ait.client.screens.SonicSettingsScreen;
@@ -217,7 +219,10 @@ public class InteriorSettingsScreen extends ConsoleScreen {
 
         // apply (HUM)
         this.addButton(new PressableTextWidget((width / 2 + 44), (height / 2 + 61),
-                APPLY_BAR_BUTTON_WIDTH, APPLY_BAR_BUTTON_HEIGHT, Text.empty(), button -> this.modeManager.get().sync(this.tardis()), this.textRenderer));
+                APPLY_BAR_BUTTON_WIDTH, APPLY_BAR_BUTTON_HEIGHT, Text.empty(), button -> {
+                    if (!LockedDisplay.isLocked(this.tardis(), this.modeManager.get().get()))
+                        this.modeManager.get().sync(this.tardis());
+                }, this.textRenderer));
 
         // arrows (Interior)
         this.addButton(new PressableTextWidget((width / 2 + 23), (height / 2 + 3), BIG_ARROW_BUTTON_WIDTH, BIG_ARROW_BUTTON_HEIGHT,
@@ -491,6 +496,11 @@ public class InteriorSettingsScreen extends ConsoleScreen {
                 (int) (left + (bgWidth * 0.77f)), (int) (top + (bgHeight * 0.080f)), 0xffffff);
         context.getMatrices().pop();
 
+        boolean locked = !isCurrentUnlocked();
+
+        if (locked)
+            RenderSystem.setShaderColor(0.3f, 0.3f, 0.3f, 1f);
+
         context.getMatrices().push();
         context.drawTexture(
                 doesTextureExist(this.selectedDesktop.previewTexture().texture())
@@ -502,6 +512,15 @@ public class InteriorSettingsScreen extends ConsoleScreen {
                 this.selectedDesktop.previewTexture().height * 2);
 
         context.getMatrices().pop();
+
+        if (locked) {
+            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+            context.getMatrices().push();
+            context.getMatrices().translate(0, 0, 15f);
+            LockedDisplay.drawRequirement(context, this.textRenderer, this.selectedDesktop,
+                    left + PREVIEW_X_OFFSET + PREVIEW_SIZE / 2, top + PREVIEW_Y_OFFSET + PREVIEW_SIZE / 2 - 4);
+            context.getMatrices().pop();
+        }
     }
 
     private void renderVortexPreview(DrawContext context) {
@@ -775,13 +794,20 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         context.drawText(this.textRenderer, modeText,
                 (width / 2 + 50) - this.textRenderer.getWidth(modeText) / 2,
                 height / 2 + 32, 0xffffff, true);
+        boolean locked = LockedDisplay.isLocked(this.tardis(), current);
         String currentString = current.text().getString().toUpperCase(Locale.ROOT);
-        context.drawText(this.textRenderer, currentString, (int) (left + (bgWidth * 0.78f)) - this.textRenderer.getWidth(currentString) / 2,
-                (int) (top + (bgHeight * 0.792f)), 0xffffff, true);
+        int currentX = (int) (left + (bgWidth * 0.78f));
+        int currentY = (int) (top + (bgHeight * 0.792f));
+
+        context.drawText(this.textRenderer, currentString, currentX - this.textRenderer.getWidth(currentString) / 2,
+                currentY, locked ? 0x777777 : 0xffffff, true);
+
+        if (locked && current instanceof Unlockable unlockable)
+            LockedDisplay.drawRequirement(context, this.textRenderer, unlockable, currentX, currentY + 10);
     }
 
     private void applyDesktop() {
-        if (this.selectedDesktop == null)
+        if (this.selectedDesktop == null || !isCurrentUnlocked())
             return;
 
         PacketByteBuf buf = PacketByteBufs.create();
@@ -804,8 +830,8 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private void nextDesktop() {
         this.selectedDesktop = nextDesktop(this.selectedDesktop);
 
-        if (!isCurrentUnlocked() || this.selectedDesktop == DesktopRegistry.DEFAULT_CAVE)
-            nextDesktop(); // ooo incursion crash
+        if (this.selectedDesktop == DesktopRegistry.DEFAULT_CAVE)
+            nextDesktop();
     }
 
     private static TardisDesktopSchema previousDesktop(TardisDesktopSchema current) {
@@ -819,8 +845,8 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private void previousDesktop() {
         this.selectedDesktop = previousDesktop(this.selectedDesktop);
 
-        if (!isCurrentUnlocked() || this.selectedDesktop == DesktopRegistry.DEFAULT_CAVE)
-            previousDesktop(); // ooo incursion crash
+        if (this.selectedDesktop == DesktopRegistry.DEFAULT_CAVE)
+            previousDesktop();
     }
 
     public static boolean doesTextureExist(Identifier id) {

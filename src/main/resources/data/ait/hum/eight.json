@@ -1,4 +1,5 @@
 {
+  "loyalty": "COMPANION",
   "id": "ait:eight",
   "sound": {
     "sound_id": "ait:tardis/hums/eight_hum"

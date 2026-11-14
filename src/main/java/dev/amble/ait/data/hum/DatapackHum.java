@@ -2,6 +2,7 @@ package dev.amble.ait.data.hum;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.gson.JsonObject;
@@ -10,17 +11,19 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.amble.ait.AITMod;
+import dev.amble.ait.data.Loyalty;
 
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 
 public class DatapackHum extends Hum {
     public static final Codec<Hum> CODEC = RecordCodecBuilder.create(instance -> instance
-            .group(Identifier.CODEC.fieldOf("id").forGetter(Hum::id), SoundEvent.CODEC.fieldOf("sound").forGetter(Hum::sound))
+            .group(Identifier.CODEC.fieldOf("id").forGetter(Hum::id), SoundEvent.CODEC.fieldOf("sound").forGetter(Hum::sound),
+                    Loyalty.CODEC.optionalFieldOf("loyalty").forGetter(Hum::requirement))
             .apply(instance, DatapackHum::new));
 
-    protected DatapackHum(Identifier id, SoundEvent sound) {
-        super(id, sound);
+    protected DatapackHum(Identifier id, SoundEvent sound, Optional<Loyalty> loyalty) {
+        super(id, sound, loyalty);
     }
 
     public static Hum fromInputStream(InputStream stream) {

@@ -2,6 +2,7 @@ package dev.amble.ait.core.tardis.vortex.reference;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.gson.JsonObject;
@@ -12,18 +13,20 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.client.renderers.VortexRender;
-import dev.amble.lib.api.Identifiable;
+import dev.amble.ait.data.Loyalty;
+import dev.amble.lib.register.unlockable.Unlockable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-public record VortexReference(Identifier id, Identifier texture, String name) implements Identifiable, Nameable {
+public record VortexReference(Identifier id, Identifier texture, String name, Optional<Loyalty> loyalty) implements Unlockable, Nameable {
     public static final Codec<VortexReference> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Identifier.CODEC.fieldOf("id").forGetter(VortexReference::id),
             Identifier.CODEC.fieldOf("texture").forGetter(VortexReference::texture),
-            Codec.STRING.optionalFieldOf("name", "").forGetter(VortexReference::name)
+            Codec.STRING.optionalFieldOf("name", "").forGetter(VortexReference::name),
+            Loyalty.CODEC.optionalFieldOf("loyalty").forGetter(VortexReference::loyalty)
     ).apply(instance, VortexReference::new));
 
     public VortexReference {
@@ -33,7 +36,17 @@ public record VortexReference(Identifier id, Identifier texture, String name) im
     }
 
     public VortexReference(Identifier id, Identifier texture) {
-        this(id, texture, id.getPath());
+        this(id, texture, id.getPath(), Optional.empty());
+    }
+
+    @Override
+    public UnlockType unlockType() {
+        return UnlockType.VORTEX;
+    }
+
+    @Override
+    public Optional<Loyalty> requirement() {
+        return this.loyalty;
     }
 
     @Override

@@ -2,6 +2,7 @@ package dev.amble.ait.core.sounds.flight;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.gson.JsonObject;
@@ -12,21 +13,23 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.Nameable;
 import dev.amble.ait.core.AITSounds;
-import dev.amble.lib.api.Identifiable;
+import dev.amble.ait.data.Loyalty;
+import dev.amble.lib.register.unlockable.Unlockable;
 
 import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-public record FlightSound(Identifier id, Identifier soundId, int length, String name) implements Identifiable, Nameable {
+public record FlightSound(Identifier id, Identifier soundId, int length, String name, Optional<Loyalty> loyalty) implements Unlockable, Nameable {
 
     public static final Codec<FlightSound> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     Identifier.CODEC.fieldOf("id").forGetter(FlightSound::id),
                     Identifier.CODEC.fieldOf("sound").forGetter(FlightSound::soundId),
                     Codec.INT.fieldOf("length").forGetter(FlightSound::length),
-                    Codec.STRING.optionalFieldOf("name", "").forGetter(FlightSound::name)
+                    Codec.STRING.optionalFieldOf("name", "").forGetter(FlightSound::name),
+                    Loyalty.CODEC.optionalFieldOf("loyalty").forGetter(FlightSound::loyalty)
             ).apply(instance, FlightSound::new)
     );
 
@@ -39,6 +42,20 @@ public record FlightSound(Identifier id, Identifier soundId, int length, String 
     @Override
     public Identifier id() {
         return this.id;
+    }
+
+    public FlightSound(Identifier id, Identifier soundId, int length, String name) {
+        this(id, soundId, length, name, Optional.empty());
+    }
+
+    @Override
+    public UnlockType unlockType() {
+        return UnlockType.FLIGHT_SOUND;
+    }
+
+    @Override
+    public Optional<Loyalty> requirement() {
+        return this.loyalty;
     }
 
     @Override

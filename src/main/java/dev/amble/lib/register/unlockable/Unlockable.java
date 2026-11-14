@@ -19,6 +19,6 @@ public interface Unlockable extends Identifiable {
     }
 
     enum UnlockType {
-        EXTERIOR, CONSOLE, SONIC, DESKTOP, DIMENSION
+        EXTERIOR, CONSOLE, SONIC, DESKTOP, DIMENSION, HUM, VORTEX, FLIGHT_SOUND, ANIMATION
     }
 }

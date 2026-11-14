@@ -1,4 +1,5 @@
 {
+  "loyalty": "COMPANION",
   "id": "ait:proton",
   "sound": "ait:tardis/proton_flight",
   "length": 80

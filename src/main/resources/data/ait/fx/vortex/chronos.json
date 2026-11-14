@@ -1,4 +1,5 @@
 {
+  "loyalty": "COMPANION",
   "id": "ait:chronos",
   "texture": "ait:textures/vortex/chronos.png"
 }

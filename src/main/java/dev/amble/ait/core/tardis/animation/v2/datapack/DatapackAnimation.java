@@ -15,6 +15,7 @@ import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
 import dev.amble.ait.core.tardis.animation.v2.blockbench.BlockbenchParser;
 import dev.amble.ait.core.tardis.animation.v2.keyframe.KeyframeTracker;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.data.Loyalty;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -27,23 +28,26 @@ public class DatapackAnimation extends TardisAnimation {
                     Identifier.CODEC.fieldOf("id").forGetter(TardisAnimation::id),
                     Identifier.CODEC.optionalFieldOf("blockbench_file").forGetter(TardisAnimation::getBlockbenchId),
                     TravelHandlerBase.State.CODEC.fieldOf("expected_state").forGetter(TardisAnimation::getExpectedState),
-                    Identifier.CODEC.optionalFieldOf("sound").forGetter(TardisAnimation::getSoundId)
+                    Identifier.CODEC.optionalFieldOf("sound").forGetter(TardisAnimation::getSoundId),
+                    Loyalty.CODEC.optionalFieldOf("loyalty").forGetter(TardisAnimation::requirement)
     ).apply(instance, DatapackAnimation::new));
 
     private final TravelHandlerBase.State expectedState;
     private final String nameKey;
     @Nullable private final Identifier blockbenchId;
 
-    protected DatapackAnimation(Identifier id, Optional<Identifier> blockbench, TravelHandlerBase.State expectedState, Optional<Identifier> sound) {
+    protected DatapackAnimation(Identifier id, Optional<Identifier> blockbench, TravelHandlerBase.State expectedState, Optional<Identifier> sound, Optional<Loyalty> loyalty) {
         super(id, sound.orElse(null), BlockbenchParser.getOrFallback(blockbench.orElse(id)));
+        this.setRequirement(loyalty.orElse(null));
 
         this.blockbenchId = blockbench.orElse(null);
         this.expectedState = expectedState;
         this.nameKey = id.toTranslationKey("animation");
     }
 
-    protected DatapackAnimation(Identifier id, KeyframeTracker<Float> alpha, KeyframeTracker<Vector3f> scale, KeyframeTracker<Vector3f> position, KeyframeTracker<Vector3f> rotation, Identifier blockbench, TravelHandlerBase.State expectedState, String optName, @Nullable Identifier soundId) {
+    protected DatapackAnimation(Identifier id, KeyframeTracker<Float> alpha, KeyframeTracker<Vector3f> scale, KeyframeTracker<Vector3f> position, KeyframeTracker<Vector3f> rotation, Identifier blockbench, TravelHandlerBase.State expectedState, String optName, @Nullable Identifier soundId, Optional<Loyalty> loyalty) {
         super(id, soundId, alpha, scale, position, rotation);
+        this.setRequirement(loyalty.orElse(null));
 
         this.blockbenchId = blockbench;
         this.expectedState = expectedState;
@@ -62,7 +66,7 @@ public class DatapackAnimation extends TardisAnimation {
 
     @Override
     public DatapackAnimation instantiate() {
-        return new DatapackAnimation(this.id(), this.alpha.instantiate(), this.scale.instantiate(), this.position.instantiate(), this.rotation.instantiate(), this.blockbenchId, this.expectedState, this.nameKey, this.getSoundIdOrDefault());
+        return new DatapackAnimation(this.id(), this.alpha.instantiate(), this.scale.instantiate(), this.position.instantiate(), this.rotation.instantiate(), this.blockbenchId, this.expectedState, this.nameKey, this.getSoundIdOrDefault(), this.requirement());
     }
 
     public static DatapackAnimation fromInputStream(InputStream stream) {

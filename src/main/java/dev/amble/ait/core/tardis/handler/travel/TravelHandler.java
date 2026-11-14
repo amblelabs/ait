@@ -151,6 +151,11 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
             if (tardis == null || state == null || id == null)
                 return;
 
+            TardisAnimation animation = TardisAnimationRegistry.getInstance().get(id);
+
+            if (animation == null || !tardis.isUnlocked(animation))
+                return;
+
             server.execute(() -> tardis.travel().setAnimationFor(state, id));
         })));
 

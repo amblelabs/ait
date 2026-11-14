@@ -1368,6 +1368,16 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("message.ait.unlocked_sonic", "Sonic Screwdriver Casing '%s' unlocked!");
         provider.addTranslation("message.ait.unlocked_console", "Console Interface '%s' unlocked!");
         provider.addTranslation("message.ait.unlocked_interior", "Desktop Theme '%s' unlocked!");
+        provider.addTranslation("message.ait.unlocked_hum", "Interior Hum '%s' unlocked!");
+        provider.addTranslation("message.ait.unlocked_vortex", "Vortex '%s' unlocked!");
+        provider.addTranslation("message.ait.unlocked_flight_sound", "Flight Sound '%s' unlocked!");
+        provider.addTranslation("message.ait.unlocked_animation", "Travel Animation '%s' unlocked!");
+        provider.addTranslation("screen.ait.locked.requires", "%s Requires %s");
+        provider.addTranslation("screen.ait.loyalty.reject", "Reject");
+        provider.addTranslation("screen.ait.loyalty.neutral", "Neutral");
+        provider.addTranslation("screen.ait.loyalty.companion", "Companion");
+        provider.addTranslation("screen.ait.loyalty.pilot", "Pilot");
+        provider.addTranslation("screen.ait.loyalty.owner", "Owner");
         provider.addTranslation("message.ait.unlocked_all", "Unlocked all %s");
         provider.addTranslation("message.ait.all_types", "Consoles, Exteriors, Desktops & Sonic Casings");
         provider.addTranslation("screen.ait.sonic_casing", "Sonic Casing");

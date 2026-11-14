@@ -19,7 +19,9 @@ import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.animation.v2.keyframe.KeyframeTracker;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.Exclude;
+import dev.amble.ait.data.Loyalty;
 import dev.amble.lib.api.Identifiable;
+import dev.amble.lib.register.unlockable.Unlockable;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import dev.drtheo.queue.api.ActionQueue;
 import net.fabricmc.api.EnvType;
@@ -38,9 +40,10 @@ import net.minecraft.util.Identifier;
  * Represents an exterior animation for the TARDIS.
  * If you got this from the registry, call {@link TardisAnimation#instantiate()} as to not cause issues.
  */
-public abstract class TardisAnimation implements TardisTickable, Disposable, Identifiable, Linkable, Nameable {
+public abstract class TardisAnimation implements TardisTickable, Disposable, Identifiable, Linkable, Nameable, Unlockable {
     private final Identifier id;
     @Nullable private Identifier soundId;
+    @Nullable private Loyalty loyalty;
 
     private TardisRef ref;
     private boolean isServer = true;
@@ -250,6 +253,20 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
      * @return a new instance
      */
     public abstract TardisAnimation instantiate();
+
+    @Override
+    public UnlockType unlockType() {
+        return UnlockType.ANIMATION;
+    }
+
+    @Override
+    public Optional<Loyalty> requirement() {
+        return Optional.ofNullable(this.loyalty);
+    }
+
+    protected void setRequirement(@Nullable Loyalty loyalty) {
+        this.loyalty = loyalty;
+    }
 
     public static Object serializer() {
         return new Serializer();

@@ -66,7 +66,11 @@ public class TardisBuilder {
             stats.setPlayerCreatorName(player.getName().getString());
             stats.markPlayerCreatorName();
         }).<LoyaltyHandler>with(TardisComponent.Id.LOYALTY,
-                loyalty -> loyalty.set(player, new Loyalty(Loyalty.Type.COMPANION)));
+                loyalty -> {
+                    loyalty.setMessageEnabled(false);
+                    loyalty.set(player, new Loyalty(Loyalty.Type.COMPANION));
+                    loyalty.setMessageEnabled(true);
+                });
     }
 
     private void validate() {

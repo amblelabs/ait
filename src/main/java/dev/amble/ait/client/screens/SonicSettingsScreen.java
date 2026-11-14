@@ -9,6 +9,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.LinkableItem;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
+import dev.amble.ait.client.util.LockedDisplay;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.data.schema.sonic.SonicSchema;
@@ -160,6 +161,9 @@ public class SonicSettingsScreen extends ConsoleScreen {
             stack.translate(50f, 50f, 1000f);
             context.drawCenteredTextWithShadow(this.textRenderer, (tardis().isUnlocked(schema)) ? "" : "\uD83D\uDD12",
                     x, y, 0xFFFFFF);
+
+            if (!tardis().isUnlocked(schema))
+                LockedDisplay.drawRequirement(context, this.textRenderer, schema, x, y + 12);
             stack.pop();
 
             stack.push();

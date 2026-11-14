@@ -1,6 +1,7 @@
 package dev.amble.ait.core.tardis.handler;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -14,15 +15,28 @@ import dev.amble.ait.core.advancement.TardisCriterions;
 import dev.amble.ait.core.likes.ItemOpinion;
 import dev.amble.ait.core.likes.ItemOpinionRegistry;
 import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.sounds.flight.FlightSound;
+import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
+import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
+import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
+import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
+import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
+import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.Loyalty;
+import dev.amble.ait.data.hum.Hum;
 import dev.amble.ait.data.schema.console.ConsoleVariantSchema;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.data.schema.sonic.SonicSchema;
 import dev.amble.ait.registry.impl.DesktopRegistry;
+import dev.amble.ait.registry.impl.HumRegistry;
 import dev.amble.ait.registry.impl.SonicRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
 import dev.amble.ait.registry.impl.exterior.ExteriorVariantRegistry;
+import dev.amble.lib.register.unlockable.Unlockable;
+import dev.amble.lib.register.unlockable.UnlockableRegistry;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
@@ -32,8 +46,17 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 public class LoyaltyHandler extends TardisComponent implements TardisTickable {
+    private static int generation;
+
     private final Map<UUID, Loyalty> data;
     private boolean messageEnabled = true;
+
+    @Exclude
+    private int refreshedGeneration = -1;
+
+    static {
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, manager, success) -> generation++);
+    }
 
     public boolean isMessageEnabled() {
         return messageEnabled;
@@ -70,6 +93,11 @@ public class LoyaltyHandler extends TardisComponent implements TardisTickable {
 
     @Override
     public void tick(MinecraftServer server) {
+        if (this.refreshedGeneration != generation) {
+            this.refreshedGeneration = generation;
+            this.refreshUnlocks();
+        }
+
         if (server.getTicks() % 40 != 0)
             return;
 
@@ -99,30 +127,45 @@ public class LoyaltyHandler extends TardisComponent implements TardisTickable {
         this.set(player, current);
     }
 
-    public void unlock(ServerPlayerEntity player, Loyalty loyalty) {
+    public void unlock(@Nullable ServerPlayerEntity player, Loyalty loyalty) {
         ServerTardis tardis = (ServerTardis) this.tardis;
+        boolean announce = messageEnabled && player != null;
+        boolean unlocked = false;
 
-        boolean playSound = messageEnabled;
+        for (UnlockableRegistry<?> registry : unlockables())
+            unlocked = tryUnlock(registry, tardis, loyalty, announce ? player : null) || unlocked;
 
-        if (playSound) {
-            playSound = ConsoleVariantRegistry.getInstance().tryUnlock(tardis, loyalty,
-                    schema -> this.playUnlockEffects(player, schema));
-            playSound = DesktopRegistry.getInstance().tryUnlock(tardis, loyalty,
-                    schema -> this.playUnlockEffects(player, schema)) || playSound;
-            playSound = ExteriorVariantRegistry.getInstance().tryUnlock(tardis, loyalty,
-                    schema -> this.playUnlockEffects(player, schema)) || playSound;
-            playSound = SonicRegistry.getInstance().tryUnlock(tardis, loyalty,
-                    schema -> this.playUnlockEffects(player, schema)) || playSound;
-        }
-
-        if (playSound)
+        if (unlocked && announce)
             player.getServerWorld().playSound(null, player.getBlockPos(), AITSounds.LOYALTY_UP,
                     SoundCategory.PLAYERS, 0.2F, 1.0F);
+
+        if (player == null)
+            return;
 
         if (loyalty.isOf(Loyalty.Type.OWNER))
             TardisCriterions.REACH_OWNER.trigger(player);
         else if (loyalty.isOf(Loyalty.Type.PILOT))
             TardisCriterions.REACH_PILOT.trigger(player);
+    }
+
+    private <T extends Unlockable> boolean tryUnlock(UnlockableRegistry<T> registry, ServerTardis tardis, Loyalty loyalty,
+            @Nullable ServerPlayerEntity announceTo) {
+        return registry.tryUnlock(tardis, loyalty, schema -> {
+            if (announceTo != null && schema instanceof Nameable nameable)
+                this.playUnlockEffects(announceTo, nameable);
+        });
+    }
+
+    private void refreshUnlocks() {
+        for (Loyalty loyalty : this.data.values())
+            this.unlock(null, loyalty);
+    }
+
+    public static List<UnlockableRegistry<?>> unlockables() {
+        return List.of(ConsoleVariantRegistry.getInstance(), DesktopRegistry.getInstance(),
+                ExteriorVariantRegistry.getInstance(), SonicRegistry.getInstance(), HumRegistry.getInstance(),
+                VortexReferenceRegistry.getInstance(), FlightSoundRegistry.getInstance(),
+                TardisAnimationRegistry.getInstance());
     }
 
     private void playUnlockEffects(ServerPlayerEntity player, Nameable nameable) {
@@ -137,6 +180,14 @@ public class LoyaltyHandler extends TardisComponent implements TardisTickable {
             unlockedMessage = Text.translatable("message.ait.unlocked_interior", nameText).formatted(Formatting.WHITE);
         } else if (nameable instanceof ExteriorVariantSchema) {
             unlockedMessage = Text.translatable("message.ait.unlocked_exterior", nameText).formatted(Formatting.WHITE);
+        } else if (nameable instanceof Hum) {
+            unlockedMessage = Text.translatable("message.ait.unlocked_hum", nameText).formatted(Formatting.WHITE);
+        } else if (nameable instanceof VortexReference) {
+            unlockedMessage = Text.translatable("message.ait.unlocked_vortex", nameText).formatted(Formatting.WHITE);
+        } else if (nameable instanceof FlightSound) {
+            unlockedMessage = Text.translatable("message.ait.unlocked_flight_sound", nameText).formatted(Formatting.WHITE);
+        } else if (nameable instanceof TardisAnimation) {
+            unlockedMessage = Text.translatable("message.ait.unlocked_animation", nameText).formatted(Formatting.WHITE);
         } else {
             unlockedMessage = Text.translatable("message.ait.unlocked", nameText).formatted(Formatting.WHITE);
         }

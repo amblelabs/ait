@@ -1,4 +1,5 @@
 {
+  "loyalty": "COMPANION",
   "id": "ait:timehole",
   "texture": "ait:textures/vortex/timehole.png"
 }

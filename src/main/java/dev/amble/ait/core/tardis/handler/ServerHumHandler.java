@@ -25,7 +25,7 @@ public class ServerHumHandler extends TardisComponent {
 
                     Hum hum = HumRegistry.getInstance().get(buf.readIdentifier());
 
-                    if (hum == null)
+                    if (hum == null || !tardis.isUnlocked(hum))
                         return;
 
                     server.execute(() -> tardis.hum().set(hum));

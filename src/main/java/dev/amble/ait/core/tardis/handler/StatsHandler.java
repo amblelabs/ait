@@ -29,8 +29,6 @@ import dev.amble.ait.data.properties.dbl.DoubleProperty;
 import dev.amble.ait.data.properties.dbl.DoubleValue;
 import dev.amble.ait.data.properties.flt.FloatProperty;
 import dev.amble.ait.data.properties.flt.FloatValue;
-import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
-import dev.amble.ait.registry.impl.DesktopRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.register.unlockable.Unlockable;
 import dev.amble.lib.util.ServerLifecycleHooks;
@@ -103,6 +101,11 @@ public class StatsHandler extends KeyedTardisComponent {
             if (tardis == null || id == null)
                 return;
 
+            VortexReference vortex = VortexReferenceRegistry.getInstance().get(id);
+
+            if (vortex == null || !tardis.isUnlocked(vortex))
+                return;
+
             server.execute(() -> tardis.stats().setVortexEffects(id));
         })));
 
@@ -110,6 +113,11 @@ public class StatsHandler extends KeyedTardisComponent {
             Identifier id = buf.readIdentifier();
 
             if (tardis == null || id == null)
+                return;
+
+            FlightSound flight = FlightSoundRegistry.getInstance().get(id);
+
+            if (flight == null || !tardis.isUnlocked(flight))
                 return;
 
             server.execute(() -> tardis.stats().setFlightEffects(id));
@@ -169,25 +177,24 @@ public class StatsHandler extends KeyedTardisComponent {
                 this.flightFxCache.invalidate();
             else this.getFlightEffects();
         });
-
-        for (Iterator<TardisDesktopSchema> it = DesktopRegistry.getInstance().iterator(); it.hasNext();) {
-            this.unlock(it.next(), false);
-        }
     }
 
     public boolean isUnlocked(Unlockable unlockable) {
-        return this.unlocks.get().contains(unlockable.id().toString());
+        return this.unlocks.get().contains(unlockKey(unlockable));
     }
 
     public void unlock(Unlockable unlockable) {
-        this.unlock(unlockable, true);
+        this.unlocks.flatMap(strings -> {
+            strings.add(unlockKey(unlockable));
+            return strings;
+        }, true);
     }
 
-    private void unlock(Unlockable unlockable, boolean sync) {
-        this.unlocks.flatMap(strings -> {
-            strings.add(unlockable.id().toString());
-            return strings;
-        }, sync);
+    private static String unlockKey(Unlockable unlockable) {
+        return switch (unlockable.unlockType()) {
+            case HUM, VORTEX, FLIGHT_SOUND, ANIMATION -> unlockable.unlockType().name().toLowerCase() + "/" + unlockable.id();
+            default -> unlockable.id().toString();
+        };
     }
 
     public Value<RegistryKey<World>> skybox() {
