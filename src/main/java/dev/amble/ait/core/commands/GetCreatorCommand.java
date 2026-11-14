@@ -19,7 +19,7 @@ public class GetCreatorCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(literal(AITMod.MOD_ID)
-                .then(literal("creator-name").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.creator-name", 2)).then(literal("get").then(
+                .then(literal("fallback-name").requires(source -> PermissionAPICompat.hasPermission(source, "ait.command.fallback-name", 2)).then(literal("get").then(
                         argument("tardis", TardisArgumentType.tardis()).executes(GetCreatorCommand::runCommand)))));
     }
 

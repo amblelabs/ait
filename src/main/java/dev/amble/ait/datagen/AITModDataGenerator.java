@@ -40,6 +40,7 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 
+@SuppressWarnings("unused")
 public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
     @Override
@@ -86,9 +87,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         pack.addProvider((((output, registriesFuture) -> {
             AITRecipeProvider provider = new AITRecipeProvider(output);
 
-            ModuleRegistry.instance().iterator().forEachRemaining(module -> module.getDataGenerator().ifPresent(dataGenerator -> {
-                dataGenerator.recipes(provider);
-            }));
+            ModuleRegistry.instance().iterator().forEachRemaining(module -> module.getDataGenerator()
+                    .ifPresent(gen -> gen.recipes(provider)));
 
             provider.addShapedRecipe(ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, AITItems.IRON_KEY, 1)
                     .pattern(" N ").pattern("IEI").pattern("IRI").input('N', Items.IRON_NUGGET)
@@ -780,9 +780,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("ait.text.chat.readwiki", "To learn how to play Adventures in Time, we suggest you read the wiki, which is ");
         provider.addTranslation("ait.text.chat.hover", "Click here to open the wiki in your browser");
 
-        provider.addTranslation("text.ait.beta.play.tooltip", "You're not a beta tester!");
+        provider.addTranslation("text.ait.beta.play.tooltip", "You're not an AIT beta tester!");
         provider.addTranslation("text.ait.beta.play", "Authorize to play AIT Beta");
-        provider.addTranslation("text.ait.beta.play.browser", "Check your browser!");
+        provider.addTranslation("text.ait.beta.play.browser", "Check your browser (or click again to copy the URL)!");
 
         // Visible text owned by screens, renderers, commands, and actionbar messages
         provider.addTranslation("block.ait.detector.type.alarms", "ALARMS");

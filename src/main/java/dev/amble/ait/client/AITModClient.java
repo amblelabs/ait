@@ -55,7 +55,6 @@ import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.blocks.AstralMapBlock;
 import dev.amble.ait.core.blocks.ExteriorBlock;
-import dev.amble.ait.core.devteam.BetaVerification;
 import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.drinks.DrinkUtil;
 import dev.amble.ait.core.entities.BOTIPaintingEntity;
@@ -319,8 +318,6 @@ public class AITModClient implements ClientModInitializer {
         });
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> BOTI.tryWarn(client));
-
-        BetaVerification.init();
     }
 
     public static Screen screenFromId(int id) {
@@ -627,7 +624,7 @@ public class AITModClient implements ClientModInitializer {
         if (tardis.flight().isFlying()) return;
 
         ClientExteriorVariantSchema variant = tardis.getExterior().getVariant().getClient();
-        AnimatedModel model = variant.getDoor().getCachedModel();
+        AnimatedModel<?> model = variant.getDoor().getCachedModel();
 
         profiler.push("ait:boti_door");
 
@@ -679,7 +676,7 @@ public class AITModClient implements ClientModInitializer {
         // paintings in sight. Counted separately from the per-painting builds to make that visible.
         profiler.visit("ait_model_build");
         profiler.visit("ait_model_build_eager");
-        SinglePartEntityModel contents = new GallifreyFallsModel(GallifreyFallsModel.getTexturedModelData().createModel());
+        SinglePartEntityModel<?> contents = new GallifreyFallsModel(GallifreyFallsModel.getTexturedModelData().createModel());
         Identifier frameTex = GallifreyanPaintingEntityRenderer.GALLIFREY_FRAME_TEXTURE;
         Identifier contentsTex = GallifreyanPaintingEntityRenderer.GALLIFREY_PAINTING_TEXTURE;
         if (client.player == null || client.world == null) {
@@ -728,7 +725,7 @@ public class AITModClient implements ClientModInitializer {
 
         profiler.visit("ait_model_build");
         profiler.visit("ait_model_build_eager");
-        SinglePartEntityModel contents = new TrenzalorePaintingModel(TrenzalorePaintingModel.getTexturedModelData().createModel());
+        SinglePartEntityModel<?> contents = new TrenzalorePaintingModel(TrenzalorePaintingModel.getTexturedModelData().createModel());
         Identifier frameTex = TrenzalorePaintingEntityRenderer.TRENZALORE_FRAME_TEXTURE;
         Identifier contentsTex = TrenzalorePaintingEntityRenderer.TRENZALORE_PAINTING_TEXTURE;
         if (client.player == null || client.world == null) {
@@ -800,17 +797,13 @@ public class AITModClient implements ClientModInitializer {
 
         BOTI.RIFT_RENDERING_QUEUE.clear();
     }
+
     public static void resourcepackRegister() {
-
         // Register builtin resourcepacks (thank you addie for your help)
-        FabricLoader.getInstance().
-
-                getModContainer("ait").
-
-                ifPresent(modContainer ->
-
-                {
-                    ResourceManagerHelper.registerBuiltinResourcePack(id("aitmenu"), modContainer, ResourcePackActivationType.DEFAULT_ENABLED);
+        FabricLoader.getInstance()
+                .getModContainer(MOD_ID)
+                .ifPresent(modContainer -> {
+                    ResourceManagerHelper.registerBuiltinResourcePack(id("menu"), modContainer, ResourcePackActivationType.DEFAULT_ENABLED);
                     ResourceManagerHelper.registerBuiltinResourcePack(id("bushy_leaves"), modContainer, ResourcePackActivationType.NORMAL);
                 });
     }

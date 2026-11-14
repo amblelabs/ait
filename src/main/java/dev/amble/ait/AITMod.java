@@ -15,8 +15,6 @@ import dev.amble.ait.core.blockentities.EnvironmentProjectorBlockEntity;
 import dev.amble.ait.core.blockentities.PottedSonicScrewdriverBlockEntity;
 import dev.amble.ait.core.blocks.EnvironmentProjectorBlock;
 import dev.amble.ait.core.commands.*;
-import dev.amble.ait.core.devteam.BetaTokenPrefs;
-import dev.amble.ait.core.devteam.DevTeam;
 import dev.amble.ait.core.drinks.DrinkRegistry;
 import dev.amble.ait.core.engine.registry.SubSystemRegistry;
 import dev.amble.ait.core.entities.FlightTardisEntity;
@@ -125,27 +123,6 @@ public class AITMod implements ModInitializer {
 
     // This is the Crater feature that generates in the world. It's made with AI so it sucks lol
     public static final Crater CRATER = new Crater(ProbabilityConfig.CODEC);
-
-    public static final String BRANCH;
-
-    static {
-        // 1.x.xx-[BRANCH-]dev+mc.1.20.1
-        String version = FabricLoader.getInstance().getModContainer(MOD_ID).get().getMetadata().getVersion().getFriendlyString();
-        // get the part of the version string between the - and +
-        BRANCH = version.substring(version.indexOf("-") + 1, version.indexOf("+"));
-    }
-
-    public static boolean isUnsafeBranch() {
-        return !BRANCH.contains("release");
-    }
-
-    public static boolean isOfficialBeta() {
-        return BRANCH.contains("dev");
-    }
-
-    public static boolean isBetaLocked() {
-        return isOfficialBeta() && !DevTeam.isDev() && !BetaTokenPrefs.isTokenValid();
-    }
 
     public void registerParticles() {
         Registry.register(Registries.PARTICLE_TYPE, id("coral_particle"), CORAL_PARTICLE);
@@ -445,12 +422,6 @@ public class AITMod implements ModInitializer {
     public static final Identifier PROJECTOR_SELECTION = new Identifier(MOD_ID, "projector_selection");
     public static final Identifier PROJECTOR_ANGLES = new Identifier(MOD_ID, "projector_angles");
     public static final Identifier PROFILE_CLIENT = AITMod.id("profile_client");
-
-    public static void openScreen(ServerPlayerEntity player, int id) {
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeInt(id);
-        ServerPlayNetworking.send(player, OPEN_SCREEN, buf);
-    }
 
     public static void openScreen(ServerPlayerEntity player, int id, UUID tardis) {
         PacketByteBuf buf = PacketByteBufs.create();
