@@ -40,7 +40,7 @@ public class ConsolePortControl extends Control {
                 return Result.SUCCESS;
             }
 
-            tardis.waypoint().spawnItem(console);
+            tardis.waypoint().clear(console, player);
             return Result.SUCCESS;
         }
 
@@ -48,7 +48,6 @@ public class ConsolePortControl extends Control {
 
         if (itemStack.isIn(AITTags.Items.INSERTABLE_DISCS) || itemStack.getItem() instanceof MusicDiscItem) {
             if (!tardis.extra().getInsertedDisc().isEmpty()) return Result.FAILURE;
-
 
             tardis.extra().setInsertedDisc(itemStack.copy());
             if (itemStack.getItem() instanceof MusicDiscItem musicDisc) {

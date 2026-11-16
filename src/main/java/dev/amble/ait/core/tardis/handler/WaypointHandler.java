@@ -14,13 +14,15 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import org.jetbrains.annotations.Nullable;
 
 public class WaypointHandler extends KeyedTardisComponent {
     public static final BoolProperty HAS_CARTRIDGE = new BoolProperty("has_cartridge", false);
     private final BoolValue hasCartridge = HAS_CARTRIDGE.create(this);
     public static final BoolProperty IS_DISC = new BoolProperty("is_disc", false);
-    private final BoolValue iSDisc = IS_DISC.create(this);
+    private final BoolValue isDisc = IS_DISC.create(this);
     public static final BoolProperty CAN_CONTAIN_PLAYERS = new BoolProperty("can_contain_players", true);
     public final BoolValue leaveBehindOnLoad = CAN_CONTAIN_PLAYERS.create(this);
 
@@ -45,7 +47,7 @@ public class WaypointHandler extends KeyedTardisComponent {
     @Override
     public void onLoaded() {
         hasCartridge.of(this, HAS_CARTRIDGE);
-        iSDisc.of(this, IS_DISC);
+        isDisc.of(this, IS_DISC);
         leaveBehindOnLoad.of(this, CAN_CONTAIN_PLAYERS);
     }
 
@@ -62,15 +64,15 @@ public class WaypointHandler extends KeyedTardisComponent {
     }
 
     public boolean isDisc() {
-        return iSDisc.get();
+        return isDisc.get();
     }
 
     public void setIsDisc() {
-        iSDisc.set(true);
+        isDisc.set(true);
     }
 
     private void clearIsDisc() {
-        iSDisc.set(false);
+        isDisc.set(false);
     }
 
     public boolean canContainPlayers() {
@@ -83,6 +85,13 @@ public class WaypointHandler extends KeyedTardisComponent {
 
     private void clearCanContainPlayers() {
         leaveBehindOnLoad.set(true);
+    }
+
+    public Optional<Waypoint> set(Waypoint var, BlockPos console, ServerPlayerEntity player) {
+        if (this.current != null)
+            player.getInventory().offerOrDrop(this.createStack());
+
+        return this.set(var, console, true);
     }
 
     /**
@@ -100,8 +109,13 @@ public class WaypointHandler extends KeyedTardisComponent {
             return prev;
         }
 
-        if (spawnItem && this.current != null)
-            this.spawnItem(console, prev.get());
+        if (spawnItem && this.current != null && this.hasCartridge()) {
+            ItemEntity entity = new ItemEntity(tardis.asServer().world(),
+                    console.getX(), console.getY() + 1, console.getZ(), this.createStack());
+
+            tardis.asServer().world().spawnEntity(entity);
+            this.clear(console, false);
+        }
 
         this.current = var;
         return prev;
@@ -113,6 +127,14 @@ public class WaypointHandler extends KeyedTardisComponent {
 
     public boolean hasWaypoint() {
         return this.current != null;
+    }
+
+    public void clear(BlockPos console, ServerPlayerEntity player) {
+        this.set(null, console, player);
+        this.clearCartridge();
+        if (isDisc()) {
+            this.clearIsDisc();
+        }
     }
 
     public void clear(BlockPos console, boolean spawnItem) {
@@ -140,29 +162,8 @@ public class WaypointHandler extends KeyedTardisComponent {
         return true;
     }
 
-    public void spawnItem(BlockPos console) {
-        if (!this.hasWaypoint())
-            return;
-
-        this.spawnItem(console, this.get());
-        this.clear(console, false);
-    }
-
-    public void spawnItem(BlockPos console, Waypoint waypoint) {
-        if (!this.hasCartridge())
-            return;
-
-        ItemEntity entity = new ItemEntity(tardis.asServer().world(), console.getX(), console.getY(),
-                console.getZ(), isDisc() ? createDiscItem(waypoint) : createWaypointItem(waypoint));
-
-        tardis.asServer().world().spawnEntity(entity);
-    }
-
-    public static ItemStack createWaypointItem(Waypoint waypoint) {
-        return WaypointItem.create(waypoint);
-    }
-
-    public static ItemStack createDiscItem(Waypoint waypoint) {
-        return ControlDiscItem.create(waypoint);
+    private @Nullable ItemStack createStack() {
+        if (!this.hasWaypoint()) return null;
+        return isDisc() ? ControlDiscItem.create(this.current) : WaypointItem.create(this.current);
     }
 }
