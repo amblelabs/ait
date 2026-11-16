@@ -133,10 +133,8 @@ public class StallionExteriorModel extends SimpleExteriorModel {
         matrices.scale(0.95f, 0.95f, 0.95f);
         matrices.translate(0, -1.5f, 0);
 
-        float maxLeftRot = 87f;
-        float maxRightRot = 150f;
-        body.getChild("door").yaw = -(float) Math.toRadians(maxLeftRot * leftRot(falling.tardis().get().door()));
-        body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(maxRightRot * leftRot(falling.tardis().get().door()));
+        body.getChild("door").yaw = -(float) Math.toRadians(87 * leftRot(falling.tardis().get().door()));
+        body.getChild("door").getChild("door_two").yaw = (float) Math.toRadians(150 * leftRot(falling.tardis().get().door()));
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
         matrices.pop();

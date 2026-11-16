@@ -59,8 +59,7 @@ public class PlinthExteriorModel extends SimpleExteriorModel {
         matrices.push();
         matrices.translate(0, -1.5f, 0);
 
-        float maxRot = 90f;
-        plinth.getChild("door").yaw = (float) Math.toRadians(maxRot*leftRot(falling.tardis().get().door()));
+        plinth.getChild("door").yaw = (float) Math.toRadians(90 * leftRot(falling.tardis().get().door()));
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
 
@@ -69,8 +68,7 @@ public class PlinthExteriorModel extends SimpleExteriorModel {
 
     @Override
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
-        float maxRot = 90f;
-        plinth.getChild("door").yaw = -(float) Math.toRadians(maxRot*leftRot(tardis.door()));
+        plinth.getChild("door").yaw = -(float) Math.toRadians(90 * leftRot(tardis.door()));
 
         if (isBOTI) {
             matrices.push();
