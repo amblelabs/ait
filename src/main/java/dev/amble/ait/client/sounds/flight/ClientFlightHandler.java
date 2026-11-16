@@ -19,9 +19,7 @@ public class ClientFlightHandler extends SoundHandler {
     private boolean needsReinit = false;
 
     static {
-        TardisClientEvents.ENTER_CLIENT_TARDIS.register(tardis -> {
-            refresh();
-        });
+        TardisClientEvents.ENTER_CLIENT_TARDIS.register(tardis -> refresh());
     }
 
     private static void refresh() {
@@ -37,14 +35,14 @@ public class ClientFlightHandler extends SoundHandler {
     }
 
     public FlightSoundPlayer getFlightLoop(ClientTardis tardis) {
-        if (FLIGHT == null)
+        if (FLIGHT == null || FLIGHT.tardis() != tardis)
             this.generate(tardis);
 
         return FLIGHT;
     }
 
     private InteriorFlightSound createFlightSound(ClientTardis tardis) {
-        return new InteriorFlightSound(tardis.stats().getFlightEffects(), SoundCategory.BLOCKS);
+        return new InteriorFlightSound(tardis, tardis.stats().getFlightEffects(), SoundCategory.BLOCKS);
     }
 
     public static ClientFlightHandler create() {

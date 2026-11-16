@@ -13,12 +13,14 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 public class InteriorFlightSound extends PositionedLoopingSound implements FlightSoundPlayer {
+    private final ClientTardis tardis;
     private FlightSound data;
     private int ticks = 0;
     private boolean dirty = true;
 
-    public InteriorFlightSound(FlightSound data, SoundCategory soundCategory) {
+    public InteriorFlightSound(ClientTardis tardis, FlightSound data, SoundCategory soundCategory) {
         super(data.sound(), soundCategory, new BlockPos(0,0,0), 0.25F);
+        this.tardis = tardis;
         this.data = data;
     }
 
@@ -56,7 +58,7 @@ public class InteriorFlightSound extends PositionedLoopingSound implements Fligh
 
     @Override
     public ClientTardis tardis() {
-        return ClientTardisUtil.getCurrentTardis();
+        return tardis;
     }
 
     @Override
@@ -80,8 +82,8 @@ public class InteriorFlightSound extends PositionedLoopingSound implements Fligh
 
     @Override
     public FlightSound getData() {
-        if (this.data == null && ClientTardisUtil.getCurrentTardis() != null)
-            this.data = ClientTardisUtil.getCurrentTardis().stats().getFlightEffects();
+        if (this.data == null && tardis() != null)
+            this.data = tardis().stats().getFlightEffects();
 
         return this.data;
     }

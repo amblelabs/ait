@@ -17,12 +17,14 @@ import net.minecraft.util.math.BlockPos;
  * Yeah.
  */
 public class ExteriorFlightSound extends PositionedLoopingSound implements FlightSoundPlayer {
+    private final ClientTardis tardis;
     private FlightSound data;
     private int ticks = 0;
     private boolean dirty = true;
 
-    public ExteriorFlightSound(FlightSound data, SoundCategory soundCategory) {
+    public ExteriorFlightSound(ClientTardis tardis, FlightSound data, SoundCategory soundCategory) {
         super(data.sound(), soundCategory, new BlockPos(0,0,0));
+        this.tardis = tardis;
         this.data = data;
     }
 
@@ -50,7 +52,7 @@ public class ExteriorFlightSound extends PositionedLoopingSound implements Fligh
 
     @Override
     public ClientTardis tardis() {
-        return ClientTardisUtil.getNearestTardis(ClientFlightHandler.MAX_DISTANCE).orElse(null);
+        return tardis;
     }
 
     @Override
