@@ -82,7 +82,7 @@ public class GeometricExteriorModel extends SimpleExteriorModel {
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
         DoorHandler door = tardis.door();
 
-        this.geometric.getChild("door").pivotZ = door.isVisuallyOpen() ? -16f : 0f;
+        this.geometric.getChild("door").pivotZ = -(float) Math.toRadians(leftRot(door) * 16);
 
         if (isBOTI) {
             matrices.push();
