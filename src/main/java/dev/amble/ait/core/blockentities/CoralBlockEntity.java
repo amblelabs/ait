@@ -20,14 +20,14 @@ public class CoralBlockEntity extends BlockEntity {
     @Override
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
-        if (nbt.containsUuid("creator"))
-            this.creator = nbt.getUuid("creator");
+        if (nbt.containsUuid("fallback"))
+            this.creator = nbt.getUuid("fallback");
     }
 
     @Override
     protected void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
         if (this.creator == null) return;
-        nbt.putUuid("creator", this.creator);
+        nbt.putUuid("fallback", this.creator);
     }
 }

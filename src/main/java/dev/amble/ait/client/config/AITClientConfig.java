@@ -41,10 +41,6 @@ public class AITClientConfig {
 
     @AutoGen(category = CATEGORY)
     @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
-    @SerialEntry public boolean customMenu = true;
-
-    @AutoGen(category = CATEGORY)
-    @Boolean(formatter = Boolean.Formatter.YES_NO, colored = true)
     @SerialEntry public boolean showExperimentalWarning = false;
 
     @AutoGen(category = CATEGORY)

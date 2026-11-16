@@ -42,12 +42,11 @@
     "server.structure.StructureTemplateAccessor"
   ],
   "client": [
-    "client.DefaultLogoMixin",
     "client.GameRendererMixin",
     "client.ItemRendererMixin",
     "client.MinecraftClientMixin",
     "client.SeamlessDoorNetworkMixin",
-    "client.TitleScreenMixin",
+    "client.title.TitleScreenMixin",
     "client.experimental_screen.CreateWorldScreenMixin",
     "client.experimental_screen.WorldOpenFlowsMixin",
     "client.rendering.ArmorFeatureRendererMixin",
@@ -65,6 +64,7 @@
     "client.rendering.framebuffer.MixinRenderFramebufferTarget",
     "client.sonic.SonicItemRendererMixin",
     "client.sonic.SonicModelLoaderWrapperMixin",
+    "client.title.LogoDrawerAccessor",
     "compat.portals.BlockManipulationClientMixin",
     "compat.portals.ClientTeleportationManagerMixin",
     "rwf.DismountMessageMixin",
