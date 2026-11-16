@@ -5,6 +5,7 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -16,8 +17,6 @@ import dev.amble.ait.core.AITEntityTypes;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisDesktop;
-import dev.amble.ait.core.tardis.control.impl.DirectionControl;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.mixin.rwf.LivingEntityAccessor;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
@@ -67,22 +66,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
 
-import dev.amble.ait.AITMod;
-import dev.amble.ait.api.tardis.link.LinkableLivingEntity;
 import dev.amble.ait.core.AITDamageTypes;
-import dev.amble.ait.core.AITDimensions;
-import dev.amble.ait.core.AITEntityTypes;
-import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.AITTags;
-import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.core.tardis.TardisDesktop;
-import dev.amble.ait.core.tardis.control.impl.DirectionControl;
-import dev.amble.ait.core.tardis.util.TardisUtil;
-import dev.amble.ait.mixin.rwf.LivingEntityAccessor;
-import dev.amble.ait.module.planet.core.space.planet.Planet;
-import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
-import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 public class FlightTardisEntity extends LinkableLivingEntity implements JumpingMount {
 
@@ -108,6 +93,8 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     private static final float PHASE_SLOW_FACTOR = 0.35f;
 
     private BlockPos interiorPos;
+    @Nullable
+    private UUID pilot;
 
     private int landedTicks = 0;
 
@@ -131,6 +118,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     private int collisionEffectCooldown = 0;
 
     private static final int RIDERLESS_GRACE = 40;
+    private static final double PILOT_MOUNT_RANGE = 16;
 
     private int riderlessTicks = 0;
 
@@ -163,10 +151,12 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
     public static FlightTardisEntity createAndSpawn(ServerPlayerEntity player, ServerTardis tardis) {
         CachedDirectedGlobalPos exteriorPos = tardis.travel().position();
+        exteriorPos.getWorld().getChunk(exteriorPos.getPos());
 
         FlightTardisEntity entity = new FlightTardisEntity(
                 player.getBlockPos(), exteriorPos, tardis
         );
+        entity.pilot = player.getUuid();
 
         exteriorPos.getWorld().spawnEntity(entity);
         return entity;
@@ -216,6 +206,9 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
         if (this.getWorld().isClient())
             CLIENT_SOUNDS.accept(this);
+
+        if (this.getPlayer() == null && this.getWorld() instanceof ServerWorld world)
+            this.tryMountPilot(world);
 
         PlayerEntity player = this.getPlayer();
 
@@ -287,6 +280,22 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         } else {
             this.landedTicks = 0;
         }
+    }
+
+    private void tryMountPilot(ServerWorld world) {
+        if (this.pilot == null)
+            return;
+
+        ServerPlayerEntity candidate = world.getServer().getPlayerManager().getPlayer(this.pilot);
+
+        if (candidate == null || candidate.getWorld() != world || candidate.isDead() || candidate.hasVehicle()
+                || candidate.squaredDistanceTo(this) > PILOT_MOUNT_RANGE * PILOT_MOUNT_RANGE)
+            return;
+
+        if (!candidate.startRiding(this))
+            return;
+
+        this.pilot = null;
     }
 
     @Override
@@ -719,12 +728,10 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
         int tardisSpeed = this.tardis().get().travel().speed();
 
-        boolean submerged = this.isSubmergedInWater();
-        float waterThrust = submerged ? 3f : 1f;
-        float f = controllingPlayer.sidewaysSpeed * tardisSpeed * waterThrust;
-        float g = controllingPlayer.forwardSpeed * tardisSpeed * waterThrust;
+        float f = controllingPlayer.sidewaysSpeed * tardisSpeed;
+        float g = controllingPlayer.forwardSpeed * tardisSpeed;
 
-        float speedVal = this.isPhasing() ? submerged ? 10f : 5f : submerged ? 30f : 10f;
+        float speedVal = this.isPhasing() ? 5f : 10f;
 
         boolean canFall = this.tardis().get().travel().antigravs().get() || planetGravity;
 
@@ -746,6 +753,16 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         }
 
         return new Vec3d(f, v, g);
+    }
+
+    @Override
+    public boolean shouldSwimInFluids() {
+        return false;
+    }
+
+    @Override
+    public boolean isPushedByFluids() {
+        return false;
     }
 
     @Override
@@ -812,6 +829,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         super.readCustomDataFromNbt(nbt);
 
         this.interiorPos = nbt.contains("InteriorPos") ? BlockPos.fromLong(nbt.getLong("InteriorPos")) : null;
+        this.pilot = nbt.containsUuid("Pilot") ? nbt.getUuid("Pilot") : null;
     }
 
     @Override
@@ -822,6 +840,9 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
 
         if (interiorPos != null)
             nbt.putLong("InteriorPos", interiorPos.asLong());
+
+        if (pilot != null)
+            nbt.putUuid("Pilot", pilot);
     }
 
     public static DefaultAttributeContainer.Builder createDummyAttributes() {

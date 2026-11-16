@@ -13,9 +13,6 @@ import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
-import dev.drtheo.scheduler.api.TimeUnit;
-import dev.drtheo.scheduler.api.common.Scheduler;
-import dev.drtheo.scheduler.api.common.TaskStage;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.server.MinecraftServer;
@@ -108,17 +105,8 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
         this.tardis().setRefueling(false);
         this.flying.set(true);
 
-        FlightTardisEntity entity = FlightTardisEntity.createAndSpawn(
-                player, this.tardis.asServer());
-
+        FlightTardisEntity.createAndSpawn(player, this.tardis.asServer());
         TardisUtil.teleportOutside(tardis, player);
-
-        Scheduler.get().runTaskLater(() -> {
-            if (player.isRemoved() || player.isDead() || entity.isRemoved())
-                return;
-
-            player.startRiding(entity);
-        }, TaskStage.END_SERVER_TICK, TimeUnit.TICKS, 2);
 
         tardis.travel().finishDemat();
     }

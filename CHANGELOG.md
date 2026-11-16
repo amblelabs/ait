@@ -233,3 +233,5 @@
 - feat: new engine model from Ember! (the evil one) | by [@Loqor](https://github.com/Loqor) ([#2237](https://github.com/amblelabs/ait/pull/2237))
 - Cleanup: verification & main menu | by [@drtheodor](https://github.com/drtheodor) ([#2239](https://github.com/amblelabs/ait/pull/2239))
 - feat: auditory feedback for rwf control if doors are still open | by [@Loqor](https://github.com/Loqor)
+- fix: real world flight mounting issue | by [@Loqor](https://github.com/Loqor)
+- fix: real world flight too slow underwater | by [@Loqor](https://github.com/Loqor)
