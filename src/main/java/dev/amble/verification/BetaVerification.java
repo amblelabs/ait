@@ -88,13 +88,15 @@ public abstract class BetaVerification {
 
     protected BuildType getBuildTypeForBranch(String branch) {
         int idx = branch.lastIndexOf('-');
-        String rawType = idx != -1 ? branch.substring(branch.lastIndexOf('-') + 1) : branch;
+        int dotIdx = branch.lastIndexOf('.');
 
-        return switch (rawType) {
+        String qualifier = branch.substring(idx != -1 ? idx + 1 : 0, dotIdx != -1 ? dotIdx : branch.length());
+
+        return switch (qualifier) {
             case "release" -> BuildType.RELEASE;
             case "dev" -> BuildType.BETA;
             case "local" -> BuildType.LOCAL;
-            default -> throw new IllegalStateException("Unexpected value: " + branch);
+            default -> throw new IllegalStateException("Unexpected value: " + qualifier);
         };
     }
 
