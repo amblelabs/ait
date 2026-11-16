@@ -56,6 +56,7 @@ public class VisualiserControl extends Control {
         if (!player.isSneaking() && tardis.travel().getState() == TravelHandlerBase.State.LANDED && tardis.subsystems().get(GRAVITATIONAL).isEnabled()) {
             if (tardis.door().isOpen()) {
                 world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_CHAIN_FALL, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                player.sendMessage(Text.translatable("control.ait.rwf.doors_open"), true);
                 return Result.SUCCESS;
             } else {
                 world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_AMETHYST_CLUSTER_PLACE, SoundCategory.BLOCKS, 1.0F, 1.0F);

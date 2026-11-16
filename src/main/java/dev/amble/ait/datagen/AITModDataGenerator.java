@@ -942,6 +942,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.engine_overload", "Engine Overload");
         provider.addTranslation("control.ait.electrical_discharge", "Shell Repellent");
         provider.addTranslation("control.ait.hammer_hanger", "Hammer Hanger");
+        provider.addTranslation("control.ait.rwf.doors_open", "Unable to enter physical flight. Doors still open.");
 
         // Tabs
         provider.addTranslation(AITItemGroups.MAIN, "Adventures In Time");
