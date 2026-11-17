@@ -23,6 +23,10 @@ public class BOTIInit {
         if (!AITRenderHelper.getIsStencilEnabled(afbo)) {
             AITRenderHelper.setIsStencilEnabled(afbo, true);
         }
+
+        boolean floatDepth = ((StencilFrameBuffer) MinecraftClient.getInstance().getFramebuffer()).ait$hasFloatDepth();
+        ((StencilFrameBuffer) afbo).ait$setFloatDepthAndReload(floatDepth);
+        afbo.beginWrite(false);
     }
 
     public void endFBO() {

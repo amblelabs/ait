@@ -67,6 +67,7 @@ public class TardisExteriorBOTI extends BOTI {
 
         VertexConsumerProvider.Immediate botiProvider = AIT_BUF_BUILDER_STORAGE.getBotiVertexConsumer();
 
+        BOTI.saveStencil();
         GL11.glEnable(GL11.GL_STENCIL_TEST);
         GL11.glStencilMask(0xFF);
         GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
@@ -203,7 +204,7 @@ public class TardisExteriorBOTI extends BOTI {
         BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
         profiler.visit("ait_boti_blit");
 
-        GL11.glDisable(GL11.GL_STENCIL_TEST);
+        BOTI.restoreStencil();
 
         profiler.pop();
 

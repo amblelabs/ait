@@ -12,6 +12,8 @@ import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
 
+import org.lwjgl.opengl.GL11;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.text.Text;
@@ -28,10 +30,34 @@ public class BOTI {
     public static Collection<ExteriorBlockEntity> EXTERIOR_RENDER_QUEUE = new LinkedList<>();
     private static boolean HAS_BEEN_WARNED = false;
 
+    private static boolean savedStencilTest;
+    private static final int[] SAVED_STENCIL = new int[7];
+
     public static void copyFramebuffer(Framebuffer src, Framebuffer dest) {
-        GlStateManager._glBindFramebuffer(GlConst.GL_READ_FRAMEBUFFER, src.fbo);
-        GlStateManager._glBindFramebuffer(GlConst.GL_DRAW_FRAMEBUFFER, dest.fbo);
-        GlStateManager._glBlitFrameBuffer(0, 0, src.textureWidth, src.textureHeight, 0, 0, dest.textureWidth, dest.textureHeight, GlConst.GL_DEPTH_BUFFER_BIT | GlConst.GL_COLOR_BUFFER_BIT, GlConst.GL_NEAREST);
+        copyColor(src, dest);
+        copyDepth(src, dest);
+    }
+
+    public static void saveStencil() {
+        savedStencilTest = GL11.glIsEnabled(GL11.GL_STENCIL_TEST);
+        SAVED_STENCIL[0] = GL11.glGetInteger(GL11.GL_STENCIL_FUNC);
+        SAVED_STENCIL[1] = GL11.glGetInteger(GL11.GL_STENCIL_REF);
+        SAVED_STENCIL[2] = GL11.glGetInteger(GL11.GL_STENCIL_VALUE_MASK);
+        SAVED_STENCIL[3] = GL11.glGetInteger(GL11.GL_STENCIL_WRITEMASK);
+        SAVED_STENCIL[4] = GL11.glGetInteger(GL11.GL_STENCIL_FAIL);
+        SAVED_STENCIL[5] = GL11.glGetInteger(GL11.GL_STENCIL_PASS_DEPTH_FAIL);
+        SAVED_STENCIL[6] = GL11.glGetInteger(GL11.GL_STENCIL_PASS_DEPTH_PASS);
+    }
+
+    public static void restoreStencil() {
+        GL11.glStencilFunc(SAVED_STENCIL[0], SAVED_STENCIL[1], SAVED_STENCIL[2]);
+        GL11.glStencilMask(SAVED_STENCIL[3]);
+        GL11.glStencilOp(SAVED_STENCIL[4], SAVED_STENCIL[5], SAVED_STENCIL[6]);
+
+        if (savedStencilTest)
+            GL11.glEnable(GL11.GL_STENCIL_TEST);
+        else
+            GL11.glDisable(GL11.GL_STENCIL_TEST);
     }
 
     public static void copyColor(Framebuffer src, Framebuffer dest) {
