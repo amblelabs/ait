@@ -11,6 +11,7 @@ import dev.amble.ait.client.renderers.EmissiveGeometry;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.util.OffScreenCull;
+import dev.amble.ait.client.util.PortalClip;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.item.HandlesItem;
 import dev.amble.ait.data.datapack.DatapackConsole;
@@ -46,6 +47,8 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
                        int light, int overlay) {
 
         if (entity.getWorld() == null) return;
+
+        vertexConsumers = PortalClip.wrap(vertexConsumers, entity.getPos(), matrices);
 
         Profiler profiler = entity.getWorld().getProfiler();
         profiler.visit("ait_console_dispatched");

@@ -10,6 +10,7 @@ import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.util.OffScreenCull;
+import dev.amble.ait.client.util.PortalClip;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.compat.iris.IrisCompat;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
@@ -47,6 +48,8 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
                        int light, int overlay) {
         if (entity.getWorld() == null) return;
+
+        vertexConsumers = PortalClip.wrap(vertexConsumers, entity.getPos(), matrices);
 
         Profiler profiler = entity.getWorld().getProfiler();
         profiler.visit("ait_door_dispatched");

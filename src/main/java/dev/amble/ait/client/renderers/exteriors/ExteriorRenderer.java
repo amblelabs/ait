@@ -17,6 +17,7 @@ import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.client.util.OffScreenCull;
+import dev.amble.ait.client.util.PortalClip;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.compat.iris.IrisCompat;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
@@ -64,6 +65,8 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
             int light, int overlay) {
         if (entity.getWorld() == null) return;
+
+        vertexConsumers = PortalClip.wrap(vertexConsumers, entity.getPos(), matrices);
 
         // One counter per exit, so "the renderer never ran" and "it ran and drew nothing" stop looking
         // identical. Without these a zero in the BOTI queue counter has several possible causes.
@@ -214,7 +217,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
                             Identifier texture, int light, int overlay, float alpha, float tickDelta) {
         ExteriorModel model = this.model;
 
-        if (isFading(alpha)) {
+        if (isFading(alpha) && !PortalClip.isClipping(vertexConsumers)) {
             Matrix4f position = new Matrix4f(matrices.peek().getPositionMatrix());
             Matrix3f normal = new Matrix3f(matrices.peek().getNormalMatrix());
 
@@ -243,7 +246,7 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
                                 Identifier emission, float red, float green, float blue, float alpha, float tickDelta) {
         ExteriorModel model = this.model;
 
-        if (isFading(alpha)) {
+        if (isFading(alpha) && !PortalClip.isClipping(vertexConsumers)) {
             Matrix4f position = new Matrix4f(matrices.peek().getPositionMatrix());
             Matrix3f normal = new Matrix3f(matrices.peek().getNormalMatrix());
 

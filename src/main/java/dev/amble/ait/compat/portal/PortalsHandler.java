@@ -28,6 +28,7 @@ import qouteall.imm_ptl.core.render.PortalEntityRenderer;
 import qouteall.imm_ptl.core.render.context_management.PortalRendering;
 import qouteall.q_misc_util.MiscNetworking;
 import qouteall.q_misc_util.my_util.DQuaternion;
+import qouteall.q_misc_util.my_util.Plane;
 
 import net.minecraft.network.packet.Packet;
 import net.minecraft.registry.Registries;
@@ -119,9 +120,26 @@ public class PortalsHandler extends KeyedTardisComponent {
 
         PortalVisualizerUtil.clientInit();
         PortalsAPI.RENDERING_PORTAL = PortalRendering::isRendering;
+        PortalsAPI.CLIP_PLANE = PortalsHandler::activeClipPlane;
 
         if (TardisPortal.ENTITY_TYPE != null)
             EntityRendererRegistry.register(TardisPortal.ENTITY_TYPE, PortalEntityRenderer::new);
+    }
+
+    @Environment(EnvType.CLIENT)
+    private static double[] activeClipPlane() {
+        if (!PortalRendering.isRendering())
+            return null;
+
+        Plane plane = PortalRendering.getActiveClippingPlane();
+
+        if (plane == null)
+            return null;
+
+        Vec3d pos = plane.pos();
+        Vec3d normal = plane.normal();
+
+        return new double[]{pos.x, pos.y, pos.z, normal.x, normal.y, normal.z};
     }
 
     public TardisPortal getInterior() {

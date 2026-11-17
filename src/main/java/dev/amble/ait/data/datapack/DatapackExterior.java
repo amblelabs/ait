@@ -140,10 +140,6 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
         return Boolean.TRUE.equals(hasTransparentDoors);
     }
 
-    /**
-     * The explicit {@code has_transparent_doors} value, or empty when the json leaves it out
-     * and the variant should inherit it from its parent.
-     */
     public Optional<Boolean> getTransparentDoorsOverride() {
         return Optional.ofNullable(hasTransparentDoors);
     }

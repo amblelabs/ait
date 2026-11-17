@@ -35,10 +35,6 @@ import net.minecraft.util.math.Vec3d;
  * <li>It needs no render pass state. A stashed frustum is wrong in a portal mod's nested pass,
  * because Immersive Portals cancels {@code setupTerrain} at HEAD and the event Fabric fires from its
  * RETURN never arrives, so the stash silently belongs to another dimension.</li>
- * <li>It is skipped entirely inside an Immersive Portals pass. The dispatcher's camera is moved to
- * the far side of the portal, but the portal's rotation is applied as a matrix on top of it, so the
- * camera's look vector is still the one from this side. Through any rotated portal the half space
- * points the wrong way and rejects exteriors and consoles that are in plain view.</li>
  * <li>It is unaffected by F3 frustum capture, which freezes the frustum handed to
  * {@code setupTerrain} but not the camera.</li>
  * <li>Nothing latches. There is no flag to be left true by a mod that cancels out of the world
