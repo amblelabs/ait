@@ -1545,6 +1545,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.loadsaveinterior.button", "> Save Interior");
         provider.addTranslation("screen.ait.widget.timeline", "Timeline");
         provider.addTranslation("screen.ait.monitor.shell_cloaking_activated_message", "Silent shell cloaking is activated");
+        provider.addTranslation("screen.ait.interiorsettings.search", "Search...");
 
         //TARDIS Flight Sequences
         provider.addTranslation("sequence.ait.avoid_debris", "Debris incoming!");
@@ -1731,7 +1732,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.interiorchange.not_enough_fuel",
                 "The TARDIS does not have enough fuel to change it's interior");
         provider.addTranslation("tardis.message.interiorchange.warning",
-                "ARS initiated, console room is being reconfigured, please vacate the interior!");
+                "ARS initiated, please vacate the interior! Use the Alarms control to cancel!");
         provider.addTranslation("tardis.message.interiorchange.subsystems_enabled",
                 "TARDIS has %s subsystems enabled. Are you sure you want to do this?");
         provider.addTranslation("tardis.message.interiorchange.not_enough_plasmic_material", "Not enough Plasmic Material for shell: %s / 8");

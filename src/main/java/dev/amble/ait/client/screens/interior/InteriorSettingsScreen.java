@@ -2,6 +2,7 @@ package dev.amble.ait.client.screens.interior;
 
 import static dev.amble.ait.core.tardis.handler.InteriorChangingHandler.CHANGE_DESKTOP;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
@@ -15,10 +16,7 @@ import dev.amble.ait.api.tardis.TardisClientEvents;
 import dev.amble.ait.client.models.exteriors.BedrockExteriorModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
-import dev.amble.ait.client.util.LockedDisplay;
-import dev.amble.lib.register.unlockable.Unlockable;
 import dev.amble.ait.client.screens.ConsoleScreen;
-import dev.amble.ait.client.screens.SaveLoadInteriorScreen;
 import dev.amble.ait.client.screens.SonicSettingsScreen;
 import dev.amble.ait.client.screens.TardisSecurityScreen;
 import dev.amble.ait.client.screens.widget.AnimationScrubberWidget;
@@ -26,14 +24,18 @@ import dev.amble.ait.client.screens.widget.IconButtonWidget;
 import dev.amble.ait.client.screens.widget.SwitcherManager;
 import dev.amble.ait.client.sounds.ClientSoundManager;
 import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.client.util.LockedDisplay;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.sounds.flight.FlightSound;
+import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
 import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
+import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.vortex.reference.VortexReference;
+import dev.amble.ait.core.tardis.vortex.reference.VortexReferenceRegistry;
 import dev.amble.ait.data.hum.Hum;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
@@ -42,6 +44,8 @@ import dev.amble.ait.data.schema.exterior.category.ClassicCategory;
 import dev.amble.ait.data.schema.exterior.category.PoliceBoxCategory;
 import dev.amble.ait.registry.impl.CategoryRegistry;
 import dev.amble.ait.registry.impl.DesktopRegistry;
+import dev.amble.ait.registry.impl.HumRegistry;
+import dev.amble.lib.register.unlockable.Unlockable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -53,9 +57,11 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.PressableTextWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
@@ -90,7 +96,6 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     int bgHeight = 166;
     int bgWidth = 256;
     int left, top;
-    private int tickForSpin = 0;
     public int choicesCount = 0;
     private final Screen parent;
     private TardisDesktopSchema selectedDesktop;
@@ -106,6 +111,9 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private final int MAIN_SETTINGS_BUTTON_WIDTH = 20;
     private final int MAIN_SETTINGS_BUTTON_HEIGHT = 20;
     private BlockPos console;
+
+    private DesktopListWidget desktopList;
+    private boolean showSearchList = false;
 
     private AnimationScrubberWidget timeline;
     private IconButtonWidget playButton;
@@ -139,10 +147,11 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         if (this.selectedDesktop == null)
             this.nextDesktop();
 
-        this.top = (this.height - this.bgHeight) / 2; // this means everythings centered and scaling, same for below
+        this.top = (this.height - this.bgHeight) / 2;
         this.left = (this.width - this.bgWidth) / 2;
         this.createButtons();
         this.createPreviewWidgets();
+        this.createSearchWidget();
 
         super.init();
     }
@@ -160,6 +169,74 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         this.muteButton = this.addDrawableChild(new IconButtonWidget(
                 this.left + 235, this.top + 77, 7, IconButtonWidget.Icon.SOUND_ON, this::toggleMute));
         this.muteButton.visible = false;
+    }
+
+    private TextFieldWidget desktopSearchBox;
+    private static final Text SEARCH_TEXT = Text.translatable("screen.ait.interiorsettings.search")
+            .formatted(Formatting.ITALIC).formatted(Formatting.GRAY);
+
+    private void createSearchWidget() {
+        int x = (int) (left + (bgWidth * 0.3f));
+        int y = (int) (top + (bgHeight * 0f)) - 12;
+        int w = 105;
+
+        this.desktopSearchBox = new TextFieldWidget(this.textRenderer, x, y, w, 10, SEARCH_TEXT);
+        this.desktopSearchBox.setPlaceholder(SEARCH_TEXT);
+        this.desktopSearchBox.setEditableColor(0xFFFFFF);
+        this.desktopSearchBox.setChangedListener(this::onSearchChanged);
+        this.addSelectableChild(this.desktopSearchBox);
+
+        this.desktopList = new DesktopListWidget(this.client, 150, 100, y + 12, y + 12 + 100, 12);
+        this.desktopList.setLeftPos(x);
+        this.addSelectableChild(this.desktopList);
+    }
+
+    private void onSearchChanged(String query) {
+        if (this.desktopList != null) {
+            this.desktopList.setCurrentSearch(query);
+
+            if (!query.isEmpty()) {
+                this.showSearchList = true;
+            }
+        }
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (this.desktopSearchBox != null && this.desktopSearchBox.isMouseOver(mouseX, mouseY)) {
+            this.showSearchList = true;
+            this.desktopList.setCurrentSearch(this.desktopSearchBox.getText());
+            this.setInitialFocus(this.desktopSearchBox);
+            return true;
+        }
+
+        if (this.showSearchList && this.desktopList != null) {
+            if (this.desktopList.mouseClicked(mouseX, mouseY, button)) {
+                return true;
+            }
+            this.showSearchList = false;
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (this.desktopSearchBox != null && this.desktopSearchBox.isFocused()) {
+            if (keyCode == org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE) {
+                this.desktopSearchBox.setFocused(false);
+                this.setFocused(null);
+                return true;
+            }
+            return this.desktopSearchBox.keyPressed(keyCode, scanCode, modifiers);
+        }
+
+        if (keyCode == org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE) {
+            this.close();
+            return true;
+        }
+
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     private boolean isAnimMode() {
@@ -197,14 +274,9 @@ public class InteriorSettingsScreen extends ConsoleScreen {
 
         createTextButton(Text.translatable("screen.ait.sonic.button")
                 .formatted(showSonicButton ? Formatting.WHITE : Formatting.GRAY), button -> {
-                    if (showSonicButton)
-                        toSonicScreen();
-                });
-
-        /*createTextButton(Text.translatable("screen.ait.loadsaveinterior.button")
-                .formatted(Formatting.WHITE), button -> {
-                toLoadSaveInteriorScreen();
-        });*/
+            if (showSonicButton)
+                toSonicScreen();
+        });
 
         this.createCompatButtons();
         TardisClientEvents.SETTINGS_SETUP.invoker().onSetup(this);
@@ -220,19 +292,19 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         // apply (HUM)
         this.addButton(new PressableTextWidget((width / 2 + 44), (height / 2 + 61),
                 APPLY_BAR_BUTTON_WIDTH, APPLY_BAR_BUTTON_HEIGHT, Text.empty(), button -> {
-                    if (!LockedDisplay.isLocked(this.tardis(), this.modeManager.get().get()))
-                        this.modeManager.get().sync(this.tardis());
-                }, this.textRenderer));
+            if (!LockedDisplay.isLocked(this.tardis(), this.modeManager.get().get()))
+                this.modeManager.get().sync(this.tardis());
+        }, this.textRenderer));
 
         // arrows (Interior)
         this.addButton(new PressableTextWidget((width / 2 + 23), (height / 2 + 3), BIG_ARROW_BUTTON_WIDTH, BIG_ARROW_BUTTON_HEIGHT,
                 Text.empty(), button -> {
-                    previousDesktop();
-                }, this.textRenderer));
+            previousDesktop();
+        }, this.textRenderer));
         this.addButton(new PressableTextWidget((width / 2 + 98), (height / 2 + 3), BIG_ARROW_BUTTON_WIDTH, BIG_ARROW_BUTTON_HEIGHT,
                 Text.empty(), button -> {
-                    nextDesktop();
-                }, this.textRenderer));
+            nextDesktop();
+        }, this.textRenderer));
 
         // apply (Interior)
         MutableText applyInteriorText = Text.translatable("screen.ait.monitor.apply");
@@ -247,7 +319,6 @@ public class InteriorSettingsScreen extends ConsoleScreen {
                 Text.empty(),
                 button -> backToExteriorChangeScreen(), this.textRenderer));
 
-
         // arrows (HUM) mode selector
         this.addButton(new PressableTextWidget((width / 2 + 77), (height / 2 + 30),
                 SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT, Text.empty(), button -> this.modeManager.previous(), this.textRenderer));
@@ -259,13 +330,9 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         MinecraftClient.getInstance().setScreen(new SonicSettingsScreen(this.tardis(), this.console, this));
     }
 
-    private void toLoadSaveInteriorScreen() {
-        MinecraftClient.getInstance().setScreen(new SaveLoadInteriorScreen(this.tardis(), this.console, this));
-    }
-
     public <T extends ClickableWidget> void addButton(T button) {
         this.addDrawableChild(button);
-        button.active = true; // this whole method is unnecessary bc it defaults to true ( ?? )
+        button.active = true;
         this.buttons.add((ButtonWidget) button);
     }
 
@@ -274,19 +341,19 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     }
 
     public <T extends ButtonWidget> T initAnyButton(Text text, ButtonCreator<T> creator,
-            ButtonWidget.PressAction onPress) {
+                                                    ButtonWidget.PressAction onPress) {
         return creator.create((int) (left + (bgWidth * 0.06f)), (int) (top + (bgHeight * (0.1f * (choicesCount + 1)))),
                 this.textRenderer.getWidth(text), 10, text, onPress, this.textRenderer);
     }
 
     public <T extends ButtonWidget> T initAnyDynamicButton(Function<T, Text> text, DynamicButtonCreator<T> creator,
-            ButtonWidget.PressAction onPress) {
+                                                           ButtonWidget.PressAction onPress) {
         return creator.create((int) (left + (bgWidth * 0.06f)), (int) (top + (bgHeight * (0.1f * (choicesCount + 1)))),
                 this.textRenderer.getWidth(Text.empty()), 10, text, onPress, this.textRenderer);
     }
 
     public <T extends ButtonWidget> T createAnyButton(Text text, ButtonCreator<T> creator,
-            ButtonWidget.PressAction onPress) {
+                                                      ButtonWidget.PressAction onPress) {
         T result = this.initAnyButton(text, creator, onPress);
 
         this.addButton(result);
@@ -296,7 +363,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     }
 
     public <T extends ButtonWidget> T createAnyDynamicButton(Function<T, Text> text, DynamicButtonCreator<T> creator,
-            ButtonWidget.PressAction onPress) {
+                                                             ButtonWidget.PressAction onPress) {
         T result = this.initAnyDynamicButton(text, creator, onPress);
 
         this.addButton(result);
@@ -326,14 +393,11 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         int i = (this.width - this.bgWidth) / 2;
         int j = ((this.height) - this.bgHeight) / 2;
         this.renderDesktop(context);
-        this.drawBackground(context); // the grey backdrop
+        this.drawBackground(context);
         context.getMatrices().push();
-        int x = (left + 79);
-        int y = (top + 59);
         context.getMatrices().translate(0, 0, 0f);
         context.getMatrices().pop();
 
-        // TODO: this is a fucking nightmare
         int buttonIndex = DependencyChecker.hasGravity() ? 4 : 3;
 
         // arrow buttons (hum/misc screen)
@@ -413,7 +477,6 @@ public class InteriorSettingsScreen extends ConsoleScreen {
             context.drawTexture(TEXTURE, this.buttons.get(buttonIndex).getX(), this.buttons.get(buttonIndex).getY(), 113, 178,
                     SMALL_ARROW_BUTTON_WIDTH, SMALL_ARROW_BUTTON_HEIGHT);
 
-
         if (tardis() == null)
             return;
 
@@ -421,12 +484,6 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         context.drawTexture(TEXTURE, i + 16, j + 144, 0,
                 this.tardis().getFuel() > (FuelHandler.TARDIS_MAX_FUEL / 4) ? 225 : 234,
                 (int) (85 * this.tardis().getFuel() / FuelHandler.TARDIS_MAX_FUEL), 9);
-
-
-        // fuel markers @TODO come back and actually do the rest of it with the halves
-        // and the red
-        // parts
-        // too
 
         // Flight Progress
         int progress = this.tardis().travel().getDurationAsPercentage();
@@ -451,7 +508,6 @@ public class InteriorSettingsScreen extends ConsoleScreen {
                     206, 19, 19);
         }
 
-
         this.renderCurrentMode(context);
 
         boolean anim = this.isAnimMode();
@@ -470,6 +526,25 @@ public class InteriorSettingsScreen extends ConsoleScreen {
         }
 
         super.render(context, mouseX, mouseY, delta);
+
+        if (this.desktopSearchBox != null) {
+            context.getMatrices().push();
+            context.getMatrices().translate(0, 0, 300f);
+
+            this.desktopSearchBox.render(context, mouseX, mouseY, delta);
+
+            if (this.showSearchList) {
+                int listX = this.desktopList.getX();
+                int listY = this.desktopList.getY();
+                int listWidth = this.desktopList.getWidth();
+                int listHeight = this.desktopList.getHeight();
+                context.fill(listX - 1, listY - 1, listX + listWidth + 1, listY + listHeight + 1, 0xFF000000);
+                context.drawBorder(listX - 1, listY - 1, listWidth + 2, listHeight + 2, 0xFFFFFFFF);
+                this.desktopList.render(context, mouseX, mouseY, delta);
+            }
+
+            context.getMatrices().pop();
+        }
     }
 
     private void drawBackground(DrawContext context) {
@@ -640,6 +715,10 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     @Override
     public void tick() {
         super.tick();
+
+        if (this.desktopSearchBox != null && this.desktopSearchBox.isVisible()) {
+            this.desktopSearchBox.tick();
+        }
 
         if (this.humSuppressed && (this.previewSound == null
                 || !MinecraftClient.getInstance().getSoundManager().isPlaying(this.previewSound)))
@@ -860,12 +939,164 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     @FunctionalInterface
     public interface ButtonCreator<T extends ButtonWidget> {
         T create(int x, int y, int width, int height, Text text, ButtonWidget.PressAction onPress,
-                TextRenderer textRenderer);
+                 TextRenderer textRenderer);
     }
 
     @FunctionalInterface
     public interface DynamicButtonCreator<T extends ButtonWidget> {
         T create(int x, int y, int width, int height, Function<T, Text> text, ButtonWidget.PressAction onPress,
-                TextRenderer textRenderer);
+                 TextRenderer textRenderer);
+    }
+
+    class DesktopListWidget extends AlwaysSelectedEntryListWidget<DesktopListWidget.Entry> {
+        private final List<Entry> entries = new ArrayList<>();
+        private int lastMouseX, lastMouseY;
+        private boolean shouldHover;
+
+        public int getX() {return this.left;}
+        public int getY() {return this.top;}
+        public int getWidth() {return this.width;}
+        public int getHeight() {return this.height;}
+
+        public DesktopListWidget(MinecraftClient client, int width, int height, int top, int bottom, int itemHeight) {
+            super(client, width, height, top, bottom, itemHeight);
+            this.setRenderHorizontalShadows(false);
+            this.setRenderBackground(false);
+            this.refreshEntries();
+            this.replaceEntries(this.entries);
+            this.setFocused(this.getFirst());
+        }
+
+        public void refreshEntries() {
+            this.entries.clear();
+            // Search Desktops
+            for (TardisDesktopSchema schema : DesktopRegistry.getInstance().toList()) {
+                if (schema == DesktopRegistry.DEFAULT_CAVE)
+                    continue;
+                this.entries.add(new Entry(schema.name(), "Interior", schema));
+            }
+
+            // Search Hums
+            if (this.client.world != null) {
+                for (Hum hum : HumRegistry.getInstance().toList()) {
+                    this.entries.add(new Entry(hum.text().getString(), "Hum", hum));
+                }
+            }
+
+            // Search Flight Sounds
+            for (FlightSound flight : FlightSoundRegistry.getInstance().toList()) {
+                this.entries.add(new Entry(flight.text().getString(), "Flight", flight));
+            }
+
+            // Search Vortex Effects
+            for (VortexReference vortex : VortexReferenceRegistry.getInstance().toList()) {
+                this.entries.add(new Entry(vortex.text().getString(), "Vortex", vortex));
+            }
+
+            // Search Demat / Mat Animations
+            for (TardisAnimation anim : TardisAnimationRegistry.getInstance().toList()) {
+                if (anim.getExpectedState() == TravelHandlerBase.State.DEMAT || anim.getExpectedState() == TravelHandlerBase.State.MAT) {
+                    this.entries.add(new Entry(anim.id().getPath(), anim.getExpectedState().name(), anim));
+                }
+            }
+
+            this.entries.sort((a, b) -> a.name.compareToIgnoreCase(b.name));
+        }
+
+        public void setCurrentSearch(String search) {
+            this.refreshEntries();
+            for (String substring : search.strip().split(" ")) {
+                if (substring.isEmpty()) continue;
+                String lowercase = substring.toLowerCase(Locale.ROOT);
+                this.entries.removeIf(e -> !e.name.toLowerCase(Locale.ROOT).contains(lowercase)
+                        && !e.category.toLowerCase(Locale.ROOT).contains(lowercase));
+            }
+            this.setScrollAmount(0);
+            this.replaceEntries(this.entries);
+            if (!this.children().isEmpty())
+                this.setFocused(this.getFirst());
+        }
+
+        @Override
+        public int getRowWidth() {
+            return this.width - 15;
+        }
+
+        @Override
+        protected int getScrollbarPositionX() {
+            return this.getX() + this.width - 6;
+        }
+
+        @Override
+        public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+            if (this.lastMouseX == 0 && this.lastMouseY == 0) {
+                this.lastMouseX = mouseX;
+                this.lastMouseY = mouseY;
+            }
+            super.render(context, mouseX, mouseY, delta);
+            this.shouldHover = (mouseX != this.lastMouseX || mouseY != this.lastMouseY);
+            this.lastMouseX = mouseX;
+            this.lastMouseY = mouseY;
+        }
+
+        class Entry extends AlwaysSelectedEntryListWidget.Entry<Entry> {
+            private final String name;
+            private final String category;
+            private final Object object;
+            private final Text text;
+
+            public Entry(String name, String category, Object object) {
+                this.name = name;
+                this.category = category;
+                this.object = object;
+                this.text = Text.literal(category + " - " + name);
+            }
+
+            @Override
+            public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight,
+                               int mouseX, int mouseY, boolean hovered, float tickDelta) {
+                boolean selected = false;
+                if (this.object instanceof TardisDesktopSchema schema && InteriorSettingsScreen.this.selectedDesktop != null) {
+                    selected = InteriorSettingsScreen.this.selectedDesktop.id().equals(schema.id());
+                }
+
+                int color = selected ? 0xFFFF55 : (hovered ? 0xFFFFFF : 0xAAAAAA);
+                context.drawText(client.textRenderer, this.text, x , y, color, false);
+
+                if (hovered && DesktopListWidget.this.shouldHover) {
+                    DesktopListWidget.this.setFocused(this);
+                }
+            }
+
+            @Override
+            public boolean mouseClicked(double mouseX, double mouseY, int button) {
+                if (button == 0) {
+                    if (this.object instanceof TardisDesktopSchema schema) {
+                        InteriorSettingsScreen.this.selectedDesktop = schema;
+                    }
+                    else if (this.object instanceof Hum hum) {
+                        InteriorSettingsScreen.this.modeManager.set(new SwitcherManager.HumSwitcher(hum));
+                    }
+                    else if (this.object instanceof FlightSound flight) {
+                        InteriorSettingsScreen.this.modeManager.set(new SwitcherManager.FlightSoundSwitcher(flight));
+                    }
+                    else if (this.object instanceof VortexReference vortex) {
+                        InteriorSettingsScreen.this.modeManager.set(new SwitcherManager.VortexSwitcher(vortex));
+                    }
+                    else if (this.object instanceof TardisAnimation anim) {
+                        InteriorSettingsScreen.this.modeManager.set(new SwitcherManager.AnimationSwitcher(anim, anim.getExpectedState()));
+                    }
+
+                    InteriorSettingsScreen.this.showSearchList = false;
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public Text getNarration() {
+                return this.text;
+            }
+        }
     }
 }

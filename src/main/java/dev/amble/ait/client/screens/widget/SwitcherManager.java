@@ -60,6 +60,10 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
         return this.current;
     }
 
+    public void set(T current) {
+        this.current = current;
+    }
+
     @Override
     public String name() {
         return id;
@@ -131,7 +135,7 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
     public static class AnimationSwitcher extends SwitcherManager<TardisAnimation, ClientTardis> {
         public final TravelHandlerBase.State target;
 
-        protected AnimationSwitcher(TardisAnimation current, TravelHandlerBase.State target) {
+        public AnimationSwitcher(TardisAnimation current, TravelHandlerBase.State target) {
             super((var) -> next(var, target), (var) -> previous(var, target), AnimationSwitcher::sync, current, target.name());
 
             this.target = target;
@@ -186,7 +190,7 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
     }
 
     public static class FlightSoundSwitcher extends SwitcherManager<FlightSound, ClientTardis> {
-        protected FlightSoundSwitcher(FlightSound current) {
+        public FlightSoundSwitcher(FlightSound current) {
             super(FlightSoundSwitcher::next, FlightSoundSwitcher::previous, FlightSoundSwitcher::sync, current, "flight");
         }
         public FlightSoundSwitcher(Tardis tardis) {
