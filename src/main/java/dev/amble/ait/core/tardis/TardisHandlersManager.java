@@ -102,9 +102,7 @@ public class TardisHandlersManager extends TardisComponent implements TardisTick
     @Override
     public void dispose() {
         super.dispose();
-
         this.forEach(TardisComponent::dispose);
-        this.handlers.clear();
     }
 
     @ApiStatus.Internal
