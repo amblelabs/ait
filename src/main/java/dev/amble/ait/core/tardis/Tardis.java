@@ -3,6 +3,7 @@ package dev.amble.ait.core.tardis;
 import java.util.Objects;
 import java.util.UUID;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.Initializable;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.tardis.ClientTardis;
@@ -132,7 +133,16 @@ public abstract class Tardis extends Initializable<TardisComponent.InitContext> 
     }
 
     public <T extends TardisComponent> T handler(TardisComponent.IdLike type) {
-        return this.handlers.get(type);
+        //noinspection deprecation
+        T t = this.handlers.get(type);
+
+        if (t == null) {
+            AITMod.LOGGER.error("handler({}) returned null for TARDIS {} - thread {}",
+                    type, getUuid(), Thread.currentThread().getName(), new Throwable());
+            AITMod.LOGGER.error("REPORT THIS TO US AT https://github.com/amblelabs/ait/issues OR https://discord.gg/amblelabs");
+        }
+
+        return t;
     }
 
     @Override
