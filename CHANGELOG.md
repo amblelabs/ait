@@ -245,3 +245,4 @@
 - fix: BOTI smearing on Mac and other GPU's, and fix incompatability issues with TacZ/Immersive Engineering | by [@Loqor](https://github.com/Loqor)
 - feat: make alarms the official cancel button for interior reconfiguration (and rename it from HadsControl -> AlarmsControl in the code) | by [@Loqor](https://github.com/Loqor)
 - fix: That dreadful Toyota increment control issue | by [@Loqor](https://github.com/Loqor)
+- fix: Fallback interiors for when datapack ones get removed | by [@Loqor](https://github.com/Loqor)

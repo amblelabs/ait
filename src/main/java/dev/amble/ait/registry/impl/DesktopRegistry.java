@@ -2,6 +2,7 @@ package dev.amble.ait.registry.impl;
 
 import java.util.Random;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.data.datapack.DatapackDesktop;
 import dev.amble.ait.data.schema.desktop.DefaultCaveDesktop;
@@ -43,7 +44,8 @@ public class DesktopRegistry extends UnlockableRegistry<TardisDesktopSchema> {
 
     @Override
     public TardisDesktopSchema fallback() {
-        throw new UnsupportedOperationException("No desktops registered!");
+        return DatapackRegistry.getRandom(this.toList().stream()
+                .filter(t -> t != DEFAULT_CAVE && t != DEV).toList(), AITMod.RANDOM, () -> DEV);
     }
 
     public static DesktopRegistry getInstance() {

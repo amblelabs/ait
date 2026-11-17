@@ -25,6 +25,7 @@ import dev.amble.ait.core.world.QueuedTardisStructureTemplate;
 import dev.amble.ait.data.Corners;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.schema.desktop.TardisDesktopSchema;
+import dev.amble.ait.registry.impl.DesktopRegistry;
 import dev.amble.lib.data.DirectedBlockPos;
 import dev.drtheo.queue.api.ActionQueue;
 import dev.drtheo.queue.api.util.block.ChunkEraser;
@@ -108,14 +109,22 @@ public class TardisDesktop extends TardisComponent {
 
     @Override
     public void postInit(InitContext ctx) {
-        if (!ctx.created())
+        if (!ctx.created()) {
+            this.getSchema();
             return;
+        }
 
         // must be done in postInit, because it accesses door and alarm handlers
         this.changeInterior(schema, false, false).execute();
     }
 
     public TardisDesktopSchema getSchema() {
+        if (this.schema == null && this.isServer()) {
+            this.schema = DesktopRegistry.getInstance().getRandom(this.tardis, AITMod.RANDOM);
+            AITMod.LOGGER.warn("Desktop for TARDIS {} is missing, falling back to {}", this.tardis.getUuid(), this.schema.id());
+            this.sync();
+        }
+
         return schema;
     }
 

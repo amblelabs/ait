@@ -314,7 +314,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
         if (!this.queued.get())
             return;
 
-        if (!this.canQueue()) {
+        if (!this.canQueue() || this.getQueuedInterior() == null) {
             this.queued.set(false);
             this.regenerating.set(false);
             tardis.alarm().disable();
