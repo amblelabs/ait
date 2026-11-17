@@ -239,3 +239,4 @@
 - feat: new item textures for engine and artron collector block by GateMC | by [@Loqor](https://github.com/Loqor)
 - fix: stallion exteriors had null texture boti doors | by [@Loqor](https://github.com/Loqor)
 - tweak: add placeholders for empty textures in boti and renderers | by [@Loqor](https://github.com/Loqor)
+- fix: Immersive Portals - viewing the exterior or consoles through them caused them to go invisible (due to duzo slop code) | by [@Loqor](https://github.com/Loqor)
