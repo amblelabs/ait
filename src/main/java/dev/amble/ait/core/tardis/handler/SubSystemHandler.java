@@ -14,7 +14,7 @@ import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.engine.impl.*;
 import dev.amble.ait.core.engine.registry.SubSystemRegistry;
 import dev.amble.ait.data.Exclude;
-import dev.amble.ait.data.enummap.ConcurrentEnumMap;
+import dev.amble.ait.data.enummap.EnumMap;
 import dev.amble.lib.util.ArrayIterator;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +23,7 @@ import net.minecraft.server.MinecraftServer;
 
 public class SubSystemHandler extends KeyedTardisComponent implements TardisTickable, Iterable<SubSystem> {
     @Exclude
-    private final ConcurrentEnumMap<SubSystem.IdLike, SubSystem> systems = new ConcurrentEnumMap<>(SubSystemRegistry::values,
+    private final EnumMap<SubSystem.IdLike, SubSystem> systems = new EnumMap<>(SubSystemRegistry::values,
             SubSystem[]::new);
 
     static {

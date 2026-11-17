@@ -241,4 +241,4 @@
 - tweak: add placeholders for empty textures in boti and renderers | by [@Loqor](https://github.com/Loqor)
 - fix: Immersive Portals - viewing the exterior or consoles through them caused them to go invisible (due to duzo slop code) | by [@Loqor](https://github.com/Loqor)
 - fix: Immersive Portals + Iris causing clipping/culling errors when viewing from the inside | by [@Loqor](https://github.com/Loqor)
-- tweak: all space stone tools now match normal stone tool stats | by [@Loqor](https://github.com/Loqor)
+- tweak: all space stone tools now match normal stone tool stats | by [@Loqor](https://github.com/Loqor)- stupid bug stuff | by [@drtheodor](https://github.com/drtheodor) ([#2252](https://github.com/amblelabs/ait/pull/2252))

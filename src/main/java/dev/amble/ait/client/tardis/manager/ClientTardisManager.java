@@ -150,9 +150,10 @@ public class ClientTardisManager extends TardisManager<ClientTardis, MinecraftCl
         MinecraftClient.getInstance().execute(() -> {
             for (int p = 0; p < components.length; p++) {
                 TardisComponent component = components[p];
-                TardisComponent.IdLike idLike = ids[p];
-                idLike.set(tardis, component);
+                if (component == null) continue;
+
                 TardisComponent.init(component, tardis, TardisComponent.InitContext.deserialize());
+                ids[p].set(tardis, component);
             }
         });
     }
