@@ -193,11 +193,11 @@ public class AITItems extends ItemContainer {
     // Music discs
     @NoEnglish
     public static final Item TWO_THOUSAND_MUSIC_DISC = new MusicDiscItem(1, AITSounds.TWO_THOUSAND,
-            new AItemSettings().maxCount(1).rarity(Rarity.RARE), 169);
+            new AItemSettings().maxCount(1).rarity(Rarity.RARE), 196);
 
     @NoEnglish
     public static final Item STAGE_4_MUSIC_DISC = new MusicDiscItem(15, AITSounds.STAGE_4,
-            new AItemSettings().maxCount(1).rarity(Rarity.RARE), 239);
+            new AItemSettings().maxCount(1).rarity(Rarity.RARE), 240);
 
     @NoEnglish
     public static final Item WONDERFUL_TIME_IN_SPACE_MUSIC_DISC = new MusicDiscItem(1, AITSounds.WONDERFUL_TIME_IN_SPACE,

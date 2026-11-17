@@ -247,3 +247,4 @@
 - fix: That dreadful Toyota increment control issue | by [@Loqor](https://github.com/Loqor)
 - fix: Fallback interiors for when datapack ones get removed | by [@Loqor](https://github.com/Loqor)
 - fix: TARDIS falling! Works as G-O-One-Single-D intended:tm: | by [@Loqor](https://github.com/Loqor)
+- fix: Two Thousand by lucien is now the correct length for a music disc | by [@Loqor](https://github.com/Loqor)
