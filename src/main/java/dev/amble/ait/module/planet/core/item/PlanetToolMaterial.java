@@ -8,9 +8,9 @@ import net.minecraft.item.ToolMaterial;
 import net.minecraft.recipe.Ingredient;
 
 public enum PlanetToolMaterial implements ToolMaterial {
-    MARTIAN_STONE(1, 201, 4.0f, 1.0f, 6,
+    MARTIAN_STONE(1, 131, 4.0f, 1.0f, 5,
             () -> Ingredient.ofItems(PlanetBlocks.MARTIAN_STONE)),
-    ANORTHOSITE(1, 194, 4.0f, 1.0f, 6,
+    ANORTHOSITE(1, 131, 4.0f, 1.0f, 5,
                           () -> Ingredient.ofItems(PlanetBlocks.ANORTHOSITE));
 
     private final int miningLevel;
