@@ -634,6 +634,11 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
 
         tardis.door().interactLock(tardis.door().previouslyLocked().get(), null, false);
         TardisEvents.LANDED.invoker().onLanded(this.tardis);
+
+        CachedDirectedGlobalPos landed = this.position();
+
+        if (landed != null && landed.getWorld() != null)
+            ExteriorBlock.tryFall(landed.getWorld(), landed.getPos());
     }
 
     private void executeQueue(State state) {

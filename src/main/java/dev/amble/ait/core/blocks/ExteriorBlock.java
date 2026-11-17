@@ -343,11 +343,20 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
 
     @Override
     public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-        //FIXME: re-enable this block after the exterior falling issues are resolved :(
-        /*
+        this.tryFall(state, world, pos);
+    }
+
+    public static void tryFall(ServerWorld world, BlockPos pos) {
+        BlockState state = world.getBlockState(pos);
+
+        if (state.getBlock() instanceof ExteriorBlock exterior)
+            exterior.tryFall(state, world, pos);
+    }
+
+    private void tryFall(BlockState state, ServerWorld world, BlockPos pos) {
         Tardis tardis = this.findTardis(world, pos);
 
-        if (tardis == null)
+        if (tardis == null || tardis.flight().falling().get())
             return;
 
         if (tardis.travel().getState() != TravelHandlerBase.State.LANDED
@@ -362,10 +371,6 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
             return;
 
         tardis.flight().onStartFalling(world, state, pos);
-
-        if (state.get(WATERLOGGED))
-            state.with(WATERLOGGED, false);
-        */
     }
 
     @Override
@@ -425,7 +430,7 @@ public class ExteriorBlock extends Block implements BlockEntityProvider, ICantBr
             exterior.validateExteriorPosition();
     }
 
-    private static boolean canFallThrough(BlockState state) {
+    public static boolean canFallThrough(BlockState state) {
         return state.isAir() || state.isIn(BlockTags.FIRE) || state.isLiquid() || state.isReplaceable();
     }
 

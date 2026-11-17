@@ -72,7 +72,7 @@ public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceIm
         this.setVelocity(Vec3d.ZERO);
     }
 
-    public static void spawnFromBlock(World world, BlockPos pos, BlockState state) {
+    public static void spawnFromBlock(ServerWorld world, BlockPos pos, BlockState state) {
         if (!(world.getBlockEntity(pos) instanceof ExteriorBlockEntity exterior))
             return;
 
@@ -124,7 +124,7 @@ public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceIm
                     SoundEvents.ITEM_ELYTRA_FLYING, SoundCategory.BLOCKS, 0.25F, 1.0F));
 
         Planet planet = PlanetRegistry.getInstance().get(this.getWorld());
-        boolean cannotFall = this.tardis().get().travel().antigravs().get() || planet != null && planet.zeroGravity();
+        boolean cannotFall = (tardis.travel().antigravs().get() && tardis.fuel().hasPower()) || planet != null && planet.zeroGravity();
         if (cannotFall) {
             this.stopFalling(true);
             return;

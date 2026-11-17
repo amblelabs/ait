@@ -2,6 +2,8 @@ package dev.amble.ait.core.tardis.handler;
 
 import static dev.amble.ait.core.engine.SubSystem.Id.GRAVITATIONAL;
 
+import java.util.Comparator;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
@@ -11,18 +13,25 @@ import dev.amble.ait.core.engine.impl.GravitationalCircuit;
 import dev.amble.ait.core.entities.FallingTardisEntity;
 import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
+import dev.amble.lib.data.CachedDirectedGlobalPos;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.RotationPropertyHelper;
 
 public class RealFlightHandler extends KeyedTardisComponent implements TardisTickable {
+
+    private static final ChunkTicketType<ChunkPos> FALLING_TICKET = ChunkTicketType.create("ait_falling", Comparator.comparingLong(ChunkPos::toLong));
+    private static final int FALLING_TICKET_RADIUS = 2;
 
     private static final BoolProperty IS_FALLING = new BoolProperty("falling", false);
     private static final BoolProperty FLYING = new BoolProperty("flying", false);
@@ -31,6 +40,9 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
     private final BoolValue falling = IS_FALLING.create(this);
     private final BoolValue flying = FLYING.create(this);
     private final BoolValue shouldFall = SHOULD_FALL.create(this);
+
+    @Exclude private ServerWorld fallingWorld;
+    @Exclude private ChunkPos fallingChunk;
 
     static {
         TardisEvents.DEMAT.register(tardis -> {
@@ -56,8 +68,43 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
 
     @Override
     public void tick(MinecraftServer server) {
-        if (this.falling.get())
+        if (this.falling.get()) {
             this.tardis.door().setLocked(true);
+            this.holdFallingChunk();
+        } else {
+            this.releaseFallingChunk();
+        }
+    }
+
+    private void holdFallingChunk() {
+        CachedDirectedGlobalPos pos = this.tardis.travel().position();
+
+        if (pos == null || pos.getWorld() == null)
+            return;
+
+        ServerWorld world = pos.getWorld();
+        ChunkPos chunk = new ChunkPos(pos.getPos());
+
+        world.resetIdleTimeout();
+
+        if (world == this.fallingWorld && chunk.equals(this.fallingChunk))
+            return;
+
+        this.releaseFallingChunk();
+        world.getChunkManager().addTicket(FALLING_TICKET, chunk, FALLING_TICKET_RADIUS, chunk);
+
+        this.fallingWorld = world;
+        this.fallingChunk = chunk;
+    }
+
+    private void releaseFallingChunk() {
+        if (this.fallingChunk == null)
+            return;
+
+        this.fallingWorld.getChunkManager().removeTicket(FALLING_TICKET, this.fallingChunk, FALLING_TICKET_RADIUS, this.fallingChunk);
+
+        this.fallingWorld = null;
+        this.fallingChunk = null;
     }
 
     public void tickFlight(ServerPlayerEntity player, BlockPos pos, boolean grounded) {
@@ -81,6 +128,7 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
         this.tardis.travel().forcePosition(cached -> cached.world(world.getRegistryKey()).pos(pos));
 
         this.falling.set(false);
+        this.releaseFallingChunk();
         this.tardis.door().setLocked(this.tardis.door().previouslyLocked().get());
         this.tardis.door().setDeadlocked(false);
 
@@ -92,6 +140,7 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
 
     public void onStartFalling(ServerWorld world, BlockState state, BlockPos pos) {
         this.falling.set(true);
+        this.holdFallingChunk();
         TardisEvents.START_FALLING.invoker().onStartFall(tardis);
 
         FallingTardisEntity.spawnFromBlock(world, pos, state);

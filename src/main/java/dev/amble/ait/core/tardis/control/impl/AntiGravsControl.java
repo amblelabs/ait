@@ -1,8 +1,8 @@
 package dev.amble.ait.core.tardis.control.impl;
 
 import dev.amble.ait.AITMod;
-import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.engine.SubSystem;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.control.Control;
@@ -32,7 +32,7 @@ public class AntiGravsControl extends Control {
         BlockPos pos = globalPos.getPos();
 
         targetWorld.getChunkManager().markForUpdate(pos);
-        world.scheduleBlockTick(pos, AITBlocks.EXTERIOR_BLOCK, 2);
+        ExteriorBlock.tryFall(targetWorld, pos);
         return tardis.travel().antigravs().get() ? Result.SUCCESS : Result.SUCCESS_ALT;
     }
 

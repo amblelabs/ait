@@ -246,3 +246,4 @@
 - feat: make alarms the official cancel button for interior reconfiguration (and rename it from HadsControl -> AlarmsControl in the code) | by [@Loqor](https://github.com/Loqor)
 - fix: That dreadful Toyota increment control issue | by [@Loqor](https://github.com/Loqor)
 - fix: Fallback interiors for when datapack ones get removed | by [@Loqor](https://github.com/Loqor)
+- fix: TARDIS falling! Works as G-O-One-Single-D intended:tm: | by [@Loqor](https://github.com/Loqor)
