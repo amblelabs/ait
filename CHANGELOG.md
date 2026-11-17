@@ -234,4 +234,6 @@
 - Cleanup: verification & main menu | by [@drtheodor](https://github.com/drtheodor) ([#2239](https://github.com/amblelabs/ait/pull/2239))
 - feat: auditory feedback for rwf control if doors are still open | by [@Loqor](https://github.com/Loqor)
 - fix: real world flight mounting issue | by [@Loqor](https://github.com/Loqor)
-- fix: real world flight too slow underwater | by [@Loqor](https://github.com/Loqor)- fix: waypoint cartridges are sent to player inventory on left click | by [@drtheodor](https://github.com/drtheodor) ([#2246](https://github.com/amblelabs/ait/pull/2246))
+- fix: real world flight too slow underwater | by [@Loqor](https://github.com/Loqor)
+- fix: waypoint cartridges are sent to player inventory on left click | by [@drtheodor](https://github.com/drtheodor) ([#2246](https://github.com/amblelabs/ait/pull/2246))
+- feat: new item textures for engine and artron collector block by GateMC | by [@Loqor](https://github.com/Loqor)
