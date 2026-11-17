@@ -1,7 +1,6 @@
 package dev.amble.ait.core.tardis.handler;
 
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
-import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.client.AITModClient;
@@ -51,18 +50,14 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
     private static final float KNOCK_VOLUME_FULL = 1f;
     private static final float KNOCK_VOLUME_QUIET = 0.3f;
 
-    private int knockCount = 0;
-    private long lastKnockTime = 0;
+    public static final int OPEN_TICKS = 14;
+    public static final int CLOSE_TICKS = 17;
 
     private static final BoolProperty LOCKED_DOORS = new BoolProperty("locked");
     private static final BoolProperty PREVIOUSLY_LOCKED = new BoolProperty("previously_locked");
     private static final BoolProperty DEADLOCKED = new BoolProperty("deadlocked");
 
     private static final Property<DoorState> DOOR_STATE = Property.forEnum("door_state", DoorState.class, DoorState.CLOSED);
-    private static final Property<AnimationDoorState> ANIMATION_STATE = Property.forEnum("animation_state", AnimationDoorState.class, AnimationDoorState.CLOSED);
-
-    public static final int OPEN_TICKS = 14;
-    public static final int CLOSE_TICKS = 17;
 
     private static final IntProperty LEFT_DOOR_TICKS = new IntProperty("left_door_ticks");
     private static final IntProperty RIGHT_DOOR_TICKS = new IntProperty("right_door_ticks");
@@ -76,11 +71,11 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
     private final IntValue leftTicks = LEFT_DOOR_TICKS.create(this);
     private final IntValue rightTicks = RIGHT_DOOR_TICKS.create(this);
 
+    private int knockCount = 0;
+    private long lastKnockTime = 0;
+
     @Exclude
     @Nullable private ParticleEffect doorOpenParticles = null;
-
-    @Exclude(strategy = Exclude.Strategy.FILE)
-    public final Value<AnimationDoorState> animationState = ANIMATION_STATE.create(this);
 
     static {
         TardisEvents.DEMAT.register(tardis -> tardis.door().isOpen() ? TardisEvents.Interaction.FAIL : TardisEvents.Interaction.PASS);
@@ -109,7 +104,6 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         deadlocked.of(this, DEADLOCKED);
 
         doorState.of(this, DOOR_STATE);
-        animationState.of(this, ANIMATION_STATE);
 
         leftTicks.of(this, LEFT_DOOR_TICKS);
         rightTicks.of(this, RIGHT_DOOR_TICKS);
@@ -318,8 +312,6 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
         DoorState oldState = this.doorState.get();
 
         if (oldState != newState) {
-            this.animationState.set(AnimationDoorState.match(newState, oldState));
-
             boolean leftOpening = newState != DoorState.CLOSED;
             boolean rightOpening = newState == DoorState.BOTH;
 
@@ -555,45 +547,6 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
                 case HALF -> isDouble ? BOTH : CLOSED;
                 case BOTH -> CLOSED;
             };
-        }
-    }
-
-    public enum AnimationDoorState {
-        CLOSED,
-        FIRST,
-        SECOND,
-        BOTH;
-
-        public boolean is(DoorState doorState) {
-            if (this == CLOSED && doorState == DoorState.CLOSED)
-                return true;
-
-            if (this == FIRST && doorState == DoorState.HALF)
-                return true;
-
-            return (this == BOTH || this == SECOND) && doorState == DoorState.BOTH;
-        }
-
-        public static AnimationDoorState match(DoorState newState, DoorState oldState) {
-            AnimationDoorState animState = null;
-
-            if (oldState == DoorState.HALF && newState == DoorState.BOTH)
-                animState = AnimationDoorState.SECOND;
-
-            if (oldState == DoorState.CLOSED && newState == DoorState.BOTH)
-                animState = AnimationDoorState.BOTH;
-
-            if (oldState == DoorState.BOTH && newState == DoorState.CLOSED)
-                animState = AnimationDoorState.CLOSED;
-
-            if (oldState == DoorState.CLOSED && newState == DoorState.HALF)
-                animState = AnimationDoorState.FIRST;
-
-            if (animState == null) {
-                animState = CLOSED;
-            }
-
-            return animState;
         }
     }
 }

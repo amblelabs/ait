@@ -157,8 +157,8 @@ public class PoliceBoxCoralModel extends SimpleExteriorModel {
         DoorHandler door = falling.tardis().get().door();
 
         float maxRot = 90f;
-        this.TARDIS.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*leftRot(door));
-        this.TARDIS.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot*rightRot(door));
+        this.TARDIS.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot * leftRot(door));
+        this.TARDIS.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot * rightRot(door));
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
         matrices.pop();
@@ -169,8 +169,8 @@ public class PoliceBoxCoralModel extends SimpleExteriorModel {
         DoorHandler door = tardis.door();
 
         float maxRot = 90f;
-        this.TARDIS.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot*leftRot(door));
-        this.TARDIS.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot*rightRot(door));
+        this.TARDIS.getChild("Doors").getChild("left_door").yaw = (float) Math.toRadians(maxRot * leftRot(door));
+        this.TARDIS.getChild("Doors").getChild("right_door").yaw = -(float) Math.toRadians(maxRot * rightRot(door));
 
         if (isBOTI) {
             matrices.push();

@@ -54,7 +54,7 @@ public class PipeExteriorModel extends SimpleExteriorModel {
             return;
         }
 
-        this.tardis.pivotY = !tardis.door().isVisuallyOpen() ? 22F : 8f;
+        this.tardis.pivotY = (float) Math.toRadians(leftRot(tardis.door()) * 14);
 
         super.renderEntity(falling, root, matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
         matrices.pop();
@@ -67,6 +67,6 @@ public class PipeExteriorModel extends SimpleExteriorModel {
 
     @Override
     public void renderDoors(ClientTardis tardis, ExteriorBlockEntity exterior, ModelPart root, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float pAlpha, boolean isBOTI) {
-        this.tardis.pivotY = !tardis.door().isVisuallyOpen() ? -14F : 0;
+        this.tardis.pivotY = (float) Math.toRadians(leftRot(tardis.door()) * 14);
     }
 }
