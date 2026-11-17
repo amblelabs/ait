@@ -244,3 +244,4 @@
 - tweak: all space stone tools now match normal stone tool stats | by [@Loqor](https://github.com/Loqor)- stupid bug stuff | by [@drtheodor](https://github.com/drtheodor) ([#2252](https://github.com/amblelabs/ait/pull/2252))
 - fix: BOTI smearing on Mac and other GPU's, and fix incompatability issues with TacZ/Immersive Engineering | by [@Loqor](https://github.com/Loqor)
 - feat: make alarms the official cancel button for interior reconfiguration (and rename it from HadsControl -> AlarmsControl in the code) | by [@Loqor](https://github.com/Loqor)
+- fix: That dreadful Toyota increment control issue | by [@Loqor](https://github.com/Loqor)

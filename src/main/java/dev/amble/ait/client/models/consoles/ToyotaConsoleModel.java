@@ -1757,7 +1757,12 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
         } else {
             incrementTarget = 1.5f;
         }
-        increment.yaw = getAngle(console, "increment", incrementTarget, delta);
+        float incrementTilt = increment.getDefaultTransform().pitch;
+        float incrementSpin = getAngle(console, "increment", incrementTarget, delta);
+        float tiltSin = (float) Math.sin(incrementTilt), tiltCos = (float) Math.cos(incrementTilt);
+        float spinSin = (float) Math.sin(incrementSpin), spinCos = (float) Math.cos(incrementSpin);
+        increment.setAngles((float) Math.atan2(tiltSin * spinCos, tiltCos), (float) Math.asin(-tiltSin * spinSin),
+                (float) Math.atan2(tiltCos * spinSin, spinCos));
 
         // Refuel Light
         ModelPart refuelLight = this.toyota.getChild("panel4").getChild("yellow6");
