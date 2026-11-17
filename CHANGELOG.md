@@ -237,3 +237,5 @@
 - fix: real world flight too slow underwater | by [@Loqor](https://github.com/Loqor)
 - fix: waypoint cartridges are sent to player inventory on left click | by [@drtheodor](https://github.com/drtheodor) ([#2246](https://github.com/amblelabs/ait/pull/2246))
 - feat: new item textures for engine and artron collector block by GateMC | by [@Loqor](https://github.com/Loqor)
+- fix: stallion exteriors had null texture boti doors | by [@Loqor](https://github.com/Loqor)
+- tweak: add placeholders for empty textures in boti and renderers | by [@Loqor](https://github.com/Loqor)

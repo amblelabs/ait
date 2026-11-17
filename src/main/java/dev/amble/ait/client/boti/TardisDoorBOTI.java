@@ -11,6 +11,7 @@ import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.tardis.handler.StatsHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.CategoryRegistry;
@@ -132,7 +133,7 @@ public class TardisDoorBOTI extends BOTI {
             stack.push();
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
             stack.scale(scale.x, scale.y, scale.z);
-            if (variant.emission() != null) {
+            if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
                 float u = 1;
                 float t = 1;
                 float s = 1;

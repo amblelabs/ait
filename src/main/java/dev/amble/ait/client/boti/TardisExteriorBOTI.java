@@ -9,6 +9,7 @@ import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
 import dev.amble.ait.core.tardis.handler.StatsHandler;
+import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 import dev.amble.ait.data.schema.exterior.ExteriorVariantSchema;
 import dev.amble.ait.registry.impl.exterior.ClientExteriorVariantRegistry;
@@ -162,7 +163,7 @@ public class TardisExteriorBOTI extends BOTI {
             stack.translate(0, scale.y + 0.25f, scale.z -1.7f);
         }
         stack.scale(scale.x(), scale.y(), scale.z());
-        if (variant.emission() != null) {
+        if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)) {
             float u = 1;
             float t = 1;
             float s = 1;

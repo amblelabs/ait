@@ -45,7 +45,7 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
                     BiomeOverrides.CODEC.fieldOf("overrides").orElse(BiomeOverrides.EMPTY)
                             .forGetter(DatapackExterior::overrides),
                     Vec3d.CODEC.optionalFieldOf("seat_translations", new Vec3d(0.5, 1, 0.5)).forGetter(DatapackExterior::seatTranslations),
-                    Codec.BOOL.optionalFieldOf("has_transparent_doors", false).forGetter(DatapackExterior::hasTransparentDoors),
+                    Codec.BOOL.optionalFieldOf("has_transparent_doors").forGetter(DatapackExterior::getTransparentDoorsOverride),
                     Identifier.CODEC.optionalFieldOf("model").forGetter(DatapackExterior::model),
                     Identifier.CODEC.optionalFieldOf("door").forGetter(DatapackExterior::getDoorId),
                     PortalOffsets.CODEC.optionalFieldOf("portal_info").forGetter(ext -> Optional.ofNullable(ext.getPortalOffsets())),
@@ -63,7 +63,7 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     protected final BiomeOverrides overrides;
     protected final Vec3d seatTranslations;
     protected final boolean initiallyDatapack;
-    protected final boolean hasTransparentDoors;
+    protected final Boolean hasTransparentDoors;
     protected final Identifier model;
     protected final Identifier doorId;
     protected final PortalOffsets portalOffsets;
@@ -73,13 +73,13 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     protected final TravelAnimationMap animations;
 
     public DatapackExterior(Identifier id, Identifier category, Identifier parent, Identifier texture,
-                            Identifier emission, Optional<Loyalty> loyalty, BiomeOverrides overrides, Vec3d seatTranslations, boolean hasTransparentDoors, Optional<Identifier> model, Optional<Identifier> door, Optional<PortalOffsets> offsets, Optional<BedrockAnimationReference> leftAnimation, Optional<BedrockAnimationReference> rightAnimation, Vec3d scale, TravelAnimationMap animations) {
+                            Identifier emission, Optional<Loyalty> loyalty, BiomeOverrides overrides, Vec3d seatTranslations, Optional<Boolean> hasTransparentDoors, Optional<Identifier> model, Optional<Identifier> door, Optional<PortalOffsets> offsets, Optional<BedrockAnimationReference> leftAnimation, Optional<BedrockAnimationReference> rightAnimation, Vec3d scale, TravelAnimationMap animations) {
         super(category, id, loyalty);
         this.parent = parent;
         this.texture = texture;
         this.emission = emission;
         this.seatTranslations = seatTranslations;
-        this.hasTransparentDoors = hasTransparentDoors;
+        this.hasTransparentDoors = hasTransparentDoors.orElse(null);
         this.initiallyDatapack = true;
         this.overrides = overrides;
         this.model = model.orElse(null);
@@ -137,7 +137,15 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
     }
 
     public boolean hasTransparentDoors() {
-        return hasTransparentDoors;
+        return Boolean.TRUE.equals(hasTransparentDoors);
+    }
+
+    /**
+     * The explicit {@code has_transparent_doors} value, or empty when the json leaves it out
+     * and the variant should inherit it from its parent.
+     */
+    public Optional<Boolean> getTransparentDoorsOverride() {
+        return Optional.ofNullable(hasTransparentDoors);
     }
 
     @Override

@@ -145,7 +145,10 @@ public class ClientExteriorVariantRegistry extends DatapackRegistry<ClientExteri
 
             @Override
             public boolean hasTransparentDoors() {
-                return variant.hasTransparentDoors();
+                return variant.getTransparentDoorsOverride().orElseGet(() -> {
+                    ClientExteriorVariantSchema parent = getInstance().get(variant.getParentId());
+                    return parent != null && parent.hasTransparentDoors();
+                });
             }
         };
     }

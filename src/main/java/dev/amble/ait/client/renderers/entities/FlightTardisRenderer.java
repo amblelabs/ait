@@ -9,6 +9,7 @@ import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.BiomeHandler;
+import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.schema.exterior.ClientExteriorVariantSchema;
 
 import net.minecraft.client.MinecraftClient;
@@ -83,7 +84,7 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
 
         this.model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(getTexture(entity))), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, phaseAlpha);
 
-        if (variant.emission() != null && tardis.fuel().hasPower()) {
+        if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY) && tardis.fuel().hasPower()) {
             boolean alarms = tardis.alarm().isEnabled();
 
             float color = alarms ? 0.3f : 1f;

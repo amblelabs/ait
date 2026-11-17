@@ -3,5 +3,6 @@
   "category": "ait:exterior/stallion",
   "parent": "ait:exterior/stallion/default",
   "texture": "ait:textures/blockentities/exteriors/stallion/stallion_pristine.png",
+  "emission": "ait:textures/blockentities/exteriors/stallion/stallion_pristine_emission.png",
   "loyalty": "COMPANION"
 }
