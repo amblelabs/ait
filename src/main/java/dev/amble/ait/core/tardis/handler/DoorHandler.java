@@ -43,6 +43,7 @@ import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.LightType;
 
 public class DoorHandler extends KeyedTardisComponent implements TardisTickable {
     private static final long KNOCK_RESET_TIME_MS = 2500;
@@ -266,13 +267,18 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
                 doorState = state;
         }
 
+        int doorLevel = 0;
+
         if (doorState != null) {
             int level = 0;
 
             if (lit && exteriorWorld != null && (exteriorState != null || tardis.flight().isFlying())) {
                 int rotation = exteriorState != null ? exteriorState.get(ExteriorBlock.ROTATION) : exterior.getRotation();
-                level = sampleLight(exteriorWorld, exterior.getPos(), RotationPropertyHelper.toDegrees(rotation) + 180f);
+                int ignore = exteriorState != null ? exteriorState.get(ExteriorBlock.LEVEL_4) : 0;
+                level = sampleLight(exteriorWorld, exterior.getPos(), RotationPropertyHelper.toDegrees(rotation) + 180f, ignore);
             }
+
+            doorLevel = Math.max(level, doorState.get(DoorBlock.LEVEL_4));
 
             if (doorState.get(DoorBlock.LEVEL_4) != level)
                 interior.setBlockState(door.getPos(), doorState.with(DoorBlock.LEVEL_4, level), Block.NOTIFY_ALL);
@@ -282,7 +288,7 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
             int level = tardis.fuel().hasPower() ? 4 : 0;
 
             if (lit && doorState != null && !tardis.cloak().cloaked().get())
-                level = Math.max(level, sampleLight(interior, door.getPos(), RotationPropertyHelper.toDegrees(door.getRotation())));
+                level = Math.max(level, sampleLight(interior, door.getPos(), RotationPropertyHelper.toDegrees(door.getRotation()), doorLevel));
 
             if (exteriorState.get(ExteriorBlock.LEVEL_4) != level)
                 exteriorWorld.setBlockState(exterior.getPos(), exteriorState.with(ExteriorBlock.LEVEL_4, level), Block.NOTIFY_ALL);
@@ -294,11 +300,21 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
                 ChunkSectionPos.getSectionCoord(pos.getZ()));
     }
 
-    private static int sampleLight(ServerWorld world, BlockPos pos, float yaw) {
+    private static int sampleLight(ServerWorld world, BlockPos pos, float yaw, int ignore) {
         float rad = yaw * MathHelper.RADIANS_PER_DEGREE;
         BlockPos front = pos.add(Math.round(-MathHelper.sin(rad)), 0, Math.round(MathHelper.cos(rad)));
 
-        return Math.max(world.getLightLevel(front), world.getLightLevel(front.up()));
+        return Math.max(ambientLight(world, front, ignore), ambientLight(world, front.up(), ignore));
+    }
+
+    private static int ambientLight(ServerWorld world, BlockPos pos, int ignore) {
+        int sky = world.getLightLevel(LightType.SKY, pos) - world.getAmbientDarkness();
+        int block = world.getLightLevel(LightType.BLOCK, pos);
+
+        if (block < ignore)
+            block = 0;
+
+        return MathHelper.clamp(Math.max(sky, block), 0, 15);
     }
 
     public void closeDoors() {
