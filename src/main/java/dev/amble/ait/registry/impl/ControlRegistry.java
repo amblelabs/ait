@@ -49,7 +49,7 @@ public class ControlRegistry {
         register(new DoorControl());
         register(new DoorLockControl());
         register(new FastReturnControl());
-        register(new HADSControl());
+        register(new AlarmsControl());
         register(new HailMaryControl());
         register(new HandBrakeControl());
         register(new LandTypeControl());

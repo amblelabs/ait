@@ -59,6 +59,7 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
     private static final BoolProperty QUEUED = new BoolProperty("queued");
     private static final BoolProperty REGENERATING = new BoolProperty("regenerating");
     private static final int MIN_FUEL_COST = 5000;
+    private static final int CANCEL_FUEL_COST = 500;
 
     public static final int MAX_PLASMIC_MATERIAL_AMOUNT = 8;
     private static final Text HINT_TEXT = Text.translatable("tardis.message.growth.hint").formatted(Formatting.DARK_GRAY, Formatting.ITALIC);
@@ -206,6 +207,18 @@ public class InteriorChangingHandler extends KeyedTardisComponent implements Tar
 
         if (travel.getState() == TravelHandler.State.FLIGHT && !travel.isCrashing() && !tardis.isGrowth())
             travel.crash();
+    }
+
+    public boolean cancelQueue() {
+        if (!this.queued.get() || this.regenerating.get())
+            return false;
+
+        this.queued.set(false);
+        tardis.alarm().disable();
+        tardis.removeFuel(CANCEL_FUEL_COST * tardis.travel().instability());
+
+        TardisUtil.sendMessageToLinked(tardis.asServer(), Text.translatable("tardis.message.interiorchange.cancelled", tardis.stats().getName()));
+        return true;
     }
 
     private void changeInterior() {
