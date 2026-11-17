@@ -112,6 +112,10 @@ public abstract class ExteriorVariantSchema extends BasicSchema implements Unloc
 
     public abstract DoorSchema door();
 
+    public boolean hasDoorAnimation() {
+        return true;
+    }
+
     public boolean hasPortals() {
         return this.category().hasPortals();
     }

@@ -24,6 +24,11 @@ public abstract class JakeVariant extends ExteriorVariantSchema {
     }
 
     @Override
+    public boolean hasDoorAnimation() {
+        return false;
+    }
+
+    @Override
     public boolean hasPortals() {
         return false;
     }

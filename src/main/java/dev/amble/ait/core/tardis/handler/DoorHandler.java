@@ -321,6 +321,11 @@ public class DoorHandler extends KeyedTardisComponent implements TardisTickable 
             if (rightOpening != (oldState == DoorState.BOTH))
                 this.rightTicks.set(reverse(this.rightTicks.get(), rightOpening));
 
+            if (!this.tardis.getExterior().getVariant().hasDoorAnimation()) {
+                this.leftTicks.set(0);
+                this.rightTicks.set(0);
+            }
+
             if (oldState == DoorState.CLOSED)
                 TardisEvents.DOOR_OPEN.invoker().onOpen(tardis());
 

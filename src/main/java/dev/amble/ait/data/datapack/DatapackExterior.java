@@ -127,6 +127,14 @@ public class DatapackExterior extends ExteriorVariantSchema implements AnimatedD
         return DoorRegistry.getInstance().getOrElse(doorId, this.getParent().door());
     }
 
+    @Override
+    public boolean hasDoorAnimation() {
+        if (this.model == null)
+            return this.getParent().hasDoorAnimation();
+
+        return this.leftAnimation != null || this.rightAnimation != null;
+    }
+
     public BiomeOverrides overrides() {
         return overrides;
     }

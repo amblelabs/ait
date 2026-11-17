@@ -23,6 +23,11 @@ public class DoomVariant extends ExteriorVariantSchema {
     }
 
     @Override
+    public boolean hasDoorAnimation() {
+        return false;
+    }
+
+    @Override
     public boolean hasPortals() {
         return false;
     }
