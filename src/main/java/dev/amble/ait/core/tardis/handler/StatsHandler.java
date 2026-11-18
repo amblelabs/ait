@@ -66,6 +66,7 @@ public class StatsHandler extends KeyedTardisComponent {
     private static final BoolProperty SECURITY = new BoolProperty("security", false);
     private static final BoolProperty HAIL_MARY = new BoolProperty("hail_mary", false);
     private static final BoolProperty RECEIVE_CALLS = new BoolProperty("receive_calls", true);
+    private static final BoolProperty COMMS_HANDSET = new BoolProperty("comms_handset", false);
     private static final DoubleProperty TARDIS_X_SCALE = new DoubleProperty("tardis_x_scale", 1);
     private static final DoubleProperty TARDIS_Y_SCALE = new DoubleProperty("tardis_y_scale", 1);
     private static final DoubleProperty TARDIS_Z_SCALE = new DoubleProperty("tardis_z_scale", 1);
@@ -82,6 +83,7 @@ public class StatsHandler extends KeyedTardisComponent {
     private final BoolValue security = SECURITY.create(this);
     private final BoolValue hailMary = HAIL_MARY.create(this);
     private final BoolValue receiveCalls = RECEIVE_CALLS.create(this);
+    private final BoolValue commsHandset = COMMS_HANDSET.create(this);
     private final Value<Identifier> flightId = FLIGHT_FX.create(this);
     private final Value<Identifier> vortexId = VORTEX_FX.create(this);
     private final DoubleValue tardisXScale = TARDIS_X_SCALE.create(this);
@@ -159,6 +161,7 @@ public class StatsHandler extends KeyedTardisComponent {
         security.of(this, SECURITY);
         hailMary.of(this, HAIL_MARY);
         receiveCalls.of(this, RECEIVE_CALLS);
+        commsHandset.of(this, COMMS_HANDSET);
         flightId.of(this, FLIGHT_FX);
         vortexId.of(this, VORTEX_FX);
         tardisXScale.of(this, TARDIS_X_SCALE);
@@ -229,6 +232,10 @@ public class StatsHandler extends KeyedTardisComponent {
     }
     public BoolValue receiveCalls() {
         return this.receiveCalls;
+    }
+
+    public BoolValue commsHandset() {
+        return this.commsHandset;
     }
 
     public CachedDirectedGlobalPos getHome() {

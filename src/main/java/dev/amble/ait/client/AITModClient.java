@@ -128,6 +128,8 @@ public class AITModClient implements ClientModInitializer {
         AITClientConfig.INSTANCE.load();
         CONFIG = AITClientConfig.INSTANCE.instance();
 
+        CommScreen.registerClient();
+
         // TODO move to Registries
         AmbleRegistries.getInstance().registerAll(
                 SonicRegistry.getInstance(),

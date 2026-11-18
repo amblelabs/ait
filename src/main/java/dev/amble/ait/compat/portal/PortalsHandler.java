@@ -57,6 +57,12 @@ public class PortalsHandler extends KeyedTardisComponent {
 
         TardisComponentRegistry.getInstance().register(ID);
 
+        PortalsAPI.VOICE_LINKS = () -> TardisPortal.OPEN.stream()
+                .filter(portal -> !portal.isRemoved())
+                .map(portal -> new PortalsAPI.VoiceLink(portal.getWorld().getRegistryKey(), portal.getOriginPos(),
+                        portal.getDestDim(), portal::transformPoint))
+                .toList();
+
         // TODO: re-use the same two portal entities
         //  for exterior changing this could be achieved by moving the portals & changing their size
         //  for opening and closing doors, portals' rendering can be turned off
