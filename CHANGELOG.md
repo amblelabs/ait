@@ -249,3 +249,5 @@
 - fix: TARDIS falling! Works as G-O-One-Single-D intended:tm: | by [@Loqor](https://github.com/Loqor)
 - fix: Two Thousand by lucien is now the correct length for a music disc | by [@Loqor](https://github.com/Loqor)
 - fix: TARDIM door no longer clips | by [@Loqor](https://github.com/Loqor)
+- fix: Rift renders even when IP/Iris is present | by [@Loqor](https://github.com/Loqor)
+- fix: [Toyota control issues](https://github.com/amblelabs/ait/issues/2255) | by [@Loqor](https://github.com/Loqor)

@@ -4,7 +4,8 @@ package dev.amble.ait.client.renderers.entities;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.boti.BOTI;
-import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.compat.iris.IrisCompat;
+import dev.amble.ait.compat.portal.PortalsAPI;
 import dev.amble.ait.core.entities.RiftEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -33,7 +34,10 @@ public class RiftEntityRenderer extends EntityRenderer<RiftEntity> {
 
     @Override
     public void render(RiftEntity riftEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
-        if (AITModClient.CONFIG.enableTardisBOTI && !DependencyChecker.hasPortals()) {
+        if (!AITModClient.skipPaintingBOTI() && !PortalsAPI.RENDERING_PORTAL.getAsBoolean()) {
+            if (IrisCompat.isRenderingShadowPass())
+                return;
+
             BOTI.RIFT_RENDERING_QUEUE.add(riftEntity);
             return;
         }

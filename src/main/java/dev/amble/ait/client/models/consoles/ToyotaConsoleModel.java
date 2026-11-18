@@ -1678,7 +1678,7 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
         // Shield
         ModelPart shield = this.toyota.getChild("panel1").getChild("controls").getChild("faucettaps2");
         float shieldTarget = tardis.shields().shielded().get() ? -1.58f : 0f;
-        shield.yaw = getAngle(console, "shield", shieldTarget, delta);
+        spinAboutLocalY(shield, getAngle(console, "shield", shieldTarget, delta));
 
         // Door Lock
         ModelPart doorlock = this.toyota.getChild("panel1").getChild("controls").getChild("smalllockernob").getChild("pivot3");
@@ -1740,7 +1740,19 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
         // Direction
         ModelPart direction = this.toyota.getChild("panel6").getChild("controls2").getChild("smallnob2");
         float directionTargetDegrees = tardis.travel().destination().getRotation() * 22.5f;
-        direction.yaw = getLerpedDegrees(console, "direction", directionTargetDegrees, delta);
+        spinAboutLocalY(direction, getLerpedDegrees(console, "direction", directionTargetDegrees, delta));
+
+        ModelPart cloak = this.toyota.getChild("panel6").getChild("controls2").getChild("smallnob");
+        float cloakTarget = tardis.cloak().cloaked().get() ? (float) Math.PI : 0f;
+        spinAboutLocalY(cloak, getAngle(console, "cloak", cloakTarget, delta));
+
+        ModelPart hailMary = this.toyota.getChild("panel2").getChild("controls3").getChild("tinytapnob3").getChild("pivot4");
+        float hailMaryTarget = tardis.stats().hailMary().get() ? 0.5f : 0f;
+        hailMary.pivotY = hailMary.getDefaultTransform().pivotY + getAngle(console, "hail_mary", hailMaryTarget, delta);
+
+        ModelPart refuel = this.toyota.getChild("panel2").getChild("controls3").getChild("tinytapnob4");
+        float refuelTarget = tardis.isRefueling() ? (float) Math.toRadians(45) : 0f;
+        spinAboutLocalY(refuel, getAngle(console, "refuel", refuelTarget, delta));
 
         // Increment
         ModelPart increment = this.toyota.getChild("panel2").getChild("controls3").getChild("gears").getChild("largegear2");
@@ -1757,12 +1769,7 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
         } else {
             incrementTarget = 1.5f;
         }
-        float incrementTilt = increment.getDefaultTransform().pitch;
-        float incrementSpin = getAngle(console, "increment", incrementTarget, delta);
-        float tiltSin = (float) Math.sin(incrementTilt), tiltCos = (float) Math.cos(incrementTilt);
-        float spinSin = (float) Math.sin(incrementSpin), spinCos = (float) Math.cos(incrementSpin);
-        increment.setAngles((float) Math.atan2(tiltSin * spinCos, tiltCos), (float) Math.asin(-tiltSin * spinSin),
-                (float) Math.atan2(tiltCos * spinSin, spinCos));
+        spinAboutLocalZ(increment, getAngle(console, "increment", incrementTarget, delta));
 
         // Refuel Light
         ModelPart refuelLight = this.toyota.getChild("panel4").getChild("yellow6");
@@ -1770,6 +1777,22 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
 
         super.renderWithAnimations(console, tardis, root, matrices, vertices, light, overlay, red, green, blue, pAlpha);
         matrices.pop();
+    }
+
+    private static void spinAboutLocalY(ModelPart part, float angle) {
+        float tilt = part.getDefaultTransform().pitch;
+        float tiltSin = (float) Math.sin(tilt), tiltCos = (float) Math.cos(tilt);
+        float spinSin = (float) Math.sin(angle), spinCos = (float) Math.cos(angle);
+        part.setAngles((float) Math.atan2(tiltSin, tiltCos * spinCos), (float) Math.asin(tiltCos * spinSin),
+                (float) Math.atan2(tiltSin * spinSin, spinCos));
+    }
+
+    private static void spinAboutLocalZ(ModelPart part, float angle) {
+        float tilt = part.getDefaultTransform().pitch;
+        float tiltSin = (float) Math.sin(tilt), tiltCos = (float) Math.cos(tilt);
+        float spinSin = (float) Math.sin(angle), spinCos = (float) Math.cos(angle);
+        part.setAngles((float) Math.atan2(tiltSin * spinCos, tiltCos), (float) Math.asin(-tiltSin * spinSin),
+                (float) Math.atan2(tiltCos * spinSin, spinCos));
     }
 
     @Override
