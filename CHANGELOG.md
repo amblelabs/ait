@@ -251,3 +251,4 @@
 - fix: TARDIM door no longer clips | by [@Loqor](https://github.com/Loqor)
 - fix: Rift renders even when IP/Iris is present | by [@Loqor](https://github.com/Loqor)
 - fix: [Toyota control issues](https://github.com/amblelabs/ait/issues/2255) | by [@Loqor](https://github.com/Loqor)
+- fix: Gravity issues in space | by [@Loqor](https://github.com/Loqor)

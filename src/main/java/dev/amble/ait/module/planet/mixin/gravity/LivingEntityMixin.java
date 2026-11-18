@@ -45,7 +45,9 @@ public abstract class LivingEntityMixin extends Entity {
 
         LivingEntity entity = (LivingEntity) (Object) this;
 
-        if (entity.isSwimming() || entity.hasNoGravity()/* || entity.isFallFlying()*/ || entity.isSpectator())
+        if (entity.isSwimming() || entity.hasNoGravity() || entity.isFallFlying() || entity.isSpectator()
+                || entity.isTouchingWater() || entity.isInLava() || entity.isClimbing()
+                || entity.hasStatusEffect(StatusEffects.SLOW_FALLING) || entity.hasStatusEffect(StatusEffects.LEVITATION))
             return;
 
         if (entity instanceof PlayerEntity player && player.getAbilities().flying)
