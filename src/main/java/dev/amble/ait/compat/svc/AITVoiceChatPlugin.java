@@ -7,6 +7,7 @@ import de.maxhenkel.voicechat.api.VoicechatPlugin;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.VolumeCategory;
 import de.maxhenkel.voicechat.api.audiochannel.StaticAudioChannel;
+import de.maxhenkel.voicechat.api.events.ClientReceiveSoundEvent;
 import de.maxhenkel.voicechat.api.events.EventRegistration;
 import de.maxhenkel.voicechat.api.events.MicrophonePacketEvent;
 import de.maxhenkel.voicechat.api.events.PlayerDisconnectedEvent;
@@ -17,6 +18,8 @@ import de.maxhenkel.voicechat.api.packets.StaticSoundPacket;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.compat.portal.PortalsAPI;
 import dev.amble.ait.core.tardis.comms.TardisComms;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
@@ -74,6 +77,9 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
         });
         registration.registerEvent(PlayerDisconnectedEvent.class, event -> AITVoiceChatBroadcast.stop(event.getPlayerUuid()));
         registration.registerEvent(MicrophonePacketEvent.class, this::onMicrophonePacket);
+
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT)
+            registration.registerEvent(ClientReceiveSoundEvent.StaticSound.class, AITVoiceFilters::onStaticSound);
     }
 
     private void onMicrophonePacket(MicrophonePacketEvent event) {
@@ -93,6 +99,7 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
 
         VoicechatServerApi api = event.getVoicechat();
         StaticSoundPacket packet = event.getPacket().staticSoundPacketBuilder()
+                .channelId(AITVoiceChannels.tag(AITVoiceChannels.Kind.BROADCAST, senderId))
                 .category(TARDIS_BROADCAST)
                 .build();
 
@@ -117,6 +124,7 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
 
         VoicechatServerApi api = event.getVoicechat();
         StaticSoundPacket packet = event.getPacket().staticSoundPacketBuilder()
+                .channelId(AITVoiceChannels.tag(AITVoiceChannels.Kind.COMMS, senderId))
                 .category(TARDIS_COMMS)
                 .build();
 
@@ -145,7 +153,7 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
             if (connection == null || !connection.isConnected() || connection.isDisabled())
                 continue;
 
-            StaticAudioChannel channel = api.createStaticAudioChannel(UUID.randomUUID(),
+            StaticAudioChannel channel = api.createStaticAudioChannel(AITVoiceChannels.tag(AITVoiceChannels.Kind.COMMS, UUID.randomUUID()),
                     connection.getPlayer().getServerLevel(), connection);
 
             if (channel == null)

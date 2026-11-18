@@ -41,6 +41,7 @@ import dev.amble.ait.client.renderers.monitors.WallMonitorRenderer;
 import dev.amble.ait.client.renderers.sky.MarsSkyProperties;
 import dev.amble.ait.client.screens.*;
 import dev.amble.ait.client.screens.svc.CommScreen;
+import dev.amble.ait.client.renderers.PhoneCableRenderer;
 import dev.amble.ait.client.sonic.SonicModelLoader;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
@@ -129,6 +130,7 @@ public class AITModClient implements ClientModInitializer {
         CONFIG = AITClientConfig.INSTANCE.instance();
 
         CommScreen.registerClient();
+        WorldRenderEvents.AFTER_ENTITIES.register(PhoneCableRenderer::render);
 
         // TODO move to Registries
         AmbleRegistries.getInstance().registerAll(

@@ -974,6 +974,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("yacl3.config.ait:client.animateConsole", "Toggle Animated Consoles");
         provider.addTranslation("yacl3.config.ait:client.animateControls", "Toggle Smoothly Animated Controls");
         provider.addTranslation("yacl3.config.ait:client.animateDoors", "Toggle Smoothly Animated Doors");
+        provider.addTranslation("yacl3.config.ait:client.voiceFilters", "Voice Filters for TARDIS Calls and Broadcasts");
         provider.addTranslation("yacl3.config.ait:client.rwfHudScale", "Real World Flight HUD Scale");
         provider.addTranslation("yacl3.config.ait:client.rwfFovEffect", "Real World Flight FOV Effect");
         provider.addTranslation("yacl3.config.ait:client.rwfCameraTilt", "Real World Flight Camera Tilt");
@@ -1354,6 +1355,9 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.comms.message_sent", "Message saved.");
         provider.addTranslation("tardis.message.comms.new_message", "New message from %s");
         provider.addTranslation("tardis.message.comms.ended", "Call ended");
+        provider.addTranslation("tardis.message.comms.handset_taken", "%s has the handset.");
+        provider.addTranslation("tardis.message.comms.no_room", "No room for the handset.");
+        provider.addTranslation("tardis.message.comms.no_call", "No call to answer.");
         provider.addTranslation("screen.ait.comms.title", "TARDIS Comms");
         provider.addTranslation("screen.ait.comms.broadcast", "Broadcast");
         provider.addTranslation("screen.ait.comms.mode.speaker", "Mode: Speaker");
@@ -1373,6 +1377,16 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.comms.status.incoming", "Incoming call from %s");
         provider.addTranslation("screen.ait.comms.status.connected", "Connected to %s");
         provider.addTranslation("screen.ait.comms.status.recording", "Recording a message for %s");
+        provider.addTranslation("screen.ait.comms.tab.calls", "Calls");
+        provider.addTranslation("screen.ait.comms.tab.messages", "Msgs");
+        provider.addTranslation("screen.ait.comms.short.answer", "Ans");
+        provider.addTranslation("screen.ait.comms.short.decline", "Deny");
+        provider.addTranslation("screen.ait.comms.short.end", "End");
+        provider.addTranslation("screen.ait.comms.short.done", "Done");
+        provider.addTranslation("screen.ait.comms.short.speaker", "Spkr");
+        provider.addTranslation("screen.ait.comms.short.handset", "Hand");
+        provider.addTranslation("screen.ait.comms.short.broadcast", "Cast");
+        provider.addTranslation("screen.ait.comms.message.tooltip", "Click to play, Shift-click to delete");
         provider.addTranslation("tardis.message.interiorchange.cancelled", "%s's interior reconfiguration was cancelled");
         provider.addTranslation("tardis.message.landingpad.adjust", "Adjusting to landing pad..");
         provider.addTranslation("tardis.message.self_destruct.warning", "SELF DESTRUCT INITIATED | ABANDON SHIP");

@@ -40,7 +40,7 @@ public final class TardisComms {
     public static final int MAX_MESSAGE_FRAMES = 30 * FRAMES_PER_SECOND;
     public static final int MAX_MESSAGES = 10;
 
-    private static final int RING_INTERVAL = 40;
+    private static final int RING_INTERVAL = 65;
     private static final int RECORDING_TICKS = 32 * 20;
 
     public enum Action {
@@ -172,7 +172,7 @@ public final class TardisComms {
         ring(target);
     }
 
-    private static void answer(MinecraftServer server, ServerPlayerEntity player, ServerTardis tardis) {
+    public static void answer(MinecraftServer server, ServerPlayerEntity player, ServerTardis tardis) {
         Call call = CALLS.get(tardis.getUuid());
 
         if (call == null || call.connected || !call.target.equals(tardis.getUuid()))
@@ -191,6 +191,18 @@ public final class TardisComms {
             return;
 
         toVoicemail(server, call);
+    }
+
+    public static void endFor(MinecraftServer server, UUID tardis) {
+        for (Map.Entry<UUID, Recording> entry : new HashMap<>(RECORDINGS).entrySet()) {
+            if (entry.getValue().callerTardis.equals(tardis))
+                finishRecording(server, entry.getKey(), entry.getValue());
+        }
+
+        Call call = CALLS.get(tardis);
+
+        if (call != null)
+            end(server, call);
     }
 
     private static void hangUp(MinecraftServer server, ServerPlayerEntity player, ServerTardis tardis) {
@@ -361,7 +373,7 @@ public final class TardisComms {
 
     private static void ring(ServerTardis tardis) {
         if (tardis.hasWorld())
-            tardis.getDesktop().playSoundAtEveryConsole(AITSounds.NAV_NOTIFICATION, SoundCategory.BLOCKS, 2f, 1.2f);
+            tardis.getDesktop().playSoundAtEveryConsole(AITSounds.TELEPHONE, SoundCategory.BLOCKS, 1.5f, 1f);
     }
 
     private static List<UUID> participants(MinecraftServer server, UUID tardisId, @Nullable UUID player) {
@@ -369,6 +381,11 @@ public final class TardisComms {
 
         if (tardis == null)
             return List.of();
+
+        UUID phone = TardisPhones.holderFor(tardisId);
+
+        if (phone != null)
+            return List.of(phone);
 
         if (tardis.stats().commsHandset().get())
             return player == null ? List.of() : List.of(player);
@@ -403,7 +420,7 @@ public final class TardisComms {
         return false;
     }
 
-    private static Status status(UUID tardis) {
+    public static Status status(UUID tardis) {
         for (Recording recording : RECORDINGS.values()) {
             if (recording.callerTardis.equals(tardis))
                 return Status.RECORDING;

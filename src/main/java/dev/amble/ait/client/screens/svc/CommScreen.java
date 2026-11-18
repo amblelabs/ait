@@ -12,18 +12,42 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 
 public class CommScreen extends TardisScreen {
 
-    private static final int PANEL_WIDTH = 340;
-    private static final int PANEL_HEIGHT = 250;
+    private static final Identifier TEXTURE = AITMod.id("textures/gui/tardis/monitor/call_gui.png");
+
+    private static final int WIDTH = 130;
+    private static final int HEIGHT = 132;
+    private static final int TEXTURE_V = 3;
+
+    private static final int HEADER_X = 9;
+    private static final int HEADER_Y = 10;
+    private static final int HEADER_WIDTH = 111;
+
+    private static final int LIST_X = 14;
+    private static final int LIST_Y = 44;
+    private static final int LIST_WIDTH = 56;
+
+    private static final int SIDE_X = 80;
+    private static final int SIDE_Y = 44;
+    private static final int SIDE_WIDTH = 30;
+
+    private static final int ROW_HEIGHT = 12;
     private static final int ROWS = 6;
-    private static final int ROW_HEIGHT = 22;
+
+    private static final int SCREEN_TEXT = 0x55FF55;
+    private static final int SCREEN_TEXT_DIM = 0x2E8B2E;
 
     private record Contact(UUID id, String name) {
     }
@@ -37,8 +61,8 @@ public class CommScreen extends TardisScreen {
 
     @Nullable private static State latest;
 
-    private int contactPage = 0;
-    private int messagePage = 0;
+    private boolean showingMessages = false;
+    private int page = 0;
     private int ticks = 0;
 
     public CommScreen(ClientTardis tardis) {
@@ -94,125 +118,112 @@ public class CommScreen extends TardisScreen {
     }
 
     private int left() {
-        return (this.width - PANEL_WIDTH) / 2;
+        return (this.width - WIDTH) / 2;
     }
 
     private int top() {
-        return (this.height - PANEL_HEIGHT) / 2;
+        return (this.height - HEIGHT) / 2;
     }
 
     private void rebuild() {
         this.clearChildren();
 
-        int left = this.left();
-        int top = this.top();
         State state = latest;
-
-        this.addDrawableChild(ButtonWidget.builder(Text.translatable("screen.ait.comms.broadcast"), button -> this.broadcast())
-                .dimensions(left + PANEL_WIDTH - 110, top + 6, 104, 18).build());
 
         if (state == null)
             return;
 
-        this.addDrawableChild(ButtonWidget.builder(Text.translatable(state.handset()
-                                ? "screen.ait.comms.mode.handset" : "screen.ait.comms.mode.speaker"),
-                        button -> this.action(TardisComms.Action.TOGGLE_MODE, null))
-                .dimensions(left + PANEL_WIDTH - 110, top + 28, 104, 18).build());
+        int left = this.left();
+        int top = this.top();
 
-        int actionY = top + 50;
+        int size = this.showingMessages ? state.messages().size() : state.contacts().size();
+        int pages = Math.max(1, (size + ROWS - 1) / ROWS);
+        this.page = Math.max(0, Math.min(this.page, pages - 1));
+
+        boolean idle = state.status() == TardisComms.Status.IDLE;
+
+        for (int i = 0; i < ROWS; i++) {
+            int index = this.page * ROWS + i;
+
+            if (index >= size)
+                break;
+
+            int x = left + LIST_X;
+            int y = top + LIST_Y + i * ROW_HEIGHT;
+
+            if (this.showingMessages) {
+                Message message = state.messages().get(index);
+                SpriteButton row = this.add(x, y, LIST_WIDTH, Text.translatable("screen.ait.comms.message", message.from(), message.seconds()),
+                        button -> this.action(Screen.hasShiftDown() ? TardisComms.Action.DELETE : TardisComms.Action.PLAY, message.id()));
+
+                row.setTooltip(Tooltip.of(Text.translatable("screen.ait.comms.message.tooltip")));
+            } else {
+                Contact contact = state.contacts().get(index);
+                SpriteButton row = this.add(x, y, LIST_WIDTH, Text.literal(contact.name()),
+                        button -> this.action(TardisComms.Action.CALL, contact.id()));
+
+                row.setTooltip(Tooltip.of(Text.literal(contact.name())));
+                row.active = idle;
+            }
+        }
+
+        int x = left + SIDE_X;
+        int y = top + SIDE_Y;
+
+        this.add(x, y, SIDE_WIDTH, Text.translatable(this.showingMessages ? "screen.ait.comms.tab.calls" : "screen.ait.comms.tab.messages"),
+                button -> {
+                    this.showingMessages = !this.showingMessages;
+                    this.page = 0;
+                    this.rebuild();
+                });
+
+        SpriteButton up = this.add(x, y + ROW_HEIGHT, SIDE_WIDTH, Text.literal("<"), button -> this.turnPage(-1));
+        SpriteButton down = this.add(x, y + ROW_HEIGHT * 2, SIDE_WIDTH, Text.literal(">"), button -> this.turnPage(1));
+
+        up.active = this.page > 0;
+        down.active = this.page < pages - 1;
 
         switch (state.status()) {
             case INCOMING -> {
-                this.addDrawableChild(ButtonWidget.builder(Text.translatable("screen.ait.comms.answer").formatted(Formatting.GREEN),
-                        button -> this.action(TardisComms.Action.ANSWER, null)).dimensions(left + 8, actionY, 80, 18).build());
-                this.addDrawableChild(ButtonWidget.builder(Text.translatable("screen.ait.comms.decline").formatted(Formatting.RED),
-                        button -> this.action(TardisComms.Action.DECLINE, null)).dimensions(left + 92, actionY, 80, 18).build());
+                this.add(x, y + ROW_HEIGHT * 3, SIDE_WIDTH, Text.translatable("screen.ait.comms.short.answer"),
+                        button -> this.action(TardisComms.Action.ANSWER, null));
+                this.add(x, y + ROW_HEIGHT * 4, SIDE_WIDTH, Text.translatable("screen.ait.comms.short.decline"),
+                        button -> this.action(TardisComms.Action.DECLINE, null));
             }
-            case OUTGOING, CONNECTED -> this.addDrawableChild(ButtonWidget.builder(Text.translatable("screen.ait.comms.hang_up").formatted(Formatting.RED),
-                    button -> this.action(TardisComms.Action.HANG_UP, null)).dimensions(left + 8, actionY, 80, 18).build());
-            case RECORDING -> this.addDrawableChild(ButtonWidget.builder(Text.translatable("screen.ait.comms.finish_message"),
-                    button -> this.action(TardisComms.Action.HANG_UP, null)).dimensions(left + 8, actionY, 120, 18).build());
-            default -> { }
+            case OUTGOING, CONNECTED -> {
+                this.add(x, y + ROW_HEIGHT * 3, SIDE_WIDTH, Text.translatable("screen.ait.comms.short.end"),
+                        button -> this.action(TardisComms.Action.HANG_UP, null));
+                this.addModeButton(x, y + ROW_HEIGHT * 4, state);
+            }
+            case RECORDING -> {
+                this.add(x, y + ROW_HEIGHT * 3, SIDE_WIDTH, Text.translatable("screen.ait.comms.short.done"),
+                        button -> this.action(TardisComms.Action.HANG_UP, null));
+                this.addModeButton(x, y + ROW_HEIGHT * 4, state);
+            }
+            case IDLE -> this.addModeButton(x, y + ROW_HEIGHT * 4, state);
         }
 
-        int listTop = top + 86;
-        int columnWidth = PANEL_WIDTH / 2 - 12;
-        boolean idle = state.status() == TardisComms.Status.IDLE;
-
-        this.contactPage = clampPage(this.contactPage, state.contacts().size());
-
-        for (int i = 0; i < ROWS; i++) {
-            int index = this.contactPage * ROWS + i;
-
-            if (index >= state.contacts().size())
-                break;
-
-            Contact contact = state.contacts().get(index);
-            ButtonWidget button = ButtonWidget.builder(Text.literal(contact.name()),
-                    widget -> this.action(TardisComms.Action.CALL, contact.id()))
-                    .dimensions(left + 8, listTop + i * ROW_HEIGHT, columnWidth, 18).build();
-
-            button.active = idle;
-            this.addDrawableChild(button);
-        }
-
-        this.addPager(left + 8, listTop + ROWS * ROW_HEIGHT, state.contacts().size(), true);
-
-        this.messagePage = clampPage(this.messagePage, state.messages().size());
-        int messageLeft = left + PANEL_WIDTH / 2 + 4;
-
-        for (int i = 0; i < ROWS; i++) {
-            int index = this.messagePage * ROWS + i;
-
-            if (index >= state.messages().size())
-                break;
-
-            Message message = state.messages().get(index);
-            int y = listTop + i * ROW_HEIGHT;
-
-            this.addDrawableChild(ButtonWidget.builder(Text.translatable("screen.ait.comms.message", message.from(), message.seconds()),
-                    widget -> this.action(TardisComms.Action.PLAY, message.id()))
-                    .dimensions(messageLeft, y, columnWidth - 22, 18).build());
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("x").formatted(Formatting.RED),
-                    widget -> this.action(TardisComms.Action.DELETE, message.id()))
-                    .dimensions(messageLeft + columnWidth - 20, y, 20, 18).build());
-        }
-
-        this.addPager(messageLeft, listTop + ROWS * ROW_HEIGHT, state.messages().size(), false);
+        SpriteButton broadcast = this.add(x, y + ROW_HEIGHT * 5, SIDE_WIDTH, Text.translatable("screen.ait.comms.short.broadcast"),
+                button -> this.broadcast());
+        broadcast.setTooltip(Tooltip.of(Text.translatable("screen.ait.comms.broadcast")));
     }
 
-    private void addPager(int x, int y, int size, boolean contacts) {
-        int pages = Math.max(1, (size + ROWS - 1) / ROWS);
+    private void addModeButton(int x, int y, State state) {
+        SpriteButton mode = this.add(x, y, SIDE_WIDTH, Text.translatable(state.handset()
+                ? "screen.ait.comms.short.handset" : "screen.ait.comms.short.speaker"),
+                button -> this.action(TardisComms.Action.TOGGLE_MODE, null));
 
-        if (pages <= 1)
-            return;
-
-        int page = contacts ? this.contactPage : this.messagePage;
-
-        ButtonWidget previous = ButtonWidget.builder(Text.literal("<"), button -> this.turnPage(contacts, -1))
-                .dimensions(x, y, 20, 16).build();
-        ButtonWidget next = ButtonWidget.builder(Text.literal(">"), button -> this.turnPage(contacts, 1))
-                .dimensions(x + 24, y, 20, 16).build();
-
-        previous.active = page > 0;
-        next.active = page < pages - 1;
-
-        this.addDrawableChild(previous);
-        this.addDrawableChild(next);
+        mode.setTooltip(Tooltip.of(Text.translatable(state.handset()
+                ? "screen.ait.comms.mode.handset" : "screen.ait.comms.mode.speaker")));
     }
 
-    private void turnPage(boolean contacts, int delta) {
-        if (contacts)
-            this.contactPage += delta;
-        else
-            this.messagePage += delta;
+    private SpriteButton add(int x, int y, int width, Text text, ButtonWidget.PressAction action) {
+        return this.addDrawableChild(new SpriteButton(x, y, width, text, action));
+    }
 
+    private void turnPage(int delta) {
+        this.page += delta;
         this.rebuild();
-    }
-
-    private static int clampPage(int page, int size) {
-        int pages = Math.max(1, (size + ROWS - 1) / ROWS);
-        return Math.max(0, Math.min(page, pages - 1));
     }
 
     private void request() {
@@ -255,39 +266,86 @@ public class CommScreen extends TardisScreen {
         int left = this.left();
         int top = this.top();
 
-        context.fill(left, top, left + PANEL_WIDTH, top + PANEL_HEIGHT, 0xC0101018);
-        context.drawBorder(left, top, PANEL_WIDTH, PANEL_HEIGHT, 0xFFFF9600);
-        context.drawTextWithShadow(this.textRenderer, this.title, left + 8, top + 8, 0xFFFFFF);
+        context.drawTexture(TEXTURE, left, top, 0, TEXTURE_V, WIDTH, HEIGHT, 256, 256);
 
         State state = latest;
-        Text status = state == null ? Text.translatable("screen.ait.comms.loading") : statusText(state);
-        context.drawTextWithShadow(this.textRenderer, status, left + 8, top + 30, 0xFFFFFF);
+        int textX = left + HEADER_X + 3;
+        int textWidth = HEADER_WIDTH - 6;
 
-        int listTop = top + 86;
-        context.drawTextWithShadow(this.textRenderer, Text.translatable("screen.ait.comms.contacts").formatted(Formatting.GOLD), left + 8, listTop - 12, 0xFFFFFF);
-        context.drawTextWithShadow(this.textRenderer, Text.translatable("screen.ait.comms.messages").formatted(Formatting.GOLD), left + PANEL_WIDTH / 2 + 4, listTop - 12, 0xFFFFFF);
+        this.screenLine(context, this.title, textX, top + HEADER_Y + 2, textWidth, SCREEN_TEXT);
 
-        if (state != null && state.contacts().isEmpty())
-            context.drawTextWithShadow(this.textRenderer, Text.translatable("screen.ait.comms.no_contacts").formatted(Formatting.GRAY), left + 8, listTop + 4, 0xFFFFFF);
+        if (state == null) {
+            this.screenLine(context, Text.translatable("screen.ait.comms.loading"), textX, top + HEADER_Y + 12, textWidth, SCREEN_TEXT_DIM);
+        } else {
+            this.screenLine(context, statusText(state), textX, top + HEADER_Y + 12, textWidth, SCREEN_TEXT);
+            this.screenLine(context, Text.translatable(this.showingMessages ? "screen.ait.comms.messages" : "screen.ait.comms.contacts"),
+                    textX, top + HEADER_Y + 22, textWidth, SCREEN_TEXT_DIM);
 
-        if (state != null && state.messages().isEmpty())
-            context.drawTextWithShadow(this.textRenderer, Text.translatable("screen.ait.comms.no_messages").formatted(Formatting.GRAY), left + PANEL_WIDTH / 2 + 4, listTop + 4, 0xFFFFFF);
+            boolean empty = this.showingMessages ? state.messages().isEmpty() : state.contacts().isEmpty();
+
+            if (empty)
+                this.listNote(context, Text.translatable(this.showingMessages
+                        ? "screen.ait.comms.no_messages" : "screen.ait.comms.no_contacts"), left, top);
+        }
 
         super.render(context, mouseX, mouseY, delta);
     }
 
+    private void screenLine(DrawContext context, Text text, int x, int y, int width, int color) {
+        context.drawText(this.textRenderer, this.textRenderer.trimToWidth(text, width).getString(), x, y, color, false);
+    }
+
+    private void listNote(DrawContext context, Text text, int left, int top) {
+        List<OrderedText> lines = this.textRenderer.wrapLines(text, LIST_WIDTH - 4);
+
+        for (int i = 0; i < lines.size(); i++)
+            context.drawText(this.textRenderer, lines.get(i), left + LIST_X + 2, top + LIST_Y + 2 + i * 10, 0x3F3F3F, false);
+    }
+
     private static Text statusText(State state) {
         return switch (state.status()) {
-            case IDLE -> Text.translatable("screen.ait.comms.status.idle").formatted(Formatting.GRAY);
-            case OUTGOING -> Text.translatable("screen.ait.comms.status.outgoing", state.other()).formatted(Formatting.GOLD);
-            case INCOMING -> Text.translatable("screen.ait.comms.status.incoming", state.other()).formatted(Formatting.GOLD);
-            case CONNECTED -> Text.translatable("screen.ait.comms.status.connected", state.other()).formatted(Formatting.GREEN);
-            case RECORDING -> Text.translatable("screen.ait.comms.status.recording", state.other()).formatted(Formatting.RED);
+            case IDLE -> Text.translatable("screen.ait.comms.status.idle");
+            case OUTGOING -> Text.translatable("screen.ait.comms.status.outgoing", state.other());
+            case INCOMING -> Text.translatable("screen.ait.comms.status.incoming", state.other());
+            case CONNECTED -> Text.translatable("screen.ait.comms.status.connected", state.other());
+            case RECORDING -> Text.translatable("screen.ait.comms.status.recording", state.other());
         };
     }
 
     @Override
     public boolean shouldPause() {
         return false;
+    }
+
+    private static final class SpriteButton extends ButtonWidget {
+
+        private static final int SPRITE_U = 2;
+        private static final int SPRITE_V = 137;
+        private static final int SPRITE_HOVER_V = 149;
+        private static final int SPRITE_WIDTH = 53;
+        private static final int CAP = 3;
+
+        private SpriteButton(int x, int y, int width, Text message, PressAction action) {
+            super(x, y, width, ROW_HEIGHT, message, action, DEFAULT_NARRATION_SUPPLIER);
+        }
+
+        @Override
+        protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+            int v = this.active && this.isSelected() ? SPRITE_HOVER_V : SPRITE_V;
+            int x = this.getX();
+            int y = this.getY();
+            int middle = this.width - CAP * 2;
+
+            context.drawTexture(TEXTURE, x, y, SPRITE_U, v, CAP, this.height, 256, 256);
+            context.drawTexture(TEXTURE, x + CAP, y, middle, this.height, SPRITE_U + CAP, v,
+                    SPRITE_WIDTH - CAP * 2, this.height, 256, 256);
+            context.drawTexture(TEXTURE, x + this.width - CAP, y, SPRITE_U + SPRITE_WIDTH - CAP, v, CAP, this.height, 256, 256);
+
+            TextRenderer font = MinecraftClient.getInstance().textRenderer;
+            String label = font.trimToWidth(this.getMessage(), this.width - 4).getString();
+            int color = this.active ? 0x202020 : 0x7A7A7A;
+
+            context.drawText(font, label, x + (this.width - font.getWidth(label)) / 2, y + 2, color, false);
+        }
     }
 }
