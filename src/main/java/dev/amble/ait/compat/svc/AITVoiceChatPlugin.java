@@ -23,7 +23,7 @@ import java.util.UUID;
 public class AITVoiceChatPlugin implements VoicechatPlugin {
 
     // Volume Categories
-    public static String TARDIS_BROADCAST = "tardis_broadcast";
+    public static String TARDIS_BROADCAST = "tardis_cast";
     public static String TARDIS_COMMS = "tardis_comms";
 
     @Override
