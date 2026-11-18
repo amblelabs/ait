@@ -41,7 +41,8 @@ public class AlnicoType extends ConsoleTypeSchema {
             new ControlTypes(new EngineOverloadControl(), EntityDimensions.changing(0.26250002f, 0.32499996f),
                     new Vector3f(1.6117185717448592f, 0.20000180695205927f, 0.4882816318422556f)),
             new ControlTypes(new ElectricalDischargeControl(),
-                    EntityDimensions.changing(0.26250002f, 0.32499996f), new Vector3f(1.211719125509262f, 0.1750017162412405f, 1.1007812591269612f)),
+                    EntityDimensions.changing(0.26250002f, 0.32499996f),
+                    new Vector3f(1.211719125509262f, 0.1750017162412405f, 1.1007812591269612f)),
 
             // extra monitor entity because he's a special lil guy
             new ControlTypes(new MonitorControl(), EntityDimensions.changing(0.42499986f, 0.39999992f),
@@ -87,7 +88,10 @@ public class AlnicoType extends ConsoleTypeSchema {
             new ControlTypes(new SonicPortControl(), EntityDimensions.changing(0.125f, 0.08749999f),
                     new Vector3f(-1.0855468846857548f, 0.3874998027458787f, -0.6242187554016709f)),
             new ControlTypes(new ShieldsControl(), EntityDimensions.changing(0.07499999f, 0.2875f),
-                    new Vector3f(-1.5359375067055225f, 0.11249975301325321f, -0.7250000014901161f)),};
+                    new Vector3f(-1.5359375067055225f, 0.11249975301325321f, -0.7250000014901161f)),
+            new ControlTypes(new CommsControl(), EntityDimensions.changing(0.41249987f, 0.125f),
+                    new Vector3f(-0.7734382515773177f, 0.46249980852007866f, -0.45000037737190723f)),
+    };
 
     public AlnicoType() {
         super(REFERENCE, "alnico");

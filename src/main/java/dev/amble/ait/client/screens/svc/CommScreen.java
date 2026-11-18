@@ -27,24 +27,28 @@ public class CommScreen extends TardisScreen {
 
     private static final Identifier TEXTURE = AITMod.id("textures/gui/tardis/monitor/call_gui.png");
 
-    private static final int WIDTH = 130;
-    private static final int HEIGHT = 132;
-    private static final int TEXTURE_V = 3;
+    private static final int WIDTH = 256;
+    private static final int HEIGHT = 166;
+    private static final int TEXTURE_V = 0;
 
-    private static final int HEADER_X = 9;
-    private static final int HEADER_Y = 10;
-    private static final int HEADER_WIDTH = 111;
+    private static final int HEADER_X = 12;
+    private static final int HEADER_Y = 12;
+    private static final int HEADER_WIDTH = 230;
 
-    private static final int LIST_X = 14;
-    private static final int LIST_Y = 44;
-    private static final int LIST_WIDTH = 56;
+    private static final int LIST_X = 28;
+    private static final int LIST_Y = 62;
+    private static final int LIST_WIDTH = 99;
 
-    private static final int SIDE_X = 80;
-    private static final int SIDE_Y = 44;
-    private static final int SIDE_WIDTH = 30;
+    private static final int SIDE_X = 163;
+    private static final int SIDE_Y = 62;
+    private static final int SIDE_WIDTH = 63;
+
+    private static final int PHONE_X = 135;
+    private static final int ANSWER_Y = 72;
+    private static final int HANG_UP_Y = 102;
 
     private static final int ROW_HEIGHT = 12;
-    private static final int ROWS = 6;
+    private static final int ROWS = 7;
 
     private static final int SCREEN_TEXT = 0x55FF55;
     private static final int SCREEN_TEXT_DIM = 0x2E8B2E;
@@ -183,29 +187,31 @@ public class CommScreen extends TardisScreen {
         up.active = this.page > 0;
         down.active = this.page < pages - 1;
 
-        switch (state.status()) {
-            case INCOMING -> {
-                this.add(x, y + ROW_HEIGHT * 3, SIDE_WIDTH, Text.translatable("screen.ait.comms.short.answer"),
-                        button -> this.action(TardisComms.Action.ANSWER, null));
-                this.add(x, y + ROW_HEIGHT * 4, SIDE_WIDTH, Text.translatable("screen.ait.comms.short.decline"),
-                        button -> this.action(TardisComms.Action.DECLINE, null));
-            }
-            case OUTGOING, CONNECTED -> {
-                this.add(x, y + ROW_HEIGHT * 3, SIDE_WIDTH, Text.translatable("screen.ait.comms.short.end"),
-                        button -> this.action(TardisComms.Action.HANG_UP, null));
-                this.addModeButton(x, y + ROW_HEIGHT * 4, state);
-            }
-            case RECORDING -> {
-                this.add(x, y + ROW_HEIGHT * 3, SIDE_WIDTH, Text.translatable("screen.ait.comms.short.done"),
-                        button -> this.action(TardisComms.Action.HANG_UP, null));
-                this.addModeButton(x, y + ROW_HEIGHT * 4, state);
-            }
-            case IDLE -> this.addModeButton(x, y + ROW_HEIGHT * 4, state);
-        }
+        this.addModeButton(x, y + ROW_HEIGHT * 3, state);
 
-        SpriteButton broadcast = this.add(x, y + ROW_HEIGHT * 5, SIDE_WIDTH, Text.translatable("screen.ait.comms.short.broadcast"),
+        SpriteButton broadcast = this.add(x, y + ROW_HEIGHT * 4, SIDE_WIDTH, Text.translatable("screen.ait.comms.short.broadcast"),
                 button -> this.broadcast());
         broadcast.setTooltip(Tooltip.of(Text.translatable("screen.ait.comms.broadcast")));
+
+        TardisComms.Status status = state.status();
+
+        PhoneButton answer = this.addDrawableChild(new PhoneButton(left + PHONE_X, top + ANSWER_Y, PhoneButton.ANSWER_V,
+                Text.translatable("screen.ait.comms.answer"), button -> this.action(TardisComms.Action.ANSWER, null)));
+        answer.active = status == TardisComms.Status.INCOMING;
+        answer.setTooltip(Tooltip.of(Text.translatable("screen.ait.comms.answer")));
+
+        TardisComms.Action hangUpAction = status == TardisComms.Status.INCOMING
+                ? TardisComms.Action.DECLINE : TardisComms.Action.HANG_UP;
+        Text hangUpText = Text.translatable(switch (status) {
+            case INCOMING -> "screen.ait.comms.decline";
+            case RECORDING -> "screen.ait.comms.finish_message";
+            default -> "screen.ait.comms.hang_up";
+        });
+
+        PhoneButton hangUp = this.addDrawableChild(new PhoneButton(left + PHONE_X, top + HANG_UP_Y, PhoneButton.HANG_UP_V,
+                hangUpText, button -> this.action(hangUpAction, null)));
+        hangUp.active = status != TardisComms.Status.IDLE;
+        hangUp.setTooltip(Tooltip.of(hangUpText));
     }
 
     private void addModeButton(int x, int y, State state) {
@@ -275,11 +281,11 @@ public class CommScreen extends TardisScreen {
         this.screenLine(context, this.title, textX, top + HEADER_Y + 2, textWidth, SCREEN_TEXT);
 
         if (state == null) {
-            this.screenLine(context, Text.translatable("screen.ait.comms.loading"), textX, top + HEADER_Y + 12, textWidth, SCREEN_TEXT_DIM);
+            this.screenLine(context, Text.translatable("screen.ait.comms.loading"), textX, top + HEADER_Y + 14, textWidth, SCREEN_TEXT_DIM);
         } else {
-            this.screenLine(context, statusText(state), textX, top + HEADER_Y + 12, textWidth, SCREEN_TEXT);
+            this.screenLine(context, statusText(state), textX, top + HEADER_Y + 14, textWidth, SCREEN_TEXT);
             this.screenLine(context, Text.translatable(this.showingMessages ? "screen.ait.comms.messages" : "screen.ait.comms.contacts"),
-                    textX, top + HEADER_Y + 22, textWidth, SCREEN_TEXT_DIM);
+                    textX, top + HEADER_Y + 36, textWidth, SCREEN_TEXT_DIM);
 
             boolean empty = this.showingMessages ? state.messages().isEmpty() : state.contacts().isEmpty();
 
@@ -317,12 +323,41 @@ public class CommScreen extends TardisScreen {
         return false;
     }
 
+    private static final class PhoneButton extends ButtonWidget {
+
+        private static final int U = 56;
+        private static final int ANSWER_V = 200;
+        private static final int HANG_UP_V = 221;
+        private static final int SIZE_X = 20;
+        private static final int SIZE_Y = 21;
+
+        private final int v;
+
+        private PhoneButton(int x, int y, int v, Text message, PressAction action) {
+            super(x, y, SIZE_X, SIZE_Y, message, action, DEFAULT_NARRATION_SUPPLIER);
+            this.v = v;
+        }
+
+        @Override
+        protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+            int x = this.getX();
+            int y = this.getY();
+
+            context.drawTexture(TEXTURE, x, y, U, this.v, SIZE_X, SIZE_Y, 256, 256);
+
+            if (!this.active)
+                context.fill(x, y, x + SIZE_X, y + SIZE_Y, 0x99404040);
+            else if (this.isSelected())
+                context.fill(x, y, x + SIZE_X, y + SIZE_Y, 0x30FFFFFF);
+        }
+    }
+
     private static final class SpriteButton extends ButtonWidget {
 
         private static final int SPRITE_U = 2;
-        private static final int SPRITE_V = 137;
-        private static final int SPRITE_HOVER_V = 149;
-        private static final int SPRITE_WIDTH = 53;
+        private static final int SPRITE_V = 200;
+        private static final int SPRITE_HOVER_V = 212;
+        private static final int SPRITE_WIDTH = 52;
         private static final int CAP = 3;
 
         private SpriteButton(int x, int y, int width, Text message, PressAction action) {

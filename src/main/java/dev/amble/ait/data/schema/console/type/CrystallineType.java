@@ -100,8 +100,8 @@ public class CrystallineType extends ConsoleTypeSchema {
             new ControlTypes(new SiegeModeControl(), EntityDimensions.changing(0.1125f, 0.18750001f),
                     new Vector3f(-0.6085935495793819f, 0.6499997675418854f, 0.014452925883233547f)),
             // done
-            new ControlTypes(new AlarmsControl(), EntityDimensions.changing(0.125f, 0.16250001f),
-                    new Vector3f(-0.2718746168538928f, 0.9250002913177013f, -0.4726562490686774f)),
+            new ControlTypes(new AlarmsControl(), EntityDimensions.changing(0.07499999f, 0.07499999f),
+                    new Vector3f(-0.08437537867575884f, 0.7875001886859536f, -0.5601562513038516f)),
             // done
             new ControlTypes(new SaveWaypointControl(), EntityDimensions.changing(0.07499999f, 0.074999996f),
                     new Vector3f(0.6382812475785613f, 0.7250008611008525f, 0.10156288184225559f)),
@@ -119,7 +119,10 @@ public class CrystallineType extends ConsoleTypeSchema {
                     new Vector3f(1.051953513175249f, 0.41249999683350325f, 7.810592651367188E-4f)),
             // done
             new ControlTypes(new ShieldsControl(), EntityDimensions.changing(0.17500001f, 0.1125f),
-                    new Vector3f(-0.3359374860301614f, 0.5499997669830918f, -0.6000000005587935f)),};
+                    new Vector3f(-0.3359374860301614f, 0.5499997669830918f, -0.6000000005587935f)),
+            new ControlTypes(new CommsControl(), EntityDimensions.changing(0.125f, 0.16250001f),
+                    new Vector3f(-0.2718746168538928f, 0.9250002913177013f, -0.4726562490686774f)),
+    };
 
     public CrystallineType() {
         super(REFERENCE, "crystalline");

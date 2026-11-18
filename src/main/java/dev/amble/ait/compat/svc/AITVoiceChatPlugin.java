@@ -199,7 +199,7 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
 
 
     private void relayThroughDoors(MicrophonePacketEvent event, VoicechatConnection sender, UUID senderId) {
-        List<AITVoiceDoors.DoorLink> doors = AITVoiceDoors.closedDoors();
+        List<AITVoiceDoors.DoorLink> doors = AITVoiceDoors.doors();
 
         if (doors.isEmpty() || !(sender.getPlayer().getPlayer() instanceof ServerPlayerEntity player))
             return;
@@ -219,23 +219,26 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
             Vec3d from;
             Vec3d to;
             RegistryKey<World> toDim;
+            boolean inside;
 
             if (door.interiorDim().equals(dimension)) {
                 from = door.interior();
                 to = door.exterior();
                 toDim = door.exteriorDim();
+                inside = true;
             } else if (door.exteriorDim().equals(dimension)) {
                 from = door.exterior();
                 to = door.interior();
                 toDim = door.interiorDim();
+                inside = false;
             } else {
                 continue;
             }
 
             double distance = mouth.distanceTo(from);
-            float reach = (float) ((range - distance) * MUFFLED_REACH);
+            float reach = door.open() ? (float) range : (float) ((range - distance) * MUFFLED_REACH);
 
-            if (reach < 1)
+            if (distance > range || reach < 1)
                 continue;
 
             ServerWorld target = server.getWorld(toDim);
@@ -243,12 +246,16 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
             if (target == null)
                 continue;
 
-            Position position = api.createPosition(to.x, to.y, to.z);
-            LocationalSoundPacket packet = event.getPacket().locationalSoundPacketBuilder()
-                    .channelId(AITVoiceChannels.tag(AITVoiceChannels.Kind.MUFFLED, senderId))
+            Vec3d source = door.open() ? (inside ? door.toExterior(mouth) : door.toInterior(mouth)) : to;
+            Position position = api.createPosition(source.x, source.y, source.z);
+            LocationalSoundPacket.Builder<?> builder = event.getPacket().locationalSoundPacketBuilder()
                     .position(position)
-                    .distance(reach)
-                    .build();
+                    .distance(reach);
+
+            if (!door.open())
+                builder.channelId(AITVoiceChannels.tag(AITVoiceChannels.Kind.MUFFLED, senderId));
+
+            LocationalSoundPacket packet = builder.build();
 
             for (ServerPlayer listener : api.getPlayersInRange(api.fromServerLevel(target), position, reach)) {
                 UUID listenerId = listener.getUuid();

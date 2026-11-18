@@ -91,12 +91,11 @@ public final class AITVoiceFilters {
     }
 
     private static final class MuffleFilter extends Filter {
-        private final Biquad highCut1 = Biquad.lowPass(600, 0.707);
-        private final Biquad highCut2 = Biquad.lowPass(600, 0.707);
+        private final Biquad highCut = Biquad.lowPass(1500, 0.707);
 
         @Override
         double sample(double input) {
-            return this.highCut2.process(this.highCut1.process(input)) * 0.55;
+            return this.highCut.process(input) * 0.75;
         }
     }
 
