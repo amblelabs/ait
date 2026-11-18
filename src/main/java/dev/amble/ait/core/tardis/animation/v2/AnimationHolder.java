@@ -9,6 +9,7 @@ import dev.amble.ait.api.tardis.link.v2.Linkable;
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
 import dev.amble.ait.client.sounds.ClientSoundManager;
 import dev.amble.ait.client.sounds.flight.FlightSoundPlayer;
+import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.core.effects.ZeitonHighEffect;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
@@ -202,7 +203,7 @@ public class AnimationHolder implements TardisTickable, Disposable, Linkable {
             }
 
             if (tardis.travel().isLanded() && tardis.travel().handbrake() && tardis.travel().speed() > 0)
-                return handbrakeAlpha(tardis);
+                return handbrakeAlpha(tardis, delta);
         }
 
         if (this.alphaOverride != -1) {
@@ -254,22 +255,24 @@ public class AnimationHolder implements TardisTickable, Disposable, Linkable {
     /**
      * The alpha when the handbrake & throttle is down, making the groaning noise and such.
      */
-    private float handbrakeAlpha(Tardis tardis) {
+    private float handbrakeAlpha(Tardis tardis, float delta) {
         if (FabricLoader.getInstance().getEnvironmentType() != EnvType.CLIENT)
             return 0.5f;
 
-        return getHandbrakeAlpha(tardis);
+        return getHandbrakeAlpha(tardis, delta);
     }
 
     @Environment(EnvType.CLIENT)
-    private float getHandbrakeAlpha(Tardis tardis) {
+    private float getHandbrakeAlpha(Tardis tardis, float delta) {
         // sobbing
-        FlightSoundPlayer sfx = ClientSoundManager.getFlight().getFlightLoop(tardis.asClient());
-        if (sfx == null) {
-            return 0.5F;
-        }
+        float progress = clockHandbrakeProgress(tardis, delta);
 
-        float progress = sfx.getProgress();
+        if (tardis == ClientTardisUtil.getCurrentTardis() && tardis.fuel().hasPower()) {
+            FlightSoundPlayer sfx = ClientSoundManager.getFlight().getFlightLoop(tardis.asClient());
+
+            if (sfx != null)
+                progress = sfx.getProgress();
+        }
         /*
             How this works
             0 -> 1
@@ -278,6 +281,21 @@ public class AnimationHolder implements TardisTickable, Disposable, Linkable {
             COS function is used to create a smooth transition
          */
         return (float) (Math.cos(2 * (progress * Math.PI)) * 0.15f + 0.85f);
+    }
+
+    @Environment(EnvType.CLIENT)
+    private static float clockHandbrakeProgress(Tardis tardis, float delta) {
+        MinecraftClient client = MinecraftClient.getInstance();
+
+        if (client.world == null)
+            return 0f;
+
+        double period = tardis.stats().getFlightEffects().length() / (double) FlightSoundPlayer.getRandomPitch(tardis.asClient());
+
+        if (period <= 0)
+            return 0f;
+
+        return (float) (((client.world.getTime() + (double) delta) % period) / period);
     }
 
     public Vector3f getScale(float delta) {

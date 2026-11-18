@@ -252,3 +252,4 @@
 - fix: Rift renders even when IP/Iris is present | by [@Loqor](https://github.com/Loqor)
 - fix: [Toyota control issues](https://github.com/amblelabs/ait/issues/2255) | by [@Loqor](https://github.com/Loqor)
 - fix: Gravity issues in space | by [@Loqor](https://github.com/Loqor)
+- fix: [issues with alpha animation when using the throttle handbrake trick](https://github.com/amblelabs/ait/issues/2099) | by [@Loqor](https://github.com/Loqor)
