@@ -268,6 +268,15 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
             );
         }
 
+        if (tardis.travel().isCrashing()) {
+            this.landedTicks = 0;
+
+            if (this.isOnGround() || this.getY() <= this.getWorld().getBottomY() + 2)
+                this.crashLand(tardis, player);
+
+            return;
+        }
+
         boolean antigravs = tardis.travel().antigravs().get();
 
         if (player.isSneaking() && (this.isOnGround() || antigravs)
@@ -565,7 +574,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     }
 
     public void startPhase(ServerPlayerEntity player, Tardis tardis) {
-        if (phaseTicks > 0) return;
+        if (phaseTicks > 0 || tardis.travel().isCrashing()) return;
 
         if (phaseCooldown > 0) {
             int seconds = MathHelper.ceil(phaseCooldown / 20.0f);
@@ -655,6 +664,13 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
         this.discard();
     }
 
+    private void crashLand(Tardis tardis, PlayerEntity player) {
+        this.getWorld().playSound(null, this.getBlockPos(), AITSounds.LAND_CRASH, SoundCategory.BLOCKS, 3f, 1f);
+        tardis.getDesktop().playSoundAtEveryConsole(AITSounds.LAND_CRASH, SoundCategory.BLOCKS, 3f, 1f);
+
+        this.finishLand(tardis, player);
+    }
+
     private void finishLand(Tardis tardis, PlayerEntity player) {
         if (this.getWorld().isClient()) {
             CLIENT_LAND.run();
@@ -721,6 +737,9 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     protected Vec3d getControlledMovementInput(PlayerEntity controllingPlayer, Vec3d movementInput) {
         Planet planet = PlanetRegistry.getInstance().get(this.getWorld());
         boolean planetGravity = planet != null && planet.zeroGravity();
+
+        if (this.isLinked() && this.tardis().get().travel().isCrashing())
+            return new Vec3d(0, planetGravity ? -0.5f : -3f, 0);
 
         if (!this.isLinked() || !this.tardis().get().fuel().hasPower()) {
             return new Vec3d(0, planetGravity ? 0.0f : -2f, 0);

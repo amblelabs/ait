@@ -39,6 +39,11 @@ public class VisualiserControl extends Control {
     public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
         super.runServer(tardis, player, world, console, leftClick);
 
+        if (tardis.flight().isFlying()) {
+            player.sendMessage(Text.translatable("control.ait.rwf.already_flying"), true);
+            return Result.FAILURE;
+        }
+
         if (DependencyChecker.hasPortals() && leftClick) {
             if (!tardis.travel().isLanded()) return Result.FAILURE;
 

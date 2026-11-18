@@ -5,6 +5,7 @@ import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.models.machines.ShieldsModel;
 import dev.amble.ait.client.renderers.AITRenderLayers;
 import dev.amble.ait.client.renderers.VortexRender;
+import dev.amble.ait.client.renderers.exteriors.ExteriorRenderer;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.tardis.Tardis;
@@ -23,9 +24,12 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 
 public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
+
+    private static final float DAMAGED_PIVOT = 1.25f;
 
     private ExteriorModel model;
     private ClientExteriorVariantSchema variant;
@@ -78,18 +82,27 @@ public class FlightTardisRenderer extends EntityRenderer<FlightTardisEntity> {
             matrices.translate(0, -2f, 0);
         }
 
+        if (tardis.crash().getRepairTicks() > 0) {
+            float time = entity.age + tickDelta + entity.getId() * 7f;
+
+            matrices.translate(0, Math.abs(MathHelper.sin(time * 0.6f)) * 0.4f + DAMAGED_PIVOT, 0);
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(time * 25f));
+            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(MathHelper.sin(time * 0.9f) * 20f));
+            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(MathHelper.cos(time * 0.7f) * 20f));
+            matrices.translate(0, -DAMAGED_PIVOT, 0);
+        }
+
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(entity.getVisualYaw(tickDelta)));
 
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 
         this.model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.getEntityTranslucentCull(getTexture(entity))), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, phaseAlpha);
 
-        if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY) && tardis.fuel().hasPower()) {
-            boolean alarms = tardis.alarm().isEnabled();
+        if (variant.emission() != null && !variant.emission().equals(DatapackConsole.EMPTY)
+                && (tardis.fuel().hasPower() || tardis.alarm().isEnabled())) {
+            float[] color = ExteriorRenderer.emissionColor(tardis, 1f);
 
-            float color = alarms ? 0.3f : 1f;
-
-            model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission())), 0xf000f0, OverlayTexture.DEFAULT_UV, color, color, color, phaseAlpha);
+            model.renderEntity(entity, this.model.getPart(), matrices, vertexConsumers.getBuffer(AITRenderLayers.tardisEmissiveCullZOffset(variant.emission())), 0xf000f0, OverlayTexture.DEFAULT_UV, color[0], color[1], color[2], phaseAlpha);
         }
 
         BiomeHandler biome = tardis.handler(TardisComponent.Id.BIOME);
