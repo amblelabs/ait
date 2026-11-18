@@ -23,7 +23,7 @@ import java.util.UUID;
 public class AITVoiceChatPlugin implements VoicechatPlugin {
 
     // Volume Categories
-    public static String TARDIS_BROADCAST = "tardis_cast";
+    public static String TARDIS_BROADCAST = "tardis_broadcast";
     public static String TARDIS_COMMS = "tardis_comms";
 
     @Override
@@ -82,7 +82,7 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
 
         VolumeCategory tardisBroadcast = api.volumeCategoryBuilder()
                 .setId(TARDIS_BROADCAST)
-                .setName("TARDIS Broadcasts")
+                .setName("TARDIS Broadcast")
                 .setDescription("The volume of TARDIS broadcastings.")
                 .setIcon(getIcon("category_music_discs.png"))
                 .build();
