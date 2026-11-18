@@ -11,12 +11,12 @@ import dev.amble.ait.data.Waypoint;
 import dev.amble.ait.data.properties.bool.BoolProperty;
 import dev.amble.ait.data.properties.bool.BoolValue;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
-import org.jetbrains.annotations.Nullable;
 
 public class WaypointHandler extends KeyedTardisComponent {
     public static final BoolProperty HAS_CARTRIDGE = new BoolProperty("has_cartridge", false);

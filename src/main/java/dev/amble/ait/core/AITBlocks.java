@@ -212,6 +212,11 @@ public class AITBlocks extends BlockContainer {
 
     public static final Block ENVIRONMENT_PROJECTOR = new EnvironmentProjectorBlock(FabricBlockSettings.create());
 
+    @PickaxeMineable
+    @NoEnglish
+    public static final Block ROTARY_PHONE = new RotaryPhoneBlock(FabricBlockSettings.create().nonOpaque()
+            .instrument(Instrument.BELL).strength(1.5F, 6.0F).sounds(BlockSoundGroup.COPPER).pistonBehavior(PistonBehavior.DESTROY));
+
     // TODO ADVENT
     static {
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {

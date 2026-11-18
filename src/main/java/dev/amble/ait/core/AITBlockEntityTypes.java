@@ -75,6 +75,8 @@ public class AITBlockEntityTypes implements BlockEntityContainer {
             .create(PottedSonicScrewdriverBlockEntity::new, AITBlocks.POTTED_SONIC_SCREWDRIVER).build();
     public static BlockEntityType<UntemperedSchismBlockEntity> RIFT_RIPPER_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
             .create(UntemperedSchismBlockEntity::new, AITBlocks.UNTEMPERED_SCHISM).build();
+    public static BlockEntityType<RotaryPhoneBlockEntity> ROTARY_PHONE_BLOCK_ENTITY_TYPE = FabricBlockEntityTypeBuilder
+            .create(RotaryPhoneBlockEntity::new, AITBlocks.ROTARY_PHONE).build();
     // TODO ADVENT might have to make this work like the block as well
     static {
         if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {

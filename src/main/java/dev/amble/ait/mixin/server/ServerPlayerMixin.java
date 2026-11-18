@@ -1,6 +1,5 @@
 package dev.amble.ait.mixin.server;
 
-import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.util.TardisUtil;

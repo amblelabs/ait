@@ -8,6 +8,7 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.comms.TardisComms;
 import dev.amble.ait.core.tardis.comms.TardisPhones;
 import dev.amble.ait.core.tardis.control.Control;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -31,7 +32,7 @@ public class CommsControl extends Control {
             if (!holdingPhone)
                 TardisPhones.lift(player, tardis.asServer(), world, console);
 
-            TardisComms.answer(world.getServer(), player, tardis.asServer());
+            TardisComms.answer(world.getServer(), player, tardis.getUuid());
             return Result.SUCCESS;
         }
 
@@ -45,6 +46,11 @@ public class CommsControl extends Control {
 
         AITMod.openScreen(player, 4, tardis.getUuid(), console);
         return Result.SUCCESS;
+    }
+
+    @Override
+    public long getDelayLength(Tardis tardis) {
+        return 20;
     }
 
     @Override

@@ -14,8 +14,7 @@ import net.minecraft.util.Identifier;
 public class Hum implements Unlockable, Nameable {
     private final Identifier id;
     private final SoundEvent sound;
-    @Nullable
-    private final Loyalty loyalty;
+    @Nullable private final Loyalty loyalty;
 
     protected Hum(Identifier id, SoundEvent sound, Optional<Loyalty> loyalty) {
         this.id = id;

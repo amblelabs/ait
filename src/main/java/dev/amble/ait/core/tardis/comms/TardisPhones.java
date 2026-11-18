@@ -1,6 +1,8 @@
 package dev.amble.ait.core.tardis.comms;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -9,7 +11,6 @@ import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.item.PhoneItem;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.control.impl.CommsControl;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import org.jetbrains.annotations.Nullable;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -28,6 +30,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 
 public final class TardisPhones {
 
@@ -38,10 +41,10 @@ public final class TardisPhones {
     private static final double MAX_PULL = 1.0;
     private static final double STRAY_SEARCH = 48;
 
-    public record Handset(UUID session, UUID tardis, UUID control, UUID holder, Vec3d anchor) {
+    public record Handset(UUID session, UUID line, UUID anchorId, UUID holder, RegistryKey<World> world, Vec3d anchor) {
     }
 
-    private static final Map<UUID, Handset> BY_CONTROL = new ConcurrentHashMap<>();
+    private static final Map<UUID, Handset> BY_ANCHOR = new ConcurrentHashMap<>();
     private static final Map<UUID, Handset> BY_SESSION = new ConcurrentHashMap<>();
 
     private TardisPhones() {
@@ -54,7 +57,7 @@ public final class TardisPhones {
             MinecraftServer server = ServerLifecycleHooks.get();
 
             for (Handset handset : BY_SESSION.values()) {
-                if (handset.tardis().equals(tardis.getUuid()))
+                if (handset.line().equals(tardis.getUuid()))
                     release(server, handset, true);
             }
         });
@@ -69,13 +72,22 @@ public final class TardisPhones {
         return BY_SESSION.get(session);
     }
 
-    @Nullable public static UUID holderFor(UUID tardis) {
+    @Nullable public static UUID holderFor(UUID line) {
         for (Handset handset : BY_SESSION.values()) {
-            if (handset.tardis().equals(tardis))
+            if (handset.line().equals(line))
                 return handset.holder();
         }
 
         return null;
+    }
+
+    public static Set<UUID> liftedLines() {
+        Set<UUID> lines = new HashSet<>();
+
+        for (Handset handset : BY_SESSION.values())
+            lines.add(handset.line());
+
+        return lines;
     }
 
     public static void lift(ServerPlayerEntity player, ServerTardis tardis, ServerWorld world, BlockPos console) {
@@ -84,32 +96,42 @@ public final class TardisPhones {
         if (control == null)
             return;
 
-        Handset existing = BY_CONTROL.get(control.getUuid());
+        if (give(player, new Handset(UUID.randomUUID(), tardis.getUuid(), control.getUuid(), player.getUuid(),
+                world.getRegistryKey(), control.getPos().add(0, control.getHeight() / 2, 0)), control.getBlockPos()))
+            tardis.stats().commsHandset().set(true);
+    }
+
+    public static boolean liftPhone(ServerPlayerEntity player, ServerWorld world, PhoneDirectory.Entry entry) {
+        Vec3d anchor = Vec3d.ofBottomCenter(entry.pos()).add(0, 0.3, 0);
+        return give(player, new Handset(UUID.randomUUID(), entry.id(), entry.id(), player.getUuid(), world.getRegistryKey(), anchor),
+                entry.pos());
+    }
+
+    private static boolean give(ServerPlayerEntity player, Handset handset, BlockPos soundPos) {
+        Handset existing = BY_ANCHOR.get(handset.anchorId());
 
         if (existing != null) {
-            ServerPlayerEntity holder = world.getServer().getPlayerManager().getPlayer(existing.holder());
+            ServerPlayerEntity holder = player.getServer().getPlayerManager().getPlayer(existing.holder());
             Text name = holder == null ? Text.literal("?") : holder.getDisplayName();
 
-            player.sendMessage(Text.translatable("tardis.message.comms.handset_taken", name).formatted(Formatting.GRAY), true);
-            return;
+            CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.handset_taken", name).formatted(Formatting.GRAY));
+            return false;
         }
 
-        Handset handset = new Handset(UUID.randomUUID(), tardis.getUuid(), control.getUuid(), player.getUuid(),
-                control.getPos().add(0, control.getHeight() / 2, 0));
         ItemStack phone = PhoneItem.create(handset);
 
         if (player.getMainHandStack().isEmpty()) {
             player.setStackInHand(Hand.MAIN_HAND, phone);
         } else if (!player.getInventory().insertStack(phone)) {
-            player.sendMessage(Text.translatable("tardis.message.comms.no_room").formatted(Formatting.RED), true);
-            return;
+            CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.no_room").formatted(Formatting.RED));
+            return false;
         }
 
-        BY_CONTROL.put(handset.control(), handset);
+        BY_ANCHOR.put(handset.anchorId(), handset);
         BY_SESSION.put(handset.session(), handset);
-        tardis.stats().commsHandset().set(true);
 
-        world.playSound(null, control.getBlockPos(), SoundEvents.ITEM_ARMOR_EQUIP_CHAIN, SoundCategory.BLOCKS, 0.8f, 1.4f);
+        player.getServerWorld().playSound(null, soundPos, SoundEvents.ITEM_ARMOR_EQUIP_CHAIN, SoundCategory.BLOCKS, 0.8f, 1.4f);
+        return true;
     }
 
     public static boolean hangUp(ServerPlayerEntity player, ItemStack stack, boolean endCall) {
@@ -125,13 +147,19 @@ public final class TardisPhones {
         return true;
     }
 
+    public static void releaseLine(MinecraftServer server, UUID line) {
+        for (Handset handset : BY_SESSION.values()) {
+            if (handset.line().equals(line))
+                release(server, handset, true);
+        }
+    }
+
     private static void tick(MinecraftServer server) {
         for (Handset handset : BY_SESSION.values()) {
             ServerPlayerEntity holder = server.getPlayerManager().getPlayer(handset.holder());
-            ServerTardis tardis = find(handset.tardis());
 
-            if (holder == null || holder.isDead() || tardis == null || !tardis.hasWorld()
-                    || holder.getServerWorld() != tardis.world() || !hasPhone(holder, handset.session())) {
+            if (holder == null || holder.isDead() || holder.getServerWorld().getRegistryKey() != handset.world()
+                    || !hasPhone(holder, handset.session())) {
                 release(server, handset, true);
                 continue;
             }
@@ -154,7 +182,7 @@ public final class TardisPhones {
     }
 
     private static void release(MinecraftServer server, Handset handset, boolean endCall) {
-        BY_CONTROL.remove(handset.control(), handset);
+        BY_ANCHOR.remove(handset.anchorId(), handset);
         BY_SESSION.remove(handset.session(), handset);
 
         if (server == null)
@@ -169,22 +197,22 @@ public final class TardisPhones {
                 holder.currentScreenHandler.setCursorStack(ItemStack.EMPTY);
         }
 
-        ServerTardis tardis = find(handset.tardis());
+        ServerWorld world = server.getWorld(handset.world());
 
-        if (tardis == null)
-            return;
-
-        if (tardis.hasWorld()) {
+        if (world != null) {
             Box area = new Box(BlockPos.ofFloored(handset.anchor())).expand(STRAY_SEARCH);
 
-            tardis.world().getEntitiesByClass(ItemEntity.class, area,
+            world.getEntitiesByClass(ItemEntity.class, area,
                     item -> handset.session().equals(PhoneItem.session(item.getStack()))).forEach(ItemEntity::discard);
         }
 
-        tardis.stats().commsHandset().set(false);
+        ServerTardis tardis = CommsLine.findTardis(handset.line());
+
+        if (tardis != null)
+            tardis.stats().commsHandset().set(false);
 
         if (endCall)
-            TardisComms.endFor(server, handset.tardis());
+            TardisComms.endFor(server, handset.line());
     }
 
     private static boolean hasPhone(ServerPlayerEntity player, UUID session) {
@@ -214,16 +242,5 @@ public final class TardisPhones {
                 .stream()
                 .min((a, b) -> Double.compare(a.squaredDistanceTo(player), b.squaredDistanceTo(player)))
                 .orElse(null);
-    }
-
-    @Nullable private static ServerTardis find(UUID uuid) {
-        ServerTardis[] found = new ServerTardis[1];
-
-        ServerTardisManager.getInstance().forEach(tardis -> {
-            if (tardis.getUuid().equals(uuid))
-                found[0] = tardis;
-        });
-
-        return found[0];
     }
 }

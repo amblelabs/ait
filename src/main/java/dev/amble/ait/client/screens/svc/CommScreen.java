@@ -59,7 +59,7 @@ public class CommScreen extends TardisScreen {
     private record Message(UUID id, String from, long time, int seconds) {
     }
 
-    private record State(TardisComms.Status status, String other, boolean handset, List<Contact> contacts,
+    private record State(TardisComms.Status status, String other, boolean handset, String number, List<Contact> contacts,
                          List<Message> messages) {
     }
 
@@ -90,6 +90,7 @@ public class CommScreen extends TardisScreen {
         TardisComms.Status status = buf.readEnumConstant(TardisComms.Status.class);
         String other = buf.readString();
         boolean handset = buf.readBoolean();
+        String number = buf.readString();
 
         int contactCount = buf.readVarInt();
         List<Contact> contacts = new ArrayList<>(contactCount);
@@ -103,7 +104,7 @@ public class CommScreen extends TardisScreen {
         for (int i = 0; i < messageCount; i++)
             messages.add(new Message(buf.readUuid(), buf.readString(), buf.readLong(), buf.readVarInt()));
 
-        return new State(status, other, handset, contacts, messages);
+        return new State(status, other, handset, number, contacts, messages);
     }
 
     @Override
@@ -279,6 +280,13 @@ public class CommScreen extends TardisScreen {
         int textWidth = HEADER_WIDTH - 6;
 
         this.screenLine(context, this.title, textX, top + HEADER_Y + 2, textWidth, SCREEN_TEXT);
+
+        if (state != null && !state.number().isEmpty()) {
+            Text number = Text.translatable("screen.ait.comms.own_number", state.number());
+            int numberWidth = this.textRenderer.getWidth(number);
+
+            context.drawText(this.textRenderer, number, textX + textWidth - numberWidth, top + HEADER_Y + 2, SCREEN_TEXT_DIM, false);
+        }
 
         if (state == null) {
             this.screenLine(context, Text.translatable("screen.ait.comms.loading"), textX, top + HEADER_Y + 14, textWidth, SCREEN_TEXT_DIM);

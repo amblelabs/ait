@@ -12,9 +12,14 @@ import java.util.function.Predicate;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.LinkableLivingEntity;
+import dev.amble.ait.core.AITDamageTypes;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.AITEntityTypes;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.AITTags;
+import dev.amble.ait.core.engine.DurableSubSystem;
+import dev.amble.ait.core.engine.SubSystem;
+import dev.amble.ait.core.engine.impl.GravitationalCircuit;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -22,37 +27,34 @@ import dev.amble.ait.mixin.rwf.LivingEntityAccessor;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
-import dev.amble.ait.core.engine.DurableSubSystem;
-import dev.amble.ait.core.engine.SubSystem;
-import dev.amble.ait.core.engine.impl.GravitationalCircuit;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.AbstractGlassBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.StainedGlassPaneBlock;
+import net.minecraft.entity.*;
+import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.particle.BlockStateParticleEffect;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.entity.*;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.ShulkerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.BlockStateParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Formatting;
@@ -65,9 +67,6 @@ import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
-
-import dev.amble.ait.core.AITDamageTypes;
-import dev.amble.ait.core.AITTags;
 
 public class FlightTardisEntity extends LinkableLivingEntity implements JumpingMount {
 
@@ -93,8 +92,7 @@ public class FlightTardisEntity extends LinkableLivingEntity implements JumpingM
     private static final float PHASE_SLOW_FACTOR = 0.35f;
 
     private BlockPos interiorPos;
-    @Nullable
-    private UUID pilot;
+    @Nullable private UUID pilot;
 
     private int landedTicks = 0;
 

@@ -467,6 +467,20 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
                         .input(Items.MILK_BUCKET).criterion(hasItem(Items.MILK_BUCKET), conditionsFromItem(Items.MILK_BUCKET)));*/
             }
 
+            provider.addShapedRecipe(
+                    ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.ROTARY_PHONE, 1)
+                            .pattern("CZC")
+                            .pattern("RBR")
+                            .pattern("CCC")
+                            .input('C', Items.COPPER_INGOT)
+                            .input('Z', AITItems.CHARGED_ZEITON_CRYSTAL)
+                            .input('R', Items.REDSTONE)
+                            .input('B', Items.BELL)
+                            .criterion(hasItem(AITItems.CHARGED_ZEITON_CRYSTAL), conditionsFromItem(AITItems.CHARGED_ZEITON_CRYSTAL))
+                            .criterion(hasItem(Items.COPPER_INGOT), conditionsFromItem(Items.COPPER_INGOT))
+                            .criterion(hasItem(Items.REDSTONE), conditionsFromItem(Items.REDSTONE))
+                            .criterion(hasItem(Items.BELL), conditionsFromItem(Items.BELL)));
+
             if (isUnlockedOnThisDay(Calendar.DECEMBER, 30)) {
                 provider.addShapedRecipe(
                         ShapedRecipeJsonBuilder.create(RecipeCategory.DECORATIONS, AITBlocks.SNOW_GLOBE, 1)
@@ -1199,6 +1213,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
 
         // Blocks
         provider.addTranslation(AITBlocks.LANDING_PAD, "Landing Marker");
+        provider.addTranslation(AITBlocks.ROTARY_PHONE, "Rotary Phone");
         provider.addTranslation(AITBlocks.DETECTOR_BLOCK, "Interior Detector Block");
         provider.addTranslation(AITBlocks.EXTERIOR_BLOCK, "Exterior");
         provider.addTranslation(AITBlocks.CORAL_PLANT, "Coral Growth");
@@ -1359,6 +1374,22 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.comms.no_call", "No call to answer.");
         provider.addTranslation("tardis.message.comms.routing", "Tracing the call... routing to %s");
         provider.addTranslation("tardis.message.comms.no_trace", "No active call to trace.");
+        provider.addTranslation("tardis.message.comms.untraceable", "That TARDIS has call tracing disabled.");
+        provider.addTranslation("tardis.message.comms.no_answer", "No answer.");
+        provider.addTranslation("tardis.message.phone.number", "This phone's number is %s");
+        provider.addTranslation("tardis.message.phone.no_voice_chat", "The line is dead. (Requires Simple Voice Chat)");
+        provider.addTranslation("tardis.message.phone.cooldown", "The line is busy. Try again in %ss.");
+        provider.addTranslation("tardis.message.phone.no_such_number", "The number %s could not be reached.");
+        provider.addTranslation("screen.ait.phone.title", "Rotary Phone");
+        provider.addTranslation("screen.ait.phone.own_number", "No. %s");
+        provider.addTranslation("screen.ait.phone.dial", "Dial");
+        provider.addTranslation("screen.ait.phone.wait", "Wait %ss");
+        provider.addTranslation("screen.ait.phone.enter_number", "Enter a number");
+        provider.addTranslation("screen.ait.phone.recent", "Recent");
+        provider.addTranslation("screen.ait.phone.no_recent", "No calls yet");
+        provider.addTranslation("screen.ait.phone.outgoing", "Outgoing call");
+        provider.addTranslation("screen.ait.phone.incoming", "Incoming call");
+        provider.addTranslation("screen.ait.comms.own_number", "No. %s");
         provider.addTranslation("screen.ait.comms.title", "TARDIS Comms");
         provider.addTranslation("screen.ait.comms.broadcast", "Broadcast");
         provider.addTranslation("screen.ait.comms.mode.speaker", "Mode: Speaker");
@@ -1769,7 +1800,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.security.leave_behind", "> Leave Behind");
         provider.addTranslation("screen.ait.security.hostile_alarms", "> Hostile Alarms");
         provider.addTranslation("screen.ait.security.minimum_loyalty", "> Isomorphic LVL");
-        provider.addTranslation("screen.ait.security.receive_distress_calls", "> Receive Distress Calls");
+        provider.addTranslation("screen.ait.security.receive_distress_calls", "> Receive Communications");
+        provider.addTranslation("screen.ait.security.call_tracing", "> Call Tracing");
 
         // Interior changing
         provider.addTranslation("tardis.message.interiorchange.not_enough_fuel",
@@ -2824,7 +2856,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.security.hostile_alarms", "> Alarmas hostiles");
         provider.addTranslation("screen.ait.security.leave_behind", "> Dejar atrás");
         provider.addTranslation("screen.ait.security.minimum_loyalty", "> Nivel isomórfico");
-        provider.addTranslation("screen.ait.security.receive_distress_calls", "> Llamadas de socorro");
+        provider.addTranslation("screen.ait.security.receive_distress_calls", "> Recibir comunicaciones");
         provider.addTranslation("screen.ait.security.title", "Seguridad");
         provider.addTranslation("screen.ait.sonic.button", "> Ajustes sónicos");
         provider.addTranslation("screen.ait.sonic_casing", "Carcasa sónica");

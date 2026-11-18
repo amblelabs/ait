@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.comms.CommsMessages;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
 import net.minecraft.entity.Entity;
@@ -29,7 +30,7 @@ public final class AITVoiceChatBroadcast {
 
     public static void toggle(ServerPlayerEntity player, ServerTardis tardis) {
         if (BROADCASTERS.remove(player.getUuid()) != null) {
-            player.sendMessage(Text.translatable("tardis.message.comms.broadcast_off").formatted(Formatting.GRAY), true);
+            CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.broadcast_off").formatted(Formatting.GRAY));
             return;
         }
 
@@ -38,7 +39,7 @@ public final class AITVoiceChatBroadcast {
 
         BROADCASTERS.put(player.getUuid(), tardis);
         refresh(tardis);
-        player.sendMessage(Text.translatable("tardis.message.comms.broadcast_on").formatted(Formatting.GOLD), true);
+        CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.broadcast_on").formatted(Formatting.GOLD));
     }
 
     public static void stop(UUID player) {
@@ -73,7 +74,7 @@ public final class AITVoiceChatBroadcast {
 
             if (player == null || tardis.isRemoved() || !tardis.hasWorld() || player.getServerWorld() != tardis.world()) {
                 if (player != null)
-                    player.sendMessage(Text.translatable("tardis.message.comms.broadcast_off").formatted(Formatting.GRAY), true);
+                    CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.broadcast_off").formatted(Formatting.GRAY));
 
                 return true;
             }

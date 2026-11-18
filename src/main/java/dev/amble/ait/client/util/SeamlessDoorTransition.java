@@ -1,13 +1,12 @@
 package dev.amble.ait.client.util;
 
+import dev.amble.ait.core.tardis.util.TardisUtil;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-
-import dev.amble.ait.core.tardis.util.TardisUtil;
 
 public final class SeamlessDoorTransition {
 

@@ -2,6 +2,9 @@ package dev.amble.ait.client.util;
 
 import java.util.Locale;
 
+import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.data.Loyalty;
+import dev.amble.lib.register.unlockable.Unlockable;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -9,10 +12,6 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-
-import dev.amble.ait.core.tardis.Tardis;
-import dev.amble.ait.data.Loyalty;
-import dev.amble.lib.register.unlockable.Unlockable;
 
 @Environment(EnvType.CLIENT)
 public final class LockedDisplay {

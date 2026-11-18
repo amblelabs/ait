@@ -11,7 +11,6 @@ import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.entities.BOTIPaintingEntity;
 import dev.amble.ait.core.entities.RiftEntity;
-
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.MinecraftClient;

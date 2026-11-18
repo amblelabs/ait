@@ -1,5 +1,6 @@
 package dev.amble.ait.mixin.rwf;
 
+import dev.amble.ait.core.entities.FlightTardisEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -10,8 +11,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-
-import dev.amble.ait.core.entities.FlightTardisEntity;
 
 /**
  * Stops a player from attacking or interacting with entities while riding a

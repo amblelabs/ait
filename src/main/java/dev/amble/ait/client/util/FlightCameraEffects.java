@@ -1,5 +1,7 @@
 package dev.amble.ait.client.util;
 
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.core.entities.FlightTardisEntity;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 
 import net.minecraft.client.MinecraftClient;
@@ -9,9 +11,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
-
-import dev.amble.ait.client.AITModClient;
-import dev.amble.ait.core.entities.FlightTardisEntity;
 
 public final class FlightCameraEffects {
 

@@ -6,23 +6,23 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.blockentities.RotaryPhoneBlockEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
-import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -77,14 +77,14 @@ public final class TardisComms {
     }
 
     private static final class Recording {
-        private final UUID callerTardis;
+        private final UUID callerLine;
         private final UUID target;
         private final String from;
         private final List<byte[]> frames = Collections.synchronizedList(new ArrayList<>());
         private int ticks;
 
-        private Recording(UUID callerTardis, UUID target, String from) {
-            this.callerTardis = callerTardis;
+        private Recording(UUID callerLine, UUID target, String from) {
+            this.callerLine = callerLine;
             this.target = target;
             this.from = from;
         }
@@ -141,11 +141,11 @@ public final class TardisComms {
 
     private static void handle(MinecraftServer server, ServerPlayerEntity player, ServerTardis tardis, Action action, @Nullable UUID argument) {
         switch (action) {
-            case CALL -> call(server, player, tardis, argument);
-            case ANSWER -> answer(server, player, tardis);
-            case DECLINE -> decline(server, tardis);
-            case HANG_UP -> hangUp(server, player, tardis);
-            case PLAY -> play(player, tardis, argument);
+            case CALL -> call(server, player, new CommsLine.Tardis(server, tardis), argument);
+            case ANSWER -> answer(server, player, tardis.getUuid());
+            case DECLINE -> decline(server, tardis.getUuid());
+            case HANG_UP -> hangUp(server, player, tardis.getUuid());
+            case PLAY -> play(server, player, tardis, argument);
             case DELETE -> {
                 List<VoiceMessage> messages = MESSAGES.get(tardis.getUuid());
 
@@ -156,34 +156,78 @@ public final class TardisComms {
         }
     }
 
-    private static void call(MinecraftServer server, ServerPlayerEntity player, ServerTardis tardis, @Nullable UUID targetId) {
-        if (targetId == null || targetId.equals(tardis.getUuid()) || isBusy(tardis.getUuid()))
-            return;
+    public static boolean dial(MinecraftServer server, ServerPlayerEntity player, CommsLine from, UUID target) {
+        return call(server, player, from, target);
+    }
 
-        ServerTardis target = find(server, targetId);
+    private static boolean call(MinecraftServer server, ServerPlayerEntity player, CommsLine from, @Nullable UUID targetId) {
+        if (targetId == null || targetId.equals(from.id()) || isBusy(from.id()))
+            return false;
 
-        if (target == null || !target.stats().receiveCalls().get()) {
-            player.sendMessage(Text.translatable("tardis.message.comms.unavailable").formatted(Formatting.RED), true);
-            return;
+        CommsLine target = CommsLine.resolve(server, targetId);
+        PhoneDirectory directory = PhoneDirectory.get(server);
+
+        boolean blocked = target == null || !target.accepts()
+                || (from instanceof CommsLine.Tardis && target instanceof CommsLine.Phone
+                && !directory.canCallBack(from.id(), targetId));
+
+        if (blocked) {
+            CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.unavailable").formatted(Formatting.RED));
+            return false;
         }
 
         if (isBusy(targetId)) {
-            player.sendMessage(Text.translatable("tardis.message.comms.busy").formatted(Formatting.RED), true);
-            return;
+            CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.busy").formatted(Formatting.RED));
+            return false;
         }
 
-        Call call = new Call(tardis.getUuid(), targetId, player.getUuid());
+        Call call = new Call(from.id(), targetId, player.getUuid());
         CALLS.put(call.caller, call);
         CALLS.put(call.target, call);
 
-        player.sendMessage(Text.translatable("tardis.message.comms.calling", name(target)).formatted(Formatting.GOLD), true);
-        ring(target);
+        if (from instanceof CommsLine.Phone && target instanceof CommsLine.Tardis)
+            directory.noteCallback(targetId, from.id());
+
+        noteRecents(server, from, target);
+
+        CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.calling", target.name()).formatted(Formatting.GOLD));
+        target.ring();
+        return true;
     }
 
-    public static void answer(MinecraftServer server, ServerPlayerEntity player, ServerTardis tardis) {
-        Call call = CALLS.get(tardis.getUuid());
+    private static void noteRecents(MinecraftServer server, CommsLine from, CommsLine target) {
+        if (from instanceof CommsLine.Phone phone)
+            addRecent(phone, new RotaryPhoneBlockEntity.Recent(number(server, target), label(target), true));
 
-        if (call == null || call.connected || !call.target.equals(tardis.getUuid()))
+        if (target instanceof CommsLine.Phone phone)
+            addRecent(phone, new RotaryPhoneBlockEntity.Recent(number(server, from), label(from), false));
+    }
+
+    private static void addRecent(CommsLine.Phone phone, RotaryPhoneBlockEntity.Recent recent) {
+        RotaryPhoneBlockEntity entity = RotaryPhones.blockEntity(phone.world(), phone.entry());
+
+        if (entity != null)
+            entity.addRecent(recent);
+    }
+
+    private static String number(MinecraftServer server, CommsLine line) {
+        PhoneDirectory directory = PhoneDirectory.get(server);
+
+        if (line instanceof CommsLine.Tardis)
+            return directory.tardisNumber(line.id());
+
+        String number = directory.number(line.id());
+        return number == null ? "" : number;
+    }
+
+    private static String label(CommsLine line) {
+        return line instanceof CommsLine.Tardis ? line.name() : "";
+    }
+
+    public static void answer(MinecraftServer server, ServerPlayerEntity player, UUID line) {
+        Call call = CALLS.get(line);
+
+        if (call == null || call.connected || !call.target.equals(line))
             return;
 
         call.answerer = player.getUuid();
@@ -192,42 +236,42 @@ public final class TardisComms {
         notifyBoth(server, call, Text.translatable("tardis.message.comms.connected").formatted(Formatting.GREEN));
     }
 
-    private static void decline(MinecraftServer server, ServerTardis tardis) {
-        Call call = CALLS.get(tardis.getUuid());
+    private static void decline(MinecraftServer server, UUID line) {
+        Call call = CALLS.get(line);
 
-        if (call == null || call.connected || !call.target.equals(tardis.getUuid()))
+        if (call == null || call.connected || !call.target.equals(line))
             return;
 
         toVoicemail(server, call);
     }
 
-    public static void endFor(MinecraftServer server, UUID tardis) {
+    public static void endFor(MinecraftServer server, UUID line) {
         for (Map.Entry<UUID, Recording> entry : new HashMap<>(RECORDINGS).entrySet()) {
-            if (entry.getValue().callerTardis.equals(tardis))
+            if (entry.getValue().callerLine.equals(line))
                 finishRecording(server, entry.getKey(), entry.getValue());
         }
 
-        Call call = CALLS.get(tardis);
+        Call call = CALLS.get(line);
 
         if (call != null)
             end(server, call);
     }
 
-    private static void hangUp(MinecraftServer server, ServerPlayerEntity player, ServerTardis tardis) {
+    private static void hangUp(MinecraftServer server, ServerPlayerEntity player, UUID line) {
         Recording recording = RECORDINGS.get(player.getUuid());
 
-        if (recording != null && recording.callerTardis.equals(tardis.getUuid())) {
+        if (recording != null && recording.callerLine.equals(line)) {
             finishRecording(server, player.getUuid(), recording);
             return;
         }
 
-        Call call = CALLS.get(tardis.getUuid());
+        Call call = CALLS.get(line);
 
         if (call != null)
             end(server, call);
     }
 
-    private static void play(ServerPlayerEntity player, ServerTardis tardis, @Nullable UUID messageId) {
+    private static void play(MinecraftServer server, ServerPlayerEntity player, ServerTardis tardis, @Nullable UUID messageId) {
         List<VoiceMessage> messages = MESSAGES.get(tardis.getUuid());
 
         if (messages == null || messageId == null)
@@ -239,7 +283,7 @@ public final class TardisComms {
 
             List<UUID> listeners = tardis.stats().commsHandset().get()
                     ? List.of(player.getUuid())
-                    : interiorPlayers(tardis);
+                    : new CommsLine.Tardis(server, tardis).interiorPlayers();
 
             PLAYBACK.play(listeners, message.frames());
             return;
@@ -261,7 +305,7 @@ public final class TardisComms {
             ServerPlayerEntity caller = server.getPlayerManager().getPlayer(entry.getKey());
 
             if (caller != null)
-                caller.sendMessage(Text.translatable("tardis.message.comms.message_sent").formatted(Formatting.GREEN), true);
+                CommsMessages.actionBar(caller, Text.translatable("tardis.message.comms.message_sent").formatted(Formatting.GREEN));
 
             return true;
         });
@@ -284,16 +328,16 @@ public final class TardisComms {
     }
 
     private static void tickCall(MinecraftServer server, Call call) {
-        ServerTardis caller = find(server, call.caller);
-        ServerTardis target = find(server, call.target);
+        CommsLine caller = CommsLine.resolve(server, call.caller);
+        CommsLine target = CommsLine.resolve(server, call.target);
 
-        if (caller == null || target == null || !inInterior(server, caller, call.callerPlayer)) {
+        if (caller == null || target == null || !caller.present(call.callerPlayer)) {
             end(server, call);
             return;
         }
 
         if (call.connected) {
-            if (!inInterior(server, target, call.answerer))
+            if (!target.present(call.answerer))
                 end(server, call);
 
             return;
@@ -305,24 +349,29 @@ public final class TardisComms {
         }
 
         if (call.ticks % RING_INTERVAL == 0)
-            ring(target);
+            target.ring();
     }
 
     private static void toVoicemail(MinecraftServer server, Call call) {
         remove(call);
 
         ServerPlayerEntity caller = server.getPlayerManager().getPlayer(call.callerPlayer);
-        ServerTardis callerTardis = find(server, call.caller);
-        ServerTardis target = find(server, call.target);
+        CommsLine callerLine = CommsLine.resolve(server, call.caller);
+        CommsLine target = CommsLine.resolve(server, call.target);
 
         if (target != null)
-            TardisUtil.sendMessageToInterior(target, Text.translatable("tardis.message.comms.missed", name(callerTardis)).formatted(Formatting.GRAY));
+            target.notify(Text.translatable("tardis.message.comms.missed", name(callerLine)).formatted(Formatting.GRAY));
 
         if (caller == null)
             return;
 
-        RECORDINGS.put(call.callerPlayer, new Recording(call.caller, call.target, name(callerTardis)));
-        caller.sendMessage(Text.translatable("tardis.message.comms.leave_message").formatted(Formatting.GOLD), true);
+        if (!(target instanceof CommsLine.Tardis)) {
+            CommsMessages.actionBar(caller, Text.translatable("tardis.message.comms.no_answer").formatted(Formatting.GRAY));
+            return;
+        }
+
+        RECORDINGS.put(call.callerPlayer, new Recording(call.caller, call.target, name(callerLine)));
+        CommsMessages.actionBar(caller, Text.translatable("tardis.message.comms.leave_message").formatted(Formatting.GOLD));
         caller.playSound(AITSounds.DING, SoundCategory.PLAYERS, 1f, 1f);
     }
 
@@ -333,7 +382,7 @@ public final class TardisComms {
         ServerPlayerEntity caller = server.getPlayerManager().getPlayer(player);
 
         if (caller != null)
-            caller.sendMessage(Text.translatable("tardis.message.comms.message_sent").formatted(Formatting.GREEN), true);
+            CommsMessages.actionBar(caller, Text.translatable("tardis.message.comms.message_sent").formatted(Formatting.GREEN));
     }
 
     private static void store(MinecraftServer server, Recording recording) {
@@ -352,98 +401,80 @@ public final class TardisComms {
         while (messages.size() > MAX_MESSAGES)
             messages.remove(0);
 
-        ServerTardis target = find(server, recording.target);
+        CommsLine target = CommsLine.resolve(server, recording.target);
 
         if (target != null)
-            TardisUtil.sendMessageToInterior(target, Text.translatable("tardis.message.comms.new_message", recording.from).formatted(Formatting.GOLD));
+            target.notify(Text.translatable("tardis.message.comms.new_message", recording.from).formatted(Formatting.GOLD));
     }
 
     private static void end(MinecraftServer server, Call call) {
-        remove(call);
+        if (!remove(call))
+            return;
+
         notifyBoth(server, call, Text.translatable("tardis.message.comms.ended").formatted(Formatting.GRAY));
     }
 
-    private static void remove(Call call) {
-        CALLS.remove(call.caller, call);
-        CALLS.remove(call.target, call);
+    private static boolean remove(Call call) {
+        boolean caller = CALLS.remove(call.caller, call);
+        boolean target = CALLS.remove(call.target, call);
+        return caller || target;
     }
 
     private static void notifyBoth(MinecraftServer server, Call call, Text text) {
-        ServerTardis caller = find(server, call.caller);
-        ServerTardis target = find(server, call.target);
+        CommsLine caller = CommsLine.resolve(server, call.caller);
+        CommsLine target = CommsLine.resolve(server, call.target);
 
-        if (caller != null && caller.hasWorld())
-            TardisUtil.sendMessageToInterior(caller, text);
+        if (caller != null)
+            caller.notify(text);
 
-        if (target != null && target.hasWorld())
-            TardisUtil.sendMessageToInterior(target, text);
+        if (target != null)
+            target.notify(text);
     }
 
-    private static void ring(ServerTardis tardis) {
-        if (tardis.hasWorld())
-            tardis.getDesktop().playSoundAtEveryConsole(AITSounds.TELEPHONE, SoundCategory.BLOCKS, 1.5f, 1f);
+    private static List<UUID> participants(MinecraftServer server, UUID line, @Nullable UUID player) {
+        CommsLine resolved = CommsLine.resolve(server, line);
+        return resolved == null ? List.of() : resolved.participants(player);
     }
 
-    private static List<UUID> participants(MinecraftServer server, UUID tardisId, @Nullable UUID player) {
-        ServerTardis tardis = find(server, tardisId);
-
-        if (tardis == null)
-            return List.of();
-
-        UUID phone = TardisPhones.holderFor(tardisId);
-
-        if (phone != null)
-            return List.of(phone);
-
-        if (tardis.stats().commsHandset().get())
-            return player == null ? List.of() : List.of(player);
-
-        return interiorPlayers(tardis);
-    }
-
-    private static List<UUID> interiorPlayers(ServerTardis tardis) {
-        if (!tardis.hasWorld())
-            return List.of();
-
-        return tardis.world().getPlayers().stream().map(Entity::getUuid).toList();
-    }
-
-    private static boolean inInterior(MinecraftServer server, ServerTardis tardis, @Nullable UUID player) {
-        if (player == null || !tardis.hasWorld())
-            return false;
-
-        ServerPlayerEntity entity = server.getPlayerManager().getPlayer(player);
-        return entity != null && entity.getServerWorld() == tardis.world();
-    }
-
-    private static boolean isBusy(UUID tardis) {
-        if (CALLS.containsKey(tardis))
+    private static boolean isBusy(UUID line) {
+        if (CALLS.containsKey(line))
             return true;
 
         for (Recording recording : RECORDINGS.values()) {
-            if (recording.callerTardis.equals(tardis))
+            if (recording.callerLine.equals(line))
                 return true;
         }
 
         return false;
     }
 
-    @Nullable public static UUID connectedPartner(UUID tardis) {
-        Call call = CALLS.get(tardis);
+    public static Set<UUID> ringingLines() {
+        Set<UUID> ringing = new HashSet<>();
+
+        for (Call call : CALLS.values()) {
+            if (!call.connected)
+                ringing.add(call.target);
+        }
+
+        return ringing;
+    }
+
+    @Nullable public static UUID connectedPartner(UUID line) {
+        Call call = CALLS.get(line);
 
         if (call == null || !call.connected)
             return null;
 
-        return call.caller.equals(tardis) ? call.target : call.caller;
+        return call.caller.equals(line) ? call.target : call.caller;
     }
 
-    public static Status status(UUID tardis) {
+    public static Status status(UUID line) {
         for (Recording recording : RECORDINGS.values()) {
-            if (recording.callerTardis.equals(tardis))
+            if (recording.callerLine.equals(line))
                 return Status.RECORDING;
         }
 
-        Call call = CALLS.get(tardis);
+        Call call = CALLS.get(line);
 
         if (call == null)
             return Status.IDLE;
@@ -451,43 +482,52 @@ public final class TardisComms {
         if (call.connected)
             return Status.CONNECTED;
 
-        return call.caller.equals(tardis) ? Status.OUTGOING : Status.INCOMING;
+        return call.caller.equals(line) ? Status.OUTGOING : Status.INCOMING;
     }
 
-    @Nullable private static UUID other(UUID tardis) {
+    @Nullable public static UUID other(UUID line) {
         for (Recording recording : RECORDINGS.values()) {
-            if (recording.callerTardis.equals(tardis))
+            if (recording.callerLine.equals(line))
                 return recording.target;
         }
 
-        Call call = CALLS.get(tardis);
+        Call call = CALLS.get(line);
 
         if (call == null)
             return null;
 
-        return call.caller.equals(tardis) ? call.target : call.caller;
+        return call.caller.equals(line) ? call.target : call.caller;
     }
 
     private static void sendState(MinecraftServer server, ServerPlayerEntity player, ServerTardis tardis) {
         PacketByteBuf buf = PacketByteBufs.create();
         UUID id = tardis.getUuid();
         UUID other = other(id);
+        PhoneDirectory directory = PhoneDirectory.get(server);
 
         buf.writeEnumConstant(status(id));
-        buf.writeString(other == null ? "" : name(find(server, other)));
+        buf.writeString(other == null ? "" : name(CommsLine.resolve(server, other)));
         buf.writeBoolean(tardis.stats().commsHandset().get());
+        buf.writeString(PhoneDirectory.format(directory.tardisNumber(id)));
 
-        List<ServerTardis> callable = new ArrayList<>();
+        List<CommsLine> callable = new ArrayList<>();
         ServerTardisManager.getInstance().forEach(candidate -> {
             if (!candidate.getUuid().equals(id) && candidate.stats().receiveCalls().get())
-                callable.add(candidate);
+                callable.add(new CommsLine.Tardis(server, candidate));
         });
+
+        for (PhoneDirectory.Entry entry : directory.callbacks(id)) {
+            CommsLine line = CommsLine.resolve(server, entry.id());
+
+            if (line != null)
+                callable.add(line);
+        }
 
         buf.writeVarInt(callable.size());
 
-        for (ServerTardis candidate : callable) {
-            buf.writeUuid(candidate.getUuid());
-            buf.writeString(name(candidate));
+        for (CommsLine candidate : callable) {
+            buf.writeUuid(candidate.id());
+            buf.writeString(candidate.name());
         }
 
         List<VoiceMessage> messages = MESSAGES.getOrDefault(id, List.of());
@@ -509,22 +549,7 @@ public final class TardisComms {
         ServerPlayNetworking.send(player, STATE, buf);
     }
 
-    @Nullable private static ServerTardis find(MinecraftServer server, UUID uuid) {
-        ServerTardis[] found = new ServerTardis[1];
-
-        ServerTardisManager.getInstance().forEach(tardis -> {
-            if (tardis.getUuid().equals(uuid))
-                found[0] = tardis;
-        });
-
-        return found[0];
-    }
-
-    private static String name(@Nullable ServerTardis tardis) {
-        if (tardis == null)
-            return "?";
-
-        String name = tardis.stats().getName();
-        return name == null || name.isBlank() ? tardis.getUuid().toString().substring(0, 8) : name;
+    public static String name(@Nullable CommsLine line) {
+        return line == null ? "?" : line.name();
     }
 }

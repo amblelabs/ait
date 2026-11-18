@@ -18,15 +18,15 @@ import java.util.prefs.Preferences;
 
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpServer;
-
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
 import net.fabricmc.loader.api.metadata.ModMetadata;
-import net.minecraft.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.minecraft.util.Util;
 
 public abstract class BetaVerification {
 

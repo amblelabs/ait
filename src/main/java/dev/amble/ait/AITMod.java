@@ -33,6 +33,7 @@ import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.animation.v2.blockbench.BlockbenchParser;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
+import dev.amble.ait.core.tardis.comms.RotaryPhones;
 import dev.amble.ait.core.tardis.comms.TardisComms;
 import dev.amble.ait.core.tardis.comms.TardisPhones;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
@@ -364,6 +365,7 @@ public class AITMod implements ModInitializer {
             AITVoiceDoors.init();
             TardisComms.init();
             TardisPhones.init();
+            RotaryPhones.init();
 
             ServerPlayNetworking.registerGlobalReceiver(TARDIS_BROADCAST, ServerTardisManager.receiveTardis(
                     SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) ->

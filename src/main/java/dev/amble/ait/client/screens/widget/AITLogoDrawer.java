@@ -3,6 +3,7 @@ package dev.amble.ait.client.screens.widget;
 import dev.amble.ait.core.devteam.DevTeam;
 import dev.amble.ait.mixin.client.title.LogoDrawerAccessor;
 import dev.amble.verification.BetaVerification;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;

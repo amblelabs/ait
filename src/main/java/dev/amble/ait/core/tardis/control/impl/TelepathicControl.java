@@ -18,8 +18,9 @@ import dev.amble.ait.core.item.SonicItem;
 import dev.amble.ait.core.likes.ItemOpinion;
 import dev.amble.ait.core.likes.ItemOpinionRegistry;
 import dev.amble.ait.core.lock.LockedDimensionRegistry;
-import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.comms.CommsLine;
+import dev.amble.ait.core.tardis.comms.CommsMessages;
 import dev.amble.ait.core.tardis.comms.TardisComms;
 import dev.amble.ait.core.tardis.comms.TardisPhones;
 import dev.amble.ait.core.tardis.control.Control;
@@ -29,7 +30,6 @@ import dev.amble.ait.core.tardis.handler.distress.DistressCall;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.handler.travel.TravelUtil;
-import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
 import dev.amble.ait.data.Loyalty;
 import dev.amble.lib.data.CachedDirectedGlobalPos;
@@ -374,18 +374,22 @@ public class TelepathicControl extends Control {
             return Result.FAILURE;
 
         UUID partnerId = TardisComms.connectedPartner(tardis.getUuid());
-        ServerTardis[] partner = new ServerTardis[1];
+        CommsLine partner = partnerId == null ? null : CommsLine.resolve(player.getServer(), partnerId);
 
-        if (partnerId != null)
-            ServerTardisManager.getInstance().forEach(candidate -> {
-                if (candidate.getUuid().equals(partnerId))
-                    partner[0] = candidate;
-            });
+        CachedDirectedGlobalPos target = null;
 
-        CachedDirectedGlobalPos target = partner[0] == null ? null : partner[0].travel().position();
+        if (partner instanceof CommsLine.Tardis line)
+            target = line.tardis().travel().position();
+        else if (partner instanceof CommsLine.Phone line)
+            target = CachedDirectedGlobalPos.create(line.world(), line.entry().pos(), (byte) 0);
+
+        if (partner instanceof CommsLine.Tardis line && !line.tardis().stats().callTracing().get()) {
+            CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.untraceable").formatted(Formatting.RED));
+            return Result.FAILURE;
+        }
 
         if (target == null || target.getWorld() == null) {
-            player.sendMessage(Text.translatable("tardis.message.comms.no_trace").formatted(Formatting.GRAY), true);
+            CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.no_trace").formatted(Formatting.GRAY));
             return Result.FAILURE;
         }
 
@@ -396,7 +400,7 @@ public class TelepathicControl extends Control {
                 (int) Math.round(Math.sin(angle) * distance)), true);
 
         tardis.getDesktop().playSoundAtEveryConsole(AITSounds.WAYPOINT_ACTIVATE);
-        player.sendMessage(Text.translatable("tardis.message.comms.routing", partner[0].stats().getName()).formatted(Formatting.GOLD), true);
+        CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.routing", partner.name()).formatted(Formatting.GOLD));
 
         return Result.SUCCESS;
     }

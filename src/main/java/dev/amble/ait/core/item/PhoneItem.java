@@ -3,10 +3,9 @@ package dev.amble.ait.core.item;
 import java.util.UUID;
 
 import dev.amble.ait.core.AITItems;
-import dev.amble.ait.core.tardis.ServerTardis;
+import dev.amble.ait.core.tardis.comms.CommsMessages;
 import dev.amble.ait.core.tardis.comms.TardisComms;
 import dev.amble.ait.core.tardis.comms.TardisPhones;
-import dev.amble.ait.core.world.TardisServerWorld;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.Entity;
@@ -29,6 +28,7 @@ public class PhoneItem extends Item {
     private static final String ANCHOR_X = "AnchorX";
     private static final String ANCHOR_Y = "AnchorY";
     private static final String ANCHOR_Z = "AnchorZ";
+    private static final int USE_COOLDOWN = 10;
 
     public PhoneItem(Settings settings) {
         super(settings);
@@ -39,7 +39,7 @@ public class PhoneItem extends Item {
         NbtCompound nbt = stack.getOrCreateNbt();
 
         nbt.putUuid(SESSION, handset.session());
-        nbt.putUuid(TARDIS, handset.tardis());
+        nbt.putUuid(TARDIS, handset.line());
         nbt.putDouble(ANCHOR_X, handset.anchor().x);
         nbt.putDouble(ANCHOR_Y, handset.anchor().y);
         nbt.putDouble(ANCHOR_Z, handset.anchor().z);
@@ -81,19 +81,20 @@ public class PhoneItem extends Item {
             return TypedActionResult.success(stack, world.isClient());
 
         UUID session = session(stack);
+        TardisPhones.Handset handset = session == null ? null : TardisPhones.get(session);
 
-        if (session == null || !TardisPhones.isActive(session, player.getUuid())
-                || !(player.getServerWorld() instanceof TardisServerWorld interior)) {
+        if (handset == null || !handset.holder().equals(player.getUuid())) {
             stack.setCount(0);
             return TypedActionResult.consume(stack);
         }
 
-        ServerTardis tardis = interior.getTardis();
+        UUID line = handset.line();
+        player.getItemCooldownManager().set(this, USE_COOLDOWN);
 
-        switch (TardisComms.status(tardis.getUuid())) {
-            case INCOMING -> TardisComms.answer(player.getServer(), player, tardis);
-            case OUTGOING, CONNECTED, RECORDING -> TardisComms.endFor(player.getServer(), tardis.getUuid());
-            case IDLE -> player.sendMessage(Text.translatable("tardis.message.comms.no_call").formatted(Formatting.GRAY), true);
+        switch (TardisComms.status(line)) {
+            case INCOMING -> TardisComms.answer(player.getServer(), player, line);
+            case OUTGOING, CONNECTED, RECORDING -> TardisComms.endFor(player.getServer(), line);
+            case IDLE -> CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.no_call").formatted(Formatting.GRAY));
         }
 
         return TypedActionResult.consume(stack);
