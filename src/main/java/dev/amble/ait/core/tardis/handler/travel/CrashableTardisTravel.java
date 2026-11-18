@@ -93,7 +93,9 @@ public sealed interface CrashableTardisTravel permits TravelHandler {
         this.resetHammerUses();
         this.setCrashing(true);
         this.speed(0);
-        this.forceRemat();
+
+        if (!tardis.flight().isFlying())
+            this.forceRemat();
 
         int repairTicks = 1200 * power;
         tardis.crash().setRepairTicks(repairTicks);

@@ -171,6 +171,50 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         return DependencyChecker.hasPortals() && ClientTardisUtil.getCurrentTardis() == tardis;
     }
 
+    public static float[] emissionColor(Tardis tardis, float alpha) {
+        boolean alarms = tardis.alarm().isEnabled();
+        boolean power = tardis.fuel().hasPower();
+
+        float u = 1;
+        float t = 1;
+        float s = 1;
+
+        if ("partytardis".equals(tardis.stats().getName()) ||
+                !tardis.extra().getInsertedDisc().isEmpty()) {
+            final float[] rgb = ClientTardisUtil.getPartyColors();
+
+            u = rgb[0];
+            t = rgb[1];
+            s = rgb[2];
+        } else if (tardis.sonic().getExteriorSonic() != null) {
+            float time = MinecraftClient.getInstance().player.age + MinecraftClient.getInstance().getTickDelta();
+            float progress = (float)((Math.sin(time * 0.03) + 1) / 2.0f);
+
+            final float FROM_R = 1.0f, FROM_G = 1.0f, FROM_B = 1.0f;
+            final float TO_R = 0.3f, TO_G = 0.3f, TO_B = 1.0f;
+
+            s = FROM_R * (1f - progress) + TO_R * progress;
+            t = FROM_G * (1f - progress) + TO_G * progress;
+            u = FROM_B * (1f - progress) + TO_B * progress;
+        }
+
+        float colorAlpha = 1 - alpha;
+
+        float red = alarms
+                ? !power ? 0.25f : s - colorAlpha
+                : s - colorAlpha;
+
+        float green = alarms
+                ? !power ? 0.01f : 0.3f
+                : t - colorAlpha;
+
+        float blue = alarms
+                ? !power ? 0.01f : 0.3f
+                : u - colorAlpha;
+
+        return new float[]{red, green, blue};
+    }
+
     private static final VertexConsumerProvider.Immediate FADE_BUFFERS = VertexConsumerProvider.immediate(new BufferBuilder(1024));
     private static final List<Consumer<VertexConsumerProvider.Immediate>> DEFERRED_BODIES = new ArrayList<>();
     private static final List<Consumer<VertexConsumerProvider.Immediate>> DEFERRED_EMISSION = new ArrayList<>();
@@ -374,42 +418,10 @@ public class ExteriorRenderer<T extends ExteriorBlockEntity> implements BlockEnt
         //  3) there's power OR alarms on
         if (alpha > 0.105f && emission != null && (power || alarms)
                 && !emission.equals(DatapackConsole.EMPTY) && !awesomeIPEmissionHack(tardis)) {
-            float u = 1;
-            float t = 1;
-            float s = 1;
-
-            if ("partytardis".equals(tardis.stats().getName()) ||
-                    !tardis.extra().getInsertedDisc().isEmpty()) {
-                final float[] rgb = ClientTardisUtil.getPartyColors();
-
-                u = rgb[0];
-                t = rgb[1];
-                s = rgb[2];
-            } else if (tardis.sonic().getExteriorSonic() != null) {
-                float time = MinecraftClient.getInstance().player.age + MinecraftClient.getInstance().getTickDelta();
-                float progress = (float)((Math.sin(time * 0.03) + 1) / 2.0f);
-
-                final float FROM_R = 1.0f, FROM_G = 1.0f, FROM_B = 1.0f;
-                final float TO_R = 0.3f, TO_G = 0.3f, TO_B = 1.0f;
-
-                s = FROM_R * (1f - progress) + TO_R * progress;
-                t = FROM_G * (1f - progress) + TO_G * progress;
-                u = FROM_B * (1f - progress) + TO_B * progress;
-            }
-
-            float colorAlpha = 1 - alpha;
-
-            float red = alarms
-                    ? !power ? 0.25f : s - colorAlpha
-                    : s - colorAlpha;
-
-            float green = alarms
-                    ? !power ? 0.01f : 0.3f
-                    : t - colorAlpha;
-
-            float blue = alarms
-                    ? !power ? 0.01f : 0.3f
-                    : u - colorAlpha;
+            float[] color = emissionColor(tardis, alpha);
+            float red = color[0];
+            float green = color[1];
+            float blue = color[2];
 
             // TODO the guard above tests `emission`, which DOOM reassigns per rotation, but the layer
             // below binds `variant.emission()`, the un-adjusted base. For DOOM those disagree. Left

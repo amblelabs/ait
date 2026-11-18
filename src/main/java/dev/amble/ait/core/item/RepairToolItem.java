@@ -4,6 +4,7 @@ import static dev.amble.ait.client.util.TooltipUtil.addMultilineTooltip;
 
 import java.util.List;
 
+import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.engine.DurableSubSystem;
 import dev.amble.ait.core.engine.block.SubSystemBlockEntity;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
@@ -30,6 +31,11 @@ import net.minecraft.world.World;
 public class RepairToolItem extends Item {
     public RepairToolItem(Settings settings) {
         super(settings);
+    }
+
+    @Override
+    public boolean canRepair(ItemStack stack, ItemStack ingredient) {
+        return ingredient.isOf(AITItems.CHARGED_ZEITON_CRYSTAL) || super.canRepair(stack, ingredient);
     }
 
     @Override

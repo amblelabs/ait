@@ -147,7 +147,7 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
     }
 
     public void enterFlight(ServerPlayerEntity player) {
-        if (!AITMod.CONFIG.rwfEnabled) return;
+        if (!AITMod.CONFIG.rwfEnabled || this.flying.get()) return;
         this.tardis.door().closeDoors();
         this.tardis().travel().autopilot(false);
         this.tardis.travel().handbrake(true);
