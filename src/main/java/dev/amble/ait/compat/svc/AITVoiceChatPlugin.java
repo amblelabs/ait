@@ -35,6 +35,7 @@ import de.maxhenkel.voicechat.api.packets.StaticSoundPacket;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.compat.portal.PortalsAPI;
 import dev.amble.ait.core.tardis.comms.TardisComms;
+import dev.amble.ait.core.tardis.comms.TardisPhones;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.Nullable;
@@ -58,6 +59,7 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
     }
 
     private static final double MUFFLED_REACH = 0.5;
+    private static final float EARPIECE_REACH = 4f;
 
     private static VoicechatServerApi serverApi;
 
@@ -96,6 +98,7 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
         UUID senderId = sender.getPlayer().getUuid();
         this.relayThroughPortals(event, sender, senderId);
         this.relayComms(event, senderId);
+        this.relayEarpieces(event, sender, senderId);
         this.relayThroughDoors(event, sender, senderId);
 
         List<UUID> listeners = AITVoiceChatBroadcast.listenersFor(senderId);
@@ -145,6 +148,45 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
 
             if (connection != null && connection.isConnected() && !connection.isDisabled())
                 api.sendStaticSoundPacketTo(connection, packet);
+        }
+    }
+
+    private void relayEarpieces(MicrophonePacketEvent event, VoicechatConnection sender, UUID senderId) {
+        List<TardisPhones.Speaker> speakers = TardisComms.speakersFor(senderId);
+
+        if (speakers.isEmpty() || !(sender.getPlayer().getPlayer() instanceof ServerPlayerEntity player))
+            return;
+
+        MinecraftServer server = player.getServer();
+
+        if (server == null)
+            return;
+
+        VoicechatServerApi api = event.getVoicechat();
+
+        for (TardisPhones.Speaker speaker : speakers) {
+            ServerWorld world = server.getWorld(speaker.world());
+
+            if (world == null)
+                continue;
+
+            Position position = api.createPosition(speaker.pos().x, speaker.pos().y, speaker.pos().z);
+            LocationalSoundPacket packet = event.getPacket().locationalSoundPacketBuilder()
+                    .position(position)
+                    .distance(EARPIECE_REACH)
+                    .channelId(AITVoiceChannels.tag(AITVoiceChannels.Kind.EARPIECE, senderId))
+                    .category(TARDIS_COMMS)
+                    .build();
+
+            for (ServerPlayer listener : api.getPlayersInRange(api.fromServerLevel(world), position, EARPIECE_REACH)) {
+                if (listener.getUuid().equals(senderId))
+                    continue;
+
+                VoicechatConnection connection = api.getConnectionOf(listener.getUuid());
+
+                if (connection != null && connection.isConnected() && !connection.isDisabled())
+                    api.sendLocationalSoundPacketTo(connection, packet);
+            }
         }
     }
 

@@ -15,6 +15,7 @@ import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
@@ -41,11 +42,25 @@ public final class TardisPhones {
     private static final double MAX_PULL = 1.0;
     private static final double STRAY_SEARCH = 48;
 
-    public record Handset(UUID session, UUID line, UUID anchorId, UUID holder, RegistryKey<World> world, Vec3d anchor) {
+    public record Handset(UUID session, UUID line, UUID anchorId, UUID holder, RegistryKey<World> world, Vec3d anchor,
+                          boolean dropped) {
+
+        private Handset held(UUID holder) {
+            return new Handset(this.session, this.line, this.anchorId, holder, this.world, this.anchor, false);
+        }
+
+        private Handset onGround() {
+            return new Handset(this.session, this.line, this.anchorId, this.holder, this.world, this.anchor, true);
+        }
+    }
+
+    public record Speaker(RegistryKey<World> world, Vec3d pos) {
     }
 
     private static final Map<UUID, Handset> BY_ANCHOR = new ConcurrentHashMap<>();
     private static final Map<UUID, Handset> BY_SESSION = new ConcurrentHashMap<>();
+    private static final Map<UUID, UUID> ITEMS = new ConcurrentHashMap<>();
+    private static final Map<UUID, Speaker> SPEAKERS = new ConcurrentHashMap<>();
 
     private TardisPhones() {
     }
@@ -73,12 +88,35 @@ public final class TardisPhones {
     }
 
     @Nullable public static UUID holderFor(UUID line) {
+        Handset handset = handsetFor(line);
+        return handset == null ? null : handset.holder();
+    }
+
+    @Nullable public static Handset handsetFor(UUID line) {
         for (Handset handset : BY_SESSION.values()) {
             if (handset.line().equals(line))
-                return handset.holder();
+                return handset;
         }
 
         return null;
+    }
+
+    @Nullable public static Speaker speakerFor(UUID line) {
+        return SPEAKERS.get(line);
+    }
+
+    public static void claim(UUID session, ServerPlayerEntity player) {
+        Handset handset = BY_SESSION.get(session);
+
+        if (handset == null || (handset.holder().equals(player.getUuid()) && !handset.dropped()))
+            return;
+
+        replace(handset, handset.held(player.getUuid()));
+    }
+
+    private static void replace(Handset old, Handset updated) {
+        BY_SESSION.put(updated.session(), updated);
+        BY_ANCHOR.replace(updated.anchorId(), old, updated);
     }
 
     public static Set<UUID> liftedLines() {
@@ -97,13 +135,13 @@ public final class TardisPhones {
             return;
 
         if (give(player, new Handset(UUID.randomUUID(), tardis.getUuid(), control.getUuid(), player.getUuid(),
-                world.getRegistryKey(), control.getPos().add(0, control.getHeight() / 2, 0)), control.getBlockPos()))
+                world.getRegistryKey(), control.getPos().add(0, control.getHeight() / 2, 0), false), control.getBlockPos()))
             tardis.stats().commsHandset().set(true);
     }
 
     public static boolean liftPhone(ServerPlayerEntity player, ServerWorld world, PhoneDirectory.Entry entry) {
         Vec3d anchor = Vec3d.ofBottomCenter(entry.pos()).add(0, 0.3, 0);
-        return give(player, new Handset(UUID.randomUUID(), entry.id(), entry.id(), player.getUuid(), world.getRegistryKey(), anchor),
+        return give(player, new Handset(UUID.randomUUID(), entry.id(), entry.id(), player.getUuid(), world.getRegistryKey(), anchor, false),
                 entry.pos());
     }
 
@@ -156,34 +194,101 @@ public final class TardisPhones {
 
     private static void tick(MinecraftServer server) {
         for (Handset handset : BY_SESSION.values()) {
+            ServerWorld world = server.getWorld(handset.world());
+
+            if (world == null) {
+                release(server, handset, true);
+                continue;
+            }
+
             ServerPlayerEntity holder = server.getPlayerManager().getPlayer(handset.holder());
 
-            if (holder == null || holder.isDead() || holder.getServerWorld().getRegistryKey() != handset.world()
-                    || !hasPhone(holder, handset.session())) {
+            if (holder == null || !hasPhone(holder, handset.session()))
+                holder = findCarrier(server, handset);
+
+            if (holder != null) {
+                SPEAKERS.remove(handset.line());
+                ITEMS.remove(handset.session());
+
+                if (holder.getServerWorld() != world) {
+                    release(server, handset, true);
+                    continue;
+                }
+
+                if (handset.dropped() || !handset.holder().equals(holder.getUuid()))
+                    replace(handset, handset.held(holder.getUuid()));
+
+                if (tether(server, handset, holder))
+                    holder.velocityModified = true;
+
+                continue;
+            }
+
+            ItemEntity item = findItem(world, handset);
+
+            if (item == null) {
                 release(server, handset, true);
                 continue;
             }
 
-            Vec3d offset = handset.anchor().subtract(holder.getPos());
-            double distance = offset.length();
+            if (!handset.dropped())
+                replace(handset, handset.onGround());
 
-            if (distance > SNAP_LENGTH) {
-                release(server, handset, true);
-                continue;
-            }
+            item.setNeverDespawn();
+            ITEMS.put(handset.session(), item.getUuid());
+            SPEAKERS.put(handset.line(), new Speaker(handset.world(), item.getPos().add(0, 0.25, 0)));
 
-            if (distance > CABLE_LENGTH) {
-                Vec3d pull = offset.normalize().multiply(Math.min((distance - CABLE_LENGTH) * PULL_STRENGTH, MAX_PULL));
-
-                holder.addVelocity(pull.x, pull.y * 0.5, pull.z);
-                holder.velocityModified = true;
-            }
+            if (tether(server, handset, item))
+                item.velocityModified = true;
         }
     }
 
-    private static void release(MinecraftServer server, Handset handset, boolean endCall) {
-        BY_ANCHOR.remove(handset.anchorId(), handset);
-        BY_SESSION.remove(handset.session(), handset);
+    private static boolean tether(MinecraftServer server, Handset handset, Entity entity) {
+        Vec3d offset = handset.anchor().subtract(entity.getPos());
+        double distance = offset.length();
+
+        if (distance > SNAP_LENGTH) {
+            release(server, handset, true);
+            return false;
+        }
+
+        if (distance <= CABLE_LENGTH)
+            return false;
+
+        Vec3d pull = offset.normalize().multiply(Math.min((distance - CABLE_LENGTH) * PULL_STRENGTH, MAX_PULL));
+        entity.addVelocity(pull.x, pull.y * 0.5, pull.z);
+        return true;
+    }
+
+    @Nullable private static ServerPlayerEntity findCarrier(MinecraftServer server, Handset handset) {
+        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+            if (hasPhone(player, handset.session()))
+                return player;
+        }
+
+        return null;
+    }
+
+    @Nullable private static ItemEntity findItem(ServerWorld world, Handset handset) {
+        UUID known = ITEMS.get(handset.session());
+
+        if (known != null && world.getEntity(known) instanceof ItemEntity item && !item.isRemoved()
+                && handset.session().equals(PhoneItem.session(item.getStack())))
+            return item;
+
+        Box area = new Box(BlockPos.ofFloored(handset.anchor())).expand(STRAY_SEARCH);
+
+        return world.getEntitiesByClass(ItemEntity.class, area,
+                candidate -> handset.session().equals(PhoneItem.session(candidate.getStack()))).stream().findFirst().orElse(null);
+    }
+
+    private static void release(MinecraftServer server, Handset stale, boolean endCall) {
+        Handset handset = BY_SESSION.getOrDefault(stale.session(), stale);
+
+        BY_SESSION.remove(handset.session());
+        BY_ANCHOR.computeIfPresent(handset.anchorId(), (id, current) -> current.session().equals(handset.session()) ? null : current);
+        ITEMS.remove(handset.session());
+        SPEAKERS.remove(handset.line());
 
         if (server == null)
             return;

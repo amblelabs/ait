@@ -10,7 +10,7 @@ public final class AITVoiceChannels {
     private static final long MAGIC_MASK = 0xFFFFFFFFL << 32;
 
     public enum Kind {
-        BROADCAST, COMMS, MUFFLED
+        BROADCAST, COMMS, MUFFLED, EARPIECE
     }
 
     private AITVoiceChannels() {

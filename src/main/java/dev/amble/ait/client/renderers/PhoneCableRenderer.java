@@ -11,11 +11,13 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
@@ -58,6 +60,14 @@ public final class PhoneCableRenderer {
 
             Vec3d handPos = handPosition(client, player, hand, tickDelta);
             drawCable(context.matrixStack(), context.consumers(), camera, handPos, anchor, client);
+        }
+
+        for (ItemEntity item : client.world.getEntitiesByClass(ItemEntity.class, new Box(camera, camera).expand(MAX_RENDER_DISTANCE),
+                entity -> entity.getStack().getItem() instanceof PhoneItem)) {
+            Vec3d anchor = PhoneItem.anchor(item.getStack());
+
+            if (anchor != null)
+                drawCable(context.matrixStack(), context.consumers(), camera, item.getLerpedPos(tickDelta).add(0, 0.15, 0), anchor, client);
         }
     }
 

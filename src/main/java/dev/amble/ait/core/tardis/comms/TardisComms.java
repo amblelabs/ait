@@ -36,6 +36,7 @@ public final class TardisComms {
     public static final Identifier REQUEST = AITMod.id("comms_request");
     public static final Identifier STATE = AITMod.id("comms_state");
     public static final Identifier ACTION = AITMod.id("comms_action");
+    public static final Identifier DIAL = AITMod.id("comms_dial");
 
     public static final int RING_TICKS = 600;
     public static final int FRAMES_PER_SECOND = 50;
@@ -96,6 +97,7 @@ public final class TardisComms {
     private static final Map<UUID, Recording> RECORDINGS = new ConcurrentHashMap<>();
     private static final Map<UUID, List<VoiceMessage>> MESSAGES = new ConcurrentHashMap<>();
     private static final Map<UUID, List<UUID>> ROUTES = new ConcurrentHashMap<>();
+    private static final Map<UUID, List<TardisPhones.Speaker>> SPEAKER_ROUTES = new ConcurrentHashMap<>();
 
     private TardisComms() {
     }
@@ -124,10 +126,24 @@ public final class TardisComms {
                         sendState(server, player, tardis);
                     });
                 })));
+
+        ServerPlayNetworking.registerGlobalReceiver(DIAL, ServerTardisManager.receiveTardis(
+                SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
+                    String number = buf.readString(32);
+
+                    server.execute(() -> {
+                        dialNumber(server, player, tardis, number);
+                        sendState(server, player, tardis);
+                    });
+                })));
     }
 
     public static List<UUID> routeFor(UUID player) {
         return ROUTES.getOrDefault(player, List.of());
+    }
+
+    public static List<TardisPhones.Speaker> speakersFor(UUID player) {
+        return SPEAKER_ROUTES.getOrDefault(player, List.of());
     }
 
     public static void record(UUID player, byte[] opus) {
@@ -156,6 +172,19 @@ public final class TardisComms {
         }
     }
 
+    private static void dialNumber(MinecraftServer server, ServerPlayerEntity player, ServerTardis tardis, String input) {
+        String number = PhoneDirectory.normalize(input);
+        UUID target = PhoneDirectory.get(server).lookup(number);
+
+        if (target == null || target.equals(tardis.getUuid())) {
+            CommsMessages.actionBar(player, Text.translatable("tardis.message.phone.no_such_number",
+                    PhoneDirectory.format(number)).formatted(Formatting.RED));
+            return;
+        }
+
+        call(server, player, new CommsLine.Tardis(server, tardis), target);
+    }
+
     public static boolean dial(MinecraftServer server, ServerPlayerEntity player, CommsLine from, UUID target) {
         return call(server, player, from, target);
     }
@@ -167,11 +196,12 @@ public final class TardisComms {
         CommsLine target = CommsLine.resolve(server, targetId);
         PhoneDirectory directory = PhoneDirectory.get(server);
 
-        boolean blocked = target == null || !target.accepts()
-                || (from instanceof CommsLine.Tardis && target instanceof CommsLine.Phone
-                && !directory.canCallBack(from.id(), targetId));
+        if (from instanceof CommsLine.Tardis && target instanceof CommsLine.Phone && !directory.canCallBack(from.id(), targetId)) {
+            CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.no_callback").formatted(Formatting.RED));
+            return false;
+        }
 
-        if (blocked) {
+        if (target == null || !target.accepts()) {
             CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.unavailable").formatted(Formatting.RED));
             return false;
         }
@@ -311,6 +341,7 @@ public final class TardisComms {
         });
 
         Map<UUID, List<UUID>> routes = new HashMap<>();
+        Map<UUID, List<TardisPhones.Speaker>> speakers = new HashMap<>();
 
         for (Call call : new HashSet<>(CALLS.values())) {
             if (!call.connected)
@@ -321,10 +352,22 @@ public final class TardisComms {
 
             callerSide.forEach(player -> routes.put(player, targetSide));
             targetSide.forEach(player -> routes.put(player, callerSide));
+
+            TardisPhones.Speaker callerSpeaker = TardisPhones.speakerFor(call.caller);
+            TardisPhones.Speaker targetSpeaker = TardisPhones.speakerFor(call.target);
+
+            if (targetSpeaker != null)
+                callerSide.forEach(player -> speakers.computeIfAbsent(player, uuid -> new ArrayList<>()).add(targetSpeaker));
+
+            if (callerSpeaker != null)
+                targetSide.forEach(player -> speakers.computeIfAbsent(player, uuid -> new ArrayList<>()).add(callerSpeaker));
         }
 
         ROUTES.keySet().retainAll(routes.keySet());
         ROUTES.putAll(routes);
+
+        SPEAKER_ROUTES.keySet().retainAll(speakers.keySet());
+        SPEAKER_ROUTES.putAll(speakers);
     }
 
     private static void tickCall(MinecraftServer server, Call call) {

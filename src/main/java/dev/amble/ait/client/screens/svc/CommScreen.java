@@ -7,10 +7,12 @@ import java.util.UUID;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.screens.TardisScreen;
 import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.core.tardis.comms.PhoneDirectory;
 import dev.amble.ait.core.tardis.comms.TardisComms;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -53,6 +55,16 @@ public class CommScreen extends TardisScreen {
     private static final int SCREEN_TEXT = 0x55FF55;
     private static final int SCREEN_TEXT_DIM = 0x2E8B2E;
 
+    private static final int KEYPAD_GAP = 4;
+    private static final int KEYPAD_WIDTH = 84;
+    private static final int KEYPAD_HEIGHT = 112;
+    private static final int KEY_WIDTH = 22;
+    private static final int KEY_GAP = 3;
+    private static final int KEYPAD_BORDER = 0xFF161616;
+    private static final int KEYPAD_BODY = 0xFF353535;
+    private static final int KEYPAD_SCREEN = 0xFF0B140B;
+    private static final String[] KEYS = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "C", "0", "<" };
+
     private record Contact(UUID id, String name) {
     }
 
@@ -68,6 +80,10 @@ public class CommScreen extends TardisScreen {
     private boolean showingMessages = false;
     private int page = 0;
     private int ticks = 0;
+    private boolean keypadOpen = false;
+    private final StringBuilder digits = new StringBuilder();
+    private final RotaryClicks clicks = new RotaryClicks();
+    @Nullable private SpriteButton dialButton;
 
     public CommScreen(ClientTardis tardis) {
         super(Text.translatable("screen.ait.comms.title"), tardis);
@@ -120,10 +136,13 @@ public class CommScreen extends TardisScreen {
 
         if (++this.ticks % 20 == 0)
             this.request();
+
+        this.clicks.tick();
+        this.updateDialButton();
     }
 
     private int left() {
-        return (this.width - WIDTH) / 2;
+        return (this.width - WIDTH - (this.keypadOpen ? KEYPAD_GAP + KEYPAD_WIDTH : 0)) / 2;
     }
 
     private int top() {
@@ -194,6 +213,18 @@ public class CommScreen extends TardisScreen {
                 button -> this.broadcast());
         broadcast.setTooltip(Tooltip.of(Text.translatable("screen.ait.comms.broadcast")));
 
+        SpriteButton keypad = this.add(x, y + ROW_HEIGHT * 5, SIDE_WIDTH, Text.translatable(this.keypadOpen
+                ? "screen.ait.comms.short.keypad_close" : "screen.ait.comms.short.keypad"), button -> {
+                    this.keypadOpen = !this.keypadOpen;
+                    this.rebuild();
+                });
+        keypad.setTooltip(Tooltip.of(Text.translatable("screen.ait.comms.keypad")));
+
+        this.dialButton = null;
+
+        if (this.keypadOpen)
+            this.addKeypad(left + WIDTH + KEYPAD_GAP, top + (HEIGHT - KEYPAD_HEIGHT) / 2, state);
+
         TardisComms.Status status = state.status();
 
         PhoneButton answer = this.addDrawableChild(new PhoneButton(left + PHONE_X, top + ANSWER_Y, PhoneButton.ANSWER_V,
@@ -213,6 +244,106 @@ public class CommScreen extends TardisScreen {
                 hangUpText, button -> this.action(hangUpAction, null)));
         hangUp.active = status != TardisComms.Status.IDLE;
         hangUp.setTooltip(Tooltip.of(hangUpText));
+    }
+
+    private void addKeypad(int x, int y, State state) {
+        int keysLeft = x + (KEYPAD_WIDTH - (KEY_WIDTH * 3 + KEY_GAP * 2)) / 2;
+        int keysTop = y + 28;
+
+        for (int i = 0; i < KEYS.length; i++) {
+            String key = KEYS[i];
+
+            this.add(keysLeft + (i % 3) * (KEY_WIDTH + KEY_GAP), keysTop + (i / 3) * (ROW_HEIGHT + KEY_GAP), KEY_WIDTH,
+                    Text.literal(key), button -> this.press(key));
+        }
+
+        this.dialButton = this.add(keysLeft, keysTop + 4 * (ROW_HEIGHT + KEY_GAP) + 2, KEY_WIDTH * 3 + KEY_GAP * 2,
+                Text.translatable("screen.ait.phone.dial"), button -> this.dial());
+        this.updateDialButton();
+    }
+
+    private void updateDialButton() {
+        State state = latest;
+
+        if (this.dialButton != null)
+            this.dialButton.active = state != null && state.status() == TardisComms.Status.IDLE
+                    && !this.digits.isEmpty() && !this.clicks.turning();
+    }
+
+    private void press(String key) {
+        switch (key) {
+            case "C" -> this.digits.setLength(0);
+            case "<" -> {
+                if (!this.digits.isEmpty())
+                    this.digits.setLength(this.digits.length() - 1);
+            }
+            default -> this.type(key.charAt(0));
+        }
+
+        this.updateDialButton();
+    }
+
+    private void type(char digit) {
+        if (this.digits.length() >= PhoneDirectory.DIGITS)
+            return;
+
+        this.digits.append(digit);
+        this.clicks.dial(digit);
+    }
+
+    private void dial() {
+        if (this.tardis() == null || this.digits.isEmpty())
+            return;
+
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeUuid(this.tardis().getUuid());
+        buf.writeString(this.digits.toString());
+        ClientPlayNetworking.send(TardisComms.DIAL, buf);
+
+        this.digits.setLength(0);
+        this.updateDialButton();
+    }
+
+    @Override
+    public boolean charTyped(char chr, int modifiers) {
+        if (this.keypadOpen && Character.isDigit(chr)) {
+            this.type(chr);
+            this.updateDialButton();
+            return true;
+        }
+
+        return super.charTyped(chr, modifiers);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (this.keypadOpen && keyCode == GLFW.GLFW_KEY_BACKSPACE) {
+            this.press("<");
+            return true;
+        }
+
+        if (this.keypadOpen && (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER)
+                && this.dialButton != null && this.dialButton.active) {
+            this.dial();
+            return true;
+        }
+
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    private void renderKeypad(DrawContext context, int x, int y) {
+        context.fill(x, y, x + KEYPAD_WIDTH, y + KEYPAD_HEIGHT, KEYPAD_BORDER);
+        context.fill(x + 2, y + 2, x + KEYPAD_WIDTH - 2, y + KEYPAD_HEIGHT - 2, KEYPAD_BODY);
+        context.fill(x + 6, y + 6, x + KEYPAD_WIDTH - 6, y + 22, KEYPAD_SCREEN);
+
+        String shown = PhoneDirectory.format(this.digits.toString());
+
+        if (shown.isEmpty()) {
+            this.screenLine(context, Text.translatable("screen.ait.phone.enter_number"), x + 9, y + 10, KEYPAD_WIDTH - 18, SCREEN_TEXT_DIM);
+        } else {
+            String cursor = this.digits.length() < PhoneDirectory.DIGITS && (this.ticks / 10) % 2 == 0 ? "_" : "";
+            this.screenLine(context, Text.literal(shown + cursor), x + 9, y + 10, KEYPAD_WIDTH - 18, SCREEN_TEXT);
+        }
     }
 
     private void addModeButton(int x, int y, State state) {
@@ -274,6 +405,9 @@ public class CommScreen extends TardisScreen {
         int top = this.top();
 
         context.drawTexture(TEXTURE, left, top, 0, TEXTURE_V, WIDTH, HEIGHT, 256, 256);
+
+        if (this.keypadOpen)
+            this.renderKeypad(context, left + WIDTH + KEYPAD_GAP, top + (HEIGHT - KEYPAD_HEIGHT) / 2);
 
         State state = latest;
         int textX = left + HEADER_X + 3;

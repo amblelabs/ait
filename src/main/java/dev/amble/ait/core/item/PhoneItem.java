@@ -9,12 +9,14 @@ import dev.amble.ait.core.tardis.comms.TardisPhones;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -83,10 +85,12 @@ public class PhoneItem extends Item {
         UUID session = session(stack);
         TardisPhones.Handset handset = session == null ? null : TardisPhones.get(session);
 
-        if (handset == null || !handset.holder().equals(player.getUuid())) {
+        if (handset == null) {
             stack.setCount(0);
             return TypedActionResult.consume(stack);
         }
+
+        TardisPhones.claim(session, player);
 
         UUID line = handset.line();
         player.getItemCooldownManager().set(this, USE_COOLDOWN);
@@ -107,7 +111,37 @@ public class PhoneItem extends Item {
 
         UUID session = session(stack);
 
-        if (session == null || !TardisPhones.isActive(session, entity.getUuid()))
+        if (session == null || TardisPhones.get(session) == null) {
             stack.setCount(0);
+            return;
+        }
+
+        if (entity instanceof ServerPlayerEntity player)
+            TardisPhones.claim(session, player);
+        else
+            stack.setCount(0);
+    }
+
+    @Override
+    public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
+        if (!(entity instanceof ServerPlayerEntity target) || !(user instanceof ServerPlayerEntity player))
+            return entity instanceof PlayerEntity ? ActionResult.SUCCESS : ActionResult.PASS;
+
+        UUID session = session(stack);
+
+        if (session == null || !TardisPhones.isActive(session, player.getUuid()))
+            return ActionResult.PASS;
+
+        ItemStack handed = stack.copy();
+
+        if (!target.getInventory().insertStack(handed))
+            return ActionResult.FAIL;
+
+        player.setStackInHand(hand, ItemStack.EMPTY);
+        TardisPhones.claim(session, target);
+
+        CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.handed", target.getDisplayName()).formatted(Formatting.GRAY));
+        CommsMessages.actionBar(target, Text.translatable("tardis.message.comms.handed_you", player.getDisplayName()).formatted(Formatting.GOLD));
+        return ActionResult.CONSUME;
     }
 }

@@ -118,10 +118,10 @@ public sealed interface CommsLine {
 
         @Override
         public List<UUID> participants(@Nullable UUID player) {
-            UUID phone = TardisPhones.holderFor(this.id());
+            TardisPhones.Handset handset = TardisPhones.handsetFor(this.id());
 
-            if (phone != null)
-                return List.of(phone);
+            if (handset != null)
+                return handset.dropped() ? List.of() : List.of(handset.holder());
 
             if (this.tardis.stats().commsHandset().get())
                 return player == null ? List.of() : List.of(player);
@@ -138,6 +138,9 @@ public sealed interface CommsLine {
 
         @Override
         public boolean present(@Nullable UUID player) {
+            if (TardisPhones.handsetFor(this.id()) != null)
+                return true;
+
             if (player == null || !this.tardis.hasWorld())
                 return false;
 
@@ -192,13 +195,13 @@ public sealed interface CommsLine {
 
         @Override
         public List<UUID> participants(@Nullable UUID player) {
-            UUID holder = TardisPhones.holderFor(this.id());
-            return holder == null ? List.of() : List.of(holder);
+            TardisPhones.Handset handset = TardisPhones.handsetFor(this.id());
+            return handset == null || handset.dropped() ? List.of() : List.of(handset.holder());
         }
 
         @Override
         public boolean present(@Nullable UUID player) {
-            return player != null && player.equals(TardisPhones.holderFor(this.id()));
+            return TardisPhones.handsetFor(this.id()) != null;
         }
     }
 }

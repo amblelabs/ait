@@ -21,15 +21,18 @@ public final class AITVoiceFilters {
     public static void onStaticSound(ClientReceiveSoundEvent.StaticSound event) {
         AITVoiceChannels.Kind kind = AITVoiceChannels.kindOf(event.getId());
 
-        if (kind == null || kind == AITVoiceChannels.Kind.MUFFLED || !AITModClient.CONFIG.voiceFilters)
+        if (kind == null || kind == AITVoiceChannels.Kind.MUFFLED || kind == AITVoiceChannels.Kind.EARPIECE
+                || !AITModClient.CONFIG.voiceFilters)
             return;
 
         apply(event, kind);
     }
 
     public static void onLocationalSound(ClientReceiveSoundEvent.LocationalSound event) {
-        if (AITVoiceChannels.kindOf(event.getId()) == AITVoiceChannels.Kind.MUFFLED)
-            apply(event, AITVoiceChannels.Kind.MUFFLED);
+        AITVoiceChannels.Kind kind = AITVoiceChannels.kindOf(event.getId());
+
+        if (kind == AITVoiceChannels.Kind.MUFFLED || kind == AITVoiceChannels.Kind.EARPIECE)
+            apply(event, kind);
     }
 
     private static void apply(ClientReceiveSoundEvent event, AITVoiceChannels.Kind kind) {
@@ -43,6 +46,7 @@ public final class AITVoiceFilters {
             case COMMS -> new TelephoneFilter();
             case BROADCAST -> new TannoyFilter();
             case MUFFLED -> new MuffleFilter();
+            case EARPIECE -> new EarpieceFilter(AITModClient.CONFIG.voiceFilters);
         });
 
         filter.lastUsed = now;
@@ -87,6 +91,21 @@ public final class AITVoiceFilters {
             double noise = ((this.noiseSeed >>> 40) / (double) (1L << 24) - 0.5) * 0.006;
 
             return value + noise;
+        }
+    }
+
+    private static final class EarpieceFilter extends Filter {
+        private static final double GAIN = 0.3;
+
+        private final TelephoneFilter telephone;
+
+        private EarpieceFilter(boolean filtered) {
+            this.telephone = filtered ? new TelephoneFilter() : null;
+        }
+
+        @Override
+        double sample(double input) {
+            return (this.telephone == null ? input : this.telephone.sample(input)) * GAIN;
         }
     }
 
