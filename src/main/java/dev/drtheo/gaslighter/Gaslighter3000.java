@@ -136,7 +136,8 @@ public class Gaslighter3000 {
         public BlockState getAgenda(BlockPos pos) {
             int i = this.world.getSectionIndex(pos.getY());
 
-            if (this.sections[i] == null)
+            if (this.sections[i] == null || this.blockUpdatesBySection[i] == null
+                    || !this.blockUpdatesBySection[i].contains(ChunkSectionPos.packLocal(pos)))
                 return this.world.getBlockState(pos);
 
             return this.sections[i].getBlockState(pos.getX() & 0xF, pos.getY() & 0xF, pos.getZ() & 0xF);
