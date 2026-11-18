@@ -1,0 +1,6 @@
+All assets (textures, models, sounds, animations, and other files) located in the `src/main/resources/assets/ait/` directory and its subdirectories are All Rights Reserved unless stated otherwise.
+You may not copy, modify, distribute, sublicense, or use these assets in any way without explicit written permission from the authors (AmbleLabs).
+
+All assets located in the:
+ - `src/main/resources/assets/ait/sounds/`
+directory and their subdirectories are NOT subject to these particular licensing terms and instead follow their own appropriate licensing that may or may not be All Rights Reserved.
