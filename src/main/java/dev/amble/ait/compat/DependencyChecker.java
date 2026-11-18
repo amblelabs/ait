@@ -12,6 +12,7 @@ public class DependencyChecker {
     private static final boolean HAS_GRAVITY = doesModExist("gravity_changer_q");
     private static final boolean HAS_INDIUM = doesModExist("indium");
     private static final boolean HAS_PERMISSION_API = doesModExist("fabric-permissions-api");
+    private static final boolean HAS_VOICE_CHAT = doesModExist("voicechat");
 
     private static Boolean NVIDIA_CARD;
     private static Boolean MAC_OS;
@@ -26,6 +27,10 @@ public class DependencyChecker {
 
     public static boolean hasIris() {
         return HAS_IRIS;
+    }
+
+    public static boolean hasVoiceChat() {
+        return HAS_VOICE_CHAT;
     }
 
     public static boolean hasGravity() {

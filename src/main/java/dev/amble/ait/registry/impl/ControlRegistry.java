@@ -77,5 +77,8 @@ public class ControlRegistry {
         register(new XControl());
         register(new YControl());
         register(new ZControl());
+
+        // Compat
+        register(new CommsControl());
     }
 }

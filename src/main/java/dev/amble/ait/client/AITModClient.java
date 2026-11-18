@@ -40,6 +40,7 @@ import dev.amble.ait.client.renderers.monitors.MonitorRenderer;
 import dev.amble.ait.client.renderers.monitors.WallMonitorRenderer;
 import dev.amble.ait.client.renderers.sky.MarsSkyProperties;
 import dev.amble.ait.client.screens.*;
+import dev.amble.ait.client.screens.svc.CommScreen;
 import dev.amble.ait.client.sonic.SonicModelLoader;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
@@ -333,6 +334,7 @@ public class AITModClient implements ClientModInitializer {
             case 0 -> new MonitorScreen(tardis, console);
             case 1 -> new BlueprintFabricatorScreen();
             case 3 -> new EnvironmentProjectorScreen(tardis, console);
+            case 4 -> new CommScreen(tardis);
             default -> null;
         };
     }

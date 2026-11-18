@@ -8,6 +8,8 @@ import java.util.Random;
 import java.util.UUID;
 
 import dev.amble.ait.api.AITModInitializer;
+import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.compat.svc.AITVoiceChatBroadcast;
 import dev.amble.ait.config.AITServerConfig;
 import dev.amble.ait.core.*;
 import dev.amble.ait.core.advancement.TardisCriterions;
@@ -30,6 +32,7 @@ import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.animation.v2.blockbench.BlockbenchParser;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
+import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
@@ -353,6 +356,14 @@ public class AITMod implements ModInitializer {
             });
         });
 
+        if (DependencyChecker.hasVoiceChat()) {
+            AITVoiceChatBroadcast.init();
+
+            ServerPlayNetworking.registerGlobalReceiver(TARDIS_BROADCAST, ServerTardisManager.receiveTardis(
+                    SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) ->
+                            server.execute(() -> AITVoiceChatBroadcast.toggle(player, tardis)))));
+        }
+
         LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
             if (source.isBuiltin()
                     && (id.equals(LootTables.NETHER_BRIDGE_CHEST) || id.equals(LootTables.DESERT_PYRAMID_CHEST)
@@ -422,6 +433,7 @@ public class AITMod implements ModInitializer {
     public static final Identifier PROJECTOR_SELECTION = new Identifier(MOD_ID, "projector_selection");
     public static final Identifier PROJECTOR_ANGLES = new Identifier(MOD_ID, "projector_angles");
     public static final Identifier PROFILE_CLIENT = AITMod.id("profile_client");
+    public static final Identifier TARDIS_BROADCAST = AITMod.id("tardis_broadcast");
 
     public static void openScreen(ServerPlayerEntity player, int id, UUID tardis) {
         PacketByteBuf buf = PacketByteBufs.create();
