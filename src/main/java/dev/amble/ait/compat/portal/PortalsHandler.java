@@ -74,7 +74,13 @@ public class PortalsHandler extends KeyedTardisComponent {
         TardisEvents.LANDED.register((tdis) -> {
             PortalsHandler handler = tdis.handler(ID);
 
-            if (!tdis.door().isOpen()) handler.closePortals();
+            if (tdis.door().isOpen()) handler.generatePortals();
+            else handler.closePortals();
+        });
+
+        TardisEvents.START_FALLING.register((tdis) -> {
+            PortalsHandler handler = tdis.handler(ID);
+            handler.removePortals();
         });
 
         TardisEvents.TOGGLE_SIEGE.register((tdis, active) -> {
