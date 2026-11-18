@@ -4,11 +4,13 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.item.PhoneItem;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.control.impl.CommsControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
+import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,6 +49,15 @@ public final class TardisPhones {
 
     public static void init() {
         ServerTickEvents.END_SERVER_TICK.register(TardisPhones::tick);
+
+        TardisEvents.RECONFIGURE_DESKTOP.register(tardis -> {
+            MinecraftServer server = ServerLifecycleHooks.get();
+
+            for (Handset handset : BY_SESSION.values()) {
+                if (handset.tardis().equals(tardis.getUuid()))
+                    release(server, handset, true);
+            }
+        });
     }
 
     public static boolean isActive(UUID session, UUID holder) {
@@ -96,18 +107,19 @@ public final class TardisPhones {
 
         BY_CONTROL.put(handset.control(), handset);
         BY_SESSION.put(handset.session(), handset);
+        tardis.stats().commsHandset().set(true);
 
         world.playSound(null, control.getBlockPos(), SoundEvents.ITEM_ARMOR_EQUIP_CHAIN, SoundCategory.BLOCKS, 0.8f, 1.4f);
     }
 
-    public static boolean hangUp(ServerPlayerEntity player, ItemStack stack) {
+    public static boolean hangUp(ServerPlayerEntity player, ItemStack stack, boolean endCall) {
         UUID session = PhoneItem.session(stack);
         Handset handset = session == null ? null : BY_SESSION.get(session);
 
         if (handset == null || !handset.holder().equals(player.getUuid()))
             return false;
 
-        release(player.getServer(), handset);
+        release(player.getServer(), handset, endCall);
         player.getServerWorld().playSound(null, BlockPos.ofFloored(handset.anchor()), SoundEvents.ITEM_ARMOR_EQUIP_CHAIN,
                 SoundCategory.BLOCKS, 0.8f, 0.9f);
         return true;
@@ -120,7 +132,7 @@ public final class TardisPhones {
 
             if (holder == null || holder.isDead() || tardis == null || !tardis.hasWorld()
                     || holder.getServerWorld() != tardis.world() || !hasPhone(holder, handset.session())) {
-                release(server, handset);
+                release(server, handset, true);
                 continue;
             }
 
@@ -128,7 +140,7 @@ public final class TardisPhones {
             double distance = offset.length();
 
             if (distance > SNAP_LENGTH) {
-                release(server, handset);
+                release(server, handset, true);
                 continue;
             }
 
@@ -141,7 +153,7 @@ public final class TardisPhones {
         }
     }
 
-    private static void release(MinecraftServer server, Handset handset) {
+    private static void release(MinecraftServer server, Handset handset, boolean endCall) {
         BY_CONTROL.remove(handset.control(), handset);
         BY_SESSION.remove(handset.session(), handset);
 
@@ -169,7 +181,10 @@ public final class TardisPhones {
                     item -> handset.session().equals(PhoneItem.session(item.getStack()))).forEach(ItemEntity::discard);
         }
 
-        TardisComms.endFor(server, handset.tardis());
+        tardis.stats().commsHandset().set(false);
+
+        if (endCall)
+            TardisComms.endFor(server, handset.tardis());
     }
 
     private static boolean hasPhone(ServerPlayerEntity player, UUID session) {

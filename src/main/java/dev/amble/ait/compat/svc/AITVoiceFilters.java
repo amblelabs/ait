@@ -21,17 +21,29 @@ public final class AITVoiceFilters {
     public static void onStaticSound(ClientReceiveSoundEvent.StaticSound event) {
         AITVoiceChannels.Kind kind = AITVoiceChannels.kindOf(event.getId());
 
-        if (kind == null || !AITModClient.CONFIG.voiceFilters)
+        if (kind == null || kind == AITVoiceChannels.Kind.MUFFLED || !AITModClient.CONFIG.voiceFilters)
             return;
 
+        apply(event, kind);
+    }
+
+    public static void onLocationalSound(ClientReceiveSoundEvent.LocationalSound event) {
+        if (AITVoiceChannels.kindOf(event.getId()) == AITVoiceChannels.Kind.MUFFLED)
+            apply(event, AITVoiceChannels.Kind.MUFFLED);
+    }
+
+    private static void apply(ClientReceiveSoundEvent event, AITVoiceChannels.Kind kind) {
         short[] audio = event.getRawAudio();
 
         if (audio == null || audio.length == 0)
             return;
 
         long now = System.currentTimeMillis();
-        Filter filter = FILTERS.computeIfAbsent(event.getId(), id -> kind == AITVoiceChannels.Kind.COMMS
-                ? new TelephoneFilter() : new TannoyFilter());
+        Filter filter = FILTERS.computeIfAbsent(event.getId(), id -> switch (kind) {
+            case COMMS -> new TelephoneFilter();
+            case BROADCAST -> new TannoyFilter();
+            case MUFFLED -> new MuffleFilter();
+        });
 
         filter.lastUsed = now;
         event.setRawAudio(filter.process(audio));
@@ -75,6 +87,16 @@ public final class AITVoiceFilters {
             double noise = ((this.noiseSeed >>> 40) / (double) (1L << 24) - 0.5) * 0.006;
 
             return value + noise;
+        }
+    }
+
+    private static final class MuffleFilter extends Filter {
+        private final Biquad highCut1 = Biquad.lowPass(600, 0.707);
+        private final Biquad highCut2 = Biquad.lowPass(600, 0.707);
+
+        @Override
+        double sample(double input) {
+            return this.highCut2.process(this.highCut1.process(input)) * 0.55;
         }
     }
 

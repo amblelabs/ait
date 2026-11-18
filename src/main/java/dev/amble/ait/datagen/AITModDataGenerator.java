@@ -1348,7 +1348,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.comms.unavailable", "That TARDIS isn't accepting calls.");
         provider.addTranslation("tardis.message.comms.busy", "Line busy.");
         provider.addTranslation("tardis.message.comms.calling", "Calling %s...");
-        provider.addTranslation("tardis.message.comms.incoming", "Incoming call from %s");
         provider.addTranslation("tardis.message.comms.connected", "Call connected");
         provider.addTranslation("tardis.message.comms.missed", "Missed call from %s");
         provider.addTranslation("tardis.message.comms.leave_message", "No answer. Leave a message after the tone.");
@@ -1358,6 +1357,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.comms.handset_taken", "%s has the handset.");
         provider.addTranslation("tardis.message.comms.no_room", "No room for the handset.");
         provider.addTranslation("tardis.message.comms.no_call", "No call to answer.");
+        provider.addTranslation("tardis.message.comms.routing", "Tracing the call... routing to %s");
+        provider.addTranslation("tardis.message.comms.no_trace", "No active call to trace.");
         provider.addTranslation("screen.ait.comms.title", "TARDIS Comms");
         provider.addTranslation("screen.ait.comms.broadcast", "Broadcast");
         provider.addTranslation("screen.ait.comms.mode.speaker", "Mode: Speaker");

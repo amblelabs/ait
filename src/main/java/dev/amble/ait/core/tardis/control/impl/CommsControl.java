@@ -5,6 +5,7 @@ import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.item.PhoneItem;
 import dev.amble.ait.core.tardis.Tardis;
+import dev.amble.ait.core.tardis.comms.TardisComms;
 import dev.amble.ait.core.tardis.comms.TardisPhones;
 import dev.amble.ait.core.tardis.control.Control;
 import net.minecraft.item.ItemStack;
@@ -24,9 +25,17 @@ public class CommsControl extends Control {
         super.runServer(tardis, player, world, console, leftClick);
 
         ItemStack held = player.getMainHandStack();
+        boolean holdingPhone = held.getItem() instanceof PhoneItem && PhoneItem.isFor(held, tardis.getUuid());
 
-        if (held.getItem() instanceof PhoneItem && PhoneItem.isFor(held, tardis.getUuid())
-                && TardisPhones.hangUp(player, held))
+        if (DependencyChecker.hasVoiceChat() && TardisComms.status(tardis.getUuid()) == TardisComms.Status.INCOMING) {
+            if (!holdingPhone)
+                TardisPhones.lift(player, tardis.asServer(), world, console);
+
+            TardisComms.answer(world.getServer(), player, tardis.asServer());
+            return Result.SUCCESS;
+        }
+
+        if (holdingPhone && TardisPhones.hangUp(player, held, leftClick))
             return Result.SUCCESS;
 
         if (player.isSneaking() && DependencyChecker.hasVoiceChat()) {

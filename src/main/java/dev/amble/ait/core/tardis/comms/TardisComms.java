@@ -10,11 +10,13 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import dev.amble.ait.AITMod;
+import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.TardisUtil;
+import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -101,6 +103,13 @@ public final class TardisComms {
     public static void init() {
         ServerTickEvents.END_SERVER_TICK.register(TardisComms::tick);
 
+        TardisEvents.RECONFIGURE_DESKTOP.register(tardis -> {
+            MinecraftServer server = ServerLifecycleHooks.get();
+
+            if (server != null)
+                endFor(server, tardis.getUuid());
+        });
+
         ServerPlayNetworking.registerGlobalReceiver(REQUEST, ServerTardisManager.receiveTardis(
                 SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) ->
                         server.execute(() -> sendState(server, player, tardis)))));
@@ -168,7 +177,6 @@ public final class TardisComms {
         CALLS.put(call.target, call);
 
         player.sendMessage(Text.translatable("tardis.message.comms.calling", name(target)).formatted(Formatting.GOLD), true);
-        TardisUtil.sendMessageToInterior(target, Text.translatable("tardis.message.comms.incoming", name(tardis)).formatted(Formatting.GOLD));
         ring(target);
     }
 
@@ -418,6 +426,15 @@ public final class TardisComms {
         }
 
         return false;
+    }
+
+    @Nullable public static UUID connectedPartner(UUID tardis) {
+        Call call = CALLS.get(tardis);
+
+        if (call == null || !call.connected)
+            return null;
+
+        return call.caller.equals(tardis) ? call.target : call.caller;
     }
 
     public static Status status(UUID tardis) {

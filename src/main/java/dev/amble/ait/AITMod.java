@@ -10,6 +10,7 @@ import java.util.UUID;
 import dev.amble.ait.api.AITModInitializer;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.compat.svc.AITVoiceChatBroadcast;
+import dev.amble.ait.compat.svc.AITVoiceDoors;
 import dev.amble.ait.config.AITServerConfig;
 import dev.amble.ait.core.*;
 import dev.amble.ait.core.advancement.TardisCriterions;
@@ -360,6 +361,7 @@ public class AITMod implements ModInitializer {
 
         if (DependencyChecker.hasVoiceChat()) {
             AITVoiceChatBroadcast.init();
+            AITVoiceDoors.init();
             TardisComms.init();
             TardisPhones.init();
 

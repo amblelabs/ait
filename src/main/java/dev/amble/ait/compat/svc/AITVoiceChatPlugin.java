@@ -56,6 +56,8 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
         return AITMod.MOD_ID + "_plugin";
     }
 
+    private static final double MUFFLED_REACH = 0.5;
+
     private static VoicechatServerApi serverApi;
 
     private static final ScheduledExecutorService PLAYBACK = Executors.newSingleThreadScheduledExecutor(runnable -> {
@@ -78,8 +80,10 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
         registration.registerEvent(PlayerDisconnectedEvent.class, event -> AITVoiceChatBroadcast.stop(event.getPlayerUuid()));
         registration.registerEvent(MicrophonePacketEvent.class, this::onMicrophonePacket);
 
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT)
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             registration.registerEvent(ClientReceiveSoundEvent.StaticSound.class, AITVoiceFilters::onStaticSound);
+            registration.registerEvent(ClientReceiveSoundEvent.LocationalSound.class, AITVoiceFilters::onLocationalSound);
+        }
     }
 
     private void onMicrophonePacket(MicrophonePacketEvent event) {
@@ -91,6 +95,7 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
         UUID senderId = sender.getPlayer().getUuid();
         this.relayThroughPortals(event, sender, senderId);
         this.relayComms(event, senderId);
+        this.relayThroughDoors(event, sender, senderId);
 
         List<UUID> listeners = AITVoiceChatBroadcast.listenersFor(senderId);
 
@@ -112,6 +117,9 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
             if (connection != null && connection.isConnected() && !connection.isDisabled())
                 api.sendStaticSoundPacketTo(connection, packet);
         }
+
+        if (event.isCancellable())
+            event.cancel();
     }
 
     private void relayComms(MicrophonePacketEvent event, UUID senderId) {
@@ -187,6 +195,73 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
                     channel.send(frames.get(frame));
             }
         }, 20, 20, TimeUnit.MILLISECONDS));
+    }
+
+
+    private void relayThroughDoors(MicrophonePacketEvent event, VoicechatConnection sender, UUID senderId) {
+        List<AITVoiceDoors.DoorLink> doors = AITVoiceDoors.closedDoors();
+
+        if (doors.isEmpty() || !(sender.getPlayer().getPlayer() instanceof ServerPlayerEntity player))
+            return;
+
+        MinecraftServer server = player.getServer();
+
+        if (server == null)
+            return;
+
+        VoicechatServerApi api = event.getVoicechat();
+        double range = api.getVoiceChatDistance();
+        Vec3d mouth = player.getEyePos();
+        RegistryKey<World> dimension = player.getWorld().getRegistryKey();
+        Set<UUID> reached = new HashSet<>();
+
+        for (AITVoiceDoors.DoorLink door : doors) {
+            Vec3d from;
+            Vec3d to;
+            RegistryKey<World> toDim;
+
+            if (door.interiorDim().equals(dimension)) {
+                from = door.interior();
+                to = door.exterior();
+                toDim = door.exteriorDim();
+            } else if (door.exteriorDim().equals(dimension)) {
+                from = door.exterior();
+                to = door.interior();
+                toDim = door.interiorDim();
+            } else {
+                continue;
+            }
+
+            double distance = mouth.distanceTo(from);
+            float reach = (float) ((range - distance) * MUFFLED_REACH);
+
+            if (reach < 1)
+                continue;
+
+            ServerWorld target = server.getWorld(toDim);
+
+            if (target == null)
+                continue;
+
+            Position position = api.createPosition(to.x, to.y, to.z);
+            LocationalSoundPacket packet = event.getPacket().locationalSoundPacketBuilder()
+                    .channelId(AITVoiceChannels.tag(AITVoiceChannels.Kind.MUFFLED, senderId))
+                    .position(position)
+                    .distance(reach)
+                    .build();
+
+            for (ServerPlayer listener : api.getPlayersInRange(api.fromServerLevel(target), position, reach)) {
+                UUID listenerId = listener.getUuid();
+
+                if (listenerId.equals(senderId) || !reached.add(listenerId))
+                    continue;
+
+                VoicechatConnection connection = api.getConnectionOf(listenerId);
+
+                if (connection != null && connection.isConnected() && !connection.isDisabled())
+                    api.sendLocationalSoundPacketTo(connection, packet);
+            }
+        }
     }
 
     private void relayThroughPortals(MicrophonePacketEvent event, VoicechatConnection sender, UUID senderId) {
