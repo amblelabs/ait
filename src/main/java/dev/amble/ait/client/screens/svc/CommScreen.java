@@ -325,6 +325,19 @@ public class CommScreen extends TardisScreen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (this.keypadOpen && Screen.isPaste(keyCode)) {
+            String pasted = PhoneDirectory.normalize(MinecraftClient.getInstance().keyboard.getClipboard());
+
+            if (!pasted.isEmpty()) {
+                this.digits.setLength(0);
+                this.digits.append(pasted);
+                RotaryClicks.click(1.2f);
+                this.updateDialButton();
+            }
+
+            return true;
+        }
+
         if (this.keypadOpen && keyCode == GLFW.GLFW_KEY_BACKSPACE) {
             this.press(BACKSPACE);
             return true;

@@ -34,6 +34,7 @@ public final class RotaryPhones {
 
     public static final Identifier OPEN = AITMod.id("rotary_phone_open");
     public static final Identifier DIAL = AITMod.id("rotary_phone_dial");
+    public static final Identifier COPY = AITMod.id("rotary_phone_copy");
 
     public static final int CALL_COOLDOWN = 200;
 
@@ -67,7 +68,13 @@ public final class RotaryPhones {
         PhoneDirectory.Entry entry = lineFor(world, phone);
 
         if (player.isSneaking()) {
-            CommsMessages.actionBar(player, Text.translatable("tardis.message.phone.number",
+            if (ServerPlayNetworking.canSend(player, COPY)) {
+                PacketByteBuf buf = PacketByteBufs.create();
+                buf.writeString(PhoneDirectory.format(entry.number()));
+                ServerPlayNetworking.send(player, COPY, buf);
+            }
+
+            CommsMessages.actionBar(player, Text.translatable("tardis.message.phone.copied",
                     PhoneDirectory.format(entry.number())).formatted(Formatting.GOLD));
             return;
         }

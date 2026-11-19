@@ -8,6 +8,7 @@ import dev.amble.ait.core.tardis.comms.PhoneDirectory;
 import dev.amble.ait.core.tardis.comms.RotaryPhones;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import net.minecraft.client.MinecraftClient;
@@ -17,7 +18,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -27,6 +27,8 @@ import net.minecraft.util.math.BlockPos;
 public class DialScreen extends Screen {
 
     private static final Identifier TEXTURE = AITMod.id("textures/gui/phone.png");
+    private static final Identifier PHONE_ICON = AITMod.id("textures/item/phone.png");
+    private static final int ICON_SIZE = 16;
 
     private static final int WIDTH = 216;
     private static final int HEIGHT = 138;
@@ -86,6 +88,11 @@ public class DialScreen extends Screen {
     }
 
     public static void registerClient() {
+        ClientPlayNetworking.registerGlobalReceiver(RotaryPhones.COPY, (client, handler, buf, responseSender) -> {
+            String number = buf.readString();
+            client.execute(() -> client.keyboard.setClipboard(number));
+        });
+
         ClientPlayNetworking.registerGlobalReceiver(RotaryPhones.OPEN, (client, handler, buf, responseSender) -> {
             BlockPos pos = buf.readBlockPos();
             String number = buf.readString();
@@ -116,20 +123,22 @@ public class DialScreen extends Screen {
         for (int i = 0; i < KEYS.length; i++) {
             char key = KEYS[i];
             KeyButton button = this.addDrawableChild(new KeyButton(left + KEYS_X + (i % 3) * KEY_PITCH,
-                    top + KEYS_Y + (i / 3) * KEY_PITCH, label(key), pressed -> this.press(key)));
+                    top + KEYS_Y + (i / 3) * KEY_PITCH, label(key), key == CALL ? PHONE_ICON : null, pressed -> this.press(key)));
 
             if (key == BACKSPACE)
                 button.setTooltip(Tooltip.of(Text.translatable("screen.ait.comms.backspace")));
 
-            if (key == CALL)
+            if (key == CALL) {
+                button.setTooltip(Tooltip.of(Text.translatable("screen.ait.phone.dial")));
                 this.callButton = button;
+            }
         }
 
         int limit = Math.min(this.recents.size(), MAX_RECENTS);
 
         for (int i = 0; i < limit; i++) {
             Recent recent = this.recents.get(i);
-            Text text = Text.literal((recent.outgoing() ? "→ " : "← ") + PhoneDirectory.format(recent.number()));
+            Text text = Text.literal((recent.outgoing() ? "â " : "â ") + PhoneDirectory.format(recent.number()));
             RecentRow row = this.addDrawableChild(new RecentRow(left + PAPER_X, top + RECENTS_Y + i * RECENT_HEIGHT,
                     PAPER_RIGHT - PAPER_X, text, pressed -> this.setDigits(recent.number())));
 
@@ -146,8 +155,8 @@ public class DialScreen extends Screen {
 
     private static Text label(char key) {
         return switch (key) {
-            case BACKSPACE -> Text.translatable("screen.ait.phone.key.backspace");
-            case CALL -> Text.translatable("screen.ait.phone.key.call");
+            case BACKSPACE -> Text.literal("←");
+            case CALL -> Text.translatable("screen.ait.phone.dial");
             default -> Text.literal(String.valueOf(key));
         };
     }
@@ -199,6 +208,15 @@ public class DialScreen extends Screen {
         this.updateCallButton();
     }
 
+    private void paste() {
+        String pasted = PhoneDirectory.normalize(MinecraftClient.getInstance().keyboard.getClipboard());
+
+        if (pasted.isEmpty())
+            return;
+
+        this.setDigits(pasted);
+    }
+
     private void dial() {
         if (this.callButton == null || !this.callButton.active)
             return;
@@ -224,6 +242,11 @@ public class DialScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (Screen.isPaste(keyCode)) {
+            this.paste();
+            return true;
+        }
+
         if (keyCode == GLFW.GLFW_KEY_BACKSPACE) {
             this.press(BACKSPACE);
             return true;
@@ -263,6 +286,9 @@ public class DialScreen extends Screen {
         }
 
         if (shown.isEmpty()) {
+            if (this.cooldown > 0)
+                return;
+
             context.drawText(this.textRenderer, Language.getInstance().reorder(this.textRenderer.trimToWidth(
                     Text.translatable("screen.ait.phone.enter_number"), FIELD_WIDTH - 10)), x + 5, textY, FIELD_HINT, false);
             return;
@@ -288,8 +314,11 @@ public class DialScreen extends Screen {
 
     private static final class KeyButton extends ButtonWidget {
 
-        private KeyButton(int x, int y, Text message, PressAction action) {
+        @Nullable private final Identifier icon;
+
+        private KeyButton(int x, int y, Text message, @Nullable Identifier icon, PressAction action) {
             super(x, y, KEY_SIZE, KEY_SIZE, message, action, DEFAULT_NARRATION_SUPPLIER);
+            this.icon = icon;
         }
 
         @Override
@@ -300,33 +329,21 @@ public class DialScreen extends Screen {
 
             context.drawTexture(TEXTURE, x, y, KEY_U, pressed ? KEY_PRESSED_V : KEY_V, KEY_SIZE, KEY_SIZE, 256, 256);
 
-            TextRenderer font = MinecraftClient.getInstance().textRenderer;
-            int color = this.active ? KEY_TEXT : 0x8A8A8A;
-            int offset = pressed ? 1 : 0;
-            int width = font.getWidth(this.getMessage());
+            if (this.icon != null) {
+                float shade = this.active ? 1f : 0.5f;
+                int inset = (KEY_SIZE - ICON_SIZE) / 2;
 
-            if (width <= KEY_SIZE - 4) {
-                context.drawText(font, this.getMessage(), x + (KEY_SIZE - width) / 2 + offset,
-                        y + (KEY_SIZE - font.fontHeight) / 2 + 1 + offset, color, false);
+                context.setShaderColor(shade, shade, shade, 1f);
+                context.drawTexture(this.icon, x + inset, y + inset, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+                context.setShaderColor(1f, 1f, 1f, 1f);
                 return;
             }
 
-            List<OrderedText> lines = font.wrapLines(this.getMessage(), (KEY_SIZE - 2) * 2);
-            float scale = 0.5f;
-            float lineHeight = font.fontHeight * scale;
-            float startY = y + (KEY_SIZE - lines.size() * lineHeight) / 2 + offset;
+            TextRenderer font = MinecraftClient.getInstance().textRenderer;
+            int color = this.active ? KEY_TEXT : 0x8A8A8A;
+            int width = font.getWidth(this.getMessage());
 
-            context.getMatrices().push();
-            context.getMatrices().scale(scale, scale, 1);
-
-            for (int i = 0; i < lines.size(); i++) {
-                OrderedText line = lines.get(i);
-                float lineX = x + (KEY_SIZE - font.getWidth(line) * scale) / 2 + offset;
-
-                context.drawText(font, line, (int) (lineX / scale), (int) ((startY + i * lineHeight) / scale), color, false);
-            }
-
-            context.getMatrices().pop();
+            context.drawText(font, this.getMessage(), x + (KEY_SIZE - width + 1) / 2, y + (KEY_SIZE - font.fontHeight) / 2 + 1, color, false);
         }
     }
 
