@@ -14,6 +14,8 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.core.sounds.flight.FlightSound;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
+import dev.amble.ait.core.sounds.landing.LandingNotification;
+import dev.amble.ait.core.sounds.landing.LandingNotificationRegistry;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.travel.AnimatedTravelHandler;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
@@ -45,6 +47,7 @@ public class StatsHandler extends KeyedTardisComponent {
     public static final Identifier SHOULD_RECEIVE_CALLS = AITMod.id("should_receive_calls");
     public static final Identifier FLIGHT_SOUND_PACKET = AITMod.id("flight_sound_packet");
     public static final Identifier VORTEX_PACKET = AITMod.id("vortex_packet");
+    public static final Identifier LANDING_PACKET = AITMod.id("landing_packet");
 
     private static final Identifier NAME_PATH = AITMod.id("tardis_names.json");
     private static List<String> NAME_CACHE;
@@ -63,6 +66,7 @@ public class StatsHandler extends KeyedTardisComponent {
 
     private static final Property<Identifier> FLIGHT_FX = new Property<>(Property.IDENTIFIER, "flight_fx", new Identifier(""));
     private static final Property<Identifier> VORTEX_FX = new Property<>(Property.IDENTIFIER, "vortex_fx", new Identifier(""));
+    private static final Property<Identifier> LANDING_FX = new Property<>(Property.IDENTIFIER, "landing_fx", new Identifier(""));
     private static final BoolProperty SECURITY = new BoolProperty("security", false);
     private static final BoolProperty HAIL_MARY = new BoolProperty("hail_mary", false);
     private static final BoolProperty RECEIVE_CALLS = new BoolProperty("receive_calls", true);
@@ -84,6 +88,7 @@ public class StatsHandler extends KeyedTardisComponent {
     private final BoolValue receiveCalls = RECEIVE_CALLS.create(this);
     private final Value<Identifier> flightId = FLIGHT_FX.create(this);
     private final Value<Identifier> vortexId = VORTEX_FX.create(this);
+    private final Value<Identifier> landingId = LANDING_FX.create(this);
     private final DoubleValue tardisXScale = TARDIS_X_SCALE.create(this);
     private final DoubleValue tardisYScale = TARDIS_Y_SCALE.create(this);
     private final DoubleValue tardisZScale = TARDIS_Z_SCALE.create(this);
@@ -107,6 +112,20 @@ public class StatsHandler extends KeyedTardisComponent {
                 return;
 
             server.execute(() -> tardis.stats().setVortexEffects(id));
+        })));
+
+        ServerPlayNetworking.registerGlobalReceiver(LANDING_PACKET, ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
+            Identifier id = buf.readIdentifier();
+
+            if (tardis == null || id == null)
+                return;
+
+            LandingNotification landing = LandingNotificationRegistry.getInstance().get(id);
+
+            if (landing == null || !tardis.isUnlocked(landing))
+                return;
+
+            server.execute(() -> tardis.stats().setLandingNotification(id));
         })));
 
         ServerPlayNetworking.registerGlobalReceiver(FLIGHT_SOUND_PACKET, ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
@@ -161,6 +180,7 @@ public class StatsHandler extends KeyedTardisComponent {
         receiveCalls.of(this, RECEIVE_CALLS);
         flightId.of(this, FLIGHT_FX);
         vortexId.of(this, VORTEX_FX);
+        landingId.of(this, LANDING_FX);
         tardisXScale.of(this, TARDIS_X_SCALE);
         tardisYScale.of(this, TARDIS_Y_SCALE);
         tardisZScale.of(this, TARDIS_Z_SCALE);
@@ -192,7 +212,7 @@ public class StatsHandler extends KeyedTardisComponent {
 
     private static String unlockKey(Unlockable unlockable) {
         return switch (unlockable.unlockType()) {
-            case HUM, VORTEX, FLIGHT_SOUND, ANIMATION -> unlockable.unlockType().name().toLowerCase() + "/" + unlockable.id();
+            case HUM, VORTEX, FLIGHT_SOUND, ANIMATION, LANDING_NOTIFICATION -> unlockable.unlockType().name().toLowerCase() + "/" + unlockable.id();
             default -> unlockable.id().toString();
         };
     }
@@ -375,6 +395,14 @@ public class StatsHandler extends KeyedTardisComponent {
 
     public void markPlayerCreatorName() {
         playerCreatorName.set(this.getPlayerCreatorName());
+    }
+
+    public LandingNotification getLandingNotification() {
+        return LandingNotificationRegistry.getInstance().getOrFallback(this.landingId.get());
+    }
+
+    public void setLandingNotification(Identifier current) {
+        this.landingId.set(current);
     }
 
     public FlightSound getFlightEffects() {
