@@ -12,6 +12,8 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.engine.impl.GravitationalCircuit;
 import dev.amble.ait.core.entities.FallingTardisEntity;
 import dev.amble.ait.core.entities.FlightTardisEntity;
+import dev.amble.ait.core.sounds.landing.LandingNotification;
+import dev.amble.ait.core.sounds.landing.LandingNotificationRegistry;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.data.Exclude;
 import dev.amble.ait.data.properties.bool.BoolProperty;
@@ -124,6 +126,13 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
         }
     }
 
+    private boolean notificationHasThud() {
+        LandingNotification notification = this.tardis.stats().getLandingNotification();
+
+        return this.tardis.travel().autopilot() && notification != LandingNotificationRegistry.DEFAULT
+                && notification != LandingNotificationRegistry.OFF;
+    }
+
     public void onLanding(ServerWorld world, BlockPos pos) {
         this.tardis.travel().forcePosition(cached -> cached.world(world.getRegistryKey()).pos(pos));
 
@@ -132,9 +141,11 @@ public class RealFlightHandler extends KeyedTardisComponent implements TardisTic
         this.tardis.door().setLocked(this.tardis.door().previouslyLocked().get());
         this.tardis.door().setDeadlocked(false);
 
-        world.playSound(null, pos, AITSounds.LAND_THUD, SoundCategory.BLOCKS);
+        if (!this.notificationHasThud()) {
+            world.playSound(null, pos, AITSounds.LAND_THUD, SoundCategory.BLOCKS);
+            tardis.getDesktop().playSoundAtEveryConsole(AITSounds.LAND_THUD, SoundCategory.BLOCKS);
+        }
 
-        tardis.getDesktop().playSoundAtEveryConsole(AITSounds.LAND_THUD, SoundCategory.BLOCKS);
         TardisEvents.LANDED.invoker().onLanded(tardis);
     }
 

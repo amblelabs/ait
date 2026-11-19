@@ -2,7 +2,7 @@ package dev.amble.ait.client.sounds.flight;
 
 import dev.amble.ait.client.AITModClient;
 import dev.amble.ait.client.sounds.LoopingSound;
-import dev.amble.ait.client.sounds.PlayerFollowingLoopingSound;
+import dev.amble.ait.client.sounds.MusicLoopingSound;
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
@@ -24,7 +24,7 @@ public class ClientFlightMusicHandler extends SoundHandler {
     }
 
     private LoopingSound createFlightMusic() {
-        return new PlayerFollowingLoopingSound(AITSounds.FLIGHT, SoundCategory.MUSIC, AITModClient.CONFIG.flightMusicVolume);
+        return new MusicLoopingSound(AITSounds.FLIGHT, SoundCategory.MUSIC, AITModClient.CONFIG.flightMusicVolume);
     }
 
     public static ClientFlightMusicHandler create() {
