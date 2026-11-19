@@ -258,4 +258,4 @@
 - fix: boti fog | by [@Loqor](https://github.com/Loqor)
 - feat: glowing cables! | by [@Loqor](https://github.com/Loqor)
 - feat: point with the sonic screwdriver! | by [@Loqor](https://github.com/Loqor)
-- fix: hypercube crashing! | by [@Loqor](https://github.com/Loqor)
+- fix: hypercube crashing! | by [@Loqor](https://github.com/Loqor)- feat: datapackable landing notification sounds! | by [@Loqor](https://github.com/Loqor) ([#2258](https://github.com/amblelabs/ait/pull/2258))
