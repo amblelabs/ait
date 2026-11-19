@@ -285,7 +285,7 @@ public class DialScreen extends Screen {
 
         if (this.cooldown > 0) {
             Text wait = Text.translatable("screen.ait.phone.wait", (this.cooldown + 19) / 20);
-            context.drawText(this.textRenderer, wait, x + FIELD_WIDTH - 6 - this.textRenderer.getWidth(wait), textY, FIELD_WAIT, false);
+            context.drawText(this.textRenderer, wait, x + FIELD_WIDTH - PhoneKeyButton.FIELD_PADDING - this.textRenderer.getWidth(wait), textY, FIELD_WAIT, false);
         }
 
         if (shown.isEmpty()) {
@@ -293,12 +293,12 @@ public class DialScreen extends Screen {
                 return;
 
             context.drawText(this.textRenderer, Language.getInstance().reorder(this.textRenderer.trimToWidth(
-                    Text.translatable("screen.ait.phone.enter_number"), FIELD_WIDTH - 10)), x + 5, textY, FIELD_HINT, false);
+                    Text.translatable("screen.ait.phone.enter_number"), FIELD_WIDTH - PhoneKeyButton.FIELD_PADDING * 2)), x + PhoneKeyButton.FIELD_PADDING, textY, FIELD_HINT, false);
             return;
         }
 
         String cursor = this.digits.length() < PhoneDirectory.DIGITS && (this.ticks / 10) % 2 == 0 ? "_" : "";
-        context.drawText(this.textRenderer, shown + cursor, x + 5, textY, FIELD_TEXT, false);
+        context.drawText(this.textRenderer, shown + cursor, x + PhoneKeyButton.FIELD_PADDING, textY, FIELD_TEXT, false);
     }
 
     private void renderPaper(DrawContext context, int left, int top) {

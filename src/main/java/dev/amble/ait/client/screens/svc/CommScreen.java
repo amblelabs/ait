@@ -24,6 +24,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 public class CommScreen extends TardisScreen {
@@ -84,6 +85,7 @@ public class CommScreen extends TardisScreen {
     private int page = 0;
     private int ticks = 0;
     private boolean keypadOpen = false;
+    private int copiedTicks;
     private final StringBuilder digits = new StringBuilder();
     private final RotaryClicks clicks = new RotaryClicks();
     @Nullable private PhoneKeyButton dialButton;
@@ -138,6 +140,9 @@ public class CommScreen extends TardisScreen {
         super.tick();
 
         this.ticks++;
+
+        if (this.copiedTicks > 0)
+            this.copiedTicks--;
         this.clicks.tick();
         this.updateDialButton();
     }
@@ -353,6 +358,33 @@ public class CommScreen extends TardisScreen {
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
+    private boolean overNumber(double mouseX, double mouseY) {
+        State state = latest;
+
+        if (state == null || state.number().isEmpty())
+            return false;
+
+        int width = this.textRenderer.getWidth(Text.translatable("screen.ait.comms.own_number", state.number()));
+        int right = this.left() + HEADER_X + 3 + HEADER_WIDTH - 6;
+        int y = this.top() + HEADER_Y + 2;
+
+        return mouseX >= right - width && mouseX < right && mouseY >= y - 1 && mouseY < y + this.textRenderer.fontHeight + 1;
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        State state = latest;
+
+        if (button == 0 && state != null && this.overNumber(mouseX, mouseY)) {
+            MinecraftClient.getInstance().keyboard.setClipboard(state.number());
+            RotaryClicks.click(1.2f);
+            this.copiedTicks = 40;
+            return true;
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
     private void renderKeypad(DrawContext context, int x, int y) {
         int fieldX = x + (KEYPAD_WIDTH - PhoneKeyButton.FIELD_WIDTH) / 2;
         int fieldY = y + KEYPAD_FIELD_Y;
@@ -365,11 +397,12 @@ public class CommScreen extends TardisScreen {
         String shown = PhoneDirectory.format(this.digits.toString());
 
         if (shown.isEmpty()) {
-            this.screenLine(context, Text.translatable("screen.ait.phone.enter_number"), fieldX + 5, textY,
-                    PhoneKeyButton.FIELD_WIDTH - 10, KEYPAD_HINT);
+            this.screenLine(context, Text.translatable("screen.ait.phone.enter_number"), fieldX + PhoneKeyButton.FIELD_PADDING, textY,
+                    PhoneKeyButton.FIELD_WIDTH - PhoneKeyButton.FIELD_PADDING * 2, KEYPAD_HINT);
         } else {
             String cursor = this.digits.length() < PhoneDirectory.DIGITS && (this.ticks / 10) % 2 == 0 ? "_" : "";
-            this.screenLine(context, Text.literal(shown + cursor), fieldX + 5, textY, PhoneKeyButton.FIELD_WIDTH - 10, KEYPAD_TEXT);
+            this.screenLine(context, Text.literal(shown + cursor), fieldX + PhoneKeyButton.FIELD_PADDING, textY,
+                    PhoneKeyButton.FIELD_WIDTH - PhoneKeyButton.FIELD_PADDING * 2, KEYPAD_TEXT);
         }
     }
 
@@ -445,10 +478,17 @@ public class CommScreen extends TardisScreen {
         this.screenLine(context, this.title, textX, top + HEADER_Y + 2, textWidth, SCREEN_TEXT);
 
         if (state != null && !state.number().isEmpty()) {
-            Text number = Text.translatable("screen.ait.comms.own_number", state.number());
+            boolean hovered = this.overNumber(mouseX, mouseY);
+            Text number = this.copiedTicks > 0 ? Text.translatable("screen.ait.comms.copied")
+                    : Text.translatable("screen.ait.comms.own_number", state.number());
+
+            if (hovered)
+                number = number.copy().formatted(Formatting.UNDERLINE);
+
             int numberWidth = this.textRenderer.getWidth(number);
 
-            context.drawText(this.textRenderer, number, textX + textWidth - numberWidth, top + HEADER_Y + 2, SCREEN_TEXT_DIM, false);
+            context.drawText(this.textRenderer, number, textX + textWidth - numberWidth, top + HEADER_Y + 2,
+                    hovered || this.copiedTicks > 0 ? SCREEN_TEXT : SCREEN_TEXT_DIM, false);
         }
 
         if (state == null) {

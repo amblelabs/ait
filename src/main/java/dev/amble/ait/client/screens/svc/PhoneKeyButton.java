@@ -19,6 +19,7 @@ public class PhoneKeyButton extends ButtonWidget {
     public static final int FIELD_V = 143;
     public static final int FIELD_WIDTH = 84;
     public static final int FIELD_HEIGHT = 24;
+    public static final int FIELD_PADDING = 7;
 
     private static final int KEY_U = 1;
     private static final int KEY_V = 146;
