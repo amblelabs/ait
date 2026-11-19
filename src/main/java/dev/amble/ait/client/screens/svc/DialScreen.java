@@ -3,6 +3,7 @@ package dev.amble.ait.client.screens.svc;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.core.tardis.comms.PhoneDirectory;
 import dev.amble.ait.core.tardis.comms.RotaryPhones;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -10,39 +11,58 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import org.lwjgl.glfw.GLFW;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.Language;
 import net.minecraft.util.math.BlockPos;
 
 public class DialScreen extends Screen {
 
-    private static final int WIDTH = 200;
-    private static final int HEIGHT = 158;
+    private static final Identifier TEXTURE = AITMod.id("textures/gui/phone.png");
 
-    private static final int PAD = 8;
-    private static final int KEY_WIDTH = 34;
-    private static final int KEY_HEIGHT = 18;
-    private static final int KEY_GAP = 4;
-    private static final int PAD_WIDTH = KEY_WIDTH * 3 + KEY_GAP * 2;
+    private static final int WIDTH = 216;
+    private static final int HEIGHT = 138;
 
-    private static final int RECENT_X = PAD + PAD_WIDTH + 8;
-    private static final int RECENT_WIDTH = WIDTH - RECENT_X - PAD;
-    private static final int RECENT_HEIGHT = 16;
+    private static final int FIELD_U = 28;
+    private static final int FIELD_V = 143;
+    private static final int FIELD_WIDTH = 84;
+    private static final int FIELD_HEIGHT = 24;
+    private static final int FIELD_X = 10;
+    private static final int FIELD_Y = 11;
 
-    private static final int FRAME = 0xFF120E0B;
-    private static final int BODY = 0xFF2A211B;
-    private static final int SCREEN = 0xFF0C150C;
-    private static final int SCREEN_TEXT = 0x55FF55;
-    private static final int SCREEN_TEXT_DIM = 0x2E8B2E;
-    private static final int LABEL = 0xD8C8A8;
+    private static final int KEY_U = 1;
+    private static final int KEY_V = 146;
+    private static final int KEY_PRESSED_V = 166;
+    private static final int KEY_SIZE = 20;
+    private static final int KEY_PITCH = 22;
+    private static final int KEYS_X = 20;
+    private static final int KEYS_Y = 37;
 
-    private static final String[] KEYS = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "C", "0", "<" };
+    private static final int PAPER_X = 114;
+    private static final int PAPER_RIGHT = 188;
+    private static final int PAPER_Y = 25;
+    private static final int RECENTS_Y = 40;
+    private static final int RECENT_HEIGHT = 11;
+    private static final int MAX_RECENTS = 6;
+
+    private static final int FIELD_TEXT = 0x202020;
+    private static final int FIELD_HINT = 0x4A4A4A;
+    private static final int FIELD_WAIT = 0x7A1F1F;
+    private static final int KEY_TEXT = 0x3A3A3A;
+    private static final int INK = 0x3B2A1C;
+    private static final int INK_FADED = 0x8A7458;
+
+    private static final char BACKSPACE = '\b';
+    private static final char CALL = '\n';
+    private static final char[] KEYS = { '1', '2', '3', '4', '5', '6', '7', '8', '9', BACKSPACE, '0', CALL };
 
     private record Recent(String number, String label, boolean outgoing) {
     }
@@ -50,12 +70,12 @@ public class DialScreen extends Screen {
     private final BlockPos pos;
     private final String ownNumber;
     private final List<Recent> recents;
-    private int cooldown;
-
     private final StringBuilder digits = new StringBuilder();
-    private int pulses;
+    private final RotaryClicks clicks = new RotaryClicks();
+
+    private int cooldown;
     private int ticks;
-    private ButtonWidget dialButton;
+    private KeyButton callButton;
 
     private DialScreen(BlockPos pos, String ownNumber, int cooldown, List<Recent> recents) {
         super(Text.translatable("screen.ait.phone.title"));
@@ -92,38 +112,44 @@ public class DialScreen extends Screen {
     protected void init() {
         int left = this.left();
         int top = this.top();
-        int padTop = top + 46;
 
         for (int i = 0; i < KEYS.length; i++) {
-            String key = KEYS[i];
-            int x = left + PAD + (i % 3) * (KEY_WIDTH + KEY_GAP);
-            int y = padTop + (i / 3) * (KEY_HEIGHT + KEY_GAP);
+            char key = KEYS[i];
+            KeyButton button = this.addDrawableChild(new KeyButton(left + KEYS_X + (i % 3) * KEY_PITCH,
+                    top + KEYS_Y + (i / 3) * KEY_PITCH, label(key), pressed -> this.press(key)));
 
-            this.addDrawableChild(ButtonWidget.builder(Text.literal(key), button -> this.press(key))
-                    .dimensions(x, y, KEY_WIDTH, KEY_HEIGHT).build());
+            if (key == BACKSPACE)
+                button.setTooltip(Tooltip.of(Text.translatable("screen.ait.comms.backspace")));
+
+            if (key == CALL)
+                this.callButton = button;
         }
 
-        int dialY = padTop + 4 * (KEY_HEIGHT + KEY_GAP);
+        int limit = Math.min(this.recents.size(), MAX_RECENTS);
 
-        this.dialButton = this.addDrawableChild(ButtonWidget.builder(Text.translatable("screen.ait.phone.dial"), button -> this.dial())
-                .dimensions(left + PAD, dialY, PAD_WIDTH, KEY_HEIGHT).build());
-
-        for (int i = 0; i < this.recents.size(); i++) {
+        for (int i = 0; i < limit; i++) {
             Recent recent = this.recents.get(i);
             Text text = Text.literal((recent.outgoing() ? "→ " : "← ") + PhoneDirectory.format(recent.number()));
-            ButtonWidget button = ButtonWidget.builder(text, b -> this.setDigits(recent.number()))
-                    .dimensions(left + RECENT_X, top + 34 + i * (RECENT_HEIGHT + 2), RECENT_WIDTH, RECENT_HEIGHT).build();
+            RecentRow row = this.addDrawableChild(new RecentRow(left + PAPER_X, top + RECENTS_Y + i * RECENT_HEIGHT,
+                    PAPER_RIGHT - PAPER_X, text, pressed -> this.setDigits(recent.number())));
 
             Text tooltip = Text.translatable(recent.outgoing() ? "screen.ait.phone.outgoing" : "screen.ait.phone.incoming");
 
             if (!recent.label().isBlank())
                 tooltip = Text.literal(recent.label()).append("\n").append(tooltip);
 
-            button.setTooltip(Tooltip.of(tooltip));
-            this.addDrawableChild(button);
+            row.setTooltip(Tooltip.of(tooltip));
         }
 
-        this.updateDialButton();
+        this.updateCallButton();
+    }
+
+    private static Text label(char key) {
+        return switch (key) {
+            case BACKSPACE -> Text.translatable("screen.ait.phone.key.backspace");
+            case CALL -> Text.translatable("screen.ait.phone.key.call");
+            default -> Text.literal(String.valueOf(key));
+        };
     }
 
     @Override
@@ -131,40 +157,31 @@ public class DialScreen extends Screen {
         super.tick();
         this.ticks++;
 
-        if (this.cooldown > 0) {
+        if (this.cooldown > 0)
             this.cooldown--;
-            this.updateDialButton();
-        }
 
-        if (this.pulses > 0) {
-            this.pulses--;
-            this.click(1.6f + (this.pulses % 2) * 0.1f);
-            this.updateDialButton();
-        }
+        this.clicks.tick();
+        this.updateCallButton();
     }
 
-    private void updateDialButton() {
-        if (this.dialButton == null)
-            return;
-
-        boolean ready = this.cooldown <= 0;
-
-        this.dialButton.active = ready && !this.digits.isEmpty() && this.pulses <= 0;
-        this.dialButton.setMessage(ready ? Text.translatable("screen.ait.phone.dial")
-                : Text.translatable("screen.ait.phone.wait", (this.cooldown + 19) / 20));
+    private void updateCallButton() {
+        if (this.callButton != null)
+            this.callButton.active = this.cooldown <= 0 && !this.digits.isEmpty() && !this.clicks.turning();
     }
 
-    private void press(String key) {
+    private void press(char key) {
         switch (key) {
-            case "C" -> this.digits.setLength(0);
-            case "<" -> {
-                if (!this.digits.isEmpty())
+            case BACKSPACE -> {
+                if (Screen.hasShiftDown())
+                    this.digits.setLength(0);
+                else if (!this.digits.isEmpty())
                     this.digits.setLength(this.digits.length() - 1);
             }
-            default -> this.type(key.charAt(0));
+            case CALL -> this.dial();
+            default -> this.type(key);
         }
 
-        this.updateDialButton();
+        this.updateCallButton();
     }
 
     private void type(char digit) {
@@ -172,24 +189,18 @@ public class DialScreen extends Screen {
             return;
 
         this.digits.append(digit);
-        this.pulses += digit == '0' ? 10 : digit - '0';
-        this.click(1.2f);
+        this.clicks.dial(digit);
     }
 
     private void setDigits(String number) {
         this.digits.setLength(0);
         this.digits.append(PhoneDirectory.normalize(number));
-        this.click(1.2f);
-        this.updateDialButton();
-    }
-
-    private void click(float pitch) {
-        MinecraftClient.getInstance().getSoundManager().play(
-                PositionedSoundInstance.master(SoundEvents.BLOCK_COMPARATOR_CLICK, pitch, 0.35f));
+        RotaryClicks.click(1.2f);
+        this.updateCallButton();
     }
 
     private void dial() {
-        if (this.digits.isEmpty() || this.cooldown > 0)
+        if (this.callButton == null || !this.callButton.active)
             return;
 
         PacketByteBuf buf = PacketByteBufs.create();
@@ -204,7 +215,7 @@ public class DialScreen extends Screen {
     public boolean charTyped(char chr, int modifiers) {
         if (Character.isDigit(chr)) {
             this.type(chr);
-            this.updateDialButton();
+            this.updateCallButton();
             return true;
         }
 
@@ -214,12 +225,12 @@ public class DialScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == GLFW.GLFW_KEY_BACKSPACE) {
-            this.press("<");
+            this.press(BACKSPACE);
             return true;
         }
 
-        if ((keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) && this.dialButton.active) {
-            this.dial();
+        if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+            this.press(CALL);
             return true;
         }
 
@@ -233,38 +244,104 @@ public class DialScreen extends Screen {
         int left = this.left();
         int top = this.top();
 
-        context.fill(left, top, left + WIDTH, top + HEIGHT, FRAME);
-        context.fill(left + 2, top + 2, left + WIDTH - 2, top + HEIGHT - 2, BODY);
+        context.drawTexture(TEXTURE, left, top, 0, 0, WIDTH, HEIGHT, 256, 256);
+        context.drawTexture(TEXTURE, left + FIELD_X, top + FIELD_Y, FIELD_U, FIELD_V, FIELD_WIDTH, FIELD_HEIGHT, 256, 256);
 
-        context.drawText(this.textRenderer, this.title, left + PAD, top + PAD, LABEL, false);
-
-        Text own = Text.translatable("screen.ait.phone.own_number", PhoneDirectory.format(this.ownNumber));
-        context.drawText(this.textRenderer, own, left + WIDTH - PAD - this.textRenderer.getWidth(own), top + PAD, LABEL, false);
-
-        int screenTop = top + 22;
-        context.fill(left + PAD, screenTop, left + PAD + PAD_WIDTH, screenTop + 18, SCREEN);
-
-        String shown = PhoneDirectory.format(this.digits.toString());
-
-        if (shown.isEmpty()) {
-            context.drawText(this.textRenderer, Text.translatable("screen.ait.phone.enter_number"), left + PAD + 4, screenTop + 5,
-                    SCREEN_TEXT_DIM, false);
-        } else {
-            String cursor = this.digits.length() < PhoneDirectory.DIGITS && (this.ticks / 10) % 2 == 0 ? "_" : "";
-            context.drawText(this.textRenderer, shown + cursor, left + PAD + 4, screenTop + 5, SCREEN_TEXT, false);
-        }
-
-        context.drawText(this.textRenderer, Text.translatable("screen.ait.phone.recent"), left + RECENT_X, top + 22, LABEL, false);
-
-        if (this.recents.isEmpty())
-            context.drawText(this.textRenderer, Text.translatable("screen.ait.phone.no_recent"), left + RECENT_X, top + 36,
-                    0x8A7A60, false);
+        this.renderField(context, left + FIELD_X, top + FIELD_Y);
+        this.renderPaper(context, left, top);
 
         super.render(context, mouseX, mouseY, delta);
+    }
+
+    private void renderField(DrawContext context, int x, int y) {
+        int textY = y + (FIELD_HEIGHT - this.textRenderer.fontHeight) / 2 + 1;
+        String shown = PhoneDirectory.format(this.digits.toString());
+
+        if (this.cooldown > 0) {
+            Text wait = Text.translatable("screen.ait.phone.wait", (this.cooldown + 19) / 20);
+            context.drawText(this.textRenderer, wait, x + FIELD_WIDTH - 6 - this.textRenderer.getWidth(wait), textY, FIELD_WAIT, false);
+        }
+
+        if (shown.isEmpty()) {
+            context.drawText(this.textRenderer, Language.getInstance().reorder(this.textRenderer.trimToWidth(
+                    Text.translatable("screen.ait.phone.enter_number"), FIELD_WIDTH - 10)), x + 5, textY, FIELD_HINT, false);
+            return;
+        }
+
+        String cursor = this.digits.length() < PhoneDirectory.DIGITS && (this.ticks / 10) % 2 == 0 ? "_" : "";
+        context.drawText(this.textRenderer, shown + cursor, x + 5, textY, FIELD_TEXT, false);
+    }
+
+    private void renderPaper(DrawContext context, int left, int top) {
+        Text own = Text.translatable("screen.ait.phone.own_number", PhoneDirectory.format(this.ownNumber));
+        context.drawText(this.textRenderer, own, left + PAPER_RIGHT - this.textRenderer.getWidth(own), top + PAPER_Y, INK, false);
+
+        if (this.recents.isEmpty())
+            context.drawText(this.textRenderer, Text.translatable("screen.ait.phone.no_recent"), left + PAPER_X,
+                    top + RECENTS_Y, INK_FADED, false);
     }
 
     @Override
     public boolean shouldPause() {
         return false;
+    }
+
+    private static final class KeyButton extends ButtonWidget {
+
+        private KeyButton(int x, int y, Text message, PressAction action) {
+            super(x, y, KEY_SIZE, KEY_SIZE, message, action, DEFAULT_NARRATION_SUPPLIER);
+        }
+
+        @Override
+        protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+            int x = this.getX();
+            int y = this.getY();
+            boolean pressed = this.active && this.isSelected();
+
+            context.drawTexture(TEXTURE, x, y, KEY_U, pressed ? KEY_PRESSED_V : KEY_V, KEY_SIZE, KEY_SIZE, 256, 256);
+
+            TextRenderer font = MinecraftClient.getInstance().textRenderer;
+            int color = this.active ? KEY_TEXT : 0x8A8A8A;
+            int offset = pressed ? 1 : 0;
+            int width = font.getWidth(this.getMessage());
+
+            if (width <= KEY_SIZE - 4) {
+                context.drawText(font, this.getMessage(), x + (KEY_SIZE - width) / 2 + offset,
+                        y + (KEY_SIZE - font.fontHeight) / 2 + 1 + offset, color, false);
+                return;
+            }
+
+            List<OrderedText> lines = font.wrapLines(this.getMessage(), (KEY_SIZE - 2) * 2);
+            float scale = 0.5f;
+            float lineHeight = font.fontHeight * scale;
+            float startY = y + (KEY_SIZE - lines.size() * lineHeight) / 2 + offset;
+
+            context.getMatrices().push();
+            context.getMatrices().scale(scale, scale, 1);
+
+            for (int i = 0; i < lines.size(); i++) {
+                OrderedText line = lines.get(i);
+                float lineX = x + (KEY_SIZE - font.getWidth(line) * scale) / 2 + offset;
+
+                context.drawText(font, line, (int) (lineX / scale), (int) ((startY + i * lineHeight) / scale), color, false);
+            }
+
+            context.getMatrices().pop();
+        }
+    }
+
+    private static final class RecentRow extends ButtonWidget {
+
+        private RecentRow(int x, int y, int width, Text message, PressAction action) {
+            super(x, y, width, RECENT_HEIGHT, message, action, DEFAULT_NARRATION_SUPPLIER);
+        }
+
+        @Override
+        protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+            TextRenderer font = MinecraftClient.getInstance().textRenderer;
+            Text text = this.isSelected() ? this.getMessage().copy().formatted(Formatting.UNDERLINE) : this.getMessage();
+
+            context.drawText(font, Language.getInstance().reorder(font.trimToWidth(text, this.width)), this.getX(), this.getY() + 1, INK, false);
+        }
     }
 }

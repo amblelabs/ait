@@ -1389,6 +1389,8 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.phone.title", "Rotary Phone");
         provider.addTranslation("screen.ait.phone.own_number", "No. %s");
         provider.addTranslation("screen.ait.phone.dial", "Dial");
+        provider.addTranslation("screen.ait.phone.key.backspace", "back space");
+        provider.addTranslation("screen.ait.phone.key.call", "call");
         provider.addTranslation("screen.ait.phone.wait", "Wait %ss");
         provider.addTranslation("screen.ait.phone.enter_number", "Enter a number");
         provider.addTranslation("screen.ait.phone.recent", "Recent");
