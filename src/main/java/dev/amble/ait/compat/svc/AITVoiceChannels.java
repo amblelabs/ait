@@ -16,11 +16,29 @@ public final class AITVoiceChannels {
     private AITVoiceChannels() {
     }
 
+    /**
+     * Builds a Simple Voice Chat channel id that carries which kind of AIT audio it is, so the client can pick a filter
+     * from the id alone.
+     * <p>
+     * Layout of the most significant 64 bits: the top 32 bits are {@link #MAGIC} (marks the id as ours), the next 16 are
+     * the {@link Kind} ordinal, and the low 16 are kept from {@code source}. The least significant 64 bits are copied from
+     * {@code source} unchanged, so different senders still get distinct channels per kind.
+     *
+     * @param kind   what the audio is, decides the client-side filter
+     * @param source the sender (usually a player uuid) the channel belongs to
+     * @return a channel id that {@link #kindOf(UUID)} maps back to {@code kind}
+     */
     public static UUID tag(Kind kind, UUID source) {
         long high = MAGIC | ((long) kind.ordinal() << 16) | (source.getMostSignificantBits() & 0xFFFFL);
         return new UUID(high, source.getLeastSignificantBits());
     }
 
+    /**
+     * Reads the {@link Kind} back out of a channel id made by {@link #tag(Kind, UUID)}.
+     *
+     * @param channel a voice chat channel id
+     * @return the kind, or {@code null} if the id wasn't made by {@link #tag(Kind, UUID)} (or the ordinal is unknown)
+     */
     @Nullable public static Kind kindOf(UUID channel) {
         long high = channel.getMostSignificantBits();
 
