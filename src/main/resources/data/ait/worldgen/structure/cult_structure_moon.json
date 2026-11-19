@@ -1,6 +1,6 @@
 {
   "type": "minecraft:jigsaw",
-  "biomes": "ait:moon_biome",
+  "biomes": "#ait:is_moon",
   "max_distance_from_center": 115,
   "size": 7,
   "spawn_overrides": {

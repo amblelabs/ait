@@ -4,8 +4,198 @@
     "type": "minecraft:noise",
     "settings": "ait:mars",
     "biome_source": {
-      "type": "minecraft:fixed",
-      "biome": "ait:mars_biome"
+      "type": "minecraft:multi_noise",
+      "biomes": [
+        {
+          "biome": "ait:mars_polar",
+          "parameters": {
+            "temperature": [
+              -2.0,
+              -0.5
+            ],
+            "humidity": [
+              -2.0,
+              2.0
+            ],
+            "continentalness": [
+              -2.0,
+              2.0
+            ],
+            "erosion": [
+              -2.0,
+              2.0
+            ],
+            "weirdness": [
+              -2.0,
+              2.0
+            ],
+            "depth": 0,
+            "offset": 0
+          }
+        },
+        {
+          "biome": "ait:mars_volcanic",
+          "parameters": {
+            "temperature": [
+              -0.5,
+              2.0
+            ],
+            "humidity": [
+              -2.0,
+              2.0
+            ],
+            "continentalness": [
+              0.5,
+              2.0
+            ],
+            "erosion": [
+              -2.0,
+              2.0
+            ],
+            "weirdness": [
+              -2.0,
+              2.0
+            ],
+            "depth": 0,
+            "offset": 0
+          }
+        },
+        {
+          "biome": "ait:mars_canyons",
+          "parameters": {
+            "temperature": [
+              -0.5,
+              2.0
+            ],
+            "humidity": [
+              -2.0,
+              2.0
+            ],
+            "continentalness": [
+              -2.0,
+              0.5
+            ],
+            "erosion": [
+              0.05,
+              2.0
+            ],
+            "weirdness": [
+              -0.07,
+              0.07
+            ],
+            "depth": 0,
+            "offset": 0
+          }
+        },
+        {
+          "biome": "ait:mars_dunes",
+          "parameters": {
+            "temperature": [
+              -0.5,
+              2.0
+            ],
+            "humidity": [
+              0.15,
+              2.0
+            ],
+            "continentalness": [
+              -2.0,
+              0.5
+            ],
+            "erosion": [
+              -2.0,
+              0.05
+            ],
+            "weirdness": [
+              -2.0,
+              2.0
+            ],
+            "depth": 0,
+            "offset": 0
+          }
+        },
+        {
+          "biome": "ait:mars_biome",
+          "parameters": {
+            "temperature": [
+              -0.5,
+              2.0
+            ],
+            "humidity": [
+              -2.0,
+              0.15
+            ],
+            "continentalness": [
+              -2.0,
+              0.5
+            ],
+            "erosion": [
+              -2.0,
+              0.05
+            ],
+            "weirdness": [
+              -2.0,
+              2.0
+            ],
+            "depth": 0,
+            "offset": 0
+          }
+        },
+        {
+          "biome": "ait:mars_biome",
+          "parameters": {
+            "temperature": [
+              -0.5,
+              2.0
+            ],
+            "humidity": [
+              -2.0,
+              2.0
+            ],
+            "continentalness": [
+              -2.0,
+              0.5
+            ],
+            "erosion": [
+              0.05,
+              2.0
+            ],
+            "weirdness": [
+              -2.0,
+              -0.07
+            ],
+            "depth": 0,
+            "offset": 0
+          }
+        },
+        {
+          "biome": "ait:mars_biome",
+          "parameters": {
+            "temperature": [
+              -0.5,
+              2.0
+            ],
+            "humidity": [
+              -2.0,
+              2.0
+            ],
+            "continentalness": [
+              -2.0,
+              0.5
+            ],
+            "erosion": [
+              0.05,
+              2.0
+            ],
+            "weirdness": [
+              0.07,
+              2.0
+            ],
+            "depth": 0,
+            "offset": 0
+          }
+        }
+      ]
     }
   }
 }

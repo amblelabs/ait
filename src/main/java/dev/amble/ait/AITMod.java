@@ -46,6 +46,7 @@ import dev.amble.ait.data.landing.LandingPadRegion;
 import dev.amble.ait.data.schema.MachineRecipeSchema;
 import dev.amble.ait.module.ModuleRegistry;
 import dev.amble.ait.module.planet.core.space.planet.Crater;
+import dev.amble.ait.module.planet.core.world.CraterField;
 import dev.amble.ait.registry.impl.*;
 import dev.amble.ait.registry.impl.console.ConsoleRegistry;
 import dev.amble.ait.registry.impl.console.variant.ConsoleVariantRegistry;
@@ -211,6 +212,7 @@ public class AITMod implements ModInitializer {
                 CUSTOM_GEODE_PLACED_KEY);
 
         Registry.register(net.minecraft.registry.Registries.FEATURE, CRATER_ID, CRATER);
+        CraterField.register();
 
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
             TeleportInteriorCommand.register(dispatcher);

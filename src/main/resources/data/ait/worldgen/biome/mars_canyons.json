@@ -1,0 +1,64 @@
+{
+  "temperature": 1,
+  "downfall": 0,
+  "has_precipitation": false,
+  "effects": {
+    "sky_color": 15379555,
+    "fog_color": 15379555,
+    "water_color": 14001260,
+    "water_fog_color": 13670488,
+    "grass_color": 15379555,
+    "foliage_color": 15379555,
+    "music": {
+      "sound": "ambient.soul_sand_valley.additions",
+      "min_delay": 12000,
+      "max_delay": 24000,
+      "replace_current_music": true
+    },
+    "particle": {
+      "options": {
+        "type": "minecraft:dust",
+        "color": [
+          1.0,
+          0.78,
+          0.39
+        ],
+        "scale": 0.6
+      },
+      "probability": 0.002
+    }
+  },
+  "spawners": {},
+  "spawn_costs": {},
+  "carvers": {},
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      "ait:martian_ore_coal_upper",
+      "ait:martian_ore_coal_lower",
+      "ait:martian_ore_iron_upper",
+      "ait:martian_ore_iron_middle",
+      "ait:martian_ore_iron_small",
+      "ait:martian_ore_copper",
+      "ait:martian_ore_gold",
+      "ait:martian_ore_gold_lower",
+      "ait:martian_ore_redstone",
+      "ait:martian_ore_redstone_lower",
+      "ait:martian_ore_lapis",
+      "ait:martian_ore_lapis_buried",
+      "ait:martian_ore_diamond",
+      "ait:martian_ore_diamond_large",
+      "ait:martian_ore_diamond_buried",
+      "ait:mars_buried_ice"
+    ],
+    [],
+    [],
+    [],
+    []
+  ]
+}

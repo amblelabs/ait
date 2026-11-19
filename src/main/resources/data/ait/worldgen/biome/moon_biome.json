@@ -10,12 +10,7 @@
   },
   "spawners": {},
   "spawn_costs": {},
-  "carvers": {
-    "air": [
-      "minecraft:cave",
-      "minecraft:canyon"
-    ]
-  },
+  "carvers": {},
   "features": [
     [],
     [],
@@ -24,13 +19,26 @@
     [],
     [],
     [
-      "minecraft:ore_gold_extra",
-      "minecraft:ore_iron_upper",
-      "minecraft:ore_diamond_large"
+      "ait:anorthosite_ore_coal_upper",
+      "ait:anorthosite_ore_coal_lower",
+      "ait:anorthosite_ore_iron_upper",
+      "ait:anorthosite_ore_iron_middle",
+      "ait:anorthosite_ore_iron_small",
+      "ait:anorthosite_ore_copper",
+      "ait:anorthosite_ore_gold",
+      "ait:anorthosite_ore_gold_lower",
+      "ait:anorthosite_ore_redstone",
+      "ait:anorthosite_ore_redstone_lower",
+      "ait:anorthosite_ore_lapis",
+      "ait:anorthosite_ore_lapis_buried",
+      "ait:anorthosite_ore_diamond",
+      "ait:anorthosite_ore_diamond_large",
+      "ait:anorthosite_ore_diamond_buried",
+      "ait:anorthosite_ore_emerald"
     ],
     [],
     [],
-    [ "ait:crater"
-    ]
+    [],
+    []
   ]
 }

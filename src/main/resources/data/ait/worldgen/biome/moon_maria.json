@@ -1,0 +1,43 @@
+{
+  "temperature": 1,
+  "downfall": 0,
+  "has_precipitation": false,
+  "effects": {
+    "sky_color": 0,
+    "fog_color": 5197647,
+    "water_color": 4159204,
+    "water_fog_color": 329011
+  },
+  "spawners": {},
+  "spawn_costs": {},
+  "carvers": {},
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      "ait:anorthosite_ore_coal_upper",
+      "ait:anorthosite_ore_coal_lower",
+      "ait:anorthosite_ore_iron_upper",
+      "ait:anorthosite_ore_iron_middle",
+      "ait:anorthosite_ore_iron_small",
+      "ait:anorthosite_ore_copper",
+      "ait:anorthosite_ore_gold",
+      "ait:anorthosite_ore_gold_lower",
+      "ait:anorthosite_ore_redstone",
+      "ait:anorthosite_ore_redstone_lower",
+      "ait:anorthosite_ore_lapis",
+      "ait:anorthosite_ore_lapis_buried",
+      "ait:anorthosite_ore_diamond",
+      "ait:anorthosite_ore_diamond_large",
+      "ait:anorthosite_ore_diamond_buried"
+    ],
+    [],
+    [],
+    [],
+    []
+  ]
+}

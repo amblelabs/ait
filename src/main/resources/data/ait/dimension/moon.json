@@ -4,8 +4,63 @@
     "type": "minecraft:noise",
     "settings": "ait:moon",
     "biome_source": {
-      "type": "minecraft:fixed",
-      "biome": "ait:moon_biome"
+      "type": "minecraft:multi_noise",
+      "biomes": [
+        {
+          "biome": "ait:moon_maria",
+          "parameters": {
+            "temperature": [
+              -2.0,
+              2.0
+            ],
+            "humidity": [
+              -2.0,
+              2.0
+            ],
+            "continentalness": [
+              -2.0,
+              0.0
+            ],
+            "erosion": [
+              -2.0,
+              2.0
+            ],
+            "weirdness": [
+              -2.0,
+              2.0
+            ],
+            "depth": 0,
+            "offset": 0
+          }
+        },
+        {
+          "biome": "ait:moon_biome",
+          "parameters": {
+            "temperature": [
+              -2.0,
+              2.0
+            ],
+            "humidity": [
+              -2.0,
+              2.0
+            ],
+            "continentalness": [
+              0.0,
+              2.0
+            ],
+            "erosion": [
+              -2.0,
+              2.0
+            ],
+            "weirdness": [
+              -2.0,
+              2.0
+            ],
+            "depth": 0,
+            "offset": 0
+          }
+        }
+      ]
     }
   }
 }
