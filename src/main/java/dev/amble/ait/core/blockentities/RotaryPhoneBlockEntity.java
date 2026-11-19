@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 import dev.amble.ait.core.AITBlockEntityTypes;
+import dev.amble.ait.core.tardis.comms.RotaryPhones;
+import dev.amble.ait.core.world.TardisServerWorld;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
@@ -39,6 +41,11 @@ public class RotaryPhoneBlockEntity extends BlockEntity {
     }
 
     public static void tick(World world, BlockPos pos, BlockState state, RotaryPhoneBlockEntity phone) {
+        if (world instanceof TardisServerWorld interior) {
+            RotaryPhones.rememberExtension(interior, pos);
+            return;
+        }
+
         if (!world.isClient())
             return;
 
@@ -48,6 +55,14 @@ public class RotaryPhoneBlockEntity extends BlockEntity {
             phone.ringState.startIfNotRunning(phone.age);
         else
             phone.ringState.stop();
+    }
+
+    @Override
+    public void markRemoved() {
+        super.markRemoved();
+
+        if (this.world instanceof TardisServerWorld interior)
+            RotaryPhones.forgetExtension(interior, this.pos);
     }
 
     public int getAge() {

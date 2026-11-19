@@ -1,6 +1,8 @@
 package dev.amble.ait.core.tardis.comms;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import dev.amble.ait.compat.svc.CommsHandler;
@@ -13,11 +15,16 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 public sealed interface CommsLine {
@@ -25,6 +32,9 @@ public sealed interface CommsLine {
     double PHONE_HEARING = 8;
     float EXTERIOR_CLOSED_VOLUME = 0.35f;
     float EXTERIOR_OPEN_VOLUME = 0.9f;
+    float CONSOLE_VOLUME = 1.5f;
+    float PHONE_VOLUME = 1f;
+    float PHONE_PITCH = 1.15f;
 
     UUID id();
 
@@ -86,7 +96,7 @@ public sealed interface CommsLine {
         @Override
         public void ring() {
             if (this.tardis.hasWorld())
-                this.tardis.getDesktop().playSoundAtEveryConsole(AITSounds.TELEPHONE, SoundCategory.BLOCKS, 1.5f, 1f);
+                this.ringInterior(this.tardis.world());
 
             if (this.tardis.travel().getState() != TravelHandlerBase.State.LANDED)
                 return;
@@ -96,6 +106,51 @@ public sealed interface CommsLine {
             if (exterior != null && exterior.getWorld() != null)
                 exterior.getWorld().playSound(null, exterior.getPos(), AITSounds.TELEPHONE, SoundCategory.BLOCKS,
                         this.tardis.door().isOpen() ? EXTERIOR_OPEN_VOLUME : EXTERIOR_CLOSED_VOLUME, 1f);
+        }
+
+        private void ringInterior(ServerWorld interior) {
+            Set<BlockPos> consoles = this.tardis.getDesktop().getConsolePos();
+            Set<BlockPos> phones = RotaryPhones.extensions(interior);
+            Set<BlockPos> ringing = new HashSet<>();
+            RegistryEntry<SoundEvent> sound = Registries.SOUND_EVENT.getEntry(AITSounds.TELEPHONE);
+
+            for (ServerPlayerEntity player : interior.getPlayers()) {
+                BlockPos nearest = null;
+                boolean phone = false;
+                double best = Double.MAX_VALUE;
+
+                for (BlockPos pos : consoles) {
+                    double distance = player.squaredDistanceTo(Vec3d.ofCenter(pos));
+
+                    if (distance < best) {
+                        best = distance;
+                        nearest = pos;
+                        phone = false;
+                    }
+                }
+
+                for (BlockPos pos : phones) {
+                    double distance = player.squaredDistanceTo(Vec3d.ofCenter(pos));
+
+                    if (distance < best) {
+                        best = distance;
+                        nearest = pos;
+                        phone = true;
+                    }
+                }
+
+                if (nearest == null)
+                    continue;
+
+                if (phone)
+                    ringing.add(nearest);
+
+                Vec3d at = Vec3d.ofCenter(nearest);
+                player.networkHandler.sendPacket(new PlaySoundS2CPacket(sound, SoundCategory.BLOCKS, at.x, at.y, at.z,
+                        phone ? PHONE_VOLUME : CONSOLE_VOLUME, phone ? PHONE_PITCH : 1f, interior.getRandom().nextLong()));
+            }
+
+            RotaryPhones.ringExtensions(interior, ringing);
         }
 
         @Override
@@ -156,7 +211,7 @@ public sealed interface CommsLine {
         @Override
         public void ring() {
             if (this.world.isChunkLoaded(this.entry.pos()))
-                this.world.playSound(null, this.entry.pos(), AITSounds.TELEPHONE, SoundCategory.BLOCKS, 1f, 1.15f);
+                this.world.playSound(null, this.entry.pos(), AITSounds.TELEPHONE, SoundCategory.BLOCKS, PHONE_VOLUME, PHONE_PITCH);
         }
 
         @Override

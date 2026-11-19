@@ -3,6 +3,7 @@ package dev.amble.ait.core.blocks;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.blockentities.RotaryPhoneBlockEntity;
 import dev.amble.ait.core.tardis.comms.RotaryPhones;
+import dev.amble.ait.core.world.TardisServerWorld;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -111,6 +112,6 @@ public class RotaryPhoneBlock extends BlockWithEntity {
 
     @Nullable @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return world.isClient() ? checkType(type, AITBlockEntityTypes.ROTARY_PHONE_BLOCK_ENTITY_TYPE, RotaryPhoneBlockEntity::tick) : null;
+        return world.isClient() || world instanceof TardisServerWorld ? checkType(type, AITBlockEntityTypes.ROTARY_PHONE_BLOCK_ENTITY_TYPE, RotaryPhoneBlockEntity::tick) : null;
     }
 }

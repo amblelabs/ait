@@ -1376,7 +1376,6 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("tardis.message.comms.no_trace", "No active call to trace.");
         provider.addTranslation("tardis.message.comms.untraceable", "That TARDIS has call tracing disabled.");
         provider.addTranslation("tardis.message.comms.no_answer", "No answer.");
-        provider.addTranslation("tardis.message.comms.no_callback", "That phone hasn't called this TARDIS.");
         provider.addTranslation("tardis.message.comms.handed", "Handed the phone to %s");
         provider.addTranslation("tardis.message.comms.handed_you", "%s handed you the phone");
         provider.addTranslation("screen.ait.comms.short.keypad", "Keypad");

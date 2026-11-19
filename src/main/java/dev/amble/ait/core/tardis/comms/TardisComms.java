@@ -209,11 +209,6 @@ public final class TardisComms {
         CommsLine target = CommsLine.resolve(server, targetId);
         PhoneDirectory directory = PhoneDirectory.get(server);
 
-        if (from instanceof CommsLine.Tardis && target instanceof CommsLine.Phone && !directory.canCallBack(from.id(), targetId)) {
-            CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.no_callback").formatted(Formatting.RED));
-            return false;
-        }
-
         if (target == null || !target.accepts()) {
             CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.unavailable").formatted(Formatting.RED));
             return false;

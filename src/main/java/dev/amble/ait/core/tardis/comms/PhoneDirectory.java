@@ -105,10 +105,6 @@ public class PhoneDirectory extends PersistentState {
         this.markDirty();
     }
 
-    public boolean canCallBack(UUID tardis, UUID phone) {
-        return this.callbacks.getOrDefault(tardis, List.of()).contains(phone);
-    }
-
     public List<Entry> callbacks(UUID tardis) {
         List<Entry> result = new ArrayList<>();
 

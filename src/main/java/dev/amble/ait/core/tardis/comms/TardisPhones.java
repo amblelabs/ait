@@ -1,5 +1,6 @@
 package dev.amble.ait.core.tardis.comms;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -136,10 +137,27 @@ public final class TardisPhones {
             return;
 
         if (give(player, new Handset(UUID.randomUUID(), tardis.getUuid(), control.getUuid(), player.getUuid(),
-                world.getRegistryKey(), control.getPos().add(0, control.getHeight() / 2, 0), false), control.getBlockPos())) {
-            CommsHandler.of(tardis).handset().set(true);
-            TardisComms.markDirty(tardis.getUuid());
-        }
+                world.getRegistryKey(), control.getPos().add(0, control.getHeight() / 2, 0), false), control.getBlockPos()))
+            lifted(tardis);
+    }
+
+    public static void liftExtension(ServerPlayerEntity player, ServerTardis tardis, ServerWorld world, BlockPos pos) {
+        if (give(player, new Handset(UUID.randomUUID(), tardis.getUuid(), extensionAnchor(world, pos), player.getUuid(),
+                world.getRegistryKey(), Vec3d.ofBottomCenter(pos).add(0, 0.3, 0), false), pos))
+            lifted(tardis);
+    }
+
+    public static UUID extensionAnchor(ServerWorld world, BlockPos pos) {
+        return UUID.nameUUIDFromBytes(("extension:" + world.getRegistryKey().getValue() + ":" + pos.asLong()).getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static boolean anchored(UUID anchorId) {
+        return BY_ANCHOR.containsKey(anchorId);
+    }
+
+    private static void lifted(ServerTardis tardis) {
+        CommsHandler.of(tardis).handset().set(true);
+        TardisComms.markDirty(tardis.getUuid());
     }
 
     public static boolean liftPhone(ServerPlayerEntity player, ServerWorld world, PhoneDirectory.Entry entry) {
@@ -186,6 +204,13 @@ public final class TardisPhones {
         player.getServerWorld().playSound(null, BlockPos.ofFloored(handset.anchor()), SoundEvents.ITEM_ARMOR_EQUIP_CHAIN,
                 SoundCategory.BLOCKS, 0.8f, 0.9f);
         return true;
+    }
+
+    public static void releaseAnchor(MinecraftServer server, UUID anchorId) {
+        Handset handset = BY_ANCHOR.get(anchorId);
+
+        if (handset != null)
+            release(server, handset, false);
     }
 
     public static void releaseLine(MinecraftServer server, UUID line) {
