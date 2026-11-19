@@ -21,7 +21,8 @@ public final class AITVoiceFilters {
     public static void onStaticSound(ClientReceiveSoundEvent.StaticSound event) {
         AITVoiceChannels.Kind kind = AITVoiceChannels.kindOf(event.getId());
 
-        if (kind == null || kind == AITVoiceChannels.Kind.MUFFLED || kind == AITVoiceChannels.Kind.EARPIECE
+        if (kind == null || kind == AITVoiceChannels.Kind.MUFFLED || kind == AITVoiceChannels.Kind.MUFFLED_OUTSIDE
+                || kind == AITVoiceChannels.Kind.EARPIECE
                 || !AITModClient.CONFIG.voiceFilters)
             return;
 
@@ -31,7 +32,8 @@ public final class AITVoiceFilters {
     public static void onLocationalSound(ClientReceiveSoundEvent.LocationalSound event) {
         AITVoiceChannels.Kind kind = AITVoiceChannels.kindOf(event.getId());
 
-        if (kind == AITVoiceChannels.Kind.MUFFLED || kind == AITVoiceChannels.Kind.EARPIECE)
+        if (kind == AITVoiceChannels.Kind.MUFFLED || kind == AITVoiceChannels.Kind.MUFFLED_OUTSIDE
+                || kind == AITVoiceChannels.Kind.EARPIECE)
             apply(event, kind);
     }
 
@@ -46,6 +48,7 @@ public final class AITVoiceFilters {
             case COMMS -> new TelephoneFilter();
             case BROADCAST -> new TannoyFilter();
             case MUFFLED -> new MuffleFilter();
+            case MUFFLED_OUTSIDE -> new HeavyMuffleFilter();
             case EARPIECE -> new EarpieceFilter(AITModClient.CONFIG.voiceFilters);
         });
 
@@ -106,6 +109,16 @@ public final class AITVoiceFilters {
         @Override
         double sample(double input) {
             return (this.telephone == null ? input : this.telephone.sample(input)) * GAIN;
+        }
+    }
+
+    private static final class HeavyMuffleFilter extends Filter {
+        private final Biquad highCut1 = Biquad.lowPass(900, 0.707);
+        private final Biquad highCut2 = Biquad.lowPass(900, 0.707);
+
+        @Override
+        double sample(double input) {
+            return this.highCut2.process(this.highCut1.process(input)) * 0.6;
         }
     }
 

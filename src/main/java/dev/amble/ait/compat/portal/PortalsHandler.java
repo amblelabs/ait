@@ -69,8 +69,8 @@ public class PortalsHandler extends KeyedTardisComponent {
 
             return open.stream()
                     .filter(portal -> !portal.isRemoved())
-                    .map(portal -> new VoiceLink(portal.getWorld().getRegistryKey(), portal.getOriginPos(),
-                            portal.getDestDim(), portal::transformPoint, false))
+                    .map(portal -> VoiceLink.portal(portal.getWorld().getRegistryKey(), portal.getOriginPos(),
+                            portal.getDestDim(), portal::transformPoint))
                     .toList();
         };
 

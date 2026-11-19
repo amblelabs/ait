@@ -19,6 +19,8 @@ import net.minecraft.world.World;
 
 public final class AITVoiceDoors {
 
+    private static final double DOORWAY_OFFSET = 0.6;
+
     private static volatile List<VoiceLink> links = List.of();
 
     private AITVoiceDoors() {
@@ -50,24 +52,14 @@ public final class AITVoiceDoors {
             if (exterior == null || exterior.getWorld() == null || door == null)
                 return;
 
-            double turn = Math.toRadians(180 + RotationPropertyHelper.toDegrees(exterior.getRotation())
-                    - RotationPropertyHelper.toDegrees(door.getRotation()));
-
             RegistryKey<World> interiorDim = tardis.world().getRegistryKey();
             RegistryKey<World> exteriorDim = exterior.getDimension();
             Vec3d inside = door.getPos().toCenterPos().add(0, 0.5, 0);
-            Vec3d outside = exterior.getPos().toCenterPos().add(0, 0.5, 0);
+            double facing = Math.toRadians(RotationPropertyHelper.toDegrees(exterior.getRotation()));
+            Vec3d outside = exterior.getPos().toCenterPos().add(Math.sin(facing) * DOORWAY_OFFSET, 0.5, -Math.cos(facing) * DOORWAY_OFFSET);
 
-            if (closed) {
-                current.add(new VoiceLink(interiorDim, inside, exteriorDim, point -> outside, true));
-                current.add(new VoiceLink(exteriorDim, outside, interiorDim, point -> inside, true));
-                return;
-            }
-
-            current.add(new VoiceLink(interiorDim, inside, exteriorDim,
-                    point -> outside.add(point.subtract(inside).rotateY((float) -turn)), false));
-            current.add(new VoiceLink(exteriorDim, outside, interiorDim,
-                    point -> inside.add(point.subtract(outside).rotateY((float) turn)), false));
+            current.add(VoiceLink.door(interiorDim, inside, exteriorDim, outside, closed ? VoiceLink.Muffle.OUTSIDE : VoiceLink.Muffle.NONE));
+            current.add(VoiceLink.door(exteriorDim, outside, interiorDim, inside, closed ? VoiceLink.Muffle.INSIDE : VoiceLink.Muffle.NONE));
         });
 
         links = List.copyOf(current);

@@ -59,7 +59,7 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
         return AITMod.MOD_ID + "_plugin";
     }
 
-    private static final double MUFFLED_REACH = 0.5;
+    private static final double CLOSED_DOOR_DISTANCE = 1.6;
     private static final Identifier CATEGORY_ICON = AITMod.id("textures/item/phone");
     private static final float EARPIECE_REACH = 4f;
 
@@ -264,10 +264,9 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
             if (!link.fromDim().equals(dimension))
                 continue;
 
-            double distance = mouth.distanceTo(link.from());
-            float reach = link.muffled() ? (float) ((range - distance) * MUFFLED_REACH) : (float) range;
+            double toDoor = mouth.distanceTo(link.from());
 
-            if (distance > range || reach < 1)
+            if (toDoor > range)
                 continue;
 
             ServerWorld target = server.getWorld(link.toDim());
@@ -275,29 +274,72 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
             if (target == null)
                 continue;
 
-            Vec3d source = link.transform().apply(mouth);
-            Position position = api.createPosition(source.x, source.y, source.z);
-            LocationalSoundPacket.Builder<?> builder = event.getPacket().locationalSoundPacketBuilder()
-                    .position(position)
-                    .distance(reach);
+            if (link.exit() == null) {
+                Vec3d source = link.transform().apply(mouth);
+                Position position = api.createPosition(source.x, source.y, source.z);
+                LocationalSoundPacket packet = event.getPacket().locationalSoundPacketBuilder()
+                        .position(position)
+                        .distance((float) range)
+                        .build();
 
-            if (link.muffled())
-                builder.channelId(AITVoiceChannels.tag(AITVoiceChannels.Kind.MUFFLED, senderId));
+                for (ServerPlayer listener : api.getPlayersInRange(api.fromServerLevel(target), position, range))
+                    this.sendLocational(api, listener.getUuid(), senderId, reached, packet);
 
-            LocationalSoundPacket packet = builder.build();
-
-            for (ServerPlayer listener : api.getPlayersInRange(api.fromServerLevel(target), position, reach)) {
-                UUID listenerId = listener.getUuid();
-
-                if (listenerId.equals(senderId) || !reached.add(listenerId))
-                    continue;
-
-                VoicechatConnection connection = api.getConnectionOf(listenerId);
-
-                if (connection != null && connection.isConnected() && !connection.isDisabled())
-                    api.sendLocationalSoundPacketTo(connection, packet);
+                continue;
             }
+
+            this.relayThroughDoor(event, api, link, target, senderId, toDoor, range, reached);
         }
+    }
+
+    private void relayThroughDoor(MicrophonePacketEvent event, VoicechatServerApi api, VoiceLink link, ServerWorld target,
+                                  UUID senderId, double toDoor, double range, Set<UUID> reached) {
+        Vec3d exit = link.exit();
+        double factor = link.muffle() == VoiceLink.Muffle.NONE ? 1.0 : CLOSED_DOOR_DISTANCE;
+        double listenerReach = range / factor - toDoor;
+
+        if (listenerReach <= 0)
+            return;
+
+        Position door = api.createPosition(exit.x, exit.y, exit.z);
+        AITVoiceChannels.Kind kind = switch (link.muffle()) {
+            case NONE -> null;
+            case INSIDE -> AITVoiceChannels.Kind.MUFFLED;
+            case OUTSIDE -> AITVoiceChannels.Kind.MUFFLED_OUTSIDE;
+        };
+
+        for (ServerPlayer listener : api.getPlayersInRange(api.fromServerLevel(target), door, listenerReach)) {
+            Position at = listener.getPosition();
+            Vec3d ear = new Vec3d(at.getX(), at.getY(), at.getZ());
+            Vec3d toward = exit.subtract(ear);
+            double fromDoor = toward.length();
+            double total = (toDoor + fromDoor) * factor;
+
+            if (total > range)
+                continue;
+
+            Vec3d direction = fromDoor < 1.0E-3 ? Vec3d.ZERO : toward.multiply(1 / fromDoor);
+            Vec3d source = exit.add(direction.multiply(total - fromDoor));
+
+            LocationalSoundPacket.Builder<?> builder = event.getPacket().locationalSoundPacketBuilder()
+                    .position(api.createPosition(source.x, source.y, source.z))
+                    .distance((float) range);
+
+            if (kind != null)
+                builder.channelId(AITVoiceChannels.tag(kind, senderId));
+
+            this.sendLocational(api, listener.getUuid(), senderId, reached, builder.build());
+        }
+    }
+
+    private void sendLocational(VoicechatServerApi api, UUID listenerId, UUID senderId, Set<UUID> reached, LocationalSoundPacket packet) {
+        if (listenerId.equals(senderId) || !reached.add(listenerId))
+            return;
+
+        VoicechatConnection connection = api.getConnectionOf(listenerId);
+
+        if (connection != null && connection.isConnected() && !connection.isDisabled())
+            api.sendLocationalSoundPacketTo(connection, packet);
     }
 
     public void onServerStarted(VoicechatServerStartedEvent event) {
