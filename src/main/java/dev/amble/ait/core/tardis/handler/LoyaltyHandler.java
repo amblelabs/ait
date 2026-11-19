@@ -16,6 +16,7 @@ import dev.amble.ait.core.likes.ItemOpinion;
 import dev.amble.ait.core.likes.ItemOpinionRegistry;
 import dev.amble.ait.core.sounds.flight.FlightSound;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
+import dev.amble.ait.core.sounds.landing.LandingNotificationRegistry;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
@@ -165,7 +166,7 @@ public class LoyaltyHandler extends TardisComponent implements TardisTickable {
         return List.of(ConsoleVariantRegistry.getInstance(), DesktopRegistry.getInstance(),
                 ExteriorVariantRegistry.getInstance(), SonicRegistry.getInstance(), HumRegistry.getInstance(),
                 VortexReferenceRegistry.getInstance(), FlightSoundRegistry.getInstance(),
-                TardisAnimationRegistry.getInstance());
+                LandingNotificationRegistry.getInstance(), TardisAnimationRegistry.getInstance());
     }
 
     private void playUnlockEffects(ServerPlayerEntity player, Nameable nameable) {

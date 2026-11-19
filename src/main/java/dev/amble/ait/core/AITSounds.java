@@ -60,6 +60,17 @@ public class AITSounds {
     public static final SoundEvent POLICE_BOX_DOOR_CLOSE = register("tardis/police_box_door_close");
     public static final SoundEvent TARDIS_BLING = register("tardis/bling");
     public static final SoundEvent NAV_NOTIFICATION = register("tardis/nav_notification");
+    public static final SoundEvent LANDING_AIRPLANE = register("landing_notifications/airplane");
+    public static final SoundEvent LANDING_BIGBEN = register("landing_notifications/bigben");
+    public static final SoundEvent LANDING_CAR = register("landing_notifications/car");
+    public static final SoundEvent LANDING_JAPAN = register("landing_notifications/japan");
+    public static final SoundEvent LANDING_MINE = register("landing_notifications/mine");
+    public static final SoundEvent LANDING_NOTE = register("landing_notifications/note");
+    public static final SoundEvent LANDING_QUESTION = register("landing_notifications/question");
+    public static final SoundEvent LANDING_RING = register("landing_notifications/ring");
+    public static final SoundEvent LANDING_TESLA = register("landing_notifications/tesla");
+    public static final SoundEvent LANDING_THEME = register("landing_notifications/theme");
+    public static final SoundEvent LANDING_WESTMINSTER = register("landing_notifications/westminster");
     public static final SoundEvent SHIELD_AMBIANCE = register("tardis/shield_ambiance");
     public static final SoundEvent CRUMPLE = register("tardis/crumple");
     public static final SoundEvent TELEPHONE = register("tardis/telephone");

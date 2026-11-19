@@ -1,5 +1,9 @@
 package dev.amble.ait.core.tardis.handler.distress;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
@@ -15,6 +19,8 @@ import dev.amble.lib.data.CachedDirectedGlobalPos;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.MinecraftClient;
@@ -35,6 +41,28 @@ import net.minecraft.util.math.Vec3d;
 
 public record DistressCall(Sender sender, String message, int lifetime, int creationTime, boolean isSourceCall) {
     private static final int DEFAULT_LIFETIME = 120 * 20; // 2 minute default lifetime
+    private static final Map<UUID, List<DistressCall>> PENDING = new HashMap<>();
+    private static final int DELIVERY_INTERVAL = 20;
+
+    public static void init() {
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            if (PENDING.isEmpty() || server.getTicks() % DELIVERY_INTERVAL != 0)
+                return;
+
+            PENDING.entrySet().removeIf(entry -> {
+                ServerTardis target = ServerTardisManager.getInstance().demandTardis(server, entry.getKey());
+
+                if (target == null)
+                    return true;
+
+                entry.getValue().removeIf(call -> !call.isValid(server.getTicks()) || call.deliver(target));
+                return entry.getValue().isEmpty();
+            });
+        });
+
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> PENDING.clear());
+    }
+
 
     private static DistressCall createTardis(UUID tardis, String message, MinecraftServer server, int lifetime, boolean isSourceCall) {
         return new DistressCall(new TardisSender(tardis), message, lifetime, server.getTicks(), isSourceCall);
@@ -136,17 +164,23 @@ public record DistressCall(Sender sender, String message, int lifetime, int crea
         if (this.isSource(target.getUuid())) return; // dont send to self
         if (!target.stats().receiveCalls().get()) return; // ignore if doesnt want to receive
 
-        // spawn distress item at door
-        ServerWorld world = target.world();
+        MinecraftServer server = ServerLifecycleHooks.get();
+        DistressCall received = copyForSend(this, server.getTicks());
 
+        if (!received.deliver(target))
+            PENDING.computeIfAbsent(target.getUuid(), uuid -> new ArrayList<>()).add(received);
+    }
+
+    private boolean deliver(ServerTardis target) {
+        if (!target.hasWorld() || target.getDesktop().getDoorPos() == null)
+            return false;
+
+        ServerWorld world = target.world();
         Vec3d pos = TardisUtil.offsetInteriorDoorPosition(target);
 
-        ItemStack created = HypercubeItem.create(copyForSend(this, world.getServer().getTicks()));
-        ItemEntity entity = new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), created);
-
-        world.spawnEntity(entity);
-
+        world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), HypercubeItem.create(this)));
         world.playSound(null, BlockPos.ofFloored(pos), AITSounds.DING, SoundCategory.PLAYERS, 1.0F, 1F);
+        return true;
     }
     public boolean isSource(UUID uuid) {
         return uuid.equals(this.sender().getUuid());
@@ -172,13 +206,13 @@ public record DistressCall(Sender sender, String message, int lifetime, int crea
                 data.getBoolean("IsSourceCall")
         );
     }
-    public static DistressCall fromNbt(NbtCompound data, int ticks) {
+    @Nullable public static DistressCall fromNbt(NbtCompound data, int ticks) {
         NbtCompound sender = data.getCompound("Sender");
 
-        if (sender.contains("Tardis")) return fromTardisNbt(data, ticks);
-        if (sender.contains("Player")) return fromPlayerNbt(data, ticks);
+        if (sender.containsUuid("Tardis")) return fromTardisNbt(data, ticks);
+        if (sender.containsUuid("Player")) return fromPlayerNbt(data, ticks);
 
-        throw new IllegalStateException();
+        return null;
     }
     public static DistressCall fromTardisNbt(NbtCompound data, int ticks) {
         return fromNbt(new TardisSender(data.getCompound("Sender").getUuid("Tardis")), data, ticks);
@@ -279,11 +313,7 @@ public record DistressCall(Sender sender, String message, int lifetime, int crea
 
         @Override
         public CachedDirectedGlobalPos position() {
-            if (this.player() == null) return CachedDirectedGlobalPos.create(
-                    ServerLifecycleHooks.get().getOverworld(),
-                    BlockPos.ORIGIN,
-                    (byte)0
-            );
+            if (this.player() == null) return null;
 
             if (this.player().getWorld() instanceof TardisServerWorld tardisWorld)
                 return tardisWorld.getTardis().travel().position();
@@ -304,7 +334,12 @@ public record DistressCall(Sender sender, String message, int lifetime, int crea
 
         @Override
         public void playSoundAt(SoundEvent event, float pitch) {
-            this.position().getWorld().playSound(null, this.position().getPos(), event, SoundCategory.PLAYERS, 1.0F, pitch);
+            CachedDirectedGlobalPos position = this.position();
+
+            if (position == null || position.getWorld() == null)
+                return;
+
+            position.getWorld().playSound(null, position.getPos(), event, SoundCategory.PLAYERS, 1.0F, pitch);
         }
 
         @Override

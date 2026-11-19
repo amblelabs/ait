@@ -256,3 +256,6 @@
 - fix: adaptive exterior issue where it wouldnt disappear properly | by [@Loqor](https://github.com/Loqor)
 - feat: new space tool textures from Gate the MC | by [@Loqor](https://github.com/Loqor)
 - fix: boti fog | by [@Loqor](https://github.com/Loqor)
+- feat: glowing cables! | by [@Loqor](https://github.com/Loqor)
+- feat: point with the sonic screwdriver! | by [@Loqor](https://github.com/Loqor)
+- fix: hypercube crashing! | by [@Loqor](https://github.com/Loqor)

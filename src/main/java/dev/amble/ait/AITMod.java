@@ -27,10 +27,12 @@ import dev.amble.ait.core.likes.ItemOpinionRegistry;
 import dev.amble.ait.core.lock.LockedDimensionRegistry;
 import dev.amble.ait.core.loot.SetBlueprintLootFunction;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
+import dev.amble.ait.core.sounds.landing.LandingNotificationRegistry;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.animation.v2.blockbench.BlockbenchParser;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
+import dev.amble.ait.core.tardis.handler.distress.DistressCall;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.AsyncLocatorUtil;
 import dev.amble.ait.core.tardis.util.TardisUtil;
@@ -151,6 +153,7 @@ public class AITMod implements ModInitializer {
                 ConsoleVariantRegistry.getInstance(),
                 MachineRecipeRegistry.getInstance(),
                 FlightSoundRegistry.getInstance(),
+                LandingNotificationRegistry.getInstance(),
                 VortexReferenceRegistry.getInstance(),
                 BlueprintRegistry.getInstance(),
                 ExteriorVariantRegistry.getInstance(),
@@ -199,6 +202,7 @@ public class AITMod implements ModInitializer {
         TardisUtil.init();
 
         ServerTardisManager.init();
+        DistressCall.init();
         TardisCriterions.init();
 
         entityAttributeRegister();

@@ -60,6 +60,7 @@
     "client.rendering.ItemEntityRendererMixin",
     "client.rendering.PlayerEntityRendererMixin",
     "client.rendering.SkyboxMixin",
+    "client.rendering.SonicPointingMixin",
     "client.rendering.VertexBufferWrapper",
     "client.rendering.framebuffer.MixinMainFramebufferTarget",
     "client.rendering.framebuffer.MixinRenderFramebufferTarget",

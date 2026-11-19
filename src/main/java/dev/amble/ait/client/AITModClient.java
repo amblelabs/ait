@@ -23,6 +23,7 @@ import dev.amble.ait.client.models.decoration.TrenzalorePaintingModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.overlays.*;
 import dev.amble.ait.client.renderers.EmissiveGeometry;
+import dev.amble.ait.client.renderers.EmissiveOverlayModel;
 import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.client.renderers.TardisStar;
 import dev.amble.ait.client.renderers.consoles.ConsoleGeneratorRenderer;
@@ -163,6 +164,7 @@ public class AITModClient implements ClientModInitializer {
         // the renderers would let the first draw through and reject every one after it.
         ClientRenderPass.init();
         EmissiveGeometry.init();
+        EmissiveOverlayModel.init();
 
         AITKeyBinds.init();
 
@@ -468,6 +470,7 @@ public class AITModClient implements ClientModInitializer {
         BlockEntityRendererFactories.register(AITBlockEntityTypes.FOOD_MACHINE_BLOCK_ENTITY_TYPE,
                 FoodMachineRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ASTRAL_MAP, AstralMapRenderer::new);
+        BlockEntityRendererFactories.register(AITBlockEntityTypes.CABLE_BLOCK_ENTITY_TYPE, CableEmissionRenderer::new);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.ROTARY_PHONE_BLOCK_ENTITY_TYPE, RotaryPhoneRenderer::new);
         BuiltinItemRendererRegistry.INSTANCE.register(AITBlocks.ROTARY_PHONE, RotaryPhoneRenderer::renderItem);
         BlockEntityRendererFactories.register(AITBlockEntityTypes.POTTED_SONIC_SCREWDRIVER_BLOCK_ENTITY_TYPE, PottedSonicScrewdriverRenderer::new);

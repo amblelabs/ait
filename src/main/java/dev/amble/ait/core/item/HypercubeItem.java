@@ -14,6 +14,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -91,9 +92,9 @@ public class HypercubeItem extends Item {
         tooltip.add(call.sender().getTooltip());
     }
 
-    public static DistressCall getCall(ItemStack stack, int ticks) {
-        NbtCompound data = stack.getOrCreateNbt();
-        if (!data.contains(DISTRESS_CALL_KEY)) return null;
+    @Nullable public static DistressCall getCall(ItemStack stack, int ticks) {
+        NbtCompound data = stack.getNbt();
+        if (data == null || !data.contains(DISTRESS_CALL_KEY, NbtElement.COMPOUND_TYPE)) return null;
 
         return DistressCall.fromNbt(data.getCompound(DISTRESS_CALL_KEY), ticks);
     }
