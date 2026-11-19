@@ -50,6 +50,18 @@ public abstract class AnimatedTravelHandler extends ProgressiveTravelHandler {
                 tardis.travel().getAnimations().onStateChange(state);
             });
         });
+
+        ClientPlayNetworking.registerGlobalReceiver(AnimationHolder.PROGRESS_PACKET, (client, handler, buf, responseSender) -> {
+            UUID uuid = buf.readUuid();
+            State state = buf.readEnumConstant(State.class);
+            Identifier id = buf.readIdentifier();
+            int elapsed = buf.readVarInt();
+
+            client.execute(() -> ClientTardisManager.getInstance().getTardis(uuid, tardis -> {
+                if (tardis.travel().getState() == state)
+                    tardis.travel().getAnimations().followProgress(state, id, elapsed);
+            }));
+        });
     }
 
     @Exclude
@@ -111,6 +123,7 @@ public abstract class AnimatedTravelHandler extends ProgressiveTravelHandler {
         }
 
         this.getAnimations().tick(server);
+        this.getAnimations().tickProgress(server, state);
 
         if (state == State.LANDED) return;
 
