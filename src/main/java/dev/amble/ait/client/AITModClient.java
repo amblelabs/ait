@@ -182,6 +182,8 @@ public class AITModClient implements ClientModInitializer {
         WorldRenderEvents.START.register(ExteriorRenderer::clearDeferred);
         WorldRenderEvents.AFTER_TRANSLUCENT.register(ExteriorRenderer::drawDeferred);
 
+        WorldRenderEvents.AFTER_SETUP.register(BOTIFog::capture);
+
         if (DependencyChecker.hasIris()) {
             WorldRenderEvents.END.register(this::exteriorBOTI);
             WorldRenderEvents.END.register(this::doorBOTI);

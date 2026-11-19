@@ -255,3 +255,4 @@
 - fix: [issues with alpha animation when using the throttle handbrake trick](https://github.com/amblelabs/ait/issues/2099) | by [@Loqor](https://github.com/Loqor)
 - fix: adaptive exterior issue where it wouldnt disappear properly | by [@Loqor](https://github.com/Loqor)
 - feat: new space tool textures from Gate the MC | by [@Loqor](https://github.com/Loqor)
+- fix: boti fog | by [@Loqor](https://github.com/Loqor)
