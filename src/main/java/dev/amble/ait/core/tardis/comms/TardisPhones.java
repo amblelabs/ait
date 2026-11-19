@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.compat.svc.CommsHandler;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.item.PhoneItem;
 import dev.amble.ait.core.tardis.ServerTardis;
@@ -135,8 +136,10 @@ public final class TardisPhones {
             return;
 
         if (give(player, new Handset(UUID.randomUUID(), tardis.getUuid(), control.getUuid(), player.getUuid(),
-                world.getRegistryKey(), control.getPos().add(0, control.getHeight() / 2, 0), false), control.getBlockPos()))
-            tardis.stats().commsHandset().set(true);
+                world.getRegistryKey(), control.getPos().add(0, control.getHeight() / 2, 0), false), control.getBlockPos())) {
+            CommsHandler.of(tardis).handset().set(true);
+            TardisComms.markDirty(tardis.getUuid());
+        }
     }
 
     public static boolean liftPhone(ServerPlayerEntity player, ServerWorld world, PhoneDirectory.Entry entry) {
@@ -311,10 +314,12 @@ public final class TardisPhones {
                     item -> handset.session().equals(PhoneItem.session(item.getStack()))).forEach(ItemEntity::discard);
         }
 
-        ServerTardis tardis = CommsLine.findTardis(handset.line());
+        if (CommsLine.resolve(server, handset.line()) instanceof CommsLine.Tardis line) {
+            ServerTardis tardis = line.tardis();
 
-        if (tardis != null)
-            tardis.stats().commsHandset().set(false);
+            CommsHandler.of(tardis).handset().set(false);
+            TardisComms.markDirty(tardis.getUuid());
+        }
 
         if (endCall)
             TardisComms.endFor(server, handset.line());

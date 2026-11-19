@@ -1382,6 +1382,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.comms.short.keypad", "Keypad");
         provider.addTranslation("screen.ait.comms.short.keypad_close", "Hide Pad");
         provider.addTranslation("screen.ait.comms.keypad", "Dial a number directly");
+        provider.addTranslation("screen.ait.comms.backspace", "Backspace (Shift to clear)");
         provider.addTranslation("tardis.message.phone.number", "This phone's number is %s");
         provider.addTranslation("tardis.message.phone.no_voice_chat", "The line is dead. (Requires Simple Voice Chat)");
         provider.addTranslation("tardis.message.phone.cooldown", "The line is busy. Try again in %ss.");

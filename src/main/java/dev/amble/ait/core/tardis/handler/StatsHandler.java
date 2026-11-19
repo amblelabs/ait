@@ -43,7 +43,6 @@ import net.minecraft.world.World;
 public class StatsHandler extends KeyedTardisComponent {
 
     public static final Identifier SHOULD_RECEIVE_CALLS = AITMod.id("should_receive_calls");
-    public static final Identifier CALL_TRACING = AITMod.id("call_tracing");
     public static final Identifier FLIGHT_SOUND_PACKET = AITMod.id("flight_sound_packet");
     public static final Identifier VORTEX_PACKET = AITMod.id("vortex_packet");
 
@@ -67,8 +66,6 @@ public class StatsHandler extends KeyedTardisComponent {
     private static final BoolProperty SECURITY = new BoolProperty("security", false);
     private static final BoolProperty HAIL_MARY = new BoolProperty("hail_mary", false);
     private static final BoolProperty RECEIVE_CALLS = new BoolProperty("receive_calls", true);
-    private static final BoolProperty TRACEABLE = new BoolProperty("call_tracing", true);
-    private static final BoolProperty COMMS_HANDSET = new BoolProperty("comms_handset", false);
     private static final DoubleProperty TARDIS_X_SCALE = new DoubleProperty("tardis_x_scale", 1);
     private static final DoubleProperty TARDIS_Y_SCALE = new DoubleProperty("tardis_y_scale", 1);
     private static final DoubleProperty TARDIS_Z_SCALE = new DoubleProperty("tardis_z_scale", 1);
@@ -85,8 +82,6 @@ public class StatsHandler extends KeyedTardisComponent {
     private final BoolValue security = SECURITY.create(this);
     private final BoolValue hailMary = HAIL_MARY.create(this);
     private final BoolValue receiveCalls = RECEIVE_CALLS.create(this);
-    private final BoolValue callTracing = TRACEABLE.create(this);
-    private final BoolValue commsHandset = COMMS_HANDSET.create(this);
     private final Value<Identifier> flightId = FLIGHT_FX.create(this);
     private final Value<Identifier> vortexId = VORTEX_FX.create(this);
     private final DoubleValue tardisXScale = TARDIS_X_SCALE.create(this);
@@ -135,14 +130,6 @@ public class StatsHandler extends KeyedTardisComponent {
 
             server.execute(() -> tardis.stats().receiveCalls().set(bool));
         })));
-
-        ServerPlayNetworking.registerGlobalReceiver(CALL_TRACING, ServerTardisManager.receiveTardis(SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
-            boolean bool = buf.readBoolean();
-
-            if (tardis == null) return;
-
-            server.execute(() -> tardis.stats().callTracing().set(bool));
-        })));
     }
 
     public StatsHandler() {
@@ -172,8 +159,6 @@ public class StatsHandler extends KeyedTardisComponent {
         security.of(this, SECURITY);
         hailMary.of(this, HAIL_MARY);
         receiveCalls.of(this, RECEIVE_CALLS);
-        callTracing.of(this, TRACEABLE);
-        commsHandset.of(this, COMMS_HANDSET);
         flightId.of(this, FLIGHT_FX);
         vortexId.of(this, VORTEX_FX);
         tardisXScale.of(this, TARDIS_X_SCALE);
@@ -244,14 +229,6 @@ public class StatsHandler extends KeyedTardisComponent {
     }
     public BoolValue receiveCalls() {
         return this.receiveCalls;
-    }
-
-    public BoolValue callTracing() {
-        return this.callTracing;
-    }
-
-    public BoolValue commsHandset() {
-        return this.commsHandset;
     }
 
     public CachedDirectedGlobalPos getHome() {

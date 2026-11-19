@@ -1,9 +1,9 @@
 package dev.amble.ait.compat.svc;
 
 import java.awt.image.BufferedImage;
-import java.net.URL;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,6 +44,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -59,6 +60,7 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
     }
 
     private static final double MUFFLED_REACH = 0.5;
+    private static final Identifier CATEGORY_ICON = AITMod.id("textures/item/phone");
     private static final float EARPIECE_REACH = 4f;
 
     private static VoicechatServerApi serverApi;
@@ -96,10 +98,9 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
             return;
 
         UUID senderId = sender.getPlayer().getUuid();
-        this.relayThroughPortals(event, sender, senderId);
+        this.relayThroughLinks(event, sender, senderId);
         this.relayComms(event, senderId);
         this.relayEarpieces(event, sender, senderId);
-        this.relayThroughDoors(event, sender, senderId);
 
         List<UUID> listeners = AITVoiceChatBroadcast.listenersFor(senderId);
 
@@ -241,10 +242,11 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
     }
 
 
-    private void relayThroughDoors(MicrophonePacketEvent event, VoicechatConnection sender, UUID senderId) {
-        List<AITVoiceDoors.DoorLink> doors = AITVoiceDoors.doors();
+    private void relayThroughLinks(MicrophonePacketEvent event, VoicechatConnection sender, UUID senderId) {
+        List<VoiceLink> links = new ArrayList<>(PortalsAPI.VOICE_LINKS.get());
+        links.addAll(AITVoiceDoors.links());
 
-        if (doors.isEmpty() || !(sender.getPlayer().getPlayer() instanceof ServerPlayerEntity player))
+        if (links.isEmpty() || !(sender.getPlayer().getPlayer() instanceof ServerPlayerEntity player))
             return;
 
         MinecraftServer server = player.getServer();
@@ -258,44 +260,28 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
         RegistryKey<World> dimension = player.getWorld().getRegistryKey();
         Set<UUID> reached = new HashSet<>();
 
-        for (AITVoiceDoors.DoorLink door : doors) {
-            Vec3d from;
-            Vec3d to;
-            RegistryKey<World> toDim;
-            boolean inside;
-
-            if (door.interiorDim().equals(dimension)) {
-                from = door.interior();
-                to = door.exterior();
-                toDim = door.exteriorDim();
-                inside = true;
-            } else if (door.exteriorDim().equals(dimension)) {
-                from = door.exterior();
-                to = door.interior();
-                toDim = door.interiorDim();
-                inside = false;
-            } else {
+        for (VoiceLink link : links) {
+            if (!link.fromDim().equals(dimension))
                 continue;
-            }
 
-            double distance = mouth.distanceTo(from);
-            float reach = door.open() ? (float) range : (float) ((range - distance) * MUFFLED_REACH);
+            double distance = mouth.distanceTo(link.from());
+            float reach = link.muffled() ? (float) ((range - distance) * MUFFLED_REACH) : (float) range;
 
             if (distance > range || reach < 1)
                 continue;
 
-            ServerWorld target = server.getWorld(toDim);
+            ServerWorld target = server.getWorld(link.toDim());
 
             if (target == null)
                 continue;
 
-            Vec3d source = door.open() ? (inside ? door.toExterior(mouth) : door.toInterior(mouth)) : to;
+            Vec3d source = link.transform().apply(mouth);
             Position position = api.createPosition(source.x, source.y, source.z);
             LocationalSoundPacket.Builder<?> builder = event.getPacket().locationalSoundPacketBuilder()
                     .position(position)
                     .distance(reach);
 
-            if (!door.open())
+            if (link.muffled())
                 builder.channelId(AITVoiceChannels.tag(AITVoiceChannels.Kind.MUFFLED, senderId));
 
             LocationalSoundPacket packet = builder.build();
@@ -314,99 +300,54 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
         }
     }
 
-    private void relayThroughPortals(MicrophonePacketEvent event, VoicechatConnection sender, UUID senderId) {
-        List<PortalsAPI.VoiceLink> links = PortalsAPI.VOICE_LINKS.get();
-
-        if (links.isEmpty() || !(sender.getPlayer().getPlayer() instanceof ServerPlayerEntity player))
-            return;
-
-        MinecraftServer server = player.getServer();
-
-        if (server == null)
-            return;
-
-        VoicechatServerApi api = event.getVoicechat();
-        double range = api.getVoiceChatDistance();
-        Vec3d mouth = player.getEyePos();
-        RegistryKey<World> dimension = player.getWorld().getRegistryKey();
-        Set<UUID> reached = new HashSet<>();
-
-        for (PortalsAPI.VoiceLink link : links) {
-            if (!link.fromDim().equals(dimension) || mouth.distanceTo(link.from()) > range)
-                continue;
-
-            ServerWorld target = server.getWorld(link.toDim());
-
-            if (target == null)
-                continue;
-
-            Vec3d through = link.transform().apply(mouth);
-            Position position = api.createPosition(through.x, through.y, through.z);
-            LocationalSoundPacket packet = event.getPacket().locationalSoundPacketBuilder()
-                    .position(position)
-                    .distance((float) range)
-                    .build();
-
-            for (ServerPlayer listener : api.getPlayersInRange(api.fromServerLevel(target), position, range)) {
-                UUID listenerId = listener.getUuid();
-
-                if (listenerId.equals(senderId) || !reached.add(listenerId))
-                    continue;
-
-                VoicechatConnection connection = api.getConnectionOf(listenerId);
-
-                if (connection != null && connection.isConnected() && !connection.isDisabled())
-                    api.sendLocationalSoundPacketTo(connection, packet);
-            }
-        }
-    }
-
     public void onServerStarted(VoicechatServerStartedEvent event) {
         VoicechatServerApi api = event.getVoicechat();
         serverApi = api;
         TardisComms.PLAYBACK = AITVoiceChatPlugin::playMessage;
 
+        int[][] icon = icon(CATEGORY_ICON);
+
         VolumeCategory tardisBroadcast = api.volumeCategoryBuilder()
                 .setId(TARDIS_BROADCAST)
                 .setName("TARDIS Broadcast")
                 .setDescription("The volume of TARDIS broadcastings.")
-                .setIcon(getIcon("category_music_discs.png"))
+                .setIcon(icon)
                 .build();
 
         VolumeCategory tardisComms = api.volumeCategoryBuilder()
                 .setId(TARDIS_COMMS)
                 .setName("TARDIS Comms")
                 .setDescription("The volume of TARDIS communications.")
-                .setIcon(getIcon("category_music_discs.png"))
+                .setIcon(icon)
                 .build();
 
         api.registerVolumeCategory(tardisBroadcast);
         api.registerVolumeCategory(tardisComms);
     }
 
-    private int @Nullable [][] getIcon(String path) {
-        try {
-            Enumeration<URL> resources = AITVoiceChatPlugin.class.getClassLoader().getResources(path);
-            while (resources.hasMoreElements()) {
-                BufferedImage bufferedImage = ImageIO.read(resources.nextElement().openStream());
-                if (bufferedImage.getWidth() != 16) {
-                    continue;
-                }
-                if (bufferedImage.getHeight() != 16) {
-                    continue;
-                }
-                int[][] image = new int[16][16];
-                for (int x = 0; x < bufferedImage.getWidth(); x++) {
-                    for (int y = 0; y < bufferedImage.getHeight(); y++) {
-                        image[x][y] = bufferedImage.getRGB(x, y);
-                    }
-                }
-                return image;
+    private static int @Nullable [][] icon(Identifier texture) {
+        String path = "/assets/" + texture.getNamespace() + "/" + texture.getPath() + ".png";
+
+        try (InputStream stream = AITVoiceChatPlugin.class.getResourceAsStream(path)) {
+            if (stream == null)
+                return null;
+
+            BufferedImage image = ImageIO.read(stream);
+
+            if (image == null || image.getWidth() != 16 || image.getHeight() != 16)
+                return null;
+
+            int[][] pixels = new int[16][16];
+
+            for (int x = 0; x < 16; x++) {
+                for (int y = 0; y < 16; y++)
+                    pixels[x][y] = image.getRGB(x, y);
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            return pixels;
+        } catch (IOException e) {
+            AITMod.LOGGER.warn("Failed to read voice chat icon {}", path, e);
+            return null;
         }
-        return null;
     }
 }

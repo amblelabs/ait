@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.compat.svc.CommsHandler;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.RotaryPhoneBlockEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
@@ -20,6 +21,7 @@ import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,6 +39,7 @@ public final class TardisComms {
     public static final Identifier STATE = AITMod.id("comms_state");
     public static final Identifier ACTION = AITMod.id("comms_action");
     public static final Identifier DIAL = AITMod.id("comms_dial");
+    public static final Identifier CLOSE = AITMod.id("comms_close");
 
     public static final int RING_TICKS = 600;
     public static final int FRAMES_PER_SECOND = 50;
@@ -98,6 +101,8 @@ public final class TardisComms {
     private static final Map<UUID, List<VoiceMessage>> MESSAGES = new ConcurrentHashMap<>();
     private static final Map<UUID, List<UUID>> ROUTES = new ConcurrentHashMap<>();
     private static final Map<UUID, List<TardisPhones.Speaker>> SPEAKER_ROUTES = new ConcurrentHashMap<>();
+    private static final Map<UUID, UUID> VIEWERS = new ConcurrentHashMap<>();
+    private static final Set<UUID> DIRTY = ConcurrentHashMap.newKeySet();
 
     private TardisComms() {
     }
@@ -114,7 +119,15 @@ public final class TardisComms {
 
         ServerPlayNetworking.registerGlobalReceiver(REQUEST, ServerTardisManager.receiveTardis(
                 SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) ->
-                        server.execute(() -> sendState(server, player, tardis)))));
+                        server.execute(() -> {
+                            VIEWERS.put(player.getUuid(), tardis.getUuid());
+                            sendState(server, player, tardis);
+                        }))));
+
+        ServerPlayNetworking.registerGlobalReceiver(CLOSE, (server, player, handler, buf, responseSender) ->
+                VIEWERS.remove(player.getUuid()));
+
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> VIEWERS.remove(handler.getPlayer().getUuid()));
 
         ServerPlayNetworking.registerGlobalReceiver(ACTION, ServerTardisManager.receiveTardis(
                 SecurityControl.withLoyaltyCheck((tardis, server, player, handler, buf, responseSender) -> {
@@ -123,7 +136,7 @@ public final class TardisComms {
 
                     server.execute(() -> {
                         handle(server, player, tardis, action, argument);
-                        sendState(server, player, tardis);
+                        markDirty(tardis.getUuid());
                     });
                 })));
 
@@ -133,7 +146,7 @@ public final class TardisComms {
 
                     server.execute(() -> {
                         dialNumber(server, player, tardis, number);
-                        sendState(server, player, tardis);
+                        markDirty(tardis.getUuid());
                     });
                 })));
     }
@@ -168,7 +181,7 @@ public final class TardisComms {
                 if (messages != null && argument != null)
                     messages.removeIf(message -> message.id().equals(argument));
             }
-            case TOGGLE_MODE -> tardis.stats().commsHandset().toggle();
+            case TOGGLE_MODE -> CommsHandler.of(tardis).handset().toggle();
         }
     }
 
@@ -214,6 +227,7 @@ public final class TardisComms {
         Call call = new Call(from.id(), targetId, player.getUuid());
         CALLS.put(call.caller, call);
         CALLS.put(call.target, call);
+        markDirty(call.caller, call.target);
 
         if (from instanceof CommsLine.Phone && target instanceof CommsLine.Tardis)
             directory.noteCallback(targetId, from.id());
@@ -262,6 +276,7 @@ public final class TardisComms {
 
         call.answerer = player.getUuid();
         call.connected = true;
+        markDirty(call.caller, call.target);
 
         notifyBoth(server, call, Text.translatable("tardis.message.comms.connected").formatted(Formatting.GREEN));
     }
@@ -311,13 +326,40 @@ public final class TardisComms {
             if (!message.id().equals(messageId))
                 continue;
 
-            List<UUID> listeners = tardis.stats().commsHandset().get()
+            List<UUID> listeners = CommsHandler.of(tardis).handset().get()
                     ? List.of(player.getUuid())
                     : new CommsLine.Tardis(server, tardis).interiorPlayers();
 
             PLAYBACK.play(listeners, message.frames());
             return;
         }
+    }
+
+    public static void markDirty(UUID... lines) {
+        DIRTY.addAll(List.of(lines));
+    }
+
+    private static void pushDirty(MinecraftServer server) {
+        if (DIRTY.isEmpty())
+            return;
+
+        Set<UUID> dirty = new HashSet<>(DIRTY);
+        DIRTY.removeAll(dirty);
+
+        VIEWERS.forEach((viewer, tardisId) -> {
+            if (!dirty.contains(tardisId))
+                return;
+
+            ServerPlayerEntity player = server.getPlayerManager().getPlayer(viewer);
+            ServerTardis tardis = player == null ? null : ServerTardisManager.getInstance().demandTardis(server, tardisId);
+
+            if (tardis == null) {
+                VIEWERS.remove(viewer);
+                return;
+            }
+
+            sendState(server, player, tardis);
+        });
     }
 
     private static void tick(MinecraftServer server) {
@@ -331,6 +373,7 @@ public final class TardisComms {
                     && server.getPlayerManager().getPlayer(entry.getKey()) != null)
                 return false;
 
+            markDirty(recording.callerLine);
             store(server, recording);
             ServerPlayerEntity caller = server.getPlayerManager().getPlayer(entry.getKey());
 
@@ -362,6 +405,8 @@ public final class TardisComms {
             if (callerSpeaker != null)
                 targetSide.forEach(player -> speakers.computeIfAbsent(player, uuid -> new ArrayList<>()).add(callerSpeaker));
         }
+
+        pushDirty(server);
 
         ROUTES.keySet().retainAll(routes.keySet());
         ROUTES.putAll(routes);
@@ -414,12 +459,14 @@ public final class TardisComms {
         }
 
         RECORDINGS.put(call.callerPlayer, new Recording(call.caller, call.target, name(callerLine)));
+        markDirty(call.caller);
         CommsMessages.actionBar(caller, Text.translatable("tardis.message.comms.leave_message").formatted(Formatting.GOLD));
         caller.playSound(AITSounds.DING, SoundCategory.PLAYERS, 1f, 1f);
     }
 
     private static void finishRecording(MinecraftServer server, UUID player, Recording recording) {
         RECORDINGS.remove(player);
+        markDirty(recording.callerLine);
         store(server, recording);
 
         ServerPlayerEntity caller = server.getPlayerManager().getPlayer(player);
@@ -440,6 +487,7 @@ public final class TardisComms {
 
         List<VoiceMessage> messages = MESSAGES.computeIfAbsent(recording.target, uuid -> Collections.synchronizedList(new ArrayList<>()));
         messages.add(new VoiceMessage(UUID.randomUUID(), recording.from, System.currentTimeMillis(), frames));
+        markDirty(recording.target);
 
         while (messages.size() > MAX_MESSAGES)
             messages.remove(0);
@@ -460,6 +508,7 @@ public final class TardisComms {
     private static boolean remove(Call call) {
         boolean caller = CALLS.remove(call.caller, call);
         boolean target = CALLS.remove(call.target, call);
+        markDirty(call.caller, call.target);
         return caller || target;
     }
 
@@ -550,7 +599,7 @@ public final class TardisComms {
 
         buf.writeEnumConstant(status(id));
         buf.writeString(other == null ? "" : name(CommsLine.resolve(server, other)));
-        buf.writeBoolean(tardis.stats().commsHandset().get());
+        buf.writeBoolean(CommsHandler.of(tardis).handset().get());
         buf.writeString(PhoneDirectory.format(directory.tardisNumber(id)));
 
         List<CommsLine> callable = new ArrayList<>();

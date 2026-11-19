@@ -1,8 +1,11 @@
 package dev.amble.ait.compat.portal;
 
+import java.util.List;
+
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisEvents;
+import dev.amble.ait.compat.svc.VoiceLink;
 import dev.amble.ait.core.AITDimensions;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
@@ -57,11 +60,19 @@ public class PortalsHandler extends KeyedTardisComponent {
 
         TardisComponentRegistry.getInstance().register(ID);
 
-        PortalsAPI.VOICE_LINKS = () -> TardisPortal.OPEN.stream()
-                .filter(portal -> !portal.isRemoved())
-                .map(portal -> new PortalsAPI.VoiceLink(portal.getWorld().getRegistryKey(), portal.getOriginPos(),
-                        portal.getDestDim(), portal::transformPoint))
-                .toList();
+        PortalsAPI.VOICE_LINKS = () -> {
+            List<TardisPortal> open;
+
+            synchronized (TardisPortal.OPEN) {
+                open = List.copyOf(TardisPortal.OPEN);
+            }
+
+            return open.stream()
+                    .filter(portal -> !portal.isRemoved())
+                    .map(portal -> new VoiceLink(portal.getWorld().getRegistryKey(), portal.getOriginPos(),
+                            portal.getDestDim(), portal::transformPoint, false))
+                    .toList();
+        };
 
         // TODO: re-use the same two portal entities
         //  for exterior changing this could be achieved by moving the portals & changing their size

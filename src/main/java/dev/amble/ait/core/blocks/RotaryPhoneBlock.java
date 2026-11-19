@@ -26,14 +26,17 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RotationPropertyHelper;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
 public class RotaryPhoneBlock extends BlockWithEntity {
 
-    public static final int ROTATIONS = 8;
-    public static final IntProperty ROTATION = IntProperty.of("rotation", 0, ROTATIONS - 1);
+    public static final IntProperty ROTATION = ExteriorBlock.ROTATION;
+
+    private static final int ROTATIONS = RotationPropertyHelper.getMax() + 1;
+    private static final int PLACEMENT_STEP = 2;
 
     private static final VoxelShape SHAPE = Block.createCuboidShape(2, 0, 2, 14, 8, 14);
 
@@ -43,7 +46,7 @@ public class RotaryPhoneBlock extends BlockWithEntity {
     }
 
     public static float degrees(BlockState state) {
-        return state.get(ROTATION) * (360f / ROTATIONS);
+        return RotationPropertyHelper.toDegrees(state.get(ROTATION));
     }
 
     @Override
@@ -53,7 +56,8 @@ public class RotaryPhoneBlock extends BlockWithEntity {
 
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        int rotation = MathHelper.floor((180f + ctx.getPlayerYaw()) * ROTATIONS / 360f + 0.5) & (ROTATIONS - 1);
+        int steps = ROTATIONS / PLACEMENT_STEP;
+        int rotation = (MathHelper.floor((180f + ctx.getPlayerYaw()) * steps / 360f + 0.5) % steps + steps) % steps * PLACEMENT_STEP;
         return this.getDefaultState().with(ROTATION, rotation);
     }
 

@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.link.LinkableItem;
+import dev.amble.ait.compat.svc.CommsHandler;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.advancement.TardisCriterions;
@@ -383,7 +384,7 @@ public class TelepathicControl extends Control {
         else if (partner instanceof CommsLine.Phone line)
             target = CachedDirectedGlobalPos.create(line.world(), line.entry().pos(), (byte) 0);
 
-        if (partner instanceof CommsLine.Tardis line && !line.tardis().stats().callTracing().get()) {
+        if (partner instanceof CommsLine.Tardis line && !CommsHandler.of(line.tardis()).callTracing().get()) {
             CommsMessages.actionBar(player, Text.translatable("tardis.message.comms.untraceable").formatted(Formatting.RED));
             return Result.FAILURE;
         }

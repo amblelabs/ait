@@ -2,10 +2,11 @@ package dev.amble.ait.client.renderers;
 
 import dev.amble.ait.core.item.PhoneItem;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import org.joml.Matrix4f;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -17,7 +18,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
@@ -33,42 +33,46 @@ public final class PhoneCableRenderer {
     private static final double HAND_SIDEWAYS = 0.35;
     private static final double HAND_FORWARD = 0.25;
     private static final double HAND_HEIGHT = 0.8;
-    private static final double MAX_RENDER_DISTANCE = 64;
+    private static final double DROPPED_HEIGHT = 0.15;
 
     private PhoneCableRenderer() {
     }
 
-    public static void render(WorldRenderContext context) {
-        MinecraftClient client = MinecraftClient.getInstance();
+    public static void init() {
+        WorldRenderEvents.AFTER_ENTITIES.register(PhoneCableRenderer::renderFirstPerson);
+    }
 
-        if (client.world == null || context.consumers() == null)
+    private static void renderFirstPerson(WorldRenderContext context) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        ClientPlayerEntity player = client.player;
+
+        if (player == null || context.consumers() == null || !client.options.getPerspective().isFirstPerson())
             return;
 
-        Vec3d camera = context.camera().getPos();
-        float tickDelta = context.tickDelta();
+        renderPlayer(player, context.tickDelta(), context.matrixStack(), context.consumers(), context.camera().getPos());
+    }
 
-        for (AbstractClientPlayerEntity player : client.world.getPlayers()) {
-            Hand hand = phoneHand(player);
+    public static void renderPlayer(PlayerEntity player, float tickDelta, MatrixStack matrices, VertexConsumerProvider consumers,
+                                    Vec3d origin) {
+        Hand hand = phoneHand(player);
 
-            if (hand == null || player.squaredDistanceTo(camera) > MAX_RENDER_DISTANCE * MAX_RENDER_DISTANCE)
-                continue;
+        if (hand == null)
+            return;
 
-            Vec3d anchor = PhoneItem.anchor(player.getStackInHand(hand));
+        Vec3d anchor = PhoneItem.anchor(player.getStackInHand(hand));
 
-            if (anchor == null)
-                continue;
+        if (anchor != null)
+            drawCable(matrices, consumers, origin, handPosition(MinecraftClient.getInstance(), player, hand, tickDelta), anchor);
+    }
 
-            Vec3d handPos = handPosition(client, player, hand, tickDelta);
-            drawCable(context.matrixStack(), context.consumers(), camera, handPos, anchor, client);
-        }
+    public static void renderDropped(ItemEntity item, float tickDelta, MatrixStack matrices, VertexConsumerProvider consumers) {
+        Vec3d anchor = PhoneItem.anchor(item.getStack());
 
-        for (ItemEntity item : client.world.getEntitiesByClass(ItemEntity.class, new Box(camera, camera).expand(MAX_RENDER_DISTANCE),
-                entity -> entity.getStack().getItem() instanceof PhoneItem)) {
-            Vec3d anchor = PhoneItem.anchor(item.getStack());
+        if (anchor == null)
+            return;
 
-            if (anchor != null)
-                drawCable(context.matrixStack(), context.consumers(), camera, item.getLerpedPos(tickDelta).add(0, 0.15, 0), anchor, client);
-        }
+        Vec3d origin = item.getLerpedPos(tickDelta);
+        drawCable(matrices, consumers, origin, origin.add(0, DROPPED_HEIGHT, 0), anchor);
     }
 
     private static Hand phoneHand(PlayerEntity player) {
@@ -108,8 +112,9 @@ public final class PhoneCableRenderer {
                 -sin * sideways + cos * forward);
     }
 
-    private static void drawCable(MatrixStack matrices, VertexConsumerProvider consumers, Vec3d camera, Vec3d from, Vec3d to,
-                                  MinecraftClient client) {
+    private static void drawCable(MatrixStack matrices, VertexConsumerProvider consumers, Vec3d origin, Vec3d from, Vec3d to) {
+        MinecraftClient client = MinecraftClient.getInstance();
+
         Vec3d delta = to.subtract(from);
         double length = delta.length();
 
@@ -126,7 +131,7 @@ public final class PhoneCableRenderer {
         Vec3d vertical = new Vec3d(0, THICKNESS, 0);
 
         matrices.push();
-        matrices.translate(from.x - camera.x, from.y - camera.y, from.z - camera.z);
+        matrices.translate(from.x - origin.x, from.y - origin.y, from.z - origin.z);
 
         Matrix4f matrix = matrices.peek().getPositionMatrix();
         VertexConsumer buffer = consumers.getBuffer(RenderLayer.getLeash());

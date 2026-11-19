@@ -8,6 +8,8 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.TardisComponent;
 import dev.amble.ait.client.screens.widget.SwitcherManager;
 import dev.amble.ait.client.tardis.ClientTardis;
+import dev.amble.ait.compat.DependencyChecker;
+import dev.amble.ait.compat.svc.CommsHandler;
 import dev.amble.ait.core.tardis.handler.LandingPadHandler;
 import dev.amble.ait.core.tardis.handler.ServerAlarmHandler;
 import dev.amble.ait.core.tardis.handler.StatsHandler;
@@ -89,9 +91,11 @@ public class TardisSecurityScreen extends ConsoleScreen {
         createTextButton(Text.translatable("screen.ait.security.minimum_loyalty"), (button -> changeMinimumLoyalty()),
                 () -> getMinimumLoyalty(this.tardis()).text());
         createTextButton(Text.translatable("screen.ait.security.receive_distress_calls"), (button -> receiveDistressCalls()),
-                () -> onOff(this.tardis().<StatsHandler>handler(TardisComponent.Id.STATS).receiveCalls().get()));
-        createTextButton(Text.translatable("screen.ait.security.call_tracing"), (button -> toggleCallTracing()),
-                () -> onOff(this.tardis().<StatsHandler>handler(TardisComponent.Id.STATS).callTracing().get()));
+                () -> onOff(this.tardis().stats().receiveCalls().get()));
+
+        if (DependencyChecker.hasVoiceChat())
+            createTextButton(Text.translatable("screen.ait.security.call_tracing"), (button -> toggleCallTracing()),
+                    () -> onOff(CommsHandler.of(this.tardis()).callTracing().get()));
 
         int codeY = this.rowY(choicesCount) + 6;
 
@@ -129,9 +133,11 @@ public class TardisSecurityScreen extends ConsoleScreen {
     }
 
     private void toggleCallTracing() {
-        boolean bool = !this.tardis().stats().callTracing().get();
-        this.tardis().stats().callTracing().set(bool);
-        SwitcherManager.sync(this.tardis(), buf -> buf.writeBoolean(bool), StatsHandler.CALL_TRACING);
+        CommsHandler comms = CommsHandler.of(this.tardis());
+        boolean bool = !comms.callTracing().get();
+
+        comms.callTracing().set(bool);
+        SwitcherManager.sync(this.tardis(), buf -> buf.writeBoolean(bool), CommsHandler.CALL_TRACING);
     }
 
     private void toggleLeaveBehind() {

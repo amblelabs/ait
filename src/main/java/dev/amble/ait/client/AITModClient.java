@@ -23,7 +23,6 @@ import dev.amble.ait.client.models.decoration.TrenzalorePaintingModel;
 import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.overlays.*;
 import dev.amble.ait.client.renderers.EmissiveGeometry;
-import dev.amble.ait.client.renderers.PhoneCableRenderer;
 import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.client.renderers.TardisStar;
 import dev.amble.ait.client.renderers.consoles.ConsoleGeneratorRenderer;
@@ -43,7 +42,6 @@ import dev.amble.ait.client.renderers.monitors.WallMonitorRenderer;
 import dev.amble.ait.client.renderers.sky.MarsSkyProperties;
 import dev.amble.ait.client.screens.*;
 import dev.amble.ait.client.screens.svc.CommScreen;
-import dev.amble.ait.client.screens.svc.DialScreen;
 import dev.amble.ait.client.sonic.SonicModelLoader;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
@@ -131,10 +129,6 @@ public class AITModClient implements ClientModInitializer {
         resourcepackRegister();
         AITClientConfig.INSTANCE.load();
         CONFIG = AITClientConfig.INSTANCE.instance();
-
-        CommScreen.registerClient();
-        DialScreen.registerClient();
-        WorldRenderEvents.AFTER_ENTITIES.register(PhoneCableRenderer::render);
 
         // TODO move to Registries
         AmbleRegistries.getInstance().registerAll(

@@ -19,19 +19,7 @@ import net.minecraft.world.World;
 
 public final class AITVoiceDoors {
 
-    public record DoorLink(RegistryKey<World> interiorDim, Vec3d interior, RegistryKey<World> exteriorDim, Vec3d exterior,
-                           boolean open, float turn) {
-
-        public Vec3d toExterior(Vec3d point) {
-            return this.exterior.add(point.subtract(this.interior).rotateY(-this.turn));
-        }
-
-        public Vec3d toInterior(Vec3d point) {
-            return this.interior.add(point.subtract(this.exterior).rotateY(this.turn));
-        }
-    }
-
-    private static volatile List<DoorLink> links = List.of();
+    private static volatile List<VoiceLink> links = List.of();
 
     private AITVoiceDoors() {
     }
@@ -40,12 +28,12 @@ public final class AITVoiceDoors {
         ServerTickEvents.END_SERVER_TICK.register(AITVoiceDoors::tick);
     }
 
-    public static List<DoorLink> doors() {
+    public static List<VoiceLink> links() {
         return links;
     }
 
     private static void tick(MinecraftServer server) {
-        List<DoorLink> current = new ArrayList<>();
+        List<VoiceLink> current = new ArrayList<>();
 
         ServerTardisManager.getInstance().forEach(tardis -> {
             if (!tardis.hasWorld() || !tardis.travel().isLanded())
@@ -62,11 +50,24 @@ public final class AITVoiceDoors {
             if (exterior == null || exterior.getWorld() == null || door == null)
                 return;
 
-            float turn = (float) Math.toRadians(180 + RotationPropertyHelper.toDegrees(exterior.getRotation())
+            double turn = Math.toRadians(180 + RotationPropertyHelper.toDegrees(exterior.getRotation())
                     - RotationPropertyHelper.toDegrees(door.getRotation()));
 
-            current.add(new DoorLink(tardis.world().getRegistryKey(), door.getPos().toCenterPos().add(0, 0.5, 0),
-                    exterior.getDimension(), exterior.getPos().toCenterPos().add(0, 0.5, 0), !closed, turn));
+            RegistryKey<World> interiorDim = tardis.world().getRegistryKey();
+            RegistryKey<World> exteriorDim = exterior.getDimension();
+            Vec3d inside = door.getPos().toCenterPos().add(0, 0.5, 0);
+            Vec3d outside = exterior.getPos().toCenterPos().add(0, 0.5, 0);
+
+            if (closed) {
+                current.add(new VoiceLink(interiorDim, inside, exteriorDim, point -> outside, true));
+                current.add(new VoiceLink(exteriorDim, outside, interiorDim, point -> inside, true));
+                return;
+            }
+
+            current.add(new VoiceLink(interiorDim, inside, exteriorDim,
+                    point -> outside.add(point.subtract(inside).rotateY((float) -turn)), false));
+            current.add(new VoiceLink(exteriorDim, outside, interiorDim,
+                    point -> inside.add(point.subtract(outside).rotateY((float) turn)), false));
         });
 
         links = List.copyOf(current);

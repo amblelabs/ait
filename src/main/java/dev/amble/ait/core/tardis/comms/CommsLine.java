@@ -3,6 +3,7 @@ package dev.amble.ait.core.tardis.comms;
 import java.util.List;
 import java.util.UUID;
 
+import dev.amble.ait.compat.svc.CommsHandler;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.RotaryPhoneBlockEntity;
 import dev.amble.ait.core.tardis.ServerTardis;
@@ -40,16 +41,13 @@ public sealed interface CommsLine {
     boolean present(@Nullable UUID player);
 
     @Nullable static CommsLine resolve(MinecraftServer server, UUID id) {
-        ServerTardis tardis = findTardis(id);
-
-        if (tardis != null)
-            return new Tardis(server, tardis);
-
         PhoneDirectory directory = PhoneDirectory.get(server);
         PhoneDirectory.Entry entry = directory.phone(id);
 
-        if (entry == null)
-            return null;
+        if (entry == null) {
+            ServerTardis tardis = ServerTardisManager.getInstance().demandTardis(server, id);
+            return tardis == null ? null : new Tardis(server, tardis);
+        }
 
         ServerWorld world = server.getWorld(entry.world());
 
@@ -65,17 +63,6 @@ public sealed interface CommsLine {
         }
 
         return new Phone(server, world, entry);
-    }
-
-    @Nullable static ServerTardis findTardis(UUID uuid) {
-        ServerTardis[] found = new ServerTardis[1];
-
-        ServerTardisManager.getInstance().forEach(tardis -> {
-            if (tardis.getUuid().equals(uuid))
-                found[0] = tardis;
-        });
-
-        return found[0];
     }
 
     record Tardis(MinecraftServer server, ServerTardis tardis) implements CommsLine {
@@ -123,7 +110,7 @@ public sealed interface CommsLine {
             if (handset != null)
                 return handset.dropped() ? List.of() : List.of(handset.holder());
 
-            if (this.tardis.stats().commsHandset().get())
+            if (CommsHandler.of(this.tardis).handset().get())
                 return player == null ? List.of() : List.of(player);
 
             return this.interiorPlayers();

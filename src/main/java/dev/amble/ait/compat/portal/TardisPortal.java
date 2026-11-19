@@ -1,8 +1,9 @@
 package dev.amble.ait.compat.portal;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.WeakHashMap;
 
 import dev.amble.ait.api.tardis.link.v2.TardisRef;
 import dev.amble.ait.client.AITModClient;
@@ -32,7 +33,7 @@ public class TardisPortal extends Portal {
         super(type, world);
     }
 
-    public static final Set<TardisPortal> OPEN = ConcurrentHashMap.newKeySet();
+    public static final Set<TardisPortal> OPEN = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
     @Override
     public void tick() {

@@ -4,14 +4,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 
-import net.minecraft.registry.RegistryKey;
+import dev.amble.ait.compat.svc.VoiceLink;
+
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 
 public class PortalsAPI {
 
@@ -21,9 +19,6 @@ public class PortalsAPI {
     public static Supplier<double[]> CLIP_PLANE = () -> null;
 
     public static Supplier<List<VoiceLink>> VOICE_LINKS = List::of;
-
-    public record VoiceLink(RegistryKey<World> fromDim, Vec3d from, RegistryKey<World> toDim, UnaryOperator<Vec3d> transform) {
-    }
 
     @FunctionalInterface
     public interface VisualizerImpl {
