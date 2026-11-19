@@ -14,6 +14,7 @@ import dev.amble.ait.core.effects.ZeitonHighEffect;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.TardisManager;
+import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
 import dev.amble.ait.data.Exclude;
@@ -37,6 +38,10 @@ import net.minecraft.util.math.BlockPos;
 
 public class AnimationHolder implements TardisTickable, Disposable, Linkable {
     public static final Identifier UPDATE_PACKET = AITMod.id("sync/ext_anim");
+    public static final Identifier PROGRESS_PACKET = AITMod.id("sync/ext_anim_progress");
+
+    private static final int PROGRESS_INTERVAL = 10;
+    private static final int PROGRESS_TOLERANCE = 2;
 
     protected final TardisAnimationMap map;
     private TardisAnimation current;
@@ -324,6 +329,51 @@ public class AnimationHolder implements TardisTickable, Disposable, Linkable {
         }
 
         return this.current.getRotation(delta);
+    }
+
+    public void tickProgress(MinecraftServer server, TravelHandlerBase.State state) {
+        if (server.getTicks() % PROGRESS_INTERVAL != 0 || this.current == null || this.current.isAged()
+                || (state != TravelHandlerBase.State.DEMAT && state != TravelHandlerBase.State.MAT))
+            return;
+
+        if (!this.isLinked() || !(this.tardis().get() instanceof ServerTardis tardis))
+            return;
+
+        PacketByteBuf buf = PacketByteBufs.create();
+
+        buf.writeUuid(tardis.getUuid());
+        buf.writeEnumConstant(state);
+        buf.writeIdentifier(this.current.id());
+        buf.writeVarInt(this.current.getElapsed());
+
+        NetworkUtil.getSubscribedPlayers(tardis).forEach(player -> NetworkUtil.send(player, PROGRESS_PACKET, buf));
+    }
+
+    @Environment(EnvType.CLIENT)
+    public void followProgress(TravelHandlerBase.State state, Identifier id, int elapsed) {
+        boolean sameAnimation = this.current != null && this.current.id().equals(id);
+        int local = sameAnimation ? this.current.getElapsed() : 0;
+
+        if (sameAnimation && Math.abs(local - elapsed) <= PROGRESS_TOLERANCE)
+            return;
+
+        if (!sameAnimation || local > elapsed) {
+            if (this.current != null)
+                this.current.dispose();
+
+            this.current = TardisAnimationRegistry.getInstance().instantiate(id);
+            this.alphaOverride = -1;
+
+            if (this.isLinked())
+                this.current.link(this.tardis().get());
+
+            local = 0;
+        }
+
+        MinecraftClient client = MinecraftClient.getInstance();
+
+        for (int tick = local; tick < elapsed && !this.current.isAged(); tick++)
+            this.current.tick(client);
     }
 
     private void sync(TravelHandlerBase.State state) {

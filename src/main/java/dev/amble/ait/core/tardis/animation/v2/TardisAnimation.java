@@ -56,6 +56,9 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
     @Exclude
     private ActionQueue doneQueue;
 
+    @Exclude
+    private int elapsed;
+
     protected TardisAnimation(Identifier id, @Nullable Identifier soundId, KeyframeTracker<Float> alpha, KeyframeTracker<Vector3f> scale, KeyframeTracker<Vector3f> position, KeyframeTracker<Vector3f> rotation) {
         this.id = id;
         this.soundId = soundId;
@@ -74,6 +77,10 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
         return this.alpha.getCurrent().ticks();
     }
 
+    public int getElapsed() {
+        return this.elapsed;
+    }
+
     public int getMaxDuration() {
         float max = this.alpha.duration();
         max = Math.max(max, this.scale.duration());
@@ -87,6 +94,7 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
     @Environment(EnvType.CLIENT)
     public void tick(MinecraftClient client) {
         this.tickCommon();
+        this.elapsed++;
 
         this.alpha.tick(client);
         this.scale.tick(client);
@@ -100,6 +108,8 @@ public abstract class TardisAnimation implements TardisTickable, Disposable, Ide
     public void tick(MinecraftServer server) {
         this.tickCommon();
         if (!this.isLinked()) return;
+
+        this.elapsed++;
 
         Tardis tardis = this.tardis().get();
 

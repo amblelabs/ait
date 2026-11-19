@@ -261,3 +261,4 @@
 - fix: hypercube crashing! | by [@Loqor](https://github.com/Loqor)
 - feat: datapackable landing notification sounds! | by [@Loqor](https://github.com/Loqor) ([#2258](https://github.com/amblelabs/ait/pull/2258))
 - feat: better colored toyota console! | by [@Loqor](https://github.com/Loqor)
+- fix: exterior animations are now properly synced! | by [@Loqor](https://github.com/Loqor)
