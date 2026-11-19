@@ -37,6 +37,8 @@ public class TardisDoorBOTI extends BOTI {
         if (client.world == null
                 || client.player == null) return;
 
+        BOTIFog.apply();
+
         stack.push();
         stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
 
@@ -84,6 +86,11 @@ public class TardisDoorBOTI extends BOTI {
                     RenderLayer.getDebugFilledBox() : RenderLayer.getEndGateway();
             float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0} : new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
             mask.render(stack, botiProvider.getBuffer(whichOne), LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, colorsForGreenScreen[0], colorsForGreenScreen[1], colorsForGreenScreen[2], 1);
+            botiProvider.draw();
+
+            if (!AITModClient.CONFIG.greenScreenBOTI)
+                BOTIFog.fogVoid(stack, botiProvider, mask, door.getPos().toCenterPos().add(0, 0.5, 0)
+                        .subtract(client.gameRenderer.getCamera().getPos()));
         } else {
             mask.render(stack, botiProvider.getBuffer(RenderLayer.getEntityTranslucentCull(frameTex)), LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
         }
@@ -165,6 +172,7 @@ public class TardisDoorBOTI extends BOTI {
         BOTI.copyColor(BOTI_HANDLER.afbo, client.getFramebuffer());
 
         BOTI.restoreStencil();
+        BOTIFog.restore();
 
         RenderSystem.depthMask(true);
 

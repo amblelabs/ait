@@ -8,6 +8,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.api.tardis.KeyedTardisComponent;
 import dev.amble.ait.api.tardis.TardisTickable;
 import dev.amble.ait.core.AITSounds;
+import dev.amble.ait.core.entities.FlightTardisEntity;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
@@ -143,7 +144,7 @@ public class ServerAlarmHandler extends KeyedTardisComponent implements TardisTi
     public void tick(MinecraftServer server) {
         if (server.getTicks() % 20 == 0 && !this.enabled().get() && this.hostilePresence().get()) {
             for (Entity entity : TardisUtil.getEntitiesInInterior(tardis, 200)) {
-                if (entity instanceof TntEntity || (entity instanceof HostileEntity && !entity.hasCustomName())
+                if (entity instanceof FlightTardisEntity || entity instanceof TntEntity || (entity instanceof HostileEntity && !entity.hasCustomName())
                         || entity instanceof ServerPlayerEntity player
                         && tardis.loyalty().get(player).level() == Loyalty.Type.REJECT.level) {
                     tardis.alarm().enable(AlarmType.HOSTILE_PRESENCE);

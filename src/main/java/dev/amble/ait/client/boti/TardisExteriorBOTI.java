@@ -42,6 +42,7 @@ public class TardisExteriorBOTI extends BOTI {
         ClientTardis tardis = exterior.tardis().get().asClient();
 
         stack.push();
+        BOTIFog.apply();
 
         // Split into framebuffer work and geometry work. A single zone around the whole portal cannot
         // tell "the blits are expensive" from "drawing the interior is expensive", which is the only
@@ -104,6 +105,11 @@ public class TardisExteriorBOTI extends BOTI {
         float[] colorsForGreenScreen = AITModClient.CONFIG.greenScreenBOTI ? new float[]{0, 1, 0, 1} : new float[] {(float) skyColor.x, (float) skyColor.y, (float) skyColor.z};
         mask.render(stack, botiProvider.getBuffer(whichOne), light, OverlayTexture.DEFAULT_UV, colorsForGreenScreen[0], colorsForGreenScreen[1], colorsForGreenScreen[2], 1);
         botiProvider.draw();
+
+        if (!AITModClient.CONFIG.greenScreenBOTI)
+            BOTIFog.fogVoid(stack, botiProvider, mask, exterior.getPos().toCenterPos().add(0, 0.5, 0)
+                    .subtract(client.gameRenderer.getCamera().getPos()));
+
         profiler.visit("ait_boti_draw_flush");
         stack.pop();
 
@@ -209,5 +215,6 @@ public class TardisExteriorBOTI extends BOTI {
         profiler.pop();
 
         stack.pop();
+        BOTIFog.restore();
     }
 }
