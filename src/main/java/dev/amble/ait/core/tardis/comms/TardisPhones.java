@@ -200,9 +200,14 @@ public final class TardisPhones {
         if (handset == null || !handset.holder().equals(player.getUuid()))
             return false;
 
+        boolean ending = endCall && TardisComms.status(handset.line()) != TardisComms.Status.IDLE;
+        BlockPos cradle = BlockPos.ofFloored(handset.anchor());
+
         release(player.getServer(), handset, endCall);
-        player.getServerWorld().playSound(null, BlockPos.ofFloored(handset.anchor()), SoundEvents.ITEM_ARMOR_EQUIP_CHAIN,
-                SoundCategory.BLOCKS, 0.8f, 0.9f);
+        player.getServerWorld().playSound(null, cradle, SoundEvents.ITEM_ARMOR_EQUIP_CHAIN, SoundCategory.BLOCKS, 0.8f, 0.9f);
+
+        if (ending)
+            player.getServerWorld().playSound(null, cradle, SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.BLOCKS, 0.6f, 1.6f);
         return true;
     }
 

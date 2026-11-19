@@ -55,6 +55,6 @@ public class CommsControl extends Control {
 
     @Override
     public SoundEvent getFallbackSound() {
-        return AITSounds.BWEEP;
+        return AITSounds.XYZ;
     }
 }
