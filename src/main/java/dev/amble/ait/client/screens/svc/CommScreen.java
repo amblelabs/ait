@@ -64,8 +64,10 @@ public class CommScreen extends TardisScreen {
     private static final int KEYPAD_BORDER = 0xFF161616;
     private static final int KEYPAD_BODY = 0xFF353535;
     private static final int KEYPAD_SCREEN = 0xFF0B140B;
-    private static final char BACKSPACE = '⌫';
-    private static final char DIAL = '☎';
+    private static final char BACKSPACE = '<';
+    private static final char DIAL = '\n';
+    private static final Identifier PHONE_ICON = AITMod.id("textures/item/phone.png");
+    private static final int ICON_SIZE = 10;
     private static final char[] KEYS = { '1', '2', '3', '4', '5', '6', '7', '8', '9', BACKSPACE, '0', DIAL };
 
     private record Contact(UUID id, String name) {
@@ -253,8 +255,10 @@ public class CommScreen extends TardisScreen {
 
         for (int i = 0; i < KEYS.length; i++) {
             char key = KEYS[i];
-            SpriteButton button = this.add(keysLeft + (i % 3) * (KEY_WIDTH + KEY_GAP), keysTop + (i / 3) * (ROW_HEIGHT + KEY_GAP),
-                    KEY_WIDTH, Text.literal(String.valueOf(key)), pressed -> this.press(key));
+            SpriteButton button = this.addDrawableChild(new SpriteButton(keysLeft + (i % 3) * (KEY_WIDTH + KEY_GAP),
+                    keysTop + (i / 3) * (ROW_HEIGHT + KEY_GAP), KEY_WIDTH,
+                    key == DIAL ? Text.translatable("screen.ait.phone.dial") : Text.literal(String.valueOf(key)),
+                    key == DIAL ? PHONE_ICON : null, pressed -> this.press(key)));
 
             if (key == BACKSPACE)
                 button.setTooltip(Tooltip.of(Text.translatable("screen.ait.comms.backspace")));
@@ -524,8 +528,15 @@ public class CommScreen extends TardisScreen {
         private static final int SPRITE_WIDTH = 52;
         private static final int CAP = 3;
 
+        @Nullable private final Identifier icon;
+
         private SpriteButton(int x, int y, int width, Text message, PressAction action) {
+            this(x, y, width, message, null, action);
+        }
+
+        private SpriteButton(int x, int y, int width, Text message, @Nullable Identifier icon, PressAction action) {
             super(x, y, width, ROW_HEIGHT, message, action, DEFAULT_NARRATION_SUPPLIER);
+            this.icon = icon;
         }
 
         @Override
@@ -539,6 +550,12 @@ public class CommScreen extends TardisScreen {
             context.drawTexture(TEXTURE, x + CAP, y, middle, this.height, SPRITE_U + CAP, v,
                     SPRITE_WIDTH - CAP * 2, this.height, 256, 256);
             context.drawTexture(TEXTURE, x + this.width - CAP, y, SPRITE_U + SPRITE_WIDTH - CAP, v, CAP, this.height, 256, 256);
+
+            if (this.icon != null) {
+                context.drawTexture(this.icon, x + (this.width - ICON_SIZE) / 2, y + (this.height - ICON_SIZE) / 2, ICON_SIZE, ICON_SIZE,
+                        0, 0, 16, 16, 16, 16);
+                return;
+            }
 
             TextRenderer font = MinecraftClient.getInstance().textRenderer;
             String label = font.trimToWidth(this.getMessage(), this.width - 4).getString();

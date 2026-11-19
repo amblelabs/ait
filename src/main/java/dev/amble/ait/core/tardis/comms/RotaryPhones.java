@@ -35,6 +35,7 @@ public final class RotaryPhones {
     public static final Identifier OPEN = AITMod.id("rotary_phone_open");
     public static final Identifier DIAL = AITMod.id("rotary_phone_dial");
     public static final Identifier COPY = AITMod.id("rotary_phone_copy");
+    public static final Identifier REMOVE_RECENT = AITMod.id("rotary_phone_remove_recent");
 
     public static final int CALL_COOLDOWN = 200;
 
@@ -56,6 +57,17 @@ public final class RotaryPhones {
             String number = buf.readString(32);
 
             server.execute(() -> dial(player, pos, number));
+        });
+
+        ServerPlayNetworking.registerGlobalReceiver(REMOVE_RECENT, (server, player, handler, buf, responseSender) -> {
+            BlockPos pos = buf.readBlockPos();
+            String number = buf.readString(32);
+
+            server.execute(() -> {
+                if (player.squaredDistanceTo(Vec3d.ofCenter(pos)) <= REACH * REACH
+                        && player.getServerWorld().getBlockEntity(pos) instanceof RotaryPhoneBlockEntity phone)
+                    phone.removeRecent(number);
+            });
         });
     }
 

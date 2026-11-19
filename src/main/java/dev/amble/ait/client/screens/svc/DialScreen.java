@@ -138,9 +138,9 @@ public class DialScreen extends Screen {
 
         for (int i = 0; i < limit; i++) {
             Recent recent = this.recents.get(i);
-            Text text = Text.literal((recent.outgoing() ? "â " : "â ") + PhoneDirectory.format(recent.number()));
+            Text text = Text.literal((recent.outgoing() ? "> " : "< ") + PhoneDirectory.format(recent.number()));
             RecentRow row = this.addDrawableChild(new RecentRow(left + PAPER_X, top + RECENTS_Y + i * RECENT_HEIGHT,
-                    PAPER_RIGHT - PAPER_X, text, pressed -> this.setDigits(recent.number())));
+                    PAPER_RIGHT - PAPER_X, text, pressed -> this.setDigits(recent.number()), () -> this.removeRecent(recent)));
 
             Text tooltip = Text.translatable(recent.outgoing() ? "screen.ait.phone.outgoing" : "screen.ait.phone.incoming");
 
@@ -155,7 +155,7 @@ public class DialScreen extends Screen {
 
     private static Text label(char key) {
         return switch (key) {
-            case BACKSPACE -> Text.literal("←");
+            case BACKSPACE -> Text.literal("<");
             case CALL -> Text.translatable("screen.ait.phone.dial");
             default -> Text.literal(String.valueOf(key));
         };
@@ -199,6 +199,17 @@ public class DialScreen extends Screen {
 
         this.digits.append(digit);
         this.clicks.dial(digit);
+    }
+
+    private void removeRecent(Recent recent) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeBlockPos(this.pos);
+        buf.writeString(recent.number());
+        ClientPlayNetworking.send(RotaryPhones.REMOVE_RECENT, buf);
+
+        this.recents.remove(recent);
+        RotaryClicks.click(0.9f);
+        this.clearAndInit();
     }
 
     private void setDigits(String number) {
@@ -330,12 +341,9 @@ public class DialScreen extends Screen {
             context.drawTexture(TEXTURE, x, y, KEY_U, pressed ? KEY_PRESSED_V : KEY_V, KEY_SIZE, KEY_SIZE, 256, 256);
 
             if (this.icon != null) {
-                float shade = this.active ? 1f : 0.5f;
                 int inset = (KEY_SIZE - ICON_SIZE) / 2;
 
-                context.setShaderColor(shade, shade, shade, 1f);
                 context.drawTexture(this.icon, x + inset, y + inset, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
-                context.setShaderColor(1f, 1f, 1f, 1f);
                 return;
             }
 
@@ -349,16 +357,47 @@ public class DialScreen extends Screen {
 
     private static final class RecentRow extends ButtonWidget {
 
-        private RecentRow(int x, int y, int width, Text message, PressAction action) {
+        private static final String REMOVE = "X";
+        private static final int REMOVE_WIDTH = 8;
+        private static final int REMOVE_COLOR = 0xA02020;
+
+        private final Runnable onRemove;
+
+        private RecentRow(int x, int y, int width, Text message, PressAction action, Runnable onRemove) {
             super(x, y, width, RECENT_HEIGHT, message, action, DEFAULT_NARRATION_SUPPLIER);
+            this.onRemove = onRemove;
+        }
+
+        private boolean overRemove(double mouseX) {
+            return mouseX >= this.getX() + this.width - REMOVE_WIDTH;
+        }
+
+        @Override
+        public void onClick(double mouseX, double mouseY) {
+            if (this.overRemove(mouseX)) {
+                this.onRemove.run();
+                return;
+            }
+
+            super.onClick(mouseX, mouseY);
         }
 
         @Override
         protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
             TextRenderer font = MinecraftClient.getInstance().textRenderer;
-            Text text = this.isSelected() ? this.getMessage().copy().formatted(Formatting.UNDERLINE) : this.getMessage();
+            boolean hovered = this.isHovered();
+            boolean removing = hovered && this.overRemove(mouseX);
+            Text text = hovered && !removing ? this.getMessage().copy().formatted(Formatting.UNDERLINE) : this.getMessage();
+            int textWidth = hovered ? this.width - REMOVE_WIDTH : this.width;
 
-            context.drawText(font, Language.getInstance().reorder(font.trimToWidth(text, this.width)), this.getX(), this.getY() + 1, INK, false);
+            context.drawText(font, Language.getInstance().reorder(font.trimToWidth(text, textWidth)), this.getX(), this.getY() + 1, INK, false);
+
+            if (!hovered)
+                return;
+
+            Text remove = removing ? Text.literal(REMOVE).formatted(Formatting.BOLD) : Text.literal(REMOVE);
+            context.drawText(font, remove, this.getX() + this.width - REMOVE_WIDTH + (REMOVE_WIDTH - font.getWidth(remove)) / 2,
+                    this.getY() + 1, REMOVE_COLOR, false);
         }
     }
 }

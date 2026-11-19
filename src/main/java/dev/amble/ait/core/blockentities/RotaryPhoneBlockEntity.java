@@ -93,6 +93,11 @@ public class RotaryPhoneBlockEntity extends BlockEntity {
         this.markDirty();
     }
 
+    public void removeRecent(String number) {
+        if (this.recents.removeIf(recent -> recent.number().equals(number)))
+            this.markDirty();
+    }
+
     public boolean isRinging() {
         return this.ringing;
     }
