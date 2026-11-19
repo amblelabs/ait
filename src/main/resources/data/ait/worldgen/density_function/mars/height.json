@@ -1,0 +1,271 @@
+{
+  "type": "minecraft:flat_cache",
+  "argument": {
+    "type": "minecraft:add",
+    "argument1": {
+      "type": "minecraft:add",
+      "argument1": {
+        "type": "minecraft:mul",
+        "argument1": 9.0,
+        "argument2": "ait:mars/plains"
+      },
+      "argument2": {
+        "type": "minecraft:mul",
+        "argument1": 2.5,
+        "argument2": "ait:mars/detail"
+      }
+    },
+    "argument2": {
+      "type": "minecraft:add",
+      "argument1": {
+        "type": "minecraft:mul",
+        "argument1": {
+          "type": "minecraft:spline",
+          "spline": {
+            "coordinate": "ait:mars/mesa",
+            "points": [
+              {
+                "location": -1.0,
+                "value": 0.0,
+                "derivative": 0.0
+              },
+              {
+                "location": 0.08,
+                "value": 0.0,
+                "derivative": 0.0
+              },
+              {
+                "location": 0.16,
+                "value": 14.0,
+                "derivative": 0.0
+              },
+              {
+                "location": 0.42,
+                "value": 14.0,
+                "derivative": 0.0
+              },
+              {
+                "location": 0.5,
+                "value": 28.0,
+                "derivative": 0.0
+              },
+              {
+                "location": 1.0,
+                "value": 28.0,
+                "derivative": 0.0
+              }
+            ]
+          }
+        },
+        "argument2": {
+          "type": "minecraft:clamp",
+          "input": {
+            "type": "minecraft:add",
+            "argument1": 0.3,
+            "argument2": {
+              "type": "minecraft:mul",
+              "argument1": 3.0,
+              "argument2": "ait:mars/mesa_region"
+            }
+          },
+          "min": 0.0,
+          "max": 1.0
+        }
+      },
+      "argument2": {
+        "type": "minecraft:add",
+        "argument1": {
+          "type": "minecraft:mul",
+          "argument1": -7.0,
+          "argument2": {
+            "type": "minecraft:clamp",
+            "input": {
+              "type": "minecraft:add",
+              "argument1": 1.0,
+              "argument2": {
+                "type": "minecraft:mul",
+                "argument1": -33.0,
+                "argument2": {
+                  "type": "minecraft:abs",
+                  "argument": "ait:mars/channels"
+                }
+              }
+            },
+            "min": 0.0,
+            "max": 1.0
+          }
+        },
+        "argument2": {
+          "type": "minecraft:add",
+          "argument1": {
+            "type": "minecraft:mul",
+            "argument1": -55.0,
+            "argument2": {
+              "type": "minecraft:mul",
+              "argument1": {
+                "type": "minecraft:clamp",
+                "input": {
+                  "type": "minecraft:add",
+                  "argument1": 0.0,
+                  "argument2": {
+                    "type": "minecraft:mul",
+                    "argument1": 4.0,
+                    "argument2": "ait:mars/canyon_region"
+                  }
+                },
+                "min": 0.0,
+                "max": 1.0
+              },
+              "argument2": {
+                "type": "minecraft:clamp",
+                "input": {
+                  "type": "minecraft:add",
+                  "argument1": 2.5,
+                  "argument2": {
+                    "type": "minecraft:mul",
+                    "argument1": -35.7,
+                    "argument2": {
+                      "type": "minecraft:abs",
+                      "argument": "ait:mars/canyon"
+                    }
+                  }
+                },
+                "min": 0.0,
+                "max": 1.0
+              }
+            }
+          },
+          "argument2": {
+            "type": "minecraft:add",
+            "argument1": {
+              "type": "minecraft:add",
+              "argument1": {
+                "type": "minecraft:mul",
+                "argument1": 140.0,
+                "argument2": {
+                  "type": "minecraft:square",
+                  "argument": {
+                    "type": "minecraft:clamp",
+                    "input": {
+                      "type": "minecraft:add",
+                      "argument1": -1.0,
+                      "argument2": {
+                        "type": "minecraft:mul",
+                        "argument1": 2.0,
+                        "argument2": "ait:mars/volcano"
+                      }
+                    },
+                    "min": 0.0,
+                    "max": 1.0
+                  }
+                }
+              },
+              "argument2": {
+                "type": "minecraft:mul",
+                "argument1": -35.0,
+                "argument2": {
+                  "type": "minecraft:clamp",
+                  "input": {
+                    "type": "minecraft:add",
+                    "argument1": -10.625,
+                    "argument2": {
+                      "type": "minecraft:mul",
+                      "argument1": 12.5,
+                      "argument2": "ait:mars/volcano"
+                    }
+                  },
+                  "min": 0.0,
+                  "max": 1.0
+                }
+              }
+            },
+            "argument2": {
+              "type": "minecraft:add",
+              "argument1": {
+                "type": "minecraft:mul",
+                "argument1": 5.0,
+                "argument2": {
+                  "type": "minecraft:mul",
+                  "argument1": {
+                    "type": "minecraft:clamp",
+                    "input": {
+                      "type": "minecraft:add",
+                      "argument1": -0.4,
+                      "argument2": {
+                        "type": "minecraft:mul",
+                        "argument1": 4.0,
+                        "argument2": "ait:mars/dune_region"
+                      }
+                    },
+                    "min": 0.0,
+                    "max": 1.0
+                  },
+                  "argument2": {
+                    "type": "minecraft:add",
+                    "argument1": 1.0,
+                    "argument2": {
+                      "type": "minecraft:mul",
+                      "argument1": -1.0,
+                      "argument2": {
+                        "type": "minecraft:abs",
+                        "argument": "ait:mars/dunes"
+                      }
+                    }
+                  }
+                }
+              },
+              "argument2": {
+                "type": "minecraft:add",
+                "argument1": {
+                  "type": "minecraft:mul",
+                  "argument1": 14.0,
+                  "argument2": {
+                    "type": "minecraft:clamp",
+                    "input": {
+                      "type": "minecraft:add",
+                      "argument1": -1.6,
+                      "argument2": {
+                        "type": "minecraft:mul",
+                        "argument1": 4.0,
+                        "argument2": "ait:mars/polar"
+                      }
+                    },
+                    "min": 0.0,
+                    "max": 1.0
+                  }
+                },
+                "argument2": {
+                  "type": "minecraft:add",
+                  "argument1": {
+                    "type": "ait:craters",
+                    "seed": "ait:crater_seed",
+                    "salt": 53,
+                    "cell_size": 90,
+                    "min_radius": 5,
+                    "max_radius": 12,
+                    "chance": 0.45,
+                    "depth": 0.3,
+                    "rim": 0.07,
+                    "peak_radius": 4096
+                  },
+                  "argument2": {
+                    "type": "ait:craters",
+                    "seed": "ait:crater_seed",
+                    "salt": 71,
+                    "cell_size": 320,
+                    "min_radius": 18,
+                    "max_radius": 75,
+                    "chance": 0.5,
+                    "depth": 0.13,
+                    "rim": 0.035,
+                    "peak_radius": 45
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

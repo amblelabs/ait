@@ -1,0 +1,42 @@
+{
+  "type": "minecraft:add",
+  "argument1": {
+    "type": "ait:craters",
+    "seed": "ait:crater_seed",
+    "salt": 11,
+    "cell_size": 40,
+    "min_radius": 5,
+    "max_radius": 12,
+    "chance": 0.85,
+    "depth": 0.42,
+    "rim": 0.14,
+    "peak_radius": 4096
+  },
+  "argument2": {
+    "type": "minecraft:add",
+    "argument1": {
+      "type": "ait:craters",
+      "seed": "ait:crater_seed",
+      "salt": 23,
+      "cell_size": 128,
+      "min_radius": 14,
+      "max_radius": 40,
+      "chance": 0.75,
+      "depth": 0.32,
+      "rim": 0.11,
+      "peak_radius": 30
+    },
+    "argument2": {
+      "type": "ait:craters",
+      "seed": "ait:crater_seed",
+      "salt": 37,
+      "cell_size": 480,
+      "min_radius": 55,
+      "max_radius": 140,
+      "chance": 0.6,
+      "depth": 0.2,
+      "rim": 0.07,
+      "peak_radius": 50
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:mul",
+  "argument1": 30.0,
+  "argument2": {
+    "type": "minecraft:add",
+    "argument1": 0.8,
+    "argument2": {
+      "type": "minecraft:mul",
+      "argument1": -1.0,
+      "argument2": {
+        "type": "minecraft:flat_cache",
+        "argument": {
+          "type": "minecraft:noise",
+          "noise": "ait:skylight",
+          "xz_scale": 1.0,
+          "y_scale": 0.0
+        }
+      }
+    }
+  }
+}

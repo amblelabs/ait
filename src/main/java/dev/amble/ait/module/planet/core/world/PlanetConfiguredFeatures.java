@@ -5,6 +5,8 @@ import java.util.List;
 import dev.amble.ait.AITMod;
 import dev.amble.ait.module.planet.core.PlanetBlocks;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.registry.Registerable;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -16,69 +18,25 @@ import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.OreFeatureConfig;
 
 public class PlanetConfiguredFeatures {
-   public static final RegistryKey<ConfiguredFeature<?, ?>> MARTIAN_COAL_ORE = registryKey("martian_coal_ore");
-   public static final RegistryKey<ConfiguredFeature<?, ?>> MARTIAN_COPPER_ORE = registryKey("martian_copper_ore");
-   public static final RegistryKey<ConfiguredFeature<?, ?>> MARTIAN_IRON_ORE = registryKey("martian_iron_ore");
-   public static final RegistryKey<ConfiguredFeature<?, ?>> MARTIAN_GOLD_ORE = registryKey("martian_gold_ore");
-   public static final RegistryKey<ConfiguredFeature<?, ?>> MARTIAN_REDSTONE_ORE = registryKey("martian_redstone_ore");
-   public static final RegistryKey<ConfiguredFeature<?, ?>> MARTIAN_LAPIS_ORE = registryKey("martian_lapis_ore");
-   public static final RegistryKey<ConfiguredFeature<?, ?>> MARTIAN_DIAMOND_ORE = registryKey("martian_diamond_ore");
-   public static final RegistryKey<ConfiguredFeature<?, ?>> MARTIAN_EMERALD_ORE = registryKey("martian_emerald_ore");
 
-    public static final RegistryKey<ConfiguredFeature<?, ?>> ANORTHOSITE_COAL_ORE = registryKey("anorthosite_coal_ore");
-    public static final RegistryKey<ConfiguredFeature<?, ?>> ANORTHOSITE_COPPER_ORE = registryKey("anorthosite_copper_ore");
-    public static final RegistryKey<ConfiguredFeature<?, ?>> ANORTHOSITE_IRON_ORE = registryKey("anorthosite_iron_ore");
-    public static final RegistryKey<ConfiguredFeature<?, ?>> ANORTHOSITE_GOLD_ORE = registryKey("anorthosite_gold_ore");
-    public static final RegistryKey<ConfiguredFeature<?, ?>> ANORTHOSITE_REDSTONE_ORE = registryKey("anorthosite_redstone_ore");
-    public static final RegistryKey<ConfiguredFeature<?, ?>> ANORTHOSITE_LAPIS_ORE = registryKey("anorthosite_lapis_ore");
-    public static final RegistryKey<ConfiguredFeature<?, ?>> ANORTHOSITE_DIAMOND_ORE = registryKey("anorthosite_diamond_ore");
-    public static final RegistryKey<ConfiguredFeature<?, ?>> ANORTHOSITE_EMERALD_ORE = registryKey("anorthosite_emerald_ore");
+    public static final PlanetOres MOON = new PlanetOres("anorthosite");
+    public static final PlanetOres MARS = new PlanetOres("martian");
 
-   public static void bootstrap(Registerable<ConfiguredFeature<?, ?>> context) {
-       RuleTest martianStoneReplaceables = new BlockMatchRuleTest(PlanetBlocks.MARTIAN_STONE);
-       RuleTest anorthositeReplaceables = new BlockMatchRuleTest(PlanetBlocks.ANORTHOSITE);
+    public static final RegistryKey<ConfiguredFeature<?, ?>> MARS_BURIED_ICE = registryKey("mars_buried_ice");
 
-       List<OreFeatureConfig.Target> marsOres =
-               List.of(OreFeatureConfig.createTarget(martianStoneReplaceables, PlanetBlocks.MARTIAN_COAL_ORE.getDefaultState()),
-                       OreFeatureConfig.createTarget(martianStoneReplaceables, PlanetBlocks.MARTIAN_COPPER_ORE.getDefaultState()),
-                       OreFeatureConfig.createTarget(martianStoneReplaceables, PlanetBlocks.MARTIAN_IRON_ORE.getDefaultState()),
-                       OreFeatureConfig.createTarget(martianStoneReplaceables, PlanetBlocks.MARTIAN_GOLD_ORE.getDefaultState()),
-                       OreFeatureConfig.createTarget(martianStoneReplaceables, PlanetBlocks.MARTIAN_REDSTONE_ORE.getDefaultState()),
-                       OreFeatureConfig.createTarget(martianStoneReplaceables, PlanetBlocks.MARTIAN_LAPIS_ORE.getDefaultState()),
-                       OreFeatureConfig.createTarget(martianStoneReplaceables, PlanetBlocks.MARTIAN_DIAMOND_ORE.getDefaultState()),
-                       OreFeatureConfig.createTarget(martianStoneReplaceables, PlanetBlocks.MARTIAN_EMERALD_ORE.getDefaultState()));
+    public static void bootstrap(Registerable<ConfiguredFeature<?, ?>> context) {
+        MOON.bootstrap(context, PlanetBlocks.ANORTHOSITE, PlanetBlocks.ANORTHOSITE_COAL_ORE, PlanetBlocks.ANORTHOSITE_IRON_ORE,
+                PlanetBlocks.ANORTHOSITE_COPPER_ORE, PlanetBlocks.ANORTHOSITE_GOLD_ORE, PlanetBlocks.ANORTHOSITE_REDSTONE_ORE,
+                PlanetBlocks.ANORTHOSITE_LAPIS_ORE, PlanetBlocks.ANORTHOSITE_DIAMOND_ORE, PlanetBlocks.ANORTHOSITE_EMERALD_ORE);
 
+        MARS.bootstrap(context, PlanetBlocks.MARTIAN_STONE, PlanetBlocks.MARTIAN_COAL_ORE, PlanetBlocks.MARTIAN_IRON_ORE,
+                PlanetBlocks.MARTIAN_COPPER_ORE, PlanetBlocks.MARTIAN_GOLD_ORE, PlanetBlocks.MARTIAN_REDSTONE_ORE,
+                PlanetBlocks.MARTIAN_LAPIS_ORE, PlanetBlocks.MARTIAN_DIAMOND_ORE, PlanetBlocks.MARTIAN_EMERALD_ORE);
 
-       List<OreFeatureConfig.Target> anorthorsiteOres =
-               List.of(OreFeatureConfig.createTarget(anorthositeReplaceables, PlanetBlocks.ANORTHOSITE_COAL_ORE.getDefaultState()),
-                       OreFeatureConfig.createTarget(anorthositeReplaceables, PlanetBlocks.ANORTHOSITE_COPPER_ORE.getDefaultState()),
-                       OreFeatureConfig.createTarget(anorthositeReplaceables, PlanetBlocks.ANORTHOSITE_IRON_ORE.getDefaultState()),
-                       OreFeatureConfig.createTarget(anorthositeReplaceables, PlanetBlocks.ANORTHOSITE_GOLD_ORE.getDefaultState()),
-                       OreFeatureConfig.createTarget(anorthositeReplaceables, PlanetBlocks.ANORTHOSITE_REDSTONE_ORE.getDefaultState()),
-                       OreFeatureConfig.createTarget(anorthositeReplaceables, PlanetBlocks.ANORTHOSITE_LAPIS_ORE.getDefaultState()),
-                       OreFeatureConfig.createTarget(anorthositeReplaceables, PlanetBlocks.ANORTHOSITE_DIAMOND_ORE.getDefaultState()),
-                       OreFeatureConfig.createTarget(anorthositeReplaceables, PlanetBlocks.ANORTHOSITE_EMERALD_ORE.getDefaultState()));
-
-
-       register(context, MARTIAN_COAL_ORE, Feature.ORE, new OreFeatureConfig(marsOres, 12));
-       register(context, MARTIAN_COPPER_ORE, Feature.ORE, new OreFeatureConfig(marsOres, 10));
-       register(context, MARTIAN_IRON_ORE, Feature.ORE, new OreFeatureConfig(marsOres, 8));
-       register(context, MARTIAN_GOLD_ORE, Feature.ORE, new OreFeatureConfig(marsOres, 6));
-       register(context, MARTIAN_REDSTONE_ORE, Feature.ORE, new OreFeatureConfig(marsOres, 6));
-       register(context, MARTIAN_LAPIS_ORE, Feature.ORE, new OreFeatureConfig(marsOres, 4));
-       register(context, MARTIAN_DIAMOND_ORE, Feature.ORE, new OreFeatureConfig(marsOres, 3));
-       register(context, MARTIAN_EMERALD_ORE, Feature.ORE, new OreFeatureConfig(marsOres, 1));
-
-
-       register(context, ANORTHOSITE_COAL_ORE, Feature.ORE, new OreFeatureConfig(anorthorsiteOres, 12));
-       register(context, ANORTHOSITE_COPPER_ORE, Feature.ORE, new OreFeatureConfig(anorthorsiteOres, 10));
-       register(context, ANORTHOSITE_IRON_ORE, Feature.ORE, new OreFeatureConfig(anorthorsiteOres, 8));
-       register(context, ANORTHOSITE_GOLD_ORE, Feature.ORE, new OreFeatureConfig(anorthorsiteOres, 6));
-       register(context, ANORTHOSITE_REDSTONE_ORE, Feature.ORE, new OreFeatureConfig(anorthorsiteOres, 6));
-       register(context, ANORTHOSITE_LAPIS_ORE, Feature.ORE, new OreFeatureConfig(anorthorsiteOres, 4));
-       register(context, ANORTHOSITE_DIAMOND_ORE, Feature.ORE, new OreFeatureConfig(anorthorsiteOres, 3));
-       register(context, ANORTHOSITE_EMERALD_ORE, Feature.ORE, new OreFeatureConfig(anorthorsiteOres, 1));
-   }
+        register(context, MARS_BURIED_ICE, Feature.ORE, new OreFeatureConfig(
+                List.of(OreFeatureConfig.createTarget(new BlockMatchRuleTest(PlanetBlocks.MARTIAN_STONE), Blocks.PACKED_ICE.getDefaultState())),
+                33, 0.6f));
+    }
 
     public static RegistryKey<ConfiguredFeature<?, ?>> registryKey(String name) {
         return RegistryKey.of(RegistryKeys.CONFIGURED_FEATURE, AITMod.id(name));
@@ -89,5 +47,60 @@ public class PlanetConfiguredFeatures {
         context.register(key, new ConfiguredFeature<>(feature, configuration));
     }
 
+    public static final class PlanetOres {
+        public final RegistryKey<ConfiguredFeature<?, ?>> coal;
+        public final RegistryKey<ConfiguredFeature<?, ?>> coalBuried;
+        public final RegistryKey<ConfiguredFeature<?, ?>> iron;
+        public final RegistryKey<ConfiguredFeature<?, ?>> ironSmall;
+        public final RegistryKey<ConfiguredFeature<?, ?>> copper;
+        public final RegistryKey<ConfiguredFeature<?, ?>> goldBuried;
+        public final RegistryKey<ConfiguredFeature<?, ?>> redstone;
+        public final RegistryKey<ConfiguredFeature<?, ?>> lapis;
+        public final RegistryKey<ConfiguredFeature<?, ?>> lapisBuried;
+        public final RegistryKey<ConfiguredFeature<?, ?>> diamondSmall;
+        public final RegistryKey<ConfiguredFeature<?, ?>> diamondLarge;
+        public final RegistryKey<ConfiguredFeature<?, ?>> diamondBuried;
+        public final RegistryKey<ConfiguredFeature<?, ?>> emerald;
 
+        private PlanetOres(String prefix) {
+            this.coal = registryKey(prefix + "_coal_ore");
+            this.coalBuried = registryKey(prefix + "_coal_ore_buried");
+            this.iron = registryKey(prefix + "_iron_ore");
+            this.ironSmall = registryKey(prefix + "_iron_ore_small");
+            this.copper = registryKey(prefix + "_copper_ore");
+            this.goldBuried = registryKey(prefix + "_gold_ore_buried");
+            this.redstone = registryKey(prefix + "_redstone_ore");
+            this.lapis = registryKey(prefix + "_lapis_ore");
+            this.lapisBuried = registryKey(prefix + "_lapis_ore_buried");
+            this.diamondSmall = registryKey(prefix + "_diamond_ore_small");
+            this.diamondLarge = registryKey(prefix + "_diamond_ore_large");
+            this.diamondBuried = registryKey(prefix + "_diamond_ore_buried");
+            this.emerald = registryKey(prefix + "_emerald_ore");
+        }
+
+        private void bootstrap(Registerable<ConfiguredFeature<?, ?>> context, Block stone, Block coalOre, Block ironOre,
+                               Block copperOre, Block goldOre, Block redstoneOre, Block lapisOre, Block diamondOre, Block emeraldOre) {
+            RuleTest host = new BlockMatchRuleTest(stone);
+
+            ore(context, this.coal, host, coalOre, 17, 0f);
+            ore(context, this.coalBuried, host, coalOre, 17, 0.5f);
+            ore(context, this.iron, host, ironOre, 9, 0f);
+            ore(context, this.ironSmall, host, ironOre, 4, 0f);
+            ore(context, this.copper, host, copperOre, 10, 0f);
+            ore(context, this.goldBuried, host, goldOre, 9, 0.5f);
+            ore(context, this.redstone, host, redstoneOre, 8, 0f);
+            ore(context, this.lapis, host, lapisOre, 7, 0f);
+            ore(context, this.lapisBuried, host, lapisOre, 7, 1f);
+            ore(context, this.diamondSmall, host, diamondOre, 4, 0.5f);
+            ore(context, this.diamondLarge, host, diamondOre, 12, 0.7f);
+            ore(context, this.diamondBuried, host, diamondOre, 8, 1f);
+            ore(context, this.emerald, host, emeraldOre, 3, 0f);
+        }
+
+        private static void ore(Registerable<ConfiguredFeature<?, ?>> context, RegistryKey<ConfiguredFeature<?, ?>> key,
+                                RuleTest host, Block ore, int size, float discardOnAir) {
+            register(context, key, Feature.ORE, new OreFeatureConfig(
+                    List.of(OreFeatureConfig.createTarget(host, ore.getDefaultState())), size, discardOnAir));
+        }
+    }
 }

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:add",
+  "argument1": {
+    "type": "minecraft:y_clamped_gradient",
+    "from_y": -64,
+    "to_y": 320,
+    "from_value": 2.09375,
+    "to_value": -3.90625
+  },
+  "argument2": {
+    "type": "minecraft:mul",
+    "argument1": 0.015625,
+    "argument2": "ait:mars/height"
+  }
+}

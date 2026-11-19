@@ -1,0 +1,37 @@
+{
+  "type": "minecraft:interpolated",
+  "argument": {
+    "type": "minecraft:min",
+    "argument1": "ait:mars/terrain",
+    "argument2": {
+      "type": "minecraft:min",
+      "argument1": {
+        "type": "minecraft:range_choice",
+        "input": "ait:mars/depth_blocks",
+        "min_inclusive": 8.0,
+        "max_exclusive": 45.0,
+        "when_in_range": "ait:planet/lava_tubes",
+        "when_out_of_range": 1.0
+      },
+      "argument2": {
+        "type": "minecraft:min",
+        "argument1": {
+          "type": "minecraft:range_choice",
+          "input": "ait:mars/depth_blocks",
+          "min_inclusive": -4.0,
+          "max_exclusive": 42.0,
+          "when_in_range": "ait:planet/skylights",
+          "when_out_of_range": 1.0
+        },
+        "argument2": {
+          "type": "minecraft:range_choice",
+          "input": "ait:mars/depth_blocks",
+          "min_inclusive": 10.0,
+          "max_exclusive": 100000.0,
+          "when_in_range": "ait:planet/vanilla_caves",
+          "when_out_of_range": 1.0
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:flat_cache",
+  "argument": {
+    "type": "minecraft:clamp",
+    "input": {
+      "type": "minecraft:add",
+      "argument1": 0.5,
+      "argument2": {
+        "type": "minecraft:mul",
+        "argument1": 3.0,
+        "argument2": "ait:moon/maria_mask"
+      }
+    },
+    "min": 0.0,
+    "max": 1.0
+  }
+}

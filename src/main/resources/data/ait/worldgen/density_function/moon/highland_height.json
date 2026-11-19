@@ -1,0 +1,77 @@
+{
+  "type": "minecraft:add",
+  "argument1": {
+    "type": "minecraft:add",
+    "argument1": 14.0,
+    "argument2": {
+      "type": "minecraft:add",
+      "argument1": {
+        "type": "minecraft:mul",
+        "argument1": 20.0,
+        "argument2": {
+          "type": "minecraft:noise",
+          "noise": "ait:moon_hills",
+          "xz_scale": 1.0,
+          "y_scale": 0.0
+        }
+      },
+      "argument2": {
+        "type": "minecraft:mul",
+        "argument1": 4.0,
+        "argument2": {
+          "type": "minecraft:noise",
+          "noise": "ait:moon_hummocks",
+          "xz_scale": 1.0,
+          "y_scale": 0.0
+        }
+      }
+    }
+  },
+  "argument2": {
+    "type": "minecraft:mul",
+    "argument1": 48.0,
+    "argument2": {
+      "type": "minecraft:mul",
+      "argument1": {
+        "type": "minecraft:clamp",
+        "input": {
+          "type": "minecraft:mul",
+          "argument1": 2.5,
+          "argument2": {
+            "type": "minecraft:noise",
+            "noise": "ait:moon_hills",
+            "xz_scale": 1.0,
+            "y_scale": 0.0
+          }
+        },
+        "min": 0.0,
+        "max": 1.0
+      },
+      "argument2": {
+        "type": "minecraft:cube",
+        "argument": {
+          "type": "minecraft:clamp",
+          "input": {
+            "type": "minecraft:add",
+            "argument1": 1.0,
+            "argument2": {
+              "type": "minecraft:mul",
+              "argument1": -1.4,
+              "argument2": {
+                "type": "minecraft:abs",
+                "argument": {
+                  "type": "minecraft:noise",
+                  "noise": "ait:moon_massif",
+                  "xz_scale": 1.0,
+                  "y_scale": 0.0
+                }
+              }
+            }
+          },
+          "min": 0.0,
+          "max": 1.0
+        }
+      }
+    }
+  }
+}
