@@ -11,15 +11,17 @@ public class VortexReferenceRegistry extends UnlockableRegistry<VortexReference>
     }
 
     public static VortexReference TOYOTA;
+    public static VortexReference TENNANT_BLUE;
 
     @Override
     protected void defaults() {
         TOYOTA = register(new VortexReference(AITMod.id("toyota"), AITMod.id("textures/vortex/toyota.png")));
+        TENNANT_BLUE = register(new VortexReference(AITMod.id("tennantblue"), AITMod.id("textures/vortex/tennant.png")));
     }
 
     @Override
     public VortexReference fallback() {
-        return TOYOTA;
+        return TENNANT_BLUE;
     }
 
     public static VortexReferenceRegistry getInstance() {
