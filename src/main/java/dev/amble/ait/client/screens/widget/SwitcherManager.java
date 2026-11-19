@@ -11,6 +11,8 @@ import dev.amble.ait.client.sounds.ClientSoundManager;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.sounds.flight.FlightSound;
 import dev.amble.ait.core.sounds.flight.FlightSoundRegistry;
+import dev.amble.ait.core.sounds.landing.LandingNotification;
+import dev.amble.ait.core.sounds.landing.LandingNotificationRegistry;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
 import dev.amble.ait.core.tardis.animation.v2.datapack.TardisAnimationRegistry;
@@ -216,6 +218,38 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
         }
     }
 
+    public static class LandingSwitcher extends SwitcherManager<LandingNotification, ClientTardis> {
+        protected LandingSwitcher(LandingNotification current) {
+            super(LandingSwitcher::next, LandingSwitcher::previous, LandingSwitcher::sync, current, "landing");
+        }
+
+        public LandingSwitcher(Tardis tardis) {
+            this(tardis.stats().getLandingNotification());
+        }
+
+        private static LandingNotification next(LandingNotification current) {
+            List<LandingNotification> list = LandingNotificationRegistry.getInstance().toList();
+
+            int idx = list.indexOf(current);
+            idx = (idx + 1) % list.size();
+            return list.get(idx);
+        }
+
+        private static LandingNotification previous(LandingNotification current) {
+            List<LandingNotification> list = LandingNotificationRegistry.getInstance().toList();
+
+            int idx = list.indexOf(current);
+            idx = (idx - 1 + list.size()) % list.size();
+            return list.get(idx);
+        }
+
+        private static void sync(LandingNotification current, ClientTardis tardis) {
+            tardis.stats().setLandingNotification(current.id());
+
+            sync(tardis, buf -> buf.writeIdentifier(current.id()), StatsHandler.LANDING_PACKET);
+        }
+    }
+
     public static class ModeManager extends SwitcherManager<SwitcherManager<?, ClientTardis>, ClientTardis> {
 
         public ModeManager(Tardis tardis) {
@@ -226,7 +260,8 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
             return switch (current.id) {
                 case "hum" -> new VortexSwitcher(tardis);
                 case "vortex" -> new FlightSoundSwitcher(tardis);
-                case "flight" -> new AnimationSwitcher(tardis, TravelHandlerBase.State.DEMAT);
+                case "flight" -> new LandingSwitcher(tardis);
+                case "landing" -> new AnimationSwitcher(tardis, TravelHandlerBase.State.DEMAT);
                 case "demat" -> new AnimationSwitcher(tardis, TravelHandlerBase.State.MAT);
                 default -> new HumSwitcher(tardis);
             };
@@ -236,7 +271,8 @@ public class SwitcherManager<T extends Nameable, U> implements Nameable {
                 case "hum" -> new AnimationSwitcher(tardis, TravelHandlerBase.State.MAT);
                 case "vortex" -> new HumSwitcher(tardis);
                 case "flight" -> new VortexSwitcher(tardis);
-                case "demat" -> new FlightSoundSwitcher(tardis);
+                case "landing" -> new FlightSoundSwitcher(tardis);
+                case "demat" -> new LandingSwitcher(tardis);
                 default -> new AnimationSwitcher(tardis, TravelHandlerBase.State.DEMAT);
             };
         }

@@ -129,7 +129,7 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
                 tardis.travel().tryFly();
             }
             if (tardis.travel().autopilot())
-                tardis.getDesktop().playSoundAtEveryConsole(AITSounds.NAV_NOTIFICATION, SoundCategory.BLOCKS, 2f, 1f);
+                tardis.getDesktop().playSoundAtEveryConsole(tardis.stats().getLandingNotification().sound(), SoundCategory.BLOCKS, 2f, 1f);
             if (RiftChunkManager.isRiftChunk(tardis.travel().position())) {
                 TardisUtil.sendMessageToInterior(tardis.asServer(), Text.translatable("riftchunk.ait.found").formatted(Formatting.YELLOW, Formatting.ITALIC));
                 tardis.getDesktop().playSoundAtEveryConsole(AITSounds.BWEEP, SoundCategory.BLOCKS, 2f, 1f);

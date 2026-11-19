@@ -29,6 +29,7 @@ import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.sounds.flight.FlightSound;
+import dev.amble.ait.core.sounds.landing.LandingNotification;
 import dev.amble.ait.core.tardis.TardisDesktop;
 import dev.amble.ait.core.tardis.animation.v2.TardisAnimation;
 import dev.amble.ait.core.tardis.handler.FuelHandler;
@@ -733,6 +734,8 @@ public class InteriorSettingsScreen extends ConsoleScreen {
             return hum.sound();
         if (current instanceof FlightSound flight)
             return flight.sound();
+        if (current instanceof LandingNotification landing)
+            return landing.sound();
         if (current instanceof TardisAnimation anim)
             return anim.getSound();
 
