@@ -8,7 +8,6 @@ import dev.amble.ait.core.tardis.comms.PhoneDirectory;
 import dev.amble.ait.core.tardis.comms.RotaryPhones;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import net.minecraft.client.MinecraftClient;
@@ -27,8 +26,6 @@ import net.minecraft.util.math.BlockPos;
 public class DialScreen extends Screen {
 
     private static final Identifier TEXTURE = AITMod.id("textures/gui/phone.png");
-    private static final Identifier PHONE_ICON = AITMod.id("textures/item/phone.png");
-    private static final int ICON_SIZE = 16;
 
     private static final int WIDTH = 216;
     private static final int HEIGHT = 138;
@@ -40,10 +37,6 @@ public class DialScreen extends Screen {
     private static final int FIELD_X = 10;
     private static final int FIELD_Y = 11;
 
-    private static final int KEY_U = 1;
-    private static final int KEY_V = 146;
-    private static final int KEY_PRESSED_V = 166;
-    private static final int KEY_SIZE = 20;
     private static final int KEY_PITCH = 22;
     private static final int KEYS_X = 20;
     private static final int KEYS_Y = 37;
@@ -58,7 +51,6 @@ public class DialScreen extends Screen {
     private static final int FIELD_TEXT = 0x202020;
     private static final int FIELD_HINT = 0x4A4A4A;
     private static final int FIELD_WAIT = 0x7A1F1F;
-    private static final int KEY_TEXT = 0x3A3A3A;
     private static final int INK = 0x3B2A1C;
     private static final int INK_FADED = 0x8A7458;
 
@@ -77,7 +69,7 @@ public class DialScreen extends Screen {
 
     private int cooldown;
     private int ticks;
-    private KeyButton callButton;
+    private PhoneKeyButton callButton;
 
     private DialScreen(BlockPos pos, String ownNumber, int cooldown, List<Recent> recents) {
         super(Text.translatable("screen.ait.phone.title"));
@@ -122,8 +114,8 @@ public class DialScreen extends Screen {
 
         for (int i = 0; i < KEYS.length; i++) {
             char key = KEYS[i];
-            KeyButton button = this.addDrawableChild(new KeyButton(left + KEYS_X + (i % 3) * KEY_PITCH,
-                    top + KEYS_Y + (i / 3) * KEY_PITCH, label(key), key == CALL ? PHONE_ICON : null, pressed -> this.press(key)));
+            PhoneKeyButton button = this.addDrawableChild(new PhoneKeyButton(TEXTURE, left + KEYS_X + (i % 3) * KEY_PITCH,
+                    top + KEYS_Y + (i / 3) * KEY_PITCH, label(key), key == CALL ? PhoneKeyButton.PHONE_ICON : null, pressed -> this.press(key)));
 
             if (key == BACKSPACE)
                 button.setTooltip(Tooltip.of(Text.translatable("screen.ait.comms.backspace")));
@@ -321,38 +313,6 @@ public class DialScreen extends Screen {
     @Override
     public boolean shouldPause() {
         return false;
-    }
-
-    private static final class KeyButton extends ButtonWidget {
-
-        @Nullable private final Identifier icon;
-
-        private KeyButton(int x, int y, Text message, @Nullable Identifier icon, PressAction action) {
-            super(x, y, KEY_SIZE, KEY_SIZE, message, action, DEFAULT_NARRATION_SUPPLIER);
-            this.icon = icon;
-        }
-
-        @Override
-        protected void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
-            int x = this.getX();
-            int y = this.getY();
-            boolean pressed = this.active && this.isSelected();
-
-            context.drawTexture(TEXTURE, x, y, KEY_U, pressed ? KEY_PRESSED_V : KEY_V, KEY_SIZE, KEY_SIZE, 256, 256);
-
-            if (this.icon != null) {
-                int inset = (KEY_SIZE - ICON_SIZE) / 2;
-
-                context.drawTexture(this.icon, x + inset, y + inset, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
-                return;
-            }
-
-            TextRenderer font = MinecraftClient.getInstance().textRenderer;
-            int color = this.active ? KEY_TEXT : 0x8A8A8A;
-            int width = font.getWidth(this.getMessage());
-
-            context.drawText(font, this.getMessage(), x + (KEY_SIZE - width + 1) / 2, y + (KEY_SIZE - font.fontHeight) / 2 + 1, color, false);
-        }
     }
 
     private static final class RecentRow extends ButtonWidget {

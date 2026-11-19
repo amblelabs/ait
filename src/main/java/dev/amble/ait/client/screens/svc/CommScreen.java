@@ -56,18 +56,16 @@ public class CommScreen extends TardisScreen {
     private static final int SCREEN_TEXT = 0x55FF55;
     private static final int SCREEN_TEXT_DIM = 0x2E8B2E;
 
+    private static final Identifier KEYPAD_TEXTURE = AITMod.id("textures/gui/keypad.png");
     private static final int KEYPAD_GAP = 4;
-    private static final int KEYPAD_WIDTH = 84;
-    private static final int KEYPAD_HEIGHT = 94;
-    private static final int KEY_WIDTH = 22;
-    private static final int KEY_GAP = 3;
-    private static final int KEYPAD_BORDER = 0xFF161616;
-    private static final int KEYPAD_BODY = 0xFF353535;
-    private static final int KEYPAD_SCREEN = 0xFF0B140B;
+    private static final int KEYPAD_WIDTH = 116;
+    private static final int KEYPAD_HEIGHT = 138;
+    private static final int KEYPAD_FIELD_Y = 11;
+    private static final int KEYPAD_KEYS_Y = 37;
+    private static final int KEYPAD_TEXT = 0x202020;
+    private static final int KEYPAD_HINT = 0x4A4A4A;
     private static final char BACKSPACE = '<';
     private static final char DIAL = '\n';
-    private static final Identifier PHONE_ICON = AITMod.id("textures/item/phone.png");
-    private static final int ICON_SIZE = 10;
     private static final char[] KEYS = { '1', '2', '3', '4', '5', '6', '7', '8', '9', BACKSPACE, '0', DIAL };
 
     private record Contact(UUID id, String name) {
@@ -88,7 +86,7 @@ public class CommScreen extends TardisScreen {
     private boolean keypadOpen = false;
     private final StringBuilder digits = new StringBuilder();
     private final RotaryClicks clicks = new RotaryClicks();
-    @Nullable private SpriteButton dialButton;
+    @Nullable private PhoneKeyButton dialButton;
 
     public CommScreen(ClientTardis tardis) {
         super(Text.translatable("screen.ait.comms.title"), tardis);
@@ -250,15 +248,15 @@ public class CommScreen extends TardisScreen {
     }
 
     private void addKeypad(int x, int y, State state) {
-        int keysLeft = x + (KEYPAD_WIDTH - (KEY_WIDTH * 3 + KEY_GAP * 2)) / 2;
-        int keysTop = y + 28;
+        int keysLeft = x + (KEYPAD_WIDTH - (PhoneKeyButton.PITCH * 2 + PhoneKeyButton.SIZE)) / 2;
+        int keysTop = y + KEYPAD_KEYS_Y;
 
         for (int i = 0; i < KEYS.length; i++) {
             char key = KEYS[i];
-            SpriteButton button = this.addDrawableChild(new SpriteButton(keysLeft + (i % 3) * (KEY_WIDTH + KEY_GAP),
-                    keysTop + (i / 3) * (ROW_HEIGHT + KEY_GAP), KEY_WIDTH,
+            PhoneKeyButton button = this.addDrawableChild(new PhoneKeyButton(KEYPAD_TEXTURE,
+                    keysLeft + (i % 3) * PhoneKeyButton.PITCH, keysTop + (i / 3) * PhoneKeyButton.PITCH,
                     key == DIAL ? Text.translatable("screen.ait.phone.dial") : Text.literal(String.valueOf(key)),
-                    key == DIAL ? PHONE_ICON : null, pressed -> this.press(key)));
+                    key == DIAL ? PhoneKeyButton.PHONE_ICON : null, pressed -> this.press(key)));
 
             if (key == BACKSPACE)
                 button.setTooltip(Tooltip.of(Text.translatable("screen.ait.comms.backspace")));
@@ -356,17 +354,22 @@ public class CommScreen extends TardisScreen {
     }
 
     private void renderKeypad(DrawContext context, int x, int y) {
-        context.fill(x, y, x + KEYPAD_WIDTH, y + KEYPAD_HEIGHT, KEYPAD_BORDER);
-        context.fill(x + 2, y + 2, x + KEYPAD_WIDTH - 2, y + KEYPAD_HEIGHT - 2, KEYPAD_BODY);
-        context.fill(x + 6, y + 6, x + KEYPAD_WIDTH - 6, y + 22, KEYPAD_SCREEN);
+        int fieldX = x + (KEYPAD_WIDTH - PhoneKeyButton.FIELD_WIDTH) / 2;
+        int fieldY = y + KEYPAD_FIELD_Y;
+        int textY = fieldY + (PhoneKeyButton.FIELD_HEIGHT - this.textRenderer.fontHeight) / 2 + 1;
+
+        context.drawTexture(KEYPAD_TEXTURE, x, y, 0, 0, KEYPAD_WIDTH, KEYPAD_HEIGHT, 256, 256);
+        context.drawTexture(KEYPAD_TEXTURE, fieldX, fieldY, PhoneKeyButton.FIELD_U, PhoneKeyButton.FIELD_V,
+                PhoneKeyButton.FIELD_WIDTH, PhoneKeyButton.FIELD_HEIGHT, 256, 256);
 
         String shown = PhoneDirectory.format(this.digits.toString());
 
         if (shown.isEmpty()) {
-            this.screenLine(context, Text.translatable("screen.ait.phone.enter_number"), x + 9, y + 10, KEYPAD_WIDTH - 18, SCREEN_TEXT_DIM);
+            this.screenLine(context, Text.translatable("screen.ait.phone.enter_number"), fieldX + 5, textY,
+                    PhoneKeyButton.FIELD_WIDTH - 10, KEYPAD_HINT);
         } else {
             String cursor = this.digits.length() < PhoneDirectory.DIGITS && (this.ticks / 10) % 2 == 0 ? "_" : "";
-            this.screenLine(context, Text.literal(shown + cursor), x + 9, y + 10, KEYPAD_WIDTH - 18, SCREEN_TEXT);
+            this.screenLine(context, Text.literal(shown + cursor), fieldX + 5, textY, PhoneKeyButton.FIELD_WIDTH - 10, KEYPAD_TEXT);
         }
     }
 
@@ -528,15 +531,8 @@ public class CommScreen extends TardisScreen {
         private static final int SPRITE_WIDTH = 52;
         private static final int CAP = 3;
 
-        @Nullable private final Identifier icon;
-
         private SpriteButton(int x, int y, int width, Text message, PressAction action) {
-            this(x, y, width, message, null, action);
-        }
-
-        private SpriteButton(int x, int y, int width, Text message, @Nullable Identifier icon, PressAction action) {
             super(x, y, width, ROW_HEIGHT, message, action, DEFAULT_NARRATION_SUPPLIER);
-            this.icon = icon;
         }
 
         @Override
@@ -550,12 +546,6 @@ public class CommScreen extends TardisScreen {
             context.drawTexture(TEXTURE, x + CAP, y, middle, this.height, SPRITE_U + CAP, v,
                     SPRITE_WIDTH - CAP * 2, this.height, 256, 256);
             context.drawTexture(TEXTURE, x + this.width - CAP, y, SPRITE_U + SPRITE_WIDTH - CAP, v, CAP, this.height, 256, 256);
-
-            if (this.icon != null) {
-                context.drawTexture(this.icon, x + (this.width - ICON_SIZE) / 2, y + (this.height - ICON_SIZE) / 2, ICON_SIZE, ICON_SIZE,
-                        0, 0, 16, 16, 16, 16);
-                return;
-            }
 
             TextRenderer font = MinecraftClient.getInstance().textRenderer;
             String label = font.trimToWidth(this.getMessage(), this.width - 4).getString();
