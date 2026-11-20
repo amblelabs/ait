@@ -120,6 +120,7 @@ public class InteriorSettingsScreen extends ConsoleScreen {
     private int previewMax = 1;
     private SoundInstance previewSound;
     private boolean humSuppressed;
+    private Identifier previewLandingId;
 
     public InteriorSettingsScreen(ClientTardis tardis, BlockPos console, Screen parent) {
         super(Text.translatable("screen." + AITMod.MOD_ID + ".interiorsettings.title"), tardis, console);
@@ -658,8 +659,11 @@ public class InteriorSettingsScreen extends ConsoleScreen {
             this.previewBase = null;
             this.previewAnim = null;
             this.previewAnimId = null;
+            this.tickLandingPreview(current);
             return;
         }
+
+        this.tickLandingPreview(current);
 
         if (this.previewAnim == null || !selected.id().equals(this.previewAnimId)) {
             this.buildPreview(selected);
@@ -678,6 +682,27 @@ public class InteriorSettingsScreen extends ConsoleScreen {
             if (this.timeline != null)
                 this.timeline.setProgress(this.previewMax <= 0 ? 0f : (float) this.previewTicks / this.previewMax);
         }
+    }
+
+    private void tickLandingPreview(Object current) {
+        if (!(current instanceof LandingNotification landing)) {
+            if (this.previewLandingId != null) {
+                this.previewLandingId = null;
+                this.stopPreviewSound();
+            }
+
+            return;
+        }
+
+        if (landing.id().equals(this.previewLandingId))
+            return;
+
+        this.previewLandingId = landing.id();
+
+        if (this.previewMuted)
+            this.stopPreviewSound();
+        else
+            this.playPreviewSound();
     }
 
     private void toggleMute() {
