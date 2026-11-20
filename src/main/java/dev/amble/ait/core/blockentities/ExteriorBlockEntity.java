@@ -496,7 +496,7 @@ public class ExteriorBlockEntity extends AbstractLinkableBlockEntity implements 
     }
 
     private void exteriorLightBlockState(BlockState blockState, BlockPos pos, TravelHandlerBase.State state) {
-        if (!state.animated())
+        if (!state.animated() || state == TravelHandlerBase.State.LANDED)
             return;
 
         if (!blockState.isOf(AITBlocks.EXTERIOR_BLOCK))

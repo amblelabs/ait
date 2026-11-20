@@ -146,7 +146,10 @@ public class FuelHandler extends KeyedTardisComponent implements ArtronHolder, T
     public double addFuel(double var) {
         EmergencyPower backup = this.tardis().subsystems().emergency();
         if (backup.isEnabled() && !backup.isFull()) {
-            return backup.addFuel(var);
+            var = backup.addFuel(var);
+
+            if (var <= 0)
+                return 0;
         }
 
         return ArtronHolder.super.addFuel(var);
