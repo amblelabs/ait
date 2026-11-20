@@ -166,13 +166,15 @@ public final class TravelHandler extends AnimatedTravelHandler implements Crasha
     private static void initializeClient() {
         ClientPlayNetworking.registerGlobalReceiver(TravelHandler.CANCEL_DEMAT_SOUND, (client, handler, buf,
                                                                                        responseSender) -> {
-            ClientTardisManager.getInstance().getTardis(buf.readUuid(), (tardis) -> {
+            UUID id = buf.readUuid();
+
+            client.execute(() -> ClientTardisManager.getInstance().getTardis(id, (tardis) -> {
                 if (tardis == null) return;
 
                 TardisAnimationRegistry.getInstance().getOptional(tardis.travel().getAnimationIdFor(TravelHandlerBase.State.DEMAT)).ifPresent(animation -> {
                     client.getSoundManager().stopSounds(animation.getSoundIdOrDefault(), SoundCategory.BLOCKS);
                 });
-            });
+            }));
         });
     }
 
