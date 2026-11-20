@@ -115,14 +115,18 @@ public class TardisDoorBOTI extends BOTI {
         stack.translate(0, 0, 500);
         stack.scale(1.5f, 1.5f, 1.5f);
         VortexRender util = stats.getVortexEffects().toRender();
-        if (!tardis.travel().isLanded() /*&& !tardis.flight().isFlying()*/) {
+        if (!tardis.travel().isLanded() && !tardis.flight().isFlying()) {
+            float fogStart = RenderSystem.getShaderFogStart();
+            float fogEnd = RenderSystem.getShaderFogEnd();
+            RenderSystem.setShaderFogStart(Float.MAX_VALUE);
+            RenderSystem.setShaderFogEnd(Float.MAX_VALUE);
+
             util.setSpeed(tardis.travel().speed() < 1 ? 4 : tardis.travel().speed());
             util.render(stack);
-            /*// TODO not a clue if this will work but oh well - Loqor
-            stack.push();
-            stack.scale(0.9f, 0.9f, 0.9f);
-            util.renderVortex(stack);
-            stack.pop();*/
+            botiProvider.draw();
+
+            RenderSystem.setShaderFogStart(fogStart);
+            RenderSystem.setShaderFogEnd(fogEnd);
         }
         botiProvider.draw();
         stack.pop();
