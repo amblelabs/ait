@@ -1,10 +1,8 @@
 package dev.amble.ait.core.tardis.comms;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.compat.DependencyChecker;
@@ -12,6 +10,8 @@ import dev.amble.ait.core.blockentities.RotaryPhoneBlockEntity;
 import dev.amble.ait.core.item.PhoneItem;
 import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.world.TardisServerWorld;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -19,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -28,7 +27,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 
 public final class RotaryPhones {
 
@@ -41,10 +39,8 @@ public final class RotaryPhones {
 
     private static final double REACH = 8;
 
-    private static final Map<UUID, Long> LAST_CALL = new ConcurrentHashMap<>();
+    private static final Object2LongMap<UUID> LAST_CALL = new Object2LongOpenHashMap<>();
     private static Set<UUID> displayed = new HashSet<>();
-    private static final Map<RegistryKey<World>, Set<BlockPos>> EXTENSIONS = new ConcurrentHashMap<>();
-    private static final Map<RegistryKey<World>, Set<BlockPos>> RINGING_EXTENSIONS = new ConcurrentHashMap<>();
 
     private RotaryPhones() {
     }
@@ -157,23 +153,21 @@ public final class RotaryPhones {
         AITMod.openScreen(player, 4, tardis.getUuid(), pos);
     }
 
-    public static void rememberExtension(ServerWorld world, BlockPos pos) {
-        EXTENSIONS.computeIfAbsent(world.getRegistryKey(), key -> ConcurrentHashMap.newKeySet()).add(pos.toImmutable());
+    public static void rememberExtension(TardisServerWorld world, BlockPos pos) {
+        world.phoneExtensions().add(pos.toImmutable());
     }
 
-    public static void forgetExtension(ServerWorld world, BlockPos pos) {
-        Set<BlockPos> phones = EXTENSIONS.get(world.getRegistryKey());
-
-        if (phones != null)
-            phones.remove(pos);
+    public static void forgetExtension(TardisServerWorld world, BlockPos pos) {
+        world.phoneExtensions().remove(pos);
     }
 
     public static Set<BlockPos> extensions(ServerWorld world) {
-        return EXTENSIONS.getOrDefault(world.getRegistryKey(), Set.of());
+        return world instanceof TardisServerWorld interior ? interior.phoneExtensions() : Set.of();
     }
 
     public static void ringExtensions(ServerWorld world, Set<BlockPos> phones) {
-        RINGING_EXTENSIONS.put(world.getRegistryKey(), Set.copyOf(phones));
+        if (world instanceof TardisServerWorld interior)
+            interior.setRingingExtensions(phones);
     }
 
     private static void open(ServerPlayerEntity player, RotaryPhoneBlockEntity phone, PhoneDirectory.Entry entry) {
@@ -231,16 +225,14 @@ public final class RotaryPhones {
         CommsLine line = CommsLine.resolve(server, entry.id());
 
         if (line != null && TardisComms.dial(server, player, line, target))
-            LAST_CALL.put(entry.id(), (long) server.getTicks());
+            LAST_CALL.put(entry.id(), server.getTicks());
     }
 
     private static int cooldown(MinecraftServer server, UUID line) {
-        Long last = LAST_CALL.get(line);
-
-        if (last == null)
+        if (!LAST_CALL.containsKey(line))
             return 0;
 
-        return (int) Math.max(0, CALL_COOLDOWN - (server.getTicks() - last));
+        return (int) Math.max(0, CALL_COOLDOWN - (server.getTicks() - LAST_CALL.getLong(line)));
     }
 
     public static PhoneDirectory.Entry lineFor(ServerWorld world, RotaryPhoneBlockEntity phone) {
@@ -258,9 +250,9 @@ public final class RotaryPhones {
     }
 
     public static void removed(ServerWorld world, BlockPos pos, @Nullable UUID line) {
-        if (world instanceof TardisServerWorld) {
+        if (world instanceof TardisServerWorld interior) {
             TardisPhones.releaseAnchor(world.getServer(), TardisPhones.extensionAnchor(world, pos));
-            forgetExtension(world, pos);
+            forgetExtension(interior, pos);
             return;
         }
 
@@ -277,7 +269,7 @@ public final class RotaryPhones {
         TardisPhones.releaseLine(server, line);
         TardisComms.endFor(server, line);
         directory.unregister(line);
-        LAST_CALL.remove(line);
+        LAST_CALL.removeLong(line);
     }
 
     @Nullable public static RotaryPhoneBlockEntity blockEntity(ServerWorld world, PhoneDirectory.Entry entry) {
@@ -289,20 +281,16 @@ public final class RotaryPhones {
     }
 
     private static void tickExtensions(MinecraftServer server) {
-        EXTENSIONS.entrySet().removeIf(entry -> entry.getValue().isEmpty());
-
-        for (Map.Entry<RegistryKey<World>, Set<BlockPos>> entry : EXTENSIONS.entrySet()) {
-            if (!(server.getWorld(entry.getKey()) instanceof TardisServerWorld interior))
+        for (ServerWorld world : server.getWorlds()) {
+            if (!(world instanceof TardisServerWorld interior) || interior.phoneExtensions().isEmpty())
                 continue;
 
-            boolean incoming = TardisComms.status(interior.getTardis().getUuid()) == TardisComms.Status.INCOMING;
+            if (TardisComms.status(interior.getTardis().getUuid()) != TardisComms.Status.INCOMING)
+                interior.setRingingExtensions(Set.of());
 
-            if (!incoming)
-                RINGING_EXTENSIONS.remove(entry.getKey());
+            Set<BlockPos> ringing = interior.ringingExtensions();
 
-            Set<BlockPos> ringing = RINGING_EXTENSIONS.getOrDefault(entry.getKey(), Set.of());
-
-            for (BlockPos pos : entry.getValue()) {
+            for (BlockPos pos : interior.phoneExtensions()) {
                 if (interior.isChunkLoaded(pos) && interior.getBlockEntity(pos) instanceof RotaryPhoneBlockEntity phone)
                     phone.setDisplay(ringing.contains(pos), TardisPhones.anchored(TardisPhones.extensionAnchor(interior, pos)));
             }
@@ -338,6 +326,6 @@ public final class RotaryPhones {
         tickExtensions(server);
 
         if (server.getTicks() % 1200 == 0)
-            LAST_CALL.values().removeIf(time -> server.getTicks() - time >= CALL_COOLDOWN);
+            LAST_CALL.object2LongEntrySet().removeIf(entry -> server.getTicks() - entry.getLongValue() >= CALL_COOLDOWN);
     }
 }

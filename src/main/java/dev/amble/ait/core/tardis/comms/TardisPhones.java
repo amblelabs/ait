@@ -1,11 +1,12 @@
 package dev.amble.ait.core.tardis.comms;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.compat.svc.CommsHandler;
@@ -57,10 +58,10 @@ public final class TardisPhones {
     public record Speaker(RegistryKey<World> world, Vec3d pos) {
     }
 
-    private static final Map<UUID, Handset> BY_ANCHOR = new ConcurrentHashMap<>();
-    private static final Map<UUID, Handset> BY_SESSION = new ConcurrentHashMap<>();
-    private static final Map<UUID, UUID> ITEMS = new ConcurrentHashMap<>();
-    private static final Map<UUID, Speaker> SPEAKERS = new ConcurrentHashMap<>();
+    private static final Map<UUID, Handset> BY_ANCHOR = new HashMap<>();
+    private static final Map<UUID, Handset> BY_SESSION = new HashMap<>();
+    private static final Map<UUID, UUID> ITEMS = new HashMap<>();
+    private static final Map<UUID, Speaker> SPEAKERS = new HashMap<>();
 
     private TardisPhones() {
     }
@@ -71,7 +72,7 @@ public final class TardisPhones {
         TardisEvents.RECONFIGURE_DESKTOP.register(tardis -> {
             MinecraftServer server = ServerLifecycleHooks.get();
 
-            for (Handset handset : BY_SESSION.values()) {
+            for (Handset handset : List.copyOf(BY_SESSION.values())) {
                 if (handset.line().equals(tardis.getUuid()))
                     release(server, handset, true);
             }
@@ -217,14 +218,14 @@ public final class TardisPhones {
     }
 
     public static void releaseLine(MinecraftServer server, UUID line) {
-        for (Handset handset : BY_SESSION.values()) {
+        for (Handset handset : List.copyOf(BY_SESSION.values())) {
             if (handset.line().equals(line))
                 release(server, handset, true);
         }
     }
 
     private static void tick(MinecraftServer server) {
-        for (Handset handset : BY_SESSION.values()) {
+        for (Handset handset : List.copyOf(BY_SESSION.values())) {
             ServerWorld world = server.getWorld(handset.world());
 
             if (world == null) {
