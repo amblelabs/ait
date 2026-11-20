@@ -24,6 +24,7 @@ import dev.amble.ait.client.models.exteriors.ExteriorModel;
 import dev.amble.ait.client.overlays.*;
 import dev.amble.ait.client.renderers.EmissiveGeometry;
 import dev.amble.ait.client.renderers.EmissiveOverlayModel;
+import dev.amble.ait.client.renderers.PowerOffEyes;
 import dev.amble.ait.client.renderers.SonicRendering;
 import dev.amble.ait.client.renderers.TardisStar;
 import dev.amble.ait.client.renderers.consoles.ConsoleGeneratorRenderer;
@@ -47,6 +48,7 @@ import dev.amble.ait.client.sonic.SonicModelLoader;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.tardis.manager.ClientTardisManager;
 import dev.amble.ait.client.util.ClientRenderPass;
+import dev.amble.ait.client.util.ClientShakeUtil;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.client.util.FlightCameraEffects;
 import dev.amble.ait.client.util.SeamlessDoorTransition;
@@ -165,6 +167,8 @@ public class AITModClient implements ClientModInitializer {
         ClientRenderPass.init();
         EmissiveGeometry.init();
         EmissiveOverlayModel.init();
+        ClientShakeUtil.init();
+        PowerOffEyes.init();
 
         AITKeyBinds.init();
 

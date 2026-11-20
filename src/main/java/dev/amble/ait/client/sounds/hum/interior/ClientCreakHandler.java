@@ -6,6 +6,7 @@ import java.util.Random;
 
 import dev.amble.ait.AITMod;
 import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.client.renderers.PowerOffEyes;
 import dev.amble.ait.client.sounds.LoopingSound;
 import dev.amble.ait.client.sounds.PlayerFollowingLoopingSound;
 import dev.amble.ait.client.sounds.PlayerFollowingSound;
@@ -75,6 +76,7 @@ public class ClientCreakHandler extends SoundHandler {
         PlayerFollowingSound following = new PlayerFollowingSound(chosen.sound(), SoundCategory.AMBIENT,
                 AITModClient.CONFIG.interiorHumVolume);
         startIfNotPlaying(following);
+        PowerOffEyes.onCreak();
     }
 
     public void tick(MinecraftClient client) {

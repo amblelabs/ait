@@ -2,6 +2,7 @@ package dev.amble.ait.core.entities;
 
 import java.util.function.Predicate;
 
+import dev.amble.ait.AITMod;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITDamageTypes;
@@ -10,12 +11,15 @@ import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.ExteriorBlockEntity;
 import dev.amble.ait.core.blocks.ExteriorBlock;
 import dev.amble.ait.core.entities.base.LinkableDummyEntity;
+import dev.amble.ait.core.tardis.ServerTardis;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.util.TardisUtil;
 import dev.amble.ait.module.planet.core.space.planet.Planet;
 import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 import dev.amble.ait.module.planet.core.util.ISpaceImmune;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
@@ -28,26 +32,40 @@ import net.minecraft.entity.mob.ShulkerEntity;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 
 public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceImmune {
 
     private static final int HURT_MAX = 100;
     private static final float HURT_AMOUNT = 40f;
+
+    public static final Identifier IMPACT = AITMod.id("tardis_impact");
+
+    private static final double LIGHT_IMPACT = 0.3;
+    private static final double HARD_IMPACT = 0.8;
+    private static final double VIOLENT_IMPACT = 1.6;
+    private static final double EXTERIOR_REACH = 32;
+    private static final double THROW = 1.4;
+
+    private double fallSpeed;
 
     public int timeFalling;
 
@@ -102,6 +120,8 @@ public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceIm
 
         if (!this.hasNoGravity())
             this.setVelocity(this.getVelocity().add(0.0, -0.04, 0.0));
+
+        this.fallSpeed = Math.max(0, -this.getVelocity().y);
 
         this.move(MovementType.SELF, this.getVelocity());
 
@@ -182,11 +202,61 @@ public class FallingTardisEntity extends LinkableDummyEntity implements ISpaceIm
                 && this.getWorld().getFluidState(blockPos).getFluid() == Fluids.WATER)
             this.state = this.state.with(Properties.WATERLOGGED, true);
 
+        if (!antigravs)
+            this.impact(tardis, isCrashing);
+
         if (block instanceof ExteriorBlock exterior)
             exterior.onLanding(tardis, (ServerWorld) this.getWorld(), blockPos);
 
         travel.placeExterior(false);
         this.discard();
+    }
+
+    private void impact(Tardis tardis, boolean crashing) {
+        if (!crashing && this.fallSpeed < LIGHT_IMPACT)
+            return;
+
+        boolean violent = crashing || this.fallSpeed >= VIOLENT_IMPACT;
+        boolean hard = this.fallSpeed >= HARD_IMPACT;
+        float strength = violent ? 14f : hard ? 6f : 2.5f;
+        int ticks = violent ? 50 : hard ? 30 : 14;
+
+        ServerTardis server = tardis.asServer();
+
+        if (server.hasWorld()) {
+            for (ServerPlayerEntity player : server.world().getPlayers()) {
+                sendImpact(player, strength, ticks);
+
+                if (violent && !player.isSpectator())
+                    throwAbout(player);
+            }
+        }
+
+        Vec3d at = this.getPos();
+
+        for (ServerPlayerEntity player : ((ServerWorld) this.getWorld()).getPlayers()) {
+            double distance = player.getPos().distanceTo(at);
+
+            if (distance < EXTERIOR_REACH)
+                sendImpact(player, strength * 0.6f * (float) (1 - distance / EXTERIOR_REACH), ticks);
+        }
+    }
+
+    private static void throwAbout(ServerPlayerEntity player) {
+        Random random = player.getRandom();
+
+        player.addVelocity((random.nextDouble() - 0.5) * THROW, 0.35 + random.nextDouble() * 0.3, (random.nextDouble() - 0.5) * THROW);
+        player.velocityModified = true;
+    }
+
+    private static void sendImpact(ServerPlayerEntity player, float strength, int ticks) {
+        if (!ServerPlayNetworking.canSend(player, IMPACT))
+            return;
+
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeFloat(strength);
+        buf.writeVarInt(ticks);
+        ServerPlayNetworking.send(player, IMPACT, buf);
     }
 
     @Override
