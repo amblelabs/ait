@@ -1,6 +1,7 @@
 package dev.amble.ait.client.sounds.drifting;
 
-import dev.amble.ait.AITMod;
+import java.util.UUID;
+
 import dev.amble.ait.client.sounds.PlayerFollowingSound;
 import dev.amble.ait.client.sounds.SoundHandler;
 import dev.amble.ait.client.tardis.ClientTardis;
@@ -10,62 +11,86 @@ import dev.amble.ait.core.AITSounds;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 
 // Client only class. One of the last surviving remnants of Duzocode.
 // remove all instances of the word "drifting".
 public class ClientTwoThousandSoundHandler extends SoundHandler {
 
-    public static SoundInstance TWO_THOUSAND;
-    private long counter;
-
-    public SoundInstance getDrifting() {
-        if (TWO_THOUSAND == null)
-            TWO_THOUSAND = createTwoThousandSound();
-
-        return TWO_THOUSAND;
-    }
-
-    private SoundInstance createTwoThousandSound() {
-        return new PlayerFollowingSound(AITSounds.TWO_THOUSAND, SoundCategory.MUSIC, 0.15f);
-    }
+    private SoundInstance twoThousand;
+    private SoundInstance stage4;
+    private UUID current;
+    private boolean wasPowered = true;
+    private int powerLosses;
 
     public static ClientTwoThousandSoundHandler create() {
-        ClientTwoThousandSoundHandler handler = new ClientTwoThousandSoundHandler();
-
-        handler.generate();
-        return handler;
-    }
-
-    private void generate() {
-        if (TWO_THOUSAND == null)
-            TWO_THOUSAND = createTwoThousandSound();
-
-        this.ofSounds(TWO_THOUSAND);
-    }
-
-    private boolean shouldPlaySound(ClientTardis tardis) {
-        return tardis != null && !tardis.fuel().hasPower();
+        return new ClientTwoThousandSoundHandler();
     }
 
     public void tick(MinecraftClient client) {
-        this.counter++;
         ClientTardis tardis = ClientTardisUtil.getCurrentTardis();
 
-        // check the ticks every 2 minutes
-        if (client.player == null && this.counter % (120 * 20) != 0)
+        if (client.player == null || tardis == null) {
+            this.current = null;
+            this.stopAll();
             return;
-
-        if (this.sounds == null)
-            this.generate();
-
-        if (this.shouldPlaySound(tardis)) {
-            if (AITMod.RANDOM.nextBoolean()) {
-                this.startIfNotPlaying(this.getDrifting());
-            }
-            client.getMusicTracker().stop();
-        } else {
-            this.counter = 0;
-            this.stopSounds();
         }
+
+        boolean powered = tardis.fuel().hasPower();
+
+        if (!tardis.getUuid().equals(this.current)) {
+            this.current = tardis.getUuid();
+            this.wasPowered = powered;
+        }
+
+        boolean siege = tardis.siege().isActive();
+
+        if (powered) {
+            this.wasPowered = true;
+            this.stopAll();
+            return;
+        }
+
+        if (siege) {
+            this.stop(this.twoThousand);
+            this.twoThousand = null;
+
+            if (!this.isPlaying(this.stage4))
+                this.stage4 = this.play(AITSounds.STAGE_4);
+        } else {
+            this.stop(this.stage4);
+            this.stage4 = null;
+
+            if (this.wasPowered && this.powerLosses++ % 2 == 0)
+                this.twoThousand = this.play(AITSounds.TWO_THOUSAND);
+        }
+
+        this.wasPowered = false;
+
+        if (this.isPlaying(this.twoThousand) || this.isPlaying(this.stage4))
+            client.getMusicTracker().stop();
+    }
+
+    private SoundInstance play(SoundEvent event) {
+        SoundInstance sound = new PlayerFollowingSound(event, SoundCategory.MUSIC, 0.15f);
+        this.startSound(sound);
+        return sound;
+    }
+
+    private void stop(SoundInstance sound) {
+        if (sound != null)
+            this.stopSound(sound);
+    }
+
+    private void stopAll() {
+        this.stop(this.twoThousand);
+        this.stop(this.stage4);
+        this.twoThousand = null;
+        this.stage4 = null;
+    }
+
+    @Override
+    public boolean isPlaying(SoundInstance sound) {
+        return sound != null && super.isPlaying(sound);
     }
 }
