@@ -9,6 +9,7 @@ import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.client.util.ClientTardisUtil;
 import dev.amble.ait.compat.DependencyChecker;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
+import dev.amble.ait.core.blocks.DoorBlock;
 import dev.amble.ait.core.tardis.handler.StatsHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
 import dev.amble.ait.data.datapack.DatapackConsole;
@@ -89,7 +90,7 @@ public class TardisDoorBOTI extends BOTI {
             botiProvider.draw();
 
             if (!AITModClient.CONFIG.greenScreenBOTI)
-                BOTIFog.fogVoid(stack, botiProvider, mask, door.getPos().toCenterPos().add(0, 0.5, 0)
+                BOTIFog.fogVoid(stack, botiProvider, mask, door.getPos().toCenterPos().add(DoorBlock.shift(door.getCachedState())).add(0, 0.5, 0)
                         .subtract(client.gameRenderer.getCamera().getPos()));
         } else {
             mask.render(stack, botiProvider.getBuffer(RenderLayer.getEntityTranslucentCull(frameTex)), LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);

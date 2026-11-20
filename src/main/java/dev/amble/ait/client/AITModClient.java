@@ -646,9 +646,10 @@ public class AITModClient implements ClientModInitializer {
         for (DoorBlockEntity door : BOTI.DOOR_RENDER_QUEUE) {
             if (door == null) continue;
             BlockPos pos = door.getPos();
+            Vec3d shift = dev.amble.ait.core.blocks.DoorBlock.shift(door.getCachedState());
 
             stack.push();
-            stack.translate(0.5, 0, 0.5);
+            stack.translate(0.5 + shift.x, shift.y, 0.5 + shift.z);
             stack.translate(pos.getX() - context.camera().getPos().getX(), pos.getY() - context.camera().getPos().getY(), pos.getZ() - context.camera().getPos().getZ());
             stack.scale(1, -1, -1);
             stack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(door.getCachedState().get(DoorBlock.FACING).asRotation()));

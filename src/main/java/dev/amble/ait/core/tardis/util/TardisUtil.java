@@ -189,7 +189,7 @@ public class TardisUtil {
     }
 
     public static Vec3d offsetInteriorDoorPosition(TardisDesktop desktop) {
-        return TardisUtil.offsetInteriorDoorPos(desktop.getDoorPos());
+        return TardisUtil.offsetInteriorDoorPos(desktop.getDoorPos()).add(desktop.getDoorShift());
     }
 
     public static Vec3d offsetDoorPosition(Vec3d pos, byte rotation) {
@@ -252,7 +252,7 @@ public class TardisUtil {
     public static void teleportOutside(Tardis tardis, Entity entity) {
         TardisEvents.LEAVE_TARDIS.invoker().onLeave(tardis, entity);
         TardisUtil.teleportWithDoorOffset(tardis.travel().position().getWorld(), entity,
-                exteriorDirectedPos(tardis), tardis.getDesktop().getDoorPos(), tardis.getExterior().getVariant());
+                exteriorDirectedPos(tardis), tardis.getDesktop().getDoorPos(), tardis.getExterior().getVariant(), tardis.getDesktop().getDoorShift());
     }
 
     public static void dropOutside(Tardis tardis, Entity entity) {
@@ -282,7 +282,7 @@ public class TardisUtil {
     public static void teleportInside(ServerTardis tardis, Entity entity) {
         if (TardisEvents.ENTER_TARDIS.invoker().onEnter(tardis, entity) == TardisEvents.Interaction.FAIL) return;
         TardisUtil.teleportWithDoorOffset(tardis.world(), entity, tardis.getDesktop().getDoorPos(),
-                exteriorDirectedPos(tardis), tardis.getExterior().getVariant());
+                exteriorDirectedPos(tardis), tardis.getExterior().getVariant(), tardis.getDesktop().getDoorShift());
     }
 
     public static void teleportToInteriorPosition(ServerTardis tardis, Entity entity, BlockPos pos) {
@@ -297,7 +297,7 @@ public class TardisUtil {
     }
 
     private static void teleportWithDoorOffset(ServerWorld world, Entity entity, DirectedBlockPos directed,
-                                               DirectedBlockPos from, ExteriorVariantSchema variant) {
+                                               DirectedBlockPos from, ExteriorVariantSchema variant, Vec3d doorShift) {
         if (!AITMod.CONFIG.tntCanTeleportThroughDoors && entity instanceof TntEntity) {
             return;
         }
@@ -309,7 +309,7 @@ public class TardisUtil {
         boolean isDoor = world.getBlockEntity(pos) instanceof DoorBlockEntity;
 
         Vec3d vec = isDoor
-                ? TardisUtil.offsetInteriorDoorPos(directed)
+                ? TardisUtil.offsetInteriorDoorPos(directed).add(doorShift)
                 : TardisUtil.offsetDoorPosition(directed).add(0, 0.125, 0);
 
         world.getServer().execute(() -> {
@@ -327,7 +327,7 @@ public class TardisUtil {
             float turnDegrees = RotationPropertyHelper.toDegrees(from.getRotation()) - RotationPropertyHelper.toDegrees(directed.getRotation());
             float turn = turnDegrees * MathHelper.RADIANS_PER_DEGREE;
             Vec3d rel = entity.getPos().subtract(offset(isDoor ? TardisUtil.offsetDoorPosition(from).add(0, 0.125, 0)
-                    : TardisUtil.offsetInteriorDoorPos(from), from, -0.5f)).rotateY(turn);
+                    : TardisUtil.offsetInteriorDoorPos(from).add(doorShift), from, -0.5f)).rotateY(turn);
 
             double cos = MathHelper.cos(yaw * MathHelper.RADIANS_PER_DEGREE);
             double sin = MathHelper.sin(yaw * MathHelper.RADIANS_PER_DEGREE);

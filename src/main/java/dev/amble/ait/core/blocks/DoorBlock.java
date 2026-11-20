@@ -1,5 +1,8 @@
 package dev.amble.ait.core.blocks;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blocks.types.HorizontalDirectionalBlock;
@@ -20,10 +23,12 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -42,6 +47,52 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
     private static final ShapeMap SHAPES = ShapeUtil.rotations(Direction.NORTH, NORTH_SHAPE).build();
     public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
     public static final IntProperty LEVEL_4 = ExteriorBlock.LEVEL_4;
+    public static final EnumProperty<Shift> SHIFT = EnumProperty.of("shift", Shift.class);
+    private static final Map<Shift, Map<Direction, VoxelShape>> SHIFTED_SHAPES = new EnumMap<>(Shift.class);
+
+    static {
+        for (Shift shift : Shift.values()) {
+            Map<Direction, VoxelShape> shapes = new EnumMap<>(Direction.class);
+
+            for (Direction facing : Direction.Type.HORIZONTAL) {
+                Vec3d offset = shift.offset(facing);
+                shapes.put(facing, SHAPES.get(facing).offset(offset.x, offset.y, offset.z));
+            }
+
+            SHIFTED_SHAPES.put(shift, shapes);
+        }
+    }
+
+    public enum Shift implements StringIdentifiable {
+        NONE("none", 0),
+        LEFT("left", -0.5),
+        RIGHT("right", 0.5);
+
+        private final String name;
+        private final double amount;
+
+        Shift(String name, double amount) {
+            this.name = name;
+            this.amount = amount;
+        }
+
+        public Vec3d offset(Direction facing) {
+            Direction side = facing.rotateYClockwise();
+            return new Vec3d(side.getOffsetX() * this.amount, 0, side.getOffsetZ() * this.amount);
+        }
+
+        @Override
+        public String asString() {
+            return this.name;
+        }
+    }
+
+    public static Vec3d shift(BlockState state) {
+        if (!state.contains(SHIFT) || !state.contains(FACING))
+            return Vec3d.ZERO;
+
+        return state.get(SHIFT).offset(state.get(FACING));
+    }
 
     @Override
     public float getBlastResistance() {
@@ -54,7 +105,8 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
         this.setDefaultState(this.getStateManager().getDefaultState()
                 .with(FACING, Direction.NORTH)
                 .with(WATERLOGGED, false)
-                .with(LEVEL_4, 0));
+                .with(LEVEL_4, 0)
+                .with(SHIFT, Shift.NONE));
     }
 
     public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState,
@@ -71,7 +123,7 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
                 door.tardis().get().siege() != null && door.tardis().get().siege().isActive())
             return VoxelShapes.empty();
 
-        return SHAPES.get(state.get(FACING));
+        return SHIFTED_SHAPES.get(state.get(SHIFT)).get(state.get(FACING));
     }
 
     @Override
@@ -155,8 +207,21 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
     @Nullable @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         FluidState fluidState = ctx.getWorld().getFluidState(ctx.getBlockPos());
-        return this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing().getOpposite()).with(WATERLOGGED,
-                fluidState.getFluid() == Fluids.WATER);
+        Direction facing = ctx.getHorizontalPlayerFacing().getOpposite();
+
+        return this.getDefaultState().with(FACING, facing).with(WATERLOGGED,
+                fluidState.getFluid() == Fluids.WATER).with(SHIFT, placementShift(ctx, facing));
+    }
+
+    private static Shift placementShift(ItemPlacementContext ctx, Direction facing) {
+        if (ctx.getPlayer() == null || !ctx.getPlayer().isSneaking())
+            return Shift.NONE;
+
+        Direction side = facing.rotateYClockwise();
+        Vec3d fromCenter = ctx.getHitPos().subtract(ctx.getBlockPos().toCenterPos());
+        double along = fromCenter.x * side.getOffsetX() + fromCenter.z * side.getOffsetZ();
+
+        return along < 0 ? Shift.LEFT : Shift.RIGHT;
     }
 
     @Nullable @Override
@@ -166,7 +231,7 @@ public class DoorBlock extends HorizontalDirectionalBlock implements BlockEntity
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(FACING, WATERLOGGED, LEVEL_4);
+        builder.add(FACING, WATERLOGGED, LEVEL_4, SHIFT);
     }
 
     public FluidState getFluidState(BlockState state) {

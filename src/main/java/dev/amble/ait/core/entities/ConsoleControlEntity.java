@@ -12,6 +12,7 @@ import dev.amble.ait.core.AITEntityTypes;
 import dev.amble.ait.core.AITItems;
 import dev.amble.ait.core.AITSounds;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.blocks.ConsoleBlock;
 import dev.amble.ait.core.entities.base.LinkableDummyEntity;
 import dev.amble.ait.core.item.RepairToolItem;
 import dev.amble.ait.core.item.SonicItem;
@@ -636,7 +637,9 @@ public class ConsoleControlEntity extends LinkableDummyEntity {
                             : this.getDataTracker().get(HEIGHT) + increment);
 
         if (this.getConsoleBlockPos() != null) {
-            Vec3d centered = this.getPos().subtract(this.getConsoleBlockPos().toCenterPos());
+            float yaw = ConsoleBlock.yaw(this.getWorld().getBlockState(this.getConsoleBlockPos()));
+            Vec3d centered = this.getPos().subtract(this.getConsoleBlockPos().toCenterPos())
+                    .rotateY((float) Math.toRadians(-yaw));
             this.setOffset(centered.toVector3f());
             if (this.control != null)
                 player.sendMessage(Text.literal("EntityDimensions.changing(" + this.getControlWidth() + "f, "
