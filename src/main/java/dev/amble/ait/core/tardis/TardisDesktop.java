@@ -17,6 +17,7 @@ import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
 import dev.amble.ait.core.blockentities.DoorBlockEntity;
 import dev.amble.ait.core.blockentities.EngineBlockEntity;
+import dev.amble.ait.core.blocks.DoorBlock;
 import dev.amble.ait.core.tardis.control.impl.SecurityControl;
 import dev.amble.ait.core.tardis.manager.ServerTardisManager;
 import dev.amble.ait.core.tardis.util.NetworkUtil;
@@ -50,6 +51,7 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.ChunkSerializer;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -60,6 +62,8 @@ public class TardisDesktop extends TardisComponent {
     public static final Identifier CACHE_CONSOLE = AITMod.id("cache_console");
     private TardisDesktopSchema schema;
     private DirectedBlockPos doorPos;
+    private double doorShiftX;
+    private double doorShiftZ;
     private BlockPos enginePos;
     private final Corners corners;
     private final Set<BlockPos> consolePos;
@@ -133,6 +137,9 @@ public class TardisDesktop extends TardisComponent {
             return;
 
         DirectedBlockPos pos = door.getDirectedPos();
+        Vec3d shift = DoorBlock.shift(door.getCachedState());
+        this.doorShiftX = shift.x;
+        this.doorShiftZ = shift.z;
 
         if (this.doorPos != null && this.doorPos.equals(pos))
             return;
@@ -161,8 +168,14 @@ public class TardisDesktop extends TardisComponent {
         if (!this.doorPos.equals(door.getDirectedPos()))
             return;
 
+        this.doorShiftX = 0;
+        this.doorShiftZ = 0;
         this.doorPos = null;
         TardisEvents.BREAK_DOOR.invoker().onBreak(this.tardis, doorPos);
+    }
+
+    public Vec3d getDoorShift() {
+        return new Vec3d(this.doorShiftX, 0, this.doorShiftZ);
     }
 
     public DirectedBlockPos getDoorPos() {
@@ -277,6 +290,8 @@ public class TardisDesktop extends TardisComponent {
         }).thenRun(() -> {
             this.consolePos.clear();
             this.doorPos = null;
+            this.doorShiftX = 0;
+            this.doorShiftZ = 0;
         });
     }
 

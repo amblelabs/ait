@@ -229,7 +229,7 @@ public class PortalsHandler extends KeyedTardisComponent {
         ExteriorVariantSchema variant = tardis.getExterior().getVariant();
         double portalHeight = variant.portalHeight();
 
-        Vec3d doorAdjust = adjustInteriorPos(variant.door(), doorPos, portalHeight);
+        Vec3d doorAdjust = adjustInteriorPos(variant.door(), doorPos, portalHeight).add(tardis.getDesktop().getDoorShift());
         Vec3d exteriorAdjust = adjustExteriorPos(variant, exteriorPos, portalHeight);
 
         TardisPortal portal = new TardisPortal(tardis, tardis.travel().getState() == TravelHandlerBase.State.FLIGHT ? WorldUtil.getTimeVortex() : exteriorPos.getWorld());
@@ -268,7 +268,7 @@ public class PortalsHandler extends KeyedTardisComponent {
         ExteriorVariantSchema variant = tardis.getExterior().getVariant();
         double portalHeight = variant.portalHeight();
 
-        Vec3d doorAdjust = adjustInteriorPos(variant.door(), doorPos, portalHeight);
+        Vec3d doorAdjust = adjustInteriorPos(variant.door(), doorPos, portalHeight).add(tardis.getDesktop().getDoorShift());
         Vec3d exteriorAdjust = adjustExteriorPos(variant, exteriorPos, portalHeight);
 
         TardisPortal portal = new TardisPortal(tardis, tardis.asServer().world());

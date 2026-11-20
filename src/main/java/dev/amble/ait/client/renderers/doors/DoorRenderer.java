@@ -63,6 +63,8 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
             BlockState blockState = entity.getCachedState();
             float k = blockState.get(DoorBlock.FACING).asRotation();
             matrices.push();
+            Vec3d shift = DoorBlock.shift(blockState);
+            matrices.translate(shift.x, shift.y, shift.z);
             matrices.translate(0.5, 1.5, 0.5);
             matrices.scale(1, 1, 1);
             matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(k + 180));
@@ -88,9 +90,10 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
         this.updateModel(tardis);
 
         double doorScale = maxScale(tardis.stats().getScale());
+        Vec3d shift = DoorBlock.shift(entity.getCachedState());
 
         if (this.model != null && OffScreenCull.sphereBehindCamera(entity, this.model.getPart(),
-                0.5, 0.0, 0.5, doorScale, doorScale)) {
+                0.5 + shift.x, 0.0, 0.5 + shift.z, doorScale, doorScale)) {
             profiler.visit("ait_door_offscreen_skipped");
             return;
         }
@@ -104,6 +107,7 @@ public class DoorRenderer<T extends DoorBlockEntity> implements BlockEntityRende
             texture = tardis.door().isVisuallyOpen() ? DoomDoorModel.DOOM_DOOR_OPEN : DoomDoorModel.DOOM_DOOR;
 
         matrices.push();
+        matrices.translate(shift.x, shift.y, shift.z);
         matrices.translate(0.5, 0, 0.5);
         Vector3f scale = tardis.stats().getScale();
         matrices.scale(scale.x(), scale.y(), scale.z());
