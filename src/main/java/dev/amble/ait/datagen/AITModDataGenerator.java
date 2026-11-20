@@ -939,6 +939,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.door_lock", "Door Lock");
         provider.addTranslation("control.ait.fast_return", "Fast Return");
         provider.addTranslation("control.ait.alarms", "Alarms");
+        provider.addTranslation("control.ait.comms", "Communications");
         provider.addTranslation("control.ait.protocol_813", "Hail Mary");
         provider.addTranslation("control.ait.handbrake", "Handbrake");
         provider.addTranslation("control.ait.land_type", "Land Type");
@@ -2413,6 +2414,7 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("control.ait.protocol_3_silent_inactive", "Camuflaje exterior (silencio desactivado)");
         provider.addTranslation("control.ait.protocol_813", "Último recurso");
         provider.addTranslation("control.ait.randomiser", "Aleatorizador");
+        provider.addTranslation("control.ait.comms", "Comunicaciones");
         provider.addTranslation("control.ait.refreshment_control", "Selector de refrigerios");
         provider.addTranslation("control.ait.refueler", "Repostador");
         provider.addTranslation("control.ait.save_waypoint", "Guardar destino");
