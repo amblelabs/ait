@@ -1564,7 +1564,7 @@ public class SteamConsoleModel extends SimpleConsoleModel {
         // Door Control
         ModelPart doorControl = steam.getChild("controls").getChild("panel_5").getChild("rot5").getChild("crank2")
                 .getChild("bone18");
-        float doorControlTarget = tardis.door().isLeftOpen() ? 1.5708f : (tardis.door().areBothOpen() ? 1.5708f * 2f : 0);
+        float doorControlTarget = tardis.door().areBothOpen() ? 1.5708f * 2f : (tardis.door().isLeftOpen() ? 1.5708f : 0);
         doorControl.yaw = getAngle(console, "door_control", doorControlTarget, delta);
 
         // Cloak Control

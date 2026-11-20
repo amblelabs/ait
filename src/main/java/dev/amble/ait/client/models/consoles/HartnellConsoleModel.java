@@ -1461,7 +1461,7 @@ public class HartnellConsoleModel extends SimpleConsoleModel {
                 .getChild("bone114").getChild("ctrl_panel_3").getChild("bone123");
         ModelPart doorControlLight = this.bone.getChild("panels").getChild("p_5").getChild("bone112")
                 .getChild("bone113").getChild("bone114").getChild("ind_lamp_20").getChild("bone117");
-        float doorControlTarget = tardis.door().isLeftOpen() ? 2.075f : tardis.door().areBothOpen() ? 3.15f : 0.5f;
+        float doorControlTarget = tardis.door().areBothOpen() ? 3.15f : tardis.door().isLeftOpen() ? 2.075f : 0.5f;
         float doorControlAngle = getAngle(console, "door_control", doorControlTarget, delta);
         doorControl.yaw = doorControlAngle - 0.5f;
         if (tardis.door().isLeftOpen()) {

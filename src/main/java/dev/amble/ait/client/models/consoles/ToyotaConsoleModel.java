@@ -1689,10 +1689,10 @@ public class ToyotaConsoleModel extends SimpleConsoleModel {
         ModelPart doorControl = this.toyota.getChild("panel1").getChild("controls").getChild("power");
         ModelPart doorControlLights = this.toyota.getChild("panel1").getChild("controls").getChild("powerlights").getChild("powerlights2");
         float doorControlTarget = 0f;
-        if (tardis.door().isLeftOpen()) {
-            doorControlTarget = -1.0f;
-        } else if (tardis.door().isRightOpen()) {
+        if (tardis.door().areBothOpen()) {
             doorControlTarget = -1.55f;
+        } else if (tardis.door().isLeftOpen()) {
+            doorControlTarget = -1.0f;
         }
         doorControl.pitch = getAngle(console, "door_control", doorControlTarget, delta);
         doorControlLights.pivotY = !(tardis.door().isOpen()) ? doorControlLights.pivotY : doorControlLights.pivotY + 1;

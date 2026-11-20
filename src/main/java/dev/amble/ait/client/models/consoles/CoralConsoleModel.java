@@ -2447,7 +2447,7 @@ public class CoralConsoleModel extends SimpleConsoleModel {
 
         // Door Control
         ModelPart doorControl = controls.getChild("p_ctrl_1").getChild("bone29").getChild("crank").getChild("bone32");
-        float doorControlTarget = tardis.door().isLeftOpen() ? -0.6981F - 0.8f: tardis.door().isRightOpen() ? -0.6981F - 1.5f : 0;
+        float doorControlTarget = tardis.door().areBothOpen() ? -0.6981F - 1.5f : tardis.door().isLeftOpen() ? -0.6981F - 0.8f : 0;
         doorControl.pitch = getAngle(console, "door_control", doorControlTarget, delta);
 
         // Power Lever

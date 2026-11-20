@@ -1393,10 +1393,10 @@ public class RenaissanceConsoleModel extends SimpleConsoleModel {
         // Door Control
         ModelPart doorControl = this.console.getChild("panelf5").getChild("doors");
         float doorControlTarget = 0f;
-        if (tardis.door().isLeftOpen()) {
-            doorControlTarget = -0.5f;
-        } else if (tardis.door().isRightOpen()) {
+        if (tardis.door().areBothOpen()) {
             doorControlTarget = -1.55f;
+        } else if (tardis.door().isLeftOpen()) {
+            doorControlTarget = -0.5f;
         }
         doorControl.pitch = getAngle(console, "door_control", doorControlTarget, delta);
 
