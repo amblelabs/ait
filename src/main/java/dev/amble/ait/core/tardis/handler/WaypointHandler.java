@@ -88,10 +88,10 @@ public class WaypointHandler extends KeyedTardisComponent {
     }
 
     public Optional<Waypoint> set(Waypoint var, BlockPos console, ServerPlayerEntity player) {
-        if (this.current != null)
+        if (!this.isDisc() && this.current != null && this.hasCartridge())
             player.getInventory().offerOrDrop(this.createStack());
 
-        return this.set(var, console, true);
+        return this.set(var, console, false);
     }
 
     /**
