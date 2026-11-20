@@ -267,3 +267,4 @@
 - feat: actual red tennent vortex | by [@Addi3](https://github.com/Addi3) ([#2276](https://github.com/amblelabs/ait/pull/2276))
 - feat: rotatable consoles and half-placed doors! | by [@Loqor](https://github.com/Loqor) ([#2282](https://github.com/amblelabs/ait/pull/2282))
 - Fix: Directional Console Generator | by [@Loqor](https://github.com/Loqor) ([#2284](https://github.com/amblelabs/ait/pull/2284))
+- fix: power off music is back! | by [@Loqor](https://github.com/Loqor) ([#2285](https://github.com/amblelabs/ait/pull/2285))
