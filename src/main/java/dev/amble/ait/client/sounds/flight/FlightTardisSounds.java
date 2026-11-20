@@ -8,6 +8,7 @@ import dev.amble.ait.module.planet.core.space.planet.PlanetRegistry;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.MovingSoundInstance;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -19,6 +20,7 @@ public final class FlightTardisSounds {
 
     private static final double AIR_START = 1;
     private static final double AIR_FULL = 3.5;
+    private static final double AIR_RANGE = 16;
 
     private final Identifier flightSound;
     private final Instance vworp;
@@ -123,8 +125,21 @@ public final class FlightTardisSounds {
 
             float rush = (float) MathHelper.clamp((moved - AIR_START) / (AIR_FULL - AIR_START), 0, 1);
 
-            this.volume = rush <= 0 ? 0 : 0.05f + 0.75f * rush;
+            this.volume = rush <= 0 ? 0 : (0.05f + 0.75f * rush) * this.listenerFalloff();
             this.pitch = 0.8f + 0.4f * rush;
+        }
+
+        private float listenerFalloff() {
+            PlayerEntity player = MinecraftClient.getInstance().player;
+
+            if (player == null)
+                return 0;
+
+            if (this.entity.hasPassenger(player))
+                return 1;
+
+            double distance = player.getPos().distanceTo(this.entity.getPos());
+            return (float) MathHelper.clamp(1 - distance / AIR_RANGE, 0, 1);
         }
 
         private void follow() {
