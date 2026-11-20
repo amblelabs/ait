@@ -8,7 +8,6 @@ import dev.amble.ait.core.tardis.comms.PhoneDirectory;
 import dev.amble.ait.core.tardis.comms.RotaryPhones;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import org.lwjgl.glfw.GLFW;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -30,14 +29,9 @@ public class DialScreen extends Screen {
     private static final int WIDTH = 216;
     private static final int HEIGHT = 138;
 
-    private static final int FIELD_U = 28;
-    private static final int FIELD_V = 143;
-    private static final int FIELD_WIDTH = 84;
-    private static final int FIELD_HEIGHT = 24;
     private static final int FIELD_X = 10;
     private static final int FIELD_Y = 11;
 
-    private static final int KEY_PITCH = 22;
     private static final int KEYS_X = 20;
     private static final int KEYS_Y = 37;
 
@@ -54,22 +48,15 @@ public class DialScreen extends Screen {
     private static final int INK = 0x3B2A1C;
     private static final int INK_FADED = 0x8A7458;
 
-    private static final char BACKSPACE = '\b';
-    private static final char CALL = '\n';
-    private static final char[] KEYS = { '1', '2', '3', '4', '5', '6', '7', '8', '9', BACKSPACE, '0', CALL };
-
     private record Recent(String number, String label, boolean outgoing) {
     }
 
     private final BlockPos pos;
     private final String ownNumber;
     private final List<Recent> recents;
-    private final StringBuilder digits = new StringBuilder();
-    private final RotaryClicks clicks = new RotaryClicks();
+    private final PhoneKeypad keypad = new PhoneKeypad(() -> this.cooldown <= 0, this::dial);
 
     private int cooldown;
-    private int ticks;
-    private PhoneKeyButton callButton;
 
     private DialScreen(BlockPos pos, String ownNumber, int cooldown, List<Recent> recents) {
         super(Text.translatable("screen.ait.phone.title"));
@@ -112,19 +99,7 @@ public class DialScreen extends Screen {
         int left = this.left();
         int top = this.top();
 
-        for (int i = 0; i < KEYS.length; i++) {
-            char key = KEYS[i];
-            PhoneKeyButton button = this.addDrawableChild(new PhoneKeyButton(TEXTURE, left + KEYS_X + (i % 3) * KEY_PITCH,
-                    top + KEYS_Y + (i / 3) * KEY_PITCH, label(key), key == CALL ? PhoneKeyButton.PHONE_ICON : null, pressed -> this.press(key)));
-
-            if (key == BACKSPACE)
-                button.setTooltip(Tooltip.of(Text.translatable("screen.ait.comms.backspace")));
-
-            if (key == CALL) {
-                button.setTooltip(Tooltip.of(Text.translatable("screen.ait.phone.dial")));
-                this.callButton = button;
-            }
-        }
+        this.keypad.addKeys(TEXTURE, left + KEYS_X, top + KEYS_Y, this::addDrawableChild);
 
         int limit = Math.min(this.recents.size(), MAX_RECENTS);
 
@@ -132,7 +107,7 @@ public class DialScreen extends Screen {
             Recent recent = this.recents.get(i);
             Text text = Text.literal((recent.outgoing() ? "> " : "< ") + PhoneDirectory.format(recent.number()));
             RecentRow row = this.addDrawableChild(new RecentRow(left + PAPER_X, top + RECENTS_Y + i * RECENT_HEIGHT,
-                    PAPER_RIGHT - PAPER_X, text, pressed -> this.setDigits(recent.number()), () -> this.removeRecent(recent)));
+                    PAPER_RIGHT - PAPER_X, text, pressed -> this.keypad.setDigits(recent.number()), () -> this.removeRecent(recent)));
 
             Text tooltip = Text.translatable(recent.outgoing() ? "screen.ait.phone.outgoing" : "screen.ait.phone.incoming");
 
@@ -141,56 +116,16 @@ public class DialScreen extends Screen {
 
             row.setTooltip(Tooltip.of(tooltip));
         }
-
-        this.updateCallButton();
-    }
-
-    private static Text label(char key) {
-        return switch (key) {
-            case BACKSPACE -> Text.literal("<");
-            case CALL -> Text.translatable("screen.ait.phone.dial");
-            default -> Text.literal(String.valueOf(key));
-        };
     }
 
     @Override
     public void tick() {
         super.tick();
-        this.ticks++;
 
         if (this.cooldown > 0)
             this.cooldown--;
 
-        this.clicks.tick();
-        this.updateCallButton();
-    }
-
-    private void updateCallButton() {
-        if (this.callButton != null)
-            this.callButton.active = this.cooldown <= 0 && !this.digits.isEmpty() && !this.clicks.turning();
-    }
-
-    private void press(char key) {
-        switch (key) {
-            case BACKSPACE -> {
-                if (Screen.hasShiftDown())
-                    this.digits.setLength(0);
-                else if (!this.digits.isEmpty())
-                    this.digits.setLength(this.digits.length() - 1);
-            }
-            case CALL -> this.dial();
-            default -> this.type(key);
-        }
-
-        this.updateCallButton();
-    }
-
-    private void type(char digit) {
-        if (this.digits.length() >= PhoneDirectory.DIGITS)
-            return;
-
-        this.digits.append(digit);
-        this.clicks.dial(digit);
+        this.keypad.tick();
     }
 
     private void removeRecent(Recent recent) {
@@ -204,29 +139,10 @@ public class DialScreen extends Screen {
         this.clearAndInit();
     }
 
-    private void setDigits(String number) {
-        this.digits.setLength(0);
-        this.digits.append(PhoneDirectory.normalize(number));
-        RotaryClicks.click(1.2f);
-        this.updateCallButton();
-    }
-
-    private void paste() {
-        String pasted = PhoneDirectory.normalize(MinecraftClient.getInstance().keyboard.getClipboard());
-
-        if (pasted.isEmpty())
-            return;
-
-        this.setDigits(pasted);
-    }
-
-    private void dial() {
-        if (this.callButton == null || !this.callButton.active)
-            return;
-
+    private void dial(String number) {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeBlockPos(this.pos);
-        buf.writeString(this.digits.toString());
+        buf.writeString(number);
         ClientPlayNetworking.send(RotaryPhones.DIAL, buf);
 
         this.close();
@@ -234,33 +150,12 @@ public class DialScreen extends Screen {
 
     @Override
     public boolean charTyped(char chr, int modifiers) {
-        if (Character.isDigit(chr)) {
-            this.type(chr);
-            this.updateCallButton();
-            return true;
-        }
-
-        return super.charTyped(chr, modifiers);
+        return this.keypad.charTyped(chr) || super.charTyped(chr, modifiers);
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (Screen.isPaste(keyCode)) {
-            this.paste();
-            return true;
-        }
-
-        if (keyCode == GLFW.GLFW_KEY_BACKSPACE) {
-            this.press(BACKSPACE);
-            return true;
-        }
-
-        if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
-            this.press(CALL);
-            return true;
-        }
-
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return this.keypad.keyPressed(keyCode) || super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
@@ -271,8 +166,6 @@ public class DialScreen extends Screen {
         int top = this.top();
 
         context.drawTexture(TEXTURE, left, top, 0, 0, WIDTH, HEIGHT, 256, 256);
-        context.drawTexture(TEXTURE, left + FIELD_X, top + FIELD_Y, FIELD_U, FIELD_V, FIELD_WIDTH, FIELD_HEIGHT, 256, 256);
-
         this.renderField(context, left + FIELD_X, top + FIELD_Y);
         this.renderPaper(context, left, top);
 
@@ -280,25 +173,14 @@ public class DialScreen extends Screen {
     }
 
     private void renderField(DrawContext context, int x, int y) {
-        int textY = y + (FIELD_HEIGHT - this.textRenderer.fontHeight) / 2 + 1;
-        String shown = PhoneDirectory.format(this.digits.toString());
+        this.keypad.renderField(context, this.textRenderer, TEXTURE, x, y, this.cooldown <= 0, FIELD_TEXT, FIELD_HINT);
 
-        if (this.cooldown > 0) {
-            Text wait = Text.translatable("screen.ait.phone.wait", (this.cooldown + 19) / 20);
-            context.drawText(this.textRenderer, wait, x + FIELD_WIDTH - PhoneKeyButton.FIELD_PADDING - this.textRenderer.getWidth(wait), textY, FIELD_WAIT, false);
-        }
-
-        if (shown.isEmpty()) {
-            if (this.cooldown > 0)
-                return;
-
-            context.drawText(this.textRenderer, Language.getInstance().reorder(this.textRenderer.trimToWidth(
-                    Text.translatable("screen.ait.phone.enter_number"), FIELD_WIDTH - PhoneKeyButton.FIELD_PADDING * 2)), x + PhoneKeyButton.FIELD_PADDING, textY, FIELD_HINT, false);
+        if (this.cooldown <= 0)
             return;
-        }
 
-        String cursor = this.digits.length() < PhoneDirectory.DIGITS && (this.ticks / 10) % 2 == 0 ? "_" : "";
-        context.drawText(this.textRenderer, shown + cursor, x + PhoneKeyButton.FIELD_PADDING, textY, FIELD_TEXT, false);
+        Text wait = Text.translatable("screen.ait.phone.wait", (this.cooldown + 19) / 20);
+        context.drawText(this.textRenderer, wait, x + PhoneKeyButton.FIELD_WIDTH - PhoneKeyButton.FIELD_PADDING - this.textRenderer.getWidth(wait),
+                PhoneKeypad.textY(this.textRenderer, y), FIELD_WAIT, false);
     }
 
     private void renderPaper(DrawContext context, int left, int top) {

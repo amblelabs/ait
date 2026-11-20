@@ -9,10 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import dev.amble.ait.api.tardis.TardisEvents;
 import dev.amble.ait.compat.svc.CommsHandler;
-import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.item.PhoneItem;
 import dev.amble.ait.core.tardis.ServerTardis;
-import dev.amble.ait.core.tardis.control.impl.CommsControl;
 import dev.amble.lib.util.ServerLifecycleHooks;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import org.jetbrains.annotations.Nullable;
@@ -130,14 +128,14 @@ public final class TardisPhones {
         return lines;
     }
 
-    public static void lift(ServerPlayerEntity player, ServerTardis tardis, ServerWorld world, BlockPos console) {
-        ConsoleControlEntity control = findControl(world, console, player);
+    public static void lift(ServerPlayerEntity player, ServerTardis tardis, ServerWorld world, BlockPos console, @Nullable Entity control) {
+        UUID anchorId = control != null ? control.getUuid()
+                : UUID.nameUUIDFromBytes(("control:" + world.getRegistryKey().getValue() + ":" + console.asLong()).getBytes(StandardCharsets.UTF_8));
+        Vec3d anchor = control != null ? control.getPos().add(0, control.getHeight() / 2, 0) : Vec3d.ofCenter(console);
+        BlockPos soundPos = control != null ? control.getBlockPos() : console;
 
-        if (control == null)
-            return;
-
-        if (give(player, new Handset(UUID.randomUUID(), tardis.getUuid(), control.getUuid(), player.getUuid(),
-                world.getRegistryKey(), control.getPos().add(0, control.getHeight() / 2, 0), false), control.getBlockPos()))
+        if (give(player, new Handset(UUID.randomUUID(), tardis.getUuid(), anchorId, player.getUuid(),
+                world.getRegistryKey(), anchor, false), soundPos))
             lifted(tardis);
     }
 
@@ -374,13 +372,5 @@ public final class TardisPhones {
             if (session.equals(PhoneItem.session(inventory.getStack(i))))
                 inventory.setStack(i, ItemStack.EMPTY);
         }
-    }
-
-    @Nullable private static ConsoleControlEntity findControl(ServerWorld world, BlockPos console, ServerPlayerEntity player) {
-        return world.getEntitiesByClass(ConsoleControlEntity.class, new Box(console).expand(4),
-                        entity -> entity.getControl() instanceof CommsControl && console.equals(entity.getConsoleBlockPos()))
-                .stream()
-                .min((a, b) -> Double.compare(a.squaredDistanceTo(player), b.squaredDistanceTo(player)))
-                .orElse(null);
     }
 }

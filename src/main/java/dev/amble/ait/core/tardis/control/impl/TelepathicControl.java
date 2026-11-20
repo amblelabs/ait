@@ -57,6 +57,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.Structure;
 import net.minecraft.world.gen.structure.StructureKeys;
@@ -394,8 +395,9 @@ public class TelepathicControl extends Control {
             return Result.FAILURE;
         }
 
-        double angle = AITMod.RANDOM.nextDouble() * Math.PI * 2;
-        int distance = CALL_ROUTE_MIN + AITMod.RANDOM.nextInt(CALL_ROUTE_MAX - CALL_ROUTE_MIN + 1);
+        Random random = player.getWorld().getRandom();
+        double angle = random.nextDouble() * Math.PI * 2;
+        int distance = CALL_ROUTE_MIN + random.nextInt(CALL_ROUTE_MAX - CALL_ROUTE_MIN + 1);
 
         tardis.travel().destination(target.offset((int) Math.round(Math.cos(angle) * distance), 0,
                 (int) Math.round(Math.sin(angle) * distance)), true);

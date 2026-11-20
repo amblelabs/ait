@@ -251,7 +251,7 @@ public final class RotaryPhones {
         if (entry != null && entry.world().equals(world.getRegistryKey()) && entry.pos().equals(phone.getPos()))
             return entry;
 
-        entry = directory.register(world.getRegistryKey(), phone.getPos());
+        entry = directory.register(world.getRegistryKey(), phone.getPos(), world.getRandom());
         phone.setLine(entry.id());
 
         return entry;

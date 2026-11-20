@@ -35,7 +35,6 @@ public class PhoneDirectory extends PersistentState {
     private final Map<UUID, String> tardises = new HashMap<>();
     private final Map<String, UUID> numbers = new HashMap<>();
     private final Map<UUID, List<UUID>> callbacks = new HashMap<>();
-    private final Random random = Random.create();
 
     public static PhoneDirectory get(MinecraftServer server) {
         return server.getOverworld().getPersistentStateManager().getOrCreate(PhoneDirectory::read, PhoneDirectory::new, ID);
@@ -58,13 +57,13 @@ public class PhoneDirectory extends PersistentState {
         return this.tardises.get(line);
     }
 
-    public String tardisNumber(UUID tardis) {
+    public String tardisNumber(UUID tardis, Random random) {
         String number = this.tardises.get(tardis);
 
         if (number != null)
             return number;
 
-        number = this.generate();
+        number = this.generate(random);
         this.tardises.put(tardis, number);
         this.numbers.put(number, tardis);
         this.markDirty();
@@ -72,8 +71,8 @@ public class PhoneDirectory extends PersistentState {
         return number;
     }
 
-    public Entry register(RegistryKey<World> world, BlockPos pos) {
-        Entry entry = new Entry(UUID.randomUUID(), this.generate(), world, pos.toImmutable());
+    public Entry register(RegistryKey<World> world, BlockPos pos, Random random) {
+        Entry entry = new Entry(UUID.randomUUID(), this.generate(random), world, pos.toImmutable());
 
         this.phones.put(entry.id(), entry);
         this.numbers.put(entry.number(), entry.id());
@@ -118,15 +117,15 @@ public class PhoneDirectory extends PersistentState {
         return result;
     }
 
-    private String generate() {
+    private String generate(Random random) {
         String number;
 
         do {
             StringBuilder builder = new StringBuilder();
-            builder.append(2 + this.random.nextInt(8));
+            builder.append(2 + random.nextInt(8));
 
             for (int i = 1; i < DIGITS; i++)
-                builder.append(this.random.nextInt(10));
+                builder.append(random.nextInt(10));
 
             number = builder.toString();
         } while (this.numbers.containsKey(number));

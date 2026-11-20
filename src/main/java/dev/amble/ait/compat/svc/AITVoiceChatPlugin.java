@@ -352,14 +352,18 @@ public class AITVoiceChatPlugin implements VoicechatPlugin {
         VolumeCategory tardisBroadcast = api.volumeCategoryBuilder()
                 .setId(TARDIS_BROADCAST)
                 .setName("TARDIS Broadcast")
+                .setNameTranslationKey("voicechat.ait.category.tardis_broadcast")
                 .setDescription("The volume of TARDIS broadcastings.")
+                .setDescriptionTranslationKey("voicechat.ait.category.tardis_broadcast.description")
                 .setIcon(icon)
                 .build();
 
         VolumeCategory tardisComms = api.volumeCategoryBuilder()
                 .setId(TARDIS_COMMS)
                 .setName("TARDIS Comms")
+                .setNameTranslationKey("voicechat.ait.category.tardis_comms")
                 .setDescription("The volume of TARDIS communications.")
+                .setDescriptionTranslationKey("voicechat.ait.category.tardis_comms.description")
                 .setIcon(icon)
                 .build();
 

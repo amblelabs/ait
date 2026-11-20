@@ -1,10 +1,12 @@
 package dev.amble.ait.core.tardis.comms;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import dev.amble.ait.core.tardis.ServerTardis;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -14,7 +16,7 @@ public final class CommsMessages {
     private static final long REPEAT_TICKS = 40;
     private static final int MAX_REMEMBERED = 32;
 
-    private static final Map<UUID, Map<String, Long>> SENT = new ConcurrentHashMap<>();
+    private static final Map<UUID, Object2LongMap<String>> SENT = new HashMap<>();
 
     private CommsMessages() {
     }
@@ -25,16 +27,15 @@ public final class CommsMessages {
 
         long now = player.getServer().getTicks();
         String key = text.getString();
-        Map<String, Long> sent = SENT.computeIfAbsent(player.getUuid(), uuid -> new ConcurrentHashMap<>());
-        Long last = sent.get(key);
+        Object2LongMap<String> sent = SENT.computeIfAbsent(player.getUuid(), uuid -> new Object2LongOpenHashMap<>());
 
-        if (last != null && now - last < REPEAT_TICKS)
+        if (sent.containsKey(key) && now - sent.getLong(key) < REPEAT_TICKS)
             return;
 
         sent.put(key, now);
 
         if (sent.size() > MAX_REMEMBERED)
-            sent.values().removeIf(time -> now - time >= REPEAT_TICKS);
+            sent.object2LongEntrySet().removeIf(entry -> now - entry.getLongValue() >= REPEAT_TICKS);
 
         player.sendMessage(text, true);
     }

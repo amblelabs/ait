@@ -1411,6 +1411,10 @@ public class AITModDataGenerator implements DataGeneratorEntrypoint {
         provider.addTranslation("screen.ait.phone.incoming", "Incoming call");
         provider.addTranslation("screen.ait.comms.own_number", "No. %s");
         provider.addTranslation("screen.ait.comms.copied", "Copied!");
+        provider.addTranslation("voicechat.ait.category.tardis_broadcast", "TARDIS Broadcast");
+        provider.addTranslation("voicechat.ait.category.tardis_broadcast.description", "The volume of TARDIS broadcasts.");
+        provider.addTranslation("voicechat.ait.category.tardis_comms", "TARDIS Comms");
+        provider.addTranslation("voicechat.ait.category.tardis_comms.description", "The volume of TARDIS communications.");
         provider.addTranslation("screen.ait.comms.title", "TARDIS Comms");
         provider.addTranslation("screen.ait.comms.broadcast", "Broadcast");
         provider.addTranslation("screen.ait.comms.mode.speaker", "Mode: Speaker");

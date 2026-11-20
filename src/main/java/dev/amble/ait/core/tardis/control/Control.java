@@ -11,7 +11,9 @@ import dev.amble.ait.core.tardis.control.sound.ControlSoundRegistry;
 import dev.amble.ait.core.util.WorldUtil;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
 import dev.amble.lib.api.Identifiable;
+import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -48,10 +50,20 @@ public class Control implements Identifiable {
         return Result.FAILURE;
     }
 
+    protected Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
+                               boolean leftClick, @Nullable Entity source) throws ControlSequencedException {
+        return this.runServer(tardis, player, world, console, leftClick);
+    }
+
     public Result handleRun(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
                              boolean leftClick) {
+        return this.handleRun(tardis, player, world, console, leftClick, null);
+    }
+
+    public Result handleRun(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console,
+                             boolean leftClick, @Nullable Entity source) {
         try {
-            return this.runServer(tardis, player, world, console, leftClick);
+            return this.runServer(tardis, player, world, console, leftClick, source);
         } catch (Control.ControlSequencedException e) {
             return Result.SEQUENCE;
         }

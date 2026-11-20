@@ -24,6 +24,10 @@ import net.minecraft.world.LightType;
 
 public final class PhoneCableRenderer {
 
+    private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
+    private static final Hand[] HANDS = Hand.values();
+    private static final Vec3d UP = new Vec3d(0, 1, 0);
+
     private static final int SEGMENTS = 24;
     private static final float THICKNESS = 0.025f;
     private static final float SHADE = 0.06f;
@@ -43,10 +47,9 @@ public final class PhoneCableRenderer {
     }
 
     private static void renderFirstPerson(WorldRenderContext context) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        ClientPlayerEntity player = client.player;
+        ClientPlayerEntity player = CLIENT.player;
 
-        if (player == null || context.consumers() == null || !client.options.getPerspective().isFirstPerson())
+        if (player == null || context.consumers() == null || !CLIENT.options.getPerspective().isFirstPerson())
             return;
 
         renderPlayer(player, context.tickDelta(), context.matrixStack(), context.consumers(), context.camera().getPos());
@@ -62,7 +65,7 @@ public final class PhoneCableRenderer {
         Vec3d anchor = PhoneItem.anchor(player.getStackInHand(hand));
 
         if (anchor != null)
-            drawCable(matrices, consumers, origin, handPosition(MinecraftClient.getInstance(), player, hand, tickDelta), anchor);
+            drawCable(matrices, consumers, origin, handPosition(player, hand, tickDelta), anchor);
     }
 
     public static void renderDropped(ItemEntity item, float tickDelta, MatrixStack matrices, VertexConsumerProvider consumers) {
@@ -76,7 +79,7 @@ public final class PhoneCableRenderer {
     }
 
     private static Hand phoneHand(PlayerEntity player) {
-        for (Hand hand : Hand.values()) {
+        for (Hand hand : HANDS) {
             ItemStack stack = player.getStackInHand(hand);
 
             if (stack.getItem() instanceof PhoneItem)
@@ -86,13 +89,13 @@ public final class PhoneCableRenderer {
         return null;
     }
 
-    private static Vec3d handPosition(MinecraftClient client, PlayerEntity player, Hand hand, float tickDelta) {
+    private static Vec3d handPosition(PlayerEntity player, Hand hand, float tickDelta) {
         Arm arm = hand == Hand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
         int side = arm == Arm.RIGHT ? 1 : -1;
 
-        if (player == client.player && client.options.getPerspective().isFirstPerson()) {
-            double fovScale = 960.0 / client.options.getFov().getValue();
-            Vec3d offset = client.gameRenderer.getCamera().getProjection()
+        if (player == CLIENT.player && CLIENT.options.getPerspective().isFirstPerson()) {
+            double fovScale = 960.0 / CLIENT.options.getFov().getValue();
+            Vec3d offset = CLIENT.gameRenderer.getCamera().getProjection()
                     .getPosition(side * FIRST_PERSON_HAND_X, FIRST_PERSON_HAND_Y).multiply(fovScale);
 
             return player.getCameraPosVec(tickDelta).add(offset);
@@ -113,7 +116,6 @@ public final class PhoneCableRenderer {
     }
 
     private static void drawCable(MatrixStack matrices, VertexConsumerProvider consumers, Vec3d origin, Vec3d from, Vec3d to) {
-        MinecraftClient client = MinecraftClient.getInstance();
 
         Vec3d delta = to.subtract(from);
         double length = delta.length();
@@ -123,11 +125,11 @@ public final class PhoneCableRenderer {
 
         float sag = (float) Math.min(0.6, 0.08 + length * 0.05);
         BlockPos middle = BlockPos.ofFloored(from.add(delta.multiply(0.5)));
-        int light = LightmapTextureManager.pack(client.world.getLightLevel(LightType.BLOCK, middle),
-                client.world.getLightLevel(LightType.SKY, middle));
+        int light = LightmapTextureManager.pack(CLIENT.world.getLightLevel(LightType.BLOCK, middle),
+                CLIENT.world.getLightLevel(LightType.SKY, middle));
 
-        Vec3d horizontal = new Vec3d(-delta.z, 0, delta.x);
-        horizontal = horizontal.lengthSquared() < 1.0E-6 ? new Vec3d(THICKNESS, 0, 0) : horizontal.normalize().multiply(THICKNESS);
+        Vec3d sideways = delta.crossProduct(UP);
+        sideways = sideways.lengthSquared() < 1.0E-6 ? new Vec3d(THICKNESS, 0, 0) : sideways.normalize().multiply(THICKNESS);
         Vec3d vertical = new Vec3d(0, THICKNESS, 0);
 
         matrices.push();
@@ -136,7 +138,7 @@ public final class PhoneCableRenderer {
         Matrix4f matrix = matrices.peek().getPositionMatrix();
         VertexConsumer buffer = consumers.getBuffer(RenderLayer.getLeash());
 
-        strip(buffer, matrix, delta, sag, horizontal, light, false);
+        strip(buffer, matrix, delta, sag, sideways, light, false);
         strip(buffer, matrix, delta, sag, vertical, light, true);
 
         matrices.pop();

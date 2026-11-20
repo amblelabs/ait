@@ -8,7 +8,9 @@ import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.comms.TardisComms;
 import dev.amble.ait.core.tardis.comms.TardisPhones;
 import dev.amble.ait.core.tardis.control.Control;
+import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -22,7 +24,8 @@ public class CommsControl extends Control {
     }
 
     @Override
-    public Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick) {
+    protected Result runServer(Tardis tardis, ServerPlayerEntity player, ServerWorld world, BlockPos console, boolean leftClick,
+                               @Nullable Entity source) throws ControlSequencedException {
         super.runServer(tardis, player, world, console, leftClick);
 
         ItemStack held = player.getMainHandStack();
@@ -30,7 +33,7 @@ public class CommsControl extends Control {
 
         if (DependencyChecker.hasVoiceChat() && TardisComms.status(tardis.getUuid()) == TardisComms.Status.INCOMING) {
             if (!holdingPhone)
-                TardisPhones.lift(player, tardis.asServer(), world, console);
+                TardisPhones.lift(player, tardis.asServer(), world, console, source);
 
             TardisComms.answer(world.getServer(), player, tardis.getUuid());
             return Result.SUCCESS;
@@ -40,7 +43,7 @@ public class CommsControl extends Control {
             return Result.SUCCESS;
 
         if (player.isSneaking() && DependencyChecker.hasVoiceChat()) {
-            TardisPhones.lift(player, tardis.asServer(), world, console);
+            TardisPhones.lift(player, tardis.asServer(), world, console, source);
             return Result.SUCCESS;
         }
 
