@@ -265,3 +265,4 @@
 - feat: moon and mars now have updated surfaces! | by [@Loqor](https://github.com/Loqor)
 - feat: simple voice chat compatability! | by [@Loqor](https://github.com/Loqor) ([#2256](https://github.com/amblelabs/ait/pull/2256))
 - feat: actual red tennent vortex | by [@Addi3](https://github.com/Addi3) ([#2276](https://github.com/amblelabs/ait/pull/2276))
+- feat: rotatable consoles and half-placed doors! | by [@Loqor](https://github.com/Loqor) ([#2282](https://github.com/amblelabs/ait/pull/2282))
