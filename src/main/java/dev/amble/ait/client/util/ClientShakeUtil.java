@@ -1,14 +1,56 @@
 package dev.amble.ait.client.util;
 
 
+import dev.amble.ait.client.AITModClient;
+import dev.amble.ait.core.entities.FallingTardisEntity;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandler;
 import dev.amble.ait.core.tardis.handler.travel.TravelHandlerBase;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.MathHelper;
 
 public class ClientShakeUtil {
+    private static final float FALLING = 0.2f;
+
+    private static float impactStrength;
+    private static int impactTicks;
+    private static int impactDuration;
+
+    public static void init() {
+        ClientPlayNetworking.registerGlobalReceiver(FallingTardisEntity.IMPACT, (client, handler, buf, responseSender) -> {
+            float strength = buf.readFloat();
+            int ticks = buf.readVarInt();
+
+            client.execute(() -> impact(strength, ticks));
+        });
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> tickImpact());
+    }
+
+    public static void impact(float strength, int ticks) {
+        float remaining = impactDuration <= 0 ? 0 : impactStrength * impactTicks / impactDuration;
+
+        if (strength < remaining)
+            return;
+
+        impactStrength = strength;
+        impactTicks = ticks;
+        impactDuration = ticks;
+    }
+
+    private static void tickImpact() {
+        if (impactTicks <= 0)
+            return;
+
+        float fade = (float) impactTicks / impactDuration;
+        impactTicks--;
+
+        shake(impactStrength * fade * fade * AITModClient.CONFIG.screenShake);
+    }
+
     @Deprecated
     private static final float SHAKE_CLAMP = 45.0f;
     @Deprecated
@@ -39,13 +81,13 @@ public class ClientShakeUtil {
         if (!tardis.crash().isNormal() && !travel.isLanded())
             return medium;
 
+        if (tardis.flight().falling().get())
+            return FALLING;
+
         if (!travel.inFlight())
             return 0;
 
         if (tardis.sequence().hasClientActiveSequence())
-            return high;
-
-        if (tardis.flight().falling().get())
             return high;
 
         if (!travel.autopilot())
@@ -75,7 +117,7 @@ public class ClientShakeUtil {
         float targetPitch = getShakeX(client.player.getPitch(), scale);
         float targetYaw = getShakeY(client.player.getYaw(), scale);
 
-        client.player.setPitch(MathHelper.lerp(SHAKE_INTENSITY, client.player.getPitch(), targetPitch));
+        client.player.setPitch(MathHelper.clamp(MathHelper.lerp(SHAKE_INTENSITY, client.player.getPitch(), targetPitch), -90f, 90f));
         client.player.setYaw(MathHelper.lerp(SHAKE_INTENSITY, client.player.getYaw(), targetYaw));
     }
 
