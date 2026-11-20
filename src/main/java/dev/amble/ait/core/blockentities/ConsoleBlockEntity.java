@@ -10,6 +10,7 @@ import dev.amble.ait.api.ArtronHolderItem;
 import dev.amble.ait.client.tardis.ClientTardis;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
+import dev.amble.ait.core.blocks.ConsoleBlock;
 import dev.amble.ait.core.entities.ConsoleControlEntity;
 import dev.amble.ait.core.item.ChargedZeitonCrystalItem;
 import dev.amble.ait.core.item.SonicItem;
@@ -307,12 +308,12 @@ public class ConsoleBlockEntity extends AbstractConsoleBlockEntity implements Bl
         this.killControls();
         ConsoleTypeSchema consoleType = this.getTypeSchema();
         ControlTypes[] controls = consoleType.getControlTypes();
+        float yaw = (float) Math.toRadians(ConsoleBlock.yaw(this.getCachedState()));
 
         for (ControlTypes control : controls) {
             ConsoleControlEntity controlEntity = ConsoleControlEntity.create(this.world, this.tardis().get());
 
-            Vector3f position = current.toCenterPos().toVector3f().add(control.getOffset().x(), control.getOffset().y(),
-                    control.getOffset().z());
+            Vector3f position = current.toCenterPos().toVector3f().add(new Vector3f(control.getOffset()).rotateY(yaw));
             controlEntity.setPosition(position.x(), position.y(), position.z());
             controlEntity.setYaw(0.0f);
             controlEntity.setPitch(0.0f);

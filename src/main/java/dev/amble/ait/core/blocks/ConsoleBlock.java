@@ -67,6 +67,13 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
         super(settings);
     }
 
+    public static float yaw(BlockState state) {
+        if (!state.contains(FACING))
+            return 0;
+
+        return MathHelper.wrapDegrees(180f - state.get(FACING).asRotation());
+    }
+
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         return SHAPE;

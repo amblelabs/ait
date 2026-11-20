@@ -13,6 +13,7 @@ import dev.amble.ait.client.util.ClientRenderPass;
 import dev.amble.ait.client.util.OffScreenCull;
 import dev.amble.ait.client.util.PortalClip;
 import dev.amble.ait.core.blockentities.ConsoleBlockEntity;
+import dev.amble.ait.core.blocks.ConsoleBlock;
 import dev.amble.ait.core.item.HandlesItem;
 import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
@@ -59,7 +60,12 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         // the models then translate by (0.5, -1.5, -0.5), which the flip turns into this. Slop covers
         // what is drawn outside the model root, the largest being monitor text at an anchor up to 1.86
         // blocks out reaching a further 1.5.
-        if (OffScreenCull.boxBehindCamera(entity, this.rootFor(entity), 0.5, 1.5, 0.5, 3.0)) {
+        float yaw = ConsoleBlock.yaw(entity.getCachedState());
+        boolean culled = yaw == 0
+                ? OffScreenCull.boxBehindCamera(entity, this.rootFor(entity), 0.5, 1.5, 0.5, 3.0)
+                : OffScreenCull.sphereBehindCamera(entity, this.rootFor(entity), 0.5, 1.5, 0.5, 1.0, 3.0);
+
+        if (culled) {
             profiler.visit("ait_console_offscreen_skipped");
             return;
         }
@@ -72,6 +78,11 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
             profiler.visit("ait_console_duplicate_skipped");
             return;
         }
+
+        matrices.push();
+        matrices.translate(0.5, 0, 0.5);
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yaw));
+        matrices.translate(-0.5, 0, -0.5);
 
         if (!entity.isLinked()) {
             profiler.visit("ait_console_unlinked");
@@ -86,6 +97,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
             model.render(matrices, vertexConsumers.getBuffer(layer),
                     0xf000f0, overlay, 1, 1, 1, 1);
             matrices.pop();
+            matrices.pop();
             return;
         }
 
@@ -99,6 +111,7 @@ public class ConsoleRenderer<T extends ConsoleBlockEntity> implements BlockEntit
         if (variant instanceof ClientCrystallineVariant)
             this.renderPanes(tardis, entity, matrices, vertexConsumers, light, overlay);
         profiler.pop();
+        matrices.pop();
     }
 
     private void renderPanes(ClientTardis tardis, T entity, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {

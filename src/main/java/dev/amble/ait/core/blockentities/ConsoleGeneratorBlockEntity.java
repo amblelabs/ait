@@ -9,6 +9,7 @@ import dev.amble.ait.AITMod;
 import dev.amble.ait.core.AITBlockEntityTypes;
 import dev.amble.ait.core.AITBlocks;
 import dev.amble.ait.core.AITItems;
+import dev.amble.ait.core.blocks.ConsoleBlock;
 import dev.amble.ait.core.engine.link.block.FluidLinkBlockEntity;
 import dev.amble.ait.core.world.TardisServerWorld;
 import dev.amble.ait.data.schema.console.ConsoleTypeSchema;
@@ -101,7 +102,9 @@ public class ConsoleGeneratorBlockEntity extends FluidLinkBlockEntity {
     private void createConsole(PlayerEntity player) {
         if (this.getWorld() != null && this.getWorld().isClient()) return;
 
-        ConsoleBlockEntity be = new ConsoleBlockEntity(pos, AITBlocks.CONSOLE.getDefaultState());
+        BlockState consoleState = AITBlocks.CONSOLE.getDefaultState().with(ConsoleBlock.FACING,
+                player.getHorizontalFacing().getOpposite());
+        ConsoleBlockEntity be = new ConsoleBlockEntity(pos, consoleState);
 
         be.setType(this.getConsoleSchema());
         be.setVariant(this.getConsoleVariant());
@@ -117,7 +120,7 @@ public class ConsoleGeneratorBlockEntity extends FluidLinkBlockEntity {
         }
 
         // ConsoleBlockEntity marks for controls when it gets linked
-        world.setBlockState(this.pos, AITBlocks.CONSOLE.getDefaultState());
+        world.setBlockState(this.pos, consoleState);
         world.addBlockEntity(be);
 
         world.playSound(null, this.pos, SoundEvents.BLOCK_BEACON_POWER_SELECT, SoundCategory.BLOCKS, 0.5f, 1.0f);
