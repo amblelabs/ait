@@ -2182,7 +2182,7 @@ public class CopperConsoleModel extends SimpleConsoleModel {
 
         // Stabilisers (Autopilot)
         ModelPart stabilisers = this.copper.getChild("controls").getChild("panel_3").getChild("rot9").getChild("stabilizers").getChild("bone25");
-        float stabiliserTarget = tardis.travel().autopilot() ? -0.8f : 0f;
+        float stabiliserTarget = !tardis.travel().autopilot() ? -0.8f : 0f;
         stabilisers.pivotY = getAngle(console, "stabilisers", stabiliserTarget, delta);
 
         // Door Control
