@@ -156,9 +156,10 @@ public class SkyboxUtil extends WorldRenderer {
 
         // Planet Rendering
         Vec3d cameraPos = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
+        float sunAngle = unfixedSkyAngle(world, tickDelta) * MathHelper.TAU;
         matrices.push();
         renderStarBody(false, matrices, SUN,
-                new Vec3d(cameraPos.getX() + 270, cameraPos.getY() - 120, cameraPos.getZ() + 0), new
+                cameraPos.add(-295 * MathHelper.sin(sunAngle), 295 * MathHelper.cos(sunAngle), 0), new
                         Vector3f(12f, 12f, 12f),
                 new Vector3f(12, 45, 0),
                 true,
@@ -257,8 +258,9 @@ public class SkyboxUtil extends WorldRenderer {
         else
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, i);
         Vec3d cameraPos = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
+        float sunAngle = world.getSkyAngleRadians(tickDelta);
         renderStarBody(false, matrices, SUN,
-                new Vec3d(cameraPos.getX(), cameraPos.getY() + 250, cameraPos.getZ() + 0), new
+                cameraPos.add(-250 * MathHelper.sin(sunAngle), 250 * MathHelper.cos(sunAngle), 0), new
                         Vector3f(6f, 6f, 6f),
                 new Vector3f(45, 12, 12), false,
                 new Vector3f(0f, 0.03f, 0.03f));
@@ -358,6 +360,12 @@ public class SkyboxUtil extends WorldRenderer {
         matrices.push();
         CelestialBodyRenderer.renderStarBody(isTardisSkybox, position, scale, rotation, texture, atmosphere, color);
         matrices.pop();
+    }
+
+    private static float unfixedSkyAngle(ClientWorld world, float tickDelta) {
+        double time = MathHelper.fractionalPart((world.getTimeOfDay() + tickDelta) / 24000.0 - 0.25);
+        double eased = 0.5 - Math.cos(time * Math.PI) / 2.0;
+        return (float) (time * 2.0 + eased) / 3.0f;
     }
 
     private static void drawSpace(Tessellator tessellator, BufferBuilder bufferBuilder, MatrixStack matrices) {
