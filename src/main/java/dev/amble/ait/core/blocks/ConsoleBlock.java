@@ -71,7 +71,11 @@ public class ConsoleBlock extends HorizontalDirectionalBlock implements BlockEnt
         if (!state.contains(FACING))
             return 0;
 
-        return MathHelper.wrapDegrees(180f - state.get(FACING).asRotation());
+        return yaw(state.get(FACING));
+    }
+
+    public static float yaw(Direction facing) {
+        return MathHelper.wrapDegrees(180f - facing.asRotation());
     }
 
     @Override

@@ -5,6 +5,7 @@ import dev.amble.ait.client.models.consoles.BedrockConsoleModel;
 import dev.amble.ait.client.models.consoles.ConsoleGeneratorModel;
 import dev.amble.ait.client.models.consoles.ConsoleModel;
 import dev.amble.ait.core.blockentities.ConsoleGeneratorBlockEntity;
+import dev.amble.ait.core.blocks.ConsoleBlock;
 import dev.amble.ait.core.tardis.Tardis;
 import dev.amble.ait.data.datapack.DatapackConsole;
 import dev.amble.ait.data.schema.console.ClientConsoleVariantSchema;
@@ -20,6 +21,7 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
@@ -57,6 +59,15 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
         profiler.pop();
     }
 
+    private static float previewYaw() {
+        PlayerEntity player = MinecraftClient.getInstance().player;
+
+        if (player == null)
+            return 0;
+
+        return ConsoleBlock.yaw(player.getHorizontalFacing().getOpposite());
+    }
+
     private void render0(T entity, Profiler profiler, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
             int light, int overlay) {
         profiler.push("setup");
@@ -88,6 +99,7 @@ public class ConsoleGeneratorRenderer<T extends ConsoleGeneratorBlockEntity> imp
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180f));
 
         matrices.translate(0.5f, -1.5f + entity.getWorld().random.nextFloat() * 0.02, -0.5f);
+        matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(previewYaw()));
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(MinecraftClient.getInstance().getTickDelta() % 180));
 
         if (console instanceof BedrockConsoleModel bedrockConsoleModel) {
