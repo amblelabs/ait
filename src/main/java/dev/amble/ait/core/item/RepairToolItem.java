@@ -14,8 +14,10 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.*;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
@@ -26,6 +28,8 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public class RepairToolItem extends Item {
@@ -73,7 +77,10 @@ public class RepairToolItem extends Item {
             return;
         }
 
-        HitResult hitResult = playerEntity.raycast(16, 0.0f, false);
+        if (world.isClient())
+            return;
+
+        HitResult hitResult = raycast(playerEntity, 16);
         if (hitResult instanceof BlockHitResult blockHitResult) {
             BlockPos pos = blockHitResult.getBlockPos();
             BlockEntity blockEntity = world.getBlockEntity(pos);
@@ -89,26 +96,24 @@ public class RepairToolItem extends Item {
 
                         world.playSound(null, pos, SoundEvents.BLOCK_AMETHYST_BLOCK_RESONATE, SoundCategory.BLOCKS, 0.5f, 1.5f);
 
-                        for (int i = 0; i < (val / 2); i++) {
-                            world.addImportantParticle(ParticleTypes.ENCHANT, pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, 0, 0.1f, 0);
-                        }
+                        ((ServerWorld) world).spawnParticles(ParticleTypes.ENCHANT, pos.getX() + 0.5, pos.getY() + 1,
+                                pos.getZ() + 0.5, Math.max(1, (int) (val / 2)), 0, 0, 0, 0.1f);
                         return;
                     }
                 }
             }
         } else if (hitResult instanceof EntityHitResult result) {
             if (result.getEntity() instanceof ConsoleControlEntity consoleControl) {
-                playerEntity.sendMessage(Text.literal(consoleControl.getDurability() + "/" + ConsoleControlEntity.MAX_DURABILITY).setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)), true);
+                playerEntity.sendMessage(Text.literal(Math.round(consoleControl.getDurability() / ConsoleControlEntity.MAX_DURABILITY * 100) + "%").setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)), true);
                 world.playSound(null, consoleControl.getBlockPos(), SoundEvents.BLOCK_ANCIENT_DEBRIS_HIT, SoundCategory.BLOCKS, 0.5f, 0.8f);
-                if (consoleControl.getDurability() < DurableSubSystem.MAX_DURABILITY) {
+                if (consoleControl.getDurability() < ConsoleControlEntity.MAX_DURABILITY) {
                     consoleControl.addDurability(world.getRandom().nextFloat());
                     stack.damage(1, playerEntity, p -> p.sendToolBreakStatus(playerEntity.getActiveHand()));
 
                     world.playSound(null, consoleControl.getBlockPos(), SoundEvents.BLOCK_AMETHYST_BLOCK_RESONATE, SoundCategory.BLOCKS, 0.5f, 1.5f);
 
-                    for (int i = 0; i < (world.getRandom().nextBetween(2, 5) / 2); i++) {
-                        world.addImportantParticle(ParticleTypes.ENCHANT, consoleControl.getX() + 0.5, consoleControl.getY() + 1, consoleControl.getZ() + 0.5, 0, 0.1f, 0);
-                    }
+                    ((ServerWorld) world).spawnParticles(ParticleTypes.ENCHANT, consoleControl.getX(),
+                            consoleControl.getY() + 0.25, consoleControl.getZ(), world.getRandom().nextBetween(2, 5), 0.1, 0.1, 0.1, 0.1f);
                     return;
                 }
             }
@@ -116,6 +121,21 @@ public class RepairToolItem extends Item {
 
         world.playSound(null, playerEntity.getX(), playerEntity.getY(), playerEntity.getZ(), SoundEvents.BLOCK_CHAIN_HIT, SoundCategory.PLAYERS, 1.0f, 1.0f / (world.getRandom().nextFloat() * 0.4f + 1.2f) + f * 0.5f);
         playerEntity.incrementStat(Stats.USED.getOrCreateStat(this));
+    }
+
+    private static HitResult raycast(PlayerEntity player, double reach) {
+        HitResult blockHit = player.raycast(reach, 0.0f, false);
+        Vec3d start = player.getCameraPosVec(1.0f);
+        Vec3d end = start.add(player.getRotationVec(1.0f).multiply(reach));
+        double maxDistance = blockHit.getType() == HitResult.Type.MISS
+                ? reach * reach
+                : start.squaredDistanceTo(blockHit.getPos());
+        Box box = player.getBoundingBox().stretch(player.getRotationVec(1.0f).multiply(reach)).expand(1.0);
+
+        EntityHitResult entityHit = ProjectileUtil.raycast(player, start, end, box,
+                entity -> entity instanceof ConsoleControlEntity && !entity.isRemoved(), maxDistance);
+
+        return entityHit != null ? entityHit : blockHit;
     }
 
     public static float getPullProgress(int useTicks) {
